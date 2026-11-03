@@ -303,10 +303,12 @@ BG_FIELDS = {"s", "playerState", "m_pVehicle", "ghoul2", "localAnimIndex", "mode
 #   5. An operand of one of TEXT_TESTS, and an operand of `!`, which are Raven's NULL tests and his comparisons.
 #   6. The whole condition of an `if`, a `while`, a `do`, or a `?:`, which is a NULL test again.
 #   7. An indexed read, `saberName[0]`, or a dereference, `*from`, used as a value and not as a store target.
-#   8. The value of a pointer local, `p = from`, whose own uses are all reads of these forms.
+#   8. The value of a pointer local, `p = from`, or the search of it, `p = Q_strrchr(from, '*')`, whose own uses are all reads of these forms.
 #      A step of that local, `p++`, moves the local and writes no byte, so it counts as a read of the local.
 # A cast, an address-of, pointer arithmetic, `++` on the parameter, a store into the parameter or through it,
 # a return of it, and a pass to a function with no body are none of these, so each one keeps the CharBuf.
+# The store kind of a cursor local set from the text a call returns, which names the call and no buffer.
+TEXT_CALL = ("", False)
 TEXT_READERS = {"Q_stricmp", "Q_stricmpn", "Q_strncmp", "strlen", "strcmp", "strncmp", "atoi", "atof", "Com_Printf"}
 TEXT_TESTS = {"==", "!=", "<", ">", "<=", ">=", "&&", "||"}
 # A C comment of either form, which a reader of the source text between two nodes drops before it reads the operator there.
@@ -982,6 +984,12 @@ class Table:
             return ("unknown", None)
         parent = chain[depth]
         kids = list(parent.get_children())
+        if parent.kind == CursorKind.CALL_EXPR and (RETURNS.get(parent.spelling) == "text_offset" or parent.spelling == "strchr") \
+                and len(kids) > 1 and self.same_extent(kids[1], inner):
+            # Raven's `p = Q_strrchr(from, '*')` points a local into the bytes of the parameter, which the sweep reads in turn.
+            searched = self.text_use(parent, chain[depth + 1:], data)
+            if searched[0] == "local":
+                return searched
         if parent.kind == CursorKind.CALL_EXPR:
             return self.text_argument(parent, inner, kids)
         if parent.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR and kids and self.same_extent(kids[0], inner):
@@ -1233,8 +1241,21 @@ class Table:
             if not self.char_pointer(left.type):
                 continue
             stores.setdefault(left.spelling, []).append(self.cursor_store(kids[1], data))
+        # A local whose address Raven casts to `const char **` for a parser, `COM_Parse((const char **)&s)`, is a cursor
+        # even where its store is the text a call returns, because the parser steps it.
+        cast_addressed = set()
+        for node in fn.walk_preorder():
+            if node.kind == CursorKind.CSTYLE_CAST_EXPR and node.type.get_canonical().kind == TypeKind.POINTER \
+                    and node.type.get_canonical().get_pointee().get_canonical().kind == TypeKind.POINTER:
+                operand = self.unwrapped(list(node.get_children())[-1])
+                if operand.kind == CursorKind.UNARY_OPERATOR and data[operand.extent.start.offset:operand.extent.start.offset + 1] == b"&":
+                    target = self.unwrapped(list(operand.get_children())[0])
+                    if target.kind == CursorKind.DECL_REF_EXPR:
+                        cast_addressed.add(target.spelling)
         out: dict[str, tuple[str, bool, bool]] = {}
         for name, seen in stores.items():
+            if any(s == TEXT_CALL for s in seen) and name not in cast_addressed:
+                continue
             if not seen or any(s is None for s in seen):
                 continue
             named = {s[:2] for s in seen if s != "null"}
@@ -1256,6 +1277,10 @@ class Table:
             args = list(inner.get_arguments())
             found = self.cursor_store(args[0], data) if args and self.unwrapped(args[0]).kind == CursorKind.DECL_REF_EXPR else None
             return found + (True,) if isinstance(found, tuple) and len(found) == 2 else None
+        called = self.unwrapped(list(inner.get_children())[-1]) if inner.kind == CursorKind.CSTYLE_CAST_EXPR else inner
+        if called.kind == CursorKind.CALL_EXPR and self.char_pointer(called.type):
+            # The text a call returns, which a cursor walks only where the parser steps it, see `cursor_buffers`.
+            return TEXT_CALL
         if inner.kind == CursorKind.BINARY_OPERATOR:
             kids = list(inner.get_children())
             if len(kids) != 2:
@@ -1484,6 +1509,7 @@ class Table:
         stepped: set[str] = set()
         parameter_walks: dict[str, tuple[str, str]] = {}
         slot_walks: dict[str, tuple[str, str]] = {}
+        scalar_walks: dict[str, tuple[str, str]] = {}
         other_stores: set[str] = set()
         for cur in fn.walk_preorder():
             kids = list(cur.get_children())
@@ -1511,6 +1537,14 @@ class Table:
                     parameter_walks[left.spelling] = (slot, f"{swift_name(left.spelling)}Index")
                 continue
             if left.kind != CursorKind.DECL_REF_EXPR or left.referenced is None or left.referenced.kind != CursorKind.VAR_DECL:
+                continue
+            if self.scalar_pointer(left.referenced.type) and left.referenced.semantic_parent is not None \
+                    and left.referenced.semantic_parent.kind != CursorKind.TRANSLATION_UNIT:
+                slot = self.table_slot(right, data, scalar=True)
+                if slot is not None and scalar_walks.get(left.spelling, (slot,))[0] == slot:
+                    scalar_walks[left.spelling] = (slot, f"{swift_name(left.spelling)}Index")
+                else:
+                    other_stores.add(left.spelling)
                 continue
             if self.record_pointer(left.referenced.type) and left.referenced.semantic_parent is not None \
                     and left.referenced.semantic_parent.kind != CursorKind.TRANSLATION_UNIT:
@@ -1544,10 +1578,27 @@ class Table:
         # Every store into it must point into the one table, and no statement takes its address.
         # A local the body never steps only names one record.
         out |= {name: walk for name, walk in slot_walks.items() if name in stepped and name not in addressed and name not in other_stores and name not in out}
+        # A float pointer local that every store points into one file-scope float array, `radius = &Radius[n]`, has no view to name,
+        # so it is an index into that array whether or not the body steps it.
+        out |= {name: walk for name, walk in scalar_walks.items() if name not in addressed and name not in other_stores and name not in out}
         return out, written, addressed
 
-    def table_slot(self, cur: ci.Cursor, data: bytes) -> str | None:
-        """The Swift name of the file-scope table of records that Raven's `g_entities`, `g_entities + n`, or `&g_entities[n]` points into, or None."""
+    @staticmethod
+    def scalar_pointer(t: ci.Type) -> bool:
+        """True for Raven's `float *`."""
+        canonical = t.get_canonical()
+        return canonical.kind == TypeKind.POINTER and canonical.get_pointee().get_canonical().kind == TypeKind.FLOAT
+
+    @staticmethod
+    def scalar_table(ref: ci.Cursor) -> bool:
+        """True for a file-scope array of floats, `static float Radius[MAX_MISC_ENTS]`, the table a float pointer walk steps over."""
+        return ref.kind == CursorKind.VAR_DECL and ref.type.get_canonical().kind == TypeKind.CONSTANTARRAY \
+            and ref.type.get_canonical().element_type.get_canonical().kind == TypeKind.FLOAT \
+            and ref.semantic_parent is not None and ref.semantic_parent.kind == CursorKind.TRANSLATION_UNIT
+
+    def table_slot(self, cur: ci.Cursor, data: bytes, scalar: bool = False) -> str | None:
+        """The Swift name of the file-scope table of records that Raven's `g_entities`, `g_entities + n`, or `&g_entities[n]` points into, or None.
+        `scalar` asks the same of a file-scope array of floats."""
         cur = self.unwrapped(cur)
         if cur.kind == CursorKind.BINARY_OPERATOR and len(list(cur.get_children())) == 2 and not collapsed(cur) \
                 and between(data, *list(cur.get_children())) in ("+", "-"):
@@ -1557,7 +1608,8 @@ class Table:
             if slot.kind != CursorKind.ARRAY_SUBSCRIPT_EXPR:
                 return None
             cur = self.unwrapped(list(slot.get_children())[0])
-        if cur.kind == CursorKind.DECL_REF_EXPR and cur.referenced is not None and self.record_table(cur.referenced):
+        if cur.kind == CursorKind.DECL_REF_EXPR and cur.referenced is not None \
+                and (self.scalar_table(cur.referenced) if scalar else self.record_table(cur.referenced)):
             return swift_name(cur.spelling)
         return None
 

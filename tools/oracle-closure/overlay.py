@@ -13,6 +13,7 @@ MACROS = {
     "VectorAdd": ("{2} = {0} + {1}", ()),
     "VectorSubtract": ("{2} = {0} - {1}", ()),
     "VectorScale": ("{2} = {0} * {1}", (1,)),
+    "VectorScaleVector": ("{2} = {0} * {1}", ()),
     "VectorCopy": ("{1} = {0}", ()),
     "VectorMA": ("_VectorMA({0}, {1}, {2}, &{3})", (1,)),
     "VectorNegate": ("{1} = -{0}", ()),

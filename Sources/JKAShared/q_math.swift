@@ -303,7 +303,7 @@ This is not implemented very well...
 */
 /// Source: oracle/codemp/game/q_math.c:405
 public func RotatePointAroundVector(_ dst: inout vec3_t, _ dir: vec3_t, _ point: vec3_t, _ degrees: Float) {
-    var m = [[Float]](repeating: [Float](repeating: 0, count: 3), count: 3)
+    var m = [vec3_t](repeating: vec3_t(), count: 3)
     var im = m
     var zrot = m
     var tmpmat = m
@@ -452,6 +452,16 @@ public func AnglesToAxis(_ angles: vec3_t, _ axis: inout [vec3_t]) {
     axis[1] = yAxis
 }
 
+/// A caller that passes a view's `axis` field reaches `AnglesToAxis` through this forward, and the three vectors store back after the call.
+/// Source: oracle/codemp/game/q_math.c:530
+public func AnglesToAxis(_ angles: vec3_t, _ axis: Slots<vec3_t>) {
+    var list = Array(axis)
+    AnglesToAxis(angles, &list)
+    for i in 0 ..< 3 {
+        axis[i] = list[i]
+    }
+}
+
 /// Source: oracle/codemp/game/q_math.c:538
 public func AxisClear(_ axis: inout [vec3_t]) {
     axis[0][0] = 1
@@ -465,11 +475,31 @@ public func AxisClear(_ axis: inout [vec3_t]) {
     axis[2][2] = 1
 }
 
+/// A caller that passes a view's `axis` field reaches `AxisClear` through this forward, and the three vectors store back after the call.
+/// Source: oracle/codemp/game/q_math.c:538
+public func AxisClear(_ axis: Slots<vec3_t>) {
+    var list = Array(axis)
+    AxisClear(&list)
+    for i in 0 ..< 3 {
+        axis[i] = list[i]
+    }
+}
+
 /// Source: oracle/codemp/game/q_math.c:550
 public func AxisCopy(_ `in`: [vec3_t], _ out: inout [vec3_t]) {
     _VectorCopy(`in`[0], &out[0])
     _VectorCopy(`in`[1], &out[1])
     _VectorCopy(`in`[2], &out[2])
+}
+
+/// A caller that passes a view's `axis` field for `out` reaches `AxisCopy` through this forward, and the three vectors store back after the call.
+/// Source: oracle/codemp/game/q_math.c:550
+public func AxisCopy(_ `in`: [vec3_t], _ out: Slots<vec3_t>) {
+    var list = Array(out)
+    AxisCopy(`in`, &list)
+    for i in 0 ..< 3 {
+        out[i] = list[i]
+    }
 }
 
 /// Source: oracle/codemp/game/q_math.c:556
@@ -960,7 +990,7 @@ MatrixMultiply
 ```
 */
 /// Source: oracle/codemp/game/q_math.c:1293
-public func MatrixMultiply(_ in1: [[Float]], _ in2: [[Float]], _ out: inout [[Float]]) {
+public func MatrixMultiply(_ in1: [vec3_t], _ in2: [vec3_t], _ out: inout [vec3_t]) {
     out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] +
                 in1[0][2] * in2[2][0]
     out[0][1] = in1[0][0] * in2[0][1] + in1[0][1] * in2[1][1] +
@@ -979,6 +1009,16 @@ public func MatrixMultiply(_ in1: [[Float]], _ in2: [[Float]], _ out: inout [[Fl
                 in1[2][2] * in2[2][1]
     out[2][2] = in1[2][0] * in2[0][2] + in1[2][1] * in2[1][2] +
                 in1[2][2] * in2[2][2]
+}
+
+/// A caller that passes a view's `axis` field for `out` reaches `MatrixMultiply` through this forward, and the three vectors store back after the call.
+/// Source: oracle/codemp/game/q_math.c:1293
+public func MatrixMultiply(_ in1: [vec3_t], _ in2: [vec3_t], _ out: Slots<vec3_t>) {
+    var list = Array(out)
+    MatrixMultiply(in1, in2, &list)
+    for i in 0 ..< 3 {
+        out[i] = list[i]
+    }
 }
 
 /// Raven guards each of the three outputs with a null test, and a `vec3_t` value cannot be null.

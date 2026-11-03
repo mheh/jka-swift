@@ -929,16 +929,7 @@ public struct Cg: Hashable, HandleView {
     public var activeSnapshots: Slots<Snapshot> { Slots(views: UnsafeMutableRawPointer(self.raw.pointer(to: \.activeSnapshots)!), count: 2, stride: MemoryLayout<snapshot_t>.stride) }
 
     /// Source: oracle/codemp/cgame/cg_local.h:994
-    public var sharedBuffer: String {
-        get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.sharedBuffer)!)) }
-        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.sharedBuffer)!), capacity: Int(JKAMP_CGame.MAX_CG_SHARED_BUFFER_SIZE)) }
-    }
-
-    /// Raven's `sharedBuffer` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
-    public var sharedBufferBuffer: JKAShared.CharBuf {
-        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.sharedBuffer)!), capacity: Int(JKAMP_CGame.MAX_CG_SHARED_BUFFER_SIZE)) }
-        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.sharedBuffer)!), capacity: Int(JKAMP_CGame.MAX_CG_SHARED_BUFFER_SIZE)) }
-    }
+    public var sharedBuffer: UnsafeMutableRawPointer { UnsafeMutableRawPointer(self.raw.pointer(to: \.sharedBuffer)!) }
 
     /// Source: oracle/codemp/cgame/cg_local.h:996
     public var radarEntityCount: Int32 {

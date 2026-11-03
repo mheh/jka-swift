@@ -43,14 +43,15 @@ class DefaultUnit(unittest.TestCase):
         self.assertTrue(C.within(game / "FighterNPC.c", game))
         self.assertFalse(C.within(game / "FighterNPC.c", cgame))
 
-    def test_the_cgame_borrows_the_four_vehicle_files(self) -> None:
+    def test_the_cgame_borrows_the_vehicle_files_and_ui_shared(self) -> None:
         import closure as C
 
-        # given the cgame row, Raven's list at JK2_cgame.vcproj:294-303
+        # given the cgame row, Raven's list at JK2_cgame.vcproj:294-303 and :471
         row = C.PROJECT["targets"]["mp-cgame"]
 
-        # then it names the four vehicle files of the game folder
-        self.assertEqual(row["borrowed"], [f"codemp/game/{stem}.c" for stem in ("AnimalNPC", "FighterNPC", "SpeederNPC", "WalkerNPC")])
+        # then it names the four vehicle files of the game folder and the ui file
+        self.assertEqual(row["borrowed"], [f"codemp/game/{stem}.c" for stem in ("AnimalNPC", "FighterNPC", "SpeederNPC", "WalkerNPC")]
+                         + ["codemp/ui/ui_shared.c"])
 
     def test_the_game_writes_into_the_repository(self) -> None:
         import closure as C

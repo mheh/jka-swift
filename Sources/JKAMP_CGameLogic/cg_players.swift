@@ -96,13 +96,13 @@ var cg_g2JetpackInstance: OpaquePointer? {
 let JETPACK_MODEL = "models/weapons2/jetpack/model.glm"
 
 /// Source: oracle/codemp/cgame/cg_players.c:7922
-let RARMBIT = (1 << (JKAMP.G2_MODELPART_RARM - 10))
+let RARMBIT = (1 << (JKAMP.G2_MODELPART_RARM - 10)) as Int32
 
 /// Source: oracle/codemp/cgame/cg_players.c:7923
-let RHANDBIT = (1 << (JKAMP.G2_MODELPART_RHAND - 10))
+let RHANDBIT = (1 << (JKAMP.G2_MODELPART_RHAND - 10)) as Int32
 
 /// Source: oracle/codemp/cgame/cg_players.c:7924
-let WAISTBIT = (1 << (JKAMP.G2_MODELPART_WAIST - 10))
+let WAISTBIT = (1 << (JKAMP.G2_MODELPART_WAIST - 10)) as Int32
 
 /// Source: oracle/codemp/cgame/cg_players.c:7978
 /// Raven's data table, a hand property of `CGameWorld`.
@@ -301,12 +301,9 @@ func CG_ParseSurfsFile(_ modelName: String, _ skinName: String, _ surfOff: inout
     // parse the text
     text_p = TextCursor(text)
 
-    // Port-note: Raven's `memset( (char *)surfOff, 0, sizeof(surfOff) )` runs over bytes that are not one record with a view.
-    // Raven wrote: memset( (char *)surfOff, 0, sizeof(surfOff) )
-    portMissing("CG_ParseSurfsFile", source: "oracle/codemp/cgame/cg_players.c:314")
-    // Port-note: Raven's `memset( (char *)surfOn, 0, sizeof(surfOn) )` runs over bytes that are not one record with a view.
-    // Raven wrote: memset( (char *)surfOn, 0, sizeof(surfOn) )
-    portMissing("CG_ParseSurfsFile", source: "oracle/codemp/cgame/cg_players.c:314")
+    // Raven's memset zeroes the size of a pointer, 8 bytes of `surfOff` and of `surfOn` on the 64-bit build.
+    memset(&surfOff, 0, 8)
+    memset(&surfOn, 0, 8)
 
     // read information for surfOff and surfOn
     while 1 != 0 {
@@ -387,9 +384,12 @@ private func CG_RegisterClientModelname(_ ci: ClientInfo, _ modelName: String, _
 
         if cgs.gametype >= GT_TEAM && !cgs.jediVmerc && cgs.gametype != GT_SIEGE {
             //We won't force colors for siege.
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'vec3_t' (aka 'SIMD3<Float>')".
-            // Raven wrote: BG_ValidateSkinForTeam( ci->modelName, ci->skinName, ci->team, ci->colorOverride )
-            portMissing("CG_RegisterClientModelname", source: "oracle/codemp/cgame/cg_players.c:421")
+            // BG_ValidateSkinForTeam takes a vec3_t, and the view holds `colorOverride` as a Slots, so the call fills a copy that stores back.
+            var colors = vec3_t(ci.colorOverride[0], ci.colorOverride[1], ci.colorOverride[2])
+            BG_ValidateSkinForTeam(ci.modelName, &ci.skinNameBuffer, ci.team, &colors)
+            ci.colorOverride[0] = colors[0]
+            ci.colorOverride[1] = colors[1]
+            ci.colorOverride[2] = colors[2]
             skinName = TextCursor(ci.skinNameBuffer)
         } else {
             ci.colorOverride[2] = 0.0
@@ -886,9 +886,8 @@ func CG_LoadClientInfo(_ ci: ClientInfo) {
     var i: Int32 = 0
     var teamname = CharBuf(64)
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '-' cannot be applied to operands of type 'ClientInfo' and 'Slots<ClientInfo>'".
-    // Raven wrote: clientNum = ci - cgs.clientinfo
-    portMissing("CG_LoadClientInfo", source: "oracle/codemp/cgame/cg_players.c:1006")
+    // Raven subtracts across two objects for a local record, which is undefined, and his range test then gives -1.
+    clientNum = Int32(cgs.clientinfo.firstIndex(of: ci) ?? -1)
 
     if clientNum < 0 || clientNum >= MAX_CLIENTS {
         clientNum = -1
@@ -1007,9 +1006,8 @@ func CG_LoadClientInfo(_ ci: ClientInfo) {
 
     // reset any existing players and bodies, because they might be in bad
     // frames for this new model
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '-' cannot be applied to operands of type 'ClientInfo' and 'Slots<ClientInfo>'".
-    // Raven wrote: clientNum = ci - cgs.clientinfo
-    portMissing("CG_LoadClientInfo", source: "oracle/codemp/cgame/cg_players.c:1006")
+    // Raven subtracts across two objects for a local record, which is undefined, and the port gives -1 as at the first subtraction.
+    clientNum = Int32(cgs.clientinfo.firstIndex(of: ci) ?? -1)
     i = 0
     while i < MAX_GENTITIES {
         if cg_entities[i].currentState.clientNum == clientNum && cg_entities[i].currentState.eType == ET_PLAYER {
@@ -1134,15 +1132,21 @@ private func CG_CopyClientInfoModel(_ from: ClientInfo, _ to: ClientInfo) {
 
     to.siegeIndex = from.siegeIndex
 
-    // Port-note: Raven's `memcpy( to->sounds, from->sounds, sizeof( to->sounds ) )` runs over bytes that are not one record with a view.
-    // Raven wrote: memcpy( to->sounds, from->sounds, sizeof( to->sounds ) )
-    portMissing("CG_CopyClientInfoModel", source: "oracle/codemp/cgame/cg_players.c:1211")
-    // Port-note: Raven's `memcpy( to->siegeSounds, from->siegeSounds, sizeof( to->siegeSounds ) )` runs over bytes that are not one record with a view.
-    // Raven wrote: memcpy( to->siegeSounds, from->siegeSounds, sizeof( to->siegeSounds ) )
-    portMissing("CG_CopyClientInfoModel", source: "oracle/codemp/cgame/cg_players.c:1211")
-    // Port-note: Raven's `memcpy( to->duelSounds, from->duelSounds, sizeof( to->duelSounds ) )` runs over bytes that are not one record with a view.
-    // Raven wrote: memcpy( to->duelSounds, from->duelSounds, sizeof( to->duelSounds ) )
-    portMissing("CG_CopyClientInfoModel", source: "oracle/codemp/cgame/cg_players.c:1211")
+    var k: Int32 = 0
+    while k < MAX_CUSTOM_SOUNDS {
+        to.sounds[k] = from.sounds[k]
+        k += 1
+    }
+    k = 0
+    while k < MAX_CUSTOM_SIEGE_SOUNDS {
+        to.siegeSounds[k] = from.siegeSounds[k]
+        k += 1
+    }
+    k = 0
+    while k < MAX_CUSTOM_DUEL_SOUNDS {
+        to.duelSounds[k] = from.duelSounds[k]
+        k += 1
+    }
 }
 
 /**
@@ -1204,15 +1208,21 @@ private func CG_ScanForExistingClientInfo(_ ci: ClientInfo, _ clientNum: Int32) 
                     ci.bolt_llumbar = match!.bolt_llumbar
                     ci.siegeIndex = match!.siegeIndex
 
-                    // Port-note: Raven's `memcpy( ci->sounds, match->sounds, sizeof( ci->sounds ) )` runs over bytes that are not one record with a view.
-                    // Raven wrote: memcpy( ci->sounds, match->sounds, sizeof( ci->sounds ) )
-                    portMissing("CG_ScanForExistingClientInfo", source: "oracle/codemp/cgame/cg_players.c:1288")
-                    // Port-note: Raven's `memcpy( ci->siegeSounds, match->siegeSounds, sizeof( ci->siegeSounds ) )` runs over bytes that are not one record with a view.
-                    // Raven wrote: memcpy( ci->siegeSounds, match->siegeSounds, sizeof( ci->siegeSounds ) )
-                    portMissing("CG_ScanForExistingClientInfo", source: "oracle/codemp/cgame/cg_players.c:1288")
-                    // Port-note: Raven's `memcpy( ci->duelSounds, match->duelSounds, sizeof( ci->duelSounds ) )` runs over bytes that are not one record with a view.
-                    // Raven wrote: memcpy( ci->duelSounds, match->duelSounds, sizeof( ci->duelSounds ) )
-                    portMissing("CG_ScanForExistingClientInfo", source: "oracle/codemp/cgame/cg_players.c:1288")
+                    var k: Int32 = 0
+                    while k < MAX_CUSTOM_SOUNDS {
+                        ci.sounds[k] = match!.sounds[k]
+                        k += 1
+                    }
+                    k = 0
+                    while k < MAX_CUSTOM_SIEGE_SOUNDS {
+                        ci.siegeSounds[k] = match!.siegeSounds[k]
+                        k += 1
+                    }
+                    k = 0
+                    while k < MAX_CUSTOM_DUEL_SOUNDS {
+                        ci.duelSounds[k] = match!.duelSounds[k]
+                        k += 1
+                    }
 
                     //We can share this pointer, because it already belongs to this client.
                     //The pointer itself and the ghoul2 instance is never actually changed, just passed between
@@ -1619,9 +1629,12 @@ func CG_NewClientInfo(_ clientNum: Int32, _ entitiesInitialized: Bool) {
 
         if cgs.gametype >= GT_TEAM && !cgs.jediVmerc && cgs.gametype != GT_SIEGE {
             //We won't force colors for siege.
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'vec3_t' (aka 'SIMD3<Float>')".
-            // Raven wrote: BG_ValidateSkinForTeam( newInfo.modelName, newInfo.skinName, newInfo.team, newInfo.colorOverride )
-            portMissing("CG_NewClientInfo", source: "oracle/codemp/cgame/cg_players.c:1503")
+            // BG_ValidateSkinForTeam takes a vec3_t, and the view holds `colorOverride` as a Slots, so the call fills a copy that stores back.
+            var colors = vec3_t(newInfo.colorOverride[0], newInfo.colorOverride[1], newInfo.colorOverride[2])
+            BG_ValidateSkinForTeam(newInfo.modelName, &newInfo.skinNameBuffer, newInfo.team, &colors)
+            newInfo.colorOverride[0] = colors[0]
+            newInfo.colorOverride[1] = colors[1]
+            newInfo.colorOverride[2] = colors[2]
         } else {
             newInfo.colorOverride[2] = 0.0
             newInfo.colorOverride[1] = newInfo.colorOverride[2]
@@ -2104,9 +2117,8 @@ func CG_PlayerAnimEventDo(_ cent: Centity, _ animEvent: JKAMP.Animevent) {
             } else {
                 animEvent.eventData[AED_BOLTINDEX] = Int16(truncatingIfNeeded: trap_G2API_AddBolt(cent.ghoul2, 0, animEvent.stringData!))
             }
-            // Port-note: Raven writes a NUL into the first byte of the `char *` field `stringData`, and the view's `String?` setter interns a new text in place of a write into Raven's bytes.
-            // Raven wrote: animEvent->stringData[0] = 0
-            portMissing("CG_PlayerAnimEventDo", source: "oracle/codemp/cgame/cg_players.c:2237")
+            // AI: Raven writes a NUL into the first byte of `stringData`. The field's setter now points it at the empty text.
+            animEvent.stringData = ""
         }
         if animEvent.eventData[AED_BOLTINDEX] != -1 {
             MdxaBone.scratch { matrix in
@@ -3630,12 +3642,7 @@ private func CG_PlayerFlag(_ cent: Centity, _ hModel: JKAShared.qhandle_t) {
             _VectorMA(boltOrg, 24, axis[0], &ent.origin)
 
             angles[ROLL] += 20
-            // AnglesToAxis takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
-            var axisCopy = [ent.axis[0], ent.axis[1], ent.axis[2]]
-            AnglesToAxis(angles, &axisCopy)
-            ent.axis[0] = axisCopy[0]
-            ent.axis[1] = axisCopy[1]
-            ent.axis[2] = axisCopy[2]
+            AnglesToAxis(angles, ent.axis)
 
             ent.hModel = hModel
 
@@ -4080,12 +4087,7 @@ private func CG_ForcePushBlur(_ org: JKAShared.vec3_t, _ cent: Centity?) {
 
             vectoangles(ent.axis[0], &ang)
             ang[ROLL] += 180.0
-            // AnglesToAxis takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
-            var axisCopy = [ent.axis[0], ent.axis[1], ent.axis[2]]
-            AnglesToAxis(ang, &axisCopy)
-            ent.axis[0] = axisCopy[0]
-            ent.axis[1] = axisCopy[1]
-            ent.axis[2] = axisCopy[2]
+            AnglesToAxis(ang, ent.axis)
 
             //radius must be a power of 2, and is the actual captured texture size
             if vLen < 128 {
@@ -4274,12 +4276,7 @@ func CG_DrawPlayerShield(_ cent: Centity, _ origin: JKAShared.vec3_t) {
 
         ent.origin = origin
         ent.origin[2] = Float(Double(ent.origin[2]) + 10.0)
-        // AnglesToAxis takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
-        var axisCopy = [ent.axis[0], ent.axis[1], ent.axis[2]]
-        AnglesToAxis(cent.damageAngles, &axisCopy)
-        ent.axis[0] = axisCopy[0]
-        ent.axis[1] = axisCopy[1]
-        ent.axis[2] = axisCopy[2]
+        AnglesToAxis(cent.damageAngles, ent.axis)
 
         // The SDK also declares `random`, so the call names the bg module.
         alpha = Int32(255.0 * (Double(cent.damageTime - cg.time) / MIN_SHIELD_TIME) + Double(JKAMP_BG.random() * 16))
@@ -4631,9 +4628,7 @@ func CG_GetTagWorldPosition(_ model: JKAMP.RefEntity, _ tag: String, _ pos: inou
             i += 1
         }
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>') to expected argument type '[[Float]]'".
-        // Raven wrote: MatrixMultiply( orientation.axis, model->axis, axis )
-        portMissing("CG_GetTagWorldPosition", source: "oracle/codemp/cgame/cg_players.c:5437")
+        MatrixMultiply(Array(orientation.axis), Array(model.axis), &axis)
     }
 }
 
@@ -5624,12 +5619,7 @@ func CG_DrawPlayerSphere(_ cent: Centity, _ origin: JKAShared.vec3_t, _ scale: F
         vectoangles(ent.axis[0], &ang)
         ang[ROLL] += 180.0
         ang[PITCH] += 180.0
-        // AnglesToAxis takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
-        var axisCopy = [ent.axis[0], ent.axis[1], ent.axis[2]]
-        AnglesToAxis(ang, &axisCopy)
-        ent.axis[0] = axisCopy[0]
-        ent.axis[1] = axisCopy[1]
-        ent.axis[2] = axisCopy[2]
+        AnglesToAxis(ang, ent.axis)
 
         ent.axis[0] = ent.axis[0] * scale
         ent.axis[1] = ent.axis[1] * scale
@@ -5651,12 +5641,7 @@ func CG_DrawPlayerSphere(_ cent: Centity, _ origin: JKAShared.vec3_t, _ scale: F
         }
 
         ang[PITCH] -= 180.0
-        // AnglesToAxis takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
-        axisCopy = [ent.axis[0], ent.axis[1], ent.axis[2]]
-        AnglesToAxis(ang, &axisCopy)
-        ent.axis[0] = axisCopy[0]
-        ent.axis[1] = axisCopy[1]
-        ent.axis[2] = axisCopy[2]
+        AnglesToAxis(ang, ent.axis)
 
         ent.axis[0] = ent.axis[0] * (scale * 0.5)
         ent.axis[1] = ent.axis[1] * (scale * 0.5)
@@ -5839,22 +5824,47 @@ func CG_ThereIsAMaster() -> Bool {
 //If so, it terminates the model string correctly, parses the skin name out, and returns
 //the handle of the registered skin.
 /// Source: oracle/codemp/cgame/cg_players.c:6817
-func CG_HandleAppendedSkin(_ modelName: String) -> Int32 {
+func CG_HandleAppendedSkin(_ modelName: inout JKAShared.CharBuf) -> Int32 {
     var skinName = CharBuf(64)
-    // Port-note: A pointer local `char * p` with no view.
-    // Raven wrote: char *p;
-    portMissing("CG_HandleAppendedSkin", source: "oracle/codemp/cgame/cg_players.c:6817")
     var skinID: qhandle_t = 0
     var i: Int32 = 0
 
     //see if it has a skin name
-    // Port-note: A store into `p`, a local the draft left as a hole.
-    // Raven wrote: p = Q_strrchr(modelName, '*')
-    portMissing("CG_HandleAppendedSkin", source: "oracle/codemp/cgame/cg_players.c:6817")
+    if var p = Q_strrchr(String(modelName), Int32(ascii: "*")) {
+        //found a *, we should have a model name before it and a skin name after it.
+        modelName[p] = 0 //terminate the modelName string at this point, then go ahead and parse to the next 0 for the skin.
+        p += 1
 
-    // Port-note: A read of `p`, a local the draft left as a hole.
-    // Raven wrote: if (p) { //found a *, we should have a model name before it and a skin name after it. *p = 0; //terminate the modelName string at this point, then go ahead and parse to the next 0 for the skin. p++; while (p && *p) { skinName[i] = *p; i++; p++; } skinName[i] = 0; if (skinName[0]) { //got it, register the skin under the model path. char baseFolder[MAX_QPATH]; strcpy(baseFolder, modelName); p = Q_strrchr(baseFolder, '/'); //go back to the first /, should be the path point if (p) { //got it.. terminate at the slash and register. char *useSkinName; *p = 0; if (strchr(skinName, '|')) {//three part skin useSkinName = va("%s/|%s", baseFolder, skinName); } else { useSkinName = va("%s/model_%s.skin", baseFolder, skinName); } skinID = trap_R_RegisterSkin(useSkinName); } } }
-    portMissing("CG_HandleAppendedSkin", source: "oracle/codemp/cgame/cg_players.c:6817")
+        while modelName[p] != 0 {
+            skinName[i] = modelName[p]
+            i += 1
+            p += 1
+        }
+        skinName[i] = 0
+
+        if skinName[0] != 0 {
+            //got it, register the skin under the model path.
+            var baseFolder = CharBuf(64)
+
+            strcpy(&baseFolder, String(modelName))
+            if let p = Q_strrchr(String(baseFolder), Int32(ascii: "/")) {
+                //go back to the first /, should be the path point
+                //got it.. terminate at the slash and register.
+                let useSkinName: String
+
+                baseFolder[p] = 0
+
+                if strchr(skinName, Int32(ascii: "|")) != nil {
+                    //three part skin
+                    useSkinName = va("%s/|%s", baseFolder, skinName)
+                } else {
+                    useSkinName = va("%s/model_%s.skin", baseFolder, skinName)
+                }
+
+                skinID = trap_R_RegisterSkin(useSkinName)
+            }
+        }
+    }
 
     return skinID
 }
@@ -6009,9 +6019,7 @@ func CG_G2AnimEntModelLoad(_ cent: Centity) {
             }
 
             //set up my happy prediction hack
-            // Port-note: Raven stores a pointer into the `float *` field with `cent->m_pVehicle->m_vOrientation = &cgSendPS[cent->currentState.number]->vehOrientation[0]`, and rule 11 keeps a pointer out of a logic target.
-            // Raven wrote: cent->m_pVehicle->m_vOrientation = &cgSendPS[cent->currentState.number]->vehOrientation[0]
-            portMissing("CG_G2AnimEntModelLoad", source: "oracle/codemp/cgame/cg_players.c:6998")
+            cent.m_pVehicle!.pointOrientation(at: cgSendPS[cent.currentState.number]!)
 
             cent.m_pVehicle!.m_pParentEntity = BgEntity(cent)
 
@@ -6030,7 +6038,7 @@ func CG_G2AnimEntModelLoad(_ cent: Centity) {
             //this sound is *only* used for vehicles now
             cgs.media.noAmmoSound = trap_S_RegisterSound("sound/weapons/noammo.wav")
         } else {
-            skinID = CG_HandleAppendedSkin(String(modelName)) //get the skin if there is one.
+            skinID = CG_HandleAppendedSkin(&modelName) //get the skin if there is one.
         }
 
         if cent.ghoul2 != nil {
@@ -6603,9 +6611,10 @@ private func CG_ForceElectrocution(_ cent: Centity, _ origin: JKAShared.vec3_t, 
                     // Left Elbow
                     bolt = elbowLBolt
                 }
-                // Port-note: A ++ inside an expression.
-                // Raven wrote: if (++iter==20) break
-                portMissing("CG_ForceElectrocution", source: "oracle/codemp/cgame/cg_players.c:7707")
+                iter += 1
+                if iter == 20 {
+                    break
+                }
             }
             if bolt >= 0 {
                 found = trap_G2API_GetBoltMatrix(cent.ghoul2, 0, bolt, boltMatrix, tempAngles, origin, cg.time, cgs.gameModels, &cent.modelScale)
@@ -7446,9 +7455,11 @@ func CG_Player(_ cent: Centity) {
                             trap_G2API_SetRagDoll(cent.ghoul2, nil) //calling with null parms resets to no ragdoll.
                         }
 
-                        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to expected argument type 'Int'".
-                        // Raven wrote: if (cent->ghoul2 && cent->torsoBolt && ((cent->torsoBolt & RARMBIT) || (cent->torsoBolt & RHANDBIT) || (cent->torsoBolt & WAISTBIT)) && g2HasWeapon) { //kill the weapon if the limb holding it is no longer on the model trap_G2API_RemoveGhoul2Model(&(cent->ghoul2), 1); g2HasWeapon = qfalse; }
-                        portMissing("CG_Player", source: "oracle/codemp/cgame/cg_players.c:8423")
+                        if cent.ghoul2 != nil && cent.torsoBolt != 0 && ((cent.torsoBolt & RARMBIT) != 0 || (cent.torsoBolt & RHANDBIT) != 0 || (cent.torsoBolt & WAISTBIT) != 0) && g2HasWeapon {
+                            //kill the weapon if the limb holding it is no longer on the model
+                            trap_G2API_RemoveGhoul2Model(&cent.ghoul2, 1)
+                            g2HasWeapon = false
+                        }
 
                         if cent.trickAlphaTime == 0 || (cg.time - cent.trickAlphaTime) > 1000 {
                             //things got out of sync, perhaps a new client is trying to fill in this slot
@@ -7716,12 +7727,7 @@ func CG_Player(_ cent: Centity) {
                                     angles[2] = 0
                                 }
 
-                                // AnglesToAxis takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
-                                var axisCopy = [seeker.axis[0], seeker.axis[1], seeker.axis[2]]
-                                AnglesToAxis(angles, &axisCopy)
-                                seeker.axis[0] = axisCopy[0]
-                                seeker.axis[1] = axisCopy[1]
-                                seeker.axis[2] = axisCopy[2]
+                                AnglesToAxis(angles, seeker.axis)
 
                                 seeker.hModel = trap_R_RegisterModel("models/items/remote.md3")
                                 trap_R_AddRefEntityToScene(seeker)
@@ -8255,12 +8261,7 @@ func CG_Player(_ cent: Centity) {
                                                 angles[1] -= 360
                                             }
                                             angles[2] = 0
-                                            // AnglesToAxis takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
-                                            var axisCopy = [holoRef.axis[0], holoRef.axis[1], holoRef.axis[2]]
-                                            AnglesToAxis(angles, &axisCopy)
-                                            holoRef.axis[0] = axisCopy[0]
-                                            holoRef.axis[1] = axisCopy[1]
-                                            holoRef.axis[2] = axisCopy[2]
+                                            AnglesToAxis(angles, holoRef.axis)
                                         } else if renderedHolos == 1 {
                                             // Raven's one expression is two terms here, because the compiler cannot type-check it whole in reasonable time.
                                             let timeStep: Int32 = (cg.time / 8) & 255
@@ -8282,12 +8283,7 @@ func CG_Player(_ cent: Centity) {
                                                 angles[1] -= 360
                                             }
                                             angles[2] = 0
-                                            // AnglesToAxis takes an array, and the view holds `axis` as a Slots, so the call fills a copy that stores back.
-                                            var axisCopy = [holoRef.axis[0], holoRef.axis[1], holoRef.axis[2]]
-                                            AnglesToAxis(angles, &axisCopy)
-                                            holoRef.axis[0] = axisCopy[0]
-                                            holoRef.axis[1] = axisCopy[1]
-                                            holoRef.axis[2] = axisCopy[2]
+                                            AnglesToAxis(angles, holoRef.axis)
                                         } else {
                                             // Raven's one expression is two terms here, because the compiler cannot type-check it whole in reasonable time.
                                             let timeStep: Int32 = (cg.time / 6) & 255
@@ -9492,9 +9488,7 @@ func CG_ResetPlayerEntity(_ cent: Centity) {
         cent.pe.legs.pitchAngle = 0
         cent.pe.legs.pitching = false
 
-        // Port-note: Raven's `memset( &cent->pe.torso, 0, sizeof( cent->pe.legs ) )` runs over a size that is not the record's own, and a view's clear() takes the whole record.
-        // Raven wrote: memset( &cent->pe.torso, 0, sizeof( cent->pe.legs ) )
-        portMissing("CG_ResetPlayerEntity", source: "oracle/codemp/cgame/cg_players.c:11119")
+        cent.pe.torso.clear()
         cent.pe.torso.yawAngle = cent.rawAngles[YAW]
         cent.pe.torso.yawing = false
         cent.pe.torso.pitchAngle = cent.rawAngles[PITCH]

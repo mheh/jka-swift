@@ -610,6 +610,14 @@ public final class CGameStorage {
     /// Source: oracle/codemp/cgame/cg_view.c:2280
     public let cg_autoMapInput: AutoMapInput
 
+    /// Raven's `menuDef_t Menus[MAX_MENUS]` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:111
+    public let Menus: Slots<MenuDef>
+
+    /// Raven's `menuDef_t *menuStack[MAX_OPEN_MENUS]` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:114
+    public let menuStack: Slots<MenuDef?>
+
     public init() {
         self.lagometer = CGameStorage.record(of: Lagometer.self)
         self.cl_lightstyle = CGameStorage.records(count: Int(JKAShared.MAX_LIGHT_STYLES), of: Clightstyle.self)
@@ -762,6 +770,8 @@ public final class CGameStorage {
         self.cg_siegeExtendedData = CGameStorage.records(count: Int(JKAMP.MAX_CLIENTS), of: SiegeExtended.self)
         self.cgScreenEffects = CGameStorage.record(of: Cgscreffects.self)
         self.cg_autoMapInput = CGameStorage.record(of: AutoMapInput.self)
+        self.Menus = CGameStorage.records(count: Int(JKAMP_CGame.MAX_MENUS), of: MenuDef.self)
+        self.menuStack = CGameStorage.table(count: Int(JKAMP_CGame.MAX_OPEN_MENUS), of: MenuDef.self)
     }
 
     deinit {
@@ -916,6 +926,8 @@ public final class CGameStorage {
         self.cg_siegeExtendedData.base.deallocate()
         UnsafeMutableRawPointer(self.cgScreenEffects.handle).deallocate()
         UnsafeMutableRawPointer(self.cg_autoMapInput.handle).deallocate()
+        self.Menus.base.deallocate()
+        self.menuStack.base.deallocate()
     }
 
     /// One zeroed record, read through its view.

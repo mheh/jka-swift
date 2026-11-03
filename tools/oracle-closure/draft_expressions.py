@@ -12,7 +12,7 @@ from clang.cindex import CursorKind, TypeKind
 
 from spelling import Facts, UNSIGNED, VECTORS
 
-from rulings import HAND_MACROS, HAND_VARS, WRAPPING_ARITHMETIC
+from rulings import PARAMS, HAND_MACROS, HAND_VARS, WRAPPING_ARITHMETIC
 from overlay import MACRO_RETURNS, MACROS
 import closure as C
 from skeleton import BG, LOGIC, VIEWS, target_of
@@ -291,9 +291,20 @@ class Expressions:
         spelled = (param.swift or "").split(".")[-1] if param is not None else cur.type.spelling.split()[-1]
         return spelled in VECTORS - {"vec3_t"}
 
+    def text_table_element(self, cur: ci.Cursor) -> bool:
+        """True for one row of a file-scope table of `char *` that Swift holds as `[String]`, `forceHolocronModels[i]`."""
+        base = self.strip(list(cur.get_children())[0])
+        if base.kind != CursorKind.DECL_REF_EXPR or base.referenced is None or base.referenced.kind != CursorKind.VAR_DECL:
+            return False
+        return self.registry.var_types.get(base.spelling) == "[String]"
+
     def is_charbuf(self, cur: ci.Cursor) -> bool:
         """True for a local or parameter Swift holds as a CharBuf: Raven's `char name[N]` or a `char *` he rewrites in place."""
         inner = self.unwrap(cur)
+        if inner.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR and self.ring_buffers:
+            # One buffer of a ring is the one local CharBuf.
+            base = self.strip(list(inner.get_children())[0])
+            return base.kind == CursorKind.DECL_REF_EXPR and base.spelling in self.ring_buffers
         if inner.kind != CursorKind.DECL_REF_EXPR:
             return False
         param = self.params_by_name.get(inner.spelling)
@@ -321,7 +332,7 @@ class Expressions:
             return True
         if cur.kind == CursorKind.DECL_REF_EXPR and cur.spelling in ("qtrue", "qfalse"):
             return True
-        if cur.kind == CursorKind.CALL_EXPR and self.registry.returns.get(self.callee_name(cur) or "") == "Bool":
+        if cur.kind == CursorKind.CALL_EXPR and self.callee_returns(self.callee_name(cur) or "") == "Bool":
             return True
         return cur.type.spelling.replace("const ", "") == "qboolean"
 
@@ -459,6 +470,9 @@ class Expressions:
         if kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
             base, index = list(cur.get_children())
             inner_base = self.strip(base)
+            if inner_base.kind == CursorKind.DECL_REF_EXPR and inner_base.spelling in self.ring_buffers:
+                # One buffer of the ring is the one local CharBuf.
+                return self.leaf(cur, swift_name(inner_base.spelling))
             indexed = self.indexed_view_read(inner_base)
             if indexed is not None and self.shared_read_key(cur) in self.hoisted:
                 return self.leaf(cur, self.hoisted[self.shared_read_key(cur)])
@@ -478,6 +492,16 @@ class Expressions:
             if inner_base.kind == CursorKind.DECL_REF_EXPR and inner_base.spelling in self.text_locals \
                     and inner_base.spelling not in self.optional_texts:
                 # Raven's `token[1]` on a String local is the byte at that index, which the CharBuf of the text reads.
+                return self.leaf(cur, f"JKAShared.CharBuf({self.expr(inner_base)})[{self.converted(index, 'Int32')}]")
+            text_param = self.params_by_name.get(inner_base.spelling) if inner_base.kind == CursorKind.DECL_REF_EXPR else None
+            if text_param is not None and text_param.swift == "String":
+                # Raven's `str[i]` on a String parameter is the byte at that index, which the CharBuf of the text reads.
+                return self.leaf(cur, f"JKAShared.CharBuf({self.expr(inner_base)})[{self.converted(index, 'Int32')}]")
+            if self.string_field(inner_base):
+                # Raven's `token.string[0]` on a view's `char name[N]` field reads the byte through the field's Buffer accessor.
+                return self.leaf(cur, f"{self.buffer_expr(inner_base)}[{self.converted(index, 'Int32')}]")
+            if inner_base.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR and self.text_table_element(inner_base):
+                # Raven's `forceHolocronModels[i][0]` reads a byte of one text of a `[String]` table, through the CharBuf of the text.
                 return self.leaf(cur, f"JKAShared.CharBuf({self.expr(inner_base)})[{self.converted(index, 'Int32')}]")
             pointer = self.params_by_name.get(inner_base.spelling) if inner_base.kind == CursorKind.DECL_REF_EXPR else None
             if pointer is not None and pointer.kind == "int_array":
@@ -765,7 +789,7 @@ class Expressions:
                 if inner.referenced.semantic_parent.kind == CursorKind.TRANSLATION_UNIT and inner.spelling not in self.sk.table.file_walks:
                     return None
                 return table, index
-            if self.sk.table.record_table(inner.referenced):
+            if self.sk.table.record_table(inner.referenced) or self.sk.table.scalar_table(inner.referenced):
                 return swift_name(inner.spelling), "0"
             return None
         if inner.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(inner)[0] == "&":
@@ -773,7 +797,8 @@ class Expressions:
             if slot.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
                 base, index = list(slot.get_children())
                 base = self.unwrap(base)
-                if base.kind == CursorKind.DECL_REF_EXPR and base.referenced is not None and self.sk.table.record_table(base.referenced):
+                if base.kind == CursorKind.DECL_REF_EXPR and base.referenced is not None \
+                        and (self.sk.table.record_table(base.referenced) or self.sk.table.scalar_table(base.referenced)):
                     return swift_name(base.spelling), self.converted(index, "Int32")
             return None
         if inner.kind == CursorKind.BINARY_OPERATOR and not self.collapsed(inner) and self.binary_op(inner) in ("+", "-") \
@@ -936,9 +961,18 @@ class Expressions:
                     and canonical.get_pointee().get_canonical().get_pointee().get_canonical().kind == TypeKind.CHAR_S:
                 # Raven's `(const char **)&p` is the address of a cursor, which the plain `&p` shape already passes.
                 return self.expr(self.unwrap(operand))
+            cursor_param = self.params_by_name.get(self.strip(operand).spelling) if self.strip(operand).kind == CursorKind.DECL_REF_EXPR else None
+            if cursor_param is not None and "TextCursor" in (cursor_param.swift or "") \
+                    and canonical.get_pointee().get_canonical().kind == TypeKind.POINTER:
+                # Raven's `(const char **)p` over his own `const char **p` is the cursor parameter, which the call passes as `&p`.
+                return self.expr(operand)
             record = self.types.record_name(canonical.get_pointee())
             if record and record in self.views.views:
                 self.reachable(record)
+                ruled = PARAMS.get((self.fn.raven_name, self.strip(operand).spelling)) if self.strip(operand).kind == CursorKind.DECL_REF_EXPR else None
+                if ruled == ("view", record):
+                    # The PARAMS row already gives the `void *` parameter the view of this record, so the cast is the parameter.
+                    return self.expr(operand)
                 if self.types.record_name(self.strip(operand).type.get_canonical().get_pointee()) == record:
                     # A cast to the type the operand already has is Raven's habit, and the view is the same view.
                     return self.expr(operand)

@@ -117,6 +117,8 @@ CGAME_ROOTS = {
     "qtime_t": ("Qtime", "CJKAMP"),
     "bgLoadedAnim_t": ("BgLoadedAnim", "CJKAMP"),
     "saberMoveData_t": ("SaberMoveData", "CJKAMP"),
+    # The C table cg_spawnFields of cg_main.c holds these rows, and BG_ParseField reads them.
+    "BG_field_t": ("BgField", "CJKAMP"),
     # The cgame's state: Raven's `cg`, `cgs`, and `cg_entities` of cg_main.c.
     "cg_t": ("Cg", "CJKAMP_CGame"),
     "cgs_t": ("Cgs", "CJKAMP_CGame"),
@@ -207,12 +209,17 @@ NEVER_NULL_VARS = {"pm"}
 # The entry stays, so the stub does not declare a `CharBuf` of `MAX_POOL_SIZE` bytes, and a body that reads `bg_pool` drafts a `portMissing` hole.
 # `memoryPool` has no storage, because `G_Alloc` returns one block per call.
 # The entry stays, so the stub does not declare a `CharBuf` of `POOLSIZE` bytes, and a body that reads `memoryPool` drafts a `portMissing` hole.
-HAND_VARS = {"bg_pool": None, "memoryPool": None}
+# `cg_strPool` has no storage, because `CG_StrPool_Alloc` returns one block per call, in the `G_Alloc` form.
+# The entry stays, so the stub does not declare the pool of `MAX_CGSTRPOOL_SIZE` bytes, and a body that reads `cg_strPool` drafts a `portMissing` hole.
+HAND_VARS = {"bg_pool": None, "memoryPool": None, "cg_strPool": None}
 
 # File-scope character arrays whose address the engine holds, so each one is one zeroed byte allocation on the storage class, not a `CharBuf`.
 # `gSharedBuffer` of g_main.c goes to the engine through `trap_SV_RegisterSharedMemory`, and vmMain reads the ICARUS views at its base.
 # See "The post-spine walk", row P1, and the zeroed storage rule of docs/transcription.md.
 BYTE_STORAGE_VARS = {"gSharedBuffer"}
+# The field twin of BYTE_STORAGE_VARS: a character array field whose address the engine holds, which the view reads as the field's address.
+# `cg.sharedBuffer` of cg_local.h goes to the engine through `trap_CG_RegisterSharedMemory`, and the engine callbacks of cg_main.c read records at its base.
+BYTE_STORAGE_FIELDS = {("cg_t", "sharedBuffer")}
 
 @dataclass(frozen=True)
 class HandMacro:
@@ -285,8 +292,10 @@ RETURNS = {
     "B_Alloc": "raw",
     "B_TempAlloc": "raw",
     "G_Alloc": "raw",
+    "CG_StrPool_Alloc": "raw",
     "BG_StringAlloc": "pooled_string",
     "G_NewString": "pooled_string",
+    "CG_NewString": "pooled_string",
     "tv": "vec3",
     # BG_AnimsetAlloc returns `bgAllAnims[bgNumAllAnims].anims` at bg_panimate.c:1734, the table the parser indexes. Row X10 of 2026-10-27.
     "BG_AnimsetAlloc": "table",
@@ -312,8 +321,10 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #   int_value  an Int32 by value for a `const void *` a qsort comparator reads as `*(int *)`, so the comparator is `(Int32, Int32) -> Int32`
 #   model_list  a Slots<qhandle_t>? for an `int *modelList` the engine reads as the array of model handles, the form a `qhandle_t *` has
 #   out_opaque  an inout OpaquePointer? for a `void *` Raven's callers pass the address of a handle field to, the shape a `void **` already has
+#   view      the optional view of the record named beside the kind, ("view", record), for a `void *` every caller fills with that record or NULL
 PARAMS = {
     ("COM_ParseString", "s"): "out_string",
+    ("PC_String_Parse", "out"): "out_string",
     # A `char **` the function sets once to a string it owns, never walked, the same shape as the const one.
     ("G_SpawnString", "out"): "out_string",
     ("Q3_GetString", "value"): "out_string",
@@ -373,8 +384,17 @@ PARAMS = {
     ("SortRanks", "a"): "int_value",
     ("SortRanks", "b"): "int_value",
     # Raven declares `void *ghlInfo`, w_saber.c:6593 and g_turret_G2.c:135 pass `&ent->ghoul2`, and the engine casts the word to `CGhoul2Info_v **` at sv_gameapi.cpp:1590.
+    # Raven hands the engine the address of `cg.sharedBuffer`, cg_main.c:3713, the BYTE_STORAGE_FIELDS row, as the game hands `gSharedBuffer`.
+    ("trap_CG_RegisterSharedMemory", "memory"): "raw",
+    # Raven casts `void *p` to `menuDef_t *` at cg_main.c:2858, and his callers pass `menuScoreboard` at cg_draw.c:6780 and NULL at cg_servercmds.c:68.
+    ("CG_SetScoreSelection", "p"): ("view", "menuDef_t"),
     ("trap_G2API_RemoveGhoul2Models", "ghlInfo"): "out_opaque",
     ("trap_G2API_RemoveGhoul2Model", "ghlInfo"): "out_opaque",
+}
+
+# Rule 20: a function with no caller in either tree stays as its stub, and the stub carries one note line that it is dead.
+DEAD = {
+    "CG_ParticleExplosion": "Raven calls this function from no file of either tree",
 }
 
 # Functions of the oracle the port leaves out. The stub carries the cite, Raven's line, and the reason, and no function.
@@ -503,6 +523,8 @@ WRAPPING_ARITHMETIC = {"Q_rand", "Q_random", "Q_crandom", "rand", "srand", "iran
 # See row 4a of the game globals walk.
 NIL_OVERLOADS = {
     ("trap_Cvar_Register", "cvar"): "the three rows of gameCvarTable in g_main.c with a NULL handle, gamename, gamedate, and sv_mapname",
+    # The engine reads a size of -1 as the rewind of the entity string and returns before it touches the buffer, tr_bsp.cpp:1981.
+    ("trap_GetEntityToken", "buffer"): "CG_ParseEntitiesFromString in cg_main.c, the call `trap_GetEntityToken(NULL, -1)` that rewinds the entity string",
 }
 
 # The traps whose buffer holds a NUL-separated list, which a caller walks past the first NUL, so the trap returns every byte as a CharBuf.
@@ -518,8 +540,9 @@ SHARED_STEMS = {"q_shared", "q_math", "g_syscalls", "g_strap"}
 # g_types.h holds the structs Raven defines inside a .c file, so a view can bind over them. See "A struct Raven defines inside a .c file".
 # cg_types.h holds the six of the cgame the same way.
 # g_tables.h declares the six game tables of g_tables.c, ruling E2.
-HAND_HEADERS = {"CJKAMP": ["bg_tables.h"], "CJKAMP_Game": ["g_types.h", "g_tables.h"], "CJKAMP_CGame": ["cg_types.h"]}
-HAND_FILES = {"CJKAMP": ["include/bg_tables.h"], "CJKAMP_Game": ["include/g_types.h", "include/g_tables.h"], "CJKAMP_CGame": ["include/cg_types.h"]}
+HAND_HEADERS = {"CJKAMP": ["bg_tables.h"], "CJKAMP_Game": ["g_types.h", "g_tables.h"], "CJKAMP_CGame": ["cg_types.h", "cg_tables.h"]}
+HAND_FILES = {"CJKAMP": ["include/bg_tables.h"], "CJKAMP_Game": ["include/g_types.h", "include/g_tables.h"],
+              "CJKAMP_CGame": ["include/cg_types.h", "include/cg_tables.h"]}
 
 # MARK: - Header preludes
 

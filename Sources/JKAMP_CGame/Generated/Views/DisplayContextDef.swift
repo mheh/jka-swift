@@ -70,9 +70,11 @@ public struct DisplayContextDef: Hashable, HandleView {
     /// Calls the stored `registerShaderNoMip` function through the C pointer, with the caller's arguments, as Raven's `pm->registerShaderNoMip(...)` did.
     /// A NULL `registerShaderNoMip` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runRegisterShaderNoMip(_ p: OpaquePointer?) -> Int32 {
+    public func runRegisterShaderNoMip(_ p: String) -> Int32 {
         precondition(self.raw.pointee.registerShaderNoMip != nil, "registerShaderNoMip is NULL")
-        return self.registerShaderNoMip!(p)
+        return withCString(p) { p in
+            self.registerShaderNoMip!(OpaquePointer(p))
+        }
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:402
@@ -83,7 +85,7 @@ public struct DisplayContextDef: Hashable, HandleView {
 
     /// Calls the stored `setColor` function through the C pointer, with the caller's arguments, as Raven's `pm->setColor(...)` did.
     /// A NULL `setColor` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runSetColor(_ v: JKAShared.vec3_t) {
+    public func runSetColor(_ v: JKAShared.vec4_t) {
         precondition(self.raw.pointee.setColor != nil, "setColor is NULL")
         withUnsafePointer(to: v) { v in
             self.setColor!(OpaquePointer(v))
@@ -124,10 +126,12 @@ public struct DisplayContextDef: Hashable, HandleView {
 
     /// Calls the stored `drawText` function through the C pointer, with the caller's arguments, as Raven's `pm->drawText(...)` did.
     /// A NULL `drawText` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runDrawText(_ x: Float, _ y: Float, _ scale: Float, _ color: inout JKAShared.vec3_t, _ text: OpaquePointer?, _ adjust: Float, _ limit: Int32, _ style: Int32, _ iMenuFont: Int32) {
+    public func runDrawText(_ x: Float, _ y: Float, _ scale: Float, _ color: inout JKAShared.vec4_t, _ text: String, _ adjust: Float, _ limit: Int32, _ style: Int32, _ iMenuFont: Int32) {
         precondition(self.raw.pointee.drawText != nil, "drawText is NULL")
         withUnsafeMutablePointer(to: &color) { color in
-            self.drawText!(x, y, scale, OpaquePointer(color), text, adjust, limit, style, iMenuFont)
+            withCString(text) { text in
+                self.drawText!(x, y, scale, OpaquePointer(color), OpaquePointer(text), adjust, limit, style, iMenuFont)
+            }
         }
     }
 
@@ -140,9 +144,11 @@ public struct DisplayContextDef: Hashable, HandleView {
     /// Calls the stored `textWidth` function through the C pointer, with the caller's arguments, as Raven's `pm->textWidth(...)` did.
     /// A NULL `textWidth` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runTextWidth(_ text: OpaquePointer?, _ scale: Float, _ iMenuFont: Int32) -> Int32 {
+    public func runTextWidth(_ text: String, _ scale: Float, _ iMenuFont: Int32) -> Int32 {
         precondition(self.raw.pointee.textWidth != nil, "textWidth is NULL")
-        return self.textWidth!(text, scale, iMenuFont)
+        return withCString(text) { text in
+            self.textWidth!(OpaquePointer(text), scale, iMenuFont)
+        }
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:407
@@ -154,9 +160,11 @@ public struct DisplayContextDef: Hashable, HandleView {
     /// Calls the stored `textHeight` function through the C pointer, with the caller's arguments, as Raven's `pm->textHeight(...)` did.
     /// A NULL `textHeight` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runTextHeight(_ text: OpaquePointer?, _ scale: Float, _ iMenuFont: Int32) -> Int32 {
+    public func runTextHeight(_ text: String, _ scale: Float, _ iMenuFont: Int32) -> Int32 {
         precondition(self.raw.pointee.textHeight != nil, "textHeight is NULL")
-        return self.textHeight!(text, scale, iMenuFont)
+        return withCString(text) { text in
+            self.textHeight!(OpaquePointer(text), scale, iMenuFont)
+        }
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:408
@@ -168,9 +176,11 @@ public struct DisplayContextDef: Hashable, HandleView {
     /// Calls the stored `registerModel` function through the C pointer, with the caller's arguments, as Raven's `pm->registerModel(...)` did.
     /// A NULL `registerModel` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runRegisterModel(_ p: OpaquePointer?) -> Int32 {
+    public func runRegisterModel(_ p: String) -> Int32 {
         precondition(self.raw.pointee.registerModel != nil, "registerModel is NULL")
-        return self.registerModel!(p)
+        return withCString(p) { p in
+            self.registerModel!(OpaquePointer(p))
+        }
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:409
@@ -198,7 +208,7 @@ public struct DisplayContextDef: Hashable, HandleView {
 
     /// Calls the stored `fillRect` function through the C pointer, with the caller's arguments, as Raven's `pm->fillRect(...)` did.
     /// A NULL `fillRect` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runFillRect(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ color: JKAShared.vec3_t) {
+    public func runFillRect(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ color: JKAShared.vec4_t) {
         precondition(self.raw.pointee.fillRect != nil, "fillRect is NULL")
         withUnsafePointer(to: color) { color in
             self.fillRect!(x, y, w, h, OpaquePointer(color))
@@ -213,7 +223,7 @@ public struct DisplayContextDef: Hashable, HandleView {
 
     /// Calls the stored `drawRect` function through the C pointer, with the caller's arguments, as Raven's `pm->drawRect(...)` did.
     /// A NULL `drawRect` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runDrawRect(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ size: Float, _ color: JKAShared.vec3_t) {
+    public func runDrawRect(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ size: Float, _ color: JKAShared.vec4_t) {
         precondition(self.raw.pointee.drawRect != nil, "drawRect is NULL")
         withUnsafePointer(to: color) { color in
             self.drawRect!(x, y, w, h, size, OpaquePointer(color))
@@ -294,9 +304,11 @@ public struct DisplayContextDef: Hashable, HandleView {
     /// Calls the stored `RegisterFont` function through the C pointer, with the caller's arguments, as Raven's `pm->RegisterFont(...)` did.
     /// A NULL `RegisterFont` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runRegisterFont(_ fontName: OpaquePointer?) -> Int32 {
+    public func runRegisterFont(_ fontName: String) -> Int32 {
         precondition(self.raw.pointee.RegisterFont != nil, "RegisterFont is NULL")
-        return self.RegisterFont!(fontName)
+        return withCString(fontName) { fontName in
+            self.RegisterFont!(OpaquePointer(fontName))
+        }
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:419
@@ -308,9 +320,11 @@ public struct DisplayContextDef: Hashable, HandleView {
     /// Calls the stored `Font_StrLenPixels` function through the C pointer, with the caller's arguments, as Raven's `pm->Font_StrLenPixels(...)` did.
     /// A NULL `Font_StrLenPixels` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runFont_StrLenPixels(_ text: OpaquePointer?, _ iFontIndex: Int32, _ scale: Float) -> Int32 {
+    public func runFont_StrLenPixels(_ text: String, _ iFontIndex: Int32, _ scale: Float) -> Int32 {
         precondition(self.raw.pointee.Font_StrLenPixels != nil, "Font_StrLenPixels is NULL")
-        return self.Font_StrLenPixels!(text, iFontIndex, scale)
+        return withCString(text) { text in
+            self.Font_StrLenPixels!(OpaquePointer(text), iFontIndex, scale)
+        }
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:420
@@ -322,9 +336,11 @@ public struct DisplayContextDef: Hashable, HandleView {
     /// Calls the stored `Font_StrLenChars` function through the C pointer, with the caller's arguments, as Raven's `pm->Font_StrLenChars(...)` did.
     /// A NULL `Font_StrLenChars` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runFont_StrLenChars(_ text: OpaquePointer?) -> Int32 {
+    public func runFont_StrLenChars(_ text: String) -> Int32 {
         precondition(self.raw.pointee.Font_StrLenChars != nil, "Font_StrLenChars is NULL")
-        return self.Font_StrLenChars!(text)
+        return withCString(text) { text in
+            self.Font_StrLenChars!(OpaquePointer(text))
+        }
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:421
@@ -349,10 +365,12 @@ public struct DisplayContextDef: Hashable, HandleView {
 
     /// Calls the stored `Font_DrawString` function through the C pointer, with the caller's arguments, as Raven's `pm->Font_DrawString(...)` did.
     /// A NULL `Font_DrawString` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runFont_DrawString(_ ox: Int32, _ oy: Int32, _ text: OpaquePointer?, _ rgba: JKAShared.vec3_t, _ setIndex: Int32, _ iCharLimit: Int32, _ scale: Float) {
+    public func runFont_DrawString(_ ox: Int32, _ oy: Int32, _ text: String, _ rgba: JKAShared.vec4_t, _ setIndex: Int32, _ iCharLimit: Int32, _ scale: Float) {
         precondition(self.raw.pointee.Font_DrawString != nil, "Font_DrawString is NULL")
-        withUnsafePointer(to: rgba) { rgba in
-            self.Font_DrawString!(ox, oy, text, OpaquePointer(rgba), setIndex, iCharLimit, scale)
+        withCString(text) { text in
+            withUnsafePointer(to: rgba) { rgba in
+                self.Font_DrawString!(ox, oy, OpaquePointer(text), OpaquePointer(rgba), setIndex, iCharLimit, scale)
+            }
         }
     }
 
@@ -393,9 +411,11 @@ public struct DisplayContextDef: Hashable, HandleView {
     /// Calls the stored `AnyLanguage_ReadCharFromString` function through the C pointer, with the caller's arguments, as Raven's `pm->AnyLanguage_ReadCharFromString(...)` did.
     /// A NULL `AnyLanguage_ReadCharFromString` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runAnyLanguage_ReadCharFromString(_ psText: OpaquePointer?, _ piAdvanceCount: OpaquePointer?, _ pbIsTrailingPunctuation: OpaquePointer?) -> UInt32 {
+    public func runAnyLanguage_ReadCharFromString(_ psText: String, _ piAdvanceCount: OpaquePointer?, _ pbIsTrailingPunctuation: OpaquePointer?) -> UInt32 {
         precondition(self.raw.pointee.AnyLanguage_ReadCharFromString != nil, "AnyLanguage_ReadCharFromString is NULL")
-        return self.AnyLanguage_ReadCharFromString!(psText, piAdvanceCount, pbIsTrailingPunctuation)
+        return withCString(psText) { psText in
+            self.AnyLanguage_ReadCharFromString!(OpaquePointer(psText), piAdvanceCount, pbIsTrailingPunctuation)
+        }
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:426
@@ -406,7 +426,7 @@ public struct DisplayContextDef: Hashable, HandleView {
 
     /// Calls the stored `ownerDrawItem` function through the C pointer, with the caller's arguments, as Raven's `pm->ownerDrawItem(...)` did.
     /// A NULL `ownerDrawItem` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runOwnerDrawItem(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ text_x: Float, _ text_y: Float, _ ownerDraw: Int32, _ ownerDrawFlags: Int32, _ align: Int32, _ special: Float, _ scale: Float, _ color: inout JKAShared.vec3_t, _ shader: Int32, _ textStyle: Int32, _ iMenuFont: Int32) {
+    public func runOwnerDrawItem(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ text_x: Float, _ text_y: Float, _ ownerDraw: Int32, _ ownerDrawFlags: Int32, _ align: Int32, _ special: Float, _ scale: Float, _ color: inout JKAShared.vec4_t, _ shader: Int32, _ textStyle: Int32, _ iMenuFont: Int32) {
         precondition(self.raw.pointee.ownerDrawItem != nil, "ownerDrawItem is NULL")
         withUnsafeMutablePointer(to: &color) { color in
             self.ownerDrawItem!(x, y, w, h, text_x, text_y, ownerDraw, ownerDrawFlags, align, special, scale, OpaquePointer(color), shader, textStyle, iMenuFont)
@@ -489,9 +509,11 @@ public struct DisplayContextDef: Hashable, HandleView {
 
     /// Calls the stored `getCVarString` function through the C pointer, with the caller's arguments, as Raven's `pm->getCVarString(...)` did.
     /// A NULL `getCVarString` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runGetCVarString(_ cvar: OpaquePointer?, _ buffer: OpaquePointer?, _ bufsize: Int32) {
+    public func runGetCVarString(_ cvar: String, _ buffer: OpaquePointer?, _ bufsize: Int32) {
         precondition(self.raw.pointee.getCVarString != nil, "getCVarString is NULL")
-        self.getCVarString!(cvar, buffer, bufsize)
+        withCString(cvar) { cvar in
+            self.getCVarString!(OpaquePointer(cvar), buffer, bufsize)
+        }
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:433
@@ -503,9 +525,11 @@ public struct DisplayContextDef: Hashable, HandleView {
     /// Calls the stored `getCVarValue` function through the C pointer, with the caller's arguments, as Raven's `pm->getCVarValue(...)` did.
     /// A NULL `getCVarValue` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runGetCVarValue(_ cvar: OpaquePointer?) -> Float {
+    public func runGetCVarValue(_ cvar: String) -> Float {
         precondition(self.raw.pointee.getCVarValue != nil, "getCVarValue is NULL")
-        return self.getCVarValue!(cvar)
+        return withCString(cvar) { cvar in
+            self.getCVarValue!(OpaquePointer(cvar))
+        }
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:434
@@ -516,9 +540,13 @@ public struct DisplayContextDef: Hashable, HandleView {
 
     /// Calls the stored `setCVar` function through the C pointer, with the caller's arguments, as Raven's `pm->setCVar(...)` did.
     /// A NULL `setCVar` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runSetCVar(_ cvar: OpaquePointer?, _ value: OpaquePointer?) {
+    public func runSetCVar(_ cvar: String, _ value: String) {
         precondition(self.raw.pointee.setCVar != nil, "setCVar is NULL")
-        self.setCVar!(cvar, value)
+        withCString(cvar) { cvar in
+            withCString(value) { value in
+                self.setCVar!(OpaquePointer(cvar), OpaquePointer(value))
+            }
+        }
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:435
@@ -529,10 +557,12 @@ public struct DisplayContextDef: Hashable, HandleView {
 
     /// Calls the stored `drawTextWithCursor` function through the C pointer, with the caller's arguments, as Raven's `pm->drawTextWithCursor(...)` did.
     /// A NULL `drawTextWithCursor` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runDrawTextWithCursor(_ x: Float, _ y: Float, _ scale: Float, _ color: inout JKAShared.vec3_t, _ text: OpaquePointer?, _ cursorPos: Int32, _ cursor: CChar, _ limit: Int32, _ style: Int32, _ iFontIndex: Int32) {
+    public func runDrawTextWithCursor(_ x: Float, _ y: Float, _ scale: Float, _ color: inout JKAShared.vec4_t, _ text: String, _ cursorPos: Int32, _ cursor: CChar, _ limit: Int32, _ style: Int32, _ iFontIndex: Int32) {
         precondition(self.raw.pointee.drawTextWithCursor != nil, "drawTextWithCursor is NULL")
         withUnsafeMutablePointer(to: &color) { color in
-            self.drawTextWithCursor!(x, y, scale, OpaquePointer(color), text, cursorPos, cursor, limit, style, iFontIndex)
+            withCString(text) { text in
+                self.drawTextWithCursor!(x, y, scale, OpaquePointer(color), OpaquePointer(text), cursorPos, cursor, limit, style, iFontIndex)
+            }
         }
     }
 
@@ -681,9 +711,11 @@ public struct DisplayContextDef: Hashable, HandleView {
 
     /// Calls the stored `setBinding` function through the C pointer, with the caller's arguments, as Raven's `pm->setBinding(...)` did.
     /// A NULL `setBinding` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runSetBinding(_ keynum: Int32, _ binding: OpaquePointer?) {
+    public func runSetBinding(_ keynum: Int32, _ binding: String) {
         precondition(self.raw.pointee.setBinding != nil, "setBinding is NULL")
-        self.setBinding!(keynum, binding)
+        withCString(binding) { binding in
+            self.setBinding!(keynum, OpaquePointer(binding))
+        }
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:447
@@ -694,9 +726,11 @@ public struct DisplayContextDef: Hashable, HandleView {
 
     /// Calls the stored `executeText` function through the C pointer, with the caller's arguments, as Raven's `pm->executeText(...)` did.
     /// A NULL `executeText` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runExecuteText(_ exec_when: Int32, _ text: OpaquePointer?) {
+    public func runExecuteText(_ exec_when: Int32, _ text: String) {
         precondition(self.raw.pointee.executeText != nil, "executeText is NULL")
-        self.executeText!(exec_when, text)
+        withCString(text) { text in
+            self.executeText!(exec_when, OpaquePointer(text))
+        }
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:448
@@ -707,9 +741,11 @@ public struct DisplayContextDef: Hashable, HandleView {
 
     /// Calls the stored `Error` function through the C pointer, with the caller's arguments, as Raven's `pm->Error(...)` did.
     /// A NULL `Error` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runError(_ level: Int32, _ error: OpaquePointer?) {
+    public func runError(_ level: Int32, _ error: String) {
         precondition(self.raw.pointee.Error != nil, "Error is NULL")
-        self.Error!(level, error)
+        withCString(error) { error in
+            self.Error!(level, OpaquePointer(error))
+        }
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:449
@@ -720,9 +756,11 @@ public struct DisplayContextDef: Hashable, HandleView {
 
     /// Calls the stored `Print` function through the C pointer, with the caller's arguments, as Raven's `pm->Print(...)` did.
     /// A NULL `Print` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runPrint(_ msg: OpaquePointer?) {
+    public func runPrint(_ msg: String) {
         precondition(self.raw.pointee.Print != nil, "Print is NULL")
-        self.Print!(msg)
+        withCString(msg) { msg in
+            self.Print!(OpaquePointer(msg))
+        }
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:450
@@ -761,9 +799,11 @@ public struct DisplayContextDef: Hashable, HandleView {
     /// Calls the stored `registerSound` function through the C pointer, with the caller's arguments, as Raven's `pm->registerSound(...)` did.
     /// A NULL `registerSound` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runRegisterSound(_ name: OpaquePointer?) -> Int32 {
+    public func runRegisterSound(_ name: String) -> Int32 {
         precondition(self.raw.pointee.registerSound != nil, "registerSound is NULL")
-        return self.registerSound!(name)
+        return withCString(name) { name in
+            self.registerSound!(OpaquePointer(name))
+        }
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:453
@@ -774,9 +814,13 @@ public struct DisplayContextDef: Hashable, HandleView {
 
     /// Calls the stored `startBackgroundTrack` function through the C pointer, with the caller's arguments, as Raven's `pm->startBackgroundTrack(...)` did.
     /// A NULL `startBackgroundTrack` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runStartBackgroundTrack(_ intro: OpaquePointer?, _ loop: OpaquePointer?, _ bReturnWithoutStarting: Bool) {
+    public func runStartBackgroundTrack(_ intro: String, _ loop: String, _ bReturnWithoutStarting: Bool) {
         precondition(self.raw.pointee.startBackgroundTrack != nil, "startBackgroundTrack is NULL")
-        self.startBackgroundTrack!(intro, loop, bReturnWithoutStarting ? 1 : 0)
+        withCString(intro) { intro in
+            withCString(loop) { loop in
+                self.startBackgroundTrack!(OpaquePointer(intro), OpaquePointer(loop), bReturnWithoutStarting ? 1 : 0)
+            }
+        }
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:454
@@ -801,9 +845,11 @@ public struct DisplayContextDef: Hashable, HandleView {
     /// Calls the stored `playCinematic` function through the C pointer, with the caller's arguments, as Raven's `pm->playCinematic(...)` did.
     /// A NULL `playCinematic` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runPlayCinematic(_ name: OpaquePointer?, _ x: Float, _ y: Float, _ w: Float, _ h: Float) -> Int32 {
+    public func runPlayCinematic(_ name: String, _ x: Float, _ y: Float, _ w: Float, _ h: Float) -> Int32 {
         precondition(self.raw.pointee.playCinematic != nil, "playCinematic is NULL")
-        return self.playCinematic!(name, x, y, w, h)
+        return withCString(name) { name in
+            self.playCinematic!(OpaquePointer(name), x, y, w, h)
+        }
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:456

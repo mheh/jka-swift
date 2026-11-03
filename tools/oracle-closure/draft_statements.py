@@ -310,7 +310,7 @@ class Statements:
         if not self.is_call(inner):
             return None
         name = self.callee_name(inner)
-        returns = self.registry.returns.get(name, "")
+        returns = self.callee_returns(name, "")
         if not name or not any(returns.startswith(f"({first}, {text})") for first in ("Int32", "Bool") for text in ("String", "JKAShared.CharBuf")):
             return None
         params = self.callee_params(name)
@@ -330,7 +330,7 @@ class Statements:
         if not self.is_call(inner):
             return None
         name = self.callee_name(inner)
-        returns = self.registry.returns.get(name, "") if name else ""
+        returns = self.callee_returns(name, "") if name else ""
         if returns not in ("String", "JKAShared.CharBuf"):
             return None
         params = self.callee_params(name)
@@ -509,6 +509,58 @@ class Statements:
         return canonical.kind == TypeKind.CONSTANTARRAY and canonical.element_count == 3 \
             and canonical.element_type.get_canonical().kind == TypeKind.FLOAT
 
+    def offset_post_step(self, left: ci.Cursor) -> str | None:
+        """Raven's name of the optional offset local in `*p++` on the left of a store, or None for any other left side."""
+        inner = self.unwrap(left)
+        if inner.kind != CursorKind.UNARY_OPERATOR or self.operator_or_none_unary(inner) != "*":
+            return None
+        step = self.unwrap(self.unary_parts(inner)[2])
+        if step.kind != CursorKind.UNARY_OPERATOR or not self.is_step(step):
+            return None
+        op, prefix, operand = self.unary_parts(step)
+        operand = self.unwrap(operand)
+        if op != "++" or prefix or operand.kind != CursorKind.DECL_REF_EXPR or operand.spelling not in self.offset_cursors \
+                or not self.offset_cursors[operand.spelling].optional:
+            return None
+        return operand.spelling
+
+    def offset_guard(self, cur: ci.Cursor, kids: list[ci.Cursor]) -> str | None:
+        """The bind of Raven's `if (!p) continue;`, `break;`, or `return ...;` over an optional offset local with no else arm,
+        `var p` or `let p`, or None for any other test.
+        Swift refuses a guard bind of a name in its own declaring scope, so the test must sit in a block inside the block that declares the local.
+        The bind is `var` when a later statement of the block writes the local."""
+        if len(kids) != 2:
+            return None
+        cond, then = self.unwrap(kids[0]), kids[1]
+        if cond.kind != CursorKind.UNARY_OPERATOR or self.operator_or_none_unary(cond) != "!":
+            return None
+        operand = self.unwrap(list(cond.get_children())[0])
+        if operand.kind != CursorKind.DECL_REF_EXPR or operand.spelling not in self.offset_cursors \
+                or not self.offset_cursors[operand.spelling].optional:
+            return None
+        arm = list(then.get_children()) if then.kind == CursorKind.COMPOUND_STMT else [then]
+        if len(arm) != 1 or arm[0].kind not in (CursorKind.CONTINUE_STMT, CursorKind.BREAK_STMT, CursorKind.RETURN_STMT):
+            return None
+        name = operand.spelling
+        blocks = [c for c in self.fn.cur.walk_preorder() if c.kind == CursorKind.COMPOUND_STMT]
+        enclosing = next((b for b in blocks if any(k.extent == cur.extent for k in b.get_children())), None)
+        declaring = next((b for b in blocks if any(k.kind == CursorKind.DECL_STMT and any(v.spelling == name for v in k.get_children())
+                                                   for k in b.get_children())), None)
+        if enclosing is None or declaring is None or enclosing.extent == declaring.extent \
+                or not (declaring.extent.start.offset <= enclosing.extent.start.offset and enclosing.extent.end.offset <= declaring.extent.end.offset):
+            return None
+        later = [k for k in enclosing.get_children() if k.extent.start.offset >= cur.extent.end.offset]
+        written = False
+        for node in (n for k in later for n in k.walk_preorder()):
+            parts = list(node.get_children())
+            target = self.unwrap(parts[0]) if parts else None
+            if target is None or target.kind != CursorKind.DECL_REF_EXPR or target.spelling != name:
+                continue
+            if node.kind == CursorKind.COMPOUND_ASSIGNMENT_OPERATOR or (node.kind == CursorKind.UNARY_OPERATOR and self.is_step(node)) \
+                    or (node.kind == CursorKind.BINARY_OPERATOR and self.operator_or_none(node) == "="):
+                written = True
+        return f"{'var' if written else 'let'} {swift_name(name)}"
+
     def whole_record_size(self, size: ci.Cursor, target: ci.Cursor) -> bool:
         """True when Raven's size argument is `sizeof` of the record itself, of the pointer's pointee, or of the record's type,
         `sizeof(Vehicle_t)` through a `Vehicle_t *`, which names the pointee's type by any typedef of it."""
@@ -521,6 +573,10 @@ class Statements:
         for node in size.walk_preorder():
             if node.kind == CursorKind.TYPE_REF and node.referenced is not None and node.referenced.type.get_canonical() == record_type:
                 return True
+        operand = [k for k in size.get_children() if k.kind.is_expression()]
+        if operand and record_type.kind == TypeKind.RECORD and self.unwrap(operand[0]).type.get_canonical() == record_type:
+            # Raven's `sizeof(cent->pe.legs)` for a store into `pe.torso` names another field of the same record type.
+            return True
         inner = m.group(1).replace(" ", "")
         record = " ".join(self.bytes[target.extent.start.offset:target.extent.end.offset].decode("utf-8", "replace").split()).replace(" ", "")
         t = target.type.get_canonical()
@@ -559,6 +615,11 @@ class Statements:
         if cur.kind == CursorKind.UNEXPOSED_EXPR and len(list(cur.get_children())) == 1 and not self.is_call(cur):
             return self.statement_lines(list(cur.get_children())[0], depth)
         kind = cur.kind
+        if kind in (CursorKind.BINARY_OPERATOR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR) and self.ring_buffers \
+                and self.unwrap(list(cur.get_children())[0]).kind == CursorKind.DECL_REF_EXPR \
+                and self.unwrap(list(cur.get_children())[0]).spelling in self.ring_buffers.values():
+            # The step of a ring's index drops with the ring, because one local buffer stands for the ring.
+            return []
         if kind == CursorKind.COMPOUND_STMT:
             return roled([f"{pad}do {{"], "frame") + self.block_body(cur, depth + 1) + roled([f"{pad}}}"], "frame")
         if kind == CursorKind.DECL_STMT:
@@ -589,6 +650,9 @@ class Statements:
             if self.fn.returns == "String" and self.is_raw(kids[0]):
                 # Raven returns the raw allocation he filled, and the result is the text in it, read through the view decode of JKAShared.
                 return [f"{pad}return cString(at: {self.expr(kids[0])})" + self.trailing(cur)]
+            if self.fn.returns in ("String", "String?") and self.is_charbuf(kids[0]):
+                # Raven returns his text buffer, and the result is the text in it, a copy.
+                return [f"{pad}return String({self.expr(kids[0])})" + self.trailing(cur)]
             value = self.converted(kids[0], self.fn.returns)
             return [f"{pad}return {value}" + self.trailing(cur)]
         if kind == CursorKind.IF_STMT:
@@ -703,12 +767,20 @@ class Statements:
                         raise Hole(f"Raven stores NULL into `{self.unwrap(left).spelling}`, and a byte offset has no NULL.")
                     value = self.cursor_offset(right) if op == "=" else self.converted(right, "Int32")
                     return [f"{pad}{self.expr(left)} {op} {value}" + self.trailing(cur)]
+                stepped = self.offset_post_step(left) if op == "=" else None
+                if stepped is not None:
+                    # Raven's `*p++ = x` through the search's offset is the store at the offset and the step after it.
+                    slot = f"{self.cursor_buffer(stepped)}[{swift_name(stepped)}]"
+                    return [f"{pad}{slot} = {self.converted(right, 'Int32')}" + self.trailing(cur), f"{pad}{swift_name(stepped)} += 1"]
                 if op == "=" and self.unwrap(left).kind == CursorKind.UNARY_OPERATOR \
                         and self.operator_or_none_unary(self.unwrap(left)) == "*":
                     # A byte store through a cursor takes the value as an Int32, which the CharBuf setter narrows.
-                    slot = self.cursor_deref(self.unary_parts(self.unwrap(left))[2])
+                    pointer = self.unwrap(self.unary_parts(self.unwrap(left))[2])
+                    slot = self.cursor_deref(pointer)
                     if slot is not None:
-                        return [f"{pad}{slot} = {self.converted(right, 'Int32')}" + self.trailing(cur)]
+                        # A float pointer walk stores a float into its array.
+                        scalar = pointer.kind == CursorKind.DECL_REF_EXPR and pointer.spelling in self.table_cursors
+                        return [f"{pad}{slot} = {self.converted(right, 'Float' if scalar else 'Int32')}" + self.trailing(cur)]
                 if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.text_locals \
                         and (self.is_null(right) or self.field_slot(right) is not None or self.optional_text_call(right)):
                     optional = self.unwrap(left).spelling in self.optional_texts
@@ -728,7 +800,7 @@ class Statements:
                     call, buffer = tuple_call
                     # A list trap returns the whole buffer as a CharBuf, and the buffer takes it as it is.
                     # Any other trap returns the text to the first NUL, and the copy keeps the buffer's declared size, as the engine's write does.
-                    whole = self.registry.returns.get(self.callee_name(self.strip(right)), "").startswith("(Int32, JKAShared.CharBuf)")
+                    whole = self.callee_returns(self.callee_name(self.strip(right)), "").startswith("(Int32, JKAShared.CharBuf)")
                     fill = f"{buffer} = filled.1" if whole else f"strcpy(&{buffer}, filled.1)"
                     return [f"{pad}let filled = {call}", f"{pad}{self.expr(left)} = filled.0", f"{pad}{fill}"]
                 if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.table_cursors:
@@ -883,7 +955,7 @@ class Statements:
         if self.is_call(cur) and self.tuple_call(cur) is not None:
             call, buffer = self.tuple_call(cur)
             # Raven drops the trap's count, and the buffer takes the text, the second element of the tuple, as in the form above.
-            if self.registry.returns.get(self.callee_name(self.strip(cur)), "").endswith(", JKAShared.CharBuf)"):
+            if self.callee_returns(self.callee_name(self.strip(cur)), "").endswith(", JKAShared.CharBuf)"):
                 return [f"{pad}{buffer} = {call}.1" + self.trailing(cur)]
             return [f"{pad}strcpy(&{buffer}, {call}.1)" + self.trailing(cur)]
         if self.is_call(cur) and self.aliased_inouts(cur):
@@ -959,7 +1031,7 @@ class Statements:
             negated = True
             inner = self.unwrap(self.unary_parts(inner)[2])
         name = self.callee_name(self.strip(inner)) if self.is_call(self.strip(inner)) else None
-        returns = self.registry.returns.get(name, "") if name else ""
+        returns = self.callee_returns(name, "") if name else ""
         if not any(returns.startswith(f"({first}, {text})") for first in ("Bool", "Int32") for text in ("String", "JKAShared.CharBuf")):
             return None
         filled = self.tuple_call(inner)
@@ -972,6 +1044,10 @@ class Statements:
         pad = INDENT * depth
         kids = list(cur.get_children())
         cond, then = kids[0], kids[1]
+        guard = self.offset_guard(cur, kids)
+        if guard is not None:
+            # Raven's NULL test of the search leaves the block early, and the bound offset stands for the rest of the block.
+            return [f"{pad}guard {guard} else {{"] + self.branch(then, depth + 1) + roled([f"{pad}}}"], "frame")
         found = self.aliased_in_test(cond)
         head: list[str] = []
         if found is not None:

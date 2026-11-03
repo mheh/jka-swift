@@ -11,6 +11,7 @@ import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
 from spelling import INT_KINDS
+from reexport import SCALARS
 
 from skeleton import BG, LOGIC, VIEWS, target_of
 from table import Param, swift_name
@@ -255,12 +256,23 @@ class Calls:
         if own is not None:
             # The channel's forward in bg and the game function in the game can differ in a vector the game body never writes.
             return own
+        unit = self.registry.target_params.get((VIEWS, name))
+        if unit is not None:
+            # The trap of the run's unit, so a cgame body takes the cgame trap and a game body the game trap.
+            return unit
         if name in self.registry.params:
             return self.registry.params[name]
         fn = self.sk.by_name.get(name)
         if fn is not None and fn.mapped:
             return [(p.name.strip("`"), p.swift or "") for p in fn.params]
         return []
+
+    def callee_returns(self, name: str | None, default: str | None = None) -> str | None:
+        """The callee's Swift return, by the same order as `callee_params`: the logic target, the unit's view target, then any target."""
+        for key in ((target_of(self.fn.stem), name), (VIEWS, name)):
+            if key in self.registry.target_returns:
+                return self.registry.target_returns[key]
+        return self.registry.returns.get(name or "", default) if default is not None else self.registry.returns.get(name or "")
 
     def null_local(self, name: str) -> str:
         """The name of the nil optional a caller passes for Raven's NULL, the parameter's own name, numbered on a repeat,
@@ -394,7 +406,7 @@ class Calls:
                 and inner.referenced.type.get_canonical().kind == TypeKind.CONSTANTARRAY \
                 and inner.referenced.type.get_canonical().element_type.kind != TypeKind.RECORD \
                 and param[1].replace("JKAShared.", "").removesuffix("?").removeprefix("Slots<").removesuffix(">") \
-                == inner.referenced.type.element_type.spelling:
+                in (inner.referenced.type.element_type.spelling, SCALARS.get(inner.referenced.type.element_type.get_canonical().kind)):
             # The scalar array field of a view reads as its Slots, `cgs.gameModels`, and the callee takes the Slots of that scalar.
             return text
         if param is not None and self.types.is_slots(param[1]):

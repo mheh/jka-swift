@@ -30,6 +30,7 @@ import clang.cindex as ci
 from clang.cindex import CursorKind
 
 from reexport import SOURCES
+from rulings import DEAD
 import closure as C
 import store as S
 from skeleton import Function, Skeleton
@@ -88,6 +89,8 @@ class Registry:
         self.target_params: dict[tuple[str, str], list[tuple[str, str]]] = {}
         # The Swift return type of each function, so a call to one that returns a value takes no bind.
         self.returns: dict[str, str] = {}
+        # The Swift return of each function by the Swift target that holds it, the twin of `target_params`.
+        self.target_returns: dict[tuple[str, str], str] = {}
         # Every overload's parameters, so an argument converts only when no overload takes it as it is.
         self.overloads: dict[str, list[list[tuple[str, str]]]] = {}
         # The Swift targets that hold each file-scope function and variable, so a bg body that reaches a game-only name keeps a hole.
@@ -131,6 +134,7 @@ class Registry:
                 self.overloads.setdefault(name, []).append(params)
                 r = re.search(r"->\s*(.+?)\s*\{?\s*$", line[end + 1:])
                 self.returns.setdefault(name, r.group(1) if r else "Void")
+                self.target_returns.setdefault((target, name), r.group(1) if r else "Void")
                 if FILE_FUNC.match(line):
                     self.homes.setdefault(name, set()).add(target)
 
@@ -212,8 +216,9 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.drafted = {}
         self.forms = {}
         self.statement_seqs = {}
-        if not fn.mapped or not header[-1].startswith("}"):
+        if not fn.mapped or not header[-1].startswith("}") or fn.raven_name in DEAD:
             # The stub stands as the skeleton wrote it, and only its closing brace is no header line.
+            # A dead function of rule 20 keeps its stub, so the draft prints the stub and counts no hole.
             self.line_keys = [None] * len(header)
             self.line_roles = ["header"] * (len(header) - 1) + ["frame"]
             self.line_trailing = [None] * len(header)
@@ -251,6 +256,8 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.after_com_error = False
         # Raven's `char *buf` locals that only ever hold a CHARBUF_ALLOCS call at one constant size, which Swift holds as a CharBuf of that size.
         self.charbuf_allocs = self.charbuf_alloc_names(fn.cur)
+        # Raven's ring of static text buffers the function returns, by the buffer's name, with the index that picks one.
+        self.ring_buffers = self.ring_buffer_names(fn.cur)
         self.charbuf_locals: set[str] = set(self.charbuf_allocs)
         # Raven's vector parameters a caller passes NULL to and the body only reads, which cross as optional values.
         self.optional_vectors = {c.spelling for c, p in zip(fn.cur.get_arguments(), fn.params)
@@ -271,6 +278,8 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.raw_locals = self.raw_local_names(fn.cur) - self.charbuf_locals
         # Raven's `const char *token` that only holds parsed text is a String.
         self.text_locals, self.optional_texts = self.text_local_names(fn.cur)
+        # A cursor the parser steps through a cast of its address is a TextCursor, even where a store gives it a call's text.
+        self.text_locals -= set(self.cursor_locals)
         # The slot text each copy stands for inside the one call being drafted, `fxAxis[2]` for `fxAxis2`.
         self.slot_copies: dict[str, str] = {}
         # The copy that stands in for each earlier aliased argument of the one call being drafted, keyed by the argument's extent and position.

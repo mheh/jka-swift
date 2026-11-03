@@ -45,7 +45,7 @@ from clang.cindex import CursorKind, TypeKind
 
 import closure as C
 from reexport import DEPS, SCALARS, SOURCES, VIEW_OF, source_lines
-from rulings import NEVER_NULL, ROOTS, SLOT_BOUNDS
+from rulings import BYTE_STORAGE_FIELDS, NEVER_NULL, ROOTS, SLOT_BOUNDS
 from spelling import Types
 
 # Every C target the translation unit of the run's unit reaches, most specific first.
@@ -348,6 +348,9 @@ class Generator:
         if canonical.kind == TypeKind.CONSTANTARRAY:
             count = canonical.element_count
             address = f"UnsafeMutableRawPointer(self.raw.pointer(to: \\.{name})!)"
+            if canonical.element_type.get_canonical().kind == TypeKind.CHAR_S and (self.owner_of(field), name) in BYTE_STORAGE_FIELDS:
+                # The engine holds the address of this field, so the view reads the address, and a body views records at its base.
+                return [f"    public var {name}: UnsafeMutableRawPointer {{ {address} }}"]
             if canonical.element_type.get_canonical().kind == TypeKind.CHAR_S:
                 capacity = self.bound(field, target, 0, count)
                 lines: list[str] = []
@@ -554,15 +557,34 @@ class Generator:
         arg_types = arguments(proto)
         first_record = self.types.record_name(arg_types[0].get_canonical().get_pointee()) if arg_types and arg_types[0].get_canonical().kind == TypeKind.POINTER else None
         owner_first = first_record == owner
+        decls = [c for c in field.get_children() if c.kind == CursorKind.PARM_DECL]
         for i, arg in enumerate(arg_types):
             canonical = arg.get_canonical()
             label = names[i] if i < len(names) else f"p{i}"
+            # The declared type keeps Raven's typedef name, which the decayed pointer of the prototype drops.
+            declared = " ".join(t.spelling for t in decls[i].get_tokens()) if i < len(decls) else ""
             if canonical.kind == TypeKind.POINTER:
                 pointee = canonical.get_pointee()
                 record = self.types.record_name(pointee)
                 if record in self.views:
                     params.append(f"_ {label}: {self.qualified_view(record, target)}?")
                     args.append(f"{label}?.handle")
+                elif pointee.get_canonical().kind == TypeKind.CHAR_S and pointee.is_const_qualified():
+                    # A `const char *` is the text, and JKAShared's withCString hands the C function its bytes for the call.
+                    params.append(f"_ {label}: String")
+                    layers.append(f"withCString({label}) {{ {label} in")
+                    args.append(f"OpaquePointer({label})")
+                elif pointee.get_canonical().kind == TypeKind.FLOAT and ("vec4_t" in declared.split()
+                                                                       or ("float" in declared.split() and pointee.is_const_qualified())):
+                    # Raven's `vec4_t` is four floats, as SIMD4<Float> is, by value when const and inout when Raven writes it.
+                    # His `const float *` is a color of four floats too, the R4 rule of a parameter.
+                    if "const" in declared.split():
+                        params.append(f"_ {label}: JKAShared.vec4_t")
+                        layers.append(f"withUnsafePointer(to: {label}) {{ {label} in")
+                    else:
+                        params.append(f"_ {label}: inout JKAShared.vec4_t")
+                        layers.append(f"withUnsafeMutablePointer(to: &{label}) {{ {label} in")
+                    args.append(f"OpaquePointer({label})")
                 elif pointee.get_canonical().kind == TypeKind.FLOAT:
                     # A `vec_t *` parameter is a vector, by value when const and inout when Raven writes it, rule 11.
                     if pointee.is_const_qualified():

@@ -48,10 +48,13 @@ borrowed = [
     "codemp/game/FighterNPC.c",
     "codemp/game/SpeederNPC.c",
     "codemp/game/WalkerNPC.c",
+    # Raven's cgame build compiles the ui file under CGAME too, oracle/codemp/cgame/JK2_cgame.vcproj:471.
+    "codemp/ui/ui_shared.c",
 ]
 borrowed_rust = [
     "bg/src/vehicles",
     "cgame/src/vehicle_npc.rs",
+    "uishared/src",
 ]
 
 [output]

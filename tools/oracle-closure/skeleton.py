@@ -49,7 +49,7 @@ import reexport
 from fnsweep import binop_assign_op, rhs_function, root_var
 from overlay import MACROS, written_arguments
 from reexport import REPO, SOURCES
-from rulings import BYTE_STORAGE_VARS, HAND_MACROS, HAND_VARS, LIBC_FUNCTIONS, NEVER_NULL_VARS, NOT_PORTED, PUBLIC_NAMES, RETURNS, TYPES
+from rulings import BYTE_STORAGE_VARS, DEAD, HAND_MACROS, HAND_VARS, LIBC_FUNCTIONS, NEVER_NULL_VARS, NOT_PORTED, PUBLIC_NAMES, RETURNS, TYPES
 from store import Store, combined, file_hash, named
 from table import Param, SourceFile, Table, swift_name
 
@@ -1192,6 +1192,8 @@ class Skeleton:
             if RETURNS.get(fn.name) == "in_place":
                 lines.append("// Raven returns the argument, which the caller already holds.")
             lines.append(f"{self.signature(fn)} {{")
+            if fn.raven_name in DEAD:
+                lines.append(f"    // {DEAD[fn.raven_name]}, so it is dead.")
         lines += [
             f"    // TODO: Port {fn.name}",
             f'    portMissing("{fn.name}", source: "{fn.cite}")',

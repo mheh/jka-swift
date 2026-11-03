@@ -93,7 +93,7 @@ An enum of that last kind is `private let` constants of type `Int32` at the top 
 | a `vec3_t name[3]` parameter | `inout [vec3_t]`, the type `AnglesToAxis`, `AxisClear`, and `AxisCopy` take in `q_math.swift` |
 | a non-const `char *` parameter of a function that is not a trap, with or without a size parameter beside it | `String` when the text sweep reads every use, `String?` when the NULL sweep also reaches it, and `inout CharBuf` otherwise, where the caller passes its own buffer with `&`. A `const char *` stays `String`. |
 | a function-pointer parameter | an optional Swift closure, whose parameters go through these same rows |
-| a `void *` return | `UnsafeMutableRawPointer` for `BG_Alloc`, `BG_AllocUnaligned`, and `BG_TempAlloc`, and also for `B_Alloc`, `B_TempAlloc`, and `G_Alloc`. `BG_StringAlloc` and `G_NewString` return `String`, the text a `char *` field takes. |
+| a `void *` return | `UnsafeMutableRawPointer` for `BG_Alloc`, `BG_AllocUnaligned`, and `BG_TempAlloc`, and also for `B_Alloc`, `B_TempAlloc`, `G_Alloc`, and `CG_StrPool_Alloc`. `BG_StringAlloc`, `G_NewString`, and `CG_NewString` return `String`, the text a `char *` field takes. |
 | a pointer parameter Raven fills as a fixed set of floats, such as `float *colors` of `BG_ValidateSkinForTeam` | `inout vec3_t` |
 | a `qhandle_t *` parameter of a trap or strap function | `UnsafeMutablePointer<Int32>?` |
 | a `const char *` return | `String`, or `String?` where the RETURNS kind `optional_string` marks a function that returns `NULL` on one path. |
@@ -144,7 +144,7 @@ A caller that holds one record's view has no `Slots` over that one record, and t
 
 A proof over callers covers the game unit and the cgame unit, the two units the port parses.
 The ui unit is outside every caller proof, because no ui parse exists, and no sweep guesses at a ui call site.
-The cgame parse compiles `ui_shared.c`, and every sweep skips it, because the file is in the ui folder.
+The cgame parse compiles `ui_shared.c`, and the cgame row borrows it, so the cgame sweeps read it as a cgame file and its stub stands in the cgame logic target.
 
 A trap's array of struct pointers is a storage table's base, and it keeps its marker under the PARAMS kind `pointer_array`.
 A trap's `char *` parameter with a size beside it is already the returned `String` the engine filled.
@@ -453,7 +453,7 @@ The stub forwards it under Raven's name at Raven's line, `var gWPNum: Int32 { ge
 A name in `NEVER_NULL_VARS` of `rulings.py`, `pm` among them, forwards non-optional and traps on nil with the name, because Raven's callers set it before any body runs.
 A `void *` variable is an engine handle, an `OpaquePointer?` whose `NULL` or `0` initializer is nil, so a body hands `g2SaberInstance` to a Ghoul2 trap by value and `&g2SaberInstance` by address.
 A variable the module assigns and Raven gives a data initializer, a brace list, is a hand property of the state object with Raven's data, and the stub forwards it the same way.
-A name in `HAND_VARS` of `rulings.py` is a variable whose storage is hand work, and its stub entry says so. The `bg_pool` and `memoryPool` entries have no storage, and they keep the stub from a `CharBuf` of the pool size.
+A name in `HAND_VARS` of `rulings.py` is a variable whose storage is hand work, and its stub entry says so. The `bg_pool`, `memoryPool`, and `cg_strPool` entries have no storage, and they keep the stub from a `CharBuf` of the pool size.
 A C character array at file scope is a `CharBuf` of Raven's bound.
 A variable Raven declares with no initializer is his all the same, zeroed by the loader, and its entry says C's zero where the initializer would be.
 A file-scope array of struct pointers, such as `gWPArray`, is one zeroed allocation the world owns, on the generated `GameStorage` class in `Sources/JKAMP_Game/Generated/Storage/GameStorage.swift`, as a `Slots` of optional views, born and freed with `GameWorld`.
