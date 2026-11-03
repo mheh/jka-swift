@@ -733,10 +733,12 @@ private func CG_ConfigStringModified() {
         cgs.teamVoteNo[num - CS_TEAMVOTE_NO] = atoi(str)
         cgs.teamVoteModified[num - CS_TEAMVOTE_NO] = true
     } else if num >= CS_TEAMVOTE_STRING && num <= CS_TEAMVOTE_STRING + 1 {
-        // Raven passes sizeof(teamVoteString), 2048, so the NUL pad of row 0 clears row 1 and the pad of row 1 overruns the array.
-        // The store bounds the text to its row, and the other row keeps its bytes.
         var teamVoteString = CharBuf(2048)
         Q_strncpyz(&teamVoteString, str, 2048)
+        // Raven's Q_strncpyz takes the size of both rows, 2048 bytes, so the NUL pad of a copy into row 0 also zeroes row 1.
+        if num - CS_TEAMVOTE_STRING == 0 {
+            cgs.teamVoteString.zero()
+        }
         cgs.teamVoteString[num - CS_TEAMVOTE_STRING] = String(teamVoteString)
     } else if num == CS_INTERMISSION {
         cg.intermissionStarted = atoi(str) != 0
