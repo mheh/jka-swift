@@ -89,6 +89,9 @@ class Calls:
         args = kids[1:]
         if callee is not None and callee.kind == CursorKind.DECL_REF_EXPR and callee.referenced is not None and callee.referenced.kind == CursorKind.FUNCTION_DECL:
             name = callee.spelling
+            if name == "vsprintf":
+                # The statement form copies the formatted text into the buffer. A read of the count it returns has no form yet.
+                raise Hole("Raven reads the count `vsprintf` returns, and the variadic form has no count.")
             if name in MACROS:
                 return self.macro_call(name, args)
             if name == "FOFS":

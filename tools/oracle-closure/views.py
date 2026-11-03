@@ -692,17 +692,18 @@ class Generator:
         head = "return " if returns and not always else ""
         if cursor is not None:
             # The cursor's bytes stay put for the call, and the offset the function leaves is read back as the cursor's own.
+            kind = returns or "Void"
             body += [
                 f"        var bytes = {cursor}.buf",
                 f"        let start = {cursor}.offset",
-                "        let offset: Int32? = bytes.withUnsafeMutableRawPointer { base in",
+                f"        let (offset, result) = bytes.withUnsafeMutableRawPointer {{ base -> (Int32?, {kind}) in",
                 "            var pointer: UnsafeMutablePointer<CChar>? = start.map { base.assumingMemoryBound(to: CChar.self) + Int($0) }",
-                f"            withUnsafeMutablePointer(to: &pointer) {{ cursorAddress in {call} }}",
-                "            return pointer.map { Int32(UnsafeMutableRawPointer($0) - base) }",
+                f"            let result: {kind} = withUnsafeMutablePointer(to: &pointer) {{ cursorAddress in {call} }}",
+                "            return (pointer.map { Int32(UnsafeMutableRawPointer($0) - base) }, result)",
                 "        }",
                 f"        {cursor}.buf = bytes",
                 f"        {cursor}.offset = offset",
-            ]
+            ] + ([] if returns else ["        _ = result"]) + ([f"        {head}result"] if returns else [])
         elif layers:
             body.append("        " + head + layers[0])
             for depth, layer in enumerate(layers[1:], start=3):

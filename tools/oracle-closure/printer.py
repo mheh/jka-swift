@@ -31,8 +31,9 @@ import store as S
 from layout import COMPILE_NOTE, INDENT, port_note
 from lowering_key import LANGUAGE, lowered_keys, lowering_modules
 
-# A module qualifier appears only to break a genuine ambiguity, the short-name rule of porting-rules.md, and no body line has one.
-QUALIFIER = re.compile(r"\b(JKAMP|JKAShared)\.(?=[A-Za-z_])")
+# A module qualifier appears only to break a genuine ambiguity, the short-name rule of porting-rules.md.
+# The one a body line keeps is `JKAShared.format(`, because a parameter named `format` hides the function in a variadic body.
+QUALIFIER = re.compile(r"\b(JKAMP|JKAShared)\.(?=[A-Za-z_])(?!format\()")
 
 
 def short_named(line: str) -> str:
