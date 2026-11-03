@@ -1,0 +1,5 @@
+module CJKAZlib {
+    header "CJKAZlib.h"
+    link "z"
+    export *
+}

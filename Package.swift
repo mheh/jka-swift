@@ -9,11 +9,20 @@ let package = Package(
     products: [
         .library(name: "jampgame", type: .dynamic, targets: ["jampgame"]),
         .library(name: "cgame", type: .dynamic, targets: ["cgame"]),
+        .executable(name: "jampded", targets: ["jampded"]),
     ],
     targets: [
         // MARK: - C, the syscall shim
         // The variadic call the Swift importer cannot express. It holds no Raven header.
         .target(name: "CJKASyscall"),
+        // The engine side of the same call, the variadic callee VM_DllSyscall and the module load.
+        // It holds no Raven header.
+        .target(name: "CJKAHost", dependencies: ["CJKASyscall"]),
+
+        // MARK: - C, the system zlib
+        // The inflate calls of the pk3 reader.
+        // The module map links the system zlib, because zlib is not Raven's code.
+        .systemLibrary(name: "CJKAZlib"),
 
         // MARK: - C, the copied Raven headers, written by merge.py
         // A type both trees define identically, 48 today. Every other C target depends on it.
@@ -52,6 +61,8 @@ let package = Package(
         // dllEntry and vmMain. It decodes words and calls the bare functions.
         .target(name: "jampgame", dependencies: ["JKAMP_GameLogic"]),
         .target(name: "cgame", dependencies: ["JKAMP_CGameLogic"]),
+        // The dedicated server shell holds main, and it becomes the jampded executable.
+        .executableTarget(name: "jampded", dependencies: ["CJKAHost", "JKAShared"]),
         // The dlopen loader, run in its own process, so the smoke test never loads the built library into the test process.
         .executableTarget(name: "jampsmoke", dependencies: ["CJKASyscall"]),
 
@@ -73,5 +84,14 @@ let package = Package(
         .testTarget(name: "JKAMP_CGameTests", dependencies: ["JKAMP_CGameLogic", "JKATestSupport"]),
         // The cgame smoke test runs the same loader on the cgame library, so it does not depend on cgame.
         .testTarget(name: "cgameTests", dependencies: ["CJKAMP_CGame"]),
+        // The host test calls VM_DllSyscall through the module side shim, so it depends on both C targets.
+        // The test finds VM_DllSyscall with dlsym, and a Linux executable puts its symbols in the dynamic table only with --export-dynamic.
+        .testTarget(
+            name: "CJKAHostTests",
+            dependencies: ["CJKAHost", "CJKASyscall"],
+            linkerSettings: [.unsafeFlags(["-Xlinker", "--export-dynamic"], .when(platforms: [.linux]))]
+        ),
+        // The dedicated server smoke test runs the jampded executable as a process, so it depends on no target.
+        .testTarget(name: "jampdedTests"),
     ]
 )
