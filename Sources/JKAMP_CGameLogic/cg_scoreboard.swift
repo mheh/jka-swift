@@ -246,9 +246,7 @@ private func CG_TeamScoreboard(_ y: Int32, _ team: JKAMP.team_t, _ fade: Float, 
         }
 
         if !countOnly {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Float]' to expected argument type 'Float'".
-            // Raven wrote: CG_DrawClientScore( y + lineHeight * count, score, color, fade, lineHeight == SB_NORMAL_HEIGHT )
-            portMissing("CG_TeamScoreboard", source: "oracle/codemp/cgame/cg_scoreboard.c:232")
+            CG_DrawClientScore(y + lineHeight * count, score!, &color[0], fade, lineHeight == SB_NORMAL_HEIGHT)
         }
 
         count += 1
@@ -344,7 +342,7 @@ func CG_DrawOldScoreboard() -> Bool {
     var n1: Int32
     var n2: Int32
     let fade: Float
-    let fadeColor: vec4_t?
+    var fadeColor: vec4_t?
     var s: String
     var maxClients: Int32
     let lineHeight: Int32
@@ -374,9 +372,7 @@ func CG_DrawOldScoreboard() -> Bool {
             cg.killerName = ""
             return false
         }
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: fade = *fadeColor
-        portMissing("CG_DrawOldScoreboard", source: "oracle/codemp/cgame/cg_scoreboard.c:345")
+        fade = fadeColor![0]
     }
 
     // fragged by ... line
@@ -591,9 +587,7 @@ func CG_DrawOldScoreboard() -> Bool {
         i = 0
         while i < cg.numScores {
             if cg.scores[i].client == cg.snap!.ps.clientNum {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t?' (aka 'Optional<SIMD4<Float>>') to expected argument type 'Float'".
-                // Raven wrote: CG_DrawClientScore( y, &cg.scores[i], fadeColor, fade, lineHeight == SB_NORMAL_HEIGHT )
-                portMissing("CG_DrawOldScoreboard", source: "oracle/codemp/cgame/cg_scoreboard.c:345")
+                CG_DrawClientScore(y, cg.scores[i], &fadeColor![0], fade, lineHeight == SB_NORMAL_HEIGHT)
                 break
             }
             i += 1
@@ -601,9 +595,10 @@ func CG_DrawOldScoreboard() -> Bool {
     }
 
     // load any models that have been deferred
-    // Port-note: A ++ inside an expression.
-    // Raven wrote: if ( ++cg.deferredPlayerLoading > 10 ) { CG_LoadDeferredPlayers(); }
-    portMissing("CG_DrawOldScoreboard", source: "oracle/codemp/cgame/cg_scoreboard.c:345")
+    cg.deferredPlayerLoading += 1
+    if cg.deferredPlayerLoading > 10 {
+        CG_LoadDeferredPlayers()
+    }
 
     return true
 }
