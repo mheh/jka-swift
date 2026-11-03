@@ -9,10 +9,10 @@
 // Swift cannot write a C variadic callee, so both stay in C.
 
 // The Swift host installs this function before the first VM_Call, as VM_Create sets vm->systemCall.
-// It gets the command and 14 words, and the count is always 15.
+// It gets the words of the call in one array.
 // Source: oracle/codemp/qcommon/vm_local.h:115
 // AI: Raven passed each syscall word as an int, which holds a pointer only on a 32-bit build. The words are intptr_t, so a pointer stays whole on a 64-bit host.
-typedef intptr_t (*jka_systemcall_fn)(const intptr_t *parms, int count);
+typedef intptr_t (*jka_systemcall_fn)(const intptr_t *parms);
 
 // Source: oracle/codemp/qcommon/vm.cpp:506
 extern jka_systemcall_fn jka_systemCall;
