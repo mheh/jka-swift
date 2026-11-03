@@ -10,6 +10,240 @@ public final class EngineWorld {
     var variables = EngineVariables()
     let strings = StringPool.shared
 
+    // MARK: - Raven's data tables
+
+    // MARK: - cm_shader.cpp
+
+    /// Raven's `const char *svMaterialNames[MATERIAL_LAST]` of `cm_shader.cpp`, the `MATERIALS` list of oracle/codemp/game/surfaceflags.h:90.
+    /// Source: oracle/codemp/qcommon/cm_shader.cpp:285
+    var svMaterialNames: [String] = [
+        "none",
+        "solidwood",
+        "hollowwood",
+        "solidmetal",
+        "hollowmetal",
+        "shortgrass",
+        "longgrass",
+        "dirt",
+        "sand",
+        "gravel",
+        "glass",
+        "concrete",
+        "marble",
+        "water",
+        "snow",
+        "ice",
+        "flesh",
+        "mud",
+        "bpglass",
+        "dryleaves",
+        "greenleaves",
+        "fabric",
+        "canvas",
+        "rock",
+        "rubber",
+        "plastic",
+        "tiles",
+        "carpet",
+        "plaster",
+        "shatterglass",
+        "armor",
+        "computer",
+    ]
+
+    // MARK: - md4.cpp
+
+    /// Raven's `static unsigned char PADDING[64]` of `md4.cpp`.
+    /// Source: oracle/codemp/qcommon/md4.cpp:78
+    var PADDING: [UInt8] = [
+        0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    ]
+
+    // MARK: - net_chan.cpp
+
+    /// Raven's `static char *netsrcString[2]` of `net_chan.cpp`.
+    /// Source: oracle/codemp/qcommon/net_chan.cpp:45
+    var netsrcString: [String] = [
+        "client",
+        "server"
+    ]
+
+    // MARK: - sv_ccmds.cpp
+
+    // AI: Raven ended the table with NULL. A `[String]` holds no NULL, and every read of Raven stops below NUM_FORCE_POWERS, so the table ends at the last name.
+    /// Raven's `static const char *forceToggleNamePrints[]` of `sv_ccmds.cpp`.
+    /// Source: oracle/codemp/server/sv_ccmds.cpp:789
+    var forceToggleNamePrints: [String] = [
+        "HEAL",//FP_HEAL
+        "JUMP",//FP_LEVITATION
+        "SPEED",//FP_SPEED
+        "PUSH",//FP_PUSH
+        "PULL",//FP_PULL
+        "MINDTRICK",//FP_TELEPTAHY
+        "GRIP",//FP_GRIP
+        "LIGHTNING",//FP_LIGHTNING
+        "DARK RAGE",//FP_RAGE
+        "PROTECT",//FP_PROTECT
+        "ABSORB",//FP_ABSORB
+        "TEAM HEAL",//FP_TEAM_HEAL
+        "TEAM REPLENISH",//FP_TEAM_FORCE
+        "DRAIN",//FP_DRAIN
+        "SEEING",//FP_SEE
+        "SABER OFFENSE",//FP_SABER_OFFENSE
+        "SABER DEFENSE",//FP_SABER_DEFENSE
+        "SABER THROW",//FP_SABERTHROW
+    ]
+
+    // MARK: - vm_interpreted.cpp
+
+    // AI: Raven sized the table at 256 and left the slots after OP_CVFI NULL. A `[String]` holds no NULL, so the table ends at the last name.
+    /// Raven's `static char *opnames[256]` of `vm_interpreted.cpp`, under the `DEBUG_VM` that the file defines.
+    /// Source: oracle/codemp/qcommon/vm_interpreted.cpp:9
+    var opnames: [String] = [
+        "OP_UNDEF",
+
+        "OP_IGNORE",
+
+        "OP_BREAK",
+
+        "OP_ENTER",
+        "OP_LEAVE",
+        "OP_CALL",
+        "OP_PUSH",
+        "OP_POP",
+
+        "OP_CONST",
+
+        "OP_LOCAL",
+
+        "OP_JUMP",
+
+        //-------------------
+
+        "OP_EQ",
+        "OP_NE",
+
+        "OP_LTI",
+        "OP_LEI",
+        "OP_GTI",
+        "OP_GEI",
+
+        "OP_LTU",
+        "OP_LEU",
+        "OP_GTU",
+        "OP_GEU",
+
+        "OP_EQF",
+        "OP_NEF",
+
+        "OP_LTF",
+        "OP_LEF",
+        "OP_GTF",
+        "OP_GEF",
+
+        //-------------------
+
+        "OP_LOAD1",
+        "OP_LOAD2",
+        "OP_LOAD4",
+        "OP_STORE1",
+        "OP_STORE2",
+        "OP_STORE4",
+        "OP_ARG",
+
+        "OP_BLOCK_COPY",
+
+        //-------------------
+
+        "OP_SEX8",
+        "OP_SEX16",
+
+        "OP_NEGI",
+        "OP_ADD",
+        "OP_SUB",
+        "OP_DIVI",
+        "OP_DIVU",
+        "OP_MODI",
+        "OP_MODU",
+        "OP_MULI",
+        "OP_MULU",
+
+        "OP_BAND",
+        "OP_BOR",
+        "OP_BXOR",
+        "OP_BCOM",
+
+        "OP_LSH",
+        "OP_RSHI",
+        "OP_RSHU",
+
+        "OP_NEGF",
+        "OP_ADDF",
+        "OP_SUBF",
+        "OP_DIVF",
+        "OP_MULF",
+
+        "OP_CVIF",
+        "OP_CVFI"
+    ]
+
+    // MARK: - z_memman_pc.cpp
+
+    /// Raven's `const static char *psTagStrings[TAG_COUNT+1]` of `z_memman_pc.cpp`, the `TAGDEF` list of oracle/codemp/qcommon/tags.h with no `_XBOX`.
+    /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:14
+    var psTagStrings: [String] = [
+        "ALL",
+        "BOTLIB",
+        "CLIENTS",
+        "BOTGAME",
+        "DOWNLOAD",
+        "GENERAL",
+        "CLIPBOARD",
+        "SND_MP3STREAMHDR",
+        "SND_DYNAMICMUSIC",
+        "BSP_DISKIMAGE",
+        "VM",
+        "SPECIAL_MEM_TEST",
+        "HUNK_MARK1",
+        "HUNK_MARK2",
+        "EVENT",
+        "FILESYS",
+        "GHOUL2",
+        "GHOUL2_GORE",
+        "LISTFILES",
+        "AMBIENTSET",
+        "STATIC",
+        "SMALL",
+        "MODEL_MD3",
+        "MODEL_GLM",
+        "MODEL_GLA",
+        "ICARUS",
+        "ICARUS2",
+        "ICARUS3",
+        "ICARUS4",
+        "ICARUS5",
+        "SHADERTEXT",
+        "SND_RAWDATA",
+        "TEMP_WORKSPACE",
+        "TEMP_PNG",
+        "TEXTPOOL",
+        "IMAGE_T",
+        "INFLATE",
+        "DEFLATE",
+        "BSP",
+        "GRIDMESH",
+        "POINTCACHE",
+        "TERRAIN",
+        "R_TERRAIN",
+        "RESAMPLE",
+        "CM_TERRAIN",
+        "CM_TERRAIN_TEMP",
+        "TEMP_IMAGE",
+        "VM_ALLOCATED",
+        "TEMP_HUNKALLOC",
+        "COUNT",
+    ]
+
     /// The shell entry builds a fresh world, so the initializer is public.
     public init() {}
 }
