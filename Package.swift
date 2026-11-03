@@ -8,6 +8,7 @@ let package = Package(
     platforms: [.macOS(.v15)],
     products: [
         .library(name: "jampgame", type: .dynamic, targets: ["jampgame"]),
+        .library(name: "cgame", type: .dynamic, targets: ["cgame"]),
     ],
     targets: [
         // MARK: - C, the syscall shim

@@ -26,6 +26,8 @@ rm -rf "$HOME_PATH"
 # Copy the library with the engine's name into the mod folder.
 mkdir -p "$HOME_PATH/$MOD"
 cp -f "$ROOT/.build/debug/libjampgame.dylib" "$HOME_PATH/$MOD/jampgamearm64.dylib"
+# Copy the cgame library with the engine's name beside it. A listen server loads it, and the dedicated server does not.
+cp -f "$ROOT/.build/debug/libcgame.dylib" "$HOME_PATH/$MOD/cgamearm64.dylib"
 
 # Run the server once, hold it for FRAMES frames, and stop.
 # A trap inside G_ShutdownGame can stop the engine's own exit, so an alarm ends the process.
