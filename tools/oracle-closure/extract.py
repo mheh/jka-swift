@@ -41,7 +41,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import closure as C
-from rulings import HAND_FILES, HEADER_PRELUDES, PLATFORM_MACROS
+from rulings import C_STRUCT_CLASSES, HAND_FILES, HEADER_PRELUDES, PLATFORM_MACROS
 from clang.cindex import CursorKind, TypeKind
 
 REPO = C.REPO
@@ -884,6 +884,15 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
                 typed.override = f"// Raven redefines {d.name} as `{' '.join(body_tokens)}` at {d.cite}, so that is the type.\ntypedef {' '.join(body_tokens)} {d.name};"
         NOTES.append(f"{d.cite} macro {d.name} renames the typedef {d.name}, which now reads: typedef {' '.join(body_tokens)} {d.name}")
     decls = [d for d in decls if d not in shadowing]
+    for d in decls:
+        if d.kind == "class" and d.name in C_STRUCT_CLASSES:
+            # The struct holds the fields alone, each in Raven's text with `struct` in the place of `class`.
+            lines = lines_of(d.file)
+            fields = [re.sub(r"\bclass\b", "struct", lines[f.extent.start.line - 1][f.extent.start.column - 1:f.extent.end.column - 1])
+                      for f in d.cur.get_children() if f.kind == CursorKind.FIELD_DECL]
+            d.kind = "struct"
+            d.override = (f"// Raven declares {d.name} as a class at {d.cite}. C has no class, so the fields stand as a struct and the methods stay out.\n"
+                          f"struct {d.name}\n{{\n" + "".join(f"\t{field};\n" for field in fields) + "};")
     macro_names = {d.name: d for d in decls if d.kind == "macro"}
     link(decls, macro_names)
     commit = oracle_commit()
@@ -922,7 +931,7 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
         # A class does not, because `class X;` is not C.
         if tag is None or (decl.filename in cxx_files and record.kind != CursorKind.STRUCT_DECL and record.kind != CursorKind.UNION_DECL):
             continue
-        keyword = record.kind.name.replace("_DECL", "").lower()
+        keyword = "struct" if record.kind == CursorKind.CLASS_DECL else record.kind.name.replace("_DECL", "").lower()
         forward.append(f"{keyword} {tag};")
         if decl.kind == "typedef":
             forward.append(f"typedef {keyword} {tag} {decl.name};")
@@ -1099,7 +1108,7 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
         includes = sorted(decl.includes | {"forward.h"})
         record = decl.record()
         if decl.kind in ("struct", "union", "enum") and record is not None and tag_of(record) and tag_of(record) not in type_names - {decl.name}:
-            keyword = record.kind.name.replace("_DECL", "").lower()
+            keyword = "struct" if record.kind == CursorKind.CLASS_DECL else record.kind.name.replace("_DECL", "").lower()
             text += f"\n// C++ names the tag without its keyword, and this typedef lets C do the same.\ntypedef {keyword} {tag_of(record)} {tag_of(record)};"
         # A C declaration carries only the system headers its own types came from. A C++ declaration also repeats its header's includes,
         # because a class body reaches std:: names the type scan does not see.
