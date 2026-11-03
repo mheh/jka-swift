@@ -284,3 +284,10 @@ The C++ method hole of `tools/oracle-closure/draft_calls.py:128-133` and the bod
 `check.sh` defines `__arm64__` on the aarch64 triples of `CJKAMP_Ded` (`tools/oracle-closure/check.sh:27`), so the macOS SDK takes its arm64 arm on a Linux and a Windows triple. The SDK of the Mac checks the layout of every triple, and no Linux or Windows C library takes part. The proposal is to accept this for the check, because the layout asserts come from the extract and `FILE` stands behind a pointer alone.
 
 The guard `_SYS_SYSLIMITS_H_` of row S4 (`tools/oracle-closure/project.toml`, the host defines) names a header of the macOS SDK. A host parse on Linux reads `PATH_MAX` from `linux/limits.h` and would take 4096. The proposal is to add the Linux guard `_LINUX_LIMITS_H` beside it when the tools first run on Linux.
+
+## The ledger of the second pass
+
+- The cgame cache refresh: ratified as proposed, refreshed in place with `snapshot.py --unit mp-cgame --out` at the landing, by row S10.
+- The two drafter changes of S1: ratified as proposed. The C++ method hole and the body hole stay, and the C++ docket reads the 77 method holes.
+- `__arm64__` on the aarch64 triples of the check: ratified as proposed.
+- The Linux guard for `PATH_MAX`: ratified as proposed, added when the tools first run on Linux.
