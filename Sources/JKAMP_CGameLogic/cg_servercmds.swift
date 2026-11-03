@@ -1107,9 +1107,9 @@ private func CG_BodyQueueCopy(_ cent: Centity, _ clientNum: Int32, _ knownWeapon
     }
 
     //either force the weapon from when we died or remove it if it was a dropped weapon
-    if knownWeapon > WP_BRYAR_PISTOL && trap_G2API_HasGhoul2ModelOnIndex((cent.ghoul2), 1) {
+    if knownWeapon > WP_BRYAR_PISTOL && trap_G2API_HasGhoul2ModelOnIndex(&(cent.ghoul2), 1) {
         trap_G2API_RemoveGhoul2Model(&(cent.ghoul2), 1)
-    } else if trap_G2API_HasGhoul2ModelOnIndex((cent.ghoul2), 1) {
+    } else if trap_G2API_HasGhoul2ModelOnIndex(&(cent.ghoul2), 1) {
         trap_G2API_CopySpecificGhoul2Model(CG_G2WeaponInstance(cent, knownWeapon), 0, cent.ghoul2, 1)
     }
 

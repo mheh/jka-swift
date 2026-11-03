@@ -7381,7 +7381,7 @@ func CG_Player(_ cent: Centity) {
                         if (cent.currentState.eFlags & EF_JETPACK) != 0 && !((cent.currentState.eFlags & EF_DEAD) != 0) && cg_g2JetpackInstance != nil {
                             //should have a jetpack attached
                             //1 is rhand weap, 2 is lhand weap (akimbo sabs), 3 is jetpack
-                            if !trap_G2API_HasGhoul2ModelOnIndex((cent.ghoul2), 3) {
+                            if !trap_G2API_HasGhoul2ModelOnIndex(&(cent.ghoul2), 3) {
                                 trap_G2API_CopySpecificGhoul2Model(cg_g2JetpackInstance, 0, cent.ghoul2, 3)
                             }
 
@@ -7431,12 +7431,12 @@ func CG_Player(_ cent: Centity) {
                                     trap_S_AddLoopingSound(cent.currentState.number, cent.lerpOrigin, vec3_origin, trap_S_RegisterSound("sound/boba/JETHOVER"))
                                 }
                             }
-                        } else if trap_G2API_HasGhoul2ModelOnIndex((cent.ghoul2), 3) {
+                        } else if trap_G2API_HasGhoul2ModelOnIndex(&(cent.ghoul2), 3) {
                             //fixme: would be good if this could be done not every frame
                             trap_G2API_RemoveGhoul2Model(&(cent.ghoul2), 3)
                         }
 
-                        g2HasWeapon = trap_G2API_HasGhoul2ModelOnIndex((cent.ghoul2), 1)
+                        g2HasWeapon = trap_G2API_HasGhoul2ModelOnIndex(&(cent.ghoul2), 1)
 
                         if !g2HasWeapon {
                             //force a redup of the weapon instance onto the client instance

@@ -1468,8 +1468,10 @@ public func trap_G2API_DuplicateGhoul2Instance(_ g2From: OpaquePointer?, _ g2To:
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:905
 @discardableResult
-public func trap_G2API_HasGhoul2ModelOnIndex(_ ghlInfo: OpaquePointer?, _ modelIndex: Int32) -> Bool {
-let word = Syscall.call(CG_G2_HASGHOUL2MODELONINDEX, ghlInfo, modelIndex)
+public func trap_G2API_HasGhoul2ModelOnIndex(_ ghlInfo: inout OpaquePointer?, _ modelIndex: Int32) -> Bool {
+    let word = withUnsafeMutablePointer(to: &ghlInfo) { ghlInfo in
+        Syscall.call(CG_G2_HASGHOUL2MODELONINDEX, ghlInfo, modelIndex)
+    }
     return word != 0
 }
 

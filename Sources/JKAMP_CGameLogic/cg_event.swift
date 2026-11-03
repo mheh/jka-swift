@@ -2718,7 +2718,7 @@ func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
         if cg_debugEvents.integer != 0 {
             CG_Printf("EV_DESTROY_WEAPON_MODEL\n")
         }
-        if cg_entities[es!.eventParm].ghoul2 != nil && trap_G2_HaveWeGhoul2Models(cg_entities[es!.eventParm].ghoul2) && trap_G2API_HasGhoul2ModelOnIndex((cg_entities[es!.eventParm].ghoul2), 1) {
+        if cg_entities[es!.eventParm].ghoul2 != nil && trap_G2_HaveWeGhoul2Models(cg_entities[es!.eventParm].ghoul2) && trap_G2API_HasGhoul2ModelOnIndex(&(cg_entities[es!.eventParm].ghoul2), 1) {
             trap_G2API_RemoveGhoul2Model(&(cg_entities[es!.eventParm].ghoul2), 1)
         }
 

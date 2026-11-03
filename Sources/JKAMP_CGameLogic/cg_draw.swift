@@ -487,16 +487,16 @@ func CG_Text_Paint(_ x: Float, _ y: Float, _ scale: Float, _ color: JKAShared.ve
         iStyleOR = STYLE_BLINK
 
     case ITEM_TEXTSTYLE_SHADOWED:
-        iStyleOR = Int32(STYLE_DROPSHADOW)
+        iStyleOR = Int32(bitPattern: STYLE_DROPSHADOW)
 
     case ITEM_TEXTSTYLE_OUTLINED:
-        iStyleOR = Int32(STYLE_DROPSHADOW)
+        iStyleOR = Int32(bitPattern: STYLE_DROPSHADOW)
 
     case ITEM_TEXTSTYLE_OUTLINESHADOWED:
-        iStyleOR = Int32(STYLE_DROPSHADOW)
+        iStyleOR = Int32(bitPattern: STYLE_DROPSHADOW)
 
     case ITEM_TEXTSTYLE_SHADOWEDMORE:
-        iStyleOR = Int32(STYLE_DROPSHADOW)
+        iStyleOR = Int32(bitPattern: STYLE_DROPSHADOW)
 
     default:
         break
@@ -3746,7 +3746,8 @@ private func CG_DrawPowerupIcons(_ y: Int32) {
     y += 16
 
     j = 0
-    while j <= PW_NUM_POWERUPS {
+    // AI: Raven reads powerups[PW_NUM_POWERUPS], one past the end of the array. The port stops at the count.
+    while j < PW_NUM_POWERUPS {
         if cg.snap!.ps.powerups[j] > cg.time {
             let secondsleft: Int32 = (cg.snap!.ps.powerups[j] - cg.time) / 1000
 

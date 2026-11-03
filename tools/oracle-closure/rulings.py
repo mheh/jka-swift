@@ -473,6 +473,7 @@ PARAMS = {
     ("displayContextDef_t.ownerDrawHandleKey", "special"): "float_mut",
     ("trap_G2API_RemoveGhoul2Models", "ghlInfo"): "out_opaque",
     ("trap_G2API_RemoveGhoul2Model", "ghlInfo"): "out_opaque",
+    ("trap_G2API_HasGhoul2ModelOnIndex", "ghlInfo"): "out_opaque",
 }
 
 # Rule 20: a function with no caller in either tree stays as its stub, and the stub carries one note line that it is dead.
