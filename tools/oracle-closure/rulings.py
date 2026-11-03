@@ -410,6 +410,8 @@ PARAMS = {
     # `char hitSurface[MAX_QPATH]` is the one size for the surface name.
     ("trap_G2API_GetGLAName", "fillBuf"): ("fill_buffer", "1024"),
     ("trap_G2API_GetSurfaceName", "fillBuf"): ("fill_buffer", "JKAShared.MAX_QPATH"),
+    # PC_SourceWarning and PC_SourceError of ui_shared.c:385 and :407 declare `char filename[128]`, and the engine writes the file name into it.
+    ("trap_PC_SourceFileAndLine", "filename"): ("fill_buffer", "128"),
     # A pointer to a table of records the body indexes, `table[i]`, crosses as the Slots over the table.
     ("GetIDForString", "table"): "table",
     ("GetStringForID", "table"): "table",
