@@ -14,6 +14,8 @@ let package = Package(
         // MARK: - C, the syscall shim
         // The variadic call the Swift importer cannot express. It holds no Raven header.
         .target(name: "CJKASyscall"),
+        // The engine side of the same call: the variadic callee VM_DllSyscall and the module load. It holds no Raven header.
+        .target(name: "CJKAHost", dependencies: ["CJKASyscall"]),
 
         // MARK: - C, the copied Raven headers, written by merge.py
         // A type both trees define identically, 48 today. Every other C target depends on it.
