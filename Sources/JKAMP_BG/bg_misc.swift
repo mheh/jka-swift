@@ -52,6 +52,19 @@ public var bg_customSiegeSoundNames: [String] {
     set { bg.bg_customSiegeSoundNames = newValue }
 }
 
+/// Raven's `forceMasteryLevels` of `bg_misc.c`, the string key of each rank.
+/// Source: oracle/codemp/game/bg_misc.c:150
+public let forceMasteryLevels: [String] = [
+    "MASTERY0",	//"Uninitiated",	// FORCE_MASTERY_UNINITIATED,
+    "MASTERY1",	//"Initiate",		// FORCE_MASTERY_INITIATE,
+    "MASTERY2",	//"Padawan",		// FORCE_MASTERY_PADAWAN,
+    "MASTERY3",	//"Jedi",			// FORCE_MASTERY_JEDI,
+    "MASTERY4",	//"Jedi Adept",		// FORCE_MASTERY_JEDI_GUARDIAN,
+    "MASTERY5",	//"Jedi Guardian",	// FORCE_MASTERY_JEDI_ADEPT,
+    "MASTERY6",	//"Jedi Knight",	// FORCE_MASTERY_JEDI_KNIGHT,
+    "MASTERY7",	//"Jedi Master"		// FORCE_MASTERY_JEDI_MASTER,
+]
+
 /// Raven's `forceMasteryPoints` of `bg_misc.c`, the points a rank allows.
 /// Source: oracle/codemp/game/bg_misc.c:162
 let forceMasteryPoints: [Int32] = [
