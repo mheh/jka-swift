@@ -511,7 +511,7 @@ PC_String_Parse
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:623
-func PC_String_Parse(_ handle: Int32, _ out: inout JKAShared.TextCursor) -> Bool {
+func PC_String_Parse(_ handle: Int32, _ out: inout String) -> Bool {
     // TODO: Port PC_String_Parse
     portMissing("PC_String_Parse", source: "oracle/codemp/ui/ui_shared.c:623")
 }
