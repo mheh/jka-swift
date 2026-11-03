@@ -541,6 +541,10 @@ PLATFORM_MACROS = {"PATH_MAX"}
 # `clipMap_t.shaders` at cm_local.h:165 points at `CCMShader`, whose four methods are inline accessors, so the C struct leaves them out.
 C_STRUCT_CLASSES = {"CCMShader": "oracle/codemp/qcommon/cm_local.h:77"}
 
+# C targets whose copied headers include a C library header, as CJKASyscall includes <stdint.h>.
+# `qfile_gut` of files.h:71 holds a `FILE *`, so CJKAMP_Ded includes <stdio.h>, and its parses take the include path of the SDK, row S3.
+SDK_TARGETS = {"CJKAMP_Ded"}
+
 # Header macros the port leaves out, with the reason the reexport carries instead of a marker.
 NOT_PORTED_MACROS = {
     "MATERIALS": "a list of material names no body of the module names",
