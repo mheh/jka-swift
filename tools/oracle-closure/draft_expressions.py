@@ -12,7 +12,7 @@ from clang.cindex import CursorKind, TypeKind
 
 from spelling import Facts, UNSIGNED, VECTORS
 
-from rulings import PARAMS, HAND_MACROS, HAND_VARS, WRAPPING_ARITHMETIC
+from rulings import PARAMS, HAND_MACROS, HAND_VARS, RETURNS, WRAPPING_ARITHMETIC
 from overlay import MACRO_RETURNS, MACROS
 import closure as C
 from skeleton import BG, LOGIC, VIEWS, target_of
@@ -975,6 +975,9 @@ class Expressions:
                     return self.expr(operand)
                 if self.field_kind(operand) == ("view", record):
                     # The FIELDS row already gives the `void *` field the view of this record, so the cast is the field.
+                    return self.expr(operand)
+                if self.strip(operand).kind == CursorKind.CALL_EXPR and RETURNS.get(self.callee_name(self.strip(operand)) or "") == ("view", record):
+                    # The RETURNS row already gives the `void *` return the view of this record, so the cast is the call.
                     return self.expr(operand)
                 if self.types.record_name(self.strip(operand).type.get_canonical().get_pointee()) == record:
                     # A cast to the type the operand already has is Raven's habit, and the view is the same view.

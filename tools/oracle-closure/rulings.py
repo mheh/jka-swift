@@ -254,6 +254,8 @@ FIELDS = {
     ("itemDef_t", "typeData"): "raw",
     # Every store is a menu, `item->parent = menu` at ui_shared.c:1530, :4428, :4613, :4669, and :9697, and every read casts it to `menuDef_t *`.
     ("itemDef_t", "parent"): ("view", "menuDef_t"),
+    # cg_newDraw.c:855 stores the menu of Display_CaptureItem, and cg_newDraw.c:776 hands it to Display_MouseMove.
+    ("cgs_t", "capturedItem"): ("view", "menuDef_t"),
 }
 
 @dataclass(frozen=True)
@@ -313,6 +315,7 @@ TYPES = {
 #   text_offset_nonnull  an Int32 byte offset into the argument that is never NULL
 #   vec3           a JKAShared.vec3_t by value, for a `float *` Raven returns out of a static ring of temporaries
 #   table          a Slots over the records a field holds, for a function that returns the pointer of a field with a bound in SLOT_BOUNDS
+#   view           the optional view of the record named beside the kind, ("view", record), for a `void *` return of that record or NULL
 RETURNS = {
     "SkipWhitespace": "text_cursor",
     "ClientConnect": "optional_string",
@@ -339,6 +342,8 @@ RETURNS = {
     "tv": "vec3",
     # BG_AnimsetAlloc returns `bgAllAnims[bgNumAllAnims].anims` at bg_panimate.c:1734, the table the parser indexes. Row X10 of 2026-10-27.
     "BG_AnimsetAlloc": "table",
+    # Display_CaptureItem returns `&Menus[i]` or NULL at ui_shared.c:9858, and both callers cast it to `menuDef_t *`.
+    "Display_CaptureItem": ("view", "menuDef_t"),
 }
 
 # Allocators whose `char *` result a body holds as a CharBuf of the constant size Raven asks for, when every store into the local is that call.
@@ -428,6 +433,8 @@ PARAMS = {
     ("trap_CG_RegisterSharedMemory", "memory"): "raw",
     # Raven casts `void *p` to `menuDef_t *` at cg_main.c:2858, and his callers pass `menuScoreboard` at cg_draw.c:6780 and NULL at cg_servercmds.c:68.
     ("CG_SetScoreSelection", "p"): ("view", "menuDef_t"),
+    # Raven casts `void *p` to `menuDef_t *` at ui_shared.c:9881, and cg_newDraw.c:776 and :778 pass `cgs.capturedItem` or NULL.
+    ("Display_MouseMove", "p"): ("view", "menuDef_t"),
     # Raven casts `void *p` to `scrollInfo_t *` at ui_shared.c:3833 and the four siblings, and the one caller passes `captureData`, which holds `&scrollInfo`.
     ("Scroll_TextScroll_AutoFunc", "p"): ("view", "scrollInfo_t"),
     ("Scroll_TextScroll_ThumbFunc", "p"): ("view", "scrollInfo_t"),

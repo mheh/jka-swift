@@ -2124,6 +2124,9 @@ class Table:
             return ("Int32", "")
         if ruled == "vec3":
             return ("JKAShared.vec3_t", "")
+        if isinstance(ruled, tuple) and ruled[0] == "view":
+            # Every return is the record or NULL, so the function returns that record's optional view.
+            return (f"{self.views.qualified_view(ruled[1], TARGET)}?", "")
         result = self.result_type(cur.result_type)
         if result is not None and result[0] == "String" and cur.spelling in self.null_returns:
             # The body hands NULL back at one site, so the text is optional and `return nil` is that site.
