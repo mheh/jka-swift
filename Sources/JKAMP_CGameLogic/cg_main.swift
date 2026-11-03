@@ -473,7 +473,7 @@ var cg_strPoolSize: Int32 {
 
 /// Source: oracle/codemp/cgame/cg_main.c:3311
 // Raven wrote: static byte cg_strPool[MAX_CGSTRPOOL_SIZE]
-// No storage, by the HAND_VARS ruling.
+// AI: Raven allocates from this static pool. Each allocation is its own block, so the pool has no storage.
 
 /// Source: oracle/codemp/cgame/cg_main.c:3393
 // Raven wrote: BG_field_t cg_spawnFields[]
@@ -3047,27 +3047,20 @@ func CG_TransitionPermanent() {
 
 /// Source: oracle/codemp/cgame/cg_main.c:3313
 func CG_StrPool_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
-    // Port-note: A pointer local `char * giveThemThis` with no view.
-    // Raven wrote: char *giveThemThis;
-    portMissing("CG_StrPool_Alloc", source: "oracle/codemp/cgame/cg_main.c:3313")
+    let giveThemThis: UnsafeMutableRawPointer
 
     if cg_strPoolSize + size >= MAX_CGSTRPOOL_SIZE {
         Com_Error(ERR_DROP, "You exceeded the cgame string pool size. Bad programmer!\n")
     }
 
-    // Port-note: A store into `giveThemThis`, a local the draft left as a hole.
-    // Raven wrote: giveThemThis = (char *) &cg_strPool[cg_strPoolSize]
-    portMissing("CG_StrPool_Alloc", source: "oracle/codemp/cgame/cg_main.c:3313")
+    // AI: Raven returns a pointer into cg_strPool. Each call allocates one block that is never freed, as G_Alloc does.
+    giveThemThis = UnsafeMutableRawPointer.allocate(byteCount: Int(size), alignment: 16)
     cg_strPoolSize += size
 
     //memset it for them, just to be nice.
-    // Port-note: Raven's `memset(giveThemThis, 0, size)` runs over bytes that are not one record with a view.
-    // Raven wrote: memset(giveThemThis, 0, size)
-    portMissing("CG_StrPool_Alloc", source: "oracle/codemp/cgame/cg_main.c:3313")
+    giveThemThis.initializeMemory(as: UInt8.self, repeating: 0, count: Int(size))
 
-    // Port-note: A read of `giveThemThis`, a local the draft left as a hole.
-    // Raven wrote: return giveThemThis
-    portMissing("CG_StrPool_Alloc", source: "oracle/codemp/cgame/cg_main.c:3313")
+    return giveThemThis
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3331
@@ -3087,10 +3080,9 @@ so message texts can be multi-line
 */
 /// Source: oracle/codemp/cgame/cg_main.c:3344
 func CG_NewString(_ string: String) -> String {
+    let string = CharBuf(string)
     let newb: UnsafeMutableRawPointer
-    // Port-note: A pointer local `char * new_p` with no view.
-    // Raven wrote: new_p;
-    portMissing("CG_NewString", source: "oracle/codemp/cgame/cg_main.c:3344")
+    var new_p: Int32
     var i: Int32
     let l: Int32
 
@@ -3098,28 +3090,23 @@ func CG_NewString(_ string: String) -> String {
 
     newb = CG_StrPool_Alloc(l)
 
-    // Port-note: A store into `new_p`, a local the draft left as a hole.
-    // Raven wrote: new_p = newb
-    portMissing("CG_NewString", source: "oracle/codemp/cgame/cg_main.c:3344")
+    new_p = 0
 
     // turn \n into a real linefeed
     i = 0
     while i < l {
-        if CharBuf(string)[i] == Int32(ascii: "\\") && i < l - 1 {
+        if string[i] == Int32(ascii: "\\") && i < l - 1 {
             i += 1
-            if CharBuf(string)[i] == Int32(ascii: "n") {
-                // Port-note: A pointer dereference the draft cannot place.
-                // Raven wrote: *new_p++ = '\n'
-                portMissing("CG_NewString", source: "oracle/codemp/cgame/cg_main.c:3344")
+            if string[i] == Int32(ascii: "n") {
+                newb[byte: new_p] = Int32(ascii: "\n")
+                new_p += 1
             } else {
-                // Port-note: A pointer dereference the draft cannot place.
-                // Raven wrote: *new_p++ = '\\'
-                portMissing("CG_NewString", source: "oracle/codemp/cgame/cg_main.c:3344")
+                newb[byte: new_p] = Int32(ascii: "\\")
+                new_p += 1
             }
         } else {
-            // Port-note: A pointer dereference the draft cannot place.
-            // Raven wrote: *new_p++ = string[i]
-            portMissing("CG_NewString", source: "oracle/codemp/cgame/cg_main.c:3344")
+            newb[byte: new_p] = string[i]
+            new_p += 1
         }
         i += 1
     }
