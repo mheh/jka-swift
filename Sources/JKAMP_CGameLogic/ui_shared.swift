@@ -17,17 +17,16 @@ let SCROLL_TIME_ADJUSTOFFSET = 40 as Int32
 let SCROLL_TIME_FLOOR = 20 as Int32
 
 /// Source: oracle/codemp/ui/ui_shared.c:97
-// TODO: Port global scrollInfo
-// Raven wrote: static scrollInfo_t scrollInfo
-// No view for `struct scrollInfo_s`, a struct Raven defines inside a .c file.
+var scrollInfo: ScrollInfo { world.storage.scrollInfo }
 
 /// Source: oracle/codemp/ui/ui_shared.c:99
-// TODO: Port global captureFunc
-// Raven wrote: static void (*captureFunc) (void *p) = 0
-// No table row for `void (*)(void *)`.
+var captureFunc: ((ScrollInfo?) -> Void)? {
+    get { world.variables.captureFunc }
+    set { world.variables.captureFunc = newValue }
+}
 
 /// Source: oracle/codemp/ui/ui_shared.c:100
-var captureData: OpaquePointer? {
+var captureData: ScrollInfo? {
     get { world.variables.captureData }
     set { world.variables.captureData = newValue }
 }
@@ -125,9 +124,8 @@ var outOfMemory: Int32 {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:157
-// TODO: Port global itemFlags
 // Raven wrote: itemFlagsDef_t itemFlags []
-// No view for `struct itemFlagsDef_s`, a struct Raven defines inside a .c file.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/ui/ui_shared.c:162
 // Raven wrote: char *styles []
@@ -163,9 +161,7 @@ var strHandleCount: Int32 {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:288
-// TODO: Port global strHandle
-// Raven wrote: static stringDef_t *strHandle[HASH_TABLE_SIZE]
-// No table row for `stringDef_t *[2048]`.
+var strHandle: Slots<StringDef?> { world.storage.strHandle }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1571
 var FPMessageTime: Int32 {
@@ -198,9 +194,8 @@ var ui_deferredScriptItem: ItemDef? {
 let scriptCommandCount: Int32 = { () -> Int32 in portMissing("scriptCommandCount", source: "oracle/codemp/ui/ui_shared.c:2304") }()
 
 /// Source: oracle/codemp/ui/ui_shared.c:5190
-// TODO: Port global g_bindings
 // Raven wrote: static bind_t g_bindings[]
-// No view for `bind_t`, a struct Raven defines inside a .c file.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/ui/ui_shared.c:5295
 // Raven wrote: static const int g_bindCount = sizeof(g_bindings) / sizeof(bind_t)
@@ -225,9 +220,10 @@ let COLOR_MAX = 255.0 as Float
 let KEYWORDHASH_SIZE = 512 as Int32
 
 /// Source: oracle/codemp/ui/ui_shared.c:7487
-// TODO: Port global ui_G2PtrTracker
-// Raven wrote: uiG2PtrTracker_t *ui_G2PtrTracker = NULL
-// No table row for `uiG2PtrTracker_t *`.
+var ui_G2PtrTracker: UiG2PtrTracker? {
+    get { world.variables.ui_G2PtrTracker }
+    set { world.variables.ui_G2PtrTracker = newValue }
+}
 
 /// Source: oracle/codemp/ui/ui_shared.c:8601
 // Raven wrote: char currLanguage[32][128]
@@ -266,7 +262,29 @@ UI_Alloc
 */
 /// Source: oracle/codemp/ui/ui_shared.c:209
 func UI_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
-    // TODO: Port UI_Alloc
+    // Port-note: A pointer local `char * p` with no view.
+    // Raven wrote: char *p;
+    portMissing("UI_Alloc", source: "oracle/codemp/ui/ui_shared.c:209")
+
+    if allocPoint + size > MEM_POOL_SIZE {
+        outOfMemory = 1
+        if DC!.Print != nil {
+            DC!.runPrint("UI_Alloc: Failure. Out of memory!\n")
+        }
+        //DC->trap_Print(S_COLOR_YELLOW"WARNING: UI Out of Memory!\n");
+        // Port-note: Raven returns NULL, and the function returns a `UnsafeMutableRawPointer`.
+        // Raven wrote: return NULL
+        portMissing("UI_Alloc", source: "oracle/codemp/ui/ui_shared.c:209")
+    }
+
+    // Port-note: A store into `p`, a local the draft left as a hole.
+    // Raven wrote: p = &memoryPool[allocPoint]
+    portMissing("UI_Alloc", source: "oracle/codemp/ui/ui_shared.c:209")
+
+    allocPoint += (size + 15) & ~15
+
+    // Port-note: A read of `p`, a local the draft left as a hole.
+    // Raven wrote: return p
     portMissing("UI_Alloc", source: "oracle/codemp/ui/ui_shared.c:209")
 }
 
@@ -322,12 +340,8 @@ private func hashForString(_ str: String) -> CLong {
 func String_Alloc(_ p: String) -> String? {
     let len: Int32
     let hash: CLong
-    // Port-note: A pointer local `stringDef_t * str` with no view.
-    // Raven wrote: stringDef_t *str;
-    portMissing("String_Alloc", source: "oracle/codemp/ui/ui_shared.c:291")
-    // Port-note: A pointer local `stringDef_t * last` with no view.
-    // Raven wrote: last;
-    portMissing("String_Alloc", source: "oracle/codemp/ui/ui_shared.c:291")
+    var str: StringDef?
+    var last: StringDef?
     // Port-note: A static local `staticNULL` the function returns, storage that outlives the call.
     // Raven wrote: static const char *staticNULL = "";
     portMissing("String_Alloc", source: "oracle/codemp/ui/ui_shared.c:291")
@@ -342,12 +356,13 @@ func String_Alloc(_ p: String) -> String? {
 
     hash = hashForString(p)
 
-    // Port-note: A store into `str`, a local the draft left as a hole.
-    // Raven wrote: str = strHandle[hash]
-    portMissing("String_Alloc", source: "oracle/codemp/ui/ui_shared.c:291")
-    // Port-note: A read of `str`, a local the draft left as a hole.
-    // Raven wrote: while (str) { if (strcmp(p, str->str) == 0) { return str->str; } str = str->next; }
-    portMissing("String_Alloc", source: "oracle/codemp/ui/ui_shared.c:291")
+    str = strHandle[hash]
+    while str != nil {
+        if strcmp(p, str!.str!) == 0 {
+            return str!.str
+        }
+        str = str!.next
+    }
 
     len = strlen(p)
     if len + strPoolIndex + 1 < STRING_POOL_SIZE {
@@ -355,28 +370,22 @@ func String_Alloc(_ p: String) -> String? {
         strcpy(&strPool[strPoolIndex], p)
         strPoolIndex += len + 1
 
-        // Port-note: A store into `str`, a local the draft left as a hole.
-        // Raven wrote: str = strHandle[hash]
-        portMissing("String_Alloc", source: "oracle/codemp/ui/ui_shared.c:291")
-        // Port-note: A store into `last`, a local the draft left as a hole.
-        // Raven wrote: last = str
-        portMissing("String_Alloc", source: "oracle/codemp/ui/ui_shared.c:291")
-        // Port-note: A read of `last`, a local the draft left as a hole.
-        // Raven wrote: while (last && last->next) { last = last->next; }
-        portMissing("String_Alloc", source: "oracle/codemp/ui/ui_shared.c:291")
+        str = strHandle[hash]
+        last = str
+        while last != nil && last!.next != nil {
+            last = last!.next
+        }
 
-        // Port-note: A store into `str`, a local the draft left as a hole.
-        // Raven wrote: str = (stringDef_t *) UI_Alloc(sizeof(stringDef_t))
-        portMissing("String_Alloc", source: "oracle/codemp/ui/ui_shared.c:291")
-        // Port-note: A read of `str`, a local the draft left as a hole.
-        // Raven wrote: str->next = NULL
-        portMissing("String_Alloc", source: "oracle/codemp/ui/ui_shared.c:291")
-        // Port-note: A read of `str`, a local the draft left as a hole.
+        str = StringDef(UI_Alloc(Int32(StringDef.byteCount)))
+        str!.next = nil
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Int8' to type 'String'".
         // Raven wrote: str->str = &strPool[ph]
         portMissing("String_Alloc", source: "oracle/codemp/ui/ui_shared.c:291")
-        // Port-note: A read of `last`, a local the draft left as a hole.
-        // Raven wrote: if (last) { last->next = str; } else { strHandle[hash] = str; }
-        portMissing("String_Alloc", source: "oracle/codemp/ui/ui_shared.c:291")
+        if last != nil {
+            last!.next = str
+        } else {
+            strHandle[hash] = str
+        }
         // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert return expression of type 'Int8' to return type 'String'".
         // Raven wrote: return &strPool[ph]
         portMissing("String_Alloc", source: "oracle/codemp/ui/ui_shared.c:291")
@@ -413,7 +422,7 @@ func String_Init() {
     var i: Int32
     i = 0
     while i < HASH_TABLE_SIZE {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'strHandle' in scope".
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Int' to subscript of type 'StringDef'".
         // Raven wrote: strHandle[i] = 0
         portMissing("String_Init", source: "oracle/codemp/ui/ui_shared.c:363")
         i += 1
@@ -438,27 +447,16 @@ PC_SourceWarning
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:385
-func PC_SourceWarning(_ handle: Int32, _ format: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg...) {
+func PC_SourceWarning(_ handle: Int32, _ format: String, _ args: any JKAShared.FormatArg...) {
     var line: Int32 = 0
     var filename = CharBuf(128)
-    // Port-note: A pointer local `va_list argptr` with no view.
-    // Raven wrote: va_list argptr;
-    portMissing("PC_SourceWarning", source: "oracle/codemp/ui/ui_shared.c:385")
     var string = CharBuf(4096)
 
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
-    // Raven wrote: va_start (argptr, format)
-    portMissing("PC_SourceWarning", source: "oracle/codemp/ui/ui_shared.c:385")
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
-    // Raven wrote: vsprintf (string, format, argptr)
-    portMissing("PC_SourceWarning", source: "oracle/codemp/ui/ui_shared.c:385")
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
-    // Raven wrote: va_end (argptr)
-    portMissing("PC_SourceWarning", source: "oracle/codemp/ui/ui_shared.c:385")
+    strcpy(&string, JKAShared.format(format, args))
 
     filename[0] = 0
     line = 0
-    trap_PC_SourceFileAndLine(handle, String(filename), &line)
+    strcpy(&filename, trap_PC_SourceFileAndLine(handle, &line).1)
 
     Com_Printf(S_COLOR_YELLOW + "WARNING: %s, line %d: %s\n", filename, line, string)
 }
@@ -471,27 +469,16 @@ PC_SourceError
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:407
-func PC_SourceError(_ handle: Int32, _ format: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg...) {
+func PC_SourceError(_ handle: Int32, _ format: String, _ args: any JKAShared.FormatArg...) {
     var line: Int32 = 0
     var filename = CharBuf(128)
-    // Port-note: A pointer local `va_list argptr` with no view.
-    // Raven wrote: va_list argptr;
-    portMissing("PC_SourceError", source: "oracle/codemp/ui/ui_shared.c:407")
     var string = CharBuf(4096)
 
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
-    // Raven wrote: va_start (argptr, format)
-    portMissing("PC_SourceError", source: "oracle/codemp/ui/ui_shared.c:407")
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
-    // Raven wrote: vsprintf (string, format, argptr)
-    portMissing("PC_SourceError", source: "oracle/codemp/ui/ui_shared.c:407")
-    // Port-note: A read of `argptr`, a local the draft left as a hole.
-    // Raven wrote: va_end (argptr)
-    portMissing("PC_SourceError", source: "oracle/codemp/ui/ui_shared.c:407")
+    strcpy(&string, JKAShared.format(format, args))
 
     filename[0] = 0
     line = 0
-    trap_PC_SourceFileAndLine(handle, String(filename), &line)
+    strcpy(&filename, trap_PC_SourceFileAndLine(handle, &line).1)
 
     Com_Printf(S_COLOR_RED + "ERROR: %s, line %d: %s\n", filename, line, string)
 }
@@ -529,8 +516,14 @@ Float_Parse
 */
 /// Source: oracle/codemp/ui/ui_shared.c:449
 func Float_Parse(_ p: inout JKAShared.TextCursor, _ f: inout Float) -> Bool {
-    // TODO: Port Float_Parse
-    portMissing("Float_Parse", source: "oracle/codemp/ui/ui_shared.c:449")
+    let token: String
+    token = COM_ParseExt(&p, false)
+    if !token.isEmpty {
+        f = Float(atof(token))
+        return true
+    } else {
+        return false
+    }
 }
 
 /**
@@ -557,9 +550,7 @@ func PC_Float_Parse(_ handle: Int32, _ f: inout Float) -> Bool {
             negative = 1
         }
         if token.type != TT_NUMBER {
-            // Port-note: Raven passes `"expected float but found %s\n"` to `PC_SourceError`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: PC_SourceError(handle, "expected float but found %s\n", token.string)
-            portMissing("PC_Float_Parse", source: "oracle/codemp/ui/ui_shared.c:465")
+            PC_SourceError(handle, "expected float but found %s\n", token.string)
             return false
         }
         if negative != 0 {
@@ -580,8 +571,18 @@ Color_Parse
 */
 /// Source: oracle/codemp/ui/ui_shared.c:492
 func Color_Parse(_ p: inout JKAShared.TextCursor, _ c: inout JKAShared.vec4_t) -> Bool {
-    // TODO: Port Color_Parse
-    portMissing("Color_Parse", source: "oracle/codemp/ui/ui_shared.c:492")
+    var i: Int32
+    var f: Float = 0
+
+    i = 0
+    while i < 4 {
+        if !Float_Parse(&p, &f) {
+            return false
+        }
+        (c)[Int(i)] = f
+        i += 1
+    }
+    return true
 }
 
 /**
@@ -616,8 +617,15 @@ Int_Parse
 */
 /// Source: oracle/codemp/ui/ui_shared.c:528
 func Int_Parse(_ p: inout JKAShared.TextCursor, _ i: inout Int32) -> Bool {
-    // TODO: Port Int_Parse
-    portMissing("Int_Parse", source: "oracle/codemp/ui/ui_shared.c:528")
+    let token: String
+    token = COM_ParseExt(&p, false)
+
+    if !token.isEmpty {
+        i = atoi(token)
+        return true
+    } else {
+        return false
+    }
 }
 
 /**
@@ -644,9 +652,7 @@ func PC_Int_Parse(_ handle: Int32, _ i: inout Int32) -> Bool {
             negative = 1
         }
         if token.type != TT_NUMBER {
-            // Port-note: Raven passes `"expected integer but found %s\n"` to `PC_SourceError`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-            // Raven wrote: PC_SourceError(handle, "expected integer but found %s\n", token.string)
-            portMissing("PC_Int_Parse", source: "oracle/codemp/ui/ui_shared.c:545")
+            PC_SourceError(handle, "expected integer but found %s\n", token.string)
             return false
         }
         i = token.intvalue
@@ -666,8 +672,16 @@ Rect_Parse
 */
 /// Source: oracle/codemp/ui/ui_shared.c:571
 func Rect_Parse(_ p: inout JKAShared.TextCursor, _ r: JKAMP.RectDef) -> Bool {
-    // TODO: Port Rect_Parse
-    portMissing("Rect_Parse", source: "oracle/codemp/ui/ui_shared.c:571")
+    if Float_Parse(&p, &r.x) {
+        if Float_Parse(&p, &r.y) {
+            if Float_Parse(&p, &r.w) {
+                if Float_Parse(&p, &r.h) {
+                    return true
+                }
+            }
+        }
+    }
+    return false
 }
 
 /**
@@ -700,8 +714,18 @@ String_Parse
 */
 /// Source: oracle/codemp/ui/ui_shared.c:607
 func String_Parse(_ p: inout JKAShared.TextCursor, _ out: inout String) -> Bool {
-    // TODO: Port String_Parse
-    portMissing("String_Parse", source: "oracle/codemp/ui/ui_shared.c:607")
+    let token: String
+
+    token = COM_ParseExt(&p, false)
+    if !token.isEmpty {
+        // Port-note: A pointer dereference the draft cannot place.
+        // Raven wrote: *(out) = String_Alloc(token)
+        portMissing("String_Parse", source: "oracle/codemp/ui/ui_shared.c:607")
+        // Port-note: A pointer dereference the draft cannot place.
+        // Raven wrote: return *(out)!=NULL
+        portMissing("String_Parse", source: "oracle/codemp/ui/ui_shared.c:607")
+    }
+    return false
 }
 
 /**
@@ -767,9 +791,7 @@ func PC_Script_Parse(_ handle: Int32, _ out: inout String?) -> Bool {
             }
 
             if Q_stricmp(token.string, "}") == 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'String?' to type 'TextCursor'".
-                // Raven wrote: *out = String_Alloc(script)
-                portMissing("PC_Script_Parse", source: "oracle/codemp/ui/ui_shared.c:650")
+                out = String_Alloc(String(script))
                 return true
             }
 
@@ -803,9 +825,7 @@ func GradientBar_Paint(_ rect: JKAMP.RectDef, _ color: JKAShared.vec4_t) {
     // gradient bar takes two paints
     DC!.runSetColor(color)
     DC!.runDrawHandlePic(rect.x, rect.y, rect.w, rect.h, DC!.Assets.gradientBar)
-    // Port-note: NULL for `v`, a vec4_t parameter.
-    // Raven wrote: DC->setColor( NULL )
-    portMissing("GradientBar_Paint", source: "oracle/codemp/ui/ui_shared.c:701")
+    DC!.runSetColor(nil)
 }
 
 /**
@@ -886,9 +906,7 @@ func Window_Paint(_ w: JKAMP.WindowDef, _ fadeAmount: Float, _ fadeClamp: Float,
                 Fade(&w.flags, &w.backColor[3], fadeClamp, &w.nextTime, Int32(fadeCycle), true, fadeAmount)
                 DC!.runSetColor(vec4_t(w.backColor[0], w.backColor[1], w.backColor[2], w.backColor[3]))
                 DC!.runDrawHandlePic(fillRect.x, fillRect.y, fillRect.w, fillRect.h, w.background)
-                // Port-note: NULL for `v`, a vec4_t parameter.
-                // Raven wrote: DC->setColor(NULL)
-                portMissing("Window_Paint", source: "oracle/codemp/ui/ui_shared.c:748")
+                DC!.runSetColor(nil)
             } else {
                 DC!.runFillRect(fillRect.x, fillRect.y, fillRect.w, fillRect.h, vec4_t(w.backColor[0], w.backColor[1], w.backColor[2], w.backColor[3]))
             }
@@ -900,14 +918,10 @@ func Window_Paint(_ w: JKAMP.WindowDef, _ fadeAmount: Float, _ fadeClamp: Float,
                 DC!.runSetColor(vec4_t(w.foreColor[0], w.foreColor[1], w.foreColor[2], w.foreColor[3]))
             }
             DC!.runDrawHandlePic(fillRect.x, fillRect.y, fillRect.w, fillRect.h, w.background)
-            // Port-note: NULL for `v`, a vec4_t parameter.
-            // Raven wrote: DC->setColor(NULL)
-            portMissing("Window_Paint", source: "oracle/codemp/ui/ui_shared.c:748")
+            DC!.runSetColor(nil)
         } else if w.style == WINDOW_STYLE_TEAMCOLOR {
             if DC!.getTeamColor != nil {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'vec4_t' (aka 'SIMD4<Float>') to expected argument type 'OpaquePointer'".
-                // Raven wrote: DC->getTeamColor(&color)
-                portMissing("Window_Paint", source: "oracle/codemp/ui/ui_shared.c:748")
+                DC!.runGetTeamColor(&color)
                 DC!.runFillRect(fillRect.x, fillRect.y, fillRect.w, fillRect.h, color)
             }
         } else if w.style == WINDOW_STYLE_CINEMATIC {
@@ -946,16 +960,12 @@ func Window_Paint(_ w: JKAMP.WindowDef, _ fadeAmount: Float, _ fadeClamp: Float,
             // top/bottom
             DC!.runSetColor(vec4_t(w.borderColor[0], w.borderColor[1], w.borderColor[2], w.borderColor[3]))
             DC!.runDrawTopBottom(w.rect.x, w.rect.y, w.rect.w, w.rect.h, w.borderSize)
-            // Port-note: NULL for `v`, a vec4_t parameter.
-            // Raven wrote: DC->setColor( NULL )
-            portMissing("Window_Paint", source: "oracle/codemp/ui/ui_shared.c:748")
+            DC!.runSetColor(nil)
         } else if w.border == WINDOW_BORDER_VERT {
             // left right
             DC!.runSetColor(vec4_t(w.borderColor[0], w.borderColor[1], w.borderColor[2], w.borderColor[3]))
             DC!.runDrawSides(w.rect.x, w.rect.y, w.rect.w, w.rect.h, w.borderSize)
-            // Port-note: NULL for `v`, a vec4_t parameter.
-            // Raven wrote: DC->setColor( NULL )
-            portMissing("Window_Paint", source: "oracle/codemp/ui/ui_shared.c:748")
+            DC!.runSetColor(nil)
         } else if w.border == WINDOW_BORDER_KCGRADIENT {
             // this is just two gradient bars along each horz edge
             // Raven's record lives to the end of his block, so the block is the closure.
@@ -1001,12 +1011,11 @@ func Item_SetScreenCoords(_ item: ItemDef, _ x: Float, _ y: Float) {
     switch item.type {
     case ITEM_TYPE_TEXTSCROLL:
         do {
-            // Port-note: A pointer local `textScrollDef_t * scrollPtr` with no view.
-            // Raven wrote: textScrollDef_t *scrollPtr = (textScrollDef_t*)item->typeData;
-            portMissing("Item_SetScreenCoords", source: "oracle/codemp/ui/ui_shared.c:891")
-            // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-            // Raven wrote: if ( scrollPtr ) { scrollPtr->startPos = 0; scrollPtr->endPos = 0; }
-            portMissing("Item_SetScreenCoords", source: "oracle/codemp/ui/ui_shared.c:891")
+            let scrollPtr: TextScrollDef? = item.typeData.map { TextScrollDef($0) }
+            if scrollPtr != nil {
+                scrollPtr!.startPos = 0
+                scrollPtr!.endPos = 0
+            }
 
             Item_TextScroll_BuildLines(item)
 
@@ -1029,9 +1038,7 @@ func Item_UpdatePosition(_ item: ItemDef) {
         return
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "missing argument label 'handle:' in call".
-    // Raven wrote: menu = (menuDef_t *) item->parent
-    portMissing("Item_UpdatePosition", source: "oracle/codemp/ui/ui_shared.c:933")
+    menu = item.parent
 
     x = menu!.window.rect.x
     y = menu!.window.rect.y
@@ -1161,38 +1168,119 @@ func Menu_GetMatchingItemByNumber(_ menu: MenuDef, _ index: Int32, _ name: Strin
 
 /// Source: oracle/codemp/ui/ui_shared.c:1063
 func Script_SetColor(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_SetColor
+    var name: String = ""
+    var i: Int32
+    var f: Float = 0
+    // Port-note: A pointer local `vec4_t * out` with no view.
+    // Raven wrote: vec4_t *out;
     portMissing("Script_SetColor", source: "oracle/codemp/ui/ui_shared.c:1063")
+
+    // expecting type of color to set and 4 args for the color
+    if String_Parse(&args, &name) {
+        // Port-note: A store into `out`, a local the draft left as a hole.
+        // Raven wrote: out = NULL
+        portMissing("Script_SetColor", source: "oracle/codemp/ui/ui_shared.c:1063")
+        if Q_stricmp(name, "backcolor") == 0 {
+            // Port-note: A store into `out`, a local the draft left as a hole.
+            // Raven wrote: out = &item->window.backColor
+            portMissing("Script_SetColor", source: "oracle/codemp/ui/ui_shared.c:1063")
+            item.window.flags |= WINDOW_BACKCOLORSET
+        } else if Q_stricmp(name, "forecolor") == 0 {
+            // Port-note: A store into `out`, a local the draft left as a hole.
+            // Raven wrote: out = &item->window.foreColor
+            portMissing("Script_SetColor", source: "oracle/codemp/ui/ui_shared.c:1063")
+            item.window.flags |= WINDOW_FORECOLORSET
+        } else if Q_stricmp(name, "bordercolor") == 0 {
+            // Port-note: A store into `out`, a local the draft left as a hole.
+            // Raven wrote: out = &item->window.borderColor
+            portMissing("Script_SetColor", source: "oracle/codemp/ui/ui_shared.c:1063")
+        }
+
+        // Port-note: A read of `out`, a local the draft left as a hole.
+        // Raven wrote: if (out) { for (i = 0; i < 4; i++) { if (!Float_Parse(args, &f)) { return qtrue; } (*out)[i] = f; } }
+        portMissing("Script_SetColor", source: "oracle/codemp/ui/ui_shared.c:1063")
+    }
+
+    return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1105
 func Script_SetAsset(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_SetAsset
-    portMissing("Script_SetAsset", source: "oracle/codemp/ui/ui_shared.c:1105")
+    var name: String = ""
+    // expecting name to set asset to
+    if String_Parse(&args, &name) {
+        // check for a model
+        if item.type == ITEM_TYPE_MODEL {
+        }
+    }
+    return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1119
 func Script_SetBackground(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_SetBackground
-    portMissing("Script_SetBackground", source: "oracle/codemp/ui/ui_shared.c:1119")
+    var name: String = ""
+    // expecting name to set asset to
+    if String_Parse(&args, &name) {
+        item.window.background = DC!.runRegisterShaderNoMip(name)
+    }
+    return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1130
 func Script_SetItemRectCvar(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_SetItemRectCvar
+    var itemName: String = ""
+    var cvarName: String = ""
+    var cvarBuf = CharBuf(1024)
+    var holdVal: String = ""
+    var holdBuf = TextCursor()
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int' to specified type 'ItemDef'".
+    // Raven wrote: itemDef_t *item2=0;
     portMissing("Script_SetItemRectCvar", source: "oracle/codemp/ui/ui_shared.c:1130")
+    var menu: MenuDef?
+
+    // expecting item group and cvar to get value from
+    if String_Parse(&args, &itemName) && String_Parse(&args, &cvarName) {
+        // Port-note: A store into `item2`, a local the draft left as a hole.
+        // Raven wrote: item2 = Menu_FindItemByName((menuDef_t *) item->parent, itemName)
+        portMissing("Script_SetItemRectCvar", source: "oracle/codemp/ui/ui_shared.c:1130")
+
+        // Port-note: A read of `item2`, a local the draft left as a hole.
+        // Raven wrote: if (item2) { // get cvar data DC->getCVarString(cvarName, cvarBuf, sizeof(cvarBuf)); holdBuf = cvarBuf; if (String_Parse(&holdBuf,&holdVal)) { menu = (menuDef_t *) item->parent; item2->window.rectClient.x = atof(holdVal) + menu->window.rect.x; if (String_Parse(&holdBuf,&holdVal)) { item2->window.rectClient.y = atof(holdVal) + menu->window.rect.y; if (String_Parse(&holdBuf,&holdVal)) { item2->window.rectClient.w = atof(holdVal); if (String_Parse(&holdBuf,&holdVal)) { item2->window.rectClient.h = atof(holdVal); item2->window.rect.x = item2->window.rectClient.x; item2->window.rect.y = item2->window.rectClient.y; item2->window.rect.w = item2->window.rectClient.w; item2->window.rect.h = item2->window.rectClient.h; return qtrue; } } } } }
+        portMissing("Script_SetItemRectCvar", source: "oracle/codemp/ui/ui_shared.c:1130")
+    }
+
+    // Default values in case things screw up
+    // Port-note: A read of `item2`, a local the draft left as a hole.
+    // Raven wrote: if (item2) { item2->window.rectClient.x = 0; item2->window.rectClient.y = 0; item2->window.rectClient.w = 0; item2->window.rectClient.h = 0; }
+    portMissing("Script_SetItemRectCvar", source: "oracle/codemp/ui/ui_shared.c:1130")
+
+    //	Com_Printf(S_COLOR_YELLOW"WARNING: SetItemRectCvar: problems. Set cvar to 0's\n" );
+
+    return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1193
 func Script_SetItemBackground(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_SetItemBackground
-    portMissing("Script_SetItemBackground", source: "oracle/codemp/ui/ui_shared.c:1193")
+    var itemName: String = ""
+    var name: String = ""
+
+    // expecting name of shader
+    if String_Parse(&args, &itemName) && String_Parse(&args, &name) {
+        Menu_SetItemBackground(item.parent!, itemName, name)
+    }
+    return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1206
 func Script_SetItemText(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_SetItemText
-    portMissing("Script_SetItemText", source: "oracle/codemp/ui/ui_shared.c:1206")
+    var itemName: String = ""
+    var text: String = ""
+
+    // expecting text
+    if String_Parse(&args, &itemName) && String_Parse(&args, &text) {
+        Menu_SetItemText(item.parent!, itemName, text)
+    }
+    return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1220
@@ -1215,26 +1303,102 @@ func Menu_FindItemByName(_ menu: MenuDef, _ p: String) -> ItemDef? {
 
 /// Source: oracle/codemp/ui/ui_shared.c:1235
 func Script_SetTeamColor(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_SetTeamColor
-    portMissing("Script_SetTeamColor", source: "oracle/codemp/ui/ui_shared.c:1235")
+    if DC!.getTeamColor != nil {
+        var i: Int32
+        var color = vec4_t()
+        DC!.runGetTeamColor(&color)
+        i = 0
+        while i < 4 {
+            item.window.backColor[Int(i)] = color[Int(i)]
+            i += 1
+        }
+    }
+    return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1250
 func Script_SetItemColor(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_SetItemColor
+    var itemname: Int32 = 0
+    var name: String = ""
+    var color = vec4_t()
+    var i: Int32
+    // Port-note: A pointer local `vec4_t * out` with no view.
+    // Raven wrote: vec4_t *out;
     portMissing("Script_SetItemColor", source: "oracle/codemp/ui/ui_shared.c:1250")
+
+    // expecting type of color to set and 4 args for the color
+    // Port-note: Raven passes the write cursor `itemname` where the callee takes no buffer beside it, and a byte offset has no form there.
+    // Raven wrote: if (String_Parse(args, &itemname) && String_Parse(args, &name)) { itemDef_t *item2; int j,count; char buff[1024]; // Is is specifying a cvar to get the item name from? if (itemname[0] == '*') { itemname += 1; DC->getCVarString(itemname, buff, sizeof(buff)); itemname = buff; } count = Menu_ItemsMatchingGroup((menuDef_t *) item->parent, itemname); if (!Color_Parse(args, &color)) { return qtrue; } for (j = 0; j < count; j++) { item2 = Menu_GetMatchingItemByNumber((menuDef_t *) item->parent, j, itemname); if (item2 != NULL) { out = NULL; if (Q_stricmp(name, "backcolor") == 0) { out = &item2->window.backColor; } else if (Q_stricmp(name, "forecolor") == 0) { out = &item2->window.foreColor; item2->window.flags |= WINDOW_FORECOLORSET; } else if (Q_stricmp(name, "bordercolor") == 0) { out = &item2->window.borderColor; } if (out) { for (i = 0; i < 4; i++) { (*out)[i] = color[i]; } } } } }
+    portMissing("Script_SetItemColor", source: "oracle/codemp/ui/ui_shared.c:1250")
+
+    return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1314
 func Script_SetItemColorCvar(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_SetItemColorCvar
+    var itemname: Int32 = 0
+    // Port-note: A pointer local `char * colorCvarName` with no view.
+    // Raven wrote: char *colorCvarName;
     portMissing("Script_SetItemColorCvar", source: "oracle/codemp/ui/ui_shared.c:1314")
+    var holdBuf = TextCursor()
+    // Port-note: A pointer local `char * holdVal` with no view.
+    // Raven wrote: holdVal;
+    portMissing("Script_SetItemColorCvar", source: "oracle/codemp/ui/ui_shared.c:1314")
+    var cvarBuf = CharBuf(1024)
+    var name: String = ""
+    var color = vec4_t()
+    var i: Int32
+    // Port-note: A pointer local `vec4_t * out` with no view.
+    // Raven wrote: vec4_t *out;
+    portMissing("Script_SetItemColorCvar", source: "oracle/codemp/ui/ui_shared.c:1314")
+
+    // expecting type of color to set and 4 args for the color
+    // Port-note: Raven passes the write cursor `itemname` where the callee takes no buffer beside it, and a byte offset has no form there.
+    // Raven wrote: if (String_Parse(args, &itemname) && String_Parse(args, &name)) { itemDef_t *item2; int j,count; char buff[1024]; // Is is specifying a cvar to get the item name from? if (itemname[0] == '*') { itemname += 1; DC->getCVarString(itemname, buff, sizeof(buff)); itemname = buff; } count = Menu_ItemsMatchingGroup((menuDef_t *) item->parent, itemname); // Get the cvar with the color if (!String_Parse(args,(const char **) &colorCvarName)) { return qtrue; } else { DC->getCVarString(colorCvarName, cvarBuf, sizeof(cvarBuf)); holdBuf = cvarBuf; if (String_Parse(&holdBuf,(const char **) &holdVal)) { color[0] = atof(holdVal); if (String_Parse(&holdBuf,(const char **) &holdVal)) { color[1] = atof(holdVal); if (String_Parse(&holdBuf,(const char **) &holdVal)) { color[2] = atof(holdVal); if (String_Parse(&holdBuf,(const char **) &holdVal)) { color[3] = atof(holdVal); } } } } } for (j = 0; j < count; j++) { item2 = Menu_GetMatchingItemByNumber((menuDef_t *) item->parent, j, itemname); if (item2 != NULL) { out = NULL; if (Q_stricmp(name, "backcolor") == 0) { out = &item2->window.backColor; } else if (Q_stricmp(name, "forecolor") == 0) { out = &item2->window.foreColor; item2->window.flags |= WINDOW_FORECOLORSET; } else if (Q_stricmp(name, "bordercolor") == 0) { out = &item2->window.borderColor; } if (out) { for (i = 0; i < 4; i++) { (*out)[i] = color[i]; } } } } }
+    portMissing("Script_SetItemColorCvar", source: "oracle/codemp/ui/ui_shared.c:1314")
+
+    return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1403
 func Script_SetItemRect(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_SetItemRect
-    portMissing("Script_SetItemRect", source: "oracle/codemp/ui/ui_shared.c:1403")
+    var itemname: String = ""
+    var out: RectDef?
+    // Raven's record lives to the end of his block, so the block is the closure.
+    // Every path of Raven's block returns, so the closure's value is the function's.
+    return RectDef.scratch { rect -> Bool in
+        var menu: MenuDef?
+
+        // expecting type of color to set and 4 args for the color
+        if String_Parse(&args, &itemname) {
+            var item2: ItemDef?
+            var j: Int32 = 0
+            let count: Int32 = Menu_ItemsMatchingGroup(item.parent!, itemname)
+
+            if !Rect_Parse(&args, rect) {
+                return true
+            }
+
+            menu = item.parent
+
+            j = 0
+            while j < count {
+                item2 = Menu_GetMatchingItemByNumber(menu!, j, itemname)
+                if item2 != nil {
+                    out = item2!.window.rect
+
+                    if out != nil {
+                        item2!.window.rect.x = rect.x + menu!.window.rect.x
+                        item2!.window.rect.y = rect.y + menu!.window.rect.y
+                        item2!.window.rect.w = rect.w
+                        item2!.window.rect.h = rect.h
+                    }
+                }
+                j += 1
+            }
+        }
+        return true
+    }
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1444
@@ -1334,9 +1498,7 @@ private func Menu_RunCloseScript(_ menu: MenuDef) {
     if (menu.window.flags & WINDOW_VISIBLE) != 0 && menu.onClose != nil {
         // Raven's record lives to the end of his block, so the block is the closure.
         ItemDef.scratch { item in
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'MenuDef' to type 'OpaquePointer'".
-            // Raven wrote: item.parent = menu
-            portMissing("Menu_RunCloseScript", source: "oracle/codemp/ui/ui_shared.c:1527")
+            item.parent = menu
             Item_RunScript(item, menu.onClose!)
         }
     }
@@ -1396,38 +1558,61 @@ func Menus_CloseAll() {
 
 /// Source: oracle/codemp/ui/ui_shared.c:1591
 func Script_Show(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_Show
-    portMissing("Script_Show", source: "oracle/codemp/ui/ui_shared.c:1591")
+    var name: String = ""
+    if String_Parse(&args, &name) {
+        Menu_ShowItemByName(item.parent!, name, true)
+    }
+    return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1601
 func Script_Hide(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_Hide
-    portMissing("Script_Hide", source: "oracle/codemp/ui/ui_shared.c:1601")
+    var name: String = ""
+    if String_Parse(&args, &name) {
+        Menu_ShowItemByName(item.parent!, name, false)
+    }
+    return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1611
 func Script_FadeIn(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_FadeIn
-    portMissing("Script_FadeIn", source: "oracle/codemp/ui/ui_shared.c:1611")
+    var name: String = ""
+    if String_Parse(&args, &name) {
+        Menu_FadeItemByName(item.parent!, name, false)
+    }
+
+    return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1622
 func Script_FadeOut(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_FadeOut
-    portMissing("Script_FadeOut", source: "oracle/codemp/ui/ui_shared.c:1622")
+    var name: String = ""
+    if String_Parse(&args, &name) {
+        Menu_FadeItemByName(item.parent!, name, true)
+    }
+    return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1632
 func Script_Open(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_Open
-    portMissing("Script_Open", source: "oracle/codemp/ui/ui_shared.c:1632")
+    var name: String = ""
+    if String_Parse(&args, &name) {
+        Menus_OpenByName(name)
+    }
+    return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1642
 func Script_Close(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_Close
-    portMissing("Script_Close", source: "oracle/codemp/ui/ui_shared.c:1642")
+    var name: String = ""
+    if String_Parse(&args, &name) {
+        if Q_stricmp(name, "all") == 0 {
+            Menus_CloseAll()
+        } else {
+            Menus_CloseByName(name)
+        }
+    }
+    return true
 }
 
 //void Menu_TransitionItemByName(menuDef_t *menu, const char *p, rectDef_t rectFrom, rectDef_t rectTo, int time, float amt)
@@ -1467,32 +1652,20 @@ func Menu_Transition3ItemByName(_ menu: MenuDef, _ p: String, _ minx: Float, _ m
     var item: ItemDef?
     var i: Int32
     let count: Int32 = Menu_ItemsMatchingGroup(menu, p)
-    // Port-note: A pointer local `modelDef_t * modelptr` with no view.
-    // Raven wrote: modelDef_t * modelptr;
-    portMissing("Menu_Transition3ItemByName", source: "oracle/codemp/ui/ui_shared.c:1696")
+    var modelptr: ModelDef?
     i = 0
     while i < count {
         item = Menu_GetMatchingItemByNumber(menu, i, p)
         if item != nil {
             if item!.type == ITEM_TYPE_MODEL {
-                // Port-note: A store into `modelptr`, a local the draft left as a hole.
-                // Raven wrote: modelptr = (modelDef_t*)item->typeData
-                portMissing("Menu_Transition3ItemByName", source: "oracle/codemp/ui/ui_shared.c:1696")
+                modelptr = item!.typeData.map { ModelDef($0) }
 
                 item!.window.flags |= (WINDOW_INTRANSITIONMODEL | WINDOW_VISIBLE)
                 item!.window.offsetTime = time
-                // Port-note: A read of `modelptr`, a local the draft left as a hole.
-                // Raven wrote: modelptr->fov_x2 = fovtx
-                portMissing("Menu_Transition3ItemByName", source: "oracle/codemp/ui/ui_shared.c:1696")
-                // Port-note: A read of `modelptr`, a local the draft left as a hole.
-                // Raven wrote: modelptr->fov_y2 = fovty
-                portMissing("Menu_Transition3ItemByName", source: "oracle/codemp/ui/ui_shared.c:1696")
-                // Port-note: A read of `modelptr`, a local the draft left as a hole.
-                // Raven wrote: VectorSet(modelptr->g2maxs2, maxx, maxy, maxz)
-                portMissing("Menu_Transition3ItemByName", source: "oracle/codemp/ui/ui_shared.c:1696")
-                // Port-note: A read of `modelptr`, a local the draft left as a hole.
-                // Raven wrote: VectorSet(modelptr->g2mins2, minx, miny, minz)
-                portMissing("Menu_Transition3ItemByName", source: "oracle/codemp/ui/ui_shared.c:1696")
+                modelptr!.fov_x2 = fovtx
+                modelptr!.fov_y2 = fovty
+                modelptr!.g2maxs2 = vec3_t(maxx, maxy, maxz)
+                modelptr!.g2mins2 = vec3_t(minx, miny, minz)
 
                 //				//modelptr->g2maxs2.x= maxx;
                 //				modelptr->g2maxs2.y= maxy;
@@ -1503,33 +1676,17 @@ func Menu_Transition3ItemByName(_ menu: MenuDef, _ p: String, _ minx: Float, _ m
 
                 //				VectorSet(modelptr->g2maxs2, maxx, maxy, maxz);
 
-                // Port-note: A read of `modelptr`, a local the draft left as a hole.
-                // Raven wrote: modelptr->g2maxsEffect[0] = abs(modelptr->g2maxs2[0] - modelptr->g2maxs[0]) / amt
-                portMissing("Menu_Transition3ItemByName", source: "oracle/codemp/ui/ui_shared.c:1696")
-                // Port-note: A read of `modelptr`, a local the draft left as a hole.
-                // Raven wrote: modelptr->g2maxsEffect[1] = abs(modelptr->g2maxs2[1] - modelptr->g2maxs[1]) / amt
-                portMissing("Menu_Transition3ItemByName", source: "oracle/codemp/ui/ui_shared.c:1696")
-                // Port-note: A read of `modelptr`, a local the draft left as a hole.
-                // Raven wrote: modelptr->g2maxsEffect[2] = abs(modelptr->g2maxs2[2] - modelptr->g2maxs[2]) / amt
-                portMissing("Menu_Transition3ItemByName", source: "oracle/codemp/ui/ui_shared.c:1696")
+                modelptr!.g2maxsEffect[0] = abs(modelptr!.g2maxs2[0] - modelptr!.g2maxs[0]) / amt
+                modelptr!.g2maxsEffect[1] = abs(modelptr!.g2maxs2[1] - modelptr!.g2maxs[1]) / amt
+                modelptr!.g2maxsEffect[2] = abs(modelptr!.g2maxs2[2] - modelptr!.g2maxs[2]) / amt
 
-                // Port-note: A read of `modelptr`, a local the draft left as a hole.
-                // Raven wrote: modelptr->g2minsEffect[0] = abs(modelptr->g2mins2[0] - modelptr->g2mins[0]) / amt
-                portMissing("Menu_Transition3ItemByName", source: "oracle/codemp/ui/ui_shared.c:1696")
-                // Port-note: A read of `modelptr`, a local the draft left as a hole.
-                // Raven wrote: modelptr->g2minsEffect[1] = abs(modelptr->g2mins2[1] - modelptr->g2mins[1]) / amt
-                portMissing("Menu_Transition3ItemByName", source: "oracle/codemp/ui/ui_shared.c:1696")
-                // Port-note: A read of `modelptr`, a local the draft left as a hole.
-                // Raven wrote: modelptr->g2minsEffect[2] = abs(modelptr->g2mins2[2] - modelptr->g2mins[2]) / amt
-                portMissing("Menu_Transition3ItemByName", source: "oracle/codemp/ui/ui_shared.c:1696")
+                modelptr!.g2minsEffect[0] = abs(modelptr!.g2mins2[0] - modelptr!.g2mins[0]) / amt
+                modelptr!.g2minsEffect[1] = abs(modelptr!.g2mins2[1] - modelptr!.g2mins[1]) / amt
+                modelptr!.g2minsEffect[2] = abs(modelptr!.g2mins2[2] - modelptr!.g2mins[2]) / amt
 
 
-                // Port-note: A read of `modelptr`, a local the draft left as a hole.
-                // Raven wrote: modelptr->fov_Effectx = abs(modelptr->fov_x2 - modelptr->fov_x) / amt
-                portMissing("Menu_Transition3ItemByName", source: "oracle/codemp/ui/ui_shared.c:1696")
-                // Port-note: A read of `modelptr`, a local the draft left as a hole.
-                // Raven wrote: modelptr->fov_Effecty = abs(modelptr->fov_y2 - modelptr->fov_y) / amt
-                portMissing("Menu_Transition3ItemByName", source: "oracle/codemp/ui/ui_shared.c:1696")
+                modelptr!.fov_Effectx = abs(modelptr!.fov_x2 - modelptr!.fov_x) / amt
+                modelptr!.fov_Effecty = abs(modelptr!.fov_y2 - modelptr!.fov_y) / amt
             }
         }
         i += 1
@@ -1548,8 +1705,22 @@ portion of the script can later be run with the "rundeferred"
 */
 /// Source: oracle/codemp/ui/ui_shared.c:1767
 func Script_Defer(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_Defer
-    portMissing("Script_Defer", source: "oracle/codemp/ui/ui_shared.c:1767")
+    // Should the script be deferred?
+    if DC!.runDeferScript(&args) {
+        // Need the item the script was being run on
+        ui_deferredScriptItem = item
+
+        // Save the rest of the script
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'TextCursor' to expected argument type 'String'".
+        // Raven wrote: Q_strncpyz ( ui_deferredScript, *args, MAX_DEFERRED_SCRIPT )
+        portMissing("Script_Defer", source: "oracle/codemp/ui/ui_shared.c:1767")
+
+        // No more running
+        return false
+    }
+
+    // Keep running the script, its ok
+    return true
 }
 
 /**
@@ -1564,14 +1735,38 @@ time so be careful of recursion
 */
 /// Source: oracle/codemp/ui/ui_shared.c:1794
 func Script_RunDeferred(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_RunDeferred
-    portMissing("Script_RunDeferred", source: "oracle/codemp/ui/ui_shared.c:1794")
+    // Make sure there is something to run.
+    if ui_deferredScript[0] == 0 || ui_deferredScriptItem == nil {
+        return true
+    }
+
+    // Run the deferred script now
+    Item_RunScript(ui_deferredScriptItem!, String(ui_deferredScript))
+
+    return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1808
 func Script_Transition(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_Transition
-    portMissing("Script_Transition", source: "oracle/codemp/ui/ui_shared.c:1808")
+    var name: String = ""
+    // Raven's record lives to the end of his block, so the block is the closure.
+    // Every path of Raven's block returns, so the closure's value is the function's.
+    return RectDef.scratch { rectFrom -> Bool in
+        // Raven's record lives to the end of his block, so the block is the closure.
+        // Every path of Raven's block returns, so the closure's value is the function's.
+        return RectDef.scratch { rectTo -> Bool in
+            var time: Int32 = 0
+            var amt: Float = 0
+
+            if String_Parse(&args, &name) {
+                if Rect_Parse(&args, rectFrom) && Rect_Parse(&args, rectTo) && Int_Parse(&args, &time) && Float_Parse(&args, &amt) {
+                    Menu_TransitionItemByName(item.parent!, name, rectFrom, rectTo, time, amt)
+                }
+            }
+
+            return true
+        }
+    }
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1826
@@ -1618,33 +1813,89 @@ func Menu_ItemDisable(_ menu: MenuDef, _ name: String, _ disableFlag: Int32) {
 // Set item disable flags
 /// Source: oracle/codemp/ui/ui_shared.c:1865
 func Script_Disable(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_Disable
+    var name: Int32 = 0
+    var value: Int32 = 0
+    var menu: MenuDef?
+
+    // Port-note: A cast to `const char **` the draft has no view for.
+    // Raven wrote: if (String_Parse(args, (const char **)&name)) { char buff[1024]; // Is is specifying a cvar to get the item name from? if (name[0] == '*') { name += 1; DC->getCVarString(name, buff, sizeof(buff)); name = buff; } if ( Int_Parse(args, &value)) { menu = Menu_GetFocused(); Menu_ItemDisable(menu, name,value); } }
     portMissing("Script_Disable", source: "oracle/codemp/ui/ui_shared.c:1865")
+
+    return true
 }
 
 // Scale the given item instantly.
 /// Source: oracle/codemp/ui/ui_shared.c:1895
 func Script_Scale(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_Scale
-    portMissing("Script_Scale", source: "oracle/codemp/ui/ui_shared.c:1895")
+    var name: Int32 = 0
+    var scale: Float = 0
+    var j: Int32 = 0
+    var count: Int32 = 0
+    var itemFound: ItemDef?
+    // Raven's record lives to the end of his block, so the block is the closure.
+    // Every path of Raven's block returns, so the closure's value is the function's.
+    return RectDef.scratch { rectTo -> Bool in
+
+        // Port-note: Raven passes the write cursor `name` where the callee takes no buffer beside it, and a byte offset has no form there.
+        // Raven wrote: if (String_Parse(args, &name)) { char buff[1024]; // Is is specifying a cvar to get the item name from? if (name[0] == '*') { name += 1; DC->getCVarString(name, buff, sizeof(buff)); name = buff; } count = Menu_ItemsMatchingGroup((menuDef_t *) item->parent, name); if ( Float_Parse(args, &scale)) { for (j = 0; j < count; j++) { itemFound = Menu_GetMatchingItemByNumber( (menuDef_t *) item->parent, j, name); if (itemFound != NULL) { rectTo.h = itemFound->window.rect.h * scale; rectTo.w = itemFound->window.rect.w * scale; rectTo.x = itemFound->window.rect.x + ((itemFound->window.rect.h - rectTo.h)/2); rectTo.y = itemFound->window.rect.y + ((itemFound->window.rect.w - rectTo.w)/2); Menu_TransitionItemByName((menuDef_t *) item->parent, name, 0, &rectTo, 1, 1); } } } }
+        portMissing("Script_Scale", source: "oracle/codemp/ui/ui_shared.c:1895")
+
+        return true
+    }
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1939
 func Script_Orbit(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_Orbit
-    portMissing("Script_Orbit", source: "oracle/codemp/ui/ui_shared.c:1939")
+    var name: String = ""
+    var cx: Float = 0
+    var cy: Float = 0
+    var x: Float = 0
+    var y: Float = 0
+    var time: Int32 = 0
+
+    if String_Parse(&args, &name) {
+        if Float_Parse(&args, &x) && Float_Parse(&args, &y) && Float_Parse(&args, &cx) && Float_Parse(&args, &cy) && Int_Parse(&args, &time) {
+            Menu_OrbitItemByName(item.parent!, name, x, y, cx, cy, time)
+        }
+    }
+
+    return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1956
 func Script_SetFocus(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_SetFocus
-    portMissing("Script_SetFocus", source: "oracle/codemp/ui/ui_shared.c:1956")
+    var name: String = ""
+    var focusItem: ItemDef?
+
+    if String_Parse(&args, &name) {
+        focusItem = Menu_FindItemByName(item.parent!, name)
+        if focusItem != nil && !((focusItem!.window.flags & WINDOW_DECORATION) != 0) && !((focusItem!.window.flags & WINDOW_HASFOCUS) != 0) {
+            Menu_ClearFocus(item.parent!)
+            //JLF
+            focusItem!.window.flags |= WINDOW_HASFOCUS
+            //END JLF
+
+
+            if focusItem!.onFocus != nil {
+                Item_RunScript(focusItem!, focusItem!.onFocus!)
+            }
+            if DC!.Assets.itemFocusSound != 0 {
+                DC!.runStartLocalSound(DC!.Assets.itemFocusSound, CHAN_LOCAL_SOUND)
+            }
+        }
+    }
+
+    return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1986
 func Script_SetPlayerModel(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_SetPlayerModel
-    portMissing("Script_SetPlayerModel", source: "oracle/codemp/ui/ui_shared.c:1986")
+    var name: String = ""
+    if String_Parse(&args, &name) {
+        DC!.runSetCVar("model", name)
+    }
+
+    return true
 }
 
 /**
@@ -1680,8 +1931,23 @@ transition2		lfvscr		25 0 202 264  20 25
 */
 /// Source: oracle/codemp/ui/ui_shared.c:2027
 func Script_Transition2(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_Transition2
-    portMissing("Script_Transition2", source: "oracle/codemp/ui/ui_shared.c:2027")
+    var name: String = ""
+    // Raven's record lives to the end of his block, so the block is the closure.
+    // Every path of Raven's block returns, so the closure's value is the function's.
+    return RectDef.scratch { rectTo -> Bool in
+        var time: Int32 = 0
+        var amt: Float = 0
+
+        if String_Parse(&args, &name) {
+            if ParseRect(&args, rectTo) && Int_Parse(&args, &time) && !COM_ParseFloat(&args, &amt) {
+                Menu_TransitionItemByName(item.parent!, name, nil, rectTo, time, amt)
+            } else {
+                Com_Printf(S_COLOR_YELLOW + "WARNING: Script_Transition2: error parsing '%s'\n", name)
+            }
+        }
+
+        return true
+    }
 }
 
 /**
@@ -1700,38 +1966,108 @@ transition3		lfvscr		(min extent) (max extent) (fovx,y)  20 25
 */
 /// Source: oracle/codemp/ui/ui_shared.c:2062
 func Script_Transition3(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_Transition3
-    portMissing("Script_Transition3", source: "oracle/codemp/ui/ui_shared.c:2062")
+    var name: String = ""
+    var value: String = ""
+    let minx: Float
+    let miny: Float
+    let minz: Float
+    let maxx: Float
+    let maxy: Float
+    let maxz: Float
+    let fovtx: Float
+    let fovty: Float
+    let time: Int32
+    let amt: Float
+
+    if String_Parse(&args, &name) {
+        if String_Parse(&args, &value) {
+            minx = Float(atof(value))
+            if String_Parse(&args, &value) {
+                miny = Float(atof(value))
+                if String_Parse(&args, &value) {
+                    minz = Float(atof(value))
+                    if String_Parse(&args, &value) {
+                        maxx = Float(atof(value))
+                        if String_Parse(&args, &value) {
+                            maxy = Float(atof(value))
+                            if String_Parse(&args, &value) {
+                                maxz = Float(atof(value))
+                                if String_Parse(&args, &value) {
+                                    fovtx = Float(atof(value))
+                                    if String_Parse(&args, &value) {
+                                        fovty = Float(atof(value))
+
+                                        if String_Parse(&args, &value) {
+                                            time = atoi(value)
+                                            if String_Parse(&args, &value) {
+                                                amt = Float(atof(value))
+                                                //set up the variables
+                                                Menu_Transition3ItemByName(item.parent!, name, minx, miny, minz, maxx, maxy, maxz, fovtx, fovty, time, amt)
+
+                                                return true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    Com_Printf(S_COLOR_YELLOW + "WARNING: Script_Transition2: error parsing '%s'\n", name)
+    return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2150
 func Script_SetCvar(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_SetCvar
-    portMissing("Script_SetCvar", source: "oracle/codemp/ui/ui_shared.c:2150")
+    var cvar: String = ""
+    var val: String = ""
+    if String_Parse(&args, &cvar) && String_Parse(&args, &val) {
+        DC!.runSetCVar(cvar, val)
+    }
+    return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2160
 func Script_SetCvarToCvar(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_SetCvarToCvar
-    portMissing("Script_SetCvarToCvar", source: "oracle/codemp/ui/ui_shared.c:2160")
+    var cvar: String = ""
+    var val: String = ""
+    if String_Parse(&args, &cvar) && String_Parse(&args, &val) {
+        var cvarBuf = CharBuf(1024)
+        DC!.runGetCVarString(val, &cvarBuf, Int32((cvarBuf).count))
+        DC!.runSetCVar(cvar, String(cvarBuf))
+    }
+    return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2170
 func Script_Exec(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_Exec
-    portMissing("Script_Exec", source: "oracle/codemp/ui/ui_shared.c:2170")
+    var val: String = ""
+    if String_Parse(&args, &val) {
+        DC!.runExecuteText(EXEC_APPEND, va("%s ; ", val))
+    }
+    return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2178
 func Script_Play(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_Play
-    portMissing("Script_Play", source: "oracle/codemp/ui/ui_shared.c:2178")
+    var val: String = ""
+    if String_Parse(&args, &val) {
+        DC!.runStartLocalSound(DC!.runRegisterSound(val), CHAN_AUTO)
+    }
+    return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2186
 func Script_playLooped(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
-    // TODO: Port Script_playLooped
-    portMissing("Script_playLooped", source: "oracle/codemp/ui/ui_shared.c:2186")
+    var val: String = ""
+    if String_Parse(&args, &val) {
+        DC!.runStopBackgroundTrack()
+        DC!.runStartBackgroundTrack(val, val, false)
+    }
+    return true
 }
 
 // Set all the items within a given menu, with the given itemName, to the given shader
@@ -1775,31 +2111,20 @@ func Menu_SetItemText(_ menu: MenuDef, _ itemName: String, _ text: String) {
                 portMissing("Menu_SetItemText", source: "oracle/codemp/ui/ui_shared.c:2254")
                 // Just copying what was in ItemParse_cvar()
                 if item!.typeData != nil {
-                    // Port-note: A pointer local `editFieldDef_t * editPtr` with no view.
-                    // Raven wrote: editFieldDef_t *editPtr;
-                    portMissing("Menu_SetItemText", source: "oracle/codemp/ui/ui_shared.c:2254")
-                    // Port-note: A store into `editPtr`, a local the draft left as a hole.
-                    // Raven wrote: editPtr = (editFieldDef_t*)item->typeData
-                    portMissing("Menu_SetItemText", source: "oracle/codemp/ui/ui_shared.c:2254")
-                    // Port-note: A read of `editPtr`, a local the draft left as a hole.
-                    // Raven wrote: editPtr->minVal = -1
-                    portMissing("Menu_SetItemText", source: "oracle/codemp/ui/ui_shared.c:2254")
-                    // Port-note: A read of `editPtr`, a local the draft left as a hole.
-                    // Raven wrote: editPtr->maxVal = -1
-                    portMissing("Menu_SetItemText", source: "oracle/codemp/ui/ui_shared.c:2254")
-                    // Port-note: A read of `editPtr`, a local the draft left as a hole.
-                    // Raven wrote: editPtr->defVal = -1
-                    portMissing("Menu_SetItemText", source: "oracle/codemp/ui/ui_shared.c:2254")
+                    var editPtr: EditFieldDef?
+                    editPtr = item!.typeData.map { EditFieldDef($0) }
+                    editPtr!.minVal = -1
+                    editPtr!.maxVal = -1
+                    editPtr!.defVal = -1
                 }
             } else {
                 item!.text = text
                 if item!.type == ITEM_TYPE_TEXTSCROLL {
-                    // Port-note: A pointer local `textScrollDef_t * scrollPtr` with no view.
-                    // Raven wrote: textScrollDef_t *scrollPtr = (textScrollDef_t*)item->typeData;
-                    portMissing("Menu_SetItemText", source: "oracle/codemp/ui/ui_shared.c:2254")
-                    // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-                    // Raven wrote: if ( scrollPtr ) { scrollPtr->startPos = 0; scrollPtr->endPos = 0; }
-                    portMissing("Menu_SetItemText", source: "oracle/codemp/ui/ui_shared.c:2254")
+                    let scrollPtr: TextScrollDef? = item!.typeData.map { TextScrollDef($0) }
+                    if scrollPtr != nil {
+                        scrollPtr!.startPos = 0
+                        scrollPtr!.endPos = 0
+                    }
 
                     Item_TextScroll_BuildLines(item!)
                 }
@@ -1823,23 +2148,21 @@ func Item_RunScript(_ item: ItemDef, _ s: String) {
         p = TextCursor(script)
 
         while 1 != 0 {
-            // Port-note: A pointer local `const char * command` with no view.
-            // Raven wrote: const char *command;
-            portMissing("Item_RunScript", source: "oracle/codemp/ui/ui_shared.c:2306")
+            var command: String = ""
 
             // expect command then arguments, ; ends command, NULL ends script
-            // Port-note: A read of `command`, a local the draft left as a hole.
-            // Raven wrote: if (!String_Parse(&p, &command)) { return; }
-            portMissing("Item_RunScript", source: "oracle/codemp/ui/ui_shared.c:2306")
+            if !String_Parse(&p, &command) {
+                return
+            }
 
-            // Port-note: A read of `command`, a local the draft left as a hole.
-            // Raven wrote: if (command[0] == ';' && command[1] == '\0') { continue; }
-            portMissing("Item_RunScript", source: "oracle/codemp/ui/ui_shared.c:2306")
+            if CharBuf(command)[0] == Int32(ascii: ";") && CharBuf(command)[1] == 0 {
+                continue
+            }
 
             bRan = false
             i = 0
             while i < scriptCommandCount {
-                // Port-note: A read of `command`, a local the draft left as a hole.
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'commandList' in scope".
                 // Raven wrote: if (Q_stricmp(command, commandList[i].name) == 0) { // Allow a script command to stop processing the script if ( !commandList[i].handler(item, &p) ) { return; } bRan = qtrue; break; }
                 portMissing("Item_RunScript", source: "oracle/codemp/ui/ui_shared.c:2306")
                 i += 1
@@ -1847,9 +2170,7 @@ func Item_RunScript(_ item: ItemDef, _ s: String) {
 
             // not in our auto list, pass to handler
             if !bRan {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'TextCursor' to expected argument type 'OpaquePointer'".
-                // Raven wrote: DC->runScript(&p)
-                portMissing("Item_RunScript", source: "oracle/codemp/ui/ui_shared.c:2306")
+                DC!.runRunScript(&p)
             }
         }
     }
@@ -1859,9 +2180,41 @@ func Item_RunScript(_ item: ItemDef, _ s: String) {
 func Item_EnableShowViaCvar(_ item: ItemDef, _ flag: Int32) -> Bool {
     var script = CharBuf(2048)
     var p = TextCursor()
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: if (item && item->enableCvar && *item->enableCvar && item->cvarTest && *item->cvarTest) { char buff[2048]; DC->getCVarString(item->cvarTest, buff, sizeof(buff)); Q_strncpyz(script, item->enableCvar, 2048); p = script; while (1) { const char *val; // expect value then ; or NULL, NULL ends list if (!String_Parse(&p, &val)) { return (item->cvarFlags & flag) ? qfalse : qtrue; } if (val[0] == ';' && val[1] == '\0') { continue; } // enable it if any of the values are true if (item->cvarFlags & flag) { if (Q_stricmp(buff, val) == 0) { return qtrue; } } else { // disable it if any of the values are true if (Q_stricmp(buff, val) == 0) { return qfalse; } } } return (item->cvarFlags & flag) ? qfalse : qtrue; }
-    portMissing("Item_EnableShowViaCvar", source: "oracle/codemp/ui/ui_shared.c:2360")
+    if item.enableCvar != nil && !item.enableCvar!.isEmpty && item.cvarTest != nil && !item.cvarTest!.isEmpty {
+        var buff = CharBuf(2048)
+        DC!.runGetCVarString(item.cvarTest!, &buff, Int32((buff).count))
+
+        Q_strncpyz(&script, item.enableCvar!, 2048)
+        p = TextCursor(script)
+        while 1 != 0 {
+            var val: String = ""
+            // expect value then ; or NULL, NULL ends list
+            if !String_Parse(&p, &val) {
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Bool' to expected argument type 'Int'".
+                // Raven wrote: return (item->cvarFlags & flag) ? qfalse : qtrue
+                portMissing("Item_EnableShowViaCvar", source: "oracle/codemp/ui/ui_shared.c:2360")
+            }
+
+            if CharBuf(val)[0] == Int32(ascii: ";") && CharBuf(val)[1] == 0 {
+                continue
+            }
+
+            // enable it if any of the values are true
+            if (item.cvarFlags & flag) != 0 {
+                if Q_stricmp(String(buff), val) == 0 {
+                    return true
+                }
+            } else {
+                // disable it if any of the values are true
+                if Q_stricmp(String(buff), val) == 0 {
+                    return false
+                }
+            }
+        }
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Bool' to expected argument type 'Int'".
+        // Raven wrote: return (item->cvarFlags & flag) ? qfalse : qtrue
+        portMissing("Item_EnableShowViaCvar", source: "oracle/codemp/ui/ui_shared.c:2360")
+    }
     return true
 }
 
@@ -1881,9 +2234,7 @@ func Item_SetFocus(_ item: ItemDef, _ x: Float, _ y: Float) -> Bool {
     }
 
     // bk001206 - this can be NULL.
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "missing argument label 'handle:' in call".
-    // Raven wrote: parent = (menuDef_t*)item->parent
-    portMissing("Item_SetFocus", source: "oracle/codemp/ui/ui_shared.c:2399")
+    parent = item.parent
 
     // items can be enabled and disabled
     if item.disabled {
@@ -1899,9 +2250,7 @@ func Item_SetFocus(_ item: ItemDef, _ x: Float, _ y: Float) -> Bool {
         return false
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "missing argument label 'handle:' in call".
-    // Raven wrote: oldFocus = Menu_ClearFocus((menuDef_t *) item->parent)
-    portMissing("Item_SetFocus", source: "oracle/codemp/ui/ui_shared.c:2399")
+    oldFocus = Menu_ClearFocus(item.parent!)
 
     if item.type == ITEM_TYPE_TEXT {
         // Raven's record lives to the end of his block, so the block is the closure.
@@ -1957,24 +2306,16 @@ func Item_SetFocus(_ item: ItemDef, _ x: Float, _ y: Float) -> Bool {
 
 /// Source: oracle/codemp/ui/ui_shared.c:2482
 func Item_TextScroll_MaxScroll(_ item: ItemDef) -> Int32 {
-    // Port-note: A pointer local `textScrollDef_t * scrollPtr` with no view.
-    // Raven wrote: textScrollDef_t *scrollPtr = (textScrollDef_t*)item->typeData;
-    portMissing("Item_TextScroll_MaxScroll", source: "oracle/codemp/ui/ui_shared.c:2482")
+    let scrollPtr: TextScrollDef? = item.typeData.map { TextScrollDef($0) }
 
-    // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-    // Raven wrote: int count = scrollPtr->iLineCount;
-    portMissing("Item_TextScroll_MaxScroll", source: "oracle/codemp/ui/ui_shared.c:2482")
-    // Port-note: A read of `count`, a local the draft left as a hole.
-    // Raven wrote: int max = count - (int)(item->window.rect.h / scrollPtr->lineHeight) + 1;
-    portMissing("Item_TextScroll_MaxScroll", source: "oracle/codemp/ui/ui_shared.c:2482")
+    let count: Int32 = scrollPtr!.iLineCount
+    let max: Int32 = count - Int32((item.window.rect.h / scrollPtr!.lineHeight)) + 1
 
-    // Port-note: A read of `max`, a local the draft left as a hole.
-    // Raven wrote: if (max < 0) { return 0; }
-    portMissing("Item_TextScroll_MaxScroll", source: "oracle/codemp/ui/ui_shared.c:2482")
+    if max < 0 {
+        return 0
+    }
 
-    // Port-note: A read of `max`, a local the draft left as a hole.
-    // Raven wrote: return max
-    portMissing("Item_TextScroll_MaxScroll", source: "oracle/codemp/ui/ui_shared.c:2482")
+    return max
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2497
@@ -1982,9 +2323,7 @@ func Item_TextScroll_ThumbPosition(_ item: ItemDef) -> Int32 {
     let max: Float
     var pos: Float
     let size: Float
-    // Port-note: A pointer local `textScrollDef_t * scrollPtr` with no view.
-    // Raven wrote: textScrollDef_t *scrollPtr = (textScrollDef_t*)item->typeData;
-    portMissing("Item_TextScroll_ThumbPosition", source: "oracle/codemp/ui/ui_shared.c:2497")
+    let scrollPtr: TextScrollDef? = item.typeData.map { TextScrollDef($0) }
 
     max = Float(Item_TextScroll_MaxScroll(item))
     size = Float(Double(item.window.rect.h) - (SCROLLBAR_SIZE * 2) - 2)
@@ -1995,9 +2334,7 @@ func Item_TextScroll_ThumbPosition(_ item: ItemDef) -> Int32 {
         pos = 0
     }
 
-    // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-    // Raven wrote: pos *= scrollPtr->startPos
-    portMissing("Item_TextScroll_ThumbPosition", source: "oracle/codemp/ui/ui_shared.c:2497")
+    pos *= scrollPtr!.startPos
 
     return Int32(Double(item.window.rect.y + 1) + SCROLLBAR_SIZE + Double(pos))
 }
@@ -2026,18 +2363,12 @@ func Item_TextScroll_OverLB(_ item: ItemDef, _ x: Float, _ y: Float) -> Int32 {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return RectDef.scratch { r -> Int32 in
-        // Port-note: A pointer local `textScrollDef_t * scrollPtr` with no view.
-        // Raven wrote: textScrollDef_t *scrollPtr;
-        portMissing("Item_TextScroll_OverLB", source: "oracle/codemp/ui/ui_shared.c:2539")
+        var scrollPtr: TextScrollDef?
         var thumbstart: Int32 = 0
         var count: Int32 = 0
 
-        // Port-note: A store into `scrollPtr`, a local the draft left as a hole.
-        // Raven wrote: scrollPtr = (textScrollDef_t*)item->typeData
-        portMissing("Item_TextScroll_OverLB", source: "oracle/codemp/ui/ui_shared.c:2539")
-        // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-        // Raven wrote: count = scrollPtr->iLineCount
-        portMissing("Item_TextScroll_OverLB", source: "oracle/codemp/ui/ui_shared.c:2539")
+        scrollPtr = item.typeData.map { TextScrollDef($0) }
+        count = scrollPtr!.iLineCount
 
         r.x = Float(Double(item.window.rect.x + item.window.rect.w) - SCROLLBAR_SIZE)
         r.y = item.window.rect.y
@@ -2082,35 +2413,27 @@ func Item_TextScroll_MouseEnter(_ item: ItemDef, _ x: Float, _ y: Float) {
 
 /// Source: oracle/codemp/ui/ui_shared.c:2593
 func Item_TextScroll_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool, _ force: Bool) -> Bool {
-    // Port-note: A pointer local `textScrollDef_t * scrollPtr` with no view.
-    // Raven wrote: textScrollDef_t *scrollPtr = (textScrollDef_t*)item->typeData;
-    portMissing("Item_TextScroll_HandleKey", source: "oracle/codemp/ui/ui_shared.c:2593")
+    let scrollPtr: TextScrollDef? = item.typeData.map { TextScrollDef($0) }
     let max: Int32
     let viewmax: Int32
 
     if force || (Rect_ContainsPoint(item.window.rect, Float(DC!.cursorx), Float(DC!.cursory)) && (item.window.flags & WINDOW_HASFOCUS) != 0) {
         max = Item_TextScroll_MaxScroll(item)
 
-        // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-        // Raven wrote: viewmax = (item->window.rect.h / scrollPtr->lineHeight)
-        portMissing("Item_TextScroll_HandleKey", source: "oracle/codemp/ui/ui_shared.c:2593")
+        viewmax = Int32((item.window.rect.h / scrollPtr!.lineHeight))
         if key == A_CURSOR_UP || key == A_KP_8 {
-            // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-            // Raven wrote: scrollPtr->startPos--
-            portMissing("Item_TextScroll_HandleKey", source: "oracle/codemp/ui/ui_shared.c:2593")
-            // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-            // Raven wrote: if (scrollPtr->startPos < 0) { scrollPtr->startPos = 0; }
-            portMissing("Item_TextScroll_HandleKey", source: "oracle/codemp/ui/ui_shared.c:2593")
+            scrollPtr!.startPos -= 1
+            if scrollPtr!.startPos < 0 {
+                scrollPtr!.startPos = 0
+            }
             return true
         }
 
         if key == A_CURSOR_DOWN || key == A_KP_2 {
-            // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-            // Raven wrote: scrollPtr->startPos++
-            portMissing("Item_TextScroll_HandleKey", source: "oracle/codemp/ui/ui_shared.c:2593")
-            // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-            // Raven wrote: if (scrollPtr->startPos > max) { scrollPtr->startPos = max; }
-            portMissing("Item_TextScroll_HandleKey", source: "oracle/codemp/ui/ui_shared.c:2593")
+            scrollPtr!.startPos += 1
+            if scrollPtr!.startPos > max {
+                scrollPtr!.startPos = max
+            }
 
             return true
         }
@@ -2118,36 +2441,28 @@ func Item_TextScroll_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool, _ fo
         // mouse hit
         if key == A_MOUSE1 || key == A_MOUSE2 {
             if (item.window.flags & WINDOW_LB_LEFTARROW) != 0 {
-                // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-                // Raven wrote: scrollPtr->startPos--
-                portMissing("Item_TextScroll_HandleKey", source: "oracle/codemp/ui/ui_shared.c:2593")
-                // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-                // Raven wrote: if (scrollPtr->startPos < 0) { scrollPtr->startPos = 0; }
-                portMissing("Item_TextScroll_HandleKey", source: "oracle/codemp/ui/ui_shared.c:2593")
+                scrollPtr!.startPos -= 1
+                if scrollPtr!.startPos < 0 {
+                    scrollPtr!.startPos = 0
+                }
             } else if (item.window.flags & WINDOW_LB_RIGHTARROW) != 0 {
                 // one down
-                // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-                // Raven wrote: scrollPtr->startPos++
-                portMissing("Item_TextScroll_HandleKey", source: "oracle/codemp/ui/ui_shared.c:2593")
-                // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-                // Raven wrote: if (scrollPtr->startPos > max) { scrollPtr->startPos = max; }
-                portMissing("Item_TextScroll_HandleKey", source: "oracle/codemp/ui/ui_shared.c:2593")
+                scrollPtr!.startPos += 1
+                if scrollPtr!.startPos > max {
+                    scrollPtr!.startPos = max
+                }
             } else if (item.window.flags & WINDOW_LB_PGUP) != 0 {
                 // page up
-                // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-                // Raven wrote: scrollPtr->startPos -= viewmax
-                portMissing("Item_TextScroll_HandleKey", source: "oracle/codemp/ui/ui_shared.c:2593")
-                // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-                // Raven wrote: if (scrollPtr->startPos < 0) { scrollPtr->startPos = 0; }
-                portMissing("Item_TextScroll_HandleKey", source: "oracle/codemp/ui/ui_shared.c:2593")
+                scrollPtr!.startPos -= viewmax
+                if scrollPtr!.startPos < 0 {
+                    scrollPtr!.startPos = 0
+                }
             } else if (item.window.flags & WINDOW_LB_PGDN) != 0 {
                 // page down
-                // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-                // Raven wrote: scrollPtr->startPos += viewmax
-                portMissing("Item_TextScroll_HandleKey", source: "oracle/codemp/ui/ui_shared.c:2593")
-                // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-                // Raven wrote: if (scrollPtr->startPos > max) { scrollPtr->startPos = max; }
-                portMissing("Item_TextScroll_HandleKey", source: "oracle/codemp/ui/ui_shared.c:2593")
+                scrollPtr!.startPos += viewmax
+                if scrollPtr!.startPos > max {
+                    scrollPtr!.startPos = max
+                }
             } else if (item.window.flags & WINDOW_LB_THUMB) != 0 {
                 // Display_SetCaptureItem(item);
             }
@@ -2157,35 +2472,27 @@ func Item_TextScroll_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool, _ fo
 
         if key == A_HOME || key == A_KP_7 {
             // home
-            // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-            // Raven wrote: scrollPtr->startPos = 0
-            portMissing("Item_TextScroll_HandleKey", source: "oracle/codemp/ui/ui_shared.c:2593")
+            scrollPtr!.startPos = 0
             return true
         }
         if key == A_END || key == A_KP_1 {
             // end
-            // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-            // Raven wrote: scrollPtr->startPos = max
-            portMissing("Item_TextScroll_HandleKey", source: "oracle/codemp/ui/ui_shared.c:2593")
+            scrollPtr!.startPos = max
             return true
         }
         if key == A_PAGE_UP || key == A_KP_9 {
-            // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-            // Raven wrote: scrollPtr->startPos -= viewmax
-            portMissing("Item_TextScroll_HandleKey", source: "oracle/codemp/ui/ui_shared.c:2593")
-            // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-            // Raven wrote: if (scrollPtr->startPos < 0) { scrollPtr->startPos = 0; }
-            portMissing("Item_TextScroll_HandleKey", source: "oracle/codemp/ui/ui_shared.c:2593")
+            scrollPtr!.startPos -= viewmax
+            if scrollPtr!.startPos < 0 {
+                scrollPtr!.startPos = 0
+            }
 
             return true
         }
         if key == A_PAGE_DOWN || key == A_KP_3 {
-            // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-            // Raven wrote: scrollPtr->startPos += viewmax
-            portMissing("Item_TextScroll_HandleKey", source: "oracle/codemp/ui/ui_shared.c:2593")
-            // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-            // Raven wrote: if (scrollPtr->startPos > max) { scrollPtr->startPos = max; }
-            portMissing("Item_TextScroll_HandleKey", source: "oracle/codemp/ui/ui_shared.c:2593")
+            scrollPtr!.startPos += viewmax
+            if scrollPtr!.startPos > max {
+                scrollPtr!.startPos = max
+            }
             return true
         }
     }
@@ -2195,20 +2502,14 @@ func Item_TextScroll_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool, _ fo
 
 /// Source: oracle/codemp/ui/ui_shared.c:2707
 func Item_ListBox_MaxScroll(_ item: ItemDef) -> Int32 {
-    // Port-note: A pointer local `listBoxDef_t * listPtr` with no view.
-    // Raven wrote: listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
-    portMissing("Item_ListBox_MaxScroll", source: "oracle/codemp/ui/ui_shared.c:2707")
+    let listPtr: ListBoxDef? = item.typeData.map { ListBoxDef($0) }
     let count: Int32 = DC!.runFeederCount(item.special)
     let max: Int32
 
     if (item.window.flags & WINDOW_HORIZONTAL) != 0 {
-        // Port-note: A read of `listPtr`, a local the draft left as a hole.
-        // Raven wrote: max = count - (item->window.rect.w / listPtr->elementWidth) + 1
-        portMissing("Item_ListBox_MaxScroll", source: "oracle/codemp/ui/ui_shared.c:2707")
+        max = Int32(count - (item.window.rect.w / listPtr!.elementWidth) + 1)
     } else {
-        // Port-note: A read of `listPtr`, a local the draft left as a hole.
-        // Raven wrote: max = count - (item->window.rect.h / listPtr->elementHeight) + 1
-        portMissing("Item_ListBox_MaxScroll", source: "oracle/codemp/ui/ui_shared.c:2707")
+        max = Int32(count - (item.window.rect.h / listPtr!.elementHeight) + 1)
     }
     if max < 0 {
         return 0
@@ -2221,9 +2522,7 @@ func Item_ListBox_ThumbPosition(_ item: ItemDef) -> Int32 {
     let max: Float
     var pos: Float
     let size: Float
-    // Port-note: A pointer local `listBoxDef_t * listPtr` with no view.
-    // Raven wrote: listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
-    portMissing("Item_ListBox_ThumbPosition", source: "oracle/codemp/ui/ui_shared.c:2724")
+    let listPtr: ListBoxDef? = item.typeData.map { ListBoxDef($0) }
 
     max = Float(Item_ListBox_MaxScroll(item))
     if (item.window.flags & WINDOW_HORIZONTAL) != 0 {
@@ -2233,9 +2532,7 @@ func Item_ListBox_ThumbPosition(_ item: ItemDef) -> Int32 {
         } else {
             pos = 0
         }
-        // Port-note: A read of `listPtr`, a local the draft left as a hole.
-        // Raven wrote: pos *= listPtr->startPos
-        portMissing("Item_ListBox_ThumbPosition", source: "oracle/codemp/ui/ui_shared.c:2724")
+        pos *= listPtr!.startPos
         return Int32(Double(item.window.rect.x + 1) + SCROLLBAR_SIZE + Double(pos))
     } else {
         size = Float(Double(item.window.rect.h) - (SCROLLBAR_SIZE * 2) - 2)
@@ -2244,9 +2541,7 @@ func Item_ListBox_ThumbPosition(_ item: ItemDef) -> Int32 {
         } else {
             pos = 0
         }
-        // Port-note: A read of `listPtr`, a local the draft left as a hole.
-        // Raven wrote: pos *= listPtr->startPos
-        portMissing("Item_ListBox_ThumbPosition", source: "oracle/codemp/ui/ui_shared.c:2724")
+        pos *= listPtr!.startPos
         return Int32(Double(item.window.rect.y + 1) + SCROLLBAR_SIZE + Double(pos))
     }
 }
@@ -2284,9 +2579,7 @@ func Item_Slider_ThumbPosition(_ item: ItemDef) -> Float {
     var value: Float
     let range: Float
     var x: Float
-    // Port-note: A pointer local `editFieldDef_t * editDef` with no view.
-    // Raven wrote: editFieldDef_t *editDef = (editFieldDef_t *) item->typeData;
-    portMissing("Item_Slider_ThumbPosition", source: "oracle/codemp/ui/ui_shared.c:2790")
+    let editDef: EditFieldDef? = item.typeData.map { EditFieldDef($0) }
 
     if item.text != nil {
         x = item.textRect.x + item.textRect.w + 8
@@ -2294,22 +2587,20 @@ func Item_Slider_ThumbPosition(_ item: ItemDef) -> Float {
         x = item.window.rect.x
     }
 
-    // Port-note: A read of `editDef`, a local the draft left as a hole.
-    // Raven wrote: if (editDef == NULL && item->cvar) { return x; }
-    portMissing("Item_Slider_ThumbPosition", source: "oracle/codemp/ui/ui_shared.c:2790")
+    if editDef == nil && item.cvar != nil {
+        return x
+    }
 
     value = DC!.runGetCVarValue(item.cvar!)
 
-    // Port-note: A read of `editDef`, a local the draft left as a hole.
-    // Raven wrote: if (value < editDef->minVal) { value = editDef->minVal; } else if (value > editDef->maxVal) { value = editDef->maxVal; }
-    portMissing("Item_Slider_ThumbPosition", source: "oracle/codemp/ui/ui_shared.c:2790")
+    if value < editDef!.minVal {
+        value = editDef!.minVal
+    } else if value > editDef!.maxVal {
+        value = editDef!.maxVal
+    }
 
-    // Port-note: A read of `editDef`, a local the draft left as a hole.
-    // Raven wrote: range = editDef->maxVal - editDef->minVal
-    portMissing("Item_Slider_ThumbPosition", source: "oracle/codemp/ui/ui_shared.c:2790")
-    // Port-note: A read of `editDef`, a local the draft left as a hole.
-    // Raven wrote: value -= editDef->minVal
-    portMissing("Item_Slider_ThumbPosition", source: "oracle/codemp/ui/ui_shared.c:2790")
+    range = editDef!.maxVal - editDef!.minVal
+    value -= editDef!.minVal
     value /= range
     //value /= (editDef->maxVal - editDef->minVal);
     value = Float(Double(value) * SLIDER_WIDTH)
@@ -2342,16 +2633,12 @@ func Item_ListBox_OverLB(_ item: ItemDef, _ x: Float, _ y: Float) -> Int32 {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return RectDef.scratch { r -> Int32 in
-        // Port-note: A pointer local `listBoxDef_t * listPtr` with no view.
-        // Raven wrote: listBoxDef_t *listPtr;
-        portMissing("Item_ListBox_OverLB", source: "oracle/codemp/ui/ui_shared.c:2837")
+        var listPtr: ListBoxDef?
         var thumbstart: Int32 = 0
         var count: Int32 = 0
 
         count = DC!.runFeederCount(item.special)
-        // Port-note: A store into `listPtr`, a local the draft left as a hole.
-        // Raven wrote: listPtr = (listBoxDef_t*)item->typeData
-        portMissing("Item_ListBox_OverLB", source: "oracle/codemp/ui/ui_shared.c:2837")
+        listPtr = item.typeData.map { ListBoxDef($0) }
         if (item.window.flags & WINDOW_HORIZONTAL) != 0 {
             // check if on left arrow
             r.x = item.window.rect.x
@@ -2389,9 +2676,57 @@ func Item_ListBox_OverLB(_ item: ItemDef, _ x: Float, _ y: Float) -> Int32 {
         } else {
             // Vertical Scroll
             // Multiple rows and columns (since it's more than twice as wide as an element)
-            // Port-note: A read of `listPtr`, a local the draft left as a hole.
-            // Raven wrote: if (( item->window.rect.w > (listPtr->elementWidth*2)) && (listPtr->elementStyle == LISTBOX_IMAGE)) { r.x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE; r.y = item->window.rect.y; r.h = r.w = SCROLLBAR_SIZE; if (Rect_ContainsPoint(&r, x, y)) { return WINDOW_LB_PGUP; } r.y = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE; if (Rect_ContainsPoint(&r, x, y)) { return WINDOW_LB_PGDN; } thumbstart = Item_ListBox_ThumbPosition(item); r.y = thumbstart; if (Rect_ContainsPoint(&r, x, y)) { return WINDOW_LB_THUMB; } } else { r.x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE; r.y = item->window.rect.y; r.h = r.w = SCROLLBAR_SIZE; if (Rect_ContainsPoint(&r, x, y)) { return WINDOW_LB_LEFTARROW; } r.y = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE; if (Rect_ContainsPoint(&r, x, y)) { return WINDOW_LB_RIGHTARROW; } thumbstart = Item_ListBox_ThumbPosition(item); r.y = thumbstart; if (Rect_ContainsPoint(&r, x, y)) { return WINDOW_LB_THUMB; } r.y = item->window.rect.y + SCROLLBAR_SIZE; r.h = thumbstart - r.y; if (Rect_ContainsPoint(&r, x, y)) { return WINDOW_LB_PGUP; } r.y = thumbstart + SCROLLBAR_SIZE; r.h = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE; if (Rect_ContainsPoint(&r, x, y)) { return WINDOW_LB_PGDN; } }
-            portMissing("Item_ListBox_OverLB", source: "oracle/codemp/ui/ui_shared.c:2837")
+            if (item.window.rect.w > (listPtr!.elementWidth * 2)) && (listPtr!.elementStyle == LISTBOX_IMAGE) {
+                r.x = Float(Double(item.window.rect.x + item.window.rect.w) - SCROLLBAR_SIZE)
+                r.y = item.window.rect.y
+                r.w = Float(SCROLLBAR_SIZE)
+                r.h = r.w
+                if Rect_ContainsPoint(r, x, y) {
+                    return WINDOW_LB_PGUP
+                }
+
+                r.y = Float(Double(item.window.rect.y + item.window.rect.h) - SCROLLBAR_SIZE)
+                if Rect_ContainsPoint(r, x, y) {
+                    return WINDOW_LB_PGDN
+                }
+
+                thumbstart = Item_ListBox_ThumbPosition(item)
+                r.y = Float(thumbstart)
+                if Rect_ContainsPoint(r, x, y) {
+                    return WINDOW_LB_THUMB
+                }
+            } else {
+                r.x = Float(Double(item.window.rect.x + item.window.rect.w) - SCROLLBAR_SIZE)
+                r.y = item.window.rect.y
+                r.w = Float(SCROLLBAR_SIZE)
+                r.h = r.w
+                if Rect_ContainsPoint(r, x, y) {
+                    return WINDOW_LB_LEFTARROW
+                }
+
+                r.y = Float(Double(item.window.rect.y + item.window.rect.h) - SCROLLBAR_SIZE)
+                if Rect_ContainsPoint(r, x, y) {
+                    return WINDOW_LB_RIGHTARROW
+                }
+
+                thumbstart = Item_ListBox_ThumbPosition(item)
+                r.y = Float(thumbstart)
+                if Rect_ContainsPoint(r, x, y) {
+                    return WINDOW_LB_THUMB
+                }
+
+                r.y = Float(Double(item.window.rect.y) + SCROLLBAR_SIZE)
+                r.h = thumbstart - r.y
+                if Rect_ContainsPoint(r, x, y) {
+                    return WINDOW_LB_PGUP
+                }
+
+                r.y = Float(Double(thumbstart) + SCROLLBAR_SIZE)
+                r.h = Float(Double(item.window.rect.y + item.window.rect.h) - SCROLLBAR_SIZE)
+                if Rect_ContainsPoint(r, x, y) {
+                    return WINDOW_LB_PGDN
+                }
+            }
         }
         return 0
     }
@@ -2401,9 +2736,7 @@ func Item_ListBox_OverLB(_ item: ItemDef, _ x: Float, _ y: Float) -> Int32 {
 func Item_ListBox_MouseEnter(_ item: ItemDef, _ x: Float, _ y: Float) {
     // Raven's record lives to the end of his block, so the block is the closure.
     RectDef.scratch { r in
-        // Port-note: A pointer local `listBoxDef_t * listPtr` with no view.
-        // Raven wrote: listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
-        portMissing("Item_ListBox_MouseEnter", source: "oracle/codemp/ui/ui_shared.c:2956")
+        let listPtr: ListBoxDef? = item.typeData.map { ListBoxDef($0) }
 
         item.window.flags &= ~(WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP | WINDOW_LB_PGDN)
         item.window.flags |= Item_ListBox_OverLB(item, x, y)
@@ -2411,9 +2744,20 @@ func Item_ListBox_MouseEnter(_ item: ItemDef, _ x: Float, _ y: Float) {
         if (item.window.flags & WINDOW_HORIZONTAL) != 0 {
             if !((item.window.flags & (WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP | WINDOW_LB_PGDN)) != 0) {
                 // check for selection hit as we have exausted buttons and thumb
-                // Port-note: A read of `listPtr`, a local the draft left as a hole.
-                // Raven wrote: if (listPtr->elementStyle == LISTBOX_IMAGE) { r.x = item->window.rect.x; r.y = item->window.rect.y; r.h = item->window.rect.h - SCROLLBAR_SIZE; r.w = item->window.rect.w - listPtr->drawPadding; if (Rect_ContainsPoint(&r, x, y)) { listPtr->cursorPos = (int)((x - r.x) / listPtr->elementWidth) + listPtr->startPos; if (listPtr->cursorPos >= listPtr->endPos) { listPtr->cursorPos = listPtr->endPos; } } } else { // text hit.. }
-                portMissing("Item_ListBox_MouseEnter", source: "oracle/codemp/ui/ui_shared.c:2956")
+                if listPtr!.elementStyle == LISTBOX_IMAGE {
+                    r.x = item.window.rect.x
+                    r.y = item.window.rect.y
+                    r.h = Float(Double(item.window.rect.h) - SCROLLBAR_SIZE)
+                    r.w = item.window.rect.w - listPtr!.drawPadding
+                    if Rect_ContainsPoint(r, x, y) {
+                        listPtr!.cursorPos = Int32(((x - r.x) / listPtr!.elementWidth)) + listPtr!.startPos
+                        if listPtr!.cursorPos >= listPtr!.endPos {
+                            listPtr!.cursorPos = listPtr!.endPos
+                        }
+                    }
+                } else {
+                    // text hit..
+                }
             }
         } else if !((item.window.flags & (WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP | WINDOW_LB_PGDN)) != 0) {
             // Window Vertical Scroll
@@ -2421,14 +2765,29 @@ func Item_ListBox_MouseEnter(_ item: ItemDef, _ x: Float, _ y: Float) {
             r.x = item.window.rect.x
             r.y = item.window.rect.y
             r.w = Float(Double(item.window.rect.w) - SCROLLBAR_SIZE)
-            // Port-note: A read of `listPtr`, a local the draft left as a hole.
-            // Raven wrote: r.h = item->window.rect.h - listPtr->drawPadding
-            portMissing("Item_ListBox_MouseEnter", source: "oracle/codemp/ui/ui_shared.c:2956")
+            r.h = item.window.rect.h - listPtr!.drawPadding
             if Rect_ContainsPoint(r, x, y) {
                 // Multiple rows and columns (since it's more than twice as wide as an element)
-                // Port-note: A read of `listPtr`, a local the draft left as a hole.
-                // Raven wrote: if (( item->window.rect.w > (listPtr->elementWidth*2)) && (listPtr->elementStyle == LISTBOX_IMAGE)) { int row,column,rowLength; row = (int)((y - 2 - r.y) / listPtr->elementHeight); rowLength = (int) r.w / listPtr->elementWidth; column = (int)((x - r.x) / listPtr->elementWidth); listPtr->cursorPos = (row * rowLength)+column + listPtr->startPos; if (listPtr->cursorPos >= listPtr->endPos) { listPtr->cursorPos = listPtr->endPos; } } // single column else { listPtr->cursorPos = (int)((y - 2 - r.y) / listPtr->elementHeight) + listPtr->startPos; if (listPtr->cursorPos > listPtr->endPos) { listPtr->cursorPos = listPtr->endPos; } }
-                portMissing("Item_ListBox_MouseEnter", source: "oracle/codemp/ui/ui_shared.c:2956")
+                if (item.window.rect.w > (listPtr!.elementWidth * 2)) && (listPtr!.elementStyle == LISTBOX_IMAGE) {
+                    var row: Int32 = 0
+                    var column: Int32 = 0
+                    var rowLength: Int32 = 0
+
+                    row = Int32(((y - 2 - r.y) / listPtr!.elementHeight))
+                    rowLength = Int32(Int32(r.w) / listPtr!.elementWidth)
+                    column = Int32(((x - r.x) / listPtr!.elementWidth))
+
+                    listPtr!.cursorPos = (row * rowLength) + column + listPtr!.startPos
+                    if listPtr!.cursorPos >= listPtr!.endPos {
+                        listPtr!.cursorPos = listPtr!.endPos
+                    }
+                } else {
+                    // single column
+                    listPtr!.cursorPos = Int32(((y - 2 - r.y) / listPtr!.elementHeight)) + listPtr!.startPos
+                    if listPtr!.cursorPos > listPtr!.endPos {
+                        listPtr!.cursorPos = listPtr!.endPos
+                    }
+                }
             }
         }
     }
@@ -2541,18 +2900,14 @@ func Item_OwnerDraw_HandleKey(_ item: ItemDef, _ key: Int32) -> Bool {
         }
 
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Float' to expected argument type 'vec3_t' (aka 'SIMD3<Float>')".
-        // Raven wrote: return DC->ownerDrawHandleKey(item->window.ownerDraw, item->window.ownerDrawFlags, &item->special, key)
-        portMissing("Item_OwnerDraw_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3122")
+        return DC!.runOwnerDrawHandleKey(item.window.ownerDraw, item.window.ownerDrawFlags, &item.special, key)
     }
     return false
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:3220
 func Item_ListBox_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool, _ force: Bool) -> Bool {
-    // Port-note: A pointer local `listBoxDef_t * listPtr` with no view.
-    // Raven wrote: listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
-    portMissing("Item_ListBox_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3220")
+    let listPtr: ListBoxDef? = item.typeData.map { ListBoxDef($0) }
     let count: Int32 = DC!.runFeederCount(item.special)
     let max: Int32
     var viewmax: Int32
@@ -2560,94 +2915,159 @@ func Item_ListBox_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool, _ force
     if force || (Rect_ContainsPoint(item.window.rect, Float(DC!.cursorx), Float(DC!.cursory)) && (item.window.flags & WINDOW_HASFOCUS) != 0) {
         max = Item_ListBox_MaxScroll(item)
         if (item.window.flags & WINDOW_HORIZONTAL) != 0 {
-            // Port-note: A read of `listPtr`, a local the draft left as a hole.
-            // Raven wrote: viewmax = (item->window.rect.w / listPtr->elementWidth)
-            portMissing("Item_ListBox_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3220")
+            viewmax = Int32((item.window.rect.w / listPtr!.elementWidth))
             if key == A_CURSOR_LEFT || key == A_KP_4 {
-                // Port-note: A read of `listPtr`, a local the draft left as a hole.
-                // Raven wrote: if (!listPtr->notselectable) { listPtr->cursorPos--; #ifdef _XBOX listPtr->startPos--; #endif if (listPtr->cursorPos < 0) { listPtr->cursorPos = 0; return qfalse; } if (listPtr->cursorPos < listPtr->startPos) { listPtr->startPos = listPtr->cursorPos; //JLF #ifndef _XBOX return qfalse; #endif } if (listPtr->cursorPos >= listPtr->startPos + viewmax) { listPtr->startPos = listPtr->cursorPos - viewmax + 1; } item->cursorPos = listPtr->cursorPos; DC->feederSelection(item->special, item->cursorPos, NULL); } else { listPtr->startPos--; if (listPtr->startPos < 0) listPtr->startPos = 0; }
-                portMissing("Item_ListBox_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3220")
+                if !listPtr!.notselectable {
+                    listPtr!.cursorPos -= 1
+                    if listPtr!.cursorPos < 0 {
+                        listPtr!.cursorPos = 0
+                        return false
+                    }
+                    if listPtr!.cursorPos < listPtr!.startPos {
+                        listPtr!.startPos = listPtr!.cursorPos
+                        //JLF
+                        return false
+                    }
+                    if listPtr!.cursorPos >= listPtr!.startPos + viewmax {
+                        listPtr!.startPos = listPtr!.cursorPos - viewmax + 1
+                    }
+                    item.cursorPos = listPtr!.cursorPos
+                    DC!.runFeederSelection(item.special, item.cursorPos, nil)
+                } else {
+                    listPtr!.startPos -= 1
+                    if listPtr!.startPos < 0 {
+                        listPtr!.startPos = 0
+                    }
+                }
                 return true
             }
             if key == A_CURSOR_RIGHT || key == A_KP_6 {
-                // Port-note: A read of `listPtr`, a local the draft left as a hole.
-                // Raven wrote: if (!listPtr->notselectable) { listPtr->cursorPos++; if (listPtr->cursorPos < listPtr->startPos) { listPtr->startPos = listPtr->cursorPos; //JLF #ifndef _XBOX return qfalse; #endif } if (listPtr->cursorPos >= count) { listPtr->cursorPos = count-1; return qfalse; } if (listPtr->cursorPos >= listPtr->startPos + viewmax) { listPtr->startPos = listPtr->cursorPos - viewmax + 1; } item->cursorPos = listPtr->cursorPos; DC->feederSelection(item->special, item->cursorPos, NULL); } else { listPtr->startPos++; if (listPtr->startPos >= count) listPtr->startPos = count-1; }
-                portMissing("Item_ListBox_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3220")
+                if !listPtr!.notselectable {
+                    listPtr!.cursorPos += 1
+                    if listPtr!.cursorPos < listPtr!.startPos {
+                        listPtr!.startPos = listPtr!.cursorPos
+                        //JLF
+                        return false
+                    }
+                    if listPtr!.cursorPos >= count {
+                        listPtr!.cursorPos = count - 1
+                        return false
+                    }
+                    if listPtr!.cursorPos >= listPtr!.startPos + viewmax {
+                        listPtr!.startPos = listPtr!.cursorPos - viewmax + 1
+                    }
+                    item.cursorPos = listPtr!.cursorPos
+                    DC!.runFeederSelection(item.special, item.cursorPos, nil)
+                } else {
+                    listPtr!.startPos += 1
+                    if listPtr!.startPos >= count {
+                        listPtr!.startPos = count - 1
+                    }
+                }
                 return true
             }
         } else {
             // Vertical scroll
             // Multiple rows and columns (since it's more than twice as wide as an element)
-            // Port-note: A read of `listPtr`, a local the draft left as a hole.
-            // Raven wrote: if (( item->window.rect.w > (listPtr->elementWidth*2)) && (listPtr->elementStyle == LISTBOX_IMAGE)) { viewmax = (item->window.rect.w / listPtr->elementWidth); } else { viewmax = (item->window.rect.h / listPtr->elementHeight); }
-            portMissing("Item_ListBox_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3220")
+            if (item.window.rect.w > (listPtr!.elementWidth * 2)) && (listPtr!.elementStyle == LISTBOX_IMAGE) {
+                viewmax = Int32((item.window.rect.w / listPtr!.elementWidth))
+            } else {
+                viewmax = Int32((item.window.rect.h / listPtr!.elementHeight))
+            }
 
             if key == A_CURSOR_UP || key == A_KP_8 {
-                // Port-note: A read of `listPtr`, a local the draft left as a hole.
-                // Raven wrote: if (!listPtr->notselectable) { listPtr->cursorPos--; if (listPtr->cursorPos < 0) { listPtr->cursorPos = 0; return qfalse; } if (listPtr->cursorPos < listPtr->startPos) { listPtr->startPos = listPtr->cursorPos; //JLF #ifndef _XBOX return qfalse; #endif } if (listPtr->cursorPos >= listPtr->startPos + viewmax) { listPtr->startPos = listPtr->cursorPos - viewmax + 1; } item->cursorPos = listPtr->cursorPos; DC->feederSelection(item->special, item->cursorPos, NULL); } else { listPtr->startPos--; if (listPtr->startPos < 0) listPtr->startPos = 0; }
-                portMissing("Item_ListBox_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3220")
+                if !listPtr!.notselectable {
+                    listPtr!.cursorPos -= 1
+                    if listPtr!.cursorPos < 0 {
+                        listPtr!.cursorPos = 0
+                        return false
+                    }
+                    if listPtr!.cursorPos < listPtr!.startPos {
+                        listPtr!.startPos = listPtr!.cursorPos
+                        //JLF
+                        return false
+                    }
+                    if listPtr!.cursorPos >= listPtr!.startPos + viewmax {
+                        listPtr!.startPos = listPtr!.cursorPos - viewmax + 1
+                    }
+                    item.cursorPos = listPtr!.cursorPos
+                    DC!.runFeederSelection(item.special, item.cursorPos, nil)
+                } else {
+                    listPtr!.startPos -= 1
+                    if listPtr!.startPos < 0 {
+                        listPtr!.startPos = 0
+                    }
+                }
                 return true
             }
             if key == A_CURSOR_DOWN || key == A_KP_2 {
-                // Port-note: A read of `listPtr`, a local the draft left as a hole.
-                // Raven wrote: if (!listPtr->notselectable) { listPtr->cursorPos++; if (listPtr->cursorPos < listPtr->startPos) { listPtr->startPos = listPtr->cursorPos; //JLF #ifndef _XBOX return qfalse; #endif } if (listPtr->cursorPos >= count) { listPtr->cursorPos = count-1; return qfalse; } if (listPtr->cursorPos >= listPtr->startPos + viewmax) { listPtr->startPos = listPtr->cursorPos - viewmax + 1; } item->cursorPos = listPtr->cursorPos; DC->feederSelection(item->special, item->cursorPos, NULL); } else { listPtr->startPos++; if (listPtr->startPos > max) listPtr->startPos = max; }
-                portMissing("Item_ListBox_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3220")
+                if !listPtr!.notselectable {
+                    listPtr!.cursorPos += 1
+                    if listPtr!.cursorPos < listPtr!.startPos {
+                        listPtr!.startPos = listPtr!.cursorPos
+                        //JLF
+                        return false
+                    }
+                    if listPtr!.cursorPos >= count {
+                        listPtr!.cursorPos = count - 1
+                        return false
+                    }
+                    if listPtr!.cursorPos >= listPtr!.startPos + viewmax {
+                        listPtr!.startPos = listPtr!.cursorPos - viewmax + 1
+                    }
+                    item.cursorPos = listPtr!.cursorPos
+                    DC!.runFeederSelection(item.special, item.cursorPos, nil)
+                } else {
+                    listPtr!.startPos += 1
+                    if listPtr!.startPos > max {
+                        listPtr!.startPos = max
+                    }
+                }
                 return true
             }
         }
         // mouse hit
         if key == A_MOUSE1 || key == A_MOUSE2 {
             if (item.window.flags & WINDOW_LB_LEFTARROW) != 0 {
-                // Port-note: A read of `listPtr`, a local the draft left as a hole.
-                // Raven wrote: listPtr->startPos--
-                portMissing("Item_ListBox_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3220")
-                // Port-note: A read of `listPtr`, a local the draft left as a hole.
-                // Raven wrote: if (listPtr->startPos < 0) { listPtr->startPos = 0; }
-                portMissing("Item_ListBox_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3220")
+                listPtr!.startPos -= 1
+                if listPtr!.startPos < 0 {
+                    listPtr!.startPos = 0
+                }
             } else if (item.window.flags & WINDOW_LB_RIGHTARROW) != 0 {
                 // one down
-                // Port-note: A read of `listPtr`, a local the draft left as a hole.
-                // Raven wrote: listPtr->startPos++
-                portMissing("Item_ListBox_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3220")
-                // Port-note: A read of `listPtr`, a local the draft left as a hole.
-                // Raven wrote: if (listPtr->startPos > max) { listPtr->startPos = max; }
-                portMissing("Item_ListBox_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3220")
+                listPtr!.startPos += 1
+                if listPtr!.startPos > max {
+                    listPtr!.startPos = max
+                }
             } else if (item.window.flags & WINDOW_LB_PGUP) != 0 {
                 // page up
-                // Port-note: A read of `listPtr`, a local the draft left as a hole.
-                // Raven wrote: listPtr->startPos -= viewmax
-                portMissing("Item_ListBox_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3220")
-                // Port-note: A read of `listPtr`, a local the draft left as a hole.
-                // Raven wrote: if (listPtr->startPos < 0) { listPtr->startPos = 0; }
-                portMissing("Item_ListBox_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3220")
+                listPtr!.startPos -= viewmax
+                if listPtr!.startPos < 0 {
+                    listPtr!.startPos = 0
+                }
             } else if (item.window.flags & WINDOW_LB_PGDN) != 0 {
                 // page down
-                // Port-note: A read of `listPtr`, a local the draft left as a hole.
-                // Raven wrote: listPtr->startPos += viewmax
-                portMissing("Item_ListBox_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3220")
-                // Port-note: A read of `listPtr`, a local the draft left as a hole.
-                // Raven wrote: if (listPtr->startPos > (max)) { listPtr->startPos = (max); }
-                portMissing("Item_ListBox_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3220")
+                listPtr!.startPos += viewmax
+                if listPtr!.startPos > (max) {
+                    listPtr!.startPos = (max)
+                }
             } else if (item.window.flags & WINDOW_LB_THUMB) != 0 {
                 // Display_SetCaptureItem(item);
             } else {
                 // select an item
-                // Port-note: A read of `listPtr`, a local the draft left as a hole.
-                // Raven wrote: if (DC->realTime < lastListBoxClickTime && listPtr->doubleClick) { #endif Item_RunScript(item, listPtr->doubleClick); }
-                portMissing("Item_ListBox_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3220")
+                if DC!.realTime < lastListBoxClickTime && listPtr!.doubleClick != nil {
+                    Item_RunScript(item, listPtr!.doubleClick!)
+                }
                 lastListBoxClickTime = DC!.realTime + DOUBLE_CLICK_DELAY
                 //				if (item->cursorPos != listPtr->cursorPos)
                 do {
                     let prePos: Int32 = item.cursorPos
 
-                    // Port-note: A read of `listPtr`, a local the draft left as a hole.
-                    // Raven wrote: item->cursorPos = listPtr->cursorPos
-                    portMissing("Item_ListBox_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3220")
+                    item.cursorPos = listPtr!.cursorPos
 
                     if !DC!.runFeederSelection(item.special, item.cursorPos, item) {
-                        // Port-note: A read of `listPtr`, a local the draft left as a hole.
-                        // Raven wrote: item->cursorPos = listPtr->cursorPos = prePos
-                        portMissing("Item_ListBox_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3220")
+                        listPtr!.cursorPos = prePos
+                        item.cursorPos = listPtr!.cursorPos
                     }
                 }
             }
@@ -2655,30 +3075,58 @@ func Item_ListBox_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool, _ force
         }
         if key == A_HOME || key == A_KP_7 {
             // home
-            // Port-note: A read of `listPtr`, a local the draft left as a hole.
-            // Raven wrote: listPtr->startPos = 0
-            portMissing("Item_ListBox_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3220")
+            listPtr!.startPos = 0
             return true
         }
         if key == A_END || key == A_KP_1 {
             // end
-            // Port-note: A read of `listPtr`, a local the draft left as a hole.
-            // Raven wrote: listPtr->startPos = max
-            portMissing("Item_ListBox_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3220")
+            listPtr!.startPos = max
             return true
         }
         if key == A_PAGE_UP || key == A_KP_9 {
             // page up
-            // Port-note: A read of `listPtr`, a local the draft left as a hole.
-            // Raven wrote: if (!listPtr->notselectable) { listPtr->cursorPos -= viewmax; if (listPtr->cursorPos < 0) { listPtr->cursorPos = 0; } if (listPtr->cursorPos < listPtr->startPos) { listPtr->startPos = listPtr->cursorPos; } if (listPtr->cursorPos >= listPtr->startPos + viewmax) { listPtr->startPos = listPtr->cursorPos - viewmax + 1; } item->cursorPos = listPtr->cursorPos; DC->feederSelection(item->special, item->cursorPos, NULL); } else { listPtr->startPos -= viewmax; if (listPtr->startPos < 0) { listPtr->startPos = 0; } }
-            portMissing("Item_ListBox_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3220")
+            if !listPtr!.notselectable {
+                listPtr!.cursorPos -= viewmax
+                if listPtr!.cursorPos < 0 {
+                    listPtr!.cursorPos = 0
+                }
+                if listPtr!.cursorPos < listPtr!.startPos {
+                    listPtr!.startPos = listPtr!.cursorPos
+                }
+                if listPtr!.cursorPos >= listPtr!.startPos + viewmax {
+                    listPtr!.startPos = listPtr!.cursorPos - viewmax + 1
+                }
+                item.cursorPos = listPtr!.cursorPos
+                DC!.runFeederSelection(item.special, item.cursorPos, nil)
+            } else {
+                listPtr!.startPos -= viewmax
+                if listPtr!.startPos < 0 {
+                    listPtr!.startPos = 0
+                }
+            }
             return true
         }
         if key == A_PAGE_DOWN || key == A_KP_3 {
             // page down
-            // Port-note: A read of `listPtr`, a local the draft left as a hole.
-            // Raven wrote: if (!listPtr->notselectable) { listPtr->cursorPos += viewmax; if (listPtr->cursorPos < listPtr->startPos) { listPtr->startPos = listPtr->cursorPos; } if (listPtr->cursorPos >= count) { listPtr->cursorPos = count-1; } if (listPtr->cursorPos >= listPtr->startPos + viewmax) { listPtr->startPos = listPtr->cursorPos - viewmax + 1; } item->cursorPos = listPtr->cursorPos; DC->feederSelection(item->special, item->cursorPos, NULL); } else { listPtr->startPos += viewmax; if (listPtr->startPos > max) { listPtr->startPos = max; } }
-            portMissing("Item_ListBox_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3220")
+            if !listPtr!.notselectable {
+                listPtr!.cursorPos += viewmax
+                if listPtr!.cursorPos < listPtr!.startPos {
+                    listPtr!.startPos = listPtr!.cursorPos
+                }
+                if listPtr!.cursorPos >= count {
+                    listPtr!.cursorPos = count - 1
+                }
+                if listPtr!.cursorPos >= listPtr!.startPos + viewmax {
+                    listPtr!.startPos = listPtr!.cursorPos - viewmax + 1
+                }
+                item.cursorPos = listPtr!.cursorPos
+                DC!.runFeederSelection(item.special, item.cursorPos, nil)
+            } else {
+                listPtr!.startPos += viewmax
+                if listPtr!.startPos > max {
+                    listPtr!.startPos = max
+                }
+            }
             return true
         }
     }
@@ -2701,15 +3149,11 @@ func Item_YesNo_HandleKey(_ item: ItemDef, _ key: Int32) -> Bool {
 
 /// Source: oracle/codemp/ui/ui_shared.c:3504
 func Item_Multi_CountSettings(_ item: ItemDef) -> Int32 {
-    // Port-note: A pointer local `multiDef_t * multiPtr` with no view.
-    // Raven wrote: multiDef_t *multiPtr = (multiDef_t*)item->typeData;
-    portMissing("Item_Multi_CountSettings", source: "oracle/codemp/ui/ui_shared.c:3504")
-    // Port-note: A read of `multiPtr`, a local the draft left as a hole.
-    // Raven wrote: if (multiPtr == NULL) { return 0; }
-    portMissing("Item_Multi_CountSettings", source: "oracle/codemp/ui/ui_shared.c:3504")
-    // Port-note: A read of `multiPtr`, a local the draft left as a hole.
-    // Raven wrote: return multiPtr->count
-    portMissing("Item_Multi_CountSettings", source: "oracle/codemp/ui/ui_shared.c:3504")
+    let multiPtr: MultiDef? = item.typeData.map { MultiDef($0) }
+    if multiPtr == nil {
+        return 0
+    }
+    return multiPtr!.count
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:3512
@@ -2717,12 +3161,27 @@ func Item_Multi_FindCvarByValue(_ item: ItemDef) -> Int32 {
     var buff = CharBuf(2048)
     var value: Float = 0
     var i: Int32
-    // Port-note: A pointer local `multiDef_t * multiPtr` with no view.
-    // Raven wrote: multiDef_t *multiPtr = (multiDef_t*)item->typeData;
-    portMissing("Item_Multi_FindCvarByValue", source: "oracle/codemp/ui/ui_shared.c:3512")
-    // Port-note: A read of `multiPtr`, a local the draft left as a hole.
-    // Raven wrote: if (multiPtr) { if (multiPtr->strDef) { DC->getCVarString(item->cvar, buff, sizeof(buff)); } else { value = DC->getCVarValue(item->cvar); } for (i = 0; i < multiPtr->count; i++) { if (multiPtr->strDef) { if (Q_stricmp(buff, multiPtr->cvarStr[i]) == 0) { return i; } } else { if (multiPtr->cvarValue[i] == value) { return i; } } } }
-    portMissing("Item_Multi_FindCvarByValue", source: "oracle/codemp/ui/ui_shared.c:3512")
+    let multiPtr: MultiDef? = item.typeData.map { MultiDef($0) }
+    if multiPtr != nil {
+        if multiPtr!.strDef {
+            DC!.runGetCVarString(item.cvar!, &buff, Int32((buff).count))
+        } else {
+            value = DC!.runGetCVarValue(item.cvar!)
+        }
+        i = 0
+        while i < multiPtr!.count {
+            if multiPtr!.strDef {
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String?' to expected argument type 'CharBuf'".
+                // Raven wrote: if (Q_stricmp(buff, multiPtr->cvarStr[i]) == 0) { return i; }
+                portMissing("Item_Multi_FindCvarByValue", source: "oracle/codemp/ui/ui_shared.c:3512")
+            } else {
+                if multiPtr!.cvarValue[i] == value {
+                    return i
+                }
+            }
+            i += 1
+        }
+    }
     return 0
 }
 
@@ -2731,23 +3190,80 @@ func Item_Multi_Setting(_ item: ItemDef) -> String {
     var buff = CharBuf(2048)
     var value: Float = 0
     var i: Int32
-    // Port-note: A pointer local `multiDef_t * multiPtr` with no view.
-    // Raven wrote: multiDef_t *multiPtr = (multiDef_t*)item->typeData;
-    portMissing("Item_Multi_Setting", source: "oracle/codemp/ui/ui_shared.c:3538")
-    // Port-note: A read of `multiPtr`, a local the draft left as a hole.
-    // Raven wrote: if (multiPtr) { if (multiPtr->strDef) { if (item->cvar) { DC->getCVarString(item->cvar, buff, sizeof(buff)); } } else { if (item->cvar) // Was a cvar given? { value = DC->getCVarValue(item->cvar); } } for (i = 0; i < multiPtr->count; i++) { if (multiPtr->strDef) { if (Q_stricmp(buff, multiPtr->cvarStr[i]) == 0) { return multiPtr->cvarList[i]; } } else { if (multiPtr->cvarValue[i] == value) { return multiPtr->cvarList[i]; } } } }
-    portMissing("Item_Multi_Setting", source: "oracle/codemp/ui/ui_shared.c:3538")
+    let multiPtr: MultiDef? = item.typeData.map { MultiDef($0) }
+    if multiPtr != nil {
+        if multiPtr!.strDef {
+            if item.cvar != nil {
+                DC!.runGetCVarString(item.cvar!, &buff, Int32((buff).count))
+            }
+        } else {
+            if item.cvar != nil {
+                value = DC!.runGetCVarValue(item.cvar!)
+            }
+        }
+
+        i = 0
+        while i < multiPtr!.count {
+            if multiPtr!.strDef {
+                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String?' to expected argument type 'CharBuf'".
+                // Raven wrote: if (Q_stricmp(buff, multiPtr->cvarStr[i]) == 0) { return multiPtr->cvarList[i]; }
+                portMissing("Item_Multi_Setting", source: "oracle/codemp/ui/ui_shared.c:3538")
+            } else {
+                if multiPtr!.cvarValue[i] == value {
+                    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
+                    // Raven wrote: return multiPtr->cvarList[i]
+                    portMissing("Item_Multi_Setting", source: "oracle/codemp/ui/ui_shared.c:3538")
+                }
+            }
+            i += 1
+        }
+    }
     return ""
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:3581
 func Item_Multi_HandleKey(_ item: ItemDef, _ key: Int32) -> Bool {
-    // Port-note: A pointer local `multiDef_t * multiPtr` with no view.
-    // Raven wrote: multiDef_t *multiPtr = (multiDef_t*)item->typeData;
-    portMissing("Item_Multi_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3581")
-    // Port-note: A read of `multiPtr`, a local the draft left as a hole.
-    // Raven wrote: if (multiPtr) { //JLF MPMOVED #ifndef _XBOX if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && item->window.flags & WINDOW_HASFOCUS) #else if (item->window.flags & WINDOW_HASFOCUS)// JLF* && item->cvar) #endif { #ifndef _XBOX if (key == A_MOUSE1 || key == A_ENTER || key == A_MOUSE2 || key == A_MOUSE3) #else //JLFDPAD MPMOVED if ( key == A_CURSOR_RIGHT || key == A_CURSOR_LEFT) //end JLFDPAD #endif { int current = Item_Multi_FindCvarByValue(item); int max = Item_Multi_CountSettings(item); if (key == A_MOUSE2 || key == A_CURSOR_LEFT) // Xbox uses CURSOR_LEFT { current--; if ( current < 0 ) { current = max-1; } } else { current++; if ( current >= max ) { current = 0; } } if (multiPtr->strDef) { DC->setCVar(item->cvar, multiPtr->cvarStr[current]); } else { float value = multiPtr->cvarValue[current]; if (((float)((int) value)) == value) { DC->setCVar(item->cvar, va("%i", (int) value )); } else { DC->setCVar(item->cvar, va("%f", value )); } } if (item->special) {//its a feeder? DC->feederSelection(item->special, current, item); } return qtrue; } } }
-    portMissing("Item_Multi_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3581")
+    let multiPtr: MultiDef? = item.typeData.map { MultiDef($0) }
+    if multiPtr != nil {
+        //JLF MPMOVED
+        if Rect_ContainsPoint(item.window.rect, Float(DC!.cursorx), Float(DC!.cursory)) && (item.window.flags & WINDOW_HASFOCUS) != 0 {
+            if key == A_MOUSE1 || key == A_ENTER || key == A_MOUSE2 || key == A_MOUSE3 {
+                var current: Int32 = Item_Multi_FindCvarByValue(item)
+                let max: Int32 = Item_Multi_CountSettings(item)
+
+                if key == A_MOUSE2 || key == A_CURSOR_LEFT {
+                    current -= 1
+                    if current < 0 {
+                        current = max - 1
+                    }
+                } else {
+                    current += 1
+                    if current >= max {
+                        current = 0
+                    }
+                }
+
+                if multiPtr!.strDef {
+                    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
+                    // Raven wrote: DC->setCVar(item->cvar, multiPtr->cvarStr[current])
+                    portMissing("Item_Multi_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3581")
+                } else {
+                    let value: Float = multiPtr!.cvarValue[current]
+                    if (Float((Int32(value)))) == value {
+                        DC!.runSetCVar(item.cvar!, va("%i", Int32(value)))
+                    } else {
+                        DC!.runSetCVar(item.cvar!, va("%f", value))
+                    }
+                }
+                if item.special != 0 {
+                    //its a feeder?
+                    DC!.runFeederSelection(item.special, current, item)
+                }
+
+                return true
+            }
+        }
+    }
     return false
 }
 
@@ -2756,12 +3272,10 @@ func Item_Multi_HandleKey(_ item: ItemDef, _ key: Int32) -> Bool {
 func Leaving_EditField(_ item: ItemDef) {
     // switching fields so reset printed text of edit field
     if (g_editingField == true) && (item.type == ITEM_TYPE_EDITFIELD) {
-        // Port-note: A pointer local `editFieldDef_t * editPtr` with no view.
-        // Raven wrote: editFieldDef_t *editPtr = (editFieldDef_t*)item->typeData;
-        portMissing("Leaving_EditField", source: "oracle/codemp/ui/ui_shared.c:3651")
-        // Port-note: A read of `editPtr`, a local the draft left as a hole.
-        // Raven wrote: if (editPtr) { editPtr->paintOffset = 0; }
-        portMissing("Leaving_EditField", source: "oracle/codemp/ui/ui_shared.c:3651")
+        let editPtr: EditFieldDef? = item.typeData.map { EditFieldDef($0) }
+        if editPtr != nil {
+            editPtr!.paintOffset = 0
+        }
     }
 }
 
@@ -2770,21 +3284,17 @@ func Item_TextField_HandleKey(_ item: ItemDef, _ key: Int32) -> Bool {
     var buff = CharBuf(2048)
     var len: Int32
     var newItem: ItemDef? = nil
-    // Port-note: A pointer local `editFieldDef_t * editPtr` with no view.
-    // Raven wrote: editFieldDef_t *editPtr = (editFieldDef_t*)item->typeData;
-    portMissing("Item_TextField_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3664")
+    let editPtr: EditFieldDef? = item.typeData.map { EditFieldDef($0) }
     // Raven assigns his own `key` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var key = key
 
     if item.cvar != nil {
         buff[0] = 0
-        // Port-note: Raven passes the buffer `buff` to the engine as a handle, and the trap takes an OpaquePointer.
-        // Raven wrote: DC->getCVarString(item->cvar, buff, sizeof(buff))
-        portMissing("Item_TextField_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3664")
+        DC!.runGetCVarString(item.cvar!, &buff, Int32((buff).count))
         len = strlen(buff)
-        // Port-note: A read of `editPtr`, a local the draft left as a hole.
-        // Raven wrote: if (editPtr->maxChars && len > editPtr->maxChars) { len = editPtr->maxChars; }
-        portMissing("Item_TextField_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3664")
+        if editPtr!.maxChars != 0 && len > editPtr!.maxChars {
+            len = editPtr!.maxChars
+        }
         if (key & K_CHAR_FLAG) != 0 {
             key &= ~K_CHAR_FLAG
 
@@ -2796,9 +3306,9 @@ func Item_TextField_HandleKey(_ item: ItemDef, _ key: Int32) -> Bool {
                     // Raven wrote: memmove( &buff[item->cursorPos - 1], &buff[item->cursorPos], len + 1 - item->cursorPos)
                     portMissing("Item_TextField_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3664")
                     item.cursorPos -= 1
-                    // Port-note: A read of `editPtr`, a local the draft left as a hole.
-                    // Raven wrote: if (item->cursorPos < editPtr->paintOffset) { editPtr->paintOffset--; }
-                    portMissing("Item_TextField_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3664")
+                    if item.cursorPos < editPtr!.paintOffset {
+                        editPtr!.paintOffset -= 1
+                    }
                 }
                 DC!.runSetCVar(item.cvar!, String(buff))
                 return true
@@ -2819,16 +3329,16 @@ func Item_TextField_HandleKey(_ item: ItemDef, _ key: Int32) -> Bool {
             }
 
             if !DC!.runGetOverstrikeMode() {
-                // Port-note: A read of `editPtr`, a local the draft left as a hole.
-                // Raven wrote: if (( len == MAX_EDITFIELD - 1 ) || (editPtr->maxChars && len >= editPtr->maxChars)) { return qtrue; }
-                portMissing("Item_TextField_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3664")
+                if (len == MAX_EDITFIELD - 1) || (editPtr!.maxChars != 0 && len >= editPtr!.maxChars) {
+                    return true
+                }
                 // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to expected argument type 'Int'".
                 // Raven wrote: memmove( &buff[item->cursorPos + 1], &buff[item->cursorPos], len + 1 - item->cursorPos )
                 portMissing("Item_TextField_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3664")
             } else {
-                // Port-note: A read of `editPtr`, a local the draft left as a hole.
-                // Raven wrote: if (editPtr->maxChars && item->cursorPos >= editPtr->maxChars) { return qtrue; }
-                portMissing("Item_TextField_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3664")
+                if editPtr!.maxChars != 0 && item.cursorPos >= editPtr!.maxChars {
+                    return true
+                }
             }
 
             buff[item.cursorPos] = key
@@ -2844,9 +3354,9 @@ func Item_TextField_HandleKey(_ item: ItemDef, _ key: Int32) -> Bool {
 
             if item.cursorPos < len + 1 {
                 item.cursorPos += 1
-                // Port-note: A read of `editPtr`, a local the draft left as a hole.
-                // Raven wrote: if (editPtr->maxPaintChars && item->cursorPos > editPtr->maxPaintChars) { editPtr->paintOffset++; }
-                portMissing("Item_TextField_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3664")
+                if editPtr!.maxPaintChars != 0 && item.cursorPos > editPtr!.maxPaintChars {
+                    editPtr!.paintOffset += 1
+                }
             }
         } else {
             if key == A_DELETE || key == A_KP_PERIOD {
@@ -2860,9 +3370,11 @@ func Item_TextField_HandleKey(_ item: ItemDef, _ key: Int32) -> Bool {
             }
 
             if key == A_CURSOR_RIGHT || key == A_KP_6 {
-                // Port-note: A read of `editPtr`, a local the draft left as a hole.
-                // Raven wrote: if (editPtr->maxPaintChars && item->cursorPos >= editPtr->maxPaintChars && item->cursorPos < len) { item->cursorPos++; editPtr->paintOffset++; return qtrue; }
-                portMissing("Item_TextField_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3664")
+                if editPtr!.maxPaintChars != 0 && item.cursorPos >= editPtr!.maxPaintChars && item.cursorPos < len {
+                    item.cursorPos += 1
+                    editPtr!.paintOffset += 1
+                    return true
+                }
                 if item.cursorPos < len {
                     item.cursorPos += 1
                 }
@@ -2873,27 +3385,25 @@ func Item_TextField_HandleKey(_ item: ItemDef, _ key: Int32) -> Bool {
                 if item.cursorPos > 0 {
                     item.cursorPos -= 1
                 }
-                // Port-note: A read of `editPtr`, a local the draft left as a hole.
-                // Raven wrote: if (item->cursorPos < editPtr->paintOffset) { editPtr->paintOffset--; }
-                portMissing("Item_TextField_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3664")
+                if item.cursorPos < editPtr!.paintOffset {
+                    editPtr!.paintOffset -= 1
+                }
                 return true
             }
 
             if key == A_HOME || key == A_KP_7 {
                 // || ( tolower(key) == 'a' && trap_Key_IsDown( K_CTRL ) ) ) {
                 item.cursorPos = 0
-                // Port-note: A read of `editPtr`, a local the draft left as a hole.
-                // Raven wrote: editPtr->paintOffset = 0
-                portMissing("Item_TextField_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3664")
+                editPtr!.paintOffset = 0
                 return true
             }
 
             if key == A_END || key == A_KP_1 {
                 // ( tolower(key) == 'e' && trap_Key_IsDown( K_CTRL ) ) ) {
                 item.cursorPos = len
-                // Port-note: A read of `editPtr`, a local the draft left as a hole.
-                // Raven wrote: if(item->cursorPos > editPtr->maxPaintChars) { editPtr->paintOffset = len - editPtr->maxPaintChars; }
-                portMissing("Item_TextField_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3664")
+                if item.cursorPos > editPtr!.maxPaintChars {
+                    editPtr!.paintOffset = len - editPtr!.maxPaintChars
+                }
                 return true
             }
 
@@ -2907,9 +3417,7 @@ func Item_TextField_HandleKey(_ item: ItemDef, _ key: Int32) -> Bool {
             // switching fields so reset printed text of edit field
             Leaving_EditField(item)
             g_editingField = false
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "missing argument label 'handle:' in call".
-            // Raven wrote: newItem = Menu_SetNextCursorItem((menuDef_t *) item->parent)
-            portMissing("Item_TextField_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3664")
+            newItem = Menu_SetNextCursorItem(item.parent!)
             if newItem != nil && (newItem!.type == ITEM_TYPE_EDITFIELD || newItem!.type == ITEM_TYPE_NUMERICFIELD) {
                 g_editItem = newItem
                 g_editingField = true
@@ -2921,9 +3429,7 @@ func Item_TextField_HandleKey(_ item: ItemDef, _ key: Int32) -> Bool {
             Leaving_EditField(item)
 
             g_editingField = false
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "missing argument label 'handle:' in call".
-            // Raven wrote: newItem = Menu_SetPrevCursorItem((menuDef_t *) item->parent)
-            portMissing("Item_TextField_HandleKey", source: "oracle/codemp/ui/ui_shared.c:3664")
+            newItem = Menu_SetPrevCursorItem(item.parent!)
             if newItem != nil && (newItem!.type == ITEM_TYPE_EDITFIELD || newItem!.type == ITEM_TYPE_NUMERICFIELD) {
                 g_editItem = newItem
                 g_editingField = true
@@ -2940,87 +3446,160 @@ func Item_TextField_HandleKey(_ item: ItemDef, _ key: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:3831
-private func Scroll_TextScroll_AutoFunc(_ p: OpaquePointer?) {
-    // Port-note: A pointer local `scrollInfo_t * si` with no view.
-    // Raven wrote: scrollInfo_t *si = (scrollInfo_t*)p;
-    portMissing("Scroll_TextScroll_AutoFunc", source: "oracle/codemp/ui/ui_shared.c:3831")
+private func Scroll_TextScroll_AutoFunc(_ p: ScrollInfo?) {
+    let si: ScrollInfo? = p
 
-    // Port-note: A read of `si`, a local the draft left as a hole.
-    // Raven wrote: if (DC->realTime > si->nextScrollTime) { // need to scroll which is done by simulating a click to the item // this is done a bit sideways as the autoscroll "knows" that the item is a listbox // so it calls it directly Item_TextScroll_HandleKey(si->item, si->scrollKey, qtrue, qfalse); si->nextScrollTime = DC->realTime + si->adjustValue; }
-    portMissing("Scroll_TextScroll_AutoFunc", source: "oracle/codemp/ui/ui_shared.c:3831")
+    if DC!.realTime > si!.nextScrollTime {
+        // need to scroll which is done by simulating a click to the item
+        // this is done a bit sideways as the autoscroll "knows" that the item is a listbox
+        // so it calls it directly
+        Item_TextScroll_HandleKey(si!.item!, si!.scrollKey, true, false)
+        si!.nextScrollTime = DC!.realTime + si!.adjustValue
+    }
 
-    // Port-note: A read of `si`, a local the draft left as a hole.
-    // Raven wrote: if (DC->realTime > si->nextAdjustTime) { si->nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST; if (si->adjustValue > SCROLL_TIME_FLOOR) { si->adjustValue -= SCROLL_TIME_ADJUSTOFFSET; } }
-    portMissing("Scroll_TextScroll_AutoFunc", source: "oracle/codemp/ui/ui_shared.c:3831")
+    if DC!.realTime > si!.nextAdjustTime {
+        si!.nextAdjustTime = DC!.realTime + SCROLL_TIME_ADJUST
+        if si!.adjustValue > SCROLL_TIME_FLOOR {
+            si!.adjustValue -= SCROLL_TIME_ADJUSTOFFSET
+        }
+    }
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:3854
-private func Scroll_TextScroll_ThumbFunc(_ p: OpaquePointer?) {
-    // Port-note: A pointer local `scrollInfo_t * si` with no view.
-    // Raven wrote: scrollInfo_t *si = (scrollInfo_t*)p;
-    portMissing("Scroll_TextScroll_ThumbFunc", source: "oracle/codemp/ui/ui_shared.c:3854")
+private func Scroll_TextScroll_ThumbFunc(_ p: ScrollInfo?) {
+    let si: ScrollInfo? = p
     // Raven's record lives to the end of his block, so the block is the closure.
     RectDef.scratch { r in
         var pos: Int32 = 0
         var max: Int32 = 0
 
-        // Port-note: A pointer local `textScrollDef_t * scrollPtr` with no view.
-        // Raven wrote: textScrollDef_t *scrollPtr = (textScrollDef_t*)si->item->typeData;
-        portMissing("Scroll_TextScroll_ThumbFunc", source: "oracle/codemp/ui/ui_shared.c:3854")
+        let scrollPtr: TextScrollDef? = si!.item!.typeData.map { TextScrollDef($0) }
 
-        // Port-note: A read of `si`, a local the draft left as a hole.
-        // Raven wrote: if (DC->cursory != si->yStart) { r.x = si->item->window.rect.x + si->item->window.rect.w - SCROLLBAR_SIZE - 1; r.y = si->item->window.rect.y + SCROLLBAR_SIZE + 1; r.h = si->item->window.rect.h - (SCROLLBAR_SIZE*2) - 2; r.w = SCROLLBAR_SIZE; max = Item_TextScroll_MaxScroll(si->item); // pos = (DC->cursory - r.y - SCROLLBAR_SIZE/2) * max / (r.h - SCROLLBAR_SIZE); if (pos < 0) { pos = 0; } else if (pos > max) { pos = max; } scrollPtr->startPos = pos; si->yStart = DC->cursory; }
-        portMissing("Scroll_TextScroll_ThumbFunc", source: "oracle/codemp/ui/ui_shared.c:3854")
+        if DC!.cursory != si!.yStart {
+            r.x = Float(Double(si!.item!.window.rect.x + si!.item!.window.rect.w) - SCROLLBAR_SIZE - 1)
+            r.y = Float(Double(si!.item!.window.rect.y) + SCROLLBAR_SIZE + 1)
+            r.h = Float(Double(si!.item!.window.rect.h) - (SCROLLBAR_SIZE * 2) - 2)
+            r.w = Float(SCROLLBAR_SIZE)
+            max = Item_TextScroll_MaxScroll(si!.item!)
+            //
+            pos = Int32((Double(DC!.cursory - r.y) - SCROLLBAR_SIZE / 2) * Double(max) / (Double(r.h) - SCROLLBAR_SIZE))
+            if pos < 0 {
+                pos = 0
+            } else if pos > max {
+                pos = max
+            }
 
-        // Port-note: A read of `si`, a local the draft left as a hole.
-        // Raven wrote: if (DC->realTime > si->nextScrollTime) { // need to scroll which is done by simulating a click to the item // this is done a bit sideways as the autoscroll "knows" that the item is a listbox // so it calls it directly Item_TextScroll_HandleKey(si->item, si->scrollKey, qtrue, qfalse); si->nextScrollTime = DC->realTime + si->adjustValue; }
-        portMissing("Scroll_TextScroll_ThumbFunc", source: "oracle/codemp/ui/ui_shared.c:3854")
+            scrollPtr!.startPos = pos
+            si!.yStart = Float(DC!.cursory)
+        }
 
-        // Port-note: A read of `si`, a local the draft left as a hole.
-        // Raven wrote: if (DC->realTime > si->nextAdjustTime) { si->nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST; if (si->adjustValue > SCROLL_TIME_FLOOR) { si->adjustValue -= SCROLL_TIME_ADJUSTOFFSET; } }
-        portMissing("Scroll_TextScroll_ThumbFunc", source: "oracle/codemp/ui/ui_shared.c:3854")
+        if DC!.realTime > si!.nextScrollTime {
+            // need to scroll which is done by simulating a click to the item
+            // this is done a bit sideways as the autoscroll "knows" that the item is a listbox
+            // so it calls it directly
+            Item_TextScroll_HandleKey(si!.item!, si!.scrollKey, true, false)
+            si!.nextScrollTime = DC!.realTime + si!.adjustValue
+        }
+
+        if DC!.realTime > si!.nextAdjustTime {
+            si!.nextAdjustTime = DC!.realTime + SCROLL_TIME_ADJUST
+            if si!.adjustValue > SCROLL_TIME_FLOOR {
+                si!.adjustValue -= SCROLL_TIME_ADJUSTOFFSET
+            }
+        }
     }
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:3904
-private func Scroll_ListBox_AutoFunc(_ p: OpaquePointer?) {
-    // Port-note: A pointer local `scrollInfo_t * si` with no view.
-    // Raven wrote: scrollInfo_t *si = (scrollInfo_t*)p;
-    portMissing("Scroll_ListBox_AutoFunc", source: "oracle/codemp/ui/ui_shared.c:3904")
-    // Port-note: A read of `si`, a local the draft left as a hole.
-    // Raven wrote: if (DC->realTime > si->nextScrollTime) { // need to scroll which is done by simulating a click to the item // this is done a bit sideways as the autoscroll "knows" that the item is a listbox // so it calls it directly Item_ListBox_HandleKey(si->item, si->scrollKey, qtrue, qfalse); si->nextScrollTime = DC->realTime + si->adjustValue; }
-    portMissing("Scroll_ListBox_AutoFunc", source: "oracle/codemp/ui/ui_shared.c:3904")
+private func Scroll_ListBox_AutoFunc(_ p: ScrollInfo?) {
+    let si: ScrollInfo? = p
+    if DC!.realTime > si!.nextScrollTime {
+        // need to scroll which is done by simulating a click to the item
+        // this is done a bit sideways as the autoscroll "knows" that the item is a listbox
+        // so it calls it directly
+        Item_ListBox_HandleKey(si!.item!, si!.scrollKey, true, false)
+        si!.nextScrollTime = DC!.realTime + si!.adjustValue
+    }
 
-    // Port-note: A read of `si`, a local the draft left as a hole.
-    // Raven wrote: if (DC->realTime > si->nextAdjustTime) { si->nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST; if (si->adjustValue > SCROLL_TIME_FLOOR) { si->adjustValue -= SCROLL_TIME_ADJUSTOFFSET; } }
-    portMissing("Scroll_ListBox_AutoFunc", source: "oracle/codemp/ui/ui_shared.c:3904")
+    if DC!.realTime > si!.nextAdjustTime {
+        si!.nextAdjustTime = DC!.realTime + SCROLL_TIME_ADJUST
+        if si!.adjustValue > SCROLL_TIME_FLOOR {
+            si!.adjustValue -= SCROLL_TIME_ADJUSTOFFSET
+        }
+    }
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:3922
-private func Scroll_ListBox_ThumbFunc(_ p: OpaquePointer?) {
-    // Port-note: A pointer local `scrollInfo_t * si` with no view.
-    // Raven wrote: scrollInfo_t *si = (scrollInfo_t*)p;
-    portMissing("Scroll_ListBox_ThumbFunc", source: "oracle/codemp/ui/ui_shared.c:3922")
+private func Scroll_ListBox_ThumbFunc(_ p: ScrollInfo?) {
+    let si: ScrollInfo? = p
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = RectDef.scratch { r -> Bool in
         var pos: Int32 = 0
         var max: Int32 = 0
 
-        // Port-note: A pointer local `listBoxDef_t * listPtr` with no view.
-        // Raven wrote: listBoxDef_t *listPtr = (listBoxDef_t*)si->item->typeData;
-        portMissing("Scroll_ListBox_ThumbFunc", source: "oracle/codemp/ui/ui_shared.c:3922")
-        // Port-note: A read of `si`, a local the draft left as a hole.
-        // Raven wrote: if (si->item->window.flags & WINDOW_HORIZONTAL) { if (DC->cursorx == si->xStart) { return; } r.x = si->item->window.rect.x + SCROLLBAR_SIZE + 1; r.y = si->item->window.rect.y + si->item->window.rect.h - SCROLLBAR_SIZE - 1; r.h = SCROLLBAR_SIZE; r.w = si->item->window.rect.w - (SCROLLBAR_SIZE*2) - 2; max = Item_ListBox_MaxScroll(si->item); // pos = (DC->cursorx - r.x - SCROLLBAR_SIZE/2) * max / (r.w - SCROLLBAR_SIZE); if (pos < 0) { pos = 0; } else if (pos > max) { pos = max; } listPtr->startPos = pos; si->xStart = DC->cursorx; } else if (DC->cursory != si->yStart) { r.x = si->item->window.rect.x + si->item->window.rect.w - SCROLLBAR_SIZE - 1; r.y = si->item->window.rect.y + SCROLLBAR_SIZE + 1; r.h = si->item->window.rect.h - (SCROLLBAR_SIZE*2) - 2; r.w = SCROLLBAR_SIZE; max = Item_ListBox_MaxScroll(si->item); // Multiple rows and columns (since it's more than twice as wide as an element) if (( si->item->window.rect.w > (listPtr->elementWidth*2)) && (listPtr->elementStyle == LISTBOX_IMAGE)) { int rowLength, rowMax; rowLength = si->item->window.rect.w / listPtr->elementWidth; rowMax = max / rowLength; pos = (DC->cursory - r.y - SCROLLBAR_SIZE/2) * rowMax / (r.h - SCROLLBAR_SIZE); pos *= rowLength; } else { pos = (DC->cursory - r.y - SCROLLBAR_SIZE/2) * max / (r.h - SCROLLBAR_SIZE); } if (pos < 0) { pos = 0; } else if (pos > max) { pos = max; } listPtr->startPos = pos; si->yStart = DC->cursory; }
-        portMissing("Scroll_ListBox_ThumbFunc", source: "oracle/codemp/ui/ui_shared.c:3922")
+        let listPtr: ListBoxDef? = si!.item!.typeData.map { ListBoxDef($0) }
+        if (si!.item!.window.flags & WINDOW_HORIZONTAL) != 0 {
+            if DC!.cursorx == si!.xStart {
+                return true
+            }
+            r.x = Float(Double(si!.item!.window.rect.x) + SCROLLBAR_SIZE + 1)
+            r.y = Float(Double(si!.item!.window.rect.y + si!.item!.window.rect.h) - SCROLLBAR_SIZE - 1)
+            r.h = Float(SCROLLBAR_SIZE)
+            r.w = Float(Double(si!.item!.window.rect.w) - (SCROLLBAR_SIZE * 2) - 2)
+            max = Item_ListBox_MaxScroll(si!.item!)
+            //
+            pos = Int32((Double(DC!.cursorx - r.x) - SCROLLBAR_SIZE / 2) * Double(max) / (Double(r.w) - SCROLLBAR_SIZE))
+            if pos < 0 {
+                pos = 0
+            } else if pos > max {
+                pos = max
+            }
+            listPtr!.startPos = pos
+            si!.xStart = Float(DC!.cursorx)
+        } else if DC!.cursory != si!.yStart {
+            r.x = Float(Double(si!.item!.window.rect.x + si!.item!.window.rect.w) - SCROLLBAR_SIZE - 1)
+            r.y = Float(Double(si!.item!.window.rect.y) + SCROLLBAR_SIZE + 1)
+            r.h = Float(Double(si!.item!.window.rect.h) - (SCROLLBAR_SIZE * 2) - 2)
+            r.w = Float(SCROLLBAR_SIZE)
+            max = Item_ListBox_MaxScroll(si!.item!)
 
-        // Port-note: A read of `si`, a local the draft left as a hole.
-        // Raven wrote: if (DC->realTime > si->nextScrollTime) { // need to scroll which is done by simulating a click to the item // this is done a bit sideways as the autoscroll "knows" that the item is a listbox // so it calls it directly Item_ListBox_HandleKey(si->item, si->scrollKey, qtrue, qfalse); si->nextScrollTime = DC->realTime + si->adjustValue; }
-        portMissing("Scroll_ListBox_ThumbFunc", source: "oracle/codemp/ui/ui_shared.c:3922")
+            // Multiple rows and columns (since it's more than twice as wide as an element)
+            if (si!.item!.window.rect.w > (listPtr!.elementWidth * 2)) && (listPtr!.elementStyle == LISTBOX_IMAGE) {
+                var rowLength: Int32 = 0
+                var rowMax: Int32 = 0
+                rowLength = Int32(si!.item!.window.rect.w / listPtr!.elementWidth)
+                rowMax = max / rowLength
 
-        // Port-note: A read of `si`, a local the draft left as a hole.
-        // Raven wrote: if (DC->realTime > si->nextAdjustTime) { si->nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST; if (si->adjustValue > SCROLL_TIME_FLOOR) { si->adjustValue -= SCROLL_TIME_ADJUSTOFFSET; } }
-        portMissing("Scroll_ListBox_ThumbFunc", source: "oracle/codemp/ui/ui_shared.c:3922")
+                pos = Int32((Double(DC!.cursory - r.y) - SCROLLBAR_SIZE / 2) * Double(rowMax) / (Double(r.h) - SCROLLBAR_SIZE))
+                pos *= rowLength
+            } else {
+                pos = Int32((Double(DC!.cursory - r.y) - SCROLLBAR_SIZE / 2) * Double(max) / (Double(r.h) - SCROLLBAR_SIZE))
+            }
+
+            if pos < 0 {
+                pos = 0
+            } else if pos > max {
+                pos = max
+            }
+            listPtr!.startPos = pos
+            si!.yStart = Float(DC!.cursory)
+        }
+
+        if DC!.realTime > si!.nextScrollTime {
+            // need to scroll which is done by simulating a click to the item
+            // this is done a bit sideways as the autoscroll "knows" that the item is a listbox
+            // so it calls it directly
+            Item_ListBox_HandleKey(si!.item!, si!.scrollKey, true, false)
+            si!.nextScrollTime = DC!.realTime + si!.adjustValue
+        }
+
+        if DC!.realTime > si!.nextAdjustTime {
+            si!.nextAdjustTime = DC!.realTime + SCROLL_TIME_ADJUST
+            if si!.adjustValue > SCROLL_TIME_FLOOR {
+                si!.adjustValue -= SCROLL_TIME_ADJUSTOFFSET
+            }
+        }
         return false
     }
     if earlyOut {
@@ -3029,20 +3608,18 @@ private func Scroll_ListBox_ThumbFunc(_ p: OpaquePointer?) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:3997
-private func Scroll_Slider_ThumbFunc(_ p: OpaquePointer?) {
+private func Scroll_Slider_ThumbFunc(_ p: ScrollInfo?) {
     let x: Float
     var value: Float
     var cursorx: Float
-    // Port-note: A pointer local `scrollInfo_t * si` with no view.
-    // Raven wrote: scrollInfo_t *si = (scrollInfo_t*)p;
-    portMissing("Scroll_Slider_ThumbFunc", source: "oracle/codemp/ui/ui_shared.c:3997")
-    // Port-note: A pointer local `editFieldDef_t * editDef` with no view.
-    // Raven wrote: editFieldDef_t *editDef = (editFieldDef_t *) si->item->typeData;
-    portMissing("Scroll_Slider_ThumbFunc", source: "oracle/codemp/ui/ui_shared.c:3997")
+    let si: ScrollInfo? = p
+    let editDef: EditFieldDef? = si!.item!.typeData.map { EditFieldDef($0) }
 
-    // Port-note: A read of `si`, a local the draft left as a hole.
-    // Raven wrote: if (si->item->text) { x = si->item->textRect.x + si->item->textRect.w + 8; } else { x = si->item->window.rect.x; }
-    portMissing("Scroll_Slider_ThumbFunc", source: "oracle/codemp/ui/ui_shared.c:3997")
+    if si!.item!.text != nil {
+        x = si!.item!.textRect.x + si!.item!.textRect.w + 8
+    } else {
+        x = si!.item!.window.rect.x
+    }
 
     cursorx = Float(DC!.cursorx)
 
@@ -3053,15 +3630,9 @@ private func Scroll_Slider_ThumbFunc(_ p: OpaquePointer?) {
     }
     value = cursorx - x
     value = Float(Double(value) / SLIDER_WIDTH)
-    // Port-note: A read of `editDef`, a local the draft left as a hole.
-    // Raven wrote: value *= (editDef->maxVal - editDef->minVal)
-    portMissing("Scroll_Slider_ThumbFunc", source: "oracle/codemp/ui/ui_shared.c:3997")
-    // Port-note: A read of `editDef`, a local the draft left as a hole.
-    // Raven wrote: value += editDef->minVal
-    portMissing("Scroll_Slider_ThumbFunc", source: "oracle/codemp/ui/ui_shared.c:3997")
-    // Port-note: A read of `si`, a local the draft left as a hole.
-    // Raven wrote: DC->setCVar(si->item->cvar, va("%f", value))
-    portMissing("Scroll_Slider_ThumbFunc", source: "oracle/codemp/ui/ui_shared.c:3997")
+    value *= (editDef!.maxVal - editDef!.minVal)
+    value += editDef!.minVal
+    DC!.runSetCVar(si!.item!.cvar!, va("%f", value))
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:4022
@@ -3072,50 +3643,24 @@ func Item_StartCapture(_ item: ItemDef, _ key: Int32) {
         do {
             flags = Item_ListBox_OverLB(item, Float(DC!.cursorx), Float(DC!.cursory))
             if (flags & (WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW)) != 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-                // Raven wrote: scrollInfo.nextScrollTime = DC->realTime + SCROLL_TIME_START
-                portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-                // Raven wrote: scrollInfo.nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST
-                portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-                // Raven wrote: scrollInfo.adjustValue = SCROLL_TIME_START
-                portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-                // Raven wrote: scrollInfo.scrollKey = key
-                portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
+                scrollInfo.nextScrollTime = DC!.realTime + SCROLL_TIME_START
+                scrollInfo.nextAdjustTime = DC!.realTime + SCROLL_TIME_ADJUST
+                scrollInfo.adjustValue = SCROLL_TIME_START
+                scrollInfo.scrollKey = key
                 // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Bool' to expected argument type 'Int'".
                 // Raven wrote: scrollInfo.scrollDir = (flags & WINDOW_LB_LEFTARROW) ? qtrue : qfalse
                 portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-                // Raven wrote: scrollInfo.item = item
-                portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-                // Raven wrote: captureData = &scrollInfo
-                portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'captureFunc' in scope".
-                // Raven wrote: captureFunc = &Scroll_ListBox_AutoFunc
-                portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
+                scrollInfo.item = item
+                captureData = scrollInfo
+                captureFunc = Scroll_ListBox_AutoFunc
                 itemCapture = item
             } else if (flags & WINDOW_LB_THUMB) != 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-                // Raven wrote: scrollInfo.scrollKey = key
-                portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-                // Raven wrote: scrollInfo.item = item
-                portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-                // Raven wrote: scrollInfo.xStart = DC->cursorx
-                portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-                // Raven wrote: scrollInfo.yStart = DC->cursory
-                portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-                // Raven wrote: captureData = &scrollInfo
-                portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'captureFunc' in scope".
-                // Raven wrote: captureFunc = &Scroll_ListBox_ThumbFunc
-                portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
+                scrollInfo.scrollKey = key
+                scrollInfo.item = item
+                scrollInfo.xStart = Float(DC!.cursorx)
+                scrollInfo.yStart = Float(DC!.cursory)
+                captureData = scrollInfo
+                captureFunc = Scroll_ListBox_ThumbFunc
                 itemCapture = item
             }
             break
@@ -3125,50 +3670,24 @@ func Item_StartCapture(_ item: ItemDef, _ key: Int32) {
     case ITEM_TYPE_TEXTSCROLL:
         flags = Item_TextScroll_OverLB(item, Float(DC!.cursorx), Float(DC!.cursory))
         if (flags & (WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW)) != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-            // Raven wrote: scrollInfo.nextScrollTime = DC->realTime + SCROLL_TIME_START
-            portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-            // Raven wrote: scrollInfo.nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST
-            portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-            // Raven wrote: scrollInfo.adjustValue = SCROLL_TIME_START
-            portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-            // Raven wrote: scrollInfo.scrollKey = key
-            portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
+            scrollInfo.nextScrollTime = DC!.realTime + SCROLL_TIME_START
+            scrollInfo.nextAdjustTime = DC!.realTime + SCROLL_TIME_ADJUST
+            scrollInfo.adjustValue = SCROLL_TIME_START
+            scrollInfo.scrollKey = key
             // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Bool' to expected argument type 'Int'".
             // Raven wrote: scrollInfo.scrollDir = (flags & WINDOW_LB_LEFTARROW) ? qtrue : qfalse
             portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-            // Raven wrote: scrollInfo.item = item
-            portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-            // Raven wrote: captureData = &scrollInfo
-            portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'captureFunc' in scope".
-            // Raven wrote: captureFunc = &Scroll_TextScroll_AutoFunc
-            portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
+            scrollInfo.item = item
+            captureData = scrollInfo
+            captureFunc = Scroll_TextScroll_AutoFunc
             itemCapture = item
         } else if (flags & WINDOW_LB_THUMB) != 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-            // Raven wrote: scrollInfo.scrollKey = key
-            portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-            // Raven wrote: scrollInfo.item = item
-            portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-            // Raven wrote: scrollInfo.xStart = DC->cursorx
-            portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-            // Raven wrote: scrollInfo.yStart = DC->cursory
-            portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-            // Raven wrote: captureData = &scrollInfo
-            portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'captureFunc' in scope".
-            // Raven wrote: captureFunc = &Scroll_TextScroll_ThumbFunc
-            portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
+            scrollInfo.scrollKey = key
+            scrollInfo.item = item
+            scrollInfo.xStart = Float(DC!.cursorx)
+            scrollInfo.yStart = Float(DC!.cursory)
+            captureData = scrollInfo
+            captureFunc = Scroll_TextScroll_ThumbFunc
             itemCapture = item
         }
 
@@ -3176,24 +3695,12 @@ func Item_StartCapture(_ item: ItemDef, _ key: Int32) {
         do {
             flags = Item_Slider_OverSlider(item, Float(DC!.cursorx), Float(DC!.cursory))
             if (flags & WINDOW_LB_THUMB) != 0 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-                // Raven wrote: scrollInfo.scrollKey = key
-                portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-                // Raven wrote: scrollInfo.item = item
-                portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-                // Raven wrote: scrollInfo.xStart = DC->cursorx
-                portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-                // Raven wrote: scrollInfo.yStart = DC->cursory
-                portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'scrollInfo' in scope".
-                // Raven wrote: captureData = &scrollInfo
-                portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'captureFunc' in scope".
-                // Raven wrote: captureFunc = &Scroll_Slider_ThumbFunc
-                portMissing("Item_StartCapture", source: "oracle/codemp/ui/ui_shared.c:4022")
+                scrollInfo.scrollKey = key
+                scrollInfo.item = item
+                scrollInfo.xStart = Float(DC!.cursorx)
+                scrollInfo.yStart = Float(DC!.cursory)
+                captureData = scrollInfo
+                captureFunc = Scroll_Slider_ThumbFunc
                 itemCapture = item
             }
             break
@@ -3219,12 +3726,41 @@ func Item_Slider_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool) -> Bool 
     //JLF MPMOVED
     if (item.window.flags & WINDOW_HASFOCUS) != 0 && item.cvar != nil && Rect_ContainsPoint(item.window.rect, Float(DC!.cursorx), Float(DC!.cursory)) {
         if key == A_MOUSE1 || key == A_ENTER || key == A_MOUSE2 || key == A_MOUSE3 {
-            // Port-note: A pointer local `editFieldDef_t * editDef` with no view.
-            // Raven wrote: editFieldDef_t *editDef = (editFieldDef_t *) item->typeData;
-            portMissing("Item_Slider_HandleKey", source: "oracle/codemp/ui/ui_shared.c:4101")
-            // Port-note: A read of `editDef`, a local the draft left as a hole.
-            // Raven wrote: if (editDef) { rectDef_t testRect; width = SLIDER_WIDTH; if (item->text) { x = item->textRect.x + item->textRect.w + 8; } else { x = item->window.rect.x; } testRect = item->window.rect; testRect.x = x; value = (float)SLIDER_THUMB_WIDTH / 2; testRect.x -= value; //DC->Print("slider x: %f\n", testRect.x); testRect.w = (SLIDER_WIDTH + (float)SLIDER_THUMB_WIDTH / 2); //DC->Print("slider w: %f\n", testRect.w); if (Rect_ContainsPoint(&testRect, DC->cursorx, DC->cursory)) { work = DC->cursorx - x; value = work / width; value *= (editDef->maxVal - editDef->minVal); // vm fuckage // value = (((float)(DC->cursorx - x)/ SLIDER_WIDTH) * (editDef->maxVal - editDef->minVal)); value += editDef->minVal; DC->setCVar(item->cvar, va("%f", value)); return qtrue; } }
-            portMissing("Item_Slider_HandleKey", source: "oracle/codemp/ui/ui_shared.c:4101")
+            let editDef: EditFieldDef? = item.typeData.map { EditFieldDef($0) }
+            if editDef != nil {
+                // Raven's record lives to the end of his block, so the block is the closure.
+                // The closure gives nil where Raven's block falls through to its end.
+                let earlyOut = RectDef.scratch { testRect -> Bool? in
+                    width = Float(SLIDER_WIDTH)
+                    if item.text != nil {
+                        x = item.textRect.x + item.textRect.w + 8
+                    } else {
+                        x = item.window.rect.x
+                    }
+
+                    testRect.copy(from: item.window.rect)
+                    testRect.x = x
+                    value = Float(SLIDER_THUMB_WIDTH) / 2
+                    testRect.x -= value
+                    //DC->Print("slider x: %f\n", testRect.x);
+                    testRect.w = Float((SLIDER_WIDTH + Double(Float(SLIDER_THUMB_WIDTH) / 2)))
+                    //DC->Print("slider w: %f\n", testRect.w);
+                    if Rect_ContainsPoint(testRect, Float(DC!.cursorx), Float(DC!.cursory)) {
+                        work = DC!.cursorx - x
+                        value = work / width
+                        value *= (editDef!.maxVal - editDef!.minVal)
+                        // vm fuckage
+                        // value = (((float)(DC->cursorx - x)/ SLIDER_WIDTH) * (editDef->maxVal - editDef->minVal));
+                        value += editDef!.minVal
+                        DC!.runSetCVar(item.cvar!, va("%f", value))
+                        return true
+                    }
+                    return nil
+                }
+                if let earlyOut {
+                    return earlyOut
+                }
+            }
         }
     }
     //JLF
@@ -3237,9 +3773,7 @@ func Item_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool) -> Bool {
     if itemCapture != nil {
         Item_StopCapture(itemCapture!)
         itemCapture = nil
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'captureFunc' in scope".
-        // Raven wrote: captureFunc = 0
-        portMissing("Item_HandleKey", source: "oracle/codemp/ui/ui_shared.c:4176")
+        captureFunc = nil
         captureData = nil
     } else {
         // bk001206 - parentheses
@@ -3264,13 +3798,11 @@ func Item_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool) -> Bool {
 
     case ITEM_TYPE_EDITFIELD, ITEM_TYPE_NUMERICFIELD:
         if key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER {
-            // Port-note: A pointer local `editFieldDef_t * editPtr` with no view.
-            // Raven wrote: editFieldDef_t *editPtr = (editFieldDef_t*)item->typeData;
-            portMissing("Item_HandleKey", source: "oracle/codemp/ui/ui_shared.c:4176")
+            let editPtr: EditFieldDef? = item.typeData.map { EditFieldDef($0) }
 
-            // Port-note: A read of `editPtr`, a local the draft left as a hole.
-            // Raven wrote: if (item->cvar && editPtr) { editPtr->paintOffset = 0; }
-            portMissing("Item_HandleKey", source: "oracle/codemp/ui/ui_shared.c:4176")
+            if item.cvar != nil && editPtr != nil {
+                editPtr!.paintOffset = 0
+            }
 
             //return Item_TextField_HandleKey(item, key);
         }
@@ -3429,16 +3961,15 @@ func Menus_Activate(_ menu: MenuDef) {
     if menu.onOpen != nil {
         // Raven's record lives to the end of his block, so the block is the closure.
         ItemDef.scratch { item in
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'MenuDef' to type 'OpaquePointer'".
-            // Raven wrote: item.parent = menu
-            portMissing("Menus_Activate", source: "oracle/codemp/ui/ui_shared.c:4416")
+            item.parent = menu
             Item_RunScript(item, menu.onOpen!)
         }
     }
 
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: if (menu->soundName && *menu->soundName) { // DC->stopBackgroundTrack(); // you don't want to do this since it will reset s_rawend DC->startBackgroundTrack(menu->soundName, menu->soundName, qfalse); }
-    portMissing("Menus_Activate", source: "oracle/codemp/ui/ui_shared.c:4416")
+    if menu.soundName != nil && !menu.soundName!.isEmpty {
+        //		DC->stopBackgroundTrack();					// you don't want to do this since it will reset s_rawend
+        DC!.runStartBackgroundTrack(menu.soundName!, menu.soundName!, false)
+    }
 
     menu.appearanceTime = 0
     Display_CloseCinematics()
@@ -3592,9 +4123,7 @@ func Menu_HandleKey(_ menu: MenuDef, _ key: Int32, _ down: Bool) {
         if !g_waitingForKey && menu.onESC != nil {
             // Raven's record lives to the end of his block, so the block is the closure.
             ItemDef.scratch { it in
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'MenuDef' to type 'OpaquePointer'".
-                // Raven wrote: it.parent = menu
-                portMissing("Menu_HandleKey", source: "oracle/codemp/ui/ui_shared.c:4490")
+                it.parent = menu
                 Item_RunScript(it, menu.onESC!)
             }
         }
@@ -3635,9 +4164,7 @@ func Menu_HandleKey(_ menu: MenuDef, _ key: Int32, _ down: Bool) {
                 } else if menu.onAccept != nil {
                     // Raven's record lives to the end of his block, so the block is the closure.
                     ItemDef.scratch { it in
-                        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'MenuDef' to type 'OpaquePointer'".
-                        // Raven wrote: it.parent = menu
-                        portMissing("Menu_HandleKey", source: "oracle/codemp/ui/ui_shared.c:4490")
+                        it.parent = menu
                         Item_RunScript(it, menu.onAccept!)
                     }
                 }
@@ -3700,38 +4227,61 @@ func Item_SetTextExtents(_ item: ItemDef, _ width: inout Int32, _ height: inout 
     height = Int32(item.textRect.h)
 
     // keeps us from computing the widths and heights more than once
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "ambiguous use of 'ITEM_ALIGN_CENTER'".
-    // Raven wrote: if (*width == 0 || (item->type == ITEM_TYPE_OWNERDRAW && item->textalignment == ITEM_ALIGN_CENTER) #ifndef CGAME || (item->text && item->text[0]=='@' && item->asset != se_language.modificationCount ) //string package language changed #endif ) { int originalWidth = DC->textWidth(textPtr, item->textscale, item->iMenuFont); if (item->type == ITEM_TYPE_OWNERDRAW && (item->textalignment == ITEM_ALIGN_CENTER || item->textalignment == ITEM_ALIGN_RIGHT)) { originalWidth += DC->ownerDrawWidth(item->window.ownerDraw, item->textscale); } else if (item->type == ITEM_TYPE_EDITFIELD && item->textalignment == ITEM_ALIGN_CENTER && item->cvar) { char buff[256]; DC->getCVarString(item->cvar, buff, 256); originalWidth += DC->textWidth(buff, item->textscale, item->iMenuFont); } *width = DC->textWidth(textPtr, item->textscale, item->iMenuFont); *height = DC->textHeight(textPtr, item->textscale, item->iMenuFont); item->textRect.w = *width; item->textRect.h = *height; item->textRect.x = item->textalignx; item->textRect.y = item->textaligny; if (item->textalignment == ITEM_ALIGN_RIGHT) { item->textRect.x = item->textalignx - originalWidth; } else if (item->textalignment == ITEM_ALIGN_CENTER) { item->textRect.x = item->textalignx - originalWidth / 2; } ToWindowCoords(&item->textRect.x, &item->textRect.y, &item->window); #ifndef CGAME if (item->text && item->text[0]=='@' )//string package {//mark language item->asset = se_language.modificationCount; } #endif }
-    portMissing("Item_SetTextExtents", source: "oracle/codemp/ui/ui_shared.c:4740")
+    if width == 0 || (item.type == ITEM_TYPE_OWNERDRAW && item.textalignment == ITEM_ALIGN_CENTER) {
+        // Port-note: A read of `textPtr`, a local the draft left as a hole.
+        // Raven wrote: int originalWidth = DC->textWidth(textPtr, item->textscale, item->iMenuFont);
+        portMissing("Item_SetTextExtents", source: "oracle/codemp/ui/ui_shared.c:4740")
+
+        if item.type == ITEM_TYPE_OWNERDRAW && (item.textalignment == ITEM_ALIGN_CENTER || item.textalignment == ITEM_ALIGN_RIGHT) {
+            // Port-note: A store into `originalWidth`, a local the draft left as a hole.
+            // Raven wrote: originalWidth += DC->ownerDrawWidth(item->window.ownerDraw, item->textscale)
+            portMissing("Item_SetTextExtents", source: "oracle/codemp/ui/ui_shared.c:4740")
+        } else if item.type == ITEM_TYPE_EDITFIELD && item.textalignment == ITEM_ALIGN_CENTER && item.cvar != nil {
+            var buff = CharBuf(256)
+            DC!.runGetCVarString(item.cvar!, &buff, 256)
+            // Port-note: A store into `originalWidth`, a local the draft left as a hole.
+            // Raven wrote: originalWidth += DC->textWidth(buff, item->textscale, item->iMenuFont)
+            portMissing("Item_SetTextExtents", source: "oracle/codemp/ui/ui_shared.c:4740")
+        }
+
+        // Port-note: A read of `textPtr`, a local the draft left as a hole.
+        // Raven wrote: *width = DC->textWidth(textPtr, item->textscale, item->iMenuFont)
+        portMissing("Item_SetTextExtents", source: "oracle/codemp/ui/ui_shared.c:4740")
+        // Port-note: A read of `textPtr`, a local the draft left as a hole.
+        // Raven wrote: *height = DC->textHeight(textPtr, item->textscale, item->iMenuFont)
+        portMissing("Item_SetTextExtents", source: "oracle/codemp/ui/ui_shared.c:4740")
+
+        item.textRect.w = Float(width)
+        item.textRect.h = Float(height)
+        item.textRect.x = item.textalignx
+        item.textRect.y = item.textaligny
+        if item.textalignment == ITEM_ALIGN_RIGHT {
+            // Port-note: A read of `originalWidth`, a local the draft left as a hole.
+            // Raven wrote: item->textRect.x = item->textalignx - originalWidth
+            portMissing("Item_SetTextExtents", source: "oracle/codemp/ui/ui_shared.c:4740")
+        } else if item.textalignment == ITEM_ALIGN_CENTER {
+            // Port-note: A read of `originalWidth`, a local the draft left as a hole.
+            // Raven wrote: item->textRect.x = item->textalignx - originalWidth / 2
+            portMissing("Item_SetTextExtents", source: "oracle/codemp/ui/ui_shared.c:4740")
+        }
+
+        ToWindowCoords(&item.textRect.x, &item.textRect.y, item.window)
+    }
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:4793
 func Item_TextColor(_ item: ItemDef, _ newColor: inout JKAShared.vec4_t) {
     var lowLight = vec4_t()
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "missing argument label 'handle:' in call".
-    // Raven wrote: menuDef_t *parent = (menuDef_t*)item->parent;
-    portMissing("Item_TextColor", source: "oracle/codemp/ui/ui_shared.c:4793")
+    let parent: MenuDef? = item.parent
 
-    // Port-note: A read of `parent`, a local the draft left as a hole.
-    // Raven wrote: Fade(&item->window.flags, &item->window.foreColor[3], parent->fadeClamp, &item->window.nextTime, parent->fadeCycle, qtrue, parent->fadeAmount)
-    portMissing("Item_TextColor", source: "oracle/codemp/ui/ui_shared.c:4793")
+    Fade(&item.window.flags, &item.window.foreColor[3], parent!.fadeClamp, &item.window.nextTime, parent!.fadeCycle, true, parent!.fadeAmount)
 
     if (item.window.flags & WINDOW_HASFOCUS) != 0 {
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: lowLight[0] = 0.8 * parent->focusColor[0]
-        portMissing("Item_TextColor", source: "oracle/codemp/ui/ui_shared.c:4793")
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: lowLight[1] = 0.8 * parent->focusColor[1]
-        portMissing("Item_TextColor", source: "oracle/codemp/ui/ui_shared.c:4793")
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: lowLight[2] = 0.8 * parent->focusColor[2]
-        portMissing("Item_TextColor", source: "oracle/codemp/ui/ui_shared.c:4793")
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: lowLight[3] = 0.8 * parent->focusColor[3]
-        portMissing("Item_TextColor", source: "oracle/codemp/ui/ui_shared.c:4793")
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: LerpColor(parent->focusColor,lowLight,*newColor,0.5+0.5*sin((float)(DC->realTime / PULSE_DIVISOR)))
-        portMissing("Item_TextColor", source: "oracle/codemp/ui/ui_shared.c:4793")
+        lowLight[0] = Float(0.8 * Double(parent!.focusColor[0]))
+        lowLight[1] = Float(0.8 * Double(parent!.focusColor[1]))
+        lowLight[2] = Float(0.8 * Double(parent!.focusColor[2]))
+        lowLight[3] = Float(0.8 * Double(parent!.focusColor[3]))
+        LerpColor(vec4_t(parent!.focusColor[0], parent!.focusColor[1], parent!.focusColor[2], parent!.focusColor[3]), lowLight, &newColor, Float(0.5 + 0.5 * sin(Double(Float((DC!.realTime / PULSE_DIVISOR))))))
     } else if item.textStyle == ITEM_TEXTSTYLE_BLINK && !(((DC!.realTime / BLINK_DIVISOR) & 1) != 0) {
         lowLight[0] = Float(0.8 * Double(item.window.foreColor[0]))
         lowLight[1] = Float(0.8 * Double(item.window.foreColor[1]))
@@ -3751,9 +4301,13 @@ func Item_TextColor(_ item: ItemDef, _ newColor: inout JKAShared.vec4_t) {
         portMissing("Item_TextColor", source: "oracle/codemp/ui/ui_shared.c:4793")
     }
 
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: if (item->enableCvar && *item->enableCvar && item->cvarTest && *item->cvarTest) { if (item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) && !Item_EnableShowViaCvar(item, CVAR_ENABLE)) { memcpy(newColor, &parent->disableColor, sizeof(vec4_t)); } }
-    portMissing("Item_TextColor", source: "oracle/codemp/ui/ui_shared.c:4793")
+    if item.enableCvar != nil && !item.enableCvar!.isEmpty && item.cvarTest != nil && !item.cvarTest!.isEmpty {
+        if (item.cvarFlags & (CVAR_ENABLE | CVAR_DISABLE)) != 0 && !Item_EnableShowViaCvar(item, CVAR_ENABLE) {
+            // Port-note: Raven's `memcpy(newColor, &parent->disableColor, sizeof(vec4_t))` runs over bytes that are not one record with a view.
+            // Raven wrote: memcpy(newColor, &parent->disableColor, sizeof(vec4_t))
+            portMissing("Item_TextColor", source: "oracle/codemp/ui/ui_shared.c:4793")
+        }
+    }
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:4828
@@ -3762,9 +4316,7 @@ func Item_Text_AutoWrapped_Paint(_ item: ItemDef) {
     // Port-note: A pointer local `const char * p` with no view.
     // Raven wrote: const char *p;
     portMissing("Item_Text_AutoWrapped_Paint", source: "oracle/codemp/ui/ui_shared.c:4828")
-    // Port-note: A pointer local `const char * textPtr` with no view.
-    // Raven wrote: textPtr;
-    portMissing("Item_Text_AutoWrapped_Paint", source: "oracle/codemp/ui/ui_shared.c:4828")
+    var textPtr: String
     // Port-note: A pointer local `const char * newLinePtr` with no view.
     // Raven wrote: newLinePtr;
     portMissing("Item_Text_AutoWrapped_Paint", source: "oracle/codemp/ui/ui_shared.c:4828")
@@ -3786,33 +4338,26 @@ func Item_Text_AutoWrapped_Paint(_ item: ItemDef) {
         if item.cvar == nil {
             return
         } else {
-            // Port-note: Raven passes the buffer `text` to the engine as a handle, and the trap takes an OpaquePointer.
-            // Raven wrote: DC->getCVarString(item->cvar, text, sizeof(text))
-            portMissing("Item_Text_AutoWrapped_Paint", source: "oracle/codemp/ui/ui_shared.c:4828")
-            // Port-note: A store into `textPtr`, a local the draft left as a hole.
-            // Raven wrote: textPtr = text
-            portMissing("Item_Text_AutoWrapped_Paint", source: "oracle/codemp/ui/ui_shared.c:4828")
+            DC!.runGetCVarString(item.cvar!, &text, Int32((text).count))
+            textPtr = String(text)
         }
     } else {
-        // Port-note: A store into `textPtr`, a local the draft left as a hole.
-        // Raven wrote: textPtr = item->text
-        portMissing("Item_Text_AutoWrapped_Paint", source: "oracle/codemp/ui/ui_shared.c:4828")
+        textPtr = item.text!
     }
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: if (*textPtr == '@') // string reference { trap_SP_GetStringTextString( &textPtr[1], text, sizeof(text)); textPtr = text; }
-    portMissing("Item_Text_AutoWrapped_Paint", source: "oracle/codemp/ui/ui_shared.c:4828")
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: if (*textPtr == '\0') { return; }
-    portMissing("Item_Text_AutoWrapped_Paint", source: "oracle/codemp/ui/ui_shared.c:4828")
+    if CharBuf(textPtr)[0] == Int32(ascii: "@") {
+        strcpy(&text, trap_SP_GetStringTextString(String(textPtr.dropFirst(Int(1))), Int32((text).count)).1)
+        textPtr = String(text)
+    }
+    if CharBuf(textPtr)[0] == 0 {
+        return
+    }
     Item_TextColor(item, &color)
     //Item_SetTextExtents(item, &width, &height, textPtr);
     //if (item->value == 0)
     //{
     //	item->value = (int)(0.5 + (float)DC->textWidth(textPtr, item->textscale, item->font) / item->window.rect.w);
     //}
-    // Port-note: A read of `textPtr`, a local the draft left as a hole.
-    // Raven wrote: height = DC->textHeight(textPtr, item->textscale, item->iMenuFont)
-    portMissing("Item_Text_AutoWrapped_Paint", source: "oracle/codemp/ui/ui_shared.c:4828")
+    height = DC!.runTextHeight(textPtr, item.textscale, item.iMenuFont)
 
     y = item.textaligny
     len = 0
@@ -3836,9 +4381,7 @@ func Item_Text_Wrapped_Paint(_ item: ItemDef) {
     // Port-note: A pointer local `const char * start` with no view.
     // Raven wrote: start;
     portMissing("Item_Text_Wrapped_Paint", source: "oracle/codemp/ui/ui_shared.c:4911")
-    // Port-note: A pointer local `const char * textPtr` with no view.
-    // Raven wrote: textPtr;
-    portMissing("Item_Text_Wrapped_Paint", source: "oracle/codemp/ui/ui_shared.c:4911")
+    var textPtr: String
     var buff = CharBuf(1024)
     var width: Int32 = 0
     var height: Int32 = 0
@@ -3853,29 +4396,22 @@ func Item_Text_Wrapped_Paint(_ item: ItemDef) {
         if item.cvar == nil {
             return
         } else {
-            // Port-note: Raven passes the buffer `text` to the engine as a handle, and the trap takes an OpaquePointer.
-            // Raven wrote: DC->getCVarString(item->cvar, text, sizeof(text))
-            portMissing("Item_Text_Wrapped_Paint", source: "oracle/codemp/ui/ui_shared.c:4911")
-            // Port-note: A store into `textPtr`, a local the draft left as a hole.
-            // Raven wrote: textPtr = text
-            portMissing("Item_Text_Wrapped_Paint", source: "oracle/codemp/ui/ui_shared.c:4911")
+            DC!.runGetCVarString(item.cvar!, &text, Int32((text).count))
+            textPtr = String(text)
         }
     } else {
-        // Port-note: A store into `textPtr`, a local the draft left as a hole.
-        // Raven wrote: textPtr = item->text
-        portMissing("Item_Text_Wrapped_Paint", source: "oracle/codemp/ui/ui_shared.c:4911")
+        textPtr = item.text!
     }
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: if (*textPtr == '@') // string reference { trap_SP_GetStringTextString( &textPtr[1], text, sizeof(text)); textPtr = text; }
-    portMissing("Item_Text_Wrapped_Paint", source: "oracle/codemp/ui/ui_shared.c:4911")
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: if (*textPtr == '\0') { return; }
-    portMissing("Item_Text_Wrapped_Paint", source: "oracle/codemp/ui/ui_shared.c:4911")
+    if CharBuf(textPtr)[0] == Int32(ascii: "@") {
+        strcpy(&text, trap_SP_GetStringTextString(String(textPtr.dropFirst(Int(1))), Int32((text).count)).1)
+        textPtr = String(text)
+    }
+    if CharBuf(textPtr)[0] == 0 {
+        return
+    }
 
     Item_TextColor(item, &color)
-    // Port-note: A read of `textPtr`, a local the draft left as a hole.
-    // Raven wrote: Item_SetTextExtents(item, &width, &height, textPtr)
-    portMissing("Item_Text_Wrapped_Paint", source: "oracle/codemp/ui/ui_shared.c:4911")
+    Item_SetTextExtents(item, &width, &height, textPtr)
 
     x = item.textRect.x
     y = item.textRect.y
@@ -3896,9 +4432,7 @@ func Item_Text_Wrapped_Paint(_ item: ItemDef) {
 /// Source: oracle/codemp/ui/ui_shared.c:4961
 func Item_Text_Paint(_ item: ItemDef) {
     var text = CharBuf(1024)
-    // Port-note: A pointer local `const char * textPtr` with no view.
-    // Raven wrote: const char *textPtr;
-    portMissing("Item_Text_Paint", source: "oracle/codemp/ui/ui_shared.c:4961")
+    var textPtr: String
     var height: Int32 = 0
     var width: Int32 = 0
     var color = vec4_t()
@@ -3916,49 +4450,37 @@ func Item_Text_Paint(_ item: ItemDef) {
         if item.cvar == nil {
             return
         } else {
-            // Port-note: Raven passes the buffer `text` to the engine as a handle, and the trap takes an OpaquePointer.
-            // Raven wrote: DC->getCVarString(item->cvar, text, sizeof(text))
-            portMissing("Item_Text_Paint", source: "oracle/codemp/ui/ui_shared.c:4961")
-            // Port-note: A store into `textPtr`, a local the draft left as a hole.
-            // Raven wrote: textPtr = text
-            portMissing("Item_Text_Paint", source: "oracle/codemp/ui/ui_shared.c:4961")
+            DC!.runGetCVarString(item.cvar!, &text, Int32((text).count))
+            textPtr = String(text)
         }
     } else {
-        // Port-note: A store into `textPtr`, a local the draft left as a hole.
-        // Raven wrote: textPtr = item->text
-        portMissing("Item_Text_Paint", source: "oracle/codemp/ui/ui_shared.c:4961")
+        textPtr = item.text!
     }
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: if (*textPtr == '@') // string reference { trap_SP_GetStringTextString( &textPtr[1], text, sizeof(text)); textPtr = text; }
-    portMissing("Item_Text_Paint", source: "oracle/codemp/ui/ui_shared.c:4961")
+    if CharBuf(textPtr)[0] == Int32(ascii: "@") {
+        strcpy(&text, trap_SP_GetStringTextString(String(textPtr.dropFirst(Int(1))), Int32((text).count)).1)
+        textPtr = String(text)
+    }
 
     // this needs to go here as it sets extents for cvar types as well
-    // Port-note: A read of `textPtr`, a local the draft left as a hole.
-    // Raven wrote: Item_SetTextExtents(item, &width, &height, textPtr)
-    portMissing("Item_Text_Paint", source: "oracle/codemp/ui/ui_shared.c:4961")
+    Item_SetTextExtents(item, &width, &height, textPtr)
 
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: if (*textPtr == '\0') { return; }
-    portMissing("Item_Text_Paint", source: "oracle/codemp/ui/ui_shared.c:4961")
+    if CharBuf(textPtr)[0] == 0 {
+        return
+    }
 
 
     Item_TextColor(item, &color)
 
-    // Port-note: A read of `textPtr`, a local the draft left as a hole.
-    // Raven wrote: DC->drawText(item->textRect.x, item->textRect.y, item->textscale, color, textPtr, 0, 0, item->textStyle, item->iMenuFont)
-    portMissing("Item_Text_Paint", source: "oracle/codemp/ui/ui_shared.c:4961")
+    DC!.runDrawText(item.textRect.x, item.textRect.y, item.textscale, &color, textPtr, 0, 0, item.textStyle, item.iMenuFont)
 
     if item.text2 != nil {
-        // Port-note: A store into `textPtr`, a local the draft left as a hole.
-        // Raven wrote: textPtr = item->text2
-        portMissing("Item_Text_Paint", source: "oracle/codemp/ui/ui_shared.c:4961")
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: if (*textPtr == '@') // string reference { trap_SP_GetStringTextString( &textPtr[1], text, sizeof(text)); textPtr = text; }
-        portMissing("Item_Text_Paint", source: "oracle/codemp/ui/ui_shared.c:4961")
+        textPtr = item.text2!
+        if CharBuf(textPtr)[0] == Int32(ascii: "@") {
+            strcpy(&text, trap_SP_GetStringTextString(String(textPtr.dropFirst(Int(1))), Int32((text).count)).1)
+            textPtr = String(text)
+        }
         Item_TextColor(item, &color)
-        // Port-note: A read of `textPtr`, a local the draft left as a hole.
-        // Raven wrote: DC->drawText(item->textRect.x + item->text2alignx, item->textRect.y + item->text2aligny, item->textscale, color, textPtr, 0, 0, item->textStyle,item->iMenuFont)
-        portMissing("Item_Text_Paint", source: "oracle/codemp/ui/ui_shared.c:4961")
+        DC!.runDrawText(item.textRect.x + item.text2alignx, item.textRect.y + item.text2aligny, item.textscale, &color, textPtr, 0, 0, item.textStyle, item.iMenuFont)
     }
 }
 
@@ -3968,21 +4490,15 @@ func Item_TextField_Paint(_ item: ItemDef) {
     var newColor = vec4_t()
     var lowLight = vec4_t()
     let offset: Int32
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "missing argument label 'handle:' in call".
-    // Raven wrote: menuDef_t *parent = (menuDef_t*)item->parent;
-    portMissing("Item_TextField_Paint", source: "oracle/codemp/ui/ui_shared.c:5024")
-    // Port-note: A pointer local `editFieldDef_t * editPtr` with no view.
-    // Raven wrote: editFieldDef_t *editPtr = (editFieldDef_t*)item->typeData;
-    portMissing("Item_TextField_Paint", source: "oracle/codemp/ui/ui_shared.c:5024")
+    var parent: MenuDef? = item.parent
+    let editPtr: EditFieldDef? = item.typeData.map { EditFieldDef($0) }
 
     Item_Text_Paint(item)
 
     buff[0] = 0
 
     if item.cvar != nil {
-        // Port-note: Raven passes the buffer `buff` to the engine as a handle, and the trap takes an OpaquePointer.
-        // Raven wrote: DC->getCVarString(item->cvar, buff, sizeof(buff))
-        portMissing("Item_TextField_Paint", source: "oracle/codemp/ui/ui_shared.c:5024")
+        DC!.runGetCVarString(item.cvar!, &buff, Int32((buff).count))
         if buff[0] == Int32(ascii: "@") {
             // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int8' to expected argument type 'String'".
             // Raven wrote: trap_SP_GetStringTextString( &buff[1], buff, sizeof(buff))
@@ -3990,42 +4506,28 @@ func Item_TextField_Paint(_ item: ItemDef) {
         }
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "missing argument label 'handle:' in call".
-    // Raven wrote: parent = (menuDef_t*)item->parent
-    portMissing("Item_TextField_Paint", source: "oracle/codemp/ui/ui_shared.c:5024")
+    parent = item.parent
 
     if (item.window.flags & WINDOW_HASFOCUS) != 0 {
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: lowLight[0] = 0.8 * parent->focusColor[0]
-        portMissing("Item_TextField_Paint", source: "oracle/codemp/ui/ui_shared.c:5024")
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: lowLight[1] = 0.8 * parent->focusColor[1]
-        portMissing("Item_TextField_Paint", source: "oracle/codemp/ui/ui_shared.c:5024")
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: lowLight[2] = 0.8 * parent->focusColor[2]
-        portMissing("Item_TextField_Paint", source: "oracle/codemp/ui/ui_shared.c:5024")
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: lowLight[3] = 0.8 * parent->focusColor[3]
-        portMissing("Item_TextField_Paint", source: "oracle/codemp/ui/ui_shared.c:5024")
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin((float)(DC->realTime / PULSE_DIVISOR)))
-        portMissing("Item_TextField_Paint", source: "oracle/codemp/ui/ui_shared.c:5024")
+        lowLight[0] = Float(0.8 * Double(parent!.focusColor[0]))
+        lowLight[1] = Float(0.8 * Double(parent!.focusColor[1]))
+        lowLight[2] = Float(0.8 * Double(parent!.focusColor[2]))
+        lowLight[3] = Float(0.8 * Double(parent!.focusColor[3]))
+        LerpColor(vec4_t(parent!.focusColor[0], parent!.focusColor[1], parent!.focusColor[2], parent!.focusColor[3]), lowLight, &newColor, Float(0.5 + 0.5 * sin(Double(Float((DC!.realTime / PULSE_DIVISOR))))))
     } else {
         newColor = vec4_t(item.window.foreColor[0], item.window.foreColor[1], item.window.foreColor[2], item.window.foreColor[3])
     }
 
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: offset = (item->text && *item->text) ? 8 : 0
-    portMissing("Item_TextField_Paint", source: "oracle/codemp/ui/ui_shared.c:5024")
+    offset = (item.text != nil && !item.text!.isEmpty) ? 8 : 0
     if (item.window.flags & WINDOW_HASFOCUS) != 0 && g_editingField {
         // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Int32' to specified type 'CChar' (aka 'Int8')".
         // Raven wrote: char cursor = DC->getOverstrikeMode() ? '_' : '|';
         portMissing("Item_TextField_Paint", source: "oracle/codemp/ui/ui_shared.c:5024")
-        // Port-note: A read of `editPtr`, a local the draft left as a hole.
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'CharBuf' to expected argument type 'Int32'".
         // Raven wrote: DC->drawTextWithCursor(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor, buff + editPtr->paintOffset, item->cursorPos - editPtr->paintOffset , cursor, item->window.rect.w, item->textStyle, item->iMenuFont)
         portMissing("Item_TextField_Paint", source: "oracle/codemp/ui/ui_shared.c:5024")
     } else {
-        // Port-note: A read of `editPtr`, a local the draft left as a hole.
+        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'CharBuf' to expected argument type 'Int32'".
         // Raven wrote: DC->drawText(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor, buff + editPtr->paintOffset, 0, item->window.rect.w, item->textStyle,item->iMenuFont)
         portMissing("Item_TextField_Paint", source: "oracle/codemp/ui/ui_shared.c:5024")
     }
@@ -4038,9 +4540,7 @@ func Item_YesNo_Paint(_ item: ItemDef) {
     var newColor = vec4_t()
     var lowLight = vec4_t()
     let value: Float
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "missing argument label 'handle:' in call".
-    // Raven wrote: menuDef_t *parent = (menuDef_t*)item->parent;
-    portMissing("Item_YesNo_Paint", source: "oracle/codemp/ui/ui_shared.c:5064")
+    let parent: MenuDef? = item.parent
     // Port-note: A pointer local `const char * yesnovalue` with no view.
     // Raven wrote: const char *yesnovalue;
     portMissing("Item_YesNo_Paint", source: "oracle/codemp/ui/ui_shared.c:5064")
@@ -4048,21 +4548,11 @@ func Item_YesNo_Paint(_ item: ItemDef) {
     value = item.cvar != nil ? DC!.runGetCVarValue(item.cvar!) : 0
 
     if (item.window.flags & WINDOW_HASFOCUS) != 0 {
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: lowLight[0] = 0.8 * parent->focusColor[0]
-        portMissing("Item_YesNo_Paint", source: "oracle/codemp/ui/ui_shared.c:5064")
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: lowLight[1] = 0.8 * parent->focusColor[1]
-        portMissing("Item_YesNo_Paint", source: "oracle/codemp/ui/ui_shared.c:5064")
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: lowLight[2] = 0.8 * parent->focusColor[2]
-        portMissing("Item_YesNo_Paint", source: "oracle/codemp/ui/ui_shared.c:5064")
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: lowLight[3] = 0.8 * parent->focusColor[3]
-        portMissing("Item_YesNo_Paint", source: "oracle/codemp/ui/ui_shared.c:5064")
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin((float)(DC->realTime / PULSE_DIVISOR)))
-        portMissing("Item_YesNo_Paint", source: "oracle/codemp/ui/ui_shared.c:5064")
+        lowLight[0] = Float(0.8 * Double(parent!.focusColor[0]))
+        lowLight[1] = Float(0.8 * Double(parent!.focusColor[1]))
+        lowLight[2] = Float(0.8 * Double(parent!.focusColor[2]))
+        lowLight[3] = Float(0.8 * Double(parent!.focusColor[3]))
+        LerpColor(vec4_t(parent!.focusColor[0], parent!.focusColor[1], parent!.focusColor[2], parent!.focusColor[3]), lowLight, &newColor, Float(0.5 + 0.5 * sin(Double(Float((DC!.realTime / PULSE_DIVISOR))))))
     } else {
         newColor = vec4_t(item.window.foreColor[0], item.window.foreColor[1], item.window.foreColor[2], item.window.foreColor[3])
     }
@@ -4112,47 +4602,36 @@ func Item_Multi_Paint(_ item: ItemDef) {
     var newColor = vec4_t()
     var lowLight = vec4_t()
     var text: String = ""
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "missing argument label 'handle:' in call".
-    // Raven wrote: menuDef_t *parent = (menuDef_t*)item->parent;
-    portMissing("Item_Multi_Paint", source: "oracle/codemp/ui/ui_shared.c:5128")
+    let parent: MenuDef? = item.parent
     var temp = CharBuf(1024)
 
     if (item.window.flags & WINDOW_HASFOCUS) != 0 {
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: lowLight[0] = 0.8 * parent->focusColor[0]
-        portMissing("Item_Multi_Paint", source: "oracle/codemp/ui/ui_shared.c:5128")
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: lowLight[1] = 0.8 * parent->focusColor[1]
-        portMissing("Item_Multi_Paint", source: "oracle/codemp/ui/ui_shared.c:5128")
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: lowLight[2] = 0.8 * parent->focusColor[2]
-        portMissing("Item_Multi_Paint", source: "oracle/codemp/ui/ui_shared.c:5128")
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: lowLight[3] = 0.8 * parent->focusColor[3]
-        portMissing("Item_Multi_Paint", source: "oracle/codemp/ui/ui_shared.c:5128")
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin((float)(DC->realTime / PULSE_DIVISOR)))
-        portMissing("Item_Multi_Paint", source: "oracle/codemp/ui/ui_shared.c:5128")
+        lowLight[0] = Float(0.8 * Double(parent!.focusColor[0]))
+        lowLight[1] = Float(0.8 * Double(parent!.focusColor[1]))
+        lowLight[2] = Float(0.8 * Double(parent!.focusColor[2]))
+        lowLight[3] = Float(0.8 * Double(parent!.focusColor[3]))
+        LerpColor(vec4_t(parent!.focusColor[0], parent!.focusColor[1], parent!.focusColor[2], parent!.focusColor[3]), lowLight, &newColor, Float(0.5 + 0.5 * sin(Double(Float((DC!.realTime / PULSE_DIVISOR))))))
     } else {
         newColor = vec4_t(item.window.foreColor[0], item.window.foreColor[1], item.window.foreColor[2], item.window.foreColor[3])
     }
 
     text = Item_Multi_Setting(item)
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: if (*text == '@') // string reference { trap_SP_GetStringTextString( &text[1] , temp, sizeof(temp)); text = temp; } // Is is specifying a cvar to get the item name from? else if (*text == '*') { DC->getCVarString(&text[1], temp, sizeof(temp)); text = temp; }
-    portMissing("Item_Multi_Paint", source: "oracle/codemp/ui/ui_shared.c:5128")
+    if CharBuf(text)[0] == Int32(ascii: "@") {
+        strcpy(&temp, trap_SP_GetStringTextString(String(text.dropFirst(Int(1))), Int32((temp).count)).1)
+        text = String(temp)
+    } else if CharBuf(text)[0] == Int32(ascii: "*") {
+        // Is is specifying a cvar to get the item name from?
+        DC!.runGetCVarString(String(text.dropFirst(Int(1))), &temp, Int32((temp).count))
+        text = String(temp)
+    }
 
     if item.text != nil {
         Item_Text_Paint(item)
         //JLF  MPMOVED
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'String'".
-        // Raven wrote: DC->drawText(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, newColor, text, 0, 0, item->textStyle,item->iMenuFont)
-        portMissing("Item_Multi_Paint", source: "oracle/codemp/ui/ui_shared.c:5128")
+        DC!.runDrawText(item.textRect.x + item.textRect.w + 8, item.textRect.y, item.textscale, &newColor, text, 0, 0, item.textStyle, item.iMenuFont)
     } else {
         //JLF added xoffset
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot force unwrap value of non-optional type 'String'".
-        // Raven wrote: DC->drawText(item->textRect.x+item->xoffset, item->textRect.y, item->textscale, newColor, text, 0, 0, item->textStyle,item->iMenuFont)
-        portMissing("Item_Multi_Paint", source: "oracle/codemp/ui/ui_shared.c:5128")
+        DC!.runDrawText(item.textRect.x + item.xoffset, item.textRect.y, item.textscale, &newColor, text, 0, 0, item.textStyle, item.iMenuFont)
     }
 }
 
@@ -4169,23 +4648,18 @@ private func Controls_GetKeyAssignment(_ command: String, _ twokeys: inout [Int3
     var j: Int32
     var b = CharBuf(256)
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of type 'Int32' has no subscripts".
-    // Raven wrote: twokeys[0] = twokeys[1] = -1
-    portMissing("Controls_GetKeyAssignment", source: "oracle/codemp/ui/ui_shared.c:5302")
+    twokeys[1] = -1
+    twokeys[0] = twokeys[1]
     count = 0
 
     j = 0
     while j < MAX_KEYS {
-        // Port-note: Raven passes the buffer `b` to the engine as a handle, and the trap takes an OpaquePointer.
-        // Raven wrote: DC->getBindingBuf( j, b, 256 )
-        portMissing("Controls_GetKeyAssignment", source: "oracle/codemp/ui/ui_shared.c:5302")
+        DC!.runGetBindingBuf(j, &b, 256)
         // Port-note: A pointer dereference the draft cannot place.
         // Raven wrote: if ( *b == 0 ) { continue; }
         portMissing("Controls_GetKeyAssignment", source: "oracle/codemp/ui/ui_shared.c:5302")
         if Q_stricmp(String(b), command) == 0 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "value of type 'Int32' has no subscripts".
-            // Raven wrote: twokeys[count] = j
-            portMissing("Controls_GetKeyAssignment", source: "oracle/codemp/ui/ui_shared.c:5302")
+            twokeys[count] = j
             count += 1
             if count == 2 {
                 break
@@ -4210,16 +4684,10 @@ func Controls_GetConfig() {
     // iterate each command, get its numeric binding
     i = 0
     while i < g_bindCount {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type '[Int32]' to expected argument type 'Int32'".
-        // Raven wrote: Controls_GetKeyAssignment(g_bindings[i].command, twokeys)
-        portMissing("Controls_GetConfig", source: "oracle/codemp/ui/ui_shared.c:5332")
+        Controls_GetKeyAssignment(g_bindings[i].command!, &twokeys)
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'g_bindings' in scope".
-        // Raven wrote: g_bindings[i].bind1 = twokeys[0]
-        portMissing("Controls_GetConfig", source: "oracle/codemp/ui/ui_shared.c:5332")
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'g_bindings' in scope".
-        // Raven wrote: g_bindings[i].bind2 = twokeys[1]
-        portMissing("Controls_GetConfig", source: "oracle/codemp/ui/ui_shared.c:5332")
+        g_bindings[i].bind1 = twokeys[0]
+        g_bindings[i].bind2 = twokeys[1]
         i += 1
     }
 
@@ -4247,9 +4715,13 @@ func Controls_SetConfig(_ restart: Bool) {
     // iterate each command, get its numeric binding
     i = 0
     while i < g_bindCount {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'g_bindings' in scope".
-        // Raven wrote: if (g_bindings[i].bind1 != -1) { DC->setBinding( g_bindings[i].bind1, g_bindings[i].command ); if (g_bindings[i].bind2 != -1) DC->setBinding( g_bindings[i].bind2, g_bindings[i].command ); }
-        portMissing("Controls_SetConfig", source: "oracle/codemp/ui/ui_shared.c:5362")
+        if g_bindings[i].bind1 != -1 {
+            DC!.runSetBinding(g_bindings[i].bind1, g_bindings[i].command!)
+
+            if g_bindings[i].bind2 != -1 {
+                DC!.runSetBinding(g_bindings[i].bind2, g_bindings[i].command!)
+            }
+        }
         i += 1
     }
 
@@ -4275,9 +4747,9 @@ func BindingIDFromName(_ name: String) -> Int32 {
     var i: Int32
     i = 0
     while i < g_bindCount {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'g_bindings' in scope".
-        // Raven wrote: if (Q_stricmp(name, g_bindings[i].command) == 0) { return i; }
-        portMissing("BindingIDFromName", source: "oracle/codemp/ui/ui_shared.c:5396")
+        if Q_stricmp(name, g_bindings[i].command!) == 0 {
+            return i
+        }
         i += 1
     }
     return -1
@@ -4294,9 +4766,26 @@ func BindingFromName(_ cvar: String) {
     // iterate each command, set its default binding
     i = 0
     while i < g_bindCount {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'g_bindings' in scope".
-        // Raven wrote: if (Q_stricmp(cvar, g_bindings[i].command) == 0) { b1 = g_bindings[i].bind1; if (b1 == -1) { break; } DC->keynumToStringBuf( b1, g_nameBind1, 32 ); // do NOT do this or it corrupts asian text!!! Q_strupr(g_nameBind1); b2 = g_bindings[i].bind2; if (b2 != -1) { DC->keynumToStringBuf( b2, g_nameBind2, 32 ); // do NOT do this or it corrupts asian text!!! Q_strupr(g_nameBind2); trap_SP_GetStringTextString("MENUS_KEYBIND_OR",sOR, sizeof(sOR)); strcat( g_nameBind1, va(" %s ",sOR)); strcat( g_nameBind1, g_nameBind2 ); } return; }
-        portMissing("BindingFromName", source: "oracle/codemp/ui/ui_shared.c:5410")
+        if Q_stricmp(cvar, g_bindings[i].command!) == 0 {
+            b1 = g_bindings[i].bind1
+            if b1 == -1 {
+                break
+            }
+            DC!.runKeynumToStringBuf(b1, &g_nameBind1, 32)
+            // do NOT do this or it corrupts asian text!!!					Q_strupr(g_nameBind1);
+
+            b2 = g_bindings[i].bind2
+            if b2 != -1 {
+                DC!.runKeynumToStringBuf(b2, &g_nameBind2, 32)
+                // do NOT do this or it corrupts asian text!!!					Q_strupr(g_nameBind2);
+
+                strcpy(&sOR, trap_SP_GetStringTextString("MENUS_KEYBIND_OR", Int32((sOR).count)).1)
+
+                strcat(&g_nameBind1, va(" %s ", sOR))
+                strcat(&g_nameBind1, g_nameBind2)
+            }
+            return
+        }
         i += 1
     }
     strcpy(&g_nameBind1, "???")
@@ -4309,28 +4798,16 @@ func Item_Slider_Paint(_ item: ItemDef) {
     var x: Float
     let y: Float
     let value: Float
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "missing argument label 'handle:' in call".
-    // Raven wrote: menuDef_t *parent = (menuDef_t*)item->parent;
-    portMissing("Item_Slider_Paint", source: "oracle/codemp/ui/ui_shared.c:5443")
+    let parent: MenuDef? = item.parent
 
     value = item.cvar != nil ? DC!.runGetCVarValue(item.cvar!) : 0
 
     if (item.window.flags & WINDOW_HASFOCUS) != 0 {
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: lowLight[0] = 0.8 * parent->focusColor[0]
-        portMissing("Item_Slider_Paint", source: "oracle/codemp/ui/ui_shared.c:5443")
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: lowLight[1] = 0.8 * parent->focusColor[1]
-        portMissing("Item_Slider_Paint", source: "oracle/codemp/ui/ui_shared.c:5443")
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: lowLight[2] = 0.8 * parent->focusColor[2]
-        portMissing("Item_Slider_Paint", source: "oracle/codemp/ui/ui_shared.c:5443")
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: lowLight[3] = 0.8 * parent->focusColor[3]
-        portMissing("Item_Slider_Paint", source: "oracle/codemp/ui/ui_shared.c:5443")
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin((float)(DC->realTime / PULSE_DIVISOR)))
-        portMissing("Item_Slider_Paint", source: "oracle/codemp/ui/ui_shared.c:5443")
+        lowLight[0] = Float(0.8 * Double(parent!.focusColor[0]))
+        lowLight[1] = Float(0.8 * Double(parent!.focusColor[1]))
+        lowLight[2] = Float(0.8 * Double(parent!.focusColor[2]))
+        lowLight[3] = Float(0.8 * Double(parent!.focusColor[3]))
+        LerpColor(vec4_t(parent!.focusColor[0], parent!.focusColor[1], parent!.focusColor[2], parent!.focusColor[3]), lowLight, &newColor, Float(0.5 + 0.5 * sin(Double(Float((DC!.realTime / PULSE_DIVISOR))))))
     } else {
         newColor = vec4_t(item.window.foreColor[0], item.window.foreColor[1], item.window.foreColor[2], item.window.foreColor[3])
     }
@@ -4362,15 +4839,11 @@ func Item_Bind_Paint(_ item: ItemDef) {
     let startingXPos: Int32
 
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "missing argument label 'handle:' in call".
-    // Raven wrote: menuDef_t *parent = (menuDef_t*)item->parent;
-    portMissing("Item_Bind_Paint", source: "oracle/codemp/ui/ui_shared.c:5475")
-    // Port-note: A pointer local `editFieldDef_t * editPtr` with no view.
-    // Raven wrote: editFieldDef_t *editPtr = (editFieldDef_t*)item->typeData;
-    portMissing("Item_Bind_Paint", source: "oracle/codemp/ui/ui_shared.c:5475")
-    // Port-note: A read of `editPtr`, a local the draft left as a hole.
-    // Raven wrote: if (editPtr) { maxChars = editPtr->maxPaintChars; }
-    portMissing("Item_Bind_Paint", source: "oracle/codemp/ui/ui_shared.c:5475")
+    let parent: MenuDef? = item.parent
+    let editPtr: EditFieldDef? = item.typeData.map { EditFieldDef($0) }
+    if editPtr != nil {
+        maxChars = editPtr!.maxPaintChars
+    }
 
     value = item.cvar != nil ? DC!.runGetCVarValue(item.cvar!) : 0
 
@@ -4381,22 +4854,12 @@ func Item_Bind_Paint(_ item: ItemDef) {
             lowLight[2] = 0.8 * 0.0
             lowLight[3] = 0.8 * 1.0
         } else {
-            // Port-note: A read of `parent`, a local the draft left as a hole.
-            // Raven wrote: lowLight[0] = 0.8f * parent->focusColor[0]
-            portMissing("Item_Bind_Paint", source: "oracle/codemp/ui/ui_shared.c:5475")
-            // Port-note: A read of `parent`, a local the draft left as a hole.
-            // Raven wrote: lowLight[1] = 0.8f * parent->focusColor[1]
-            portMissing("Item_Bind_Paint", source: "oracle/codemp/ui/ui_shared.c:5475")
-            // Port-note: A read of `parent`, a local the draft left as a hole.
-            // Raven wrote: lowLight[2] = 0.8f * parent->focusColor[2]
-            portMissing("Item_Bind_Paint", source: "oracle/codemp/ui/ui_shared.c:5475")
-            // Port-note: A read of `parent`, a local the draft left as a hole.
-            // Raven wrote: lowLight[3] = 0.8f * parent->focusColor[3]
-            portMissing("Item_Bind_Paint", source: "oracle/codemp/ui/ui_shared.c:5475")
+            lowLight[0] = 0.8 * parent!.focusColor[0]
+            lowLight[1] = 0.8 * parent!.focusColor[1]
+            lowLight[2] = 0.8 * parent!.focusColor[2]
+            lowLight[3] = 0.8 * parent!.focusColor[3]
         }
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin((float)(DC->realTime / PULSE_DIVISOR)))
-        portMissing("Item_Bind_Paint", source: "oracle/codemp/ui/ui_shared.c:5475")
+        LerpColor(vec4_t(parent!.focusColor[0], parent!.focusColor[1], parent!.focusColor[2], parent!.focusColor[3]), lowLight, &newColor, Float(0.5 + 0.5 * sin(Double(Float((DC!.realTime / PULSE_DIVISOR))))))
     } else {
         newColor = vec4_t(item.window.foreColor[0], item.window.foreColor[1], item.window.foreColor[2], item.window.foreColor[3])
     }
@@ -4467,20 +4930,16 @@ func Item_Bind_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool) -> Bool {
         case A_BACKSPACE:
             id = BindingIDFromName(item.cvar!)
             if id != -1 {
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'g_bindings' in scope".
-                // Raven wrote: if ( g_bindings[id].bind1 != -1 ) { DC->setBinding ( g_bindings[id].bind1, "" ); }
-                portMissing("Item_Bind_HandleKey", source: "oracle/codemp/ui/ui_shared.c:5552")
+                if g_bindings[id].bind1 != -1 {
+                    DC!.runSetBinding(g_bindings[id].bind1, "")
+                }
 
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'g_bindings' in scope".
-                // Raven wrote: if ( g_bindings[id].bind2 != -1 ) { DC->setBinding ( g_bindings[id].bind2, "" ); }
-                portMissing("Item_Bind_HandleKey", source: "oracle/codemp/ui/ui_shared.c:5552")
+                if g_bindings[id].bind2 != -1 {
+                    DC!.runSetBinding(g_bindings[id].bind2, "")
+                }
 
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'g_bindings' in scope".
-                // Raven wrote: g_bindings[id].bind1 = -1
-                portMissing("Item_Bind_HandleKey", source: "oracle/codemp/ui/ui_shared.c:5552")
-                // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'g_bindings' in scope".
-                // Raven wrote: g_bindings[id].bind2 = -1
-                portMissing("Item_Bind_HandleKey", source: "oracle/codemp/ui/ui_shared.c:5552")
+                g_bindings[id].bind1 = -1
+                g_bindings[id].bind2 = -1
             }
             Controls_SetConfig(true)
             g_waitingForKey = false
@@ -4498,13 +4957,14 @@ func Item_Bind_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool) -> Bool {
     if key != -1 {
         i = 0
         while i < g_bindCount {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'g_bindings' in scope".
-            // Raven wrote: if (g_bindings[i].bind2 == key) { g_bindings[i].bind2 = -1; }
-            portMissing("Item_Bind_HandleKey", source: "oracle/codemp/ui/ui_shared.c:5552")
+            if g_bindings[i].bind2 == key {
+                g_bindings[i].bind2 = -1
+            }
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'g_bindings' in scope".
-            // Raven wrote: if (g_bindings[i].bind1 == key) { g_bindings[i].bind1 = g_bindings[i].bind2; g_bindings[i].bind2 = -1; }
-            portMissing("Item_Bind_HandleKey", source: "oracle/codemp/ui/ui_shared.c:5552")
+            if g_bindings[i].bind1 == key {
+                g_bindings[i].bind1 = g_bindings[i].bind2
+                g_bindings[i].bind2 = -1
+            }
             i += 1
         }
     }
@@ -4514,16 +4974,23 @@ func Item_Bind_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool) -> Bool {
 
     if id != -1 {
         if key == -1 {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'g_bindings' in scope".
-            // Raven wrote: if( g_bindings[id].bind1 != -1 ) { DC->setBinding( g_bindings[id].bind1, "" ); g_bindings[id].bind1 = -1; }
-            portMissing("Item_Bind_HandleKey", source: "oracle/codemp/ui/ui_shared.c:5552")
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'g_bindings' in scope".
-            // Raven wrote: if( g_bindings[id].bind2 != -1 ) { DC->setBinding( g_bindings[id].bind2, "" ); g_bindings[id].bind2 = -1; }
-            portMissing("Item_Bind_HandleKey", source: "oracle/codemp/ui/ui_shared.c:5552")
+            if g_bindings[id].bind1 != -1 {
+                DC!.runSetBinding(g_bindings[id].bind1, "")
+                g_bindings[id].bind1 = -1
+            }
+            if g_bindings[id].bind2 != -1 {
+                DC!.runSetBinding(g_bindings[id].bind2, "")
+                g_bindings[id].bind2 = -1
+            }
+        } else if g_bindings[id].bind1 == -1 {
+            g_bindings[id].bind1 = key
+        } else if g_bindings[id].bind1 != key && g_bindings[id].bind2 == -1 {
+            g_bindings[id].bind2 = key
         } else {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'g_bindings' in scope".
-            // Raven wrote: if (g_bindings[id].bind1 == -1) { g_bindings[id].bind1 = key; } else if (g_bindings[id].bind1 != key && g_bindings[id].bind2 == -1) { g_bindings[id].bind2 = key; } else { DC->setBinding( g_bindings[id].bind1, "" ); DC->setBinding( g_bindings[id].bind2, "" ); g_bindings[id].bind1 = key; g_bindings[id].bind2 = -1; }
-            portMissing("Item_Bind_HandleKey", source: "oracle/codemp/ui/ui_shared.c:5552")
+            DC!.runSetBinding(g_bindings[id].bind1, "")
+            DC!.runSetBinding(g_bindings[id].bind2, "")
+            g_bindings[id].bind1 = key
+            g_bindings[id].bind2 = -1
         }
     }
 
@@ -4566,13 +5033,11 @@ func Item_Model_Paint(_ item: ItemDef) {
             var maxs = vec3_t()
             var origin = vec3_t()
             var angles = vec3_t()
-            // Port-note: A pointer local `modelDef_t * modelPtr` with no view.
-            // Raven wrote: modelDef_t *modelPtr = (modelDef_t*)item->typeData;
-            portMissing("Item_Model_Paint", source: "oracle/codemp/ui/ui_shared.c:5694")
+            let modelPtr: ModelDef? = item.typeData.map { ModelDef($0) }
 
-            // Port-note: A read of `modelPtr`, a local the draft left as a hole.
-            // Raven wrote: if (modelPtr == NULL) { return; }
-            portMissing("Item_Model_Paint", source: "oracle/codemp/ui/ui_shared.c:5694")
+            if modelPtr == nil {
+                return true
+            }
 
             // a moves datapad anim is playing
 
@@ -4585,9 +5050,7 @@ func Item_Model_Paint(_ item: ItemDef) {
             // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
 
             refdef.rdflags = RDF_NOWORLDMODEL
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-            // Raven wrote: AxisClear( refdef.viewaxis )
-            portMissing("Item_Model_Paint", source: "oracle/codemp/ui/ui_shared.c:5694")
+            AxisClear(refdef.viewaxis)
             x = item.window.rect.x + 1
             y = item.window.rect.y + 1
             w = item.window.rect.w - 2
@@ -4600,12 +5063,8 @@ func Item_Model_Paint(_ item: ItemDef) {
 
             if item.ghoul2 != nil {
                 //ghoul2 models don't have bounds, so we have to parse them.
-                // Port-note: A read of `modelPtr`, a local the draft left as a hole.
-                // Raven wrote: VectorCopy(modelPtr->g2mins, mins)
-                portMissing("Item_Model_Paint", source: "oracle/codemp/ui/ui_shared.c:5694")
-                // Port-note: A read of `modelPtr`, a local the draft left as a hole.
-                // Raven wrote: VectorCopy(modelPtr->g2maxs, maxs)
-                portMissing("Item_Model_Paint", source: "oracle/codemp/ui/ui_shared.c:5694")
+                mins = modelPtr!.g2mins
+                maxs = modelPtr!.g2maxs
 
                 if mins[0] == 0 && mins[1] == 0 && mins[2] == 0 && maxs[0] == 0 && maxs[1] == 0 && maxs[2] == 0 {
                     //we'll use defaults then I suppose.
@@ -4623,12 +5082,10 @@ func Item_Model_Paint(_ item: ItemDef) {
             let len: Float = Float(0.5 * Double(maxs[2] - mins[2]))
             origin[0] = Float(Double(len) / 0.268) // len / tan( fov/2 )
             //origin[0] = len / tan(w/2);
-            // Port-note: A read of `modelPtr`, a local the draft left as a hole.
+            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type 'Int32' to type 'Float'".
             // Raven wrote: refdef.fov_x = (modelPtr->fov_x) ? modelPtr->fov_x : (int)((float)refdef.width / 640.0f * 90.0f)
             portMissing("Item_Model_Paint", source: "oracle/codemp/ui/ui_shared.c:5694")
-            // Port-note: A read of `modelPtr`, a local the draft left as a hole.
-            // Raven wrote: refdef.fov_y = (modelPtr->fov_y) ? modelPtr->fov_y : atan2( refdef.height, refdef.width / tan( refdef.fov_x / 360 * M_PI ) ) * ( 360 / M_PI )
-            portMissing("Item_Model_Paint", source: "oracle/codemp/ui/ui_shared.c:5694")
+            refdef.fov_y = Float(Double(modelPtr!.fov_y) != 0 ? Double(modelPtr!.fov_y) : atan2(Double(refdef.height), Double(refdef.width) / tan(Double(refdef.fov_x / 360) * M_PI)) * (360 / M_PI))
 
             //refdef.fov_x = (int)((float)refdef.width / 640.0f * 90.0f);
             //refdef.fov_y = atan2( refdef.height, refdef.width / tan( refdef.fov_x / 360 * M_PI ) ) * ( 360 / M_PI );
@@ -4642,24 +5099,27 @@ func Item_Model_Paint(_ item: ItemDef) {
             // Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call.
 
             // use item storage to track
-            // Port-note: A read of `modelPtr`, a local the draft left as a hole.
-            // Raven wrote: if ( (item->flags&ITF_ISANYSABER) && !(item->flags&ITF_ISCHARACTER) ) {//hack to put saber on it's side if (modelPtr->rotationSpeed) { VectorSet( angles, modelPtr->angle+(float)refdef.time/modelPtr->rotationSpeed, 0, 90 ); } else { VectorSet( angles, modelPtr->angle, 0, 90 ); } } else if (modelPtr->rotationSpeed) { VectorSet( angles, 0, modelPtr->angle + (float)refdef.time/modelPtr->rotationSpeed, 0 ); } else { VectorSet( angles, 0, modelPtr->angle, 0 ); }
-            portMissing("Item_Model_Paint", source: "oracle/codemp/ui/ui_shared.c:5694")
+            if (item.flags & ITF_ISANYSABER) != 0 && !((item.flags & ITF_ISCHARACTER) != 0) {
+                //hack to put saber on it's side
+                if modelPtr!.rotationSpeed != 0 {
+                    angles = vec3_t(modelPtr!.angle + Float(refdef.time) / modelPtr!.rotationSpeed, 0, 90)
+                } else {
+                    angles = vec3_t(Float(modelPtr!.angle), 0, 90)
+                }
+            } else if modelPtr!.rotationSpeed != 0 {
+                angles = vec3_t(0, modelPtr!.angle + Float(refdef.time) / modelPtr!.rotationSpeed, 0)
+            } else {
+                angles = vec3_t(0, Float(modelPtr!.angle), 0)
+            }
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "'&' used with non-inout argument of type 'Slots<vec3_t>' (aka 'Slots<SIMD3<Float>>')".
-            // Raven wrote: AnglesToAxis( angles, ent.axis )
-            portMissing("Item_Model_Paint", source: "oracle/codemp/ui/ui_shared.c:5694")
+            AnglesToAxis(angles, ent.axis)
 
             if item.ghoul2 != nil {
                 ent.ghoul2 = item.ghoul2
                 ent.radius = 1000
-                // Port-note: A read of `modelPtr`, a local the draft left as a hole.
-                // Raven wrote: ent.customSkin = modelPtr->g2skin
-                portMissing("Item_Model_Paint", source: "oracle/codemp/ui/ui_shared.c:5694")
+                ent.customSkin = modelPtr!.g2skin
 
-                // Port-note: A read of `modelPtr`, a local the draft left as a hole.
-                // Raven wrote: VectorCopy(modelPtr->g2scale, ent.modelScale)
-                portMissing("Item_Model_Paint", source: "oracle/codemp/ui/ui_shared.c:5694")
+                ent.modelScale = modelPtr!.g2scale
                 UI_ScaleModelAxis(ent)
                 //			UI_TalkingHead(item);
             } else {
@@ -4703,13 +5163,9 @@ func Item_TextScroll_Paint(_ item: ItemDef) {
     let count: Float
     var thumb: Float
     var i: Int32
-    // Port-note: A pointer local `textScrollDef_t * scrollPtr` with no view.
-    // Raven wrote: textScrollDef_t *scrollPtr = (textScrollDef_t*)item->typeData;
-    portMissing("Item_TextScroll_Paint", source: "oracle/codemp/ui/ui_shared.c:5911")
+    let scrollPtr: TextScrollDef? = item.typeData.map { TextScrollDef($0) }
 
-    // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-    // Raven wrote: count = scrollPtr->iLineCount
-    portMissing("Item_TextScroll_Paint", source: "oracle/codemp/ui/ui_shared.c:5911")
+    count = Float(scrollPtr!.iLineCount)
 
     // draw scrollbar to right side of the window
     x = Float(Double(item.window.rect.x + item.window.rect.w) - SCROLLBAR_SIZE - 1)
@@ -4717,9 +5173,7 @@ func Item_TextScroll_Paint(_ item: ItemDef) {
     DC!.runDrawHandlePic(x, y, Float(SCROLLBAR_SIZE), Float(SCROLLBAR_SIZE), DC!.Assets.scrollBarArrowUp)
     y = Float(Double(y) + (SCROLLBAR_SIZE - 1))
 
-    // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-    // Raven wrote: scrollPtr->endPos = scrollPtr->startPos
-    portMissing("Item_TextScroll_Paint", source: "oracle/codemp/ui/ui_shared.c:5911")
+    scrollPtr!.endPos = scrollPtr!.startPos
     size = Float(Double(item.window.rect.h) - (SCROLLBAR_SIZE * 2))
     DC!.runDrawHandlePic(x, y, Float(SCROLLBAR_SIZE), size + 1, DC!.Assets.scrollBar)
     y += size - 1
@@ -4733,9 +5187,7 @@ func Item_TextScroll_Paint(_ item: ItemDef) {
     DC!.runDrawHandlePic(x, thumb, Float(SCROLLBAR_SIZE), Float(SCROLLBAR_SIZE), DC!.Assets.scrollBarThumb)
 
     if item.cvar != nil {
-        // Port-note: Raven passes the buffer `cvartext` to the engine as a handle, and the trap takes an OpaquePointer.
-        // Raven wrote: DC->getCVarString(item->cvar, cvartext, sizeof(cvartext))
-        portMissing("Item_TextScroll_Paint", source: "oracle/codemp/ui/ui_shared.c:5911")
+        DC!.runGetCVarString(item.cvar!, &cvartext, Int32((cvartext).count))
         item.text = String(cvartext)
         Item_TextScroll_BuildLines(item)
     }
@@ -4745,9 +5197,33 @@ func Item_TextScroll_Paint(_ item: ItemDef) {
     x = item.window.rect.x + item.textalignx + 1
     y = item.window.rect.y + item.textaligny + 1
 
-    // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-    // Raven wrote: for (i = scrollPtr->startPos; i < count; i++) { const char *text; text = scrollPtr->pLines[i]; if (!text) { continue; } DC->drawText(x + 4, y, item->textscale, item->window.foreColor, text, 0, 0, item->textStyle, item->iMenuFont); size -= scrollPtr->lineHeight; if (size < scrollPtr->lineHeight) { scrollPtr->drawPadding = scrollPtr->lineHeight - size; break; } scrollPtr->endPos++; y += scrollPtr->lineHeight; }
-    portMissing("Item_TextScroll_Paint", source: "oracle/codemp/ui/ui_shared.c:5911")
+    i = scrollPtr!.startPos
+    while i < count {
+        // Port-note: A pointer local `const char * text` with no view.
+        // Raven wrote: const char *text;
+        portMissing("Item_TextScroll_Paint", source: "oracle/codemp/ui/ui_shared.c:5911")
+
+        // Port-note: A store into `text`, a local the draft left as a hole.
+        // Raven wrote: text = scrollPtr->pLines[i]
+        portMissing("Item_TextScroll_Paint", source: "oracle/codemp/ui/ui_shared.c:5911")
+        // Port-note: A read of `text`, a local the draft left as a hole.
+        // Raven wrote: if (!text) { continue; }
+        portMissing("Item_TextScroll_Paint", source: "oracle/codemp/ui/ui_shared.c:5911")
+
+        // Port-note: A read of `text`, a local the draft left as a hole.
+        // Raven wrote: DC->drawText(x + 4, y, item->textscale, item->window.foreColor, text, 0, 0, item->textStyle, item->iMenuFont)
+        portMissing("Item_TextScroll_Paint", source: "oracle/codemp/ui/ui_shared.c:5911")
+
+        size -= scrollPtr!.lineHeight
+        if size < scrollPtr!.lineHeight {
+            scrollPtr!.drawPadding = Int32(scrollPtr!.lineHeight - size)
+            break
+        }
+
+        scrollPtr!.endPos += 1
+        y += scrollPtr!.lineHeight
+        i += 1
+    }
 }
 
 // Draw routine for list boxes
@@ -4766,9 +5242,7 @@ func Item_ListBox_Paint(_ item: ItemDef) {
     var optionalImage1: qhandle_t = 0
     var optionalImage2: qhandle_t = 0
     var optionalImage3: qhandle_t = 0
-    // Port-note: A pointer local `listBoxDef_t * listPtr` with no view.
-    // Raven wrote: listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
-    portMissing("Item_ListBox_Paint", source: "oracle/codemp/ui/ui_shared.c:5979")
+    let listPtr: ListBoxDef? = item.typeData.map { ListBoxDef($0) }
     //JLF MPMOVED
     let numlines: Int32
 
@@ -4782,9 +5256,10 @@ func Item_ListBox_Paint(_ item: ItemDef) {
     //JLFLISTBOX  MPMOVED
     //item->cursorPos = listPtr->startPos;
     //JLFLISTBOX MPMOVED
-    // Port-note: A read of `listPtr`, a local the draft left as a hole.
-    // Raven wrote: if (listPtr->startPos > (count?count-1:count)) {//probably changed feeders, so reset listPtr->startPos = 0; }
-    portMissing("Item_ListBox_Paint", source: "oracle/codemp/ui/ui_shared.c:5979")
+    if listPtr!.startPos > (count != 0 ? count - 1 : count) {
+        //probably changed feeders, so reset
+        listPtr!.startPos = 0
+    }
     //JLF END
     if item.cursorPos > (count != 0 ? count - 1 : count) {
         //probably changed feeders, so reset
@@ -4798,42 +5273,252 @@ func Item_ListBox_Paint(_ item: ItemDef) {
     // default is vertical if horizontal flag is not here
     if (item.window.flags & WINDOW_HORIZONTAL) != 0 {
         //JLF new variable (code just indented) MPMOVED
-        // Port-note: A read of `listPtr`, a local the draft left as a hole.
-        // Raven wrote: if (!listPtr->scrollhidden) { // draw scrollbar in bottom of the window // bar if (Item_ListBox_MaxScroll(item) > 0) { x = item->window.rect.x + 1; y = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE - 1; DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowLeft); x += SCROLLBAR_SIZE - 1; sizeWidth = item->window.rect.w - (SCROLLBAR_SIZE * 2); DC->drawHandlePic(x, y, sizeWidth+1, SCROLLBAR_SIZE, DC->Assets.scrollBar); x += sizeWidth - 1; DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowRight); // thumb thumb = Item_ListBox_ThumbDrawPosition(item);//Item_ListBox_ThumbPosition(item); if (thumb > x - SCROLLBAR_SIZE - 1) { thumb = x - SCROLLBAR_SIZE - 1; } DC->drawHandlePic(thumb, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarThumb); } else if (listPtr->startPos > 0) { listPtr->startPos = 0; } }
-        portMissing("Item_ListBox_Paint", source: "oracle/codemp/ui/ui_shared.c:5979")
+        if !listPtr!.scrollhidden {
+            // draw scrollbar in bottom of the window
+            // bar
+            if Item_ListBox_MaxScroll(item) > 0 {
+                x = item.window.rect.x + 1
+                y = Float(Double(item.window.rect.y + item.window.rect.h) - SCROLLBAR_SIZE - 1)
+                DC!.runDrawHandlePic(x, y, Float(SCROLLBAR_SIZE), Float(SCROLLBAR_SIZE), DC!.Assets.scrollBarArrowLeft)
+                x = Float(Double(x) + (SCROLLBAR_SIZE - 1))
+                sizeWidth = Float(Double(item.window.rect.w) - (SCROLLBAR_SIZE * 2))
+                DC!.runDrawHandlePic(x, y, sizeWidth + 1, Float(SCROLLBAR_SIZE), DC!.Assets.scrollBar)
+                x += sizeWidth - 1
+                DC!.runDrawHandlePic(x, y, Float(SCROLLBAR_SIZE), Float(SCROLLBAR_SIZE), DC!.Assets.scrollBarArrowRight)
+                // thumb
+                thumb = Float(Item_ListBox_ThumbDrawPosition(item)) //Item_ListBox_ThumbPosition(item);
+                if Double(thumb) > Double(x) - SCROLLBAR_SIZE - 1 {
+                    thumb = Float(Double(x) - SCROLLBAR_SIZE - 1)
+                }
+                DC!.runDrawHandlePic(thumb, y, Float(SCROLLBAR_SIZE), Float(SCROLLBAR_SIZE), DC!.Assets.scrollBarThumb)
+            } else if listPtr!.startPos > 0 {
+                listPtr!.startPos = 0
+            }
+        }
         //JLF end
         //
-        // Port-note: A read of `listPtr`, a local the draft left as a hole.
-        // Raven wrote: listPtr->endPos = listPtr->startPos
-        portMissing("Item_ListBox_Paint", source: "oracle/codemp/ui/ui_shared.c:5979")
+        listPtr!.endPos = listPtr!.startPos
         sizeWidth = item.window.rect.w - 2
         // items
         // size contains max available space
-        // Port-note: A read of `listPtr`, a local the draft left as a hole.
-        // Raven wrote: if (listPtr->elementStyle == LISTBOX_IMAGE) { // fit = 0; x = item->window.rect.x + 1; y = item->window.rect.y + 1; for (i = listPtr->startPos; i < count; i++) { // always draw at least one // which may overdraw the box if it is too small for the element image = DC->feederItemImage(item->special, i); if (image) { #ifndef CGAME if (item->window.flags & WINDOW_PLAYERCOLOR) { vec4_t color; color[0] = ui_char_color_red.integer/COLOR_MAX; color[1] = ui_char_color_green.integer/COLOR_MAX; color[2] = ui_char_color_blue.integer/COLOR_MAX; color[3] = 1.0f; DC->setColor(color); } #endif DC->drawHandlePic(x+1, y+1, listPtr->elementWidth - 2, listPtr->elementHeight - 2, image); } if (i == item->cursorPos) { DC->drawRect(x, y, listPtr->elementWidth-1, listPtr->elementHeight-1, item->window.borderSize, item->window.borderColor); } sizeWidth -= listPtr->elementWidth; if (sizeWidth < listPtr->elementWidth) { listPtr->drawPadding = sizeWidth; //listPtr->elementWidth - size; break; } x += listPtr->elementWidth; listPtr->endPos++; // fit++; } } else { // }
-        portMissing("Item_ListBox_Paint", source: "oracle/codemp/ui/ui_shared.c:5979")
+        if listPtr!.elementStyle == LISTBOX_IMAGE {
+            // fit = 0;
+            x = item.window.rect.x + 1
+            y = item.window.rect.y + 1
+            i = Float(listPtr!.startPos)
+            while i < count {
+                // always draw at least one
+                // which may overdraw the box if it is too small for the element
+                image = DC!.runFeederItemImage(item.special, Int32(i))
+                if image != 0 {
+                    DC!.runDrawHandlePic(x + 1, y + 1, listPtr!.elementWidth - 2, listPtr!.elementHeight - 2, image)
+                }
+
+                if i == item.cursorPos {
+                    DC!.runDrawRect(x, y, listPtr!.elementWidth - 1, listPtr!.elementHeight - 1, item.window.borderSize, vec4_t(item.window.borderColor[0], item.window.borderColor[1], item.window.borderColor[2], item.window.borderColor[3]))
+                }
+
+                sizeWidth -= listPtr!.elementWidth
+                if sizeWidth < listPtr!.elementWidth {
+                    listPtr!.drawPadding = Int32(sizeWidth) //listPtr->elementWidth - size;
+                    break
+                }
+                x += listPtr!.elementWidth
+                listPtr!.endPos += 1
+                // fit++;
+                i += 1
+            }
+        } else {
+            //
+        }
 
         // Show pic name
     } else {
         // A vertical list box
         //JLF MPMOVED
-        // Port-note: A read of `listPtr`, a local the draft left as a hole.
-        // Raven wrote: numlines = item->window.rect.h / listPtr->elementHeight
-        portMissing("Item_ListBox_Paint", source: "oracle/codemp/ui/ui_shared.c:5979")
+        numlines = Int32(item.window.rect.h / listPtr!.elementHeight)
         //JLFEND
         //JLF new variable (code idented with if)
-        // Port-note: A read of `listPtr`, a local the draft left as a hole.
-        // Raven wrote: if (!listPtr->scrollhidden) { // draw scrollbar to right side of the window x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE - 1; y = item->window.rect.y + 1; DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowUp); y += SCROLLBAR_SIZE - 1; listPtr->endPos = listPtr->startPos; sizeHeight = item->window.rect.h - (SCROLLBAR_SIZE * 2); DC->drawHandlePic(x, y, SCROLLBAR_SIZE, sizeHeight+1, DC->Assets.scrollBar); y += sizeHeight - 1; DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowDown); // thumb thumb = Item_ListBox_ThumbDrawPosition(item);//Item_ListBox_ThumbPosition(item); if (thumb > y - SCROLLBAR_SIZE - 1) { thumb = y - SCROLLBAR_SIZE - 1; } DC->drawHandlePic(x, thumb, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarThumb); }
-        portMissing("Item_ListBox_Paint", source: "oracle/codemp/ui/ui_shared.c:5979")
+        if !listPtr!.scrollhidden {
+            // draw scrollbar to right side of the window
+            x = Float(Double(item.window.rect.x + item.window.rect.w) - SCROLLBAR_SIZE - 1)
+            y = item.window.rect.y + 1
+            DC!.runDrawHandlePic(x, y, Float(SCROLLBAR_SIZE), Float(SCROLLBAR_SIZE), DC!.Assets.scrollBarArrowUp)
+            y = Float(Double(y) + (SCROLLBAR_SIZE - 1))
+
+            listPtr!.endPos = listPtr!.startPos
+            sizeHeight = Float(Double(item.window.rect.h) - (SCROLLBAR_SIZE * 2))
+            DC!.runDrawHandlePic(x, y, Float(SCROLLBAR_SIZE), sizeHeight + 1, DC!.Assets.scrollBar)
+            y += sizeHeight - 1
+            DC!.runDrawHandlePic(x, y, Float(SCROLLBAR_SIZE), Float(SCROLLBAR_SIZE), DC!.Assets.scrollBarArrowDown)
+            // thumb
+            thumb = Float(Item_ListBox_ThumbDrawPosition(item)) //Item_ListBox_ThumbPosition(item);
+            if Double(thumb) > Double(y) - SCROLLBAR_SIZE - 1 {
+                thumb = Float(Double(y) - SCROLLBAR_SIZE - 1)
+            }
+            DC!.runDrawHandlePic(x, thumb, Float(SCROLLBAR_SIZE), Float(SCROLLBAR_SIZE), DC!.Assets.scrollBarThumb)
+        }
         //JLF end
 
         // adjust size for item painting
         sizeWidth = item.window.rect.w - 2
         sizeHeight = item.window.rect.h - 2
 
-        // Port-note: A read of `listPtr`, a local the draft left as a hole.
-        // Raven wrote: if (listPtr->elementStyle == LISTBOX_IMAGE) { // Multiple rows and columns (since it's more than twice as wide as an element) if ( item->window.rect.w > (listPtr->elementWidth*2) ) { startPos = listPtr->startPos; x = item->window.rect.x + 1; y = item->window.rect.y + 1; // Next row for (i2 = startPos; i2 < count; i2++) { x = item->window.rect.x + 1; sizeWidth = item->window.rect.w - 2; // print a row for (i = startPos; i < count; i++) { // always draw at least one // which may overdraw the box if it is too small for the element image = DC->feederItemImage(item->special, i); if (image) { #ifndef CGAME if (item->window.flags & WINDOW_PLAYERCOLOR) { vec4_t color; color[0] = ui_char_color_red.integer/COLOR_MAX; color[1] = ui_char_color_green.integer/COLOR_MAX; color[2] = ui_char_color_blue.integer/COLOR_MAX; color[3] = 1.0f; DC->setColor(color); } #endif DC->drawHandlePic(x+1, y+1, listPtr->elementWidth - 2, listPtr->elementHeight - 2, image); } if (i == item->cursorPos) { DC->drawRect(x, y, listPtr->elementWidth-1, listPtr->elementHeight-1, item->window.borderSize, item->window.borderColor); } sizeWidth -= listPtr->elementWidth; if (sizeWidth < listPtr->elementWidth) { listPtr->drawPadding = sizeWidth; //listPtr->elementWidth - size; break; } x += listPtr->elementWidth; listPtr->endPos++; } sizeHeight -= listPtr->elementHeight; if (sizeHeight < listPtr->elementHeight) { listPtr->drawPadding = sizeHeight; //listPtr->elementWidth - size; break; } // NOTE : Is endPos supposed to be valid or not? It was being used as a valid entry but I changed those // few spots that were causing bugs listPtr->endPos++; startPos = listPtr->endPos; y += listPtr->elementHeight; } } // single column else { x = item->window.rect.x + 1; y = item->window.rect.y + 1; for (i = listPtr->startPos; i < count; i++) { // always draw at least one // which may overdraw the box if it is too small for the element image = DC->feederItemImage(item->special, i); if (image) { DC->drawHandlePic(x+1, y+1, listPtr->elementWidth - 2, listPtr->elementHeight - 2, image); } if (i == item->cursorPos) { DC->drawRect(x, y, listPtr->elementWidth - 1, listPtr->elementHeight - 1, item->window.borderSize, item->window.borderColor); } listPtr->endPos++; sizeHeight -= listPtr->elementHeight; if (sizeHeight < listPtr->elementHeight) { listPtr->drawPadding = listPtr->elementHeight - sizeHeight; break; } y += listPtr->elementHeight; // fit++; } } } else { x = item->window.rect.x + 1; y = item->window.rect.y + 1; //JLF MPMOVED y = item->window.rect.y + 1 - listPtr->elementHeight; #ifdef _XBOX i = listPtr->startPos - (numlines/2); #else i = listPtr->startPos; #endif for (; i < count; i++) //JLF END { const char *text; // always draw at least one // which may overdraw the box if it is too small for the element if (listPtr->numColumns > 0) { int j;//, subX = listPtr->elementHeight; for (j = 0; j < listPtr->numColumns; j++) { char temp[MAX_STRING_CHARS]; int imageStartX = listPtr->columnInfo[j].pos; text = DC->feederItemText(item->special, i, j, &optionalImage1, &optionalImage2, &optionalImage3); if( !text ) { continue; } if (text[0]=='@') { trap_SP_GetStringTextString( &text[1] , temp, sizeof(temp)); text = temp; } /* if (optionalImage >= 0) { DC->drawHandlePic(x + 4 + listPtr->columnInfo[j].pos, y - 1 + listPtr->elementHeight / 2, listPtr->columnInfo[j].width, listPtr->columnInfo[j].width, optionalImage); } else */ if ( text ) { //JLF MPMOVED #ifdef _XBOX float fScaleA = item->textscale; #endif int textyOffset; #ifdef _XBOX textyOffset = DC->textHeight (text, fScaleA, item->iMenuFont); textyOffset *= -1; textyOffset /=2; textyOffset += listPtr->elementHeight/2; #else textyOffset = 0; #endif // DC->drawText(x + 4 + listPtr->columnInfo[j].pos, y + listPtr->elementHeight, item->textscale, item->window.foreColor, text, 0, listPtr->columnInfo[j].maxChars, item->textStyle); //WAS LAST DC->drawText(x + 4 + listPtr->columnInfo[j].pos, y, item->textscale, item->window.foreColor, text, 0, listPtr->columnInfo[j].maxChars, item->textStyle, item->iMenuFont); DC->drawText(x + 4 + listPtr->columnInfo[j].pos, y + listPtr->elementHeight+ textyOffset + item->textaligny, item->textscale, item->window.foreColor, text, 0,listPtr->columnInfo[j].maxChars, item->textStyle, item->iMenuFont); //JLF END } if ( j < listPtr->numColumns - 1 ) { imageStartX = listPtr->columnInfo[j+1].pos; } DC->setColor( NULL ); if (optionalImage3 >= 0) { DC->drawHandlePic(imageStartX - listPtr->elementHeight*3, y+listPtr->elementHeight+2, listPtr->elementHeight, listPtr->elementHeight, optionalImage3); } if (optionalImage2 >= 0) { DC->drawHandlePic(imageStartX - listPtr->elementHeight*2, y+listPtr->elementHeight+2, listPtr->elementHeight, listPtr->elementHeight, optionalImage2); } if (optionalImage1 >= 0) { DC->drawHandlePic(imageStartX - listPtr->elementHeight, y+listPtr->elementHeight+2, listPtr->elementHeight, listPtr->elementHeight, optionalImage1); } } } else { #ifdef _XBOX if (i >= 0) { #endif text = DC->feederItemText(item->special, i, 0, &optionalImage1, &optionalImage2, &optionalImage3 ); if ( optionalImage1 >= 0 || optionalImage2 >= 0 || optionalImage3 >= 0) { //DC->drawHandlePic(x + 4 + listPtr->elementHeight, y, listPtr->columnInfo[j].width, listPtr->columnInfo[j].width, optionalImage); } else if (text) { // DC->drawText(x + 4, y + listPtr->elementHeight, item->textscale, item->window.foreColor, text, 0, 0, item->textStyle); DC->drawText(x + 4, y + item->textaligny, item->textscale, item->window.foreColor, text, 0, 0, item->textStyle, item->iMenuFont); } #ifdef _XBOX } #endif } if (i == item->cursorPos) { DC->fillRect(x + 2, y + listPtr->elementHeight + 2, item->window.rect.w - SCROLLBAR_SIZE - 4, listPtr->elementHeight, item->window.outlineColor); } sizeHeight -= listPtr->elementHeight; if (sizeHeight < listPtr->elementHeight) { listPtr->drawPadding = listPtr->elementHeight - sizeHeight; break; } listPtr->endPos++; y += listPtr->elementHeight; // fit++; } }
-        portMissing("Item_ListBox_Paint", source: "oracle/codemp/ui/ui_shared.c:5979")
+        if listPtr!.elementStyle == LISTBOX_IMAGE {
+            // Multiple rows and columns (since it's more than twice as wide as an element)
+            if item.window.rect.w > (listPtr!.elementWidth * 2) {
+                startPos = listPtr!.startPos
+                x = item.window.rect.x + 1
+                y = item.window.rect.y + 1
+                // Next row
+                i2 = Float(startPos)
+                while i2 < count {
+                    x = item.window.rect.x + 1
+                    sizeWidth = item.window.rect.w - 2
+                    // print a row
+                    i = Float(startPos)
+                    while i < count {
+                        // always draw at least one
+                        // which may overdraw the box if it is too small for the element
+                        image = DC!.runFeederItemImage(item.special, Int32(i))
+                        if image != 0 {
+                            DC!.runDrawHandlePic(x + 1, y + 1, listPtr!.elementWidth - 2, listPtr!.elementHeight - 2, image)
+                        }
+
+                        if i == item.cursorPos {
+                            DC!.runDrawRect(x, y, listPtr!.elementWidth - 1, listPtr!.elementHeight - 1, item.window.borderSize, vec4_t(item.window.borderColor[0], item.window.borderColor[1], item.window.borderColor[2], item.window.borderColor[3]))
+                        }
+
+                        sizeWidth -= listPtr!.elementWidth
+                        if sizeWidth < listPtr!.elementWidth {
+                            listPtr!.drawPadding = Int32(sizeWidth) //listPtr->elementWidth - size;
+                            break
+                        }
+                        x += listPtr!.elementWidth
+                        listPtr!.endPos += 1
+                        i += 1
+                    }
+
+                    sizeHeight -= listPtr!.elementHeight
+                    if sizeHeight < listPtr!.elementHeight {
+                        listPtr!.drawPadding = Int32(sizeHeight) //listPtr->elementWidth - size;
+                        break
+                    }
+                    // NOTE : Is endPos supposed to be valid or not? It was being used as a valid entry but I changed those
+                    // few spots that were causing bugs
+                    listPtr!.endPos += 1
+                    startPos = listPtr!.endPos
+                    y += listPtr!.elementHeight
+                    i2 += 1
+                }
+            } else {
+                // single column
+                x = item.window.rect.x + 1
+                y = item.window.rect.y + 1
+                i = Float(listPtr!.startPos)
+                while i < count {
+                    // always draw at least one
+                    // which may overdraw the box if it is too small for the element
+                    image = DC!.runFeederItemImage(item.special, Int32(i))
+                    if image != 0 {
+                        DC!.runDrawHandlePic(x + 1, y + 1, listPtr!.elementWidth - 2, listPtr!.elementHeight - 2, image)
+                    }
+
+                    if i == item.cursorPos {
+                        DC!.runDrawRect(x, y, listPtr!.elementWidth - 1, listPtr!.elementHeight - 1, item.window.borderSize, vec4_t(item.window.borderColor[0], item.window.borderColor[1], item.window.borderColor[2], item.window.borderColor[3]))
+                    }
+
+                    listPtr!.endPos += 1
+                    sizeHeight -= listPtr!.elementHeight
+                    if sizeHeight < listPtr!.elementHeight {
+                        listPtr!.drawPadding = Int32(listPtr!.elementHeight - sizeHeight)
+                        break
+                    }
+                    y += listPtr!.elementHeight
+                    // fit++;
+                    i += 1
+                }
+            }
+        } else {
+            x = item.window.rect.x + 1
+            y = item.window.rect.y + 1
+            //JLF MPMOVED
+            y = item.window.rect.y + 1 - listPtr!.elementHeight
+            i = Float(listPtr!.startPos)
+
+            while i < count {
+                // Port-note: A pointer local `const char * text` with no view.
+                // Raven wrote: const char *text;
+                portMissing("Item_ListBox_Paint", source: "oracle/codemp/ui/ui_shared.c:5979")
+                // always draw at least one
+                // which may overdraw the box if it is too small for the element
+                if listPtr!.numColumns > 0 {
+                    var j: Int32
+
+                    j = 0
+                    while j < listPtr!.numColumns {
+                        var temp = CharBuf(1024)
+                        var imageStartX: Int32 = listPtr!.columnInfo[j].pos
+                        // Port-note: A store into `text`, a local the draft left as a hole.
+                        // Raven wrote: text = DC->feederItemText(item->special, i, j, &optionalImage1, &optionalImage2, &optionalImage3)
+                        portMissing("Item_ListBox_Paint", source: "oracle/codemp/ui/ui_shared.c:5979")
+
+                        // Port-note: A read of `text`, a local the draft left as a hole.
+                        // Raven wrote: if( !text ) { continue; }
+                        portMissing("Item_ListBox_Paint", source: "oracle/codemp/ui/ui_shared.c:5979")
+
+                        // Port-note: A read of `text`, a local the draft left as a hole.
+                        // Raven wrote: if (text[0]=='@') { trap_SP_GetStringTextString( &text[1] , temp, sizeof(temp)); text = temp; }
+                        portMissing("Item_ListBox_Paint", source: "oracle/codemp/ui/ui_shared.c:5979")
+
+                        /*
+                        if (optionalImage >= 0) {
+                        DC->drawHandlePic(x + 4 + listPtr->columnInfo[j].pos, y - 1 + listPtr->elementHeight / 2, listPtr->columnInfo[j].width, listPtr->columnInfo[j].width, optionalImage);
+                        }
+                        else
+                        */
+                        // Port-note: A read of `text`, a local the draft left as a hole.
+                        // Raven wrote: if ( text ) { //JLF MPMOVED #ifdef _XBOX float fScaleA = item->textscale; #endif int textyOffset; #ifdef _XBOX textyOffset = DC->textHeight (text, fScaleA, item->iMenuFont); textyOffset *= -1; textyOffset /=2; textyOffset += listPtr->elementHeight/2; #else textyOffset = 0; #endif // DC->drawText(x + 4 + listPtr->columnInfo[j].pos, y + listPtr->elementHeight, item->textscale, item->window.foreColor, text, 0, listPtr->columnInfo[j].maxChars, item->textStyle); //WAS LAST DC->drawText(x + 4 + listPtr->columnInfo[j].pos, y, item->textscale, item->window.foreColor, text, 0, listPtr->columnInfo[j].maxChars, item->textStyle, item->iMenuFont); DC->drawText(x + 4 + listPtr->columnInfo[j].pos, y + listPtr->elementHeight+ textyOffset + item->textaligny, item->textscale, item->window.foreColor, text, 0,listPtr->columnInfo[j].maxChars, item->textStyle, item->iMenuFont); //JLF END }
+                        portMissing("Item_ListBox_Paint", source: "oracle/codemp/ui/ui_shared.c:5979")
+                        if j < listPtr!.numColumns - 1 {
+                            imageStartX = listPtr!.columnInfo[j + 1].pos
+                        }
+                        DC!.runSetColor(nil)
+                        if optionalImage3 >= 0 {
+                            DC!.runDrawHandlePic(imageStartX - listPtr!.elementHeight * 3, y + listPtr!.elementHeight + 2, listPtr!.elementHeight, listPtr!.elementHeight, optionalImage3)
+                        }
+                        if optionalImage2 >= 0 {
+                            DC!.runDrawHandlePic(imageStartX - listPtr!.elementHeight * 2, y + listPtr!.elementHeight + 2, listPtr!.elementHeight, listPtr!.elementHeight, optionalImage2)
+                        }
+                        if optionalImage1 >= 0 {
+                            DC!.runDrawHandlePic(imageStartX - listPtr!.elementHeight, y + listPtr!.elementHeight + 2, listPtr!.elementHeight, listPtr!.elementHeight, optionalImage1)
+                        }
+                        j += 1
+                    }
+                } else {
+                    // Port-note: A store into `text`, a local the draft left as a hole.
+                    // Raven wrote: text = DC->feederItemText(item->special, i, 0, &optionalImage1, &optionalImage2, &optionalImage3 )
+                    portMissing("Item_ListBox_Paint", source: "oracle/codemp/ui/ui_shared.c:5979")
+                    // Port-note: A read of `text`, a local the draft left as a hole.
+                    // Raven wrote: if ( optionalImage1 >= 0 || optionalImage2 >= 0 || optionalImage3 >= 0) { //DC->drawHandlePic(x + 4 + listPtr->elementHeight, y, listPtr->columnInfo[j].width, listPtr->columnInfo[j].width, optionalImage); } else if (text) { // DC->drawText(x + 4, y + listPtr->elementHeight, item->textscale, item->window.foreColor, text, 0, 0, item->textStyle); DC->drawText(x + 4, y + item->textaligny, item->textscale, item->window.foreColor, text, 0, 0, item->textStyle, item->iMenuFont); }
+                    portMissing("Item_ListBox_Paint", source: "oracle/codemp/ui/ui_shared.c:5979")
+                }
+
+                if i == item.cursorPos {
+                    DC!.runFillRect(x + 2, y + listPtr!.elementHeight + 2, Float(Double(item.window.rect.w) - SCROLLBAR_SIZE - 4), listPtr!.elementHeight, vec4_t(item.window.outlineColor[0], item.window.outlineColor[1], item.window.outlineColor[2], item.window.outlineColor[3]))
+                }
+
+                sizeHeight -= listPtr!.elementHeight
+                if sizeHeight < listPtr!.elementHeight {
+                    listPtr!.drawPadding = Int32(listPtr!.elementHeight - sizeHeight)
+                    break
+                }
+                listPtr!.endPos += 1
+                y += listPtr!.elementHeight
+                // fit++;
+                i += 1
+            }
+        }
     }
 }
 
@@ -4844,19 +5529,13 @@ func Item_OwnerDraw_Paint(_ item: ItemDef) {
     if item == nil {
         return
     }
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "missing argument label 'handle:' in call".
-    // Raven wrote: parent = (menuDef_t*)item->parent
-    portMissing("Item_OwnerDraw_Paint", source: "oracle/codemp/ui/ui_shared.c:6370")
+    parent = item.parent
 
     if DC!.ownerDrawItem != nil {
         var color = vec4_t()
         var lowLight = vec4_t()
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "missing argument label 'handle:' in call".
-        // Raven wrote: menuDef_t *parent = (menuDef_t*)item->parent;
-        portMissing("Item_OwnerDraw_Paint", source: "oracle/codemp/ui/ui_shared.c:6370")
-        // Port-note: A read of `parent`, a local the draft left as a hole.
-        // Raven wrote: Fade(&item->window.flags, &item->window.foreColor[3], parent->fadeClamp, &item->window.nextTime, parent->fadeCycle, qtrue, parent->fadeAmount)
-        portMissing("Item_OwnerDraw_Paint", source: "oracle/codemp/ui/ui_shared.c:6370")
+        var parent: MenuDef? = item.parent
+        Fade(&item.window.flags, &item.window.foreColor[3], parent!.fadeClamp, &item.window.nextTime, parent!.fadeCycle, true, parent!.fadeAmount)
         color = vec4_t(item.window.foreColor[0], item.window.foreColor[1], item.window.foreColor[2], item.window.foreColor[3])
         if item.numColors > 0 && DC!.getValue != nil {
             // if the value is within one of the ranges then set color to that, otherwise leave at default
@@ -4873,21 +5552,11 @@ func Item_OwnerDraw_Paint(_ item: ItemDef) {
         }
 
         if (item.window.flags & WINDOW_HASFOCUS) != 0 {
-            // Port-note: A read of `parent`, a local the draft left as a hole.
-            // Raven wrote: lowLight[0] = 0.8 * parent->focusColor[0]
-            portMissing("Item_OwnerDraw_Paint", source: "oracle/codemp/ui/ui_shared.c:6370")
-            // Port-note: A read of `parent`, a local the draft left as a hole.
-            // Raven wrote: lowLight[1] = 0.8 * parent->focusColor[1]
-            portMissing("Item_OwnerDraw_Paint", source: "oracle/codemp/ui/ui_shared.c:6370")
-            // Port-note: A read of `parent`, a local the draft left as a hole.
-            // Raven wrote: lowLight[2] = 0.8 * parent->focusColor[2]
-            portMissing("Item_OwnerDraw_Paint", source: "oracle/codemp/ui/ui_shared.c:6370")
-            // Port-note: A read of `parent`, a local the draft left as a hole.
-            // Raven wrote: lowLight[3] = 0.8 * parent->focusColor[3]
-            portMissing("Item_OwnerDraw_Paint", source: "oracle/codemp/ui/ui_shared.c:6370")
-            // Port-note: A read of `parent`, a local the draft left as a hole.
-            // Raven wrote: LerpColor(parent->focusColor,lowLight,color,0.5+0.5*sin((float)(DC->realTime / PULSE_DIVISOR)))
-            portMissing("Item_OwnerDraw_Paint", source: "oracle/codemp/ui/ui_shared.c:6370")
+            lowLight[0] = Float(0.8 * Double(parent!.focusColor[0]))
+            lowLight[1] = Float(0.8 * Double(parent!.focusColor[1]))
+            lowLight[2] = Float(0.8 * Double(parent!.focusColor[2]))
+            lowLight[3] = Float(0.8 * Double(parent!.focusColor[3]))
+            LerpColor(vec4_t(parent!.focusColor[0], parent!.focusColor[1], parent!.focusColor[2], parent!.focusColor[3]), lowLight, &color, Float(0.5 + 0.5 * sin(Double(Float((DC!.realTime / PULSE_DIVISOR))))))
         } else if item.textStyle == ITEM_TEXTSTYLE_BLINK && !(((DC!.realTime / BLINK_DIVISOR) & 1) != 0) {
             lowLight[0] = Float(0.8 * Double(item.window.foreColor[0]))
             lowLight[1] = Float(0.8 * Double(item.window.foreColor[1]))
@@ -4897,15 +5566,11 @@ func Item_OwnerDraw_Paint(_ item: ItemDef) {
         }
 
         if item.disabled {
-            // Port-note: A read of `parent`, a local the draft left as a hole.
-            // Raven wrote: memcpy(color, parent->disableColor, sizeof(vec4_t))
-            portMissing("Item_OwnerDraw_Paint", source: "oracle/codemp/ui/ui_shared.c:6370")
+            color = vec4_t(parent!.disableColor[0], parent!.disableColor[1], parent!.disableColor[2], parent!.disableColor[3]) // bk001207 - FIXME: Com_Memcpy
         }
 
         if (item.cvarFlags & (CVAR_ENABLE | CVAR_DISABLE)) != 0 && !Item_EnableShowViaCvar(item, CVAR_ENABLE) {
-            // Port-note: A read of `parent`, a local the draft left as a hole.
-            // Raven wrote: memcpy(color, parent->disableColor, sizeof(vec4_t))
-            portMissing("Item_OwnerDraw_Paint", source: "oracle/codemp/ui/ui_shared.c:6370")
+            color = vec4_t(parent!.disableColor[0], parent!.disableColor[1], parent!.disableColor[2], parent!.disableColor[3]) // bk001207 - FIXME: Com_Memcpy
         }
 
         if item.text != nil {
@@ -4925,9 +5590,7 @@ func Item_OwnerDraw_Paint(_ item: ItemDef) {
 /// Source: oracle/codemp/ui/ui_shared.c:6433
 func Item_Paint(_ item: ItemDef) {
     var red = vec4_t()
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "missing argument label 'handle:' in call".
-    // Raven wrote: menuDef_t *parent = (menuDef_t*)item->parent;
-    portMissing("Item_Paint", source: "oracle/codemp/ui/ui_shared.c:6433")
+    let parent: MenuDef? = item.parent
     var xPos: Int32
     var textWidth: Int32
     var color = vec4_t(1, 1, 1, 1)
@@ -5063,9 +5726,7 @@ func Item_Paint(_ item: ItemDef) {
             //				vec3_t g2mins2, g2maxs2, g2minsEffect, g2maxsEffect;
             //	float fov_x2, fov_y2, fov_Effectx, fov_Effecty;
 
-            // Port-note: A pointer local `modelDef_t * modelptr` with no view.
-            // Raven wrote: modelDef_t * modelptr = (modelDef_t *)item->typeData;
-            portMissing("Item_Paint", source: "oracle/codemp/ui/ui_shared.c:6433")
+            let modelptr: ModelDef? = item.typeData.map { ModelDef($0) }
 
             if DC!.realTime > item.window.nextTime {
                 var done: Int32 = 0
@@ -5073,48 +5734,160 @@ func Item_Paint(_ item: ItemDef) {
 
 
                 // transition the x,y,z max
-                // Port-note: A read of `modelptr`, a local the draft left as a hole.
-                // Raven wrote: if (modelptr->g2maxs[0] == modelptr->g2maxs2[0]) { done++; } else { if (modelptr->g2maxs[0] < modelptr->g2maxs2[0]) { modelptr->g2maxs[0] += modelptr->g2maxsEffect[0]; if (modelptr->g2maxs[0] > modelptr->g2maxs2[0]) { modelptr->g2maxs[0] = modelptr->g2maxs2[0]; done++; } } else { modelptr->g2maxs[0] -= modelptr->g2maxsEffect[0]; if (modelptr->g2maxs[0] < modelptr->g2maxs2[0]) { modelptr->g2maxs[0] = modelptr->g2maxs2[0]; done++; } } }
-                portMissing("Item_Paint", source: "oracle/codemp/ui/ui_shared.c:6433")
+                if modelptr!.g2maxs[0] == modelptr!.g2maxs2[0] {
+                    done += 1
+                } else {
+                    if modelptr!.g2maxs[0] < modelptr!.g2maxs2[0] {
+                        modelptr!.g2maxs[0] += modelptr!.g2maxsEffect[0]
+                        if modelptr!.g2maxs[0] > modelptr!.g2maxs2[0] {
+                            modelptr!.g2maxs[0] = modelptr!.g2maxs2[0]
+                            done += 1
+                        }
+                    } else {
+                        modelptr!.g2maxs[0] -= modelptr!.g2maxsEffect[0]
+                        if modelptr!.g2maxs[0] < modelptr!.g2maxs2[0] {
+                            modelptr!.g2maxs[0] = modelptr!.g2maxs2[0]
+                            done += 1
+                        }
+                    }
+                }
                 //y
-                // Port-note: A read of `modelptr`, a local the draft left as a hole.
-                // Raven wrote: if (modelptr->g2maxs[1] == modelptr->g2maxs2[1]) { done++; } else { if (modelptr->g2maxs[1] < modelptr->g2maxs2[1]) { modelptr->g2maxs[1] += modelptr->g2maxsEffect[1]; if (modelptr->g2maxs[1] > modelptr->g2maxs2[1]) { modelptr->g2maxs[1] = modelptr->g2maxs2[1]; done++; } } else { modelptr->g2maxs[1] -= modelptr->g2maxsEffect[1]; if (modelptr->g2maxs[1] < modelptr->g2maxs2[1]) { modelptr->g2maxs[1] = modelptr->g2maxs2[1]; done++; } } }
-                portMissing("Item_Paint", source: "oracle/codemp/ui/ui_shared.c:6433")
+                if modelptr!.g2maxs[1] == modelptr!.g2maxs2[1] {
+                    done += 1
+                } else {
+                    if modelptr!.g2maxs[1] < modelptr!.g2maxs2[1] {
+                        modelptr!.g2maxs[1] += modelptr!.g2maxsEffect[1]
+                        if modelptr!.g2maxs[1] > modelptr!.g2maxs2[1] {
+                            modelptr!.g2maxs[1] = modelptr!.g2maxs2[1]
+                            done += 1
+                        }
+                    } else {
+                        modelptr!.g2maxs[1] -= modelptr!.g2maxsEffect[1]
+                        if modelptr!.g2maxs[1] < modelptr!.g2maxs2[1] {
+                            modelptr!.g2maxs[1] = modelptr!.g2maxs2[1]
+                            done += 1
+                        }
+                    }
+                }
 
 
                 //z
 
-                // Port-note: A read of `modelptr`, a local the draft left as a hole.
-                // Raven wrote: if (modelptr->g2maxs[2] == modelptr->g2maxs2[2]) { done++; } else { if (modelptr->g2maxs[2] < modelptr->g2maxs2[2]) { modelptr->g2maxs[2] += modelptr->g2maxsEffect[2]; if (modelptr->g2maxs[2] > modelptr->g2maxs2[2]) { modelptr->g2maxs[2] = modelptr->g2maxs2[2]; done++; } } else { modelptr->g2maxs[2] -= modelptr->g2maxsEffect[2]; if (modelptr->g2maxs[2] < modelptr->g2maxs2[2]) { modelptr->g2maxs[2] = modelptr->g2maxs2[2]; done++; } } }
-                portMissing("Item_Paint", source: "oracle/codemp/ui/ui_shared.c:6433")
+                if modelptr!.g2maxs[2] == modelptr!.g2maxs2[2] {
+                    done += 1
+                } else {
+                    if modelptr!.g2maxs[2] < modelptr!.g2maxs2[2] {
+                        modelptr!.g2maxs[2] += modelptr!.g2maxsEffect[2]
+                        if modelptr!.g2maxs[2] > modelptr!.g2maxs2[2] {
+                            modelptr!.g2maxs[2] = modelptr!.g2maxs2[2]
+                            done += 1
+                        }
+                    } else {
+                        modelptr!.g2maxs[2] -= modelptr!.g2maxsEffect[2]
+                        if modelptr!.g2maxs[2] < modelptr!.g2maxs2[2] {
+                            modelptr!.g2maxs[2] = modelptr!.g2maxs2[2]
+                            done += 1
+                        }
+                    }
+                }
 
                 // transition the x,y,z min
-                // Port-note: A read of `modelptr`, a local the draft left as a hole.
-                // Raven wrote: if (modelptr->g2mins[0] == modelptr->g2mins2[0]) { done++; } else { if (modelptr->g2mins[0] < modelptr->g2mins2[0]) { modelptr->g2mins[0] += modelptr->g2minsEffect[0]; if (modelptr->g2mins[0] > modelptr->g2mins2[0]) { modelptr->g2mins[0] = modelptr->g2mins2[0]; done++; } } else { modelptr->g2mins[0] -= modelptr->g2minsEffect[0]; if (modelptr->g2mins[0] < modelptr->g2mins2[0]) { modelptr->g2mins[0] = modelptr->g2mins2[0]; done++; } } }
-                portMissing("Item_Paint", source: "oracle/codemp/ui/ui_shared.c:6433")
+                if modelptr!.g2mins[0] == modelptr!.g2mins2[0] {
+                    done += 1
+                } else {
+                    if modelptr!.g2mins[0] < modelptr!.g2mins2[0] {
+                        modelptr!.g2mins[0] += modelptr!.g2minsEffect[0]
+                        if modelptr!.g2mins[0] > modelptr!.g2mins2[0] {
+                            modelptr!.g2mins[0] = modelptr!.g2mins2[0]
+                            done += 1
+                        }
+                    } else {
+                        modelptr!.g2mins[0] -= modelptr!.g2minsEffect[0]
+                        if modelptr!.g2mins[0] < modelptr!.g2mins2[0] {
+                            modelptr!.g2mins[0] = modelptr!.g2mins2[0]
+                            done += 1
+                        }
+                    }
+                }
                 //y
-                // Port-note: A read of `modelptr`, a local the draft left as a hole.
-                // Raven wrote: if (modelptr->g2mins[1] == modelptr->g2mins2[1]) { done++; } else { if (modelptr->g2mins[1] < modelptr->g2mins2[1]) { modelptr->g2mins[1] += modelptr->g2minsEffect[1]; if (modelptr->g2mins[1] > modelptr->g2mins2[1]) { modelptr->g2mins[1] = modelptr->g2mins2[1]; done++; } } else { modelptr->g2mins[1] -= modelptr->g2minsEffect[1]; if (modelptr->g2mins[1] < modelptr->g2mins2[1]) { modelptr->g2mins[1] = modelptr->g2mins2[1]; done++; } } }
-                portMissing("Item_Paint", source: "oracle/codemp/ui/ui_shared.c:6433")
+                if modelptr!.g2mins[1] == modelptr!.g2mins2[1] {
+                    done += 1
+                } else {
+                    if modelptr!.g2mins[1] < modelptr!.g2mins2[1] {
+                        modelptr!.g2mins[1] += modelptr!.g2minsEffect[1]
+                        if modelptr!.g2mins[1] > modelptr!.g2mins2[1] {
+                            modelptr!.g2mins[1] = modelptr!.g2mins2[1]
+                            done += 1
+                        }
+                    } else {
+                        modelptr!.g2mins[1] -= modelptr!.g2minsEffect[1]
+                        if modelptr!.g2mins[1] < modelptr!.g2mins2[1] {
+                            modelptr!.g2mins[1] = modelptr!.g2mins2[1]
+                            done += 1
+                        }
+                    }
+                }
 
 
                 //z
 
-                // Port-note: A read of `modelptr`, a local the draft left as a hole.
-                // Raven wrote: if (modelptr->g2mins[2] == modelptr->g2mins2[2]) { done++; } else { if (modelptr->g2mins[2] < modelptr->g2mins2[2]) { modelptr->g2mins[2] += modelptr->g2minsEffect[2]; if (modelptr->g2mins[2] > modelptr->g2mins2[2]) { modelptr->g2mins[2] = modelptr->g2mins2[2]; done++; } } else { modelptr->g2mins[2] -= modelptr->g2minsEffect[2]; if (modelptr->g2mins[2] < modelptr->g2mins2[2]) { modelptr->g2mins[2] = modelptr->g2mins2[2]; done++; } } }
-                portMissing("Item_Paint", source: "oracle/codemp/ui/ui_shared.c:6433")
+                if modelptr!.g2mins[2] == modelptr!.g2mins2[2] {
+                    done += 1
+                } else {
+                    if modelptr!.g2mins[2] < modelptr!.g2mins2[2] {
+                        modelptr!.g2mins[2] += modelptr!.g2minsEffect[2]
+                        if modelptr!.g2mins[2] > modelptr!.g2mins2[2] {
+                            modelptr!.g2mins[2] = modelptr!.g2mins2[2]
+                            done += 1
+                        }
+                    } else {
+                        modelptr!.g2mins[2] -= modelptr!.g2minsEffect[2]
+                        if modelptr!.g2mins[2] < modelptr!.g2mins2[2] {
+                            modelptr!.g2mins[2] = modelptr!.g2mins2[2]
+                            done += 1
+                        }
+                    }
+                }
 
 
 
                 //fovx
-                // Port-note: A read of `modelptr`, a local the draft left as a hole.
-                // Raven wrote: if (modelptr->fov_x == modelptr->fov_x2) { done++; } else { if (modelptr->fov_x < modelptr->fov_x2) { modelptr->fov_x += modelptr->fov_Effectx; if (modelptr->fov_x > modelptr->fov_x2) { modelptr->fov_x = modelptr->fov_x2; done++; } } else { modelptr->fov_x -= modelptr->fov_Effectx; if (modelptr->fov_x < modelptr->fov_x2) { modelptr->fov_x = modelptr->fov_x2; done++; } } }
-                portMissing("Item_Paint", source: "oracle/codemp/ui/ui_shared.c:6433")
+                if modelptr!.fov_x == modelptr!.fov_x2 {
+                    done += 1
+                } else {
+                    if modelptr!.fov_x < modelptr!.fov_x2 {
+                        modelptr!.fov_x += modelptr!.fov_Effectx
+                        if modelptr!.fov_x > modelptr!.fov_x2 {
+                            modelptr!.fov_x = modelptr!.fov_x2
+                            done += 1
+                        }
+                    } else {
+                        modelptr!.fov_x -= modelptr!.fov_Effectx
+                        if modelptr!.fov_x < modelptr!.fov_x2 {
+                            modelptr!.fov_x = modelptr!.fov_x2
+                            done += 1
+                        }
+                    }
+                }
 
                 //fovy
-                // Port-note: A read of `modelptr`, a local the draft left as a hole.
-                // Raven wrote: if (modelptr->fov_y == modelptr->fov_y2) { done++; } else { if (modelptr->fov_y < modelptr->fov_y2) { modelptr->fov_y += modelptr->fov_Effecty; if (modelptr->fov_y > modelptr->fov_y2) { modelptr->fov_y = modelptr->fov_y2; done++; } } else { modelptr->fov_y -= modelptr->fov_Effecty; if (modelptr->fov_y < modelptr->fov_y2) { modelptr->fov_y = modelptr->fov_y2; done++; } } }
-                portMissing("Item_Paint", source: "oracle/codemp/ui/ui_shared.c:6433")
+                if modelptr!.fov_y == modelptr!.fov_y2 {
+                    done += 1
+                } else {
+                    if modelptr!.fov_y < modelptr!.fov_y2 {
+                        modelptr!.fov_y += modelptr!.fov_Effecty
+                        if modelptr!.fov_y > modelptr!.fov_y2 {
+                            modelptr!.fov_y = modelptr!.fov_y2
+                            done += 1
+                        }
+                    } else {
+                        modelptr!.fov_y -= modelptr!.fov_Effecty
+                        if modelptr!.fov_y < modelptr!.fov_y2 {
+                            modelptr!.fov_y = modelptr!.fov_y2
+                            done += 1
+                        }
+                    }
+                }
 
                 if done == 5 {
                     item.window.flags &= ~WINDOW_INTRANSITIONMODEL
@@ -5163,44 +5936,48 @@ func Item_Paint(_ item: ItemDef) {
             //END JLFMOUSE
             do {
                 // Draw the desctext
-                // Port-note: A pointer local `const char * textPtr` with no view.
-                // Raven wrote: const char *textPtr = item->descText;
-                portMissing("Item_Paint", source: "oracle/codemp/ui/ui_shared.c:6433")
-                // Port-note: A pointer dereference the draft cannot place.
-                // Raven wrote: if (*textPtr == '@') // string reference { char temp[MAX_STRING_CHARS]; trap_SP_GetStringTextString( &textPtr[1] , temp, sizeof(temp)); textPtr = temp; }
-                portMissing("Item_Paint", source: "oracle/codemp/ui/ui_shared.c:6433")
+                var textPtr: String = item.descText!
+                if CharBuf(textPtr)[0] == Int32(ascii: "@") {
+                    var temp = CharBuf(1024)
+                    strcpy(&temp, trap_SP_GetStringTextString(String(textPtr.dropFirst(Int(1))), Int32((temp).count)).1)
+                    textPtr = String(temp)
+                }
 
                 Item_TextColor(item, &color)
 
                 do {
                     // stupid C language
-                    // Port-note: A read of `parent`, a local the draft left as a hole.
-                    // Raven wrote: float fDescScale = parent->descScale ? parent->descScale : 1;
-                    portMissing("Item_Paint", source: "oracle/codemp/ui/ui_shared.c:6433")
-                    // Port-note: A read of `fDescScale`, a local the draft left as a hole.
-                    // Raven wrote: float fDescScaleCopy = fDescScale;
-                    portMissing("Item_Paint", source: "oracle/codemp/ui/ui_shared.c:6433")
+                    var fDescScale: Float = parent!.descScale != 0 ? parent!.descScale : 1
+                    let fDescScaleCopy: Float = fDescScale
                     var iYadj: Int32 = 0
                     while 1 != 0 {
-                        // Port-note: A read of `textPtr`, a local the draft left as a hole.
-                        // Raven wrote: textWidth = DC->textWidth(textPtr,fDescScale, FONT_SMALL2)
-                        portMissing("Item_Paint", source: "oracle/codemp/ui/ui_shared.c:6433")
+                        textWidth = DC!.runTextWidth(textPtr, fDescScale, FONT_SMALL2)
 
-                        // Port-note: The draft of this statement did not compile, and the compiler wrote "ambiguous use of 'ITEM_ALIGN_RIGHT'".
-                        // Raven wrote: if (parent->descAlignment == ITEM_ALIGN_RIGHT) { xPos = parent->descX - textWidth; // Right justify } else if (parent->descAlignment == ITEM_ALIGN_CENTER) { xPos = parent->descX - (textWidth/2); // Center justify } else // Left justify { xPos = parent->descX; }
-                        portMissing("Item_Paint", source: "oracle/codemp/ui/ui_shared.c:6433")
+                        if parent!.descAlignment == ITEM_ALIGN_RIGHT {
+                            xPos = parent!.descX - textWidth // Right justify
+                        } else if parent!.descAlignment == ITEM_ALIGN_CENTER {
+                            xPos = parent!.descX - (textWidth / 2) // Center justify
+                        } else {
+                            xPos = parent!.descX
+                        }
 
-                        // Port-note: The draft of this statement did not compile, and the compiler wrote "ambiguous use of 'ITEM_ALIGN_CENTER'".
-                        // Raven wrote: if (parent->descAlignment == ITEM_ALIGN_CENTER) { // only this one will auto-shrink the scale until we eventually fit... // if (xPos + textWidth > (SCREEN_WIDTH-4)) { fDescScale -= 0.001f; continue; } }
-                        portMissing("Item_Paint", source: "oracle/codemp/ui/ui_shared.c:6433")
+                        if parent!.descAlignment == ITEM_ALIGN_CENTER {
+                            // only this one will auto-shrink the scale until we eventually fit...
+                            //
+                            if xPos + textWidth > (SCREEN_WIDTH - 4) {
+                                fDescScale -= 0.001
+                                continue
+                            }
+                        }
 
                         // Try to adjust it's y placement if the scale has changed...
                         //
-                        // Port-note: A read of `fDescScale`, a local the draft left as a hole.
-                        // Raven wrote: if (fDescScale != fDescScaleCopy) { int iOriginalTextHeight = DC->textHeight(textPtr, fDescScaleCopy, FONT_MEDIUM); iYadj = iOriginalTextHeight - DC->textHeight(textPtr, fDescScale, FONT_MEDIUM); }
-                        portMissing("Item_Paint", source: "oracle/codemp/ui/ui_shared.c:6433")
+                        if fDescScale != fDescScaleCopy {
+                            let iOriginalTextHeight: Int32 = DC!.runTextHeight(textPtr, fDescScaleCopy, FONT_MEDIUM)
+                            iYadj = iOriginalTextHeight - DC!.runTextHeight(textPtr, fDescScale, FONT_MEDIUM)
+                        }
 
-                        // Port-note: A read of `parent`, a local the draft left as a hole.
+                        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Slots<Float>' to expected argument type 'vec4_t' (aka 'SIMD4<Float>')".
                         // Raven wrote: DC->drawText(xPos, parent->descY + iYadj, fDescScale, parent->descColor, textPtr, 0, 0, item->textStyle, FONT_SMALL2)
                         portMissing("Item_Paint", source: "oracle/codemp/ui/ui_shared.c:6433")
                         break
@@ -5211,9 +5988,7 @@ func Item_Paint(_ item: ItemDef) {
     }
 
     // paint the rect first..
-    // Port-note: A read of `parent`, a local the draft left as a hole.
-    // Raven wrote: Window_Paint(&item->window, parent->fadeAmount , parent->fadeClamp, parent->fadeCycle)
-    portMissing("Item_Paint", source: "oracle/codemp/ui/ui_shared.c:6433")
+    Window_Paint(item.window, parent!.fadeAmount, parent!.fadeClamp, Float(parent!.fadeCycle))
 
     // Draw box to show rectangle extents, in debug mode
     if debugMode {
@@ -5341,15 +6116,9 @@ func Menu_SetFeederSelection(_ menu: MenuDef, _ feeder: Int32, _ index: Int32, _
     while i < menu.itemCount {
         if menu.items[i]!.special == feeder {
             if index == 0 {
-                // Port-note: A pointer local `listBoxDef_t * listPtr` with no view.
-                // Raven wrote: listBoxDef_t *listPtr = (listBoxDef_t*)menu->items[i]->typeData;
-                portMissing("Menu_SetFeederSelection", source: "oracle/codemp/ui/ui_shared.c:7060")
-                // Port-note: A read of `listPtr`, a local the draft left as a hole.
-                // Raven wrote: listPtr->cursorPos = 0
-                portMissing("Menu_SetFeederSelection", source: "oracle/codemp/ui/ui_shared.c:7060")
-                // Port-note: A read of `listPtr`, a local the draft left as a hole.
-                // Raven wrote: listPtr->startPos = 0
-                portMissing("Menu_SetFeederSelection", source: "oracle/codemp/ui/ui_shared.c:7060")
+                let listPtr: ListBoxDef? = menu.items[i]!.typeData.map { ListBoxDef($0) }
+                listPtr!.cursorPos = 0
+                listPtr!.startPos = 0
             }
             menu.items[i]!.cursorPos = index
             DC!.runFeederSelection(menu.items[i]!.special, menu.items[i]!.cursorPos, nil)
@@ -5383,9 +6152,8 @@ func Menus_ActivateByName(_ p: String) -> MenuDef? {
             m = Menus[i]
             Menus_Activate(m!)
             if openMenuCount < MAX_OPEN_MENUS && focus != nil {
-                // Port-note: A ++ inside an expression.
-                // Raven wrote: menuStack[openMenuCount++] = focus
-                portMissing("Menus_ActivateByName", source: "oracle/codemp/ui/ui_shared.c:7096")
+                menuStack[openMenuCount] = focus
+                openMenuCount += 1
             }
         } else {
             Menus[i].window.flags &= ~WINDOW_HASFOCUS
@@ -5573,39 +6341,23 @@ func Item_ValidateTypeData(_ item: ItemDef) {
     }
 
     if item.type == ITEM_TYPE_LISTBOX {
-        // Port-note: A sizeof of `listBoxDef_t` the draft cannot size.
-        // Raven wrote: item->typeData = UI_Alloc(sizeof(listBoxDef_t))
-        portMissing("Item_ValidateTypeData", source: "oracle/codemp/ui/ui_shared.c:7279")
-        // Port-note: Raven's `memset(item->typeData, 0, sizeof(listBoxDef_t))` runs over bytes that are not one record with a view.
-        // Raven wrote: memset(item->typeData, 0, sizeof(listBoxDef_t))
-        portMissing("Item_ValidateTypeData", source: "oracle/codemp/ui/ui_shared.c:7279")
+        item.typeData = UI_Alloc(Int32(ListBoxDef.byteCount))
+        ListBoxDef(item.typeData!).clear()
     } else if item.type == ITEM_TYPE_EDITFIELD || item.type == ITEM_TYPE_NUMERICFIELD || item.type == ITEM_TYPE_YESNO || item.type == ITEM_TYPE_BIND || item.type == ITEM_TYPE_SLIDER || item.type == ITEM_TYPE_TEXT {
-        // Port-note: A sizeof of `editFieldDef_t` the draft cannot size.
-        // Raven wrote: item->typeData = UI_Alloc(sizeof(editFieldDef_t))
-        portMissing("Item_ValidateTypeData", source: "oracle/codemp/ui/ui_shared.c:7279")
-        // Port-note: Raven's `memset(item->typeData, 0, sizeof(editFieldDef_t))` runs over bytes that are not one record with a view.
-        // Raven wrote: memset(item->typeData, 0, sizeof(editFieldDef_t))
-        portMissing("Item_ValidateTypeData", source: "oracle/codemp/ui/ui_shared.c:7279")
+        item.typeData = UI_Alloc(Int32(EditFieldDef.byteCount))
+        EditFieldDef(item.typeData!).clear()
         if item.type == ITEM_TYPE_EDITFIELD {
-            // Port-note: A cast to `editFieldDef_t *` the draft has no view for.
-            // Raven wrote: if (!((editFieldDef_t *) item->typeData)->maxPaintChars) { ((editFieldDef_t *) item->typeData)->maxPaintChars = MAX_EDITFIELD; }
-            portMissing("Item_ValidateTypeData", source: "oracle/codemp/ui/ui_shared.c:7279")
+            if (item.typeData.map { EditFieldDef($0) })!.maxPaintChars == 0 {
+                (item.typeData.map { EditFieldDef($0) })!.maxPaintChars = MAX_EDITFIELD
+            }
         }
     } else if item.type == ITEM_TYPE_MULTI {
-        // Port-note: A sizeof of `multiDef_t` the draft cannot size.
-        // Raven wrote: item->typeData = UI_Alloc(sizeof(multiDef_t))
-        portMissing("Item_ValidateTypeData", source: "oracle/codemp/ui/ui_shared.c:7279")
+        item.typeData = UI_Alloc(Int32(MultiDef.byteCount))
     } else if item.type == ITEM_TYPE_MODEL {
-        // Port-note: A sizeof of `modelDef_t` the draft cannot size.
-        // Raven wrote: item->typeData = UI_Alloc(sizeof(modelDef_t))
-        portMissing("Item_ValidateTypeData", source: "oracle/codemp/ui/ui_shared.c:7279")
-        // Port-note: Raven's `memset(item->typeData, 0, sizeof(modelDef_t))` runs over bytes that are not one record with a view.
-        // Raven wrote: memset(item->typeData, 0, sizeof(modelDef_t))
-        portMissing("Item_ValidateTypeData", source: "oracle/codemp/ui/ui_shared.c:7279")
+        item.typeData = UI_Alloc(Int32(ModelDef.byteCount))
+        ModelDef(item.typeData!).clear()
     } else if item.type == ITEM_TYPE_TEXTSCROLL {
-        // Port-note: A sizeof of `textScrollDef_t` the draft cannot size.
-        // Raven wrote: item->typeData = UI_Alloc(sizeof(textScrollDef_t))
-        portMissing("Item_ValidateTypeData", source: "oracle/codemp/ui/ui_shared.c:7279")
+        item.typeData = UI_Alloc(Int32(TextScrollDef.byteCount))
     }
 }
 
@@ -5645,9 +6397,9 @@ func KeywordHash_Find(_ table: [Int32?], _ rows: [KeywordHashRow], _ keyword: St
 // name <string>
 /// Source: oracle/codemp/ui/ui_shared.c:7380
 func ItemParse_name(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-    // Raven wrote: if (!PC_String_Parse(handle, &item->window.name)) { return qfalse; }
-    portMissing("ItemParse_name", source: "oracle/codemp/ui/ui_shared.c:7380")
+    if !PC_String_Parse(handle, &item.window.name) {
+        return false
+    }
     return true
 }
 
@@ -5668,9 +6420,9 @@ func ItemParse_focusSound(_ item: ItemDef, _ handle: Int32) -> Bool {
 // text <string>
 /// Source: oracle/codemp/ui/ui_shared.c:7399
 func ItemParse_text(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-    // Raven wrote: if (!PC_String_Parse(handle, &item->text)) { return qfalse; }
-    portMissing("ItemParse_text", source: "oracle/codemp/ui/ui_shared.c:7399")
+    if !PC_String_Parse(handle, &item.text) {
+        return false
+    }
     return true
 }
 
@@ -5684,9 +6436,9 @@ ItemParse_descText
 */
 /// Source: oracle/codemp/ui/ui_shared.c:7412
 func ItemParse_descText(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-    // Raven wrote: if (!PC_String_Parse(handle, &item->descText)) { return qfalse; }
-    portMissing("ItemParse_descText", source: "oracle/codemp/ui/ui_shared.c:7412")
+    if !PC_String_Parse(handle, &item.descText) {
+        return false
+    }
 
     return true
 }
@@ -5701,9 +6453,9 @@ ItemParse_text
 */
 /// Source: oracle/codemp/ui/ui_shared.c:7431
 func ItemParse_text2(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-    // Raven wrote: if (!PC_String_Parse(handle, &item->text2)) { return qfalse; }
-    portMissing("ItemParse_text2", source: "oracle/codemp/ui/ui_shared.c:7431")
+    if !PC_String_Parse(handle, &item.text2) {
+        return false
+    }
 
     return true
 }
@@ -5741,9 +6493,9 @@ func ItemParse_text2aligny(_ item: ItemDef, _ handle: Int32) -> Bool {
 // group <string>
 /// Source: oracle/codemp/ui/ui_shared.c:7472
 func ItemParse_group(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-    // Raven wrote: if (!PC_String_Parse(handle, &item->window.group)) { return qfalse; }
-    portMissing("ItemParse_group", source: "oracle/codemp/ui/ui_shared.c:7472")
+    if !PC_String_Parse(handle, &item.window.group) {
+        return false
+    }
     return true
 }
 
@@ -5774,29 +6526,36 @@ func UI_InsertG2Pointer(_ ghoul2: OpaquePointer?) {
 //Remove a ghoul2 pointer from the chain if it's there.
 /// Source: oracle/codemp/ui/ui_shared.c:7517
 func UI_ClearG2Pointer(_ ghoul2: OpaquePointer?) {
-    // Port-note: A pointer local `uiG2PtrTracker_t * next` with no view.
-    // Raven wrote: uiG2PtrTracker_t *next = ui_G2PtrTracker;
-    portMissing("UI_ClearG2Pointer", source: "oracle/codemp/ui/ui_shared.c:7517")
+    var next: UiG2PtrTracker? = ui_G2PtrTracker
 
     if ghoul2 == nil {
         return
     }
 
-    // Port-note: A read of `next`, a local the draft left as a hole.
-    // Raven wrote: while (next) { if (next->ghoul2 == ghoul2) { //found it, set it to null so we can reuse this link. next->ghoul2 = NULL; break; } next = next->next; }
-    portMissing("UI_ClearG2Pointer", source: "oracle/codemp/ui/ui_shared.c:7517")
+    while next != nil {
+        if next!.ghoul2 == ghoul2 {
+            //found it, set it to null so we can reuse this link.
+            next!.ghoul2 = nil
+            break
+        }
+
+        next = next!.next
+    }
 }
 
 //Called on shutdown, cleans up all the ghoul2 instances laying around.
 /// Source: oracle/codemp/ui/ui_shared.c:7539
 func UI_CleanupGhoul2() {
-    // Port-note: A pointer local `uiG2PtrTracker_t * next` with no view.
-    // Raven wrote: uiG2PtrTracker_t *next = ui_G2PtrTracker;
-    portMissing("UI_CleanupGhoul2", source: "oracle/codemp/ui/ui_shared.c:7539")
+    var next: UiG2PtrTracker? = ui_G2PtrTracker
 
-    // Port-note: A read of `next`, a local the draft left as a hole.
-    // Raven wrote: while (next) { if (next->ghoul2 && trap_G2_HaveWeGhoul2Models(next->ghoul2)) { //found a g2 instance, clean it. trap_G2API_CleanGhoul2Models(&next->ghoul2); } next = next->next; }
-    portMissing("UI_CleanupGhoul2", source: "oracle/codemp/ui/ui_shared.c:7539")
+    while next != nil {
+        if next!.ghoul2 != nil && trap_G2_HaveWeGhoul2Models(next!.ghoul2) {
+            //found a g2 instance, clean it.
+            trap_G2API_CleanGhoul2Models(&next!.ghoul2)
+        }
+
+        next = next!.next
+    }
 }
 
 /**
@@ -5835,26 +6594,23 @@ func ItemParse_asset_model_go(_ item: ItemDef, _ name: String, _ runTimeLength: 
 /// Source: oracle/codemp/ui/ui_shared.c:7659
 func ItemParse_asset_model(_ item: ItemDef, _ handle: Int32) -> Bool {
     var temp: String
-    // Port-note: A pointer local `modelDef_t * modelPtr` with no view.
-    // Raven wrote: modelDef_t *modelPtr;
-    portMissing("ItemParse_asset_model", source: "oracle/codemp/ui/ui_shared.c:7659")
+    var modelPtr: ModelDef?
     var animRunLength: Int32 = 0
-    // Raven's record lives to the end of his block, so the block is the closure.
-    // Every path of Raven's block returns, so the closure's value is the function's.
-    return PcToken.scratch { token -> Bool in
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "variable 'temp' captured by a closure before being initialized".
+    // Raven wrote: pc_token_t token;
+    portMissing("ItemParse_asset_model", source: "oracle/codemp/ui/ui_shared.c:7659")
 
-        Item_ValidateTypeData(item)
-        // Port-note: A store into `modelPtr`, a local the draft left as a hole.
-        // Raven wrote: modelPtr = (modelDef_t*)item->typeData
-        portMissing("ItemParse_asset_model", source: "oracle/codemp/ui/ui_shared.c:7659")
+    Item_ValidateTypeData(item)
+    modelPtr = item.typeData.map { ModelDef($0) }
 
-        if trap_PC_ReadToken(handle, token) == 0 {
-            return false
-        }
-        temp = token.string
+    // Port-note: A read of `token`, a local the draft left as a hole.
+    // Raven wrote: if (!trap_PC_ReadToken(handle, &token)) { return qfalse; }
+    portMissing("ItemParse_asset_model", source: "oracle/codemp/ui/ui_shared.c:7659")
+    // Port-note: A read of `token`, a local the draft left as a hole.
+    // Raven wrote: temp = token.string
+    portMissing("ItemParse_asset_model", source: "oracle/codemp/ui/ui_shared.c:7659")
 
-        return (ItemParse_asset_model_go(item, temp, &animRunLength))
-    }
+    return (ItemParse_asset_model_go(item, temp, &animRunLength))
 }
 
 // asset_shader <string>
@@ -5874,152 +6630,132 @@ func ItemParse_asset_shader(_ item: ItemDef, _ handle: Int32) -> Bool {
 // model_origin <number> <number> <number>
 /// Source: oracle/codemp/ui/ui_shared.c:7697
 func ItemParse_model_origin(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: A pointer local `modelDef_t * modelPtr` with no view.
-    // Raven wrote: modelDef_t *modelPtr;
-    portMissing("ItemParse_model_origin", source: "oracle/codemp/ui/ui_shared.c:7697")
+    var modelPtr: ModelDef?
     Item_ValidateTypeData(item)
-    // Port-note: A store into `modelPtr`, a local the draft left as a hole.
-    // Raven wrote: modelPtr = (modelDef_t*)item->typeData
-    portMissing("ItemParse_model_origin", source: "oracle/codemp/ui/ui_shared.c:7697")
+    modelPtr = item.typeData.map { ModelDef($0) }
 
-    // Port-note: A read of `modelPtr`, a local the draft left as a hole.
-    // Raven wrote: if (PC_Float_Parse(handle, &modelPtr->origin[0])) { if (PC_Float_Parse(handle, &modelPtr->origin[1])) { if (PC_Float_Parse(handle, &modelPtr->origin[2])) { return qtrue; } } }
-    portMissing("ItemParse_model_origin", source: "oracle/codemp/ui/ui_shared.c:7697")
+    if PC_Float_Parse(handle, &modelPtr!.origin[0]) {
+        if PC_Float_Parse(handle, &modelPtr!.origin[1]) {
+            if PC_Float_Parse(handle, &modelPtr!.origin[2]) {
+                return true
+            }
+        }
+    }
     return false
 }
 
 // model_fovx <number>
 /// Source: oracle/codemp/ui/ui_shared.c:7713
 func ItemParse_model_fovx(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: A pointer local `modelDef_t * modelPtr` with no view.
-    // Raven wrote: modelDef_t *modelPtr;
-    portMissing("ItemParse_model_fovx", source: "oracle/codemp/ui/ui_shared.c:7713")
+    var modelPtr: ModelDef?
     Item_ValidateTypeData(item)
-    // Port-note: A store into `modelPtr`, a local the draft left as a hole.
-    // Raven wrote: modelPtr = (modelDef_t*)item->typeData
-    portMissing("ItemParse_model_fovx", source: "oracle/codemp/ui/ui_shared.c:7713")
+    modelPtr = item.typeData.map { ModelDef($0) }
 
-    // Port-note: A read of `modelPtr`, a local the draft left as a hole.
-    // Raven wrote: if (!PC_Float_Parse(handle, &modelPtr->fov_x)) { return qfalse; }
-    portMissing("ItemParse_model_fovx", source: "oracle/codemp/ui/ui_shared.c:7713")
+    if !PC_Float_Parse(handle, &modelPtr!.fov_x) {
+        return false
+    }
     return true
 }
 
 // model_fovy <number>
 /// Source: oracle/codemp/ui/ui_shared.c:7725
 func ItemParse_model_fovy(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: A pointer local `modelDef_t * modelPtr` with no view.
-    // Raven wrote: modelDef_t *modelPtr;
-    portMissing("ItemParse_model_fovy", source: "oracle/codemp/ui/ui_shared.c:7725")
+    var modelPtr: ModelDef?
     Item_ValidateTypeData(item)
-    // Port-note: A store into `modelPtr`, a local the draft left as a hole.
-    // Raven wrote: modelPtr = (modelDef_t*)item->typeData
-    portMissing("ItemParse_model_fovy", source: "oracle/codemp/ui/ui_shared.c:7725")
+    modelPtr = item.typeData.map { ModelDef($0) }
 
-    // Port-note: A read of `modelPtr`, a local the draft left as a hole.
-    // Raven wrote: if (!PC_Float_Parse(handle, &modelPtr->fov_y)) { return qfalse; }
-    portMissing("ItemParse_model_fovy", source: "oracle/codemp/ui/ui_shared.c:7725")
+    if !PC_Float_Parse(handle, &modelPtr!.fov_y) {
+        return false
+    }
     return true
 }
 
 // model_rotation <integer>
 /// Source: oracle/codemp/ui/ui_shared.c:7737
 func ItemParse_model_rotation(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: A pointer local `modelDef_t * modelPtr` with no view.
-    // Raven wrote: modelDef_t *modelPtr;
-    portMissing("ItemParse_model_rotation", source: "oracle/codemp/ui/ui_shared.c:7737")
+    var modelPtr: ModelDef?
     Item_ValidateTypeData(item)
-    // Port-note: A store into `modelPtr`, a local the draft left as a hole.
-    // Raven wrote: modelPtr = (modelDef_t*)item->typeData
-    portMissing("ItemParse_model_rotation", source: "oracle/codemp/ui/ui_shared.c:7737")
+    modelPtr = item.typeData.map { ModelDef($0) }
 
-    // Port-note: A read of `modelPtr`, a local the draft left as a hole.
-    // Raven wrote: if (!PC_Int_Parse(handle, &modelPtr->rotationSpeed)) { return qfalse; }
-    portMissing("ItemParse_model_rotation", source: "oracle/codemp/ui/ui_shared.c:7737")
+    if !PC_Int_Parse(handle, &modelPtr!.rotationSpeed) {
+        return false
+    }
     return true
 }
 
 // model_angle <integer>
 /// Source: oracle/codemp/ui/ui_shared.c:7749
 func ItemParse_model_angle(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: A pointer local `modelDef_t * modelPtr` with no view.
-    // Raven wrote: modelDef_t *modelPtr;
-    portMissing("ItemParse_model_angle", source: "oracle/codemp/ui/ui_shared.c:7749")
+    var modelPtr: ModelDef?
     Item_ValidateTypeData(item)
-    // Port-note: A store into `modelPtr`, a local the draft left as a hole.
-    // Raven wrote: modelPtr = (modelDef_t*)item->typeData
-    portMissing("ItemParse_model_angle", source: "oracle/codemp/ui/ui_shared.c:7749")
+    modelPtr = item.typeData.map { ModelDef($0) }
 
-    // Port-note: A read of `modelPtr`, a local the draft left as a hole.
-    // Raven wrote: if (!PC_Int_Parse(handle, &modelPtr->angle)) { return qfalse; }
-    portMissing("ItemParse_model_angle", source: "oracle/codemp/ui/ui_shared.c:7749")
+    if !PC_Int_Parse(handle, &modelPtr!.angle) {
+        return false
+    }
     return true
 }
 
 // model_g2mins <number> <number> <number>
 /// Source: oracle/codemp/ui/ui_shared.c:7761
 func ItemParse_model_g2mins(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: A pointer local `modelDef_t * modelPtr` with no view.
-    // Raven wrote: modelDef_t *modelPtr;
-    portMissing("ItemParse_model_g2mins", source: "oracle/codemp/ui/ui_shared.c:7761")
+    var modelPtr: ModelDef?
     Item_ValidateTypeData(item)
-    // Port-note: A store into `modelPtr`, a local the draft left as a hole.
-    // Raven wrote: modelPtr = (modelDef_t*)item->typeData
-    portMissing("ItemParse_model_g2mins", source: "oracle/codemp/ui/ui_shared.c:7761")
+    modelPtr = item.typeData.map { ModelDef($0) }
 
-    // Port-note: A read of `modelPtr`, a local the draft left as a hole.
-    // Raven wrote: if (PC_Float_Parse(handle, &modelPtr->g2mins[0])) { if (PC_Float_Parse(handle, &modelPtr->g2mins[1])) { if (PC_Float_Parse(handle, &modelPtr->g2mins[2])) { return qtrue; } } }
-    portMissing("ItemParse_model_g2mins", source: "oracle/codemp/ui/ui_shared.c:7761")
+    if PC_Float_Parse(handle, &modelPtr!.g2mins[0]) {
+        if PC_Float_Parse(handle, &modelPtr!.g2mins[1]) {
+            if PC_Float_Parse(handle, &modelPtr!.g2mins[2]) {
+                return true
+            }
+        }
+    }
     return false
 }
 
 // model_g2maxs <number> <number> <number>
 /// Source: oracle/codemp/ui/ui_shared.c:7777
 func ItemParse_model_g2maxs(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: A pointer local `modelDef_t * modelPtr` with no view.
-    // Raven wrote: modelDef_t *modelPtr;
-    portMissing("ItemParse_model_g2maxs", source: "oracle/codemp/ui/ui_shared.c:7777")
+    var modelPtr: ModelDef?
     Item_ValidateTypeData(item)
-    // Port-note: A store into `modelPtr`, a local the draft left as a hole.
-    // Raven wrote: modelPtr = (modelDef_t*)item->typeData
-    portMissing("ItemParse_model_g2maxs", source: "oracle/codemp/ui/ui_shared.c:7777")
+    modelPtr = item.typeData.map { ModelDef($0) }
 
-    // Port-note: A read of `modelPtr`, a local the draft left as a hole.
-    // Raven wrote: if (PC_Float_Parse(handle, &modelPtr->g2maxs[0])) { if (PC_Float_Parse(handle, &modelPtr->g2maxs[1])) { if (PC_Float_Parse(handle, &modelPtr->g2maxs[2])) { return qtrue; } } }
-    portMissing("ItemParse_model_g2maxs", source: "oracle/codemp/ui/ui_shared.c:7777")
+    if PC_Float_Parse(handle, &modelPtr!.g2maxs[0]) {
+        if PC_Float_Parse(handle, &modelPtr!.g2maxs[1]) {
+            if PC_Float_Parse(handle, &modelPtr!.g2maxs[2]) {
+                return true
+            }
+        }
+    }
     return false
 }
 
 // model_g2scale <number> <number> <number>
 /// Source: oracle/codemp/ui/ui_shared.c:7793
 func ItemParse_model_g2scale(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: A pointer local `modelDef_t * modelPtr` with no view.
-    // Raven wrote: modelDef_t *modelPtr;
-    portMissing("ItemParse_model_g2scale", source: "oracle/codemp/ui/ui_shared.c:7793")
+    var modelPtr: ModelDef?
     Item_ValidateTypeData(item)
-    // Port-note: A store into `modelPtr`, a local the draft left as a hole.
-    // Raven wrote: modelPtr = (modelDef_t*)item->typeData
-    portMissing("ItemParse_model_g2scale", source: "oracle/codemp/ui/ui_shared.c:7793")
+    modelPtr = item.typeData.map { ModelDef($0) }
 
-    // Port-note: A read of `modelPtr`, a local the draft left as a hole.
-    // Raven wrote: if (PC_Float_Parse(handle, &modelPtr->g2scale[0])) { if (PC_Float_Parse(handle, &modelPtr->g2scale[1])) { if (PC_Float_Parse(handle, &modelPtr->g2scale[2])) { return qtrue; } } }
-    portMissing("ItemParse_model_g2scale", source: "oracle/codemp/ui/ui_shared.c:7793")
+    if PC_Float_Parse(handle, &modelPtr!.g2scale[0]) {
+        if PC_Float_Parse(handle, &modelPtr!.g2scale[1]) {
+            if PC_Float_Parse(handle, &modelPtr!.g2scale[2]) {
+                return true
+            }
+        }
+    }
     return false
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:7811
 func ItemParse_model_g2skin(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: A pointer local `modelDef_t * modelPtr` with no view.
-    // Raven wrote: modelDef_t *modelPtr;
-    portMissing("ItemParse_model_g2skin", source: "oracle/codemp/ui/ui_shared.c:7811")
+    var modelPtr: ModelDef?
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return PcToken.scratch { token -> Bool in
 
         Item_ValidateTypeData(item)
-        // Port-note: A store into `modelPtr`, a local the draft left as a hole.
-        // Raven wrote: modelPtr = (modelDef_t*)item->typeData
-        portMissing("ItemParse_model_g2skin", source: "oracle/codemp/ui/ui_shared.c:7811")
+        modelPtr = item.typeData.map { ModelDef($0) }
 
         if trap_PC_ReadToken(handle, token) == 0 {
             return false
@@ -6030,9 +6766,7 @@ func ItemParse_model_g2skin(_ item: ItemDef, _ handle: Int32) -> Bool {
             return true
         }
 
-        // Port-note: A read of `modelPtr`, a local the draft left as a hole.
-        // Raven wrote: modelPtr->g2skin = trap_R_RegisterSkin(token.string)
-        portMissing("ItemParse_model_g2skin", source: "oracle/codemp/ui/ui_shared.c:7811")
+        modelPtr!.g2skin = trap_R_RegisterSkin(token.string)
 
         return true
     }
@@ -6041,18 +6775,14 @@ func ItemParse_model_g2skin(_ item: ItemDef, _ handle: Int32) -> Bool {
 // model_g2anim <number>
 /// Source: oracle/codemp/ui/ui_shared.c:7833
 func ItemParse_model_g2anim(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: A pointer local `modelDef_t * modelPtr` with no view.
-    // Raven wrote: modelDef_t *modelPtr;
-    portMissing("ItemParse_model_g2anim", source: "oracle/codemp/ui/ui_shared.c:7833")
+    var modelPtr: ModelDef?
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return PcToken.scratch { token -> Bool in
         var i: Int32 = 0
 
         Item_ValidateTypeData(item)
-        // Port-note: A store into `modelPtr`, a local the draft left as a hole.
-        // Raven wrote: modelPtr = (modelDef_t*)item->typeData
-        portMissing("ItemParse_model_g2anim", source: "oracle/codemp/ui/ui_shared.c:7833")
+        modelPtr = item.typeData.map { ModelDef($0) }
 
         if trap_PC_ReadToken(handle, token) == 0 {
             return false
@@ -6066,9 +6796,7 @@ func ItemParse_model_g2anim(_ item: ItemDef, _ handle: Int32) -> Bool {
         while i < MAX_ANIMATIONS {
             if Q_stricmp(token.string, animTable[i].name!) == 0 {
                 //found it
-                // Port-note: A read of `modelPtr`, a local the draft left as a hole.
-                // Raven wrote: modelPtr->g2anim = i
-                portMissing("ItemParse_model_g2anim", source: "oracle/codemp/ui/ui_shared.c:7833")
+                modelPtr!.g2anim = i
                 return true
             }
             i += 1
@@ -6082,22 +6810,16 @@ func ItemParse_model_g2anim(_ item: ItemDef, _ handle: Int32) -> Bool {
 // model_g2skin <string>
 /// Source: oracle/codemp/ui/ui_shared.c:7865
 func ItemParse_model_g2skin_go(_ item: ItemDef, _ skinName: String) -> Bool {
-    // Port-note: A pointer local `modelDef_t * modelPtr` with no view.
-    // Raven wrote: modelDef_t *modelPtr;
-    portMissing("ItemParse_model_g2skin_go", source: "oracle/codemp/ui/ui_shared.c:7865")
+    var modelPtr: ModelDef?
     let defSkin: Int32
 
 
     Item_ValidateTypeData(item)
-    // Port-note: A store into `modelPtr`, a local the draft left as a hole.
-    // Raven wrote: modelPtr = (modelDef_t*)item->typeData
-    portMissing("ItemParse_model_g2skin_go", source: "oracle/codemp/ui/ui_shared.c:7865")
+    modelPtr = item.typeData.map { ModelDef($0) }
 
     if skinName.isEmpty {
         //it was parsed correctly so still return true.
-        // Port-note: A read of `modelPtr`, a local the draft left as a hole.
-        // Raven wrote: modelPtr->g2skin = 0
-        portMissing("ItemParse_model_g2skin_go", source: "oracle/codemp/ui/ui_shared.c:7865")
+        modelPtr!.g2skin = 0
         trap_G2API_SetSkin(item.ghoul2, 0, 0, 0)
 
         return true
@@ -6115,15 +6837,11 @@ func ItemParse_model_g2skin_go(_ item: ItemDef, _ skinName: String) -> Bool {
 // model_g2anim <number>
 /// Source: oracle/codemp/ui/ui_shared.c:7894
 func ItemParse_model_g2anim_go(_ item: ItemDef, _ animName: String) -> Bool {
-    // Port-note: A pointer local `modelDef_t * modelPtr` with no view.
-    // Raven wrote: modelDef_t *modelPtr;
-    portMissing("ItemParse_model_g2anim_go", source: "oracle/codemp/ui/ui_shared.c:7894")
+    var modelPtr: ModelDef?
     var i: Int32 = 0
 
     Item_ValidateTypeData(item)
-    // Port-note: A store into `modelPtr`, a local the draft left as a hole.
-    // Raven wrote: modelPtr = (modelDef_t*)item->typeData
-    portMissing("ItemParse_model_g2anim_go", source: "oracle/codemp/ui/ui_shared.c:7894")
+    modelPtr = item.typeData.map { ModelDef($0) }
 
     if animName.isEmpty {
         //it was parsed correctly so still return true.
@@ -6133,9 +6851,7 @@ func ItemParse_model_g2anim_go(_ item: ItemDef, _ animName: String) -> Bool {
     while i < MAX_ANIMATIONS {
         if Q_stricmp(animName, animTable[i].name!) == 0 {
             //found it
-            // Port-note: A read of `modelPtr`, a local the draft left as a hole.
-            // Raven wrote: modelPtr->g2anim = animTable[i].id
-            portMissing("ItemParse_model_g2anim_go", source: "oracle/codemp/ui/ui_shared.c:7894")
+            modelPtr!.g2anim = animTable[i].id
             return true
         }
         i += 1
@@ -6149,9 +6865,7 @@ func ItemParse_model_g2anim_go(_ item: ItemDef, _ animName: String) -> Bool {
 /// Source: oracle/codemp/ui/ui_shared.c:7922
 func ItemParse_rectcvar(_ item: ItemDef, _ handle: Int32) -> Bool {
     var cvarBuf = CharBuf(1024)
-    // Port-note: A pointer local `const char * holdVal` with no view.
-    // Raven wrote: const char *holdVal;
-    portMissing("ItemParse_rectcvar", source: "oracle/codemp/ui/ui_shared.c:7922")
+    var holdVal: String = ""
     var holdBuf = TextCursor()
 
     // get Cvar name
@@ -6163,14 +6877,22 @@ func ItemParse_rectcvar(_ item: ItemDef, _ handle: Int32) -> Bool {
         }
 
         // get cvar data
-        // Port-note: Raven passes the buffer `cvarBuf` to the engine as a handle, and the trap takes an OpaquePointer.
-        // Raven wrote: DC->getCVarString(token.string, cvarBuf, sizeof(cvarBuf))
-        portMissing("ItemParse_rectcvar", source: "oracle/codemp/ui/ui_shared.c:7922")
+        DC!.runGetCVarString(token.string, &cvarBuf, Int32((cvarBuf).count))
 
         holdBuf = TextCursor(cvarBuf)
-        // Port-note: A read of `holdVal`, a local the draft left as a hole.
-        // Raven wrote: if (String_Parse(&holdBuf,&holdVal)) { item->window.rectClient.x = atof(holdVal); if (String_Parse(&holdBuf,&holdVal)) { item->window.rectClient.y = atof(holdVal); if (String_Parse(&holdBuf,&holdVal)) { item->window.rectClient.w = atof(holdVal); if (String_Parse(&holdBuf,&holdVal)) { item->window.rectClient.h = atof(holdVal); return qtrue; } } } }
-        portMissing("ItemParse_rectcvar", source: "oracle/codemp/ui/ui_shared.c:7922")
+        if String_Parse(&holdBuf, &holdVal) {
+            item.window.rectClient.x = Float(atof(holdVal))
+            if String_Parse(&holdBuf, &holdVal) {
+                item.window.rectClient.y = Float(atof(holdVal))
+                if String_Parse(&holdBuf, &holdVal) {
+                    item.window.rectClient.w = Float(atof(holdVal))
+                    if String_Parse(&holdBuf, &holdVal) {
+                        item.window.rectClient.h = Float(atof(holdVal))
+                        return true
+                    }
+                }
+            }
+        }
 
         // There may be no cvar built for this, and that's okay. . . I guess.
         return true
@@ -6207,15 +6929,16 @@ func ItemParse_flag(_ item: ItemDef, _ handle: Int32) -> Bool {
 
         i = 0
         while styles[i] != nil {
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'itemFlags' in scope".
-            // Raven wrote: if (Q_stricmp(token.string,itemFlags[i].string)==0) { item->window.flags |= itemFlags[i].value; break; }
-            portMissing("ItemParse_flag", source: "oracle/codemp/ui/ui_shared.c:7975")
+            if Q_stricmp(token.string, itemFlags[i].string!) == 0 {
+                item.window.flags |= itemFlags[i].value
+                break
+            }
             i += 1
         }
 
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'itemFlags' in scope".
-        // Raven wrote: if (itemFlags[i].string == NULL) { Com_Printf(va( S_COLOR_YELLOW "Unknown item style value '%s'",token.string)); }
-        portMissing("ItemParse_flag", source: "oracle/codemp/ui/ui_shared.c:7975")
+        if itemFlags[i].string == nil {
+            Com_Printf(va(S_COLOR_YELLOW + "Unknown item style value '%s'", token.string))
+        }
 
         return true
     }
@@ -6249,16 +6972,12 @@ func ItemParse_decoration(_ item: ItemDef, _ handle: Int32) -> Bool {
 // notselectable
 /// Source: oracle/codemp/ui/ui_shared.c:8029
 func ItemParse_notselectable(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: A pointer local `listBoxDef_t * listPtr` with no view.
-    // Raven wrote: listBoxDef_t *listPtr;
-    portMissing("ItemParse_notselectable", source: "oracle/codemp/ui/ui_shared.c:8029")
+    var listPtr: ListBoxDef?
     Item_ValidateTypeData(item)
-    // Port-note: A store into `listPtr`, a local the draft left as a hole.
-    // Raven wrote: listPtr = (listBoxDef_t*)item->typeData
-    portMissing("ItemParse_notselectable", source: "oracle/codemp/ui/ui_shared.c:8029")
-    // Port-note: A read of `listPtr`, a local the draft left as a hole.
-    // Raven wrote: if (item->type == ITEM_TYPE_LISTBOX && listPtr) { listPtr->notselectable = qtrue; }
-    portMissing("ItemParse_notselectable", source: "oracle/codemp/ui/ui_shared.c:8029")
+    listPtr = item.typeData.map { ListBoxDef($0) }
+    if item.type == ITEM_TYPE_LISTBOX && listPtr != nil {
+        listPtr!.notselectable = true
+    }
     return true
 }
 
@@ -6272,17 +6991,13 @@ ItemParse_scrollhidden
 */
 /// Source: oracle/codemp/ui/ui_shared.c:8045
 func ItemParse_scrollhidden(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: A pointer local `listBoxDef_t * listPtr` with no view.
-    // Raven wrote: listBoxDef_t *listPtr;
-    portMissing("ItemParse_scrollhidden", source: "oracle/codemp/ui/ui_shared.c:8045")
+    var listPtr: ListBoxDef?
     Item_ValidateTypeData(item)
-    // Port-note: A store into `listPtr`, a local the draft left as a hole.
-    // Raven wrote: listPtr = (listBoxDef_t*)item->typeData
-    portMissing("ItemParse_scrollhidden", source: "oracle/codemp/ui/ui_shared.c:8045")
+    listPtr = item.typeData.map { ListBoxDef($0) }
 
-    // Port-note: A read of `listPtr`, a local the draft left as a hole.
-    // Raven wrote: if (item->type == ITEM_TYPE_LISTBOX && listPtr) { listPtr->scrollhidden = qtrue; }
-    portMissing("ItemParse_scrollhidden", source: "oracle/codemp/ui/ui_shared.c:8045")
+    if item.type == ITEM_TYPE_LISTBOX && listPtr != nil {
+        listPtr!.scrollhidden = true
+    }
     return true
 }
 
@@ -6330,17 +7045,13 @@ func ItemParse_type(_ item: ItemDef, _ handle: Int32) -> Bool {
 // uses textalignx for storage
 /// Source: oracle/codemp/ui/ui_shared.c:8101
 func ItemParse_elementwidth(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: A pointer local `listBoxDef_t * listPtr` with no view.
-    // Raven wrote: listBoxDef_t *listPtr;
-    portMissing("ItemParse_elementwidth", source: "oracle/codemp/ui/ui_shared.c:8101")
+    var listPtr: ListBoxDef?
 
     Item_ValidateTypeData(item)
-    // Port-note: A store into `listPtr`, a local the draft left as a hole.
-    // Raven wrote: listPtr = (listBoxDef_t*)item->typeData
-    portMissing("ItemParse_elementwidth", source: "oracle/codemp/ui/ui_shared.c:8101")
-    // Port-note: A read of `listPtr`, a local the draft left as a hole.
-    // Raven wrote: if (!PC_Float_Parse(handle, &listPtr->elementWidth)) { return qfalse; }
-    portMissing("ItemParse_elementwidth", source: "oracle/codemp/ui/ui_shared.c:8101")
+    listPtr = item.typeData.map { ListBoxDef($0) }
+    if !PC_Float_Parse(handle, &listPtr!.elementWidth) {
+        return false
+    }
     return true
 }
 
@@ -6348,17 +7059,13 @@ func ItemParse_elementwidth(_ item: ItemDef, _ handle: Int32) -> Bool {
 // uses textaligny for storage
 /// Source: oracle/codemp/ui/ui_shared.c:8114
 func ItemParse_elementheight(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: A pointer local `listBoxDef_t * listPtr` with no view.
-    // Raven wrote: listBoxDef_t *listPtr;
-    portMissing("ItemParse_elementheight", source: "oracle/codemp/ui/ui_shared.c:8114")
+    var listPtr: ListBoxDef?
 
     Item_ValidateTypeData(item)
-    // Port-note: A store into `listPtr`, a local the draft left as a hole.
-    // Raven wrote: listPtr = (listBoxDef_t*)item->typeData
-    portMissing("ItemParse_elementheight", source: "oracle/codemp/ui/ui_shared.c:8114")
-    // Port-note: A read of `listPtr`, a local the draft left as a hole.
-    // Raven wrote: if (!PC_Float_Parse(handle, &listPtr->elementHeight)) { return qfalse; }
-    portMissing("ItemParse_elementheight", source: "oracle/codemp/ui/ui_shared.c:8114")
+    listPtr = item.typeData.map { ListBoxDef($0) }
+    if !PC_Float_Parse(handle, &listPtr!.elementHeight) {
+        return false
+    }
     return true
 }
 
@@ -6375,20 +7082,16 @@ func ItemParse_feeder(_ item: ItemDef, _ handle: Int32) -> Bool {
 // uses textstyle for storage
 /// Source: oracle/codemp/ui/ui_shared.c:8135
 func ItemParse_elementtype(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: A pointer local `listBoxDef_t * listPtr` with no view.
-    // Raven wrote: listBoxDef_t *listPtr;
-    portMissing("ItemParse_elementtype", source: "oracle/codemp/ui/ui_shared.c:8135")
+    var listPtr: ListBoxDef?
 
     Item_ValidateTypeData(item)
     if item.typeData == nil {
         return false
     }
-    // Port-note: A store into `listPtr`, a local the draft left as a hole.
-    // Raven wrote: listPtr = (listBoxDef_t*)item->typeData
-    portMissing("ItemParse_elementtype", source: "oracle/codemp/ui/ui_shared.c:8135")
-    // Port-note: A read of `listPtr`, a local the draft left as a hole.
-    // Raven wrote: if (!PC_Int_Parse(handle, &listPtr->elementStyle)) { return qfalse; }
-    portMissing("ItemParse_elementtype", source: "oracle/codemp/ui/ui_shared.c:8135")
+    listPtr = item.typeData.map { ListBoxDef($0) }
+    if !PC_Int_Parse(handle, &listPtr!.elementStyle) {
+        return false
+    }
     return true
 }
 
@@ -6397,24 +7100,18 @@ func ItemParse_elementtype(_ item: ItemDef, _ handle: Int32) -> Bool {
 func ItemParse_columns(_ item: ItemDef, _ handle: Int32) -> Bool {
     var num: Int32 = 0
     var i: Int32
-    // Port-note: A pointer local `listBoxDef_t * listPtr` with no view.
-    // Raven wrote: listBoxDef_t *listPtr;
-    portMissing("ItemParse_columns", source: "oracle/codemp/ui/ui_shared.c:8149")
+    var listPtr: ListBoxDef?
 
     Item_ValidateTypeData(item)
     if item.typeData == nil {
         return false
     }
-    // Port-note: A store into `listPtr`, a local the draft left as a hole.
-    // Raven wrote: listPtr = (listBoxDef_t*)item->typeData
-    portMissing("ItemParse_columns", source: "oracle/codemp/ui/ui_shared.c:8149")
+    listPtr = item.typeData.map { ListBoxDef($0) }
     if PC_Int_Parse(handle, &num) {
         if num > MAX_LB_COLUMNS {
             num = MAX_LB_COLUMNS
         }
-        // Port-note: A read of `listPtr`, a local the draft left as a hole.
-        // Raven wrote: listPtr->numColumns = num
-        portMissing("ItemParse_columns", source: "oracle/codemp/ui/ui_shared.c:8149")
+        listPtr!.numColumns = num
         i = 0
         while i < num {
             var pos: Int32 = 0
@@ -6422,15 +7119,9 @@ func ItemParse_columns(_ item: ItemDef, _ handle: Int32) -> Bool {
             var maxChars: Int32 = 0
 
             if PC_Int_Parse(handle, &pos) && PC_Int_Parse(handle, &width) && PC_Int_Parse(handle, &maxChars) {
-                // Port-note: A read of `listPtr`, a local the draft left as a hole.
-                // Raven wrote: listPtr->columnInfo[i].pos = pos
-                portMissing("ItemParse_columns", source: "oracle/codemp/ui/ui_shared.c:8149")
-                // Port-note: A read of `listPtr`, a local the draft left as a hole.
-                // Raven wrote: listPtr->columnInfo[i].width = width
-                portMissing("ItemParse_columns", source: "oracle/codemp/ui/ui_shared.c:8149")
-                // Port-note: A read of `listPtr`, a local the draft left as a hole.
-                // Raven wrote: listPtr->columnInfo[i].maxChars = maxChars
-                portMissing("ItemParse_columns", source: "oracle/codemp/ui/ui_shared.c:8149")
+                listPtr!.columnInfo[i].pos = pos
+                listPtr!.columnInfo[i].width = width
+                listPtr!.columnInfo[i].maxChars = maxChars
             } else {
                 return false
             }
@@ -6673,86 +7364,82 @@ func ItemParse_background(_ item: ItemDef, _ handle: Int32) -> Bool {
 
 /// Source: oracle/codemp/ui/ui_shared.c:8386
 func ItemParse_cinematic(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-    // Raven wrote: if (!PC_String_Parse(handle, &item->window.cinematicName)) { return qfalse; }
-    portMissing("ItemParse_cinematic", source: "oracle/codemp/ui/ui_shared.c:8386")
+    if !PC_String_Parse(handle, &item.window.cinematicName) {
+        return false
+    }
     return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8393
 func ItemParse_doubleClick(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: A pointer local `listBoxDef_t * listPtr` with no view.
-    // Raven wrote: listBoxDef_t *listPtr;
-    portMissing("ItemParse_doubleClick", source: "oracle/codemp/ui/ui_shared.c:8393")
+    var listPtr: ListBoxDef?
 
     Item_ValidateTypeData(item)
     if item.typeData == nil {
         return false
     }
 
-    // Port-note: A store into `listPtr`, a local the draft left as a hole.
-    // Raven wrote: listPtr = (listBoxDef_t*)item->typeData
-    portMissing("ItemParse_doubleClick", source: "oracle/codemp/ui/ui_shared.c:8393")
+    listPtr = item.typeData.map { ListBoxDef($0) }
 
-    // Port-note: A read of `listPtr`, a local the draft left as a hole.
-    // Raven wrote: if (!PC_Script_Parse(handle, &listPtr->doubleClick)) { return qfalse; }
-    portMissing("ItemParse_doubleClick", source: "oracle/codemp/ui/ui_shared.c:8393")
+    if !PC_Script_Parse(handle, &listPtr!.doubleClick) {
+        return false
+    }
     return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8409
 func ItemParse_onFocus(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String?' to expected argument type 'TextCursor'".
-    // Raven wrote: if (!PC_Script_Parse(handle, &item->onFocus)) { return qfalse; }
-    portMissing("ItemParse_onFocus", source: "oracle/codemp/ui/ui_shared.c:8409")
+    if !PC_Script_Parse(handle, &item.onFocus) {
+        return false
+    }
     return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8416
 func ItemParse_leaveFocus(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String?' to expected argument type 'TextCursor'".
-    // Raven wrote: if (!PC_Script_Parse(handle, &item->leaveFocus)) { return qfalse; }
-    portMissing("ItemParse_leaveFocus", source: "oracle/codemp/ui/ui_shared.c:8416")
+    if !PC_Script_Parse(handle, &item.leaveFocus) {
+        return false
+    }
     return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8423
 func ItemParse_mouseEnter(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String?' to expected argument type 'TextCursor'".
-    // Raven wrote: if (!PC_Script_Parse(handle, &item->mouseEnter)) { return qfalse; }
-    portMissing("ItemParse_mouseEnter", source: "oracle/codemp/ui/ui_shared.c:8423")
+    if !PC_Script_Parse(handle, &item.mouseEnter) {
+        return false
+    }
     return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8430
 func ItemParse_mouseExit(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String?' to expected argument type 'TextCursor'".
-    // Raven wrote: if (!PC_Script_Parse(handle, &item->mouseExit)) { return qfalse; }
-    portMissing("ItemParse_mouseExit", source: "oracle/codemp/ui/ui_shared.c:8430")
+    if !PC_Script_Parse(handle, &item.mouseExit) {
+        return false
+    }
     return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8437
 func ItemParse_mouseEnterText(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String?' to expected argument type 'TextCursor'".
-    // Raven wrote: if (!PC_Script_Parse(handle, &item->mouseEnterText)) { return qfalse; }
-    portMissing("ItemParse_mouseEnterText", source: "oracle/codemp/ui/ui_shared.c:8437")
+    if !PC_Script_Parse(handle, &item.mouseEnterText) {
+        return false
+    }
     return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8444
 func ItemParse_mouseExitText(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String?' to expected argument type 'TextCursor'".
-    // Raven wrote: if (!PC_Script_Parse(handle, &item->mouseExitText)) { return qfalse; }
-    portMissing("ItemParse_mouseExitText", source: "oracle/codemp/ui/ui_shared.c:8444")
+    if !PC_Script_Parse(handle, &item.mouseExitText) {
+        return false
+    }
     return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8451
 func ItemParse_action(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String?' to expected argument type 'TextCursor'".
-    // Raven wrote: if (!PC_Script_Parse(handle, &item->action)) { return qfalse; }
-    portMissing("ItemParse_action", source: "oracle/codemp/ui/ui_shared.c:8451")
+    if !PC_Script_Parse(handle, &item.action) {
+        return false
+    }
     return true
 }
 
@@ -6766,38 +7453,28 @@ func ItemParse_special(_ item: ItemDef, _ handle: Int32) -> Bool {
 
 /// Source: oracle/codemp/ui/ui_shared.c:8465
 func ItemParse_cvarTest(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-    // Raven wrote: if (!PC_String_Parse(handle, &item->cvarTest)) { return qfalse; }
-    portMissing("ItemParse_cvarTest", source: "oracle/codemp/ui/ui_shared.c:8465")
+    if !PC_String_Parse(handle, &item.cvarTest) {
+        return false
+    }
     return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8472
 func ItemParse_cvar(_ item: ItemDef, _ handle: Int32) -> Bool {
     Item_ValidateTypeData(item)
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-    // Raven wrote: if (!PC_String_Parse(handle, &item->cvar)) { return qfalse; }
-    portMissing("ItemParse_cvar", source: "oracle/codemp/ui/ui_shared.c:8472")
+    if !PC_String_Parse(handle, &item.cvar) {
+        return false
+    }
 
     if item.typeData != nil {
-        // Port-note: A pointer local `editFieldDef_t * editPtr` with no view.
-        // Raven wrote: editFieldDef_t *editPtr;
-        portMissing("ItemParse_cvar", source: "oracle/codemp/ui/ui_shared.c:8472")
+        var editPtr: EditFieldDef?
 
         switch item.type {
         case ITEM_TYPE_EDITFIELD, ITEM_TYPE_NUMERICFIELD, ITEM_TYPE_YESNO, ITEM_TYPE_BIND, ITEM_TYPE_SLIDER, ITEM_TYPE_TEXT:
-            // Port-note: A store into `editPtr`, a local the draft left as a hole.
-            // Raven wrote: editPtr = (editFieldDef_t*)item->typeData
-            portMissing("ItemParse_cvar", source: "oracle/codemp/ui/ui_shared.c:8472")
-            // Port-note: A read of `editPtr`, a local the draft left as a hole.
-            // Raven wrote: editPtr->minVal = -1
-            portMissing("ItemParse_cvar", source: "oracle/codemp/ui/ui_shared.c:8472")
-            // Port-note: A read of `editPtr`, a local the draft left as a hole.
-            // Raven wrote: editPtr->maxVal = -1
-            portMissing("ItemParse_cvar", source: "oracle/codemp/ui/ui_shared.c:8472")
-            // Port-note: A read of `editPtr`, a local the draft left as a hole.
-            // Raven wrote: editPtr->defVal = -1
-            portMissing("ItemParse_cvar", source: "oracle/codemp/ui/ui_shared.c:8472")
+            editPtr = item.typeData.map { EditFieldDef($0) }
+            editPtr!.minVal = -1
+            editPtr!.maxVal = -1
+            editPtr!.defVal = -1
 
         default:
             break
@@ -6817,9 +7494,7 @@ func ItemParse_font(_ item: ItemDef, _ handle: Int32) -> Bool {
 
 /// Source: oracle/codemp/ui/ui_shared.c:8513
 func ItemParse_maxChars(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: A pointer local `editFieldDef_t * editPtr` with no view.
-    // Raven wrote: editFieldDef_t *editPtr;
-    portMissing("ItemParse_maxChars", source: "oracle/codemp/ui/ui_shared.c:8513")
+    var editPtr: EditFieldDef?
     var maxChars: Int32 = 0
 
     Item_ValidateTypeData(item)
@@ -6830,20 +7505,14 @@ func ItemParse_maxChars(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Int_Parse(handle, &maxChars) {
         return false
     }
-    // Port-note: A store into `editPtr`, a local the draft left as a hole.
-    // Raven wrote: editPtr = (editFieldDef_t*)item->typeData
-    portMissing("ItemParse_maxChars", source: "oracle/codemp/ui/ui_shared.c:8513")
-    // Port-note: A read of `editPtr`, a local the draft left as a hole.
-    // Raven wrote: editPtr->maxChars = maxChars
-    portMissing("ItemParse_maxChars", source: "oracle/codemp/ui/ui_shared.c:8513")
+    editPtr = item.typeData.map { EditFieldDef($0) }
+    editPtr!.maxChars = maxChars
     return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8529
 func ItemParse_maxPaintChars(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: A pointer local `editFieldDef_t * editPtr` with no view.
-    // Raven wrote: editFieldDef_t *editPtr;
-    portMissing("ItemParse_maxPaintChars", source: "oracle/codemp/ui/ui_shared.c:8529")
+    var editPtr: EditFieldDef?
     var maxChars: Int32 = 0
 
     Item_ValidateTypeData(item)
@@ -6854,20 +7523,14 @@ func ItemParse_maxPaintChars(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Int_Parse(handle, &maxChars) {
         return false
     }
-    // Port-note: A store into `editPtr`, a local the draft left as a hole.
-    // Raven wrote: editPtr = (editFieldDef_t*)item->typeData
-    portMissing("ItemParse_maxPaintChars", source: "oracle/codemp/ui/ui_shared.c:8529")
-    // Port-note: A read of `editPtr`, a local the draft left as a hole.
-    // Raven wrote: editPtr->maxPaintChars = maxChars
-    portMissing("ItemParse_maxPaintChars", source: "oracle/codemp/ui/ui_shared.c:8529")
+    editPtr = item.typeData.map { EditFieldDef($0) }
+    editPtr!.maxPaintChars = maxChars
     return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8545
 func ItemParse_maxLineChars(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: A pointer local `textScrollDef_t * scrollPtr` with no view.
-    // Raven wrote: textScrollDef_t *scrollPtr;
-    portMissing("ItemParse_maxLineChars", source: "oracle/codemp/ui/ui_shared.c:8545")
+    var scrollPtr: TextScrollDef?
     var maxChars: Int32 = 0
 
     Item_ValidateTypeData(item)
@@ -6879,21 +7542,15 @@ func ItemParse_maxLineChars(_ item: ItemDef, _ handle: Int32) -> Bool {
         return false
     }
 
-    // Port-note: A store into `scrollPtr`, a local the draft left as a hole.
-    // Raven wrote: scrollPtr = (textScrollDef_t*)item->typeData
-    portMissing("ItemParse_maxLineChars", source: "oracle/codemp/ui/ui_shared.c:8545")
-    // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-    // Raven wrote: scrollPtr->maxLineChars = maxChars
-    portMissing("ItemParse_maxLineChars", source: "oracle/codemp/ui/ui_shared.c:8545")
+    scrollPtr = item.typeData.map { TextScrollDef($0) }
+    scrollPtr!.maxLineChars = maxChars
 
     return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8565
 func ItemParse_lineHeight(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: A pointer local `textScrollDef_t * scrollPtr` with no view.
-    // Raven wrote: textScrollDef_t *scrollPtr;
-    portMissing("ItemParse_lineHeight", source: "oracle/codemp/ui/ui_shared.c:8565")
+    var scrollPtr: TextScrollDef?
     var height: Int32 = 0
 
     Item_ValidateTypeData(item)
@@ -6905,32 +7562,24 @@ func ItemParse_lineHeight(_ item: ItemDef, _ handle: Int32) -> Bool {
         return false
     }
 
-    // Port-note: A store into `scrollPtr`, a local the draft left as a hole.
-    // Raven wrote: scrollPtr = (textScrollDef_t*)item->typeData
-    portMissing("ItemParse_lineHeight", source: "oracle/codemp/ui/ui_shared.c:8565")
-    // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-    // Raven wrote: scrollPtr->lineHeight = height
-    portMissing("ItemParse_lineHeight", source: "oracle/codemp/ui/ui_shared.c:8565")
+    scrollPtr = item.typeData.map { TextScrollDef($0) }
+    scrollPtr!.lineHeight = Float(height)
 
     return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8585
 func ItemParse_cvarFloat(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: A pointer local `editFieldDef_t * editPtr` with no view.
-    // Raven wrote: editFieldDef_t *editPtr;
-    portMissing("ItemParse_cvarFloat", source: "oracle/codemp/ui/ui_shared.c:8585")
+    var editPtr: EditFieldDef?
 
     Item_ValidateTypeData(item)
     if item.typeData == nil {
         return false
     }
-    // Port-note: A store into `editPtr`, a local the draft left as a hole.
-    // Raven wrote: editPtr = (editFieldDef_t*)item->typeData
-    portMissing("ItemParse_cvarFloat", source: "oracle/codemp/ui/ui_shared.c:8585")
-    // Port-note: A read of `editPtr`, a local the draft left as a hole.
-    // Raven wrote: if (PC_String_Parse(handle, &item->cvar) && PC_Float_Parse(handle, &editPtr->defVal) && PC_Float_Parse(handle, &editPtr->minVal) && PC_Float_Parse(handle, &editPtr->maxVal)) { return qtrue; }
-    portMissing("ItemParse_cvarFloat", source: "oracle/codemp/ui/ui_shared.c:8585")
+    editPtr = item.typeData.map { EditFieldDef($0) }
+    if PC_String_Parse(handle, &item.cvar) && PC_Float_Parse(handle, &editPtr!.defVal) && PC_Float_Parse(handle, &editPtr!.minVal) && PC_Float_Parse(handle, &editPtr!.maxVal) {
+        return true
+    }
     return false
 }
 
@@ -6939,24 +7588,16 @@ func ItemParse_cvarStrList(_ item: ItemDef, _ handle: Int32) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return PcToken.scratch { token -> Bool in
-        // Port-note: A pointer local `multiDef_t * multiPtr` with no view.
-        // Raven wrote: multiDef_t *multiPtr;
-        portMissing("ItemParse_cvarStrList", source: "oracle/codemp/ui/ui_shared.c:8604")
+        var multiPtr: MultiDef?
         var pass: Int32 = 0
 
         Item_ValidateTypeData(item)
         if item.typeData == nil {
             return false
         }
-        // Port-note: A store into `multiPtr`, a local the draft left as a hole.
-        // Raven wrote: multiPtr = (multiDef_t*)item->typeData
-        portMissing("ItemParse_cvarStrList", source: "oracle/codemp/ui/ui_shared.c:8604")
-        // Port-note: A read of `multiPtr`, a local the draft left as a hole.
-        // Raven wrote: multiPtr->count = 0
-        portMissing("ItemParse_cvarStrList", source: "oracle/codemp/ui/ui_shared.c:8604")
-        // Port-note: A read of `multiPtr`, a local the draft left as a hole.
-        // Raven wrote: multiPtr->strDef = qtrue
-        portMissing("ItemParse_cvarStrList", source: "oracle/codemp/ui/ui_shared.c:8604")
+        multiPtr = item.typeData.map { MultiDef($0) }
+        multiPtr!.count = 0
+        multiPtr!.strDef = true
 
         if trap_PC_ReadToken(handle, token) == 0 {
             return false
@@ -6972,9 +7613,9 @@ func ItemParse_cvarStrList(_ item: ItemDef, _ handle: Int32) -> Bool {
             return true
         }
 
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: if (*token.string != '{') { return qfalse; }
-        portMissing("ItemParse_cvarStrList", source: "oracle/codemp/ui/ui_shared.c:8604")
+        if token.stringBuffer[0] != Int32(ascii: "{") {
+            return false
+        }
 
         pass = 0
         while 1 != 0 {
@@ -6997,21 +7638,19 @@ func ItemParse_cvarStrList(_ item: ItemDef, _ handle: Int32) -> Bool {
             portMissing("ItemParse_cvarStrList", source: "oracle/codemp/ui/ui_shared.c:8604")
 
             if pass == 0 {
-                // Port-note: A read of `multiPtr`, a local the draft left as a hole.
+                // Port-note: A read of `psString`, a local the draft left as a hole.
                 // Raven wrote: multiPtr->cvarList[multiPtr->count] = psString
                 portMissing("ItemParse_cvarStrList", source: "oracle/codemp/ui/ui_shared.c:8604")
                 pass = 1
             } else {
-                // Port-note: A read of `multiPtr`, a local the draft left as a hole.
+                // Port-note: A read of `psString`, a local the draft left as a hole.
                 // Raven wrote: multiPtr->cvarStr[multiPtr->count] = psString
                 portMissing("ItemParse_cvarStrList", source: "oracle/codemp/ui/ui_shared.c:8604")
                 pass = 0
-                // Port-note: A read of `multiPtr`, a local the draft left as a hole.
-                // Raven wrote: multiPtr->count++
-                portMissing("ItemParse_cvarStrList", source: "oracle/codemp/ui/ui_shared.c:8604")
-                // Port-note: A read of `multiPtr`, a local the draft left as a hole.
-                // Raven wrote: if (multiPtr->count >= MAX_MULTI_CVARS) { return qfalse; }
-                portMissing("ItemParse_cvarStrList", source: "oracle/codemp/ui/ui_shared.c:8604")
+                multiPtr!.count += 1
+                if multiPtr!.count >= MAX_MULTI_CVARS {
+                    return false
+                }
             }
         }
         return false // bk001205 - LCC missing return value
@@ -7023,32 +7662,24 @@ func ItemParse_cvarFloatList(_ item: ItemDef, _ handle: Int32) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return PcToken.scratch { token -> Bool in
-        // Port-note: A pointer local `multiDef_t * multiPtr` with no view.
-        // Raven wrote: multiDef_t *multiPtr;
-        portMissing("ItemParse_cvarFloatList", source: "oracle/codemp/ui/ui_shared.c:8696")
+        var multiPtr: MultiDef?
 
         Item_ValidateTypeData(item)
         if item.typeData == nil {
             return false
         }
 
-        // Port-note: A store into `multiPtr`, a local the draft left as a hole.
-        // Raven wrote: multiPtr = (multiDef_t*)item->typeData
-        portMissing("ItemParse_cvarFloatList", source: "oracle/codemp/ui/ui_shared.c:8696")
-        // Port-note: A read of `multiPtr`, a local the draft left as a hole.
-        // Raven wrote: multiPtr->count = 0
-        portMissing("ItemParse_cvarFloatList", source: "oracle/codemp/ui/ui_shared.c:8696")
-        // Port-note: A read of `multiPtr`, a local the draft left as a hole.
-        // Raven wrote: multiPtr->strDef = qfalse
-        portMissing("ItemParse_cvarFloatList", source: "oracle/codemp/ui/ui_shared.c:8696")
+        multiPtr = item.typeData.map { MultiDef($0) }
+        multiPtr!.count = 0
+        multiPtr!.strDef = false
 
         if trap_PC_ReadToken(handle, token) == 0 {
             return false
         }
 
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: if (*token.string != '{') { return qfalse; }
-        portMissing("ItemParse_cvarFloatList", source: "oracle/codemp/ui/ui_shared.c:8696")
+        if token.stringBuffer[0] != Int32(ascii: "{") {
+            return false
+        }
 
         while 1 != 0 {
             // Port-note: A pointer local `char * string` with no view.
@@ -7064,19 +7695,17 @@ func ItemParse_cvarFloatList(_ item: ItemDef, _ handle: Int32) -> Bool {
             // Raven wrote: if ((int)string > 0) { if (*string == '}') { return qtrue; } if (*string == ',' || *string == ';') { continue; } }
             portMissing("ItemParse_cvarFloatList", source: "oracle/codemp/ui/ui_shared.c:8696")
 
-            // Port-note: A read of `multiPtr`, a local the draft left as a hole.
+            // Port-note: A read of `string`, a local the draft left as a hole.
             // Raven wrote: multiPtr->cvarList[multiPtr->count] = string
             portMissing("ItemParse_cvarFloatList", source: "oracle/codemp/ui/ui_shared.c:8696")
-            // Port-note: A read of `multiPtr`, a local the draft left as a hole.
-            // Raven wrote: if (!PC_Float_Parse(handle, &multiPtr->cvarValue[multiPtr->count])) { return qfalse; }
-            portMissing("ItemParse_cvarFloatList", source: "oracle/codemp/ui/ui_shared.c:8696")
+            if !PC_Float_Parse(handle, &multiPtr!.cvarValue[multiPtr!.count]) {
+                return false
+            }
 
-            // Port-note: A read of `multiPtr`, a local the draft left as a hole.
-            // Raven wrote: multiPtr->count++
-            portMissing("ItemParse_cvarFloatList", source: "oracle/codemp/ui/ui_shared.c:8696")
-            // Port-note: A read of `multiPtr`, a local the draft left as a hole.
-            // Raven wrote: if (multiPtr->count >= MAX_MULTI_CVARS) { return qfalse; }
-            portMissing("ItemParse_cvarFloatList", source: "oracle/codemp/ui/ui_shared.c:8696")
+            multiPtr!.count += 1
+            if multiPtr!.count >= MAX_MULTI_CVARS {
+                return false
+            }
         }
         return false // bk001205 - LCC missing return value
     }
@@ -7107,33 +7736,37 @@ func ItemParse_ownerdrawFlag(_ item: ItemDef, _ handle: Int32) -> Bool {
 
 /// Source: oracle/codemp/ui/ui_shared.c:8787
 func ItemParse_enableCvar(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String?' to expected argument type 'TextCursor'".
-    // Raven wrote: if (PC_Script_Parse(handle, &item->enableCvar)) { item->cvarFlags = CVAR_ENABLE; return qtrue; }
-    portMissing("ItemParse_enableCvar", source: "oracle/codemp/ui/ui_shared.c:8787")
+    if PC_Script_Parse(handle, &item.enableCvar) {
+        item.cvarFlags = CVAR_ENABLE
+        return true
+    }
     return false
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8795
 func ItemParse_disableCvar(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String?' to expected argument type 'TextCursor'".
-    // Raven wrote: if (PC_Script_Parse(handle, &item->enableCvar)) { item->cvarFlags = CVAR_DISABLE; return qtrue; }
-    portMissing("ItemParse_disableCvar", source: "oracle/codemp/ui/ui_shared.c:8795")
+    if PC_Script_Parse(handle, &item.enableCvar) {
+        item.cvarFlags = CVAR_DISABLE
+        return true
+    }
     return false
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8803
 func ItemParse_showCvar(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String?' to expected argument type 'TextCursor'".
-    // Raven wrote: if (PC_Script_Parse(handle, &item->enableCvar)) { item->cvarFlags = CVAR_SHOW; return qtrue; }
-    portMissing("ItemParse_showCvar", source: "oracle/codemp/ui/ui_shared.c:8803")
+    if PC_Script_Parse(handle, &item.enableCvar) {
+        item.cvarFlags = CVAR_SHOW
+        return true
+    }
     return false
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8811
 func ItemParse_hideCvar(_ item: ItemDef, _ handle: Int32) -> Bool {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String?' to expected argument type 'TextCursor'".
-    // Raven wrote: if (PC_Script_Parse(handle, &item->enableCvar)) { item->cvarFlags = CVAR_HIDE; return qtrue; }
-    portMissing("ItemParse_hideCvar", source: "oracle/codemp/ui/ui_shared.c:8811")
+    if PC_Script_Parse(handle, &item.enableCvar) {
+        item.cvarFlags = CVAR_HIDE
+        return true
+    }
     return false
 }
 
@@ -7173,7 +7806,7 @@ Item_SetupKeywordHash
 func Item_SetupKeywordHash() {
     var i: Int32
 
-    // Port-note: Raven's `memset(itemParseKeywordHash, 0, sizeof(itemParseKeywordHash))` runs over bytes that are not one record with a view.
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'itemParseKeywordHash' in scope".
     // Raven wrote: memset(itemParseKeywordHash, 0, sizeof(itemParseKeywordHash))
     portMissing("Item_SetupKeywordHash", source: "oracle/codemp/ui/ui_shared.c:8995")
     // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'itemParseKeywords' in scope".
@@ -7201,20 +7834,18 @@ func Item_Parse(_ handle: Int32, _ item: ItemDef) -> Bool {
         if trap_PC_ReadToken(handle, token) == 0 {
             return false
         }
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: if (*token.string != '{') { return qfalse; }
-        portMissing("Item_Parse", source: "oracle/codemp/ui/ui_shared.c:9009")
+        if token.stringBuffer[0] != Int32(ascii: "{") {
+            return false
+        }
         while 1 != 0 {
             if trap_PC_ReadToken(handle, token) == 0 {
-                // Port-note: Raven passes `"end of file inside menu item\n"` to `PC_SourceError`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-                // Raven wrote: PC_SourceError(handle, "end of file inside menu item\n")
-                portMissing("Item_Parse", source: "oracle/codemp/ui/ui_shared.c:9009")
+                PC_SourceError(handle, "end of file inside menu item\n")
                 return false
             }
 
-            // Port-note: A pointer dereference the draft cannot place.
-            // Raven wrote: if (*token.string == '}') { return qtrue; }
-            portMissing("Item_Parse", source: "oracle/codemp/ui/ui_shared.c:9009")
+            if token.stringBuffer[0] == Int32(ascii: "}") {
+                return true
+            }
 
             // Port-note: A store into `key`, a local the draft left as a hole.
             // Raven wrote: key = KeywordHash_Find(itemParseKeywordHash, token.string)
@@ -7237,12 +7868,8 @@ private func Item_TextScroll_BuildLines(_ item: ItemDef) {
 
     // new asian-aware line breaker...  (pasted from elsewhere late @ night, hence aliasing-vars ;-)
     //
-    // Port-note: A pointer local `textScrollDef_t * scrollPtr` with no view.
-    // Raven wrote: textScrollDef_t* scrollPtr = (textScrollDef_t*) item->typeData;
-    portMissing("Item_TextScroll_BuildLines", source: "oracle/codemp/ui/ui_shared.c:9042")
-    // Port-note: A pointer local `const char * psText` with no view.
-    // Raven wrote: const char *psText = item->text;
-    portMissing("Item_TextScroll_BuildLines", source: "oracle/codemp/ui/ui_shared.c:9042")
+    let scrollPtr: TextScrollDef? = item.typeData.map { TextScrollDef($0) }
+    var psText: String = item.text!
     let iBoxWidth: Int32 = Int32(Double(item.window.rect.w) - SCROLLBAR_SIZE - 10)
 
     // this could probably be simplified now, but it was converted from something else I didn't originally write,
@@ -7263,9 +7890,10 @@ private func Item_TextScroll_BuildLines(_ item: ItemDef) {
     var bIsTrailingPunctuation: Bool = false
     var uiLetter: UInt32
 
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: if (*psText == '@') // string reference { trap_SP_GetStringTextString( &psText[1], text, sizeof(text)); psText = text; }
-    portMissing("Item_TextScroll_BuildLines", source: "oracle/codemp/ui/ui_shared.c:9042")
+    if CharBuf(psText)[0] == Int32(ascii: "@") {
+        strcpy(&text, trap_SP_GetStringTextString(String(psText.dropFirst(Int(1))), Int32((text).count)).1)
+        psText = String(text)
+    }
 
     // Port-note: A store into `psCurrentTextReadPos`, a local the draft left as a hole.
     // Raven wrote: psCurrentTextReadPos = psText
@@ -7277,12 +7905,8 @@ private func Item_TextScroll_BuildLines(_ item: ItemDef) {
     // Raven wrote: psBestLineBreakSrcPos = psCurrentTextReadPos
     portMissing("Item_TextScroll_BuildLines", source: "oracle/codemp/ui/ui_shared.c:9042")
 
-    // Port-note: A read of `scrollPtr`, a local the draft left as a hole.
-    // Raven wrote: scrollPtr->iLineCount = 0
-    portMissing("Item_TextScroll_BuildLines", source: "oracle/codemp/ui/ui_shared.c:9042")
-    // Port-note: Raven's `memset((char*)scrollPtr->pLines,0,sizeof(scrollPtr->pLines))` runs over bytes that are not one record with a view.
-    // Raven wrote: memset((char*)scrollPtr->pLines,0,sizeof(scrollPtr->pLines))
-    portMissing("Item_TextScroll_BuildLines", source: "oracle/codemp/ui/ui_shared.c:9042")
+    scrollPtr!.iLineCount = 0
+    scrollPtr!.pLines.fill(nil)
 
     // Port-note: A pointer dereference the draft cannot place.
     // Raven wrote: while (*psCurrentTextReadPos && (scrollPtr->iLineCount < MAX_TEXTSCROLL_LINES) ) { char sLineForDisplay[2048]; // ott // construct a line... // psCurrentTextReadPos = psReadPosAtLineStart; sLineForDisplay[0] = '\0'; while ( *psCurrentTextReadPos ) { int iAdvanceCount; psLastGood_s = psCurrentTextReadPos; // read letter... // uiLetter = trap_AnyLanguage_ReadCharFromString(psCurrentTextReadPos, &iAdvanceCount, &bIsTrailingPunctuation); psCurrentTextReadPos += iAdvanceCount; // concat onto string so far... // if (uiLetter == 32 && sLineForDisplay[0] == '\0') { psReadPosAtLineStart++; continue; // unless it's a space at the start of a line, in which case ignore it. } if (uiLetter > 255) { Q_strcat(sLineForDisplay, sizeof(sLineForDisplay),va("%c%c",uiLetter >> 8, uiLetter & 0xFF)); } else { Q_strcat(sLineForDisplay, sizeof(sLineForDisplay),va("%c",uiLetter & 0xFF)); } if (uiLetter == '\n') { // explicit new line... // sLineForDisplay[ strlen(sLineForDisplay)-1 ] = '\0'; // kill the CR psReadPosAtLineStart = psCurrentTextReadPos; psBestLineBreakSrcPos = psCurrentTextReadPos; // hack it to fit in with this code... // scrollPtr->pLines[ scrollPtr->iLineCount ] = String_Alloc ( sLineForDisplay ); break; // print this line } else if ( DC->textWidth( sLineForDisplay, item->textscale, item->iMenuFont ) >= iBoxWidth ) { // reached screen edge, so cap off string at bytepos after last good position... // if (uiLetter > 255 && bIsTrailingPunctuation && !trap_Language_UsesSpaces()) { // Special case, don't consider line breaking if you're on an asian punctuation char of // a language that doesn't use spaces... // uiLetter = uiLetter; // breakpoint line only } else { if (psBestLineBreakSrcPos == psReadPosAtLineStart) { // aarrrggh!!!!! we'll only get here is someone has fed in a (probably) garbage string, // since it doesn't have a single space or punctuation mark right the way across one line // of the screen. So far, this has only happened in testing when I hardwired a taiwanese // string into this function while the game was running in english (which should NEVER happen // normally). On the other hand I suppose it's entirely possible that some taiwanese string // might have no punctuation at all, so... // psBestLineBreakSrcPos = psLastGood_s; // force a break after last good letter } sLineForDisplay[ psBestLineBreakSrcPos - psReadPosAtLineStart ] = '\0'; psReadPosAtLineStart = psCurrentTextReadPos = psBestLineBreakSrcPos; // hack it to fit in with this code... // scrollPtr->pLines[ scrollPtr->iLineCount ] = String_Alloc( sLineForDisplay ); break; // print this line } } // record last-good linebreak pos... (ie if we've just concat'd a punctuation point (western or asian) or space) // if (bIsTrailingPunctuation || uiLetter == ' ' || (uiLetter > 255 && !trap_Language_UsesSpaces())) { psBestLineBreakSrcPos = psCurrentTextReadPos; } } /// arrgghh, this is gettng horrible now... // if (scrollPtr->pLines[ scrollPtr->iLineCount ] == NULL && strlen(sLineForDisplay)) { // then this is the last line and we've just run out of text, no CR, no overflow etc... // scrollPtr->pLines[ scrollPtr->iLineCount ] = String_Alloc( sLineForDisplay ); } scrollPtr->iLineCount++; }
@@ -7319,13 +7943,14 @@ func Item_InitControls(_ item: ItemDef) {
     switch item.type {
     case ITEM_TYPE_LISTBOX:
         do {
-            // Port-note: A pointer local `listBoxDef_t * listPtr` with no view.
-            // Raven wrote: listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
-            portMissing("Item_InitControls", source: "oracle/codemp/ui/ui_shared.c:9259")
+            let listPtr: ListBoxDef? = item.typeData.map { ListBoxDef($0) }
             item.cursorPos = 0
-            // Port-note: A read of `listPtr`, a local the draft left as a hole.
-            // Raven wrote: if (listPtr) { listPtr->cursorPos = 0; listPtr->startPos = 0; listPtr->endPos = 0; listPtr->cursorPos = 0; }
-            portMissing("Item_InitControls", source: "oracle/codemp/ui/ui_shared.c:9259")
+            if listPtr != nil {
+                listPtr!.cursorPos = 0
+                listPtr!.startPos = 0
+                listPtr!.endPos = 0
+                listPtr!.cursorPos = 0
+            }
 
             break
         }
@@ -7338,9 +7963,9 @@ func Item_InitControls(_ item: ItemDef) {
 /// Source: oracle/codemp/ui/ui_shared.c:9291
 func MenuParse_font(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-    // Raven wrote: if (!PC_String_Parse(handle, &menu->font)) { return qfalse; }
-    portMissing("MenuParse_font", source: "oracle/codemp/ui/ui_shared.c:9291")
+    if !PC_String_Parse(handle, &menu!.font) {
+        return false
+    }
     if !DC!.Assets.fontRegistered {
         //DC->registerFont(menu->font, 48, &DC->Assets.textFont);
         DC!.Assets.qhMediumFont = DC!.runRegisterFont(menu!.font!)
@@ -7352,9 +7977,9 @@ func MenuParse_font(_ item: ItemDef, _ handle: Int32) -> Bool {
 /// Source: oracle/codemp/ui/ui_shared.c:9304
 func MenuParse_name(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-    // Raven wrote: if (!PC_String_Parse(handle, &menu->window.name)) { return qfalse; }
-    portMissing("MenuParse_name", source: "oracle/codemp/ui/ui_shared.c:9304")
+    if !PC_String_Parse(handle, &menu!.window.name) {
+        return false
+    }
     if Q_stricmp(menu!.window.name!, "main") == 0 {
         // default main as having focus
         //menu->window.flags |= WINDOW_HASFOCUS;
@@ -7416,18 +8041,18 @@ func MenuParse_visible(_ item: ItemDef, _ handle: Int32) -> Bool {
 /// Source: oracle/codemp/ui/ui_shared.c:9363
 func MenuParse_onOpen(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String?' to expected argument type 'TextCursor'".
-    // Raven wrote: if (!PC_Script_Parse(handle, &menu->onOpen)) { return qfalse; }
-    portMissing("MenuParse_onOpen", source: "oracle/codemp/ui/ui_shared.c:9363")
+    if !PC_Script_Parse(handle, &menu!.onOpen) {
+        return false
+    }
     return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9371
 func MenuParse_onClose(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String?' to expected argument type 'TextCursor'".
-    // Raven wrote: if (!PC_Script_Parse(handle, &menu->onClose)) { return qfalse; }
-    portMissing("MenuParse_onClose", source: "oracle/codemp/ui/ui_shared.c:9371")
+    if !PC_Script_Parse(handle, &menu!.onClose) {
+        return false
+    }
     return true
 }
 
@@ -7443,18 +8068,18 @@ MenuParse_onAccept
 func MenuParse_onAccept(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String?' to expected argument type 'TextCursor'".
-    // Raven wrote: if (!PC_Script_Parse(handle, &menu->onAccept)) { return qfalse; }
-    portMissing("MenuParse_onAccept", source: "oracle/codemp/ui/ui_shared.c:9385")
+    if !PC_Script_Parse(handle, &menu!.onAccept) {
+        return false
+    }
     return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9396
 func MenuParse_onESC(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'String?' to expected argument type 'TextCursor'".
-    // Raven wrote: if (!PC_Script_Parse(handle, &menu->onESC)) { return qfalse; }
-    portMissing("MenuParse_onESC", source: "oracle/codemp/ui/ui_shared.c:9396")
+    if !PC_Script_Parse(handle, &menu!.onESC) {
+        return false
+    }
     return true
 }
 
@@ -7688,9 +8313,9 @@ func MenuParse_background(_ item: ItemDef, _ handle: Int32) -> Bool {
 func MenuParse_cinematic(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-    // Raven wrote: if (!PC_String_Parse(handle, &menu->window.cinematicName)) { return qfalse; }
-    portMissing("MenuParse_cinematic", source: "oracle/codemp/ui/ui_shared.c:9605")
+    if !PC_String_Parse(handle, &menu!.window.cinematicName) {
+        return false
+    }
     return true
 }
 
@@ -7736,9 +8361,9 @@ func MenuParse_outOfBounds(_ item: ItemDef, _ handle: Int32) -> Bool {
 func MenuParse_soundLoop(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-    // Raven wrote: if (!PC_String_Parse(handle, &menu->soundName)) { return qfalse; }
-    portMissing("MenuParse_soundLoop", source: "oracle/codemp/ui/ui_shared.c:9650")
+    if !PC_String_Parse(handle, &menu!.soundName) {
+        return false
+    }
     return true
 }
 
@@ -7776,17 +8401,14 @@ func MenuParse_fadeCycle(_ item: ItemDef, _ handle: Int32) -> Bool {
 func MenuParse_itemDef(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
     if menu!.itemCount < MAX_MENUITEMS {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "argument passed to call that takes no arguments".
-        // Raven wrote: menu->items[menu->itemCount] = (itemDef_t *) UI_Alloc(sizeof(itemDef_t))
-        portMissing("MenuParse_itemDef", source: "oracle/codemp/ui/ui_shared.c:9688")
+        menu!.items[menu!.itemCount] = ItemDef(UI_Alloc(Int32(ItemDef.byteCount)))
         Item_Init(menu!.items[menu!.itemCount]!)
         if !Item_Parse(handle, menu!.items[menu!.itemCount]!) {
             return false
         }
         Item_InitControls(menu!.items[menu!.itemCount]!)
-        // Port-note: A ++ inside an expression.
-        // Raven wrote: menu->items[menu->itemCount++]->parent = menu
-        portMissing("MenuParse_itemDef", source: "oracle/codemp/ui/ui_shared.c:9688")
+        menu!.items[menu!.itemCount]!.parent = menu
+        menu!.itemCount += 1
     }
     return true
 }
@@ -7819,7 +8441,7 @@ Menu_SetupKeywordHash
 func Menu_SetupKeywordHash() {
     var i: Int32
 
-    // Port-note: Raven's `memset(menuParseKeywordHash, 0, sizeof(menuParseKeywordHash))` runs over bytes that are not one record with a view.
+    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'menuParseKeywordHash' in scope".
     // Raven wrote: memset(menuParseKeywordHash, 0, sizeof(menuParseKeywordHash))
     portMissing("Menu_SetupKeywordHash", source: "oracle/codemp/ui/ui_shared.c:9765")
     // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'menuParseKeywords' in scope".
@@ -7846,21 +8468,19 @@ func Menu_Parse(_ handle: Int32, _ menu: MenuDef) -> Bool {
         if trap_PC_ReadToken(handle, token) == 0 {
             return false
         }
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: if (*token.string != '{') { return qfalse; }
-        portMissing("Menu_Parse", source: "oracle/codemp/ui/ui_shared.c:9779")
+        if token.stringBuffer[0] != Int32(ascii: "{") {
+            return false
+        }
 
         while 1 != 0 {
             if trap_PC_ReadToken(handle, token) == 0 {
-                // Port-note: Raven passes `"end of file inside menu\n"` to `PC_SourceError`, whose `char *` parameter the stub holds as an inout CharBuf. Docket row 5 is due.
-                // Raven wrote: PC_SourceError(handle, "end of file inside menu\n")
-                portMissing("Menu_Parse", source: "oracle/codemp/ui/ui_shared.c:9779")
+                PC_SourceError(handle, "end of file inside menu\n")
                 return false
             }
 
-            // Port-note: A pointer dereference the draft cannot place.
-            // Raven wrote: if (*token.string == '}') { return qtrue; }
-            portMissing("Menu_Parse", source: "oracle/codemp/ui/ui_shared.c:9779")
+            if token.stringBuffer[0] == Int32(ascii: "}") {
+                return true
+            }
 
             // Port-note: A store into `key`, a local the draft left as a hole.
             // Raven wrote: key = KeywordHash_Find(menuParseKeywordHash, token.string)
@@ -7904,9 +8524,9 @@ func Menu_Count() -> Int32 {
 /// Source: oracle/codemp/ui/ui_shared.c:9833
 func Menu_PaintAll() {
     var i: Int32
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'captureFunc' in scope".
-    // Raven wrote: if (captureFunc) { captureFunc(captureData); }
-    portMissing("Menu_PaintAll", source: "oracle/codemp/ui/ui_shared.c:9833")
+    if captureFunc != nil {
+        captureFunc!(captureData)
+    }
 
     i = 0
     while i < Menu_Count() {
@@ -7933,8 +8553,18 @@ func Display_GetContext() -> DisplayContextDef? {
 
 /// Source: oracle/codemp/ui/ui_shared.c:9858
 func Display_CaptureItem(_ x: Int32, _ y: Int32) -> MenuDef? {
-    // TODO: Port Display_CaptureItem
-    portMissing("Display_CaptureItem", source: "oracle/codemp/ui/ui_shared.c:9858")
+    var i: Int32
+
+    i = 0
+    while i < menuCount {
+        // turn off focus each item
+        // menu->items[i].window.flags &= ~WINDOW_HASFOCUS;
+        if Rect_ContainsPoint(Menus[i].window.rect, Float(x), Float(y)) {
+            return Menus[i]
+        }
+        i += 1
+    }
+    return nil
 }
 
 // FIXME:
@@ -7943,13 +8573,26 @@ func Display_MouseMove(_ p: MenuDef?, _ x: Int32, _ y: Int32) -> Bool {
     //JLFMOUSE  AGAIN I THINK THIS SHOULD BE MOOT
     //END JLF
     var i: Int32
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "no exact matches in call to initializer".
-    // Raven wrote: menuDef_t *menu = (menuDef_t *) p;
-    portMissing("Display_MouseMove", source: "oracle/codemp/ui/ui_shared.c:9873")
+    var menu: MenuDef? = p
 
-    // Port-note: A read of `menu`, a local the draft left as a hole.
-    // Raven wrote: if (menu == NULL) { menu = Menu_GetFocused(); if (menu) { if (menu->window.flags & WINDOW_POPUP) { Menu_HandleMouseMove(menu, x, y); return qtrue; } } for (i = 0; i < menuCount; i++) { Menu_HandleMouseMove(&Menus[i], x, y); } } else { menu->window.rect.x += x; menu->window.rect.y += y; Menu_UpdatePosition(menu); }
-    portMissing("Display_MouseMove", source: "oracle/codemp/ui/ui_shared.c:9873")
+    if menu == nil {
+        menu = Menu_GetFocused()
+        if menu != nil {
+            if (menu!.window.flags & WINDOW_POPUP) != 0 {
+                Menu_HandleMouseMove(menu!, Float(x), Float(y))
+                return true
+            }
+        }
+        i = 0
+        while i < menuCount {
+            Menu_HandleMouseMove(Menus[i], Float(x), Float(y))
+            i += 1
+        }
+    } else {
+        menu!.window.rect.x += x
+        menu!.window.rect.y += y
+        Menu_UpdatePosition(menu!)
+    }
     return true
 }
 
@@ -7980,15 +8623,13 @@ func Display_CursorType(_ x: Int32, _ y: Int32) -> Int32 {
 
 /// Source: oracle/codemp/ui/ui_shared.c:9918
 func Display_HandleKey(_ key: Int32, _ down: Bool, _ x: Int32, _ y: Int32) {
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "argument passed to call that takes no arguments".
-    // Raven wrote: menuDef_t *menu = (menuDef_t *) Display_CaptureItem(x, y);
-    portMissing("Display_HandleKey", source: "oracle/codemp/ui/ui_shared.c:9918")
-    // Port-note: A read of `menu`, a local the draft left as a hole.
-    // Raven wrote: if (menu == NULL) { menu = Menu_GetFocused(); }
-    portMissing("Display_HandleKey", source: "oracle/codemp/ui/ui_shared.c:9918")
-    // Port-note: A read of `menu`, a local the draft left as a hole.
-    // Raven wrote: if (menu) { Menu_HandleKey(menu, key, down ); }
-    portMissing("Display_HandleKey", source: "oracle/codemp/ui/ui_shared.c:9918")
+    var menu: MenuDef? = Display_CaptureItem(x, y)
+    if menu == nil {
+        menu = Menu_GetFocused()
+    }
+    if menu != nil {
+        Menu_HandleKey(menu!, key, down)
+    }
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9928
@@ -8014,9 +8655,9 @@ private func Menu_CacheContents(_ menu: MenuDef) {
         i += 1
     }
 
-    // Port-note: A pointer dereference the draft cannot place.
-    // Raven wrote: if (menu->soundName && *menu->soundName) { DC->registerSound(menu->soundName); }
-    portMissing("Menu_CacheContents", source: "oracle/codemp/ui/ui_shared.c:9945")
+    if menu.soundName != nil && !menu.soundName!.isEmpty {
+        DC!.runRegisterSound(menu.soundName!)
+    }
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9960
