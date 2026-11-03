@@ -228,7 +228,7 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.statement_seqs = {(row["kind"], row["start_offset"], row["end_offset"]): row["seq"]
                                for row in self.sk.table.store.syntax("statements", fn.stem, fn.cur.spelling)}
         self.source = self.sk.source(fn.stem)
-        self.bytes = C.parsed_bytes(C.ORACLE / C.folder_of(fn.stem) / f"{fn.stem}.c")
+        self.bytes = C.parsed_bytes(C.ORACLE / C.folder_of(fn.stem) / C.file_name(fn.stem))
         self.names = {c.spelling: p.name for c, p in zip(fn.cur.get_arguments(), fn.params)}
         self.params_by_name = {c.spelling: p for c, p in zip(fn.cur.get_arguments(), fn.params)}
         self.scratch_names: dict[str, int] = {}

@@ -663,7 +663,7 @@ class Table:
             if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
                 continue
             path = Path(cur.location.file.name).resolve()
-            if not C.within(path, *folders) or path.suffix != ".c":
+            if not C.within(path, *folders) or path.name != C.file_name(path.stem):
                 continue
             data = C.parsed_bytes(path)
             for node in cur.walk_preorder():
@@ -689,7 +689,7 @@ class Table:
             if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
                 continue
             path = Path(cur.location.file.name).resolve()
-            if not C.within(path, *folders) or path.suffix != ".c":
+            if not C.within(path, *folders) or path.name != C.file_name(path.stem):
                 continue
             data = C.parsed_bytes(path)
             null_locals: set[str] = set()
@@ -746,7 +746,7 @@ class Table:
             if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
                 continue
             path = Path(cur.location.file.name).resolve()
-            if not C.within(path, folder) or path.suffix != ".c":
+            if not C.within(path, folder) or path.name != C.file_name(path.stem):
                 continue
             defined.add(cur.spelling)
             for p in cur.get_arguments():
@@ -810,7 +810,7 @@ class Table:
             if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
                 continue
             path = Path(cur.location.file.name).resolve()
-            if not C.within(path, folder) or path.suffix != ".c":
+            if not C.within(path, folder) or path.name != C.file_name(path.stem):
                 continue
             names = {p.spelling for p in cur.get_arguments() if self.takes_null(p.type)}
             if not names:
@@ -1145,7 +1145,7 @@ class Table:
             if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
                 continue
             path = Path(cur.location.file.name).resolve()
-            if not C.within(path, folder) or path.suffix != ".c":
+            if not C.within(path, folder) or path.name != C.file_name(path.stem):
                 continue
             owner = cur.spelling
             params = list(cur.get_arguments())
@@ -1199,7 +1199,7 @@ class Table:
             if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
                 continue
             path = Path(cur.location.file.name).resolve()
-            if not C.within(path, folder) or path.suffix != ".c":
+            if not C.within(path, folder) or path.name != C.file_name(path.stem):
                 continue
             self.functions[(path.stem, cur.spelling)] = cur
             data = C.parsed_bytes(path)
@@ -1705,7 +1705,7 @@ class Table:
             if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
                 continue
             path = Path(cur.location.file.name).resolve()
-            if not C.within(path, *folders) or path.suffix != ".c":
+            if not C.within(path, *folders) or path.name != C.file_name(path.stem):
                 continue
             for node in cur.walk_preorder():
                 if node.kind != CursorKind.ARRAY_SUBSCRIPT_EXPR:
@@ -1736,7 +1736,7 @@ class Table:
             if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
                 continue
             path = Path(cur.location.file.name).resolve()
-            if not C.within(path, *folders) or path.suffix != ".c":
+            if not C.within(path, *folders) or path.name != C.file_name(path.stem):
                 continue
             for node in cur.walk_preorder():
                 if node.kind != CursorKind.CALL_EXPR or node.referenced is None or node.referenced.kind != CursorKind.FUNCTION_DECL:
@@ -1806,7 +1806,7 @@ class Table:
             if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
                 continue
             path = Path(cur.location.file.name).resolve()
-            if not C.within(path, *folders) or path.suffix != ".c":
+            if not C.within(path, *folders) or path.name != C.file_name(path.stem):
                 continue
             for node in cur.walk_preorder():
                 if node.kind != CursorKind.CALL_EXPR:
@@ -1847,7 +1847,7 @@ class Table:
             if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
                 continue
             path = Path(cur.location.file.name).resolve()
-            if not C.within(path, folder) or path.suffix != ".c":
+            if not C.within(path, folder) or path.name != C.file_name(path.stem):
                 continue
             result = cur.result_type.get_canonical()
             if result.kind != TypeKind.POINTER or result.get_pointee().get_canonical().kind != TypeKind.CHAR_S:
@@ -2000,7 +2000,7 @@ class Table:
             if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
                 continue
             path = Path(cur.location.file.name).resolve()
-            if C.within(path, self.parse.game_folder) and path.suffix == ".c":
+            if C.within(path, self.parse.game_folder) and path.name == C.file_name(path.stem):
                 bodies[(path.stem, cur.spelling)] = cur
         if list(bodies) != facts["functions"]:
             return False
