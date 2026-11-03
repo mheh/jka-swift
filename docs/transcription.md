@@ -327,6 +327,7 @@ A body writes `View(x)` where and only where Raven wrote an explicit cast to tha
 A cast to a view the body already holds, such as a bg body that passes its `BgEntity` to a bg channel function, is dropped without a note.
 A cast of a pointer that can be NULL maps over the optional, `pVeh.m_pPilot.map { Entity($0) }`, so NULL stays nil.
 A `void *` field that holds one of several records, which Raven casts back by another field, has a `FIELDS` row of kind `raw` in `rulings.py`, and the view spells it `UnsafeMutableRawPointer?`. So `(listBoxDef_t*)item->typeData` reads `item.typeData.map { ListBoxDef($0) }`, and `memset(item->typeData, 0, sizeof(listBoxDef_t))` reads `ListBoxDef(item.typeData!).clear()`.
+A `void *` field that every store fills with one record or NULL has a `FIELDS` row of kind `("view", record)`, and the view spells it as that record's optional view, so `(menuDef_t*)item->parent` reads `item.parent`.
 The `handle:` form stays inside generated code under rule 11, and a signature keeps the plain view type Raven's parameter had, never a generic or protocol parameter that absorbs the cast.
 A struct pointer field a body indexes, such as `animations` of `pmove_t` where Raven writes `pm->animations[anim]`, carries a second accessor, `<name>Slots: Slots<View>`, the way a `float *` field carries its `<name>Vector` accessor.
 The same subscript sweep of `table.py` names the fields that get it, and `views.py` reads that set.

@@ -140,9 +140,9 @@ public struct ItemDef: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:272
-    public var parent: OpaquePointer? {
-        get { OpaquePointer(self.raw.pointee.parent) }
-        nonmutating set { self.raw.pointee.parent = UnsafeMutableRawPointer(newValue) }
+    public var parent: MenuDef? {
+        get { self.raw.pointee.parent.map { MenuDef(handle: OpaquePointer($0)) } }
+        nonmutating set { self.raw.pointee.parent = UnsafeMutableRawPointer(newValue?.handle) }
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:273

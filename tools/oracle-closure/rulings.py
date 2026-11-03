@@ -233,6 +233,8 @@ BYTE_STORAGE_FIELDS = {("cg_t", "sharedBuffer")}
 # Item_ValidateTypeData allocates one of five records into `typeData` by `item->type`, ui_shared.c:7279, and the bodies cast it back.
 FIELDS = {
     ("itemDef_t", "typeData"): "raw",
+    # Every store is a menu, `item->parent = menu` at ui_shared.c:1530, :4428, :4613, :4669, and :9697, and every read casts it to `menuDef_t *`.
+    ("itemDef_t", "parent"): ("view", "menuDef_t"),
 }
 
 @dataclass(frozen=True)

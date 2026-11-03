@@ -973,6 +973,9 @@ class Expressions:
                 if ruled == ("view", record):
                     # The PARAMS row already gives the `void *` parameter the view of this record, so the cast is the parameter.
                     return self.expr(operand)
+                if self.field_kind(operand) == ("view", record):
+                    # The FIELDS row already gives the `void *` field the view of this record, so the cast is the field.
+                    return self.expr(operand)
                 if self.types.record_name(self.strip(operand).type.get_canonical().get_pointee()) == record:
                     # A cast to the type the operand already has is Raven's habit, and the view is the same view.
                     return self.expr(operand)
