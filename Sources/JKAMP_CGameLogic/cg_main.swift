@@ -474,9 +474,8 @@ var cg_strPool: [JKAShared.byte] {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3393
-// TODO: Port global cg_spawnFields
 // Raven wrote: BG_field_t cg_spawnFields[]
-// No view for `BG_field_t`, a struct Raven defines inside a .c file.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/cgame/cg_main.c:3411
 var cg_numSpawnVars: Int32 {
@@ -2765,7 +2764,7 @@ private func CG_FeederCount(_ feederID: Float) -> Int32 {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:2856
-func CG_SetScoreSelection(_ p: OpaquePointer?) {
+func CG_SetScoreSelection(_ p: MenuDef?) {
     // Port-note: The draft of this statement did not compile, and the compiler wrote "no exact matches in call to initializer".
     // Raven wrote: menuDef_t *menu = (menuDef_t*)p;
     portMissing("CG_SetScoreSelection", source: "oracle/codemp/cgame/cg_main.c:2856")
