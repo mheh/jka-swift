@@ -5,11 +5,14 @@ The snapshot holds the text of `skeleton.py --only` and `manifest.py --only` for
 and the text of `bodies.py --stem` for each stem of the bg target, the game target, and the shared target.
 One run parses once and drafts every stem in the same process, so a snapshot costs one cold sweep at most and no generator writes into Sources/.
 `--check` writes a new snapshot to a temporary folder and compares it with the given folder by `diff -r`.
+`--unit` takes the snapshot of another unit. The bg channel is the run of the `[sweep]` unit, so the snapshot of another unit holds no channel text.
+A host has no trap file, so its snapshot holds no trap text.
 The snapshot folder belongs to the caller and stays outside version control.
 
 Usage:
   .venv/bin/python snapshot.py --out ~/.cache/jka-swift/snapshot-stage-two-shared
   .venv/bin/python snapshot.py --check ~/.cache/jka-swift/snapshot-stage-two-shared
+  .venv/bin/python snapshot.py --unit mp-cgame --out ~/.cache/jka-swift/snapshot-cgame
 """
 
 from __future__ import annotations
@@ -39,11 +42,13 @@ def write(out: Path) -> int:
     for stem in sorted(set(sk.files) | set(sk.variables)):
         files[f"skeleton/{stem}.swift"] = "\n".join(sk.file(stem)) + "\n"
         files[f"manifest/{stem}.md"] = "\n".join(manifest.file(stem)) + "\n"
-    files["traps/g_syscalls.swift"] = "\n".join(Traps(parse).emit()).rstrip() + "\n"
-    channel = Channel(parse)
-    files["channel/bg_strap.swift"] = "\n".join(channel.strap_file()).rstrip() + "\n"
-    files["channel/bg_callbacks.swift"] = "\n".join(channel.callback_file()).rstrip() + "\n"
-    files["channel/BgChannel.swift"] = "\n".join(channel.install_file()).rstrip() + "\n"
+    if "traps" in C.TARGETS:
+        files[f"traps/{Path(C.TARGETS['traps']).stem}.swift"] = "\n".join(Traps(parse).emit()).rstrip() + "\n"
+    if C.UNIT == C.PROJECT["sweep"]["unit"]:
+        channel = Channel(parse)
+        files["channel/bg_strap.swift"] = "\n".join(channel.strap_file()).rstrip() + "\n"
+        files["channel/bg_callbacks.swift"] = "\n".join(channel.callback_file()).rstrip() + "\n"
+        files["channel/BgChannel.swift"] = "\n".join(channel.install_file()).rstrip() + "\n"
     gen = Generator(parse, None)
     gen.indexed_fields = indexed_fields(gen)
     for view, stems in texts(gen.emit()).items():
@@ -67,6 +72,7 @@ def compare(expected: Path, actual: Path) -> int:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
+    C.unit_argument(ap)
     group = ap.add_mutually_exclusive_group(required=True)
     group.add_argument("--out", type=Path, help="the folder the snapshot goes to")
     group.add_argument("--check", type=Path, help="the folder of an earlier snapshot to compare a new one with")
