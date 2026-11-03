@@ -213,6 +213,9 @@ HAND_VARS = {"bg_pool": None, "memoryPool": None}
 # `gSharedBuffer` of g_main.c goes to the engine through `trap_SV_RegisterSharedMemory`, and vmMain reads the ICARUS views at its base.
 # See "The post-spine walk", row P1, and the zeroed storage rule of docs/transcription.md.
 BYTE_STORAGE_VARS = {"gSharedBuffer"}
+# The field twin of BYTE_STORAGE_VARS: a character array field whose address the engine holds, which the view reads as the field's address.
+# `cg.sharedBuffer` of cg_local.h goes to the engine through `trap_CG_RegisterSharedMemory`, and the engine callbacks of cg_main.c read records at its base.
+BYTE_STORAGE_FIELDS = {("cg_t", "sharedBuffer")}
 
 @dataclass(frozen=True)
 class HandMacro:
@@ -373,6 +376,8 @@ PARAMS = {
     ("SortRanks", "a"): "int_value",
     ("SortRanks", "b"): "int_value",
     # Raven declares `void *ghlInfo`, w_saber.c:6593 and g_turret_G2.c:135 pass `&ent->ghoul2`, and the engine casts the word to `CGhoul2Info_v **` at sv_gameapi.cpp:1590.
+    # Raven hands the engine the address of `cg.sharedBuffer`, cg_main.c:3713, the BYTE_STORAGE_FIELDS row, as the game hands `gSharedBuffer`.
+    ("trap_CG_RegisterSharedMemory", "memory"): "raw",
     ("trap_G2API_RemoveGhoul2Models", "ghlInfo"): "out_opaque",
     ("trap_G2API_RemoveGhoul2Model", "ghlInfo"): "out_opaque",
 }

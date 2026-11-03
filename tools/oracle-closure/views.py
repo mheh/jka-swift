@@ -45,7 +45,7 @@ from clang.cindex import CursorKind, TypeKind
 
 import closure as C
 from reexport import DEPS, SCALARS, SOURCES, VIEW_OF, source_lines
-from rulings import NEVER_NULL, ROOTS, SLOT_BOUNDS
+from rulings import BYTE_STORAGE_FIELDS, NEVER_NULL, ROOTS, SLOT_BOUNDS
 from spelling import Types
 
 # Every C target the translation unit of the run's unit reaches, most specific first.
@@ -348,6 +348,9 @@ class Generator:
         if canonical.kind == TypeKind.CONSTANTARRAY:
             count = canonical.element_count
             address = f"UnsafeMutableRawPointer(self.raw.pointer(to: \\.{name})!)"
+            if canonical.element_type.get_canonical().kind == TypeKind.CHAR_S and (self.owner_of(field), name) in BYTE_STORAGE_FIELDS:
+                # The engine holds the address of this field, so the view reads the address, and a body views records at its base.
+                return [f"    public var {name}: UnsafeMutableRawPointer {{ {address} }}"]
             if canonical.element_type.get_canonical().kind == TypeKind.CHAR_S:
                 capacity = self.bound(field, target, 0, count)
                 lines: list[str] = []

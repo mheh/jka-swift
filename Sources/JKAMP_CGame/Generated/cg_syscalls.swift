@@ -1731,10 +1731,8 @@ public func trap_G2API_GetSurfaceName(_ ghoul2: OpaquePointer?, _ surfNumber: In
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:1085
-public func trap_CG_RegisterSharedMemory(_ memory: String) {
-    _ = withCString(memory) { memory in
-        Syscall.call(CG_SET_SHARED_BUFFER, memory)
-    }
+public func trap_CG_RegisterSharedMemory(_ memory: UnsafeMutableRawPointer) {
+    Syscall.call(CG_SET_SHARED_BUFFER, memory)
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:1090

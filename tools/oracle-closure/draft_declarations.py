@@ -10,7 +10,7 @@ import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
 from overlay import MACROS, written_arguments
-from rulings import BYTE_STORAGE_VARS
+from rulings import BYTE_STORAGE_FIELDS, BYTE_STORAGE_VARS
 
 import closure as C
 from skeleton import BG, target_of
@@ -478,7 +478,7 @@ class Declarations:
                 view = self.views.qualified_view(record, TARGET)
                 if init and self.byte_storage_cast(init[0]):
                     # Raven's `T *sharedMem = (T *)gSharedBuffer` reads a view at the base of a byte allocation the storage class owns.
-                    return f"{keyword} {name} = {view}(handle: OpaquePointer({self.uncast(init[0]).spelling}))"
+                    return f"{keyword} {name} = {view}(handle: OpaquePointer({self.expr(self.uncast(init[0]))}))"
                 if var.spelling in self.slots_locals:
                     # Every store into the local holds a table of records, so the local is the Slots over it.
                     if init and not self.is_null(init[0]):
@@ -642,6 +642,9 @@ class Declarations:
         if self.unwrap(cur).kind != CursorKind.CSTYLE_CAST_EXPR:
             return False
         source = self.uncast(cur)
+        if source.kind == CursorKind.MEMBER_REF_EXPR and source.referenced is not None and source.referenced.semantic_parent is not None:
+            # The field twin, `(T *)cg.sharedBuffer`, reads the view at the base of the field the engine holds.
+            return (self.types.record_name(source.referenced.semantic_parent.type), source.spelling) in BYTE_STORAGE_FIELDS
         return source.kind == CursorKind.DECL_REF_EXPR and source.spelling in BYTE_STORAGE_VARS
 
     def byte_storage_view(self, var: ci.Cursor) -> bool:
