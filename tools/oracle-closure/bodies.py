@@ -30,6 +30,7 @@ import clang.cindex as ci
 from clang.cindex import CursorKind
 
 from reexport import SOURCES
+from rulings import DEAD
 import closure as C
 import store as S
 from skeleton import Function, Skeleton
@@ -212,8 +213,9 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.drafted = {}
         self.forms = {}
         self.statement_seqs = {}
-        if not fn.mapped or not header[-1].startswith("}"):
+        if not fn.mapped or not header[-1].startswith("}") or fn.raven_name in DEAD:
             # The stub stands as the skeleton wrote it, and only its closing brace is no header line.
+            # A dead function of rule 20 keeps its stub, so the draft prints the stub and counts no hole.
             self.line_keys = [None] * len(header)
             self.line_roles = ["header"] * (len(header) - 1) + ["frame"]
             self.line_trailing = [None] * len(header)

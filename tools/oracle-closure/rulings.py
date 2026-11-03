@@ -377,6 +377,11 @@ PARAMS = {
     ("trap_G2API_RemoveGhoul2Model", "ghlInfo"): "out_opaque",
 }
 
+# Rule 20: a function with no caller in either tree stays as its stub, and the stub carries one note line that it is dead.
+DEAD = {
+    "CG_ParticleExplosion": "Raven calls this function from no file of either tree",
+}
+
 # Functions of the oracle the port leaves out. The stub carries the cite, Raven's line, and the reason, and no function.
 NOT_PORTED = {
     "memmove": "the C library's, which no body of the module calls, and a Swift body moves bytes through CharBuf and a view's setter",
