@@ -462,7 +462,8 @@ func CG_ClearParticles() {
 
     i = 0
     while i < cl_numparticles {
-        particles[i].next = particles[i + 1]
+        // AI: Raven takes the address one past the end at the last step and overwrites it on the next line. The port sets nil there.
+        particles[i].next = i + 1 < cl_numparticles ? particles[i + 1] : nil
         particles[i].type = 0
         i += 1
     }
