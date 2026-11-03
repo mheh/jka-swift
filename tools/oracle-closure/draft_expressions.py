@@ -291,6 +291,13 @@ class Expressions:
         spelled = (param.swift or "").split(".")[-1] if param is not None else cur.type.spelling.split()[-1]
         return spelled in VECTORS - {"vec3_t"}
 
+    def text_table_element(self, cur: ci.Cursor) -> bool:
+        """True for one row of a file-scope table of `char *` that Swift holds as `[String]`, `forceHolocronModels[i]`."""
+        base = self.strip(list(cur.get_children())[0])
+        if base.kind != CursorKind.DECL_REF_EXPR or base.referenced is None or base.referenced.kind != CursorKind.VAR_DECL:
+            return False
+        return self.registry.var_types.get(base.spelling) == "[String]"
+
     def is_charbuf(self, cur: ci.Cursor) -> bool:
         """True for a local or parameter Swift holds as a CharBuf: Raven's `char name[N]` or a `char *` he rewrites in place."""
         inner = self.unwrap(cur)
@@ -485,6 +492,16 @@ class Expressions:
             if inner_base.kind == CursorKind.DECL_REF_EXPR and inner_base.spelling in self.text_locals \
                     and inner_base.spelling not in self.optional_texts:
                 # Raven's `token[1]` on a String local is the byte at that index, which the CharBuf of the text reads.
+                return self.leaf(cur, f"JKAShared.CharBuf({self.expr(inner_base)})[{self.converted(index, 'Int32')}]")
+            text_param = self.params_by_name.get(inner_base.spelling) if inner_base.kind == CursorKind.DECL_REF_EXPR else None
+            if text_param is not None and text_param.swift == "String":
+                # Raven's `str[i]` on a String parameter is the byte at that index, which the CharBuf of the text reads.
+                return self.leaf(cur, f"JKAShared.CharBuf({self.expr(inner_base)})[{self.converted(index, 'Int32')}]")
+            if self.string_field(inner_base):
+                # Raven's `token.string[0]` on a view's `char name[N]` field reads the byte through the field's Buffer accessor.
+                return self.leaf(cur, f"{self.buffer_expr(inner_base)}[{self.converted(index, 'Int32')}]")
+            if inner_base.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR and self.text_table_element(inner_base):
+                # Raven's `forceHolocronModels[i][0]` reads a byte of one text of a `[String]` table, through the CharBuf of the text.
                 return self.leaf(cur, f"JKAShared.CharBuf({self.expr(inner_base)})[{self.converted(index, 'Int32')}]")
             pointer = self.params_by_name.get(inner_base.spelling) if inner_base.kind == CursorKind.DECL_REF_EXPR else None
             if pointer is not None and pointer.kind == "int_array":
