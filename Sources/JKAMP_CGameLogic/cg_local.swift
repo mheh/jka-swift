@@ -732,6 +732,16 @@ public final class CGameWorld {
     /// Source: oracle/codemp/cgame/cg_view.c:2279
     var cg_autoMapAngle: JKAShared.vec3_t = JKAShared.vec3_t(90.0, 0.0, 0.0)
 
+    /// Raven's `static int zoomSoundTime = 0` of `CG_CalcFov` in `cg_view.c`.
+    /// Source: oracle/codemp/cgame/cg_view.c:1264
+    var zoomSoundTime: Int32 = 0
+
+    // MARK: - cg_weapons.c
+
+    /// Raven's `static void *g2WeaponInstances[MAX_WEAPONS]` of `cg_weapons.c`, the Ghoul2 handles the engine fills.
+    /// Source: oracle/codemp/cgame/cg_weapons.c:2322
+    var g2WeaponInstances: [OpaquePointer?] = Array(repeating: nil, count: Int(MAX_WEAPONS))
+
     // MARK: - fx_bryarpistol.c
 
     /// Raven's `static vec3_t WHITE ={1.0f,1.0f,1.0f}` of `fx_bryarpistol.c`.
