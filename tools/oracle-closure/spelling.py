@@ -281,6 +281,9 @@ class Types:
         if facts.ruled == "view":
             # Every caller fills the `void *` with one record or NULL, so the parameter is that record's optional view.
             return Answer(f"{self.views.qualified_view(facts.capacity, TARGET)}?", "view_opt")
+        if facts.ruled == "int_array_mut":
+            # The body writes the caller's `int` array by index, so the array crosses inout, the `int` twin of float_array.
+            return Answer("inout [Int32]", "bare")
         if facts.ruled == "int_array":
             # The body only reads the values, and Raven's callers pass NULL with a count of zero, so the array crosses by value as an optional.
             return Answer("[Int32]?", "int_array")

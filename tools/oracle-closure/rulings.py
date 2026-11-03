@@ -364,6 +364,7 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #                callers declare for the buffer, and the trap returns the String the same way a sized buffer does
 #   float_array  an inout [Float] for a `float *` a body fills as a matrix of the counts beside it, or as a fixed count of floats
 #   int_array  an [Int32]? by value for a read-only `int *` with a count beside it, and a caller's NULL is nil
+#   int_array_mut  an inout [Int32] for an `int *` the body writes by index, the `int` twin of float_array
 #   pointer_table  a Slots<View?> over a file-scope array of struct pointers, whose base a trap hands to the engine
 #   key_path  a KeyPath<Entity, String?> for an `int` field offset Raven takes from `FOFS(field)`, which a call site spells `\.field`
 #   int_value  an Int32 by value for a `const void *` a qsort comparator reads as `*(int *)`, so the comparator is `(Int32, Int32) -> Int32`
@@ -402,6 +403,8 @@ PARAMS = {
     ("G_SabCol_CalcPlaneEq", "planeEq"): "float_array",
     ("G_SabCol_PointRelativeToPlane", "planeEq"): "float_array",
     ("G_RunExPhys", "g2Bolts"): "int_array",
+    # Raven writes `twokeys[0] = twokeys[1] = -1` and `twokeys[count] = j` at ui_shared.c:5302, and his callers pass `int twokeys[2]`.
+    ("Controls_GetKeyAssignment", "twokeys"): "int_array_mut",
     ("trap_SV_RegisterSharedMemory", "memory"): "raw",
     # Raven's callers declare `char GLAName[MAX_QPATH]` in g_client.c and `char GLAName[1024]` in NPC_spawn.c, and the trap takes the larger.
     # `char hitSurface[MAX_QPATH]` is the one size for the surface name.
