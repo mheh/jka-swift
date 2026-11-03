@@ -254,9 +254,14 @@ func CG_ConsoleCommand() -> Bool {
 
     cmd = CG_Argv(0)
 
-    // Port-note: A sizeof of `consoleCommand_t[31]` the draft cannot size.
-    // Raven wrote: for ( i = 0 ; i < sizeof( commands ) / sizeof( commands[0] ) ; i++ ) { if ( !Q_stricmp( cmd, commands[i].cmd ) ) { commands[i].function(); return qtrue; } }
-    portMissing("CG_ConsoleCommand", source: "oracle/codemp/cgame/cg_consolecmds.c:309")
+    i = 0
+    while i < commands.count {
+        if Q_stricmp(cmd, commands[i].cmd) == 0 {
+            commands[i].function()
+            return true
+        }
+        i += 1
+    }
 
     return false
 }
@@ -275,9 +280,11 @@ so it can perform tab completion
 func CG_InitConsoleCommands() {
     var i: Int32
 
-    // Port-note: A sizeof of `consoleCommand_t[31]` the draft cannot size.
-    // Raven wrote: for ( i = 0 ; i < sizeof( commands ) / sizeof( commands[0] ) ; i++ ) { trap_AddCommand( commands[i].cmd ); }
-    portMissing("CG_InitConsoleCommands", source: "oracle/codemp/cgame/cg_consolecmds.c:334")
+    i = 0
+    while i < commands.count {
+        trap_AddCommand(commands[i].cmd)
+        i += 1
+    }
 
     //
     // the game server will interpret these commands, which will be automatically
