@@ -89,8 +89,9 @@ An enum of that last kind is `private let` constants of type `Int32` at the top 
 
 | Raven | Swift |
 |---|---|
-| a non-const `vec3_t` parameter | `inout JKAShared.vec3_t`, and a call site writes `&v`. A `const vec3_t` stays by value. A non-const `vec4_t` parameter is `inout JKAShared.vec4_t` by the same rule, and a `const vec4_t` also stays by value. A vector parameter that the body never writes stays by value in a game stub, as `table.py` gives it. |
+| a non-const `vec3_t` parameter | `inout JKAShared.vec3_t`, and a call site writes `&v`. A `const vec3_t` stays by value. A non-const `vec4_t` or `vec2_t` parameter is `inout JKAShared.vec4_t` or `inout JKAShared.vec2_t` by the same rule, and a `const vec4_t` or `const vec2_t` also stays by value. A vector parameter that the body never writes stays by value in a game stub, as `table.py` gives it. |
 | a `vec3_t name[3]` parameter | `inout [vec3_t]`, the type `AnglesToAxis`, `AxisClear`, and `AxisCopy` take in `q_math.swift` |
+| a `vec2_t name[N]` parameter | `inout [vec2_t]`, the form of the axis row, `uv` of `CG_CalcBiLerp` |
 | a non-const `char *` parameter of a function that is not a trap, with or without a size parameter beside it | `String` when the text sweep reads every use, `String?` when the NULL sweep also reaches it, and `inout CharBuf` otherwise, where the caller passes its own buffer with `&`. A `const char *` stays `String`. |
 | a function-pointer parameter | an optional Swift closure, whose parameters go through these same rows |
 | a `void *` return | `UnsafeMutableRawPointer` for `BG_Alloc`, `BG_AllocUnaligned`, and `BG_TempAlloc`, and also for `B_Alloc`, `B_TempAlloc`, `G_Alloc`, and `CG_StrPool_Alloc`. `BG_StringAlloc`, `G_NewString`, and `CG_NewString` return `String`, the text a `char *` field takes. |
@@ -107,6 +108,7 @@ An enum of that last kind is `private let` constants of type `Int32` at the top 
 | a function-pointer return, such as `PAIN_FUNC *NPC_PainFunc` | the view's callback typealias, optional, such as `EntityPain?`. |
 | a `vec3_t *` parameter of a trap with a count beside it | `[JKAShared.vec3_t]` by value. |
 | a `float *` return out of a static ring of temporaries, such as `tv` | `JKAShared.vec3_t` by value, RETURNS kind `vec3`. |
+| a `float *` return out of a static `vec4_t` or NULL, such as `CG_FadeColor` | `JKAShared.vec4_t?` by value, RETURNS kind `vec4`. |
 | a pointer to a table of records the body indexes, such as `stringID_table_t *table` | `Slots<View>`, PARAMS kind `table`, and a caller passes the table by name. |
 | a struct pointer parameter the body indexes, such as `animation_t *animations` where Raven writes `animations[anim]` | `Slots<View>`, by the subscript sweep of `table.py`, and `Slots<View>?` where the NULL sweep makes it optional. A one-record read of the same parameter, `sabers->x`, spells `sabers[0].x`. |
 | a non-const `char **` the function sets once to a string it owns, such as `G_SpawnString` | `inout String`, PARAMS kind `out_string`, and the text a body assigns is a copy. |

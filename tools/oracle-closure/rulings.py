@@ -314,6 +314,7 @@ TYPES = {
 #   text_offset    an Int32? byte offset into the argument, or nil, the shape strchr has in CString.swift
 #   text_offset_nonnull  an Int32 byte offset into the argument that is never NULL
 #   vec3           a JKAShared.vec3_t by value, for a `float *` Raven returns out of a static ring of temporaries
+#   vec4           a JKAShared.vec4_t? by value, for a `float *` Raven returns out of a static `vec4_t` or NULL
 #   table          a Slots over the records a field holds, for a function that returns the pointer of a field with a bound in SLOT_BOUNDS
 #   view           the optional view of the record named beside the kind, ("view", record), for a `void *` return of that record or NULL
 RETURNS = {
@@ -342,6 +343,8 @@ RETURNS = {
     "G_NewString": "pooled_string",
     "CG_NewString": "pooled_string",
     "tv": "vec3",
+    # CG_FadeColor returns its static `vec4_t color` or NULL at cg_drawtools.c:387, and its callers test the NULL.
+    "CG_FadeColor": "vec4",
     # BG_AnimsetAlloc returns `bgAllAnims[bgNumAllAnims].anims` at bg_panimate.c:1734, the table the parser indexes. Row X10 of 2026-10-27.
     "BG_AnimsetAlloc": "table",
     # Display_CaptureItem returns `&Menus[i]` or NULL at ui_shared.c:9858, and both callers cast it to `menuDef_t *`.

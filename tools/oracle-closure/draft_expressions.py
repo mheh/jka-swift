@@ -289,7 +289,7 @@ class Expressions:
         return self.names[base.spelling] + "!"
 
     def simd_without_int32_index(self, cur: ci.Cursor) -> bool:
-        """True for a base of a SIMD vector typedef other than `vec3_t`, `vec4_t` today, as Raven's `(*c)` or a parameter that holds one."""
+        """True for a base of a SIMD vector typedef other than `vec3_t`, `vec2_t` and `vec4_t` today, as Raven's `(*c)` or a parameter that holds one."""
         cur = self.unwrap(cur)
         param = self.params_by_name.get(cur.spelling) if cur.kind == CursorKind.DECL_REF_EXPR else None
         spelled = (param.swift or "").split(".")[-1] if param is not None else cur.type.spelling.split()[-1]
