@@ -95,4 +95,16 @@ typedef struct {
 	void	(*function)(void);
 } consoleCommand_t;
 
+// Source: oracle/codemp/ui/ui_shared.c:24
+typedef struct scrollInfo_s {
+	int nextScrollTime;
+	int nextAdjustTime;
+	int adjustValue;
+	int scrollKey;
+	float xStart;
+	float yStart;
+	itemDef_t *item;
+	qboolean scrollDir;
+} scrollInfo_t;
+
 #endif

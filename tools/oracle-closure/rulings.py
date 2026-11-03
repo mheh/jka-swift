@@ -142,6 +142,8 @@ CGAME_ROOTS = {
     "lagometer_t": ("Lagometer", "CJKAMP_CGame"),
     "veh_damage_t": ("Veh_damage", "CJKAMP_CGame"),
     "consoleCommand_t": ("ConsoleCommand", "CJKAMP_CGame"),
+    # Item_StartCapture of ui_shared.c fills `scrollInfo` and hands its address to the five Scroll functions through `captureData`.
+    "scrollInfo_t": ("ScrollInfo", "CJKAMP_CGame"),
     # A trap or a stub parameter names these, and no root field points at them.
     "polyVert_t": ("PolyVert", "CJKAMP"),
     "poly_t": ("Poly", "CJKAMP"),
@@ -275,6 +277,8 @@ TYPES = {
     # Raven declares `char *fatalErrorPointer = NULL` at g_nav.c:1616, a write cursor into `fatalErrorString`,
     # so it is the byte offset of guide line 648, and `nil` is his NULL.
     "fatalErrorPointer": "Int32?",
+    # Raven declares `static void *captureData = NULL` at ui_shared.c:100, and every store is `&scrollInfo` or NULL, :4039 to :4182.
+    "captureData": "ScrollInfo?",
 }
 
 # MARK: - Functions
@@ -404,6 +408,12 @@ PARAMS = {
     ("trap_CG_RegisterSharedMemory", "memory"): "raw",
     # Raven casts `void *p` to `menuDef_t *` at cg_main.c:2858, and his callers pass `menuScoreboard` at cg_draw.c:6780 and NULL at cg_servercmds.c:68.
     ("CG_SetScoreSelection", "p"): ("view", "menuDef_t"),
+    # Raven casts `void *p` to `scrollInfo_t *` at ui_shared.c:3833 and the four siblings, and the one caller passes `captureData`, which holds `&scrollInfo`.
+    ("Scroll_TextScroll_AutoFunc", "p"): ("view", "scrollInfo_t"),
+    ("Scroll_TextScroll_ThumbFunc", "p"): ("view", "scrollInfo_t"),
+    ("Scroll_ListBox_AutoFunc", "p"): ("view", "scrollInfo_t"),
+    ("Scroll_ListBox_ThumbFunc", "p"): ("view", "scrollInfo_t"),
+    ("Scroll_Slider_ThumbFunc", "p"): ("view", "scrollInfo_t"),
     ("trap_G2API_RemoveGhoul2Models", "ghlInfo"): "out_opaque",
     ("trap_G2API_RemoveGhoul2Model", "ghlInfo"): "out_opaque",
 }
