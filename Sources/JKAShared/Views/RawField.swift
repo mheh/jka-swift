@@ -39,6 +39,17 @@ extension UnsafeMutableRawPointer {
         nonmutating set { (self + ofs).storeBytes(of: UInt8(truncatingIfNeeded: newValue), as: UInt8.self) }
     }
 
+    /// The `unsigned short` at a byte offset, Raven's `*(unsigned short *)(b+ofs)`.
+    /// The getter zero-extends the two bytes as C does, and the setter truncates, as a narrow view field does.
+    public subscript<I: BinaryInteger>(ushort ofs: I) -> Int32 {
+        get {
+            Int32((self + ofs).loadUnaligned(as: UInt16.self))
+        }
+        nonmutating set {
+            (self + ofs).storeBytes(of: UInt16(truncatingIfNeeded: newValue), as: UInt16.self)
+        }
+    }
+
     /// The raw pointer a `char *` field holds at a byte offset, Raven's `*(char **)(b+ofs)`, and `nil` for a null field.
     public subscript<I: BinaryInteger>(pointer ofs: I) -> UnsafeMutableRawPointer? {
         get {
