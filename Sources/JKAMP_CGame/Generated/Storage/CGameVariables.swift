@@ -218,10 +218,6 @@ public struct CGameVariables {
     /// Source: oracle/codemp/cgame/cg_main.c:3310
     public var cg_strPoolSize: Int32 = 0
 
-    /// Raven's `byte cg_strPool[MAX_CGSTRPOOL_SIZE]` of `cg_main.c`.
-    /// Source: oracle/codemp/cgame/cg_main.c:3311
-    public var cg_strPool: [JKAShared.byte] = [JKAShared.byte](repeating: 0, count: 32768)
-
     /// Raven's `int cg_numSpawnVars` of `cg_main.c`.
     /// Source: oracle/codemp/cgame/cg_main.c:3411
     public var cg_numSpawnVars: Int32 = 0

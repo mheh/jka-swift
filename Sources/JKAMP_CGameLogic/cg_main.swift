@@ -472,10 +472,8 @@ var cg_strPoolSize: Int32 {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3311
-var cg_strPool: [JKAShared.byte] {
-    get { world.variables.cg_strPool }
-    set { world.variables.cg_strPool = newValue }
-}
+// Raven wrote: static byte cg_strPool[MAX_CGSTRPOOL_SIZE]
+// No storage, by the HAND_VARS ruling.
 
 /// Source: oracle/codemp/cgame/cg_main.c:3393
 // Raven wrote: BG_field_t cg_spawnFields[]
@@ -3048,7 +3046,7 @@ func CG_TransitionPermanent() {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3313
-func CG_StrPool_Alloc(_ size: Int32) -> String {
+func CG_StrPool_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
     // Port-note: A pointer local `char * giveThemThis` with no view.
     // Raven wrote: char *giveThemThis;
     portMissing("CG_StrPool_Alloc", source: "oracle/codemp/cgame/cg_main.c:3313")
@@ -3089,7 +3087,7 @@ so message texts can be multi-line
 */
 /// Source: oracle/codemp/cgame/cg_main.c:3344
 func CG_NewString(_ string: String) -> String {
-    let newb: String
+    let newb: UnsafeMutableRawPointer
     // Port-note: A pointer local `char * new_p` with no view.
     // Raven wrote: new_p;
     portMissing("CG_NewString", source: "oracle/codemp/cgame/cg_main.c:3344")
@@ -3126,7 +3124,7 @@ func CG_NewString(_ string: String) -> String {
         i += 1
     }
 
-    return newb
+    return cString(at: newb)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3418
