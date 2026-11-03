@@ -5,7 +5,7 @@ Raven ships no `.qvm` file and no golden exists, so `assemble.py` writes the ima
 
 ## Run
 
-`python3 -I Tests/JKATestSupport/Fixtures/qvm/assemble.py`
+`python3 -I Sources/JKATestSupport/Oracle/fixtures/qvm/assemble.py`
 
 The script writes `vmtest.qvm` and `vmtest.map` beside itself, reads the header back and checks each field, runs the image with each test command, and prints the table below.
 It uses only the Python standard library.

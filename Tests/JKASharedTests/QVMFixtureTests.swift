@@ -1,22 +1,14 @@
 import Foundation
 import Testing
+import JKATestSupport
 
 /// This suite reads `vmtest.qvm` and checks its header against the README beside it.
 /// The fixture is under test before the interpreter port exists.
 struct QVMFixtureSuite {
-    // MARK: - State
-
-    static let directory = URL(fileURLWithPath: #filePath)
-        .deletingLastPathComponent()
-        .deletingLastPathComponent()
-        .appendingPathComponent("JKATestSupport")
-        .appendingPathComponent("Fixtures")
-        .appendingPathComponent("qvm")
-
     @Test("the header of vmtest.qvm matches the README")
     func headerMatchesTheReadme() throws {
-        let image = try Data(contentsOf: Self.directory.appendingPathComponent("vmtest.qvm"))
-        let readme = try String(contentsOf: Self.directory.appendingPathComponent("README.md"), encoding: .utf8)
+        let image = try OracleData.fixtureData("qvm/vmtest.qvm")
+        let readme = try OracleData.fixture("qvm/README.md")
 
         let names = ["vmMagic", "instructionCount", "codeOffset", "codeLength", "dataOffset", "dataLength", "litLength", "bssLength"]
         var fields: [String: Int] = [:]
@@ -37,7 +29,7 @@ struct QVMFixtureSuite {
 
     @Test("the sizes in the header fit the file")
     func sizesFitTheFile() throws {
-        let image = try Data(contentsOf: Self.directory.appendingPathComponent("vmtest.qvm"))
+        let image = try OracleData.fixtureData("qvm/vmtest.qvm")
         let codeOffset = Self.word(image, at: 8)
         let codeLength = Self.word(image, at: 12)
         let dataOffset = Self.word(image, at: 16)
@@ -56,12 +48,12 @@ struct QVMFixtureSuite {
 
     @Test("the lit segment holds JKA and the map names vmMain at instruction 0")
     func litAndMap() throws {
-        let image = try Data(contentsOf: Self.directory.appendingPathComponent("vmtest.qvm"))
+        let image = try OracleData.fixtureData("qvm/vmtest.qvm")
         let dataOffset = Self.word(image, at: 16)
         #expect(Self.word(image, at: dataOffset) == 7)
         #expect(Array(image[(dataOffset + 4)...]) == [0x4A, 0x4B, 0x41, 0x00])
 
-        let map = try String(contentsOf: Self.directory.appendingPathComponent("vmtest.map"), encoding: .utf8)
+        let map = try OracleData.fixture("qvm/vmtest.map")
         #expect(map.split(separator: "\n").first == "0 00000000 vmMain")
     }
 
