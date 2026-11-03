@@ -110,7 +110,8 @@ public struct Netchan: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/qcommon/qcommon.h:178
-    public var fragmentBuffer: Slots<JKAShared.byte> { Slots<JKAShared.byte>(scalars: UnsafeMutableRawPointer(self.raw.pointer(to: \.fragmentBuffer)!), count: 49152) }
+    // Swift imports no C array of more than 4096 elements, so the array starts where `fragmentLength` ends.
+    public var fragmentBuffer: Slots<JKAShared.byte> { Slots<JKAShared.byte>(scalars: (UnsafeMutableRawPointer(self.raw) + MemoryLayout<netchan_t>.offset(of: \.fragmentLength)! + MemoryLayout.size(ofValue: self.raw.pointee.fragmentLength)), count: 49152) }
 
     /// Source: oracle/codemp/qcommon/qcommon.h:182
     public var unsentFragments: Bool {
@@ -131,5 +132,6 @@ public struct Netchan: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/qcommon/qcommon.h:185
-    public var unsentBuffer: Slots<JKAShared.byte> { Slots<JKAShared.byte>(scalars: UnsafeMutableRawPointer(self.raw.pointer(to: \.unsentBuffer)!), count: 49152) }
+    // Swift imports no C array of more than 4096 elements, so the array starts where `unsentLength` ends.
+    public var unsentBuffer: Slots<JKAShared.byte> { Slots<JKAShared.byte>(scalars: (UnsafeMutableRawPointer(self.raw) + MemoryLayout<netchan_t>.offset(of: \.unsentLength)! + MemoryLayout.size(ofValue: self.raw.pointee.unsentLength)), count: 49152) }
 }

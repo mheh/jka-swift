@@ -333,6 +333,9 @@ class Generator:
                 view = self.qualified_view(ruled[1], target)
                 return self.property(name, f"{view}?", f"{pointee}.map {{ {view}(handle: OpaquePointer($0)) }}",
                                      f"{pointee} = UnsafeMutableRawPointer(newValue?.handle)")
+            if inner.get_canonical().kind == TypeKind.RECORD and inner.get_canonical().get_size() < 0:
+                # A pointer to a record no header completes, such as `struct worldSector_s *` of server.h, imports as an `OpaquePointer?` itself.
+                return self.property(name, "OpaquePointer?", pointee, f"{pointee} = newValue")
             back = "UnsafeMutableRawPointer" if inner.get_canonical().kind == TypeKind.VOID else "UnsafeMutablePointer"
             lines = self.property(name, "OpaquePointer?", f"OpaquePointer({pointee})", f"{pointee} = {back}(newValue)")
             if inner.get_canonical().kind == TypeKind.FLOAT:
@@ -380,11 +383,25 @@ class Generator:
                     + self.buffer(name, address, capacity)
             if self.is_vec3(t):
                 return self.property(name, "JKAShared.vec3_t", f"vec3(of: {pointee})", f"{pointee} = tuple(of: newValue)")
+            note: list[str] = []
+            if count > IMPORT_LIMIT:
+                # The byte array twin of the char array rule above, such as `byte fragmentBuffer[MAX_MSGLEN]` of netchan_t.
+                # An element of one byte has no padding before it, so the array starts where the field before it ends.
+                fields = [f for f in field.semantic_parent.get_children() if f.kind == CursorKind.FIELD_DECL]
+                at = fields.index(field)
+                if canonical.element_type.get_canonical().get_size() != 1 or at == 0 \
+                        or fields[at - 1].type.get_canonical().kind == TypeKind.CONSTANTARRAY \
+                        and fields[at - 1].type.get_canonical().element_count > IMPORT_LIMIT:
+                    return None
+                before = fields[at - 1].spelling
+                c_type = self.swift_c_type(self.owner_of(field))
+                address = f"(UnsafeMutableRawPointer(self.raw) + MemoryLayout<{c_type}>.offset(of: \\.{before})! + MemoryLayout.size(ofValue: self.raw.pointee.{before}))"
+                note = [f"    // Swift imports no C array of more than {IMPORT_LIMIT} elements, so the array starts where `{before}` ends."]
             mapped = self.element(self.element_type(t), target, address, field)
             if mapped is None:
                 return None
             element_type, call = mapped
-            return [f"    public var {name}: Slots<{element_type}> {{ {call.replace('{count}', str(count))} }}"]
+            return note + [f"    public var {name}: Slots<{element_type}> {{ {call.replace('{count}', str(count))} }}"]
         if canonical.kind == TypeKind.RECORD:
             record = self.unnamed_name(t) or self.types.record_name(t)
             if record and record in self.views:
