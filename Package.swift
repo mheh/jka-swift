@@ -82,5 +82,14 @@ let package = Package(
         .testTarget(name: "JKAMP_CGameTests", dependencies: ["JKAMP_CGameLogic", "JKATestSupport"]),
         // The cgame smoke test runs the same loader on the cgame library, so it does not depend on cgame.
         .testTarget(name: "cgameTests", dependencies: ["CJKAMP_CGame"]),
+        // The host test calls VM_DllSyscall through the module side shim, so it depends on both C targets.
+        // The test finds VM_DllSyscall with dlsym, and a Linux executable puts its symbols in the dynamic table only with --export-dynamic.
+        .testTarget(
+            name: "CJKAHostTests",
+            dependencies: ["CJKAHost", "CJKASyscall"],
+            linkerSettings: [.unsafeFlags(["-Xlinker", "--export-dynamic"], .when(platforms: [.linux]))]
+        ),
+        // The dedicated server smoke test runs the jampded executable as a process, so it depends on no target.
+        .testTarget(name: "jampdedTests"),
     ]
 )
