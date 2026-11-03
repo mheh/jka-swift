@@ -79,3 +79,12 @@ The host run of `views.py` writes `JKAMP/Generated/Views/Callbacks.swift` with o
 3. Wire `Sources/jampded/main.swift` to Raven's dedicated entry of `oracle/codemp/null/win_main.cpp`, with `world = EngineWorld()` and the transport install in the shape of `dllEntry` of `Sources/cgame/cgame.swift:12`.
 4. Make the first run as the brief gives it, and record the exit.
 5. Run the gate: the game and cgame snapshots, the tool tests, `swift build`, and `swift test --no-parallel`.
+
+## The ledger
+
+The coordinator ruled the four rows at the session's end on 2026-11-03 under the standing delegation, by the placement rule of `tools/oracle-closure/README.md`.
+
+- Row 1, the `CJKAMP_Game` dependency: replaced. The placement rule already names the shape: a declaration every module of a tree agrees on lives in the tree target. `g_public.h` and `interpreter.h` are the module ABI the game and the host both include, so their types move to `CJKAMP`, their views and `GAME_ROOTS` rows move to `JKAMP` in the same commit, and the re-exports are written once in `JKAMP`. This amends the first landing row: the host takes part in tree placement for the module ABI headers the server includes, `g_public.h` and `interpreter.h`, and for no other header. No third C target.
+- Row 2, `check.sh` with modules: ratified as proposed.
+- Row 3, the callback types union: ratified as proposed.
+- Row 4, `reexport.py --target`: ratified as proposed.
