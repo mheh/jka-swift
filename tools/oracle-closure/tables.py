@@ -114,7 +114,8 @@ GAME_PIECES: tuple[Piece, ...] = (
 )
 
 
-# The cgame file, the spawn field table of cg_main.c, which reads `cgSpawnEnt_t` of cg_types.h through `CGFOFS`.
+# The cgame file, the spawn field table of cg_main.c, which reads `cgSpawnEnt_t` of cg_types.h through `CGFOFS`,
+# and the key binding and item flag tables of ui_shared.c, which read `bind_t` and `itemFlagsDef_t` of cg_types.h.
 CGAME_PIECES: tuple[Piece, ...] = (
     Piece(own=(
         "// Raven's `CGFOFS` reads a field offset as a cast of a pointer to `int`, which is narrower on a 64-bit target.",
@@ -125,6 +126,12 @@ CGAME_PIECES: tuple[Piece, ...] = (
         source="codemp/cgame/cg_main.c", first=3390, last=3390, table=False,
     ),
     Piece(source="codemp/cgame/cg_main.c", first=3393, last=3409),
+    Piece(own=(
+        "// Raven wrote `static bind_t g_bindings[] =` at ui_shared.c:5190, and cg_tables.h declares the table `extern`,",
+        "// so this declaration line is the tool's own and Raven's bytes start at his brace.",
+        "bind_t g_bindings[] =",
+    ), source="codemp/ui/ui_shared.c", first=5191, last=5292),
+    Piece(source="codemp/ui/ui_shared.c", first=157, last=160),
 )
 
 

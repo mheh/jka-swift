@@ -368,6 +368,10 @@ class Statements:
             local = self.zeroed_local(args)
             if local is not None:
                 return [f"{pad}{self.expr(local)}.zero()" + self.trailing(cur)]
+            # Raven's `memset(item->typeData, 0, sizeof(listBoxDef_t))` over a raw field clears the record he allocated there.
+            record = self.raw_field_record(args)
+            if record is not None:
+                return [f"{pad}{record}({self.expr(args[0])}!).clear()" + self.trailing(cur)]
             # Raven's memset over a whole array of scalars or vectors is one value into every element, `totalDmg.fill(0)`.
             filled = self.filled_array(args)
             if filled is not None:
@@ -457,6 +461,9 @@ class Statements:
         target = self.strip(args[0])
         if target.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(target)[0] == "&":
             target = self.strip(self.unary_parts(target)[2])
+        if self.unwrap(target).kind == CursorKind.CSTYLE_CAST_EXPR:
+            # Raven's `(char*)scrollPtr->pLines` names the same bytes as the array.
+            target = self.strip(list(self.unwrap(target).get_children())[-1])
         t = self.unwrap(target).type.get_canonical()
         if t.kind != TypeKind.CONSTANTARRAY:
             return None
@@ -465,7 +472,12 @@ class Statements:
         while inner.kind == TypeKind.CONSTANTARRAY and not self.vector_type(inner):
             inner = inner.element_type.get_canonical()
         value = " ".join(self.source.slice(self.unwrap(args[1]).extent).split())
-        if self.vector_type(inner):
+        if inner.kind == TypeKind.POINTER:
+            # An array of pointers, Raven's `const char *pLines[N]`, which the view holds as a Slots of optionals, and zero is NULL.
+            if value != "0":
+                return None
+            word = "nil"
+        elif self.vector_type(inner):
             if value != "0":
                 return None
             word = "vec3_t()"
@@ -502,6 +514,42 @@ class Statements:
         if size not in wholes:
             return None
         return self.expr(target), word
+
+    def subscript_step(self, cur: ci.Cursor, left: ci.Cursor) -> tuple[ci.Cursor, ci.Cursor, str] | None:
+        """The one post-increment inside a subscript on the left of a store, its operand, and its sign, or None.
+        The stepped variable appears once in the statement, so the store reads the old value and the step follows it."""
+        if not hasattr(self, "deferred_steps"):
+            self.deferred_steps: set[tuple[int, int]] = set()
+        found = []
+        for node in left.walk_preorder():
+            if node.kind != CursorKind.ARRAY_SUBSCRIPT_EXPR:
+                continue
+            index = self.unwrap(list(node.get_children())[1])
+            if index.kind == CursorKind.UNARY_OPERATOR and self.is_step(index) and not self.unary_parts(index)[1]:
+                found.append(index)
+        if len(found) != 1 or (found[0].extent.start.offset, found[0].extent.end.offset) in self.deferred_steps:
+            return None
+        op, _, operand = self.unary_parts(found[0])
+        operand = self.unwrap(operand)
+        named = " ".join(self.source.slice(operand.extent).split())
+        uses = [n for n in cur.walk_preorder() if n.kind in (CursorKind.DECL_REF_EXPR, CursorKind.MEMBER_REF_EXPR)
+                and " ".join(self.source.slice(n.extent).split()) == named]
+        if len(uses) != 1:
+            return None
+        return found[0], operand, op[0]
+
+    def raw_field_record(self, args: list[ci.Cursor]) -> str | None:
+        """The view of the record for Raven's `memset(item->typeData, 0, sizeof(listBoxDef_t))` over a raw field, or None.
+        The value is zero, and the size is `sizeof` of one record with a view, the record Raven allocated into the field."""
+        if len(args) != 3 or self.field_kind(args[0]) != "raw":
+            return None
+        value = " ".join(self.source.slice(self.unwrap(args[1]).extent).split())
+        size = "".join(self.source.slice(self.unwrap(args[2]).extent).split())
+        m = re.fullmatch(r"sizeof\((\w+)\)", size)
+        if value != "0" or m is None or m.group(1) not in self.views.views:
+            return None
+        self.reachable(m.group(1))
+        return self.views.qualified_view(m.group(1), TARGET)
 
     def vector_type(self, t: ci.Type) -> bool:
         """True for Raven's `vec3_t`, an array of three floats."""
@@ -720,6 +768,17 @@ class Statements:
                 return self.statement(left, depth) + self.statement(right, depth)
             if op in ASSIGN_OPS:
                 left, right = list(cur.get_children())
+                step = self.subscript_step(cur, left) if op == "=" else None
+                if step is not None:
+                    # Raven's `menuStack[openMenuCount++] = focus` is the store with the old value and the step on the next line.
+                    unary, operand, sign = step
+                    key = (unary.extent.start.offset, unary.extent.end.offset)
+                    self.deferred_steps.add(key)
+                    try:
+                        lines = self.statement_lines(cur, depth)
+                    finally:
+                        self.deferred_steps.discard(key)
+                    return lines + [f"{pad}{self.expr(operand)} {sign}= 1"]
                 if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.charbuf_allocs \
                         and self.is_null(right):
                     # No read reaches Raven's NULL before the allocation, so the store drops under one comment.
@@ -782,9 +841,14 @@ class Statements:
                         scalar = pointer.kind == CursorKind.DECL_REF_EXPR and pointer.spelling in self.table_cursors
                         return [f"{pad}{slot} = {self.converted(right, 'Float' if scalar else 'Int32')}" + self.trailing(cur)]
                 if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.text_locals \
-                        and (self.is_null(right) or self.field_slot(right) is not None or self.optional_text_call(right)):
+                        and (self.is_null(right) or self.field_slot(right) is not None or self.optional_text_call(right)
+                             or self.pooled_field(right) or (self.unwrap(right).kind == CursorKind.DECL_REF_EXPR and self.is_charbuf(right))):
                     optional = self.unwrap(left).spelling in self.optional_texts
                     return [f"{pad}{self.expr(left)} = {self.text_value(right, optional)}" + self.trailing(cur)]
+                if op == "=" and self.is_null(right) and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR \
+                        and self.registry.var_types.get(swift_name(self.unwrap(left).spelling), "").endswith(")?"):
+                    # Raven's clear of a stored function with 0 or NULL is nil.
+                    return [f"{pad}{self.expr(left)} = nil" + self.trailing(cur)]
                 if self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.local_holes:
                     raise Hole(self.hole_local_reason(self.unwrap(left).spelling, True))
                 if op == "=" and self.unwrap(left).kind == CursorKind.ARRAY_SUBSCRIPT_EXPR and self.is_raw(list(self.unwrap(left).get_children())[0]):
@@ -941,6 +1005,20 @@ class Statements:
                 return [f"{pad}{target} {op} {value}" + self.trailing(cur)]
         if self.is_call(cur) and self.callee_name(cur) in RECORD_CALLS:
             return self.record_bytes(cur, depth)
+        if self.is_call(cur) and re.match(r"va_(start|end)\s*\(", self.source.slice(cur.extent).strip()):
+            # Raven's `va_start` and `va_end` drop under the variadic form, because the Swift function holds its arguments as `args`.
+            rest = self.trailing_comment(cur)
+            return roled([f"{pad}{rest}"], "comment") if rest else []
+        if self.is_call(cur) and self.callee_name(cur) == "vsprintf":
+            # Raven's `vsprintf(buf, fmt, argptr)` into a `char buf[N]` copies the formatted text into the buffer, which keeps its N bytes.
+            # The module name stands before `format`, because a parameter of that name hides the function.
+            target, fmt = [self.strip(a) for a in list(cur.get_children())[1:3]]
+            if not self.is_charbuf(target):
+                raise Hole("Raven's `vsprintf` writes into a target that is not a `char buf[N]`.")
+            text = self.expr(fmt)
+            if self.is_charbuf(fmt):
+                text = f"String({text})"
+            return [f"{pad}strcpy(&{self.expr(target)}, JKAShared.format({text}, args))" + self.trailing(cur)]
         if self.is_call(cur) and self.callee_name(cur) in DROPPED:
             # `assert` is `((void)0)` under Raven's NDEBUG build, so the body drops it, by "assert".
             rest = self.trailing_comment(cur)

@@ -45,7 +45,7 @@ from clang.cindex import CursorKind, TypeKind
 
 import closure as C
 from reexport import DEPS, SCALARS, SOURCES, VIEW_OF, source_lines
-from rulings import BYTE_STORAGE_FIELDS, NEVER_NULL, ROOTS, SLOT_BOUNDS
+from rulings import BYTE_STORAGE_FIELDS, FIELDS, NEVER_NULL, NULLABLE, PARAMS, ROOTS, SLOT_BOUNDS
 from spelling import Types
 
 # Every C target the translation unit of the run's unit reaches, most specific first.
@@ -323,6 +323,15 @@ class Generator:
                     return self.trapping(name, view, get, f"{pointee} = UnsafeMutablePointer(newValue.handle)") + self.slots(field, view, self.c_name_of(inner), target)
                 return self.property(name, f"{view}?", f"{pointee}.map {{ {view}(handle: OpaquePointer($0)) }}",
                                      f"{pointee} = UnsafeMutablePointer(newValue?.handle)") + self.slots(field, view, self.c_name_of(inner), target)
+            ruled = FIELDS.get((self.owner_of(field), name))
+            if ruled == "raw" and inner.get_canonical().kind == TypeKind.VOID:
+                # The field holds one of several records, and a body views the record it holds through the cast Raven wrote.
+                return self.property(name, "UnsafeMutableRawPointer?", pointee, f"{pointee} = newValue")
+            if isinstance(ruled, tuple) and ruled[0] == "view" and inner.get_canonical().kind == TypeKind.VOID and ruled[1] in self.views:
+                # Every store fills the field with one record or NULL, so the field is that record's optional view.
+                view = self.qualified_view(ruled[1], target)
+                return self.property(name, f"{view}?", f"{pointee}.map {{ {view}(handle: OpaquePointer($0)) }}",
+                                     f"{pointee} = UnsafeMutableRawPointer(newValue?.handle)")
             back = "UnsafeMutableRawPointer" if inner.get_canonical().kind == TypeKind.VOID else "UnsafeMutablePointer"
             lines = self.property(name, "OpaquePointer?", f"OpaquePointer({pointee})", f"{pointee} = {back}(newValue)")
             if inner.get_canonical().kind == TypeKind.FLOAT:
@@ -550,6 +559,7 @@ class Generator:
         view = self.views[self.owner_of(field)][0]
         alias = f"{view}{name[0].upper()}{name[1:]}"
         names = [c.spelling or f"p{i}" for i, c in enumerate(c for c in field.get_children() if c.kind == CursorKind.PARM_DECL)]
+        cursor: str | None = None
         params: list[str] = []
         args: list[str] = []
         layers: list[str] = []
@@ -574,6 +584,42 @@ class Generator:
                     params.append(f"_ {label}: String")
                     layers.append(f"withCString({label}) {{ {label} in")
                     args.append(f"OpaquePointer({label})")
+                elif PARAMS.get((f"{owner}.{name}", label)) == "float_mut" and pointee.get_canonical().kind == TypeKind.FLOAT:
+                    # A rulings row names a `float *` the stored function reads and writes as one float.
+                    params.append(f"_ {label}: inout Float")
+                    layers.append(f"withUnsafeMutablePointer(to: &{label}) {{ {label} in")
+                    args.append(f"OpaquePointer({label})")
+                elif pointee.get_canonical().kind == TypeKind.CONSTANTARRAY and pointee.get_canonical().element_count == 4 \
+                        and pointee.get_canonical().element_type.get_canonical().kind == TypeKind.FLOAT:
+                    # Raven's `vec4_t *color` points at one color of four floats, which the stored function fills.
+                    params.append(f"_ {label}: inout JKAShared.vec4_t")
+                    layers.append(f"withUnsafeMutablePointer(to: &{label}) {{ {label} in")
+                    args.append(f"OpaquePointer({label})")
+                elif "qhandle_t" in declared.split() and not pointee.is_const_qualified():
+                    # Raven's `qhandle_t *` is one handle the stored function fills.
+                    params.append(f"_ {label}: inout Int32")
+                    layers.append(f"withUnsafeMutablePointer(to: &{label}) {{ {label} in")
+                    args.append(f"OpaquePointer({label})")
+                elif pointee.get_canonical().kind == TypeKind.POINTER and pointee.get_canonical().get_pointee().get_canonical().kind == TypeKind.CHAR_S \
+                        and len(arg_types) == 1:
+                    # Raven's `char **p` is the caller's cursor, which the stored function steps, so the cursor crosses inout.
+                    # The method hands the function a pointer into the cursor's bytes and reads the offset back after the call.
+                    params.append(f"_ {label}: inout JKAShared.TextCursor")
+                    cursor = label
+                    args.append("OpaquePointer(cursorAddress)")
+                elif pointee.get_canonical().kind == TypeKind.CHAR_S and not pointee.is_const_qualified() and i + 1 < len(arg_types) \
+                        and arg_types[i + 1].get_canonical().kind == TypeKind.INT and i + 1 < len(names) and re.search(r"size|len", names[i + 1], re.I):
+                    # A `char *` with a size beside it is the caller's buffer, which the stored function fills, so the buffer crosses inout
+                    # and the method hands the function its base, the trap form of an `inout CharBuf` overload.
+                    params.append(f"_ {label}: inout JKAShared.CharBuf")
+                    layers.append(f"{label}.withUnsafeMutableRawPointer {{ {label} in")
+                    args.append(f"OpaquePointer({label})")
+                elif pointee.get_canonical().kind == TypeKind.FLOAT and "vec4_t" in declared.split() and "const" in declared.split() \
+                        and (f"{owner}.{name}", label) in NULLABLE:
+                    # Raven passes NULL for the color at some sites, so the color is optional, and the method passes a NULL pointer for nil.
+                    params.append(f"_ {label}: JKAShared.vec4_t?")
+                    layers.append(f"withUnsafePointer(to: {label} ?? .zero) {{ {label}Pointer in")
+                    args.append(f"{label} == nil ? nil : OpaquePointer({label}Pointer)")
                 elif pointee.get_canonical().kind == TypeKind.FLOAT and ("vec4_t" in declared.split()
                                                                        or ("float" in declared.split() and pointee.is_const_qualified())):
                     # Raven's `vec4_t` is four floats, as SIMD4<Float> is, by value when const and inout when Raven writes it.
@@ -607,6 +653,10 @@ class Generator:
                 args.append(label)
         result = proto.get_result()
         returns = self.types.scalar(result, target) if result.get_canonical().kind != TypeKind.VOID else None
+        text_result = result.get_canonical().kind == TypeKind.POINTER and result.get_canonical().get_pointee().get_canonical().kind == TypeKind.CHAR_S
+        if text_result:
+            # Raven reads the text the stored function returns, and NULL is nil.
+            returns = "String?"
         self.callbacks[(target, alias)] = self.c_signature(proto, target)
         # When Raven's first parameter is the owner, the run method passes this slot and takes the rest.
         # Otherwise every parameter is the caller's, as `pm->trace(&trace, start, ...)` is.
@@ -633,12 +683,28 @@ class Generator:
             call = f"self.{name}!({', '.join(args)})"
             if returns == "Bool":
                 call = f"{call} != 0"
+            if text_result:
+                call = f"{call}.map {{ cString(at: UnsafeRawPointer($0)) }}"
             doc += f"\n    /// A NULL `{name}` traps with the field's name, as Raven's call through the pointer would crash."
         body: list[str] = []
         if not always:
             body.append(f"        precondition({pointee} != nil, \"{name} is NULL\")")
         head = "return " if returns and not always else ""
-        if layers:
+        if cursor is not None:
+            # The cursor's bytes stay put for the call, and the offset the function leaves is read back as the cursor's own.
+            kind = returns or "Void"
+            body += [
+                f"        var bytes = {cursor}.buf",
+                f"        let start = {cursor}.offset",
+                f"        let (offset, result) = bytes.withUnsafeMutableRawPointer {{ base -> (Int32?, {kind}) in",
+                "            var pointer: UnsafeMutablePointer<CChar>? = start.map { base.assumingMemoryBound(to: CChar.self) + Int($0) }",
+                f"            let result: {kind} = withUnsafeMutablePointer(to: &pointer) {{ cursorAddress in {call} }}",
+                "            return (pointer.map { Int32(UnsafeMutableRawPointer($0) - base) }, result)",
+                "        }",
+                f"        {cursor}.buf = bytes",
+                f"        {cursor}.offset = offset",
+            ] + ([] if returns else ["        _ = result"]) + ([f"        {head}result"] if returns else [])
+        elif layers:
             body.append("        " + head + layers[0])
             for depth, layer in enumerate(layers[1:], start=3):
                 body.append("    " * depth + layer)

@@ -11,7 +11,7 @@ from clang.cindex import CursorKind, TypeKind
 
 from spelling import INT_KINDS
 
-from rulings import CHARBUF_ALLOCS, NEVER_NULL_VARS
+from rulings import CHARBUF_ALLOCS, FIELDS, NEVER_NULL_VARS
 import closure as C
 from skeleton import BG, Function, target_of
 from table import ASSIGN_OPS, Cursor, swift_name
@@ -125,11 +125,21 @@ class Classification:
             return inner.spelling in self.raw_locals
         if inner.kind == CursorKind.CALL_EXPR:
             return self.callee_returns(self.callee_name(inner) or "") == "UnsafeMutableRawPointer"
+        if inner.kind == CursorKind.MEMBER_REF_EXPR:
+            # A FIELDS row of kind raw spells a `void *` field as the raw pointer.
+            return self.field_kind(inner) == "raw"
         if inner.kind == CursorKind.UNARY_OPERATOR and self.operator_or_none_unary(inner) == "*":
             # Raven's `*(char **)(b+ofs)` is the raw pointer the slot at that byte offset holds.
             raw = self.raw_store(inner)
             return raw is not None and raw[1] == "pointer"
         return False
+
+    def field_kind(self, cur: ci.Cursor) -> str | tuple[str, str] | None:
+        """The FIELDS kind of a member read, `raw` or ("view", record), or None for a field no row names."""
+        inner = self.unwrap(cur)
+        if inner.kind != CursorKind.MEMBER_REF_EXPR or inner.referenced is None or inner.referenced.semantic_parent is None:
+            return None
+        return FIELDS.get((self.types.record_name(inner.referenced.semantic_parent.type), inner.spelling))
 
     def local_facts(self, fn: Function) -> tuple[dict[str, Cursor], dict[str, Cursor], dict[str, tuple[str, str]]]:
         """The read cursors, the write cursors, and the table walks of one body, by the local read of the table, each under Raven's own name."""
@@ -225,12 +235,15 @@ class Classification:
         The second set holds the text locals Raven also stores his NULL into, which Swift holds as a `String?`."""
         stores: dict[str, list[str]] = {}
         buffers: dict[str, str] = {}
+        consts: set[str] = set()
         for var in fn.walk_preorder():
             if var.kind != CursorKind.VAR_DECL:
                 continue
             t = var.type.get_canonical()
             if t.kind != TypeKind.POINTER or t.get_pointee().get_canonical().kind != TypeKind.CHAR_S:
                 continue
+            if t.get_pointee().is_const_qualified():
+                consts.add(var.spelling)
             init = [c for c in var.get_children() if c.kind.is_expression() and b"=" in self.bytes[var.extent.start.offset:c.extent.start.offset]]
             stores.setdefault(var.spelling, [])
             if init:
@@ -254,6 +267,11 @@ class Classification:
                 stores[left.spelling].append(self.text_store_kind(kids[1], left.spelling, buffers))
         texts = {name for name, kinds in stores.items()
                  if ("text" in kinds or "optional" in kinds) and all(k in ("text", "null", "optional") for k in kinds)}
+        # A `const char *` local that Raven points at a text, a `char *` field, or a `char buf[N]`, and never steps, is a text local too.
+        # No use writes through a const pointer, and these bodies never write the buffer after the store, so the store is a copy.
+        texts |= {name for name, kinds in stores.items()
+                  if name in consts and any(k in ("field", "buffer") for k in kinds)
+                  and all(k in ("text", "null", "optional", "field", "buffer") for k in kinds)}
         # Raven stores his NULL into some of them, or a callee hands an optional text back, and Swift holds that local as an optional text.
         optionals = {name for name in texts if "null" in stores[name] or "optional" in stores[name]}
         return texts, optionals
@@ -302,6 +320,8 @@ class Classification:
             return "text"
         if self.field_slot(inner) is not None:
             return "text"
+        if self.pooled_field(inner):
+            return "field"
         if inner.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
             # An element of a file-scope text table, `cg_customSoundNames[i]`, is the String or the String? the table holds.
             table = self.unwrap(list(inner.get_children())[0])
@@ -555,6 +575,12 @@ class Classification:
             raven = " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split())
             raise Hole(f"Raven stores `{raven}`, and the callee hands an optional text back where the target takes a value. "
                        "A never-null ruling is due.")
+        if self.pooled_field(inner):
+            # A `char *` field is a String?, and Raven's NULL test above the store proved it is set.
+            return self.expr(inner) if optional else f"{self.expr(inner)}!"
+        if inner.kind == CursorKind.DECL_REF_EXPR and self.is_charbuf(inner):
+            # Raven points the local at his buffer, and the text local holds a copy of the buffer's text.
+            return f"String({self.expr(inner)})"
         slot = self.field_slot(inner)
         if slot is None:
             return self.expr(inner)

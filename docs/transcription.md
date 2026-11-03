@@ -100,7 +100,7 @@ An enum of that last kind is `private let` constants of type `Int32` at the top 
 | a `char *` return | `String`. |
 | a `void **` parameter | `inout OpaquePointer?` |
 | a pointer to a struct pointer, in a function that is not a trap | `inout View?`, the out-param the body sets. |
-| a `const char **` parameter | `inout JKAShared.TextCursor`, or `inout String` where the PARAMS kind `out_string` marks a parameter the function sets to the token instead of walking, such as `COM_ParseString`. |
+| a `const char **` parameter, or a `char **` the function walks | `inout JKAShared.TextCursor`, or `inout String` where the PARAMS kind `out_string` marks a parameter the function sets to the token instead of walking, such as `COM_ParseString`. |
 | a non-const `char *` parameter of a trap with no size parameter beside it | `String`, an input the engine reads. Raven's missing `const` is habit. |
 | `qint64` | `Int64`, by the TYPES map. |
 | a pointer to a const scalar, such as `const float *f` of `FloatSwap` | the scalar by value, `Float`. |
@@ -326,6 +326,8 @@ Every generated view has, beside `init(handle:)`, `public init(_ raw: UnsafeMuta
 A body writes `View(x)` where and only where Raven wrote an explicit cast to that struct's pointer, from a raw pointer or from another struct's pointer, so `((gentity_t *)(ent))->s.number` reads `BgEntity(ent).s.number` in bg, and `(gentity_t *)bgEnt` is `Entity(bgEnt)` in the game. A cast of a table name is the view cast over slot 0, because C's array name is the address of its first element, so `pm->baseEnt = (bgEntity_t *)g_entities` reads `pm.baseEnt = BgEntity(g_entities[0])`.
 A cast to a view the body already holds, such as a bg body that passes its `BgEntity` to a bg channel function, is dropped without a note.
 A cast of a pointer that can be NULL maps over the optional, `pVeh.m_pPilot.map { Entity($0) }`, so NULL stays nil.
+A `void *` field that holds one of several records, which Raven casts back by another field, has a `FIELDS` row of kind `raw` in `rulings.py`, and the view spells it `UnsafeMutableRawPointer?`. So `(listBoxDef_t*)item->typeData` reads `item.typeData.map { ListBoxDef($0) }`, and `memset(item->typeData, 0, sizeof(listBoxDef_t))` reads `ListBoxDef(item.typeData!).clear()`.
+A `void *` field that every store fills with one record or NULL has a `FIELDS` row of kind `("view", record)`, and the view spells it as that record's optional view, so `(menuDef_t*)item->parent` reads `item.parent`.
 The `handle:` form stays inside generated code under rule 11, and a signature keeps the plain view type Raven's parameter had, never a generic or protocol parameter that absorbs the cast.
 A struct pointer field a body indexes, such as `animations` of `pmove_t` where Raven writes `pm->animations[anim]`, carries a second accessor, `<name>Slots: Slots<View>`, the way a `float *` field carries its `<name>Vector` accessor.
 The same subscript sweep of `table.py` names the fields that get it, and `views.py` reads that set.

@@ -958,13 +958,14 @@ let word = Syscall.call(CG_PC_READ_TOKEN, handle, pc_token)
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:557
 @discardableResult
-public func trap_PC_SourceFileAndLine(_ handle: Int32, _ filename: String, _ line: inout Int32) -> Int32 {
-    let word = withCString(filename) { filename in
+public func trap_PC_SourceFileAndLine(_ handle: Int32, _ line: inout Int32) -> (Int32, String) {
+    var filename = [CChar](repeating: 0, count: Int(128))
+    let word = filename.withUnsafeMutableBufferPointer { filenamePointer in
         withUnsafeMutablePointer(to: &line) { line in
-            Syscall.call(CG_PC_SOURCE_FILE_AND_LINE, handle, filename, line)
+            Syscall.call(CG_PC_SOURCE_FILE_AND_LINE, handle, filenamePointer.baseAddress!, line)
         }
     }
-    return Int32(truncatingIfNeeded: word)
+    return (Int32(truncatingIfNeeded: word), String(nulTerminated: filename))
 }
 
 /// Source: oracle/codemp/cgame/cg_syscalls.c:561

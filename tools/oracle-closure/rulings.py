@@ -142,6 +142,15 @@ CGAME_ROOTS = {
     "lagometer_t": ("Lagometer", "CJKAMP_CGame"),
     "veh_damage_t": ("Veh_damage", "CJKAMP_CGame"),
     "consoleCommand_t": ("ConsoleCommand", "CJKAMP_CGame"),
+    # Item_StartCapture of ui_shared.c fills `scrollInfo` and hands its address to the five Scroll functions through `captureData`.
+    "scrollInfo_t": ("ScrollInfo", "CJKAMP_CGame"),
+    # The C tables g_bindings and itemFlags of ui_shared.c hold these rows.
+    "bind_t": ("Bind", "CJKAMP_CGame"),
+    "itemFlagsDef_t": ("ItemFlagsDef", "CJKAMP_CGame"),
+    # The file-scope table `strHandle` of ui_shared.c holds pointers to these, one hash chain of interned texts per bucket.
+    "stringDef_t": ("StringDef", "CJKAMP_CGame"),
+    # The file-scope list head `ui_G2PtrTracker` of ui_shared.c points at these, one record per Ghoul2 instance the UI holds.
+    "uiG2PtrTracker_t": ("UiG2PtrTracker", "CJKAMP_CGame"),
     # A trap or a stub parameter names these, and no root field points at them.
     "polyVert_t": ("PolyVert", "CJKAMP"),
     "poly_t": ("Poly", "CJKAMP"),
@@ -160,6 +169,13 @@ CGAME_ROOTS = {
     "itemDef_t": ("ItemDef", "CJKAMP_CGame"),
     "menuDef_t": ("MenuDef", "CJKAMP_CGame"),
     "cachedAssets_t": ("CachedAssets", "CJKAMP_CGame"),
+    # Item_ValidateTypeData of ui_shared.c allocates one of these into the `void *typeData` of an item by its type, and the bodies cast it back.
+    # No root field points at them, because the field is a `void *`.
+    "listBoxDef_t": ("ListBoxDef", "CJKAMP_CGame"),
+    "multiDef_t": ("MultiDef", "CJKAMP_CGame"),
+    "textScrollDef_t": ("TextScrollDef", "CJKAMP_CGame"),
+    "editFieldDef_t": ("EditFieldDef", "CJKAMP"),
+    "modelDef_t": ("ModelDef", "CJKAMP"),
     # The game's view of CollisionRecord_t stands in JKAMP_Game, which a cgame target cannot import, so the cgame has its own.
     "CollisionRecord_t": ("CollisionRecord", "CJKAMP_CGame"),
     # vmMain and the engine's callbacks read these through the shared buffer of cg_public.h, and no root field points at them.
@@ -211,7 +227,17 @@ NEVER_NULL_VARS = {"pm"}
 # The entry stays, so the stub does not declare a `CharBuf` of `POOLSIZE` bytes, and a body that reads `memoryPool` drafts a `portMissing` hole.
 # `cg_strPool` has no storage, because `CG_StrPool_Alloc` returns one block per call, in the `G_Alloc` form.
 # The entry stays, so the stub does not declare the pool of `MAX_CGSTRPOOL_SIZE` bytes, and a body that reads `cg_strPool` drafts a `portMissing` hole.
-HAND_VARS = {"bg_pool": None, "memoryPool": None, "cg_strPool": None}
+# A value that is a Swift array type names a hand table on the state object, and the stub forwards it under Raven's name.
+# The keyword tables of ui_shared.c hold the address of a parse function in each row, so each is a hand array of rows on CGameWorld,
+# and each hash table holds the index of the first row of a bucket. `commandList` holds the address of a script function the same way.
+HAND_VARS = {
+    "bg_pool": None, "memoryPool": None, "cg_strPool": None,
+    "commandList": "[CommandDefRow]",
+    "itemParseKeywords": "[KeywordHashRow]",
+    "menuParseKeywords": "[KeywordHashRow]",
+    "itemParseKeywordHash": "[Int32?]",
+    "menuParseKeywordHash": "[Int32?]",
+}
 
 # File-scope character arrays whose address the engine holds, so each one is one zeroed byte allocation on the storage class, not a `CharBuf`.
 # `gSharedBuffer` of g_main.c goes to the engine through `trap_SV_RegisterSharedMemory`, and vmMain reads the ICARUS views at its base.
@@ -220,6 +246,17 @@ BYTE_STORAGE_VARS = {"gSharedBuffer"}
 # The field twin of BYTE_STORAGE_VARS: a character array field whose address the engine holds, which the view reads as the field's address.
 # `cg.sharedBuffer` of cg_local.h goes to the engine through `trap_CG_RegisterSharedMemory`, and the engine callbacks of cg_main.c read records at its base.
 BYTE_STORAGE_FIELDS = {("cg_t", "sharedBuffer")}
+# (struct, field) -> the kind of a pointer field, where the C type alone does not say. The field twin of PARAMS, with two of its kinds:
+#   raw   an UnsafeMutableRawPointer? for a `void *` that holds one of several records, which Raven casts back by another field
+#   view  the optional view of the record named beside the kind, ("view", record), for a `void *` every store fills with that record or NULL
+# Item_ValidateTypeData allocates one of five records into `typeData` by `item->type`, ui_shared.c:7279, and the bodies cast it back.
+FIELDS = {
+    ("itemDef_t", "typeData"): "raw",
+    # Every store is a menu, `item->parent = menu` at ui_shared.c:1530, :4428, :4613, :4669, and :9697, and every read casts it to `menuDef_t *`.
+    ("itemDef_t", "parent"): ("view", "menuDef_t"),
+    # cg_newDraw.c:855 stores the menu of Display_CaptureItem, and cg_newDraw.c:776 hands it to Display_MouseMove.
+    ("cgs_t", "capturedItem"): ("view", "menuDef_t"),
+}
 
 @dataclass(frozen=True)
 class HandMacro:
@@ -259,6 +296,11 @@ TYPES = {
     # Raven declares `char *fatalErrorPointer = NULL` at g_nav.c:1616, a write cursor into `fatalErrorString`,
     # so it is the byte offset of guide line 648, and `nil` is his NULL.
     "fatalErrorPointer": "Int32?",
+    # Raven declares `static void *captureData = NULL` at ui_shared.c:100, and every store is `&scrollInfo` or NULL, :4039 to :4182.
+    "captureData": "ScrollInfo?",
+    # Raven declares `static void (*captureFunc) (void *p) = 0` at ui_shared.c:99, and he stores one of the five Scroll functions or 0.
+    # C never sees the pointer, so it is a stored Swift function with nil for his 0.
+    "captureFunc": "((ScrollInfo?) -> Void)?",
 }
 
 # MARK: - Functions
@@ -273,6 +315,7 @@ TYPES = {
 #   text_offset_nonnull  an Int32 byte offset into the argument that is never NULL
 #   vec3           a JKAShared.vec3_t by value, for a `float *` Raven returns out of a static ring of temporaries
 #   table          a Slots over the records a field holds, for a function that returns the pointer of a field with a bound in SLOT_BOUNDS
+#   view           the optional view of the record named beside the kind, ("view", record), for a `void *` return of that record or NULL
 RETURNS = {
     "SkipWhitespace": "text_cursor",
     "ClientConnect": "optional_string",
@@ -293,12 +336,16 @@ RETURNS = {
     "B_TempAlloc": "raw",
     "G_Alloc": "raw",
     "CG_StrPool_Alloc": "raw",
+    # UI_Alloc of ui_shared.c:209 takes the G_Alloc form, one block per call, and `memoryPool` has no storage.
+    "UI_Alloc": "raw",
     "BG_StringAlloc": "pooled_string",
     "G_NewString": "pooled_string",
     "CG_NewString": "pooled_string",
     "tv": "vec3",
     # BG_AnimsetAlloc returns `bgAllAnims[bgNumAllAnims].anims` at bg_panimate.c:1734, the table the parser indexes. Row X10 of 2026-10-27.
     "BG_AnimsetAlloc": "table",
+    # Display_CaptureItem returns `&Menus[i]` or NULL at ui_shared.c:9858, and both callers cast it to `menuDef_t *`.
+    "Display_CaptureItem": ("view", "menuDef_t"),
 }
 
 # Allocators whose `char *` result a body holds as a CharBuf of the constant size Raven asks for, when every store into the local is that call.
@@ -311,20 +358,27 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #   vec3_mut  an inout vec3_t for a `float *` Raven fills as three floats, see "A pointer out-param Raven indexes"
 #   vec3_const  a vec3_t by value for a `vec3_t` Raven declares without const and the engine only reads, the form a `const vec3_t` has
 #   out_string  an inout String, for a `const char **` the function sets to the token instead of walking
+#   out_optional_string  an inout String?, for a `const char **` the function sets to a text or NULL, which a caller passes as a `char *` field
 #   text_cursor  a TextCursor by value, for a `const char *` Raven passes as a cursor and returns advanced
 #   fill_buffer  a `char *` a trap fills with no size beside it, given as ("fill_buffer", capacity) with the capacity Raven's
 #                callers declare for the buffer, and the trap returns the String the same way a sized buffer does
 #   float_array  an inout [Float] for a `float *` a body fills as a matrix of the counts beside it, or as a fixed count of floats
 #   int_array  an [Int32]? by value for a read-only `int *` with a count beside it, and a caller's NULL is nil
+#   int_array_mut  an inout [Int32] for an `int *` the body writes by index, the `int` twin of float_array
 #   pointer_table  a Slots<View?> over a file-scope array of struct pointers, whose base a trap hands to the engine
 #   key_path  a KeyPath<Entity, String?> for an `int` field offset Raven takes from `FOFS(field)`, which a call site spells `\.field`
 #   int_value  an Int32 by value for a `const void *` a qsort comparator reads as `*(int *)`, so the comparator is `(Int32, Int32) -> Int32`
 #   model_list  a Slots<qhandle_t>? for an `int *modelList` the engine reads as the array of model handles, the form a `qhandle_t *` has
 #   out_opaque  an inout OpaquePointer? for a `void *` Raven's callers pass the address of a handle field to, the shape a `void **` already has
 #   view      the optional view of the record named beside the kind, ("view", record), for a `void *` every caller fills with that record or NULL
+#   float_mut  an inout Float for a `float *` of a stored function that the function reads and writes as one float, keyed by "record.field"
 PARAMS = {
     ("COM_ParseString", "s"): "out_string",
-    ("PC_String_Parse", "out"): "out_string",
+    # String_Parse of ui_shared.c:607 sets `*out` to the token and never walks it.
+    ("String_Parse", "out"): "out_string",
+    # Both set `*out` to the String_Alloc text, which is NULL when the pool is full, and the callers pass the address of a `char *` field.
+    ("PC_String_Parse", "out"): "out_optional_string",
+    ("PC_Script_Parse", "out"): "out_optional_string",
     # A `char **` the function sets once to a string it owns, never walked, the same shape as the const one.
     ("G_SpawnString", "out"): "out_string",
     ("Q3_GetString", "value"): "out_string",
@@ -349,11 +403,15 @@ PARAMS = {
     ("G_SabCol_CalcPlaneEq", "planeEq"): "float_array",
     ("G_SabCol_PointRelativeToPlane", "planeEq"): "float_array",
     ("G_RunExPhys", "g2Bolts"): "int_array",
+    # Raven writes `twokeys[0] = twokeys[1] = -1` and `twokeys[count] = j` at ui_shared.c:5302, and his callers pass `int twokeys[2]`.
+    ("Controls_GetKeyAssignment", "twokeys"): "int_array_mut",
     ("trap_SV_RegisterSharedMemory", "memory"): "raw",
     # Raven's callers declare `char GLAName[MAX_QPATH]` in g_client.c and `char GLAName[1024]` in NPC_spawn.c, and the trap takes the larger.
     # `char hitSurface[MAX_QPATH]` is the one size for the surface name.
     ("trap_G2API_GetGLAName", "fillBuf"): ("fill_buffer", "1024"),
     ("trap_G2API_GetSurfaceName", "fillBuf"): ("fill_buffer", "JKAShared.MAX_QPATH"),
+    # PC_SourceWarning and PC_SourceError of ui_shared.c:385 and :407 declare `char filename[128]`, and the engine writes the file name into it.
+    ("trap_PC_SourceFileAndLine", "filename"): ("fill_buffer", "128"),
     # A pointer to a table of records the body indexes, `table[i]`, crosses as the Slots over the table.
     ("GetIDForString", "table"): "table",
     ("GetStringForID", "table"): "table",
@@ -388,6 +446,16 @@ PARAMS = {
     ("trap_CG_RegisterSharedMemory", "memory"): "raw",
     # Raven casts `void *p` to `menuDef_t *` at cg_main.c:2858, and his callers pass `menuScoreboard` at cg_draw.c:6780 and NULL at cg_servercmds.c:68.
     ("CG_SetScoreSelection", "p"): ("view", "menuDef_t"),
+    # Raven casts `void *p` to `menuDef_t *` at ui_shared.c:9881, and cg_newDraw.c:776 and :778 pass `cgs.capturedItem` or NULL.
+    ("Display_MouseMove", "p"): ("view", "menuDef_t"),
+    # Raven casts `void *p` to `scrollInfo_t *` at ui_shared.c:3833 and the four siblings, and the one caller passes `captureData`, which holds `&scrollInfo`.
+    ("Scroll_TextScroll_AutoFunc", "p"): ("view", "scrollInfo_t"),
+    ("Scroll_TextScroll_ThumbFunc", "p"): ("view", "scrollInfo_t"),
+    ("Scroll_ListBox_AutoFunc", "p"): ("view", "scrollInfo_t"),
+    ("Scroll_ListBox_ThumbFunc", "p"): ("view", "scrollInfo_t"),
+    ("Scroll_Slider_ThumbFunc", "p"): ("view", "scrollInfo_t"),
+    # Raven passes `&item->special`, one float, at ui_shared.c:2655, and CG_OwnerDrawHandleKey of cg_newDraw.c reads one float.
+    ("displayContextDef_t.ownerDrawHandleKey", "special"): "float_mut",
     ("trap_G2API_RemoveGhoul2Models", "ghlInfo"): "out_opaque",
     ("trap_G2API_RemoveGhoul2Model", "ghlInfo"): "out_opaque",
 }
@@ -513,6 +581,8 @@ NULLABLE = {
     # G_RunFrame clears the NPC global at g_main.c:4001, G_AlertTeam passes it through NPC_ClearLOS2 at g_combat.c:1848, and the trace at NPC_senses.c:745 never reads it.
     ("G_ClearLOS2", "self"),
     ("G_ClearLOS", "self"),
+    # The stored function of a view field takes the field's name after the record. Raven calls `DC->setColor(NULL)` at ui_shared.c:705, :782, :813, :870, and :877.
+    ("displayContextDef_t.setColor", "v"),
 }
 # Files whose functions a bg body reaches directly, because they live in the shared module or in bg itself.
 # The functions whose integer arithmetic is a generator or a hash, where C wraps at 32 bits and Swift's plain operators trap.

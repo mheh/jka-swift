@@ -236,6 +236,9 @@ def emit(target: str, unimportable: set[str], narrowed: set[str], typed: set[str
     files: dict[str, list[str]] = defaultdict(list)
     seen: set[str] = set()
     enum_of: dict[str, str] = {}
+    # The body of each macro a dependency's header defines, so a macro this target repeats with the same body is exported once.
+    elsewhere = {cur.spelling: [t.spelling for t in cur.get_tokens()][1:] for cur in tu.cursor.get_children()
+                 if cur.kind == CursorKind.MACRO_DEFINITION and not in_target(cur, target)}
     for cur in tu.cursor.get_children():
         if cur.kind == CursorKind.ENUM_DECL and cur.is_definition() and enum_name(cur) and enum_name(cur) not in SKIP:
             for e in cur.get_children():
@@ -259,6 +262,10 @@ def emit(target: str, unimportable: set[str], narrowed: set[str], typed: set[str
             # menudef.h spells CT_LTBLUE1 and three more colors of q_shared.h's ct_table_t as three numbers for the menu scripts.
             # That text is not a C value.
             if name in enum_of:
+                continue
+            # ui_shared.h repeats ITEM_ALIGN_LEFT and its two siblings of menudef.h with the same values, and a body that imports both
+            # modules would read two declarations, so the module the target imports exports the name alone.
+            if name in declared and elsewhere.get(name) == tokens:
                 continue
             seen.add(name)
             sources = source_lines(cur)

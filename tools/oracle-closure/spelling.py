@@ -281,6 +281,9 @@ class Types:
         if facts.ruled == "view":
             # Every caller fills the `void *` with one record or NULL, so the parameter is that record's optional view.
             return Answer(f"{self.views.qualified_view(facts.capacity, TARGET)}?", "view_opt")
+        if facts.ruled == "int_array_mut":
+            # The body writes the caller's `int` array by index, so the array crosses inout, the `int` twin of float_array.
+            return Answer("inout [Int32]", "bare")
         if facts.ruled == "int_array":
             # The body only reads the values, and Raven's callers pass NULL with a count of zero, so the array crosses by value as an optional.
             return Answer("[Int32]?", "int_array")
@@ -404,7 +407,11 @@ class Types:
                 # function sets to the token instead has a PARAMS entry, and a non-const `char **` takes that entry the same way.
                 if facts.ruled == "out_string":
                     return Answer("inout String", "out_string_ref")
-            if inner.kind == TypeKind.POINTER and inner.get_pointee().get_canonical().kind == TypeKind.CHAR_S and inner.get_pointee().is_const_qualified():
+                if facts.ruled == "out_optional_string":
+                    # The function stores a text or NULL, and a caller passes the address of a `char *` field, which a view holds as a String?.
+                    return Answer("inout String?", "out_string_ref")
+            if inner.kind == TypeKind.POINTER and inner.get_pointee().get_canonical().kind == TypeKind.CHAR_S:
+                # A `char **` the function walks is the same cursor whether or not Raven wrote `const`, `Float_Parse(char **p, ...)`.
                 return None if facts.traps else Answer("inout JKAShared.TextCursor", "text_cursor")
             if inner.kind == TypeKind.POINTER and not pointee.is_const_qualified():
                 # The address of a struct pointer the body sets, an out-param, `inout View?`. A pointer table into a trap has a PARAMS entry.
