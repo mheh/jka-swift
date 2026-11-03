@@ -196,3 +196,91 @@ The user delegated the rows on 2026-11-03 with the words "remember to prove the 
 - S9, the skeleton reason: ratified as proposed.
 - S10, the cache folders: ratified as proposed. One cache root with one folder per unit, each refreshed in place after a landing.
 - S11, the staged paths: ratified as proposed. The survey runs before the first host hole round.
+
+## Stage 2, second pass
+
+This pass implements the rows S1 to S11 of the ledger above, one commit per row, and runs the gate once after the last row. No row stays for a later pass. The host runs no longer need `CPATH`.
+
+### The commits
+
+| Commit | Row | Subject |
+|---|---|---|
+| a7eb85c | S1 | The function key of a C++ overload |
+| 1f79fc7 | S2 | The lp64 asserts for the C++ reach of cm_local.h |
+| f883d28 | S3 | The SDK include path of the host C target |
+| 861f934 | S4 | No PATH_MAX in the host parse |
+| 1848f13 | S5 | A header macro named as an included enumerator |
+| b36fb25 | S6 | The bare struct tag of CCMLandScape |
+| 0eb0a1b | S7 | traceWork_t as a C struct |
+| 1621879 | S8 | The host platform spellings in the host target alone |
+| 7f4a911 | S9 | The no-view reason names the header |
+| 4d7f51c | S10 | One snapshot folder per unit |
+| cd5c371 | S11 | The staged root in every read of a staged run |
+| 7b21325 | S1 | The drafter on C++ host bodies |
+
+### The rows
+
+- S1: `closure.function_key` gives the name of a function, and the name with the line of its definition when the file defines the name more than once. The table, the syntax rows, the skeleton, the drafter, `draftcheck.py`, and `snapshot.py` read a function by this key. A C function keeps its name as its key. The host snapshot then stopped in the drafter on nine functions that call a C++ method, `shaderTextTable.clear()` of `cm_shader.cpp:178` first, and on `IsPentium` of `win_shared.cpp:102`, whose label takes a goto from both sides at the top of the body. A call through a member that is no field is now a hole that names the method, and a hole that no statement holds makes the whole body one hole.
+- S2: a comment at the host entry list of `project.toml` records that the lp64 asserts alone cover the C++ reach of `cm_local.h`. The extract writes this already, so no tool changes.
+- S3: `SDK_TARGETS` of `rulings.py` names `CJKAMP_Ded`. `reexport.parse` and `check.sh` give such a target `-isystem` with the SDK's `usr/include`. `check.sh` also defines `__arm64__` on an aarch64 triple, because the SDK names 64-bit ARM so and stops on any other spelling.
+- S4: the host unit defines `_SYS_SYSLIMITS_H_`, the guard of the one SDK header that defines `PATH_MAX`. `MAX_OSPATH` is 256 on every triple, `pack_t` is 816 bytes on lp64, and `directory_t` is 512 bytes.
+- S5: the extract leaves out of the constants files a header macro whose name is an enumerator of a header that the macro's header includes, and reports it. It reports `server.h:22 macro PERS_SCORE` alone. A first form with no include test also caught the four `CT_*` macros of `menudef.h` and changed `Sources/CJKAMP`, so the test reads the include graph of the parse.
+- S6: `C_STRUCT_CLASSES` takes a form per class, `fields` or `tag`. A `tag` class is `struct X;` and `typedef struct X X;` in `forward.h`, and a pointer to it includes no header. `CCMLandScape` is the first, and `clipMap_t` now lands in C.
+- S7: `traceWork_t` takes the `fields` form, its fields in Raven's text with `_Bool` in the place of `bool`.
+- S8: `merge.py` writes the platform spellings of the host module into `CJKAMP_Ded_platform.h` alone. A merge with the host now gives the module targets the same platform headers as master.
+- S9: a record with no view that comes from a header takes the reason "No view for `sysEvent_t` of `qcommon.h`.". The cgame text changes at `commandList` of `ui_shared.c`, whose `commandDef_t` comes from `ui_shared.h`.
+- S10: the README and the usage of `snapshot.py` name the cache root `~/.cache/jka-swift` and its folders `snapshot-stage-two-shared`, `snapshot-mp-cgame`, and `snapshot-mp-engine-ded`. The host folder now holds the snapshot of this branch.
+- S11: `closure.READ_ROOTS` holds the output root, and the staged root after it for a staged unit. The survey found these reads of `Sources/` that a staged run takes, and each now reads every root: `skeleton.py` `field_owners`, `collect_outside_calls`, and `collect_never`, `views.py` `scan_declared`, `exported_names`, `callback_alias`, and `target_of`, `channel.py` `ConsumerInstall`, the registry of `bodies.py`, and the lowered key of `bodies.py`, `printer.py`, and `lowering_key.py`. These reads stay on `Sources/`: `reexport.py`, which takes no staged target, `tables.py`, which writes the committed tables, and the `JKAMP_BG` and `JKAShared` reads of `channel.py` and `skeleton.py`, which a staged run never writes.
+
+### The counts
+
+| Count | Before the pass | After the pass |
+|---|---:|---:|
+| `CJKAMP_Ded` types | 119 | 119 |
+| `CJKAMP_Ded` C++ only declarations | 40 | 38 |
+| `CJKAMP_Ded` asserts per ABI | 382 | 437 |
+| Extract asserts per triple | 1724 | 1779 |
+| Extract C++ lines | 42 | 40 |
+| Errors of the extract syntax check | 14 | 0 |
+| `check.sh` errors of `CJKAMP_Ded` | 46 | 0 |
+| `TODO: Port signature` markers | 225 | 225 |
+| Variable markers | 47 | 47 |
+| Files of the host snapshot | stops in `bodies.py` | 153 |
+| Holes of the 40 host drafts | | 1383, 77 of them C++ methods |
+
+### The gate
+
+| Step | Command | Wall time | Result |
+|---|---|---:|---|
+| 1 | `closure.py --list-modules` | | The host lists. |
+| 2 | `extract.py mp-engine-ded` | 10.30 s | 372 files, 1779 asserts per triple, 40 C++ lines, 12 drops, `PERS_SCORE` reported. |
+| 3 | `clang -fsyntax-only ... layout_asserts.h` | | 0 errors. |
+| 4 | `merge.py --mp mp-game mp-bg mp-cgame mp-ui mp-engine-ded --out out/mp-engine-ded/Sources` | 0.85 s | `CJKAMP_Ded` holds 119 types, 38 C++ only, 18 constants files, 437 asserts per ABI. |
+| 5 | `tables.py` | | The same bytes. `git status` is clean. |
+| 6 | `check.sh out/mp-engine-ded/Sources` | 4.83 s | Every target 0 errors, `CJKAMP_Ded` with 1301 asserts. |
+| 8 | `views.py --unit mp-engine-ded` | 34.81 s | 33 files, 31 views, 25 callback types, 0 markers. |
+| 9 | `skeleton.py --unit mp-engine-ded` | 18.15 s | 40 files, 605 stubs, 225 markers, 47 variable markers. |
+| 10 | `traps.py --unit mp-engine-ded` | 0.06 s | exit 0, no work. |
+| 11 | `manifest.py --unit mp-engine-ded` | 19.88 s | 40 manifests, 830 functions, 648 with a jka-rust match. |
+| 12 | `channel.py --unit mp-engine-ded` | 0.10 s | exit 0, no work. |
+| 13 | `bodies.py --unit mp-engine-ded --stem sv_init` | 19.07 s | 18 holes. |
+| 14 | `snapshot.py --unit mp-engine-ded --out ~/.cache/jka-swift/snapshot-mp-engine-ded` | 20.00 s | 153 files. |
+
+| Check | Result | Wall time |
+|---|---|---:|
+| `snapshot.py --check ~/.cache/jka-swift/snapshot-stage-two-shared` | 372 files, no difference | 210.89 s |
+| `snapshot.py --unit mp-cgame --check ~/.cache/jka-swift/snapshot-mp-cgame` | 246 files, two differing lines, both the S9 reason of `commandList` in `skeleton/ui_shared.swift` and `manifest/ui_shared.md` | 118.73 s |
+| `.venv/bin/python3 -m unittest discover -s tests` | 97 tests, OK, 14 skipped | 2.08 s |
+| `SLOW=1 .venv/bin/python3 -m unittest discover -s tests` | 97 tests, OK | 326.43 s |
+| `swift build` | Build complete, 0 errors | 42.85 s |
+| `swift test --no-parallel` | 117 tests in six runs, 1, 1, 84, 13, 3, and 15, all passed | 6.20 s |
+
+### Rows
+
+The cgame check differs from `~/.cache/jka-swift/snapshot-mp-cgame` in the two lines that row S9 changes, `commandList` of `oracle/codemp/ui/ui_shared.c:2196`, whose `commandDef_t` comes from `oracle/codemp/ui/ui_shared.h:398`. The proposal is to refresh the cgame folder in place with `snapshot.py --unit mp-cgame --out` when this branch lands, by row S10.
+
+The C++ method hole of `tools/oracle-closure/draft_calls.py:128-133` and the body hole of `tools/oracle-closure/bodies.py:330-334` are drafter changes that row S1 did not name. Without them the host snapshot stops on ten host functions. The proposal is to keep them, and that the C++ docket of row T10 reads the 77 C++ method holes of the host drafts.
+
+`check.sh` defines `__arm64__` on the aarch64 triples of `CJKAMP_Ded` (`tools/oracle-closure/check.sh:27`), so the macOS SDK takes its arm64 arm on a Linux and a Windows triple. The SDK of the Mac checks the layout of every triple, and no Linux or Windows C library takes part. The proposal is to accept this for the check, because the layout asserts come from the extract and `FILE` stands behind a pointer alone.
+
+The guard `_SYS_SYSLIMITS_H_` of row S4 (`tools/oracle-closure/project.toml`, the host defines) names a header of the macOS SDK. A host parse on Linux reads `PATH_MAX` from `linux/limits.h` and would take 4096. The proposal is to add the Linux guard `_LINUX_LIMITS_H` beside it when the tools first run on Linux.
