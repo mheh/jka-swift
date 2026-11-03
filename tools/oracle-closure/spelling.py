@@ -404,7 +404,8 @@ class Types:
                 # function sets to the token instead has a PARAMS entry, and a non-const `char **` takes that entry the same way.
                 if facts.ruled == "out_string":
                     return Answer("inout String", "out_string_ref")
-            if inner.kind == TypeKind.POINTER and inner.get_pointee().get_canonical().kind == TypeKind.CHAR_S and inner.get_pointee().is_const_qualified():
+            if inner.kind == TypeKind.POINTER and inner.get_pointee().get_canonical().kind == TypeKind.CHAR_S:
+                # A `char **` the function walks is the same cursor whether or not Raven wrote `const`, `Float_Parse(char **p, ...)`.
                 return None if facts.traps else Answer("inout JKAShared.TextCursor", "text_cursor")
             if inner.kind == TypeKind.POINTER and not pointee.is_const_qualified():
                 # The address of a struct pointer the body sets, an out-param, `inout View?`. A pointer table into a trap has a PARAMS entry.

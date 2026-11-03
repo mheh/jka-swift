@@ -371,6 +371,8 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #   view      the optional view of the record named beside the kind, ("view", record), for a `void *` every caller fills with that record or NULL
 PARAMS = {
     ("COM_ParseString", "s"): "out_string",
+    # String_Parse of ui_shared.c:607 sets `*out` to the token and never walks it.
+    ("String_Parse", "out"): "out_string",
     ("PC_String_Parse", "out"): "out_string",
     # A `char **` the function sets once to a string it owns, never walked, the same shape as the const one.
     ("G_SpawnString", "out"): "out_string",

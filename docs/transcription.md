@@ -100,7 +100,7 @@ An enum of that last kind is `private let` constants of type `Int32` at the top 
 | a `char *` return | `String`. |
 | a `void **` parameter | `inout OpaquePointer?` |
 | a pointer to a struct pointer, in a function that is not a trap | `inout View?`, the out-param the body sets. |
-| a `const char **` parameter | `inout JKAShared.TextCursor`, or `inout String` where the PARAMS kind `out_string` marks a parameter the function sets to the token instead of walking, such as `COM_ParseString`. |
+| a `const char **` parameter, or a `char **` the function walks | `inout JKAShared.TextCursor`, or `inout String` where the PARAMS kind `out_string` marks a parameter the function sets to the token instead of walking, such as `COM_ParseString`. |
 | a non-const `char *` parameter of a trap with no size parameter beside it | `String`, an input the engine reads. Raven's missing `const` is habit. |
 | `qint64` | `Int64`, by the TYPES map. |
 | a pointer to a const scalar, such as `const float *f` of `FloatSwap` | the scalar by value, `Float`. |
