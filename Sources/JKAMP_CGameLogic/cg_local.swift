@@ -399,6 +399,81 @@ public final class CGameWorld {
         CvarTableRow(vmCvar: \CGameStorage.cg_debugBB, cvarName: "debugBB", defaultString: "0", cvarFlags: 0),
     ]
 
+    /// Raven's `char *HolocronIcons[]` of `holocronicons.h`, which `cg_main.c` includes.
+    /// Source: oracle/codemp/cgame/holocronicons.h:4
+    let HolocronIcons: [String] = [
+        "gfx/mp/f_icon_lt_heal", //FP_HEAL,
+        "gfx/mp/f_icon_levitation", //FP_LEVITATION,
+        "gfx/mp/f_icon_speed", //FP_SPEED,
+        "gfx/mp/f_icon_push", //FP_PUSH,
+        "gfx/mp/f_icon_pull", //FP_PULL,
+        "gfx/mp/f_icon_lt_telepathy", //FP_TELEPATHY,
+        "gfx/mp/f_icon_dk_grip", //FP_GRIP,
+        "gfx/mp/f_icon_dk_l1", //FP_LIGHTNING,
+        "gfx/mp/f_icon_dk_rage", //FP_RAGE,
+        "gfx/mp/f_icon_lt_protect", //FP_PROTECT,
+        "gfx/mp/f_icon_lt_absorb", //FP_ABSORB,
+        "gfx/mp/f_icon_lt_healother", //FP_TEAM_HEAL,
+        "gfx/mp/f_icon_dk_forceother", //FP_TEAM_FORCE,
+        "gfx/mp/f_icon_dk_drain", //FP_DRAIN,
+        "gfx/mp/f_icon_sight", //FP_SEE,
+        "gfx/mp/f_icon_saber_attack", //FP_SABER_OFFENSE,
+        "gfx/mp/f_icon_saber_defend", //FP_SABER_DEFENSE,
+        "gfx/mp/f_icon_saber_throw", //FP_SABERTHROW
+    ]
+
+    /// Raven's `static int drawTeamOverlayModificationCount = -1` of `CG_UpdateCvars` in `cg_main.c`.
+    /// Source: oracle/codemp/cgame/cg_main.c:1160
+    var drawTeamOverlayModificationCount: Int32 = -1
+
+    /// Raven's `static char *sb_nums[11]` of `CG_RegisterGraphics` in `cg_main.c`.
+    /// Source: oracle/codemp/cgame/cg_main.c:1926
+    var sb_nums: [String] = [
+        "gfx/2d/numbers/zero",
+        "gfx/2d/numbers/one",
+        "gfx/2d/numbers/two",
+        "gfx/2d/numbers/three",
+        "gfx/2d/numbers/four",
+        "gfx/2d/numbers/five",
+        "gfx/2d/numbers/six",
+        "gfx/2d/numbers/seven",
+        "gfx/2d/numbers/eight",
+        "gfx/2d/numbers/nine",
+        "gfx/2d/numbers/minus",
+    ]
+
+    /// Raven's `static char *sb_t_nums[11]` of `CG_RegisterGraphics` in `cg_main.c`.
+    /// Source: oracle/codemp/cgame/cg_main.c:1940
+    var sb_t_nums: [String] = [
+        "gfx/2d/numbers/t_zero",
+        "gfx/2d/numbers/t_one",
+        "gfx/2d/numbers/t_two",
+        "gfx/2d/numbers/t_three",
+        "gfx/2d/numbers/t_four",
+        "gfx/2d/numbers/t_five",
+        "gfx/2d/numbers/t_six",
+        "gfx/2d/numbers/t_seven",
+        "gfx/2d/numbers/t_eight",
+        "gfx/2d/numbers/t_nine",
+        "gfx/2d/numbers/t_minus",
+    ]
+
+    /// Raven's `static char *sb_c_nums[11]` of `CG_RegisterGraphics` in `cg_main.c`.
+    /// Source: oracle/codemp/cgame/cg_main.c:1954
+    var sb_c_nums: [String] = [
+        "gfx/2d/numbers/c_zero",
+        "gfx/2d/numbers/c_one",
+        "gfx/2d/numbers/c_two",
+        "gfx/2d/numbers/c_three",
+        "gfx/2d/numbers/c_four",
+        "gfx/2d/numbers/c_five",
+        "gfx/2d/numbers/c_six",
+        "gfx/2d/numbers/c_seven",
+        "gfx/2d/numbers/c_eight",
+        "gfx/2d/numbers/c_nine",
+        "gfx/2d/numbers/t_minus", //?????
+    ]
+
     // MARK: - cg_marks.c
 
     /// Raven's `static char *shaderAnimNames[MAX_SHADER_ANIMS]` of `cg_marks.c`.
