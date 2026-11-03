@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import subprocess
 import sys
 import tomllib
@@ -18,6 +19,18 @@ PARSE_KEYS = ("name", "lang", "entry", "includes", "defines", "flags", "srcglob"
 # The source patterns a ruling added after the old commit, by unit and by the pattern each one follows.
 # Row V10 of notes/2026-10-29/vehicle-npc-docket.md adds the four vehicle files that Raven's cgame build compiles a second time.
 ADDED = {"mp-cgame": ("codemp/cgame/*.c", [f"codemp/game/{stem}.c" for stem in ("AnimalNPC", "FighterNPC", "SpeederNPC", "WalkerNPC")])}
+# Row E8 of notes/2026-11-03/dedicated-opening-docket.md gives the dedicated server unit the WinDed Release link set, and row E13 leaves vm_x86.cpp out.
+WINDED = "codemp/WinDed.vcproj"
+WINDED_OUT = {"codemp/qcommon/vm_x86.cpp"}
+
+
+def winded_files() -> set[str]:
+    """Every .c and .cpp file of Raven's WinDed project, relative to the oracle root, spelled as the files on disk spell it."""
+    oracle = REPO / "oracle"
+    text = (oracle / WINDED).read_text(encoding="latin-1")
+    on_disk = {str(p.relative_to(oracle)).lower(): str(p.relative_to(oracle)) for p in (oracle / "codemp").rglob("*.c*")}
+    named = re.findall(r'RelativePath="([^"]+\.(?:cpp|c))"', text, re.I)
+    return {on_disk["codemp/" + path.replace("\\", "/").removeprefix("./").lower()] for path in named}
 
 
 def git(*args: str) -> str:
@@ -52,6 +65,9 @@ class ProjectFile(unittest.TestCase):
                 at = expected["srcglob"].index(after) + 1
                 expected["srcglob"] = expected["srcglob"][:at] + added + expected["srcglob"][at:]
             actual = {key: units[name][key] for key in PARSE_KEYS if key in units[name]}
+            if name == "mp-engine-ded":
+                self.assertEqual(set(actual.pop("srcglob")), winded_files() - WINDED_OUT)
+                expected.pop("srcglob")
             self.assertEqual(actual, expected, name)
 
     def test_the_parse_reads_the_unit_file_lists_of_the_old_module_files(self) -> None:

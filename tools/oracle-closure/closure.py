@@ -333,15 +333,36 @@ OTHER_UNIT = TARGETS["other"]
 # The oracle directories of the two units a generator reads, which every sweep of the port walks.
 GAME_DIR = TARGETS["folder"]
 CGAME_DIR = PROJECT["targets"][OTHER_UNIT]["folder"]
+# A module row describes a game module with a trap file and a vmMain shell, and a host row describes the engine that loads the modules.
+HOST = TARGETS.get("kind", "module") == "host"
+
+
+def host_files() -> list[str]:
+    """The source files of a host unit that the skeleton reads, relative to the source root.
+    They are the files of `srcglob` of the unit's parse profile, less the files that `deferred` of the row names."""
+    deferred = {p.resolve() for g in TARGETS.get("deferred", []) for p in ORACLE.glob(g)}
+    files = [p for g in MODULE_SPECS[UNIT]["srcglob"] for p in ORACLE.glob(g)]
+    return [str(p.relative_to(ORACLE)) for p in files if p.resolve() not in deferred]
+
+
 # The .c files of another folder that the unit's build compiles too, by stem, each with its folder, from `borrowed` of the row.
-BORROWED = {Path(p).stem: str(Path(p).parent) for p in TARGETS.get("borrowed", [])}
-_BORROWED_FILES = {(ORACLE / p).resolve() for p in TARGETS.get("borrowed", [])}
+# A host has no single folder, so each file of its link set outside the folder of the row stands as a borrowed file.
+_BORROWED_PATHS = host_files() if HOST else TARGETS.get("borrowed", [])
+BORROWED = {Path(p).stem: str(Path(p).parent) for p in _BORROWED_PATHS}
+_BORROWED_FILES = {(ORACLE / p).resolve() for p in _BORROWED_PATHS}
 _UNIT_FOLDER = (ORACLE / GAME_DIR).resolve()
+# The suffix of each source file of a host, `.cpp` for most of the engine, by stem. A module file is a `.c` file.
+SUFFIXES = {Path(p).stem: Path(p).suffix for p in _BORROWED_PATHS} if HOST else {}
 
 
 def folder_of(stem: str) -> str:
     """The oracle folder of one .c file of the run's unit: the unit's folder, or the folder of a borrowed file."""
     return BORROWED.get(stem, GAME_DIR)
+
+
+def file_name(stem: str) -> str:
+    """The file name of one source file of the run's unit, with the suffix of a host file."""
+    return stem + SUFFIXES.get(stem, ".c")
 
 
 def within(path: Path, *folders: Path) -> bool:
@@ -386,7 +407,8 @@ class Parse:
         # A sweep proves a fact over every caller the port parses, so the other unit stands beside the unit of the run.
         self.cgame = parse_tu(OTHER_UNIT, None, unity=True, overlay=self.overlay)
         # The header umbrella of the unit's C target, which the views and the table read.
-        self.headers = reexport.parse(TARGETS["c_target"])
+        # A unit whose logic target is not under the output root yet reads the C targets that merge.py wrote under out/<unit>/.
+        self.headers = reexport.parse(TARGETS["c_target"], root=STAGE / PROJECT["output"]["root"] if STAGED else None)
         self.game_folder = (ORACLE / GAME_DIR).resolve()
         self.cgame_folder = (ORACLE / CGAME_DIR).resolve()
 

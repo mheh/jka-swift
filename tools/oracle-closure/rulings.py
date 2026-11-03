@@ -195,7 +195,10 @@ CGAME_ROOTS = {
     "ragCallbackBoneSnap_t": ("RagCallbackBoneSnap", "CJKAMP_CGame"),
 }
 
-ROOTS = {"mp-game": GAME_ROOTS, "mp-cgame": CGAME_ROOTS}
+# The dedicated server has no view root yet. Row E4 of notes/2026-11-03/dedicated-opening-docket.md names the records, and a later ruling writes the rows.
+HOST_ROOTS: dict[str, tuple[str, str]] = {}
+
+ROOTS = {"mp-game": GAME_ROOTS, "mp-cgame": CGAME_ROOTS, "mp-engine-ded": HOST_ROOTS}
 
 # (struct, field) pairs whose pointer Raven's callers always set. The field is non-optional, and its getter traps with the
 # field's name when the pointer is NULL, the one divergence rule 19 allows. See "A pointer field Raven's callers always set".

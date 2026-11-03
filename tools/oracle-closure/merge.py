@@ -46,8 +46,10 @@ SP_MODULES = ["sp-game", "sp-bg", "sp-cgame", "sp-ui"]
 TREE_PREFIX = {"mp": "codemp/", "sp": "code/"}
 # The bg run parses the bg_*.c files' own headers, bg_local.h and bg_saga.h, and never g_local.h, even though Raven's bg_*.c include
 # it under QAGAME. That keeps the game-private types out of the tree target, and the bg types in it.
+# The engine module of the dedicated server is not in the default list, so the default run places the types of the four game modules alone.
+# A run that names it under --mp places its types too, into CJKAMP_Ded.
 TARGET_OF_MODULE = {
-    "mp-game": "CJKAMP_Game", "mp-cgame": "CJKAMP_CGame", "mp-ui": "CJKAMP_UI", "mp-bg": "CJKAMP",
+    "mp-game": "CJKAMP_Game", "mp-cgame": "CJKAMP_CGame", "mp-ui": "CJKAMP_UI", "mp-bg": "CJKAMP", "mp-engine-ded": "CJKAMP_Ded",
     "sp-game": "CJKASP_Game", "sp-cgame": "CJKASP_CGame", "sp-ui": "CJKASP_UI", "sp-bg": "CJKASP",
 }
 TREE_TARGET = {"mp": "CJKAMP", "sp": "CJKASP"}
@@ -59,6 +61,7 @@ FORWARD: dict[str, list[str]] = {}
 TARGET_DEPS = {
     SHARED: [],
     "CJKAMP": [SHARED], "CJKAMP_Game": ["CJKAMP", SHARED], "CJKAMP_CGame": ["CJKAMP", SHARED], "CJKAMP_UI": ["CJKAMP", SHARED],
+    "CJKAMP_Ded": ["CJKAMP", SHARED],
     "CJKASP": [SHARED], "CJKASP_Game": ["CJKASP", SHARED], "CJKASP_CGame": ["CJKASP", SHARED], "CJKASP_UI": ["CJKASP", SHARED],
 }
 
@@ -785,6 +788,9 @@ def emit(out_dir: Path, mp_modules: list[str], sp_modules: list[str]) -> int:
     # Report.
     print(f"{'target':14} {'types':>6} {'C++ only':>9} {'constants':>10} {'asserts':>8}")
     for target in TARGET_DEPS:
+        # The engine target of a run that names no engine module holds no file, so the report leaves it out.
+        if target not in out.files:
+            continue
         files = out.files.get(target, {})
         types = sum(1 for f in files if f.startswith(("shared/", "codemp/", "code/", "ui/")) and not f.endswith("/constants.h"))
         consts = sum(1 for f in files if f.endswith("/constants.h"))

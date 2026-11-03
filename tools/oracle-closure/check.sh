@@ -7,7 +7,7 @@ here=$(cd "$(dirname "$0")" && pwd)
 triples=$("$here/.venv/bin/python" -c "import sys; sys.path.insert(0, '$here'); import extract; print(' '.join(extract.TRIPLES))")
 cd "${1:-$here/out/merge}" || exit 1
 status=0
-for target in CJKAShared CJKAMP CJKAMP_Game CJKAMP_CGame CJKAMP_UI CJKASP CJKASP_Game CJKASP_CGame CJKASP_UI; do
+for target in CJKAShared CJKAMP CJKAMP_Game CJKAMP_CGame CJKAMP_UI CJKAMP_Ded CJKASP CJKASP_Game CJKASP_CGame CJKASP_UI; do
     [ -d "$target/include" ] || continue
     flags=(-I "$target/include" -I CJKAShared/include)
     case "$target" in

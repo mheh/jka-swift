@@ -143,10 +143,10 @@ def align_stem(store: S.Store, key: str, stem: str, names: list[str], path: Path
 
 def adopted(stem: str) -> bool:
     """True when the stub of the stem exists and its first line is no longer the generated header."""
-    from skeleton import NOTE, stub_path
+    from skeleton import header_line, stub_path
 
     path = stub_path(stem)
-    return path.exists() and path.read_text().split("\n", 1)[0] != NOTE.format(stem=stem)
+    return path.exists() and path.read_text().split("\n", 1)[0] != header_line(stem)
 
 
 def counts(rows: list[tuple]) -> dict[str, int]:
