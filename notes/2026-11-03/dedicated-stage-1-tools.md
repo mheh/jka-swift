@@ -206,3 +206,18 @@ The snapshot cache `~/.cache/jka-swift/snapshot-stage-two-shared` is older than 
 The skeleton's variable line counts each variable twice, because `variable_entry` adds to the counts (`tools/oracle-closure/skeleton.py:844`) and the run calls it for the stub and again for the signature row. The host run prints 280 markers for 140 variables. The game and cgame lines carry the same double count. The proposal is that `variable_entry` counts only when the stub writer calls it.
 
 The `cxx_only.txt` of the host lists the eight classes that own a method and not the types that hold one of them by value, which rule 17 names (`docs/porting-rules.md:42`). The C++ docket of row E7 needs that second half before the first transcription round. The proposal is that the C++ docket reads the class list of this record and finds the holders by value from the hand entry list of the second row, through `extract.py`, which marks a declaration that depends on a C++ type (`tools/oracle-closure/extract.py:1098`).
+
+## The ledger
+
+The user delegated the ten rows to the coordinator on 2026-11-03 with the words "run agents in parallel as much as possible to work toward the dedicated executable running". The rows take the numbers T1 to T10 in the order of the section above.
+
+- T1, the redefinitions: ratified as proposed. The count stands for stage 1, and each later subsystem gets its own unity parse when its stage opens.
+- T2, the host entry list: ratified as proposed. A hand entry list in the shape of `[units.mp-engine]`, with `qcommon.h`, `qfiles.h`, `cm_local.h`, `cm_patch.h`, `files.h`, `vm_local.h`, `server.h`, and the null and win32 headers, and no botlib header.
+- T3, the engine in the default merge: ratified as proposed. The engine joins the default list when `CJKAMP_Ded` lands under `Sources/`, and its platform spellings stay in `CJKAMP_Ded_platform.h`.
+- T4, the renderer files and `png.cpp`: ratified as proposed. They link as C++ with Ghoul2 under row E5.
+- T5, the host view roots: ratified as proposed. `HOST_ROOTS` of `serverStatic_t`, `server_t`, `client_t`, `sharedEntity_t`, `playerState_t`, `msg_t`, `vm_t`, and `cvar_t`, after the entry list of T2.
+- T6, the sweeps and the drafter on a host stem: ratified as proposed. The sweeps and the drafter test the file name through the unit's kind, in a stage of its own with a snapshot gate, before the first host hole round.
+- T7, the traps and channel steps on a host: ratified as proposed. One line in each script names the host kind and exits 0.
+- T8, the snapshot cache and `--unit`: ratified as proposed. The cache refreshes in place from master, and `snapshot.py` gains `--unit`.
+- T9, the double variable count: ratified as proposed. `variable_entry` counts only when the stub writer calls it.
+- T10, the C++ docket: ratified as proposed. The docket reads the class list of this record and finds the holders by value through `extract.py`.
