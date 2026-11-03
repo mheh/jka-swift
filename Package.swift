@@ -17,6 +17,10 @@ let package = Package(
         // The engine side of the same call: the variadic callee VM_DllSyscall and the module load. It holds no Raven header.
         .target(name: "CJKAHost", dependencies: ["CJKASyscall"]),
 
+        // MARK: - C, the system zlib
+        // The inflate calls of the pk3 reader. The module map links the system zlib, because zlib is not Raven's code.
+        .systemLibrary(name: "CJKAZlib"),
+
         // MARK: - C, the copied Raven headers, written by merge.py
         // A type both trees define identically, 48 today. Every other C target depends on it.
         .target(name: "CJKAShared"),
