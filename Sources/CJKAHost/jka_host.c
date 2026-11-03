@@ -10,7 +10,8 @@ jka_systemcall_fn jka_systemCall = NULL;
 intptr_t VM_DllSyscall( intptr_t arg, ... ) {
 	// Port-note: Raven's x86 arm read the words from the stack after &arg, which is undefined on a 64-bit host.
 	// This is the form of Raven's linux powerpc arm at oracle/codemp/qcommon/vm.cpp:364-377, which copies the words from the va_list.
-	intptr_t	args[15];
+	// Source: oracle/codemp/qcommon/vm.cpp:366
+	intptr_t	args[16];
 	int		i;
 	va_list	ap;
 

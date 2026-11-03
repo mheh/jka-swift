@@ -12,7 +12,7 @@ nonisolated(unsafe) private var recordedWords: [Int] = []
 
 /// The stand-in for the Swift host's system call. It stores every word it gets and returns the command.
 private let recordingSystemCall: jka_systemcall_fn = { parms in
-    recordedWords = Array(UnsafeBufferPointer(start: parms, count: 15))
+    recordedWords = Array(UnsafeBufferPointer(start: parms, count: 16))
     return parms![0]
 }
 
@@ -20,13 +20,13 @@ private let recordingSystemCall: jka_systemcall_fn = { parms in
 /// Swift cannot name a C variadic function, so the test finds VM_DllSyscall with dlsym in its own process.
 @Suite(.serialized)
 struct VMDllSyscallSuite {
-    @Test("a call with no words gives the command and a count of 15")
+    @Test("a call with no words gives the command and 16 words")
     func noWords() throws {
         let words: [Int] = []
         let answer = try Self.callThroughShim(command: 7, words: words)
 
         #expect(answer == 7)
-        #expect(recordedWords.count == 15)
+        #expect(recordedWords.count == 16)
         #expect(recordedWords.first == 7)
     }
 
@@ -36,7 +36,7 @@ struct VMDllSyscallSuite {
         let answer = try Self.callThroughShim(command: 12, words: words)
 
         #expect(answer == 12)
-        #expect(recordedWords.count == 15)
+        #expect(recordedWords.count == 16)
         #expect(Array(recordedWords.prefix(2)) == [12, -3])
     }
 
@@ -46,7 +46,7 @@ struct VMDllSyscallSuite {
         let answer = try Self.callThroughShim(command: 330, words: words)
 
         #expect(answer == 330)
-        #expect(recordedWords == [330] + words)
+        #expect(Array(recordedWords.prefix(15)) == [330] + words)
     }
 
     @Test("a pointer word arrives whole")
