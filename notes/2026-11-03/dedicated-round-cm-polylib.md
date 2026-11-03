@@ -30,3 +30,12 @@ Two more facts block a body:
 ## Ledger
 
 No row is ruled in this round.
+
+## Ledger of the open rows
+
+1. The view of `winding_t`: ruled. Raven declares `winding_t` in the header `cm_polylib.h`, so it joins `HOST_ROOTS` as `"winding_t": ("Winding", "CJKAMP_Ded")`, by the rule for a header struct that no root reaches (`docs/transcription.md:82`). The view binds over the declared record, and the larger allocation stays Raven's `Z_Malloc` size. Change: the table row, then a generator run, then the bodies.
+2. The `p[i]` access: ruled. The `p` field reads as a `Slots<JKAShared.vec3_t>` with the 12-byte stride of `vec3_t`, the form of `WP_MuzzlePoint` in `BgTables.swift` (`docs/transcription.md:446`). A body reads `w.p[i]` and writes `w.p[nump] = ...`, and the slot past index 3 reads the allocated block as Raven does. Change: none past the view.
+3. The `0xdeaddead` write in `FreeWinding`: ruled. The word at `w` is `numpoints`, so the body writes `w.numpoints = Int32(bitPattern: 0xdeaddead)`, the same four bytes. Precedent: rule 1, internals are free and the bytes are the behavior (`docs/porting-rules.md:7`). Change: the body line, with no `// AI:` line, because the bytes stay Raven's.
+4. The `Z_Malloc` signature: ruled. The `z_memman_pc` round owns it, and a signature change is its own commit from the table (`docs/porting-rules.md:35`, `docs/transcription.md:73`). Change: a row in the table batch.
+5. The float `printf` in `pw`: open for the user. The round did not prove a caller of `pw`, and no host or game site ports a bare `printf`. If `pw` has no caller in either tree, rule 20 keeps its stub as dead (`docs/porting-rules.md:45`).
+6. The `winding_t **` parameters: ruled. The guide row for a pointer to a struct pointer gives `inout Winding?`, and it applies once row 1 lands. Change: the signatures come from the generator run of row 1.
