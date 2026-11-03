@@ -132,9 +132,7 @@ func TurretClientRun(_ ent: Centity) {
 
     if ent.currentState.fireflag == 2 {
         //I'm about to blow
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '!=' cannot be applied to operands of type 'vec3_t' (aka 'SIMD3<Float>') and 'Int'".
-        // Raven wrote: if (ent->turAngles) { trap_G2API_SetBoneAngles( ent->ghoul2, 0, "bone_hinge", ent->turAngles, BONE_ANGLES_REPLACE, NEGATIVE_Y, NEGATIVE_Z, NEGATIVE_X, NULL, 100, cg.time ); }
-        portMissing("TurretClientRun", source: "oracle/codemp/cgame/cg_turret.c:125")
+        trap_G2API_SetBoneAngles(ent.ghoul2, 0, "bone_hinge", ent.turAngles, BONE_ANGLES_REPLACE, NEGATIVE_Y, NEGATIVE_Z, NEGATIVE_X, nil, 100, cg.time)
         return
     } else if ent.currentState.fireflag != 0 && ent.bolt4 != ent.currentState.fireflag {
         var muzzleOrg = vec3_t()
