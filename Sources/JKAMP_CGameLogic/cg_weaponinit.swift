@@ -16,8 +16,8 @@ The server says this item is used on this level
 /// Source: oracle/codemp/cgame/cg_weaponinit.c:14
 func CG_RegisterWeapon(_ weaponNum: Int32) {
     var weaponInfo: WeaponInfo?
-    var item: Gitem?
-    var ammo: Gitem?
+    var itemIndex: Int32
+    var ammoIndex: Int32
     var path = CharBuf(64)
     var mins = vec3_t()
     var maxs = vec3_t()
@@ -33,34 +33,26 @@ func CG_RegisterWeapon(_ weaponNum: Int32) {
         return
     }
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'WeaponInfo?' must be unwrapped to refer to member 'clear' of wrapped base type 'WeaponInfo'".
-    // Raven wrote: memset( weaponInfo, 0, sizeof( *weaponInfo ) )
-    portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
+    weaponInfo!.clear()
     weaponInfo!.registered = true
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+' cannot be applied to operands of type 'Slots<Gitem>' and 'Int'".
-    // Raven wrote: item = bg_itemlist + 1
-    portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
-    while item!.classname != nil {
-        if item!.giType == IT_WEAPON && item!.giTag == weaponNum {
-            weaponInfo!.item = item
+    itemIndex = 1
+    while bg_itemlist[itemIndex].classname != nil {
+        if bg_itemlist[itemIndex].giType == IT_WEAPON && bg_itemlist[itemIndex].giTag == weaponNum {
+            weaponInfo!.item = bg_itemlist[itemIndex]
             break
         }
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Gitem?' to expected argument type 'Int'".
-        // Raven wrote: item++
-        portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
+        itemIndex += 1
     }
-    if item!.classname == nil {
+    if bg_itemlist[itemIndex].classname == nil {
         CG_Error("Couldn't find weapon %i", weaponNum)
     }
-    CG_RegisterItemVisuals(bg_itemlist.index(of: item!))
+    CG_RegisterItemVisuals(itemIndex)
 
     // load cmodel before model so filecache works
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-    // Raven wrote: weaponInfo->weaponModel = trap_R_RegisterModel( item->world_model[0] )
-    portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
+    weaponInfo!.weaponModel = trap_R_RegisterModel(bg_itemlist[itemIndex].world_model[0]!)
     // load in-view model also
-    weaponInfo!.viewModel = trap_R_RegisterModel(item!.view_model!)
+    weaponInfo!.viewModel = trap_R_RegisterModel(bg_itemlist[itemIndex].view_model!)
 
     // calc midpoint for rotation
     trap_R_ModelBounds(weaponInfo!.weaponModel, &mins, &maxs)
@@ -70,24 +62,18 @@ func CG_RegisterWeapon(_ weaponNum: Int32) {
         i += 1
     }
 
-    weaponInfo!.weaponIcon = trap_R_RegisterShader(item!.icon!)
-    weaponInfo!.ammoIcon = trap_R_RegisterShader(item!.icon!)
+    weaponInfo!.weaponIcon = trap_R_RegisterShader(bg_itemlist[itemIndex].icon!)
+    weaponInfo!.ammoIcon = trap_R_RegisterShader(bg_itemlist[itemIndex].icon!)
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "binary operator '+' cannot be applied to operands of type 'Slots<Gitem>' and 'Int'".
-    // Raven wrote: ammo = bg_itemlist + 1
-    portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
-    while ammo!.classname != nil {
-        if ammo!.giType == IT_AMMO && ammo!.giTag == weaponNum {
+    ammoIndex = 1
+    while bg_itemlist[ammoIndex].classname != nil {
+        if bg_itemlist[ammoIndex].giType == IT_AMMO && bg_itemlist[ammoIndex].giTag == weaponNum {
             break
         }
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'Gitem?' to expected argument type 'Int'".
-        // Raven wrote: ammo++
-        portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
+        ammoIndex += 1
     }
-    if ammo!.classname != nil && ammo!.world_model[0] != nil {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'String?' must be unwrapped to a value of type 'String'".
-        // Raven wrote: weaponInfo->ammoModel = trap_R_RegisterModel( ammo->world_model[0] )
-        portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
+    if bg_itemlist[ammoIndex].classname != nil && bg_itemlist[ammoIndex].world_model[0] != nil {
+        weaponInfo!.ammoModel = trap_R_RegisterModel(bg_itemlist[ammoIndex].world_model[0]!)
     }
 
     //	strcpy( path, item->view_model );
@@ -96,7 +82,7 @@ func CG_RegisterWeapon(_ weaponNum: Int32) {
     weaponInfo!.flashModel = 0 //trap_R_RegisterModel( path );
 
     if weaponNum == WP_DISRUPTOR || weaponNum == WP_FLECHETTE || weaponNum == WP_REPEATER || weaponNum == WP_ROCKET_LAUNCHER {
-        strcpy(&path, item!.view_model!)
+        strcpy(&path, bg_itemlist[itemIndex].view_model!)
         COM_StripExtension(String(path), &path)
         strcat(&path, "_barrel.md3")
         weaponInfo!.barrelModel = trap_R_RegisterModel(String(path))
@@ -110,7 +96,7 @@ func CG_RegisterWeapon(_ weaponNum: Int32) {
     }
 
     if weaponNum != WP_SABER {
-        strcpy(&path, item!.view_model!)
+        strcpy(&path, bg_itemlist[itemIndex].view_model!)
         COM_StripExtension(String(path), &path)
         strcat(&path, "_hand.md3")
         weaponInfo!.handsModel = trap_R_RegisterModel(String(path))
@@ -150,15 +136,10 @@ func CG_RegisterWeapon(_ weaponNum: Int32) {
         }
 
     case WP_SABER:
-        // Port-note: No operator between the operands, the text there is ``.
-        // Raven wrote: 
-        portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
-        // Port-note: No operator between the operands, the text there is ``.
-        // Raven wrote: 
-        portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
-        // Port-note: No operator between the operands, the text there is ``.
-        // Raven wrote: 
-        portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
+        // Raven's MAKERGB macro is three stores.
+        weaponInfo!.flashDlightColor[0] = 0.6
+        weaponInfo!.flashDlightColor[1] = 0.6
+        weaponInfo!.flashDlightColor[2] = 1.0
         weaponInfo!.firingSound = trap_S_RegisterSound("sound/weapons/saber/saberhum1.wav")
         weaponInfo!.missileModel = trap_R_RegisterModel("models/weapons2/saber/saber_w.glm")
 
@@ -174,9 +155,7 @@ func CG_RegisterWeapon(_ weaponNum: Int32) {
         weaponInfo!.missileDlight = 0
         //weaponInfo->missileDlightColor= {0,0,0};
         weaponInfo!.missileHitSound = NULL_SOUND
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (Centity, WeaponInfo) -> ()' to type 'WeaponInfoMissileTrailFunc' (aka '@convention(c) (Optional<OpaquePointer>, Optional<OpaquePointer>) -> ()')".
-        // Raven wrote: weaponInfo->missileTrailFunc = FX_ConcussionProjectileThink
-        portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
+        weaponInfo!.missileTrailFunc = WeaponInfoThunks.FX_ConcussionProjectileThink
 
         weaponInfo!.altFlashSound[0] = NULL_SOUND
         weaponInfo!.altFiringSound = NULL_SOUND
@@ -187,9 +166,7 @@ func CG_RegisterWeapon(_ weaponNum: Int32) {
         weaponInfo!.altMissileDlight = 0
         //weaponInfo->altMissileDlightColor= {0,0,0};
         weaponInfo!.altMissileHitSound = NULL_SOUND
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (Centity, WeaponInfo) -> ()' to type 'WeaponInfoAltMissileTrailFunc' (aka '@convention(c) (Optional<OpaquePointer>, Optional<OpaquePointer>) -> ()')".
-        // Raven wrote: weaponInfo->altMissileTrailFunc = FX_ConcussionProjectileThink
-        portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
+        weaponInfo!.altMissileTrailFunc = WeaponInfoThunks.FX_ConcussionProjectileThink
 
         cgs.effects.disruptorAltMissEffect = trap_FX_RegisterEffect("disruptor/alt_miss")
 
@@ -210,9 +187,7 @@ func CG_RegisterWeapon(_ weaponNum: Int32) {
         weaponInfo!.missileDlight = 0
         //weaponInfo->missileDlightColor= {0,0,0};
         weaponInfo!.missileHitSound = NULL_SOUND
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (Centity, WeaponInfo) -> ()' to type 'WeaponInfoMissileTrailFunc' (aka '@convention(c) (Optional<OpaquePointer>, Optional<OpaquePointer>) -> ()')".
-        // Raven wrote: weaponInfo->missileTrailFunc = FX_BryarProjectileThink
-        portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
+        weaponInfo!.missileTrailFunc = WeaponInfoThunks.FX_BryarProjectileThink
 
         weaponInfo!.altFlashSound[0] = trap_S_RegisterSound("sound/weapons/bryar/alt_fire.wav")
         weaponInfo!.altFiringSound = NULL_SOUND
@@ -223,9 +198,7 @@ func CG_RegisterWeapon(_ weaponNum: Int32) {
         weaponInfo!.altMissileDlight = 0
         //weaponInfo->altMissileDlightColor= {0,0,0};
         weaponInfo!.altMissileHitSound = NULL_SOUND
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (Centity, WeaponInfo) -> ()' to type 'WeaponInfoAltMissileTrailFunc' (aka '@convention(c) (Optional<OpaquePointer>, Optional<OpaquePointer>) -> ()')".
-        // Raven wrote: weaponInfo->altMissileTrailFunc = FX_BryarAltProjectileThink
-        portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
+        weaponInfo!.altMissileTrailFunc = WeaponInfoThunks.FX_BryarAltProjectileThink
 
         cgs.effects.bryarShotEffect = trap_FX_RegisterEffect("bryar/shot")
         cgs.effects.bryarPowerupShotEffect = trap_FX_RegisterEffect("bryar/crackleShot")
@@ -254,9 +227,7 @@ func CG_RegisterWeapon(_ weaponNum: Int32) {
         weaponInfo!.missileDlight = 0
         //		weaponInfo->missileDlightColor	= {0,0,0};
         weaponInfo!.missileHitSound = NULL_SOUND
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (Centity, WeaponInfo) -> ()' to type 'WeaponInfoMissileTrailFunc' (aka '@convention(c) (Optional<OpaquePointer>, Optional<OpaquePointer>) -> ()')".
-        // Raven wrote: weaponInfo->missileTrailFunc = FX_BlasterProjectileThink
-        portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
+        weaponInfo!.missileTrailFunc = WeaponInfoThunks.FX_BlasterProjectileThink
 
         weaponInfo!.altFlashSound[0] = trap_S_RegisterSound("sound/weapons/blaster/alt_fire.wav")
         weaponInfo!.altFiringSound = NULL_SOUND
@@ -267,9 +238,7 @@ func CG_RegisterWeapon(_ weaponNum: Int32) {
         weaponInfo!.altMissileDlight = 0
         //		weaponInfo->altMissileDlightColor= {0,0,0};
         weaponInfo!.altMissileHitSound = NULL_SOUND
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (Centity, WeaponInfo) -> ()' to type 'WeaponInfoAltMissileTrailFunc' (aka '@convention(c) (Optional<OpaquePointer>, Optional<OpaquePointer>) -> ()')".
-        // Raven wrote: weaponInfo->altMissileTrailFunc = FX_BlasterProjectileThink
-        portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
+        weaponInfo!.altMissileTrailFunc = WeaponInfoThunks.FX_BlasterProjectileThink
 
         trap_FX_RegisterEffect("blaster/deflect")
         cgs.effects.blasterShotEffect = trap_FX_RegisterEffect("blaster/shot")
@@ -337,9 +306,7 @@ func CG_RegisterWeapon(_ weaponNum: Int32) {
         weaponInfo!.altMissileDlight = 0
         //		weaponInfo->altMissileDlightColor	= {0,0,0};
         weaponInfo!.altMissileHitSound = NULL_SOUND
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (Centity, WeaponInfo) -> ()' to type 'WeaponInfoAltMissileTrailFunc' (aka '@convention(c) (Optional<OpaquePointer>, Optional<OpaquePointer>) -> ()')".
-        // Raven wrote: weaponInfo->altMissileTrailFunc = FX_BowcasterProjectileThink
-        portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
+        weaponInfo!.altMissileTrailFunc = WeaponInfoThunks.FX_BowcasterProjectileThink
 
         weaponInfo!.flashSound[0] = trap_S_RegisterSound("sound/weapons/bowcaster/fire.wav")
         weaponInfo!.firingSound = NULL_SOUND
@@ -350,9 +317,7 @@ func CG_RegisterWeapon(_ weaponNum: Int32) {
         weaponInfo!.missileDlight = 0
         //		weaponInfo->missileDlightColor= {0,0,0};
         weaponInfo!.missileHitSound = NULL_SOUND
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (Centity, WeaponInfo) -> ()' to type 'WeaponInfoMissileTrailFunc' (aka '@convention(c) (Optional<OpaquePointer>, Optional<OpaquePointer>) -> ()')".
-        // Raven wrote: weaponInfo->missileTrailFunc = FX_BowcasterAltProjectileThink
-        portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
+        weaponInfo!.missileTrailFunc = WeaponInfoThunks.FX_BowcasterAltProjectileThink
 
         cgs.effects.bowcasterShotEffect = trap_FX_RegisterEffect("bowcaster/shot")
         cgs.effects.bowcasterImpactEffect = trap_FX_RegisterEffect("bowcaster/explosion")
@@ -373,9 +338,7 @@ func CG_RegisterWeapon(_ weaponNum: Int32) {
         weaponInfo!.missileDlight = 0
         //		weaponInfo->missileDlightColor	= {0,0,0};
         weaponInfo!.missileHitSound = NULL_SOUND
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (Centity, WeaponInfo) -> ()' to type 'WeaponInfoMissileTrailFunc' (aka '@convention(c) (Optional<OpaquePointer>, Optional<OpaquePointer>) -> ()')".
-        // Raven wrote: weaponInfo->missileTrailFunc = FX_RepeaterProjectileThink
-        portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
+        weaponInfo!.missileTrailFunc = WeaponInfoThunks.FX_RepeaterProjectileThink
 
         weaponInfo!.altFlashSound[0] = trap_S_RegisterSound("sound/weapons/repeater/alt_fire.wav")
         weaponInfo!.altFiringSound = NULL_SOUND
@@ -386,9 +349,7 @@ func CG_RegisterWeapon(_ weaponNum: Int32) {
         weaponInfo!.altMissileDlight = 0
         //		weaponInfo->altMissileDlightColor= {0,0,0};
         weaponInfo!.altMissileHitSound = NULL_SOUND
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (Centity, WeaponInfo) -> ()' to type 'WeaponInfoAltMissileTrailFunc' (aka '@convention(c) (Optional<OpaquePointer>, Optional<OpaquePointer>) -> ()')".
-        // Raven wrote: weaponInfo->altMissileTrailFunc = FX_RepeaterAltProjectileThink
-        portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
+        weaponInfo!.altMissileTrailFunc = WeaponInfoThunks.FX_RepeaterAltProjectileThink
 
         cgs.effects.repeaterProjectileEffect = trap_FX_RegisterEffect("repeater/projectile")
         cgs.effects.repeaterAltProjectileEffect = trap_FX_RegisterEffect("repeater/alt_projectile")
@@ -409,9 +370,7 @@ func CG_RegisterWeapon(_ weaponNum: Int32) {
         weaponInfo!.missileDlight = 0
         //		weaponInfo->missileDlightColor	= {0,0,0};
         weaponInfo!.missileHitSound = NULL_SOUND
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (Centity, WeaponInfo) -> ()' to type 'WeaponInfoMissileTrailFunc' (aka '@convention(c) (Optional<OpaquePointer>, Optional<OpaquePointer>) -> ()')".
-        // Raven wrote: weaponInfo->missileTrailFunc = FX_DEMP2_ProjectileThink
-        portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
+        weaponInfo!.missileTrailFunc = WeaponInfoThunks.FX_DEMP2_ProjectileThink
 
         weaponInfo!.altFlashSound[0] = trap_S_RegisterSound("sound/weapons/demp2/altfire.wav")
         weaponInfo!.altFiringSound = NULL_SOUND
@@ -445,9 +404,7 @@ func CG_RegisterWeapon(_ weaponNum: Int32) {
         weaponInfo!.missileDlight = 0
         //		weaponInfo->missileDlightColor	= {0,0,0};
         weaponInfo!.missileHitSound = NULL_SOUND
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (Centity, WeaponInfo) -> ()' to type 'WeaponInfoMissileTrailFunc' (aka '@convention(c) (Optional<OpaquePointer>, Optional<OpaquePointer>) -> ()')".
-        // Raven wrote: weaponInfo->missileTrailFunc = FX_FlechetteProjectileThink
-        portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
+        weaponInfo!.missileTrailFunc = WeaponInfoThunks.FX_FlechetteProjectileThink
 
         weaponInfo!.altFlashSound[0] = trap_S_RegisterSound("sound/weapons/flechette/alt_fire.wav")
         weaponInfo!.altFiringSound = NULL_SOUND
@@ -458,9 +415,7 @@ func CG_RegisterWeapon(_ weaponNum: Int32) {
         weaponInfo!.altMissileDlight = 0
         //		weaponInfo->altMissileDlightColor= {0,0,0};
         weaponInfo!.altMissileHitSound = NULL_SOUND
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (Centity, WeaponInfo) -> ()' to type 'WeaponInfoAltMissileTrailFunc' (aka '@convention(c) (Optional<OpaquePointer>, Optional<OpaquePointer>) -> ()')".
-        // Raven wrote: weaponInfo->altMissileTrailFunc = FX_FlechetteAltProjectileThink
-        portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
+        weaponInfo!.altMissileTrailFunc = WeaponInfoThunks.FX_FlechetteAltProjectileThink
 
         cgs.effects.flechetteShotEffect = trap_FX_RegisterEffect("flechette/shot")
         cgs.effects.flechetteAltShotEffect = trap_FX_RegisterEffect("flechette/alt_shot")
@@ -480,9 +435,7 @@ func CG_RegisterWeapon(_ weaponNum: Int32) {
         weaponInfo!.missileDlight = 125
         weaponInfo!.missileDlightColor = vec3_t(1.0, 1.0, 0.5)
         weaponInfo!.missileHitSound = NULL_SOUND
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (Centity, WeaponInfo) -> ()' to type 'WeaponInfoMissileTrailFunc' (aka '@convention(c) (Optional<OpaquePointer>, Optional<OpaquePointer>) -> ()')".
-        // Raven wrote: weaponInfo->missileTrailFunc = FX_RocketProjectileThink
-        portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
+        weaponInfo!.missileTrailFunc = WeaponInfoThunks.FX_RocketProjectileThink
 
         weaponInfo!.altFlashSound[0] = trap_S_RegisterSound("sound/weapons/rocket/alt_fire.wav")
         weaponInfo!.altFiringSound = NULL_SOUND
@@ -493,9 +446,7 @@ func CG_RegisterWeapon(_ weaponNum: Int32) {
         weaponInfo!.altMissileDlight = 125
         weaponInfo!.altMissileDlightColor = vec3_t(1.0, 1.0, 0.5)
         weaponInfo!.altMissileHitSound = NULL_SOUND
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (Centity, WeaponInfo) -> ()' to type 'WeaponInfoAltMissileTrailFunc' (aka '@convention(c) (Optional<OpaquePointer>, Optional<OpaquePointer>) -> ()')".
-        // Raven wrote: weaponInfo->altMissileTrailFunc = FX_RocketAltProjectileThink
-        portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
+        weaponInfo!.altMissileTrailFunc = WeaponInfoThunks.FX_RocketAltProjectileThink
 
         cgs.effects.rocketShotEffect = trap_FX_RegisterEffect("rocket/shot")
         cgs.effects.rocketExplosionEffect = trap_FX_RegisterEffect("rocket/explosion")
@@ -612,23 +563,61 @@ func CG_RegisterWeapon(_ weaponNum: Int32) {
         weaponInfo!.missileSound = NULL_SOUND
         weaponInfo!.missileDlight = 0
         weaponInfo!.missileHitSound = NULL_SOUND
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot assign value of type '@Sendable (Centity, WeaponInfo) -> ()' to type 'WeaponInfoMissileTrailFunc' (aka '@convention(c) (Optional<OpaquePointer>, Optional<OpaquePointer>) -> ()')".
-        // Raven wrote: weaponInfo->missileTrailFunc = FX_TurretProjectileThink
-        portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
+        weaponInfo!.missileTrailFunc = WeaponInfoThunks.FX_TurretProjectileThink
 
         trap_FX_RegisterEffect("effects/blaster/wall_impact.efx")
         trap_FX_RegisterEffect("effects/blaster/flesh_impact.efx")
 
     default:
-        // Port-note: No operator between the operands, the text there is ``.
-        // Raven wrote: 
-        portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
-        // Port-note: No operator between the operands, the text there is ``.
-        // Raven wrote: 
-        portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
-        // Port-note: No operator between the operands, the text there is ``.
-        // Raven wrote: 
-        portMissing("CG_RegisterWeapon", source: "oracle/codemp/cgame/cg_weaponinit.c:14")
+        // Raven's MAKERGB macro is three stores.
+        weaponInfo!.flashDlightColor[0] = 1
+        weaponInfo!.flashDlightColor[1] = 1
+        weaponInfo!.flashDlightColor[2] = 1
         weaponInfo!.flashSound[0] = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.wav")
     }
+}
+
+/// One static per function this file stores in a `WeaponInfo` callback field, so each has one address for the life of the module.
+private enum WeaponInfoThunks {
+    /// Source: oracle/codemp/cgame/fx_blaster.c:11
+    static let FX_BlasterProjectileThink: WeaponInfoMissileTrailFunc = { JKAMP_CGameLogic.FX_BlasterProjectileThink(Centity(handle: $0!), WeaponInfo(handle: $1!)) }
+
+    /// Source: oracle/codemp/cgame/fx_bowcaster.c:51
+    static let FX_BowcasterAltProjectileThink: WeaponInfoMissileTrailFunc = { JKAMP_CGameLogic.FX_BowcasterAltProjectileThink(Centity(handle: $0!), WeaponInfo(handle: $1!)) }
+
+    /// Source: oracle/codemp/cgame/fx_bowcaster.c:11
+    static let FX_BowcasterProjectileThink: WeaponInfoMissileTrailFunc = { JKAMP_CGameLogic.FX_BowcasterProjectileThink(Centity(handle: $0!), WeaponInfo(handle: $1!)) }
+
+    /// Source: oracle/codemp/cgame/fx_bryarpistol.c:64
+    static let FX_BryarAltProjectileThink: WeaponInfoMissileTrailFunc = { JKAMP_CGameLogic.FX_BryarAltProjectileThink(Centity(handle: $0!), WeaponInfo(handle: $1!)) }
+
+    /// Source: oracle/codemp/cgame/fx_bryarpistol.c:15
+    static let FX_BryarProjectileThink: WeaponInfoMissileTrailFunc = { JKAMP_CGameLogic.FX_BryarProjectileThink(Centity(handle: $0!), WeaponInfo(handle: $1!)) }
+
+    /// Source: oracle/codemp/cgame/fx_bryarpistol.c:202
+    static let FX_ConcussionProjectileThink: WeaponInfoMissileTrailFunc = { JKAMP_CGameLogic.FX_ConcussionProjectileThink(Centity(handle: $0!), WeaponInfo(handle: $1!)) }
+
+    /// Source: oracle/codemp/cgame/fx_demp2.c:11
+    static let FX_DEMP2_ProjectileThink: WeaponInfoMissileTrailFunc = { JKAMP_CGameLogic.FX_DEMP2_ProjectileThink(Centity(handle: $0!), WeaponInfo(handle: $1!)) }
+
+    /// Source: oracle/codemp/cgame/fx_flechette.c:57
+    static let FX_FlechetteAltProjectileThink: WeaponInfoMissileTrailFunc = { JKAMP_CGameLogic.FX_FlechetteAltProjectileThink(Centity(handle: $0!), WeaponInfo(handle: $1!)) }
+
+    /// Source: oracle/codemp/cgame/fx_flechette.c:11
+    static let FX_FlechetteProjectileThink: WeaponInfoMissileTrailFunc = { JKAMP_CGameLogic.FX_FlechetteProjectileThink(Centity(handle: $0!), WeaponInfo(handle: $1!)) }
+
+    /// Source: oracle/codemp/cgame/fx_heavyrepeater.c:119
+    static let FX_RepeaterAltProjectileThink: WeaponInfoMissileTrailFunc = { JKAMP_CGameLogic.FX_RepeaterAltProjectileThink(Centity(handle: $0!), WeaponInfo(handle: $1!)) }
+
+    /// Source: oracle/codemp/cgame/fx_heavyrepeater.c:11
+    static let FX_RepeaterProjectileThink: WeaponInfoMissileTrailFunc = { JKAMP_CGameLogic.FX_RepeaterProjectileThink(Centity(handle: $0!), WeaponInfo(handle: $1!)) }
+
+    /// Source: oracle/codemp/cgame/fx_rocketlauncher.c:51
+    static let FX_RocketAltProjectileThink: WeaponInfoMissileTrailFunc = { JKAMP_CGameLogic.FX_RocketAltProjectileThink(Centity(handle: $0!), WeaponInfo(handle: $1!)) }
+
+    /// Source: oracle/codemp/cgame/fx_rocketlauncher.c:11
+    static let FX_RocketProjectileThink: WeaponInfoMissileTrailFunc = { JKAMP_CGameLogic.FX_RocketProjectileThink(Centity(handle: $0!), WeaponInfo(handle: $1!)) }
+
+    /// Source: oracle/codemp/cgame/fx_bryarpistol.c:135
+    static let FX_TurretProjectileThink: WeaponInfoMissileTrailFunc = { JKAMP_CGameLogic.FX_TurretProjectileThink(Centity(handle: $0!), WeaponInfo(handle: $1!)) }
 }
