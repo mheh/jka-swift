@@ -148,6 +148,12 @@ public final class CGameWorld {
     /// Source: oracle/codemp/cgame/cg_draw.c:3076
     var lastupdate: Int32 = 0
 
+    // MARK: - cg_effects.c
+
+    /// Raven's `static int seed = 0x92` of `CG_SmokePuff` in `cg_effects.c`.
+    /// Source: oracle/codemp/cgame/cg_effects.c:86
+    var seed: Int32 = 0x92
+
     // MARK: - cg_ents.c
 
     /// Raven's `char *forceHolocronModels[]` of `cg_ents.c`.
@@ -522,6 +528,16 @@ public final class CGameWorld {
     /// Raven's `int cl_numparticles` of `cg_marks.c`.
     /// Source: oracle/codemp/cgame/cg_marks.c:382
     let cl_numparticles: Int32 = MAX_PARTICLES
+
+    // MARK: - cg_newDraw.c
+
+    /// Raven's `static const char *s = ""` of `CG_GetKillerText` in `cg_newDraw.c`.
+    /// Source: oracle/codemp/cgame/cg_newDraw.c:205
+    var s_CG_GetKillerText: String = ""
+
+    /// Raven's `static const char *s = ""` of `CG_GetGameStatusText` in `cg_newDraw.c`.
+    /// Source: oracle/codemp/cgame/cg_newDraw.c:214
+    var s_CG_GetGameStatusText: String = ""
 
     // MARK: - cg_players.c
 
