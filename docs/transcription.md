@@ -453,7 +453,7 @@ The stub forwards it under Raven's name at Raven's line, `var gWPNum: Int32 { ge
 A name in `NEVER_NULL_VARS` of `rulings.py`, `pm` among them, forwards non-optional and traps on nil with the name, because Raven's callers set it before any body runs.
 A `void *` variable is an engine handle, an `OpaquePointer?` whose `NULL` or `0` initializer is nil, so a body hands `g2SaberInstance` to a Ghoul2 trap by value and `&g2SaberInstance` by address.
 A variable the module assigns and Raven gives a data initializer, a brace list, is a hand property of the state object with Raven's data, and the stub forwards it the same way.
-A name in `HAND_VARS` of `rulings.py` is a variable whose storage is hand work, and its stub entry says so. The `bg_pool` and `memoryPool` entries have no storage, and they keep the stub from a `CharBuf` of the pool size.
+A name in `HAND_VARS` of `rulings.py` is a variable whose storage is hand work, and its stub entry says so. The `bg_pool`, `memoryPool`, and `cg_strPool` entries have no storage, and they keep the stub from a `CharBuf` of the pool size.
 A C character array at file scope is a `CharBuf` of Raven's bound.
 A variable Raven declares with no initializer is his all the same, zeroed by the loader, and its entry says C's zero where the initializer would be.
 A file-scope array of struct pointers, such as `gWPArray`, is one zeroed allocation the world owns, on the generated `GameStorage` class in `Sources/JKAMP_Game/Generated/Storage/GameStorage.swift`, as a `Slots` of optional views, born and freed with `GameWorld`.
