@@ -130,8 +130,9 @@ class Generator:
 
     def target_of(self, cur: ci.Cursor) -> str:
         path = str(Path(cur.location.file.name).resolve())
+        # A staged unit parses its C targets under out/<unit>/Sources, so a target's headers stand under that root.
         for target in TARGETS:
-            if str(SOURCES / target / "include") in path:
+            if str(SOURCES / target / "include") in path or str(C.written(SOURCES) / target / "include") in path:
                 return target
         sys.exit(f"views.py: {cur.spelling} is defined outside every target: {path}")
 
@@ -883,7 +884,7 @@ def write(files: dict[tuple[str, str], list[str]], only: bool, gen: Generator) -
     count = 0
     own = VIEW_OF[TARGETS[0]]
     for view, stems in texts(files).items():
-        out = SOURCES / view / "Generated" / "Views"
+        out = C.written(SOURCES / view / "Generated" / "Views")
         if out.exists() and not only:
             for old in out.glob("*.swift"):
                 # The unit's own view target is written whole. A view of JKAMP or JKAShared may belong to the other unit's closure,
