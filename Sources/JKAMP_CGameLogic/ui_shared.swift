@@ -8043,17 +8043,14 @@ func Display_GetContext() -> DisplayContextDef? {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9858
-// TODO: Port signature
-// Raven wrote: void *Display_CaptureItem(int x, int y)
-// No table row for the return `void *`.
-func Display_CaptureItem() -> Never {
+func Display_CaptureItem(_ x: Int32, _ y: Int32) -> MenuDef? {
     // TODO: Port Display_CaptureItem
     portMissing("Display_CaptureItem", source: "oracle/codemp/ui/ui_shared.c:9858")
 }
 
 // FIXME:
 /// Source: oracle/codemp/ui/ui_shared.c:9873
-func Display_MouseMove(_ p: OpaquePointer?, _ x: Int32, _ y: Int32) -> Bool {
+func Display_MouseMove(_ p: MenuDef?, _ x: Int32, _ y: Int32) -> Bool {
     //JLFMOUSE  AGAIN I THINK THIS SHOULD BE MOOT
     //END JLF
     var i: Int32
