@@ -6925,7 +6925,7 @@ func CG_ChatBox_AddString(_ chatStr: inout JKAShared.CharBuf) {
 
 //insert item into array (rearranging the array if necessary)
 /// Source: oracle/codemp/cgame/cg_draw.c:7627
-func CG_ChatBox_ArrayInsert(_ array: inout ChatBoxItem?, _ insPoint: Int32, _ maxNum: Int32, _ item: ChatBoxItem) {
+func CG_ChatBox_ArrayInsert(_ array: inout [ChatBoxItem?], _ insPoint: Int32, _ maxNum: Int32, _ item: ChatBoxItem) {
     // Port-note: The draft of this statement did not compile, and the compiler wrote "value of type 'ChatBoxItem?' has no subscripts".
     // Raven wrote: if (array[insPoint]) { //recursively call, to move everything up to the top if (insPoint+1 >= maxNum) { CG_Error("CG_ChatBox_ArrayInsert: Exceeded array size"); } CG_ChatBox_ArrayInsert(array, insPoint+1, maxNum, array[insPoint]); }
     portMissing("CG_ChatBox_ArrayInsert", source: "oracle/codemp/cgame/cg_draw.c:7627")
