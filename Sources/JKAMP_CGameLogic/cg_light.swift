@@ -71,9 +71,9 @@ func CG_RunLightStyles() {
             cl_lightstyle[lsIndex].value[2] = cl_lightstyle[lsIndex].map[ofs % cl_lightstyle[lsIndex].length][2]
             cl_lightstyle[lsIndex].value[3] = 255 //ls->map[ofs%ls->length][3];
         }
-        // Port-note: A pointer dereference the draft cannot place.
-        // Raven wrote: trap_R_SetLightStyle(i, *(int*)ls->value)
-        portMissing("CG_RunLightStyles", source: "oracle/codemp/cgame/cg_light.c:33")
+        // AI: Raven read the four value bytes as one int through a pointer cast. The bytes join here in the little-endian order of every target.
+        let value = cl_lightstyle[lsIndex].value
+        trap_R_SetLightStyle(i, Int32(value[0]) | (Int32(value[1]) << 8) | (Int32(value[2]) << 16) | (Int32(value[3]) << 24))
         i += 1
         lsIndex += 1
     }
@@ -81,11 +81,11 @@ func CG_RunLightStyles() {
 
 /// Source: oracle/codemp/cgame/cg_light.c:68
 func CG_SetLightstyle(_ i: Int32) {
-    let s: String
+    let s: CharBuf
     let j: Int32
     var k: Int32
 
-    s = CG_ConfigString(i + CS_LIGHT_STYLES)
+    s = CharBuf(CG_ConfigString(i + CS_LIGHT_STYLES))
     j = strlen(s)
     if j >= MAX_QPATH {
         Com_Error(ERR_DROP, "svc_lightstyle length=%i", j)
@@ -94,9 +94,9 @@ func CG_SetLightstyle(_ i: Int32) {
     cl_lightstyle[(i / 3)].length = j
     k = 0
     while k < j {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions".
-        // Raven wrote: cl_lightstyle[(i/3)].map[k][(i%3)] = (float)(s[k]-'a')/(float)('z'-'a') * 255.0
-        portMissing("CG_SetLightstyle", source: "oracle/codemp/cgame/cg_light.c:68")
+        // Raven's one expression is two terms here, because the compiler cannot type-check it whole in reasonable time.
+        let fraction: Float = Float(s[k] - Int32(ascii: "a")) / Float(Int32(ascii: "z") - Int32(ascii: "a"))
+        cl_lightstyle[(i / 3)].map[k][(i % 3)] = UInt8(Double(fraction) * 255.0)
         k += 1
     }
 }
