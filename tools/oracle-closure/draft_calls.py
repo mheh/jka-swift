@@ -151,6 +151,9 @@ class Calls:
             if callee.kind == CursorKind.DECL_REF_EXPR and (self.params_by_name.get(callee.spelling, Param("", None, "")).swift or "").endswith(")?"):
                 # A callback parameter is an optional closure, and Raven calls it under his `if (localTrace)` guard.
                 return f"{self.expr(callee)}?({', '.join(words)})"
+            if callee.kind == CursorKind.DECL_REF_EXPR and self.registry.var_types.get(swift_name(callee.spelling), "").endswith(")?"):
+                # A file-scope stored function is an optional closure, and the call traps where Raven's call through NULL would crash.
+                return f"{self.expr(callee)}!({', '.join(words)})"
             return f"{self.expr(callee)}({', '.join(words)})"
         raise Hole("A call with no callee.")
 

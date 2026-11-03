@@ -810,6 +810,10 @@ class Statements:
                         and (self.is_null(right) or self.field_slot(right) is not None or self.optional_text_call(right)):
                     optional = self.unwrap(left).spelling in self.optional_texts
                     return [f"{pad}{self.expr(left)} = {self.text_value(right, optional)}" + self.trailing(cur)]
+                if op == "=" and self.is_null(right) and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR \
+                        and self.registry.var_types.get(swift_name(self.unwrap(left).spelling), "").endswith(")?"):
+                    # Raven's clear of a stored function with 0 or NULL is nil.
+                    return [f"{pad}{self.expr(left)} = nil" + self.trailing(cur)]
                 if self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.local_holes:
                     raise Hole(self.hole_local_reason(self.unwrap(left).spelling, True))
                 if op == "=" and self.unwrap(left).kind == CursorKind.ARRAY_SUBSCRIPT_EXPR and self.is_raw(list(self.unwrap(left).get_children())[0]):

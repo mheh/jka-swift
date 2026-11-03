@@ -279,6 +279,9 @@ TYPES = {
     "fatalErrorPointer": "Int32?",
     # Raven declares `static void *captureData = NULL` at ui_shared.c:100, and every store is `&scrollInfo` or NULL, :4039 to :4182.
     "captureData": "ScrollInfo?",
+    # Raven declares `static void (*captureFunc) (void *p) = 0` at ui_shared.c:99, and he stores one of the five Scroll functions or 0.
+    # C never sees the pointer, so it is a stored Swift function with nil for his 0.
+    "captureFunc": "((ScrollInfo?) -> Void)?",
 }
 
 # MARK: - Functions
