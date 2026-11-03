@@ -25,8 +25,8 @@ WINDED_OUT = {"codemp/qcommon/vm_x86.cpp"}
 # Row T2 of notes/2026-11-03/dedicated-stage-1-tools.md gives the dedicated server unit a hand entry list.
 HOST_ENTRY = [f"codemp/{path}" for path in ("qcommon/qcommon.h", "qcommon/qfiles.h", "qcommon/cm_local.h", "qcommon/cm_patch.h", "qcommon/files.h",
                                              "qcommon/vm_local.h", "server/server.h", "win32/win_local.h", "win32/resource.h")]
-# WinVars_t of win_local.h holds three Windows types, and the unit spells each of them after the defines of the old module file.
-HOST_DEFINES = ["HINSTANCE", "HWND", "OSVERSIONINFO"]
+# WinVars_t of win_local.h holds three Windows types, and the unit spells each of them after the defines of the old module file, then the guard of row S4.
+HOST_DEFINES = ["HINSTANCE", "HWND", "OSVERSIONINFO", "_SYS_SYSLIMITS_H_"]
 
 
 def winded_files() -> set[str]:

@@ -396,6 +396,9 @@ defines = [
     "HINSTANCE=void *",
     "HWND=void *",
     "OSVERSIONINFO=struct { unsigned int dwOSVersionInfoSize; unsigned int dwMajorVersion; unsigned int dwMinorVersion; unsigned int dwBuildNumber; unsigned int dwPlatformId; char szCSDVersion[128]; }",
+    # WinDed has no PATH_MAX, so MAX_OSPATH of q_shared.h:394 is 256, row S4. The macOS SDK defines PATH_MAX in sys/syslimits.h alone,
+    # so the host parse takes that header's guard, and every triple sees no PATH_MAX.
+    "_SYS_SYSLIMITS_H_",
 ]
 flags = [
     "-fdeclspec",
