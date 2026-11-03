@@ -144,7 +144,7 @@ A caller that holds one record's view has no `Slots` over that one record, and t
 
 A proof over callers covers the game unit and the cgame unit, the two units the port parses.
 The ui unit is outside every caller proof, because no ui parse exists, and no sweep guesses at a ui call site.
-The cgame parse compiles `ui_shared.c`, and every sweep skips it, because the file is in the ui folder.
+The cgame parse compiles `ui_shared.c`, and the cgame row borrows it, so the cgame sweeps read it as a cgame file and its stub stands in the cgame logic target.
 
 A trap's array of struct pointers is a storage table's base, and it keeps its marker under the PARAMS kind `pointer_array`.
 A trap's `char *` parameter with a size beside it is already the returned `String` the engine filled.

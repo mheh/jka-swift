@@ -462,5 +462,89 @@ public struct CGameVariables {
     /// Source: oracle/codemp/cgame/cg_weapons.c:131
     public var cgWeapFrameTime: Int32 = 0
 
+    /// Raven's `void *captureData` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:100
+    public var captureData: OpaquePointer? = nil
+
+    /// Raven's `itemDef_t *itemCapture` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:101
+    public var itemCapture: ItemDef? = nil
+
+    /// Raven's `displayContextDef_t *DC` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:103
+    public var DC: DisplayContextDef? = nil
+
+    /// Raven's `qboolean g_waitingForKey` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:105
+    public var g_waitingForKey: Bool = false
+
+    /// Raven's `qboolean g_editingField` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:106
+    public var g_editingField: Bool = false
+
+    /// Raven's `itemDef_t *g_bindItem` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:108
+    public var g_bindItem: ItemDef? = nil
+
+    /// Raven's `itemDef_t *g_editItem` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:109
+    public var g_editItem: ItemDef? = nil
+
+    /// Raven's `int menuCount` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:112
+    public var menuCount: Int32 = 0
+
+    /// Raven's `int openMenuCount` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:115
+    public var openMenuCount: Int32 = 0
+
+    /// Raven's `qboolean debugMode` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:117
+    public var debugMode: Bool = false
+
+    /// Raven's `int lastListBoxClickTime` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:120
+    public var lastListBoxClickTime: Int32 = 0
+
+    /// Raven's `int allocPoint, outOfMemory` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:149
+    public var allocPoint: Int32 = 0
+
+    /// Raven's `int allocPoint, outOfMemory` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:149
+    public var outOfMemory: Int32 = 0
+
+    /// Raven's `int strPoolIndex` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:284
+    public var strPoolIndex: Int32 = 0
+
+    /// Raven's `char strPool[STRING_POOL_SIZE]` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:285
+    public var strPool: JKAShared.CharBuf = JKAShared.CharBuf(Int(JKAMP_CGame.STRING_POOL_SIZE))
+
+    /// Raven's `int strHandleCount` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:287
+    public var strHandleCount: Int32 = 0
+
+    /// Raven's `int FPMessageTime` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:1571
+    public var FPMessageTime: Int32 = 0
+
+    /// Raven's `char ui_deferredScript [ MAX_DEFERRED_SCRIPT ]` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:1756
+    public var ui_deferredScript: JKAShared.CharBuf = JKAShared.CharBuf(2048)
+
+    /// Raven's `itemDef_t* ui_deferredScriptItem` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:1757
+    public var ui_deferredScriptItem: ItemDef? = nil
+
+    /// Raven's `char g_nameBind1[32]` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:5407
+    public var g_nameBind1: JKAShared.CharBuf = JKAShared.CharBuf(32)
+
+    /// Raven's `char g_nameBind2[32]` of `ui_shared.c`.
+    /// Source: oracle/codemp/ui/ui_shared.c:5408
+    public var g_nameBind2: JKAShared.CharBuf = JKAShared.CharBuf(32)
+
     public init() {}
 }
