@@ -471,7 +471,8 @@ class ConsumerInstall:
                     self.defined.add(cur.spelling)
         # The Swift declarations of the consumer, the stubs of its logic target and its typed traps, by name.
         self.declarations: dict[str, list[str]] = {}
-        files = sorted((SOURCES / LOGIC).glob("*.swift")) + [SOURCES / VIEWS / "Generated" / f"{Path(C.TARGETS['traps']).stem}.swift"]
+        files = [path for root in C.READ_ROOTS
+                 for path in sorted((root / LOGIC).glob("*.swift")) + [root / VIEWS / "Generated" / f"{Path(C.TARGETS['traps']).stem}.swift"]]
         for path in files:
             if not path.exists():
                 continue
@@ -567,6 +568,10 @@ def main() -> None:
     ap.add_argument("--rebuild", action="store_true", help="sweep every fact of the table again and write the store anew")
     ap.add_argument("--only", choices=["bg", "game"], help="print to stdout, write nothing")
     args = ap.parse_args()
+    if C.HOST:
+        # A host has no bg channel, so a run over a host has no work.
+        print(f"channel.py: {C.UNIT} is a host and has no bg channel, so the run writes nothing")
+        return
     if C.UNIT != C.PROJECT["sweep"]["unit"]:
         # The bg side is the game run's, so another unit writes its install alone and maps no hook over its own table.
         install = ConsumerInstall(C.Parse())

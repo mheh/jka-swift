@@ -195,8 +195,19 @@ CGAME_ROOTS = {
     "ragCallbackBoneSnap_t": ("RagCallbackBoneSnap", "CJKAMP_CGame"),
 }
 
-# The dedicated server has no view root yet. Row E4 of notes/2026-11-03/dedicated-opening-docket.md names the records, and a later ruling writes the rows.
-HOST_ROOTS: dict[str, tuple[str, str]] = {}
+# The records the dedicated server reads, row E4 of notes/2026-11-03/dedicated-opening-docket.md and row T5 of its stage 1 tools record.
+HOST_ROOTS = {
+    # The rows the game holds for a struct of JKAMP come first, with the game's view name and target.
+    "playerState_t": ("PlayerState", "CJKAMP"),
+    "sharedEntity_t": ("SharedEntity", "CJKAMP"),
+    "cvar_t": ("Cvar", "CJKAMP"),
+    # The server's own state, Raven's `svs` and `sv` of sv_main.cpp, and the records its signatures take.
+    "serverStatic_t": ("ServerStatic", "CJKAMP_Ded"),
+    "server_t": ("Server", "CJKAMP_Ded"),
+    "client_t": ("Client", "CJKAMP_Ded"),
+    "msg_t": ("Msg", "CJKAMP_Ded"),
+    "vm_t": ("Vm", "CJKAMP_Ded"),
+}
 
 ROOTS = {"mp-game": GAME_ROOTS, "mp-cgame": CGAME_ROOTS, "mp-engine-ded": HOST_ROOTS}
 
@@ -525,6 +536,21 @@ LIBC_SPELLINGS = {"fabs": "abs", "fabsf": "abs", "stricmp": "Q_stricmp"}
 # Macros a platform defines or not, so a conditional that names one stays as Raven wrote it in the extracted header, and each platform build takes its own arm.
 # PATH_MAX picks the arm of MAX_OSPATH at q_shared.h:394, and Windows has no PATH_MAX.
 PLATFORM_MACROS = {"PATH_MAX"}
+
+# Classes of the oracle that a C target names as a struct, because a C struct points at them and rule 12 keeps the copied header.
+# A `fields` class is a C struct of its fields, and a `tag` class is a bare struct tag in forward.h, for a class C names behind a pointer alone.
+# `clipMap_t.shaders` at cm_local.h:165 points at `CCMShader`, whose four methods are inline accessors, so the C struct leaves them out.
+# `clipMap_t.landScape` at cm_local.h:210 points at the terrain class `CCMLandScape`, which C never reads, row S6.
+C_STRUCT_CLASSES = {
+    "CCMShader": ("fields", "oracle/codemp/qcommon/cm_local.h:77"),
+    "CCMLandScape": ("tag", "oracle/codemp/qcommon/cm_landscape.h:135"),
+    # `traceWork_t` is a C struct but for its two C++ `bool` fields, which C spells `_Bool`, row S7.
+    "traceWork_t": ("fields", "oracle/codemp/qcommon/cm_local.h:238"),
+}
+
+# C targets whose copied headers include a C library header, as CJKASyscall includes <stdint.h>.
+# `qfile_gut` of files.h:71 holds a `FILE *`, so CJKAMP_Ded includes <stdio.h>, and its parses take the include path of the SDK, row S3.
+SDK_TARGETS = {"CJKAMP_Ded"}
 
 # Header macros the port leaves out, with the reason the reexport carries instead of a marker.
 NOT_PORTED_MACROS = {

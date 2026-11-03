@@ -719,6 +719,9 @@ def emit(out_dir: Path, mp_modules: list[str], sp_modules: list[str]) -> int:
             defines = sorted(set.intersection(*(set(v) for v in mp_platform.values())) & set.intersection(*(set(v) for v in sp_platform.values())))
         else:
             source = mp_platform if tree == "mp" else sp_platform
+            # The host's platform spellings stand in its own target alone, rows T3 and S8, and no module target takes them.
+            host = [m for m, t in TARGET_OF_MODULE.items() if t == "CJKAMP_Ded"][0]
+            source = {m: v for m, v in source.items() if (m == host) == (target == TARGET_OF_MODULE[host])}
             defines = sorted(set().union(*(set(v) for v in source.values())))
             shared_defines = set.intersection(*(set(v) for v in mp_platform.values())) & set.intersection(*(set(v) for v in sp_platform.values()))
             defines = [d for d in defines if d not in shared_defines]

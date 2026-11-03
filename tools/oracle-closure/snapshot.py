@@ -5,11 +5,15 @@ The snapshot holds the text of `skeleton.py --only` and `manifest.py --only` for
 and the text of `bodies.py --stem` for each stem of the bg target, the game target, and the shared target.
 One run parses once and drafts every stem in the same process, so a snapshot costs one cold sweep at most and no generator writes into Sources/.
 `--check` writes a new snapshot to a temporary folder and compares it with the given folder by `diff -r`.
-The snapshot folder belongs to the caller and stays outside version control.
+`--unit` takes the snapshot of another unit. The bg channel is the run of the `[sweep]` unit, so the snapshot of another unit holds no channel text.
+A host has no trap file, so its snapshot holds no trap text.
+The snapshot folders belong to the caller and stay outside version control, one folder per unit under the cache root `~/.cache/jka-swift`.
 
 Usage:
   .venv/bin/python snapshot.py --out ~/.cache/jka-swift/snapshot-stage-two-shared
   .venv/bin/python snapshot.py --check ~/.cache/jka-swift/snapshot-stage-two-shared
+  .venv/bin/python snapshot.py --unit mp-cgame --out ~/.cache/jka-swift/snapshot-mp-cgame
+  .venv/bin/python snapshot.py --unit mp-engine-ded --out ~/.cache/jka-swift/snapshot-mp-engine-ded
 """
 
 from __future__ import annotations
@@ -26,7 +30,6 @@ from channel import Channel
 from manifest import Manifest
 from printer import stem_text
 from skeleton import BG, LOGIC, SHARED, target_of
-from traps import Traps
 from views import Generator, indexed_fields, texts
 
 
@@ -39,11 +42,15 @@ def write(out: Path) -> int:
     for stem in sorted(set(sk.files) | set(sk.variables)):
         files[f"skeleton/{stem}.swift"] = "\n".join(sk.file(stem)) + "\n"
         files[f"manifest/{stem}.md"] = "\n".join(manifest.file(stem)) + "\n"
-    files["traps/g_syscalls.swift"] = "\n".join(Traps(parse).emit()).rstrip() + "\n"
-    channel = Channel(parse)
-    files["channel/bg_strap.swift"] = "\n".join(channel.strap_file()).rstrip() + "\n"
-    files["channel/bg_callbacks.swift"] = "\n".join(channel.callback_file()).rstrip() + "\n"
-    files["channel/BgChannel.swift"] = "\n".join(channel.install_file()).rstrip() + "\n"
+    if "traps" in C.TARGETS:
+        from traps import Traps
+
+        files[f"traps/{Path(C.TARGETS['traps']).stem}.swift"] = "\n".join(Traps(parse).emit()).rstrip() + "\n"
+    if C.UNIT == C.PROJECT["sweep"]["unit"]:
+        channel = Channel(parse)
+        files["channel/bg_strap.swift"] = "\n".join(channel.strap_file()).rstrip() + "\n"
+        files["channel/bg_callbacks.swift"] = "\n".join(channel.callback_file()).rstrip() + "\n"
+        files["channel/BgChannel.swift"] = "\n".join(channel.install_file()).rstrip() + "\n"
     gen = Generator(parse, None)
     gen.indexed_fields = indexed_fields(gen)
     for view, stems in texts(gen.emit()).items():
@@ -52,7 +59,7 @@ def write(out: Path) -> int:
     # The drafts print from the lowered rows, as `bodies.py --stem` prints them, over the one skeleton and registry of this run.
     lowering = Lowering(sk, Registry())
     for stem in sorted(stem for stem in sk.files if target_of(stem) in (BG, LOGIC, SHARED)):
-        files[f"bodies/{stem}.swift"] = stem_text([lowering.lines(stem, fn.cur.spelling) for fn in sk.files[stem]])
+        files[f"bodies/{stem}.swift"] = stem_text([lowering.lines(stem, fn.key) for fn in sk.files[stem]])
     for name, text in files.items():
         path = out / name
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -67,6 +74,7 @@ def compare(expected: Path, actual: Path) -> int:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
+    C.unit_argument(ap)
     group = ap.add_mutually_exclusive_group(required=True)
     group.add_argument("--out", type=Path, help="the folder the snapshot goes to")
     group.add_argument("--check", type=Path, help="the folder of an earlier snapshot to compare a new one with")

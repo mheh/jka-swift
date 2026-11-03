@@ -29,7 +29,6 @@ from pathlib import Path
 import clang.cindex as ci
 from clang.cindex import CursorKind
 
-from reexport import SOURCES
 from rulings import DEAD
 import closure as C
 import store as S
@@ -56,7 +55,7 @@ FILE_FUNC = re.compile(MODIFIERS + r"func\s")
 
 def lowered_key(sk: Skeleton) -> tuple[str, dict[str, str]]:
     """The lowered key of this run's parse and the hash of each file it covers, from the adoption key and the lowering modules of the project file."""
-    return lowered_keys(sk.table.keys.adoption, SOURCES, lowering_modules(), C.REPO)
+    return lowered_keys(sk.table.keys.adoption, C.READ_ROOTS, lowering_modules(), C.REPO)
 
 
 def split_params(text: str) -> list[str]:
@@ -98,7 +97,7 @@ class Registry:
         # The Swift type of each file-scope variable that spells one, so a store reads whether the source is a Slots.
         self.var_types: dict[str, str] = {}
         # A unit whose logic target is not under Sources yet holds its stubs under out/<unit>/, and the registry reads them too.
-        roots = [SOURCES] + ([C.written(SOURCES)] if C.STAGED else [])
+        roots = C.READ_ROOTS
         for root, path in ((root, path) for root in roots for path in root.rglob("*.swift")):
             target = path.relative_to(root).parts[0]
             for line in path.read_text().splitlines():
@@ -226,9 +225,9 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
             return header
         self.fn = fn
         self.statement_seqs = {(row["kind"], row["start_offset"], row["end_offset"]): row["seq"]
-                               for row in self.sk.table.store.syntax("statements", fn.stem, fn.cur.spelling)}
+                               for row in self.sk.table.store.syntax("statements", fn.stem, fn.key)}
         self.source = self.sk.source(fn.stem)
-        self.bytes = C.parsed_bytes(C.ORACLE / C.folder_of(fn.stem) / f"{fn.stem}.c")
+        self.bytes = C.parsed_bytes(C.ORACLE / C.folder_of(fn.stem) / C.file_name(fn.stem))
         self.names = {c.spelling: p.name for c, p in zip(fn.cur.get_arguments(), fn.params)}
         self.params_by_name = {c.spelling: p for c, p in zip(fn.cur.get_arguments(), fn.params)}
         self.scratch_names: dict[str, int] = {}
@@ -286,7 +285,7 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.aliased_positions: dict[tuple[int, int, int], str] = {}
         # Raven's `siegeTeam_t **teamPtr` that only holds the address of a file-scope variable he chooses between.
         self.chosen_locals = self.chosen_local_names(fn.cur)
-        facts = self.sk.table.locals_of(fn.stem, fn.cur.spelling)
+        facts = self.sk.table.locals_of(fn.stem, fn.key)
         self.lets = facts.single_writes
         if any(self.record_local(c) is not None for c in fn.cur.walk_preorder()):
             # A closure cannot initialize a let of the enclosing body, so a body with a scratch record keeps every local a var.
@@ -328,7 +327,12 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.hoists = self.shared_reads(body)
         lines = header[:-3]
         # A line of the body that no statement inside it drafted, a gap, a parameter copy, or a frame, belongs to the body, seq 0 of the function.
-        lines += marked(self.block_body(body, 1), self.statement_number(body))
+        try:
+            drafted = self.block_body(body, 1)
+        except Hole as hole:
+            # A hole no statement holds, a goto into a label from both sides at the top of the body, makes the body one hole.
+            drafted = self.hole(body, 1, str(hole))
+        lines += marked(drafted, self.statement_number(body))
         lines.append("}")
         # Each line gives up its statement mark and its role here.
         # line_keys keeps the statement beside the line for the compile gate, and line_roles keeps the role.
@@ -475,7 +479,7 @@ class Lowering:
 
     def function(self, stem: str, function: str) -> Function:
         """The function of the stem by its name."""
-        fn = next((fn for fn in self.sk.files[stem] if fn.cur.spelling == function), None)
+        fn = next((fn for fn in self.sk.files[stem] if fn.key == function), None)
         if fn is None:
             raise SystemExit(f"bodies.py: the stem {stem} holds no function named {function}")
         return fn
@@ -496,7 +500,7 @@ def main() -> None:
         fns = sk.files[args.stem]
     else:
         parser.error("give --only or --stem")
-    print(stem_text([lowering.lines(fn.stem, fn.cur.spelling) for fn in fns]), end="", flush=True)
+    print(stem_text([lowering.lines(fn.stem, fn.key) for fn in fns]), end="", flush=True)
 
 
 if __name__ == "__main__":

@@ -113,6 +113,8 @@ class Function:
     def __init__(self, cur: ci.Cursor, stem: str) -> None:
         self.cur = cur
         self.name = cur.spelling
+        # The key of the function in the table and the store, the name, with the line for a C++ overload.
+        self.key = C.function_key(cur)
         self.stem = stem
         self.line = cur.location.line
         self.static = cur.storage_class == ci.StorageClass.STATIC
@@ -573,7 +575,7 @@ class Skeleton:
         if not hasattr(self, "_accessors"):
             self._accessors: dict[str, list[tuple[str, str, bool]]] = defaultdict(list)
             for view_dir in ("JKAShared", "JKAMP", VIEWS):
-                for path in (SOURCES / view_dir / "Generated" / "Views").glob("*.swift"):
+                for path in (path for root in C.READ_ROOTS for path in (root / view_dir / "Generated" / "Views").glob("*.swift")):
                     text = path.read_text()
                     view = path.stem
                     qualified = view if view_dir == VIEWS else f"{view_dir}.{view}"
@@ -613,7 +615,10 @@ class Skeleton:
             # A struct or an array of structs is one zeroed allocation the state object owns, reached through its view.
             record = self.table.views.record_name(element)
             if not record or record not in self.table.views.views:
-                var.reason = f"No view for `{' '.join(element.spelling.split())}`, a struct Raven defines inside a .c file."
+                where = element.get_declaration().location.file
+                header = Path(where.name).name if where is not None and Path(where.name).suffix == ".h" else None
+                var.reason = (f"No view for `{' '.join(element.spelling.split())}` of `{header}`." if header
+                              else f"No view for `{' '.join(element.spelling.split())}`, a struct Raven defines inside a .c file.")
                 return
             if var.data and depth and self.holds_address(element):
                 # C storage cannot hold the address of a Swift function or of a record the state object owns,
@@ -834,14 +839,16 @@ class Skeleton:
         unsafe = "nonisolated(unsafe) " if "?" in swift or "CharBuf" in swift else ""
         return self.variable_access(var) + unsafe
 
-    def variable_entry(self, var: Variable) -> list[str]:
+    def variable_entry(self, var: Variable, count: bool = True) -> list[str]:
+        """The stub lines of one variable. The signature row reads the same lines with `count` off, so the run counts each variable once."""
         text = self.declaration_text(var)
         # A one-line definition keeps its initializer on the page. A table's initializer is Raven's data, read from the oracle.
         declaration = " ".join(text.split("=", 1)[0].split()) if "\n" in text else " ".join(text.split())
         lines = [f"/// Source: {var.cite}", f"// Raven wrote: {declaration}"]
         kind = var.kind
         initializer = "Raven's initializer" if "=" in text else "C's zero, since Raven wrote no initializer"
-        self.counts[f"variables, {kind}"] += 1
+        if count:
+            self.counts[f"variables, {kind}"] += 1
         if kind == "let" and "=" not in text:
             # Nothing writes it and Raven gave it no value, so it is C's zero for the module's life. A view is not Sendable, so its let says so.
             lines.append(f"{self.let_prefix(var)}let {var.name}: {var.swift} = {self.zero(var)}")
@@ -1079,8 +1086,8 @@ class Skeleton:
         A test target imports the game with `@testable`, so it reaches an internal function, and the scan reads the source targets alone."""
         game_names = {fn.name for stem, fns in self.files.items() if target_of(stem) == LOGIC for fn in fns}
         called: set[str] = set()
-        for path in SOURCES.rglob("*.swift"):
-            if path.relative_to(SOURCES).parts[0] == LOGIC:
+        for root, path in ((root, path) for root in C.READ_ROOTS for path in root.rglob("*.swift")):
+            if path.relative_to(root).parts[0] == LOGIC:
                 continue
             text = path.read_text()
             if not re.search(rf"^import {LOGIC}$", text, re.M):
@@ -1095,7 +1102,7 @@ class Skeleton:
         The seed is each `-> Never` function the game and shared targets declare, `trap_Error`.
         A void function with no return statement whose last statement calls such a function joins the set, `G_Error` and then `Com_Error` of g_main.
         The shell's `bg.error` closure returns `Never`, so the game's `Com_Error` must say so."""
-        never = {m.group(1) for target in (VIEWS, SHARED) for path in (SOURCES / target).rglob("*.swift")
+        never = {m.group(1) for root in C.READ_ROOTS for target in (VIEWS, SHARED) for path in (root / target).rglob("*.swift")
                  for m in re.finditer(r"^public func `?(\w+)`?\(.*\) -> Never \{$", path.read_text(), re.M)}
 
         def ends_in_never(fn: Function) -> bool:
@@ -1398,7 +1405,7 @@ class Skeleton:
     def variable_signature(self, var: Variable) -> dict[str, str | None]:
         """The signature row of one file-scope variable. Its text is the stub's last line for the variable:
         the `let`, the rule 3 line, the storage line, or the reason."""
-        entry = self.variable_entry(var)
+        entry = self.variable_entry(var, count=False)
         return {"file": C.file_name(var.stem), "name": var.name, "kind": "variable", "target": target_of(var.stem), "text": entry[-1],
                 "forward": None, "reason": None, "source": f"oracle/{C.folder_of(var.stem)}/{C.file_name(var.stem)}:{var.line}", "destination": "", "state": var.kind, "peer": ""}
 

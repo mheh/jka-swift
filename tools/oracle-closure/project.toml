@@ -344,7 +344,21 @@ srcglob = [
 [units.mp-engine-ded]
 name = "mp-engine-ded"
 lang = "c++"
-entry = "codemp/qcommon/qcommon.h"
+# The header parse reads the stage 1 headers by hand, in the shape of mp-engine, and no botlib header, row T2.
+# The null folder has no header of its own.
+# cm_local.h reaches <list> through cm_landscape.h, and the foreign triples have no C++ library, so their parse stops there.
+# The lp64 asserts alone cover the C++ reach of cm_local.h, row S2, and the ilp32 and llp64 blocks say "did not parse for" at each such record.
+entry = [
+    "codemp/qcommon/qcommon.h",
+    "codemp/qcommon/qfiles.h",
+    "codemp/qcommon/cm_local.h",
+    "codemp/qcommon/cm_patch.h",
+    "codemp/qcommon/files.h",
+    "codemp/qcommon/vm_local.h",
+    "codemp/server/server.h",
+    "codemp/win32/win_local.h",
+    "codemp/win32/resource.h",
+]
 includes = [
     "codemp/qcommon",
     "codemp/server",
@@ -378,6 +392,13 @@ defines = [
     "HDC=void *",
     "HGLRC=void *",
     "DECLARE_HANDLE(name)=typedef void *name",
+    # WinVars_t of win_local.h holds these Windows types, and OSVERSIONINFO takes the layout of the Windows SDK's OSVERSIONINFOA.
+    "HINSTANCE=void *",
+    "HWND=void *",
+    "OSVERSIONINFO=struct { unsigned int dwOSVersionInfoSize; unsigned int dwMajorVersion; unsigned int dwMinorVersion; unsigned int dwBuildNumber; unsigned int dwPlatformId; char szCSDVersion[128]; }",
+    # WinDed has no PATH_MAX, so MAX_OSPATH of q_shared.h:394 is 256, row S4. The macOS SDK defines PATH_MAX in sys/syslimits.h alone,
+    # so the host parse takes that header's guard, and every triple sees no PATH_MAX.
+    "_SYS_SYSLIMITS_H_",
 ]
 flags = [
     "-fdeclspec",

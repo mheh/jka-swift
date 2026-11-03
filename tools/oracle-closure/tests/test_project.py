@@ -22,6 +22,11 @@ ADDED = {"mp-cgame": ("codemp/cgame/*.c", [f"codemp/game/{stem}.c" for stem in (
 # Row E8 of notes/2026-11-03/dedicated-opening-docket.md gives the dedicated server unit the WinDed Release link set, and row E13 leaves vm_x86.cpp out.
 WINDED = "codemp/WinDed.vcproj"
 WINDED_OUT = {"codemp/qcommon/vm_x86.cpp"}
+# Row T2 of notes/2026-11-03/dedicated-stage-1-tools.md gives the dedicated server unit a hand entry list.
+HOST_ENTRY = [f"codemp/{path}" for path in ("qcommon/qcommon.h", "qcommon/qfiles.h", "qcommon/cm_local.h", "qcommon/cm_patch.h", "qcommon/files.h",
+                                             "qcommon/vm_local.h", "server/server.h", "win32/win_local.h", "win32/resource.h")]
+# WinVars_t of win_local.h holds three Windows types, and the unit spells each of them after the defines of the old module file, then the guard of row S4.
+HOST_DEFINES = ["HINSTANCE", "HWND", "OSVERSIONINFO", "_SYS_SYSLIMITS_H_"]
 
 
 def winded_files() -> set[str]:
@@ -68,6 +73,11 @@ class ProjectFile(unittest.TestCase):
             if name == "mp-engine-ded":
                 self.assertEqual(set(actual.pop("srcglob")), winded_files() - WINDED_OUT)
                 expected.pop("srcglob")
+                self.assertEqual(actual.pop("entry"), HOST_ENTRY)
+                expected.pop("entry")
+                added = actual["defines"][len(expected["defines"]):]
+                self.assertEqual([define.split("=", 1)[0] for define in added], HOST_DEFINES)
+                actual["defines"] = actual["defines"][:len(expected["defines"])]
             self.assertEqual(actual, expected, name)
 
     def test_the_parse_reads_the_unit_file_lists_of_the_old_module_files(self) -> None:

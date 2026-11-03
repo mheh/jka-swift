@@ -106,13 +106,12 @@ def lowered_key(store: S.Store) -> str:
     """The lowered key of the files on disk, computed with no parse.
     The adoption part takes the stored base key, the first line of each stub the store lists, and the salt of a generated stub.
     The base part, the C inputs and the tool modules, is the stored key, because only a parse can compute it again."""
-    from closure import REPO
-    from reexport import SOURCES
+    from closure import READ_ROOTS, REPO
     from skeleton import NOTE
 
     stubs = {name: S.digest((REPO / name).read_bytes().split(b"\n", 1)[0]) if (REPO / name).exists() else "" for name in store.files("adoption")}
     adoption = S.combined(stubs, store.key("base") or "", NOTE)
-    key, _ = lowered_keys(adoption, SOURCES, lowering_modules(), REPO)
+    key, _ = lowered_keys(adoption, READ_ROOTS, lowering_modules(), REPO)
     return key
 
 

@@ -104,7 +104,7 @@ class Generator:
         for target, view in VIEW_OF.items():
             if target not in TARGETS:
                 continue
-            for path in (SOURCES / view / "Generated").glob("*.swift"):
+            for path in (path for root in C.READ_ROOTS for path in (root / view / "Generated").glob("*.swift")):
                 for m in re.finditer(r"^public (?:let|struct|typealias) (\w+)", path.read_text(), re.M):
                     out.setdefault(m.group(1), view)
         return out
@@ -130,8 +130,9 @@ class Generator:
 
     def target_of(self, cur: ci.Cursor) -> str:
         path = str(Path(cur.location.file.name).resolve())
+        # A staged unit parses its C targets under out/<unit>/Sources, so a target's headers stand under that root.
         for target in TARGETS:
-            if str(SOURCES / target / "include") in path:
+            if any(str(root / target / "include") in path for root in C.READ_ROOTS):
                 return target
         sys.exit(f"views.py: {cur.spelling} is defined outside every target: {path}")
 
@@ -418,7 +419,7 @@ class Generator:
         if target not in self._exported:
             names: dict[str, str] = {}
             for c_target in [target] + DEPS[target]:
-                for path in (SOURCES / VIEW_OF[c_target] / "Generated").glob("*.swift"):
+                for path in (path for root in C.READ_ROOTS for path in (root / VIEW_OF[c_target] / "Generated").glob("*.swift")):
                     for name in re.findall(r"^public let (\w+)", path.read_text(), re.M):
                         names.setdefault(name, VIEW_OF[c_target])
             self._exported[target] = names
@@ -545,8 +546,8 @@ class Generator:
         signature = self.c_signature(proto, target)
         for owner in [target] + DEPS[target]:
             # The aliases are read from the Callbacks file views.py wrote, the same way exported_names reads reexport's names.
-            path = SOURCES / VIEW_OF[owner] / "Generated" / "Views" / "Callbacks.swift"
-            text = path.read_text() if path.exists() else ""
+            paths = [root / VIEW_OF[owner] / "Generated" / "Views" / "Callbacks.swift" for root in C.READ_ROOTS]
+            text = "".join(path.read_text() for path in paths if path.exists())
             aliases = sorted(alias for alias, sig in re.findall(r"^public typealias (\w+) = (@convention\(c\) .*)$", text, re.M) if sig == signature)
             if aliases:
                 return aliases[0] if owner == target else f"{VIEW_OF[owner]}.{aliases[0]}"
@@ -883,7 +884,7 @@ def write(files: dict[tuple[str, str], list[str]], only: bool, gen: Generator) -
     count = 0
     own = VIEW_OF[TARGETS[0]]
     for view, stems in texts(files).items():
-        out = SOURCES / view / "Generated" / "Views"
+        out = C.written(SOURCES / view / "Generated" / "Views")
         if out.exists() and not only:
             for old in out.glob("*.swift"):
                 # The unit's own view target is written whole. A view of JKAMP or JKAShared may belong to the other unit's closure,

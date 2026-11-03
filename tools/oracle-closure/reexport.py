@@ -30,7 +30,7 @@ from pathlib import Path
 import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
-from rulings import NOT_PORTED_MACROS
+from rulings import NOT_PORTED_MACROS, SDK_TARGETS
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent.parent
@@ -71,6 +71,8 @@ def parse(target: str, root: Path | None = None) -> ci.TranslationUnit:
     umbrella = root / target / "include" / f"{target}.h"
     args = ["-x", "c", "-std=gnu11", "-Wno-everything", "-ferror-limit=0"]
     args += [f"-I{root / t / 'include'}" for t in [target] + DEPS[target]]
+    if target in SDK_TARGETS:
+        args += ["-isystem", subprocess.run(["xcrun", "--show-sdk-path"], capture_output=True, text=True).stdout.strip() + "/usr/include"]
     tu = ci.Index.create().parse(str(umbrella), args=args, options=ci.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD)
     errors = [d for d in tu.diagnostics if d.severity >= ci.Diagnostic.Error]
     if errors:

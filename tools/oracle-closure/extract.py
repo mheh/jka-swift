@@ -41,7 +41,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import closure as C
-from rulings import HAND_FILES, HEADER_PRELUDES, PLATFORM_MACROS
+from rulings import C_STRUCT_CLASSES, HAND_FILES, HEADER_PRELUDES, PLATFORM_MACROS
 from clang.cindex import CursorKind, TypeKind
 
 REPO = C.REPO
@@ -519,6 +519,8 @@ def link(decls: list[Decl], macro_names: dict[str, Decl]) -> None:
         if through_pointer:
             record = dep.record()
             is_class = record is not None and record.kind in (CursorKind.CLASS_DECL, CursorKind.CLASS_TEMPLATE)
+            if is_class and C_STRUCT_CLASSES.get(dep.name, ("",))[0] == "tag":
+                return
             if not is_class and (dep.forward_only or (record is not None and record.kind in RECORD_KINDS and tag_of(record))):
                 return
         if os.environ.get("EXTRACT_DEBUG") == decl.name:
@@ -884,6 +886,42 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
                 typed.override = f"// Raven redefines {d.name} as `{' '.join(body_tokens)}` at {d.cite}, so that is the type.\ntypedef {' '.join(body_tokens)} {d.name};"
         NOTES.append(f"{d.cite} macro {d.name} renames the typedef {d.name}, which now reads: typedef {' '.join(body_tokens)} {d.name}")
     decls = [d for d in decls if d not in shadowing]
+    # A header macro named as an enumerator of another header, as server.h:22 names PERS_SCORE of bg_public.h, would rewrite that enum.
+    # The macro stays in its header alone, and the constants file leaves it out.
+    enumerators = {c.spelling: d.file for d in decls if d.kind != "macro" and d.record() is not None and d.record().kind == CursorKind.ENUM_DECL
+                   for c in d.record().get_children() if c.kind == CursorKind.ENUM_CONSTANT_DECL}
+    includes_of: dict[str, set[str]] = defaultdict(set)
+    for inclusion in tu.get_includes():
+        if inclusion.source is not None:
+            includes_of[inclusion.source.name].add(inclusion.include.name)
+
+    def reached(header: str) -> set[str]:
+        seen: set[str] = set()
+        todo = [header]
+        while todo:
+            for included in includes_of[todo.pop()] - seen:
+                seen.add(included)
+                todo.append(included)
+        return seen
+
+    clashing = [d for d in decls if d.kind == "macro" and d.name in enumerators and enumerators[d.name] in reached(d.file)]
+    for d in clashing:
+        NOTES.append(f"{d.cite} macro {d.name} stays in its header, because an enum of an included header names {d.name}")
+    decls = [d for d in decls if d not in clashing]
+    for d in decls:
+        if d.kind in ("class", "typedef") and C_STRUCT_CLASSES.get(d.name, ("",))[0] == "fields":
+            # The struct holds the fields alone, each in Raven's text with `struct` in the place of `class` and `_Bool` in the place of `bool`.
+            lines = lines_of(d.file)
+            fields = [re.sub(r"\bbool\b", "_Bool", re.sub(r"\bclass\b", "struct", lines[f.extent.start.line - 1][f.extent.start.column - 1:f.extent.end.column - 1]))
+                      for f in d.record().get_children() if f.kind == CursorKind.FIELD_DECL]
+            body = "{\n" + "".join(f"\t{field};\n" for field in fields) + "}"
+            if d.kind == "class":
+                d.kind = "struct"
+                d.override = (f"// Raven declares {d.name} as a class at {d.cite}. C has no class, so the fields stand as a struct and the methods stay out.\n"
+                              f"struct {d.name}\n{body};")
+            else:
+                d.override = (f"// Raven declares {d.name} with C++ `bool` fields at {d.cite}. C spells the type `_Bool`, which has the same size.\n"
+                              f"typedef struct {tag_of(d.record())}\n{body} {d.name};")
     macro_names = {d.name: d for d in decls if d.kind == "macro"}
     link(decls, macro_names)
     commit = oracle_commit()
@@ -918,11 +956,15 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
     for decl in decls:
         record = decl.record() if decl.kind != "macro" else None
         tag = tag_of(record) if record is not None and record.kind in RECORD_KINDS else None
+        if tag is not None and C_STRUCT_CLASSES.get(decl.name, ("",))[0] == "tag":
+            # A class C names behind a pointer alone is a bare struct tag, with the typedef that lets C name it without the keyword.
+            forward += [f"struct {tag};", f"typedef struct {tag} {tag};"]
+            continue
         # A C++ struct still gets its tag and typedef lines, because a C struct may point at it, and a pointer needs only the name.
         # A class does not, because `class X;` is not C.
         if tag is None or (decl.filename in cxx_files and record.kind != CursorKind.STRUCT_DECL and record.kind != CursorKind.UNION_DECL):
             continue
-        keyword = record.kind.name.replace("_DECL", "").lower()
+        keyword = "struct" if record.kind == CursorKind.CLASS_DECL else record.kind.name.replace("_DECL", "").lower()
         forward.append(f"{keyword} {tag};")
         if decl.kind == "typedef":
             forward.append(f"typedef {keyword} {tag} {decl.name};")
@@ -1099,7 +1141,7 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
         includes = sorted(decl.includes | {"forward.h"})
         record = decl.record()
         if decl.kind in ("struct", "union", "enum") and record is not None and tag_of(record) and tag_of(record) not in type_names - {decl.name}:
-            keyword = record.kind.name.replace("_DECL", "").lower()
+            keyword = "struct" if record.kind == CursorKind.CLASS_DECL else record.kind.name.replace("_DECL", "").lower()
             text += f"\n// C++ names the tag without its keyword, and this typedef lets C do the same.\ntypedef {keyword} {tag_of(record)} {tag_of(record)};"
         # A C declaration carries only the system headers its own types came from. A C++ declaration also repeats its header's includes,
         # because a class body reaches std:: names the type scan does not see.

@@ -5,6 +5,9 @@ set -u
 here=$(cd "$(dirname "$0")" && pwd)
 # The triples of the layout check, read from extract.py so the two lists cannot drift apart.
 triples=$("$here/.venv/bin/python" -c "import sys; sys.path.insert(0, '$here'); import extract; print(' '.join(extract.TRIPLES))")
+# The targets whose headers include a C library header, which take the include path of the SDK, read from rulings.py.
+sdk_targets=$("$here/.venv/bin/python" -c "import sys; sys.path.insert(0, '$here'); import rulings; print(' '.join(sorted(rulings.SDK_TARGETS)))")
+sdk=$(xcrun --show-sdk-path 2>/dev/null)
 cd "${1:-$here/out/merge}" || exit 1
 status=0
 for target in CJKAShared CJKAMP CJKAMP_Game CJKAMP_CGame CJKAMP_UI CJKAMP_Ded CJKASP CJKASP_Game CJKASP_CGame CJKASP_UI; do
@@ -17,7 +20,13 @@ for target in CJKAShared CJKAMP CJKAMP_Game CJKAMP_CGame CJKAMP_UI CJKAMP_Ded CJ
     # Every triple of packet row 6. The headers include no system header beyond Clang's own stddef.h, so a foreign triple needs no SDK.
     errors=0
     for triple in $triples; do
-        n=$(clang -target "$triple" -ffreestanding -fsyntax-only -x c -std=gnu11 -Wno-everything -ferror-limit=0 "${flags[@]}" "$target/$target.c" 2>&1 | grep -c ' error: ')
+        system=()
+        if [[ " $sdk_targets " == *" $target "* ]]; then
+            system=(-isystem "$sdk/usr/include")
+            # The SDK's headers name 64-bit ARM __arm64__, which Clang defines only on an Apple triple.
+            case "$triple" in aarch64-*) system+=(-D__arm64__) ;; esac
+        fi
+        n=$(clang -target "$triple" -ffreestanding -fsyntax-only -x c -std=gnu11 -Wno-everything -ferror-limit=0 "${flags[@]}" ${system[@]+"${system[@]}"} "$target/$target.c" 2>&1 | grep -c ' error: ')
         [ "$n" -eq 0 ] || echo "  $target on $triple: $n errors"
         errors=$((errors + n))
     done
