@@ -327,12 +327,8 @@ func G_CreateAnimalNPC(_ pVeh: inout JKAMP.Vehicle?, _ strAnimalType: String) {
         //only allocate a new one if we really have to
         (pVeh) = Vehicle(BG_Alloc(Int32(Vehicle.byteCount)))
     }
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Vehicle?' must be unwrapped to refer to member 'clear' of wrapped base type 'Vehicle'".
-    // Raven wrote: memset(*pVeh, 0, sizeof(Vehicle_t))
-    portMissing("G_CreateAnimalNPC", source: "oracle/codemp/game/AnimalNPC.c:904")
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "value of optional type 'Vehicle?' must be unwrapped to refer to member 'm_pVehicleInfo' of wrapped base type 'Vehicle'".
-    // Raven wrote: (*pVeh)->m_pVehicleInfo = &g_vehicleInfo[BG_VehicleGetIndex( strAnimalType )]
-    portMissing("G_CreateAnimalNPC", source: "oracle/codemp/game/AnimalNPC.c:904")
+    pVeh!.clear()
+    pVeh!.m_pVehicleInfo = g_vehicleInfo[BG_VehicleGetIndex(strAnimalType)]
 }
 
 /// One static per function this file stores in a `VehicleInfo` callback field, so each has one address for the life of the module.
