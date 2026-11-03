@@ -2371,13 +2371,18 @@ func CG_DrawVehicleDamage(_ veh: Centity, _ brokenLimbs: Int32, _ menuHUD: MenuD
     var color = vec4_t()
     var graphicHandle: Int32 = 0
 
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'Menu_FindItemByName' in scope".
-    // Raven wrote: item = Menu_FindItemByName((menuDef_t *)menuHUD, vehDamageData[index].itemName)
-    portMissing("CG_DrawVehicleDamage", source: "oracle/codemp/cgame/cg_draw.c:2434")
+    item = Menu_FindItemByName(menuHUD, vehDamageData[index].itemName!)
     if item != nil {
-        // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'vehDamageData' in scope".
-        // Raven wrote: if (brokenLimbs & (1<<vehDamageData[index].heavyDamage)) { colorI = CT_RED; if (brokenLimbs & (1<<vehDamageData[index].lightDamage)) { colorI = CT_DKGREY; } } else if (brokenLimbs & (1<<vehDamageData[index].lightDamage)) { colorI = CT_YELLOW; } else { colorI = CT_GREEN; }
-        portMissing("CG_DrawVehicleDamage", source: "oracle/codemp/cgame/cg_draw.c:2434")
+        if (brokenLimbs & (1 << vehDamageData[index].heavyDamage)) != 0 {
+            colorI = CT_RED
+            if (brokenLimbs & (1 << vehDamageData[index].lightDamage)) != 0 {
+                colorI = CT_DKGREY
+            }
+        } else if (brokenLimbs & (1 << vehDamageData[index].lightDamage)) != 0 {
+            colorI = CT_YELLOW
+        } else {
+            colorI = CT_GREEN
+        }
 
         // Raven wrote: VectorCopy4 ( colorTable[colorI], color )
         color = colorTable[colorI]
