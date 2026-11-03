@@ -155,16 +155,16 @@ let cg_autoMapZoomMainOffset: Float = 0.0
 
 /// Source: oracle/codemp/cgame/cg_view.c:2279
 /// Raven's data table, a hand property of `CGameWorld`.
-var cg_autoMapAngle: JKAShared.vec3_t {
+public var cg_autoMapAngle: JKAShared.vec3_t {
     get { world.cg_autoMapAngle }
     set { world.cg_autoMapAngle = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:2280
-var cg_autoMapInput: AutoMapInput { world.storage.cg_autoMapInput }
+public var cg_autoMapInput: AutoMapInput { world.storage.cg_autoMapInput }
 
 /// Source: oracle/codemp/cgame/cg_view.c:2281
-var cg_autoMapInputTime: Int32 {
+public var cg_autoMapInputTime: Int32 {
     get { world.variables.cg_autoMapInputTime }
     set { world.variables.cg_autoMapInputTime = newValue }
 }
@@ -1944,7 +1944,7 @@ func CGCam_Shake(_ intensity: Float, _ duration: Int32) {
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:2129
-func CG_DoCameraShake(_ origin: JKAShared.vec3_t, _ intensity: Float, _ radius: Int32, _ time: Int32) {
+public func CG_DoCameraShake(_ origin: JKAShared.vec3_t, _ intensity: Float, _ radius: Int32, _ time: Int32) {
     //FIXME: When exactly is the vieworg calculated in relation to the rest of the frame?s
 
     var dir = vec3_t()
@@ -2217,7 +2217,7 @@ func CG_DrawAutoMap() {
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:2447
-func CG_DrawActiveFrame(_ serverTime: Int32, _ stereoView: JKAMP.stereoFrame_t, _ demoPlayback: Bool) {
+public func CG_DrawActiveFrame(_ serverTime: Int32, _ stereoView: JKAMP.stereoFrame_t, _ demoPlayback: Bool) {
     let inwater: Int32
     var cstr: String
     var mSensitivity: Float = cg.zoomSensitivity

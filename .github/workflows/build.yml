@@ -1,7 +1,7 @@
-name: Build the game module
+name: Build the game and cgame modules
 
 # This workflow runs on a push to master and on request, never on a pull request.
-# It builds the `jampgame` library as a release shared library on each platform the engine loads, and it packages each one as a zip.
+# It builds the `jampgame` and `cgame` libraries as release shared libraries on each platform the engine loads, and it packages each one as a zip.
 # The pipeline comes from jka-rust (jka-rust/.github/workflows/build.yml), without its approval gate.
 # The lane shapes come from Vapor's shared workflow (vapor/ci, run-unit-tests.yml): the Linux lanes run in the official Swift image,
 # the Windows lane takes the toolchain from compnerd/gha-setup-swift, every action is pinned to a commit, and every job has a timeout.
@@ -11,8 +11,10 @@ name: Build the game module
 #
 #   Linux   64-bit  x86_64   jampgamex86_64.so
 #   Windows 64-bit  x86_64   jampgamex86_64.dll
+#   Linux   64-bit  x86_64   cgamex86_64.so
+#   Windows 64-bit  x86_64   cgamex86_64.dll
 #
-# No macOS lane runs for now, by the user's word of 2026-10-28, so the arm64 dylib stays a local build.
+# No macOS lane runs for now, by the user's word of 2026-10-28, so the arm64 dylibs stay a local build.
 # The `test` job runs the Swift tests on Linux and does not gate the build matrix.
 # The tests run one suite at a time, because they share the module's one world and one bg state.
 # The build names the product alone, because the `jampsmoke` executable imports Darwin and has no Linux or Windows build.
@@ -157,9 +159,102 @@ jobs:
           path: dist/${{ env.ZIP_NAME }}
           if-no-files-found: error
 
+  build-linux-cgame:
+    name: cgame x86_64-linux
+    runs-on: ubuntu-latest
+    container: swift:6.4-noble
+    timeout-minutes: 60
+    steps:
+      - name: Install curl, zstd, and 7z for the cache and the zip
+        run: apt-get update -yq && apt-get install -y curl zstd p7zip-full
+
+      - name: Check out the code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Cache the build folder
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .build
+          key: linux-x86_64-cgame-release-${{ env.SWIFT_IMAGE }}-${{ hashFiles('Package.swift', 'Sources/**') }}
+          restore-keys: linux-x86_64-cgame-release-${{ env.SWIFT_IMAGE }}-
+
+      - name: Build the release library
+        run: swift build -c release --product cgame
+
+      - name: Package the zip
+        shell: bash
+        run: |
+          module="cgamex86_64.so"
+          bin="$(swift build -c release --product cgame --show-bin-path)"
+          src="${bin}/libcgame.so"
+          test -f "$src" || { echo "::error::built module not found at $src"; ls -l "$bin"; exit 1; }
+          zip_name="cgame-x86_64-linux-release.zip"
+          rm -rf package dist
+          mkdir -p package dist
+          cp "$src" "package/${module}"
+          ( cd package && 7z a -tzip tmp.zip "${module}" >/dev/null )
+          mv package/tmp.zip "dist/${zip_name}"
+          echo "ZIP_NAME=${zip_name}" >> "$GITHUB_ENV"
+          ls -l dist
+
+      - name: Upload the artifact
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ${{ env.ZIP_NAME }}
+          path: dist/${{ env.ZIP_NAME }}
+          if-no-files-found: error
+
+  build-windows-cgame:
+    name: cgame x86_64-windows
+    runs-on: windows-latest
+    timeout-minutes: 60
+    # The lane is allowed to fail until it proves itself.
+    steps:
+      - name: Install the Windows Swift toolchain
+        uses: compnerd/gha-setup-swift@9ff1ee4c44888c5817fc14d1b257ac8cabb4935f # v0.5.1
+        with:
+          swift-version: ${{ env.SWIFT_WINDOWS_BRANCH }}
+          swift-build: ${{ env.SWIFT_WINDOWS_TAG }}
+
+      - name: Check out the code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Cache the build folder
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .build
+          key: windows-x86_64-cgame-release-${{ env.SWIFT_WINDOWS_TAG }}-${{ hashFiles('Package.swift', 'Sources/**') }}
+          restore-keys: windows-x86_64-cgame-release-${{ env.SWIFT_WINDOWS_TAG }}-
+
+      - name: Build the release library
+        run: swift build -c release --product cgame
+
+      - name: Package the zip
+        shell: bash
+        run: |
+          module="cgamex86_64.dll"
+          bin="$(swift build -c release --product cgame --show-bin-path)"
+          src="${bin}/cgame.dll"
+          test -f "$src" || { echo "::error::built module not found at $src"; ls -l "$bin"; exit 1; }
+          zip_name="cgame-x86_64-windows-release.zip"
+          rm -rf package dist
+          mkdir -p package dist
+          cp "$src" "package/${module}"
+          ( cd package && 7z a -tzip tmp.zip "${module}" >/dev/null )
+          mv package/tmp.zip "dist/${zip_name}"
+          echo "ZIP_NAME=${zip_name}" >> "$GITHUB_ENV"
+          ls -l dist
+
+      - name: Upload the artifact
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ${{ env.ZIP_NAME }}
+          path: dist/${{ env.ZIP_NAME }}
+          if-no-files-found: error
+
   release:
     name: Update the rolling release
-    needs: [build-linux, build-windows]
+    needs: [build-linux, build-windows, build-linux-cgame, build-windows-cgame]
     if: ${{ !cancelled() && github.ref == 'refs/heads/master' && needs.build-linux.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -198,7 +293,7 @@ jobs:
           prerelease: true
           body: |
             Automated build of `master` at ${{ github.sha }}.
-            Each zip holds the game module under the exact name the engine loads, `jampgamex86_64.so` or `jampgamex86_64.dll`.
+            Each zip holds one module under the exact name the engine loads: `jampgamex86_64.so`, `jampgamex86_64.dll`, `cgamex86_64.so`, or `cgamex86_64.dll`.
             The asset URLs stay the same from build to build.
           files: dist/*.zip
           fail_on_unmatched_files: false

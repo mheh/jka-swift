@@ -6,10 +6,12 @@ import Darwin
 import CJKASyscall
 import Foundation
 
-// This loads a jampgame library in its own process and sends GAME_GETITEMINDEXBYTAG through its vmMain.
-// The command needs no engine behind the syscalls, so the run proves the load and the dispatch.
-// The smoke test runs this executable, so the test binary never loads a second copy of the module's classes.
-// Run `swift run jampsmoke <path-to-library>` for a manual smoke run.
+// This loads a module library in its own process and sends one command through its vmMain.
+// The caller picks a command that needs no engine behind the syscalls, so the run proves the load and the dispatch.
+// The smoke tests run this executable, so the test binary never loads a second copy of the module's classes.
+// Run `swift run jampsmoke <path-to-library> <command> <expected answer> [words]` for a manual smoke run.
+// For the game, `39 4 1 6` sends GAME_GETITEMINDEXBYTAG with tag 1, HI_SEEKER, and type 6, IT_HOLDABLE, and expects row 4, item_seeker.
+// For the cgame, `5 -1` sends CG_LAST_ATTACKER, and a fresh world has no attacker.
 
 /// The C shape of the module's `dllEntry`, as `@_cdecl` exports it.
 private typealias DllEntryFn = @convention(c) (OpaquePointer) -> Void
@@ -31,10 +33,20 @@ private func fail(_ reason: String) -> Never {
     exit(1)
 }
 
-guard CommandLine.arguments.count > 1 else {
-    fail("jampsmoke needs the library path as argument 1.\n")
+guard CommandLine.arguments.count > 3 else {
+    fail("jampsmoke needs the library path, the command number, and the expected answer.\n")
 }
 let libraryPath = CommandLine.arguments[1]
+// This loader links no Swift module of a game, so the caller spells the command as its number.
+guard let commandNumber = Int(CommandLine.arguments[2]), let expected = Int(CommandLine.arguments[3]) else {
+    fail("jampsmoke needs the command number and the expected answer as integers.\n")
+}
+// The words after the answer are the command's arguments, and a missing word is 0.
+var words = CommandLine.arguments.dropFirst(4).compactMap { Int($0) }
+guard words.count == CommandLine.arguments.count - 4, words.count <= 12 else {
+    fail("jampsmoke takes at most 12 integer words after the expected answer.\n")
+}
+words += Array(repeating: 0, count: 12 - words.count)
 
 guard let handle = dlopen(libraryPath, RTLD_NOW | RTLD_LOCAL) else {
     fail("dlopen of \(libraryPath) failed: \(lastDlError())\n")
@@ -53,10 +65,21 @@ private let moduleVmMain = unsafeBitCast(mainSymbol, to: VmMainFn.self)
 jka_recorder_reset()
 moduleDllEntry(jka_recorder_entry())
 
-// 39 is GAME_GETITEMINDEXBYTAG. This loader links no Swift module of the game, so it cannot spell the constant's name.
-// The tag is 1, HI_SEEKER, and the type is 6, IT_HOLDABLE.
-// The answer is 4, the row of item_seeker in bg_itemlist.
-let answer = moduleVmMain(39, 1, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+let answer = moduleVmMain(
+    commandNumber,
+    words[0],
+    words[1],
+    words[2],
+    words[3],
+    words[4],
+    words[5],
+    words[6],
+    words[7],
+    words[8],
+    words[9],
+    words[10],
+    words[11]
+)
 let command = jka_recorded_command()
 let wordAddress = jka_recorded_word()
 
@@ -70,4 +93,7 @@ if wordAddress == 0 {
     print("text \(text)")
 }
 
+guard answer == expected else {
+    fail("vmMain answered \(answer) to command \(commandNumber), and the caller expected \(expected).\n")
+}
 exit(0)

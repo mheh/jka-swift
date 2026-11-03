@@ -8,6 +8,7 @@ let package = Package(
     platforms: [.macOS(.v15)],
     products: [
         .library(name: "jampgame", type: .dynamic, targets: ["jampgame"]),
+        .library(name: "cgame", type: .dynamic, targets: ["cgame"]),
     ],
     targets: [
         // MARK: - C, the syscall shim
@@ -50,6 +51,7 @@ let package = Package(
         // MARK: - Shell, the product
         // dllEntry and vmMain. It decodes words and calls the bare functions.
         .target(name: "jampgame", dependencies: ["JKAMP_GameLogic"]),
+        .target(name: "cgame", dependencies: ["JKAMP_CGameLogic"]),
         // The dlopen loader, run in its own process, so the smoke test never loads the built library into the test process.
         .executableTarget(name: "jampsmoke", dependencies: ["CJKASyscall"]),
 
@@ -68,5 +70,8 @@ let package = Package(
         .testTarget(name: "JKAMP_GameTests", dependencies: ["JKAMP_GameLogic", "JKATestSupport"]),
         // The smoke test runs the jampsmoke loader as a process and must not link the built dylib, so it does not depend on jampgame.
         .testTarget(name: "jampgameTests", dependencies: ["CJKAMP_Game"]),
+        .testTarget(name: "JKAMP_CGameTests", dependencies: ["JKAMP_CGameLogic", "JKATestSupport"]),
+        // The cgame smoke test runs the same loader on the cgame library, so it does not depend on cgame.
+        .testTarget(name: "cgameTests", dependencies: ["CJKAMP_CGame"]),
     ]
 )

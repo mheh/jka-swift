@@ -529,9 +529,8 @@ class ConsumerInstall:
         lines = [NOTE.format(source="bg_strap.h and the bg call sites"), "", "import JKAMP", "import JKAMP_BG", f"import {VIEWS}", "",
                  f"/// The {self.consumer} module points each closure of the bg channel at its own function of the same name, where its build defines one.",
                  "/// A closure with no such function keeps its trapping default, so a call to a game closure names the closure at the first call.",
-                 "public func installBgChannel() {",
-                 "    bg.error = { level, text in Com_Error(level, text) }",
-                 "    bg.print = { text in Com_Printf(text) }"]
+                 "public func installBgChannel() {"]
+        # The consumer's shell sets bg.error and bg.print at dllEntry, as the game's shell does, so the install holds no line for them.
         for view, cvar in CVAR_VIEWS.items():
             lines.append(f"    bg.{view} = {cvar}")
         bg = SOURCES / "JKAMP_BG" / "Generated"

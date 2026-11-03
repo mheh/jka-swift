@@ -2764,7 +2764,7 @@ CG_CalcEntityLerpPositions
 ```
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:3078
-func CG_CalcEntityLerpPositions(_ cent: Centity) {
+public func CG_CalcEntityLerpPositions(_ cent: Centity) {
     var goAway: Bool = false
 
     // if this player does not want to see extrapolated players
@@ -3171,7 +3171,7 @@ func CG_AddPacketEntities(_ isPortal: Bool) {
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:3555
-func CG_ROFF_NotetrackCallback(_ cent: Centity, _ notetrack: String) {
+public func CG_ROFF_NotetrackCallback(_ cent: Centity, _ notetrack: String) {
     var i: Int32 = 0
     var r: Int32 = 0
     var objectID: Int32 = 0
