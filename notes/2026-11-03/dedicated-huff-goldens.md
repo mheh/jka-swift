@@ -27,3 +27,7 @@ It holds no Huffman code. The parity test comes with the port of `huffman.cpp`.
 ## Rows
 
 - H1: the parity test needs the `msg_hData` table. The oracle table is in `msg.cpp`, and `extract_table.py` in the harness reads it. Proposed: the port of `msg.cpp` brings the table, and the parity test seeds from it.
+
+## The ledger
+
+- H1, ratified. The `msg_hData` table lands with the port of `msg.cpp`, in the form Raven's data tables take in the game and cgame, and the parity test over the goldens lands with the port of `huffman.cpp`.
