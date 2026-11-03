@@ -98,5 +98,6 @@
 #include "codemp/ui/ui_shared_c/constants.h"
 #include "codemp/cgame/cg_event_c/constants.h"
 #include "cg_types.h"
+#include "cg_tables.h"
 
 #endif // JKA_CJKAMP_CGAME_H

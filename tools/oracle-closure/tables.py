@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""tables.py: Raven's data tables as C storage, written to Sources/CJKAMP/bg_tables.c and Sources/CJKAMP_Game/g_tables.c.
+"""tables.py: Raven's data tables as C storage, written to Sources/CJKAMP/bg_tables.c, Sources/CJKAMP_Game/g_tables.c, and Sources/CJKAMP_CGame/cg_tables.c.
 
 Rule 6: a table with Raven's data lives in C memory the view target binds over, read-only at the Swift surface.
 Rule 13: the file is generated whole and regenerated whole, so no hand edit survives a run.
@@ -114,6 +114,20 @@ GAME_PIECES: tuple[Piece, ...] = (
 )
 
 
+# The cgame file, the spawn field table of cg_main.c, which reads `cgSpawnEnt_t` of cg_types.h through `CGFOFS`.
+CGAME_PIECES: tuple[Piece, ...] = (
+    Piece(own=(
+        "// Raven's `CGFOFS` reads a field offset as a cast of a pointer to `int`, which is narrower on a 64-bit target.",
+        '#pragma clang diagnostic ignored "-Wpointer-to-int-cast"',
+    )),
+    Piece(
+        own=("// Raven's row macro of cg_main.c, which the table below names.",),
+        source="codemp/cgame/cg_main.c", first=3390, last=3390, table=False,
+    ),
+    Piece(source="codemp/cgame/cg_main.c", first=3393, last=3409),
+)
+
+
 @dataclass(frozen=True)
 class Output:
     """One generated file: the C target it compiles in, its name, the hand header that declares its tables, and its pieces."""
@@ -127,6 +141,7 @@ class Output:
 OUTPUTS: tuple[Output, ...] = (
     Output("CJKAMP", "bg_tables.c", "bg_tables.h", BG_PIECES),
     Output("CJKAMP_Game", "g_tables.c", "g_tables.h", GAME_PIECES),
+    Output("CJKAMP_CGame", "cg_tables.c", "cg_tables.h", CGAME_PIECES),
 )
 
 

@@ -240,7 +240,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `cvarTableSize` | `oracle/codemp/cgame/cg_main.c:1055` | let | `let cvarTableSize: Int32 = { () -> Int32 in portMissing("cvarTableSize", source: "oracle/codemp/cgame/cg_main.c:1055") }()` |
 | `cg_strPoolSize` | `oracle/codemp/cgame/cg_main.c:3310` | state | `}` |
 | `cg_strPool` | `oracle/codemp/cgame/cg_main.c:3311` | state | `}` |
-| `cg_spawnFields` | `oracle/codemp/cgame/cg_main.c:3393` | marker | `// No view for `BG_field_t`, a struct Raven defines inside a .c file.` |
+| `cg_spawnFields` | `oracle/codemp/cgame/cg_main.c:3393` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
 | `cg_numSpawnVars` | `oracle/codemp/cgame/cg_main.c:3411` | state | `}` |
 | `cg_numSpawnVarChars` | `oracle/codemp/cgame/cg_main.c:3412` | state | `}` |
 | `cg_spawnVars` | `oracle/codemp/cgame/cg_main.c:3413` | state | `}` |

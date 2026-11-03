@@ -117,6 +117,8 @@ CGAME_ROOTS = {
     "qtime_t": ("Qtime", "CJKAMP"),
     "bgLoadedAnim_t": ("BgLoadedAnim", "CJKAMP"),
     "saberMoveData_t": ("SaberMoveData", "CJKAMP"),
+    # The C table cg_spawnFields of cg_main.c holds these rows, and BG_ParseField reads them.
+    "BG_field_t": ("BgField", "CJKAMP"),
     # The cgame's state: Raven's `cg`, `cgs`, and `cg_entities` of cg_main.c.
     "cg_t": ("Cg", "CJKAMP_CGame"),
     "cgs_t": ("Cgs", "CJKAMP_CGame"),
@@ -531,8 +533,9 @@ SHARED_STEMS = {"q_shared", "q_math", "g_syscalls", "g_strap"}
 # g_types.h holds the structs Raven defines inside a .c file, so a view can bind over them. See "A struct Raven defines inside a .c file".
 # cg_types.h holds the six of the cgame the same way.
 # g_tables.h declares the six game tables of g_tables.c, ruling E2.
-HAND_HEADERS = {"CJKAMP": ["bg_tables.h"], "CJKAMP_Game": ["g_types.h", "g_tables.h"], "CJKAMP_CGame": ["cg_types.h"]}
-HAND_FILES = {"CJKAMP": ["include/bg_tables.h"], "CJKAMP_Game": ["include/g_types.h", "include/g_tables.h"], "CJKAMP_CGame": ["include/cg_types.h"]}
+HAND_HEADERS = {"CJKAMP": ["bg_tables.h"], "CJKAMP_Game": ["g_types.h", "g_tables.h"], "CJKAMP_CGame": ["cg_types.h", "cg_tables.h"]}
+HAND_FILES = {"CJKAMP": ["include/bg_tables.h"], "CJKAMP_Game": ["include/g_types.h", "include/g_tables.h"],
+              "CJKAMP_CGame": ["include/cg_types.h", "include/cg_tables.h"]}
 
 # MARK: - Header preludes
 
