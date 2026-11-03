@@ -573,6 +573,8 @@ NULLABLE = {
     # G_RunFrame clears the NPC global at g_main.c:4001, G_AlertTeam passes it through NPC_ClearLOS2 at g_combat.c:1848, and the trace at NPC_senses.c:745 never reads it.
     ("G_ClearLOS2", "self"),
     ("G_ClearLOS", "self"),
+    # The stored function of a view field takes the field's name after the record. Raven calls `DC->setColor(NULL)` at ui_shared.c:705, :782, :813, :870, and :877.
+    ("displayContextDef_t.setColor", "v"),
 }
 # Files whose functions a bg body reaches directly, because they live in the shared module or in bg itself.
 # The functions whose integer arithmetic is a generator or a hash, where C wraps at 32 bits and Swift's plain operators trap.

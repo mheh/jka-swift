@@ -45,7 +45,7 @@ from clang.cindex import CursorKind, TypeKind
 
 import closure as C
 from reexport import DEPS, SCALARS, SOURCES, VIEW_OF, source_lines
-from rulings import BYTE_STORAGE_FIELDS, FIELDS, NEVER_NULL, ROOTS, SLOT_BOUNDS
+from rulings import BYTE_STORAGE_FIELDS, FIELDS, NEVER_NULL, NULLABLE, ROOTS, SLOT_BOUNDS
 from spelling import Types
 
 # Every C target the translation unit of the run's unit reaches, most specific first.
@@ -583,6 +583,19 @@ class Generator:
                     params.append(f"_ {label}: String")
                     layers.append(f"withCString({label}) {{ {label} in")
                     args.append(f"OpaquePointer({label})")
+                elif pointee.get_canonical().kind == TypeKind.CHAR_S and not pointee.is_const_qualified() and i + 1 < len(arg_types) \
+                        and arg_types[i + 1].get_canonical().kind == TypeKind.INT and i + 1 < len(names) and re.search(r"size|len", names[i + 1], re.I):
+                    # A `char *` with a size beside it is the caller's buffer, which the stored function fills, so the buffer crosses inout
+                    # and the method hands the function its base, the trap form of an `inout CharBuf` overload.
+                    params.append(f"_ {label}: inout JKAShared.CharBuf")
+                    layers.append(f"{label}.withUnsafeMutableRawPointer {{ {label} in")
+                    args.append(f"OpaquePointer({label})")
+                elif pointee.get_canonical().kind == TypeKind.FLOAT and "vec4_t" in declared.split() and "const" in declared.split() \
+                        and (f"{owner}.{name}", label) in NULLABLE:
+                    # Raven passes NULL for the color at some sites, so the color is optional, and the method passes a NULL pointer for nil.
+                    params.append(f"_ {label}: JKAShared.vec4_t?")
+                    layers.append(f"withUnsafePointer(to: {label} ?? .zero) {{ {label}Pointer in")
+                    args.append(f"{label} == nil ? nil : OpaquePointer({label}Pointer)")
                 elif pointee.get_canonical().kind == TypeKind.FLOAT and ("vec4_t" in declared.split()
                                                                        or ("float" in declared.split() and pointee.is_const_qualified())):
                     # Raven's `vec4_t` is four floats, as SIMD4<Float> is, by value when const and inout when Raven writes it.
