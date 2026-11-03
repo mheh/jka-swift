@@ -393,6 +393,8 @@ def within(path: Path, *folders: Path) -> bool:
 SOURCES = REPO / PROJECT["output"]["root"]
 STAGED = not (SOURCES / TARGETS["logic"]).exists()
 STAGE = Path(__file__).resolve().parent / "out" / UNIT
+# The roots a run reads Swift files under: the output root, and the staged root after it for a staged unit, row S11.
+READ_ROOTS = [SOURCES, STAGE / PROJECT["output"]["root"]] if STAGED else [SOURCES]
 _said: set[str] = set()
 
 

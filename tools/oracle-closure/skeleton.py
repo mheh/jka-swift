@@ -575,7 +575,7 @@ class Skeleton:
         if not hasattr(self, "_accessors"):
             self._accessors: dict[str, list[tuple[str, str, bool]]] = defaultdict(list)
             for view_dir in ("JKAShared", "JKAMP", VIEWS):
-                for path in (SOURCES / view_dir / "Generated" / "Views").glob("*.swift"):
+                for path in (path for root in C.READ_ROOTS for path in (root / view_dir / "Generated" / "Views").glob("*.swift")):
                     text = path.read_text()
                     view = path.stem
                     qualified = view if view_dir == VIEWS else f"{view_dir}.{view}"
@@ -1086,8 +1086,8 @@ class Skeleton:
         A test target imports the game with `@testable`, so it reaches an internal function, and the scan reads the source targets alone."""
         game_names = {fn.name for stem, fns in self.files.items() if target_of(stem) == LOGIC for fn in fns}
         called: set[str] = set()
-        for path in SOURCES.rglob("*.swift"):
-            if path.relative_to(SOURCES).parts[0] == LOGIC:
+        for root, path in ((root, path) for root in C.READ_ROOTS for path in root.rglob("*.swift")):
+            if path.relative_to(root).parts[0] == LOGIC:
                 continue
             text = path.read_text()
             if not re.search(rf"^import {LOGIC}$", text, re.M):
@@ -1102,7 +1102,7 @@ class Skeleton:
         The seed is each `-> Never` function the game and shared targets declare, `trap_Error`.
         A void function with no return statement whose last statement calls such a function joins the set, `G_Error` and then `Com_Error` of g_main.
         The shell's `bg.error` closure returns `Never`, so the game's `Com_Error` must say so."""
-        never = {m.group(1) for target in (VIEWS, SHARED) for path in (SOURCES / target).rglob("*.swift")
+        never = {m.group(1) for root in C.READ_ROOTS for target in (VIEWS, SHARED) for path in (root / target).rglob("*.swift")
                  for m in re.finditer(r"^public func `?(\w+)`?\(.*\) -> Never \{$", path.read_text(), re.M)}
 
         def ends_in_never(fn: Function) -> bool:

@@ -29,7 +29,6 @@ from pathlib import Path
 import clang.cindex as ci
 from clang.cindex import CursorKind
 
-from reexport import SOURCES
 from rulings import DEAD
 import closure as C
 import store as S
@@ -56,7 +55,7 @@ FILE_FUNC = re.compile(MODIFIERS + r"func\s")
 
 def lowered_key(sk: Skeleton) -> tuple[str, dict[str, str]]:
     """The lowered key of this run's parse and the hash of each file it covers, from the adoption key and the lowering modules of the project file."""
-    return lowered_keys(sk.table.keys.adoption, SOURCES, lowering_modules(), C.REPO)
+    return lowered_keys(sk.table.keys.adoption, C.READ_ROOTS, lowering_modules(), C.REPO)
 
 
 def split_params(text: str) -> list[str]:
@@ -98,7 +97,7 @@ class Registry:
         # The Swift type of each file-scope variable that spells one, so a store reads whether the source is a Slots.
         self.var_types: dict[str, str] = {}
         # A unit whose logic target is not under Sources yet holds its stubs under out/<unit>/, and the registry reads them too.
-        roots = [SOURCES] + ([C.written(SOURCES)] if C.STAGED else [])
+        roots = C.READ_ROOTS
         for root, path in ((root, path) for root in roots for path in root.rglob("*.swift")):
             target = path.relative_to(root).parts[0]
             for line in path.read_text().splitlines():

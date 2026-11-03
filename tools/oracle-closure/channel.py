@@ -471,7 +471,8 @@ class ConsumerInstall:
                     self.defined.add(cur.spelling)
         # The Swift declarations of the consumer, the stubs of its logic target and its typed traps, by name.
         self.declarations: dict[str, list[str]] = {}
-        files = sorted((SOURCES / LOGIC).glob("*.swift")) + [SOURCES / VIEWS / "Generated" / f"{Path(C.TARGETS['traps']).stem}.swift"]
+        files = [path for root in C.READ_ROOTS
+                 for path in sorted((root / LOGIC).glob("*.swift")) + [root / VIEWS / "Generated" / f"{Path(C.TARGETS['traps']).stem}.swift"]]
         for path in files:
             if not path.exists():
                 continue

@@ -26,10 +26,10 @@ def declaration_line(line: str) -> bool:
     return VAR_LINE.match(line) is not None or (FUNC_HEAD.search(line) is not None and "func " in line.split("//")[0])
 
 
-def lowered_keys(adoption: str, sources: Path, modules: list[Path], root: Path) -> tuple[str, dict[str, str]]:
-    """The key of the lowered generation and the hash of each file it covers, by the file's name."""
+def lowered_keys(adoption: str, sources: list[Path], modules: list[Path], root: Path) -> tuple[str, dict[str, str]]:
+    """The key of the lowered generation and the hash of each file it covers, by the file's name, over the Swift files of every root."""
     files = {S.named(path, root): S.digest("\n".join(line for line in path.read_text().splitlines() if declaration_line(line)).encode())
-             for path in sorted(sources.rglob("*.swift"))}
+             for path in sorted(path for folder in sources for path in folder.rglob("*.swift"))}
     files |= {S.named(path, root): S.file_hash(path) for path in modules}
     return S.combined(files, adoption), files
 

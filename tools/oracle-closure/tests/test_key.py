@@ -142,7 +142,7 @@ class LoweredKey(unittest.TestCase):
         swift.write_text("func G_InitGame(_ levelTime: Int32) {\n    level = 0\n}\n")
 
         def compute():
-            return lowered_keys("adoption-1", root / "Sources", [], root)
+            return lowered_keys("adoption-1", [root / "Sources"], [], root)
 
         before, files = compute()
 
