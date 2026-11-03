@@ -199,7 +199,7 @@ CGAME_ROOTS = {
 HOST_ROOTS = {
     # The rows the game holds for a struct of JKAMP come first, with the game's view name and target.
     "playerState_t": ("PlayerState", "CJKAMP"),
-    "sharedEntity_t": ("SharedEntity", "CJKAMP"),
+    "sharedEntity_t": ("SharedEntity", "CJKAMP_Ded"),
     "cvar_t": ("Cvar", "CJKAMP"),
     # The server's own state, Raven's `svs` and `sv` of sv_main.cpp, and the records its signatures take.
     "serverStatic_t": ("ServerStatic", "CJKAMP_Ded"),

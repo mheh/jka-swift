@@ -39,10 +39,13 @@ SOURCES = REPO / "Sources"
 # The C target and the view target of each unit, from the rows of `[targets]` in project.toml, in the order of the rows.
 # A generator reads the C target of its run's unit from closure.py, and this file re-exports every target whose view target exists.
 with (HERE / "project.toml").open("rb") as _f:
-    _units = tomllib.load(_f)["targets"].values()
+    _rows = tomllib.load(_f)["targets"]
+    _units = _rows.values()
 # C target -> Swift view target, and the C targets each view target's umbrella reaches.
+# A host reads the types it shares with its `other` module from that module's C target, as merge.py places them.
 VIEW_OF = {"CJKAShared": "JKAShared", "CJKAMP": "JKAMP"} | {unit["c_target"]: unit["views"] for unit in _units}
-DEPS = {"CJKAShared": [], "CJKAMP": ["CJKAShared"]} | {unit["c_target"]: ["CJKAMP", "CJKAShared"] for unit in _units}
+DEPS = {"CJKAShared": [], "CJKAMP": ["CJKAShared"]} | {
+    unit["c_target"]: ([_rows[unit["other"]]["c_target"]] if unit.get("kind") == "host" else []) + ["CJKAMP", "CJKAShared"] for unit in _units}
 SKIP = {"qboolean"}
 # Macro bodies that are a keyword or a keyword macro, not a value.
 KEYWORD_MACROS = {"inline", "static", "__inline", "ID_INLINE", "QDECL", "MAC_STATIC"}
