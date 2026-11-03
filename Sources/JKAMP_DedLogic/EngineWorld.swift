@@ -10,6 +10,20 @@ public final class EngineWorld {
     var variables = EngineVariables()
     let strings = StringPool.shared
 
+    // MARK: - msg.cpp
+
+    /// Raven's `static char string[MAX_STRING_CHARS]` of `MSG_ReadString` in `msg.cpp`.
+    /// Source: oracle/codemp/qcommon/msg.cpp:460
+    var string_MSG_ReadString = CharBuf(MAX_STRING_CHARS)
+
+    /// Raven's `static char string[BIG_INFO_STRING]` of `MSG_ReadBigString` in `msg.cpp`.
+    /// Source: oracle/codemp/qcommon/msg.cpp:498
+    var string_MSG_ReadBigString = CharBuf(BIG_INFO_STRING)
+
+    /// Raven's `static char string[MAX_STRING_CHARS]` of `MSG_ReadStringLine` in `msg.cpp`.
+    /// Source: oracle/codemp/qcommon/msg.cpp:522
+    var string_MSG_ReadStringLine = CharBuf(MAX_STRING_CHARS)
+
     // MARK: - Raven's data tables
 
     // MARK: - cm_shader.cpp
