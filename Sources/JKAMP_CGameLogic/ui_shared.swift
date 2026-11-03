@@ -5740,19 +5740,15 @@ func KeywordHash_Key(_ keyword: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:7347
-// TODO: Port signature
-// Raven wrote: void KeywordHash_Add(keywordHash_t *table[], keywordHash_t *key)
-// No table row for `keywordHash_t *[] table`.
-func KeywordHash_Add() -> Never {
+// AI: Raven passes the bucket table and a row pointer. The function takes the row table beside the buckets, and a row pointer is the row's index.
+func KeywordHash_Add(_ table: inout [Int32?], _ rows: inout [KeywordHashRow], _ key: Int32) {
     // TODO: Port KeywordHash_Add
     portMissing("KeywordHash_Add", source: "oracle/codemp/ui/ui_shared.c:7347")
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:7360
-// TODO: Port signature
-// Raven wrote: keywordHash_t *KeywordHash_Find(keywordHash_t *table[], char *keyword)
-// No table row for `keywordHash_t *[] table`.
-func KeywordHash_Find() -> Never {
+// AI: Raven passes the bucket table and returns a row pointer. The function takes the row table beside the buckets and returns the row's index.
+func KeywordHash_Find(_ table: [Int32?], _ rows: [KeywordHashRow], _ keyword: String) -> Int32? {
     // TODO: Port KeywordHash_Find
     portMissing("KeywordHash_Find", source: "oracle/codemp/ui/ui_shared.c:7360")
 }
