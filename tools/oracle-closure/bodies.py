@@ -253,6 +253,8 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.after_com_error = False
         # Raven's `char *buf` locals that only ever hold a CHARBUF_ALLOCS call at one constant size, which Swift holds as a CharBuf of that size.
         self.charbuf_allocs = self.charbuf_alloc_names(fn.cur)
+        # Raven's ring of static text buffers the function returns, by the buffer's name, with the index that picks one.
+        self.ring_buffers = self.ring_buffer_names(fn.cur)
         self.charbuf_locals: set[str] = set(self.charbuf_allocs)
         # Raven's vector parameters a caller passes NULL to and the body only reads, which cross as optional values.
         self.optional_vectors = {c.spelling for c, p in zip(fn.cur.get_arguments(), fn.params)

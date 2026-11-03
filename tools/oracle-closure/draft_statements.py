@@ -559,6 +559,11 @@ class Statements:
         if cur.kind == CursorKind.UNEXPOSED_EXPR and len(list(cur.get_children())) == 1 and not self.is_call(cur):
             return self.statement_lines(list(cur.get_children())[0], depth)
         kind = cur.kind
+        if kind in (CursorKind.BINARY_OPERATOR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR) and self.ring_buffers \
+                and self.unwrap(list(cur.get_children())[0]).kind == CursorKind.DECL_REF_EXPR \
+                and self.unwrap(list(cur.get_children())[0]).spelling in self.ring_buffers.values():
+            # The step of a ring's index drops with the ring, because one local buffer stands for the ring.
+            return []
         if kind == CursorKind.COMPOUND_STMT:
             return roled([f"{pad}do {{"], "frame") + self.block_body(cur, depth + 1) + roled([f"{pad}}}"], "frame")
         if kind == CursorKind.DECL_STMT:
@@ -589,6 +594,9 @@ class Statements:
             if self.fn.returns == "String" and self.is_raw(kids[0]):
                 # Raven returns the raw allocation he filled, and the result is the text in it, read through the view decode of JKAShared.
                 return [f"{pad}return cString(at: {self.expr(kids[0])})" + self.trailing(cur)]
+            if self.fn.returns in ("String", "String?") and self.is_charbuf(kids[0]):
+                # Raven returns his text buffer, and the result is the text in it, a copy.
+                return [f"{pad}return String({self.expr(kids[0])})" + self.trailing(cur)]
             value = self.converted(kids[0], self.fn.returns)
             return [f"{pad}return {value}" + self.trailing(cur)]
         if kind == CursorKind.IF_STMT:

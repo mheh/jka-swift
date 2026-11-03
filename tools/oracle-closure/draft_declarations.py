@@ -328,6 +328,31 @@ class Declarations:
             raise Hole(storage)
         name = swift_name(var.spelling)
         t = var.type
+        if var.spelling in self.ring_buffers.values():
+            # The index of a ring drops with the ring.
+            return ""
+        if var.spelling in self.ring_buffers:
+            count = t.get_canonical().element_type.get_canonical().element_count
+            comment = "// Raven's ring of static buffers keeps one result valid across a later call, and a returned `String` is already a copy."
+            return roled([comment], "comment")[0] + f"\nvar {name} = JKAShared.CharBuf({count})"
+        if var.storage_class == ci.StorageClass.STATIC and self.text_buffer(var) and self.returns_local(var):
+            comment = "// Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy."
+            return roled([comment], "comment")[0] + "\n" + self.declaration_of(var)
+        return self.declaration_of(var)
+
+    def returns_local(self, var: ci.Cursor) -> bool:
+        """True when a return statement of the function returns the local."""
+        for node in self.fn.cur.walk_preorder():
+            if node.kind == CursorKind.RETURN_STMT:
+                kids = [k for k in node.get_children() if k.kind.is_expression()]
+                if kids and self.unwrap(kids[0]).kind == CursorKind.DECL_REF_EXPR and self.unwrap(kids[0]).referenced == var:
+                    return True
+        return False
+
+    def declaration_of(self, var: ci.Cursor) -> str:
+        """The Swift declaration of one local of the body."""
+        name = swift_name(var.spelling)
+        t = var.type
         init = [c for c in var.get_children() if c.kind.is_expression() and b"=" in self.bytes[var.extent.start.offset:c.extent.start.offset]]
         keyword = self.keyword(var, bool(init))
         if t.get_canonical().kind == TypeKind.CONSTANTARRAY and self.views.is_vec3(t):
@@ -650,15 +675,70 @@ class Declarations:
         Either one is a hole until a storage rule names its home, and any other static is Raven's scratch habit."""
         if var.storage_class != ci.StorageClass.STATIC:
             return None
+        if var.spelling in self.ring_buffers or var.spelling in self.ring_buffers.values():
+            # A ring of text buffers the function returns is one local CharBuf, and the index that picks a buffer drops.
+            return None
         if var.spelling in self.written and not self.written_first(var):
+            if self.text_buffer(var) and self.filled_first(var):
+                # A fill writes the whole buffer before any read, so the buffer is Raven's scratch habit.
+                return None
             return f"A static local `{var.spelling}` a statement reads before it writes, storage that outlives the call."
         for node in self.fn.cur.walk_preorder():
             if node.kind != CursorKind.RETURN_STMT:
                 continue
             kids = [k for k in node.get_children() if k.kind.is_expression()]
             if kids and self.unwrap(kids[0]).kind == CursorKind.DECL_REF_EXPR and self.unwrap(kids[0]).referenced == var:
+                if self.text_buffer(var) and (self.fn.returns or "").removeprefix("JKAShared.") in ("String", "String?"):
+                    # The returned `String` is a copy, so the buffer needs no storage past the call.
+                    return None
                 return f"A static local `{var.spelling}` the function returns, storage that outlives the call."
         return None
+
+    def text_buffer(self, var: ci.Cursor) -> bool:
+        """True for Raven's `char name[N]`, a buffer of text."""
+        t = var.type.get_canonical()
+        return t.kind == TypeKind.CONSTANTARRAY and t.element_type.get_canonical().kind == TypeKind.CHAR_S
+
+    def filled_first(self, var: ci.Cursor) -> bool:
+        """True when the first reference to the buffer in the body's order is an argument that a callee writes as a CharBuf,
+        the `trap_FS_Read(buf, len, f)` that fills the buffer before any read."""
+        for node in self.fn.cur.walk_preorder():
+            if node.kind == CursorKind.CALL_EXPR:
+                kids = list(node.get_children())
+                for i, arg in enumerate(kids[1:]):
+                    inner = self.unwrap(arg)
+                    if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling == var.spelling:
+                        name = self.callee_name(node)
+                        return any(i < len(params) and params[i][1].replace("JKAShared.", "") == "inout CharBuf"
+                                   for params in self.registry.overloads.get(name or "", []))
+            if node.kind == CursorKind.DECL_REF_EXPR and node.spelling == var.spelling and node.referenced is not None \
+                    and node.referenced.kind == CursorKind.VAR_DECL:
+                return False
+        return False
+
+    def ring_buffer_names(self, fn: ci.Cursor) -> dict[str, str]:
+        """Raven's ring of static text buffers that the function returns, `static char text[2][1024]` and `return text[index]`,
+        by the buffer's name, with the name of the static index that picks one buffer."""
+        out: dict[str, str] = {}
+        for node in fn.walk_preorder():
+            if node.kind != CursorKind.RETURN_STMT:
+                continue
+            kids = [k for k in node.get_children() if k.kind.is_expression()]
+            inner = self.unwrap(kids[0]) if kids else None
+            if inner is None or inner.kind != CursorKind.ARRAY_SUBSCRIPT_EXPR:
+                continue
+            base, index = (self.unwrap(k) for k in inner.get_children())
+            if base.kind != CursorKind.DECL_REF_EXPR or index.kind != CursorKind.DECL_REF_EXPR:
+                continue
+            buffer, picker = base.referenced, index.referenced
+            if buffer is None or picker is None or buffer.kind != CursorKind.VAR_DECL or picker.kind != CursorKind.VAR_DECL:
+                continue
+            t = buffer.type.get_canonical()
+            if buffer.storage_class == ci.StorageClass.STATIC and picker.storage_class == ci.StorageClass.STATIC \
+                    and t.kind == TypeKind.CONSTANTARRAY and t.element_type.get_canonical().kind == TypeKind.CONSTANTARRAY \
+                    and t.element_type.get_canonical().element_type.get_canonical().kind == TypeKind.CHAR_S:
+                out[buffer.spelling] = picker.spelling
+        return out
 
     def written_first(self, var: ci.Cursor) -> bool:
         """True when the first reference to the local in the body's order is a store into it, Raven's scratch static that every path writes before it reads.

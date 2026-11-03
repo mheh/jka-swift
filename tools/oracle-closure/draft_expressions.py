@@ -294,6 +294,10 @@ class Expressions:
     def is_charbuf(self, cur: ci.Cursor) -> bool:
         """True for a local or parameter Swift holds as a CharBuf: Raven's `char name[N]` or a `char *` he rewrites in place."""
         inner = self.unwrap(cur)
+        if inner.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR and self.ring_buffers:
+            # One buffer of a ring is the one local CharBuf.
+            base = self.strip(list(inner.get_children())[0])
+            return base.kind == CursorKind.DECL_REF_EXPR and base.spelling in self.ring_buffers
         if inner.kind != CursorKind.DECL_REF_EXPR:
             return False
         param = self.params_by_name.get(inner.spelling)
@@ -459,6 +463,9 @@ class Expressions:
         if kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
             base, index = list(cur.get_children())
             inner_base = self.strip(base)
+            if inner_base.kind == CursorKind.DECL_REF_EXPR and inner_base.spelling in self.ring_buffers:
+                # One buffer of the ring is the one local CharBuf.
+                return self.leaf(cur, swift_name(inner_base.spelling))
             indexed = self.indexed_view_read(inner_base)
             if indexed is not None and self.shared_read_key(cur) in self.hoisted:
                 return self.leaf(cur, self.hoisted[self.shared_read_key(cur)])
