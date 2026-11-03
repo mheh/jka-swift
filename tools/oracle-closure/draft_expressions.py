@@ -258,6 +258,10 @@ class Expressions:
     def empty_test(self, cur: ci.Cursor) -> str | None:
         """The Swift name of a String parameter under Raven's `s[0]`, or None."""
         inner = self.unwrap(cur)
+        if inner.kind == CursorKind.UNARY_OPERATOR and self.operator_or_none_unary(inner) == "*" \
+                and self.pooled_field(self.unwrap(self.unary_parts(inner)[2])):
+            # Raven's `*item->enableCvar` reads the first byte of a `char *` field, the same test as `item->enableCvar[0]`.
+            return f"{self.expr(self.unwrap(self.unary_parts(inner)[2]))}!"
         if inner.kind != CursorKind.ARRAY_SUBSCRIPT_EXPR:
             return None
         base, index = list(inner.get_children())
