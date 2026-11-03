@@ -288,17 +288,13 @@ func CG_DrawInformation() {
 
             strcpy(&fmStr, trap_SP_GetStringTextString("MP_INGAME_MAXFORCERANK", Int32((fmStr).count)).1)
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'forceMasteryLevels' in scope".
-            // Raven wrote: UI_DrawProportionalString( 320, y, va( "%s %s", fmStr, CG_GetStringEdString("MP_INGAME", forceMasteryLevels[value]) ), UI_CENTER|UI_INFOFONT|UI_DROPSHADOW, colorWhite )
-            portMissing("CG_DrawInformation", source: "oracle/codemp/cgame/cg_info.c:110")
+            UI_DrawProportionalString(320, y, va("%s %s", fmStr, CG_GetStringEdString("MP_INGAME", forceMasteryLevels[value])), UI_CENTER | UI_INFOFONT | UI_DROPSHADOW, colorWhite)
             y += iPropHeight
         } else if valueNOFP == 0 {
             var fmStr = CharBuf(1024)
             strcpy(&fmStr, trap_SP_GetStringTextString("MP_INGAME_MAXFORCERANK", Int32((fmStr).count)).1)
 
-            // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot find 'forceMasteryLevels' in scope".
-            // Raven wrote: UI_DrawProportionalString( 320, y, va( "%s %s", fmStr, (char *)CG_GetStringEdString("MP_INGAME", forceMasteryLevels[7]) ), UI_CENTER|UI_INFOFONT|UI_DROPSHADOW, colorWhite )
-            portMissing("CG_DrawInformation", source: "oracle/codemp/cgame/cg_info.c:110")
+            UI_DrawProportionalString(320, y, va("%s %s", fmStr, CG_GetStringEdString("MP_INGAME", forceMasteryLevels[7])), UI_CENTER | UI_INFOFONT | UI_DROPSHADOW, colorWhite)
             y += iPropHeight
         }
 
