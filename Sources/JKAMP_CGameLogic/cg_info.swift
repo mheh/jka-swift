@@ -48,9 +48,8 @@ func CG_LoadingItem(_ itemNum: Int32) {
     }
 
     strcpy(&upperKey, item!.classname!)
-    // Port-note: The draft of this statement did not compile, and the compiler wrote "cannot convert value of type 'CharBuf' to expected argument type 'String'".
-    // Raven wrote: CG_LoadingString( CG_GetStringEdString("SP_INGAME",Q_strupr(upperKey)) )
-    portMissing("CG_LoadingItem", source: "oracle/codemp/cgame/cg_info.c:32")
+    Q_strupr(&upperKey)
+    CG_LoadingString(CG_GetStringEdString("SP_INGAME", String(upperKey)))
 }
 
 /**
