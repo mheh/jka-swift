@@ -180,3 +180,19 @@ The skeleton gives `sysEvent_t`, `clipMap_t`, `StaticMem_t`, and nine other reco
 The cgame check needs a reference of its own, and this pass wrote it to `~/.cache/jka-swift/snapshot-mp-cgame` from master. The ruling of one snapshot cache names one folder. The proposal is that the one cache holds a folder per unit, `snapshot-stage-two-shared` for the game and `snapshot-mp-cgame` for the cgame, each refreshed in place after a landing.
 
 `views.py` wrote host views into `Sources/JKAMP` and `Sources/JKAMP_Ded` before the fix of `tools/oracle-closure/views.py:887`. Other writers of a staged run may have the same gap. `views.py:107`, `:422`, and `:549` read the view targets under `Sources/` and not under the staged root, so a staged run reads the committed re-exports and callbacks of `JKAMP` and not the staged ones. The proposal is a survey of every `SOURCES /` path of the generators against `closure.written` before the first host hole round.
+
+## The ledger
+
+The user delegated the rows on 2026-11-03 with the words "remember to prove the rows and auto rule. match existing codebase patterns in reference to the rows". The rows take the numbers S1 to S11 in the order of the Rows section.
+
+- S1, the overload key: ratified as amended. The table keys a function by its stem, its name, and the line of its definition, the key `adopt.py` already uses to match a draft to a stub. No stem is left out of the host snapshot.
+- S2, the foreign triples: ratified as amended. The lp64 asserts alone cover the C++ reach of `cm_local.h`. No stub `<list>`.
+- S3, `<stdio.h>`: ratified as amended. The host C target includes `<stdio.h>`, as `CJKASyscall` includes `<stdint.h>`, and `check.sh` and `reexport.py` give the SDK include path for the host target.
+- S4, `PATH_MAX`: ratified as proposed. The host layout follows Raven's Windows build, 256, through an undefined `PATH_MAX` in the host parse.
+- S5, `PERS_SCORE`: ratified as amended. The macro stays in `server.h` alone, the constants file omits a macro whose name is an enumerator of an included header, and the extract reports the omission.
+- S6, `clipMap_t`: ratified as proposed. `C_STRUCT_CLASSES` gains the second form, a bare `struct CCMLandScape;` tag for a class C names behind a pointer alone.
+- S7, the other C++ declarations: ratified as proposed. The list joins row C1 of the C++ docket, and `traceWork_t` takes the struct form of `CCMShader` with `_Bool`.
+- S8, `WinVars_t`: ratified as amended. The three spellings stay, and they live in `CJKAMP_Ded_platform.h` alone, where row T3 keeps the host's platform spellings.
+- S9, the skeleton reason: ratified as proposed.
+- S10, the cache folders: ratified as proposed. One cache root with one folder per unit, each refreshed in place after a landing.
+- S11, the staged paths: ratified as proposed. The survey runs before the first host hole round.
