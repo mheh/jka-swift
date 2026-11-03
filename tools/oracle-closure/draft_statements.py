@@ -310,7 +310,7 @@ class Statements:
         if not self.is_call(inner):
             return None
         name = self.callee_name(inner)
-        returns = self.registry.returns.get(name, "")
+        returns = self.callee_returns(name, "")
         if not name or not any(returns.startswith(f"({first}, {text})") for first in ("Int32", "Bool") for text in ("String", "JKAShared.CharBuf")):
             return None
         params = self.callee_params(name)
@@ -330,7 +330,7 @@ class Statements:
         if not self.is_call(inner):
             return None
         name = self.callee_name(inner)
-        returns = self.registry.returns.get(name, "") if name else ""
+        returns = self.callee_returns(name, "") if name else ""
         if returns not in ("String", "JKAShared.CharBuf"):
             return None
         params = self.callee_params(name)
@@ -797,7 +797,7 @@ class Statements:
                     call, buffer = tuple_call
                     # A list trap returns the whole buffer as a CharBuf, and the buffer takes it as it is.
                     # Any other trap returns the text to the first NUL, and the copy keeps the buffer's declared size, as the engine's write does.
-                    whole = self.registry.returns.get(self.callee_name(self.strip(right)), "").startswith("(Int32, JKAShared.CharBuf)")
+                    whole = self.callee_returns(self.callee_name(self.strip(right)), "").startswith("(Int32, JKAShared.CharBuf)")
                     fill = f"{buffer} = filled.1" if whole else f"strcpy(&{buffer}, filled.1)"
                     return [f"{pad}let filled = {call}", f"{pad}{self.expr(left)} = filled.0", f"{pad}{fill}"]
                 if op == "=" and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.table_cursors:
@@ -952,7 +952,7 @@ class Statements:
         if self.is_call(cur) and self.tuple_call(cur) is not None:
             call, buffer = self.tuple_call(cur)
             # Raven drops the trap's count, and the buffer takes the text, the second element of the tuple, as in the form above.
-            if self.registry.returns.get(self.callee_name(self.strip(cur)), "").endswith(", JKAShared.CharBuf)"):
+            if self.callee_returns(self.callee_name(self.strip(cur)), "").endswith(", JKAShared.CharBuf)"):
                 return [f"{pad}{buffer} = {call}.1" + self.trailing(cur)]
             return [f"{pad}strcpy(&{buffer}, {call}.1)" + self.trailing(cur)]
         if self.is_call(cur) and self.aliased_inouts(cur):
@@ -1028,7 +1028,7 @@ class Statements:
             negated = True
             inner = self.unwrap(self.unary_parts(inner)[2])
         name = self.callee_name(self.strip(inner)) if self.is_call(self.strip(inner)) else None
-        returns = self.registry.returns.get(name, "") if name else ""
+        returns = self.callee_returns(name, "") if name else ""
         if not any(returns.startswith(f"({first}, {text})") for first in ("Bool", "Int32") for text in ("String", "JKAShared.CharBuf")):
             return None
         filled = self.tuple_call(inner)

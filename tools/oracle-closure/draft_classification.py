@@ -124,7 +124,7 @@ class Classification:
                 return param.swift == "UnsafeMutableRawPointer"
             return inner.spelling in self.raw_locals
         if inner.kind == CursorKind.CALL_EXPR:
-            return self.registry.returns.get(self.callee_name(inner) or "") == "UnsafeMutableRawPointer"
+            return self.callee_returns(self.callee_name(inner) or "") == "UnsafeMutableRawPointer"
         if inner.kind == CursorKind.UNARY_OPERATOR and self.operator_or_none_unary(inner) == "*":
             # Raven's `*(char **)(b+ofs)` is the raw pointer the slot at that byte offset holds.
             raw = self.raw_store(inner)
@@ -287,10 +287,10 @@ class Classification:
             return "null"
         # Raven's `(char *)CG_GetStringEdString(...)` drops the const of the call's text, and the store is still that text.
         called = self.uncast(cur)
-        if called.kind == CursorKind.CALL_EXPR and self.registry.returns.get(self.callee_name(called) or "") == "String?":
+        if called.kind == CursorKind.CALL_EXPR and self.callee_returns(self.callee_name(called) or "") == "String?":
             # The callee hands an optional text back, so the local is a String? and Raven's NULL test keeps its form.
             return "optional"
-        if called.kind == CursorKind.CALL_EXPR and self.registry.returns.get(self.callee_name(called) or "") == "String":
+        if called.kind == CursorKind.CALL_EXPR and self.callee_returns(self.callee_name(called) or "") == "String":
             return "text"
         if inner.kind == CursorKind.STRING_LITERAL:
             return "text"
@@ -538,7 +538,7 @@ class Classification:
         inner = self.strip(cur)
         if not self.is_call(inner):
             return False
-        return self.registry.returns.get(self.callee_name(inner) or "") == "String?"
+        return self.callee_returns(self.callee_name(inner) or "") == "String?"
 
     def text_value(self, cur: ci.Cursor, optional: bool) -> str:
         """Raven's source for a String local: his NULL, the text of a `char name[N]` field, or the expression as it is."""
@@ -729,7 +729,7 @@ class Classification:
             return self.is_null(yes) or self.is_null(no) or self.optional_base(yes) or self.optional_base(no)
         if inner.kind == CursorKind.CALL_EXPR:
             name = self.callee_name(inner)
-            returns = self.registry.returns.get(name or "")
+            returns = self.callee_returns(name or "")
             return returns is None or returns.endswith("?")
         if inner.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
             # A slot of an array of struct pointers is a `Slots<View?>` element, so it is optional.
@@ -1053,7 +1053,7 @@ class Classification:
             return None
         for source in sources:
             inner = self.unwrap(source)
-            returns = self.registry.returns.get(self.callee_name(inner), "") if self.is_call(inner) else ""
+            returns = self.callee_returns(self.callee_name(inner), "") if self.is_call(inner) else ""
             if self.is_null(inner) or returns.endswith("?"):
                 optional = True
             if not (self.is_null(inner) or returns.replace("JKAShared.", "").removesuffix("?") == "vec4_t"

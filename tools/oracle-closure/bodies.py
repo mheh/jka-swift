@@ -89,6 +89,8 @@ class Registry:
         self.target_params: dict[tuple[str, str], list[tuple[str, str]]] = {}
         # The Swift return type of each function, so a call to one that returns a value takes no bind.
         self.returns: dict[str, str] = {}
+        # The Swift return of each function by the Swift target that holds it, the twin of `target_params`.
+        self.target_returns: dict[tuple[str, str], str] = {}
         # Every overload's parameters, so an argument converts only when no overload takes it as it is.
         self.overloads: dict[str, list[list[tuple[str, str]]]] = {}
         # The Swift targets that hold each file-scope function and variable, so a bg body that reaches a game-only name keeps a hole.
@@ -132,6 +134,7 @@ class Registry:
                 self.overloads.setdefault(name, []).append(params)
                 r = re.search(r"->\s*(.+?)\s*\{?\s*$", line[end + 1:])
                 self.returns.setdefault(name, r.group(1) if r else "Void")
+                self.target_returns.setdefault((target, name), r.group(1) if r else "Void")
                 if FILE_FUNC.match(line):
                     self.homes.setdefault(name, set()).add(target)
 

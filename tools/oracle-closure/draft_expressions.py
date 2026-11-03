@@ -325,7 +325,7 @@ class Expressions:
             return True
         if cur.kind == CursorKind.DECL_REF_EXPR and cur.spelling in ("qtrue", "qfalse"):
             return True
-        if cur.kind == CursorKind.CALL_EXPR and self.registry.returns.get(self.callee_name(cur) or "") == "Bool":
+        if cur.kind == CursorKind.CALL_EXPR and self.callee_returns(self.callee_name(cur) or "") == "Bool":
             return True
         return cur.type.spelling.replace("const ", "") == "qboolean"
 
