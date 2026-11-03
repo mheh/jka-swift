@@ -909,14 +909,19 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
         NOTES.append(f"{d.cite} macro {d.name} stays in its header, because an enum of an included header names {d.name}")
     decls = [d for d in decls if d not in clashing]
     for d in decls:
-        if d.kind == "class" and C_STRUCT_CLASSES.get(d.name, ("",))[0] == "fields":
-            # The struct holds the fields alone, each in Raven's text with `struct` in the place of `class`.
+        if d.kind in ("class", "typedef") and C_STRUCT_CLASSES.get(d.name, ("",))[0] == "fields":
+            # The struct holds the fields alone, each in Raven's text with `struct` in the place of `class` and `_Bool` in the place of `bool`.
             lines = lines_of(d.file)
-            fields = [re.sub(r"\bclass\b", "struct", lines[f.extent.start.line - 1][f.extent.start.column - 1:f.extent.end.column - 1])
-                      for f in d.cur.get_children() if f.kind == CursorKind.FIELD_DECL]
-            d.kind = "struct"
-            d.override = (f"// Raven declares {d.name} as a class at {d.cite}. C has no class, so the fields stand as a struct and the methods stay out.\n"
-                          f"struct {d.name}\n{{\n" + "".join(f"\t{field};\n" for field in fields) + "};")
+            fields = [re.sub(r"\bbool\b", "_Bool", re.sub(r"\bclass\b", "struct", lines[f.extent.start.line - 1][f.extent.start.column - 1:f.extent.end.column - 1]))
+                      for f in d.record().get_children() if f.kind == CursorKind.FIELD_DECL]
+            body = "{\n" + "".join(f"\t{field};\n" for field in fields) + "}"
+            if d.kind == "class":
+                d.kind = "struct"
+                d.override = (f"// Raven declares {d.name} as a class at {d.cite}. C has no class, so the fields stand as a struct and the methods stay out.\n"
+                              f"struct {d.name}\n{body};")
+            else:
+                d.override = (f"// Raven declares {d.name} with C++ `bool` fields at {d.cite}. C spells the type `_Bool`, which has the same size.\n"
+                              f"typedef struct {tag_of(d.record())}\n{body} {d.name};")
     macro_names = {d.name: d for d in decls if d.kind == "macro"}
     link(decls, macro_names)
     commit = oracle_commit()

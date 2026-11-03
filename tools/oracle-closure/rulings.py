@@ -544,6 +544,8 @@ PLATFORM_MACROS = {"PATH_MAX"}
 C_STRUCT_CLASSES = {
     "CCMShader": ("fields", "oracle/codemp/qcommon/cm_local.h:77"),
     "CCMLandScape": ("tag", "oracle/codemp/qcommon/cm_landscape.h:135"),
+    # `traceWork_t` is a C struct but for its two C++ `bool` fields, which C spells `_Bool`, row S7.
+    "traceWork_t": ("fields", "oracle/codemp/qcommon/cm_local.h:238"),
 }
 
 # C targets whose copied headers include a C library header, as CJKASyscall includes <stdint.h>.
