@@ -116,6 +116,10 @@ An enum of that last kind is `private let` constants of type `Int32` at the top 
 | a C array of strings the function fills from a caller's `&array[i]`, such as `char *infos[]` | `inout ArraySlice<String>`, the caller passes `&g_arenaInfos[Int(g_numArenas)...]`, and the body writes `infos[infos.startIndex + count]`, because a slice keeps the parent's indices. |
 | a fixed C array of a scalar the body reads, such as `int delta_angles[3]` | `[Int32]` by value, and a caller with a view field passes `Array(bs.cur_ps.delta_angles)`. |
 | a read-only `int *` with a count beside it, such as `g2Bolts` of `G_RunExPhys` | `[Int32]?` by value, PARAMS kind `int_array`. The body reads `g2Bolts![i]` under Raven's NULL guard, and a caller that passes `NULL` passes `nil`. |
+| a `T **` parameter or return that holds the address of one record pointer slot, such as `ppnode` of `free_ppnode` and the return of `get_ppnode` | `Slots<View?>` of count 1 over the slot, PARAMS kind `slot` or RETURNS kind `slot`, the form of a `slot` field. |
+| a `byte *` or `unsigned char` array parameter of a host function that is not a trap, such as `input` of `MD4Update` | `Slots<UInt8>`, the caller's `Slots` over the bytes, the row a trap's `byte *` has. A game function with this shape keeps its marker. |
+| a pointer or a fixed array of a typedef that the TYPES map names, such as `UINT4 *output` of `Decode` | the TYPES spelling behind the pointer or the array, `inout UInt32`, because the canonical type does not keep the typedef. |
+| a C++ `bool` parameter with a default, such as `readUntilEOL = false` of `GetToken` | `Bool` with the same default, so a caller that omits the argument reads as Raven's call. |
 
 A caller of an `out_string` parameter that the callee may leave NULL passes a buffer's own text as the `inout` and writes the result back into the buffer.
 Raven's `GAME_ICARUS_GETSTRING` arm starts `char *crap = NULL`, passes `&crap` to `Q3_GetString`, and copies into `sharedMem->value` only when `crap` is set.
@@ -330,6 +334,11 @@ A cast to a view the body already holds, such as a bg body that passes its `BgEn
 A cast of a pointer that can be NULL maps over the optional, `pVeh.m_pPilot.map { Entity($0) }`, so NULL stays nil.
 A `void *` field that holds one of several records, which Raven casts back by another field, has a `FIELDS` row of kind `raw` in `rulings.py`, and the view spells it `UnsafeMutableRawPointer?`. So `(listBoxDef_t*)item->typeData` reads `item.typeData.map { ListBoxDef($0) }`, and `memset(item->typeData, 0, sizeof(listBoxDef_t))` reads `ListBoxDef(item.typeData!).clear()`.
 A `void *` field that every store fills with one record or NULL has a `FIELDS` row of kind `("view", record)`, and the view spells it as that record's optional view, so `(menuDef_t*)item->parent` reads `item.parent`.
+A `byte *` field that holds the base of a byte buffer a body indexes has a `FIELDS` row of kind `bytes`, and the view spells it `Slots<JKAShared.byte>?` with the widest count, so `cmd_text.data[i]` reads `cmd_text.data![i]`.
+A `T **` field that holds the address of one record pointer slot has a `FIELDS` row of kind `slot`, and the view spells it `Slots<View?>?` of count 1 over that slot, so `*node->head` reads `node.head![0]`.
+Two records that hold one address share the slot, as the nodes of one block share their `head`. `Node.head` and `Huff.freelist` take this form.
+Raven's cast of a slot to `node_t **` reads `slotAddress`, the accessor of `Sources/JKAMP_Ded/NodeSlots.swift` that reads and writes the first slot as the address of another slot.
+A field whose C name is a member of every view, `handle` or `raw`, has a `FIELD_NAMES` row of `rulings.py` where a body reads it, and the view spells it under that name, so `vmCvar->handle` reads `vmCvar.cvarHandle`.
 The `handle:` form stays inside generated code under rule 11, and a signature keeps the plain view type Raven's parameter had, never a generic or protocol parameter that absorbs the cast.
 A struct pointer field a body indexes, such as `animations` of `pmove_t` where Raven writes `pm->animations[anim]`, carries a second accessor, `<name>Slots: Slots<View>`, the way a `float *` field carries its `<name>Vector` accessor.
 The same subscript sweep of `table.py` names the fields that get it, and `views.py` reads that set.
@@ -459,6 +468,8 @@ A `void *` variable is an engine handle, an `OpaquePointer?` whose `NULL` or `0`
 A variable the module assigns and Raven gives a data initializer, a brace list, is a hand property of the state object with Raven's data, and the stub forwards it the same way.
 A name in `HAND_VARS` of `rulings.py` is a variable whose storage is hand work, and its stub entry says so. The `bg_pool`, `memoryPool`, and `cg_strPool` entries have no storage, and they keep the stub from a `CharBuf` of the pool size.
 A C character array at file scope is a `CharBuf` of Raven's bound.
+A `byte` array that a function declares on its stack and a `BYTE_STORAGE_LOCALS` entry of `rulings.py` names, `seq` of `Huff_Compress` and `Huff_Decompress`, is one zeroed byte allocation on the generated storage class, a `Slots<JKAShared.byte>`.
+The entry lists the functions that declare the local, and they share the allocation, so the stub forwards it once at the first declaration, `var seq: Slots<JKAShared.byte> { world.storage.seq }`, under a rule 24 line.
 A variable Raven declares with no initializer is his all the same, zeroed by the loader, and its entry says C's zero where the initializer would be.
 A file-scope array of struct pointers, such as `gWPArray`, is one zeroed allocation the world owns, on the generated `GameStorage` class in `Sources/JKAMP_Game/Generated/Storage/GameStorage.swift`, as a `Slots` of optional views, born and freed with `GameWorld`.
 The stub carries the name at Raven's line, `var gWPArray: Slots<JKAMP.Wpobject?> { world.storage.gWPArray }`, so a test that swaps the world swaps the tables with it.

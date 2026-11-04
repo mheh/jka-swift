@@ -23,7 +23,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `CG_SiegeBriefing_f` static | `oracle/codemp/cgame/cg_consolecmds.c:195-213` | `JKAMP_CGameLogic/cg_consolecmds.swift:191` | ported | `crates/mp/cgame/src/cg_consolecmds.rs:322-335` | `private func CG_SiegeBriefing_f()` |
 | `CG_SiegeCvarUpdate_f` static | `oracle/codemp/cgame/cg_consolecmds.c:215-233` | `JKAMP_CGameLogic/cg_consolecmds.swift:210` | ported | `crates/mp/cgame/src/cg_consolecmds.rs:342-355` | `private func CG_SiegeCvarUpdate_f()` |
 | `CG_SiegeCompleteCvarUpdate_f` static | `oracle/codemp/cgame/cg_consolecmds.c:234-245` | `JKAMP_CGameLogic/cg_consolecmds.swift:229` | ported | `crates/mp/cgame/src/cg_consolecmds.rs:361-370` | `private func CG_SiegeCompleteCvarUpdate_f()` |
-| `CG_ConsoleCommand` | `oracle/codemp/cgame/cg_consolecmds.c:309-323` | `JKAMP_CGameLogic/cg_consolecmds.swift:251` | ported | `crates/mp/cgame/src/cg_consolecmds.rs:386-438` | `func CG_ConsoleCommand() -> Bool` |
+| `CG_ConsoleCommand` | `oracle/codemp/cgame/cg_consolecmds.c:309-323` | `JKAMP_CGameLogic/cg_consolecmds.swift:251` | ported | `crates/mp/cgame/src/cg_consolecmds.rs:386-438` | `public func CG_ConsoleCommand() -> Bool` |
 | `CG_InitConsoleCommands` | `oracle/codemp/cgame/cg_consolecmds.c:334-391` | `JKAMP_CGameLogic/cg_consolecmds.swift:280` | ported | `crates/mp/cgame/src/cg_consolecmds.rs:445-499` | `func CG_InitConsoleCommands()` |
 
 1 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.

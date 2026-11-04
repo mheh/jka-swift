@@ -109,14 +109,16 @@ let FLOAT_INT_BIAS = (1 << (FLOAT_INT_BITS - 1)) as Int32
 // Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/qcommon/msg.cpp:2002
-// TODO: Port global g_netfBitStorage
-// Raven wrote: static bitStorage_t *g_netfBitStorage = NULL
-// No table row for `bitStorage_t *`.
+var g_netfBitStorage: BitStorage? {
+    get { world.variables.g_netfBitStorage }
+    set { world.variables.g_netfBitStorage = newValue }
+}
 
 /// Source: oracle/codemp/qcommon/msg.cpp:2003
-// TODO: Port global g_psfBitStorage
-// Raven wrote: static bitStorage_t *g_psfBitStorage = NULL
-// No table row for `bitStorage_t *`.
+var g_psfBitStorage: BitStorage? {
+    get { world.variables.g_psfBitStorage }
+    set { world.variables.g_psfBitStorage = newValue }
+}
 
 /// Source: oracle/codemp/qcommon/msg.cpp:2202
 let STAT_WEAPONS = 4 as Int32
@@ -638,6 +640,18 @@ func MSG_WriteData(_ buf: Msg, _ data: OpaquePointer?, _ length: Int32) {
     i = 0
     while i < length {
         MSG_WriteByte(buf, Int32(UnsafeMutableRawPointer(data!)[byte: i] as UInt8))
+        i += 1
+    }
+}
+
+/// Source: oracle/codemp/qcommon/msg.cpp:298
+// Port-note: The overload of the MSG_WriteData row, for the text and the char buffers Raven hands to `const void *data`, msg.cpp:330 to :358.
+// AI: Raven casts every caller's `char *` to `const void *`. A CharBuf overload takes the text, and the string literals type to it.
+func MSG_WriteData(_ buf: Msg, _ data: CharBuf, _ length: Int32) {
+    var i: Int32 = 0
+    while i < length {
+        // Raven reads `((byte *)data)[i]`, unsigned, so a byte of 0x80 or more does not count as an overflow at msg.cpp:147.
+        MSG_WriteByte(buf, Int32(data[i] as UInt8))
         i += 1
     }
 }
