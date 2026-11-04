@@ -88,7 +88,7 @@ let package = Package(
         // The smoke test runs the jampsmoke loader as a process and must not link the built dylib, so it does not depend on jampgame.
         .testTarget(name: "jampgameTests", dependencies: ["CJKAMP_Game"]),
         .testTarget(name: "JKAMP_CGameTests", dependencies: ["JKAMP_CGameLogic", "JKATestSupport"]),
-        // The dedicated server logic tests, the QVM interpreter over the fixture image first.
+        // The dedicated server logic tests, the QVM interpreter over the fixture image and the huffman parity over the huff goldens.
         .testTarget(name: "JKAMP_DedLogicTests", dependencies: ["JKAMP_DedLogic", "JKATestSupport"]),
         // The cgame smoke test runs the same loader on the cgame library, so it does not depend on cgame.
         .testTarget(name: "cgameTests", dependencies: ["CJKAMP_CGame"]),
