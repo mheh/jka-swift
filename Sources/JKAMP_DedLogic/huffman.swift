@@ -65,9 +65,9 @@ private func get_bit(_ fin: UnsafeMutableRawPointer) -> Int32 {
 private func get_ppnode(_ huff: Huff) -> Slots<Node?> {
     var tppnode: Slots<Node?>
     if huff.freelist == nil {
-        // Port-note: Open row, the address of one element of a Slots as a slot. Raven returns the address of slot `blocPtrs` of `nodePtrs`, and a `Slots<Node?>` of count 1 over one element has no form.
-        // Raven wrote: return &(huff->nodePtrs[huff->blocPtrs++]);
-        portMissing("get_ppnode", source: "oracle/codemp/qcommon/huffman.cpp:48")
+        tppnode = huff.nodePtrs.slot(at: huff.blocPtrs)
+        huff.blocPtrs += 1
+        return tppnode
     } else {
         tppnode = huff.freelist!
         huff.freelist = tppnode.slotAddress
@@ -439,7 +439,7 @@ func Huff_Decompress(_ mbuf: Msg, _ offset: Int32) {
             j += 1
         }
         mbuf.cursize = cch + offset
-        // Port-note: Open row Com_Memcpy into byte slots. Com_Memcpy takes `OpaquePointer?`, and a copy from a `Slots<byte>` into the message's bytes has no form.
+        // Port-note: Open row msg_t.data bytes field. The `data` field of the Msg view is an `OpaquePointer?`, so `mbuf.data!.suffix(from:)` has no form for the Slots overload of Com_Memcpy.
         // Raven wrote: Com_Memcpy(mbuf->data + offset, seq, cch);
         portMissing("Huff_Decompress", source: "oracle/codemp/qcommon/huffman.cpp:304")
         return false
@@ -489,9 +489,7 @@ func Huff_Compress(_ mbuf: Msg, _ offset: Int32) {
         i = 0
         while i < size {
             ch = Int32(buffer[byte: i] as UInt8)
-            // Port-note: Open row Com_Memcpy into byte slots. The `fout` of Huff_transmit is a raw pointer, and a `Slots<byte>` handed to a raw byte buffer has no form.
-            // Raven wrote: Huff_transmit(&huff, ch, seq); /* Transmit symbol */
-            portMissing("Huff_Compress", source: "oracle/codemp/qcommon/huffman.cpp:358")
+            Huff_transmit(huff, ch, seq) /* Transmit symbol */
             Huff_addRef(huff, Int32(ch)) /* Do update */
             i += 1
         }
@@ -499,7 +497,7 @@ func Huff_Compress(_ mbuf: Msg, _ offset: Int32) {
         bloc += 8 // next byte
 
         mbuf.cursize = (bloc >> 3) + offset
-        // Port-note: Open row Com_Memcpy into byte slots. Com_Memcpy takes `OpaquePointer?`, and a copy from a `Slots<byte>` into the message's bytes has no form.
+        // Port-note: Open row msg_t.data bytes field. The `data` field of the Msg view is an `OpaquePointer?`, so `mbuf.data!.suffix(from:)` has no form for the Slots overload of Com_Memcpy.
         // Raven wrote: Com_Memcpy(mbuf->data+offset, seq, (bloc>>3));
         portMissing("Huff_Compress", source: "oracle/codemp/qcommon/huffman.cpp:358")
         return false

@@ -5,8 +5,7 @@ import Testing
 /// This suite checks the port of `huffman.cpp` against the three huff goldens of `jka-rust/tools/huff-oracle/main.cpp`.
 /// The first test seeds `msgHuff` in a fresh world as `MSG_initHuffman` does, and the tests run one after the other on that tree.
 /// `Huff_offsetTransmit` never calls `Huff_addRef`, so the tree stays as the seed left it.
-/// The seed reaches the hole of `get_ppnode`, so the suite waits on the open row of the address of one element of a Slots as a slot.
-@Suite(.serialized, .disabled("get_ppnode waits on the open row of the address of one element of a Slots as a slot"))
+@Suite(.serialized)
 struct HuffParitySuite {
     /// The world that holds the seeded tree, so the 2.1 million `Huff_addRef` calls of the seed run once.
     nonisolated(unsafe) static var seededWorld: EngineWorld?
