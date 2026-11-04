@@ -36,3 +36,18 @@ The fixture test `commandsReturnTheReadmeValues` stays disabled. Its reason name
 
 1. `VM_SetSymbolMap` has no Swift home, row 3 of the first record. It waits on the symbol map design row of rule 17 for the `vm.swift` round.
 2. The draftcheck defect is in master's generated `Sources/JKAMP_DedLogic/Generated/Callbacks.swift:4`. The file imports `JKAMP_BG`, and `Package.swift:64` gives `JKAMP_DedLogic` the dependency `JKAMP_Ded` alone. The full `swift build` builds `JKAMP_BG` for other products and passes, but the mirror build of the host product cannot resolve the module. Proposed: the skeleton writes no `JKAMP_BG` import for the host unit, or `Package.swift` declares the dependency.
+
+## The third readoption
+
+`3cd5b71` merges master at `c24e5e7`, the open rows of the dedicated host of PR 56. The merge has no conflict. Master did not change `Sources/JKAMP_DedLogic/vm_interpreted.swift`, and the declaration lines of the branch file match the declaration lines of master's stub. No body takes a change, and the file stays adopted.
+
+Open row 2 of the second hole pass is closed by master. Row 9 of `notes/2026-11-04/dedicated-open-rows-ledger.md` removes the `JKAMP_BG` import from `Sources/JKAMP_DedLogic/Generated/Callbacks.swift`.
+
+Row 10 of the same ledger makes the draftcheck read the `.cpp` Source lines of a host stem. The count below is the first count that reads the hand functions of the stem. Each of the four functions has a full hand body, so the draft splices over none of them and the mirror build compiles the four hand bodies.
+
+- Functions: 4. Transcribed: 4. `portMissing` lines in the stem: 1, the `VM_SetSymbolMap` hole in `VM_CallInterpreted`.
+- `swift build`: complete, no error.
+- `swift test --no-parallel`: 132 tests in nine runs pass, and one test is skipped, the disabled fixture test.
+- `draftcheck.py --unit mp-engine-ded --stem vm_interpreted`: exit 0. 0 of 4 hand functions replaced, 4 kept, 162 holes, 0 cascade errors, 0 defects, and 0 compile holes over 1 pass.
+
+The one open row is row 1 of the second hole pass. `VM_SetSymbolMap` has no Swift home, and it waits on the symbol map design row of rule 17 for the `vm.swift` round.
