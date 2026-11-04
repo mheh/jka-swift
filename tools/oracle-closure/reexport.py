@@ -227,10 +227,20 @@ def doc(sources: list[str]) -> list[str]:
     return [f"/// Source: {s}" for s in sources]
 
 
+# The stems whose file names a C library function, such as `strcasecmp` for Raven's `stricmp`, so the file imports Foundation.
+# The internal import of the C target does not carry the C library on Linux, and Foundation holds it there, as every stub imports it.
+FOUNDATION_STEMS: set[tuple[str, str]] = set()
+
+
 def emit(target: str, unimportable: set[str], narrowed: set[str], typed: set[str], unexpressible: set[str],
          declared: dict[str, str]) -> dict[str, list[str]]:
     """The Swift files for one C target, keyed by Raven header stem."""
     tu = parse(target)
+    # The functions a header outside the package declares, the C library the SDK supplies.
+    libc = {cur.spelling for cur in tu.cursor.get_children() if cur.kind == CursorKind.FUNCTION_DECL and cur.location.file
+            and not Path(cur.location.file.name).resolve().is_relative_to(SOURCES.resolve())}
+    # A macro the platform section spells as one name the parse never declares, `stricmp=strcasecmp`, names the C library too.
+    known = {cur.spelling for cur in tu.cursor.get_children()}
     # The scalar typedefs this target writes as a typealias, or reads from a dependency's view, which a cast body may name.
     typealiases = {
         cur.spelling for cur in tu.cursor.get_children()
@@ -287,6 +297,8 @@ def emit(target: str, unimportable: set[str], narrowed: set[str], typed: set[str
             elif name in unimportable:
                 # Swift's importer does not take this macro, so its body is spelled as a Swift expression over the same names.
                 block.append(f"public let {name} = {expression}")
+                if set(re.findall(r"\b\w+\b", expression)) & libc or re.fullmatch(r"[A-Za-z_]\w*", expression) and expression not in known:
+                    FOUNDATION_STEMS.add((target, header_stem(sources[0]) if sources else "unknown"))
             else:
                 block.append(f"public let {name} = {target}.{name}")
             files[header_stem(sources[0]) if sources else "unknown"] += block + [""]
@@ -352,6 +364,8 @@ def write(target: str, files: dict[str, list[str]]) -> int:
     count = 0
     for stem, lines in sorted(files.items()):
         imports = [f"internal import {target}"] + [f"import {VIEW_OF[d]}" for d in DEPS[target]]
+        if (target, stem) in FOUNDATION_STEMS:
+            imports = ["import Foundation"] + imports
         text = [NOTE, ""] + imports + [""] + lines
         (out / f"{stem}.swift").write_text("\n".join(text).rstrip() + "\n")
         count += sum(1 for l in lines if l.startswith("public ") or l.startswith("// TODO: Port"))

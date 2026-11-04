@@ -46,10 +46,7 @@ func CL_Frame(_ msec: Int32) {
 }
 
 /// Source: oracle/codemp/null/null_client.cpp:25
-// TODO: Port signature
-// Raven wrote: void CL_PacketEvent( netadr_t from, msg_t *msg )
-// No table row for `netadr_t from`.
-func CL_PacketEvent() -> Never {
+func CL_PacketEvent(_ from: Netadr, _ msg: Msg) {
     // TODO: Port CL_PacketEvent
     portMissing("CL_PacketEvent", source: "oracle/codemp/null/null_client.cpp:25")
 }
