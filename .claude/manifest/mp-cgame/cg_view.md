@@ -42,13 +42,13 @@ The oracle range is the whole definition, from the return type to the closing br
 | `CG_SE_UpdateMusic` | `oracle/codemp/cgame/cg_view.c:2051-2095` | `JKAMP_CGameLogic/cg_view.swift:1877` | ported | `crates/mp/cgame/src/cg_view.rs:724-767` | `func CG_SE_UpdateMusic()` |
 | `CG_CalcScreenEffects` | `oracle/codemp/cgame/cg_view.c:2104-2108` | `JKAMP_CGameLogic/cg_view.swift:1925` | ported | `crates/mp/cgame/src/cg_view.rs:1360-1368` | `func CG_CalcScreenEffects()` |
 | `CGCam_Shake` | `oracle/codemp/cgame/cg_view.c:2110-2127` | `JKAMP_CGameLogic/cg_view.swift:1931` | ported | `crates/mp/cgame/src/cg_view.rs:773-782` | `func CGCam_Shake(_ intensity: Float, _ duration: Int32)` |
-| `CG_DoCameraShake` | `oracle/codemp/cgame/cg_view.c:2129-2149` | `JKAMP_CGameLogic/cg_view.swift:1947` | ported | `crates/mp/cgame/src/cg_view.rs:1377-1399` | `func CG_DoCameraShake(_ origin: JKAShared.vec3_t, _ intensity: Float, _ radius: Int32, _ time: Int32)` |
+| `CG_DoCameraShake` | `oracle/codemp/cgame/cg_view.c:2129-2149` | `JKAMP_CGameLogic/cg_view.swift:1947` | ported | `crates/mp/cgame/src/cg_view.rs:1377-1399` | `public func CG_DoCameraShake(_ origin: JKAShared.vec3_t, _ intensity: Float, _ radius: Int32, _ time: Int32)` |
 | `CGCam_SetMusicMult` | `oracle/codemp/cgame/cg_view.c:2151-2166` | `JKAMP_CGameLogic/cg_view.swift:1971` | ported | `crates/mp/cgame/src/cg_view.rs:788-800` | `func CGCam_SetMusicMult(_ multiplier: Float, _ duration: Int32)` |
 | `CG_EmplacedView` | `oracle/codemp/cgame/cg_view.c:2185-2211` | `JKAMP_CGameLogic/cg_view.swift:1988` | ported | `crates/mp/cgame/src/cg_view.rs:806-847` | `func CG_EmplacedView(_ angles: inout JKAShared.vec3_t)` |
 | `CG_AddRefentForAutoMap` static | `oracle/codemp/cgame/cg_view.c:2214-2253` | `JKAMP_CGameLogic/cg_view.swift:2012` | ported | `crates/mp/cgame/src/cg_view.rs:853-891` | `private func CG_AddRefentForAutoMap(_ cent: Centity)` |
 | `CG_AddRadarAutomapEnts` | `oracle/codemp/cgame/cg_view.c:2256-2268` | `JKAMP_CGameLogic/cg_view.swift:2056` | ported | `crates/mp/cgame/src/cg_view.rs:1405-1416` | `func CG_AddRadarAutomapEnts()` |
 | `CG_DrawAutoMap` | `oracle/codemp/cgame/cg_view.c:2284-2425` | `JKAMP_CGameLogic/cg_view.swift:2069` | ported | `crates/mp/cgame/src/cg_view.rs:1870-2079` | `func CG_DrawAutoMap()` |
-| `CG_DrawActiveFrame` | `oracle/codemp/cgame/cg_view.c:2447-2762` | `JKAMP_CGameLogic/cg_view.swift:2220` | ported | `crates/mp/cgame/src/cg_view.rs:2810-3166` | `func CG_DrawActiveFrame(_ serverTime: Int32, _ stereoView: JKAMP.stereoFrame_t, _ demoPlayback: Bool)` |
+| `CG_DrawActiveFrame` | `oracle/codemp/cgame/cg_view.c:2447-2762` | `JKAMP_CGameLogic/cg_view.swift:2220` | ported | `crates/mp/cgame/src/cg_view.rs:2810-3166` | `public func CG_DrawActiveFrame(_ serverTime: Int32, _ stereoView: JKAMP.stereoFrame_t, _ demoPlayback: Bool)` |
 
 28 file-scope variables. The entry is the stub's line for the variable, by rule 3 and rule 6.
 

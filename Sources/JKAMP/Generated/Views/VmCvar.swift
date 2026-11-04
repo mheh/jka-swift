@@ -62,7 +62,11 @@ public struct VmCvar: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/q_shared.h:1825
-    // Raven's `handle` field is the engine's, and the view's own `handle` takes the name. No module body reads it.
+    // AI: Raven names the field `handle`. The view's own slot pointer takes that name, so the field reads as `cvarHandle`.
+    public var cvarHandle: JKAShared.cvarHandle_t {
+        get { self.raw.pointee.handle }
+        nonmutating set { self.raw.pointee.handle = newValue }
+    }
 
     /// Source: oracle/codemp/game/q_shared.h:1826
     public var modificationCount: Int32 {

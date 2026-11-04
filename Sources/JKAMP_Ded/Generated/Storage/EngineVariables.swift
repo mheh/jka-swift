@@ -435,6 +435,14 @@ public struct EngineVariables {
     /// Source: oracle/codemp/qcommon/msg.cpp:126
     public var overflows: Int32 = 0
 
+    /// Raven's `bitStorage_t *g_netfBitStorage` of `msg.cpp`.
+    /// Source: oracle/codemp/qcommon/msg.cpp:2002
+    public var g_netfBitStorage: BitStorage? = nil
+
+    /// Raven's `bitStorage_t *g_psfBitStorage` of `msg.cpp`.
+    /// Source: oracle/codemp/qcommon/msg.cpp:2003
+    public var g_psfBitStorage: BitStorage? = nil
+
     /// Raven's `cvar_t *showpackets` of `net_chan.cpp`.
     /// Source: oracle/codemp/qcommon/net_chan.cpp:40
     public var showpackets: JKAMP.Cvar? = nil

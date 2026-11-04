@@ -357,7 +357,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `FPMessageTime` | `oracle/codemp/ui/ui_shared.c:1571` | state | `}` |
 | `ui_deferredScript` | `oracle/codemp/ui/ui_shared.c:1756` | state | `}` |
 | `ui_deferredScriptItem` | `oracle/codemp/ui/ui_shared.c:1757` | state | `}` |
-| `commandList` | `oracle/codemp/ui/ui_shared.c:2196` | marker | `// No view for `commandDef_t`, a struct Raven defines inside a .c file.` |
+| `commandList` | `oracle/codemp/ui/ui_shared.c:2196` | marker | `// No view for `commandDef_t` of `ui_shared.h`.` |
 | `scriptCommandCount` | `oracle/codemp/ui/ui_shared.c:2304` | let | `let scriptCommandCount: Int32 = { () -> Int32 in portMissing("scriptCommandCount", source: "oracle/codemp/ui/ui_shared.c:2304") }()` |
 | `g_bindings` | `oracle/codemp/ui/ui_shared.c:5190` | storage_data | `// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.` |
 | `g_bindCount` | `oracle/codemp/ui/ui_shared.c:5295` | let | `let g_bindCount: Int32 = { () -> Int32 in portMissing("g_bindCount", source: "oracle/codemp/ui/ui_shared.c:5295") }()` |
