@@ -67,6 +67,7 @@ Cbuf_Init
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:54
 func Cbuf_Init() {
+    // Port-note: Open row cmd_text_buf. The stub keeps a `let` byte array, and the CharBuf form on EngineStorage has no ruling.
     // TODO: Port Cbuf_Init
     portMissing("Cbuf_Init", source: "oracle/codemp/qcommon/cmd_common.cpp:54")
 }
@@ -82,6 +83,7 @@ Adds command text at the end of the buffer, does NOT add a final \n
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:68
 func Cbuf_AddText(_ text: String) {
+    // Port-note: Open row cmd_text_buf. The stub keeps a `let` byte array, and the CharBuf form on EngineStorage has no ruling.
     // TODO: Port Cbuf_AddText
     portMissing("Cbuf_AddText", source: "oracle/codemp/qcommon/cmd_common.cpp:68")
 }
@@ -98,6 +100,7 @@ Adds a \n to the text
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:91
 func Cbuf_InsertText(_ text: String) {
+    // Port-note: Open row cmd_text_buf. The stub keeps a `let` byte array, and the CharBuf form on EngineStorage has no ruling.
     // TODO: Port Cbuf_InsertText
     portMissing("Cbuf_InsertText", source: "oracle/codemp/qcommon/cmd_common.cpp:91")
 }
@@ -139,6 +142,7 @@ Cbuf_Execute
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:148
 func Cbuf_Execute() {
+    // Port-note: Open row cmd_text_buf. The stub keeps a `let` byte array, and the CharBuf form on EngineStorage has no ruling.
     // TODO: Port Cbuf_Execute
     portMissing("Cbuf_Execute", source: "oracle/codemp/qcommon/cmd_common.cpp:148")
 }
@@ -152,6 +156,7 @@ Cmd_Exec_f
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:219
 func Cmd_Exec_f() {
+    // Port-note: Open row FS_ReadFile buffer. The stub keeps `inout OpaquePointer?`, and the String form of the buffer has no ruling.
     // TODO: Port Cmd_Exec_f
     portMissing("Cmd_Exec_f", source: "oracle/codemp/qcommon/cmd_common.cpp:219")
 }
