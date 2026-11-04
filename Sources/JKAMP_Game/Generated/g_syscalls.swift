@@ -830,7 +830,7 @@ let word = Syscall.call(G_NAV_NODESARENEIGHBORS, startID, endID)
 }
 
 /// Source: oracle/codemp/game/g_syscalls.c:510
-public func trap_Nav_ClearFailedEdge(_ failedEdge: FailedEdge) {
+public func trap_Nav_ClearFailedEdge(_ failedEdge: JKAMP.FailedEdge) {
     Syscall.call(G_NAV_CLEARFAILEDEDGE, failedEdge)
 }
 
@@ -853,7 +853,7 @@ public func trap_Nav_AddFailedEdge(_ entID: Int32, _ startID: Int32, _ endID: In
 
 /// Source: oracle/codemp/game/g_syscalls.c:530
 @discardableResult
-public func trap_Nav_CheckFailedEdge(_ failedEdge: FailedEdge) -> Bool {
+public func trap_Nav_CheckFailedEdge(_ failedEdge: JKAMP.FailedEdge) -> Bool {
 let word = Syscall.call(G_NAV_CHECKFAILEDEDGE, failedEdge)
     return word != 0
 }

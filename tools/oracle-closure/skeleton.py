@@ -49,7 +49,7 @@ import reexport
 from fnsweep import binop_assign_op, rhs_function, root_var
 from overlay import MACROS, written_arguments
 from reexport import REPO, SOURCES
-from rulings import BYTE_STORAGE_VARS, DEAD, HAND_MACROS, HAND_VARS, LIBC_FUNCTIONS, NEVER_NULL_VARS, NOT_PORTED, PUBLIC_NAMES, RETURNS, TYPES
+from rulings import BYTE_STORAGE_LOCALS, BYTE_STORAGE_VARS, DEAD, HAND_MACROS, HAND_VARS, LIBC_FUNCTIONS, NEVER_NULL_VARS, NOT_PORTED, PUBLIC_NAMES, RETURNS, TYPES
 from store import Store, combined, file_hash, named
 from table import Param, SourceFile, Table, swift_name
 
@@ -159,6 +159,8 @@ class Variable:
         self.shared = False
         # The table Raven walks the pointer over, for a file-scope walk pointer, which the port holds as the index of its slot.
         self.walk: tuple[str, str] | None = None
+        # The functions that declare the local, for a local that a BYTE_STORAGE_LOCALS ruling moves to the storage class.
+        self.local: tuple[str, ...] = ()
 
     @property
     def spelled(self) -> str:
@@ -361,6 +363,8 @@ class Skeleton:
             if m is None:
                 fn.reason = self.table.marker_reason(p, fn.name)
                 return
+            if m.swift == "Bool":
+                m.default = self.bool_default(fn.cur, i)
             fn.params.append(m)
         if fn.cur.type.kind == TypeKind.FUNCTIONPROTO and fn.cur.type.is_function_variadic():
             # Raven's `...` is a printf argument list, and `Format.swift` in JKAShared formats it.
@@ -413,6 +417,16 @@ class Skeleton:
             self.map_variable(var)
             self.variables[path.stem].append(var)
             by_name[var.name].append(var)
+        # A local that a BYTE_STORAGE_LOCALS ruling moves to the storage class stands as a variable of its file, at its first declaration.
+        for name, functions in BYTE_STORAGE_LOCALS.items():
+            fn = self.by_name.get(functions[0])
+            local = next((c for c in fn.cur.walk_preorder() if c.kind == CursorKind.VAR_DECL and c.spelling == name), None) if fn else None
+            if local is None:
+                continue
+            var = Variable(local, fn.stem)
+            var.local = functions
+            self.map_variable(var)
+            self.variables[fn.stem].append(var)
         owners: dict[str, set[str]] = defaultdict(set)
         for stem, variables in self.variables.items():
             for var in variables:
@@ -680,10 +694,11 @@ class Skeleton:
                     var.view = inner[:-1]
                     var.count = canonical.element_count
                     return
-        elif depth == 1 and element.kind == TypeKind.CHAR_S and var.name in BYTE_STORAGE_VARS:
+        elif depth == 1 and element.kind in (TypeKind.CHAR_S, TypeKind.UCHAR) and (var.name in BYTE_STORAGE_VARS or var.local):
             # The engine holds the address of this buffer, so it is one zeroed byte allocation with a fixed base, by the BYTE_STORAGE_VARS ruling.
+            # A `byte` buffer that a pointer field holds, `cmd_text_buf` of cmd_common.cpp, is a Slots over the allocation, so a body indexes it.
             var.reason = "byte_storage"
-            var.swift = "UnsafeMutableRawPointer"
+            var.swift = "UnsafeMutableRawPointer" if element.kind == TypeKind.CHAR_S else "Slots<JKAShared.byte>"
             var.count = canonical.element_count
             return
         elif depth and element.kind == TypeKind.CHAR_S:
@@ -924,6 +939,9 @@ class Skeleton:
             # The allocation lives on the state object's generated storage class, and the stub carries the name at Raven's line.
             spelled = "bg" if target_of(var.stem) == BG else "world"
             lines = [f"/// Source: {var.cite}", f"{self.variable_access(var)}var {var.name}: {var.swift} {{ {spelled}.storage.{var.field} }}"]
+            if var.local:
+                # The ruling moves Raven's stack local to the storage class, so the forward carries the rule 24 line.
+                lines.insert(1, f"// AI: Raven declares `{var.name}` on the stack of {' and '.join(var.local)}. The functions share one zeroed allocation on the storage class.")
         else:
             lines.insert(1, f"// TODO: Port global {var.name}")
             lines.append(f"// {var.reason}")
@@ -1189,12 +1207,23 @@ class Skeleton:
             return "public "
         return "public " if target_of(fn.stem) == SHARED else ""
 
+    def bool_default(self, cur: ci.Cursor, i: int) -> str | None:
+        """The C++ default of a `bool` parameter, `readUntilEOL = false` of GetToken, from the definition or the first declaration."""
+        for decl in (cur, cur.canonical):
+            params = list(decl.get_arguments())
+            if i < len(params):
+                for child in params[i].get_children():
+                    if child.kind == CursorKind.CXX_BOOL_LITERAL_EXPR:
+                        return " ".join(t.spelling for t in child.get_tokens())
+        return None
+
     def signature(self, fn: Function) -> str:
         """The declaration line the table gives the function today, without the brace, so the manifest can carry it after adoption."""
         name = swift_name(fn.name)
         if not fn.mapped:
             return f"{self.access(fn)}func {name}() -> Never"
-        params = ", ".join(f"_ {p.name}: {p.swift}" for p in fn.params)
+        # A C++ default of a `bool` parameter stays on the Swift parameter, so a caller that omits the argument reads as Raven's call.
+        params = ", ".join(f"_ {p.name}: {p.swift}" + (f" = {p.default}" if p.default else "") for p in fn.params)
         returns = "Never" if fn.name in self.never_names and fn.returns is None else fn.returns
         return f"{self.access(fn)}func {name}({params})" + (f" -> {returns}" if returns else "")
 
@@ -1349,7 +1378,8 @@ class Skeleton:
         return param is None or not (param.swift or "").startswith("OpaquePointer")
 
     def thunks(self) -> list[str]:
-        lines = [THUNKS_NOTE, "", "import JKAMP", "import JKAMP_BG", f"import {VIEWS}", "import JKAShared", ""]
+        # A host compiles no bg file, so its thunks import no bg module, as its stubs do.
+        lines = [THUNKS_NOTE, "", "import JKAMP"] + ([] if C.HOST else ["import JKAMP_BG"]) + [f"import {VIEWS}", "import JKAShared", ""]
         for field in FIELDS:
             stored = sorted(self.stores.get(field, []), key=lambda pair: pair[0])
             lines += [
@@ -1512,11 +1542,15 @@ class Skeleton:
             exported = self.table.views.exported_names(C_TARGET)
             for stem, var in tables:
                 declaration = " ".join(self.declaration_text(var).split("=", 1)[0].split()).removeprefix("static ")
-                lines += [f"    /// Raven's `{declaration}` of `{C.file_name(stem)}`.", f"    /// Source: {var.cite}", f"    public let {var.field}: {var.swift}", ""]
+                owner = f"local of {' and '.join(f'`{name}`' for name in var.local)} in" if var.local else "of"
+                lines += [f"    /// Raven's `{declaration}` {owner} `{C.file_name(stem)}`.", f"    /// Source: {var.cite}", f"    public let {var.field}: {var.swift}", ""]
                 if var.count:
                     bound = declaration[declaration.index("[") + 1:declaration.index("]")].strip()
                     count = f"Int({exported[bound]}.{bound})" if bound in exported else str(var.count)
-                if var.kind == "byte_storage":
+                if var.kind == "byte_storage" and var.swift.startswith("Slots"):
+                    inits.append(f"        self.{var.field} = Slots(scalars: {cls}.bytes(count: {count}), count: {count})")
+                    deinits.append(f"        self.{var.field}.base.deallocate()")
+                elif var.kind == "byte_storage":
                     inits.append(f"        self.{var.field} = {cls}.bytes(count: {count})")
                     deinits.append(f"        self.{var.field}.deallocate()")
                 elif var.kind == "pointer_table":

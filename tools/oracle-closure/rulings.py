@@ -223,6 +223,8 @@ HOST_ROOTS = {
     "MD4_CTX": ("Md4Ctx", "CJKAMP_Ded"),
     "loopmsg_t": ("Loopmsg", "CJKAMP_Ded"),
     "loopback_t": ("Loopback", "CJKAMP_Ded"),
+    # The two file-scope lists of msg.cpp:2002, `g_netfBitStorage` and `g_psfBitStorage`, hold these nodes.
+    "bitStorage_t": ("BitStorage", "CJKAMP_Ded"),
     # The four netField tables of msg.cpp hold these rows, and ded_tables.c holds the tables as C storage.
     "netField_t": ("NetField", "CJKAMP_Ded"),
 }
@@ -239,12 +241,15 @@ NEVER_NULL = {
 
 # (struct, field) pairs whose pointer a body indexes, with the C macro that bounds the records behind the pointer.
 # C gives a pointer no bound, and this names Raven's own, which the view spells as the module exports it.
+# A fixed array field that Raven declares short and allocates past takes the macro as its count too, `vec3_t p[4]` of winding_t.
 # A field the rule does not name keeps the widest count, because no ruling has given it a bound.
 # See docket row 8 of the bg walk of 2026-09-18.
 SLOT_BOUNDS = {
     ("bgLoadedAnim_t", "anims"): "MAX_TOTALANIMATIONS",
     ("pmove_t", "animations"): "MAX_TOTALANIMATIONS",
     ("level_locals_t", "clients"): "MAX_CLIENTS",
+    # cm_polylib.h:7 declares `p[4]` with the comment "variable sized", and cm_polylib.cpp:387 caps a clipped winding at MAX_POINTS_ON_WINDING.
+    ("winding_t", "p"): "MAX_POINTS_ON_WINDING",
 }
 
 # File-scope variables a body reads with no bind, because Raven's callers always set them before any body runs.
@@ -274,13 +279,20 @@ HAND_VARS = {
 # File-scope character arrays whose address the engine holds, so each one is one zeroed byte allocation on the storage class, not a `CharBuf`.
 # `gSharedBuffer` of g_main.c goes to the engine through `trap_SV_RegisterSharedMemory`, and vmMain reads the ICARUS views at its base.
 # See "The post-spine walk", row P1, and the zeroed storage rule of docs/transcription.md.
-BYTE_STORAGE_VARS = {"gSharedBuffer"}
+# `cmd_text_buf` of cmd_common.cpp is the buffer `cmd_text.data` points at, cmd_common.cpp:56, so its `byte` elements read as a Slots.
+BYTE_STORAGE_VARS = {"gSharedBuffer", "cmd_text_buf"}
+# Function locals that a ruling moves to the storage class as one zeroed byte allocation, each with the functions that declare it, first one first.
+# `byte seq[65536]` of Huff_Decompress and Huff_Compress goes to the `byte *` of Huff_transmit and to Com_Memcpy, so a body needs its base.
+# The two functions never run at once, and add_bit zeroes each byte before it writes, so one allocation serves both. Row R-A of the huffman round.
+BYTE_STORAGE_LOCALS = {"seq": ("Huff_Decompress", "Huff_Compress")}
 # The field twin of BYTE_STORAGE_VARS: a character array field whose address the engine holds, which the view reads as the field's address.
 # `cg.sharedBuffer` of cg_local.h goes to the engine through `trap_CG_RegisterSharedMemory`, and the engine callbacks of cg_main.c read records at its base.
 BYTE_STORAGE_FIELDS = {("cg_t", "sharedBuffer")}
-# (struct, field) -> the kind of a pointer field, where the C type alone does not say. The field twin of PARAMS, with two of its kinds:
+# (struct, field) -> the kind of a pointer field, where the C type alone does not say. The field twin of PARAMS, with three of its kinds and one of its own:
 #   raw   an UnsafeMutableRawPointer? for a `void *` that holds one of several records, which Raven casts back by another field
 #   view  the optional view of the record named beside the kind, ("view", record), for a `void *` every store fills with that record or NULL
+#   bytes a Slots of bytes for a `byte *` that holds the base of a byte buffer a body indexes
+#   slot  a Slots of one optional view for a pointer to a record pointer, over the slot the field points at, so `*node->head` reads `node.head![0]`
 # Item_ValidateTypeData allocates one of five records into `typeData` by `item->type`, ui_shared.c:7279, and the bodies cast it back.
 FIELDS = {
     ("itemDef_t", "typeData"): "raw",
@@ -288,7 +300,16 @@ FIELDS = {
     ("itemDef_t", "parent"): ("view", "menuDef_t"),
     # cg_newDraw.c:855 stores the menu of Display_CaptureItem, and cg_newDraw.c:776 hands it to Display_MouseMove.
     ("cgs_t", "capturedItem"): ("view", "menuDef_t"),
+    # cmd_common.cpp:56 stores `cmd_text_buf`, a BYTE_STORAGE_VARS buffer, and the bodies index `cmd_text.data[i]` at :78, :103, and :110.
+    ("cmd_t", "data"): "bytes",
+    # A `node_t **` field holds the address of one `node_t *` slot, and huffman.cpp:150 shares one slot between the nodes of a block.
+    ("node_t", "head"): "slot",
+    ("huff_t", "freelist"): "slot",
 }
+
+# (struct, field) -> the accessor name of a field whose C name is a member of every view, `handle` or `raw`, where a body reads the field.
+# Raven writes `vmCvar->handle` at cvar.cpp:896 and reads it at :913 and :917.
+FIELD_NAMES = {("vmCvar_t", "handle"): "cvarHandle"}
 
 @dataclass(frozen=True)
 class HandMacro:
@@ -321,6 +342,9 @@ HAND_MACROS = {
 # qint64 is Raven's struct of eight bytes from before the compilers had a portable 64-bit integer, and only the byte-swap pair touches it.
 TYPES = {
     "qint64": "Int64",
+    # AI: Raven typed UINT4 as unsigned long int. The port fixes it at 32 bits so the checksum matches on an lp64 host.
+    # ded_types.h declares it `unsigned int`, so the views and this table agree, md4.cpp:17.
+    "UINT4": "UInt32",
     # Raven declares `qboolean gSiegeRoundWinningTeam` at g_saga.c:38 and in the extern at g_main.c:1978,
     # and he stores and compares a team number through it, 0, SIEGETEAM_TEAM1, or SIEGETEAM_TEAM2.
     # Ruling A2 of 2026-10-11.
@@ -355,7 +379,10 @@ TYPES = {
 #   view           the optional view of the record named beside the kind, ("view", record), for a `void *` return of that record or NULL
 #   opaque         an OpaquePointer?, for a `void *` handle Raven returns that is not an allocation, the spelling the Ghoul2 traps take
 #   row_index      an Int32? row index, for a `keywordHash_t *` row Raven returns or NULL, form A of R53
+#   slot           a Slots of one optional view over a pointer slot, for a `node_t **` Raven returns, the form of a `node_t **` field
 RETURNS = {
+    # get_ppnode of huffman.cpp:48 returns the address of a `node_t *` slot of `nodePtrs` or of the free list.
+    "get_ppnode": "slot",
     "SkipWhitespace": "text_cursor",
     "ClientConnect": "optional_string",
     "G_GetBotInfoByName": "optional_string",
@@ -424,6 +451,8 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #   row_index  an Int32 row index for a `keywordHash_t *` row pointer, form A of R53
 #   opaque    an OpaquePointer? for a `byte *` buffer the body stores into a `byte *` field or hands on as a `void *`, the spelling of the field
 PARAMS = {
+    # free_ppnode of huffman.cpp:59 takes the slot address that get_ppnode returned, the form of a `node_t **` field.
+    ("free_ppnode", "ppnode"): "slot",
     ("COM_ParseString", "s"): "out_string",
     # String_Parse of ui_shared.c:607 sets `*out` to the token and never walks it.
     ("String_Parse", "out"): "out_string",

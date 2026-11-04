@@ -15,7 +15,7 @@ var token: JKAShared.CharBuf {
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:15
-private func GetToken(_ text: inout JKAShared.TextCursor, _ allowLineBreaks: Bool, _ readUntilEOL: Bool) -> String {
+private func GetToken(_ text: inout JKAShared.TextCursor, _ allowLineBreaks: Bool, _ readUntilEOL: Bool = false) -> String {
     // TODO: Port GetToken
     portMissing("GetToken", source: "oracle/codemp/qcommon/GenericParser2.cpp:15")
 }

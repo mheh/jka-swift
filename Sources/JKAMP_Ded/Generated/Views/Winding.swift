@@ -68,5 +68,6 @@ public struct Winding: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/qcommon/cm_polylib.h:7
-    public var p: Slots<JKAShared.vec3_t> { Slots(vectors: UnsafeMutableRawPointer(self.raw.pointer(to: \.p)!), count: 4) }
+    // AI: Raven declares `p[4]` and allocates the record past it. The count is Raven's `MAX_POINTS_ON_WINDING` bound.
+    public var p: Slots<JKAShared.vec3_t> { Slots(vectors: UnsafeMutableRawPointer(self.raw.pointer(to: \.p)!), count: Int(MAX_POINTS_ON_WINDING)) }
 }
