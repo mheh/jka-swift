@@ -29,7 +29,7 @@ The stem keeps 4 holes. 21 of the 25 holes of the round are filled.
 | Check | Result |
 |---|---|
 | `swift build` | Build complete, 0 errors |
-| `swift test --no-parallel` | exit 0, 134 tests pass, 4 skipped: the 3 parity tests and the interpreter test |
+| `swift test --no-parallel` | exit 0, 135 tests, 131 pass, 4 skipped: the 3 parity tests and the interpreter test |
 | `draftcheck.py --unit mp-engine-ded --stem huffman` | exit 0, 5 of 18 hand functions replaced, 13 kept, 33 holes, 0 cascade errors, 0 defects, 0 compile holes over 1 pass |
 
 The 33 holes are in the drafter's output for the five replaced functions, not in the working tree. The draftcheck run reports stale adoption facts in six files of the landed rounds. The round ran no generator.
