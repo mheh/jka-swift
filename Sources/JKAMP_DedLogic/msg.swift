@@ -674,16 +674,55 @@ func MSG_WriteFloat(_ sb: Msg, _ f: Float) {
 
 /// Source: oracle/codemp/qcommon/msg.cpp:328
 func MSG_WriteString(_ sb: Msg, _ s: String) {
-    // Port-note: Open row O1, a `char` buffer and the literal `""` into the `OpaquePointer?` of `MSG_WriteData`, has no ruling.
-    // TODO: Port MSG_WriteString
-    portMissing("MSG_WriteString", source: "oracle/codemp/qcommon/msg.cpp:328")
+    // Raven also tests `s` for NULL here. A String is never NULL, so that arm has no Swift form.
+    var l: Int32
+    var string = CharBuf(MAX_STRING_CHARS)
+
+    l = strlen(s)
+    if l >= MAX_STRING_CHARS {
+        Com_Printf("MSG_WriteString: MAX_STRING_CHARS")
+        MSG_WriteData(sb, "", 1)
+        return
+    }
+    Q_strncpyz(&string, s, Int32(string.count))
+
+// eurofix: eliminating this means you can chat in european languages. WTF are "old clients" anyway?	-ste
+//
+//		// get rid of 0xff chars, because old clients don't like them
+//		for ( int i = 0 ; i < l ; i++ ) {
+//			if ( ((byte *)string)[i] > 127 ) {
+//				string[i] = '.';
+//			}
+//		}
+
+    MSG_WriteData(sb, string, l + 1)
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:356
 func MSG_WriteBigString(_ sb: Msg, _ s: String) {
-    // Port-note: Open row O1, a `char` buffer and the literal `""` into the `OpaquePointer?` of `MSG_WriteData`, has no ruling.
-    // TODO: Port MSG_WriteBigString
-    portMissing("MSG_WriteBigString", source: "oracle/codemp/qcommon/msg.cpp:356")
+    // Raven also tests `s` for NULL here. A String is never NULL, so that arm has no Swift form.
+    var l: Int32
+    var string = CharBuf(BIG_INFO_STRING)
+
+    l = strlen(s)
+    if l >= BIG_INFO_STRING {
+        Com_Printf("MSG_WriteString: BIG_INFO_STRING")
+        MSG_WriteData(sb, "", 1)
+        return
+    }
+    Q_strncpyz(&string, s, Int32(string.count))
+
+// eurofix: remove this so we can chat in european languages...	-ste
+/*
+		// get rid of 0xff chars, because old clients don't like them
+		for ( int i = 0 ; i < l ; i++ ) {
+			if ( ((byte *)string)[i] > 127 ) {
+				string[i] = '.';
+			}
+		}
+*/
+
+    MSG_WriteData(sb, string, l + 1)
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:385
@@ -1343,9 +1382,186 @@ func MSG_ReadDeltaEntity(_ msg: Msg, _ from: JKAMP.EntityState, _ to: JKAMP.Enti
 //rww - Check the overrides files to see if the mod wants anything changed
 /// Source: oracle/codemp/qcommon/msg.cpp:2006
 func MSG_CheckNETFPSFOverrides(_ psfOverrides: Bool) {
-    // Port-note: The open row is `bitStorage_t` of this file, which has no view, so `g_netfBitStorage` and `g_psfBitStorage` have no table row.
-    // TODO: Port MSG_CheckNETFPSFOverrides
-    portMissing("MSG_CheckNETFPSFOverrides", source: "oracle/codemp/qcommon/msg.cpp:2006")
+    var fileName: String
+    var numFields: Int32
+
+    // Raven's `bitStorage_t **bitStorage` names `g_psfBitStorage` or `g_netfBitStorage`, so the statements after the choice take the chosen variable.
+    // The locals that only those statements read are declared inside, because a nested function cannot capture a local before its first store.
+    func withBitStorage(_ bitStorage: inout BitStorage?) {
+        var overrideFile = CharBuf(4096)
+        var entryName = CharBuf(4096)
+        var bits = CharBuf(4096)
+        var ibits: Int32
+        var i: Int32 = 0
+        var j: Int32
+        var len: Int32
+        var f: JKAShared.fileHandle_t = 0
+
+        if bitStorage != nil {
+            //if we have saved off the defaults before we want to stuff them all back in now
+            var restore = bitStorage
+
+            while i < numFields {
+                if psfOverrides {
+                    playerStateFields[i].bits = restore!.bits
+                } else {
+                    entityStateFields[i].bits = restore!.bits
+                }
+
+                i += 1
+                restore = restore!.next
+            }
+        }
+
+        len = FS_FOpenFileRead(va("ext_data/MP/%s", fileName), &f, false)
+
+        if f == 0 {
+            //silently exit since this file is not needed to proceed.
+            return
+        }
+
+        if len >= 4096 {
+            Com_Printf("WARNING: %s is >= 4096 bytes and is being ignored\n", fileName)
+            FS_FCloseFile(f)
+            return
+        }
+
+        //Get contents of the file
+        // Port-note: Open row, a `char overrideFile[4096]` into the `OpaquePointer?` of `FS_Read`, has no ruling. The host has no `inout CharBuf` overload of `FS_Read`.
+        portMissing("FS_Read", source: "oracle/codemp/qcommon/msg.cpp:2070")
+        FS_FCloseFile(f)
+
+        //because FS_Read does not do this for us.
+        overrideFile[len] = 0
+
+        //If we haven't saved off the initial stuff yet then stuff it all into
+        //a list.
+        if bitStorage == nil {
+            // Raven walks a `bitStorage_t **` from the head variable to each new record's `next`.
+            // The walk keeps the last record, so each new record goes into the head or into that record's `next`.
+            var last: BitStorage? = nil
+            i = 0
+
+            while i < numFields {
+                //Alloc memory for this new ptr
+                // Port-note: Open row, `TAG_GENERAL` is an `Int32` and the `eTag` of `Z_Malloc` is `memtag_t`, a `CChar`, so the site needs a cast Raven did not write.
+                let node = BitStorage(Z_Malloc(Int32(BitStorage.byteCount), memtag_t(TAG_GENERAL), true, 4))
+                if let last {
+                    last.next = node
+                } else {
+                    bitStorage = node
+                }
+
+                if psfOverrides {
+                    node.bits = playerStateFields[i].bits
+                } else {
+                    node.bits = entityStateFields[i].bits
+                }
+
+                //Point to the ->next of the existing current ptr
+                last = node
+                i += 1
+            }
+        }
+
+        i = 0
+        //Now parse through. Lines beginning with ; are disabled.
+        while overrideFile[i] != 0 {
+            if overrideFile[i] == Int32(ascii: ";") {
+                //parse to end of the line
+                while overrideFile[i] != Int32(ascii: "\n") {
+                    i += 1
+                }
+            }
+
+            if overrideFile[i] != Int32(ascii: ";") &&
+                overrideFile[i] != Int32(ascii: "\n") &&
+                overrideFile[i] != Int32(ascii: "\r") {
+                //on a valid char I guess, parse it
+                j = 0
+
+                while overrideFile[i] != 0 && overrideFile[i] != Int32(ascii: ",") {
+                    entryName[j] = overrideFile[i]
+                    j += 1
+                    i += 1
+                }
+                entryName[j] = 0
+
+                if overrideFile[i] == 0 {
+                    //just give up, this shouldn't happen
+                    Com_Printf("WARNING: Parsing error for %s\n", fileName)
+                    return
+                }
+
+                while overrideFile[i] == Int32(ascii: ",") || overrideFile[i] == Int32(ascii: " ") {
+                    //parse to the start of the value
+                    i += 1
+                }
+
+                j = 0
+                while overrideFile[i] != Int32(ascii: "\n") && overrideFile[i] != Int32(ascii: "\r") {
+                    //now read the value in
+                    bits[j] = overrideFile[i]
+                    j += 1
+                    i += 1
+                }
+                bits[j] = 0
+
+                if bits[0] != 0 {
+                    if strcmp(bits, "GENTITYNUM_BITS") == 0 {
+                        //special case
+                        ibits = GENTITYNUM_BITS
+                    } else {
+                        ibits = atoi(bits)
+                    }
+
+                    j = 0
+
+                    //Now go through all the fields and see if we can find a match
+                    while j < numFields {
+                        if psfOverrides {
+                            //check psf fields
+                            if strcmp(playerStateFields[j].name!, entryName) == 0 {
+                                //found it, set the bits
+                                playerStateFields[j].bits = ibits
+                                break
+                            }
+                        } else {
+                            //otherwise check netf fields
+                            if strcmp(entityStateFields[j].name!, entryName) == 0 {
+                                //found it, set the bits
+                                entityStateFields[j].bits = ibits
+                                break
+                            }
+                        }
+                        j += 1
+                    }
+
+                    if j == numFields {
+                        //failed to find the value
+                        Com_Printf("WARNING: Value '%s' from %s is not valid\n", entryName, fileName)
+                    }
+                } else {
+                    //also should not happen
+                    Com_Printf("WARNING: Parsing error for %s\n", fileName)
+                    return
+                }
+            }
+
+            i += 1
+        }
+    }
+
+    if psfOverrides {
+        //do PSF overrides instead of NETF
+        fileName = "psf_overrides.txt"
+        numFields = Int32(playerStateFields.count)
+        withBitStorage(&g_psfBitStorage)
+    } else {
+        fileName = "netf_overrides.txt"
+        numFields = Int32(entityStateFields.count)
+        withBitStorage(&g_netfBitStorage)
+    }
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:2213
