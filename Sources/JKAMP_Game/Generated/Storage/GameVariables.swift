@@ -600,7 +600,7 @@ public struct GameVariables {
 
     /// Raven's `int gSiegeBeginTime` of `g_saga.c`.
     /// Source: oracle/codemp/game/g_saga.c:39
-    public var gSiegeBeginTime: Int32 = JKAMP_Game.Q3_INFINITE
+    public var gSiegeBeginTime: Int32 = JKAMP.Q3_INFINITE
 
     /// Raven's `int g_preroundState` of `g_saga.c`.
     /// Source: oracle/codemp/game/g_saga.c:41
