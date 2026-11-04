@@ -246,10 +246,7 @@ func SV_SendServerCommand(_ cl: Client?, _ fmt: String, _ args: any JKAShared.Fo
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:194
-// TODO: Port signature
-// Raven wrote: static inline bool SV_MasterNeedsResolving(int server, int time)
-// No table row for the return `bool`.
-private func SV_MasterNeedsResolving() -> Never {
+private func SV_MasterNeedsResolving(_ server: Int32, _ time: Int32) -> Bool {
     // TODO: Port SV_MasterNeedsResolving
     portMissing("SV_MasterNeedsResolving", source: "oracle/codemp/server/sv_main.cpp:194")
 }
@@ -287,10 +284,7 @@ the simple info query.
 ```
 */
 /// Source: oracle/codemp/server/sv_main.cpp:320
-// TODO: Port signature
-// Raven wrote: void SVC_Status( netadr_t from )
-// No table row for `netadr_t from`.
-func SVC_Status() -> Never {
+func SVC_Status(_ from: Netadr) {
     // TODO: Port SVC_Status
     portMissing("SVC_Status", source: "oracle/codemp/server/sv_main.cpp:320")
 }
@@ -306,10 +300,7 @@ if a user is interested in a server to do a full status
 ```
 */
 /// Source: oracle/codemp/server/sv_main.cpp:381
-// TODO: Port signature
-// Raven wrote: void SVC_Info( netadr_t from )
-// No table row for `netadr_t from`.
-func SVC_Info() -> Never {
+func SVC_Info(_ from: Netadr) {
     // TODO: Port SVC_Info
     portMissing("SVC_Info", source: "oracle/codemp/server/sv_main.cpp:381")
 }
@@ -340,10 +331,7 @@ Redirect all printfs
 ```
 */
 /// Source: oracle/codemp/server/sv_main.cpp:490
-// TODO: Port signature
-// Raven wrote: void SVC_RemoteCommand( netadr_t from, msg_t *msg )
-// No table row for `netadr_t from`.
-func SVC_RemoteCommand() -> Never {
+func SVC_RemoteCommand(_ from: Netadr, _ msg: Msg) {
     // TODO: Port SVC_RemoteCommand
     portMissing("SVC_RemoteCommand", source: "oracle/codemp/server/sv_main.cpp:490")
 }
@@ -361,10 +349,7 @@ connectionless packets.
 ```
 */
 /// Source: oracle/codemp/server/sv_main.cpp:545
-// TODO: Port signature
-// Raven wrote: void SV_ConnectionlessPacket( netadr_t from, msg_t *msg )
-// No table row for `netadr_t from`.
-func SV_ConnectionlessPacket() -> Never {
+func SV_ConnectionlessPacket(_ from: Netadr, _ msg: Msg) {
     // TODO: Port SV_ConnectionlessPacket
     portMissing("SV_ConnectionlessPacket", source: "oracle/codemp/server/sv_main.cpp:545")
 }
@@ -377,10 +362,7 @@ SV_ReadPackets
 ```
 */
 /// Source: oracle/codemp/server/sv_main.cpp:594
-// TODO: Port signature
-// Raven wrote: void SV_PacketEvent( netadr_t from, msg_t *msg )
-// No table row for `netadr_t from`.
-func SV_PacketEvent() -> Never {
+func SV_PacketEvent(_ from: Netadr, _ msg: Msg) {
     // TODO: Port SV_PacketEvent
     portMissing("SV_PacketEvent", source: "oracle/codemp/server/sv_main.cpp:594")
 }
