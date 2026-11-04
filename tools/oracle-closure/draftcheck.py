@@ -55,7 +55,8 @@ LOG = REPO / ".build-draft" / "build.log"
 DRAFTS = REPO / ".build-draft" / "drafts"
 # A stem of the unit cites the unit's folder, and a borrowed stem cites its own folder, the game folder for the cgame copy of a vehicle file.
 FOLDERS = "|".join(re.escape(folder) for folder in dict.fromkeys([C.GAME_DIR, *C.BORROWED.values()]))
-SOURCE_LINE = re.compile(rf"/// Source: oracle/(?:{FOLDERS})/\w+\.c:(\d+)$")
+# A host file is C++, so its Source line cites `.cpp`.
+SOURCE_LINE = re.compile(rf"/// Source: oracle/(?:{FOLDERS})/\w+\.(?:c|cpp):(\d+)$")
 # skeleton.py writes this doc line above the /// Source: line of a forward, and the forward shares the Source line of the hand body.
 FORWARD_DOC = re.compile(r"^/// A caller that passes .* reaches `\w+` through this forward, and a NULL caller passes the optional\.$")
 # swiftc writes `path:line:col: error: message`.

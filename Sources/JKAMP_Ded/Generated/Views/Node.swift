@@ -92,9 +92,9 @@ public struct Node: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/qcommon/qcommon.h:1050
-    public var head: OpaquePointer? {
-        get { OpaquePointer(self.raw.pointee.head) }
-        nonmutating set { self.raw.pointee.head = UnsafeMutablePointer(newValue) }
+    public var head: Slots<Node?>? {
+        get { self.raw.pointee.head.map { Slots(pointers: UnsafeMutableRawPointer($0), count: 1) } }
+        nonmutating set { self.raw.pointee.head = newValue?.base.assumingMemoryBound(to: UnsafeMutablePointer<node_t>?.self) }
     }
 
     /// Source: oracle/codemp/qcommon/qcommon.h:1051

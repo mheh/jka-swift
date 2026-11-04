@@ -27,10 +27,7 @@ func SE_LoadFileData() -> Never {
 // called by main SGE code after loaded data has been parsedinto internal structures...
 //
 /// Source: oracle/codemp/qcommon/stringed_interface.cpp:109
-// TODO: Port signature
-// Raven wrote: void SE_FreeFileDataAfterLoad( unsigned char *psLoadedFile )
-// No table row for `unsigned char * psLoadedFile`.
-func SE_FreeFileDataAfterLoad() -> Never {
+func SE_FreeFileDataAfterLoad(_ psLoadedFile: Slots<UInt8>) {
     // TODO: Port SE_FreeFileDataAfterLoad
     portMissing("SE_FreeFileDataAfterLoad", source: "oracle/codemp/qcommon/stringed_interface.cpp:109")
 }

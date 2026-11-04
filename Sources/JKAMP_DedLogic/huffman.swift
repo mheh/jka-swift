@@ -11,6 +11,10 @@ var bloc: Int32 {
     set { world.variables.bloc = newValue }
 }
 
+/// Source: oracle/codemp/qcommon/huffman.cpp:306
+// AI: Raven declares `seq` on the stack of Huff_Decompress and Huff_Compress. The functions share one zeroed allocation on the storage class.
+var seq: Slots<JKAShared.byte> { world.storage.seq }
+
 /// Source: oracle/codemp/qcommon/huffman.cpp:12
 func Huff_putBit(_ bit: Int32, _ fout: UnsafeMutableRawPointer, _ offset: inout Int32) {
     // TODO: Port Huff_putBit
@@ -46,16 +50,13 @@ private func get_bit(_ fin: UnsafeMutableRawPointer) -> Int32 {
 }
 
 /// Source: oracle/codemp/qcommon/huffman.cpp:48
-// TODO: Port signature
-// Raven wrote: static node_t **get_ppnode(huff_t* huff)
-// No table row for the return `node_t **`.
-private func get_ppnode() -> Never {
+private func get_ppnode(_ huff: Huff) -> Slots<Node?> {
     // TODO: Port get_ppnode
     portMissing("get_ppnode", source: "oracle/codemp/qcommon/huffman.cpp:48")
 }
 
 /// Source: oracle/codemp/qcommon/huffman.cpp:59
-private func free_ppnode(_ huff: Huff, _ ppnode: inout Node?) {
+private func free_ppnode(_ huff: Huff, _ ppnode: Slots<Node?>) {
     // TODO: Port free_ppnode
     portMissing("free_ppnode", source: "oracle/codemp/qcommon/huffman.cpp:59")
 }
