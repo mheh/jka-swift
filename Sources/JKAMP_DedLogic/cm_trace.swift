@@ -421,10 +421,7 @@ func CM_TransformedBoxTrace(_ trace: JKAMP.Trace, _ start: JKAShared.vec3_t, _ e
 }
 
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:1947
-// TODO: Port signature
-// Raven wrote: bool CM_CullBox(const cplane_t *frustum, const vec3_t transformed[8])
-// No table row for the return `bool`.
-func CM_CullBox() -> Never {
+func CM_CullBox(_ frustum: JKAShared.Cplane, _ transformed: inout [JKAShared.vec3_t]) -> Bool {
     // TODO: Port CM_CullBox
     portMissing("CM_CullBox", source: "oracle/codemp/qcommon/cm_trace.cpp:1947")
 }

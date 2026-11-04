@@ -91,25 +91,13 @@ private func HH(_ a: inout UInt32, _ b: UInt32, _ c: UInt32, _ d: UInt32, _ x: U
     a = ROTATE_LEFT(a, s)
 }
 
-/// Source: oracle/codemp/qcommon/md4.cpp:43
-/// Raven's `MD4_CTX`, a struct of the header text of md4.cpp.
-/// It has no C view, because the engine never holds one, so it is a Swift class with Raven's fields.
-final class MD4_CTX {
-    /// state (ABCD)
-    var state = [UInt32](repeating: 0, count: 4)
-    /// number of bits, modulo 2^64 (lsb first)
-    var count = [UInt32](repeating: 0, count: 2)
-    /// input buffer
-    var buffer = [UInt8](repeating: 0, count: 64)
-}
-
 /**
 ```
 MD4 initialization. Begins an MD4 operation, writing a new context.
 ```
 */
 /// Source: oracle/codemp/qcommon/md4.cpp:100
-func MD4Init(_ context: MD4_CTX) {
+func MD4Init(_ context: Md4Ctx) {
     context.count[0] = 0
     context.count[1] = 0
 
@@ -126,48 +114,13 @@ MD4 block update operation. Continues an MD4 message-digest operation, processin
 ```
 */
 /// Source: oracle/codemp/qcommon/md4.cpp:112
-func MD4Update(_ context: MD4_CTX, _ input: [UInt8], _ inputLen: UInt32) {
-    var i: UInt32
-    var index: UInt32
-    let partLen: UInt32
-
-    /* Compute number of bytes mod 64 */
-    index = (context.count[0] >> 3) & 0x3F
-
-    /* Update number of bits */
-    context.count[0] = context.count[0] &+ (inputLen << 3)
-    if context.count[0] < (inputLen << 3) {
-        context.count[1] = context.count[1] &+ 1
-    }
-
-    context.count[1] = context.count[1] &+ (inputLen >> 29)
-
-    partLen = 64 - index
-
-    /* Transform as many times as possible.*/
-    if inputLen >= partLen {
-        // AI: Raven called Com_Memcpy on the context buffer. The Swift buffer is an array, so a loop copies the bytes.
-        for k in 0..<partLen {
-            context.buffer[index + k] = input[k]
-        }
-        MD4Transform(&context.state, context.buffer[0..<64])
-
-        i = partLen
-        while i + 63 < inputLen {
-            MD4Transform(&context.state, input[i..<(i + 64)])
-            i += 64
-        }
-
-        index = 0
-    } else {
-        i = 0
-    }
-
-    /* Buffer remaining input */
-    // AI: Raven called Com_Memcpy on the context buffer. The Swift buffer is an array, so a loop copies the bytes.
-    for k in 0..<(inputLen - i) {
-        context.buffer[index + k] = input[i + k]
-    }
+// TODO: Port signature
+// Raven wrote: void MD4Update (MD4_CTX *context, const unsigned char *input, unsigned int inputLen)
+// No table row for `const unsigned char * input`.
+func MD4Update() -> Never {
+    // Port-note: The table has no row for Raven's `unsigned char` pointer and array parameters, so this stub waits on that row for its signature.
+    // TODO: Port MD4Update
+    portMissing("MD4Update", source: "oracle/codemp/qcommon/md4.cpp:112")
 }
 
 /**
@@ -176,29 +129,13 @@ MD4 finalization. Ends an MD4 message-digest operation, writing the the message 
 ```
 */
 /// Source: oracle/codemp/qcommon/md4.cpp:147
-func MD4Final(_ digest: inout [UInt8], _ context: MD4_CTX) {
-    var bits = [UInt8](repeating: 0, count: 8)
-    var index: UInt32
-    var padLen: UInt32
-
-    /* Save number of bits */
-    Encode(&bits, context.count, 8)
-
-    /* Pad out to 56 mod 64.*/
-    index = (context.count[0] >> 3) & 0x3f
-    padLen = (index < 56) ? (56 - index) : (120 - index)
-    MD4Update(context, PADDING, padLen)
-
-    /* Append length (before padding) */
-    MD4Update(context, bits, 8)
-
-    /* Store state in digest */
-    Encode(&digest, context.state, 16)
-
-    /* Zeroize sensitive information.*/
-    context.state = [UInt32](repeating: 0, count: 4)
-    context.count = [UInt32](repeating: 0, count: 2)
-    context.buffer = [UInt8](repeating: 0, count: 64)
+// TODO: Port signature
+// Raven wrote: void MD4Final (unsigned char digest[16], MD4_CTX *context)
+// No table row for `unsigned char[16] digest`.
+func MD4Final() -> Never {
+    // Port-note: The table has no row for Raven's `unsigned char` pointer and array parameters, so this stub waits on that row for its signature.
+    // TODO: Port MD4Final
+    portMissing("MD4Final", source: "oracle/codemp/qcommon/md4.cpp:147")
 }
 
 /**
@@ -207,76 +144,13 @@ MD4 basic transformation. Transforms state based on block.
 ```
 */
 /// Source: oracle/codemp/qcommon/md4.cpp:172
-private func MD4Transform(_ state: inout [UInt32], _ block: ArraySlice<UInt8>) {
-    var a = state[0]
-    var b = state[1]
-    var c = state[2]
-    var d = state[3]
-    var x = [UInt32](repeating: 0, count: 16)
-
-    Decode(&x, block, 64)
-
-    // Round 1
-    FF(&a, b, c, d, x[0], S11)
-    FF(&d, a, b, c, x[1], S12)
-    FF(&c, d, a, b, x[2], S13)
-    FF(&b, c, d, a, x[3], S14)
-    FF(&a, b, c, d, x[4], S11)
-    FF(&d, a, b, c, x[5], S12)
-    FF(&c, d, a, b, x[6], S13)
-    FF(&b, c, d, a, x[7], S14)
-    FF(&a, b, c, d, x[8], S11)
-    FF(&d, a, b, c, x[9], S12)
-    FF(&c, d, a, b, x[10], S13)
-    FF(&b, c, d, a, x[11], S14)
-    FF(&a, b, c, d, x[12], S11)
-    FF(&d, a, b, c, x[13], S12)
-    FF(&c, d, a, b, x[14], S13)
-    FF(&b, c, d, a, x[15], S14)
-
-    // Round 2
-    GG(&a, b, c, d, x[0], S21)
-    GG(&d, a, b, c, x[4], S22)
-    GG(&c, d, a, b, x[8], S23)
-    GG(&b, c, d, a, x[12], S24)
-    GG(&a, b, c, d, x[1], S21)
-    GG(&d, a, b, c, x[5], S22)
-    GG(&c, d, a, b, x[9], S23)
-    GG(&b, c, d, a, x[13], S24)
-    GG(&a, b, c, d, x[2], S21)
-    GG(&d, a, b, c, x[6], S22)
-    GG(&c, d, a, b, x[10], S23)
-    GG(&b, c, d, a, x[14], S24)
-    GG(&a, b, c, d, x[3], S21)
-    GG(&d, a, b, c, x[7], S22)
-    GG(&c, d, a, b, x[11], S23)
-    GG(&b, c, d, a, x[15], S24)
-
-    // Round 3
-    HH(&a, b, c, d, x[0], S31)
-    HH(&d, a, b, c, x[8], S32)
-    HH(&c, d, a, b, x[4], S33)
-    HH(&b, c, d, a, x[12], S34)
-    HH(&a, b, c, d, x[2], S31)
-    HH(&d, a, b, c, x[10], S32)
-    HH(&c, d, a, b, x[6], S33)
-    HH(&b, c, d, a, x[14], S34)
-    HH(&a, b, c, d, x[1], S31)
-    HH(&d, a, b, c, x[9], S32)
-    HH(&c, d, a, b, x[5], S33)
-    HH(&b, c, d, a, x[13], S34)
-    HH(&a, b, c, d, x[3], S31)
-    HH(&d, a, b, c, x[11], S32)
-    HH(&c, d, a, b, x[7], S33)
-    HH(&b, c, d, a, x[15], S34)
-
-    state[0] = state[0] &+ a
-    state[1] = state[1] &+ b
-    state[2] = state[2] &+ c
-    state[3] = state[3] &+ d
-
-    /* Zeroize sensitive information.*/
-    x = [UInt32](repeating: 0, count: 16)
+// TODO: Port signature
+// Raven wrote: static void MD4Transform (UINT4 state[4], const unsigned char block[64])
+// No table row for `const unsigned char[64] block`.
+private func MD4Transform() -> Never {
+    // Port-note: The table has no row for Raven's `unsigned char` pointer and array parameters, so this stub waits on that row for its signature.
+    // TODO: Port MD4Transform
+    portMissing("MD4Transform", source: "oracle/codemp/qcommon/md4.cpp:172")
 }
 
 /**
@@ -285,18 +159,13 @@ Encodes input (UINT4) into output (unsigned char). Assumes len is a multiple of 
 ```
 */
 /// Source: oracle/codemp/qcommon/md4.cpp:243
-private func Encode(_ output: inout [UInt8], _ input: [UInt32], _ len: UInt32) {
-    var i: UInt32 = 0
-    var j: UInt32 = 0
-
-    while j < len {
-        output[j] = UInt8(truncatingIfNeeded: input[i] & 0xff)
-        output[j + 1] = UInt8(truncatingIfNeeded: (input[i] >> 8) & 0xff)
-        output[j + 2] = UInt8(truncatingIfNeeded: (input[i] >> 16) & 0xff)
-        output[j + 3] = UInt8(truncatingIfNeeded: (input[i] >> 24) & 0xff)
-        i += 1
-        j += 4
-    }
+// TODO: Port signature
+// Raven wrote: static void Encode (unsigned char *output, UINT4 *input, unsigned int len)
+// No table row for `unsigned char * output`.
+private func Encode() -> Never {
+    // Port-note: The table has no row for Raven's `unsigned char` pointer and array parameters, so this stub waits on that row for its signature.
+    // TODO: Port Encode
+    portMissing("Encode", source: "oracle/codemp/qcommon/md4.cpp:243")
 }
 
 /**
@@ -305,53 +174,25 @@ Decodes input (unsigned char) into output (UINT4). Assumes len is a multiple of 
 ```
 */
 /// Source: oracle/codemp/qcommon/md4.cpp:257
-private func Decode(_ output: inout [UInt32], _ input: ArraySlice<UInt8>, _ len: UInt32) {
-    var i: UInt32 = 0
-    var j: UInt32 = 0
-
-    while j < len {
-        output[i] = UInt32(input[input.startIndex + j]) | (UInt32(input[input.startIndex + j + 1]) << 8) | (UInt32(input[input.startIndex + j + 2]) << 16) | (UInt32(input[input.startIndex + j + 3]) << 24)
-        i += 1
-        j += 4
-    }
+// TODO: Port signature
+// Raven wrote: static void Decode (UINT4 *output, const unsigned char *input, unsigned int len)
+// No table row for `const unsigned char * input`.
+private func Decode() -> Never {
+    // Port-note: The table has no row for Raven's `unsigned char` pointer and array parameters, so this stub waits on that row for its signature.
+    // TODO: Port Decode
+    portMissing("Decode", source: "oracle/codemp/qcommon/md4.cpp:257")
 }
 
 /// Source: oracle/codemp/qcommon/md4.cpp:267
 func Com_BlockChecksum(_ buffer: OpaquePointer?, _ length: Int32) -> UInt32 {
-    var digest = [UInt8](repeating: 0, count: 16)
-    let val: UInt32
-    let ctx = MD4_CTX()
-
-    MD4Init(ctx)
-    // AI: Raven passed the buffer pointer to MD4Update. The Swift update reads a byte slice, so the buffer is copied to bytes first.
-    let bytes = [UInt8](UnsafeRawBufferPointer(start: UnsafeRawPointer(buffer), count: Int(length)))
-    MD4Update(ctx, bytes, UInt32(bitPattern: length))
-    MD4Final(&digest, ctx)
-
-    // AI: Raven read the digest bytes as int digest[4]. The Swift digest is a byte array, so the four words are loaded from it.
-    let digestWords = digest.withUnsafeBytes { [UInt32]($0.bindMemory(to: UInt32.self)) }
-    val = digestWords[0] ^ digestWords[1] ^ digestWords[2] ^ digestWords[3]
-
-    return val
+    // Port-note: The body calls MD4Update and MD4Final, which wait on the table row for Raven's `unsigned char` pointer and array parameters.
+    // TODO: Port Com_BlockChecksum
+    portMissing("Com_BlockChecksum", source: "oracle/codemp/qcommon/md4.cpp:267")
 }
 
 /// Source: oracle/codemp/qcommon/md4.cpp:282
 func Com_BlockChecksumKey(_ buffer: OpaquePointer?, _ length: Int32, _ key: Int32) -> UInt32 {
-    var digest = [UInt8](repeating: 0, count: 16)
-    let val: UInt32
-    let ctx = MD4_CTX()
-
-    MD4Init(ctx)
-    // AI: Raven passed the address of the int key. The Swift update reads a byte slice, so the four little-endian bytes of the key are copied.
-    let keyBytes = withUnsafeBytes(of: key) { [UInt8]($0) }
-    MD4Update(ctx, keyBytes, 4)
-    let bytes = [UInt8](UnsafeRawBufferPointer(start: UnsafeRawPointer(buffer), count: Int(length)))
-    MD4Update(ctx, bytes, UInt32(bitPattern: length))
-    MD4Final(&digest, ctx)
-
-    // AI: Raven read the digest bytes as int digest[4]. The Swift digest is a byte array, so the four words are loaded from it.
-    let digestWords = digest.withUnsafeBytes { [UInt32]($0.bindMemory(to: UInt32.self)) }
-    val = digestWords[0] ^ digestWords[1] ^ digestWords[2] ^ digestWords[3]
-
-    return val
+    // Port-note: The body calls MD4Update and MD4Final, which wait on the table row for Raven's `unsigned char` pointer and array parameters.
+    // TODO: Port Com_BlockChecksumKey
+    portMissing("Com_BlockChecksumKey", source: "oracle/codemp/qcommon/md4.cpp:282")
 }

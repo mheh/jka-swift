@@ -18,9 +18,7 @@ var cmd_wait: Int32 {
 }
 
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:17
-// TODO: Port global cmd_text
-// Raven wrote: cmd_t cmd_text
-// No view for `cmd_t`, a struct Raven defines inside a .c file.
+var cmd_text: Cmd { world.storage.cmd_text }
 
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:18
 // Raven wrote: byte cmd_text_buf[MAX_CMD_BUFFER]

@@ -201,12 +201,30 @@ HOST_ROOTS = {
     "playerState_t": ("PlayerState", "CJKAMP"),
     "sharedEntity_t": ("SharedEntity", "CJKAMP"),
     "cvar_t": ("Cvar", "CJKAMP"),
+    # Cvar_Register and Cvar_Update of cvar.cpp take the module's cvar record, the row GAME_ROOTS and CGAME_ROOTS hold.
+    "vmCvar_t": ("VmCvar", "CJKAMP"),
     # The server's own state, Raven's `svs` and `sv` of sv_main.cpp, and the records its signatures take.
     "serverStatic_t": ("ServerStatic", "CJKAMP_Ded"),
     "server_t": ("Server", "CJKAMP_Ded"),
     "client_t": ("Client", "CJKAMP_Ded"),
     "msg_t": ("Msg", "CJKAMP_Ded"),
     "vm_t": ("Vm", "CJKAMP_Ded"),
+    # The net_chan.cpp signatures take these two, `netadr_t adr` by value and `netchan_t *chan`.
+    "netadr_t": ("Netadr", "CJKAMP_Ded"),
+    "netchan_t": ("Netchan", "CJKAMP_Ded"),
+    # The cm_polylib.cpp signatures take `winding_t *`. Raven allocates the record larger than its declared `vec3_t p[4]`.
+    "winding_t": ("Winding", "CJKAMP_Ded"),
+    # Raven's `static huffman_t msgHuff` of msg.cpp:19, and the `huff_t` and `node_t` records the huffman.cpp signatures take.
+    "huffman_t": ("Huffman", "CJKAMP_Ded"),
+    # VM_PrepareInterpreter of vm_interpreted.cpp:139 takes the QVM header.
+    "vmHeader_t": ("VmHeader", "CJKAMP_Ded"),
+    # Raven defines these inside a .cpp file, and ded_types.h carries them into the host target.
+    "cmd_t": ("Cmd", "CJKAMP_Ded"),
+    "MD4_CTX": ("Md4Ctx", "CJKAMP_Ded"),
+    "loopmsg_t": ("Loopmsg", "CJKAMP_Ded"),
+    "loopback_t": ("Loopback", "CJKAMP_Ded"),
+    # The four netField tables of msg.cpp hold these rows, and ded_tables.c holds the tables as C storage.
+    "netField_t": ("NetField", "CJKAMP_Ded"),
 }
 
 ROOTS = {"mp-game": GAME_ROOTS, "mp-cgame": CGAME_ROOTS, "mp-engine-ded": HOST_ROOTS}
@@ -315,6 +333,10 @@ TYPES = {
     # Raven declares `static void (*captureFunc) (void *p) = 0` at ui_shared.c:99, and he stores one of the five Scroll functions or 0.
     # C never sees the pointer, so it is a stored Swift function with nil for his 0.
     "captureFunc": "((ScrollInfo?) -> Void)?",
+    # Raven declares `static char *opnames[256]` at vm_interpreted.cpp:9 with 60 names, and C leaves the other 196 slots NULL.
+    "opnames": "[String?]",
+    # Raven declares the C++ `bool g_nOverrideChecked = false` at msg.cpp:40.
+    "g_nOverrideChecked": "Bool",
 }
 
 # MARK: - Functions
@@ -368,6 +390,9 @@ RETURNS = {
     # CG_G2WeaponInstance returns a Ghoul2 instance of `g2WeaponInstances` or NULL at cg_weapons.c:2373.
     "CG_G2WeaponInstance": "opaque",
     "KeywordHash_Find": "row_index",
+    # Hunk_Alloc of z_memman_pc.cpp:791 and Z_Malloc of z_memman_pc.cpp:157 return one block per call, the G_Alloc form.
+    "Hunk_Alloc": "raw",
+    "Z_Malloc": "raw",
 }
 
 # Allocators whose `char *` result a body holds as a CharBuf of the constant size Raven asks for, when every store into the local is that call.
@@ -397,6 +422,7 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #   keyword_buckets  the bucket table of row indices and the row table beside it, form A of R53, for `keywordHash_t *table[]`
 #   keyword_buckets_mut  the same pair inout, for the function that links a row into the buckets
 #   row_index  an Int32 row index for a `keywordHash_t *` row pointer, form A of R53
+#   opaque    an OpaquePointer? for a `byte *` buffer the body stores into a `byte *` field or hands on as a `void *`, the spelling of the field
 PARAMS = {
     ("COM_ParseString", "s"): "out_string",
     # String_Parse of ui_shared.c:607 sets `*out` to the token and never walks it.
@@ -488,6 +514,26 @@ PARAMS = {
     ("trap_G2API_RemoveGhoul2Models", "ghlInfo"): "out_opaque",
     ("trap_G2API_RemoveGhoul2Model", "ghlInfo"): "out_opaque",
     ("trap_G2API_HasGhoul2ModelOnIndex", "ghlInfo"): "out_opaque",
+    # The bit buffer of huffman.cpp, the `byte *` the bodies index by `bloc >> 3`, crosses raw as `byte *ent` of BG_ParseField does.
+    # msg.cpp:193, :203, :248, and :254 pass `msg->data`, and Huff_Compress passes its `byte seq[65536]` local, huffman.cpp:387.
+    ("Huff_putBit", "fout"): "raw",
+    ("Huff_getBit", "fin"): "raw",
+    ("add_bit", "fout"): "raw",
+    ("get_bit", "fin"): "raw",
+    ("Huff_Receive", "fin"): "raw",
+    ("Huff_offsetReceive", "fin"): "raw",
+    ("send", "fout"): "raw",
+    ("Huff_transmit", "fout"): "raw",
+    ("Huff_offsetTransmit", "fout"): "raw",
+    # VM_CallInterpreted of vm_interpreted.cpp:296 reads ten words through `int *args` and never writes them.
+    ("VM_CallInterpreted", "args"): "int_array",
+    # MSG_Init and MSG_InitOOB store `data` into the `byte *data` field of msg_t, msg.cpp:66 and :89, which the view spells OpaquePointer?.
+    ("MSG_Init", "data"): "opaque",
+    ("MSG_InitOOB", "data"): "opaque",
+    # Netchan_Transmit hands `data` to MSG_WriteData as its `const void *` at net_chan.cpp:182,
+    # and NET_OutOfBandData copies `format` into its message at net_chan.cpp:597.
+    ("Netchan_Transmit", "data"): "opaque",
+    ("NET_OutOfBandData", "format"): "opaque",
 }
 
 # Rule 20: a function with no caller in either tree stays as its stub, and the stub carries one note line that it is dead.
@@ -629,6 +675,8 @@ NULLABLE = {
     ("G_ClearLOS", "self"),
     # The stored function of a view field takes the field's name after the record. Raven calls `DC->setColor(NULL)` at ui_shared.c:705, :782, :813, :870, and :877.
     ("displayContextDef_t.setColor", "v"),
+    # Huff_addRef passes `tnode2->parent` at huffman.cpp:229, which is NULL when the new node is the root, and the body tests it at huffman.cpp:131.
+    ("increment", "node"),
 }
 # Files whose functions a bg body reaches directly, because they live in the shared module or in bg itself.
 # The functions whose integer arithmetic is a generator or a hash, where C wraps at 32 bits and Swift's plain operators trap.
@@ -656,9 +704,12 @@ SHARED_STEMS = {"q_shared", "q_math", "g_syscalls", "g_strap"}
 # g_types.h holds the structs Raven defines inside a .c file, so a view can bind over them. See "A struct Raven defines inside a .c file".
 # cg_types.h holds the six of the cgame the same way.
 # g_tables.h declares the six game tables of g_tables.c, ruling E2.
-HAND_HEADERS = {"CJKAMP": ["bg_tables.h"], "CJKAMP_Game": ["g_types.h", "g_tables.h"], "CJKAMP_CGame": ["cg_types.h", "cg_tables.h"]}
+# ded_types.h holds the structs the host defines inside a .cpp file, and ded_tables.h declares the four netField tables of ded_tables.c.
+HAND_HEADERS = {"CJKAMP": ["bg_tables.h"], "CJKAMP_Game": ["g_types.h", "g_tables.h"], "CJKAMP_CGame": ["cg_types.h", "cg_tables.h"],
+                "CJKAMP_Ded": ["ded_types.h", "ded_tables.h"]}
 HAND_FILES = {"CJKAMP": ["include/bg_tables.h"], "CJKAMP_Game": ["include/g_types.h", "include/g_tables.h"],
-              "CJKAMP_CGame": ["include/cg_types.h", "include/cg_tables.h"]}
+              "CJKAMP_CGame": ["include/cg_types.h", "include/cg_tables.h"],
+              "CJKAMP_Ded": ["include/ded_types.h", "include/ded_tables.h"]}
 
 # MARK: - Header preludes
 

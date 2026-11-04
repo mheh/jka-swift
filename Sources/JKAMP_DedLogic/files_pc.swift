@@ -272,19 +272,13 @@ func Sys_GetFileTime() -> Never {
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:600
-// TODO: Port signature
-// Raven wrote: bool Sys_FileOutOfDate( LPCSTR psFinalFileName /* dest */, LPCSTR psDataFileName /* src */ )
-// No table row for the return `bool`.
-func Sys_FileOutOfDate() -> Never {
+func Sys_FileOutOfDate(_ psFinalFileName: String, _ psDataFileName: String) -> Bool {
     // TODO: Port Sys_FileOutOfDate
     portMissing("Sys_FileOutOfDate", source: "oracle/codemp/qcommon/files_pc.cpp:600")
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:634
-// TODO: Port signature
-// Raven wrote: bool FS_FileCacheable(const char* const filename)
-// No table row for the return `bool`.
-func FS_FileCacheable() -> Never {
+func FS_FileCacheable(_ filename: String) -> Bool {
     // TODO: Port FS_FileCacheable
     portMissing("FS_FileCacheable", source: "oracle/codemp/qcommon/files_pc.cpp:634")
 }

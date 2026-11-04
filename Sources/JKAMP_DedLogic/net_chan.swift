@@ -7,7 +7,7 @@ import JKAMP_Ded
 let MAX_PACKETLEN = 1400 as Int32
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:34
-let FRAGMENT_SIZE = (MAX_PACKETLEN - 100)
+let FRAGMENT_SIZE = (JKAMP_Ded.MAX_PACKETLEN - 100)
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:35
 let PACKET_HEADER = 10 as Int32
@@ -50,9 +50,7 @@ var netsrcString: [String] {
 let MAX_LOOPBACK = 16 as Int32
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:486
-// TODO: Port global loopbacks
-// Raven wrote: loopback_t loopbacks[2]
-// No view for `loopback_t`, a struct Raven defines inside a .c file.
+var loopbacks: Slots<Loopback> { world.storage.loopbacks }
 
 /**
 ```
@@ -64,6 +62,8 @@ Netchan_Init
 */
 /// Source: oracle/codemp/qcommon/net_chan.cpp:56
 func Netchan_Init(_ port: Int32) {
+    // Raven assigns his own `port` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
+    var port = port
     port &= 0xffff
     showpackets = Cvar_Get("showpackets", "0", CVAR_TEMP)
     showdrop = Cvar_Get("showdrop", "0", CVAR_TEMP)
@@ -81,10 +81,7 @@ called to open a channel to a remote system
 ```
 */
 /// Source: oracle/codemp/qcommon/net_chan.cpp:71
-// TODO: Port signature
-// Raven wrote: void Netchan_Setup( netsrc_t sock, netchan_t *chan, netadr_t adr, int qport )
-// No table row for `netadr_t adr`.
-func Netchan_Setup() -> Never {
+func Netchan_Setup(_ sock: netsrc_t, _ chan: Netchan, _ adr: Netadr, _ qport: Int32) {
     chan.clear()
     chan.sock = sock
     chan.remoteAddress = adr
@@ -165,10 +162,7 @@ A 0 length will still generate a packet.
 ```
 */
 /// Source: oracle/codemp/qcommon/net_chan.cpp:145
-// TODO: Port signature
-// Raven wrote: void Netchan_Transmit( netchan_t *chan, int length, const byte *data )
-// No table row for `const byte * data`.
-func Netchan_Transmit() -> Never {
+func Netchan_Transmit(_ chan: Netchan, _ length: Int32, _ data: OpaquePointer?) {
     let send_buf = UnsafeMutableRawPointer.allocate(byteCount: Int(MAX_PACKETLEN), alignment: 8)
     defer { send_buf.deallocate() }
 
@@ -373,7 +367,7 @@ func Netchan_Process(_ chan: Netchan, _ msg: Msg) -> Bool {
         // copy the full message over the partial fragment
 
         // make sure the sequence number is still there
-        UnsafeMutableRawPointer(msg.data!).storeBytes(of: LittleLong(sequence), as: Int32.self)
+        UnsafeMutableRawPointer(msg.data!)[int: 0] = sequence
         Com_Memcpy(OpaquePointer(UnsafeMutableRawPointer(msg.data!) + 4), OpaquePointer(chan.fragmentBuffer.base), CUnsignedLong(chan.fragmentLength))
         msg.cursize = chan.fragmentLength + 4
         chan.fragmentLength = 0
@@ -403,10 +397,7 @@ Compares without the port
 ```
 */
 /// Source: oracle/codemp/qcommon/net_chan.cpp:378
-// TODO: Port signature
-// Raven wrote: qboolean NET_CompareBaseAdr (netadr_t a, netadr_t b)
-// No table row for `netadr_t a`.
-func NET_CompareBaseAdr() -> Never {
+func NET_CompareBaseAdr(_ a: Netadr, _ b: Netadr) -> Bool {
     if a.type != b.type {
         return false
     }
@@ -423,7 +414,14 @@ func NET_CompareBaseAdr() -> Never {
     }
 
     if a.type == NA_IPX {
-        if (memcmp(a.ipx, b.ipx, 10) == 0) {
+        // AI: Raven compared with memcmp. The loop compares the same bytes.
+        var ipxSame = true
+        for k in 0..<10 {
+            if a.ipx[k] != b.ipx[k] {
+                ipxSame = false
+            }
+        }
+        if ipxSame {
             return true
         }
         return false
@@ -434,10 +432,7 @@ func NET_CompareBaseAdr() -> Never {
 }
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:406
-// TODO: Port signature
-// Raven wrote: const char *NET_AdrToString (netadr_t a)
-// No table row for `netadr_t a`.
-func NET_AdrToString() -> Never {
+func NET_AdrToString(_ a: Netadr) -> String {
     var s = CharBuf(64)
 
     if a.type == NA_LOOPBACK {
@@ -445,24 +440,22 @@ func NET_AdrToString() -> Never {
     } else if a.type == NA_BOT {
         Com_sprintf(&s, Int32(s.count), "bot")
     } else if a.type == NA_IP {
+        // C converts the `unsigned short` port to the `short` parameter and promotes the result to `int` for the format.
         Com_sprintf(&s, Int32(s.count), "%i.%i.%i.%i:%i",
-            a.ip[0], a.ip[1], a.ip[2], a.ip[3], BigShort(a.port))
+            a.ip[0], a.ip[1], a.ip[2], a.ip[3], Int32(BigShort(Int16(truncatingIfNeeded: a.port))))
     } else if a.type == NA_BAD {
         Com_sprintf(&s, Int32(s.count), "BAD")
     } else {
         Com_sprintf(&s, Int32(s.count), "%02x%02x%02x%02x.%02x%02x%02x%02x%02x%02x:%i",
         a.ipx[0], a.ipx[1], a.ipx[2], a.ipx[3], a.ipx[4], a.ipx[5], a.ipx[6], a.ipx[7], a.ipx[8], a.ipx[9],
-        BigShort(a.port))
+        Int32(BigShort(Int16(truncatingIfNeeded: a.port))))
     }
 
     return String(s)
 }
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:429
-// TODO: Port signature
-// Raven wrote: qboolean NET_CompareAdr (netadr_t a, netadr_t b)
-// No table row for `netadr_t a`.
-func NET_CompareAdr() -> Never {
+func NET_CompareAdr(_ a: Netadr, _ b: Netadr) -> Bool {
     if a.type != b.type {
         return false
     }
@@ -479,7 +472,14 @@ func NET_CompareAdr() -> Never {
     }
 
     if a.type == NA_IPX {
-        if (memcmp(a.ipx, b.ipx, 10) == 0) && a.port == b.port {
+        // AI: Raven compared with memcmp. The loop compares the same bytes.
+        var ipxSame = true
+        for k in 0..<10 {
+            if a.ipx[k] != b.ipx[k] {
+                ipxSame = false
+            }
+        }
+        if ipxSame && a.port == b.port {
             return true
         }
         return false
@@ -490,37 +490,53 @@ func NET_CompareAdr() -> Never {
 }
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:458
-// TODO: Port signature
-// Raven wrote: qboolean NET_IsLocalAddress( netadr_t adr )
-// No table row for `netadr_t adr`.
-func NET_IsLocalAddress() -> Never {
+func NET_IsLocalAddress(_ adr: Netadr) -> Bool {
     return (adr.type == NA_LOOPBACK)
 }
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:489
 func NET_GetLoopPacket(_ sock: netsrc_t, _ net_from: Netadr, _ net_message: Msg) -> Bool {
-    // Port-note: Raven's `loopback_t loopbacks[2]` has no Swift home, because the struct is defined inside net_chan.cpp and has no view.
-    // TODO: Port NET_GetLoopPacket
-    portMissing("NET_GetLoopPacket", source: "oracle/codemp/qcommon/net_chan.cpp:489")
+    let i: Int32
+    let loop: Loopback
+
+    loop = loopbacks[sock]
+
+    if loop.send - loop.get > MAX_LOOPBACK {
+        loop.get = loop.send - MAX_LOOPBACK
+    }
+
+    if loop.get >= loop.send {
+        return false
+    }
+
+    i = loop.get & (MAX_LOOPBACK - 1)
+    loop.get += 1
+
+    Com_Memcpy(net_message.data, OpaquePointer(loop.msgs[i].data.base), CUnsignedLong(loop.msgs[i].datalen))
+    net_message.cursize = loop.msgs[i].datalen
+    net_from.clear()
+    net_from.type = NA_LOOPBACK
+    return true
 }
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:514
-// TODO: Port signature
-// Raven wrote: void NET_SendLoopPacket (netsrc_t sock, int length, const void *data, netadr_t to)
-// No table row for `netadr_t to`.
-func NET_SendLoopPacket() -> Never {
-    // Port-note: Raven's `loopback_t loopbacks[2]` has no Swift home, because the struct is defined inside net_chan.cpp and has no view.
-    // TODO: Port NET_SendLoopPacket
-    portMissing("NET_SendLoopPacket", source: "oracle/codemp/qcommon/net_chan.cpp:514")
+func NET_SendLoopPacket(_ sock: netsrc_t, _ length: Int32, _ data: OpaquePointer?, _ to: Netadr) {
+    let i: Int32
+    let loop: Loopback
+
+    loop = loopbacks[sock ^ 1]
+
+    i = loop.send & (MAX_LOOPBACK - 1)
+    loop.send += 1
+
+    Com_Memcpy(OpaquePointer(loop.msgs[i].data.base), data, CUnsignedLong(length))
+    loop.msgs[i].datalen = length
 }
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:531
-// TODO: Port signature
-// Raven wrote: void NET_SendPacket( netsrc_t sock, int length, const void *data, netadr_t to )
-// No table row for `netadr_t to`.
-func NET_SendPacket() -> Never {
+func NET_SendPacket(_ sock: netsrc_t, _ length: Int32, _ data: OpaquePointer?, _ to: Netadr) {
     // sequenced packets are shown in netchan, so just show oob
-    if showpackets!.integer != 0 && UnsafeMutableRawPointer(data!).load(as: Int32.self) == -1 {
+    if showpackets!.integer != 0 && UnsafeMutableRawPointer(data!)[int: 0] == -1 {
         Com_Printf("send packet %4i\n", length)
     }
 
@@ -535,7 +551,8 @@ func NET_SendPacket() -> Never {
         return
     }
 
-    Sys_SendPacket(length, data, to)
+    // Port-note: Sys_SendPacket in the adopted win_net.swift keeps its `-> Never` stub, and its signature from `lookup.py sig` waits on that file's readoption.
+    portMissing("Sys_SendPacket", source: "oracle/codemp/qcommon/net_chan.cpp:549")
 }
 
 /**
@@ -548,10 +565,7 @@ Sends a text message in an out-of-band datagram
 ```
 */
 /// Source: oracle/codemp/qcommon/net_chan.cpp:559
-// TODO: Port signature
-// Raven wrote: void QDECL NET_OutOfBandPrint( netsrc_t sock, netadr_t adr, const char *format, ... )
-// No table row for `netadr_t adr`.
-func NET_OutOfBandPrint() -> Never {
+func NET_OutOfBandPrint(_ sock: netsrc_t, _ adr: Netadr, _ format: String, _ args: any JKAShared.FormatArg...) {
     var string = CharBuf(MAX_MSGLEN)
 
     // set the header
@@ -560,9 +574,8 @@ func NET_OutOfBandPrint() -> Never {
     string[2] = -1
     string[3] = -1
 
-    // AI: Raven called vsprintf into string+4 with the argument list. The Swift form formats the text first and copies it to offset 4.
     // The module name breaks the clash between the `format` parameter and the `format` function.
-    Q_strncpyz(&string, JKAShared.format(format, args), MAX_MSGLEN, at: 4)
+    strcpy(&string, JKAShared.format(format, args), at: 4)
 
     // send the datagram
     let length = strlen(string)
@@ -579,22 +592,19 @@ Sends a data message in an out-of-band datagram (only used for "connect")
 ```
 */
 /// Source: oracle/codemp/qcommon/net_chan.cpp:585
-// TODO: Port signature
-// Raven wrote: void QDECL NET_OutOfBandData( netsrc_t sock, netadr_t adr, byte *format, int len )
-// No table row for `netadr_t adr`.
-func NET_OutOfBandData() -> Never {
+func NET_OutOfBandData(_ sock: netsrc_t, _ adr: Netadr, _ format: OpaquePointer?, _ len: Int32) {
     let string = UnsafeMutableRawPointer.allocate(byteCount: Int(MAX_MSGLEN * 2), alignment: 8)
     defer { string.deallocate() }
 
     // set the header
-    string.storeBytes(of: 0xff, toByteOffset: 0, as: byte.self)
-    string.storeBytes(of: 0xff, toByteOffset: 1, as: byte.self)
-    string.storeBytes(of: 0xff, toByteOffset: 2, as: byte.self)
-    string.storeBytes(of: 0xff, toByteOffset: 3, as: byte.self)
+    string[byte: 0] = 0xff
+    string[byte: 1] = 0xff
+    string[byte: 2] = 0xff
+    string[byte: 3] = 0xff
 
     var i: Int32 = 0
     while i < len {
-        string.storeBytes(of: UnsafeMutableRawPointer(format!).load(fromByteOffset: Int(i), as: byte.self), toByteOffset: Int(i + 4), as: byte.self)
+        string[byte: i + 4] = UnsafeMutableRawPointer(format!)[byte: i] as Int32
         i += 1
     }
 
@@ -651,9 +661,10 @@ func NET_StringToAdr(_ s: String, _ a: Netadr) -> Bool {
     }
 
     if port != nil {
-        a.port = BigShort(Int16(truncatingIfNeeded: atoi(base[port!...])))
+        // C converts the `short` result to the `unsigned short` field, and the view setter keeps the low 16 bits.
+        a.port = Int32(BigShort(Int16(truncatingIfNeeded: atoi(base[port!...]))))
     } else {
-        a.port = BigShort(PORT_SERVER)
+        a.port = Int32(BigShort(Int16(truncatingIfNeeded: PORT_SERVER)))
     }
 
     return true

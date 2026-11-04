@@ -608,6 +608,11 @@ class Skeleton:
         canonical = t.get_canonical()
         element = canonical
         depth = 0
+        if element.kind == TypeKind.INCOMPLETEARRAY and var.data:
+            # The C++ parse rejects the pointer-to-int cast of Raven's `NETF` on a 64-bit target, so his table of rows keeps no bound.
+            # tables.py copies the rows into C storage, where the cast is a warning, so the table is still data.
+            element = element.element_type.get_canonical()
+            depth += 1
         while element.kind == TypeKind.CONSTANTARRAY:
             element = element.element_type.get_canonical()
             depth += 1
@@ -631,7 +636,7 @@ class Skeleton:
                 var.data = False
             var.reason = "storage"
             var.view = self.table.views.qualified_view(record, C_TARGET)
-            var.count = canonical.element_count if depth else 0
+            var.count = canonical.element_count if depth and canonical.kind == TypeKind.CONSTANTARRAY else 0
             var.swift = f"Slots<{var.view}>" if depth else var.view
             return
         if self.table.views.is_vec3(t) or (depth and "vec3_t" in t.spelling):

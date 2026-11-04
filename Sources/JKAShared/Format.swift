@@ -28,6 +28,11 @@ extension Int32: FormatArg {
     public var formatValue: FormatValue { .integer(Int64(self)) }
 }
 
+/// C promotes a `byte` vararg to `int`, so a byte prints as its integer value.
+extension UInt8: FormatArg {
+    public var formatValue: FormatValue { .integer(Int64(self)) }
+}
+
 extension Int: FormatArg {
     public var formatValue: FormatValue { .integer(Int64(self)) }
 }

@@ -426,6 +426,11 @@ public struct EngineVariables {
     /// Source: oracle/codemp/qcommon/msg.cpp:37
     public var oldsize: Int32 = 0
 
+    /// Raven's `bool g_nOverrideChecked` of `msg.cpp`.
+    /// Source: oracle/codemp/qcommon/msg.cpp:40
+    // Raven wrote `= false`, and the hand line in `EngineWorld.init` holds it.
+    public var g_nOverrideChecked: Bool = false
+
     /// Raven's `int overflows` of `msg.cpp`.
     /// Source: oracle/codemp/qcommon/msg.cpp:126
     public var overflows: Int32 = 0
