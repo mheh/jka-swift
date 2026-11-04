@@ -12,19 +12,13 @@ var bloc: Int32 {
 }
 
 /// Source: oracle/codemp/qcommon/huffman.cpp:12
-// TODO: Port signature
-// Raven wrote: void Huff_putBit( int bit, byte *fout, int *offset)
-// No table row for `byte * fout`.
-func Huff_putBit() -> Never {
+func Huff_putBit(_ bit: Int32, _ fout: UnsafeMutableRawPointer, _ offset: inout Int32) {
     // TODO: Port Huff_putBit
     portMissing("Huff_putBit", source: "oracle/codemp/qcommon/huffman.cpp:12")
 }
 
 /// Source: oracle/codemp/qcommon/huffman.cpp:22
-// TODO: Port signature
-// Raven wrote: int Huff_getBit( byte *fin, int *offset)
-// No table row for `byte * fin`.
-func Huff_getBit() -> Never {
+func Huff_getBit(_ fin: UnsafeMutableRawPointer, _ offset: inout Int32) -> Int32 {
     // TODO: Port Huff_getBit
     portMissing("Huff_getBit", source: "oracle/codemp/qcommon/huffman.cpp:22")
 }
@@ -35,10 +29,7 @@ Add a bit to the output file (buffered)
 ```
 */
 /// Source: oracle/codemp/qcommon/huffman.cpp:32
-// TODO: Port signature
-// Raven wrote: static void add_bit (char bit, byte *fout)
-// No table row for `byte * fout`.
-private func add_bit() -> Never {
+private func add_bit(_ bit: CChar, _ fout: UnsafeMutableRawPointer) {
     // TODO: Port add_bit
     portMissing("add_bit", source: "oracle/codemp/qcommon/huffman.cpp:32")
 }
@@ -49,10 +40,7 @@ Receive one bit from the input file (buffered)
 ```
 */
 /// Source: oracle/codemp/qcommon/huffman.cpp:41
-// TODO: Port signature
-// Raven wrote: static int get_bit (byte *fin)
-// No table row for `byte * fin`.
-private func get_bit() -> Never {
+private func get_bit(_ fin: UnsafeMutableRawPointer) -> Int32 {
     // TODO: Port get_bit
     portMissing("get_bit", source: "oracle/codemp/qcommon/huffman.cpp:41")
 }
@@ -60,17 +48,14 @@ private func get_bit() -> Never {
 /// Source: oracle/codemp/qcommon/huffman.cpp:48
 // TODO: Port signature
 // Raven wrote: static node_t **get_ppnode(huff_t* huff)
-// No table row for `huff_t * huff`.
+// No table row for the return `node_t **`.
 private func get_ppnode() -> Never {
     // TODO: Port get_ppnode
     portMissing("get_ppnode", source: "oracle/codemp/qcommon/huffman.cpp:48")
 }
 
 /// Source: oracle/codemp/qcommon/huffman.cpp:59
-// TODO: Port signature
-// Raven wrote: static void free_ppnode(huff_t* huff, node_t **ppnode)
-// No table row for `huff_t * huff`.
-private func free_ppnode() -> Never {
+private func free_ppnode(_ huff: Huff, _ ppnode: inout Node?) {
     // TODO: Port free_ppnode
     portMissing("free_ppnode", source: "oracle/codemp/qcommon/huffman.cpp:59")
 }
@@ -81,10 +66,7 @@ Swap the location of these two nodes in the tree
 ```
 */
 /// Source: oracle/codemp/qcommon/huffman.cpp:65
-// TODO: Port signature
-// Raven wrote: static void swap (huff_t* huff, node_t *node1, node_t *node2)
-// No table row for `huff_t * huff`.
-private func swap() -> Never {
+private func swap(_ huff: Huff, _ node1: Node, _ node2: Node) {
     // TODO: Port swap
     portMissing("swap", source: "oracle/codemp/qcommon/huffman.cpp:65")
 }
@@ -95,10 +77,7 @@ Swap these two nodes in the linked list (update ranks)
 ```
 */
 /// Source: oracle/codemp/qcommon/huffman.cpp:96
-// TODO: Port signature
-// Raven wrote: static void swaplist(node_t *node1, node_t *node2)
-// No table row for `node_t * node1`.
-private func swaplist() -> Never {
+private func swaplist(_ node1: Node, _ node2: Node) {
     // TODO: Port swaplist
     portMissing("swaplist", source: "oracle/codemp/qcommon/huffman.cpp:96")
 }
@@ -109,19 +88,13 @@ Do the increments
 ```
 */
 /// Source: oracle/codemp/qcommon/huffman.cpp:128
-// TODO: Port signature
-// Raven wrote: static void increment(huff_t* huff, node_t *node)
-// No table row for `huff_t * huff`.
-private func increment() -> Never {
+private func increment(_ huff: Huff, _ node: Node?) {
     // TODO: Port increment
     portMissing("increment", source: "oracle/codemp/qcommon/huffman.cpp:128")
 }
 
 /// Source: oracle/codemp/qcommon/huffman.cpp:166
-// TODO: Port signature
-// Raven wrote: void Huff_addRef(huff_t* huff, byte ch)
-// No table row for `huff_t * huff`.
-func Huff_addRef() -> Never {
+func Huff_addRef(_ huff: Huff, _ ch: Int32) {
     // TODO: Port Huff_addRef
     portMissing("Huff_addRef", source: "oracle/codemp/qcommon/huffman.cpp:166")
 }
@@ -132,10 +105,7 @@ Get a symbol
 ```
 */
 /// Source: oracle/codemp/qcommon/huffman.cpp:236
-// TODO: Port signature
-// Raven wrote: int Huff_Receive (node_t *node, int *ch, byte *fin)
-// No table row for `node_t * node`.
-func Huff_Receive() -> Never {
+func Huff_Receive(_ node: Node, _ ch: inout Int32, _ fin: UnsafeMutableRawPointer) -> Int32 {
     // TODO: Port Huff_Receive
     portMissing("Huff_Receive", source: "oracle/codemp/qcommon/huffman.cpp:236")
 }
@@ -146,10 +116,7 @@ Get a symbol
 ```
 */
 /// Source: oracle/codemp/qcommon/huffman.cpp:252
-// TODO: Port signature
-// Raven wrote: void Huff_offsetReceive (node_t *node, int *ch, byte *fin, int *offset)
-// No table row for `node_t * node`.
-func Huff_offsetReceive() -> Never {
+func Huff_offsetReceive(_ node: Node, _ ch: inout Int32, _ fin: UnsafeMutableRawPointer, _ offset: inout Int32) {
     // TODO: Port Huff_offsetReceive
     portMissing("Huff_offsetReceive", source: "oracle/codemp/qcommon/huffman.cpp:252")
 }
@@ -160,10 +127,7 @@ Send the prefix code for this node
 ```
 */
 /// Source: oracle/codemp/qcommon/huffman.cpp:271
-// TODO: Port signature
-// Raven wrote: static void send(node_t *node, node_t *child, byte *fout)
-// No table row for `node_t * node`.
-private func send() -> Never {
+private func send(_ node: Node, _ child: Node?, _ fout: UnsafeMutableRawPointer) {
     // TODO: Port send
     portMissing("send", source: "oracle/codemp/qcommon/huffman.cpp:271")
 }
@@ -174,19 +138,13 @@ Send a symbol
 ```
 */
 /// Source: oracle/codemp/qcommon/huffman.cpp:285
-// TODO: Port signature
-// Raven wrote: void Huff_transmit (huff_t *huff, int ch, byte *fout)
-// No table row for `huff_t * huff`.
-func Huff_transmit() -> Never {
+func Huff_transmit(_ huff: Huff, _ ch: Int32, _ fout: UnsafeMutableRawPointer) {
     // TODO: Port Huff_transmit
     portMissing("Huff_transmit", source: "oracle/codemp/qcommon/huffman.cpp:285")
 }
 
 /// Source: oracle/codemp/qcommon/huffman.cpp:298
-// TODO: Port signature
-// Raven wrote: void Huff_offsetTransmit (huff_t *huff, int ch, byte *fout, int *offset)
-// No table row for `huff_t * huff`.
-func Huff_offsetTransmit() -> Never {
+func Huff_offsetTransmit(_ huff: Huff, _ ch: Int32, _ fout: UnsafeMutableRawPointer, _ offset: inout Int32) {
     // TODO: Port Huff_offsetTransmit
     portMissing("Huff_offsetTransmit", source: "oracle/codemp/qcommon/huffman.cpp:298")
 }
@@ -204,10 +162,7 @@ func Huff_Compress(_ mbuf: Msg, _ offset: Int32) {
 }
 
 /// Source: oracle/codemp/qcommon/huffman.cpp:397
-// TODO: Port signature
-// Raven wrote: void Huff_Init(huffman_t *huff)
-// No table row for `huffman_t * huff`.
-func Huff_Init() -> Never {
+func Huff_Init(_ huff: Huffman) {
     // TODO: Port Huff_Init
     portMissing("Huff_Init", source: "oracle/codemp/qcommon/huffman.cpp:397")
 }

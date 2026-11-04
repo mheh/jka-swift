@@ -80,6 +80,40 @@ The host run of `views.py` writes `JKAMP/Generated/Views/Callbacks.swift` with o
 4. Make the first run as the brief gives it, and record the exit.
 5. Run the gate: the game and cgame snapshots, the tool tests, `swift build`, and `swift test --no-parallel`.
 
+## The landing
+
+The branch `dedicated-stage-3-landing` merged to master as PR 53 at `e7d59dc`, head `560b1b6`. These four commits close the resume point above.
+
+| Commit | Subject |
+|---|---|
+| 0edb904 | The module ABI types in the tree target |
+| 4cff70a | The host views of a big byte array and an opaque record pointer |
+| 1c34a68 | The host stub signatures, access words, and data tables for the shell |
+| 560b1b6 | The jampded shell on Raven's main |
+
+Commit `0edb904` holds row 1 of the ledger below and the three tool rows 2 to 4, in one generator run.
+
+| Count | Value |
+|---|---:|
+| Errors of `swift build` | 0 |
+| C errors of `CJKAMP_Ded.c` after the type move, with no local patch | 0 |
+| `check.sh` errors of every target | 0 |
+| `CJKAMP_Ded` asserts under `check.sh` | 1301 |
+| Tests of `swift test --no-parallel` that pass | 130 |
+| Tool unit tests that pass | 97, with 14 skipped |
+
+`CJKAShared`, `CJKAMP_CGame`, `CJKAMP_UI`, every SP target, `JKAShared`, and `JKAMP_CGame` are byte-equal to master. The ledger move changes three pairs. `CJKAMP` and `JKAMP` get the `g_public.h` and `interpreter.h` types and 21 views. `CJKAMP_Game` and `JKAMP_Game` lose them. The `JKAMP_Ded` files lose `import JKAMP_Game`.
+
+The first run is this command:
+
+```
+.build/debug/jampded +set fs_homepath /tmp/jka-client/home +set fs_basepath <Steam>/Jedi Academy/SWJKJA.app/Contents +set fs_game swift +set dedicated 1 +set sv_pure 0 +set vm_game 0 +map mp/ffa1
+```
+
+The run exits 133. The first trap is `Sys_Milliseconds` at `Sources/JKAMP_DedLogic/win_shared.swift:24`, called from `Sources/jampded/main.swift:27`. So the first hole round after the table batch is `win_shared`, then `common`.
+
+The C++ `bool` has no row in the signature table, so many host stubs fall back to `-> Never`. Only `Sys_Milliseconds` and `Com_ParseTextFile` have a hand fix. A `bool` row goes in the table batch.
+
 ## The ledger
 
 The coordinator ruled the four rows at the session's end on 2026-11-03 under the standing delegation, by the placement rule of `tools/oracle-closure/README.md`.
@@ -88,3 +122,16 @@ The coordinator ruled the four rows at the session's end on 2026-11-03 under the
 - Row 2, `check.sh` with modules: ratified as proposed.
 - Row 3, the callback types union: ratified as proposed.
 - Row 4, `reexport.py --target`: ratified as proposed.
+
+The coordinator ruled the ten rows below by the game and cgame patterns under the standing delegation.
+
+- Row 5, the token enums: ruled by pattern. The token enum of `interpreter.h` and the two enums after it stay one copy per module, because each module declares `TK_USERDEF` for itself, the game in `g_ICARUScb.c` and the server in `tokenizer.h` (`tools/oracle-closure/merge.py:446-450`). Precedent: a type that two modules define differently keeps one copy per module, such as `lerpFrame_t` (`tools/oracle-closure/merge.py:443`).
+- Row 6, the host's copy of the `bg_public.h` constants: ruled by pattern. The host drops its own copy and reads the tree's file, because the tree carries the union of the macros and the host reads a subset with the same text (`tools/oracle-closure/merge.py:379-383`). So no header path stands in two module maps. Precedent: a declaration every module of a tree agrees on lives in the tree target (`tools/oracle-closure/README.md:34`).
+- Row 7, the includes of a tree type: ruled by pattern. A tree type never includes a file of the host's target, so the host's includes stay out of the tree copy (`tools/oracle-closure/merge.py:435`). Precedent: row L1, a tree target depends on no module or host target.
+- Row 8, the system root of `check.sh`: ruled by pattern. `check.sh` passes `-isysroot` on an Apple triple only, and another triple reads the SDK headers as text with `-isystem` (`tools/oracle-closure/check.sh:31-39`). Precedent: SwiftPM passes the SDK as the system root on an Apple triple, and the SDK module maps build only there.
+- Row 9, the two `views.py` fixes: ruled by pattern. A byte array of more than 4096 elements starts where the field before it ends (`tools/oracle-closure/views.py:388`), and a pointer to a record that no header completes is an `OpaquePointer?` (`tools/oracle-closure/views.py:337-338`). Precedent: the char array rule of the same function, and the type that Swift imports for an incomplete record.
+- Row 10, the C++ overload stubs: ruled by pattern. Each stub of an overload pair takes the parameters the table maps, so no two stubs share a signature (`Sources/JKAMP_DedLogic/cm_shader.swift:145`, `Sources/JKAMP_DedLogic/cm_shader.swift:154`, `Sources/JKAMP_DedLogic/common.swift:818`, `Sources/JKAMP_DedLogic/common.swift:836`). Precedent: a Swift function keeps Raven's name, and Swift tells overloads apart by their parameter types.
+- Row 11, the `Sys_Milliseconds` signature: ruled by pattern. The stub is `Sys_Milliseconds(_ baseTime: Bool = false) -> Int32` (`Sources/JKAMP_DedLogic/win_shared.swift:22`). Precedent: Raven's declaration `bool baseTime = false` at `oracle/codemp/qcommon/qcommon.h:978`.
+- Row 12, Raven's `main`: ruled by pattern. Raven's `main` goes to the shell `Sources/jampded/main.swift`, as `vmMain` does in `Sources/jampgame/jampgame.swift:28` and `Sources/cgame/cgame.swift:29` under rule 11. `Sources/JKAMP_DedLogic/win_main.swift:498` holds a "Not ported" marker, and the shell has one `// AI:` line at `SetErrorMode` (`Sources/jampded/main.swift:24`).
+- Row 13, Raven's data tables: ruled by pattern. Six Raven tables stand on `EngineWorld`: `svMaterialNames`, `PADDING`, `netsrcString`, `forceToggleNamePrints`, `opnames`, and `psTagStrings` (`Sources/JKAMP_DedLogic/EngineWorld.swift:13`). Precedent: the world type `CGameWorld` of `cg_local.swift:7`.
+- Row 14, the smoke test: ruled by pattern. The smoke test expects the first `portMissing` trap, a nonzero exit and the text `TODO: Port ` (`Tests/jampdedTests/JampdedSmokeTests.swift`). The version line of rows 10 to 12 of stage 2 moves to the port of `Com_Init` (`oracle/codemp/qcommon/common.cpp:1219`).

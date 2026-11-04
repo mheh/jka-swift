@@ -6,9 +6,7 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/qcommon/msg.cpp:19
-// TODO: Port global msgHuff
-// Raven wrote: static huffman_t msgHuff
-// No view for `huffman_t` of `qcommon.h`.
+var msgHuff: Huffman { world.storage.msgHuff }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:21
 var msgInit: Bool {
@@ -34,9 +32,10 @@ var oldsize: Int32 {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:40
-// TODO: Port global g_nOverrideChecked
-// Raven wrote: bool g_nOverrideChecked = false
-// No table row for `bool`.
+var g_nOverrideChecked: Bool {
+    get { world.variables.g_nOverrideChecked }
+    set { world.variables.g_nOverrideChecked = newValue }
+}
 
 /// Source: oracle/codemp/qcommon/msg.cpp:126
 var overflows: Int32 {
@@ -79,9 +78,8 @@ let CM_FORCE = (1 << 8) as Int32
 let CM_INVEN = (1 << 9) as Int32
 
 /// Source: oracle/codemp/qcommon/msg.cpp:859
-// TODO: Port global entityStateFields
 // Raven wrote: netField_t entityStateFields[]
-// No table row for `netField_t[]`.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/qcommon/msg.cpp:1055
 let FLOAT_INT_BITS = 13 as Int32
@@ -90,19 +88,16 @@ let FLOAT_INT_BITS = 13 as Int32
 let FLOAT_INT_BIAS = (1 << (FLOAT_INT_BITS - 1)) as Int32
 
 /// Source: oracle/codemp/qcommon/msg.cpp:1410
-// TODO: Port global playerStateFields
 // Raven wrote: netField_t playerStateFields[]
-// No table row for `netField_t[]`.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/qcommon/msg.cpp:1570
-// TODO: Port global pilotPlayerStateFields
 // Raven wrote: netField_t pilotPlayerStateFields[]
-// No table row for `netField_t[]`.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/qcommon/msg.cpp:1736
-// TODO: Port global vehPlayerStateFields
 // Raven wrote: netField_t vehPlayerStateFields[]
-// No table row for `netField_t[]`.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/qcommon/msg.cpp:2002
 // TODO: Port global g_netfBitStorage
@@ -122,19 +117,13 @@ let STAT_WEAPONS = 4 as Int32
 let msg_hData: [Int32] = { () -> [Int32] in portMissing("msg_hData", source: "oracle/codemp/qcommon/msg.cpp:2958") }()
 
 /// Source: oracle/codemp/qcommon/msg.cpp:46
-// TODO: Port signature
-// Raven wrote: void MSG_Init( msg_t *buf, byte *data, int length )
-// No table row for `byte * data`.
-func MSG_Init() -> Never {
+func MSG_Init(_ buf: Msg, _ data: OpaquePointer?, _ length: Int32) {
     // TODO: Port MSG_Init
     portMissing("MSG_Init", source: "oracle/codemp/qcommon/msg.cpp:46")
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:70
-// TODO: Port signature
-// Raven wrote: void MSG_InitOOB( msg_t *buf, byte *data, int length )
-// No table row for `byte * data`.
-func MSG_InitOOB() -> Never {
+func MSG_InitOOB(_ buf: Msg, _ data: OpaquePointer?, _ length: Int32) {
     // TODO: Port MSG_InitOOB
     portMissing("MSG_InitOOB", source: "oracle/codemp/qcommon/msg.cpp:70")
 }

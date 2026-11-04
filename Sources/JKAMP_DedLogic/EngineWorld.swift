@@ -99,7 +99,7 @@ public final class EngineWorld {
     // AI: Raven sized the table at 256 and left the slots after OP_CVFI NULL. A `[String]` holds no NULL, so the table ends at the last name.
     /// Raven's `static char *opnames[256]` of `vm_interpreted.cpp`, under the `DEBUG_VM` that the file defines.
     /// Source: oracle/codemp/qcommon/vm_interpreted.cpp:9
-    var opnames: [String] = [
+    var opnames: [String?] = [
         "OP_UNDEF",
 
         "OP_IGNORE",
