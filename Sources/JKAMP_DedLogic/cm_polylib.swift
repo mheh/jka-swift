@@ -52,19 +52,34 @@ AllocWinding
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:30
 func AllocWinding(_ points: Int32) -> Winding? {
-    // Port-note: `Z_Malloc` takes its tag as a `memtag_t`, which is `CChar`, and `TAG_BSP` is an `Int32`.
-    // The signature also has no default for `bZeroit` and `iAlign`, so `Z_Malloc (s, TAG_BSP, qtrue)` does not compile.
-    // The `Z_Malloc` signature row of the `z_memman_pc` round owns the fix.
-    // TODO: Port AllocWinding
+    var w: Winding?
+    let s: Int32
+
+    c_winding_allocs += 1
+    c_winding_points += points
+    c_active_windings += 1
+    if c_active_windings > c_peak_windings {
+        c_peak_windings = c_active_windings
+    }
+
+    // Port-note: No guide row gives the size of a `vec_t` or an `int` in a host body, and a body never writes `MemoryLayout`.
+    // Raven wrote: s = sizeof(vec_t)*3*points + sizeof(int)
     portMissing("AllocWinding", source: "oracle/codemp/qcommon/cm_polylib.cpp:30")
+    w = Winding(Z_Malloc(s, TAG_BSP, true))
+    //	Com_Memset (w, 0, s); // qtrue param in Z_Malloc does this
+    return w
 }
 
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:47
 func FreeWinding(_ w: Winding) {
-    // Port-note: `Z_Free` takes an `OpaquePointer?`, and rule 11 keeps the handle of a view in generated code.
-    // So `Z_Free (w)` has no form in a body, and the `z_memman_pc` round owns the `Z_Free` signature.
-    // TODO: Port FreeWinding
-    portMissing("FreeWinding", source: "oracle/codemp/qcommon/cm_polylib.cpp:47")
+    if w.numpoints == Int32(bitPattern: 0xdeaddead) {
+        Com_Error(ERR_FATAL, "FreeWinding: freed a freed winding")
+    }
+    w.numpoints = Int32(bitPattern: 0xdeaddead)
+
+    c_active_windings -= 1
+    // AI: Raven hands the record pointer to Z_Free. The call hands the handle of the view, because Z_Free takes the raw address.
+    Z_Free(w.handle)
 }
 
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:64
@@ -99,7 +114,8 @@ func RemoveColinearPoints(_ w: Winding) {
 
     c_removed += w.numpoints - nump
     w.numpoints = nump
-    // Port-note: The copy of `nump` points from the local array into `w.p` has no guide row, and `Com_Memcpy` takes `OpaquePointer?`.
+    // Port-note: `Com_Memcpy` takes two `Slots`, and the local `p` is a Swift array, so the copy has no form.
+    // No guide row gives the size of a `vec3_t` either.
     // Raven wrote: Com_Memcpy (w->p, p, nump*sizeof(p[0]))
     portMissing("RemoveColinearPoints", source: "oracle/codemp/qcommon/cm_polylib.cpp:64")
 }
@@ -212,9 +228,73 @@ BaseWindingForPlane
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:178
 func BaseWindingForPlane(_ normal: JKAShared.vec3_t, _ dist: Float) -> Winding? {
-    // Port-note: This body allocates through `AllocWinding`, so it waits on the `Z_Malloc` signature row with it.
-    // TODO: Port BaseWindingForPlane
-    portMissing("BaseWindingForPlane", source: "oracle/codemp/qcommon/cm_polylib.cpp:178")
+    var i: Int32
+    var x: Int32
+    var max: Float
+    var v: Float
+    var org = vec3_t()
+    var vright = vec3_t()
+    var vup = vec3_t()
+    var w: Winding?
+
+    // find the major axis
+
+    max = Float(-MAX_MAP_BOUNDS)
+    x = -1
+    i = 0
+    while i < 3 {
+        v = abs(normal[i])
+        if v > max {
+            x = i
+            max = v
+        }
+        i += 1
+    }
+    if x == -1 {
+        Com_Error(ERR_DROP, "BaseWindingForPlane: no axis found")
+    }
+
+    vup = vec3_origin
+    switch x {
+    case 0, 1:
+        vup[2] = 1
+
+    case 2:
+        vup[0] = 1
+
+    default:
+        break
+    }
+
+    v = _DotProduct(vup, normal)
+    _VectorMA(vup, -v, normal, &vup)
+    VectorNormalize2(vup, &vup)
+
+    org = normal * dist
+
+    CrossProduct(vup, normal, &vright)
+
+    vup = vup * Float(MAX_MAP_BOUNDS)
+    vright = vright * Float(MAX_MAP_BOUNDS)
+
+    // project a really big	axis aligned box onto the plane
+    w = AllocWinding(4)
+
+    w!.p[0] = org - vright
+    w!.p[0] = w!.p[0] + vup
+
+    w!.p[1] = org + vright
+    w!.p[1] = w!.p[1] + vup
+
+    w!.p[2] = org + vright
+    w!.p[2] = w!.p[2] - vup
+
+    w!.p[3] = org - vright
+    w!.p[3] = w!.p[3] - vup
+
+    w!.numpoints = 4
+
+    return w
 }
 
 /**
@@ -226,9 +306,17 @@ CopyWinding
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:249
 func CopyWinding(_ w: Winding) -> Winding? {
-    // Port-note: This body allocates through `AllocWinding`, so it waits on the `Z_Malloc` signature row with it.
-    // TODO: Port CopyWinding
+    var size: Int32
+    var c: Winding?
+
+    c = AllocWinding(w.numpoints)
+    // Port-note: Raven sizes the record by the offset of `p[numpoints]`, and no guide row gives an offset into a record.
+    // Raven wrote: size = (int)((winding_t *)0)->p[w->numpoints]
     portMissing("CopyWinding", source: "oracle/codemp/qcommon/cm_polylib.cpp:249")
+    // Port-note: No `Com_Memcpy` overload copies a byte count between two views.
+    // Raven wrote: Com_Memcpy (c, w, size)
+    portMissing("CopyWinding", source: "oracle/codemp/qcommon/cm_polylib.cpp:249")
+    return c
 }
 
 /**
@@ -240,9 +328,17 @@ ReverseWinding
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:265
 func ReverseWinding(_ w: Winding) -> Winding? {
-    // Port-note: This body allocates through `AllocWinding`, so it waits on the `Z_Malloc` signature row with it.
-    // TODO: Port ReverseWinding
-    portMissing("ReverseWinding", source: "oracle/codemp/qcommon/cm_polylib.cpp:265")
+    var i: Int32
+    var c: Winding?
+
+    c = AllocWinding(w.numpoints)
+    i = 0
+    while i < w.numpoints {
+        c!.p[i] = w.p[w.numpoints - 1 - i]
+        i += 1
+    }
+    c!.numpoints = w.numpoints
+    return c
 }
 
 /**
@@ -254,9 +350,114 @@ ClipWindingEpsilon
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:285
 func ClipWindingEpsilon(_ `in`: Winding, _ normal: JKAShared.vec3_t, _ dist: Float, _ epsilon: Float, _ front: inout Winding?, _ back: inout Winding?) {
-    // Port-note: This body allocates through `AllocWinding`, so it waits on the `Z_Malloc` signature row with it.
-    // TODO: Port ClipWindingEpsilon
-    portMissing("ClipWindingEpsilon", source: "oracle/codemp/qcommon/cm_polylib.cpp:285")
+    var dists: [Float] = [Float](repeating: 0, count: 68)
+    var sides: [Int32] = [Int32](repeating: 0, count: 68)
+    var counts: [Int32] = [Int32](repeating: 0, count: 3)
+    var dot: Float
+    var i: Int32
+    var j: Int32
+    var mid = vec3_t()
+    var f: Winding?
+    var b: Winding?
+    let maxpts: Int32
+
+    counts[2] = 0
+    counts[1] = counts[2]
+    counts[0] = counts[1]
+
+    // determine sides for each point
+    i = 0
+    while i < `in`.numpoints {
+        dot = _DotProduct(`in`.p[i], normal)
+        dot -= dist
+        dists[i] = dot
+        if dot > epsilon {
+            sides[i] = SIDE_FRONT
+        } else if dot < -epsilon {
+            sides[i] = SIDE_BACK
+        } else {
+            sides[i] = SIDE_ON
+        }
+        counts[sides[i]] += 1
+        i += 1
+    }
+    sides[i] = sides[0]
+    dists[i] = dists[0]
+
+    back = nil
+    front = back
+
+    if counts[0] == 0 {
+        back = CopyWinding(`in`)
+        return
+    }
+    if counts[1] == 0 {
+        front = CopyWinding(`in`)
+        return
+    }
+
+    maxpts = `in`.numpoints + 4 // cant use counts[0]+2 because
+    // of fp grouping errors
+
+    f = AllocWinding(maxpts)
+    front = f
+    b = AllocWinding(maxpts)
+    back = b
+
+    i = 0
+    while i < `in`.numpoints {
+        if sides[i] == SIDE_ON {
+            f!.p[f!.numpoints] = `in`.p[i]
+            f!.numpoints += 1
+            b!.p[b!.numpoints] = `in`.p[i]
+            b!.numpoints += 1
+            i += 1
+            continue
+        }
+
+        if sides[i] == SIDE_FRONT {
+            f!.p[f!.numpoints] = `in`.p[i]
+            f!.numpoints += 1
+        }
+        if sides[i] == SIDE_BACK {
+            b!.p[b!.numpoints] = `in`.p[i]
+            b!.numpoints += 1
+        }
+
+        if sides[i + 1] == SIDE_ON || sides[i + 1] == sides[i] {
+            i += 1
+            continue
+        }
+
+        // generate a split point
+
+        dot = dists[i] / (dists[i] - dists[i + 1])
+        j = 0
+        while j < 3 {
+            // avoid round off error when possible
+            if normal[j] == 1 {
+                mid[j] = dist
+            } else if normal[j] == -1 {
+                mid[j] = -dist
+            } else {
+                mid[j] = `in`.p[i][j] + dot * (`in`.p[(i + 1) % `in`.numpoints][j] - `in`.p[i][j])
+            }
+            j += 1
+        }
+
+        f!.p[f!.numpoints] = mid
+        f!.numpoints += 1
+        b!.p[b!.numpoints] = mid
+        b!.numpoints += 1
+        i += 1
+    }
+
+    if f!.numpoints > maxpts || b!.numpoints > maxpts {
+        Com_Error(ERR_DROP, "ClipWinding: points exceeded estimate")
+    }
+    if f!.numpoints > MAX_POINTS_ON_WINDING || b!.numpoints > MAX_POINTS_ON_WINDING {
+        Com_Error(ERR_DROP, "ClipWinding: MAX_POINTS_ON_WINDING")
+    }
 }
 
 /**
@@ -268,9 +469,104 @@ ChopWindingInPlace
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:397
 func ChopWindingInPlace(_ `inout`: inout Winding?, _ normal: JKAShared.vec3_t, _ dist: Float, _ epsilon: Float) {
-    // Port-note: This body allocates through `AllocWinding`, so it waits on the `Z_Malloc` signature row with it.
-    // TODO: Port ChopWindingInPlace
-    portMissing("ChopWindingInPlace", source: "oracle/codemp/qcommon/cm_polylib.cpp:397")
+    var `in`: Winding?
+    var dists: [Float] = [Float](repeating: 0, count: 68)
+    var sides: [Int32] = [Int32](repeating: 0, count: 68)
+    var counts: [Int32] = [Int32](repeating: 0, count: 3)
+    var dot: Float
+    var i: Int32
+    var j: Int32
+    var mid = vec3_t()
+    var f: Winding?
+    let maxpts: Int32
+
+    `in` = `inout`
+    counts[2] = 0
+    counts[1] = counts[2]
+    counts[0] = counts[1]
+
+    // determine sides for each point
+    i = 0
+    while i < `in`!.numpoints {
+        dot = _DotProduct(`in`!.p[i], normal)
+        dot -= dist
+        dists[i] = dot
+        if dot > epsilon {
+            sides[i] = SIDE_FRONT
+        } else if dot < -epsilon {
+            sides[i] = SIDE_BACK
+        } else {
+            sides[i] = SIDE_ON
+        }
+        counts[sides[i]] += 1
+        i += 1
+    }
+    sides[i] = sides[0]
+    dists[i] = dists[0]
+
+    if counts[0] == 0 {
+        FreeWinding(`in`!)
+        `inout` = nil
+        return
+    }
+    if counts[1] == 0 {
+        return // inout stays the same
+    }
+
+    maxpts = `in`!.numpoints + 4 // cant use counts[0]+2 because
+    // of fp grouping errors
+
+    f = AllocWinding(maxpts)
+
+    i = 0
+    while i < `in`!.numpoints {
+        if sides[i] == SIDE_ON {
+            f!.p[f!.numpoints] = `in`!.p[i]
+            f!.numpoints += 1
+            i += 1
+            continue
+        }
+
+        if sides[i] == SIDE_FRONT {
+            f!.p[f!.numpoints] = `in`!.p[i]
+            f!.numpoints += 1
+        }
+
+        if sides[i + 1] == SIDE_ON || sides[i + 1] == sides[i] {
+            i += 1
+            continue
+        }
+
+        // generate a split point
+
+        dot = dists[i] / (dists[i] - dists[i + 1])
+        j = 0
+        while j < 3 {
+            // avoid round off error when possible
+            if normal[j] == 1 {
+                mid[j] = dist
+            } else if normal[j] == -1 {
+                mid[j] = -dist
+            } else {
+                mid[j] = `in`!.p[i][j] + dot * (`in`!.p[(i + 1) % `in`!.numpoints][j] - `in`!.p[i][j])
+            }
+            j += 1
+        }
+
+        f!.p[f!.numpoints] = mid
+        f!.numpoints += 1
+        i += 1
+    }
+
+    if f!.numpoints > maxpts {
+        Com_Error(ERR_DROP, "ClipWinding: points exceeded estimate")
+    }
+    if f!.numpoints > MAX_POINTS_ON_WINDING {
+        Com_Error(ERR_DROP, "ClipWinding: MAX_POINTS_ON_WINDING")
+    }
+
+    FreeWinding(`in`!)
+    `inout` = f!
 }
 
 /**
@@ -423,7 +719,111 @@ func WindingOnPlaneSide(_ w: Winding, _ normal: JKAShared.vec3_t, _ dist: Float)
 
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:626
 func AddWindingToConvexHull(_ w: Winding, _ hull: inout Winding?, _ normal: JKAShared.vec3_t) {
-    // Port-note: This body allocates through `AllocWinding`, so it waits on the `Z_Malloc` signature row with it.
-    // TODO: Port AddWindingToConvexHull
+    var i: Int32
+    var j: Int32
+    var k: Int32
+    var dir = vec3_t()
+    var d: Float
+    var numHullPoints: Int32
+    var numNew: Int32
+    var hullPoints = [vec3_t](repeating: vec3_t(), count: 128)
+    var newHullPoints = [vec3_t](repeating: vec3_t(), count: 128)
+    var hullDirs = [vec3_t](repeating: vec3_t(), count: 128)
+    var hullSide: [Bool] = [Bool](repeating: false, count: 128)
+    var outside: Bool
+    // Raven assigns his own `w` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
+    var w = w
+
+    if hull == nil {
+        hull = CopyWinding(w)
+        return
+    }
+
+    numHullPoints = hull!.numpoints
+    // Port-note: `Com_Memcpy` takes two `Slots`, and the local `hullPoints` is a Swift array, so the copy has no form.
+    // No guide row gives the size of a `vec3_t` either.
+    // Raven wrote: Com_Memcpy( hullPoints, (*hull)->p, numHullPoints * sizeof(vec3_t) )
+    portMissing("AddWindingToConvexHull", source: "oracle/codemp/qcommon/cm_polylib.cpp:626")
+
+    i = 0
+    while i < w.numpoints {
+        // calculate hull side vectors
+        j = 0
+        while j < numHullPoints {
+            k = (j + 1) % numHullPoints
+
+            dir = hullPoints[k] - hullPoints[j]
+            VectorNormalize2(dir, &dir)
+            CrossProduct(normal, dir, &hullDirs[j])
+            j += 1
+        }
+
+        outside = false
+        j = 0
+        while j < numHullPoints {
+            dir = w.p[i] - hullPoints[j]
+            d = _DotProduct(dir, hullDirs[j])
+            if d >= ON_EPSILON {
+                outside = true
+            }
+            if d >= -ON_EPSILON {
+                hullSide[j] = true
+            } else {
+                hullSide[j] = false
+            }
+            j += 1
+        }
+
+        // if the point is effectively inside, do nothing
+        if !outside {
+            i += 1
+            continue
+        }
+
+        // find the back side to front side transition
+        j = 0
+        while j < numHullPoints {
+            if !hullSide[j % numHullPoints] && hullSide[(j + 1) % numHullPoints] {
+                break
+            }
+            j += 1
+        }
+        if j == numHullPoints {
+            i += 1
+            continue
+        }
+
+        // insert the point here
+        newHullPoints[0] = w.p[i]
+        numNew = 1
+
+        // copy over all points that aren't double fronts
+        j = (j + 1) % numHullPoints
+        k = 0
+        while k < numHullPoints {
+            if hullSide[(j + k) % numHullPoints] && hullSide[(j + k + 1) % numHullPoints] {
+                k += 1
+                continue
+            }
+            newHullPoints[numNew] = hullPoints[(j + k + 1) % numHullPoints]
+            numNew += 1
+            k += 1
+        }
+
+        numHullPoints = numNew
+        // Port-note: `Com_Memcpy` takes two `Slots`, and the locals `hullPoints` and `newHullPoints` are Swift arrays, so the copy has no form.
+        // No guide row gives the size of a `vec3_t` either.
+        // Raven wrote: Com_Memcpy( hullPoints, newHullPoints, numHullPoints * sizeof(vec3_t) )
+        portMissing("AddWindingToConvexHull", source: "oracle/codemp/qcommon/cm_polylib.cpp:626")
+        i += 1
+    }
+
+    FreeWinding(hull!)
+    w = AllocWinding(numHullPoints)!
+    w.numpoints = numHullPoints
+    hull = w
+    // Port-note: `Com_Memcpy` takes two `Slots`, and the local `hullPoints` is a Swift array, so the copy has no form.
+    // No guide row gives the size of a `vec3_t` either.
+    // Raven wrote: Com_Memcpy( w->p, hullPoints, numHullPoints * sizeof(vec3_t) )
     portMissing("AddWindingToConvexHull", source: "oracle/codemp/qcommon/cm_polylib.cpp:626")
 }
