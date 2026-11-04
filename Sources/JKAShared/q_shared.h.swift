@@ -39,3 +39,9 @@ public func Q_IsColorString<I: BinaryInteger>(_ buf: CharBuf, at i: I) -> Bool {
 public func ColorIndex(_ c: Int32) -> Int32 {
     (c - Int32(UInt8(ascii: "0"))) & 7
 }
+
+/// The WinDed arm defines `BigShort` as a swap, and `LittleShort` and `LittleLong` as empty macros, so a call of either is its argument.
+/// Source: oracle/codemp/game/q_shared.h:171
+public func BigShort(_ l: Int16) -> Int16 {
+    Int16(truncatingIfNeeded: ShortSwap(Int32(l)))
+}

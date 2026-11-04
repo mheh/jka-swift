@@ -108,5 +108,7 @@
 #include "codemp/icarus/taskmanager/constants.h"
 #include "codemp/icarus/taskmanager/enum_TASK_OK.h"
 #include "codemp/icarus/taskmanager/enum_TASK_RETURN_COMPLETE.h"
+#include "ded_types.h"
+#include "ded_tables.h"
 
 #endif // JKA_CJKAMP_DED_H

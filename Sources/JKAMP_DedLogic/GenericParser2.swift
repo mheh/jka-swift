@@ -15,10 +15,7 @@ var token: JKAShared.CharBuf {
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:15
-// TODO: Port signature
-// Raven wrote: static char *GetToken(char **text, bool allowLineBreaks, bool readUntilEOL = false)
-// No table row for `bool allowLineBreaks`.
-private func GetToken() -> Never {
+private func GetToken(_ text: inout JKAShared.TextCursor, _ allowLineBreaks: Bool, _ readUntilEOL: Bool = false) -> String {
     // TODO: Port GetToken
     portMissing("GetToken", source: "oracle/codemp/qcommon/GenericParser2.cpp:15")
 }
@@ -39,7 +36,7 @@ func CleanTextPool() -> Never {
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:928
 // TODO: Port signature
 // Raven wrote: TGenericParser2 GP_Parse(char **dataPtr, bool cleanFirst, bool writeable)
-// No table row for `bool cleanFirst`.
+// No table row for the return `TGenericParser2`.
 func GP_Parse() -> Never {
     // TODO: Port GP_Parse
     portMissing("GP_Parse", source: "oracle/codemp/qcommon/GenericParser2.cpp:928")
@@ -74,10 +71,7 @@ func GPG_GetName(_ GPG: OpaquePointer?) -> String {
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:987
-// TODO: Port signature
-// Raven wrote: bool GPG_GetName(TGPGroup GPG, char *Value)
-// No table row for the return `bool`.
-func GPG_GetName() -> Never {
+func GPG_GetName(_ GPG: OpaquePointer?, _ Value: inout JKAShared.CharBuf) -> Bool {
     // TODO: Port GPG_GetName
     portMissing("GPG_GetName", source: "oracle/codemp/qcommon/GenericParser2.cpp:987")
 }
@@ -170,10 +164,7 @@ func GPG_FindPairValue(_ GPG: OpaquePointer?, _ key: String, _ defaultVal: Strin
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1099
-// TODO: Port signature
-// Raven wrote: bool GPG_FindPairValue(TGPGroup GPG, const char *key, const char *defaultVal, char *Value)
-// No table row for the return `bool`.
-func GPG_FindPairValue() -> Never {
+func GPG_FindPairValue(_ GPG: OpaquePointer?, _ key: String, _ defaultVal: String, _ Value: inout JKAShared.CharBuf) -> Bool {
     // TODO: Port GPG_FindPairValue
     portMissing("GPG_FindPairValue", source: "oracle/codemp/qcommon/GenericParser2.cpp:1099")
 }
@@ -186,10 +177,7 @@ func GPV_GetName(_ GPV: OpaquePointer?) -> String {
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1120
-// TODO: Port signature
-// Raven wrote: bool GPV_GetName(TGPValue GPV, char *Value)
-// No table row for the return `bool`.
-func GPV_GetName() -> Never {
+func GPV_GetName(_ GPV: OpaquePointer?, _ Value: inout JKAShared.CharBuf) -> Bool {
     // TODO: Port GPV_GetName
     portMissing("GPV_GetName", source: "oracle/codemp/qcommon/GenericParser2.cpp:1120")
 }
@@ -222,10 +210,7 @@ func GPV_GetInOrderPrevious() -> Never {
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1162
-// TODO: Port signature
-// Raven wrote: bool GPV_IsList(TGPValue GPV)
-// No table row for the return `bool`.
-func GPV_IsList() -> Never {
+func GPV_IsList(_ GPV: OpaquePointer?) -> Bool {
     // TODO: Port GPV_IsList
     portMissing("GPV_IsList", source: "oracle/codemp/qcommon/GenericParser2.cpp:1162")
 }
@@ -237,10 +222,7 @@ func GPV_GetTopValue(_ GPV: OpaquePointer?) -> String {
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1182
-// TODO: Port signature
-// Raven wrote: bool GPV_GetTopValue(TGPValue GPV, char *Value)
-// No table row for the return `bool`.
-func GPV_GetTopValue() -> Never {
+func GPV_GetTopValue(_ GPV: OpaquePointer?, _ Value: inout JKAShared.CharBuf) -> Bool {
     // TODO: Port GPV_GetTopValue
     portMissing("GPV_GetTopValue", source: "oracle/codemp/qcommon/GenericParser2.cpp:1182")
 }

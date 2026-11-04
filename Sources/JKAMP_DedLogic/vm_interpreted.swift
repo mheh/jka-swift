@@ -7,7 +7,7 @@ import JKAMP_Ded
 
 /// Source: oracle/codemp/qcommon/vm_interpreted.cpp:9
 /// Raven's data table, a hand property of `EngineWorld`.
-var opnames: [String] {
+var opnames: [String?] {
     get { world.opnames }
     set { world.opnames = newValue }
 }
@@ -46,16 +46,13 @@ VM_PrepareInterpreter
 ```
 */
 /// Source: oracle/codemp/qcommon/vm_interpreted.cpp:139
-// TODO: Port signature
-// Raven wrote: void VM_PrepareInterpreter( vm_t *vm, vmHeader_t *header )
-// No table row for `vmHeader_t * header`.
-func VM_PrepareInterpreter() -> Never {
+func VM_PrepareInterpreter(_ vm: Vm, _ header: VmHeader) {
     // TODO: Port VM_PrepareInterpreter
     portMissing("VM_PrepareInterpreter", source: "oracle/codemp/qcommon/vm_interpreted.cpp:139")
 }
 
 /// Source: oracle/codemp/qcommon/vm_interpreted.cpp:296
-func VM_CallInterpreted(_ vm: Vm, _ args: inout Int32) -> Int32 {
+func VM_CallInterpreted(_ vm: Vm, _ args: [Int32]?) -> Int32 {
     // TODO: Port VM_CallInterpreted
     portMissing("VM_CallInterpreted", source: "oracle/codemp/qcommon/vm_interpreted.cpp:296")
 }

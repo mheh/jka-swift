@@ -169,6 +169,11 @@ class Types:
             return "Bool" if name == "qboolean" else self.views.qualified(name, target)
         return SCALARS.get(t.kind)
 
+    def fixed(self, t: ci.Type) -> str | None:
+        """The TYPES spelling of a typedef the canonical type loses, `UINT4` behind a pointer or an array, or None."""
+        name = (t.get_named_type() if t.kind == TypeKind.ELABORATED else t).spelling.replace("const ", "")
+        return TYPES.get(name)
+
     def narrow(self, t: ci.Type) -> str | None:
         """The storage type of a C integer narrower than int, `Int16` for a `short`, or None for any other type."""
         canonical = t.get_canonical()
@@ -263,6 +268,14 @@ class Types:
         canonical = t.get_canonical()
         if facts.ruled == "raw":
             return Answer("UnsafeMutableRawPointer", "bare")
+        if facts.ruled == "opaque":
+            # The body stores the `byte *` into a `byte *` field or hands it on as a `void *`, so it takes the field's spelling.
+            return Answer("OpaquePointer?", "bare")
+        if facts.ruled == "slot" and canonical.kind == TypeKind.POINTER and canonical.get_pointee().get_canonical().kind == TypeKind.POINTER:
+            # The address of one record pointer slot, `node_t **ppnode` of free_ppnode, is the Slots of one optional view over the slot.
+            record = self.record_name(canonical.get_pointee().get_canonical().get_pointee())
+            if record and record in self.views.views:
+                return Answer(f"Slots<{self.views.qualified_view(record, TARGET)}?>", "bare")
         if facts.ruled == "vec3_mut":
             return Answer("inout JKAShared.vec3_t", "vec3_mut")
         if facts.ruled == "vec3_const":
@@ -444,9 +457,15 @@ class Types:
                 swift = self.scalar(pointee, TARGET)
                 if swift is not None and self.known(swift):
                     return Answer(f"Slots<{swift}>", "slots")
+            if C.HOST and not facts.traps and inner.kind == TypeKind.UCHAR:
+                # A `byte *` of a host function that is not a trap is the caller's byte array, `MD4Update(&ctx, input, len)`, so the caller's
+                # Slots over the bytes crosses, the row a trap's `byte *` has. A game function with this shape keeps its marker.
+                swift = self.scalar(pointee, TARGET)
+                if swift is not None and self.known(swift):
+                    return Answer(f"Slots<{swift}>", "slots")
             # A pointer to one scalar is an out-param, `inout`. A body that finds Raven walks it as an array writes a Port-note.
             if not pointee.is_const_qualified() and (inner.kind in INT_KINDS or inner.kind in (TypeKind.FLOAT, TypeKind.ENUM)):
-                swift = self.scalar(pointee, TARGET)
+                swift = self.fixed(t.get_pointee()) or self.scalar(pointee, TARGET)
                 if swift is not None and self.known(swift) and facts.null_reaches:
                     # An output a caller skips with NULL, at a direct call or one hop on, crosses as the pointer itself, so `nil` has a seat.
                     # A body that writes through it keeps Raven's NULL test, `crazySmoothFactor` of BG_G2PlayerAngles.
@@ -476,10 +495,15 @@ class Types:
                 if element.get_pointee().get_canonical().kind == TypeKind.CHAR_S:
                     # A C array of strings the function fills from a caller's `&array[i]`, `char *infos[]`, is the caller's slice from `i` on.
                     return Answer("inout ArraySlice<String>", "string_slice")
+            if C.HOST and element.kind == TypeKind.UCHAR:
+                # A C array of bytes, `unsigned char digest[16]` of MD4Final, decays to the `byte *` above, so it takes the same Slots.
+                swift = self.scalar(canonical.element_type if t.kind != TypeKind.CONSTANTARRAY else t.element_type, TARGET)
+                if swift is not None and self.known(swift):
+                    return Answer(f"Slots<{swift}>", "slots")
             if canonical.kind == TypeKind.CONSTANTARRAY and (element.kind in INT_KINDS or element.kind == TypeKind.FLOAT):
                 # A fixed C array of a scalar the body reads, `int delta_angles[3]`, is the values by value, copied at the call.
                 # A body that writes through it would take `inout`, and none does.
-                swift = self.scalar(canonical.element_type, TARGET)
+                swift = (self.fixed(t.element_type) if t.kind == TypeKind.CONSTANTARRAY else None) or self.scalar(canonical.element_type, TARGET)
                 if swift is not None and self.known(swift):
                     return Answer(f"[{swift}]", "bare")
         if canonical.kind == TypeKind.CONSTANTARRAY and facts.traps:
@@ -490,8 +514,17 @@ class Types:
                 swift = self.scalar(element, TARGET)
                 if swift is not None and self.known(swift):
                     return Answer(f"inout [{swift}]", "out_array")
+        if canonical.kind == TypeKind.RECORD and not facts.traps:
+            # A record Raven passes by value, `netadr_t adr` of NET_SendPacket, crosses as its view, the shape a record pointer has.
+            # The view aliases the caller's record, so a body that writes such a parameter takes a scratch copy.
+            record = self.record_name(t)
+            if record and record in self.views.views:
+                return Answer(self.views.qualified_view(record, TARGET), "view")
         if canonical.kind in (TypeKind.RECORD, TypeKind.CONSTANTARRAY, TypeKind.INCOMPLETEARRAY):
             return None
+        if canonical.kind == TypeKind.BOOL:
+            # The C++ `bool` of the host files is `Bool` at the surface, the spelling `qboolean` has.
+            return Answer("Bool", "bare")
         swift = self.scalar(t, TARGET)
         if swift is None or not self.known(swift):
             return None
@@ -510,6 +543,9 @@ class Types:
             return Answer(TYPES[t.spelling], crossing=f"{TYPES[t.spelling]}(word)")
         if canonical.kind == TypeKind.VOID:
             return Answer(None)
+        if canonical.kind == TypeKind.BOOL:
+            # The C++ `bool` of the host files is `Bool` at the surface, the spelling `qboolean` has.
+            return Answer("Bool", crossing="word != 0")
         if canonical.kind == TypeKind.FLOAT:
             return Answer("Float", crossing="Float(bitPattern: UInt32(truncatingIfNeeded: word))")
         if canonical.kind == TypeKind.POINTER:

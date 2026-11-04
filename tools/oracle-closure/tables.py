@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""tables.py: Raven's data tables as C storage, written to Sources/CJKAMP/bg_tables.c, Sources/CJKAMP_Game/g_tables.c, and Sources/CJKAMP_CGame/cg_tables.c.
+"""tables.py: Raven's data tables as C storage, written to Sources/CJKAMP/bg_tables.c, Sources/CJKAMP_Game/g_tables.c,
+Sources/CJKAMP_CGame/cg_tables.c, and Sources/CJKAMP_Ded/ded_tables.c.
 
 Rule 6: a table with Raven's data lives in C memory the view target binds over, read-only at the Swift surface.
 Rule 13: the file is generated whole and regenerated whole, so no hand edit survives a run.
@@ -137,6 +138,28 @@ CGAME_PIECES: tuple[Piece, ...] = (
 )
 
 
+# The host file, the four netField tables of msg.cpp, which read `netField_t` of ded_types.h and the tree's `entityState_t` and
+# `playerState_t` through `NETF` and `PSF`. Raven's `#ifdef _OPTIMIZED_VEHICLE_NETWORKING` arm of q_shared.h picks the three tables
+# of the first arm, and the copied range keeps both arms as he wrote them.
+MSG_FILE = "codemp/qcommon/msg.cpp"
+DED_PIECES: tuple[Piece, ...] = (
+    Piece(own=(
+        "// Raven's `NETF` and `PSF` read a field offset as a cast of a pointer to `int`, which is narrower on a 64-bit target.",
+        '#pragma clang diagnostic ignored "-Wpointer-to-int-cast"',
+    )),
+    Piece(
+        own=("// Raven's row macro of msg.cpp, which the table below names.",),
+        source=MSG_FILE, first=847, last=851, table=False,
+    ),
+    Piece(source=MSG_FILE, first=859, last=1051),
+    Piece(
+        own=("// Raven's row macro of msg.cpp, which the tables below name.",),
+        source=MSG_FILE, first=1394, last=1398, table=False,
+    ),
+    Piece(source=MSG_FILE, first=1404, last=1990),
+)
+
+
 @dataclass(frozen=True)
 class Output:
     """One generated file: the C target it compiles in, its name, the hand header that declares its tables, and its pieces."""
@@ -151,6 +174,7 @@ OUTPUTS: tuple[Output, ...] = (
     Output("CJKAMP", "bg_tables.c", "bg_tables.h", BG_PIECES),
     Output("CJKAMP_Game", "g_tables.c", "g_tables.h", GAME_PIECES),
     Output("CJKAMP_CGame", "cg_tables.c", "cg_tables.h", CGAME_PIECES),
+    Output("CJKAMP_Ded", "ded_tables.c", "ded_tables.h", DED_PIECES),
 )
 
 

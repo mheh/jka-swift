@@ -10,6 +10,14 @@ public final class EngineStorage {
     /// Source: oracle/codemp/qcommon/cm_load.cpp:50
     public let box_model: Cmodel
 
+    /// Raven's `cmd_t cmd_text` of `cmd_common.cpp`.
+    /// Source: oracle/codemp/qcommon/cmd_common.cpp:17
+    public let cmd_text: Cmd
+
+    /// Raven's `byte cmd_text_buf[MAX_CMD_BUFFER]` of `cmd_common.cpp`.
+    /// Source: oracle/codemp/qcommon/cmd_common.cpp:18
+    public let cmd_text_buf: Slots<JKAShared.byte>
+
     /// Raven's `cvar_t cvar_indexes[MAX_CVARS]` of `cvar.cpp`.
     /// Source: oracle/codemp/qcommon/cvar.cpp:11
     public let cvar_indexes: Slots<JKAMP.Cvar>
@@ -18,9 +26,21 @@ public final class EngineStorage {
     /// Source: oracle/codemp/qcommon/cvar.cpp:15
     public let hashTable: Slots<JKAMP.Cvar?>
 
+    /// Raven's `byte seq[65536]` local of `Huff_Decompress` and `Huff_Compress` in `huffman.cpp`.
+    /// Source: oracle/codemp/qcommon/huffman.cpp:306
+    public let seq: Slots<JKAShared.byte>
+
+    /// Raven's `huffman_t msgHuff` of `msg.cpp`.
+    /// Source: oracle/codemp/qcommon/msg.cpp:19
+    public let msgHuff: Huffman
+
+    /// Raven's `loopback_t loopbacks[2]` of `net_chan.cpp`.
+    /// Source: oracle/codemp/qcommon/net_chan.cpp:486
+    public let loopbacks: Slots<Loopback>
+
     /// Raven's `sharedEntity_t gLocalModifier` of `sv_game.cpp`.
     /// Source: oracle/codemp/server/sv_game.cpp:420
-    public let gLocalModifier: SharedEntity
+    public let gLocalModifier: JKAMP.SharedEntity
 
     /// Raven's `serverStatic_t svs` of `sv_main.cpp`.
     /// Source: oracle/codemp/server/sv_main.cpp:10
@@ -40,9 +60,14 @@ public final class EngineStorage {
 
     public init() {
         self.box_model = EngineStorage.record(of: Cmodel.self)
+        self.cmd_text = EngineStorage.record(of: Cmd.self)
+        self.cmd_text_buf = Slots(scalars: EngineStorage.bytes(count: 16384), count: 16384)
         self.cvar_indexes = EngineStorage.records(count: 1224, of: JKAMP.Cvar.self)
         self.hashTable = EngineStorage.table(count: 256, of: JKAMP.Cvar.self)
-        self.gLocalModifier = EngineStorage.record(of: SharedEntity.self)
+        self.seq = Slots(scalars: EngineStorage.bytes(count: 65536), count: 65536)
+        self.msgHuff = EngineStorage.record(of: Huffman.self)
+        self.loopbacks = EngineStorage.records(count: 2, of: Loopback.self)
+        self.gLocalModifier = EngineStorage.record(of: JKAMP.SharedEntity.self)
         self.svs = EngineStorage.record(of: ServerStatic.self)
         self.sv = EngineStorage.record(of: Server.self)
         self.sv_master = EngineStorage.table(count: Int(JKAMP_Ded.MAX_MASTER_SERVERS), of: JKAMP.Cvar.self)
@@ -51,8 +76,13 @@ public final class EngineStorage {
 
     deinit {
         UnsafeMutableRawPointer(self.box_model.handle).deallocate()
+        UnsafeMutableRawPointer(self.cmd_text.handle).deallocate()
+        self.cmd_text_buf.base.deallocate()
         self.cvar_indexes.base.deallocate()
         self.hashTable.base.deallocate()
+        self.seq.base.deallocate()
+        UnsafeMutableRawPointer(self.msgHuff.handle).deallocate()
+        self.loopbacks.base.deallocate()
         UnsafeMutableRawPointer(self.gLocalModifier.handle).deallocate()
         UnsafeMutableRawPointer(self.svs.handle).deallocate()
         UnsafeMutableRawPointer(self.sv.handle).deallocate()
@@ -86,5 +116,12 @@ public final class EngineStorage {
             read: { $0.load(as: OpaquePointer?.self).map { View(handle: $0) } },
             write: { $0.storeBytes(of: $1?.handle, as: OpaquePointer?.self) }
         )
+    }
+
+    /// One zeroed C array of `count` bytes at a fixed base, for a buffer whose address the engine holds.
+    private static func bytes(count: Int) -> UnsafeMutableRawPointer {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: count, alignment: 16)
+        base.initializeMemory(as: UInt8.self, repeating: 0, count: count)
+        return base
     }
 }
