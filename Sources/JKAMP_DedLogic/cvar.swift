@@ -54,6 +54,7 @@ var memPoolSize: Int32 {
 //If the string came from the memory pool, don't really free it.  The entire
 //memory pool will be wiped during the next level load.
 /// Source: oracle/codemp/qcommon/cvar.cpp:26
+// Not ported: no caller, because the string pool holds every cvar string and each caller drops the free.
 private func Cvar_FreeString(_ string: inout JKAShared.CharBuf) {
     // TODO: Port Cvar_FreeString
     portMissing("Cvar_FreeString", source: "oracle/codemp/qcommon/cvar.cpp:26")
@@ -77,7 +78,8 @@ private func generateHashValue(_ fname: String) -> CLong {
     let bytes = CharBuf(fname)
     while bytes[i] != 0 {
         let byte: UInt8 = bytes[i]
-        letter = Int8(truncatingIfNeeded: tolower(Int32(byte)))
+        // Foundation also declares tolower, so the qualifier picks the C-locale form of JKAShared.
+        letter = Int8(truncatingIfNeeded: JKAShared.tolower(Int32(byte)))
         hash += CLong(letter) * CLong(i + 119)
         i += 1
     }
@@ -418,6 +420,7 @@ Cvar_SetValue
 func Cvar_SetValue(_ var_name: String, _ value: Float) {
     var val = CharBuf(32)
 
+    // Port-note: C is undefined when the value is outside the Int32 range, and Swift traps there.
     if value == Float(Int32(value)) {
         Com_sprintf(&val, 32, "%i", Int32(value))
     } else {
@@ -839,6 +842,7 @@ basically a slightly modified Cvar_Get for the interpreted modules
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:889
 func Cvar_Register(_ vmCvar: JKAMP.VmCvar, _ varName: String, _ defaultValue: String, _ flags: Int32) {
+    // Port-note: The VmCvar view has no accessor for Raven's `handle` field, so the body waits on the vmCvar_t handle row.
     // TODO: Port Cvar_Register
     portMissing("Cvar_Register", source: "oracle/codemp/qcommon/cvar.cpp:889")
 }
@@ -854,6 +858,7 @@ updates an interpreted modules' version of a cvar
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:909
 func Cvar_Update(_ vmCvar: JKAMP.VmCvar) {
+    // Port-note: The VmCvar view has no accessor for Raven's `handle` field, so the body waits on the vmCvar_t handle row.
     // TODO: Port Cvar_Update
     portMissing("Cvar_Update", source: "oracle/codemp/qcommon/cvar.cpp:909")
 }
@@ -885,6 +890,7 @@ func Cvar_Init() {
 // TODO: Port signature
 // Raven wrote: static void Cvar_Realloc(char **string, char *memPool, int &memPoolUsed)
 // No table row for `int & memPoolUsed`.
+// Not ported: no caller, because Cvar_Defrag is a no-op under the string pool.
 private func Cvar_Realloc() -> Never {
     // TODO: Port Cvar_Realloc
     portMissing("Cvar_Realloc", source: "oracle/codemp/qcommon/cvar.cpp:965")
@@ -894,5 +900,5 @@ private func Cvar_Realloc() -> Never {
 /// Source: oracle/codemp/qcommon/cvar.cpp:979
 func Cvar_Defrag() {
     // TODO: Port Cvar_Defrag
-    portMissing("Cvar_Defrag", source: "oracle/codemp/qcommon/cvar.cpp:979")
+    // AI: Raven copies every cvar string into one Z_Malloc block. The string pool holds every string, so the defrag is a no-op.
 }
