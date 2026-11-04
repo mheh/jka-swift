@@ -842,9 +842,13 @@ basically a slightly modified Cvar_Get for the interpreted modules
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:889
 func Cvar_Register(_ vmCvar: JKAMP.VmCvar, _ varName: String, _ defaultValue: String, _ flags: Int32) {
-    // Port-note: The VmCvar view has no accessor for Raven's `handle` field, so the body waits on the vmCvar_t handle row.
-    // TODO: Port Cvar_Register
-    portMissing("Cvar_Register", source: "oracle/codemp/qcommon/cvar.cpp:889")
+    let cv: JKAMP.Cvar?
+
+    cv = Cvar_Get(varName, defaultValue, flags)
+    // Port-note: The generated signature takes a non-optional view, so Raven's NULL check has no caller here.
+    vmCvar.cvarHandle = cvar_indexes.index(of: cv!)
+    vmCvar.modificationCount = -1
+    Cvar_Update(vmCvar)
 }
 
 /**
@@ -858,9 +862,29 @@ updates an interpreted modules' version of a cvar
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:909
 func Cvar_Update(_ vmCvar: JKAMP.VmCvar) {
-    // Port-note: The VmCvar view has no accessor for Raven's `handle` field, so the body waits on the vmCvar_t handle row.
-    // TODO: Port Cvar_Update
-    portMissing("Cvar_Update", source: "oracle/codemp/qcommon/cvar.cpp:909")
+    let cv: JKAMP.Cvar
+
+    if UInt32(bitPattern: vmCvar.cvarHandle) >= cvar_numIndexes {
+        Com_Error(ERR_DROP, "Cvar_Update: handle out of range")
+    }
+
+    cv = cvar_indexes[vmCvar.cvarHandle]
+
+    if cv.modificationCount == vmCvar.modificationCount {
+        return
+    }
+    guard let string = cv.string else {
+        return  // The variable might have been cleared by a cvar_restart.
+    }
+    vmCvar.modificationCount = cv.modificationCount
+    if strlen(string) + 1 > MAX_CVAR_VALUE_STRING {
+        Com_Error(ERR_DROP, "Cvar_Update: src %s length %d exceeds MAX_CVAR_VALUE_STRING", string, strlen(string), MAX_CVAR_VALUE_STRING)
+    }
+    // Q_strncpyz pads with zeros and makes the last byte of the destination zero.
+    Q_strncpyz(&vmCvar.stringBuffer, string, MAX_CVAR_VALUE_STRING)
+
+    vmCvar.value = cv.value
+    vmCvar.integer = cv.integer
 }
 
 /**
