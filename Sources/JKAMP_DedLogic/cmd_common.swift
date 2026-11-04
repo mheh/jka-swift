@@ -66,9 +66,9 @@ Cbuf_Init
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:54
 func Cbuf_Init() {
-    // Port-note: Open row cmd_text_buf. The stub keeps a `let` byte array, and the CharBuf form on EngineStorage has no ruling.
-    // TODO: Port Cbuf_Init
-    portMissing("Cbuf_Init", source: "oracle/codemp/qcommon/cmd_common.cpp:54")
+    cmd_text.data = cmd_text_buf
+    cmd_text.maxsize = MAX_CMD_BUFFER
+    cmd_text.cursize = 0
 }
 
 /**
@@ -82,9 +82,18 @@ Adds command text at the end of the buffer, does NOT add a final \n
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:68
 func Cbuf_AddText(_ text: String) {
-    // Port-note: Open row cmd_text_buf. The stub keeps a `let` byte array, and the CharBuf form on EngineStorage has no ruling.
-    // TODO: Port Cbuf_AddText
+    var l: Int32
+
+    l = strlen(text)
+
+    if cmd_text.cursize + l >= cmd_text.maxsize {
+        Com_Printf("Cbuf_AddText: overflow\n")
+        return
+    }
+    // Port-note: Open row Com_Memcpy into byte slots. Com_Memcpy takes `OpaquePointer?`, and a copy from a String into a `Slots<byte>` has no form.
+    // Raven wrote: Com_Memcpy(&cmd_text.data[cmd_text.cursize], text, l);
     portMissing("Cbuf_AddText", source: "oracle/codemp/qcommon/cmd_common.cpp:68")
+    cmd_text.cursize += l
 }
 
 /**
@@ -99,9 +108,31 @@ Adds a \n to the text
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:91
 func Cbuf_InsertText(_ text: String) {
-    // Port-note: Open row cmd_text_buf. The stub keeps a `let` byte array, and the CharBuf form on EngineStorage has no ruling.
-    // TODO: Port Cbuf_InsertText
+    var len: Int32
+    var i: Int32
+
+    len = strlen(text) + 1
+    if len + cmd_text.cursize > cmd_text.maxsize {
+        Com_Printf("Cbuf_InsertText overflowed\n")
+        return
+    }
+
+    // move the existing command text
+    i = cmd_text.cursize - 1
+    while i >= 0 {
+        cmd_text.data![i + len] = cmd_text.data![i]
+        i -= 1
+    }
+
+    // copy the new text in
+    // Port-note: Open row Com_Memcpy into byte slots. Com_Memcpy takes `OpaquePointer?`, and a copy from a String into a `Slots<byte>` has no form.
+    // Raven wrote: Com_Memcpy( cmd_text.data, text, len - 1 );
     portMissing("Cbuf_InsertText", source: "oracle/codemp/qcommon/cmd_common.cpp:91")
+
+    // add a \n
+    cmd_text.data![len - 1] = JKAShared.byte(ascii: "\n")
+
+    cmd_text.cursize += len
 }
 
 /**
@@ -141,9 +172,64 @@ Cbuf_Execute
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:148
 func Cbuf_Execute() {
-    // Port-note: Open row cmd_text_buf. The stub keeps a `let` byte array, and the CharBuf form on EngineStorage has no ruling.
-    // TODO: Port Cbuf_Execute
-    portMissing("Cbuf_Execute", source: "oracle/codemp/qcommon/cmd_common.cpp:148")
+    var i: Int32
+    var text: Slots<JKAShared.byte>
+    var line = CharBuf(MAX_CMD_LINE)
+    var quotes: Int32
+
+    while cmd_text.cursize != 0 {
+        if cmd_wait != 0 {
+            // skip out while text still remains in buffer, leaving it
+            // for next frame
+            cmd_wait -= 1
+            break
+        }
+
+        // find a \n or ; line break
+        text = cmd_text.data!
+
+        quotes = 0
+        i = 0
+        while i < cmd_text.cursize {
+            if text[i] == Int32(ascii: "\"") {
+                quotes += 1
+            }
+            if (quotes & 1) == 0 && text[i] == Int32(ascii: ";") {
+                break  // don't break if inside a quoted string
+            }
+            if text[i] == Int32(ascii: "\n") || text[i] == Int32(ascii: "\r") {
+                break
+            }
+            i += 1
+        }
+
+        if i >= (MAX_CMD_LINE - 1) {
+            i = MAX_CMD_LINE - 1
+        }
+
+        // Port-note: Open row Com_Memcpy into byte slots. Com_Memcpy takes `OpaquePointer?`, and a copy from a `Slots<byte>` into a CharBuf has no form.
+        // Raven wrote: Com_Memcpy (line, text, i);
+        portMissing("Cbuf_Execute", source: "oracle/codemp/qcommon/cmd_common.cpp:148")
+        line[i] = 0
+
+        // delete the text from the command buffer and move remaining commands down
+        // this is necessary because commands (exec) can insert data at the
+        // beginning of the text buffer
+
+        if i == cmd_text.cursize {
+            cmd_text.cursize = 0
+        } else {
+            i += 1
+            cmd_text.cursize -= i
+            // Port-note: Open row Com_Memcpy into byte slots. The `memmove` of `CString.swift` takes a CharBuf, and a move inside a `Slots<byte>` has no form.
+            // Raven wrote: memmove (text, text+i, cmd_text.cursize);
+            portMissing("Cbuf_Execute", source: "oracle/codemp/qcommon/cmd_common.cpp:148")
+        }
+
+        // execute the command line
+
+        Cmd_ExecuteString(String(line))
+    }
 }
 
 /**
@@ -155,9 +241,29 @@ Cmd_Exec_f
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:219
 func Cmd_Exec_f() {
-    // Port-note: Open row FS_ReadFile buffer. The stub keeps `inout OpaquePointer?`, and the String form of the buffer has no ruling.
-    // TODO: Port Cmd_Exec_f
+    var f = CharBuf(0)
+    var len: Int32
+    var filename = CharBuf(MAX_QPATH)
+
+    if Cmd_Argc() != 2 {
+        Com_Printf("exec <filename> : execute a script file\n")
+        return
+    }
+
+    Q_strncpyz(&filename, Cmd_Argv(1), Int32((filename).count))
+    COM_DefaultExtension(&filename, Int32((filename).count), ".cfg")
+    len = FS_ReadFile(String(filename), &f)
+    // Port-note: Open row FS_ReadFile NULL test. The `inout CharBuf` form of FS_ReadFile gives no NULL for `!f`, and FS_FreeFile takes `OpaquePointer?`.
+    // Raven wrote: if (!f) {
+    // Raven wrote:     Com_Printf ("couldn't exec %s\n",Cmd_Argv(1));
+    // Raven wrote:     return;
+    // Raven wrote: }
     portMissing("Cmd_Exec_f", source: "oracle/codemp/qcommon/cmd_common.cpp:219")
+    Com_Printf("execing %s\n", Cmd_Argv(1))
+
+    Cbuf_InsertText(String(f))
+
+    // Raven wrote: FS_FreeFile (f);
 }
 
 /**
