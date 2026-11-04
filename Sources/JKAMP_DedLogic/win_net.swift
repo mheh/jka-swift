@@ -189,10 +189,7 @@ Sys_SendPacket
 ```
 */
 /// Source: oracle/codemp/win32/win_net.cpp:393
-// TODO: Port signature
-// Raven wrote: void Sys_SendPacket( int length, const void *data, netadr_t to )
-// No table row for `netadr_t to`.
-func Sys_SendPacket() -> Never {
+func Sys_SendPacket(_ length: Int32, _ data: OpaquePointer?, _ to: Netadr) {
     // TODO: Port Sys_SendPacket
     portMissing("Sys_SendPacket", source: "oracle/codemp/win32/win_net.cpp:393")
 }
@@ -207,10 +204,7 @@ LAN clients will have their rate var ignored
 ```
 */
 /// Source: oracle/codemp/win32/win_net.cpp:479
-// TODO: Port signature
-// Raven wrote: qboolean Sys_IsLANAddress( netadr_t adr )
-// No table row for `netadr_t adr`.
-func Sys_IsLANAddress() -> Never {
+func Sys_IsLANAddress(_ adr: Netadr) -> Bool {
     // TODO: Port Sys_IsLANAddress
     portMissing("Sys_IsLANAddress", source: "oracle/codemp/win32/win_net.cpp:479")
 }

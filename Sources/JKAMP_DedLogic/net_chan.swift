@@ -551,8 +551,7 @@ func NET_SendPacket(_ sock: netsrc_t, _ length: Int32, _ data: OpaquePointer?, _
         return
     }
 
-    // Port-note: Sys_SendPacket in the adopted win_net.swift keeps its `-> Never` stub, and its signature from `lookup.py sig` waits on that file's readoption.
-    portMissing("Sys_SendPacket", source: "oracle/codemp/qcommon/net_chan.cpp:549")
+    Sys_SendPacket(length, data, to)
 }
 
 /**

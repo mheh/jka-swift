@@ -195,10 +195,7 @@ This is used to cull non-visible entities from snapshots
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_test.cpp:545
-// TODO: Port signature
-// Raven wrote: int CM_WriteAreaBits (byte *buffer, int area)
-// No table row for `byte * buffer`.
-func CM_WriteAreaBits() -> Never {
+func CM_WriteAreaBits(_ buffer: Slots<UInt8>, _ area: Int32) -> Int32 {
     // TODO: Port CM_WriteAreaBits
     portMissing("CM_WriteAreaBits", source: "oracle/codemp/qcommon/cm_test.cpp:545")
 }

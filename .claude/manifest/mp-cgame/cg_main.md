@@ -7,7 +7,7 @@ The oracle range is the whole definition, from the return type to the closing br
 
 | Function | Oracle | Swift | State | jka-rust | Signature |
 |---|---|---|---|---|---|
-| `CG_NoUseableForce` | `oracle/codemp/cgame/cg_main.c:159-179` | `JKAMP_CGameLogic/cg_main.swift:532` | ported | `crates/mp/cgame/src/cg_main.rs:271-290` | `func CG_NoUseableForce() -> Bool` |
+| `CG_NoUseableForce` | `oracle/codemp/cgame/cg_main.c:159-179` | `JKAMP_CGameLogic/cg_main.swift:532` | ported | `crates/mp/cgame/src/cg_main.rs:271-290` | `public func CG_NoUseableForce() -> Bool` |
 | `vmMain` | `oracle/codemp/cgame/cg_main.c:190-359` | missing | marker | `crates/mp/cgame/src/cg_main.rs:5494-5827` | `func vmMain(_ command: Int32, _ arg0: Int32, _ arg1: Int32, _ arg2: Int32, _ arg3: Int32, _ arg4: Int32, _ arg5: Int32, _ arg6: Int32, _ arg7: Int32, _ arg8: Int32, _ arg9: Int32, _ arg10: Int32, _ arg11: Int32) -> Int32` |
 | `C_PointContents` static | `oracle/codemp/cgame/cg_main.c:362-367` | `JKAMP_CGameLogic/cg_main.swift:554` | ported | `crates/mp/cgame/src/cg_main.rs:2294-2296` | `private func C_PointContents() -> Int32` |
 | `C_GetLerpOrigin` static | `oracle/codemp/cgame/cg_main.c:369-374` | `JKAMP_CGameLogic/cg_main.swift:561` | ported | `crates/mp/cgame/src/cg_main.rs:302-305` | `private func C_GetLerpOrigin()` |
@@ -18,17 +18,17 @@ The oracle range is the whole definition, from the return type to the closing br
 | `CG_DebugBoxLines` static | `oracle/codemp/cgame/cg_main.c:445-505` | `JKAMP_CGameLogic/cg_main.swift:634` | ported | `crates/mp/cgame/src/cg_main.rs:4703-4762` | `private func CG_DebugBoxLines(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ duration: Int32)` |
 | `CG_RagCallback` static | `oracle/codemp/cgame/cg_main.c:508-568` | `JKAMP_CGameLogic/cg_main.swift:697` | ported | `crates/mp/cgame/src/cg_main.rs:4881-4983` | `private func CG_RagCallback(_ callType: Int32) -> Int32` |
 | `C_ImpactMark` static | `oracle/codemp/cgame/cg_main.c:570-580` | `JKAMP_CGameLogic/cg_main.swift:744` | ported | `crates/mp/cgame/src/cg_main.rs:4770-4785` | `private func C_ImpactMark()` |
-| `CG_MiscEnt` | `oracle/codemp/cgame/cg_main.c:582-622` | `JKAMP_CGameLogic/cg_main.swift:755` | ported | `crates/mp/cgame/src/cg_main.rs:2901-2955` | `func CG_MiscEnt()` |
+| `CG_MiscEnt` | `oracle/codemp/cgame/cg_main.c:582-622` | `JKAMP_CGameLogic/cg_main.swift:755` | ported | `crates/mp/cgame/src/cg_main.rs:2901-2955` | `public func CG_MiscEnt()` |
 | `CG_DrawMiscEnts` | `oracle/codemp/cgame/cg_main.c:624-657` | `JKAMP_CGameLogic/cg_main.swift:798` | ported | `crates/mp/cgame/src/cg_main.rs:354-387` | `func CG_DrawMiscEnts()` |
 | `CG_RegisterCvars` | `oracle/codemp/cgame/cg_main.c:1062-1112` | `JKAMP_CGameLogic/cg_main.swift:839` | ported | `crates/mp/cgame/src/cg_main.rs:399-1477` | `func CG_RegisterCvars()` |
 | `CG_ForceModelChange` static | `oracle/codemp/cgame/cg_main.c:1135-1150` | `JKAMP_CGameLogic/cg_main.swift:901` | ported | `crates/mp/cgame/src/cg_main.rs:4993-5002` | `private func CG_ForceModelChange()` |
 | `CG_UpdateCvars` | `oracle/codemp/cgame/cg_main.c:1157-1187` | `JKAMP_CGameLogic/cg_main.swift:936` | ported | `crates/mp/cgame/src/cg_main.rs:5036-5193` | `func CG_UpdateCvars()` |
-| `CG_CrosshairPlayer` | `oracle/codemp/cgame/cg_main.c:1189-1200` | `JKAMP_CGameLogic/cg_main.swift:972` | ported | `crates/mp/cgame/src/cg_main.rs:1483-1493` | `func CG_CrosshairPlayer() -> Int32` |
-| `CG_LastAttacker` | `oracle/codemp/cgame/cg_main.c:1202-1207` | `JKAMP_CGameLogic/cg_main.swift:985` | ported | `crates/mp/cgame/src/cg_main.rs:1499-1510` | `func CG_LastAttacker() -> Int32` |
+| `CG_CrosshairPlayer` | `oracle/codemp/cgame/cg_main.c:1189-1200` | `JKAMP_CGameLogic/cg_main.swift:972` | ported | `crates/mp/cgame/src/cg_main.rs:1483-1493` | `public func CG_CrosshairPlayer() -> Int32` |
+| `CG_LastAttacker` | `oracle/codemp/cgame/cg_main.c:1202-1207` | `JKAMP_CGameLogic/cg_main.swift:985` | ported | `crates/mp/cgame/src/cg_main.rs:1499-1510` | `public func CG_LastAttacker() -> Int32` |
 | `CG_Printf` | `oracle/codemp/cgame/cg_main.c:1209-1218` | `JKAMP_CGameLogic/cg_main.swift:993` | ported | `crates/mp/cgame/src/cg_main.rs:1517-1519` | `func CG_Printf(_ msg: String, _ args: any JKAShared.FormatArg...)` |
-| `CG_Error` | `oracle/codemp/cgame/cg_main.c:1220-1229` | `JKAMP_CGameLogic/cg_main.swift:1002` | ported | `crates/mp/cgame/src/cg_main.rs:1525-1527` | `func CG_Error(_ msg: String, _ args: any JKAShared.FormatArg...) -> Never` |
-| `Com_Error` | `oracle/codemp/cgame/cg_main.c:1234-1243` | `JKAMP_CGameLogic/cg_main.swift:1011` | ported | `crates/mp/cgame/src/cg_main.rs:2307-2309` | `func Com_Error(_ level: Int32, _ error: String, _ args: any JKAShared.FormatArg...) -> Never` |
-| `Com_Printf` | `oracle/codemp/cgame/cg_main.c:1245-1254` | `JKAMP_CGameLogic/cg_main.swift:1020` | ported | `crates/mp/cgame/src/cg_main.rs:2315-2317` | `func Com_Printf(_ msg: String, _ args: any JKAShared.FormatArg...)` |
+| `CG_Error` | `oracle/codemp/cgame/cg_main.c:1220-1229` | `JKAMP_CGameLogic/cg_main.swift:1002` | ported | `crates/mp/cgame/src/cg_main.rs:1525-1527` | `public func CG_Error(_ msg: String, _ args: any JKAShared.FormatArg...) -> Never` |
+| `Com_Error` | `oracle/codemp/cgame/cg_main.c:1234-1243` | `JKAMP_CGameLogic/cg_main.swift:1011` | ported | `crates/mp/cgame/src/cg_main.rs:2307-2309` | `public func Com_Error(_ level: Int32, _ error: String, _ args: any JKAShared.FormatArg...) -> Never` |
+| `Com_Printf` | `oracle/codemp/cgame/cg_main.c:1245-1254` | `JKAMP_CGameLogic/cg_main.swift:1020` | ported | `crates/mp/cgame/src/cg_main.rs:2315-2317` | `public func Com_Printf(_ msg: String, _ args: any JKAShared.FormatArg...)` |
 | `CG_Argv` | `oracle/codemp/cgame/cg_main.c:1263-1269` | `JKAMP_CGameLogic/cg_main.swift:1036` | ported | `crates/mp/cgame/src/cg_main.rs:1537-1539` | `func CG_Argv(_ arg: Int32) -> String` |
 | `BG_GetTime` | `oracle/codemp/cgame/cg_main.c:1276-1279` | `JKAMP_CGameLogic/cg_main.swift:1046` | ported | `crates/mp/cgame/src/cg_main.rs:1546-1548` | `func BG_GetTime() -> Int32` |
 | `CG_RegisterItemSounds` static | `oracle/codemp/cgame/cg_main.c:1289-1354` | `JKAMP_CGameLogic/cg_main.swift:1060` | ported | `crates/mp/cgame/src/cg_main.rs:2327-2395` | `private func CG_RegisterItemSounds(_ itemNum: Int32)` |
@@ -81,10 +81,10 @@ The oracle range is the whole definition, from the return type to the closing br
 | `CG_ParseSpawnVars` | `oracle/codemp/cgame/cg_main.c:3541-3593` | `JKAMP_CGameLogic/cg_main.swift:3247` | ported | `crates/mp/cgame/src/cg_main.rs:3814-4524` | `func CG_ParseSpawnVars() -> Bool` |
 | `CG_SpawnCGameEntFromVars` | `oracle/codemp/cgame/cg_main.c:3608-3654` | `JKAMP_CGameLogic/cg_main.swift:3302` | ported | `crates/mp/cgame/src/cg_main.rs:4628-4669` | `func CG_SpawnCGameEntFromVars()` |
 | `CG_SpawnCGameOnlyEnts` | `oracle/codemp/cgame/cg_main.c:3664-3682` | `JKAMP_CGameLogic/cg_main.swift:3360` | ported | `crates/mp/cgame/src/cg_main.rs:4819-4836` | `func CG_SpawnCGameOnlyEnts()` |
-| `CG_Init` | `oracle/codemp/cgame/cg_main.c:3704-3933` | `JKAMP_CGameLogic/cg_main.swift:3389` | ported | `crates/mp/cgame/src/cg_main.rs:5208-5460` | `func CG_Init(_ serverMessageNum: Int32, _ serverCommandSequence: Int32, _ clientNum: Int32)` |
+| `CG_Init` | `oracle/codemp/cgame/cg_main.c:3704-3933` | `JKAMP_CGameLogic/cg_main.swift:3389` | ported | `crates/mp/cgame/src/cg_main.rs:5208-5460` | `public func CG_Init(_ serverMessageNum: Int32, _ serverCommandSequence: Int32, _ clientNum: Int32)` |
 | `CG_GetLocationString` | `oracle/codemp/cgame/cg_main.c:3936-3947` | `JKAMP_CGameLogic/cg_main.swift:3610` | ported | `crates/mp/cgame/src/cg_main.rs:2214-2222` | `func CG_GetLocationString(_ loc: String) -> String` |
 | `CG_DestroyAllGhoul2` | `oracle/codemp/cgame/cg_main.c:3951-3984` | `JKAMP_CGameLogic/cg_main.swift:3624` | ported | `crates/mp/cgame/src/cg_main.rs:3869-3893` | `func CG_DestroyAllGhoul2()` |
-| `CG_Shutdown` | `oracle/codemp/cgame/cg_main.c:3993-4016` | `JKAMP_CGameLogic/cg_main.swift:3666` | ported | `crates/mp/cgame/src/cg_main.rs:4675-4697` | `func CG_Shutdown()` |
+| `CG_Shutdown` | `oracle/codemp/cgame/cg_main.c:3993-4016` | `JKAMP_CGameLogic/cg_main.swift:3666` | ported | `crates/mp/cgame/src/cg_main.rs:4675-4697` | `public func CG_Shutdown()` |
 | `CG_NextForcePower_f` | `oracle/codemp/cgame/cg_main.c:4023-4063` | `JKAMP_CGameLogic/cg_main.swift:3697` | ported | `crates/mp/cgame/src/cg_main.rs:2706-2756` | `func CG_NextForcePower_f()` |
 | `CG_PrevForcePower_f` | `oracle/codemp/cgame/cg_main.c:4070-4110` | `JKAMP_CGameLogic/cg_main.swift:3747` | ported | `crates/mp/cgame/src/cg_main.rs:2763-2812` | `func CG_PrevForcePower_f()` |
 | `CG_NextInventory_f` | `oracle/codemp/cgame/cg_main.c:4112-4140` | `JKAMP_CGameLogic/cg_main.swift:3790` | ported | `crates/mp/cgame/src/cg_main.rs:2227-2229` | `func CG_NextInventory_f()` |

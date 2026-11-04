@@ -361,10 +361,7 @@ func Sys_UnloadDll(_ dllHandle: OpaquePointer?) {
 //fails then the dll is probably not in the pk3 and we are running
 //a pure server -rww
 /// Source: oracle/codemp/null/win_main.cpp:735
-// TODO: Port signature
-// Raven wrote: bool Sys_UnpackDLL(const char *name)
-// No table row for the return `bool`.
-func Sys_UnpackDLL() -> Never {
+func Sys_UnpackDLL(_ name: String) -> Bool {
     // TODO: Port Sys_UnpackDLL
     portMissing("Sys_UnpackDLL", source: "oracle/codemp/null/win_main.cpp:735")
 }

@@ -5,4 +5,4 @@ import JKAMP
 import JKAShared
 
 /// Source: oracle/codemp/qcommon/md4.cpp:17
-public typealias UINT4 = CUnsignedLong
+public typealias UINT4 = UInt32

@@ -114,11 +114,8 @@ MD4 block update operation. Continues an MD4 message-digest operation, processin
 ```
 */
 /// Source: oracle/codemp/qcommon/md4.cpp:112
-// TODO: Port signature
-// Raven wrote: void MD4Update (MD4_CTX *context, const unsigned char *input, unsigned int inputLen)
-// No table row for `const unsigned char * input`.
-func MD4Update() -> Never {
-    // Port-note: The table has no row for Raven's `unsigned char` pointer and array parameters, so this stub waits on that row for its signature.
+func MD4Update(_ context: Md4Ctx, _ input: Slots<UInt8>, _ inputLen: UInt32) {
+    // Port-note: The body calls MD4Transform, whose generated signature takes `state` by value. The body waits on the MD4Transform row of the next table batch.
     // TODO: Port MD4Update
     portMissing("MD4Update", source: "oracle/codemp/qcommon/md4.cpp:112")
 }
@@ -129,11 +126,8 @@ MD4 finalization. Ends an MD4 message-digest operation, writing the the message 
 ```
 */
 /// Source: oracle/codemp/qcommon/md4.cpp:147
-// TODO: Port signature
-// Raven wrote: void MD4Final (unsigned char digest[16], MD4_CTX *context)
-// No table row for `unsigned char[16] digest`.
-func MD4Final() -> Never {
-    // Port-note: The table has no row for Raven's `unsigned char` pointer and array parameters, so this stub waits on that row for its signature.
+func MD4Final(_ digest: Slots<UInt8>, _ context: Md4Ctx) {
+    // Port-note: The body calls Encode, whose generated signature takes the UINT4 array as one `inout UInt32`. The body waits on the Encode row of the next table batch.
     // TODO: Port MD4Final
     portMissing("MD4Final", source: "oracle/codemp/qcommon/md4.cpp:147")
 }
@@ -144,11 +138,8 @@ MD4 basic transformation. Transforms state based on block.
 ```
 */
 /// Source: oracle/codemp/qcommon/md4.cpp:172
-// TODO: Port signature
-// Raven wrote: static void MD4Transform (UINT4 state[4], const unsigned char block[64])
-// No table row for `const unsigned char[64] block`.
-private func MD4Transform() -> Never {
-    // Port-note: The table has no row for Raven's `unsigned char` pointer and array parameters, so this stub waits on that row for its signature.
+private func MD4Transform(_ state: [UInt32], _ block: Slots<UInt8>) {
+    // Port-note: The generated signature takes `state` by value, and Raven writes `state`. The stub waits on the MD4Transform row of the next table batch.
     // TODO: Port MD4Transform
     portMissing("MD4Transform", source: "oracle/codemp/qcommon/md4.cpp:172")
 }
@@ -159,11 +150,8 @@ Encodes input (UINT4) into output (unsigned char). Assumes len is a multiple of 
 ```
 */
 /// Source: oracle/codemp/qcommon/md4.cpp:243
-// TODO: Port signature
-// Raven wrote: static void Encode (unsigned char *output, UINT4 *input, unsigned int len)
-// No table row for `unsigned char * output`.
-private func Encode() -> Never {
-    // Port-note: The table has no row for Raven's `unsigned char` pointer and array parameters, so this stub waits on that row for its signature.
+private func Encode(_ output: Slots<UInt8>, _ input: inout UInt32, _ len: UInt32) {
+    // Port-note: The generated signature takes the UINT4 array `input` as one `inout UInt32`. The stub waits on the Encode row of the next table batch.
     // TODO: Port Encode
     portMissing("Encode", source: "oracle/codemp/qcommon/md4.cpp:243")
 }
@@ -174,25 +162,22 @@ Decodes input (unsigned char) into output (UINT4). Assumes len is a multiple of 
 ```
 */
 /// Source: oracle/codemp/qcommon/md4.cpp:257
-// TODO: Port signature
-// Raven wrote: static void Decode (UINT4 *output, const unsigned char *input, unsigned int len)
-// No table row for `const unsigned char * input`.
-private func Decode() -> Never {
-    // Port-note: The table has no row for Raven's `unsigned char` pointer and array parameters, so this stub waits on that row for its signature.
+private func Decode(_ output: inout UInt32, _ input: Slots<UInt8>, _ len: UInt32) {
+    // Port-note: The generated signature takes the UINT4 array `output` as one `inout UInt32`. The stub waits on the Decode row of the next table batch.
     // TODO: Port Decode
     portMissing("Decode", source: "oracle/codemp/qcommon/md4.cpp:257")
 }
 
 /// Source: oracle/codemp/qcommon/md4.cpp:267
 func Com_BlockChecksum(_ buffer: OpaquePointer?, _ length: Int32) -> UInt32 {
-    // Port-note: The body calls MD4Update and MD4Final, which wait on the table row for Raven's `unsigned char` pointer and array parameters.
+    // Port-note: The body calls MD4Update and MD4Final, which wait on the MD4Transform and Encode rows of the next table batch.
     // TODO: Port Com_BlockChecksum
     portMissing("Com_BlockChecksum", source: "oracle/codemp/qcommon/md4.cpp:267")
 }
 
 /// Source: oracle/codemp/qcommon/md4.cpp:282
 func Com_BlockChecksumKey(_ buffer: OpaquePointer?, _ length: Int32, _ key: Int32) -> UInt32 {
-    // Port-note: The body calls MD4Update and MD4Final, which wait on the table row for Raven's `unsigned char` pointer and array parameters.
+    // Port-note: The body calls MD4Update and MD4Final, which wait on the MD4Transform and Encode rows of the next table batch.
     // TODO: Port Com_BlockChecksumKey
     portMissing("Com_BlockChecksumKey", source: "oracle/codemp/qcommon/md4.cpp:282")
 }

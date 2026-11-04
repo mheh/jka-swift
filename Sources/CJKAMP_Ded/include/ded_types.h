@@ -10,7 +10,8 @@ typedef struct {
 } cmd_t;
 
 // Source: oracle/codemp/qcommon/md4.cpp:17
-typedef unsigned long int UINT4;
+// AI: Raven typed UINT4 as unsigned long int. The port fixes it at 32 bits so the checksum matches on an lp64 host.
+typedef unsigned int UINT4;
 
 // Source: oracle/codemp/qcommon/md4.cpp:33
 typedef struct {
@@ -52,5 +53,16 @@ typedef struct {
 #endif
 
 } netField_t;
+
+// The arm Raven's `#ifndef _XBOX` build takes.
+// Source: oracle/codemp/qcommon/msg.cpp:1994
+typedef struct bitStorage_s bitStorage_t;
+
+// Source: oracle/codemp/qcommon/msg.cpp:1996
+struct bitStorage_s
+{
+	bitStorage_t	*next;
+	int				bits;
+};
 
 #endif
