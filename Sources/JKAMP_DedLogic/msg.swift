@@ -1427,8 +1427,7 @@ func MSG_CheckNETFPSFOverrides(_ psfOverrides: Bool) {
         }
 
         //Get contents of the file
-        // Port-note: Open row, a `char overrideFile[4096]` into the `OpaquePointer?` of `FS_Read`, has no ruling. The host has no `inout CharBuf` overload of `FS_Read`.
-        portMissing("FS_Read", source: "oracle/codemp/qcommon/msg.cpp:2070")
+        _ = FS_Read(&overrideFile, len, f)
         FS_FCloseFile(f)
 
         //because FS_Read does not do this for us.
