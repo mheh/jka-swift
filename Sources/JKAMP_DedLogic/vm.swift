@@ -355,7 +355,7 @@ Insert calls to this while debugging the vm compiler
 ```
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:934
-func VM_LogSyscalls(_ args: inout Int32) {
+func VM_LogSyscalls(_ args: Slots<Int32>) {
     // TODO: Port VM_LogSyscalls
     portMissing("VM_LogSyscalls", source: "oracle/codemp/qcommon/vm.cpp:934")
 }

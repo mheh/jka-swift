@@ -24,7 +24,7 @@ from fnsweep import ASSIGN_OPS
 from overlay import DECLARED, DROPPED, MACROS, written_arguments
 from rulings import HAND_MACROS, NULLABLE, PARAMS, RETURNS
 from views import Generator
-from spelling import Facts, OPTIONAL_TEXT_RESULT, engine_array
+from spelling import INT_KINDS, Facts, OPTIONAL_TEXT_RESULT, engine_array
 
 TARGET = C.TARGETS["c_target"]
 HERE = Path(__file__).resolve().parent
@@ -1696,6 +1696,15 @@ class Table:
         record = self.types.record_name(canonical.get_pointee())
         return bool(record) and record in self.views.views
 
+    @staticmethod
+    def scalar_pointer(t: ci.Type) -> bool:
+        """True for a pointer to an integer, a float, or an enum, the shape a host `Slots` of scalars stands over. A byte pointer has its own row."""
+        canonical = t.get_canonical()
+        if canonical.kind != TypeKind.POINTER:
+            return False
+        inner = canonical.get_pointee().get_canonical().kind
+        return inner in INT_KINDS or inner in (TypeKind.FLOAT, TypeKind.ENUM)
+
     def sweep_subscripts(self, tu: ci.TranslationUnit, *folders: Path) -> None:
         """The subscript sweep of the stop walk's row 1: every struct pointer a body indexes, `animations[anim]`.
 
@@ -1716,6 +1725,11 @@ class Table:
                 if not kids:
                     continue
                 base = self.unwrapped(kids[0])
+                if C.HOST and self.scalar_pointer(base.type) and base.kind == CursorKind.DECL_REF_EXPR \
+                        and base.referenced is not None and base.referenced.kind == CursorKind.PARM_DECL:
+                    # A host body that indexes a scalar pointer parameter, `input[i]` of Encode, walks the caller's array.
+                    self.indexed_params.add((cur.spelling, base.spelling))
+                    continue
                 if not self.record_pointer(base.type):
                     continue
                 if base.kind == CursorKind.DECL_REF_EXPR and base.referenced is not None \

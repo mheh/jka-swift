@@ -300,6 +300,10 @@ class Types:
             return Answer(f"{inout}[Int32?], _ rows: {inout}[KeywordHashRow]", "bare")
         if facts.ruled == "row_index":
             return Answer("Int32", "bare")
+        if facts.ruled == "bytes" and canonical.kind == TypeKind.POINTER:
+            # The body hands the pointer on as bytes, `MD4Update(&ctx, (unsigned char *)buffer, length)`, so the caller's Slots over the bytes
+            # crosses, the row a host `byte *` has.
+            return Answer("Slots<JKAShared.byte>", "slots")
         if facts.ruled == "int_array_mut":
             # The body writes the caller's `int` array by index, so the array crosses inout, the `int` twin of float_array.
             return Answer("inout [Int32]", "bare")
@@ -463,6 +467,12 @@ class Types:
                 swift = self.scalar(pointee, TARGET)
                 if swift is not None and self.known(swift):
                     return Answer(f"Slots<{swift}>", "slots")
+            if C.HOST and not facts.traps and facts.indexed and (inner.kind in INT_KINDS or inner.kind in (TypeKind.FLOAT, TypeKind.ENUM)):
+                # A scalar pointer a host body indexes is the caller's array, `input[i]` of Encode, so the caller's Slots over it crosses.
+                # The game keeps the `inout` scalar below, because its subscript sweep reads record pointers alone.
+                swift = self.fixed(t.get_pointee()) or self.scalar(pointee, TARGET)
+                if swift is not None and self.known(swift):
+                    return Answer(f"Slots<{swift}>", "slots")
             # A pointer to one scalar is an out-param, `inout`. A body that finds Raven walks it as an array writes a Port-note.
             if not pointee.is_const_qualified() and (inner.kind in INT_KINDS or inner.kind in (TypeKind.FLOAT, TypeKind.ENUM)):
                 swift = self.fixed(t.get_pointee()) or self.scalar(pointee, TARGET)
@@ -502,8 +512,11 @@ class Types:
                     return Answer(f"Slots<{swift}>", "slots")
             if canonical.kind == TypeKind.CONSTANTARRAY and (element.kind in INT_KINDS or element.kind == TypeKind.FLOAT):
                 # A fixed C array of a scalar the body reads, `int delta_angles[3]`, is the values by value, copied at the call.
-                # A body that writes through it would take `inout`, and none does.
+                # A host body that writes it, `state[0] += a` of MD4Transform, writes the caller's array, so the caller's Slots crosses.
+                # No game body writes such an array.
                 swift = (self.fixed(t.element_type) if t.kind == TypeKind.CONSTANTARRAY else None) or self.scalar(canonical.element_type, TARGET)
+                if swift is not None and self.known(swift) and C.HOST and facts.stores_through:
+                    return Answer(f"Slots<{swift}>", "slots")
                 if swift is not None and self.known(swift):
                     return Answer(f"[{swift}]", "bare")
         if canonical.kind == TypeKind.CONSTANTARRAY and facts.traps:

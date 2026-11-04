@@ -284,7 +284,14 @@ BYTE_STORAGE_VARS = {"gSharedBuffer", "cmd_text_buf"}
 # Function locals that a ruling moves to the storage class as one zeroed byte allocation, each with the functions that declare it, first one first.
 # `byte seq[65536]` of Huff_Decompress and Huff_Compress goes to the `byte *` of Huff_transmit and to Com_Memcpy, so a body needs its base.
 # The two functions never run at once, and add_bit zeroes each byte before it writes, so one allocation serves both. Row R-A of the huffman round.
-BYTE_STORAGE_LOCALS = {"seq": ("Huff_Decompress", "Huff_Compress")}
+# `int digest[4]` of Com_BlockChecksum and Com_BlockChecksumKey goes to MD4Final as bytes at md4.cpp:275 and :291, so it is a Slots of Int32.
+# Com_BlockChecksumKey hands `&key` of its `int key` parameter to MD4Update at md4.cpp:289, so the parameter has one Int32 of storage too.
+# A parameter's storage takes the function name as a suffix, `key_Com_BlockChecksumKey`, because the parameter keeps Raven's name.
+BYTE_STORAGE_LOCALS = {
+    "seq": ("Huff_Decompress", "Huff_Compress"),
+    "digest": ("Com_BlockChecksum", "Com_BlockChecksumKey"),
+    "key": ("Com_BlockChecksumKey",),
+}
 # The field twin of BYTE_STORAGE_VARS: a character array field whose address the engine holds, which the view reads as the field's address.
 # `cg.sharedBuffer` of cg_local.h goes to the engine through `trap_CG_RegisterSharedMemory`, and the engine callbacks of cg_main.c read records at its base.
 BYTE_STORAGE_FIELDS = {("cg_t", "sharedBuffer")}
@@ -362,6 +369,10 @@ TYPES = {
     # Raven declares the C++ `bool g_nOverrideChecked = false` at msg.cpp:40.
     "g_nOverrideChecked": "Bool",
 }
+
+# A typedef Raven gives a narrow C type whose values are the enumerators of an anonymous enum, which reexport.py writes as the Int32 alias of a C enum.
+# q_shared.h:3107 declares `typedef char memtag_t` after the enum of the TAG_ names, and Z_Malloc takes the tag, so `Z_Malloc(s, TAG_BSP, qtrue)` needs no cast.
+ENUM_TYPEDEFS = {"memtag_t"}
 
 # MARK: - Functions
 
@@ -450,6 +461,7 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #   keyword_buckets_mut  the same pair inout, for the function that links a row into the buckets
 #   row_index  an Int32 row index for a `keywordHash_t *` row pointer, form A of R53
 #   opaque    an OpaquePointer? for a `byte *` buffer the body stores into a `byte *` field or hands on as a `void *`, the spelling of the field
+#   bytes     a Slots<byte> for a `void *` or `byte *` of a host function that the body hands on as bytes, the row a host `byte *` has
 PARAMS = {
     # free_ppnode of huffman.cpp:59 takes the slot address that get_ppnode returned, the form of a `node_t **` field.
     ("free_ppnode", "ppnode"): "slot",
@@ -552,7 +564,11 @@ PARAMS = {
     ("Huff_Receive", "fin"): "raw",
     ("Huff_offsetReceive", "fin"): "raw",
     ("send", "fout"): "raw",
-    ("Huff_transmit", "fout"): "raw",
+    # Huff_Compress hands its `byte seq[65536]` local to Huff_transmit at huffman.cpp:387, and `seq` is a Slots of the storage class.
+    ("Huff_transmit", "fout"): "bytes",
+    # Com_BlockChecksum and Com_BlockChecksumKey hand `(unsigned char *)buffer` to MD4Update at md4.cpp:274 and :290.
+    ("Com_BlockChecksum", "buffer"): "bytes",
+    ("Com_BlockChecksumKey", "buffer"): "bytes",
     ("Huff_offsetTransmit", "fout"): "raw",
     # VM_CallInterpreted of vm_interpreted.cpp:296 reads ten words through `int *args` and never writes them.
     ("VM_CallInterpreted", "args"): "int_array",
@@ -668,6 +684,8 @@ CGAME_READS = {
 QAGAME_ONLY = {"PM_CrashLandEffect": "oracle/codemp/game/bg_pmove.c:3684"}
 # (function, parameter) pairs a ruling makes optional, because a caller passes a NULL the sweep cannot see. R33.
 NULLABLE = {
+    # Cvar_Register of cvar.cpp:889 tests `!vmCvar` at :893, because a module registers a cvar with no handle, the NULL rows of gameCvarTable.
+    ("Cvar_Register", "vmCvar"),
     ("BG_UnrestrainedPitchRoll", "pVeh"),
     # G_UseTargets passes its optional activator, which g_mover.c:1752 passes as NULL, and `ent->target`, which Raven tests with `!string || !string[0]`.
     ("G_UseTargets2", "activator"),

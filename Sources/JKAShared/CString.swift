@@ -2,6 +2,7 @@
 /// A ported body spells the call as Raven wrote it, over `CharBuf`, `String`, or `PooledString`.
 /// Each function works over raw bytes, with C semantics, and a `String` argument reaches its bytes through `CharBuf(_ string:)`.
 /// `atof` returns `Double` as C's does, and the rest narrow to `Int32` once inside.
+/// The file also holds the `Slots` overloads of Raven's `Com_Memcpy` and `memmove`, for a host body that copies bytes between C arrays.
 
 // MARK: - Byte access
 
@@ -377,6 +378,56 @@ public func memmove(_ buf: inout CharBuf, _ sourceOffset: some BinaryInteger, _ 
         let source = Array(bytes[sourceStart ..< sourceStart + limit])
         for i in 0..<limit {
             bytes[start + i] = source[i]
+        }
+    }
+}
+
+/// This copies `count` bytes from `src` to `dest`, Raven's `memmove(text, text+i, cmd_text.cursize)` over a C array of bytes.
+/// The two ranges can overlap, so the copy reads every source byte before it writes, and a range past either `Slots` traps.
+/// Source: oracle/codemp/qcommon/cmd_common.cpp:195
+// AI: Raven moves bytes between two pointers into one buffer. The overload takes the two Slots that a body gets from `suffix(from:)`.
+public func memmove(_ dest: Slots<byte>, _ src: Slots<byte>, _ count: Int32) {
+    let limit = Int(count)
+    precondition(limit >= 0 && limit <= dest.count && limit <= src.count, "memmove: count past the end of a Slots")
+    dest.base.copyMemory(from: UnsafeRawPointer(src.base), byteCount: limit)
+}
+
+// MARK: - Com_Memcpy
+
+/// This copies `count` bytes from the memory of `src` to the memory of `dest`, Raven's `Com_Memcpy(w->p, p, nump*sizeof(p[0]))` over C arrays.
+/// The count is in bytes as Raven's is, and a count past the bytes of either `Slots` traps, because C overruns there and that is the one divergence.
+/// Source: oracle/codemp/qcommon/common.cpp:1815
+// AI: Raven copies between two raw pointers. The overload takes two Slots of one element type, so a body hands its arrays as they stand.
+public func Com_Memcpy<T>(_ dest: Slots<T>, _ src: Slots<T>, _ count: Int32) {
+    let limit = Int(count)
+    precondition(limit >= 0 && limit <= dest.count * dest.stride && limit <= src.count * src.stride, "Com_Memcpy: count past the end of a Slots")
+    dest.base.copyMemory(from: UnsafeRawPointer(src.base), byteCount: limit)
+}
+
+/// This copies the first `count` bytes of a buffer into a C array of bytes, Raven's `Com_Memcpy(cmd_text.data, text, len - 1)`.
+/// A count past either side traps, because C overruns there and that is the one divergence.
+/// Source: oracle/codemp/qcommon/common.cpp:1815
+// AI: Raven copies a `char *` text into a `byte *` buffer. The overload takes the text as a CharBuf and the buffer as a Slots of bytes.
+public func Com_Memcpy(_ dest: Slots<byte>, _ src: CharBuf, _ count: Int32) {
+    let limit = Int(count)
+    precondition(limit >= 0 && limit <= dest.count && limit <= src.count, "Com_Memcpy: count past the end of the buffer")
+    src.withBytes { bytes in
+        for i in 0..<limit {
+            dest[i] = bytes[i]
+        }
+    }
+}
+
+/// This copies the first `count` bytes of a C array of bytes into a buffer, Raven's `Com_Memcpy(line, text, i)`.
+/// A count past either side traps, because C overruns there and that is the one divergence.
+/// Source: oracle/codemp/qcommon/common.cpp:1815
+// AI: Raven copies a `byte *` buffer into a `char` array. The overload takes the array as an inout CharBuf, because a CharBuf is a value.
+public func Com_Memcpy(_ dest: inout CharBuf, _ src: Slots<byte>, _ count: Int32) {
+    let limit = Int(count)
+    precondition(limit >= 0 && limit <= dest.count && limit <= src.count, "Com_Memcpy: count past the end of the buffer")
+    dest.withMutableBytes { bytes in
+        for i in 0..<limit {
+            bytes[i] = src[i]
         }
     }
 }

@@ -667,7 +667,8 @@ public typealias fxHandle_t = Int32
 
 /// Source: oracle/codemp/game/q_shared.h:3107
 /// Source: oracle/code/game/q_shared.h:2688
-public typealias memtag_t = CChar
+// AI: Raven typed memtag_t as char. The alias is Int32, the form of a C enum, so an enumerator passes with no cast.
+public typealias memtag_t = Int32
 
 /// Source: oracle/codemp/game/q_shared.h:438
 /// Source: oracle/code/game/q_shared.h:243

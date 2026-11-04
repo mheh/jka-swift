@@ -230,7 +230,7 @@ func ConvertedEntity(_ ent: JKAMP.SharedEntity) -> JKAMP.SharedEntity? {
 }
 
 /// Source: oracle/codemp/server/sv_game.cpp:458
-func SV_GameSystemCalls(_ args: inout Int32) -> Int32 {
+func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
     // TODO: Port SV_GameSystemCalls
     portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
 }

@@ -841,11 +841,11 @@ basically a slightly modified Cvar_Get for the interpreted modules
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:889
-func Cvar_Register(_ vmCvar: JKAMP.VmCvar, _ varName: String, _ defaultValue: String, _ flags: Int32) {
+func Cvar_Register(_ vmCvar: JKAMP.VmCvar?, _ varName: String, _ defaultValue: String, _ flags: Int32) {
     let cv: JKAMP.Cvar?
 
     cv = Cvar_Get(varName, defaultValue, flags)
-    // Port-note: The generated signature takes a non-optional view, so Raven's NULL check has no caller here.
+    guard let vmCvar else { return }
     vmCvar.cvarHandle = cvar_indexes.index(of: cv!)
     vmCvar.modificationCount = -1
     Cvar_Update(vmCvar)

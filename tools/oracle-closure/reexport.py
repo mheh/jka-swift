@@ -30,7 +30,7 @@ from pathlib import Path
 import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
-from rulings import NOT_PORTED_MACROS, SDK_TARGETS
+from rulings import ENUM_TYPEDEFS, NOT_PORTED_MACROS, SDK_TARGETS
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent.parent
@@ -339,6 +339,11 @@ def emit(target: str, unimportable: set[str], narrowed: set[str], typed: set[str
                 continue
             seen.add(name)
             sources = source_lines(cur)
+            if name in ENUM_TYPEDEFS:
+                # The values of the typedef are the enumerators of an anonymous enum, so it takes the Int32 alias of a C enum.
+                note = f"// AI: Raven typed {name} as {cur.underlying_typedef_type.spelling}. The alias is Int32, the form of a C enum, so an enumerator passes with no cast."
+                files[header_stem(sources[0]) if sources else "unknown"] += doc(sources) + [note, f"public typealias {name} = Int32", ""]
+                continue
             files[header_stem(sources[0]) if sources else "unknown"] += doc(sources) + [f"public typealias {name} = {swift}", ""]
     return files
 

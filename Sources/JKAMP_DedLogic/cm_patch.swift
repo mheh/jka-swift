@@ -197,7 +197,7 @@ private func CM_SubdivideGridColumns() -> Never {
 }
 
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:370
-private func CM_ComparePoints(_ a: inout Float, _ b: inout Float) -> Bool {
+private func CM_ComparePoints(_ a: Slots<Float>, _ b: Slots<Float>) -> Bool {
     // TODO: Port CM_ComparePoints
     portMissing("CM_ComparePoints", source: "oracle/codemp/qcommon/cm_patch.cpp:370")
 }
@@ -405,7 +405,7 @@ CM_CheckFacetPlane
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:1346
-private func CM_CheckFacetPlane(_ plane: inout Float, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ enterFrac: inout Float, _ leaveFrac: inout Float, _ hit: inout Int32) -> Int32 {
+private func CM_CheckFacetPlane(_ plane: Slots<Float>, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ enterFrac: inout Float, _ leaveFrac: inout Float, _ hit: inout Int32) -> Int32 {
     // TODO: Port CM_CheckFacetPlane
     portMissing("CM_CheckFacetPlane", source: "oracle/codemp/qcommon/cm_patch.cpp:1346")
 }
