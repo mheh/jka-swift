@@ -123,9 +123,41 @@ MD4 block update operation. Continues an MD4 message-digest operation, processin
 */
 /// Source: oracle/codemp/qcommon/md4.cpp:112
 func MD4Update(_ context: Md4Ctx, _ input: Slots<UInt8>, _ inputLen: UInt32) {
-    // Port-note: The body calls MD4Transform, whose generated signature takes `state` by value. The body waits on the MD4Transform row of the next table batch.
-    // TODO: Port MD4Update
-    portMissing("MD4Update", source: "oracle/codemp/qcommon/md4.cpp:112")
+    var i: UInt32
+    var index: UInt32
+    let partLen: UInt32
+
+    /* Compute number of bytes mod 64 */
+    index = UInt32((context.count[0] >> 3) & 0x3F)
+
+    /* Update number of bits */
+    context.count[0] &+= (UINT4(inputLen) << 3)
+    if (context.count[0]) < (UINT4(inputLen) << 3) {
+        context.count[1] &+= 1
+    }
+
+    context.count[1] &+= (UINT4(inputLen) >> 29)
+
+    partLen = 64 - index
+
+    /* Transform as many times as possible.*/
+    if inputLen >= partLen {
+        Com_Memcpy(context.buffer.suffix(from: Int(index)), input, Int32(partLen))
+        MD4Transform(context.state, context.buffer)
+
+        i = partLen
+        while i + 63 < inputLen {
+            MD4Transform(context.state, input.suffix(from: Int(i)))
+            i += 64
+        }
+
+        index = 0
+    } else {
+        i = 0
+    }
+
+    /* Buffer remaining input */
+    Com_Memcpy(context.buffer.suffix(from: Int(index)), input.suffix(from: Int(i)), Int32(inputLen - i))
 }
 
 /**
@@ -135,7 +167,8 @@ MD4 finalization. Ends an MD4 message-digest operation, writing the the message 
 */
 /// Source: oracle/codemp/qcommon/md4.cpp:147
 func MD4Final(_ digest: Slots<UInt8>, _ context: Md4Ctx) {
-    // Port-note: The body calls Encode, whose generated signature takes the UINT4 array as one `inout UInt32`. The body waits on the Encode row of the next table batch.
+    // Port-note: Encode and MD4Update take a `Slots<UInt8>`, and the local `unsigned char bits[8]` has no storage home, so it needs a BYTE_STORAGE_LOCALS row of the next batch.
+    // Port-note: `PADDING` is a hand `[UInt8]` on EngineWorld, and MD4Update takes a `Slots<UInt8>`, so `PADDING` needs a Slots home in a row of the next batch.
     // TODO: Port MD4Final
     portMissing("MD4Final", source: "oracle/codemp/qcommon/md4.cpp:147")
 }
@@ -147,7 +180,7 @@ MD4 basic transformation. Transforms state based on block.
 */
 /// Source: oracle/codemp/qcommon/md4.cpp:172
 private func MD4Transform(_ state: Slots<UInt32>, _ block: Slots<UInt8>) {
-    // Port-note: The generated signature takes `state` by value, and Raven writes `state`. The stub waits on the MD4Transform row of the next table batch.
+    // Port-note: Decode takes a `Slots<UInt32>`, and the local `UINT4 x[16]` has no storage home, so it needs a BYTE_STORAGE_LOCALS row of the next batch.
     // TODO: Port MD4Transform
     portMissing("MD4Transform", source: "oracle/codemp/qcommon/md4.cpp:172")
 }
@@ -159,9 +192,19 @@ Encodes input (UINT4) into output (unsigned char). Assumes len is a multiple of 
 */
 /// Source: oracle/codemp/qcommon/md4.cpp:243
 private func Encode(_ output: Slots<UInt8>, _ input: Slots<UInt32>, _ len: UInt32) {
-    // Port-note: The generated signature takes the UINT4 array `input` as one `inout UInt32`. The stub waits on the Encode row of the next table batch.
-    // TODO: Port Encode
-    portMissing("Encode", source: "oracle/codemp/qcommon/md4.cpp:243")
+    var i: UInt32
+    var j: UInt32
+
+    i = 0
+    j = 0
+    while j < len {
+        output[j] = UInt8(truncatingIfNeeded: (input[i] & 0xff))
+        output[j + 1] = UInt8(truncatingIfNeeded: ((input[i] >> 8) & 0xff))
+        output[j + 2] = UInt8(truncatingIfNeeded: ((input[i] >> 16) & 0xff))
+        output[j + 3] = UInt8(truncatingIfNeeded: ((input[i] >> 24) & 0xff))
+        i += 1
+        j += 4
+    }
 }
 
 /**
@@ -171,21 +214,47 @@ Decodes input (unsigned char) into output (UINT4). Assumes len is a multiple of 
 */
 /// Source: oracle/codemp/qcommon/md4.cpp:257
 private func Decode(_ output: Slots<UInt32>, _ input: Slots<UInt8>, _ len: UInt32) {
-    // Port-note: The generated signature takes the UINT4 array `output` as one `inout UInt32`. The stub waits on the Decode row of the next table batch.
-    // TODO: Port Decode
-    portMissing("Decode", source: "oracle/codemp/qcommon/md4.cpp:257")
+    var i: UInt32
+    var j: UInt32
+
+    i = 0
+    j = 0
+    while j < len {
+        output[i] = (UINT4(input[j])) | ((UINT4(input[j + 1])) << 8) | ((UINT4(input[j + 2])) << 16) | ((UINT4(input[j + 3])) << 24)
+        i += 1
+        j += 4
+    }
 }
 
 /// Source: oracle/codemp/qcommon/md4.cpp:267
 func Com_BlockChecksum(_ buffer: Slots<JKAShared.byte>, _ length: Int32) -> UInt32 {
-    // Port-note: The body calls MD4Update and MD4Final, which wait on the MD4Transform and Encode rows of the next table batch.
-    // TODO: Port Com_BlockChecksum
-    portMissing("Com_BlockChecksum", source: "oracle/codemp/qcommon/md4.cpp:267")
+    // AI: Raven declares `int digest[4]` on his stack. The body uses the zeroed allocation of the storage class through the `digest` forward.
+    var val: UInt32 = 0
+    return Md4Ctx.scratch { ctx -> UInt32 in
+        MD4Init(ctx)
+        MD4Update(ctx, buffer, UInt32(bitPattern: length))
+        MD4Final(digest.bytes, ctx)
+
+        val = UInt32(bitPattern: digest[0]) ^ UInt32(bitPattern: digest[1]) ^ UInt32(bitPattern: digest[2]) ^ UInt32(bitPattern: digest[3])
+
+        return val
+    }
 }
 
 /// Source: oracle/codemp/qcommon/md4.cpp:282
 func Com_BlockChecksumKey(_ buffer: Slots<JKAShared.byte>, _ length: Int32, _ key: Int32) -> UInt32 {
-    // Port-note: The body calls MD4Update and MD4Final, which wait on the MD4Transform and Encode rows of the next table batch.
-    // TODO: Port Com_BlockChecksumKey
-    portMissing("Com_BlockChecksumKey", source: "oracle/codemp/qcommon/md4.cpp:282")
+    // AI: Raven declares `int digest[4]` on his stack. The body uses the zeroed allocation of the storage class through the `digest` forward.
+    var val: UInt32 = 0
+    return Md4Ctx.scratch { ctx -> UInt32 in
+        MD4Init(ctx)
+        // AI: Raven hands on the address of `key`. The body copies `key` into its storage slot and hands on the bytes of the slot.
+        key_Com_BlockChecksumKey[0] = key
+        MD4Update(ctx, key_Com_BlockChecksumKey.bytes, 4)
+        MD4Update(ctx, buffer, UInt32(bitPattern: length))
+        MD4Final(digest.bytes, ctx)
+
+        val = UInt32(bitPattern: digest[0]) ^ UInt32(bitPattern: digest[1]) ^ UInt32(bitPattern: digest[2]) ^ UInt32(bitPattern: digest[3])
+
+        return val
+    }
 }
