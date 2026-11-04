@@ -321,6 +321,15 @@ func FS_Read(_ buffer: OpaquePointer?, _ len: Int32, _ f: JKAShared.fileHandle_t
     portMissing("FS_Read", source: "oracle/codemp/qcommon/files_pc.cpp:1026")
 }
 
+/// Source: oracle/codemp/qcommon/files_pc.cpp:1026
+/// Raven's `buffer` takes a `char buf[N]` at msg.cpp:2070, and this overload reads into that buffer.
+// AI: Raven hands a `char *` buffer to the `void *` of FS_Read. The overload takes the caller's CharBuf, the form trap_FS_Read has.
+func FS_Read(_ buffer: inout CharBuf, _ len: Int32, _ f: JKAShared.fileHandle_t) -> Int32 {
+    // Port-note: The CharBuf overload of the FS_Read row reads into the caller's buffer, and it waits on the body of FS_Read.
+    // TODO: Port FS_Read
+    portMissing("FS_Read", source: "oracle/codemp/qcommon/files_pc.cpp:1026")
+}
+
 /**
 ```
 =================
@@ -383,12 +392,11 @@ func FS_ReadFile(_ qpath: String, _ buffer: inout CharBuf?) -> Int32 {
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1259
 // Port-note: The CharBuf overload of the FS_ReadFile row, for the `char *` callers, cmd_common.cpp:231 and cm_shader.cpp:113.
 // AI: Raven hands `(void **)&f` of a `char *f`. This forward wraps the caller's CharBuf in the optional and writes the read back.
+// AI: Raven sets `*buffer` to NULL for a missing file. The forward leaves the buffer empty, so a caller tests the length Raven returns, `len < 0`.
 func FS_ReadFile(_ qpath: String, _ buffer: inout CharBuf) -> Int32 {
     var optionalBuffer: CharBuf? = buffer
     let length = FS_ReadFile(qpath, &optionalBuffer)
-    if let optionalBuffer {
-        buffer = optionalBuffer
-    }
+    buffer = optionalBuffer ?? CharBuf(0)
     return length
 }
 
@@ -403,6 +411,13 @@ FS_FreeFile
 func FS_FreeFile(_ buffer: OpaquePointer?) {
     // TODO: Port FS_FreeFile
     portMissing("FS_FreeFile", source: "oracle/codemp/qcommon/files_pc.cpp:1379")
+}
+
+/// Source: oracle/codemp/qcommon/files_pc.cpp:1379
+// Port-note: The CharBuf overload of the FS_FreeFile row, for the `char *` callers of the FS_ReadFile forward, cmd_common.cpp:240.
+// The overload does nothing, because a CharBuf owns its bytes and frees them when the caller drops it.
+// AI: Raven frees the hunk block that FS_ReadFile gave. The overload takes the caller's CharBuf and frees nothing.
+func FS_FreeFile(_ buffer: CharBuf) {
 }
 
 /**

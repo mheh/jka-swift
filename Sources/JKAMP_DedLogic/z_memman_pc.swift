@@ -69,7 +69,7 @@ func Z_Validate() {
 }
 
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:157
-func Z_Malloc(_ iSize: Int32, _ eTag: JKAShared.memtag_t, _ bZeroit: Bool, _ iUnusedAlign: Int32) -> UnsafeMutableRawPointer {
+func Z_Malloc(_ iSize: Int32, _ eTag: JKAShared.memtag_t, _ bZeroit: Bool = false, _ iUnusedAlign: Int32 = 4) -> UnsafeMutableRawPointer {
     // TODO: Port Z_Malloc
     portMissing("Z_Malloc", source: "oracle/codemp/qcommon/z_memman_pc.cpp:157")
 }

@@ -178,7 +178,7 @@ func SE_ShutDown() {
 // Any errors that result from this should probably be treated as game-fatal, since an asset file is fuxored.
 //
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:1208
-func SE_LoadLanguage(_ psLanguage: String, _ bLoadDebug: Bool) -> String {
+func SE_LoadLanguage(_ psLanguage: String, _ bLoadDebug: Bool = true) -> String {
     // TODO: Port SE_LoadLanguage
     portMissing("SE_LoadLanguage", source: "oracle/codemp/qcommon/stringed_ingame.cpp:1208")
 }

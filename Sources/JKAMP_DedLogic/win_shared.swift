@@ -47,7 +47,7 @@ func Sys_SnapVector(_ v: inout Float) {
 ```
 */
 /// Source: oracle/codemp/win32/win_shared.cpp:84
-private func CPUID(_ `func`: Int32, _ regs: [UInt32]) {
+private func CPUID(_ `func`: Int32, _ regs: Slots<UInt32>) {
     // TODO: Port CPUID
     portMissing("CPUID", source: "oracle/codemp/win32/win_shared.cpp:84")
 }

@@ -46,6 +46,14 @@ var PADDING: [UInt8] {
     set { world.PADDING = newValue }
 }
 
+/// Source: oracle/codemp/qcommon/md4.cpp:269
+// AI: Raven declares `digest` on the stack of Com_BlockChecksum and Com_BlockChecksumKey. The functions share one zeroed allocation on the storage class.
+var digest: Slots<Int32> { world.storage.digest }
+
+/// Source: oracle/codemp/qcommon/md4.cpp:282
+// AI: Raven takes the address of the parameter `key` of Com_BlockChecksumKey. The body copies it into one zeroed slot on the storage class.
+var key_Com_BlockChecksumKey: Slots<Int32> { world.storage.key_Com_BlockChecksumKey }
+
 /// Source: oracle/codemp/qcommon/md4.cpp:85
 /// Raven's function-like macro `F`, a basic MD4 function.
 private func F(_ x: UInt32, _ y: UInt32, _ z: UInt32) -> UInt32 {
@@ -138,7 +146,7 @@ MD4 basic transformation. Transforms state based on block.
 ```
 */
 /// Source: oracle/codemp/qcommon/md4.cpp:172
-private func MD4Transform(_ state: [UInt32], _ block: Slots<UInt8>) {
+private func MD4Transform(_ state: Slots<UInt32>, _ block: Slots<UInt8>) {
     // Port-note: The generated signature takes `state` by value, and Raven writes `state`. The stub waits on the MD4Transform row of the next table batch.
     // TODO: Port MD4Transform
     portMissing("MD4Transform", source: "oracle/codemp/qcommon/md4.cpp:172")
@@ -150,7 +158,7 @@ Encodes input (UINT4) into output (unsigned char). Assumes len is a multiple of 
 ```
 */
 /// Source: oracle/codemp/qcommon/md4.cpp:243
-private func Encode(_ output: Slots<UInt8>, _ input: inout UInt32, _ len: UInt32) {
+private func Encode(_ output: Slots<UInt8>, _ input: Slots<UInt32>, _ len: UInt32) {
     // Port-note: The generated signature takes the UINT4 array `input` as one `inout UInt32`. The stub waits on the Encode row of the next table batch.
     // TODO: Port Encode
     portMissing("Encode", source: "oracle/codemp/qcommon/md4.cpp:243")
@@ -162,21 +170,21 @@ Decodes input (unsigned char) into output (UINT4). Assumes len is a multiple of 
 ```
 */
 /// Source: oracle/codemp/qcommon/md4.cpp:257
-private func Decode(_ output: inout UInt32, _ input: Slots<UInt8>, _ len: UInt32) {
+private func Decode(_ output: Slots<UInt32>, _ input: Slots<UInt8>, _ len: UInt32) {
     // Port-note: The generated signature takes the UINT4 array `output` as one `inout UInt32`. The stub waits on the Decode row of the next table batch.
     // TODO: Port Decode
     portMissing("Decode", source: "oracle/codemp/qcommon/md4.cpp:257")
 }
 
 /// Source: oracle/codemp/qcommon/md4.cpp:267
-func Com_BlockChecksum(_ buffer: OpaquePointer?, _ length: Int32) -> UInt32 {
+func Com_BlockChecksum(_ buffer: Slots<JKAShared.byte>, _ length: Int32) -> UInt32 {
     // Port-note: The body calls MD4Update and MD4Final, which wait on the MD4Transform and Encode rows of the next table batch.
     // TODO: Port Com_BlockChecksum
     portMissing("Com_BlockChecksum", source: "oracle/codemp/qcommon/md4.cpp:267")
 }
 
 /// Source: oracle/codemp/qcommon/md4.cpp:282
-func Com_BlockChecksumKey(_ buffer: OpaquePointer?, _ length: Int32, _ key: Int32) -> UInt32 {
+func Com_BlockChecksumKey(_ buffer: Slots<JKAShared.byte>, _ length: Int32, _ key: Int32) -> UInt32 {
     // Port-note: The body calls MD4Update and MD4Final, which wait on the MD4Transform and Encode rows of the next table batch.
     // TODO: Port Com_BlockChecksumKey
     portMissing("Com_BlockChecksumKey", source: "oracle/codemp/qcommon/md4.cpp:282")

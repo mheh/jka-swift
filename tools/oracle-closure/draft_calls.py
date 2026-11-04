@@ -418,8 +418,10 @@ class Calls:
                 and inner.referenced.type.get_canonical().kind == TypeKind.CONSTANTARRAY \
                 and inner.referenced.type.get_canonical().element_type.kind != TypeKind.RECORD \
                 and param[1].replace("JKAShared.", "").removesuffix("?").removeprefix("Slots<").removesuffix(">") \
-                in (inner.referenced.type.element_type.spelling, SCALARS.get(inner.referenced.type.element_type.get_canonical().kind)):
+                in (inner.referenced.type.element_type.spelling, SCALARS.get(inner.referenced.type.element_type.get_canonical().kind),
+                    self.types.fixed(inner.referenced.type.element_type)):
             # The scalar array field of a view reads as its Slots, `cgs.gameModels`, and the callee takes the Slots of that scalar.
+            # A TYPES typedef keeps its spelling, so `context->state` of `UINT4 state[4]` passes to a `Slots<UInt32>`.
             return text
         if param is not None and self.types.is_slots(param[1]):
             raven = " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split())

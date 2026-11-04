@@ -1444,8 +1444,7 @@ func MSG_CheckNETFPSFOverrides(_ psfOverrides: Bool) {
 
             while i < numFields {
                 //Alloc memory for this new ptr
-                // Port-note: Open row, `TAG_GENERAL` is an `Int32` and the `eTag` of `Z_Malloc` is `memtag_t`, a `CChar`, so the site needs a cast Raven did not write.
-                let node = BitStorage(Z_Malloc(Int32(BitStorage.byteCount), memtag_t(TAG_GENERAL), true, 4))
+                let node = BitStorage(Z_Malloc(Int32(BitStorage.byteCount), TAG_GENERAL, true))
                 if let last {
                     last.next = node
                 } else {
@@ -1565,7 +1564,7 @@ func MSG_CheckNETFPSFOverrides(_ psfOverrides: Bool) {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:2213
-func MSG_WriteDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState?, _ to: JKAMP.PlayerState, _ isVehiclePS: Bool) {
+func MSG_WriteDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState?, _ to: JKAMP.PlayerState, _ isVehiclePS: Bool = false) {
     var from = from
 
     PlayerState.scratch { dummy in
@@ -1781,7 +1780,7 @@ MSG_ReadDeltaPlayerstate
 ```
 */
 /// Source: oracle/codemp/qcommon/msg.cpp:2455
-func MSG_ReadDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState, _ to: JKAMP.PlayerState, _ isVehiclePS: Bool) {
+func MSG_ReadDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState, _ to: JKAMP.PlayerState, _ isVehiclePS: Bool = false) {
     var i: Int32
     var lc: Int32
     var bits: Int32

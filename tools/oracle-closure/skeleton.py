@@ -66,6 +66,8 @@ STATE = C.TARGETS["state"]
 C_TARGET = C.TARGETS["c_target"]
 BG = "JKAMP_BG"
 SHARED = "JKAShared"
+# The C integer kinds of a local or a parameter that a BYTE_STORAGE_LOCALS ruling holds as a Slots of its scalar.
+INT_ELEMENTS = (TypeKind.INT, TypeKind.UINT)
 # The parameter kinds of an optional inout vector or axis, which a forward with the plain inout serves for the callers that pass one.
 OPTIONAL_INOUTS = ("vec3_mut_opt", "axis_mut_opt")
 # The C++ definitions of a host file that the skeleton skips, by kind, and the records whose bodies define them.
@@ -163,8 +165,16 @@ class Variable:
         self.local: tuple[str, ...] = ()
 
     @property
+    def parameter(self) -> bool:
+        """True for a parameter whose address Raven takes, which a BYTE_STORAGE_LOCALS ruling gives one slot on the storage class."""
+        return self.cur.kind == CursorKind.PARM_DECL
+
+    @property
     def spelled(self) -> str:
-        """The Swift name of the variable: Raven's name, or the index name of a file-scope walk pointer, `pushed_pIndex`."""
+        """The Swift name of the variable: Raven's name, or the index name of a file-scope walk pointer, `pushed_pIndex`.
+        The storage of a parameter takes the function name as a suffix, `key_Com_BlockChecksumKey`, because the parameter keeps Raven's name."""
+        if self.parameter and self.local:
+            return f"{self.name}_{self.local[0]}"
         return self.walk[1] if self.walk is not None else self.name
 
     @property
@@ -363,8 +373,7 @@ class Skeleton:
             if m is None:
                 fn.reason = self.table.marker_reason(p, fn.name)
                 return
-            if m.swift == "Bool":
-                m.default = self.bool_default(fn.cur, i)
+            m.default = self.cxx_default(fn.cur, i, m.swift)
             fn.params.append(m)
         if fn.cur.type.kind == TypeKind.FUNCTIONPROTO and fn.cur.type.is_function_variadic():
             # Raven's `...` is a printf argument list, and `Format.swift` in JKAShared formats it.
@@ -420,7 +429,8 @@ class Skeleton:
         # A local that a BYTE_STORAGE_LOCALS ruling moves to the storage class stands as a variable of its file, at its first declaration.
         for name, functions in BYTE_STORAGE_LOCALS.items():
             fn = self.by_name.get(functions[0])
-            local = next((c for c in fn.cur.walk_preorder() if c.kind == CursorKind.VAR_DECL and c.spelling == name), None) if fn else None
+            local = next((c for c in fn.cur.walk_preorder() if c.kind in (CursorKind.VAR_DECL, CursorKind.PARM_DECL) and c.spelling == name),
+                         None) if fn else None
             if local is None:
                 continue
             var = Variable(local, fn.stem)
@@ -694,6 +704,13 @@ class Skeleton:
                     var.view = inner[:-1]
                     var.count = canonical.element_count
                     return
+        elif depth <= 1 and var.local and element.kind in INT_ELEMENTS:
+            # A BYTE_STORAGE_LOCALS ruling moves an `int` array local, or an `int` parameter whose address Raven takes, to the storage class.
+            # The body hands it on as bytes, `MD4Final((unsigned char *)digest, &ctx)`, through the `bytes` view of the Slots.
+            var.reason = "byte_storage"
+            var.swift = f"Slots<{self.table.views.scalar(element, C_TARGET)}>"
+            var.count = canonical.element_count if depth else 1
+            return
         elif depth == 1 and element.kind in (TypeKind.CHAR_S, TypeKind.UCHAR) and (var.name in BYTE_STORAGE_VARS or var.local):
             # The engine holds the address of this buffer, so it is one zeroed byte allocation with a fixed base, by the BYTE_STORAGE_VARS ruling.
             # A `byte` buffer that a pointer field holds, `cmd_text_buf` of cmd_common.cpp, is a Slots over the allocation, so a body indexes it.
@@ -721,6 +738,9 @@ class Skeleton:
     def declaration_text(self, var: Variable) -> str:
         """Raven's declaration through its `;`, read from the file. The unity parse drops the initializer of a static two files name alike,
         because one translation unit sees a redefinition, so the cursor's extent is not trusted for a variable."""
+        if var.parameter:
+            # A parameter ends at its comma or its parenthesis, so its own tokens are the declaration.
+            return " ".join(t.spelling for t in var.cur.get_tokens())
         source = self.source(var.stem)
         text = "\n".join(source.lines)
         start_line = var.cur.extent.start.line
@@ -938,10 +958,15 @@ class Skeleton:
         elif kind in ("storage", "pointer_table", "byte_storage"):
             # The allocation lives on the state object's generated storage class, and the stub carries the name at Raven's line.
             spelled = "bg" if target_of(var.stem) == BG else "world"
-            lines = [f"/// Source: {var.cite}", f"{self.variable_access(var)}var {var.name}: {var.swift} {{ {spelled}.storage.{var.field} }}"]
-            if var.local:
+            lines = [f"/// Source: {var.cite}", f"{self.variable_access(var)}var {var.spelled}: {var.swift} {{ {spelled}.storage.{var.field} }}"]
+            if var.local and var.parameter:
+                # The ruling gives a parameter whose address Raven takes one slot on the storage class, so the forward carries the rule 24 line.
+                lines.insert(1, f"// AI: Raven takes the address of the parameter `{var.name}` of {var.local[0]}. The body copies it into one zeroed slot on the storage class.")
+            elif var.local and len(var.local) > 1:
                 # The ruling moves Raven's stack local to the storage class, so the forward carries the rule 24 line.
                 lines.insert(1, f"// AI: Raven declares `{var.name}` on the stack of {' and '.join(var.local)}. The functions share one zeroed allocation on the storage class.")
+            elif var.local:
+                lines.insert(1, f"// AI: Raven declares `{var.name}` on the stack of {var.local[0]}. The function uses one zeroed allocation on the storage class.")
         else:
             lines.insert(1, f"// TODO: Port global {var.name}")
             lines.append(f"// {var.reason}")
@@ -1207,14 +1232,40 @@ class Skeleton:
             return "public "
         return "public " if target_of(fn.stem) == SHARED else ""
 
-    def bool_default(self, cur: ci.Cursor, i: int) -> str | None:
-        """The C++ default of a `bool` parameter, `readUntilEOL = false` of GetToken, from the definition or the first declaration."""
+    def cxx_default(self, cur: ci.Cursor, i: int, swift: str | None) -> str | None:
+        """The C++ default of a parameter, from the definition or the first declaration, in the Swift spelling of the parameter.
+        `qboolean bZeroit = qfalse` of Z_Malloc is `= false`, `int iAlign = 4` is `= 4`, and a NULL into an optional is `= nil`.
+        A default the parameter's spelling cannot hold, or an expression past one token, gives None."""
         for decl in (cur, cur.canonical):
             params = list(decl.get_arguments())
-            if i < len(params):
-                for child in params[i].get_children():
-                    if child.kind == CursorKind.CXX_BOOL_LITERAL_EXPR:
-                        return " ".join(t.spelling for t in child.get_tokens())
+            if i >= len(params):
+                continue
+            tokens = [t.spelling for t in params[i].get_tokens()]
+            if "=" not in tokens:
+                continue
+            value = tokens[tokens.index("=") + 1:]
+            if value[:1] == ["-"] and len(value) == 2:
+                value = ["-" + value[1]]
+            if len(value) != 1:
+                return None
+            text = value[0]
+            if re.fullmatch(r"[A-Za-z_]\w*", text):
+                # A macro of the default expands to its name, `SE_TRUE` to `qtrue` of SE_LoadLanguage, so the default reads the name the parse resolved.
+                ref = next((c.referenced for c in params[i].walk_preorder() if c.kind == CursorKind.DECL_REF_EXPR and c.referenced is not None), None)
+                text = ref.spelling if ref is not None else text
+            if swift == "Bool":
+                return {"qfalse": "false", "false": "false", "0": "false", "qtrue": "true", "true": "true", "1": "true"}.get(text)
+            if (swift or "").endswith("?"):
+                return "nil" if text in ("NULL", "0", "nullptr") else None
+            if re.fullmatch(r"-?\d+", text) and swift in ("Int32", "UInt32", "Int64", "UInt64", "Int16", "UInt16", "Int8", "UInt8", "CLong", "CUnsignedLong"):
+                return text
+            if re.fullmatch(r"-?(\d+\.\d*|\.\d+)[fF]?", text) and swift in ("Float", "Double"):
+                number = text.rstrip("fF")
+                return ("0" + number if number.startswith(".") else number) + ("0" if number.endswith(".") else "")
+            if re.fullmatch(r"[A-Za-z_]\w*", text) and text not in ("NULL", "nullptr") and swift is not None and not swift.startswith(("inout", "Slots")):
+                # An enumerator or a macro constant, which the view target re-exports under Raven's name.
+                return text
+            return None
         return None
 
     def signature(self, fn: Function) -> str:
@@ -1222,7 +1273,7 @@ class Skeleton:
         name = swift_name(fn.name)
         if not fn.mapped:
             return f"{self.access(fn)}func {name}() -> Never"
-        # A C++ default of a `bool` parameter stays on the Swift parameter, so a caller that omits the argument reads as Raven's call.
+        # A C++ default of a parameter stays on the Swift parameter, so a caller that omits the argument reads as Raven's call.
         params = ", ".join(f"_ {p.name}: {p.swift}" + (f" = {p.default}" if p.default else "") for p in fn.params)
         returns = "Never" if fn.name in self.never_names and fn.returns is None else fn.returns
         return f"{self.access(fn)}func {name}({params})" + (f" -> {returns}" if returns else "")
@@ -1543,11 +1594,21 @@ class Skeleton:
             for stem, var in tables:
                 declaration = " ".join(self.declaration_text(var).split("=", 1)[0].split()).removeprefix("static ")
                 owner = f"local of {' and '.join(f'`{name}`' for name in var.local)} in" if var.local else "of"
+                if var.parameter:
+                    owner = f"parameter of `{var.local[0]}` in"
                 lines += [f"    /// Raven's `{declaration}` {owner} `{C.file_name(stem)}`.", f"    /// Source: {var.cite}", f"    public let {var.field}: {var.swift}", ""]
-                if var.count:
+                if var.count and "[" not in declaration:
+                    # A parameter of a ruling is one slot.
+                    count = str(var.count)
+                elif var.count:
                     bound = declaration[declaration.index("[") + 1:declaration.index("]")].strip()
                     count = f"Int({exported[bound]}.{bound})" if bound in exported else str(var.count)
-                if var.kind == "byte_storage" and var.swift.startswith("Slots"):
+                if var.kind == "byte_storage" and var.swift.startswith("Slots") and var.swift != "Slots<JKAShared.byte>":
+                    # An `int` array or an `int` parameter of a ruling, one zeroed allocation of its elements.
+                    element = var.swift[len("Slots<"):-1]
+                    inits.append(f"        self.{var.field} = Slots(scalars: {cls}.bytes(count: {count} * MemoryLayout<{element}>.stride), count: {count})")
+                    deinits.append(f"        self.{var.field}.base.deallocate()")
+                elif var.kind == "byte_storage" and var.swift.startswith("Slots"):
                     inits.append(f"        self.{var.field} = Slots(scalars: {cls}.bytes(count: {count}), count: {count})")
                     deinits.append(f"        self.{var.field}.base.deallocate()")
                 elif var.kind == "byte_storage":

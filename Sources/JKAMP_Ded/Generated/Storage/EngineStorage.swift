@@ -30,6 +30,14 @@ public final class EngineStorage {
     /// Source: oracle/codemp/qcommon/huffman.cpp:306
     public let seq: Slots<JKAShared.byte>
 
+    /// Raven's `int digest[4]` local of `Com_BlockChecksum` and `Com_BlockChecksumKey` in `md4.cpp`.
+    /// Source: oracle/codemp/qcommon/md4.cpp:269
+    public let digest: Slots<Int32>
+
+    /// Raven's `int key` parameter of `Com_BlockChecksumKey` in `md4.cpp`.
+    /// Source: oracle/codemp/qcommon/md4.cpp:282
+    public let key_Com_BlockChecksumKey: Slots<Int32>
+
     /// Raven's `huffman_t msgHuff` of `msg.cpp`.
     /// Source: oracle/codemp/qcommon/msg.cpp:19
     public let msgHuff: Huffman
@@ -65,6 +73,8 @@ public final class EngineStorage {
         self.cvar_indexes = EngineStorage.records(count: 1224, of: JKAMP.Cvar.self)
         self.hashTable = EngineStorage.table(count: 256, of: JKAMP.Cvar.self)
         self.seq = Slots(scalars: EngineStorage.bytes(count: 65536), count: 65536)
+        self.digest = Slots(scalars: EngineStorage.bytes(count: 4 * MemoryLayout<Int32>.stride), count: 4)
+        self.key_Com_BlockChecksumKey = Slots(scalars: EngineStorage.bytes(count: 1 * MemoryLayout<Int32>.stride), count: 1)
         self.msgHuff = EngineStorage.record(of: Huffman.self)
         self.loopbacks = EngineStorage.records(count: 2, of: Loopback.self)
         self.gLocalModifier = EngineStorage.record(of: JKAMP.SharedEntity.self)
@@ -81,6 +91,8 @@ public final class EngineStorage {
         self.cvar_indexes.base.deallocate()
         self.hashTable.base.deallocate()
         self.seq.base.deallocate()
+        self.digest.base.deallocate()
+        self.key_Com_BlockChecksumKey.base.deallocate()
         UnsafeMutableRawPointer(self.msgHuff.handle).deallocate()
         self.loopbacks.base.deallocate()
         UnsafeMutableRawPointer(self.gLocalModifier.handle).deallocate()

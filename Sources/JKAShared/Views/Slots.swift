@@ -159,6 +159,35 @@ extension Slots {
     }
 }
 
+// MARK: - The address of an element
+
+extension Slots {
+    /// Raven's `&table[i]` handed on as a pointer to one slot, the `Slots` of count 1 over element `i`.
+    /// Source: oracle/codemp/qcommon/huffman.cpp:52
+    // AI: Raven takes the address of one element of the array. The accessor gives a Slots of count 1 over that element.
+    public func slot(at i: some BinaryInteger) -> Slots<Element> {
+        let index = Int(i)
+        precondition(index >= 0 && index < self.count, "Slots index \(index) is out of the range 0..<\(self.count)")
+        return Slots(base: self.base + index * self.stride, count: 1, stride: self.stride, read: self.read, write: self.write)
+    }
+
+    /// Raven's `data + offset`, a pointer into the array handed on as the tail of the array from element `index`.
+    /// It takes an `Int` as the `Collection` form does, and the concrete form wins, so a body gets a `Slots` and not a `Slice`.
+    /// Source: oracle/codemp/qcommon/huffman.cpp:441
+    // AI: Raven adds an offset to the pointer. The accessor gives a Slots over the elements from that offset to the end.
+    public func suffix(from index: Int) -> Slots<Element> {
+        precondition(index >= 0 && index <= self.count, "Slots offset \(index) is out of the range 0...\(self.count)")
+        return Slots(base: self.base + index * self.stride, count: self.count - index, stride: self.stride, read: self.read, write: self.write)
+    }
+
+    /// Raven's `(unsigned char *)digest`, the bytes of the array as a `Slots` of bytes over the same memory.
+    /// Source: oracle/codemp/qcommon/md4.cpp:275
+    // AI: Raven casts the array to a byte pointer. The accessor gives a Slots of bytes over the same memory.
+    public var bytes: Slots<byte> {
+        Slots<byte>(scalars: self.base, count: self.count * self.stride)
+    }
+}
+
 // MARK: - The slot index
 
 extension Slots where Element: HandleView {

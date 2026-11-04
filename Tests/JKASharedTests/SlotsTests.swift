@@ -55,3 +55,62 @@ func vectorSlotsReadAndWriteTriples() {
     #expect(slots[1] == vec3_t(1, 2, 3))
     #expect(buffer.load(fromByteOffset: MemoryLayout<(Float, Float, Float)>.stride, as: Float.self) == 1)
 }
+
+@Test("slot, suffix, and bytes give Slots over the same C memory")
+func slotsAddressForms() {
+    let buffer = UnsafeMutableRawPointer.allocate(byteCount: 4 * MemoryLayout<Int32>.stride, alignment: 16)
+    defer { buffer.deallocate() }
+    let slots = Slots<Int32>(scalars: buffer, count: 4)
+    slots.fill(0)
+
+    // when
+    slots.slot(at: Int32(2))[0] = 7
+    let tail = slots.suffix(from: 1)
+    tail[0] = 5
+
+    // then
+    #expect(Array(slots) == [0, 5, 7, 0])
+    #expect(tail.count == 3)
+    #expect(slots.bytes.count == 4 * MemoryLayout<Int32>.stride)
+    #expect(slots.bytes[MemoryLayout<Int32>.stride] == 5)
+}
+
+@Test("Com_Memcpy and memmove copy bytes between Slots and CharBuf as C does")
+func slotsByteCopies() {
+    let buffer = UnsafeMutableRawPointer.allocate(byteCount: 8, alignment: 16)
+    defer { buffer.deallocate() }
+    let bytes = Slots<byte>(scalars: buffer, count: 8)
+    bytes.zero()
+
+    // when
+    Com_Memcpy(bytes.suffix(from: 2), CharBuf("abc"), 3)
+    var line = CharBuf(4)
+    Com_Memcpy(&line, bytes.suffix(from: 2), 3)
+    memmove(bytes, bytes.suffix(from: 2), 3)
+
+    // then
+    #expect(String(line) == "abc")
+    #expect(Array(bytes) == [97, 98, 99, 98, 99, 0, 0, 0])
+}
+
+@Test("Com_Memcpy over two Slots of one element type copies the count in bytes")
+func slotsRecordCopy() {
+    let source = UnsafeMutableRawPointer.allocate(byteCount: 3 * MemoryLayout<Int32>.stride, alignment: 16)
+    let dest = UnsafeMutableRawPointer.allocate(byteCount: 3 * MemoryLayout<Int32>.stride, alignment: 16)
+    defer {
+        source.deallocate()
+        dest.deallocate()
+    }
+    let from = Slots<Int32>(scalars: source, count: 3)
+    let to = Slots<Int32>(scalars: dest, count: 3)
+    to.fill(0)
+    from[0] = 1
+    from[1] = 2
+    from[2] = 3
+
+    // when
+    Com_Memcpy(to, from, Int32(2 * MemoryLayout<Int32>.stride))
+
+    // then
+    #expect(Array(to) == [1, 2, 0])
+}

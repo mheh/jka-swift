@@ -349,18 +349,20 @@ Send a symbol
 ```
 */
 /// Source: oracle/codemp/qcommon/huffman.cpp:285
-func Huff_transmit(_ huff: Huff, _ ch: Int32, _ fout: UnsafeMutableRawPointer) {
+func Huff_transmit(_ huff: Huff, _ ch: Int32, _ fout: Slots<JKAShared.byte>) {
     var i: Int32
     if huff.loc[ch] == nil {
         /* node_t hasn't been transmitted, send a NYT, then the symbol */
         Huff_transmit(huff, NYT, fout)
         i = 7
         while i >= 0 {
-            add_bit(CChar(((ch >> i) & 0x1)), fout)
+            // AI: Raven hands the same `byte *` on. The body hands the base of the Slots to the raw `fout` of add_bit.
+            add_bit(CChar(((ch >> i) & 0x1)), fout.base)
             i -= 1
         }
     } else {
-        send(huff.loc[ch]!, nil, fout)
+        // AI: Raven hands the same `byte *` on. The body hands the base of the Slots to the raw `fout` of send.
+        send(huff.loc[ch]!, nil, fout.base)
     }
 }
 
