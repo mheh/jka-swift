@@ -9,6 +9,10 @@ var bloc: Int32 {
     set { world.variables.bloc = newValue }
 }
 
+/// Source: oracle/codemp/qcommon/huffman.cpp:306
+// AI: Raven declares `seq` on the stack of Huff_Decompress and Huff_Compress. The functions share one zeroed allocation on the storage class.
+var seq: Slots<JKAShared.byte> { world.storage.seq }
+
 /// Source: oracle/codemp/qcommon/huffman.cpp:12
 func Huff_putBit(_ bit: Int32, _ fout: UnsafeMutableRawPointer, _ offset: inout Int32) {
     bloc = offset
@@ -58,20 +62,13 @@ private func get_bit(_ fin: UnsafeMutableRawPointer) -> Int32 {
 }
 
 /// Source: oracle/codemp/qcommon/huffman.cpp:48
-// TODO: Port signature
-// Raven wrote: static node_t **get_ppnode(huff_t* huff)
-// No table row for the return `node_t **`.
-// Port-note: Raven returns the address of a `nodePtrs` slot, or the head of the free list that he links through those slots.
-// The `head` and `freelist` fields are `OpaquePointer?`, and a logic body has no read or write through them. Open row R-B.
-private func get_ppnode() -> Never {
+private func get_ppnode(_ huff: Huff) -> Slots<Node?> {
     // TODO: Port get_ppnode
     portMissing("get_ppnode", source: "oracle/codemp/qcommon/huffman.cpp:48")
 }
 
 /// Source: oracle/codemp/qcommon/huffman.cpp:59
-// Port-note: Raven's `ppnode` is the address of a `nodePtrs` slot, which he stores into the slot and links as the free list head.
-// The `inout Node?` signature has no slot address, and the body has no form until open row R-B is ruled.
-private func free_ppnode(_ huff: Huff, _ ppnode: inout Node?) {
+private func free_ppnode(_ huff: Huff, _ ppnode: Slots<Node?>) {
     // TODO: Port free_ppnode
     portMissing("free_ppnode", source: "oracle/codemp/qcommon/huffman.cpp:59")
 }

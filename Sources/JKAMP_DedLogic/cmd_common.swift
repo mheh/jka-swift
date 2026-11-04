@@ -21,8 +21,7 @@ var cmd_wait: Int32 {
 var cmd_text: Cmd { world.storage.cmd_text }
 
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:18
-// Raven wrote: byte cmd_text_buf[MAX_CMD_BUFFER]
-let cmd_text_buf: [JKAShared.byte] = [JKAShared.byte](repeating: 0, count: 16384)
+var cmd_text_buf: Slots<JKAShared.byte> { world.storage.cmd_text_buf }
 
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:290
 var cmd_argc: Int32 {

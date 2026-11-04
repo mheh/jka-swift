@@ -45,7 +45,7 @@ from clang.cindex import CursorKind, TypeKind
 
 import closure as C
 from reexport import DEPS, SCALARS, SOURCES, VIEW_OF, source_lines
-from rulings import BYTE_STORAGE_FIELDS, FIELDS, NEVER_NULL, NULLABLE, PARAMS, ROOTS, SLOT_BOUNDS
+from rulings import BYTE_STORAGE_FIELDS, FIELD_NAMES, FIELDS, NEVER_NULL, NULLABLE, PARAMS, ROOTS, SLOT_BOUNDS
 from spelling import Types
 
 # Every C target the translation unit of the run's unit reaches, most specific first.
@@ -302,8 +302,14 @@ class Generator:
         canonical = t.get_canonical()
         pointee = f"self.raw.pointee.{name}"
         if name in ("handle", "raw"):
-            # The view's own `handle` and `raw` take these names under rule 11. The engine writes a field so named, and no module body reads it.
-            return [f"    // Raven's `{name}` field is the engine's, and the view's own `{name}` takes the name. No module body reads it."]
+            # The view's own `handle` and `raw` take these names under rule 11, so a field so named that a body reads takes the FIELD_NAMES name.
+            renamed = FIELD_NAMES.get((self.owner_of(field), name))
+            swift = self.types.scalar(t, target) if renamed else None
+            if swift is None:
+                # The engine writes a field so named, and no module body reads it.
+                return [f"    // Raven's `{name}` field is the engine's, and the view's own `{name}` takes the name. No module body reads it."]
+            return [f"    // AI: Raven names the field `{name}`. The view's own slot pointer takes that name, so the field reads as `{renamed}`."] \
+                + self.property(renamed, swift, pointee, f"{pointee} = newValue")
         if canonical.kind == TypeKind.POINTER:
             inner = canonical.get_pointee()
             # Raven's `void (*clearScene) ();` declares no prototype, and Swift imports it as a function of no arguments.
@@ -325,6 +331,21 @@ class Generator:
                 return self.property(name, f"{view}?", f"{pointee}.map {{ {view}(handle: OpaquePointer($0)) }}",
                                      f"{pointee} = UnsafeMutablePointer(newValue?.handle)") + self.slots(field, view, self.c_name_of(inner), target)
             ruled = FIELDS.get((self.owner_of(field), name))
+            if ruled == "bytes" and inner.get_canonical().kind == TypeKind.UCHAR:
+                # The field holds the base of a byte buffer a body indexes, `cmd_text.data[i]`, so it reads as a Slots over the bytes.
+                # C gives the pointer no bound, so the Slots takes the widest count, and a store keeps the base of the assigned Slots.
+                count, _ = self.slots_count(field, target)
+                return self.property(name, "Slots<JKAShared.byte>?", f"{pointee}.map {{ Slots(scalars: UnsafeMutableRawPointer($0), count: {count}) }}",
+                                     f"{pointee} = newValue?.base.assumingMemoryBound(to: UInt8.self)")
+            if ruled == "slot" and inner.get_canonical().kind == TypeKind.POINTER:
+                # The field holds the address of one record pointer slot, so it reads as the Slots of one optional view over that slot.
+                # Two records that hold one address share the slot, as Raven's nodes of one block share their `head`.
+                record = self.types.record_name(inner.get_canonical().get_pointee())
+                if record and record in self.views:
+                    view = self.qualified_view(record, target)
+                    c_name = self.c_name_of(inner.get_canonical().get_pointee())
+                    return self.property(name, f"Slots<{view}?>?", f"{pointee}.map {{ Slots(pointers: UnsafeMutableRawPointer($0), count: 1) }}",
+                                         f"{pointee} = newValue?.base.assumingMemoryBound(to: UnsafeMutablePointer<{c_name}>?.self)")
             if ruled == "raw" and inner.get_canonical().kind == TypeKind.VOID:
                 # The field holds one of several records, and a body views the record it holds through the cast Raven wrote.
                 return self.property(name, "UnsafeMutableRawPointer?", pointee, f"{pointee} = newValue")
@@ -401,6 +422,11 @@ class Generator:
             if mapped is None:
                 return None
             element_type, call = mapped
+            if (self.owner_of(field), name) in SLOT_BOUNDS:
+                # Raven declares the array short and allocates the record past it, so a SLOT_BOUNDS macro bounds the elements, `p` of winding_t.
+                macro = SLOT_BOUNDS[(self.owner_of(field), name)]
+                return note + [f"    // AI: Raven declares `{name}[{count}]` and allocates the record past it. The count is Raven's `{macro}` bound.",
+                               f"    public var {name}: Slots<{element_type}> {{ {call.replace('{count}', self.slots_count(field, target)[0])} }}"]
             return note + [f"    public var {name}: Slots<{element_type}> {{ {call.replace('{count}', str(count))} }}"]
         if canonical.kind == TypeKind.RECORD:
             record = self.unnamed_name(t) or self.types.record_name(t)
