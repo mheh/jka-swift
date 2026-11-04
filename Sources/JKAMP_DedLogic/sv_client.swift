@@ -37,19 +37,13 @@ sent to that ip.
 ```
 */
 /// Source: oracle/codemp/server/sv_client.cpp:31
-// TODO: Port signature
-// Raven wrote: void SV_GetChallenge( netadr_t from )
-// No table row for `netadr_t from`.
-func SV_GetChallenge() -> Never {
+func SV_GetChallenge(_ from: Netadr) {
     // TODO: Port SV_GetChallenge
     portMissing("SV_GetChallenge", source: "oracle/codemp/server/sv_client.cpp:31")
 }
 
 /// Source: oracle/codemp/server/sv_client.cpp:142
-// TODO: Port signature
-// Raven wrote: void SV_AuthorizeIpPacket( netadr_t from )
-// No table row for `netadr_t from`.
-func SV_AuthorizeIpPacket() -> Never {
+func SV_AuthorizeIpPacket(_ from: Netadr) {
     // TODO: Port SV_AuthorizeIpPacket
     portMissing("SV_AuthorizeIpPacket", source: "oracle/codemp/server/sv_client.cpp:142")
 }
@@ -64,10 +58,7 @@ A "connect" OOB command has been received
 ```
 */
 /// Source: oracle/codemp/server/sv_client.cpp:221
-// TODO: Port signature
-// Raven wrote: void SV_DirectConnect( netadr_t from )
-// No table row for `netadr_t from`.
-func SV_DirectConnect() -> Never {
+func SV_DirectConnect(_ from: Netadr) {
     // TODO: Port SV_DirectConnect
     portMissing("SV_DirectConnect", source: "oracle/codemp/server/sv_client.cpp:221")
 }

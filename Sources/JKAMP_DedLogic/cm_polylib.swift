@@ -39,10 +39,7 @@ var c_removed: Int32 {
 let MAX_HULL_POINTS = 128 as Int32
 
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:17
-// TODO: Port signature
-// Raven wrote: void pw(winding_t *w)
-// No table row for `winding_t * w`.
-func pw() -> Never {
+func pw(_ w: Winding) {
     // TODO: Port pw
     portMissing("pw", source: "oracle/codemp/qcommon/cm_polylib.cpp:17")
 }
@@ -55,28 +52,19 @@ AllocWinding
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:30
-// TODO: Port signature
-// Raven wrote: winding_t *AllocWinding (int points)
-// No table row for the return `winding_t *`.
-func AllocWinding() -> Never {
+func AllocWinding(_ points: Int32) -> Winding? {
     // TODO: Port AllocWinding
     portMissing("AllocWinding", source: "oracle/codemp/qcommon/cm_polylib.cpp:30")
 }
 
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:47
-// TODO: Port signature
-// Raven wrote: void FreeWinding (winding_t *w)
-// No table row for `winding_t * w`.
-func FreeWinding() -> Never {
+func FreeWinding(_ w: Winding) {
     // TODO: Port FreeWinding
     portMissing("FreeWinding", source: "oracle/codemp/qcommon/cm_polylib.cpp:47")
 }
 
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:64
-// TODO: Port signature
-// Raven wrote: void RemoveColinearPoints (winding_t *w)
-// No table row for `winding_t * w`.
-func RemoveColinearPoints() -> Never {
+func RemoveColinearPoints(_ w: Winding) {
     // TODO: Port RemoveColinearPoints
     portMissing("RemoveColinearPoints", source: "oracle/codemp/qcommon/cm_polylib.cpp:64")
 }
@@ -89,10 +77,7 @@ WindingPlane
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:100
-// TODO: Port signature
-// Raven wrote: void WindingPlane (winding_t *w, vec3_t normal, vec_t *dist)
-// No table row for `winding_t * w`.
-func WindingPlane() -> Never {
+func WindingPlane(_ w: Winding, _ normal: inout JKAShared.vec3_t, _ dist: inout Float) {
     // TODO: Port WindingPlane
     portMissing("WindingPlane", source: "oracle/codemp/qcommon/cm_polylib.cpp:100")
 }
@@ -105,19 +90,13 @@ WindingArea
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:117
-// TODO: Port signature
-// Raven wrote: vec_t WindingArea (winding_t *w)
-// No table row for `winding_t * w`.
-func WindingArea() -> Never {
+func WindingArea(_ w: Winding) -> Float {
     // TODO: Port WindingArea
     portMissing("WindingArea", source: "oracle/codemp/qcommon/cm_polylib.cpp:117")
 }
 
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:134
-// TODO: Port signature
-// Raven wrote: void WindingBounds (winding_t *w, vec3_t mins, vec3_t maxs)
-// No table row for `winding_t * w`.
-func WindingBounds() -> Never {
+func WindingBounds(_ w: Winding, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t) {
     // TODO: Port WindingBounds
     portMissing("WindingBounds", source: "oracle/codemp/qcommon/cm_polylib.cpp:134")
 }
@@ -130,10 +109,7 @@ WindingCenter
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:160
-// TODO: Port signature
-// Raven wrote: void WindingCenter (winding_t *w, vec3_t center)
-// No table row for `winding_t * w`.
-func WindingCenter() -> Never {
+func WindingCenter(_ w: Winding, _ center: inout JKAShared.vec3_t) {
     // TODO: Port WindingCenter
     portMissing("WindingCenter", source: "oracle/codemp/qcommon/cm_polylib.cpp:160")
 }
@@ -146,10 +122,7 @@ BaseWindingForPlane
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:178
-// TODO: Port signature
-// Raven wrote: winding_t *BaseWindingForPlane (vec3_t normal, vec_t dist)
-// No table row for the return `winding_t *`.
-func BaseWindingForPlane() -> Never {
+func BaseWindingForPlane(_ normal: JKAShared.vec3_t, _ dist: Float) -> Winding? {
     // TODO: Port BaseWindingForPlane
     portMissing("BaseWindingForPlane", source: "oracle/codemp/qcommon/cm_polylib.cpp:178")
 }
@@ -162,10 +135,7 @@ CopyWinding
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:249
-// TODO: Port signature
-// Raven wrote: winding_t *CopyWinding (winding_t *w)
-// No table row for `winding_t * w`.
-func CopyWinding() -> Never {
+func CopyWinding(_ w: Winding) -> Winding? {
     // TODO: Port CopyWinding
     portMissing("CopyWinding", source: "oracle/codemp/qcommon/cm_polylib.cpp:249")
 }
@@ -178,10 +148,7 @@ ReverseWinding
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:265
-// TODO: Port signature
-// Raven wrote: winding_t *ReverseWinding (winding_t *w)
-// No table row for `winding_t * w`.
-func ReverseWinding() -> Never {
+func ReverseWinding(_ w: Winding) -> Winding? {
     // TODO: Port ReverseWinding
     portMissing("ReverseWinding", source: "oracle/codemp/qcommon/cm_polylib.cpp:265")
 }
@@ -194,10 +161,7 @@ ClipWindingEpsilon
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:285
-// TODO: Port signature
-// Raven wrote: void ClipWindingEpsilon (winding_t *in, vec3_t normal, vec_t dist, vec_t epsilon, winding_t **front, winding_t **back)
-// No table row for `winding_t * in`.
-func ClipWindingEpsilon() -> Never {
+func ClipWindingEpsilon(_ `in`: Winding, _ normal: JKAShared.vec3_t, _ dist: Float, _ epsilon: Float, _ front: inout Winding?, _ back: inout Winding?) {
     // TODO: Port ClipWindingEpsilon
     portMissing("ClipWindingEpsilon", source: "oracle/codemp/qcommon/cm_polylib.cpp:285")
 }
@@ -210,10 +174,7 @@ ChopWindingInPlace
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:397
-// TODO: Port signature
-// Raven wrote: void ChopWindingInPlace (winding_t **inout, vec3_t normal, vec_t dist, vec_t epsilon)
-// No table row for `winding_t ** inout`.
-func ChopWindingInPlace() -> Never {
+func ChopWindingInPlace(_ `inout`: inout Winding?, _ normal: JKAShared.vec3_t, _ dist: Float, _ epsilon: Float) {
     // TODO: Port ChopWindingInPlace
     portMissing("ChopWindingInPlace", source: "oracle/codemp/qcommon/cm_polylib.cpp:397")
 }
@@ -229,10 +190,7 @@ of the cliping plane.  The original is freed.
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:502
-// TODO: Port signature
-// Raven wrote: winding_t *ChopWinding (winding_t *in, vec3_t normal, vec_t dist)
-// No table row for `winding_t * in`.
-func ChopWinding() -> Never {
+func ChopWinding(_ `in`: Winding, _ normal: JKAShared.vec3_t, _ dist: Float) -> Winding? {
     // TODO: Port ChopWinding
     portMissing("ChopWinding", source: "oracle/codemp/qcommon/cm_polylib.cpp:502")
 }
@@ -246,10 +204,7 @@ CheckWinding
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:520
-// TODO: Port signature
-// Raven wrote: void CheckWinding (winding_t *w)
-// No table row for `winding_t * w`.
-func CheckWinding() -> Never {
+func CheckWinding(_ w: Winding) {
     // TODO: Port CheckWinding
     portMissing("CheckWinding", source: "oracle/codemp/qcommon/cm_polylib.cpp:520")
 }
@@ -262,19 +217,13 @@ WindingOnPlaneSide
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:583
-// TODO: Port signature
-// Raven wrote: int WindingOnPlaneSide (winding_t *w, vec3_t normal, vec_t dist)
-// No table row for `winding_t * w`.
-func WindingOnPlaneSide() -> Never {
+func WindingOnPlaneSide(_ w: Winding, _ normal: JKAShared.vec3_t, _ dist: Float) -> Int32 {
     // TODO: Port WindingOnPlaneSide
     portMissing("WindingOnPlaneSide", source: "oracle/codemp/qcommon/cm_polylib.cpp:583")
 }
 
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:626
-// TODO: Port signature
-// Raven wrote: void AddWindingToConvexHull( winding_t *w, winding_t **hull, vec3_t normal )
-// No table row for `winding_t * w`.
-func AddWindingToConvexHull() -> Never {
+func AddWindingToConvexHull(_ w: Winding, _ hull: inout Winding?, _ normal: JKAShared.vec3_t) {
     // TODO: Port AddWindingToConvexHull
     portMissing("AddWindingToConvexHull", source: "oracle/codemp/qcommon/cm_polylib.cpp:626")
 }
