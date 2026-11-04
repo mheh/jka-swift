@@ -406,14 +406,44 @@ var string_MSG_ReadStringLine: CharBuf {
 
 /// Source: oracle/codemp/qcommon/msg.cpp:46
 func MSG_Init(_ buf: Msg, _ data: OpaquePointer?, _ length: Int32) {
-    // TODO: Port MSG_Init
-    portMissing("MSG_Init", source: "oracle/codemp/qcommon/msg.cpp:46")
+    if !g_nOverrideChecked {
+        //Check for netf overrides
+        MSG_CheckNETFPSFOverrides(false)
+
+        //Then for psf overrides
+        MSG_CheckNETFPSFOverrides(true)
+
+        g_nOverrideChecked = true
+    }
+
+    if !msgInit {
+        MSG_initHuffman()
+    }
+
+    buf.clear()
+    buf.data = data
+    buf.maxsize = length
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:70
 func MSG_InitOOB(_ buf: Msg, _ data: OpaquePointer?, _ length: Int32) {
-    // TODO: Port MSG_InitOOB
-    portMissing("MSG_InitOOB", source: "oracle/codemp/qcommon/msg.cpp:70")
+    if !g_nOverrideChecked {
+        //Check for netf overrides
+        MSG_CheckNETFPSFOverrides(false)
+
+        //Then for psf overrides
+        MSG_CheckNETFPSFOverrides(true)
+
+        g_nOverrideChecked = true
+    }
+
+    if !msgInit {
+        MSG_initHuffman()
+    }
+    buf.clear()
+    buf.data = data
+    buf.maxsize = length
+    buf.oob = true
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:94
@@ -445,7 +475,9 @@ func MSG_BeginReadingOOB(_ msg: Msg) {
 // negative bit values include signs
 /// Source: oracle/codemp/qcommon/msg.cpp:129
 func MSG_WriteBits(_ msg: Msg, _ value: Int32, _ bits: Int32) {
+    var value = value
     var bits = bits
+    var i: Int32
 
     oldsize += bits
 
@@ -500,8 +532,28 @@ func MSG_WriteBits(_ msg: Msg, _ value: Int32, _ bits: Int32) {
             Com_Error(ERR_DROP, "can't read %d bits\n", bits)
         }
     } else {
-        // Port-note: Huff_putBit and Huff_offsetTransmit have no mapped signature in huffman.swift, and msgHuff has no view of `huffman_t`.
-        portMissing("MSG_WriteBits", source: "oracle/codemp/qcommon/msg.cpp:188")
+        // Raven's mask is an `unsigned int`, so the shift is logical.
+        value &= Int32(bitPattern: 0xffffffff >> (32 - bits))
+        if (bits & 7) != 0 {
+            var nbits: Int32
+            nbits = bits & 7
+            i = 0
+            while i < nbits {
+                Huff_putBit((value & 1), UnsafeMutableRawPointer(msg.data!), &msg.bit)
+                value = (value >> 1)
+                i += 1
+            }
+            bits = bits - nbits
+        }
+        if bits != 0 {
+            i = 0
+            while i < bits {
+                Huff_offsetTransmit(msgHuff.compressor, (value & 0xff), UnsafeMutableRawPointer(msg.data!), &msg.bit)
+                value = (value >> 8)
+                i += 8
+            }
+        }
+        msg.cursize = (msg.bit >> 3) + 1
     }
 }
 
@@ -509,7 +561,10 @@ func MSG_WriteBits(_ msg: Msg, _ value: Int32, _ bits: Int32) {
 func MSG_ReadBits(_ msg: Msg, _ bits: Int32) -> Int32 {
     var bits = bits
     var value: Int32
+    var get: Int32 = 0
     let sgn: Bool
+    var i: Int32
+    var nbits: Int32
     value = 0
 
     if bits < 0 {
@@ -537,8 +592,25 @@ func MSG_ReadBits(_ msg: Msg, _ bits: Int32) -> Int32 {
             Com_Error(ERR_DROP, "can't read %d bits\n", bits)
         }
     } else {
-        // Port-note: Huff_getBit and Huff_offsetReceive have no mapped signature in huffman.swift, and msgHuff has no view of `huffman_t`.
-        portMissing("MSG_ReadBits", source: "oracle/codemp/qcommon/msg.cpp:244")
+        nbits = 0
+        if (bits & 7) != 0 {
+            nbits = bits & 7
+            i = 0
+            while i < nbits {
+                value |= (Huff_getBit(UnsafeMutableRawPointer(msg.data!), &msg.bit) << i)
+                i += 1
+            }
+            bits = bits - nbits
+        }
+        if bits != 0 {
+            i = 0
+            while i < bits {
+                Huff_offsetReceive(msgHuff.decompressor.tree!, &get, UnsafeMutableRawPointer(msg.data!), &msg.bit)
+                value |= (get << (i + nbits))
+                i += 8
+            }
+        }
+        msg.readcount = (msg.bit >> 3) + 1
     }
     if sgn {
         if (value & (1 << (bits - 1))) != 0 {
@@ -588,16 +660,14 @@ func MSG_WriteFloat(_ sb: Msg, _ f: Float) {
 
 /// Source: oracle/codemp/qcommon/msg.cpp:328
 func MSG_WriteString(_ sb: Msg, _ s: String) {
-    // Port-note: Raven hands a `char` buffer and the literal `""` to `MSG_WriteData`, whose `const void *data` is an `OpaquePointer?`.
-    // No shape passes a `CharBuf` or a `String` there.
+    // Port-note: Open row O1, a `char` buffer and the literal `""` into the `OpaquePointer?` of `MSG_WriteData`, has no ruling.
     // TODO: Port MSG_WriteString
     portMissing("MSG_WriteString", source: "oracle/codemp/qcommon/msg.cpp:328")
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:356
 func MSG_WriteBigString(_ sb: Msg, _ s: String) {
-    // Port-note: Raven hands a `char` buffer and the literal `""` to `MSG_WriteData`, whose `const void *data` is an `OpaquePointer?`.
-    // No shape passes a `CharBuf` or a `String` there.
+    // Port-note: Open row O1, a `char` buffer and the literal `""` into the `OpaquePointer?` of `MSG_WriteData`, has no ruling.
     // TODO: Port MSG_WriteBigString
     portMissing("MSG_WriteBigString", source: "oracle/codemp/qcommon/msg.cpp:356")
 }
@@ -1028,32 +1098,449 @@ identical, under the assumption that the in-order delta code will catch it.
 */
 /// Source: oracle/codemp/qcommon/msg.cpp:1069
 func MSG_WriteDeltaEntity(_ msg: Msg, _ from: JKAMP.EntityState, _ to: JKAMP.EntityState?, _ force: Bool) {
-    // Port-note: The body walks the netField tables, which are not C storage yet, and `netField_t` has no view.
-    // TODO: Port MSG_WriteDeltaEntity
-    portMissing("MSG_WriteDeltaEntity", source: "oracle/codemp/qcommon/msg.cpp:1069")
+    var i: Int32
+    var lc: Int32
+    var numFields: Int32
+    var field: NetField
+    var trunc: Int32
+    var fullFloat: Float
+    var fromF: UnsafeMutableRawPointer
+    var toF: UnsafeMutableRawPointer
+
+    numFields = Int32(entityStateFields.count)
+
+    // all fields should be 32 bits to avoid any compiler packing issues
+    // the "number" field is not part of the field list
+    // if this assert fails, someone added a field to the entityState_t
+    // struct without updating the message fields
+
+    // a NULL to is a delta remove message
+    guard let to else {
+        MSG_WriteBits(msg, from.number, GENTITYNUM_BITS)
+        MSG_WriteBits(msg, 1, 1)
+        return
+    }
+
+    if to.number < 0 || to.number >= MAX_GENTITIES {
+        Com_Error(ERR_FATAL, "MSG_WriteDeltaEntity: Bad entity number: %i", to.number)
+    }
+
+    // Raven reads each field through `(byte *)from + field->offset`, and the raw pointer over the record is that read, under rule 11.
+    lc = 0
+    // build the change vector as bytes so it is endien independent
+    // TODO: OPTIMIZE: How about we do this in reverse order so we can
+    // just break out at the first changed field we find?
+    i = 0
+    while i < numFields {
+        field = entityStateFields[i]
+        fromF = UnsafeMutableRawPointer(from.handle) + field.offset
+        toF = UnsafeMutableRawPointer(to.handle) + field.offset
+        if fromF[int: 0] != toF[int: 0] {
+            lc = i + 1
+            field.mCount += 1
+        }
+        i += 1
+    }
+
+    if lc == 0 {
+        // nothing at all changed
+        if !force {
+            return		// nothing at all
+        }
+        // write two bits for no change
+        MSG_WriteBits(msg, to.number, GENTITYNUM_BITS)
+        MSG_WriteBits(msg, 0, 1)		// not removed
+        MSG_WriteBits(msg, 0, 1)		// no delta
+        return
+    }
+
+    MSG_WriteBits(msg, to.number, GENTITYNUM_BITS)
+    MSG_WriteBits(msg, 0, 1)			// not removed
+    MSG_WriteBits(msg, 1, 1)			// we have a delta
+
+    MSG_WriteByte(msg, lc)	// # of changes
+
+    oldsize += numFields
+
+    i = 0
+    while i < lc {
+        field = entityStateFields[i]
+        fromF = UnsafeMutableRawPointer(from.handle) + field.offset
+        toF = UnsafeMutableRawPointer(to.handle) + field.offset
+
+        if fromF[int: 0] == toF[int: 0] {
+            MSG_WriteBits(msg, 0, 1)	// no change
+            i += 1
+            continue
+        }
+
+        MSG_WriteBits(msg, 1, 1)	// changed
+
+        if field.bits == 0 {
+            // float
+            fullFloat = toF[float: 0]
+            trunc = Int32(fullFloat)
+
+            if fullFloat == 0.0 {
+                MSG_WriteBits(msg, 0, 1)
+                oldsize += FLOAT_INT_BITS
+            } else {
+                MSG_WriteBits(msg, 1, 1)
+                if trunc == fullFloat && trunc + FLOAT_INT_BIAS >= 0 && trunc + FLOAT_INT_BIAS < (1 << FLOAT_INT_BITS) {
+                    // send as small integer
+                    MSG_WriteBits(msg, 0, 1)
+                    MSG_WriteBits(msg, trunc + FLOAT_INT_BIAS, FLOAT_INT_BITS)
+                } else {
+                    // send as full floating point value
+                    MSG_WriteBits(msg, 1, 1)
+                    MSG_WriteBits(msg, toF[int: 0], 32)
+                }
+            }
+        } else {
+            if toF[int: 0] == 0 {
+                MSG_WriteBits(msg, 0, 1)
+            } else {
+                MSG_WriteBits(msg, 1, 1)
+                // integer
+                MSG_WriteBits(msg, toF[int: 0], field.bits)
+            }
+        }
+        i += 1
+    }
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:1228
 func MSG_ReadDeltaEntity(_ msg: Msg, _ from: JKAMP.EntityState, _ to: JKAMP.EntityState, _ number: Int32) {
-    // Port-note: The body walks the netField tables, which are not C storage yet, and `netField_t` has no view.
-    // TODO: Port MSG_ReadDeltaEntity
-    portMissing("MSG_ReadDeltaEntity", source: "oracle/codemp/qcommon/msg.cpp:1228")
+    var i: Int32
+    var lc: Int32
+    var numFields: Int32
+    var field: NetField
+    var fromF: UnsafeMutableRawPointer
+    var toF: UnsafeMutableRawPointer
+    var print: Int32
+    var trunc: Int32
+    var startBit: Int32
+    var endBit: Int32
+
+    if number < 0 || number >= MAX_GENTITIES {
+        Com_Error(ERR_DROP, "Bad delta entity number: %i", number)
+    }
+
+    startBit = msg.bit
+
+    // check for a remove
+    if MSG_ReadBits(msg, 1) == 1 {
+        to.clear()
+        to.number = MAX_GENTITIES - 1
+        if cl_shownet!.integer >= 2 || cl_shownet!.integer == -1 {
+            Com_Printf("%3i: #%-3i remove\n", msg.readcount, number)
+        }
+        return
+    }
+
+    // check for no delta
+    if MSG_ReadBits(msg, 1) == 0 {
+        to.copy(from: from)
+        to.number = number
+        return
+    }
+
+    numFields = Int32(entityStateFields.count)
+    lc = MSG_ReadByte(msg)
+
+    // shownet 2/3 will interleave with other printed info, -1 will
+    // just print the delta records`
+    if cl_shownet!.integer >= 2 || cl_shownet!.integer == -1 {
+        print = 1
+        if sv.state != 0 {
+            Com_Printf("%3i: #%-3i (%s) ", msg.readcount, number, SV_GentityNum(number)!.classname ?? "(null)")
+        } else {
+            Com_Printf("%3i: #%-3i ", msg.readcount, number)
+        }
+    } else {
+        print = 0
+    }
+
+    to.number = number
+
+    // Raven reads each field through `(byte *)from + field->offset`, and the raw pointer over the record is that read, under rule 11.
+    i = 0
+    while i < lc {
+        field = entityStateFields[i]
+        fromF = UnsafeMutableRawPointer(from.handle) + field.offset
+        toF = UnsafeMutableRawPointer(to.handle) + field.offset
+
+        if MSG_ReadBits(msg, 1) == 0 {
+            // no change
+            toF[int: 0] = fromF[int: 0]
+        } else {
+            if field.bits == 0 {
+                // float
+                if MSG_ReadBits(msg, 1) == 0 {
+                    toF[float: 0] = 0.0
+                } else {
+                    if MSG_ReadBits(msg, 1) == 0 {
+                        // integral float
+                        trunc = MSG_ReadBits(msg, FLOAT_INT_BITS)
+                        // bias to allow equal parts positive and negative
+                        trunc -= FLOAT_INT_BIAS
+                        toF[float: 0] = Float(trunc)
+                        if print != 0 {
+                            Com_Printf("%s:%i ", field.name ?? "(null)", trunc)
+                        }
+                    } else {
+                        // full floating point value
+                        toF[int: 0] = MSG_ReadBits(msg, 32)
+                        if print != 0 {
+                            Com_Printf("%s:%f ", field.name ?? "(null)", toF[float: 0])
+                        }
+                    }
+                }
+            } else {
+                if MSG_ReadBits(msg, 1) == 0 {
+                    toF[int: 0] = 0
+                } else {
+                    // integer
+                    toF[int: 0] = MSG_ReadBits(msg, field.bits)
+                    if print != 0 {
+                        Com_Printf("%s:%i ", field.name ?? "(null)", toF[int: 0])
+                    }
+                }
+            }
+        }
+        i += 1
+    }
+    i = lc
+    while i < numFields {
+        field = entityStateFields[i]
+        fromF = UnsafeMutableRawPointer(from.handle) + field.offset
+        toF = UnsafeMutableRawPointer(to.handle) + field.offset
+        // no change
+        toF[int: 0] = fromF[int: 0]
+        i += 1
+    }
+
+    if print != 0 {
+        endBit = msg.bit
+        Com_Printf(" (%i bits)\n", endBit - startBit)
+    }
 }
 
 //rww - Check the overrides files to see if the mod wants anything changed
 /// Source: oracle/codemp/qcommon/msg.cpp:2006
 func MSG_CheckNETFPSFOverrides(_ psfOverrides: Bool) {
-    // Port-note: The body walks the netField tables, which are not C storage yet, and `netField_t` has no view.
-    // The body also needs `bitStorage_t`, which has no view, and `Z_Malloc`, which has no mapped signature.
+    // Port-note: The open row is `bitStorage_t` of this file, which has no view, so `g_netfBitStorage` and `g_psfBitStorage` have no table row.
     // TODO: Port MSG_CheckNETFPSFOverrides
     portMissing("MSG_CheckNETFPSFOverrides", source: "oracle/codemp/qcommon/msg.cpp:2006")
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:2213
 func MSG_WriteDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState?, _ to: JKAMP.PlayerState, _ isVehiclePS: Bool) {
-    // Port-note: The body walks the netField tables, which are not C storage yet, and `netField_t` has no view.
-    // TODO: Port MSG_WriteDeltaPlayerstate
-    portMissing("MSG_WriteDeltaPlayerstate", source: "oracle/codemp/qcommon/msg.cpp:2213")
+    var from = from
+
+    PlayerState.scratch { dummy in
+        var i: Int32
+        var statsbits: Int32
+        var persistantbits: Int32
+        var ammobits: Int32
+        var powerupbits: Int32
+        var numFields: Int32
+        var c: Int32
+        var field: NetField
+        var PSFields = playerStateFields
+        var fromF: UnsafeMutableRawPointer
+        var toF: UnsafeMutableRawPointer
+        var fullFloat: Float
+        var trunc: Int32
+        var lc: Int32
+
+        if from == nil {
+            from = dummy
+            dummy.clear()
+        }
+
+        c = msg.cursize
+
+//=====_OPTIMIZED_VEHICLE_NETWORKING=======================================================================
+        if isVehiclePS {//a vehicle playerstate
+            numFields = Int32(vehPlayerStateFields.count)
+            PSFields = vehPlayerStateFields
+        } else {//regular client playerstate
+            if to.m_iVehicleNum != 0 && (to.eFlags & EF_NODRAW) != 0 {//pilot riding *inside* a vehicle!
+                MSG_WriteBits(msg, 1, 1)	// Pilot player state
+                numFields = Int32(pilotPlayerStateFields.count) - 82
+                PSFields = pilotPlayerStateFields
+            } else {//normal client
+                MSG_WriteBits(msg, 0, 1)	// Normal player state
+                numFields = Int32(playerStateFields.count)
+            }
+        }
+//=====_OPTIMIZED_VEHICLE_NETWORKING=======================================================================
+
+        // Raven reads each field through `(byte *)from + field->offset`, and the raw pointer over the record is that read, under rule 11.
+        lc = 0
+        i = 0
+        while i < numFields {
+            field = PSFields[i]
+            fromF = UnsafeMutableRawPointer(from!.handle) + field.offset
+            toF = UnsafeMutableRawPointer(to.handle) + field.offset
+            if fromF[int: 0] != toF[int: 0] {
+                lc = i + 1
+                field.mCount += 1
+            }
+            i += 1
+        }
+
+        MSG_WriteByte(msg, lc)	// # of changes
+
+        gLastBitIndex = lc
+
+        oldsize += numFields - lc
+
+        i = 0
+        while i < lc {
+            field = PSFields[i]
+            fromF = UnsafeMutableRawPointer(from!.handle) + field.offset
+            toF = UnsafeMutableRawPointer(to.handle) + field.offset
+
+            if fromF[int: 0] == toF[int: 0] {
+                MSG_WriteBits(msg, 0, 1)	// no change
+                i += 1
+                continue
+            }
+
+            MSG_WriteBits(msg, 1, 1)	// changed
+
+            if field.bits == 0 {
+                // float
+                fullFloat = toF[float: 0]
+                trunc = Int32(fullFloat)
+
+                if trunc == fullFloat && trunc + FLOAT_INT_BIAS >= 0 && trunc + FLOAT_INT_BIAS < (1 << FLOAT_INT_BITS) {
+                    // send as small integer
+                    MSG_WriteBits(msg, 0, 1)
+                    MSG_WriteBits(msg, trunc + FLOAT_INT_BIAS, FLOAT_INT_BITS)
+                } else {
+                    // send as full floating point value
+                    MSG_WriteBits(msg, 1, 1)
+                    MSG_WriteBits(msg, toF[int: 0], 32)
+                }
+            } else {
+                // integer
+                MSG_WriteBits(msg, toF[int: 0], field.bits)
+            }
+            i += 1
+        }
+        c = msg.cursize - c
+
+
+        //
+        // send the arrays
+        //
+        statsbits = 0
+        i = 0
+        while i < 16 {
+            if to.stats[i] != from!.stats[i] {
+                statsbits |= 1 << i
+            }
+            i += 1
+        }
+        persistantbits = 0
+        i = 0
+        while i < 16 {
+            if to.persistant[i] != from!.persistant[i] {
+                persistantbits |= 1 << i
+            }
+            i += 1
+        }
+        ammobits = 0
+        i = 0
+        while i < 16 {
+            if to.ammo[i] != from!.ammo[i] {
+                ammobits |= 1 << i
+            }
+            i += 1
+        }
+        powerupbits = 0
+        i = 0
+        while i < 16 {
+            if to.powerups[i] != from!.powerups[i] {
+                powerupbits |= 1 << i
+            }
+            i += 1
+        }
+
+        if statsbits == 0 && persistantbits == 0 && ammobits == 0 && powerupbits == 0 {
+            MSG_WriteBits(msg, 0, 1)	// no change
+            oldsize += 4
+            return
+        }
+        MSG_WriteBits(msg, 1, 1)	// changed
+
+        if statsbits != 0 {
+            MSG_WriteBits(msg, 1, 1)	// changed
+            MSG_WriteShort(msg, statsbits)
+            i = 0
+            while i < 16 {
+                if (statsbits & (1 << i)) != 0 {
+                    if i == STAT_WEAPONS { //ugly.. but we're gonna need it anyway -rww
+                        //(just send this one in MAX_WEAPONS bits, so that we can add up to MAX_WEAPONS weaps without hassle)
+                        MSG_WriteBits(msg, to.stats[i], MAX_WEAPONS)
+                    } else {
+                        MSG_WriteShort(msg, to.stats[i])
+                    }
+                }
+                i += 1
+            }
+        } else {
+            MSG_WriteBits(msg, 0, 1)	// no change
+        }
+
+
+        if persistantbits != 0 {
+            MSG_WriteBits(msg, 1, 1)	// changed
+            MSG_WriteShort(msg, persistantbits)
+            i = 0
+            while i < 16 {
+                if (persistantbits & (1 << i)) != 0 {
+                    MSG_WriteShort(msg, to.persistant[i])
+                }
+                i += 1
+            }
+        } else {
+            MSG_WriteBits(msg, 0, 1)	// no change
+        }
+
+
+        if ammobits != 0 {
+            MSG_WriteBits(msg, 1, 1)	// changed
+            MSG_WriteShort(msg, ammobits)
+            i = 0
+            while i < 16 {
+                if (ammobits & (1 << i)) != 0 {
+                    MSG_WriteShort(msg, to.ammo[i])
+                }
+                i += 1
+            }
+        } else {
+            MSG_WriteBits(msg, 0, 1)	// no change
+        }
+
+
+        if powerupbits != 0 {
+            MSG_WriteBits(msg, 1, 1)	// changed
+            MSG_WriteShort(msg, powerupbits)
+            i = 0
+            while i < 16 {
+                if (powerupbits & (1 << i)) != 0 {
+                    MSG_WriteLong(msg, to.powerups[i])
+                }
+                i += 1
+            }
+        } else {
+            MSG_WriteBits(msg, 0, 1)	// no change
+        }
+    }
 }
 
 /**
@@ -1065,16 +1552,189 @@ MSG_ReadDeltaPlayerstate
 */
 /// Source: oracle/codemp/qcommon/msg.cpp:2455
 func MSG_ReadDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState, _ to: JKAMP.PlayerState, _ isVehiclePS: Bool) {
-    // Port-note: The body walks the netField tables, which are not C storage yet, and `netField_t` has no view.
-    // TODO: Port MSG_ReadDeltaPlayerstate
-    portMissing("MSG_ReadDeltaPlayerstate", source: "oracle/codemp/qcommon/msg.cpp:2455")
+    var i: Int32
+    var lc: Int32
+    var bits: Int32
+    var field: NetField
+    var PSFields = playerStateFields
+    var numFields: Int32
+    var startBit: Int32
+    var endBit: Int32
+    var print: Int32
+    var fromF: UnsafeMutableRawPointer
+    var toF: UnsafeMutableRawPointer
+    var trunc: Int32
+
+    to.copy(from: from)
+
+    if msg.bit == 0 {
+        startBit = msg.readcount * 8 - GENTITYNUM_BITS
+    } else {
+        startBit = (msg.readcount - 1) * 8 + msg.bit - GENTITYNUM_BITS
+    }
+
+    // shownet 2/3 will interleave with other printed info, -2 will
+    // just print the delta records
+    if cl_shownet!.integer >= 2 || cl_shownet!.integer == -2 {
+        print = 1
+        Com_Printf("%3i: playerstate ", msg.readcount)
+    } else {
+        print = 0
+    }
+
+//=====_OPTIMIZED_VEHICLE_NETWORKING=======================================================================
+    if isVehiclePS {//a vehicle playerstate
+        numFields = Int32(vehPlayerStateFields.count)
+        PSFields = vehPlayerStateFields
+    } else {
+        let isPilot: Int32 = MSG_ReadBits(msg, 1)
+        if isPilot != 0 {//pilot riding *inside* a vehicle!
+            numFields = Int32(pilotPlayerStateFields.count) - 82
+            PSFields = pilotPlayerStateFields
+        } else {//normal client
+            numFields = Int32(playerStateFields.count)
+        }
+    }
+//=====_OPTIMIZED_VEHICLE_NETWORKING=======================================================================
+
+    lc = MSG_ReadByte(msg)
+
+    // Raven reads each field through `(byte *)from + field->offset`, and the raw pointer over the record is that read, under rule 11.
+    i = 0
+    while i < lc {
+        field = PSFields[i]
+        fromF = UnsafeMutableRawPointer(from.handle) + field.offset
+        toF = UnsafeMutableRawPointer(to.handle) + field.offset
+
+        if MSG_ReadBits(msg, 1) == 0 {
+            // no change
+            toF[int: 0] = fromF[int: 0]
+        } else {
+            if field.bits == 0 {
+                // float
+                if MSG_ReadBits(msg, 1) == 0 {
+                    // integral float
+                    trunc = MSG_ReadBits(msg, FLOAT_INT_BITS)
+                    // bias to allow equal parts positive and negative
+                    trunc -= FLOAT_INT_BIAS
+                    toF[float: 0] = Float(trunc)
+                    if print != 0 {
+                        Com_Printf("%s:%i ", field.name ?? "(null)", trunc)
+                    }
+                } else {
+                    // full floating point value
+                    toF[int: 0] = MSG_ReadBits(msg, 32)
+                    if print != 0 {
+                        Com_Printf("%s:%f ", field.name ?? "(null)", toF[float: 0])
+                    }
+                }
+            } else {
+                // integer
+                toF[int: 0] = MSG_ReadBits(msg, field.bits)
+                if print != 0 {
+                    Com_Printf("%s:%i ", field.name ?? "(null)", toF[int: 0])
+                }
+            }
+        }
+        i += 1
+    }
+    i = lc
+    while i < numFields {
+        field = PSFields[i]
+        fromF = UnsafeMutableRawPointer(from.handle) + field.offset
+        toF = UnsafeMutableRawPointer(to.handle) + field.offset
+        // no change
+        toF[int: 0] = fromF[int: 0]
+        i += 1
+    }
+
+    // read the arrays
+    if MSG_ReadBits(msg, 1) != 0 {
+        // parse stats
+        if MSG_ReadBits(msg, 1) != 0 {
+            // Raven's `LOG(x)` macro of this file expands at each site, because the stub has no function for it.
+            if cl_shownet!.integer == 4 { Com_Printf("%s ", "PS_STATS") }
+            bits = MSG_ReadShort(msg)
+            i = 0
+            while i < 16 {
+                if (bits & (1 << i)) != 0 {
+                    if i == STAT_WEAPONS { //ugly.. but we're gonna need it anyway -rww
+                        to.stats[i] = MSG_ReadBits(msg, MAX_WEAPONS)
+                    } else {
+                        to.stats[i] = MSG_ReadShort(msg)
+                    }
+                }
+                i += 1
+            }
+        }
+
+        // parse persistant stats
+        if MSG_ReadBits(msg, 1) != 0 {
+            if cl_shownet!.integer == 4 { Com_Printf("%s ", "PS_PERSISTANT") }
+            bits = MSG_ReadShort(msg)
+            i = 0
+            while i < 16 {
+                if (bits & (1 << i)) != 0 {
+                    to.persistant[i] = MSG_ReadShort(msg)
+                }
+                i += 1
+            }
+        }
+
+        // parse ammo
+        if MSG_ReadBits(msg, 1) != 0 {
+            if cl_shownet!.integer == 4 { Com_Printf("%s ", "PS_AMMO") }
+            bits = MSG_ReadShort(msg)
+            i = 0
+            while i < 16 {
+                if (bits & (1 << i)) != 0 {
+                    to.ammo[i] = MSG_ReadShort(msg)
+                }
+                i += 1
+            }
+        }
+
+        // parse powerups
+        if MSG_ReadBits(msg, 1) != 0 {
+            if cl_shownet!.integer == 4 { Com_Printf("%s ", "PS_POWERUPS") }
+            bits = MSG_ReadShort(msg)
+            i = 0
+            while i < 16 {
+                if (bits & (1 << i)) != 0 {
+                    to.powerups[i] = MSG_ReadLong(msg)
+                }
+                i += 1
+            }
+        }
+    }
+
+    if print != 0 {
+        if msg.bit == 0 {
+            endBit = msg.readcount * 8 - GENTITYNUM_BITS
+        } else {
+            endBit = (msg.readcount - 1) * 8 + msg.bit - GENTITYNUM_BITS
+        }
+        Com_Printf(" (%i bits)\n", endBit - startBit)
+    }
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:3219
 func MSG_initHuffman() {
-    // Port-note: Huff_Init and Huff_addRef have no mapped signature in huffman.swift, and msgHuff has no view of `huffman_t`.
-    // TODO: Port MSG_initHuffman
-    portMissing("MSG_initHuffman", source: "oracle/codemp/qcommon/msg.cpp:3219")
+    var i: Int32
+    var j: Int32
+
+    msgInit = true
+    Huff_Init(msgHuff)
+    i = 0
+    while i < 256 {
+        j = 0
+        while j < msg_hData[i] {
+            Huff_addRef(msgHuff.compressor, Int32(UInt8(truncatingIfNeeded: i)))			// Do update
+            Huff_addRef(msgHuff.decompressor, Int32(UInt8(truncatingIfNeeded: i)))			// Do update
+            j += 1
+        }
+        i += 1
+    }
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:3274
@@ -1092,7 +1752,29 @@ Prints out a table from the current statistics for copying to code
 */
 /// Source: oracle/codemp/qcommon/msg.cpp:3291
 func MSG_ReportChangeVectors_f() {
-    // Port-note: The body walks the netField tables, which are not C storage yet, and `netField_t` has no view.
-    // TODO: Port MSG_ReportChangeVectors_f
-    portMissing("MSG_ReportChangeVectors_f", source: "oracle/codemp/qcommon/msg.cpp:3291")
+    var numFields: Int32
+    var i: Int32
+    var field: NetField
+
+    numFields = Int32(entityStateFields.count)
+
+    Com_Printf("Entity State Fields:\n")
+    i = 0
+    while i < numFields {
+        field = entityStateFields[i]
+        // The `%d` of Raven's format reads the unsigned count as an `int`.
+        Com_Printf("%s\t\t%d\n", field.name ?? "(null)", Int32(bitPattern: field.mCount))
+        field.mCount = 0
+        i += 1
+    }
+
+    Com_Printf("\nPlayer State Fields:\n")
+    numFields = Int32(playerStateFields.count)
+    i = 0
+    while i < numFields {
+        field = playerStateFields[i]
+        Com_Printf("%s\t\t%d\n", field.name ?? "(null)", Int32(bitPattern: field.mCount))
+        field.mCount = 0
+        i += 1
+    }
 }
