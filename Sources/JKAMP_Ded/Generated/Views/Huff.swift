@@ -95,9 +95,9 @@ public struct Huff: Hashable, HandleView {
     public var loc: Slots<Node?> { Slots(pointers: UnsafeMutableRawPointer(self.raw.pointer(to: \.loc)!), count: 257) }
 
     /// Source: oracle/codemp/qcommon/qcommon.h:1065
-    public var freelist: OpaquePointer? {
-        get { OpaquePointer(self.raw.pointee.freelist) }
-        nonmutating set { self.raw.pointee.freelist = UnsafeMutablePointer(newValue) }
+    public var freelist: Slots<Node?>? {
+        get { self.raw.pointee.freelist.map { Slots(pointers: UnsafeMutableRawPointer($0), count: 1) } }
+        nonmutating set { self.raw.pointee.freelist = newValue?.base.assumingMemoryBound(to: UnsafeMutablePointer<node_t>?.self) }
     }
 
     /// Source: oracle/codemp/qcommon/qcommon.h:1067

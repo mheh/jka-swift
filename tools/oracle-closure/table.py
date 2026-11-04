@@ -60,6 +60,8 @@ class Param:
         self.size = size
         # The argument label a generated signature writes before the name. A parameter with none takes Raven's bare call shape.
         self.label = label
+        # The C++ default the Swift parameter keeps, `false` for `bool readUntilEOL = false`, or None.
+        self.default: str | None = None
 
     def word(self) -> str:
         if self.kind in ("out_string", "out_array"):
@@ -2136,6 +2138,10 @@ class Table:
             return ("OpaquePointer?", "")
         if ruled == "row_index":
             return ("Int32?", "")
+        if ruled == "slot":
+            # The address of one record pointer slot is the Slots of one optional view over it, the form of a `node_t **` field.
+            record = self.views.record_name(cur.result_type.get_canonical().get_pointee().get_canonical().get_pointee())
+            return (f"Slots<{self.views.qualified_view(record, TARGET)}?>", "")
         if isinstance(ruled, tuple) and ruled[0] == "view":
             # Every return is the record or NULL, so the function returns that record's optional view.
             return (f"{self.views.qualified_view(ruled[1], TARGET)}?", "")

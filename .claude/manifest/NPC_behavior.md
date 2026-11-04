@@ -19,7 +19,7 @@ The oracle range is the whole definition, from the return type to the closing br
 | `NPC_BSJump` | `oracle/codemp/game/NPC_behavior.c:733-919` | `JKAMP_GameLogic/NPC_behavior.swift:688` | ported | `crates/mp/game/src/NPC_behavior.rs:725-895` | `func NPC_BSJump()` |
 | `NPC_BSRemove` | `oracle/codemp/game/NPC_behavior.c:921-937` | `JKAMP_GameLogic/NPC_behavior.swift:869` | ported | `crates/mp/game/src/NPC_behavior.rs:900-930` | `func NPC_BSRemove()` |
 | `NPC_BSSearch` | `oracle/codemp/game/NPC_behavior.c:939-1124` | `JKAMP_GameLogic/NPC_behavior.swift:887` | ported | `crates/mp/game/src/NPC_behavior.rs:935-1093` | `func NPC_BSSearch()` |
-| `NPC_BSSearchStart` | `oracle/codemp/game/NPC_behavior.c:1132-1150` | `JKAMP_GameLogic/NPC_behavior.swift:1050` | ported | `crates/mp/game/src/NPC_behavior.rs:1098-1122` | `func NPC_BSSearchStart(_ homeWp: Int32, _ bState: bState_t)` |
+| `NPC_BSSearchStart` | `oracle/codemp/game/NPC_behavior.c:1132-1150` | `JKAMP_GameLogic/NPC_behavior.swift:1050` | ported | `crates/mp/game/src/NPC_behavior.rs:1098-1122` | `func NPC_BSSearchStart(_ homeWp: Int32, _ bState: JKAMP.bState_t)` |
 | `NPC_BSNoClip` | `oracle/codemp/game/NPC_behavior.c:1160-1191` | `JKAMP_GameLogic/NPC_behavior.swift:1070` | ported | `crates/mp/game/src/NPC_behavior.rs:1127-1170` | `func NPC_BSNoClip()` |
 | `NPC_BSWander` | `oracle/codemp/game/NPC_behavior.c:1193-1286` | `JKAMP_GameLogic/NPC_behavior.swift:1108` | ported | `crates/mp/game/src/NPC_behavior.rs:1175-1295` | `func NPC_BSWander()` |
 | `NPC_Surrender` | `oracle/codemp/game/NPC_behavior.c:1317-1339` | `JKAMP_GameLogic/NPC_behavior.swift:1189` | ported | `crates/mp/game/src/NPC_behavior.rs:1300-1328` | `func NPC_Surrender()` |
