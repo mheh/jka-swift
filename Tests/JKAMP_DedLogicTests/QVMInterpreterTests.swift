@@ -6,7 +6,7 @@ import JKATestSupport
 @testable import JKAMP_DedLogic
 
 /// This suite runs the interpreter port of `vm_interpreted.cpp` over `vmtest.qvm` and checks each command of the README beside the image.
-/// The run stays disabled until `VM_SetSymbolMap`, `VM_Debug`, and `VM_PrepareInterpreter` have Swift bodies.
+/// The run stays disabled until `VM_SetSymbolMap`, `VM_Debug`, and `Hunk_Alloc` have Swift bodies.
 @Suite(.serialized)
 struct QVMInterpreterSuite {
     /// The syscalls of one run, each one the call number and its parameters.
@@ -51,7 +51,7 @@ struct QVMInterpreterSuite {
 
     @Test(
         "vmtest.qvm returns the README value of each command",
-        .disabled("VM_CallInterpreted stops at the VM_SetSymbolMap hole and the VM_Debug stub, and VM_PrepareInterpreter has no signature")
+        .disabled("VM_CallInterpreted stops at the VM_SetSymbolMap hole and the VM_Debug stub, and VM_PrepareInterpreter stops at the Hunk_Alloc stub")
     )
     func commandsReturnTheReadmeValues() throws {
         world = EngineWorld()
@@ -93,7 +93,7 @@ struct QVMInterpreterSuite {
     // MARK: - Loading
 
     /// This loads the image into the slot as the QVM arm of `VM_Create` and the two passes of `VM_PrepareInterpreter` do.
-    /// It stands in for `VM_PrepareInterpreter` until that function has a signature, and the call replaces it then.
+    /// It stands in for `VM_PrepareInterpreter` until `Hunk_Alloc` has a body, and the call replaces it then.
     static func load(_ vm: Vm, _ image: Data) {
         let instructionCount = Self.word(image, at: 4)
         let codeOffset = Self.word(image, at: 8)

@@ -68,8 +68,83 @@ VM_PrepareInterpreter
 */
 /// Source: oracle/codemp/qcommon/vm_interpreted.cpp:139
 func VM_PrepareInterpreter(_ vm: Vm, _ header: VmHeader) {
-    // TODO: Port VM_PrepareInterpreter
-    portMissing("VM_PrepareInterpreter", source: "oracle/codemp/qcommon/vm_interpreted.cpp:139")
+    var op: Int32
+    var pc: Int32
+    var code: UnsafeMutableRawPointer
+    var instruction: Int32
+    var codeBase: Slots<Int32>
+
+    // Raven stores the allocation in `vm->codeBase`, and the opaque pointer over the raw allocation is that store, under rule 11.
+    vm.codeBase = OpaquePointer(Hunk_Alloc(vm.codeLength * 4, h_high))			// we're now int aligned
+//	memcpy( vm->codeBase, (byte *)header + header->codeOffset, vm->codeLength );
+    // Raven indexes `vm->instructionPointers` in place, and the Slots over the field's table is that index, under rule 11.
+    let instructionPointers = Slots<Int32>(scalars: UnsafeMutableRawPointer(vm.instructionPointers!), count: Int(vm.instructionPointersLength >> 2))
+
+    // we don't need to translate the instructions, but we still need
+    // to find each instructions starting point for jumps
+    pc = 0
+    instruction = 0
+    // Raven walks the header's bytes through `code`, and the raw pointer over the view's slot is that walk, under rule 11.
+    code = UnsafeMutableRawPointer(header.handle) + header.codeOffset
+    // Raven indexes the code through `(int *)vm->codeBase`, and the Slots over the field's table is that index, under rule 11.
+    codeBase = Slots<Int32>(scalars: UnsafeMutableRawPointer(vm.codeBase!), count: Int(vm.codeLength))
+
+    while instruction < header.instructionCount {
+        instructionPointers[instruction] = pc
+        instruction += 1
+
+        op = Int32(code[byte: pc] as byte)
+        codeBase[pc] = op
+        if pc > header.codeLength {
+            Com_Error(ERR_FATAL, "VM_PrepareInterpreter: pc > header->codeLength")
+        }
+
+        pc += 1
+
+        // these are the only opcodes that aren't a single byte
+        switch op {
+        case OP_ENTER, OP_CONST, OP_LOCAL, OP_LEAVE, OP_EQ, OP_NE, OP_LTI, OP_LEI, OP_GTI, OP_GEI, OP_LTU, OP_LEU, OP_GTU, OP_GEU, OP_EQF, OP_NEF, OP_LTF, OP_LEF, OP_GTF, OP_GEF, OP_BLOCK_COPY:
+            // Raven's `loadWord` on x86 is `*((int *)addr)`, the int at the byte offset.
+            codeBase[pc + 0] = code[int: pc]
+            pc += 4
+
+        case OP_ARG:
+            codeBase[pc + 0] = Int32(code[byte: pc] as byte)
+            pc += 1
+
+        default:
+            break
+        }
+
+    }
+    pc = 0
+    instruction = 0
+    code = UnsafeMutableRawPointer(header.handle) + header.codeOffset
+    codeBase = Slots<Int32>(scalars: UnsafeMutableRawPointer(vm.codeBase!), count: Int(vm.codeLength))
+
+    while instruction < header.instructionCount {
+        op = Int32(code[byte: pc] as byte)
+        instruction += 1
+        pc += 1
+        switch op {
+        case OP_ENTER, OP_CONST, OP_LOCAL, OP_LEAVE, OP_EQ, OP_NE, OP_LTI, OP_LEI, OP_GTI, OP_GEI, OP_LTU, OP_LEU, OP_GTU, OP_GEU, OP_EQF, OP_NEF, OP_LTF, OP_LEF, OP_GTF, OP_GEF, OP_BLOCK_COPY:
+            switch op {
+            case OP_EQ, OP_NE, OP_LTI, OP_LEI, OP_GTI, OP_GEI, OP_LTU, OP_LEU, OP_GTU, OP_GEU, OP_EQF, OP_NEF, OP_LTF, OP_LEF, OP_GTF, OP_GEF:
+                codeBase[pc] = instructionPointers[codeBase[pc]]
+
+            default:
+                break
+            }
+            pc += 4
+
+        case OP_ARG:
+            pc += 1
+
+        default:
+            break
+        }
+
+    }
 }
 
 /// Source: oracle/codemp/qcommon/vm_interpreted.cpp:296
