@@ -43,6 +43,11 @@ class Declarations:
             out.append(f"{INDENT}var {index}: Int32 = 0")
         self.param_walk_heads = []
         for name in self.param_copies:
+            if name in self.storage_params:
+                # A BYTE_STORAGE_LOCALS ruling gives the parameter one slot on the storage class, so the body copies it there, and `&key` is the slot.
+                out.append(f"{INDENT}// AI: Raven hands on the address of `{name}`. The body copies `{name}` into its storage slot and hands on the bytes of the slot.")
+                out.append(f"{INDENT}{self.storage_params[name]}[0] = {name}")
+                continue
             if name in self.cursor_params:
                 out.append(f"{INDENT}// Raven steps his own `{name}` parameter through its bytes, so the body walks a TextCursor over a copy of them.")
                 out.append(f"{INDENT}var {name} = JKAShared.TextCursor(JKAShared.CharBuf({name}))")
@@ -326,6 +331,17 @@ class Declarations:
         if var.spelling in self.chosen_locals:
             # The local only names one of the file-scope variables, and the nested function's inout parameter is that name.
             return ""
+        if var.spelling in self.storage_locals:
+            # A BYTE_STORAGE_LOCALS ruling moves the local to the storage class, so the forward of the file stands for it, with the rule 24 line.
+            element = var.type
+            dims = ""
+            while element.kind == TypeKind.CONSTANTARRAY:
+                dims += f"[{element.element_count}]"
+                element = element.element_type
+            declared = f"{element.spelling} {var.spelling}{dims}"
+            forward = self.storage_locals[var.spelling]
+            return roled([f"// AI: Raven declares `{declared}` on his stack. The body uses the zeroed allocation of the storage class through the `{forward}` forward."],
+                         "comment")[0]
         storage = self.static_storage(var)
         if storage is not None:
             raise Hole(storage)

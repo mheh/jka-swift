@@ -80,9 +80,9 @@ public struct Msg: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/qcommon/qcommon.h:21
-    public var data: OpaquePointer? {
-        get { OpaquePointer(self.raw.pointee.data) }
-        nonmutating set { self.raw.pointee.data = UnsafeMutablePointer(newValue) }
+    public var data: Slots<JKAShared.byte>? {
+        get { self.raw.pointee.data.map { Slots(scalars: UnsafeMutableRawPointer($0), count: Int.max) } }
+        nonmutating set { self.raw.pointee.data = newValue?.base.assumingMemoryBound(to: UInt8.self) }
     }
 
     /// Source: oracle/codemp/qcommon/qcommon.h:22

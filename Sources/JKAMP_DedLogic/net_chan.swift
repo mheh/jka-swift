@@ -107,7 +107,7 @@ func Netchan_TransmitNextFragment(_ chan: Netchan) {
 
     Msg.scratch { send in
         // write the packet header
-        MSG_InitOOB(send, OpaquePointer(send_buf), MAX_PACKETLEN)                // <-- only do the oob here
+        MSG_InitOOB(send, Slots(scalars: send_buf, count: Int(MAX_PACKETLEN)), MAX_PACKETLEN)                // <-- only do the oob here
 
         MSG_WriteLong(send, chan.outgoingSequence | FRAGMENT_BIT)
 
@@ -124,11 +124,11 @@ func Netchan_TransmitNextFragment(_ chan: Netchan) {
 
         MSG_WriteShort(send, chan.unsentFragmentStart)
         MSG_WriteShort(send, fragmentLength)
-        // AI: Raven added the start to the buffer pointer. The Swift buffer is a Slots, so the sum is taken on its base address.
-        MSG_WriteData(send, OpaquePointer(chan.unsentBuffer.base + chan.unsentFragmentStart), fragmentLength)
+        // AI: Raven added the start to the buffer pointer. The Swift buffer is a Slots, so the address is its tail from `suffix(from:)`.
+        MSG_WriteData(send, chan.unsentBuffer.suffix(from: chan.unsentFragmentStart), fragmentLength)
 
         // send the datagram
-        NET_SendPacket(chan.sock, send.cursize, send.data, chan.remoteAddress)
+        NET_SendPacket(chan.sock, send.cursize, send.data.map { OpaquePointer($0.base) }, chan.remoteAddress)
 
         if showpackets!.integer != 0 {
             Com_Printf("%s send %4i : s=%i fragment=%i,%i\n"
@@ -162,7 +162,7 @@ A 0 length will still generate a packet.
 ```
 */
 /// Source: oracle/codemp/qcommon/net_chan.cpp:145
-func Netchan_Transmit(_ chan: Netchan, _ length: Int32, _ data: OpaquePointer?) {
+func Netchan_Transmit(_ chan: Netchan, _ length: Int32, _ data: Slots<JKAShared.byte>) {
     let send_buf = UnsafeMutableRawPointer.allocate(byteCount: Int(MAX_PACKETLEN), alignment: 8)
     defer { send_buf.deallocate() }
 
@@ -178,7 +178,7 @@ func Netchan_Transmit(_ chan: Netchan, _ length: Int32, _ data: OpaquePointer?) 
     if length >= FRAGMENT_SIZE {
         chan.unsentFragments = true
         chan.unsentLength = length
-        Com_Memcpy(OpaquePointer(chan.unsentBuffer.base), data, CUnsignedLong(length))
+        Com_Memcpy(OpaquePointer(chan.unsentBuffer.base), OpaquePointer(data.base), CUnsignedLong(length))
 
         // only send the first fragment now
         Netchan_TransmitNextFragment(chan)
@@ -188,7 +188,7 @@ func Netchan_Transmit(_ chan: Netchan, _ length: Int32, _ data: OpaquePointer?) 
 
     Msg.scratch { send in
         // write the packet header
-        MSG_InitOOB(send, OpaquePointer(send_buf), MAX_PACKETLEN)
+        MSG_InitOOB(send, Slots(scalars: send_buf, count: Int(MAX_PACKETLEN)), MAX_PACKETLEN)
 
         MSG_WriteLong(send, chan.outgoingSequence)
         chan.outgoingSequence += 1
@@ -201,7 +201,7 @@ func Netchan_Transmit(_ chan: Netchan, _ length: Int32, _ data: OpaquePointer?) 
         MSG_WriteData(send, data, length)
 
         // send the datagram
-        NET_SendPacket(chan.sock, send.cursize, send.data, chan.remoteAddress)
+        NET_SendPacket(chan.sock, send.cursize, send.data.map { OpaquePointer($0.base) }, chan.remoteAddress)
 
         if showpackets!.integer != 0 {
             Com_Printf("%s send %4i : s=%i ack=%i\n"
@@ -348,7 +348,7 @@ func Netchan_Process(_ chan: Netchan, _ msg: Msg) -> Bool {
 
         // AI: Raven added the offsets to the buffer pointers. The Swift buffers are raw, so the sums are taken on the base addresses.
         Com_Memcpy(OpaquePointer(chan.fragmentBuffer.base + chan.fragmentLength),
-            OpaquePointer(UnsafeMutableRawPointer(msg.data!) + msg.readcount), CUnsignedLong(fragmentLength))
+            OpaquePointer(msg.data!.base + msg.readcount), CUnsignedLong(fragmentLength))
 
         chan.fragmentLength += fragmentLength
 
@@ -367,8 +367,8 @@ func Netchan_Process(_ chan: Netchan, _ msg: Msg) -> Bool {
         // copy the full message over the partial fragment
 
         // make sure the sequence number is still there
-        UnsafeMutableRawPointer(msg.data!)[int: 0] = sequence
-        Com_Memcpy(OpaquePointer(UnsafeMutableRawPointer(msg.data!) + 4), OpaquePointer(chan.fragmentBuffer.base), CUnsignedLong(chan.fragmentLength))
+        msg.data!.base[int: 0] = sequence
+        Com_Memcpy(OpaquePointer(msg.data!.base + 4), OpaquePointer(chan.fragmentBuffer.base), CUnsignedLong(chan.fragmentLength))
         msg.cursize = chan.fragmentLength + 4
         chan.fragmentLength = 0
         msg.readcount = 4    // past the sequence number
@@ -512,7 +512,7 @@ func NET_GetLoopPacket(_ sock: netsrc_t, _ net_from: Netadr, _ net_message: Msg)
     i = loop.get & (MAX_LOOPBACK - 1)
     loop.get += 1
 
-    Com_Memcpy(net_message.data, OpaquePointer(loop.msgs[i].data.base), CUnsignedLong(loop.msgs[i].datalen))
+    Com_Memcpy(net_message.data.map { OpaquePointer($0.base) }, OpaquePointer(loop.msgs[i].data.base), CUnsignedLong(loop.msgs[i].datalen))
     net_message.cursize = loop.msgs[i].datalen
     net_from.clear()
     net_from.type = NA_LOOPBACK
@@ -608,11 +608,11 @@ func NET_OutOfBandData(_ sock: netsrc_t, _ adr: Netadr, _ format: OpaquePointer?
     }
 
     Msg.scratch { mbuf in
-        mbuf.data = OpaquePointer(string)
+        mbuf.data = Slots(scalars: string, count: Int(MAX_MSGLEN * 2))
         mbuf.cursize = len + 4
         Huff_Compress(mbuf, 12)
         // send the datagram
-        NET_SendPacket(sock, mbuf.cursize, mbuf.data, adr)
+        NET_SendPacket(sock, mbuf.cursize, mbuf.data.map { OpaquePointer($0.base) }, adr)
     }
 }
 

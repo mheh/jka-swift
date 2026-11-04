@@ -758,6 +758,9 @@ class Expressions:
         if name in self.buffer_cursors and name not in self.plain_buffers and ref is not None and ref.kind == CursorKind.PARM_DECL:
             # A stepped buffer parameter is a write cursor, so a read of Raven's pointer is the index into the buffer.
             return self.buffer_cursors[name]
+        if name in self.storage_locals and ref is not None and ref.kind == CursorKind.VAR_DECL:
+            # A BYTE_STORAGE_LOCALS ruling moved the local to the storage class, so a read is the forward, `regs_IsKNI`.
+            return self.storage_locals[name]
         if name in self.names:
             # A read of an optional vector parameter is the force unwrap, where C read through the pointer with no guard.
             return self.names[name] + ("!" if name in self.optional_vectors else "")

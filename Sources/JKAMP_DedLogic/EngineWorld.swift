@@ -65,14 +65,6 @@ public final class EngineWorld {
         "computer",
     ]
 
-    // MARK: - md4.cpp
-
-    /// Raven's `static unsigned char PADDING[64]` of `md4.cpp`.
-    /// Source: oracle/codemp/qcommon/md4.cpp:78
-    var PADDING: [UInt8] = [
-        0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    ]
-
     // MARK: - net_chan.cpp
 
     /// Raven's `static char *netsrcString[2]` of `net_chan.cpp`.

@@ -350,6 +350,10 @@ class Statements:
         pad = INDENT * depth
         name = self.callee_name(cur)
         args = [self.strip(a) for a in list(cur.get_children())[1:]]
+        if name == "Com_Memset":
+            # Raven's `Com_Memset((POINTER)context, 0, sizeof(*context))` of md4.cpp casts the target to a byte pointer, and the target is the record.
+            args = [self.uncast(a) if i == 0 else a for i, a in enumerate(args)]
+            name = "memset"
         if name == "memcpy":
             copied = self.vec4_copy(args)
             if copied is not None:
@@ -400,6 +404,22 @@ class Statements:
                 return [f"{pad}// Raven clears the record with `memset` here. The scratch slot is zero at entry, so the body drops the call."]
             return [f"{pad}{self.expr(targets[0])}.clear()" + self.trailing(cur)]
         return [f"{pad}{self.expr(targets[0])}.copy(from: {self.expr(targets[1])})" + self.trailing(cur)]
+
+    def zero_fill(self, cur: ci.Cursor) -> bool:
+        """True for Raven's `Com_Memset(target, 0, sizeof(...))`, a fill of zero over the size of a type or an object.
+        A `sizeof` of a pointer, `Com_Memset(var, 0, sizeof(var))` of Cvar_Restart_f, is the size of the pointer and not of the record, so it is no fit."""
+        args = [self.strip(a) for a in list(cur.get_children())[1:]]
+        if len(args) != 3 or self.literal_text(args[1]) != "0":
+            return False
+        text = " ".join(self.bytes[args[2].extent.start.offset:args[2].extent.end.offset].decode("utf-8", "replace").split())
+        if not text.startswith("sizeof"):
+            return False
+        named = re.fullmatch(r"sizeof\s*\(?\s*(\w+)\s*\)?", text)
+        for node in args[2].walk_preorder():
+            if named and node.kind == CursorKind.DECL_REF_EXPR and node.spelling == named.group(1) \
+                    and node.type.get_canonical().kind == TypeKind.POINTER:
+                return False
+        return True
 
     def vec4_copy(self, args: list[ci.Cursor]) -> str | None:
         """Raven's `memcpy(calcColor, colorTable[CT_RED], sizeof(vec4_t))` between two colors of four floats, as one store, or None.
@@ -1003,6 +1023,12 @@ class Statements:
                     return [f"{pad}{target} = {self.expr(right)}!" + self.trailing(cur)]
                 value = self.converted(right, lhs_kind) if op == "=" else self.expr(right)
                 return [f"{pad}{target} {op} {value}" + self.trailing(cur)]
+        if self.is_call(cur) and self.callee_name(cur) == "Com_Memset" and self.zero_fill(cur):
+            # The engine's `Com_Memset` of zero over a whole record or array takes the form of `memset`, and any other site keeps the call.
+            try:
+                return self.record_bytes(cur, depth)
+            except Hole:
+                pass
         if self.is_call(cur) and self.callee_name(cur) in RECORD_CALLS:
             return self.record_bytes(cur, depth)
         if self.is_call(cur) and re.match(r"va_(start|end)\s*\(", self.source.slice(cur.extent).strip()):

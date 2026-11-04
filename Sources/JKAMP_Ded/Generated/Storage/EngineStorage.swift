@@ -10,6 +10,18 @@ public final class EngineStorage {
     /// Source: oracle/codemp/qcommon/cm_load.cpp:50
     public let box_model: Cmodel
 
+    /// Raven's `vec3_t p[MAX_POINTS_ON_WINDING]` local of `RemoveColinearPoints` in `cm_polylib.cpp`.
+    /// Source: oracle/codemp/qcommon/cm_polylib.cpp:69
+    public let p: Slots<JKAShared.vec3_t>
+
+    /// Raven's `vec3_t hullPoints[MAX_HULL_POINTS]` local of `AddWindingToConvexHull` in `cm_polylib.cpp`.
+    /// Source: oracle/codemp/qcommon/cm_polylib.cpp:632
+    public let hullPoints: Slots<JKAShared.vec3_t>
+
+    /// Raven's `vec3_t newHullPoints[MAX_HULL_POINTS]` local of `AddWindingToConvexHull` in `cm_polylib.cpp`.
+    /// Source: oracle/codemp/qcommon/cm_polylib.cpp:633
+    public let newHullPoints: Slots<JKAShared.vec3_t>
+
     /// Raven's `cmd_t cmd_text` of `cmd_common.cpp`.
     /// Source: oracle/codemp/qcommon/cmd_common.cpp:17
     public let cmd_text: Cmd
@@ -37,6 +49,14 @@ public final class EngineStorage {
     /// Raven's `int key` parameter of `Com_BlockChecksumKey` in `md4.cpp`.
     /// Source: oracle/codemp/qcommon/md4.cpp:282
     public let key_Com_BlockChecksumKey: Slots<Int32>
+
+    /// Raven's `UINT4 x[16]` local of `MD4Transform` in `md4.cpp`.
+    /// Source: oracle/codemp/qcommon/md4.cpp:174
+    public let x: Slots<UInt32>
+
+    /// Raven's `unsigned char bits[8]` local of `MD4Final` in `md4.cpp`.
+    /// Source: oracle/codemp/qcommon/md4.cpp:149
+    public let bits: Slots<JKAShared.byte>
 
     /// Raven's `huffman_t msgHuff` of `msg.cpp`.
     /// Source: oracle/codemp/qcommon/msg.cpp:19
@@ -66,8 +86,27 @@ public final class EngineStorage {
     /// Source: oracle/codemp/qcommon/vm.cpp:29
     public let vmTable: Slots<Vm>
 
+    /// Raven's `unsigned regs[4]` local of `Is3DNOW` in `win_shared.cpp`.
+    /// Source: oracle/codemp/win32/win_shared.cpp:137
+    public let regs_Is3DNOW: Slots<UInt32>
+
+    /// Raven's `unsigned regs[4]` local of `IsKNI` in `win_shared.cpp`.
+    /// Source: oracle/codemp/win32/win_shared.cpp:176
+    public let regs_IsKNI: Slots<UInt32>
+
+    /// Raven's `unsigned regs[4]` local of `IsWIL` in `win_shared.cpp`.
+    /// Source: oracle/codemp/win32/win_shared.cpp:190
+    public let regs_IsWIL: Slots<UInt32>
+
+    /// Raven's `unsigned int regs[4]` local of `IsMMX` in `win_shared.cpp`.
+    /// Source: oracle/codemp/win32/win_shared.cpp:230
+    public let regs_IsMMX: Slots<UInt32>
+
     public init() {
         self.box_model = EngineStorage.record(of: Cmodel.self)
+        self.p = Slots(vectors: EngineStorage.bytes(count: Int(JKAMP_Ded.MAX_POINTS_ON_WINDING) * JKAShared.vec3_t.byteCount), count: Int(JKAMP_Ded.MAX_POINTS_ON_WINDING))
+        self.hullPoints = Slots(vectors: EngineStorage.bytes(count: 128 * JKAShared.vec3_t.byteCount), count: 128)
+        self.newHullPoints = Slots(vectors: EngineStorage.bytes(count: 128 * JKAShared.vec3_t.byteCount), count: 128)
         self.cmd_text = EngineStorage.record(of: Cmd.self)
         self.cmd_text_buf = Slots(scalars: EngineStorage.bytes(count: 16384), count: 16384)
         self.cvar_indexes = EngineStorage.records(count: 1224, of: JKAMP.Cvar.self)
@@ -75,6 +114,8 @@ public final class EngineStorage {
         self.seq = Slots(scalars: EngineStorage.bytes(count: 65536), count: 65536)
         self.digest = Slots(scalars: EngineStorage.bytes(count: 4 * MemoryLayout<Int32>.stride), count: 4)
         self.key_Com_BlockChecksumKey = Slots(scalars: EngineStorage.bytes(count: 1 * MemoryLayout<Int32>.stride), count: 1)
+        self.x = Slots(scalars: EngineStorage.bytes(count: 16 * MemoryLayout<UInt32>.stride), count: 16)
+        self.bits = Slots(scalars: EngineStorage.bytes(count: 8), count: 8)
         self.msgHuff = EngineStorage.record(of: Huffman.self)
         self.loopbacks = EngineStorage.records(count: 2, of: Loopback.self)
         self.gLocalModifier = EngineStorage.record(of: JKAMP.SharedEntity.self)
@@ -82,10 +123,17 @@ public final class EngineStorage {
         self.sv = EngineStorage.record(of: Server.self)
         self.sv_master = EngineStorage.table(count: Int(JKAMP_Ded.MAX_MASTER_SERVERS), of: JKAMP.Cvar.self)
         self.vmTable = EngineStorage.records(count: 3, of: Vm.self)
+        self.regs_Is3DNOW = Slots(scalars: EngineStorage.bytes(count: 4 * MemoryLayout<UInt32>.stride), count: 4)
+        self.regs_IsKNI = Slots(scalars: EngineStorage.bytes(count: 4 * MemoryLayout<UInt32>.stride), count: 4)
+        self.regs_IsWIL = Slots(scalars: EngineStorage.bytes(count: 4 * MemoryLayout<UInt32>.stride), count: 4)
+        self.regs_IsMMX = Slots(scalars: EngineStorage.bytes(count: 4 * MemoryLayout<UInt32>.stride), count: 4)
     }
 
     deinit {
         UnsafeMutableRawPointer(self.box_model.handle).deallocate()
+        self.p.base.deallocate()
+        self.hullPoints.base.deallocate()
+        self.newHullPoints.base.deallocate()
         UnsafeMutableRawPointer(self.cmd_text.handle).deallocate()
         self.cmd_text_buf.base.deallocate()
         self.cvar_indexes.base.deallocate()
@@ -93,6 +141,8 @@ public final class EngineStorage {
         self.seq.base.deallocate()
         self.digest.base.deallocate()
         self.key_Com_BlockChecksumKey.base.deallocate()
+        self.x.base.deallocate()
+        self.bits.base.deallocate()
         UnsafeMutableRawPointer(self.msgHuff.handle).deallocate()
         self.loopbacks.base.deallocate()
         UnsafeMutableRawPointer(self.gLocalModifier.handle).deallocate()
@@ -100,6 +150,10 @@ public final class EngineStorage {
         UnsafeMutableRawPointer(self.sv.handle).deallocate()
         self.sv_master.base.deallocate()
         self.vmTable.base.deallocate()
+        self.regs_Is3DNOW.base.deallocate()
+        self.regs_IsKNI.base.deallocate()
+        self.regs_IsWIL.base.deallocate()
+        self.regs_IsMMX.base.deallocate()
     }
 
     /// One zeroed record, read through its view.
