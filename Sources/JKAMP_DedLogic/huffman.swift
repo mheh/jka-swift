@@ -387,7 +387,7 @@ func Huff_Decompress(_ mbuf: Msg, _ offset: Int32) {
 
         size = mbuf.cursize - offset
         // Raven walks the message's bytes through `buffer`, and the raw pointer over the `data` field is that walk, under rule 11.
-        let buffer: UnsafeMutableRawPointer = UnsafeMutableRawPointer(mbuf.data!) + offset
+        let buffer: UnsafeMutableRawPointer = mbuf.data!.base + offset
 
         if size <= 0 {
             return true
@@ -461,7 +461,7 @@ func Huff_Compress(_ mbuf: Msg, _ offset: Int32) {
 
         size = mbuf.cursize - offset
         // Raven walks the message's bytes through `buffer`, and the raw pointer over the `data` field is that walk, under rule 11.
-        let buffer: UnsafeMutableRawPointer = UnsafeMutableRawPointer(mbuf.data!) + offset
+        let buffer: UnsafeMutableRawPointer = mbuf.data!.base + offset
 
         if size <= 0 {
             return true

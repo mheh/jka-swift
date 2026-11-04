@@ -49,7 +49,8 @@ import reexport
 from fnsweep import binop_assign_op, rhs_function, root_var
 from overlay import MACROS, written_arguments
 from reexport import REPO, SOURCES
-from rulings import BYTE_STORAGE_LOCALS, BYTE_STORAGE_VARS, DEAD, HAND_MACROS, HAND_VARS, LIBC_FUNCTIONS, NEVER_NULL_VARS, NOT_PORTED, PUBLIC_NAMES, RETURNS, TYPES
+from rulings import BYTE_STORAGE_LOCALS, BYTE_STORAGE_VARS, DEAD, HAND_MACROS, HAND_VARS, LIBC_FUNCTIONS, NEVER_NULL_VARS, NOT_PORTED, PUBLIC_NAMES, RETURNS, \
+    SCALAR_DATA_TABLES, TYPES
 from store import Store, combined, file_hash, named
 from table import Param, SourceFile, Table, swift_name
 
@@ -163,6 +164,8 @@ class Variable:
         self.walk: tuple[str, str] | None = None
         # The functions that declare the local, for a local that a BYTE_STORAGE_LOCALS ruling moves to the storage class.
         self.local: tuple[str, ...] = ()
+        # True for a local whose ruling names its function, because another function declares a local of the same name.
+        self.suffixed = False
 
     @property
     def parameter(self) -> bool:
@@ -172,8 +175,9 @@ class Variable:
     @property
     def spelled(self) -> str:
         """The Swift name of the variable: Raven's name, or the index name of a file-scope walk pointer, `pushed_pIndex`.
-        The storage of a parameter takes the function name as a suffix, `key_Com_BlockChecksumKey`, because the parameter keeps Raven's name."""
-        if self.parameter and self.local:
+        The storage of a parameter takes the function name as a suffix, `key_Com_BlockChecksumKey`, because the parameter keeps Raven's name.
+        So does the storage of a local that several functions declare, each with its own allocation, `regs_IsKNI`."""
+        if (self.parameter or self.suffixed) and self.local:
             return f"{self.name}_{self.local[0]}"
         return self.walk[1] if self.walk is not None else self.name
 
@@ -427,7 +431,9 @@ class Skeleton:
             self.variables[path.stem].append(var)
             by_name[var.name].append(var)
         # A local that a BYTE_STORAGE_LOCALS ruling moves to the storage class stands as a variable of its file, at its first declaration.
-        for name, functions in BYTE_STORAGE_LOCALS.items():
+        for key, functions in BYTE_STORAGE_LOCALS.items():
+            # A key of a local and its function names one local of several that share the name, and its storage takes the suffix.
+            name = key[0] if isinstance(key, tuple) else key
             fn = self.by_name.get(functions[0])
             local = next((c for c in fn.cur.walk_preorder() if c.kind in (CursorKind.VAR_DECL, CursorKind.PARM_DECL) and c.spelling == name),
                          None) if fn else None
@@ -435,6 +441,7 @@ class Skeleton:
                 continue
             var = Variable(local, fn.stem)
             var.local = functions
+            var.suffixed = isinstance(key, tuple)
             self.map_variable(var)
             self.variables[fn.stem].append(var)
         owners: dict[str, set[str]] = defaultdict(set)
@@ -632,6 +639,10 @@ class Skeleton:
         canonical = t.get_canonical()
         element = canonical
         depth = 0
+        if var.name in SCALAR_DATA_TABLES and var.data:
+            # tables.py copies Raven's scalar table into C storage, and the view target reads it as a Slots of its scalar.
+            var.reason = "storage"
+            return
         if element.kind == TypeKind.INCOMPLETEARRAY and var.data:
             # The C++ parse rejects the pointer-to-int cast of Raven's `NETF` on a 64-bit target, so his table of rows keeps no bound.
             # tables.py copies the rows into C storage, where the cast is a warning, so the table is still data.
@@ -664,6 +675,12 @@ class Skeleton:
             var.swift = f"Slots<{var.view}>" if depth else var.view
             return
         if self.table.views.is_vec3(t) or (depth and "vec3_t" in t.spelling):
+            if depth == 2 and var.local:
+                # A BYTE_STORAGE_LOCALS ruling moves a `vec3_t` array local to the storage class, so a body hands it to a Slots parameter.
+                var.reason = "byte_storage"
+                var.count = canonical.element_count
+                var.swift = "Slots<JKAShared.vec3_t>"
+                return
             if depth and not self.table.views.is_vec3(t) and var.data and target_of(var.stem) != SHARED:
                 # Raven's table of vectors is data, so it takes the shape every data table of the module takes:
                 # C storage in the tree's C target with his initializer as written, read as a Slots over that array.
@@ -679,6 +696,8 @@ class Skeleton:
             # A scalar `vec4_t` global is one SIMD4 value, as guide line 241 spells the typedef.
             var.swift = "JKAShared.vec4_t"
             return
+        # The element type as Raven spelled it, which keeps a typedef that TYPES names.
+        typed = (t.element_type.spelling if depth == 1 else t.spelling).replace("const ", "")
         if not depth and var.name in self.table.file_walks:
             # Raven walks the pointer over a file-scope table of records, so the port holds the index of the slot it points at.
             var.walk = self.table.file_walks[var.name]
@@ -704,11 +723,12 @@ class Skeleton:
                     var.view = inner[:-1]
                     var.count = canonical.element_count
                     return
-        elif depth <= 1 and var.local and element.kind in INT_ELEMENTS:
+        elif depth <= 1 and var.local and (element.kind in INT_ELEMENTS or typed in TYPES):
             # A BYTE_STORAGE_LOCALS ruling moves an `int` array local, or an `int` parameter whose address Raven takes, to the storage class.
             # The body hands it on as bytes, `MD4Final((unsigned char *)digest, &ctx)`, through the `bytes` view of the Slots.
+            # A TYPES typedef keeps its spelling, so `UINT4 x[16]` of MD4Transform is a Slots of UInt32 and not of the canonical `unsigned long`.
             var.reason = "byte_storage"
-            var.swift = f"Slots<{self.table.views.scalar(element, C_TARGET)}>"
+            var.swift = f"Slots<{TYPES.get(typed) or self.table.views.scalar(element, C_TARGET)}>"
             var.count = canonical.element_count if depth else 1
             return
         elif depth == 1 and element.kind in (TypeKind.CHAR_S, TypeKind.UCHAR) and (var.name in BYTE_STORAGE_VARS or var.local):
@@ -1593,6 +1613,13 @@ class Skeleton:
             exported = self.table.views.exported_names(C_TARGET)
             for stem, var in tables:
                 declaration = " ".join(self.declaration_text(var).split("=", 1)[0].split()).removeprefix("static ")
+                if var.local and not var.parameter and declaration.startswith(var.name):
+                    # A local can stand after another declarator of one declaration, `UINT4 a = state[0], ..., x[16]`, so its type gives the text.
+                    element, dims = var.cur.type, ""
+                    while element.kind == TypeKind.CONSTANTARRAY:
+                        dims += f"[{element.element_count}]"
+                        element = element.element_type
+                    declaration = f"{element.spelling} {var.name}{dims}"
                 owner = f"local of {' and '.join(f'`{name}`' for name in var.local)} in" if var.local else "of"
                 if var.parameter:
                     owner = f"parameter of `{var.local[0]}` in"
@@ -1603,7 +1630,11 @@ class Skeleton:
                 elif var.count:
                     bound = declaration[declaration.index("[") + 1:declaration.index("]")].strip()
                     count = f"Int({exported[bound]}.{bound})" if bound in exported else str(var.count)
-                if var.kind == "byte_storage" and var.swift.startswith("Slots") and var.swift != "Slots<JKAShared.byte>":
+                if var.kind == "byte_storage" and var.swift == "Slots<JKAShared.vec3_t>":
+                    # A `vec3_t` array local of a ruling, one zeroed allocation of Raven's 12-byte vectors.
+                    inits.append(f"        self.{var.field} = Slots(vectors: {cls}.bytes(count: {count} * JKAShared.vec3_t.byteCount), count: {count})")
+                    deinits.append(f"        self.{var.field}.base.deallocate()")
+                elif var.kind == "byte_storage" and var.swift.startswith("Slots") and var.swift != "Slots<JKAShared.byte>":
                     # An `int` array or an `int` parameter of a ruling, one zeroed allocation of its elements.
                     element = var.swift[len("Slots<"):-1]
                     inits.append(f"        self.{var.field} = Slots(scalars: {cls}.bytes(count: {count} * MemoryLayout<{element}>.stride), count: {count})")

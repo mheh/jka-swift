@@ -33,8 +33,20 @@ var c_removed: Int32 {
     set { world.variables.c_removed = newValue }
 }
 
+/// Source: oracle/codemp/qcommon/cm_polylib.cpp:69
+// AI: Raven declares `p` on the stack of RemoveColinearPoints. The function uses one zeroed allocation on the storage class.
+var p: Slots<JKAShared.vec3_t> { world.storage.p }
+
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:625
 let MAX_HULL_POINTS = 128 as Int32
+
+/// Source: oracle/codemp/qcommon/cm_polylib.cpp:632
+// AI: Raven declares `hullPoints` on the stack of AddWindingToConvexHull. The function uses one zeroed allocation on the storage class.
+var hullPoints: Slots<JKAShared.vec3_t> { world.storage.hullPoints }
+
+/// Source: oracle/codemp/qcommon/cm_polylib.cpp:633
+// AI: Raven declares `newHullPoints` on the stack of AddWindingToConvexHull. The function uses one zeroed allocation on the storage class.
+var newHullPoints: Slots<JKAShared.vec3_t> { world.storage.newHullPoints }
 
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:17
 func pw(_ w: Winding) {

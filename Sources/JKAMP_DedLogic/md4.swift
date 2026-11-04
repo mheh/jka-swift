@@ -40,11 +40,16 @@ let S33 = 11 as Int32
 let S34 = 15 as Int32
 
 /// Source: oracle/codemp/qcommon/md4.cpp:78
-/// Raven's data table, a hand property of `EngineWorld`.
-var PADDING: [UInt8] {
-    get { world.PADDING }
-    set { world.PADDING = newValue }
-}
+// Raven wrote: static unsigned char PADDING[64]
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
+
+/// Source: oracle/codemp/qcommon/md4.cpp:149
+// AI: Raven declares `bits` on the stack of MD4Final. The function uses one zeroed allocation on the storage class.
+var bits: Slots<JKAShared.byte> { world.storage.bits }
+
+/// Source: oracle/codemp/qcommon/md4.cpp:174
+// AI: Raven declares `x` on the stack of MD4Transform. The function uses one zeroed allocation on the storage class.
+var x: Slots<UInt32> { world.storage.x }
 
 /// Source: oracle/codemp/qcommon/md4.cpp:269
 // AI: Raven declares `digest` on the stack of Com_BlockChecksum and Com_BlockChecksumKey. The functions share one zeroed allocation on the storage class.
@@ -142,12 +147,12 @@ func MD4Update(_ context: Md4Ctx, _ input: Slots<UInt8>, _ inputLen: UInt32) {
 
     /* Transform as many times as possible.*/
     if inputLen >= partLen {
-        Com_Memcpy(context.buffer.suffix(from: Int(index)), input, Int32(partLen))
+        Com_Memcpy(context.buffer.suffix(from: index), input, partLen)
         MD4Transform(context.state, context.buffer)
 
         i = partLen
         while i + 63 < inputLen {
-            MD4Transform(context.state, input.suffix(from: Int(i)))
+            MD4Transform(context.state, input.suffix(from: i))
             i += 64
         }
 
@@ -157,7 +162,7 @@ func MD4Update(_ context: Md4Ctx, _ input: Slots<UInt8>, _ inputLen: UInt32) {
     }
 
     /* Buffer remaining input */
-    Com_Memcpy(context.buffer.suffix(from: Int(index)), input.suffix(from: Int(i)), Int32(inputLen - i))
+    Com_Memcpy(context.buffer.suffix(from: index), input.suffix(from: i), inputLen - i)
 }
 
 /**

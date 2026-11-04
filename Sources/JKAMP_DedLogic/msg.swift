@@ -407,7 +407,7 @@ var string_MSG_ReadStringLine: CharBuf {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:46
-func MSG_Init(_ buf: Msg, _ data: OpaquePointer?, _ length: Int32) {
+func MSG_Init(_ buf: Msg, _ data: Slots<JKAShared.byte>, _ length: Int32) {
     if !g_nOverrideChecked {
         //Check for netf overrides
         MSG_CheckNETFPSFOverrides(false)
@@ -428,7 +428,7 @@ func MSG_Init(_ buf: Msg, _ data: OpaquePointer?, _ length: Int32) {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:70
-func MSG_InitOOB(_ buf: Msg, _ data: OpaquePointer?, _ length: Int32) {
+func MSG_InitOOB(_ buf: Msg, _ data: Slots<JKAShared.byte>, _ length: Int32) {
     if !g_nOverrideChecked {
         //Check for netf overrides
         MSG_CheckNETFPSFOverrides(false)
@@ -519,15 +519,15 @@ func MSG_WriteBits(_ msg: Msg, _ value: Int32, _ bits: Int32) {
     // Raven indexes the bytes behind `data`, and the raw pointer over that buffer is the index, under rule 11.
     if msg.oob {
         if bits == 8 {
-            UnsafeMutableRawPointer(msg.data!)[byte: msg.cursize] = value
+            msg.data!.base[byte: msg.cursize] = value
             msg.cursize += 1
             msg.bit += 8
         } else if bits == 16 {
-            UnsafeMutableRawPointer(msg.data!)[ushort: msg.cursize] = value
+            msg.data!.base[ushort: msg.cursize] = value
             msg.cursize += 2
             msg.bit += 16
         } else if bits == 32 {
-            UnsafeMutableRawPointer(msg.data!)[int: msg.cursize] = value
+            msg.data!.base[int: msg.cursize] = value
             msg.cursize += 4
             msg.bit += 8
         } else {
@@ -541,7 +541,7 @@ func MSG_WriteBits(_ msg: Msg, _ value: Int32, _ bits: Int32) {
             nbits = bits & 7
             i = 0
             while i < nbits {
-                Huff_putBit((value & 1), UnsafeMutableRawPointer(msg.data!), &msg.bit)
+                Huff_putBit((value & 1), msg.data!.base, &msg.bit)
                 value = (value >> 1)
                 i += 1
             }
@@ -550,7 +550,7 @@ func MSG_WriteBits(_ msg: Msg, _ value: Int32, _ bits: Int32) {
         if bits != 0 {
             i = 0
             while i < bits {
-                Huff_offsetTransmit(msgHuff.compressor, (value & 0xff), UnsafeMutableRawPointer(msg.data!), &msg.bit)
+                Huff_offsetTransmit(msgHuff.compressor, (value & 0xff), msg.data!.base, &msg.bit)
                 value = (value >> 8)
                 i += 8
             }
@@ -579,15 +579,15 @@ func MSG_ReadBits(_ msg: Msg, _ bits: Int32) -> Int32 {
     // Raven indexes the bytes behind `data`, and the raw pointer over that buffer is the index, under rule 11.
     if msg.oob {
         if bits == 8 {
-            value = Int32(UnsafeMutableRawPointer(msg.data!)[byte: msg.readcount] as UInt8)
+            value = Int32(msg.data!.base[byte: msg.readcount] as UInt8)
             msg.readcount += 1
             msg.bit += 8
         } else if bits == 16 {
-            value = UnsafeMutableRawPointer(msg.data!)[ushort: msg.readcount]
+            value = msg.data!.base[ushort: msg.readcount]
             msg.readcount += 2
             msg.bit += 16
         } else if bits == 32 {
-            value = UnsafeMutableRawPointer(msg.data!)[int: msg.readcount]
+            value = msg.data!.base[int: msg.readcount]
             msg.readcount += 4
             msg.bit += 32
         } else {
@@ -599,7 +599,7 @@ func MSG_ReadBits(_ msg: Msg, _ bits: Int32) -> Int32 {
             nbits = bits & 7
             i = 0
             while i < nbits {
-                value |= (Huff_getBit(UnsafeMutableRawPointer(msg.data!), &msg.bit) << i)
+                value |= (Huff_getBit(msg.data!.base, &msg.bit) << i)
                 i += 1
             }
             bits = bits - nbits
@@ -607,7 +607,7 @@ func MSG_ReadBits(_ msg: Msg, _ bits: Int32) -> Int32 {
         if bits != 0 {
             i = 0
             while i < bits {
-                Huff_offsetReceive(msgHuff.decompressor.tree!, &get, UnsafeMutableRawPointer(msg.data!), &msg.bit)
+                Huff_offsetReceive(msgHuff.decompressor.tree!, &get, msg.data!.base, &msg.bit)
                 value |= (get << (i + nbits))
                 i += 8
             }
@@ -634,12 +634,12 @@ func MSG_WriteByte(_ sb: Msg, _ c: Int32) {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:298
-func MSG_WriteData(_ buf: Msg, _ data: OpaquePointer?, _ length: Int32) {
+func MSG_WriteData(_ buf: Msg, _ data: Slots<JKAShared.byte>, _ length: Int32) {
     var i: Int32
     // Raven reads the caller's bytes through `(byte *)data`, and the raw pointer over that buffer is the read, under rule 11.
     i = 0
     while i < length {
-        MSG_WriteByte(buf, Int32(UnsafeMutableRawPointer(data!)[byte: i] as UInt8))
+        MSG_WriteByte(buf, Int32(data.base[byte: i] as UInt8))
         i += 1
     }
 }
@@ -891,13 +891,13 @@ func MSG_ReadAngle16(_ msg: Msg) -> Float {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:548
-func MSG_ReadData(_ msg: Msg, _ data: OpaquePointer?, _ len: Int32) {
+func MSG_ReadData(_ msg: Msg, _ data: Slots<JKAShared.byte>, _ len: Int32) {
     var i: Int32
 
     // Raven writes the caller's bytes through `(byte *)data`, and the raw pointer over that buffer is the write, under rule 11.
     i = 0
     while i < len {
-        UnsafeMutableRawPointer(data!)[byte: i] = MSG_ReadByte(msg)
+        data.base[byte: i] = MSG_ReadByte(msg)
         i += 1
     }
 }

@@ -310,6 +310,10 @@ class Calls:
             return self.text_tail(inner)
         if target_of(self.fn.stem) == BG and self.entity_slot(inner) is not None:
             return self.entity_slot(inner)
+        if param is not None and self.types.is_slots(param[1]) and inner.kind == CursorKind.CSTYLE_CAST_EXPR:
+            viewed = self.byte_view(inner, param[1])
+            if viewed is not None:
+                return viewed
         addressed = inner.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(inner)[0] == "&"
         if addressed:
             inner = self.unary_parts(inner)[2]
@@ -423,7 +427,9 @@ class Calls:
             # The scalar array field of a view reads as its Slots, `cgs.gameModels`, and the callee takes the Slots of that scalar.
             # A TYPES typedef keeps its spelling, so `context->state` of `UINT4 state[4]` passes to a `Slots<UInt32>`.
             return text
-        if param is not None and self.types.is_slots(param[1]):
+        if param is not None and self.types.is_slots(param[1]) and not ((self.text_kind(inner) is not None or self.unwrap(inner).kind == CursorKind.STRING_LITERAL)
+                     and self.overload_takes(callee, position, "CharBuf")):
+            # A text argument or a literal passes on to an overload that takes a CharBuf, `MSG_WriteData(sb, string, l+1)` of the MSG_WriteData row.
             raven = " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split())
             raise Hole(f"Raven passes `{raven}` to `{callee}`, whose `{param[0]}` parameter takes the Slots over the records, "
                        "and Swift holds one record here. A Slots over one record has no form yet.")
@@ -484,6 +490,35 @@ class Calls:
             # The view holds Raven's `vec3_t axis[3]` field as its Slots, and the forward of that name takes the Slots by value.
             return text
         return f"&{text}" if inout else text
+
+    def byte_view(self, cast: ci.Cursor, swift: str) -> str | None:
+        """Raven's `(unsigned char *)digest` handed to a Slots of bytes, as the `bytes` view of the Slots, or None for another cast.
+        A source that is already a Slots of bytes passes as it stands, and the address of a parameter of a BYTE_STORAGE_LOCALS ruling
+        passes the bytes of its slot, `key_Com_BlockChecksumKey.bytes`."""
+        if swift.replace("JKAShared.", "").removesuffix("?") not in ("Slots<byte>", "Slots<UInt8>"):
+            return None
+        t = cast.type.get_canonical()
+        if t.kind != TypeKind.POINTER or t.get_pointee().get_canonical().kind not in (TypeKind.UCHAR, TypeKind.CHAR_S, TypeKind.VOID):
+            return None
+        source = self.uncast(cast)
+        if source.kind == CursorKind.UNARY_OPERATOR and self.unary_parts(source)[0] == "&":
+            operand = self.unwrap(self.unary_parts(source)[2])
+            if operand.kind == CursorKind.DECL_REF_EXPR and operand.spelling in self.storage_params \
+                    and operand.referenced is not None and operand.referenced.kind == CursorKind.PARM_DECL:
+                return f"{self.storage_params[operand.spelling]}.bytes"
+            return None
+        if source.kind != CursorKind.DECL_REF_EXPR or not self.slots_source(source):
+            return None
+        text = self.expr(source)
+        param = self.params_by_name.get(source.spelling) if source.referenced is not None and source.referenced.kind == CursorKind.PARM_DECL else None
+        if param is not None:
+            held = (param.swift or "").replace("JKAShared.", "").removesuffix("?")
+            return text if held in ("Slots<byte>", "Slots<UInt8>") else f"{text}.bytes"
+        c = source.type.get_canonical()
+        element = c.element_type if c.kind == TypeKind.CONSTANTARRAY else c.get_pointee() if c.kind == TypeKind.POINTER else None
+        if element is not None and element.get_canonical().kind == TypeKind.UCHAR:
+            return text
+        return f"{text}.bytes"
 
     def four_floats(self, cur: ci.Cursor) -> bool:
         """True for Raven's `float[4]` that Swift holds as `Slots<Float>` or `[Float]`: a view field, a local that is no `vec4_t`, or a global of that spelling."""

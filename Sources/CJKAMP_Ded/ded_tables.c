@@ -807,3 +807,10 @@ netField_t	playerStateFields[] =
 
 //=====_OPTIMIZED_VEHICLE_NETWORKING=======================================================================
 #endif//_OPTIMIZED_VEHICLE_NETWORKING
+
+// Raven wrote `static unsigned char PADDING[64] = {` at md4.cpp:78, and ded_tables.h declares the table `extern`,
+// so this declaration line and its brace are the tool's own and Raven's bytes start at his first row.
+unsigned char PADDING[64] = {
+// Source: oracle/codemp/qcommon/md4.cpp:79-80
+0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+};

@@ -180,11 +180,66 @@ extension Slots {
         return Slots(base: self.base + index * self.stride, count: self.count - index, stride: self.stride, read: self.read, write: self.write)
     }
 
+    /// Raven's `data + offset` with an offset of any C integer type, `&input[i]` for an `unsigned int i`.
+    /// The `Int` form above stays, because a generic form alone loses to the `Collection` form for an `Int` offset.
+    // AI: Raven adds an offset of any integer type to the pointer. The accessor takes any C integer, so the call site has no conversion.
+    public func suffix(from index: some BinaryInteger) -> Slots<Element> {
+        self.suffix(from: Int(index))
+    }
+
     /// Raven's `(unsigned char *)digest`, the bytes of the array as a `Slots` of bytes over the same memory.
     /// Source: oracle/codemp/qcommon/md4.cpp:275
     // AI: Raven casts the array to a byte pointer. The accessor gives a Slots of bytes over the same memory.
     public var bytes: Slots<byte> {
         Slots<byte>(scalars: self.base, count: self.count * self.stride)
+    }
+}
+
+// MARK: - The words of a byte array
+
+extension Slots where Element == byte {
+    /// The `Int32` at a byte offset, Raven's `*(int *)(msg->data + ofs)` over a byte buffer.
+    // AI: Raven casts a byte pointer to a word pointer. The subscript reads and writes the word at the byte offset of the Slots.
+    public subscript(int ofs: some BinaryInteger) -> Int32 {
+        get { self.loadWord(at: ofs, as: Int32.self) }
+        nonmutating set { self.storeWord(newValue, at: ofs) }
+    }
+
+    /// The `Float` at a byte offset, Raven's `*(float *)((byte *)to + field->offset)`.
+    // AI: Raven casts a byte pointer to a float pointer. The subscript reads and writes the float at the byte offset of the Slots.
+    public subscript(float ofs: some BinaryInteger) -> Float {
+        get { self.loadWord(at: ofs, as: Float.self) }
+        nonmutating set { self.storeWord(newValue, at: ofs) }
+    }
+
+    /// The `unsigned short` at a byte offset, Raven's `*(unsigned short *)(msg->data + ofs)`.
+    /// The getter zero-extends the two bytes as C does, and the setter truncates, as a narrow view field does.
+    // AI: Raven casts a byte pointer to an `unsigned short` pointer. The subscript reads and writes the two bytes at the byte offset of the Slots.
+    public subscript(ushort ofs: some BinaryInteger) -> Int32 {
+        get { Int32(self.loadWord(at: ofs, as: UInt16.self)) }
+        nonmutating set { self.storeWord(UInt16(truncatingIfNeeded: newValue), at: ofs) }
+    }
+
+    /// One byte at a byte offset, Raven's `((byte *)data)[i]`.
+    /// The getter sign-extends the byte as the raw pointer subscript does for a signed `char`, and the setter truncates.
+    // AI: Raven indexes a byte pointer with a result of any integer type. The subscript converts at the byte offset of the Slots, as the raw pointer form does.
+    public subscript<T: BinaryInteger>(byte ofs: some BinaryInteger) -> T {
+        get { T(truncatingIfNeeded: self.loadWord(at: ofs, as: Int8.self)) }
+        nonmutating set { self.storeWord(UInt8(truncatingIfNeeded: newValue), at: ofs) }
+    }
+
+    /// The value of type `T` at a byte offset, with a trap when its bytes run past the Slots, where C reads past the buffer.
+    private func loadWord<T>(at ofs: some BinaryInteger, as type: T.Type) -> T {
+        let offset = Int(ofs)
+        precondition(offset >= 0 && offset + MemoryLayout<T>.size <= self.count, "Slots byte offset \(offset) is out of the range 0..<\(self.count)")
+        return (self.base + offset).loadUnaligned(as: T.self)
+    }
+
+    /// The store of a value of type `T` at a byte offset, with the same trap.
+    private func storeWord<T>(_ value: T, at ofs: some BinaryInteger) {
+        let offset = Int(ofs)
+        precondition(offset >= 0 && offset + MemoryLayout<T>.size <= self.count, "Slots byte offset \(offset) is out of the range 0..<\(self.count)")
+        (self.base + offset).storeBytes(of: value, as: T.self)
     }
 }
 

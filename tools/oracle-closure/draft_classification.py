@@ -11,13 +11,16 @@ from clang.cindex import CursorKind, TypeKind
 
 from spelling import INT_KINDS
 
-from rulings import CHARBUF_ALLOCS, FIELDS, NEVER_NULL_VARS
+from rulings import BYTE_STORAGE_LOCALS, CHARBUF_ALLOCS, FIELDS, NEVER_NULL_VARS
 import closure as C
 from skeleton import BG, Function, target_of
 from table import ASSIGN_OPS, Cursor, swift_name
 from views import BUFFER_SUFFIX
 from layout import INDENT, port_note
 
+
+# The Swift name of every storage forward of a BYTE_STORAGE_LOCALS ruling, so a local of another function with that name keeps its own type.
+STORAGE_NAMES = {f"{key[0]}_{functions[0]}" if isinstance(key, tuple) else key for key, functions in BYTE_STORAGE_LOCALS.items()}
 
 class Hole(Exception):
     """A construct the draft has no rule for. The message is the reason the Port-note carries."""
@@ -395,6 +398,29 @@ class Classification:
         while inner.kind == CursorKind.CSTYLE_CAST_EXPR:
             inner = self.unwrap([k for k in inner.get_children() if k.kind.is_expression()][-1])
         return inner
+
+    def storage_local_names(self, fn: Function) -> tuple[dict[str, str], dict[str, str]]:
+        """Raven's locals and parameters of the function that a BYTE_STORAGE_LOCALS ruling moves to the storage class, by his name,
+        with the name of the forward the stub declares: `digest`, `regs_IsKNI` for a ruling that names the function, `key_Com_BlockChecksumKey` for a parameter."""
+        locals_: dict[str, str] = {}
+        params: dict[str, str] = {}
+        parameters = {c.spelling for c in fn.cur.get_arguments()}
+        for key, functions in BYTE_STORAGE_LOCALS.items():
+            name = key[0] if isinstance(key, tuple) else key
+            if fn.name not in functions:
+                continue
+            if name in parameters:
+                params[name] = f"{name}_{functions[0]}"
+            else:
+                locals_[name] = f"{name}_{functions[0]}" if isinstance(key, tuple) else name
+        return locals_, params
+
+    def foreign_storage(self, cur: ci.Cursor) -> bool:
+        """True for a local of the body whose name is the storage forward of a local of another function, which keeps its own type."""
+        ref = cur.referenced
+        return ref is not None and ref.kind == CursorKind.VAR_DECL and ref.semantic_parent is not None \
+            and ref.semantic_parent.kind == CursorKind.FUNCTION_DECL and swift_name(cur.spelling) in STORAGE_NAMES \
+            and cur.spelling not in getattr(self, "storage_locals", {})
 
     def charbuf_alloc_names(self, fn: ci.Cursor) -> dict[str, ci.Cursor]:
         """Every `char *` local whose every store is one CHARBUF_ALLOCS call at one constant size, by Raven's name, with the size argument.
@@ -880,6 +906,11 @@ class Classification:
             return False
         if inner.spelling in self.slots_locals:
             return True
+        if inner.spelling in self.storage_locals and inner.referenced is not None and inner.referenced.kind == CursorKind.VAR_DECL:
+            # A BYTE_STORAGE_LOCALS ruling moved the local to the storage class, and its forward is a Slots.
+            return True
+        if self.foreign_storage(inner):
+            return False
         param = self.params_by_name.get(inner.spelling)
         if param is not None:
             return self.types.is_slots(param.swift)
@@ -994,6 +1025,10 @@ class Classification:
             # A record array field, `bgAllEvents[n].torsoAnimEvents`, reads as the Slots accessor of its view.
             return True
         if inner.kind != CursorKind.DECL_REF_EXPR:
+            return False
+        if inner.spelling in getattr(self, "storage_locals", {}) and inner.referenced is not None and inner.referenced.kind == CursorKind.VAR_DECL:
+            return True
+        if self.foreign_storage(inner):
             return False
         param = self.params_by_name.get(inner.spelling)
         if param is not None:

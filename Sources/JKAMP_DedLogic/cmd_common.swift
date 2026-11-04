@@ -91,7 +91,7 @@ func Cbuf_AddText(_ text: String) {
         return
     }
     // AI: Raven copied the `char *` text to the address of one byte. The text crosses as a CharBuf, and the address is the Slots tail from `suffix(from:)`.
-    Com_Memcpy(cmd_text.data!.suffix(from: Int(cmd_text.cursize)), CharBuf(text), l)
+    Com_Memcpy(cmd_text.data!.suffix(from: cmd_text.cursize), CharBuf(text), l)
     cmd_text.cursize += l
 }
 
@@ -218,7 +218,7 @@ func Cbuf_Execute() {
             i += 1
             cmd_text.cursize -= i
             // AI: Raven moved the bytes from the pointer sum `text+i`. The source is the Slots tail from `suffix(from:)`.
-            memmove(text, text.suffix(from: Int(i)), cmd_text.cursize)
+            memmove(text, text.suffix(from: i), cmd_text.cursize)
         }
 
         // execute the command line

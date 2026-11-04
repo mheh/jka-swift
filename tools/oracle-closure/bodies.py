@@ -230,6 +230,8 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.bytes = C.parsed_bytes(C.ORACLE / C.folder_of(fn.stem) / C.file_name(fn.stem))
         self.names = {c.spelling: p.name for c, p in zip(fn.cur.get_arguments(), fn.params)}
         self.params_by_name = {c.spelling: p for c, p in zip(fn.cur.get_arguments(), fn.params)}
+        # Raven's locals and parameters that a BYTE_STORAGE_LOCALS ruling moves to the storage class, with the forward of each.
+        self.storage_locals, self.storage_params = self.storage_local_names(fn)
         self.scratch_names: dict[str, int] = {}
         # The NULL outputs of the call being drafted: the lifted lines that hold its comment, the comment's index, the callee, the last position, and the names.
         self.null_outputs: tuple[list[str], int, str | None, int, list[str]] | None = None

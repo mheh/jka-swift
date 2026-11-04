@@ -189,6 +189,8 @@ The value is zero for any element, `false` for a `qboolean` element, and -1 for 
 A two-dimensional array of scalars takes the same call, `G_WeaponLogPickups.fill(0)`, which fills every row.
 A memset of zero over a whole record local drops, because the scratch slot is zero at entry, only where the target is the record itself and not a pointer to one, the size is the record's own, and no loop encloses the call. Otherwise it is the view's `clear()`. A memset of zero over a whole local array of records in the `count` form drops under the same conditions, and otherwise it is `zero()` on the `Slots`.
 The record's own size is `sizeof` of the record, of the pointee, or of the pointee's type name under any typedef, so `memset(*pVeh, 0, sizeof(Vehicle_t))` through a `Vehicle_t *` is `pVeh.clear()`.
+The engine's `Com_Memset` of zero with a `sizeof` size takes the same forms, and a cast of the target drops, so `Com_Memset((POINTER)context, 0, sizeof(*context))` of `MD4Final` is `context.clear()` and `Com_Memset((POINTER)x, 0, sizeof(x))` over a `Slots` is `x.zero()`.
+A `Com_Memset` with another value, another size, or `sizeof` of a pointer, `Com_Memset(var, 0, sizeof(var))` of `Cvar_Restart_f`, keeps the call or its Port-note.
 A memset of zero over the first N bytes of a `CharBuf` is Raven's `memset` in `JKAShared`, so `memset(buff, 0, MAX_STRING_CHARS)` over the `char buff[MAX_STRING_CHARS*4]` of `BuildShaderStateConfig` is `memset(&buff, 0, MAX_STRING_CHARS)`.
 A memset over any other partial size keeps its Port-note, and so does a memset with a value the rules above do not give or over a record with no view.
 
@@ -341,11 +343,16 @@ A cast of a pointer that can be NULL maps over the optional, `pVeh.m_pPilot.map 
 A `void *` field that holds one of several records, which Raven casts back by another field, has a `FIELDS` row of kind `raw` in `rulings.py`, and the view spells it `UnsafeMutableRawPointer?`. So `(listBoxDef_t*)item->typeData` reads `item.typeData.map { ListBoxDef($0) }`, and `memset(item->typeData, 0, sizeof(listBoxDef_t))` reads `ListBoxDef(item.typeData!).clear()`.
 A `void *` field that every store fills with one record or NULL has a `FIELDS` row of kind `("view", record)`, and the view spells it as that record's optional view, so `(menuDef_t*)item->parent` reads `item.parent`.
 A `byte *` field that holds the base of a byte buffer a body indexes has a `FIELDS` row of kind `bytes`, and the view spells it `Slots<JKAShared.byte>?` with the widest count, so `cmd_text.data[i]` reads `cmd_text.data![i]`.
+`Msg.data` takes the same row, and so do the `byte *` and `void *` parameters that store into it or read through it, `MSG_Init`, `MSG_InitOOB`, `MSG_WriteData`, `MSG_ReadData`, and `Netchan_Transmit`.
+A word at a byte offset of a `Slots<byte>` reads the word subscripts `[int:]`, `[float:]`, `[ushort:]`, and `[byte:]` of `Slots.swift`, the forms of the raw pointer subscripts, so `*(int *)(msg->data + msg->cursize)` reads `msg.data![int: msg.cursize]` and `((byte *)data)[i]` reads `data[byte: i]`.
+A word at a field offset of a record, `*(int *)((byte *)from + field->offset)` of the delta functions, reads the bytes of the record, `Slots(record: from).bytes[int: field.offset]`.
 A `T **` field that holds the address of one record pointer slot has a `FIELDS` row of kind `slot`, and the view spells it `Slots<View?>?` of count 1 over that slot, so `*node->head` reads `node.head![0]`.
 Two records that hold one address share the slot, as the nodes of one block share their `head`. `Node.head` and `Huff.freelist` take this form.
 Raven's `&huff->nodePtrs[i]` of one element handed on as a slot reads `slot(at:)` of `Slots`, a `Slots` of count 1 over element `i`, so `get_ppnode` returns `huff.nodePtrs.slot(at: i)`.
-Raven's `data + offset` handed on as a pointer reads `suffix(from:)` of `Slots`, a `Slots` over the elements from the offset to the end, so a body writes `mbuf.data!.suffix(from: Int(offset))` with no arithmetic.
+Raven's `data + offset` handed on as a pointer reads `suffix(from:)` of `Slots`, a `Slots` over the elements from the offset to the end, so a body writes `mbuf.data!.suffix(from: offset)` with no arithmetic.
+`suffix(from:)` and `slot(at:)` take any C integer, so `&input[i]` of an `unsigned int i` reads `input.suffix(from: i)` with no conversion.
 Raven's cast of an array to `unsigned char *` reads `bytes` of `Slots`, a `Slots<byte>` over the same memory, so `MD4Final((unsigned char *)digest, &ctx)` passes `digest.bytes`.
+The drafter writes this form, a cast of a `Slots<byte>` passes as it stands, `MD4Update(ctx, buffer, length)`, and the cast of `&key` of a parameter of the entry passes the bytes of its slot, `key_Com_BlockChecksumKey.bytes`.
 A scalar array field of a view whose element is a TYPES typedef passes to a `Slots` parameter of that typedef as it stands, `MD4Transform(context.state, context.buffer)`.
 Raven's cast of a slot to `node_t **` reads `slotAddress`, the accessor of `Sources/JKAMP_Ded/NodeSlots.swift` that reads and writes the first slot as the address of another slot.
 A field whose C name is a member of every view, `handle` or `raw`, has a `FIELD_NAMES` row of `rulings.py` where a body reads it, and the view spells it under that name, so `vmCvar->handle` reads `vmCvar.cvarHandle`.
@@ -448,6 +455,7 @@ The function carries one comment line that says this.
 `tools/oracle-closure/tables.py` writes that file from one piece per table, each naming the oracle file and the first and last line of Raven's text, and it copies those bytes as they stand.
 The header `Sources/CJKAMP/include/bg_tables.h` stays hand work, and it declares each array with a written bound, because the Swift importer drops an array of unknown bound, and clang checks the bound against the initializer.
 Every other struct-typed table with Raven's data, such as `fields[]` of `g_spawn.c`, is C storage the same way, and its stub entry says so.
+A scalar table with Raven's data that `SCALAR_DATA_TABLES` of `rulings.py` names, `PADDING` of `md4.cpp`, is C storage the same way, and the view target reads it as a `Slots` of its scalar, so `MD4Update(context, PADDING, padLen)` reads as Raven wrote it.
 A table of records that hold the address of a function or of a struct is not C storage, because C storage cannot hold the address of a Swift function or of a `GameStorage` record.
 Such a table is a hand array of `<View>Row` values on `GameWorld`, with Raven's rows in his order, and the stub forwards it under Raven's name.
 `spawns` of `g_spawn.c` is the hand `let spawns: [SpawnRow]`, one row per Raven name with a closure that calls the spawn function of that name, and the array's count takes the place of his `{0, 0}` row.
@@ -483,6 +491,10 @@ The entry lists the functions that declare the local, and they share the allocat
 An `int` array local of the entry, `int digest[4]` of `Com_BlockChecksum` and `Com_BlockChecksumKey`, is a `Slots<Int32>` of its count, and a body hands it on as bytes through `digest.bytes`.
 An `int` parameter of the entry whose address Raven takes, `&key` of `Com_BlockChecksumKey`, is a `Slots<Int32>` of one slot, and its storage takes the function name as a suffix, `key_Com_BlockChecksumKey`, because the parameter keeps Raven's name.
 The body copies the parameter into the slot and hands on `key_Com_BlockChecksumKey.bytes`.
+An `unsigned int` array local or a local of a `TYPES` typedef, `UINT4 x[16]` of `MD4Transform`, is a `Slots` of its Swift scalar, `Slots<UInt32>`, and an `unsigned char` array local, `bits` of `MD4Final`, is a `Slots<JKAShared.byte>`.
+A `vec3_t` array local of the entry, `hullPoints` of `AddWindingToConvexHull`, is a `Slots<JKAShared.vec3_t>` of Raven's 12-byte vectors.
+Where several functions each declare a local of one name, `unsigned regs[4]` of the four CPUID callers of `win_shared.cpp`, the entry's key names the local and its function, `("regs", "IsKNI")`, and each function has its own allocation, which takes the function name as a suffix, `regs_IsKNI`.
+The drafter reads the entry: the local's declaration is a rule 24 line that names the forward, and a read of the local is the forward.
 A variable Raven declares with no initializer is his all the same, zeroed by the loader, and its entry says C's zero where the initializer would be.
 A file-scope array of struct pointers, such as `gWPArray`, is one zeroed allocation the world owns, on the generated `GameStorage` class in `Sources/JKAMP_Game/Generated/Storage/GameStorage.swift`, as a `Slots` of optional views, born and freed with `GameWorld`.
 The stub carries the name at Raven's line, `var gWPArray: Slots<JKAMP.Wpobject?> { world.storage.gWPArray }`, so a test that swaps the world swaps the tables with it.
@@ -584,6 +596,8 @@ A macro constant that expands to a double literal, `M_PI` or `ARMOR_PROTECTION`,
 A C library call that takes and returns `double` inside that expression takes its arguments in `Double` too, `Int32(ceil(Double(dropTime) * 1000.0))`, so the `Double` overload answers as C's call does.
 This is the one place a body writes a conversion Raven did not write, and a Raven explicit cast inside it, `(float)pm->ps->speed`, stays as `Float(ps.speed)`.
 Raven's `sizeof(T)` stored into an `int` is `Int32(View.byteCount)`, so `pm->entSize = sizeof(gentity_t)` is `pm.entSize = Int32(Entity.byteCount)`.
+Raven's `sizeof` of a C scalar or a vector in a host body is the `byteCount` static of `Sources/JKAShared/Views/ByteCount.swift`, with the size of the C type, so `s = sizeof(vec_t)*3*points + sizeof(int)` reads `s = Int32(vec_t.byteCount) * 3 * points + Int32(Int32.byteCount)`, the `Int32(View.byteCount)` form, and `vec3_t.byteCount` is 12.
+Raven's `(int)((winding_t *)0)->p[n]`, the byte offset of point n, is `Winding.byteCount(points: n)` of `Sources/JKAMP_Ded/WindingSize.swift`.
 `byteCount` is `MemoryLayout<T>.size` over the imported C struct, and Swift keeps the C layout of an imported struct, tail padding included, so `size`, `stride`, and C's `sizeof` are equal.
 For `gentity_t` the value is 1832, which `LayoutTests.swift` checks.
 Raven's `sizeof(t)/sizeof(t[0])` over a table that is a Swift array is `t.count`, compared with no cast, `meansOfDeath >= modNames.count`.
@@ -716,9 +730,11 @@ The port names the first field only when the conversion that the record feeds is
 A record whose first field holds no text keeps a Port-note.
 A format string that is not a literal at the call site keeps a Port-note, and a conversion other than `%s` keeps a Port-note too.
 `Com_Memcpy` and `memmove` of a host body have `Slots` overloads in the same file, each with Raven's count in bytes.
-`Com_Memcpy(_ dest: Slots<T>, _ src: Slots<T>, _ count: Int32)` copies between two C arrays of one element type, `Com_Memcpy(w.p, p, nump * size)`.
+The count of each overload takes any C integer, so `Com_Memcpy(context.buffer.suffix(from: index), input, partLen)` passes Raven's `unsigned int` with no conversion.
+`Com_Memcpy(_ dest: Slots<T>, _ src: Slots<T>, _ count: some BinaryInteger)` copies between two C arrays of one element type, `Com_Memcpy(w.p, p, nump * size)`.
+`Com_Memcpy(_ dest: V, _ src: V, _ count: some BinaryInteger)` copies the first `count` bytes between two views of one record type, for a record Raven allocates past its C type, so `Com_Memcpy(c, w, size)` of `CopyWinding` reads as Raven wrote it.
 `Com_Memcpy` from a `CharBuf` into a `Slots<byte>` copies text into a byte buffer, `Com_Memcpy(cmd_text.data!, text, len - 1)`, and `Com_Memcpy(&line, text, i)` copies a `Slots<byte>` back into an `inout CharBuf`.
-`memmove(_ dest: Slots<byte>, _ src: Slots<byte>, _ count: Int32)` moves bytes between two `Slots` that can overlap, so `memmove(text, text+i, cmd_text.cursize)` reads `memmove(text, text.suffix(from: Int(i)), cmd_text.cursize)`.
+`memmove(_ dest: Slots<byte>, _ src: Slots<byte>, _ count: some BinaryInteger)` moves bytes between two `Slots` that can overlap, so `memmove(text, text+i, cmd_text.cursize)` reads `memmove(text, text.suffix(from: i), cmd_text.cursize)`.
 `sscanf` lives in `Sources/JKAShared/Scan.swift`, one overload per target shape in use, `inout vec3_t` for `"%f %f %f"`, `inout Float` for `"%f"`, and `inout Int32` for `"%d"`, each returning the count read as C does.
 Swift has no `inout` variadic, so `sscanf(value, "%f %f %f", &vec)` is Raven's call with the three addresses as the one vector, and each overload checks its format.
 `Q_strlwr`, `Q_strupr`, and `Q_CleanStr` rewrite a local buffer in place, `Q_CleanStr(&netname)`, and each has a value form, `String` to `String`, for the two shapes with no `CharBuf` behind them.

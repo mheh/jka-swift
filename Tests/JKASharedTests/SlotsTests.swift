@@ -114,3 +114,54 @@ func slotsRecordCopy() {
     // then
     #expect(Array(to) == [1, 2, 0])
 }
+
+@Test("the word subscripts of a byte Slots read and write a word at a byte offset")
+func byteSlotsWordSubscripts() {
+    let buffer = UnsafeMutableRawPointer.allocate(byteCount: 16, alignment: 16)
+    defer { buffer.deallocate() }
+    buffer.initializeMemory(as: UInt8.self, repeating: 0, count: 16)
+    let bytes = Slots<byte>(scalars: buffer, count: 16)
+
+    // when
+    bytes[int: 4] = -2
+    bytes[float: 8] = 1.5
+    bytes[ushort: 12] = 0x1_ffff
+    bytes[byte: 15] = 0xf0 as Int32
+
+    // then
+    #expect(bytes[int: 4] == -2)
+    #expect(buffer.load(fromByteOffset: 4, as: Int32.self) == -2)
+    #expect(bytes[float: 8] == 1.5)
+    #expect(bytes[ushort: 12] == 0xffff)
+    #expect(bytes[byte: 15] as Int32 == -16)
+    #expect(bytes[15] == 0xf0)
+}
+
+@Test("suffix and the copy counts take any C integer")
+func slotsTakeAnyInteger() {
+    let buffer = UnsafeMutableRawPointer.allocate(byteCount: 8, alignment: 16)
+    defer { buffer.deallocate() }
+    buffer.initializeMemory(as: UInt8.self, repeating: 0, count: 8)
+    let bytes = Slots<byte>(scalars: buffer, count: 8)
+    let start: UInt32 = 2
+    let count: UInt32 = 3
+
+    // when
+    let tail = bytes.suffix(from: start)
+    tail[0] = 7
+    Com_Memcpy(bytes.suffix(from: Int32(5)), bytes.suffix(from: start), count)
+
+    // then
+    #expect(tail.count == 6)
+    #expect(bytes[2] == 7)
+    #expect(bytes[5] == 7)
+}
+
+@Test("byteCount gives the size of Raven's C type")
+func byteCountOfCTypes() {
+    #expect(vec_t.byteCount == 4)
+    #expect(vec3_t.byteCount == 12)
+    #expect(Int32.byteCount == 4)
+    #expect(byte.byteCount == 1)
+    #expect(word.byteCount == 2)
+}

@@ -1,4 +1,4 @@
-// Raven's netField tables that ded_tables.c defines as written, declared so a view can bind over them.
+// Raven's netField tables and the md4 padding that ded_tables.c defines as written, declared so a view can bind over them.
 #ifndef JKA_DED_TABLES_H
 #define JKA_DED_TABLES_H
 
@@ -16,5 +16,9 @@ extern netField_t vehPlayerStateFields[69];
 // Source: oracle/codemp/qcommon/msg.cpp:1829
 extern netField_t playerStateFields[152];
 #endif
+
+// Raven declares the table `static` in md4.cpp, and ded_tables.c defines it without the `static`, so this header can declare it.
+// Source: oracle/codemp/qcommon/md4.cpp:78
+extern unsigned char PADDING[64];
 
 #endif

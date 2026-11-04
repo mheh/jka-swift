@@ -3,6 +3,22 @@ import JKAMP
 import JKAShared
 import JKAMP_Ded
 
+/// Source: oracle/codemp/win32/win_shared.cpp:137
+// AI: Raven declares `regs` on the stack of Is3DNOW. The function uses one zeroed allocation on the storage class.
+var regs_Is3DNOW: Slots<UInt32> { world.storage.regs_Is3DNOW }
+
+/// Source: oracle/codemp/win32/win_shared.cpp:176
+// AI: Raven declares `regs` on the stack of IsKNI. The function uses one zeroed allocation on the storage class.
+var regs_IsKNI: Slots<UInt32> { world.storage.regs_IsKNI }
+
+/// Source: oracle/codemp/win32/win_shared.cpp:190
+// AI: Raven declares `regs` on the stack of IsWIL. The function uses one zeroed allocation on the storage class.
+var regs_IsWIL: Slots<UInt32> { world.storage.regs_IsWIL }
+
+/// Source: oracle/codemp/win32/win_shared.cpp:230
+// AI: Raven declares `regs` on the stack of IsMMX. The function uses one zeroed allocation on the storage class.
+var regs_IsMMX: Slots<UInt32> { world.storage.regs_IsMMX }
+
 /// Source: oracle/codemp/win32/win_shared.cpp:416
 let TOLERANCE = 1 as Int32
 

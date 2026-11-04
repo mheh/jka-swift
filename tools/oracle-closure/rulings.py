@@ -287,11 +287,28 @@ BYTE_STORAGE_VARS = {"gSharedBuffer", "cmd_text_buf"}
 # `int digest[4]` of Com_BlockChecksum and Com_BlockChecksumKey goes to MD4Final as bytes at md4.cpp:275 and :291, so it is a Slots of Int32.
 # Com_BlockChecksumKey hands `&key` of its `int key` parameter to MD4Update at md4.cpp:289, so the parameter has one Int32 of storage too.
 # A parameter's storage takes the function name as a suffix, `key_Com_BlockChecksumKey`, because the parameter keeps Raven's name.
+# `UINT4 x[16]` of MD4Transform goes to Decode at md4.cpp:175, and `unsigned char bits[8]` of MD4Final goes to Encode and MD4Update at :152 and :160.
+# `unsigned regs[4]` of each CPUID caller of win_shared.cpp goes to CPUID, and each function keeps its own, so the key names the local and its function.
+# A key of a local and its function gives the storage the function name as a suffix, `regs_IsKNI`, the rule of two static locals of one name.
+# `vec3_t p[MAX_POINTS_ON_WINDING]` of RemoveColinearPoints goes to Com_Memcpy at cm_polylib.cpp:92,
+# and `hullPoints` and `newHullPoints` of AddWindingToConvexHull go to Com_Memcpy at :644, :703, and :710, so each is a Slots of vec3_t.
 BYTE_STORAGE_LOCALS = {
     "seq": ("Huff_Decompress", "Huff_Compress"),
     "digest": ("Com_BlockChecksum", "Com_BlockChecksumKey"),
     "key": ("Com_BlockChecksumKey",),
+    "x": ("MD4Transform",),
+    "bits": ("MD4Final",),
+    ("regs", "Is3DNOW"): ("Is3DNOW",),
+    ("regs", "IsKNI"): ("IsKNI",),
+    ("regs", "IsWIL"): ("IsWIL",),
+    ("regs", "IsMMX"): ("IsMMX",),
+    "p": ("RemoveColinearPoints",),
+    "hullPoints": ("AddWindingToConvexHull",),
+    "newHullPoints": ("AddWindingToConvexHull",),
 }
+# A scalar data table Raven initializes at file scope that tables.py copies into C storage, which the view target reads as a Slots of its scalar.
+# `static unsigned char PADDING[64]` of md4.cpp goes to MD4Update at md4.cpp:157, whose `input` is a Slots of bytes.
+SCALAR_DATA_TABLES = {"PADDING"}
 # The field twin of BYTE_STORAGE_VARS: a character array field whose address the engine holds, which the view reads as the field's address.
 # `cg.sharedBuffer` of cg_local.h goes to the engine through `trap_CG_RegisterSharedMemory`, and the engine callbacks of cg_main.c read records at its base.
 BYTE_STORAGE_FIELDS = {("cg_t", "sharedBuffer")}
@@ -309,6 +326,8 @@ FIELDS = {
     ("cgs_t", "capturedItem"): ("view", "menuDef_t"),
     # cmd_common.cpp:56 stores `cmd_text_buf`, a BYTE_STORAGE_VARS buffer, and the bodies index `cmd_text.data[i]` at :78, :103, and :110.
     ("cmd_t", "data"): "bytes",
+    # MSG_Init and MSG_InitOOB store the caller's buffer at msg.cpp:66 and :89, and the bodies index `msg->data[i]` at :171 to :254.
+    ("msg_t", "data"): "bytes",
     # A `node_t **` field holds the address of one `node_t *` slot, and huffman.cpp:150 shares one slot between the nodes of a block.
     ("node_t", "head"): "slot",
     ("huff_t", "freelist"): "slot",
@@ -572,12 +591,15 @@ PARAMS = {
     ("Huff_offsetTransmit", "fout"): "raw",
     # VM_CallInterpreted of vm_interpreted.cpp:296 reads ten words through `int *args` and never writes them.
     ("VM_CallInterpreted", "args"): "int_array",
-    # MSG_Init and MSG_InitOOB store `data` into the `byte *data` field of msg_t, msg.cpp:66 and :89, which the view spells OpaquePointer?.
-    ("MSG_Init", "data"): "opaque",
-    ("MSG_InitOOB", "data"): "opaque",
-    # Netchan_Transmit hands `data` to MSG_WriteData as its `const void *` at net_chan.cpp:182,
-    # and NET_OutOfBandData copies `format` into its message at net_chan.cpp:597.
-    ("Netchan_Transmit", "data"): "opaque",
+    # MSG_Init and MSG_InitOOB store `data` into the `byte *data` field of msg_t, msg.cpp:66 and :89, which the view spells as a Slots of bytes.
+    ("MSG_Init", "data"): "bytes",
+    ("MSG_InitOOB", "data"): "bytes",
+    # MSG_WriteData reads the caller's bytes through `(byte *)data` at msg.cpp:301, and MSG_ReadData writes them at :552.
+    ("MSG_WriteData", "data"): "bytes",
+    ("MSG_ReadData", "data"): "bytes",
+    # Netchan_Transmit hands `data` to MSG_WriteData as its `const void *` at net_chan.cpp:182, so it takes the same Slots of bytes.
+    ("Netchan_Transmit", "data"): "bytes",
+    # NET_OutOfBandData copies `format` into its message at net_chan.cpp:597.
     ("NET_OutOfBandData", "format"): "opaque",
 }
 

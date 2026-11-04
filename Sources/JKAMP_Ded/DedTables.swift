@@ -21,6 +21,11 @@ public nonisolated(unsafe) let pilotPlayerStateFields: Slots<NetField> = makePil
 /// Source: oracle/codemp/qcommon/msg.cpp:1736
 public nonisolated(unsafe) let vehPlayerStateFields: Slots<NetField> = makeVehPlayerStateFields()
 
+/// Raven's padding table of md4.cpp, the 64 bytes MD4Final appends, over the C storage of `Sources/CJKAMP_Ded/ded_tables.c`.
+/// Source: oracle/codemp/qcommon/md4.cpp:78
+// AI: Raven keeps `PADDING` as a static array of md4.cpp. The port reads the C storage as a Slots of bytes, so MD4Update takes it.
+public nonisolated(unsafe) let PADDING: Slots<JKAShared.byte> = makePADDING()
+
 // MARK: - The bind over each C array
 
 /// The compiler crashes if a global initializer takes the address inline, so each table binds in a function.
@@ -46,4 +51,10 @@ private func makeVehPlayerStateFields() -> Slots<NetField> {
     let base = withUnsafeMutablePointer(to: &CJKAMP_Ded.vehPlayerStateFields) { UnsafeMutableRawPointer($0) }
     let count = MemoryLayout.size(ofValue: CJKAMP_Ded.vehPlayerStateFields) / NetField.stride
     return Slots(views: base, count: count, stride: NetField.stride)
+}
+
+private func makePADDING() -> Slots<JKAShared.byte> {
+    let base = withUnsafeMutablePointer(to: &CJKAMP_Ded.PADDING) { UnsafeMutableRawPointer($0) }
+    let count = MemoryLayout.size(ofValue: CJKAMP_Ded.PADDING)
+    return Slots(scalars: base, count: count)
 }
