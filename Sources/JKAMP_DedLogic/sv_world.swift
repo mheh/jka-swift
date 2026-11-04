@@ -37,7 +37,7 @@ be returned, otherwise a custom box tree will be constructed.
 ```
 */
 /// Source: oracle/codemp/server/sv_world.cpp:19
-func SV_ClipHandleForEntity(_ ent: SharedEntity) -> JKAShared.clipHandle_t {
+func SV_ClipHandleForEntity(_ ent: JKAMP.SharedEntity) -> JKAShared.clipHandle_t {
     // TODO: Port SV_ClipHandleForEntity
     portMissing("SV_ClipHandleForEntity", source: "oracle/codemp/server/sv_world.cpp:19")
 }
@@ -96,13 +96,13 @@ SV_UnlinkEntity
 ```
 */
 /// Source: oracle/codemp/server/sv_world.cpp:151
-func SV_UnlinkEntity(_ gEnt: SharedEntity) {
+func SV_UnlinkEntity(_ gEnt: JKAMP.SharedEntity) {
     // TODO: Port SV_UnlinkEntity
     portMissing("SV_UnlinkEntity", source: "oracle/codemp/server/sv_world.cpp:151")
 }
 
 /// Source: oracle/codemp/server/sv_world.cpp:189
-func SV_LinkEntity(_ gEnt: SharedEntity) {
+func SV_LinkEntity(_ gEnt: JKAMP.SharedEntity) {
     // TODO: Port SV_LinkEntity
     portMissing("SV_LinkEntity", source: "oracle/codemp/server/sv_world.cpp:189")
 }

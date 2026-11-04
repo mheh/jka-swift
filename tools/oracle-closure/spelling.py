@@ -263,6 +263,9 @@ class Types:
         canonical = t.get_canonical()
         if facts.ruled == "raw":
             return Answer("UnsafeMutableRawPointer", "bare")
+        if facts.ruled == "opaque":
+            # The body stores the `byte *` into a `byte *` field or hands it on as a `void *`, so it takes the field's spelling.
+            return Answer("OpaquePointer?", "bare")
         if facts.ruled == "vec3_mut":
             return Answer("inout JKAShared.vec3_t", "vec3_mut")
         if facts.ruled == "vec3_const":
@@ -490,8 +493,16 @@ class Types:
                 swift = self.scalar(element, TARGET)
                 if swift is not None and self.known(swift):
                     return Answer(f"inout [{swift}]", "out_array")
+        if canonical.kind == TypeKind.RECORD and not facts.traps:
+            # A record Raven passes by value, `netadr_t adr` of NET_SendPacket, crosses as its view, the shape a record pointer has.
+            record = self.record_name(t)
+            if record and record in self.views.views:
+                return Answer(self.views.qualified_view(record, TARGET), "view")
         if canonical.kind in (TypeKind.RECORD, TypeKind.CONSTANTARRAY, TypeKind.INCOMPLETEARRAY):
             return None
+        if canonical.kind == TypeKind.BOOL:
+            # The C++ `bool` of the host files is `Bool` at the surface, the spelling `qboolean` has.
+            return Answer("Bool", "bare")
         swift = self.scalar(t, TARGET)
         if swift is None or not self.known(swift):
             return None
@@ -510,6 +521,9 @@ class Types:
             return Answer(TYPES[t.spelling], crossing=f"{TYPES[t.spelling]}(word)")
         if canonical.kind == TypeKind.VOID:
             return Answer(None)
+        if canonical.kind == TypeKind.BOOL:
+            # The C++ `bool` of the host files is `Bool` at the surface, the spelling `qboolean` has.
+            return Answer("Bool", crossing="word != 0")
         if canonical.kind == TypeKind.FLOAT:
             return Answer("Float", crossing="Float(bitPattern: UInt32(truncatingIfNeeded: word))")
         if canonical.kind == TypeKind.POINTER:

@@ -493,7 +493,7 @@ func CM_ModelBounds(_ model: JKAShared.clipHandle_t, _ mins: inout JKAShared.vec
 /// Source: oracle/codemp/qcommon/cm_load.cpp:1036
 // TODO: Port signature
 // Raven wrote: CCMLandScape *CM_RegisterTerrain(const char *config, bool server)
-// No table row for `bool server`.
+// No table row for the return `CCMLandScape *`.
 func CM_RegisterTerrain() -> Never {
     // TODO: Port CM_RegisterTerrain
     portMissing("CM_RegisterTerrain", source: "oracle/codemp/qcommon/cm_load.cpp:1036")

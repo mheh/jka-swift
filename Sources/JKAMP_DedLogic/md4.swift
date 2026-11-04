@@ -54,10 +54,7 @@ MD4 initialization. Begins an MD4 operation, writing a new context.
 ```
 */
 /// Source: oracle/codemp/qcommon/md4.cpp:100
-// TODO: Port signature
-// Raven wrote: void MD4Init (MD4_CTX *context)
-// No table row for `MD4_CTX * context`.
-func MD4Init() -> Never {
+func MD4Init(_ context: Md4Ctx) {
     // TODO: Port MD4Init
     portMissing("MD4Init", source: "oracle/codemp/qcommon/md4.cpp:100")
 }
@@ -70,7 +67,7 @@ MD4 block update operation. Continues an MD4 message-digest operation, processin
 /// Source: oracle/codemp/qcommon/md4.cpp:112
 // TODO: Port signature
 // Raven wrote: void MD4Update (MD4_CTX *context, const unsigned char *input, unsigned int inputLen)
-// No table row for `MD4_CTX * context`.
+// No table row for `const unsigned char * input`.
 func MD4Update() -> Never {
     // TODO: Port MD4Update
     portMissing("MD4Update", source: "oracle/codemp/qcommon/md4.cpp:112")

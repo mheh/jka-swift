@@ -69,10 +69,7 @@ func Z_Validate() {
 }
 
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:157
-// TODO: Port signature
-// Raven wrote: void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit /* = qfalse */, int iUnusedAlign /* = 4 */)
-// No table row for the return `void *`.
-func Z_Malloc() -> Never {
+func Z_Malloc(_ iSize: Int32, _ eTag: JKAShared.memtag_t, _ bZeroit: Bool, _ iUnusedAlign: Int32) -> UnsafeMutableRawPointer {
     // TODO: Port Z_Malloc
     portMissing("Z_Malloc", source: "oracle/codemp/qcommon/z_memman_pc.cpp:157")
 }
@@ -287,10 +284,7 @@ Allocate permanent (until the hunk is cleared) memory
 ```
 */
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:791
-// TODO: Port signature
-// Raven wrote: void *Hunk_Alloc( int size, ha_pref preference )
-// No table row for the return `void *`.
-func Hunk_Alloc() -> Never {
+func Hunk_Alloc(_ size: Int32, _ preference: JKAMP.ha_pref) -> UnsafeMutableRawPointer {
     // TODO: Port Hunk_Alloc
     portMissing("Hunk_Alloc", source: "oracle/codemp/qcommon/z_memman_pc.cpp:791")
 }
