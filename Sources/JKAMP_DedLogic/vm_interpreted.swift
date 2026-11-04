@@ -5,7 +5,7 @@ import JKAMP_Ded
 
 /// Source: oracle/codemp/qcommon/vm_interpreted.cpp:9
 /// Raven's data table, a hand property of `EngineWorld`.
-var opnames: [String] {
+var opnames: [String?] {
     get { world.opnames }
     set { world.opnames = newValue }
 }
@@ -67,18 +67,13 @@ VM_PrepareInterpreter
 ```
 */
 /// Source: oracle/codemp/qcommon/vm_interpreted.cpp:139
-// TODO: Port signature
-// Raven wrote: void VM_PrepareInterpreter( vm_t *vm, vmHeader_t *header )
-// No table row for `vmHeader_t * header`.
-// Port-note: `vmHeader_t` has no view, so the body cannot read `header->codeOffset`, `header->instructionCount`, or `header->codeLength`.
-// Port-note: `Hunk_Alloc` keeps its `TODO: Port signature` stub in z_memman_pc.swift, so the body has no allocation for `vm->codeBase`.
-func VM_PrepareInterpreter() -> Never {
+func VM_PrepareInterpreter(_ vm: Vm, _ header: VmHeader) {
     // TODO: Port VM_PrepareInterpreter
     portMissing("VM_PrepareInterpreter", source: "oracle/codemp/qcommon/vm_interpreted.cpp:139")
 }
 
 /// Source: oracle/codemp/qcommon/vm_interpreted.cpp:296
-func VM_CallInterpreted(_ vm: Vm, _ args: inout Int32) -> Int32 {
+func VM_CallInterpreted(_ vm: Vm, _ args: [Int32]?) -> Int32 {
     // Port-note: Raven writes past the end of `stack` when the opStack overflows, and the Swift array traps there.
     var stack = [Int32](repeating: 0, count: Int(MAX_STACK))
     var opStack: Int32
@@ -123,16 +118,16 @@ func VM_CallInterpreted(_ vm: Vm, _ args: inout Int32) -> Int32 {
 
     programStack -= 48
 
-    image[int: programStack + 44] = args[9]
-    image[int: programStack + 40] = args[8]
-    image[int: programStack + 36] = args[7]
-    image[int: programStack + 32] = args[6]
-    image[int: programStack + 28] = args[5]
-    image[int: programStack + 24] = args[4]
-    image[int: programStack + 20] = args[3]
-    image[int: programStack + 16] = args[2]
-    image[int: programStack + 12] = args[1]
-    image[int: programStack + 8] = args[0]
+    image[int: programStack + 44] = args![9]
+    image[int: programStack + 40] = args![8]
+    image[int: programStack + 36] = args![7]
+    image[int: programStack + 32] = args![6]
+    image[int: programStack + 28] = args![5]
+    image[int: programStack + 24] = args![4]
+    image[int: programStack + 20] = args![3]
+    image[int: programStack + 16] = args![2]
+    image[int: programStack + 12] = args![1]
+    image[int: programStack + 8] = args![0]
     image[int: programStack + 4] = 0	// return stack
     image[int: programStack] = -1	// will terminate the loop on return
 
