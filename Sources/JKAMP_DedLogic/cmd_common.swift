@@ -90,9 +90,8 @@ func Cbuf_AddText(_ text: String) {
         Com_Printf("Cbuf_AddText: overflow\n")
         return
     }
-    // Port-note: Open row Com_Memcpy into byte slots. Com_Memcpy takes `OpaquePointer?`, and a copy from a String into a `Slots<byte>` has no form.
-    // Raven wrote: Com_Memcpy(&cmd_text.data[cmd_text.cursize], text, l);
-    portMissing("Cbuf_AddText", source: "oracle/codemp/qcommon/cmd_common.cpp:68")
+    // AI: Raven copied the `char *` text to the address of one byte. The text crosses as a CharBuf, and the address is the Slots tail from `suffix(from:)`.
+    Com_Memcpy(cmd_text.data!.suffix(from: Int(cmd_text.cursize)), CharBuf(text), l)
     cmd_text.cursize += l
 }
 
@@ -125,9 +124,8 @@ func Cbuf_InsertText(_ text: String) {
     }
 
     // copy the new text in
-    // Port-note: Open row Com_Memcpy into byte slots. Com_Memcpy takes `OpaquePointer?`, and a copy from a String into a `Slots<byte>` has no form.
-    // Raven wrote: Com_Memcpy( cmd_text.data, text, len - 1 );
-    portMissing("Cbuf_InsertText", source: "oracle/codemp/qcommon/cmd_common.cpp:91")
+    // AI: Raven copied the `char *` text into the byte buffer. The text crosses as a CharBuf.
+    Com_Memcpy(cmd_text.data!, CharBuf(text), len - 1)
 
     // add a \n
     cmd_text.data![len - 1] = JKAShared.byte(ascii: "\n")
@@ -207,9 +205,7 @@ func Cbuf_Execute() {
             i = MAX_CMD_LINE - 1
         }
 
-        // Port-note: Open row Com_Memcpy into byte slots. Com_Memcpy takes `OpaquePointer?`, and a copy from a `Slots<byte>` into a CharBuf has no form.
-        // Raven wrote: Com_Memcpy (line, text, i);
-        portMissing("Cbuf_Execute", source: "oracle/codemp/qcommon/cmd_common.cpp:148")
+        Com_Memcpy(&line, text, i)
         line[i] = 0
 
         // delete the text from the command buffer and move remaining commands down
@@ -221,9 +217,8 @@ func Cbuf_Execute() {
         } else {
             i += 1
             cmd_text.cursize -= i
-            // Port-note: Open row Com_Memcpy into byte slots. The `memmove` of `CString.swift` takes a CharBuf, and a move inside a `Slots<byte>` has no form.
-            // Raven wrote: memmove (text, text+i, cmd_text.cursize);
-            portMissing("Cbuf_Execute", source: "oracle/codemp/qcommon/cmd_common.cpp:148")
+            // AI: Raven moved the bytes from the pointer sum `text+i`. The source is the Slots tail from `suffix(from:)`.
+            memmove(text, text.suffix(from: Int(i)), cmd_text.cursize)
         }
 
         // execute the command line
@@ -253,17 +248,16 @@ func Cmd_Exec_f() {
     Q_strncpyz(&filename, Cmd_Argv(1), Int32((filename).count))
     COM_DefaultExtension(&filename, Int32((filename).count), ".cfg")
     len = FS_ReadFile(String(filename), &f)
-    // Port-note: Open row FS_ReadFile NULL test. The `inout CharBuf` form of FS_ReadFile gives no NULL for `!f`, and FS_FreeFile takes `OpaquePointer?`.
-    // Raven wrote: if (!f) {
-    // Raven wrote:     Com_Printf ("couldn't exec %s\n",Cmd_Argv(1));
-    // Raven wrote:     return;
-    // Raven wrote: }
-    portMissing("Cmd_Exec_f", source: "oracle/codemp/qcommon/cmd_common.cpp:219")
+    // AI: Raven tested the buffer for NULL. The CharBuf form gives an empty buffer for a missing file, so the test reads the length.
+    if len < 0 {
+        Com_Printf("couldn't exec %s\n", Cmd_Argv(1))
+        return
+    }
     Com_Printf("execing %s\n", Cmd_Argv(1))
 
     Cbuf_InsertText(String(f))
 
-    // Raven wrote: FS_FreeFile (f);
+    FS_FreeFile(f)
 }
 
 /**
