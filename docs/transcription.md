@@ -118,8 +118,11 @@ An enum of that last kind is `private let` constants of type `Int32` at the top 
 | a read-only `int *` with a count beside it, such as `g2Bolts` of `G_RunExPhys` | `[Int32]?` by value, PARAMS kind `int_array`. The body reads `g2Bolts![i]` under Raven's NULL guard, and a caller that passes `NULL` passes `nil`. |
 | a `T **` parameter or return that holds the address of one record pointer slot, such as `ppnode` of `free_ppnode` and the return of `get_ppnode` | `Slots<View?>` of count 1 over the slot, PARAMS kind `slot` or RETURNS kind `slot`, the form of a `slot` field. |
 | a `byte *` or `unsigned char` array parameter of a host function that is not a trap, such as `input` of `MD4Update` | `Slots<UInt8>`, the caller's `Slots` over the bytes, the row a trap's `byte *` has. A game function with this shape keeps its marker. |
-| a pointer or a fixed array of a typedef that the TYPES map names, such as `UINT4 *output` of `Decode` | the TYPES spelling behind the pointer or the array, `inout UInt32`, because the canonical type does not keep the typedef. |
-| a C++ `bool` parameter with a default, such as `readUntilEOL = false` of `GetToken` | `Bool` with the same default, so a caller that omits the argument reads as Raven's call. |
+| a pointer or a fixed array of a typedef that the TYPES map names, such as `UINT4 *output` of `Decode` | the TYPES spelling behind the pointer or the array, `Slots<UInt32>` for `Decode`, because the canonical type does not keep the typedef. |
+| a scalar pointer parameter that a host body indexes, such as `UINT4 *input` of `Encode` | `Slots<UInt32>`, the caller's `Slots` over the array, by the subscript sweep of `table.py`. A game function keeps the `inout` scalar. |
+| a fixed C array parameter of a scalar that a host body writes, such as `UINT4 state[4]` of `MD4Transform` | `Slots<UInt32>`, the caller's `Slots` over the array, so the write reaches the caller as Raven means. A body that only reads the array takes it by value. |
+| a `void *` or `byte *` parameter of a host function that the body hands on as bytes, such as `buffer` of `Com_BlockChecksum` and `fout` of `Huff_transmit` | `Slots<JKAShared.byte>`, PARAMS kind `bytes`, the row a host `byte *` has. |
+| a C++ parameter with a default, such as `readUntilEOL = false` of `GetToken` and `bZeroit = qfalse` and `iAlign = 4` of `Z_Malloc` | the same default in the Swift spelling, `false` for `qfalse`, the number as Raven wrote it, `nil` for a NULL into an optional, and an enumerator by name, so a caller that omits the argument reads as Raven's call. |
 
 A caller of an `out_string` parameter that the callee may leave NULL passes a buffer's own text as the `inout` and writes the result back into the buffer.
 Raven's `GAME_ICARUS_GETSTRING` arm starts `char *crap = NULL`, passes `&crap` to `Q3_GetString`, and copies into `sharedMem->value` only when `crap` is set.
@@ -166,6 +169,9 @@ A trap no file of the module calls, such as `trap_UnifyWhiteSpaces` and `trap_AA
 A raw block the engine keeps, such as `trap_SV_RegisterSharedMemory`, has a PARAMS entry `raw` and is `UnsafeMutableRawPointer`.
 A trap's `void *` parameter is an `OpaquePointer?`, and it gains a second overload that takes `inout CharBuf` when Raven's own callers fill it with a `char buf[N]`.
 The overload hands the engine the buffer's base inside the generated file, so a body writes `trap_FS_Read(&BGPAFtext, len, f)` and a caller that holds a raw allocation keeps the first overload.
+The host's `FS_Read` takes the same `inout CharBuf` overload beside its `OpaquePointer?` form, so `FS_Read(overrideFile, len, f)` of `msg.cpp` reads `FS_Read(&overrideFile, len, f)`.
+The `CharBuf` forms of `FS_ReadFile` return Raven's length and leave the buffer empty for a missing file, so Raven's `if (!f)` after the call reads `if len < 0`.
+`FS_FreeFile` has a `CharBuf` overload that frees nothing, because a `CharBuf` owns its bytes, so Raven's `FS_FreeFile(f)` stays on the page.
 A trap's `void /* struct ... */ *` parameter gains a second generated overload that takes the view, where Raven's comment names the struct and every caller passes that record, so `trap_EA_GetInput(bs->client, (float) time / 1000, &bi)` reads `trap_EA_GetInput(bs.client, Float(time) / 1000, bi)`.
 A trap's `const void *` parameter gains an overload that takes a `String` when Raven's own callers hand it a `char *` text, so a body writes `trap_FS_Write(str, strlen(str), fh)`.
 A `NIL_OVERLOADS` entry of `rulings.py` gives a trap a second overload that takes the named view as optional, so `trap_Cvar_Register` registers the three NULL rows of `gameCvarTable`.
@@ -337,6 +343,10 @@ A `void *` field that every store fills with one record or NULL has a `FIELDS` r
 A `byte *` field that holds the base of a byte buffer a body indexes has a `FIELDS` row of kind `bytes`, and the view spells it `Slots<JKAShared.byte>?` with the widest count, so `cmd_text.data[i]` reads `cmd_text.data![i]`.
 A `T **` field that holds the address of one record pointer slot has a `FIELDS` row of kind `slot`, and the view spells it `Slots<View?>?` of count 1 over that slot, so `*node->head` reads `node.head![0]`.
 Two records that hold one address share the slot, as the nodes of one block share their `head`. `Node.head` and `Huff.freelist` take this form.
+Raven's `&huff->nodePtrs[i]` of one element handed on as a slot reads `slot(at:)` of `Slots`, a `Slots` of count 1 over element `i`, so `get_ppnode` returns `huff.nodePtrs.slot(at: i)`.
+Raven's `data + offset` handed on as a pointer reads `suffix(from:)` of `Slots`, a `Slots` over the elements from the offset to the end, so a body writes `mbuf.data!.suffix(from: Int(offset))` with no arithmetic.
+Raven's cast of an array to `unsigned char *` reads `bytes` of `Slots`, a `Slots<byte>` over the same memory, so `MD4Final((unsigned char *)digest, &ctx)` passes `digest.bytes`.
+A scalar array field of a view whose element is a TYPES typedef passes to a `Slots` parameter of that typedef as it stands, `MD4Transform(context.state, context.buffer)`.
 Raven's cast of a slot to `node_t **` reads `slotAddress`, the accessor of `Sources/JKAMP_Ded/NodeSlots.swift` that reads and writes the first slot as the address of another slot.
 A field whose C name is a member of every view, `handle` or `raw`, has a `FIELD_NAMES` row of `rulings.py` where a body reads it, and the view spells it under that name, so `vmCvar->handle` reads `vmCvar.cvarHandle`.
 The `handle:` form stays inside generated code under rule 11, and a signature keeps the plain view type Raven's parameter had, never a generic or protocol parameter that absorbs the cast.
@@ -470,6 +480,9 @@ A name in `HAND_VARS` of `rulings.py` is a variable whose storage is hand work, 
 A C character array at file scope is a `CharBuf` of Raven's bound.
 A `byte` array that a function declares on its stack and a `BYTE_STORAGE_LOCALS` entry of `rulings.py` names, `seq` of `Huff_Compress` and `Huff_Decompress`, is one zeroed byte allocation on the generated storage class, a `Slots<JKAShared.byte>`.
 The entry lists the functions that declare the local, and they share the allocation, so the stub forwards it once at the first declaration, `var seq: Slots<JKAShared.byte> { world.storage.seq }`, under a rule 24 line.
+An `int` array local of the entry, `int digest[4]` of `Com_BlockChecksum` and `Com_BlockChecksumKey`, is a `Slots<Int32>` of its count, and a body hands it on as bytes through `digest.bytes`.
+An `int` parameter of the entry whose address Raven takes, `&key` of `Com_BlockChecksumKey`, is a `Slots<Int32>` of one slot, and its storage takes the function name as a suffix, `key_Com_BlockChecksumKey`, because the parameter keeps Raven's name.
+The body copies the parameter into the slot and hands on `key_Com_BlockChecksumKey.bytes`.
 A variable Raven declares with no initializer is his all the same, zeroed by the loader, and its entry says C's zero where the initializer would be.
 A file-scope array of struct pointers, such as `gWPArray`, is one zeroed allocation the world owns, on the generated `GameStorage` class in `Sources/JKAMP_Game/Generated/Storage/GameStorage.swift`, as a `Slots` of optional views, born and freed with `GameWorld`.
 The stub carries the name at Raven's line, `var gWPArray: Slots<JKAMP.Wpobject?> { world.storage.gWPArray }`, so a test that swaps the world swaps the tables with it.
@@ -554,6 +567,7 @@ The arithmetic of a generator or a hash, `Q_rand`, `rand`, `irand`, `flrand`, an
 An array index is the C constant or variable Raven wrote, for example `vec[YAW]` and `ps.stats[STAT_HEALTH]`, never `Int(...)`. Every array in the port takes any C integer index.
 A slice index is the slice's start index plus Raven's index, `infos[infos.startIndex + count]`, and the `+` of `Sources/JKAShared/Views/Int32Indexing.swift` takes any C integer on the right.
 A C enum is an `Int32` typealias, and each case is a bare `Int32` constant with Raven's name.
+A typedef of a narrow type whose values are the enumerators of an anonymous enum, `typedef char memtag_t` of `q_shared.h` with the `TAG_` names, is the same `Int32` alias by `ENUM_TYPEDEFS` of `rulings.py`, so `Z_Malloc(s, TAG_BSP, qtrue)` reads `Z_Malloc(s, TAG_BSP, true)` with no cast.
 A body compares, stores, switches, and shifts it exactly as Raven wrote it. `.rawValue` and `EnumName(rawValue:)` never appear.
 An unsigned hex mask Raven applies to an `int`, such as `0xfffffffc`, is spelled as the complement of the low bits, `~0x0000_0003`, the same bit pattern with no cast, and one comment line at the site says what Raven wrote.
 A `qboolean` operand where C reads an `int` is `(b ? 1 : 0)`, the 0 or 1 that C reads, so `pmove_fixed.integer | client->pers.pmoveFixed` reads `pmove_fixed.integer | (client!.pers.pmoveFixed ? 1 : 0)`.
@@ -701,6 +715,10 @@ The drafter reads the format string literal at the call site and counts its conv
 The port names the first field only when the conversion that the record feeds is `%s`.
 A record whose first field holds no text keeps a Port-note.
 A format string that is not a literal at the call site keeps a Port-note, and a conversion other than `%s` keeps a Port-note too.
+`Com_Memcpy` and `memmove` of a host body have `Slots` overloads in the same file, each with Raven's count in bytes.
+`Com_Memcpy(_ dest: Slots<T>, _ src: Slots<T>, _ count: Int32)` copies between two C arrays of one element type, `Com_Memcpy(w.p, p, nump * size)`.
+`Com_Memcpy` from a `CharBuf` into a `Slots<byte>` copies text into a byte buffer, `Com_Memcpy(cmd_text.data!, text, len - 1)`, and `Com_Memcpy(&line, text, i)` copies a `Slots<byte>` back into an `inout CharBuf`.
+`memmove(_ dest: Slots<byte>, _ src: Slots<byte>, _ count: Int32)` moves bytes between two `Slots` that can overlap, so `memmove(text, text+i, cmd_text.cursize)` reads `memmove(text, text.suffix(from: Int(i)), cmd_text.cursize)`.
 `sscanf` lives in `Sources/JKAShared/Scan.swift`, one overload per target shape in use, `inout vec3_t` for `"%f %f %f"`, `inout Float` for `"%f"`, and `inout Int32` for `"%d"`, each returning the count read as C does.
 Swift has no `inout` variadic, so `sscanf(value, "%f %f %f", &vec)` is Raven's call with the three addresses as the one vector, and each overload checks its format.
 `Q_strlwr`, `Q_strupr`, and `Q_CleanStr` rewrite a local buffer in place, `Q_CleanStr(&netname)`, and each has a value form, `String` to `String`, for the two shapes with no `CharBuf` behind them.
