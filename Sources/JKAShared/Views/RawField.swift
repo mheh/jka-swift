@@ -12,6 +12,27 @@ extension UnsafeMutableRawPointer {
         }
     }
 
+    /// The Nth `Int32` after a byte offset, Raven's `((int *)(b+ofs))[index]`.
+    public subscript<I: BinaryInteger, J: BinaryInteger>(int ofs: I, _ index: J) -> Int32 {
+        get {
+            (self + ofs + Int(index) * MemoryLayout<Int32>.stride).loadUnaligned(as: Int32.self)
+        }
+        nonmutating set {
+            (self + ofs + Int(index) * MemoryLayout<Int32>.stride).storeBytes(of: newValue, as: Int32.self)
+        }
+    }
+
+    /// The `short` at a byte offset, Raven's `*(short *)(b+ofs)`.
+    /// The getter sign-extends the two bytes as C does, and the setter truncates, as a narrow view field does.
+    public subscript<I: BinaryInteger>(short ofs: I) -> Int32 {
+        get {
+            Int32((self + ofs).loadUnaligned(as: Int16.self))
+        }
+        nonmutating set {
+            (self + ofs).storeBytes(of: Int16(truncatingIfNeeded: newValue), as: Int16.self)
+        }
+    }
+
     /// The `Float` at a byte offset, Raven's `*(float *)(b+ofs)`.
     public subscript<I: BinaryInteger>(float ofs: I) -> Float {
         get {
@@ -37,6 +58,17 @@ extension UnsafeMutableRawPointer {
     public subscript<I: BinaryInteger, T: BinaryInteger>(byte ofs: I) -> T {
         get { T(truncatingIfNeeded: (self + ofs).loadUnaligned(as: Int8.self)) }
         nonmutating set { (self + ofs).storeBytes(of: UInt8(truncatingIfNeeded: newValue), as: UInt8.self) }
+    }
+
+    /// The `unsigned short` at a byte offset, Raven's `*(unsigned short *)(b+ofs)`.
+    /// The getter zero-extends the two bytes as C does, and the setter truncates, as a narrow view field does.
+    public subscript<I: BinaryInteger>(ushort ofs: I) -> Int32 {
+        get {
+            Int32((self + ofs).loadUnaligned(as: UInt16.self))
+        }
+        nonmutating set {
+            (self + ofs).storeBytes(of: UInt16(truncatingIfNeeded: newValue), as: UInt16.self)
+        }
     }
 
     /// The raw pointer a `char *` field holds at a byte offset, Raven's `*(char **)(b+ofs)`, and `nil` for a null field.
