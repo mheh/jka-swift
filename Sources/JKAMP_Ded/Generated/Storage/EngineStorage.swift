@@ -10,6 +10,10 @@ public final class EngineStorage {
     /// Source: oracle/codemp/qcommon/cm_load.cpp:50
     public let box_model: Cmodel
 
+    /// Raven's `cmd_t cmd_text` of `cmd_common.cpp`.
+    /// Source: oracle/codemp/qcommon/cmd_common.cpp:17
+    public let cmd_text: Cmd
+
     /// Raven's `cvar_t cvar_indexes[MAX_CVARS]` of `cvar.cpp`.
     /// Source: oracle/codemp/qcommon/cvar.cpp:11
     public let cvar_indexes: Slots<JKAMP.Cvar>
@@ -18,9 +22,17 @@ public final class EngineStorage {
     /// Source: oracle/codemp/qcommon/cvar.cpp:15
     public let hashTable: Slots<JKAMP.Cvar?>
 
+    /// Raven's `huffman_t msgHuff` of `msg.cpp`.
+    /// Source: oracle/codemp/qcommon/msg.cpp:19
+    public let msgHuff: Huffman
+
+    /// Raven's `loopback_t loopbacks[2]` of `net_chan.cpp`.
+    /// Source: oracle/codemp/qcommon/net_chan.cpp:486
+    public let loopbacks: Slots<Loopback>
+
     /// Raven's `sharedEntity_t gLocalModifier` of `sv_game.cpp`.
     /// Source: oracle/codemp/server/sv_game.cpp:420
-    public let gLocalModifier: SharedEntity
+    public let gLocalModifier: JKAMP.SharedEntity
 
     /// Raven's `serverStatic_t svs` of `sv_main.cpp`.
     /// Source: oracle/codemp/server/sv_main.cpp:10
@@ -40,9 +52,12 @@ public final class EngineStorage {
 
     public init() {
         self.box_model = EngineStorage.record(of: Cmodel.self)
+        self.cmd_text = EngineStorage.record(of: Cmd.self)
         self.cvar_indexes = EngineStorage.records(count: 1224, of: JKAMP.Cvar.self)
         self.hashTable = EngineStorage.table(count: 256, of: JKAMP.Cvar.self)
-        self.gLocalModifier = EngineStorage.record(of: SharedEntity.self)
+        self.msgHuff = EngineStorage.record(of: Huffman.self)
+        self.loopbacks = EngineStorage.records(count: 2, of: Loopback.self)
+        self.gLocalModifier = EngineStorage.record(of: JKAMP.SharedEntity.self)
         self.svs = EngineStorage.record(of: ServerStatic.self)
         self.sv = EngineStorage.record(of: Server.self)
         self.sv_master = EngineStorage.table(count: Int(JKAMP_Ded.MAX_MASTER_SERVERS), of: JKAMP.Cvar.self)
@@ -51,8 +66,11 @@ public final class EngineStorage {
 
     deinit {
         UnsafeMutableRawPointer(self.box_model.handle).deallocate()
+        UnsafeMutableRawPointer(self.cmd_text.handle).deallocate()
         self.cvar_indexes.base.deallocate()
         self.hashTable.base.deallocate()
+        UnsafeMutableRawPointer(self.msgHuff.handle).deallocate()
+        self.loopbacks.base.deallocate()
         UnsafeMutableRawPointer(self.gLocalModifier.handle).deallocate()
         UnsafeMutableRawPointer(self.svs.handle).deallocate()
         UnsafeMutableRawPointer(self.sv.handle).deallocate()

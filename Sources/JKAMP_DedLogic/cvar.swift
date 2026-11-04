@@ -460,10 +460,7 @@ basically a slightly modified Cvar_Get for the interpreted modules
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:889
-// TODO: Port signature
-// Raven wrote: void Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags )
-// No table row for `vmCvar_t * vmCvar`.
-func Cvar_Register() -> Never {
+func Cvar_Register(_ vmCvar: JKAMP.VmCvar, _ varName: String, _ defaultValue: String, _ flags: Int32) {
     // TODO: Port Cvar_Register
     portMissing("Cvar_Register", source: "oracle/codemp/qcommon/cvar.cpp:889")
 }
@@ -478,10 +475,7 @@ updates an interpreted modules' version of a cvar
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:909
-// TODO: Port signature
-// Raven wrote: void Cvar_Update( vmCvar_t *vmCvar )
-// No table row for `vmCvar_t * vmCvar`.
-func Cvar_Update() -> Never {
+func Cvar_Update(_ vmCvar: JKAMP.VmCvar) {
     // TODO: Port Cvar_Update
     portMissing("Cvar_Update", source: "oracle/codemp/qcommon/cvar.cpp:909")
 }

@@ -9,7 +9,7 @@ import JKAMP_Ded
 let MAX_PACKETLEN = 1400 as Int32
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:34
-let FRAGMENT_SIZE = (MAX_PACKETLEN - 100)
+let FRAGMENT_SIZE = (JKAMP_Ded.MAX_PACKETLEN - 100)
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:35
 let PACKET_HEADER = 10 as Int32
@@ -52,9 +52,7 @@ var netsrcString: [String] {
 let MAX_LOOPBACK = 16 as Int32
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:486
-// TODO: Port global loopbacks
-// Raven wrote: loopback_t loopbacks[2]
-// No view for `loopback_t`, a struct Raven defines inside a .c file.
+var loopbacks: Slots<Loopback> { world.storage.loopbacks }
 
 /**
 ```
@@ -80,10 +78,7 @@ called to open a channel to a remote system
 ```
 */
 /// Source: oracle/codemp/qcommon/net_chan.cpp:71
-// TODO: Port signature
-// Raven wrote: void Netchan_Setup( netsrc_t sock, netchan_t *chan, netadr_t adr, int qport )
-// No table row for `netadr_t adr`.
-func Netchan_Setup() -> Never {
+func Netchan_Setup(_ sock: netsrc_t, _ chan: Netchan, _ adr: Netadr, _ qport: Int32) {
     // TODO: Port Netchan_Setup
     portMissing("Netchan_Setup", source: "oracle/codemp/qcommon/net_chan.cpp:71")
 }
@@ -114,10 +109,7 @@ A 0 length will still generate a packet.
 ```
 */
 /// Source: oracle/codemp/qcommon/net_chan.cpp:145
-// TODO: Port signature
-// Raven wrote: void Netchan_Transmit( netchan_t *chan, int length, const byte *data )
-// No table row for `const byte * data`.
-func Netchan_Transmit() -> Never {
+func Netchan_Transmit(_ chan: Netchan, _ length: Int32, _ data: OpaquePointer?) {
     // TODO: Port Netchan_Transmit
     portMissing("Netchan_Transmit", source: "oracle/codemp/qcommon/net_chan.cpp:145")
 }
@@ -152,37 +144,25 @@ Compares without the port
 ```
 */
 /// Source: oracle/codemp/qcommon/net_chan.cpp:378
-// TODO: Port signature
-// Raven wrote: qboolean NET_CompareBaseAdr (netadr_t a, netadr_t b)
-// No table row for `netadr_t a`.
-func NET_CompareBaseAdr() -> Never {
+func NET_CompareBaseAdr(_ a: Netadr, _ b: Netadr) -> Bool {
     // TODO: Port NET_CompareBaseAdr
     portMissing("NET_CompareBaseAdr", source: "oracle/codemp/qcommon/net_chan.cpp:378")
 }
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:406
-// TODO: Port signature
-// Raven wrote: const char *NET_AdrToString (netadr_t a)
-// No table row for `netadr_t a`.
-func NET_AdrToString() -> Never {
+func NET_AdrToString(_ a: Netadr) -> String {
     // TODO: Port NET_AdrToString
     portMissing("NET_AdrToString", source: "oracle/codemp/qcommon/net_chan.cpp:406")
 }
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:429
-// TODO: Port signature
-// Raven wrote: qboolean NET_CompareAdr (netadr_t a, netadr_t b)
-// No table row for `netadr_t a`.
-func NET_CompareAdr() -> Never {
+func NET_CompareAdr(_ a: Netadr, _ b: Netadr) -> Bool {
     // TODO: Port NET_CompareAdr
     portMissing("NET_CompareAdr", source: "oracle/codemp/qcommon/net_chan.cpp:429")
 }
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:458
-// TODO: Port signature
-// Raven wrote: qboolean NET_IsLocalAddress( netadr_t adr )
-// No table row for `netadr_t adr`.
-func NET_IsLocalAddress() -> Never {
+func NET_IsLocalAddress(_ adr: Netadr) -> Bool {
     // TODO: Port NET_IsLocalAddress
     portMissing("NET_IsLocalAddress", source: "oracle/codemp/qcommon/net_chan.cpp:458")
 }
@@ -194,19 +174,13 @@ func NET_GetLoopPacket(_ sock: netsrc_t, _ net_from: Netadr, _ net_message: Msg)
 }
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:514
-// TODO: Port signature
-// Raven wrote: void NET_SendLoopPacket (netsrc_t sock, int length, const void *data, netadr_t to)
-// No table row for `netadr_t to`.
-func NET_SendLoopPacket() -> Never {
+func NET_SendLoopPacket(_ sock: netsrc_t, _ length: Int32, _ data: OpaquePointer?, _ to: Netadr) {
     // TODO: Port NET_SendLoopPacket
     portMissing("NET_SendLoopPacket", source: "oracle/codemp/qcommon/net_chan.cpp:514")
 }
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:531
-// TODO: Port signature
-// Raven wrote: void NET_SendPacket( netsrc_t sock, int length, const void *data, netadr_t to )
-// No table row for `netadr_t to`.
-func NET_SendPacket() -> Never {
+func NET_SendPacket(_ sock: netsrc_t, _ length: Int32, _ data: OpaquePointer?, _ to: Netadr) {
     // TODO: Port NET_SendPacket
     portMissing("NET_SendPacket", source: "oracle/codemp/qcommon/net_chan.cpp:531")
 }
@@ -221,10 +195,7 @@ Sends a text message in an out-of-band datagram
 ```
 */
 /// Source: oracle/codemp/qcommon/net_chan.cpp:559
-// TODO: Port signature
-// Raven wrote: void QDECL NET_OutOfBandPrint( netsrc_t sock, netadr_t adr, const char *format, ... )
-// No table row for `netadr_t adr`.
-func NET_OutOfBandPrint() -> Never {
+func NET_OutOfBandPrint(_ sock: netsrc_t, _ adr: Netadr, _ format: String, _ args: any JKAShared.FormatArg...) {
     // TODO: Port NET_OutOfBandPrint
     portMissing("NET_OutOfBandPrint", source: "oracle/codemp/qcommon/net_chan.cpp:559")
 }
@@ -239,10 +210,7 @@ Sends a data message in an out-of-band datagram (only used for "connect")
 ```
 */
 /// Source: oracle/codemp/qcommon/net_chan.cpp:585
-// TODO: Port signature
-// Raven wrote: void QDECL NET_OutOfBandData( netsrc_t sock, netadr_t adr, byte *format, int len )
-// No table row for `netadr_t adr`.
-func NET_OutOfBandData() -> Never {
+func NET_OutOfBandData(_ sock: netsrc_t, _ adr: Netadr, _ format: OpaquePointer?, _ len: Int32) {
     // TODO: Port NET_OutOfBandData
     portMissing("NET_OutOfBandData", source: "oracle/codemp/qcommon/net_chan.cpp:585")
 }

@@ -11,7 +11,7 @@ import JKAMP_Ded
 // No table row for `botlib_export_t *`.
 
 /// Source: oracle/codemp/server/sv_game.cpp:420
-var gLocalModifier: SharedEntity { world.storage.gLocalModifier }
+var gLocalModifier: JKAMP.SharedEntity { world.storage.gLocalModifier }
 
 /// Source: oracle/codemp/server/sv_game.cpp:454
 // TODO: Port global sv_siegePersData
@@ -33,13 +33,13 @@ func SV_GamePrint(_ string: String) {
 // these functions must be used instead of pointer arithmetic, because
 // the game allocates gentities with private information after the server shared part
 /// Source: oracle/codemp/server/sv_game.cpp:46
-func SV_NumForGentity(_ ent: SharedEntity) -> Int32 {
+func SV_NumForGentity(_ ent: JKAMP.SharedEntity) -> Int32 {
     // TODO: Port SV_NumForGentity
     portMissing("SV_NumForGentity", source: "oracle/codemp/server/sv_game.cpp:46")
 }
 
 /// Source: oracle/codemp/server/sv_game.cpp:54
-func SV_GentityNum(_ num: Int32) -> SharedEntity? {
+func SV_GentityNum(_ num: Int32) -> JKAMP.SharedEntity? {
     // TODO: Port SV_GentityNum
     portMissing("SV_GentityNum", source: "oracle/codemp/server/sv_game.cpp:54")
 }
@@ -51,13 +51,13 @@ func SV_GameClientNum(_ num: Int32) -> JKAMP.PlayerState? {
 }
 
 /// Source: oracle/codemp/server/sv_game.cpp:70
-func SV_SvEntityForGentity(_ gEnt: SharedEntity) -> SvEntity? {
+func SV_SvEntityForGentity(_ gEnt: JKAMP.SharedEntity) -> SvEntity? {
     // TODO: Port SV_SvEntityForGentity
     portMissing("SV_SvEntityForGentity", source: "oracle/codemp/server/sv_game.cpp:70")
 }
 
 /// Source: oracle/codemp/server/sv_game.cpp:77
-func SV_GEntityForSvEntity(_ svEnt: SvEntity) -> SharedEntity? {
+func SV_GEntityForSvEntity(_ svEnt: SvEntity) -> JKAMP.SharedEntity? {
     // TODO: Port SV_GEntityForSvEntity
     portMissing("SV_GEntityForSvEntity", source: "oracle/codemp/server/sv_game.cpp:77")
 }
@@ -102,7 +102,7 @@ sets mins and maxs for inline bmodels
 ```
 */
 /// Source: oracle/codemp/server/sv_game.cpp:128
-func SV_SetBrushModel(_ ent: SharedEntity, _ name: String) {
+func SV_SetBrushModel(_ ent: JKAMP.SharedEntity, _ name: String) {
     // TODO: Port SV_SetBrushModel
     portMissing("SV_SetBrushModel", source: "oracle/codemp/server/sv_game.cpp:128")
 }
@@ -151,7 +151,7 @@ SV_AdjustAreaPortalState
 ```
 */
 /// Source: oracle/codemp/server/sv_game.cpp:275
-func SV_AdjustAreaPortalState(_ ent: SharedEntity, _ open: Bool) {
+func SV_AdjustAreaPortalState(_ ent: JKAMP.SharedEntity, _ open: Bool) {
     // TODO: Port SV_AdjustAreaPortalState
     portMissing("SV_AdjustAreaPortalState", source: "oracle/codemp/server/sv_game.cpp:275")
 }
@@ -164,7 +164,7 @@ SV_GameAreaEntities
 ```
 */
 /// Source: oracle/codemp/server/sv_game.cpp:291
-func SV_EntityContact(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ gEnt: SharedEntity, _ capsule: Int32) -> Bool {
+func SV_EntityContact(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ gEnt: JKAMP.SharedEntity, _ capsule: Int32) -> Bool {
     // TODO: Port SV_EntityContact
     portMissing("SV_EntityContact", source: "oracle/codemp/server/sv_game.cpp:291")
 }
@@ -192,7 +192,7 @@ SV_LocateGameData
 ```
 */
 /// Source: oracle/codemp/server/sv_game.cpp:327
-func SV_LocateGameData(_ gEnts: SharedEntity, _ numGEntities: Int32, _ sizeofGEntity_t: Int32, _ clients: JKAMP.PlayerState, _ sizeofGameClient: Int32) {
+func SV_LocateGameData(_ gEnts: JKAMP.SharedEntity, _ numGEntities: Int32, _ sizeofGEntity_t: Int32, _ clients: JKAMP.PlayerState, _ sizeofGameClient: Int32) {
     // TODO: Port SV_LocateGameData
     portMissing("SV_LocateGameData", source: "oracle/codemp/server/sv_game.cpp:327")
 }
@@ -224,7 +224,7 @@ private func FloatAsInt(_ f: Float) -> Int32 {
 }
 
 /// Source: oracle/codemp/server/sv_game.cpp:422
-func ConvertedEntity(_ ent: SharedEntity) -> SharedEntity? {
+func ConvertedEntity(_ ent: JKAMP.SharedEntity) -> JKAMP.SharedEntity? {
     // TODO: Port ConvertedEntity
     portMissing("ConvertedEntity", source: "oracle/codemp/server/sv_game.cpp:422")
 }
