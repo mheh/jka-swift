@@ -63,14 +63,23 @@ private func get_bit(_ fin: UnsafeMutableRawPointer) -> Int32 {
 
 /// Source: oracle/codemp/qcommon/huffman.cpp:48
 private func get_ppnode(_ huff: Huff) -> Slots<Node?> {
-    // TODO: Port get_ppnode
-    portMissing("get_ppnode", source: "oracle/codemp/qcommon/huffman.cpp:48")
+    var tppnode: Slots<Node?>
+    if huff.freelist == nil {
+        // Raven returns the address of slot `blocPtrs` of `nodePtrs`, and the slot over the table's base at that offset is that address, under rule 11.
+        tppnode = Slots(pointers: huff.nodePtrs.base + Int(huff.blocPtrs) * huff.nodePtrs.stride, count: 1)
+        huff.blocPtrs += 1
+        return tppnode
+    } else {
+        tppnode = huff.freelist!
+        huff.freelist = tppnode.slotAddress
+        return tppnode
+    }
 }
 
 /// Source: oracle/codemp/qcommon/huffman.cpp:59
 private func free_ppnode(_ huff: Huff, _ ppnode: Slots<Node?>) {
-    // TODO: Port free_ppnode
-    portMissing("free_ppnode", source: "oracle/codemp/qcommon/huffman.cpp:59")
+    ppnode.slotAddress = huff.freelist
+    huff.freelist = ppnode
 }
 
 /**
@@ -161,38 +170,32 @@ private func increment(_ huff: Huff, _ node: Node?) {
     }
 
     if node!.next != nil && node!.next!.weight == node!.weight {
-        // Port-note: Raven reads the `nodePtrs` slot that `head` points at. Open row R-B.
-        // Raven wrote: lnode = *node->head;
-        portMissing("increment", source: "oracle/codemp/qcommon/huffman.cpp:128")
+        lnode = node!.head![0]
         if lnode != node!.parent {
             swap(huff, lnode!, node!)
         }
         swaplist(lnode!, node!)
     }
     if node!.prev != nil && node!.prev!.weight == node!.weight {
-        // Port-note: Raven writes the `nodePtrs` slot that `head` points at. Open row R-B.
-        // Raven wrote: *node->head = node->prev;
-        portMissing("increment", source: "oracle/codemp/qcommon/huffman.cpp:128")
+        node!.head![0] = node!.prev
     } else {
-        // Port-note: Raven clears the `nodePtrs` slot that `head` points at and frees the slot. Open row R-B.
-        // Raven wrote: *node->head = NULL; free_ppnode(huff, node->head);
-        portMissing("increment", source: "oracle/codemp/qcommon/huffman.cpp:128")
+        node!.head![0] = nil
+        free_ppnode(huff, node!.head!)
     }
     node!.weight += 1
     if node!.next != nil && node!.next!.weight == node!.weight {
         node!.head = node!.next!.head
     } else {
-        // Port-note: Raven takes a `nodePtrs` slot and writes the node into it. Open row R-B.
-        // Raven wrote: node->head = get_ppnode(huff); *node->head = node;
-        portMissing("increment", source: "oracle/codemp/qcommon/huffman.cpp:128")
+        node!.head = get_ppnode(huff)
+        node!.head![0] = node
     }
     if node!.parent != nil {
         increment(huff, node!.parent)
         if node!.prev == node!.parent {
             swaplist(node!, node!.parent!)
-            // Port-note: Raven reads and writes the `nodePtrs` slot that `head` points at. Open row R-B.
-            // Raven wrote: if (*node->head == node) { *node->head = node->parent; }
-            portMissing("increment", source: "oracle/codemp/qcommon/huffman.cpp:128")
+            if node!.head![0] == node {
+                node!.head![0] = node!.parent
+            }
         }
     }
 }
@@ -215,14 +218,12 @@ func Huff_addRef(_ huff: Huff, _ ch: Int32) {
             if huff.lhead!.next!.weight == 1 {
                 tnode2!.head = huff.lhead!.next!.head
             } else {
-                // Port-note: Raven takes a `nodePtrs` slot and writes the node into it. Open row R-B.
-                // Raven wrote: tnode2->head = get_ppnode(huff); *tnode2->head = tnode2;
-                portMissing("Huff_addRef", source: "oracle/codemp/qcommon/huffman.cpp:166")
+                tnode2!.head = get_ppnode(huff)
+                tnode2!.head![0] = tnode2
             }
         } else {
-            // Port-note: Raven takes a `nodePtrs` slot and writes the node into it. Open row R-B.
-            // Raven wrote: tnode2->head = get_ppnode(huff); *tnode2->head = tnode2;
-            portMissing("Huff_addRef", source: "oracle/codemp/qcommon/huffman.cpp:166")
+            tnode2!.head = get_ppnode(huff)
+            tnode2!.head![0] = tnode2
         }
         huff.lhead!.next = tnode2
         tnode2!.prev = huff.lhead
@@ -236,15 +237,13 @@ func Huff_addRef(_ huff: Huff, _ ch: Int32) {
                 tnode!.head = huff.lhead!.next!.head
             } else {
                 /* this should never happen */
-                // Port-note: Raven takes a `nodePtrs` slot and writes a node into it. Open row R-B.
-                // Raven wrote: tnode->head = get_ppnode(huff); *tnode->head = tnode2;
-                portMissing("Huff_addRef", source: "oracle/codemp/qcommon/huffman.cpp:166")
+                tnode!.head = get_ppnode(huff)
+                tnode!.head![0] = tnode2
             }
         } else {
             /* this should never happen */
-            // Port-note: Raven takes a `nodePtrs` slot and writes the node into it. Open row R-B.
-            // Raven wrote: tnode->head = get_ppnode(huff); *tnode->head = tnode;
-            portMissing("Huff_addRef", source: "oracle/codemp/qcommon/huffman.cpp:166")
+            tnode!.head = get_ppnode(huff)
+            tnode!.head![0] = tnode
         }
         huff.lhead!.next = tnode
         tnode!.prev = huff.lhead
@@ -380,7 +379,7 @@ func Huff_Decompress(_ mbuf: Msg, _ offset: Int32) {
     var i: Int32 = 0
     var j: Int32 = 0
     var size: Int32 = 0
-    var seq: [UInt8] = [UInt8](repeating: 0, count: 65536)
+    // AI: Raven declares `byte seq[65536]` on his stack. The body uses the zeroed allocation of the storage class through the `seq` forward.
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = Huff.scratch { huff -> Bool in
@@ -439,9 +438,8 @@ func Huff_Decompress(_ mbuf: Msg, _ offset: Int32) {
             j += 1
         }
         mbuf.cursize = cch + offset
-        // Port-note: Raven copies his `byte seq[65536]` local into the message's bytes, and a `[UInt8]` has no raw copy. Open row R-A.
-        // Raven wrote: Com_Memcpy(mbuf->data + offset, seq, cch);
-        portMissing("Huff_Decompress", source: "oracle/codemp/qcommon/huffman.cpp:304")
+        // Raven copies `seq` into the message's bytes past `offset`, and the raw pointers over the `data` field and the `seq` allocation are those addresses, under rule 11.
+        Com_Memcpy(OpaquePointer(UnsafeMutableRawPointer(mbuf.data!) + offset), OpaquePointer(seq.base), CUnsignedLong(cch))
         return false
     }
     if earlyOut {
@@ -454,7 +452,7 @@ func Huff_Compress(_ mbuf: Msg, _ offset: Int32) {
     var i: Int32 = 0
     var ch: Int32 = 0
     var size: Int32 = 0
-    var seq: [UInt8] = [UInt8](repeating: 0, count: 65536)
+    // AI: Raven declares `byte seq[65536]` on his stack. The body uses the zeroed allocation of the storage class through the `seq` forward.
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = Huff.scratch { huff -> Bool in
@@ -489,9 +487,7 @@ func Huff_Compress(_ mbuf: Msg, _ offset: Int32) {
         i = 0
         while i < size {
             ch = Int32(buffer[byte: i] as UInt8)
-            // Port-note: Raven hands his `byte seq[65536]` local to the `byte *` of Huff_transmit, and a `[UInt8]` has no raw pointer. Open row R-A.
-            // Raven wrote: Huff_transmit(&huff, ch, seq);
-            portMissing("Huff_Compress", source: "oracle/codemp/qcommon/huffman.cpp:358")
+            Huff_transmit(huff, ch, seq.base) /* Transmit symbol */
             Huff_addRef(huff, Int32(ch)) /* Do update */
             i += 1
         }
@@ -499,9 +495,8 @@ func Huff_Compress(_ mbuf: Msg, _ offset: Int32) {
         bloc += 8 // next byte
 
         mbuf.cursize = (bloc >> 3) + offset
-        // Port-note: Raven copies his `byte seq[65536]` local into the message's bytes, and a `[UInt8]` has no raw copy. Open row R-A.
-        // Raven wrote: Com_Memcpy(mbuf->data+offset, seq, (bloc>>3));
-        portMissing("Huff_Compress", source: "oracle/codemp/qcommon/huffman.cpp:358")
+        // Raven copies `seq` into the message's bytes past `offset`, and the raw pointers over the `data` field and the `seq` allocation are those addresses, under rule 11.
+        Com_Memcpy(OpaquePointer(UnsafeMutableRawPointer(mbuf.data!) + offset), OpaquePointer(seq.base), CUnsignedLong((bloc >> 3)))
         return false
     }
     if earlyOut {

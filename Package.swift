@@ -88,6 +88,7 @@ let package = Package(
         // The smoke test runs the jampsmoke loader as a process and must not link the built dylib, so it does not depend on jampgame.
         .testTarget(name: "jampgameTests", dependencies: ["CJKAMP_Game"]),
         .testTarget(name: "JKAMP_CGameTests", dependencies: ["JKAMP_CGameLogic", "JKATestSupport"]),
+        .testTarget(name: "JKAMP_DedLogicTests", dependencies: ["JKAMP_DedLogic", "JKATestSupport"]),
         // The cgame smoke test runs the same loader on the cgame library, so it does not depend on cgame.
         .testTarget(name: "cgameTests", dependencies: ["CJKAMP_CGame"]),
         // The host test calls VM_DllSyscall through the module side shim, so it depends on both C targets.
