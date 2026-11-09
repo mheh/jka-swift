@@ -12,7 +12,7 @@ import JKAShared
 // MARK: - Byte fill at an offset
 
 /// Raven's `Com_Memset( o, val, count )` through a `char *` that points into a buffer at a byte offset.
-/// Source: oracle/codemp/qcommon/common.cpp:529
+/// Source: oracle/codemp/qcommon/common.cpp:526
 // AI: Raven fills the bytes from a pointer into the buffer. The function takes the buffer and the byte offset of that pointer.
 public func Com_Memset(_ buf: inout CharBuf, _ val: Int32, _ count: some BinaryInteger, at offset: some BinaryInteger) {
     var index = Int(offset)
@@ -56,7 +56,7 @@ public enum CommonBackend {
     }
 
     /// Raven's `asctime( localtime( &aclock ) )`, the text of the local time with its newline.
-    /// Source: oracle/codemp/qcommon/common.cpp:176
+    /// Source: oracle/codemp/qcommon/common.cpp:177
     public static func asctime(_ aclock: time_t) -> String {
         var clock = aclock
         #if canImport(Darwin)
