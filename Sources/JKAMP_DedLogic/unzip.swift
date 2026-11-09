@@ -549,7 +549,8 @@ func unzReadCurrentFile(_ file: OpaquePointer?, _ buf: Slots<JKAShared.byte>, _ 
                 }
             }
             // ZIP_fread is Raven's macro for fread.
-            if FileBackend.fread(pfile_in_zip_read_info.read_buffer, at: 0, Int32(bitPattern: uReadThis), 1, pfile_in_zip_read_info.file) != 1 {
+            // AI: Raven hands a pointer to ZIP_fread. FileBackend.fread takes a Slots of bytes, so ZipBackend.bytes gives one over the same buffer.
+            if FileBackend.fread(ZipBackend.bytes(pfile_in_zip_read_info.read_buffer, count: UNZ_BUFSIZE)!, at: 0, Int32(bitPattern: uReadThis), 1, pfile_in_zip_read_info.file) != 1 {
                 return UNZ_ERRNO
             }
             pfile_in_zip_read_info.pos_in_zipfile += CUnsignedLong(uReadThis)
@@ -716,7 +717,8 @@ func unzGetLocalExtrafield(_ file: OpaquePointer?, _ buf: OpaquePointer?, _ len:
         return UNZ_ERRNO
     }
 
-    if FileBackend.fread(buf, at: 0, Int32(truncatingIfNeeded: size_to_read), 1, pfile_in_zip_read_info.file) != 1 {
+    // AI: Raven hands a pointer to ZIP_fread. FileBackend.fread takes a Slots of bytes, so ZipBackend.bytes gives one over the same buffer.
+    if FileBackend.fread(ZipBackend.bytes(buf, count: size_to_read)!, at: 0, Int32(truncatingIfNeeded: size_to_read), 1, pfile_in_zip_read_info.file) != 1 {
         return UNZ_ERRNO
     }
 
