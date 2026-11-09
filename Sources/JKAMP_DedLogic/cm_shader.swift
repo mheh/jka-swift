@@ -10,12 +10,18 @@ var shaderText: String {
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:29
-// Raven wrote: CHash<CCMShaderText> shaderTextTable
-let shaderTextTable: Int32 = 0
+// AI: Raven wrote `CHash<CCMShaderText> shaderTextTable`. The forward reaches the `Dictionary` of `EngineWorld`, the name to the byte offset of the text.
+var shaderTextTable: [String: Int32] {
+    get { world.shaderTextTable }
+    set { world.shaderTextTable = newValue }
+}
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:30
-// Raven wrote: CHash<CCMShader> cmShaderTable
-let cmShaderTable: Int32 = 0
+// AI: Raven wrote `CHash<CCMShader> cmShaderTable`. The forward reaches the `Dictionary` of `EngineWorld`, the name to the offset of the record.
+var cmShaderTable: [String: Int32] {
+    get { world.cmShaderTable }
+    set { world.cmShaderTable = newValue }
+}
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:69
 let MAX_SHADER_FILES = 1024 as Int32
@@ -41,11 +47,27 @@ CM_CreateShaderTextHash
 */
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:37
 func CM_CreateShaderTextHash() {
-    // TODO: Port CM_CreateShaderTextHash
-    portMissing("CM_CreateShaderTextHash", source: "oracle/codemp/qcommon/cm_shader.cpp:37")
+    var p: TextCursor
+    var hasNewLines: Bool = false
+    var token: String
+
+    p = TextCursor(CharBuf(shaderText))
+    // look for label
+    while !p.isNull {
+        p = SkipWhitespace(p, &hasNewLines)
+        token = COM_ParseExt(&p, true)
+        if token.isEmpty {
+            break
+        }
+        // AI: Raven inserts a new `CCMShaderText` of the name and the text pointer. The table stores the byte offset of the cursor under the name.
+        shaderTextTable[token] = p.offset!
+
+        SkipBracedSection(&p)
+    }
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:71
+// Port-note: FS_ListFiles of files_pc carries a signature marker for its `char **` return, and `shaderText` is a `String` with no home for the `Z_Malloc` block.
 func CM_LoadShaderFiles() {
     // TODO: Port CM_LoadShaderFiles
     portMissing("CM_LoadShaderFiles", source: "oracle/codemp/qcommon/cm_shader.cpp:71")
@@ -53,20 +75,40 @@ func CM_LoadShaderFiles() {
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:158
 func CM_GetShaderText(_ key: String) -> String? {
-    // TODO: Port CM_GetShaderText
-    portMissing("CM_GetShaderText", source: "oracle/codemp/qcommon/cm_shader.cpp:158")
+    let st = shaderTextTable[key]
+    if st != nil {
+        // AI: Raven returns the `GetData` pointer into `shaderText`. The function returns the text from that byte offset.
+        return String(CharBuf(shaderText)[st!...])
+    }
+    return nil
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:176
 func CM_FreeShaderText() {
-    // TODO: Port CM_FreeShaderText
-    portMissing("CM_FreeShaderText", source: "oracle/codemp/qcommon/cm_shader.cpp:176")
+    shaderTextTable.removeAll()
+    // AI: Raven tests the `char *shaderText` for NULL. The empty text is the NULL of the `String` variable, because a loaded text holds at least one newline.
+    if !shaderText.isEmpty {
+        // Port-note: `shaderText` is a `String`, so the `Z_Malloc` block of CM_LoadShaderFiles has no pointer to free.
+        // Raven wrote: Z_Free(shaderText);
+        portMissing("CM_FreeShaderText", source: "oracle/codemp/qcommon/cm_shader.cpp:176")
+        shaderText = ""
+    }
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:195
 func CM_LoadShaderText(_ forceReload: Bool) {
-    // TODO: Port CM_LoadShaderText
-    portMissing("CM_LoadShaderText", source: "oracle/codemp/qcommon/cm_shader.cpp:195")
+    if forceReload {
+        CM_FreeShaderText()
+    }
+    // AI: Raven tests the `char *shaderText` for NULL. The empty text is the NULL of the `String` variable, because a loaded text holds at least one newline.
+    if !shaderText.isEmpty {
+        return
+    }
+    //	Com_Printf("Loading shader text .....\n");
+    CM_LoadShaderFiles()
+    CM_CreateShaderTextHash()
+
+    //Com_Printf("..... %d shader definitions loaded\n", shaderTextTable.count());
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:261
@@ -128,14 +170,32 @@ private func CM_ParseShader() -> Never {
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:466
 func CM_SetupShaderProperties() {
-    // TODO: Port CM_SetupShaderProperties
-    portMissing("CM_SetupShaderProperties", source: "oracle/codemp/qcommon/cm_shader.cpp:466")
+    var i: Int32
+
+    // Add all basic shaders to the cmShaderTable
+    i = 0
+    while i < cmg.numShaders {
+        // Port-note: CM_GetShaderInfo carries a signature marker, because the table has no row for the return `CCMShader *`.
+        // Raven wrote: cmShaderTable.insert(CM_GetShaderInfo(i));
+        portMissing("CM_SetupShaderProperties", source: "oracle/codemp/qcommon/cm_shader.cpp:466")
+        i += 1
+    }
+    // Go through and parse evaluate shader names to shadernums
+    i = 0
+    while i < cmg.numShaders {
+        // Port-note: CM_GetShaderInfo and CM_ParseShader carry signature markers, because the table has no row for `CCMShader *`.
+        // Raven wrote: shader = CM_GetShaderInfo(i); def = CM_GetShaderText(shader->shader); if(def) { CM_ParseShader(shader, &def); }
+        portMissing("CM_SetupShaderProperties", source: "oracle/codemp/qcommon/cm_shader.cpp:466")
+        i += 1
+    }
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:489
 func CM_ShutdownShaderProperties() {
-    // TODO: Port CM_ShutdownShaderProperties
-    portMissing("CM_ShutdownShaderProperties", source: "oracle/codemp/qcommon/cm_shader.cpp:489")
+    if cmShaderTable.count != 0 {
+        //		Com_Printf("Shutting down cmShaderTable .....\n");
+        cmShaderTable.removeAll()
+    }
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:498
@@ -143,6 +203,7 @@ func CM_ShutdownShaderProperties() {
 // Raven wrote: CCMShader *CM_GetShaderInfo( const char *name )
 // No table row for the return `CCMShader *`.
 func CM_GetShaderInfo(_ name: String) -> Never {
+    // Port-note: The parameter tells the two C++ overloads apart, so the gate keeps this stub as a hand function.
     // TODO: Port CM_GetShaderInfo
     portMissing("CM_GetShaderInfo", source: "oracle/codemp/qcommon/cm_shader.cpp:498")
 }
@@ -152,6 +213,7 @@ func CM_GetShaderInfo(_ name: String) -> Never {
 // Raven wrote: CCMShader *CM_GetShaderInfo( int shaderNum )
 // No table row for the return `CCMShader *`.
 func CM_GetShaderInfo(_ shaderNum: Int32) -> Never {
+    // Port-note: The parameter tells the two C++ overloads apart, so the gate keeps this stub as a hand function.
     // TODO: Port CM_GetShaderInfo
     portMissing("CM_GetShaderInfo", source: "oracle/codemp/qcommon/cm_shader.cpp:526")
 }

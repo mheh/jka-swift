@@ -26,7 +26,33 @@ public final class EngineWorld {
 
     // MARK: - Raven's data tables
 
+    // MARK: - cm_load.cpp
+
+    /// Raven's `clipMap_t cmg` of `cm_load.cpp`, the clip map of the world BSP.
+    /// Source: oracle/codemp/qcommon/cm_load.cpp:37
+    // AI: Raven's `cmg` is a C global with no generated view. The world owns one zeroed record of the hand view `ClipMap`.
+    let cmg = ClipMap.record()
+
+    /// Raven's `clipMap_t SubBSP[MAX_SUB_BSP]` of `cm_load.cpp`, the clip maps of the sub BSPs.
+    /// Source: oracle/codemp/qcommon/cm_load.cpp:60
+    // AI: Raven's `SubBSP` is a C global array with no generated view. The world owns one zeroed table of the hand view `ClipMap`.
+    let SubBSP = ClipMap.records(count: Int(MAX_SUB_BSP))
+
+    /// Raven's `cbrush_t *box_brush` of `cm_load.cpp`, the brush of the temporary box model.
+    /// Source: oracle/codemp/qcommon/cm_load.cpp:52
+    var box_brush: Cbrush? = nil
+
     // MARK: - cm_shader.cpp
+
+    /// Raven's `CHash<CCMShaderText> shaderTextTable` of `cm_shader.cpp`, the name of each shader block to the byte offset of its text in `shaderText`.
+    /// Source: oracle/codemp/qcommon/cm_shader.cpp:29
+    // AI: Raven keeps a `CHash` of `CCMShaderText` records. The table is a `Dictionary` from the name to the byte offset of the text.
+    var shaderTextTable: [String: Int32] = [:]
+
+    /// Raven's `CHash<CCMShader> cmShaderTable` of `cm_shader.cpp`, the name of each shader to its `CCMShader` record.
+    /// Source: oracle/codemp/qcommon/cm_shader.cpp:30
+    // AI: Raven keeps a `CHash` of `CCMShader` records. The table is a `Dictionary` from the name to the offset of the record.
+    var cmShaderTable: [String: Int32] = [:]
 
     /// Raven's `const char *svMaterialNames[MATERIAL_LAST]` of `cm_shader.cpp`, the `MATERIALS` list of oracle/codemp/game/surfaceflags.h:90.
     /// Source: oracle/codemp/qcommon/cm_shader.cpp:285
@@ -65,6 +91,37 @@ public final class EngineWorld {
         "computer",
     ]
 
+    // MARK: - common.cpp
+
+    /// Raven's `static void (*rd_flush)( char *buffer )` of `common.cpp`, the flush of the print redirect.
+    /// Source: oracle/codemp/qcommon/common.cpp:94
+    // AI: Raven stores a C function pointer. The port stores the Swift closure that Com_BeginRedirect takes.
+    var rd_flush: ((inout CharBuf) -> Void)? = nil
+
+    /// Raven's `static int lastErrorTime` of `Com_Error` in `common.cpp`.
+    /// Source: oracle/codemp/qcommon/common.cpp:251
+    var lastErrorTime: Int32 = 0
+
+    /// Raven's `static int errorCount` of `Com_Error` in `common.cpp`.
+    /// Source: oracle/codemp/qcommon/common.cpp:252
+    var errorCount: Int32 = 0
+
+    /// Raven's `static int lastTime` of `Com_Frame` in `common.cpp`.
+    /// Source: oracle/codemp/qcommon/common.cpp:1601
+    var lastTime: Int32 = 0
+
+    // MARK: - files_common.cpp
+
+    /// Raven's `searchpath_t *fs_searchpaths` of `files_common.cpp`, the head of the search path, nil before FS_Startup.
+    /// Source: oracle/codemp/qcommon/files_common.cpp:193
+    // AI: Raven keeps fs_searchpaths at file scope, and the table has no row for `searchpath_t *`. The world holds the hand view.
+    var fs_searchpaths: Searchpath? = nil
+
+    /// Raven's `fileHandleData_t fsh[MAX_FILE_HANDLES]` of `files_common.cpp`.
+    /// Source: oracle/codemp/qcommon/files_common.cpp:202
+    // AI: Raven keeps fsh at file scope, and fileHandleData_t has no generated view. The world owns one zeroed table of the hand view.
+    let fsh = FileHandleData.table(count: MAX_FILE_HANDLES)
+
     // MARK: - net_chan.cpp
 
     /// Raven's `static char *netsrcString[2]` of `net_chan.cpp`.
@@ -74,7 +131,33 @@ public final class EngineWorld {
         "server"
     ]
 
+    // MARK: - sv_main.cpp
+
+    /// Raven's `static char string[1024]` of `SV_ExpandNewlines` in `sv_main.cpp`.
+    /// Source: oracle/codemp/server/sv_main.cpp:60
+    var string_SV_ExpandNewlines = CharBuf(1024)
+
+    /// Raven's `static netadr_t adr[MAX_MASTER_SERVERS]` of `SV_MasterHeartbeat` in `sv_main.cpp`, zeroed as C zeroes a static.
+    /// Source: oracle/codemp/server/sv_main.cpp:223
+    var adr: Slots<Netadr> = {
+        let adr = Slots<Netadr>.new(count: MAX_MASTER_SERVERS)
+        adr.zero(count: MAX_MASTER_SERVERS)
+        return adr
+    }()
+
+    /// Raven's `static unsigned int lasttime` of `SVC_RemoteCommand` in `sv_main.cpp`.
+    /// Source: oracle/codemp/server/sv_main.cpp:496
+    var lasttime: UInt32 = 0
+
+    /// Raven's `static int lastMod` of `SV_CheckCvars` in `sv_main.cpp`.
+    /// Source: oracle/codemp/server/sv_main.cpp:792
+    var lastMod: Int32 = -1
+
     // MARK: - sv_ccmds.cpp
+
+    /// Raven's `static qboolean initialized` of `SV_AddOperatorCommands` in `sv_ccmds.cpp`.
+    /// Source: oracle/codemp/server/sv_ccmds.cpp:959
+    var initialized_SV_AddOperatorCommands = false
 
     // AI: Raven ended the table with NULL. A `[String]` holds no NULL, and every read of Raven stops below NUM_FORCE_POWERS, so the table ends at the last name.
     /// Raven's `static const char *forceToggleNamePrints[]` of `sv_ccmds.cpp`.
@@ -99,6 +182,18 @@ public final class EngineWorld {
         "SABER DEFENSE",//FP_SABER_DEFENSE
         "SABER THROW",//FP_SABERTHROW
     ]
+
+    // MARK: - vm.cpp
+
+    // AI: Raven's `std::map` of the symbol map of each VM is a Dictionary, under rule 17.
+    /// Raven's `symbolVMMap_t g_vmMap` of `vm.cpp`, from the VM to its symbol map, from a code offset to the symbol there.
+    /// Source: oracle/codemp/qcommon/vm.cpp:20
+    var g_vmMap: [Vm: [Int32: VmSymbol]] = [:]
+
+    // AI: Raven's `g_symbolMap` points at one map of `g_vmMap`. The world holds the VM, the key of that map.
+    /// Raven's `symbolMap_t *g_symbolMap` of `vm.cpp`, the symbol map of the VM that runs.
+    /// Source: oracle/codemp/qcommon/vm.cpp:21
+    var g_symbolMap: Vm? = nil
 
     // MARK: - vm_interpreted.cpp
 
@@ -193,6 +288,38 @@ public final class EngineWorld {
         "OP_CVFI"
     ]
 
+    // MARK: - win_main.cpp
+
+    /// Raven's `static int len` of `Sys_ConsoleInput` in `win_main.cpp`, the count of keys on the console line.
+    /// Source: oracle/codemp/null/win_main.cpp:204
+    var len: Int32 = 0
+
+    /// Raven's `static bool bPendingExtended` of `Sys_ConsoleInput` in `win_main.cpp`, true after the first byte of a function key.
+    /// Source: oracle/codemp/null/win_main.cpp:205
+    var bPendingExtended = false
+
+    // MARK: - win_net.cpp
+
+    /// Raven's `static struct sockaddr socksRelayAddr` of `win_net.cpp`.
+    /// Source: oracle/codemp/win32/win_net.cpp:22
+    var socksRelayAddr = Sockaddr()
+
+    /// Raven's `static SOCKET ip_socket = INVALID_SOCKET` of `win_net.cpp`.
+    /// Source: oracle/codemp/win32/win_net.cpp:27
+    var ip_socket = INVALID_SOCKET
+
+    /// Raven's `static SOCKET socks_socket = INVALID_SOCKET` of `win_net.cpp`.
+    /// Source: oracle/codemp/win32/win_net.cpp:28
+    var socks_socket = INVALID_SOCKET
+
+    // MARK: - win_shared.cpp
+
+    /// Raven's `static int sys_timeBase = timeGetTime()` of `Sys_Milliseconds` in `win_shared.cpp`.
+    /// The first read sets it, as C++ sets a static local on the first pass through its declaration.
+    /// Source: oracle/codemp/win32/win_shared.cpp:24
+    // AI: Raven read the Win32 timeGetTime for the base. The backend reads the monotonic clock of the platform.
+    lazy var sys_timeBase: Int32 = SysBackend.timeGetTime()
+
     // MARK: - z_memman_pc.cpp
 
     /// Raven's `const static char *psTagStrings[TAG_COUNT+1]` of `z_memman_pc.cpp`, the `TAGDEF` list of oracle/codemp/qcommon/tags.h with no `_XBOX`.
@@ -251,7 +378,14 @@ public final class EngineWorld {
     ]
 
     /// The shell entry builds a fresh world, so the initializer is public.
-    public init() {}
+    public init() {
+        // Raven's `static SOCKET ipx_socket = INVALID_SOCKET` of win_net.cpp:29.
+        self.variables.ipx_socket = INVALID_SOCKET
+    }
+
+    deinit {
+        self.adr.delete()
+    }
 }
 
 /// The one instance. The engine runs one thread, so this is not isolated.

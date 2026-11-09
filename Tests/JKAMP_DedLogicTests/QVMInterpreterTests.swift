@@ -6,7 +6,6 @@ import JKATestSupport
 @testable import JKAMP_DedLogic
 
 /// This suite runs the interpreter port of `vm_interpreted.cpp` over `vmtest.qvm` and checks each command of the README beside the image.
-/// The run stays disabled until `VM_SetSymbolMap`, `VM_Debug`, and `Hunk_Alloc` have Swift bodies.
 @Suite(.serialized)
 struct QVMInterpreterSuite {
     /// The syscalls of one run, each one the call number and its parameters.
@@ -49,10 +48,7 @@ struct QVMInterpreterSuite {
         #expect(VM_Indent(vm) == String(repeating: " ", count: 40))
     }
 
-    @Test(
-        "vmtest.qvm returns the README value of each command",
-        .disabled("VM_CallInterpreted stops at the VM_SetSymbolMap hole and the VM_Debug stub, and VM_PrepareInterpreter stops at the Hunk_Alloc stub")
-    )
+    @Test("vmtest.qvm returns the README value of each command")
     func commandsReturnTheReadmeValues() throws {
         world = EngineWorld()
         let image = try OracleData.fixtureData("qvm/vmtest.qvm")
