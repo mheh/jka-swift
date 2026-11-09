@@ -74,9 +74,7 @@ func AllocWinding(_ points: Int32) -> Winding? {
         c_peak_windings = c_active_windings
     }
 
-    // Port-note: No guide row gives the size of a `vec_t` or an `int` in a host body, and a body never writes `MemoryLayout`.
-    // Raven wrote: s = sizeof(vec_t)*3*points + sizeof(int)
-    portMissing("AllocWinding", source: "oracle/codemp/qcommon/cm_polylib.cpp:30")
+    s = Int32(vec_t.byteCount) * 3 * points + Int32(Int32.byteCount)
     w = Winding(Z_Malloc(s, TAG_BSP, true))
     //	Com_Memset (w, 0, s); // qtrue param in Z_Malloc does this
     return w
@@ -102,7 +100,7 @@ func RemoveColinearPoints(_ w: Winding) {
     var v1 = vec3_t()
     var v2 = vec3_t()
     var nump: Int32
-    var p = [vec3_t](repeating: vec3_t(), count: 64)
+    // AI: Raven declares `vec3_t p[64]` on his stack. The body uses the zeroed allocation of the storage class through the `p` forward.
 
     nump = 0
     i = 0
@@ -126,10 +124,7 @@ func RemoveColinearPoints(_ w: Winding) {
 
     c_removed += w.numpoints - nump
     w.numpoints = nump
-    // Port-note: `Com_Memcpy` takes two `Slots`, and the local `p` is a Swift array, so the copy has no form.
-    // No guide row gives the size of a `vec3_t` either.
-    // Raven wrote: Com_Memcpy (w->p, p, nump*sizeof(p[0]))
-    portMissing("RemoveColinearPoints", source: "oracle/codemp/qcommon/cm_polylib.cpp:64")
+    Com_Memcpy(w.p, p, nump * Int32(vec3_t.byteCount))
 }
 
 /**
@@ -322,12 +317,8 @@ func CopyWinding(_ w: Winding) -> Winding? {
     var c: Winding?
 
     c = AllocWinding(w.numpoints)
-    // Port-note: Raven sizes the record by the offset of `p[numpoints]`, and no guide row gives an offset into a record.
-    // Raven wrote: size = (int)((winding_t *)0)->p[w->numpoints]
-    portMissing("CopyWinding", source: "oracle/codemp/qcommon/cm_polylib.cpp:249")
-    // Port-note: No `Com_Memcpy` overload copies a byte count between two views.
-    // Raven wrote: Com_Memcpy (c, w, size)
-    portMissing("CopyWinding", source: "oracle/codemp/qcommon/cm_polylib.cpp:249")
+    size = Int32(Winding.byteCount(points: w.numpoints))
+    Com_Memcpy(c!, w, size)
     return c
 }
 
@@ -738,8 +729,8 @@ func AddWindingToConvexHull(_ w: Winding, _ hull: inout Winding?, _ normal: JKAS
     var d: Float
     var numHullPoints: Int32
     var numNew: Int32
-    var hullPoints = [vec3_t](repeating: vec3_t(), count: 128)
-    var newHullPoints = [vec3_t](repeating: vec3_t(), count: 128)
+    // AI: Raven declares `vec3_t hullPoints[128]` on his stack. The body uses the zeroed allocation of the storage class through the `hullPoints` forward.
+    // AI: Raven declares `vec3_t newHullPoints[128]` on his stack. The body uses the zeroed allocation of the storage class through the `newHullPoints` forward.
     var hullDirs = [vec3_t](repeating: vec3_t(), count: 128)
     var hullSide: [Bool] = [Bool](repeating: false, count: 128)
     var outside: Bool
@@ -752,10 +743,7 @@ func AddWindingToConvexHull(_ w: Winding, _ hull: inout Winding?, _ normal: JKAS
     }
 
     numHullPoints = hull!.numpoints
-    // Port-note: `Com_Memcpy` takes two `Slots`, and the local `hullPoints` is a Swift array, so the copy has no form.
-    // No guide row gives the size of a `vec3_t` either.
-    // Raven wrote: Com_Memcpy( hullPoints, (*hull)->p, numHullPoints * sizeof(vec3_t) )
-    portMissing("AddWindingToConvexHull", source: "oracle/codemp/qcommon/cm_polylib.cpp:626")
+    Com_Memcpy(hullPoints, hull!.p, numHullPoints * Int32(vec3_t.byteCount))
 
     i = 0
     while i < w.numpoints {
@@ -823,10 +811,7 @@ func AddWindingToConvexHull(_ w: Winding, _ hull: inout Winding?, _ normal: JKAS
         }
 
         numHullPoints = numNew
-        // Port-note: `Com_Memcpy` takes two `Slots`, and the locals `hullPoints` and `newHullPoints` are Swift arrays, so the copy has no form.
-        // No guide row gives the size of a `vec3_t` either.
-        // Raven wrote: Com_Memcpy( hullPoints, newHullPoints, numHullPoints * sizeof(vec3_t) )
-        portMissing("AddWindingToConvexHull", source: "oracle/codemp/qcommon/cm_polylib.cpp:626")
+        Com_Memcpy(hullPoints, newHullPoints, numHullPoints * Int32(vec3_t.byteCount))
         i += 1
     }
 
@@ -834,8 +819,5 @@ func AddWindingToConvexHull(_ w: Winding, _ hull: inout Winding?, _ normal: JKAS
     w = AllocWinding(numHullPoints)!
     w.numpoints = numHullPoints
     hull = w
-    // Port-note: `Com_Memcpy` takes two `Slots`, and the local `hullPoints` is a Swift array, so the copy has no form.
-    // No guide row gives the size of a `vec3_t` either.
-    // Raven wrote: Com_Memcpy( w->p, hullPoints, numHullPoints * sizeof(vec3_t) )
-    portMissing("AddWindingToConvexHull", source: "oracle/codemp/qcommon/cm_polylib.cpp:626")
+    Com_Memcpy(w.p, hullPoints, numHullPoints * Int32(vec3_t.byteCount))
 }
