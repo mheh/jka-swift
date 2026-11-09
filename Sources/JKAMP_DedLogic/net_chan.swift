@@ -117,9 +117,7 @@ func Netchan_TransmitNextFragment(_ chan: Netchan) {
 
     Msg.scratch { send in
         // write the packet header
-        // Port-note: Open row send_buf as byte storage. The local `byte send_buf[MAX_PACKETLEN]` has no storage home, and `MSG_InitOOB` takes a `Slots<byte>`.
-        // Raven wrote: MSG_InitOOB (&send, send_buf, sizeof(send_buf));				// <-- only do the oob here
-        portMissing("Netchan_TransmitNextFragment", source: "oracle/codemp/qcommon/net_chan.cpp:88")
+        MSG_InitOOB(send, send_buf_Netchan_TransmitNextFragment, Int32(send_buf_Netchan_TransmitNextFragment.count)) // <-- only do the oob here
 
         MSG_WriteLong(send, chan.outgoingSequence | FRAGMENT_BIT)
 
@@ -140,9 +138,7 @@ func Netchan_TransmitNextFragment(_ chan: Netchan) {
         MSG_WriteData(send, chan.unsentBuffer.suffix(from: chan.unsentFragmentStart), fragmentLength)
 
         // send the datagram
-        // Port-note: Open row NET_SendPacket data as bytes. The `data` parameter of `NET_SendPacket` is an `OpaquePointer?`, and rule 11 keeps a handle out of a logic target.
-        // Raven wrote: NET_SendPacket( chan->sock, send.cursize, send.data, chan->remoteAddress );
-        portMissing("Netchan_TransmitNextFragment", source: "oracle/codemp/qcommon/net_chan.cpp:88")
+        NET_SendPacket(chan.sock, send.cursize, send.data!, chan.remoteAddress)
 
         if showpackets!.integer != 0 {
             Com_Printf("%s send %4i : s=%i fragment=%i,%i\n"
@@ -199,9 +195,7 @@ func Netchan_Transmit(_ chan: Netchan, _ length: Int32, _ data: Slots<JKAShared.
 
     Msg.scratch { send in
         // write the packet header
-        // Port-note: Open row send_buf as byte storage. The local `byte send_buf[MAX_PACKETLEN]` has no storage home, and `MSG_InitOOB` takes a `Slots<byte>`.
-        // Raven wrote: MSG_InitOOB (&send, send_buf, sizeof(send_buf));
-        portMissing("Netchan_Transmit", source: "oracle/codemp/qcommon/net_chan.cpp:145")
+        MSG_InitOOB(send, send_buf_Netchan_Transmit, Int32(send_buf_Netchan_Transmit.count))
 
         MSG_WriteLong(send, chan.outgoingSequence)
         chan.outgoingSequence += 1
@@ -214,9 +208,7 @@ func Netchan_Transmit(_ chan: Netchan, _ length: Int32, _ data: Slots<JKAShared.
         MSG_WriteData(send, data, length)
 
         // send the datagram
-        // Port-note: Open row NET_SendPacket data as bytes. The `data` parameter of `NET_SendPacket` is an `OpaquePointer?`, and rule 11 keeps a handle out of a logic target.
-        // Raven wrote: NET_SendPacket( chan->sock, send.cursize, send.data, chan->remoteAddress );
-        portMissing("Netchan_Transmit", source: "oracle/codemp/qcommon/net_chan.cpp:145")
+        NET_SendPacket(chan.sock, send.cursize, send.data!, chan.remoteAddress)
 
         if showpackets!.integer != 0 {
             Com_Printf("%s send %4i : s=%i ack=%i\n"
@@ -545,20 +537,16 @@ func NET_SendLoopPacket(_ sock: netsrc_t, _ length: Int32, _ data: Slots<JKAShar
     i = loop.send & (MAX_LOOPBACK - 1)
     loop.send += 1
 
-    // Port-note: Open row NET_SendPacket data as bytes. The `data` parameter of `NET_SendLoopPacket` is an `OpaquePointer?`, and rule 11 keeps a handle out of a logic target.
-    // Raven wrote: Com_Memcpy (loop->msgs[i].data, data, length);
-    portMissing("NET_SendLoopPacket", source: "oracle/codemp/qcommon/net_chan.cpp:514")
+    Com_Memcpy(loop.msgs[i].data, data, length)
     loop.msgs[i].datalen = length
 }
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:531
 func NET_SendPacket(_ sock: netsrc_t, _ length: Int32, _ data: Slots<JKAShared.byte>, _ to: Netadr) {
     // sequenced packets are shown in netchan, so just show oob
-    // Port-note: Open row NET_SendPacket data as bytes. The `data` parameter of `NET_SendPacket` is an `OpaquePointer?`, and rule 11 keeps a handle out of a logic target.
-    // Raven wrote: if ( showpackets->integer && *(int *)data == -1 )	{
-    // Raven wrote:     Com_Printf ("send packet %4i\n", length);
-    // Raven wrote: }
-    portMissing("NET_SendPacket", source: "oracle/codemp/qcommon/net_chan.cpp:531")
+    if showpackets!.integer != 0 && data[int: 0] == -1 {
+        Com_Printf("send packet %4i\n", length)
+    }
 
     if to.type == NA_LOOPBACK {
         NET_SendLoopPacket(sock, length, data, to)
@@ -597,7 +585,7 @@ func NET_OutOfBandPrint(_ sock: netsrc_t, _ adr: Netadr, _ format: String, _ arg
     strcpy(&string, JKAShared.format(format, args), at: 4)
 
     // send the datagram
-    // Port-note: Open row NET_SendPacket data as bytes. The `data` parameter of `NET_SendPacket` is an `OpaquePointer?`, and rule 11 keeps a handle out of a logic target.
+    // Port-note: Open row "CharBuf as send data". The local `char string[MAX_MSGLEN]` is a `CharBuf`, and the `data` parameter of `NET_SendPacket` takes a `Slots<byte>`.
     // Raven wrote: NET_SendPacket( sock, strlen( string ), string, adr );
     portMissing("NET_OutOfBandPrint", source: "oracle/codemp/qcommon/net_chan.cpp:559")
 }
@@ -613,10 +601,27 @@ Sends a data message in an out-of-band datagram (only used for "connect")
 */
 /// Source: oracle/codemp/qcommon/net_chan.cpp:585
 func NET_OutOfBandData(_ sock: netsrc_t, _ adr: Netadr, _ format: Slots<JKAShared.byte>, _ len: Int32) {
-    // Port-note: Open row send_buf as byte storage. The local `byte string[MAX_MSGLEN*2]` has no storage home, and `mbuf.data` takes a `Slots<byte>`.
-    // Port-note: Open row NET_SendPacket data as bytes. The `format` parameter is an `OpaquePointer?`, and rule 11 keeps a handle out of a logic target.
-    // TODO: Port NET_OutOfBandData
-    portMissing("NET_OutOfBandData", source: "oracle/codemp/qcommon/net_chan.cpp:585")
+    var i: Int32 = 0
+
+    Msg.scratch { mbuf in
+        // set the header
+        string_NET_OutOfBandData[0] = 0xff
+        string_NET_OutOfBandData[1] = 0xff
+        string_NET_OutOfBandData[2] = 0xff
+        string_NET_OutOfBandData[3] = 0xff
+
+        i = 0
+        while i < len {
+            string_NET_OutOfBandData[i + 4] = format[i]
+            i += 1
+        }
+
+        mbuf.data = string_NET_OutOfBandData
+        mbuf.cursize = len + 4
+        Huff_Compress(mbuf, 12)
+        // send the datagram
+        NET_SendPacket(sock, mbuf.cursize, mbuf.data!, adr)
+    }
 }
 
 /**
