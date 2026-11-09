@@ -24,6 +24,24 @@ public final class EngineWorld {
     /// Source: oracle/codemp/qcommon/msg.cpp:522
     var string_MSG_ReadStringLine = CharBuf(MAX_STRING_CHARS)
 
+    // MARK: - cmd_pc.cpp
+
+    /// Raven's `static cmd_function_t *cmd_functions` of `cmd_pc.cpp`, the command list with its head at index 0.
+    /// Source: oracle/codemp/qcommon/cmd_pc.cpp:11
+    // AI: Raven links the commands through `next` in S_Malloc blocks. The list is an Array of rows in Raven's order, the form of `spawns` of the game.
+    var cmd_functions: [CmdFunctionRow] = []
+
+    // MARK: - stringed_ingame.cpp
+
+    /// Raven's `CStringEdPackage TheStringPackage` of `stringed_ingame.cpp`, the one string table.
+    /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:124
+    let TheStringPackage = CStringEdPackage()
+
+    /// Raven's `vector <string> gvLanguagesAvailable` of `stringed_ingame.cpp`, the cache of the language names.
+    /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:1071
+    // AI: Raven declares a global `vector<string>`. The cache is an Array, by the C++ docket.
+    var gvLanguagesAvailable: [String] = []
+
     // MARK: - Raven's data tables
 
     // MARK: - cm_load.cpp
