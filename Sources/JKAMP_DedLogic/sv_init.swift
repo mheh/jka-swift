@@ -26,7 +26,7 @@ func SV_SetConfigstring(_ index: Int32, _ val: String) {
 
 
     // don't bother broadcasting an update if no change
-    if strcmp(val.text, sv.configstrings[index]) == 0 {
+    if strcmp(val.text, sv.configstrings[index]!) == 0 {
         return
     }
 
