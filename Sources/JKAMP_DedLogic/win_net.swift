@@ -189,7 +189,7 @@ Sys_SendPacket
 ```
 */
 /// Source: oracle/codemp/win32/win_net.cpp:393
-func Sys_SendPacket(_ length: Int32, _ data: OpaquePointer?, _ to: Netadr) {
+func Sys_SendPacket(_ length: Int32, _ data: Slots<JKAShared.byte>, _ to: Netadr) {
     // TODO: Port Sys_SendPacket
     portMissing("Sys_SendPacket", source: "oracle/codemp/win32/win_net.cpp:393")
 }

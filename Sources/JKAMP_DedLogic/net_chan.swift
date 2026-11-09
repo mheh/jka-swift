@@ -46,11 +46,23 @@ var netsrcString: [String] {
     set { world.netsrcString = newValue }
 }
 
+/// Source: oracle/codemp/qcommon/net_chan.cpp:90
+// AI: Raven declares `send_buf` on the stack of Netchan_TransmitNextFragment. The function uses one zeroed allocation on the storage class.
+var send_buf_Netchan_TransmitNextFragment: Slots<JKAShared.byte> { world.storage.send_buf_Netchan_TransmitNextFragment }
+
+/// Source: oracle/codemp/qcommon/net_chan.cpp:147
+// AI: Raven declares `send_buf` on the stack of Netchan_Transmit. The function uses one zeroed allocation on the storage class.
+var send_buf_Netchan_Transmit: Slots<JKAShared.byte> { world.storage.send_buf_Netchan_Transmit }
+
 /// Source: oracle/codemp/qcommon/net_chan.cpp:474
 let MAX_LOOPBACK = 16 as Int32
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:486
 var loopbacks: Slots<Loopback> { world.storage.loopbacks }
+
+/// Source: oracle/codemp/qcommon/net_chan.cpp:586
+// AI: Raven declares `string` on the stack of NET_OutOfBandData. The function uses one zeroed allocation on the storage class.
+var string_NET_OutOfBandData: Slots<JKAShared.byte> { world.storage.string_NET_OutOfBandData }
 
 /**
 ```
@@ -524,7 +536,7 @@ func NET_GetLoopPacket(_ sock: netsrc_t, _ net_from: Netadr, _ net_message: Msg)
 }
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:514
-func NET_SendLoopPacket(_ sock: netsrc_t, _ length: Int32, _ data: OpaquePointer?, _ to: Netadr) {
+func NET_SendLoopPacket(_ sock: netsrc_t, _ length: Int32, _ data: Slots<JKAShared.byte>, _ to: Netadr) {
     let i: Int32
     let loop: Loopback
 
@@ -540,7 +552,7 @@ func NET_SendLoopPacket(_ sock: netsrc_t, _ length: Int32, _ data: OpaquePointer
 }
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:531
-func NET_SendPacket(_ sock: netsrc_t, _ length: Int32, _ data: OpaquePointer?, _ to: Netadr) {
+func NET_SendPacket(_ sock: netsrc_t, _ length: Int32, _ data: Slots<JKAShared.byte>, _ to: Netadr) {
     // sequenced packets are shown in netchan, so just show oob
     // Port-note: Open row NET_SendPacket data as bytes. The `data` parameter of `NET_SendPacket` is an `OpaquePointer?`, and rule 11 keeps a handle out of a logic target.
     // Raven wrote: if ( showpackets->integer && *(int *)data == -1 )	{
@@ -600,7 +612,7 @@ Sends a data message in an out-of-band datagram (only used for "connect")
 ```
 */
 /// Source: oracle/codemp/qcommon/net_chan.cpp:585
-func NET_OutOfBandData(_ sock: netsrc_t, _ adr: Netadr, _ format: OpaquePointer?, _ len: Int32) {
+func NET_OutOfBandData(_ sock: netsrc_t, _ adr: Netadr, _ format: Slots<JKAShared.byte>, _ len: Int32) {
     // Port-note: Open row send_buf as byte storage. The local `byte string[MAX_MSGLEN*2]` has no storage home, and `mbuf.data` takes a `Slots<byte>`.
     // Port-note: Open row NET_SendPacket data as bytes. The `format` parameter is an `OpaquePointer?`, and rule 11 keeps a handle out of a logic target.
     // TODO: Port NET_OutOfBandData

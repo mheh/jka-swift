@@ -292,6 +292,9 @@ BYTE_STORAGE_VARS = {"gSharedBuffer", "cmd_text_buf"}
 # A key of a local and its function gives the storage the function name as a suffix, `regs_IsKNI`, the rule of two static locals of one name.
 # `vec3_t p[MAX_POINTS_ON_WINDING]` of RemoveColinearPoints goes to Com_Memcpy at cm_polylib.cpp:92,
 # and `hullPoints` and `newHullPoints` of AddWindingToConvexHull go to Com_Memcpy at :644, :703, and :710, so each is a Slots of vec3_t.
+# `byte send_buf[MAX_PACKETLEN]` of Netchan_TransmitNextFragment and of Netchan_Transmit goes to MSG_InitOOB at net_chan.cpp:94 and :172.
+# `byte string[MAX_MSGLEN*2]` of NET_OutOfBandData is the store of `mbuf.data` at net_chan.cpp:600.
+# Each of the three functions keeps its own allocation, so the key names the local and its function, `send_buf_Netchan_Transmit`.
 BYTE_STORAGE_LOCALS = {
     "seq": ("Huff_Decompress", "Huff_Compress"),
     "digest": ("Com_BlockChecksum", "Com_BlockChecksumKey"),
@@ -305,6 +308,9 @@ BYTE_STORAGE_LOCALS = {
     "p": ("RemoveColinearPoints",),
     "hullPoints": ("AddWindingToConvexHull",),
     "newHullPoints": ("AddWindingToConvexHull",),
+    ("send_buf", "Netchan_TransmitNextFragment"): ("Netchan_TransmitNextFragment",),
+    ("send_buf", "Netchan_Transmit"): ("Netchan_Transmit",),
+    ("string", "NET_OutOfBandData"): ("NET_OutOfBandData",),
 }
 # A scalar data table Raven initializes at file scope that tables.py copies into C storage, which the view target reads as a Slots of its scalar.
 # `static unsigned char PADDING[64]` of md4.cpp goes to MD4Update at md4.cpp:157, whose `input` is a Slots of bytes.
@@ -574,21 +580,21 @@ PARAMS = {
     ("trap_G2API_RemoveGhoul2Models", "ghlInfo"): "out_opaque",
     ("trap_G2API_RemoveGhoul2Model", "ghlInfo"): "out_opaque",
     ("trap_G2API_HasGhoul2ModelOnIndex", "ghlInfo"): "out_opaque",
-    # The bit buffer of huffman.cpp, the `byte *` the bodies index by `bloc >> 3`, crosses raw as `byte *ent` of BG_ParseField does.
-    # msg.cpp:193, :203, :248, and :254 pass `msg->data`, and Huff_Compress passes its `byte seq[65536]` local, huffman.cpp:387.
-    ("Huff_putBit", "fout"): "raw",
-    ("Huff_getBit", "fin"): "raw",
-    ("add_bit", "fout"): "raw",
-    ("get_bit", "fin"): "raw",
-    ("Huff_Receive", "fin"): "raw",
-    ("Huff_offsetReceive", "fin"): "raw",
-    ("send", "fout"): "raw",
+    # The bit buffer of huffman.cpp, the `byte *` the bodies index by `bloc >> 3`, is a Slots of bytes.
+    # msg.cpp:193, :203, :248, and :254 pass `msg->data`, and Huff_Compress and Huff_Decompress pass a tail of `mbuf->data` or the `seq` local.
+    ("Huff_putBit", "fout"): "bytes",
+    ("Huff_getBit", "fin"): "bytes",
+    ("add_bit", "fout"): "bytes",
+    ("get_bit", "fin"): "bytes",
+    ("Huff_Receive", "fin"): "bytes",
+    ("Huff_offsetReceive", "fin"): "bytes",
+    ("send", "fout"): "bytes",
     # Huff_Compress hands its `byte seq[65536]` local to Huff_transmit at huffman.cpp:387, and `seq` is a Slots of the storage class.
     ("Huff_transmit", "fout"): "bytes",
     # Com_BlockChecksum and Com_BlockChecksumKey hand `(unsigned char *)buffer` to MD4Update at md4.cpp:274 and :290.
     ("Com_BlockChecksum", "buffer"): "bytes",
     ("Com_BlockChecksumKey", "buffer"): "bytes",
-    ("Huff_offsetTransmit", "fout"): "raw",
+    ("Huff_offsetTransmit", "fout"): "bytes",
     # VM_CallInterpreted of vm_interpreted.cpp:296 reads ten words through `int *args` and never writes them.
     ("VM_CallInterpreted", "args"): "int_array",
     # MSG_Init and MSG_InitOOB store `data` into the `byte *data` field of msg_t, msg.cpp:66 and :89, which the view spells as a Slots of bytes.
@@ -599,8 +605,13 @@ PARAMS = {
     ("MSG_ReadData", "data"): "bytes",
     # Netchan_Transmit hands `data` to MSG_WriteData as its `const void *` at net_chan.cpp:182, so it takes the same Slots of bytes.
     ("Netchan_Transmit", "data"): "bytes",
-    # NET_OutOfBandData copies `format` into its message at net_chan.cpp:597.
-    ("NET_OutOfBandData", "format"): "opaque",
+    # NET_OutOfBandData copies `format` into its message byte by byte at net_chan.cpp:597.
+    ("NET_OutOfBandData", "format"): "bytes",
+    # NET_SendPacket reads the first word of `data` at net_chan.cpp:534 and hands `data` on to NET_SendLoopPacket and Sys_SendPacket.
+    # NET_SendLoopPacket copies `data` into the loopback message at net_chan.cpp:524, and Sys_SendPacket sends it at win_net.cpp:393.
+    ("NET_SendPacket", "data"): "bytes",
+    ("NET_SendLoopPacket", "data"): "bytes",
+    ("Sys_SendPacket", "data"): "bytes",
 }
 
 # Rule 20: a function with no caller in either tree stays as its stub, and the stub carries one note line that it is dead.

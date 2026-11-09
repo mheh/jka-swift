@@ -1,3 +1,4 @@
+import JKAShared
 import JKATestSupport
 import Testing
 @testable import JKAMP_DedLogic
@@ -20,7 +21,12 @@ struct HuffParitySuite {
             var buf = [UInt8](repeating: 0, count: 64)
             var bloc: Int32 = 0
             buf.withUnsafeMutableBytes { raw in
-                Huff_offsetTransmit(msgHuff.compressor, Int32(symbol), raw.baseAddress!, &bloc)
+                Huff_offsetTransmit(
+                    msgHuff.compressor,
+                    Int32(symbol),
+                    Slots<JKAShared.byte>(scalars: raw.baseAddress!, count: raw.count),
+                    &bloc
+                )
             }
             let bits = Self.bits(buf, count: Int(bloc))
             #expect(golden[symbol] == "\(Self.pad(symbol)): \(bits)  (\(bloc) bits)")
@@ -67,8 +73,9 @@ extension HuffParitySuite {
         var buf = [UInt8](repeating: 0, count: 8192)
         var bloc: Int32 = 0
         buf.withUnsafeMutableBytes { raw in
+            let fout = Slots<JKAShared.byte>(scalars: raw.baseAddress!, count: raw.count)
             for symbol in symbols {
-                Huff_offsetTransmit(msgHuff.compressor, Int32(symbol), raw.baseAddress!, &bloc)
+                Huff_offsetTransmit(msgHuff.compressor, Int32(symbol), fout, &bloc)
             }
         }
         let bytes = (Int(bloc) + 7) >> 3

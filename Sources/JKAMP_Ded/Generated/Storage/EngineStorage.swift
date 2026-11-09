@@ -66,6 +66,18 @@ public final class EngineStorage {
     /// Source: oracle/codemp/qcommon/net_chan.cpp:486
     public let loopbacks: Slots<Loopback>
 
+    /// Raven's `byte send_buf[MAX_PACKETLEN]` local of `Netchan_TransmitNextFragment` in `net_chan.cpp`.
+    /// Source: oracle/codemp/qcommon/net_chan.cpp:90
+    public let send_buf_Netchan_TransmitNextFragment: Slots<JKAShared.byte>
+
+    /// Raven's `byte send_buf[MAX_PACKETLEN]` local of `Netchan_Transmit` in `net_chan.cpp`.
+    /// Source: oracle/codemp/qcommon/net_chan.cpp:147
+    public let send_buf_Netchan_Transmit: Slots<JKAShared.byte>
+
+    /// Raven's `byte string[MAX_MSGLEN*2]` local of `NET_OutOfBandData` in `net_chan.cpp`.
+    /// Source: oracle/codemp/qcommon/net_chan.cpp:586
+    public let string_NET_OutOfBandData: Slots<JKAShared.byte>
+
     /// Raven's `sharedEntity_t gLocalModifier` of `sv_game.cpp`.
     /// Source: oracle/codemp/server/sv_game.cpp:420
     public let gLocalModifier: JKAMP.SharedEntity
@@ -118,6 +130,9 @@ public final class EngineStorage {
         self.bits = Slots(scalars: EngineStorage.bytes(count: 8), count: 8)
         self.msgHuff = EngineStorage.record(of: Huffman.self)
         self.loopbacks = EngineStorage.records(count: 2, of: Loopback.self)
+        self.send_buf_Netchan_TransmitNextFragment = Slots(scalars: EngineStorage.bytes(count: Int(JKAMP_Ded.MAX_PACKETLEN)), count: Int(JKAMP_Ded.MAX_PACKETLEN))
+        self.send_buf_Netchan_Transmit = Slots(scalars: EngineStorage.bytes(count: Int(JKAMP_Ded.MAX_PACKETLEN)), count: Int(JKAMP_Ded.MAX_PACKETLEN))
+        self.string_NET_OutOfBandData = Slots(scalars: EngineStorage.bytes(count: 98304), count: 98304)
         self.gLocalModifier = EngineStorage.record(of: JKAMP.SharedEntity.self)
         self.svs = EngineStorage.record(of: ServerStatic.self)
         self.sv = EngineStorage.record(of: Server.self)
@@ -145,6 +160,9 @@ public final class EngineStorage {
         self.bits.base.deallocate()
         UnsafeMutableRawPointer(self.msgHuff.handle).deallocate()
         self.loopbacks.base.deallocate()
+        self.send_buf_Netchan_TransmitNextFragment.base.deallocate()
+        self.send_buf_Netchan_Transmit.base.deallocate()
+        self.string_NET_OutOfBandData.base.deallocate()
         UnsafeMutableRawPointer(self.gLocalModifier.handle).deallocate()
         UnsafeMutableRawPointer(self.svs.handle).deallocate()
         UnsafeMutableRawPointer(self.sv.handle).deallocate()

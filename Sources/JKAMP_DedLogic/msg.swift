@@ -541,7 +541,7 @@ func MSG_WriteBits(_ msg: Msg, _ value: Int32, _ bits: Int32) {
             nbits = bits & 7
             i = 0
             while i < nbits {
-                Huff_putBit((value & 1), msg.data!.base, &msg.bit)
+                Huff_putBit((value & 1), msg.data!, &msg.bit)
                 value = (value >> 1)
                 i += 1
             }
@@ -550,7 +550,7 @@ func MSG_WriteBits(_ msg: Msg, _ value: Int32, _ bits: Int32) {
         if bits != 0 {
             i = 0
             while i < bits {
-                Huff_offsetTransmit(msgHuff.compressor, (value & 0xff), msg.data!.base, &msg.bit)
+                Huff_offsetTransmit(msgHuff.compressor, (value & 0xff), msg.data!, &msg.bit)
                 value = (value >> 8)
                 i += 8
             }
@@ -599,7 +599,7 @@ func MSG_ReadBits(_ msg: Msg, _ bits: Int32) -> Int32 {
             nbits = bits & 7
             i = 0
             while i < nbits {
-                value |= (Huff_getBit(msg.data!.base, &msg.bit) << i)
+                value |= (Huff_getBit(msg.data!, &msg.bit) << i)
                 i += 1
             }
             bits = bits - nbits
@@ -607,7 +607,7 @@ func MSG_ReadBits(_ msg: Msg, _ bits: Int32) -> Int32 {
         if bits != 0 {
             i = 0
             while i < bits {
-                Huff_offsetReceive(msgHuff.decompressor.tree!, &get, msg.data!.base, &msg.bit)
+                Huff_offsetReceive(msgHuff.decompressor.tree!, &get, msg.data!, &msg.bit)
                 value |= (get << (i + nbits))
                 i += 8
             }
