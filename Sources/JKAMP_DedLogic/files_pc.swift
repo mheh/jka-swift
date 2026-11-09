@@ -11,7 +11,14 @@ var fs_reordered: Bool {
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:24
 // Raven wrote: static const byte fs_scrambledProductId[]
-let fs_scrambledProductId: [JKAShared.byte] = { () -> [JKAShared.byte] in portMissing("fs_scrambledProductId", source: "oracle/codemp/qcommon/files_pc.cpp:24") }()
+let fs_scrambledProductId: [JKAShared.byte] = [
+    42, 143, 149, 190, 10, 197, 225, 133, 243, 63, 189, 182, 226, 56, 143, 17, 215, 37, 197, 218, 50, 103, 24, 235, 246, 191, 183, 149, 160, 170,
+    230, 52, 176, 231, 15, 194, 236, 247, 159, 168, 132, 154, 24, 133, 67, 85, 36, 97, 99, 86, 117, 189, 212, 156, 236, 153, 68, 10, 196, 241,
+    39, 219, 156, 88, 93, 198, 200, 232, 142, 67, 45, 209, 53, 186, 228, 241, 162, 127, 213, 83, 7, 121, 11, 93, 123, 243, 148, 240, 229, 42,
+    42, 6, 215, 239, 112, 120, 240, 244, 104, 12, 38, 47, 201, 253, 223, 208, 154, 69, 141, 157, 32, 117, 166, 146, 236, 59, 15, 223, 52, 89,
+    133, 64, 201, 56, 119, 25, 211, 152, 159, 11, 92, 59, 207, 81, 123, 0, 121, 241, 116, 42, 36, 251, 51, 149, 79, 165, 12, 106, 187, 225,
+    203, 99, 102, 69, 97, 81, 27, 107, 81, 178, 63, 35, 185, 64, 115,
+]
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1532
 private let MAX_FOUND_FILES = 0x1000 as Int32
@@ -30,6 +37,7 @@ FS_PakIsPure
 // TODO: Port signature
 // Raven wrote: qboolean FS_PakIsPure( pack_t *pack )
 // No table row for `pack_t * pack`.
+// Port-note: Row F1. The table has no row for `pack_t *`, and the hand view `Pack` of FileBackend.swift gives the form `_ pack: Pack`.
 func FS_PakIsPure() -> Never {
     // TODO: Port FS_PakIsPure
     portMissing("FS_PakIsPure", source: "oracle/codemp/qcommon/files_pc.cpp:39")
@@ -44,14 +52,41 @@ return a hash value for the filename
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:64
 private func FS_HashFileName(_ fname: String, _ hashSize: Int32) -> CLong {
-    // TODO: Port FS_HashFileName
-    portMissing("FS_HashFileName", source: "oracle/codemp/qcommon/files_pc.cpp:64")
+    var i: Int32
+    var hash: CLong
+    var letter: CChar
+    // Raven indexes his own `fname` parameter by byte, so the body reads a CharBuf of it.
+    let fname = CharBuf(fname)
+
+    hash = 0
+    i = 0
+    while fname[i] != 0 {
+        let byte: UInt8 = fname[i]
+        // Foundation also declares tolower, so the qualifier picks the C-locale form of JKAShared.
+        letter = CChar(truncatingIfNeeded: JKAShared.tolower(Int32(byte)))
+        if letter == Int32(ascii: ".") {
+            break // don't include extension
+        }
+        if letter == Int32(ascii: "\\") {
+            letter = CChar(truncatingIfNeeded: Int32(ascii: "/")) // damn path names
+        }
+        if letter == PATH_SEP {
+            letter = CChar(truncatingIfNeeded: Int32(ascii: "/")) // damn path names
+        }
+        // C widens the `int` factor to `long` for the product.
+        hash += CLong(letter) * CLong(i + 119)
+        i += 1
+    }
+    hash = (hash ^ (hash >> 10) ^ (hash >> 20))
+    hash &= CLong(hashSize - 1)
+    return hash
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:85
 // TODO: Port signature
 // Raven wrote: static FILE *FS_FileForHandle( fileHandle_t f )
 // No table row for the return `FILE *`.
+// Port-note: Row F2. The table has no row for the return `FILE *`, and the stream handle of FileBackend gives the form `-> OpaquePointer?`.
 private func FS_FileForHandle() -> Never {
     // TODO: Port FS_FileForHandle
     portMissing("FS_FileForHandle", source: "oracle/codemp/qcommon/files_pc.cpp:85")
@@ -59,8 +94,12 @@ private func FS_FileForHandle() -> Never {
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:100
 func FS_ForceFlush(_ f: JKAShared.fileHandle_t) {
-    // TODO: Port FS_ForceFlush
+    let file: OpaquePointer?
+
+    // Port-note: Row F2. FS_FileForHandle has no signature, so the stream of `f` has no source.
+    // Raven wrote: file = FS_FileForHandle(f)
     portMissing("FS_ForceFlush", source: "oracle/codemp/qcommon/files_pc.cpp:100")
+    FileBackend.setvbuf(file, nil, _IONBF, 0)
 }
 
 /**
@@ -76,8 +115,19 @@ size of the file.
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:117
 func FS_filelength(_ f: JKAShared.fileHandle_t) -> Int32 {
-    // TODO: Port FS_filelength
+    let pos: Int32
+    let end: Int32
+    let h: OpaquePointer?
+
+    // Port-note: Row F2. FS_FileForHandle has no signature, so the stream of `f` has no source.
+    // Raven wrote: h = FS_FileForHandle(f)
     portMissing("FS_filelength", source: "oracle/codemp/qcommon/files_pc.cpp:117")
+    pos = FileBackend.ftell(h)
+    FileBackend.fseek(h, 0, SEEK_END)
+    end = FileBackend.ftell(h)
+    FileBackend.fseek(h, CLong(pos), SEEK_SET)
+
+    return end
 }
 
 /**
@@ -91,8 +141,26 @@ Creates any directories needed to store the given filename
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:138
 func FS_CreatePath(_ OSPath: inout JKAShared.CharBuf) -> Bool {
-    // TODO: Port FS_CreatePath
-    portMissing("FS_CreatePath", source: "oracle/codemp/qcommon/files_pc.cpp:138")
+    var ofs: Int32
+
+    // make absolutely sure that it can't back up the path
+    // FIXME: is c: allowed???
+    if strstr(OSPath, "..") != nil || strstr(OSPath, "::") != nil {
+        Com_Printf("WARNING: refusing to create relative path \"%s\"\n", OSPath)
+        return true
+    }
+
+    ofs = 1
+    while OSPath[ofs] != 0 {
+        if OSPath[ofs] == PATH_SEP {
+            // create the directory
+            OSPath[ofs] = 0
+            Sys_Mkdir(String(OSPath))
+            OSPath[ofs] = PATH_SEP
+        }
+        ofs += 1
+    }
+    return false
 }
 
 /**
@@ -106,8 +174,45 @@ Copy a fully specified file from one place to another
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:166
 func FS_CopyFile(_ fromOSPath: inout JKAShared.CharBuf, _ toOSPath: inout JKAShared.CharBuf) {
-    // TODO: Port FS_CopyFile
-    portMissing("FS_CopyFile", source: "oracle/codemp/qcommon/files_pc.cpp:166")
+    var f: OpaquePointer?
+    let len: Int32
+
+    Com_Printf("copy %s to %s\n", fromOSPath, toOSPath)
+
+    if strstr(fromOSPath, "journal.dat") != nil || strstr(fromOSPath, "journaldata.dat") != nil {
+        Com_Printf("Ignoring journal files\n")
+        return
+    }
+
+    f = FileBackend.fopen(String(fromOSPath), "rb")
+    if f == nil {
+        return
+    }
+    FileBackend.fseek(f, 0, SEEK_END)
+    len = FileBackend.ftell(f)
+    FileBackend.fseek(f, 0, SEEK_SET)
+
+    // we are using direct malloc instead of Z_Malloc here, so it
+    // probably won't work on a mac... Its only for developers anyway...
+    // AI: Raven takes `len` bytes from malloc and frees them at the end. The buffer is a CharBuf of `len` bytes, which frees itself.
+    var buf = CharBuf(len)
+    if FileBackend.fread(&buf, at: 0, 1, len, f) != len {
+        Com_Error(ERR_FATAL, "Short read in FS_Copyfiles()\n")
+    }
+    FileBackend.fclose(f)
+
+    if FS_CreatePath(&toOSPath) {
+        return
+    }
+
+    f = FileBackend.fopen(String(toOSPath), "wb")
+    if f == nil {
+        return
+    }
+    if FileBackend.fwrite(buf, at: 0, 1, len, f) != len {
+        Com_Error(ERR_FATAL, "Short write in FS_Copyfiles()\n")
+    }
+    FileBackend.fclose(f)
 }
 
 /**
@@ -120,8 +225,7 @@ FS_Remove
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:213
 func FS_Remove(_ osPath: String) {
-    // TODO: Port FS_Remove
-    portMissing("FS_Remove", source: "oracle/codemp/qcommon/files_pc.cpp:213")
+    FileBackend.remove(osPath)
 }
 
 /**
@@ -138,8 +242,17 @@ NOTE TTimo: this goes with FS_FOpenFileWrite for opening the file afterwards
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:227
 func FS_FileExists(_ file: String) -> Bool {
-    // TODO: Port FS_FileExists
-    portMissing("FS_FileExists", source: "oracle/codemp/qcommon/files_pc.cpp:227")
+    let f: OpaquePointer?
+    let testpath: String
+
+    testpath = FS_BuildOSPath(fs_homepath!.string!, String(fs_gamedir), file)
+
+    f = FileBackend.fopen(testpath, "rb")
+    if f != nil {
+        FileBackend.fclose(f)
+        return true
+    }
+    return false
 }
 
 /**
@@ -153,8 +266,18 @@ Tests if the file exists
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:249
 func FS_SV_FileExists(_ file: String) -> Bool {
-    // TODO: Port FS_SV_FileExists
-    portMissing("FS_SV_FileExists", source: "oracle/codemp/qcommon/files_pc.cpp:249")
+    let f: OpaquePointer?
+    var testpath: CharBuf
+
+    testpath = CharBuf(FS_BuildOSPath(fs_homepath!.string!, file, ""))
+    testpath[strlen(testpath) - 1] = 0
+
+    f = FileBackend.fopen(String(testpath), "rb")
+    if f != nil {
+        FileBackend.fclose(f)
+        return true
+    }
+    return false
 }
 
 /**
@@ -167,8 +290,37 @@ FS_SV_FOpenFileWrite
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:272
 func FS_SV_FOpenFileWrite(_ filename: String) -> JKAShared.fileHandle_t {
-    // TODO: Port FS_SV_FOpenFileWrite
-    portMissing("FS_SV_FOpenFileWrite", source: "oracle/codemp/qcommon/files_pc.cpp:272")
+    var ospath: CharBuf
+    var f: fileHandle_t
+
+    if fs_searchpaths == nil {
+        Com_Error(ERR_FATAL, "Filesystem call made without initialization\n")
+    }
+
+    ospath = CharBuf(FS_BuildOSPath(fs_homepath!.string!, filename, ""))
+    ospath[strlen(ospath) - 1] = 0
+
+    f = FS_HandleForFile()
+    fsh[f].zipFile = false
+
+    if fs_debug!.integer != 0 {
+        Com_Printf("FS_SV_FOpenFileWrite: %s\n", ospath)
+    }
+
+    if FS_CreatePath(&ospath) {
+        return 0
+    }
+
+    Com_DPrintf("writing to: %s\n", ospath)
+    fsh[f].handleFiles.file.o = FileBackend.fopen(String(ospath), "wb")
+
+    Q_strncpyz(&fsh[f].nameBuffer, filename, Int32(fsh[f].nameBuffer.count))
+
+    fsh[f].handleSync = false
+    if fsh[f].handleFiles.file.o == nil {
+        f = 0
+    }
+    return f
 }
 
 /**
@@ -182,8 +334,74 @@ we search in that order, matching FS_SV_FOpenFileRead order
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:313
 func FS_SV_FOpenFileRead(_ filename: String, _ fp: inout Int32) -> Int32 {
-    // TODO: Port FS_SV_FOpenFileRead
-    portMissing("FS_SV_FOpenFileRead", source: "oracle/codemp/qcommon/files_pc.cpp:313")
+    var ospath: CharBuf
+    var f: fileHandle_t = 0 // bk001129 - from cvs1.17
+
+    if fs_searchpaths == nil {
+        Com_Error(ERR_FATAL, "Filesystem call made without initialization\n")
+    }
+
+    f = FS_HandleForFile()
+    fsh[f].zipFile = false
+
+    Q_strncpyz(&fsh[f].nameBuffer, filename, Int32(fsh[f].nameBuffer.count))
+
+    // don't let sound stutter
+    S_ClearSoundBuffer()
+
+    // search homepath
+    ospath = CharBuf(FS_BuildOSPath(fs_homepath!.string!, filename, ""))
+    // remove trailing slash
+    ospath[strlen(ospath) - 1] = 0
+
+    if fs_debug!.integer != 0 {
+        Com_Printf("FS_SV_FOpenFileRead (fs_homepath): %s\n", ospath)
+    }
+
+    fsh[f].handleFiles.file.o = FileBackend.fopen(String(ospath), "rb")
+    fsh[f].handleSync = false
+    if fsh[f].handleFiles.file.o == nil {
+        // NOTE TTimo on non *nix systems, fs_homepath == fs_basepath, might want to avoid
+        if Q_stricmp(fs_homepath!.string!, fs_basepath!.string!) != 0 {
+            // search basepath
+            ospath = CharBuf(FS_BuildOSPath(fs_basepath!.string!, filename, ""))
+            ospath[strlen(ospath) - 1] = 0
+
+            if fs_debug!.integer != 0 {
+                Com_Printf("FS_SV_FOpenFileRead (fs_basepath): %s\n", ospath)
+            }
+
+            fsh[f].handleFiles.file.o = FileBackend.fopen(String(ospath), "rb")
+            fsh[f].handleSync = false
+
+            if fsh[f].handleFiles.file.o == nil {
+                f = 0
+            }
+        }
+    }
+
+    if fsh[f].handleFiles.file.o == nil {
+        // search cd path
+        ospath = CharBuf(FS_BuildOSPath(fs_cdpath!.string!, filename, ""))
+        ospath[strlen(ospath) - 1] = 0
+
+        if fs_debug!.integer != 0 {
+            Com_Printf("FS_SV_FOpenFileRead (fs_cdpath) : %s\n", ospath)
+        }
+
+        fsh[f].handleFiles.file.o = FileBackend.fopen(String(ospath), "rb")
+        fsh[f].handleSync = false
+
+        if fsh[f].handleFiles.file.o == nil {
+            f = 0
+        }
+    }
+
+    fp = f
+    if f != 0 {
+        return FS_filelength(f)
+    }
+    return 0
 }
 
 /**
@@ -196,8 +414,30 @@ FS_SV_Rename
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:395
 func FS_SV_Rename(_ from: String, _ to: String) {
-    // TODO: Port FS_SV_Rename
-    portMissing("FS_SV_Rename", source: "oracle/codemp/qcommon/files_pc.cpp:395")
+    var from_ospath: CharBuf
+    var to_ospath: CharBuf
+
+    if fs_searchpaths == nil {
+        Com_Error(ERR_FATAL, "Filesystem call made without initialization\n")
+    }
+
+    // don't let sound stutter
+    S_ClearSoundBuffer()
+
+    from_ospath = CharBuf(FS_BuildOSPath(fs_homepath!.string!, from, ""))
+    to_ospath = CharBuf(FS_BuildOSPath(fs_homepath!.string!, to, ""))
+    from_ospath[strlen(from_ospath) - 1] = 0
+    to_ospath[strlen(to_ospath) - 1] = 0
+
+    if fs_debug!.integer != 0 {
+        Com_Printf("FS_SV_Rename: %s --> %s\n", from_ospath, to_ospath)
+    }
+
+    if FileBackend.rename(String(from_ospath), String(to_ospath)) != 0 {
+        // Failed, try copying it and deleting the original
+        FS_CopyFile(&from_ospath, &to_ospath)
+        FS_Remove(String(from_ospath))
+    }
 }
 
 /**
@@ -210,8 +450,28 @@ FS_Rename
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:427
 func FS_Rename(_ from: String, _ to: String) {
-    // TODO: Port FS_Rename
-    portMissing("FS_Rename", source: "oracle/codemp/qcommon/files_pc.cpp:427")
+    var from_ospath: CharBuf
+    var to_ospath: CharBuf
+
+    if fs_searchpaths == nil {
+        Com_Error(ERR_FATAL, "Filesystem call made without initialization\n")
+    }
+
+    // don't let sound stutter
+    S_ClearSoundBuffer()
+
+    from_ospath = CharBuf(FS_BuildOSPath(fs_homepath!.string!, String(fs_gamedir), from))
+    to_ospath = CharBuf(FS_BuildOSPath(fs_homepath!.string!, String(fs_gamedir), to))
+
+    if fs_debug!.integer != 0 {
+        Com_Printf("FS_Rename: %s --> %s\n", from_ospath, to_ospath)
+    }
+
+    if FileBackend.rename(String(from_ospath), String(to_ospath)) != 0 {
+        // Failed, try copying it and deleting the original
+        FS_CopyFile(&from_ospath, &to_ospath)
+        FS_Remove(String(from_ospath))
+    }
 }
 
 /**
@@ -228,8 +488,27 @@ on files returned by FS_FOpenFile...
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:461
 func FS_FCloseFile(_ f: JKAShared.fileHandle_t) {
-    // TODO: Port FS_FCloseFile
-    portMissing("FS_FCloseFile", source: "oracle/codemp/qcommon/files_pc.cpp:461")
+    if fs_searchpaths == nil {
+        Com_Error(ERR_FATAL, "Filesystem call made without initialization\n")
+    }
+
+    if fsh[f].streamed {
+        Sys_EndStreamedFile(f)
+    }
+    if fsh[f].zipFile == true {
+        unzCloseCurrentFile(fsh[f].handleFiles.file.z)
+        if fsh[f].handleFiles.unique {
+            unzClose(fsh[f].handleFiles.file.z)
+        }
+        fsh[f].clear()
+        return
+    }
+
+    // we didn't find it as a pak, so close it as a unique file
+    if fsh[f].handleFiles.file.o != nil {
+        FileBackend.fclose(fsh[f].handleFiles.file.o)
+    }
+    fsh[f].clear()
 }
 
 /**
@@ -242,8 +521,38 @@ FS_FOpenFileWrite
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:491
 func FS_FOpenFileWrite(_ filename: String) -> JKAShared.fileHandle_t {
-    // TODO: Port FS_FOpenFileWrite
-    portMissing("FS_FOpenFileWrite", source: "oracle/codemp/qcommon/files_pc.cpp:491")
+    var ospath: CharBuf
+    var f: fileHandle_t
+
+    if fs_searchpaths == nil {
+        Com_Error(ERR_FATAL, "Filesystem call made without initialization\n")
+    }
+
+    f = FS_HandleForFile()
+    fsh[f].zipFile = false
+
+    ospath = CharBuf(FS_BuildOSPath(fs_homepath!.string!, String(fs_gamedir), filename))
+
+    if fs_debug!.integer != 0 {
+        Com_Printf("FS_FOpenFileWrite: %s\n", ospath)
+    }
+
+    if FS_CreatePath(&ospath) {
+        return 0
+    }
+
+    // enabling the following line causes a recursive function call loop
+    // when running with +set logfile 1 +set developer 1
+    //Com_DPrintf( "writing to: %s\n", ospath );
+    fsh[f].handleFiles.file.o = FileBackend.fopen(String(ospath), "wb")
+
+    Q_strncpyz(&fsh[f].nameBuffer, filename, Int32(fsh[f].nameBuffer.count))
+
+    fsh[f].handleSync = false
+    if fsh[f].handleFiles.file.o == nil {
+        f = 0
+    }
+    return f
 }
 
 /**
@@ -256,20 +565,51 @@ FS_FOpenFileAppend
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:532
 func FS_FOpenFileAppend(_ filename: String) -> JKAShared.fileHandle_t {
-    // TODO: Port FS_FOpenFileAppend
-    portMissing("FS_FOpenFileAppend", source: "oracle/codemp/qcommon/files_pc.cpp:532")
+    var ospath: CharBuf
+    var f: fileHandle_t
+
+    if fs_searchpaths == nil {
+        Com_Error(ERR_FATAL, "Filesystem call made without initialization\n")
+    }
+
+    f = FS_HandleForFile()
+    fsh[f].zipFile = false
+
+    Q_strncpyz(&fsh[f].nameBuffer, filename, Int32(fsh[f].nameBuffer.count))
+
+    // don't let sound stutter
+    S_ClearSoundBuffer()
+
+    ospath = CharBuf(FS_BuildOSPath(fs_homepath!.string!, String(fs_gamedir), filename))
+
+    if fs_debug!.integer != 0 {
+        Com_Printf("FS_FOpenFileAppend: %s\n", ospath)
+    }
+
+    if FS_CreatePath(&ospath) {
+        return 0
+    }
+
+    fsh[f].handleFiles.file.o = FileBackend.fopen(String(ospath), "ab")
+    fsh[f].handleSync = false
+    if fsh[f].handleFiles.file.o == nil {
+        f = 0
+    }
+    return f
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:568
 // TODO: Port signature
 // Raven wrote: bool Sys_GetFileTime(LPCSTR psFileName, FILETIME &ft)
 // No table row for `int & ft`.
+// Port-note: Row F3. The Windows `FILETIME` has no type in the host parse, and `GetFileAttributesEx` is a Windows platform function.
 func Sys_GetFileTime() -> Never {
     // TODO: Port Sys_GetFileTime
     portMissing("Sys_GetFileTime", source: "oracle/codemp/qcommon/files_pc.cpp:568")
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:600
+// Port-note: Row F3. Every statement of the body reads a `FILETIME` through Sys_GetFileTime, which has no signature.
 func Sys_FileOutOfDate(_ psFinalFileName: String, _ psDataFileName: String) -> Bool {
     // TODO: Port Sys_FileOutOfDate
     portMissing("Sys_FileOutOfDate", source: "oracle/codemp/qcommon/files_pc.cpp:600")
@@ -277,8 +617,10 @@ func Sys_FileOutOfDate(_ psFinalFileName: String, _ psDataFileName: String) -> B
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:634
 func FS_FileCacheable(_ filename: String) -> Bool {
-    // TODO: Port FS_FileCacheable
-    portMissing("FS_FileCacheable", source: "oracle/codemp/qcommon/files_pc.cpp:634")
+    if com_buildScript != nil && com_buildScript!.integer != 0 {
+        return true
+    }
+    return (strchr(filename, Int32(ascii: "/")) != nil)
 }
 
 /**
@@ -290,14 +632,190 @@ FS_ShiftedStrStr
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:649
 func FS_ShiftedStrStr(_ string: String, _ substring: String, _ shift: Int32) -> String {
-    // TODO: Port FS_ShiftedStrStr
+    var buf = CharBuf(MAX_STRING_TOKENS)
+    var i: Int32
+    // Raven indexes his own `substring` parameter by byte, so the body reads a CharBuf of it.
+    let substring = CharBuf(substring)
+
+    i = 0
+    while substring[i] != 0 {
+        buf[i] = substring[i] + shift
+        i += 1
+    }
+    buf[i] = 0
+    // Port-note: Row F8. Raven returns the pointer of the match or NULL, and the `String` return holds no NULL.
+    // Raven wrote: return strstr(string, buf)
     portMissing("FS_ShiftedStrStr", source: "oracle/codemp/qcommon/files_pc.cpp:649")
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:672
 func FS_FOpenFileRead(_ filename: String, _ file: inout Int32, _ uniqueFILE: Bool) -> Int32 {
-    // TODO: Port FS_FOpenFileRead
-    portMissing("FS_FOpenFileRead", source: "oracle/codemp/qcommon/files_pc.cpp:672")
+    var search: Searchpath?
+    var netpath: String
+    var dir: Directory
+    var hash: CLong
+    var l: Int32
+    var demoExt = CharBuf(16)
+    // Raven steps his own `filename` parameter through its bytes, so the body walks a TextCursor over a copy of them.
+    var filename = TextCursor(CharBuf(filename))
+
+    hash = 0
+
+    if fs_searchpaths == nil {
+        Com_Error(ERR_FATAL, "Filesystem call made without initialization\n")
+    }
+
+    Com_sprintf(&demoExt, Int32(demoExt.count), ".dm_%d", PROTOCOL_VERSION)
+    // qpaths are not supposed to have a leading slash
+    if filename[0] == Int32(ascii: "/") || filename[0] == Int32(ascii: "\\") {
+        filename.advance()
+    }
+
+    // make absolutely sure that it can't back up the path.
+    // The searchpaths do guarantee that something will always
+    // be prepended, so we don't need to worry about "c:" or "//limbo"
+    if strstr(filename.text, "..") != nil || strstr(filename.text, "::") != nil {
+        file = 0
+        return -1
+    }
+
+    // make sure the q3key file is only readable by the quake3.exe at initialization
+    // any other time the key should only be accessed in memory using the provided functions
+    if com_fullyInitialized && strstr(filename.text, "q3key") != nil {
+        file = 0
+        return -1
+    }
+
+    //
+    // search through the path, one element at a time
+    //
+
+    file = FS_HandleForFile()
+    fsh[file].handleFiles.unique = uniqueFILE
+
+    // this new bool is in for an optimisation, if you (eg) opened a BSP file under fs_copyfiles==2,
+    //	then it triggered a copy operation to update your local HD version, then this will re-open the
+    //	file handle on your local version, not the net build. This uses a bit more CPU to re-do the loop
+    //	logic, but should read faster than accessing the net version a second time.
+    //
+    var bFasterToReOpenUsingNewLocalFile: Bool = false
+
+    repeat {
+        bFasterToReOpenUsingNewLocalFile = false
+
+        search = fs_searchpaths
+        while search != nil {
+            //
+            if search!.pack != nil {
+                hash = FS_HashFileName(filename.text, search!.pack!.hashSize)
+            }
+            // is the element a pak file?
+            if search!.pack != nil && search!.pack!.hashTable![hash] != nil {
+                // disregard if it doesn't match one of the allowed pure pak files
+                // Port-note: Rows F1 and F11. FS_PakIsPure has no signature, and the copy into the zip handle needs a view of `unz_s`.
+                // Raven wrote: if ( !FS_PakIsPure(search->pack) ) { continue; } and the walk of the pak file elements
+                portMissing("FS_FOpenFileRead", source: "oracle/codemp/qcommon/files_pc.cpp:672")
+            } else if search!.dir != nil {
+                // check a file in the directory tree
+
+                // if we are running restricted, the only files we
+                // will allow to come from the directory are .cfg files
+                l = strlen(filename.text)
+                // FIXME TTimo I'm not sure about the fs_numServerPaks test
+                // if you are using FS_ReadFile to find out if a file exists,
+                //   this test can make the search fail although the file is in the directory
+                // I had the problem on https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=8
+                // turned out I used FS_FileExists instead
+                // Port-note: Raven reads before the name when it is shorter than the extension. The cursor reads the empty text there.
+                if fs_restrict!.integer != 0 || fs_numServerPaks != 0 {
+                    if Q_stricmp(TextCursor(filename.buf, at: filename.offset! + l - 4).text, ".cfg") != 0 // for config files
+                        && Q_stricmp(TextCursor(filename.buf, at: filename.offset! + l - 4).text, ".fcf") != 0 // force configuration files
+                        && Q_stricmp(TextCursor(filename.buf, at: filename.offset! + l - 5).text, ".menu") != 0 // menu files
+                        && Q_stricmp(TextCursor(filename.buf, at: filename.offset! + l - 5).text, ".game") != 0 // menu files
+                        && Q_stricmp(TextCursor(filename.buf, at: filename.offset! + l - strlen(demoExt)).text, String(demoExt)) != 0 // menu files
+                        && Q_stricmp(TextCursor(filename.buf, at: filename.offset! + l - 4).text, ".dat") != 0 { // for journal files
+                        search = search!.next
+                        continue
+                    }
+                }
+
+                dir = search!.dir!
+
+                netpath = FS_BuildOSPath(dir.path, dir.gamedir, filename.text)
+                fsh[file].handleFiles.file.o = FileBackend.fopen(netpath, "rb")
+                if fsh[file].handleFiles.file.o == nil {
+                    search = search!.next
+                    continue
+                }
+
+                if Q_stricmp(TextCursor(filename.buf, at: filename.offset! + l - 4).text, ".cfg") != 0 // for config files
+                    && Q_stricmp(TextCursor(filename.buf, at: filename.offset! + l - 4).text, ".fcf") != 0 // force configuration files
+                    && Q_stricmp(TextCursor(filename.buf, at: filename.offset! + l - 5).text, ".menu") != 0 // menu files
+                    && Q_stricmp(TextCursor(filename.buf, at: filename.offset! + l - 5).text, ".game") != 0 // menu files
+                    && Q_stricmp(TextCursor(filename.buf, at: filename.offset! + l - strlen(demoExt)).text, String(demoExt)) != 0 // menu files
+                    && Q_stricmp(TextCursor(filename.buf, at: filename.offset! + l - 4).text, ".dat") != 0 { // for journal files
+                    // Port-note: Row F12. Raven's `random()` macro of q_shared.h has no home in the host, only in JKAMP_BG.
+                    // Raven wrote: fs_fakeChkSum = random()
+                    portMissing("FS_FOpenFileRead", source: "oracle/codemp/qcommon/files_pc.cpp:672")
+                }
+                // if running with fs_copyfiles 2, and search path == local, then we need to fail to open
+                //	if the time/date stamp != the network version (so it'll loop round again and use the network path,
+                //	which comes later in the search order)
+                //
+                if fs_copyfiles!.integer == 2 && !fs_cdpath!.string!.isEmpty && Q_stricmp(dir.path, fs_basepath!.string!) == 0
+                    && FS_FileCacheable(filename.text) {
+                    if Sys_FileOutOfDate(netpath, FS_BuildOSPath(fs_cdpath!.string!, dir.gamedir, filename.text)) {
+                        FileBackend.fclose(fsh[file].handleFiles.file.o)
+                        fsh[file].handleFiles.file.o = nil
+                        search = search!.next
+                        continue //carry on to find the cdpath version.
+                    }
+                }
+                Q_strncpyz(&fsh[file].nameBuffer, filename.text, Int32(fsh[file].nameBuffer.count))
+                fsh[file].zipFile = false
+                if fs_debug!.integer != 0 {
+                    Com_Printf("FS_FOpenFileRead: %s (found in '%s/%s')\n", filename.text, dir.path, dir.gamedir)
+                }
+
+                // if we are getting it from the cdpath, optionally copy it
+                //  to the basepath
+                if fs_copyfiles!.integer != 0 && Q_stricmp(dir.path, fs_cdpath!.string!) == 0 {
+                    var copypath: CharBuf
+
+                    copypath = CharBuf(FS_BuildOSPath(fs_basepath!.string!, dir.gamedir, filename.text))
+                    switch fs_copyfiles!.integer {
+                    case 2:
+                        if FS_FileCacheable(filename.text) {
+                            // maybe change this to Com_DPrintf?   On the other hand...
+                            //
+                            Com_Printf("fs_copyfiles(2), Copying: %s to %s\n", netpath, copypath)
+
+                            FS_CreatePath(&copypath)
+
+                            // Port-note: CopyFile, GetFileAttributes, and SetFileAttributes are Windows platform functions.
+                            // Port-note: No header of the parse declares them.
+                            // Raven wrote: bool bOk = true; if (!CopyFile( netpath, copypath, FALSE )) { ... } if (bOk) { bFasterToReOpenUsingNewLocalFile = qtrue; fclose(fsh[*file].handleFiles.file.o); fsh[*file].handleFiles.file.o = NULL; }
+                            portMissing("FS_FOpenFileRead", source: "oracle/codemp/qcommon/files_pc.cpp:672")
+                        }
+
+                    default:
+                        var netpathBuf = CharBuf(netpath)
+                        FS_CopyFile(&netpathBuf, &copypath)
+                    }
+                }
+                if bFasterToReOpenUsingNewLocalFile {
+                    break // and re-read the local copy, not the net version
+                }
+
+                return FS_filelength(file)
+            }
+            search = search!.next
+        }
+    } while bFasterToReOpenUsingNewLocalFile
+
+    Com_DPrintf("Can't find %s\n", filename.text)
+    file = 0
+    return -1
 }
 
 /**
@@ -311,23 +829,126 @@ Properly handles partial reads
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1007
 func FS_Read2(_ buffer: OpaquePointer?, _ len: Int32, _ f: JKAShared.fileHandle_t) -> Int32 {
-    // TODO: Port FS_Read2
-    portMissing("FS_Read2", source: "oracle/codemp/qcommon/files_pc.cpp:1007")
+    if fs_searchpaths == nil {
+        Com_Error(ERR_FATAL, "Filesystem call made without initialization\n")
+    }
+
+    if f == 0 {
+        return 0
+    }
+    if fsh[f].streamed {
+        let r: Int32
+        fsh[f].streamed = false
+        r = Sys_StreamedRead(buffer, len, 1, f)
+        fsh[f].streamed = true
+        return r
+    } else {
+        return FS_Read(buffer, len, f)
+    }
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1026
 func FS_Read(_ buffer: OpaquePointer?, _ len: Int32, _ f: JKAShared.fileHandle_t) -> Int32 {
-    // TODO: Port FS_Read
-    portMissing("FS_Read", source: "oracle/codemp/qcommon/files_pc.cpp:1026")
+    var block: Int32
+    var remaining: Int32
+    var read: Int32
+    var buf: Int32
+    var tries: Int32
+
+    if fs_searchpaths == nil {
+        Com_Error(ERR_FATAL, "Filesystem call made without initialization\n")
+    }
+
+    if f == 0 {
+        return 0
+    }
+
+    // AI: Raven walks a `byte *` over the buffer. The walk is a byte offset into it, which FileBackend.fread takes.
+    buf = 0
+    fs_readCount += len
+
+    if fsh[f].zipFile == false {
+        remaining = len
+        tries = 0
+        while remaining != 0 {
+            block = remaining
+            read = FileBackend.fread(buffer, at: buf, 1, block, fsh[f].handleFiles.file.o)
+            if read == 0 {
+                // we might have been trying to read from a CD, which
+                // sometimes returns a 0 read on windows
+                if tries == 0 {
+                    tries = 1
+                } else {
+                    return len - remaining //Com_Error (ERR_FATAL, "FS_Read: 0 bytes read");
+                }
+            }
+
+            if read == -1 {
+                Com_Error(ERR_FATAL, "FS_Read: -1 bytes read")
+            }
+
+            remaining -= read
+            buf += read
+        }
+        return len
+    } else {
+        // C converts the `int` length to the `unsigned` parameter.
+        return unzReadCurrentFile(fsh[f].handleFiles.file.z, buffer, UInt32(bitPattern: len))
+    }
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1026
 /// Raven's `buffer` takes a `char buf[N]` at msg.cpp:2070, and this overload reads into that buffer.
+// Port-note: The CharBuf overload of the FS_Read row, which reads into the caller's buffer.
 // AI: Raven hands a `char *` buffer to the `void *` of FS_Read. The overload takes the caller's CharBuf, the form trap_FS_Read has.
 func FS_Read(_ buffer: inout CharBuf, _ len: Int32, _ f: JKAShared.fileHandle_t) -> Int32 {
-    // Port-note: The CharBuf overload of the FS_Read row reads into the caller's buffer, and it waits on the body of FS_Read.
-    // TODO: Port FS_Read
-    portMissing("FS_Read", source: "oracle/codemp/qcommon/files_pc.cpp:1026")
+    var block: Int32
+    var remaining: Int32
+    var read: Int32
+    var buf: Int32
+    var tries: Int32
+
+    if fs_searchpaths == nil {
+        Com_Error(ERR_FATAL, "Filesystem call made without initialization\n")
+    }
+
+    if f == 0 {
+        return 0
+    }
+
+    // AI: Raven walks a `byte *` over the buffer. The walk is a byte offset into it, which FileBackend.fread takes.
+    buf = 0
+    fs_readCount += len
+
+    if fsh[f].zipFile == false {
+        remaining = len
+        tries = 0
+        while remaining != 0 {
+            block = remaining
+            read = FileBackend.fread(&buffer, at: buf, 1, block, fsh[f].handleFiles.file.o)
+            if read == 0 {
+                // we might have been trying to read from a CD, which
+                // sometimes returns a 0 read on windows
+                if tries == 0 {
+                    tries = 1
+                } else {
+                    return len - remaining //Com_Error (ERR_FATAL, "FS_Read: 0 bytes read");
+                }
+            }
+
+            if read == -1 {
+                Com_Error(ERR_FATAL, "FS_Read: -1 bytes read")
+            }
+
+            remaining -= read
+            buf += read
+        }
+        return len
+    } else {
+        // Port-note: Row F13. unzReadCurrentFile of unzip.swift takes an `OpaquePointer?` buffer and no CharBuf.
+        // Raven wrote: return unzReadCurrentFile(fsh[f].handleFiles.file.z, buffer, len)
+        portMissing("FS_Read", source: "oracle/codemp/qcommon/files_pc.cpp:1026")
+    }
 }
 
 /**
@@ -341,8 +962,107 @@ Properly handles partial writes
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1079
 func FS_Write(_ buffer: OpaquePointer?, _ len: Int32, _ h: JKAShared.fileHandle_t) -> Int32 {
-    // TODO: Port FS_Write
+    var block: Int32
+    var remaining: Int32
+    var written: Int32
+    var buf: Int32
+    var tries: Int32
+    let f: OpaquePointer?
+
+    if fs_searchpaths == nil {
+        Com_Error(ERR_FATAL, "Filesystem call made without initialization\n")
+    }
+
+    if h == 0 {
+        return 0
+    }
+
+    // Port-note: Row F2. FS_FileForHandle has no signature, so the stream of `h` has no source.
+    // Raven wrote: f = FS_FileForHandle(h)
     portMissing("FS_Write", source: "oracle/codemp/qcommon/files_pc.cpp:1079")
+    // AI: Raven walks a `byte *` over the buffer. The walk is a byte offset into it, which FileBackend.fwrite takes.
+    buf = 0
+
+    remaining = len
+    tries = 0
+    while remaining != 0 {
+        block = remaining
+        written = FileBackend.fwrite(buffer, at: buf, 1, block, f)
+        if written == 0 {
+            if tries == 0 {
+                tries = 1
+            } else {
+                Com_Printf("FS_Write: 0 bytes written\n")
+                return 0
+            }
+        }
+
+        if written == -1 {
+            Com_Printf("FS_Write: -1 bytes written\n")
+            return 0
+        }
+
+        remaining -= written
+        buf += written
+    }
+    if fsh[h].handleSync {
+        FileBackend.fflush(f)
+    }
+    return len
+}
+
+/// Source: oracle/codemp/qcommon/files_pc.cpp:1079
+/// Raven's `buffer` takes a `char msg[MAXPRINTMSG]` at files_common.cpp:383, and this overload writes that buffer.
+// Port-note: The CharBuf overload of FS_Write, for the `char` arrays of FS_Printf and of the log file writes of common.cpp.
+// AI: Raven hands a `char` array to the `const void *` of FS_Write. The overload takes the caller's CharBuf, the form of MSG_WriteData.
+func FS_Write(_ buffer: CharBuf, _ len: Int32, _ h: JKAShared.fileHandle_t) -> Int32 {
+    var block: Int32
+    var remaining: Int32
+    var written: Int32
+    var buf: Int32
+    var tries: Int32
+    let f: OpaquePointer?
+
+    if fs_searchpaths == nil {
+        Com_Error(ERR_FATAL, "Filesystem call made without initialization\n")
+    }
+
+    if h == 0 {
+        return 0
+    }
+
+    // Port-note: Row F2. FS_FileForHandle has no signature, so the stream of `h` has no source.
+    // Raven wrote: f = FS_FileForHandle(h)
+    portMissing("FS_Write", source: "oracle/codemp/qcommon/files_pc.cpp:1079")
+    // AI: Raven walks a `byte *` over the buffer. The walk is a byte offset into it, which FileBackend.fwrite takes.
+    buf = 0
+
+    remaining = len
+    tries = 0
+    while remaining != 0 {
+        block = remaining
+        written = FileBackend.fwrite(buffer, at: buf, 1, block, f)
+        if written == 0 {
+            if tries == 0 {
+                tries = 1
+            } else {
+                Com_Printf("FS_Write: 0 bytes written\n")
+                return 0
+            }
+        }
+
+        if written == -1 {
+            Com_Printf("FS_Write: -1 bytes written\n")
+            return 0
+        }
+
+        remaining -= written
+        buf += written
+    }
+    if fsh[h].handleSync {
+        FileBackend.fflush(f)
+    }
+    return len
 }
 
 /**
@@ -355,14 +1075,116 @@ FS_Seek
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1131
 func FS_Seek(_ f: JKAShared.fileHandle_t, _ offset: CLong, _ origin: Int32) -> Int32 {
-    // TODO: Port FS_Seek
-    portMissing("FS_Seek", source: "oracle/codemp/qcommon/files_pc.cpp:1131")
+    var _origin: Int32
+    var foo = CharBuf(65536)
+
+    if fs_searchpaths == nil {
+        Com_Error(ERR_FATAL, "Filesystem call made without initialization\n")
+        // Raven writes `return -1` after this call, which `Com_Error` never reaches.
+    }
+
+    if fsh[f].streamed {
+        fsh[f].streamed = false
+        // C narrows the `long` offset to the `int` parameter.
+        Sys_StreamSeek(f, Int32(truncatingIfNeeded: offset), origin)
+        fsh[f].streamed = true
+    }
+
+    if fsh[f].zipFile == true {
+        if offset == 0 && origin == FS_SEEK_SET {
+            // set the file position in the zip file (also sets the current file info)
+            // C converts the `int` position to the `unsigned long` parameter.
+            unzSetCurrentFileInfoPosition(fsh[f].handleFiles.file.z, CUnsignedLong(truncatingIfNeeded: fsh[f].zipFilePos))
+            return unzOpenCurrentFile(fsh[f].handleFiles.file.z)
+        } else if offset < 65536 {
+            // set the file position in the zip file (also sets the current file info)
+            unzSetCurrentFileInfoPosition(fsh[f].handleFiles.file.z, CUnsignedLong(truncatingIfNeeded: fsh[f].zipFilePos))
+            unzOpenCurrentFile(fsh[f].handleFiles.file.z)
+            // C narrows the `long` offset to the `int` parameter.
+            return FS_Read(&foo, Int32(truncatingIfNeeded: offset), f)
+        } else {
+            Com_Error(ERR_FATAL, "ZIP FILE FSEEK NOT YET IMPLEMENTED\n")
+            // Raven writes `return -1` after this call, which `Com_Error` never reaches.
+        }
+    } else {
+        let file: OpaquePointer?
+        // Port-note: Row F2. FS_FileForHandle has no signature, so the stream of `f` has no source.
+        // Raven wrote: file = FS_FileForHandle(f)
+        portMissing("FS_Seek", source: "oracle/codemp/qcommon/files_pc.cpp:1131")
+        switch origin {
+        case FS_SEEK_CUR:
+            _origin = SEEK_CUR
+
+        case FS_SEEK_END:
+            _origin = SEEK_END
+
+        case FS_SEEK_SET:
+            _origin = SEEK_SET
+
+        default:
+            _origin = SEEK_CUR
+            Com_Error(ERR_FATAL, "Bad origin in FS_Seek\n")
+        }
+
+        return FileBackend.fseek(file, offset, _origin)
+    }
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1191
 func FS_FileIsInPAK(_ filename: String, _ pChecksum: inout Int32) -> Int32 {
-    // TODO: Port FS_FileIsInPAK
-    portMissing("FS_FileIsInPAK", source: "oracle/codemp/qcommon/files_pc.cpp:1191")
+    var search: Searchpath?
+    var hash: CLong = 0
+    // Raven steps his own `filename` parameter through its bytes, so the body walks a TextCursor over a copy of them.
+    var filename = TextCursor(CharBuf(filename))
+
+    if fs_searchpaths == nil {
+        Com_Error(ERR_FATAL, "Filesystem call made without initialization\n")
+    }
+
+    // qpaths are not supposed to have a leading slash
+    if filename[0] == Int32(ascii: "/") || filename[0] == Int32(ascii: "\\") {
+        filename.advance()
+    }
+
+    // make absolutely sure that it can't back up the path.
+    // The searchpaths do guarantee that something will always
+    // be prepended, so we don't need to worry about "c:" or "//limbo"
+    if strstr(filename.text, "..") != nil || strstr(filename.text, "::") != nil {
+        return -1
+    }
+
+    //
+    // search through the path, one element at a time
+    //
+
+    search = fs_searchpaths
+    while search != nil {
+        //
+        if search!.pack != nil {
+            hash = FS_HashFileName(filename.text, search!.pack!.hashSize)
+        }
+        // is the element a pak file?
+        if search!.pack != nil && search!.pack!.hashTable![hash] != nil {
+            // disregard if it doesn't match one of the allowed pure pak files
+            // Port-note: Row F1. FS_PakIsPure has no signature, so the pure test of the pak has no call.
+            // Raven wrote: if ( !FS_PakIsPure(search->pack) ) { continue; }
+            portMissing("FS_FileIsInPAK", source: "oracle/codemp/qcommon/files_pc.cpp:1191")
+
+            // look through all the pak file elements
+            let pak = search!.pack!
+            var pakFile = pak.hashTable![hash]
+            repeat {
+                // case and separator insensitive comparisons
+                if !FS_FilenameCompare(pakFile!.name!, filename.text) {
+                    pChecksum = pak.pure_checksum
+                    return 1
+                }
+                pakFile = pakFile!.next
+            } while pakFile != nil
+        }
+        search = search!.next
+    }
+    return -1
 }
 
 /**
@@ -377,16 +1199,176 @@ a null buffer will just return the file length without loading
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1259
 func FS_ReadFile(_ qpath: String, _ buffer: inout OpaquePointer?) -> Int32 {
-    // TODO: Port FS_ReadFile
-    portMissing("FS_ReadFile", source: "oracle/codemp/qcommon/files_pc.cpp:1259")
+    var h: fileHandle_t = 0
+    let isConfig: Bool
+    var len: Int32 = 0
+
+    if fs_searchpaths == nil {
+        Com_Error(ERR_FATAL, "Filesystem call made without initialization\n")
+    }
+
+    if qpath.isEmpty {
+        Com_Error(ERR_FATAL, "FS_ReadFile with empty name\n")
+    }
+
+    // Raven's `buf = NULL; // quiet compiler warning` has no line, because `buf` takes its value at its one store below.
+
+    // if this is a .cfg file and we are playing back a journal, read
+    // it from the journal file
+    if strstr(qpath, ".cfg") != nil {
+        isConfig = true
+        if com_journal != nil && com_journal!.integer == 2 {
+            Com_DPrintf("Loading %s from journal file.\n", qpath)
+            // Port-note: Row F9. Raven reads the `int len` itself through `&len`, and FS_Read has no form for the address of an `int`.
+            // Raven wrote: r = FS_Read( &len, sizeof( len ), com_journalDataFile ), and the rest of the journal arm
+            portMissing("FS_ReadFile", source: "oracle/codemp/qcommon/files_pc.cpp:1259")
+        }
+    } else {
+        isConfig = false
+    }
+
+    // look for it in the filesystem or pack files
+    len = FS_FOpenFileRead(qpath, &h, false)
+    if h == 0 {
+        buffer = nil
+        // if we are journalling and it is a config file, write a zero to the journal file
+        if isConfig && com_journal != nil && com_journal!.integer == 1 {
+            Com_DPrintf("Writing zero for %s to journal file.\n", qpath)
+            len = 0
+            // Port-note: Row F9. Raven writes the `int len` itself through `&len`, and FS_Write has no form for the address of an `int`.
+            // Raven wrote: FS_Write( &len, sizeof( len ), com_journalDataFile )
+            portMissing("FS_ReadFile", source: "oracle/codemp/qcommon/files_pc.cpp:1259")
+            FS_Flush(com_journalDataFile)
+        }
+        return -1
+    }
+
+    // Raven's `if ( !buffer )` arm has no path here, because an `inout` buffer is never NULL. The `CharBuf?` overload keeps it.
+
+    fs_loadCount += 1
+    /*	fs_loadStack++;
+
+    buf = (unsigned char *)Hunk_AllocateTempMemory(len+1);
+    *buffer = buf;*/
+
+    let buf = Z_Malloc(len + 1, TAG_FILESYS, false)
+    buf[byte: len] = 0 // because we're not calling Z_Malloc with optional trailing 'bZeroIt' bool
+    // AI: Raven stores the `byte *` of the zone block into the caller's `void *`. The store is the handle of the block.
+    buffer = OpaquePointer(buf)
+
+    //	Z_Label(buf, qpath);
+
+    FS_Read(OpaquePointer(buf), len, h)
+
+    // guarantee that it will have a trailing 0 for string operations
+    buf[byte: len] = 0
+    FS_FCloseFile(h)
+
+    // if we are journalling and it is a config file, write it to the journal file
+    if isConfig && com_journal != nil && com_journal!.integer == 1 {
+        Com_DPrintf("Writing %s to journal file.\n", qpath)
+        // Port-note: Row F9. Raven writes the `int len` itself through `&len`, and FS_Write has no form for the address of an `int`.
+        // Raven wrote: FS_Write( &len, sizeof( len ), com_journalDataFile )
+        portMissing("FS_ReadFile", source: "oracle/codemp/qcommon/files_pc.cpp:1259")
+        FS_Write(OpaquePointer(buf), len, com_journalDataFile)
+        FS_Flush(com_journalDataFile)
+    }
+    return len
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1259
 // Port-note: The optional overload of the FS_ReadFile row, for the `char *` callers and the NULL callers, files_common.cpp:502 and sv_ccmds.cpp:159.
 // AI: Raven hands `(void **)&f` of a `char *f`, or NULL for the length alone. A nil buffer is Raven's NULL, and a read fills the CharBuf.
 func FS_ReadFile(_ qpath: String, _ buffer: inout CharBuf?) -> Int32 {
-    // TODO: Port FS_ReadFile
-    portMissing("FS_ReadFile", source: "oracle/codemp/qcommon/files_pc.cpp:1259")
+    var h: fileHandle_t = 0
+    let isConfig: Bool
+    var len: Int32 = 0
+
+    if fs_searchpaths == nil {
+        Com_Error(ERR_FATAL, "Filesystem call made without initialization\n")
+    }
+
+    if qpath.isEmpty {
+        Com_Error(ERR_FATAL, "FS_ReadFile with empty name\n")
+    }
+
+    // Raven's `buf = NULL; // quiet compiler warning` has no line, because `buf` takes its value at its one store below.
+
+    // if this is a .cfg file and we are playing back a journal, read
+    // it from the journal file
+    if strstr(qpath, ".cfg") != nil {
+        isConfig = true
+        if com_journal != nil && com_journal!.integer == 2 {
+            Com_DPrintf("Loading %s from journal file.\n", qpath)
+            // Port-note: Row F9. Raven reads the `int len` itself through `&len`, and FS_Read has no form for the address of an `int`.
+            // Raven wrote: r = FS_Read( &len, sizeof( len ), com_journalDataFile ), and the rest of the journal arm
+            portMissing("FS_ReadFile", source: "oracle/codemp/qcommon/files_pc.cpp:1259")
+        }
+    } else {
+        isConfig = false
+    }
+
+    // look for it in the filesystem or pack files
+    len = FS_FOpenFileRead(qpath, &h, false)
+    if h == 0 {
+        if buffer != nil {
+            buffer = nil
+        }
+        // if we are journalling and it is a config file, write a zero to the journal file
+        if isConfig && com_journal != nil && com_journal!.integer == 1 {
+            Com_DPrintf("Writing zero for %s to journal file.\n", qpath)
+            len = 0
+            // Port-note: Row F9. Raven writes the `int len` itself through `&len`, and FS_Write has no form for the address of an `int`.
+            // Raven wrote: FS_Write( &len, sizeof( len ), com_journalDataFile )
+            portMissing("FS_ReadFile", source: "oracle/codemp/qcommon/files_pc.cpp:1259")
+            FS_Flush(com_journalDataFile)
+        }
+        return -1
+    }
+
+    if buffer == nil {
+        if isConfig && com_journal != nil && com_journal!.integer == 1 {
+            Com_DPrintf("Writing len for %s to journal file.\n", qpath)
+            // Port-note: Row F9. Raven writes the `int len` itself through `&len`, and FS_Write has no form for the address of an `int`.
+            // Raven wrote: FS_Write( &len, sizeof( len ), com_journalDataFile )
+            portMissing("FS_ReadFile", source: "oracle/codemp/qcommon/files_pc.cpp:1259")
+            FS_Flush(com_journalDataFile)
+        }
+        FS_FCloseFile(h)
+        return len
+    }
+
+    fs_loadCount += 1
+    /*	fs_loadStack++;
+
+    buf = (unsigned char *)Hunk_AllocateTempMemory(len+1);
+    *buffer = buf;*/
+
+    // AI: Raven takes `len+1` bytes of the zone for the file.
+    // The buffer is a CharBuf of `len+1` bytes that the caller owns, so FS_FreeFile frees nothing.
+    var buf = CharBuf(len + 1)
+    buf[len] = 0 // because we're not calling Z_Malloc with optional trailing 'bZeroIt' bool
+
+    //	Z_Label(buf, qpath);
+
+    FS_Read(&buf, len, h)
+
+    // guarantee that it will have a trailing 0 for string operations
+    buf[len] = 0
+    // AI: Raven hands the caller the pointer before the read. A CharBuf is a value, so the store follows the read.
+    buffer = buf
+    FS_FCloseFile(h)
+
+    // if we are journalling and it is a config file, write it to the journal file
+    if isConfig && com_journal != nil && com_journal!.integer == 1 {
+        Com_DPrintf("Writing %s to journal file.\n", qpath)
+        // Port-note: Row F9. Raven writes the `int len` itself through `&len`, and FS_Write has no form for the address of an `int`.
+        // Raven wrote: FS_Write( &len, sizeof( len ), com_journalDataFile )
+        portMissing("FS_ReadFile", source: "oracle/codemp/qcommon/files_pc.cpp:1259")
+        FS_Write(buf, len, com_journalDataFile)
+        FS_Flush(com_journalDataFile)
+    }
+    return len
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1259
@@ -409,8 +1391,31 @@ FS_FreeFile
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1379
 func FS_FreeFile(_ buffer: OpaquePointer?) {
-    // TODO: Port FS_FreeFile
-    portMissing("FS_FreeFile", source: "oracle/codemp/qcommon/files_pc.cpp:1379")
+    /*
+    if ( !fs_searchpaths ) {
+    Com_Error( ERR_FATAL, "Filesystem call made without initialization\n" );
+    }
+    if ( !buffer ) {
+    Com_Error( ERR_FATAL, "FS_FreeFile( NULL )" );
+    }
+    fs_loadStack--;
+
+    Hunk_FreeTempMemory( buffer );
+
+    // if all of our temp files are free, clear all of our space
+    if ( fs_loadStack == 0 ) {
+    Hunk_ClearTempMemory();
+    }
+    */
+
+    if fs_searchpaths == nil {
+        Com_Error(ERR_FATAL, "Filesystem call made without initialization\n")
+    }
+    if buffer == nil {
+        Com_Error(ERR_FATAL, "FS_FreeFile( NULL )")
+    }
+
+    Z_Free(buffer)
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1379
@@ -434,6 +1439,8 @@ of a zip file.
 // TODO: Port signature
 // Raven wrote: static pack_t *FS_LoadZipFile( char *zipfile, const char *basename )
 // No table row for the return `pack_t *`.
+// Port-note: Row F1. The table has no row for the return `pack_t *`.
+// Port-note: The body also needs unzOpen, unzGetGlobalInfo, and unzGetCurrentFileInfo, which carry signature markers in unzip.swift.
 private func FS_LoadZipFile() -> Never {
     // TODO: Port FS_LoadZipFile
     portMissing("FS_LoadZipFile", source: "oracle/codemp/qcommon/files_pc.cpp:1423")
@@ -441,8 +1448,29 @@ private func FS_LoadZipFile() -> Never {
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1534
 private func FS_ReturnPath(_ zname: String, _ zpath: inout JKAShared.CharBuf, _ depth: inout Int32) -> Int32 {
-    // TODO: Port FS_ReturnPath
-    portMissing("FS_ReturnPath", source: "oracle/codemp/qcommon/files_pc.cpp:1534")
+    var len: Int32
+    var at: Int32
+    var newdep: Int32
+    // Raven indexes his own `zname` parameter by byte, so the body reads a CharBuf of it.
+    let zname = CharBuf(zname)
+
+    newdep = 0
+    zpath[0] = 0
+    len = 0
+    at = 0
+
+    while zname[at] != 0 {
+        if zname[at] == Int32(ascii: "/") || zname[at] == Int32(ascii: "\\") {
+            len = at
+            newdep += 1
+        }
+        at += 1
+    }
+    strcpy(&zpath, zname)
+    zpath[len] = 0
+    depth = newdep
+
+    return len
 }
 
 /**
@@ -454,8 +1482,24 @@ FS_AddFileToList
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1562
 private func FS_AddFileToList(_ name: String, _ list: inout ArraySlice<String>, _ nfiles: Int32) -> Int32 {
-    // TODO: Port FS_AddFileToList
-    portMissing("FS_AddFileToList", source: "oracle/codemp/qcommon/files_pc.cpp:1562")
+    var i: Int32
+    // Raven assigns his own `nfiles` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
+    var nfiles = nfiles
+
+    if nfiles == MAX_FOUND_FILES - 1 {
+        return nfiles
+    }
+    i = 0
+    while i < nfiles {
+        if Q_stricmp(name, list[list.startIndex + i]) == 0 {
+            return nfiles // allready in list
+        }
+        i += 1
+    }
+    list[list.startIndex + nfiles] = CopyString(name)
+    nfiles += 1
+
+    return nfiles
 }
 
 /**
@@ -472,6 +1516,7 @@ from all search paths
 // TODO: Port signature
 // Raven wrote: char **FS_ListFilteredFiles( const char *path, const char *extension, char *filter, int *numfiles )
 // No table row for the return `char **`.
+// Port-note: Row F4. The table has no row for a returned `char **` list of zone strings.
 func FS_ListFilteredFiles() -> Never {
     // TODO: Port FS_ListFilteredFiles
     portMissing("FS_ListFilteredFiles", source: "oracle/codemp/qcommon/files_pc.cpp:1587")
@@ -488,6 +1533,7 @@ FS_ListFiles
 // TODO: Port signature
 // Raven wrote: char **FS_ListFiles( const char *path, const char *extension, int *numfiles )
 // No table row for the return `char **`.
+// Port-note: Row F4. The table has no row for a returned `char **` list of zone strings.
 func FS_ListFiles() -> Never {
     // TODO: Port FS_ListFiles
     portMissing("FS_ListFiles", source: "oracle/codemp/qcommon/files_pc.cpp:1724")
@@ -501,6 +1547,7 @@ FS_FreeFileList
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1733
+// Port-note: Row F4. The skeleton spells the `char **` list as a TextCursor, which holds one text and not a list of zone strings.
 func FS_FreeFileList(_ fileList: inout JKAShared.TextCursor) {
     // TODO: Port FS_FreeFileList
     portMissing("FS_FreeFileList", source: "oracle/codemp/qcommon/files_pc.cpp:1733")
@@ -515,7 +1562,14 @@ FS_GetFileList
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1758
 func FS_GetFileList(_ path: String, _ `extension`: String, _ listbuf: inout JKAShared.CharBuf, _ bufsize: Int32) -> Int32 {
-    // TODO: Port FS_GetFileList
+    listbuf[0] = 0
+
+    if Q_stricmp(path, "$modlist") == 0 {
+        return FS_GetModList(&listbuf, bufsize)
+    }
+
+    // Port-note: Row F4. FS_ListFiles has no signature, so the list of `pFiles` has no source and no type.
+    // Raven wrote: pFiles = FS_ListFiles(path, extension, &nFiles), the copy of each name into `listbuf`, and FS_FreeFileList(pFiles)
     portMissing("FS_GetFileList", source: "oracle/codemp/qcommon/files_pc.cpp:1758")
 }
 
@@ -535,6 +1589,7 @@ FIXME TTimo those two should move to common.c next to Sys_ListFiles
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1803
+// Port-note: Row F4. The skeleton spells the `char **` list as a TextCursor, which holds one text and not a list of zone strings.
 private func Sys_CountFileList(_ list: inout JKAShared.TextCursor) -> UInt32 {
     // TODO: Port Sys_CountFileList
     portMissing("Sys_CountFileList", source: "oracle/codemp/qcommon/files_pc.cpp:1803")
@@ -544,6 +1599,7 @@ private func Sys_CountFileList(_ list: inout JKAShared.TextCursor) -> UInt32 {
 // TODO: Port signature
 // Raven wrote: static char** Sys_ConcatenateFileLists( char **list0, char **list1, char **list2 )
 // No table row for the return `char **`.
+// Port-note: Row F4. The table has no row for a returned `char **` list of zone strings.
 private func Sys_ConcatenateFileLists() -> Never {
     // TODO: Port Sys_ConcatenateFileLists
     portMissing("Sys_ConcatenateFileLists", source: "oracle/codemp/qcommon/files_pc.cpp:1818")
@@ -561,6 +1617,7 @@ The directories are searched in base path, cd path and home path
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1866
+// Port-note: Row F4. Every statement after the clear of `listbuf` walks a `char **` list of Sys_ListFiles, which has no signature in win_main.swift.
 func FS_GetModList(_ listbuf: inout JKAShared.CharBuf, _ bufsize: Int32) -> Int32 {
     // TODO: Port FS_GetModList
     portMissing("FS_GetModList", source: "oracle/codemp/qcommon/files_pc.cpp:1866")
@@ -575,7 +1632,27 @@ FS_Dir_f
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1989
 func FS_Dir_f() {
-    // TODO: Port FS_Dir_f
+    let path: String
+    let `extension`: String
+
+    if Cmd_Argc() < 2 || Cmd_Argc() > 3 {
+        Com_Printf("usage: dir <directory> [extension]\n")
+        return
+    }
+
+    if Cmd_Argc() == 2 {
+        path = Cmd_Argv(1)
+        `extension` = ""
+    } else {
+        path = Cmd_Argv(1)
+        `extension` = Cmd_Argv(2)
+    }
+
+    Com_Printf("Directory of %s %s\n", path, `extension`)
+    Com_Printf("---------------\n")
+
+    // Port-note: Row F4. FS_ListFiles has no signature, so the list of `dirnames` has no source and no type.
+    // Raven wrote: dirnames = FS_ListFiles( path, extension, &ndirs ), the print of each name, and FS_FreeFileList( dirnames )
     portMissing("FS_Dir_f", source: "oracle/codemp/qcommon/files_pc.cpp:1989")
 }
 
@@ -588,8 +1665,13 @@ FS_ConvertPath
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2025
 func FS_ConvertPath(_ s: inout JKAShared.CharBuf) {
-    // TODO: Port FS_ConvertPath
-    portMissing("FS_ConvertPath", source: "oracle/codemp/qcommon/files_pc.cpp:2025")
+    var sIndex: Int32 = 0
+    while s[sIndex] != 0 {
+        if s[sIndex] == Int32(ascii: "\\") || s[sIndex] == Int32(ascii: ":") {
+            s[sIndex] = Int32(ascii: "/")
+        }
+        sIndex += 1
+    }
 }
 
 /**
@@ -603,8 +1685,42 @@ Ignore case and seprator char distinctions
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2041
 func FS_PathCmp(_ s1: String, _ s2: String) -> Int32 {
-    // TODO: Port FS_PathCmp
-    portMissing("FS_PathCmp", source: "oracle/codemp/qcommon/files_pc.cpp:2041")
+    var c1: Int32
+    var c2: Int32
+    // Raven steps his own `s1` parameter through its bytes, so the body walks a TextCursor over a copy of them.
+    var s1 = TextCursor(CharBuf(s1))
+    // Raven steps his own `s2` parameter through its bytes, so the body walks a TextCursor over a copy of them.
+    var s2 = TextCursor(CharBuf(s2))
+
+    repeat {
+        c1 = s1.byte
+        s1.advance()
+        c2 = s2.byte
+        s2.advance()
+
+        if c1 >= Int32(ascii: "a") && c1 <= Int32(ascii: "z") {
+            c1 -= (Int32(ascii: "a") - Int32(ascii: "A"))
+        }
+        if c2 >= Int32(ascii: "a") && c2 <= Int32(ascii: "z") {
+            c2 -= (Int32(ascii: "a") - Int32(ascii: "A"))
+        }
+
+        if c1 == Int32(ascii: "\\") || c1 == Int32(ascii: ":") {
+            c1 = Int32(ascii: "/")
+        }
+        if c2 == Int32(ascii: "\\") || c2 == Int32(ascii: ":") {
+            c2 = Int32(ascii: "/")
+        }
+
+        if c1 < c2 {
+            return -1 // strings not equal
+        }
+        if c1 > c2 {
+            return 1
+        }
+    } while c1 != 0
+
+    return 0 // strings are equal
 }
 
 /**
@@ -615,6 +1731,7 @@ FS_SortFileList
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2078
+// Port-note: Row F4. The skeleton spells the `char **` list as a TextCursor, which holds one text and not a list of zone strings.
 func FS_SortFileList(_ filelist: inout JKAShared.TextCursor, _ numfiles: Int32) {
     // TODO: Port FS_SortFileList
     portMissing("FS_SortFileList", source: "oracle/codemp/qcommon/files_pc.cpp:2078")
@@ -629,7 +1746,20 @@ FS_NewDir_f
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2106
 func FS_NewDir_f() {
-    // TODO: Port FS_NewDir_f
+    let filter: String
+
+    if Cmd_Argc() < 2 {
+        Com_Printf("usage: fdir <filter>\n")
+        Com_Printf("example: fdir *q3dm*.bsp\n")
+        return
+    }
+
+    filter = Cmd_Argv(1)
+
+    Com_Printf("---------------\n")
+
+    // Port-note: Row F4. FS_ListFilteredFiles has no signature, so the list of `dirnames` has no source and no type.
+    // Raven wrote: dirnames = FS_ListFilteredFiles( "", "", filter, &ndirs ), the sort, the print of each name, and FS_FreeFileList( dirnames )
     portMissing("FS_NewDir_f", source: "oracle/codemp/qcommon/files_pc.cpp:2106")
 }
 
@@ -643,8 +1773,34 @@ FS_Path_f
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2140
 func FS_Path_f() {
-    // TODO: Port FS_Path_f
-    portMissing("FS_Path_f", source: "oracle/codemp/qcommon/files_pc.cpp:2140")
+    var s: Searchpath?
+    var i: Int32
+
+    Com_Printf("Current search path:\n")
+    s = fs_searchpaths
+    while s != nil {
+        if s!.pack != nil {
+            Com_Printf("%s (%i files)\n", s!.pack!.pakFilename, s!.pack!.numfiles)
+            if fs_numServerPaks != 0 {
+                // Port-note: Row F1. FS_PakIsPure has no signature, so the pure test of the pak has no call.
+                // Raven wrote: if ( !FS_PakIsPure(s->pack) ) { Com_Printf( "    not on the pure list\n" ); } else { Com_Printf( "    on the pure list\n" ); }
+                portMissing("FS_Path_f", source: "oracle/codemp/qcommon/files_pc.cpp:2140")
+            }
+        } else {
+            Com_Printf("%s/%s\n", s!.dir!.path, s!.dir!.gamedir)
+        }
+        s = s!.next
+    }
+
+
+    Com_Printf("\n")
+    i = 1
+    while i < MAX_FILE_HANDLES {
+        if fsh[i].handleFiles.file.o != nil {
+            Com_Printf("handle %i: %s\n", i, fsh[i].name)
+        }
+        i += 1
+    }
 }
 
 /**
@@ -659,11 +1815,21 @@ arbitrary files furing an "fs_copyfiles 1" run.
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2177
 func FS_TouchFile_f() {
-    // TODO: Port FS_TouchFile_f
-    portMissing("FS_TouchFile_f", source: "oracle/codemp/qcommon/files_pc.cpp:2177")
+    var f: fileHandle_t = 0
+
+    if Cmd_Argc() != 2 {
+        Com_Printf("Usage: touchFile <file>\n")
+        return
+    }
+
+    FS_FOpenFileRead(Cmd_Argv(1), &f, false)
+    if f != 0 {
+        FS_FCloseFile(f)
+    }
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2194
+// Port-note: Row F4. The `qsort` comparator reads `char *` slots of a list through `void *` parameters, and the list has no type.
 private func paksort(_ a: OpaquePointer?, _ b: OpaquePointer?) -> Int32 {
     // TODO: Port paksort
     portMissing("paksort", source: "oracle/codemp/qcommon/files_pc.cpp:2194")
@@ -671,7 +1837,42 @@ private func paksort(_ a: OpaquePointer?, _ b: OpaquePointer?) -> Int32 {
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2212
 private func FS_AddGameDirectory(_ path: String, _ dir: String) {
-    // TODO: Port FS_AddGameDirectory
+    var sp: Searchpath?
+    var search: Searchpath
+    var thedir: Searchpath
+    var pakfile: CharBuf
+
+    // this fixes the case where fs_basepath is the same as fs_cdpath
+    // which happens on full installs
+    sp = fs_searchpaths
+    while sp != nil {
+        if sp!.dir != nil && Q_stricmp(sp!.dir!.path, path) == 0 && Q_stricmp(sp!.dir!.gamedir, dir) == 0 {
+            return // we've already got this one
+        }
+        sp = sp!.next
+    }
+
+    Q_strncpyz(&fs_gamedir, dir, Int32(fs_gamedir.count))
+
+    //
+    // add the directory to the search path
+    //
+    search = Searchpath(Z_Malloc(Int32(Searchpath.byteCount), TAG_FILESYS, true))
+    search.dir = Directory(Z_Malloc(Int32(Directory.byteCount), TAG_FILESYS, true))
+
+    Q_strncpyz(&search.dir!.pathBuffer, path, Int32(search.dir!.pathBuffer.count))
+    Q_strncpyz(&search.dir!.gamedirBuffer, dir, Int32(search.dir!.gamedirBuffer.count))
+    search.next = fs_searchpaths
+    fs_searchpaths = search
+
+    thedir = search
+
+    // find all pak files in this directory
+    pakfile = CharBuf(FS_BuildOSPath(path, dir, ""))
+    pakfile[strlen(pakfile) - 1] = 0 // strip the trailing slash
+
+    // Port-note: Rows F4 and F1. Sys_ListFiles has no signature in win_main.swift, and FS_LoadZipFile has none here.
+    // Raven wrote: pakfiles = Sys_ListFiles( pakfile, ".pk3", NULL, &numfiles, qfalse ), the sort, the load of each pak, and Sys_FreeFileList( pakfiles )
     portMissing("FS_AddGameDirectory", source: "oracle/codemp/qcommon/files_pc.cpp:2212")
 }
 
@@ -684,8 +1885,19 @@ FS_idPak
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2301
 func FS_idPak(_ pak: String, _ base: String) -> Bool {
-    // TODO: Port FS_idPak
-    portMissing("FS_idPak", source: "oracle/codemp/qcommon/files_pc.cpp:2301")
+    var i: Int32
+
+    i = 0
+    while i < NUM_ID_PAKS {
+        if !FS_FilenameCompare(pak, va("%s/assets%d", base, i)) {
+            break
+        }
+        i += 1
+    }
+    if i < NUM_ID_PAKS {
+        return true
+    }
+    return false
 }
 
 /**
@@ -716,15 +1928,95 @@ we are not interested in a download string format, we want something human-reada
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2339
 func FS_ComparePaks(_ neededpaks: inout JKAShared.CharBuf, _ len: Int32, _ dlstring: Bool) -> Bool {
-    // TODO: Port FS_ComparePaks
-    portMissing("FS_ComparePaks", source: "oracle/codemp/qcommon/files_pc.cpp:2339")
+    var sp: Searchpath?
+    var havepak: Bool
+    var badchecksum: Bool
+    var i: Int32
+
+    if fs_numServerReferencedPaks == 0 {
+        return false // Server didn't send any pack information along
+    }
+
+    neededpaks[0] = 0
+
+    i = 0
+    while i < fs_numServerReferencedPaks {
+        // Ok, see if we have this pak file
+        badchecksum = false
+        havepak = false
+
+        // never autodownload any of the id paks
+        if FS_idPak(fs_serverReferencedPakNames[i], "base") || FS_idPak(fs_serverReferencedPakNames[i], "missionpack") {
+            i += 1
+            continue
+        }
+
+        sp = fs_searchpaths
+        while sp != nil {
+            if sp!.pack != nil && sp!.pack!.checksum == fs_serverReferencedPaks[i] {
+                havepak = true // This is it!
+                break
+            }
+            sp = sp!.next
+        }
+
+        // Raven tests `fs_serverReferencedPakNames[i]` for NULL.
+        // Raven tests `*fs_serverReferencedPakNames[i]` for the empty text.
+        if !havepak && !fs_serverReferencedPakNames[i].isEmpty {
+            // Don't got it
+
+            if dlstring {
+                // Remote name
+                Q_strcat(&neededpaks, len, "@")
+                Q_strcat(&neededpaks, len, fs_serverReferencedPakNames[i])
+                Q_strcat(&neededpaks, len, ".pk3")
+
+                // Local name
+                Q_strcat(&neededpaks, len, "@")
+                // Do we have one with the same name?
+                if FS_SV_FileExists(va("%s.pk3", fs_serverReferencedPakNames[i])) {
+                    var st = CharBuf(MAX_ZPATH)
+                    // We already have one called this, we need to download it to another name
+                    // Make something up with the checksum in it
+                    Com_sprintf(&st, Int32(st.count), "%s.%08x.pk3", fs_serverReferencedPakNames[i], fs_serverReferencedPaks[i])
+                    Q_strcat(&neededpaks, len, String(st))
+                } else {
+                    Q_strcat(&neededpaks, len, fs_serverReferencedPakNames[i])
+                    Q_strcat(&neededpaks, len, ".pk3")
+                }
+            } else {
+                Q_strcat(&neededpaks, len, fs_serverReferencedPakNames[i])
+                Q_strcat(&neededpaks, len, ".pk3")
+                // Do we have one with the same name?
+                if FS_SV_FileExists(va("%s.pk3", fs_serverReferencedPakNames[i])) {
+                    Q_strcat(&neededpaks, len, " (local file exists with wrong checksum)")
+                }
+                Q_strcat(&neededpaks, len, "\n")
+            }
+        }
+        i += 1
+    }
+    if neededpaks[0] != 0 {
+        return true
+    }
+
+    return false // We have them all
 }
 
 //rww - add search paths in for received svc_setgame
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2419
 func FS_UpdateGamedir() {
-    // TODO: Port FS_UpdateGamedir
-    portMissing("FS_UpdateGamedir", source: "oracle/codemp/qcommon/files_pc.cpp:2419")
+    if !fs_gamedirvar!.string!.isEmpty && Q_stricmp(fs_gamedirvar!.string!, BASEGAME) != 0 {
+        if !fs_cdpath!.string!.isEmpty {
+            FS_AddGameDirectory(fs_cdpath!.string!, fs_gamedirvar!.string!)
+        }
+        if !fs_basepath!.string!.isEmpty {
+            FS_AddGameDirectory(fs_basepath!.string!, fs_gamedirvar!.string!)
+        }
+        if !fs_homepath!.string!.isEmpty && Q_stricmp(fs_homepath!.string!, fs_basepath!.string!) != 0 {
+            FS_AddGameDirectory(fs_homepath!.string!, fs_gamedirvar!.string!)
+        }
+    }
 }
 
 /**
@@ -738,7 +2030,16 @@ NOTE TTimo: the reordering that happens here is not reflected in the cvars (\cva
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2445
 private func FS_ReorderPurePaks() {
-    // TODO: Port FS_ReorderPurePaks
+    // only relevant when connected to pure server
+    if fs_numServerPaks == 0 {
+        return
+    }
+
+    fs_reordered = false
+
+    // Port-note: Row F10. Raven walks `searchpath_t **` slots, the address of `fs_searchpaths` and of each `next` field.
+    // Port-note: The views have no slot form for them.
+    // Raven wrote: p_insert_index = &fs_searchpaths; and the loop that moves each pure pak to the insert slot
     portMissing("FS_ReorderPurePaks", source: "oracle/codemp/qcommon/files_pc.cpp:2445")
 }
 
@@ -751,8 +2052,82 @@ FS_Startup
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2483
 func FS_Startup(_ gameName: String) {
-    // TODO: Port FS_Startup
-    portMissing("FS_Startup", source: "oracle/codemp/qcommon/files_pc.cpp:2483")
+    var homePath: String?
+
+    Com_Printf("----- FS_Startup -----\n")
+
+    fs_debug = Cvar_Get("fs_debug", "0", 0)
+    fs_copyfiles = Cvar_Get("fs_copyfiles", "0", CVAR_INIT)
+    fs_cdpath = Cvar_Get("fs_cdpath", Sys_DefaultCDPath(), CVAR_INIT)
+    fs_basepath = Cvar_Get("fs_basepath", Sys_DefaultInstallPath(), CVAR_INIT)
+    fs_basegame = Cvar_Get("fs_basegame", "", CVAR_INIT)
+    homePath = Sys_DefaultHomePath()
+    if homePath == nil || homePath!.isEmpty {
+        homePath = fs_basepath!.string
+    }
+    fs_homepath = Cvar_Get("fs_homepath", homePath!, CVAR_INIT)
+    fs_gamedirvar = Cvar_Get("fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO)
+    fs_restrict = Cvar_Get("fs_restrict", "", CVAR_INIT)
+
+    fs_dirbeforepak = Cvar_Get("fs_dirbeforepak", "0", CVAR_INIT)
+
+    // add search path elements in reverse priority order
+    if !fs_cdpath!.string!.isEmpty {
+        FS_AddGameDirectory(fs_cdpath!.string!, gameName)
+    }
+    if !fs_basepath!.string!.isEmpty {
+        FS_AddGameDirectory(fs_basepath!.string!, gameName)
+    }
+    // fs_homepath is somewhat particular to *nix systems, only add if relevant
+    // NOTE: same filtering below for mods and basegame
+    if !fs_basepath!.string!.isEmpty && Q_stricmp(fs_homepath!.string!, fs_basepath!.string!) != 0 {
+        FS_AddGameDirectory(fs_homepath!.string!, gameName)
+    }
+
+    // check for additional base game so mods can be based upon other mods
+    if !fs_basegame!.string!.isEmpty && Q_stricmp(gameName, BASEGAME) == 0 && Q_stricmp(fs_basegame!.string!, gameName) != 0 {
+        if !fs_cdpath!.string!.isEmpty {
+            FS_AddGameDirectory(fs_cdpath!.string!, fs_basegame!.string!)
+        }
+        if !fs_basepath!.string!.isEmpty {
+            FS_AddGameDirectory(fs_basepath!.string!, fs_basegame!.string!)
+        }
+        if !fs_homepath!.string!.isEmpty && Q_stricmp(fs_homepath!.string!, fs_basepath!.string!) != 0 {
+            FS_AddGameDirectory(fs_homepath!.string!, fs_basegame!.string!)
+        }
+    }
+
+    // check for additional game folder for mods
+    if !fs_gamedirvar!.string!.isEmpty && Q_stricmp(gameName, BASEGAME) == 0 && Q_stricmp(fs_gamedirvar!.string!, gameName) != 0 {
+        if !fs_cdpath!.string!.isEmpty {
+            FS_AddGameDirectory(fs_cdpath!.string!, fs_gamedirvar!.string!)
+        }
+        if !fs_basepath!.string!.isEmpty {
+            FS_AddGameDirectory(fs_basepath!.string!, fs_gamedirvar!.string!)
+        }
+        if !fs_homepath!.string!.isEmpty && Q_stricmp(fs_homepath!.string!, fs_basepath!.string!) != 0 {
+            FS_AddGameDirectory(fs_homepath!.string!, fs_gamedirvar!.string!)
+        }
+    }
+
+    // add our commands
+    Cmd_AddCommand("path", FS_Path_f)
+    Cmd_AddCommand("dir", FS_Dir_f)
+    Cmd_AddCommand("fdir", FS_NewDir_f)
+    Cmd_AddCommand("touchFile", FS_TouchFile_f)
+
+    // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=506
+    // reorder the pure pk3 files according to server order
+    FS_ReorderPurePaks()
+
+    // print the current search paths
+    FS_Path_f()
+
+    fs_gamedirvar!.modified = false // We just loaded, it's not modified
+
+    Com_Printf("----------------------\n")
+
+    Com_Printf("%d files in pk3 files\n", fs_packFiles)
 }
 
 /**
@@ -767,8 +2142,60 @@ if the full version is not found
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2587
 func FS_SetRestrictions() {
-    // TODO: Port FS_SetRestrictions
-    portMissing("FS_SetRestrictions", source: "oracle/codemp/qcommon/files_pc.cpp:2587")
+    var path: Searchpath?
+    // A buffer asks FS_ReadFile for the read, and the overload sets it to nil for a missing file, Raven's NULL.
+    var productId: CharBuf? = CharBuf(0)
+
+    // if fs_restrict is set, don't even look for the id file,
+    // which allows the demo release to be tested even if
+    // the full game is present
+    if fs_restrict!.integer == 0 {
+        // look for the full game id
+        FS_ReadFile("productid.txt", &productId)
+        if productId != nil {
+            // check against the hardcoded string
+            var seed: Int32
+            var i: Int32
+
+            seed = 102270
+            i = 0
+            while i < fs_scrambledProductId.count {
+                if (Int32(fs_scrambledProductId[i]) ^ (seed & 255)) != productId![i] {
+                    break
+                }
+                // Port-note: Raven's `int` product overflows, which C leaves undefined. The port wraps at 32 bits.
+                seed = (69069 &* seed &+ 1)
+                i += 1
+            }
+
+            FS_FreeFile(productId!)
+
+            if i == fs_scrambledProductId.count {
+                return // no restrictions
+            }
+            Com_Error(ERR_FATAL, "Invalid product identification")
+        }
+    }
+    Cvar_Set("fs_restrict", "1")
+
+    Com_Printf("\nRunning in restricted demo mode.\n\n")
+
+    // restart the filesystem with just the demo directory
+    FS_Shutdown(false)
+    FS_Startup(DEMOGAME)
+
+    // make sure that the pak file has the header checksum we expect
+    path = fs_searchpaths
+    while path != nil {
+        if path!.pack != nil {
+            // a tiny attempt to keep the checksum from being scannable from the exe
+            // C converts the `int` checksum to `unsigned` for the compare with the unsigned constant.
+            if (UInt32(bitPattern: path!.pack!.checksum) ^ 0x02261994) != (DEMO_PAK_CHECKSUM ^ 0x02261994) {
+                Com_Error(ERR_FATAL, "Corrupted pak0.pk3: %u", path!.pack!.checksum)
+            }
+        }
+        path = path!.next
+    }
 }
 
 /**
@@ -782,8 +2209,24 @@ Returns the checksum of the pk3 from which the server loaded the qagame.qvm
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2646
 func FS_GamePureChecksum() -> String {
-    // TODO: Port FS_GamePureChecksum
-    portMissing("FS_GamePureChecksum", source: "oracle/codemp/qcommon/files_pc.cpp:2646")
+    // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
+    var info = CharBuf(MAX_STRING_TOKENS)
+    var search: Searchpath?
+
+    info[0] = 0
+
+    search = fs_searchpaths
+    while search != nil {
+        // is the element a pak file?
+        if search!.pack != nil {
+            if (search!.pack!.referenced & FS_QAGAME_REF) != 0 {
+                Com_sprintf(&info, Int32(info.count), "%d", search!.pack!.checksum)
+            }
+        }
+        search = search!.next
+    }
+
+    return String(info)
 }
 
 /**
@@ -798,8 +2241,25 @@ Servers with sv_pure set will get this string and pass it to clients.
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2672
 func FS_LoadedPakChecksums() -> String {
-    // TODO: Port FS_LoadedPakChecksums
-    portMissing("FS_LoadedPakChecksums", source: "oracle/codemp/qcommon/files_pc.cpp:2672")
+    // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
+    var info = CharBuf(BIG_INFO_STRING)
+    var search: Searchpath?
+
+    info[0] = 0
+
+    search = fs_searchpaths
+    while search != nil {
+        // is the element a pak file?
+        if search!.pack == nil {
+            search = search!.next
+            continue
+        }
+
+        Q_strcat(&info, Int32(info.count), va("%i ", search!.pack!.checksum))
+        search = search!.next
+    }
+
+    return String(info)
 }
 
 /**
@@ -814,8 +2274,28 @@ Servers with sv_pure set will get this string and pass it to clients.
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2698
 func FS_LoadedPakNames() -> String {
-    // TODO: Port FS_LoadedPakNames
-    portMissing("FS_LoadedPakNames", source: "oracle/codemp/qcommon/files_pc.cpp:2698")
+    // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
+    var info = CharBuf(BIG_INFO_STRING)
+    var search: Searchpath?
+
+    info[0] = 0
+
+    search = fs_searchpaths
+    while search != nil {
+        // is the element a pak file?
+        if search!.pack == nil {
+            search = search!.next
+            continue
+        }
+
+        if info[0] != 0 {
+            Q_strcat(&info, Int32(info.count), " ")
+        }
+        Q_strcat(&info, Int32(info.count), search!.pack!.pakBasename)
+        search = search!.next
+    }
+
+    return String(info)
 }
 
 /**
@@ -831,8 +2311,25 @@ back to the server.
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2728
 func FS_LoadedPakPureChecksums() -> String {
-    // TODO: Port FS_LoadedPakPureChecksums
-    portMissing("FS_LoadedPakPureChecksums", source: "oracle/codemp/qcommon/files_pc.cpp:2728")
+    // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
+    var info = CharBuf(BIG_INFO_STRING)
+    var search: Searchpath?
+
+    info[0] = 0
+
+    search = fs_searchpaths
+    while search != nil {
+        // is the element a pak file?
+        if search!.pack == nil {
+            search = search!.next
+            continue
+        }
+
+        Q_strcat(&info, Int32(info.count), va("%i ", search!.pack!.pure_checksum))
+        search = search!.next
+    }
+
+    return String(info)
 }
 
 /**
@@ -847,8 +2344,25 @@ The server will send this to the clients so they can check which files should be
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2754
 func FS_ReferencedPakChecksums() -> String {
-    // TODO: Port FS_ReferencedPakChecksums
-    portMissing("FS_ReferencedPakChecksums", source: "oracle/codemp/qcommon/files_pc.cpp:2754")
+    // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
+    var info = CharBuf(BIG_INFO_STRING)
+    var search: Searchpath?
+
+    info[0] = 0
+
+
+    search = fs_searchpaths
+    while search != nil {
+        // is the element a pak file?
+        if search!.pack != nil {
+            if search!.pack!.referenced != 0 || Q_stricmpn(search!.pack!.pakGamename, BASEGAME, strlen(BASEGAME)) != 0 {
+                Q_strcat(&info, Int32(info.count), va("%i ", search!.pack!.checksum))
+            }
+        }
+        search = search!.next
+    }
+
+    return String(info)
 }
 
 /**
@@ -865,8 +2379,51 @@ The string has a specific order, "cgame ui @ ref1 ref2 ref3 ..."
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2783
 func FS_ReferencedPakPureChecksums() -> String {
-    // TODO: Port FS_ReferencedPakPureChecksums
-    portMissing("FS_ReferencedPakPureChecksums", source: "oracle/codemp/qcommon/files_pc.cpp:2783")
+    // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
+    var info = CharBuf(BIG_INFO_STRING)
+    var search: Searchpath?
+    var nFlags: Int32
+    var numPaks: Int32
+    var checksum: Int32
+
+    info[0] = 0
+
+    checksum = fs_checksumFeed
+    numPaks = 0
+    nFlags = FS_CGAME_REF
+    while nFlags != 0 {
+        if (nFlags & FS_GENERAL_REF) != 0 {
+            // add a delimter between must haves and general refs
+            //Q_strcat(info, sizeof(info), "@ ");
+            info[strlen(info) + 1] = 0
+            info[strlen(info) + 2] = 0
+            info[strlen(info)] = Int32(ascii: "@")
+            info[strlen(info)] = Int32(ascii: " ")
+        }
+        search = fs_searchpaths
+        while search != nil {
+            // is the element a pak file and has it been referenced based on flag?
+            if search!.pack != nil && (search!.pack!.referenced & nFlags) != 0 {
+                Q_strcat(&info, Int32(info.count), va("%i ", search!.pack!.pure_checksum))
+                if (nFlags & (FS_CGAME_REF | FS_UI_REF)) != 0 {
+                    break
+                }
+                checksum ^= search!.pack!.pure_checksum
+                numPaks += 1
+            }
+            search = search!.next
+        }
+        if fs_fakeChkSum != 0 {
+            // only added if a non-pure file is referenced
+            Q_strcat(&info, Int32(info.count), va("%i ", fs_fakeChkSum))
+        }
+        nFlags = nFlags >> 1
+    }
+    // last checksum is the encoded number of referenced pk3s
+    checksum ^= numPaks
+    Q_strcat(&info, Int32(info.count), va("%i ", checksum))
+
+    return String(info)
 }
 
 /**
@@ -881,8 +2438,31 @@ The server will send this to the clients so they can check which files should be
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2832
 func FS_ReferencedPakNames() -> String {
-    // TODO: Port FS_ReferencedPakNames
-    portMissing("FS_ReferencedPakNames", source: "oracle/codemp/qcommon/files_pc.cpp:2832")
+    // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
+    var info = CharBuf(BIG_INFO_STRING)
+    var search: Searchpath?
+
+    info[0] = 0
+
+    // we want to return ALL pk3's from the fs_game path
+    // and referenced one's from base
+    search = fs_searchpaths
+    while search != nil {
+        // is the element a pak file?
+        if search!.pack != nil {
+            if info[0] != 0 {
+                Q_strcat(&info, Int32(info.count), " ")
+            }
+            if search!.pack!.referenced != 0 || Q_stricmpn(search!.pack!.pakGamename, BASEGAME, strlen(BASEGAME)) != 0 {
+                Q_strcat(&info, Int32(info.count), search!.pack!.pakGamename)
+                Q_strcat(&info, Int32(info.count), "/")
+                Q_strcat(&info, Int32(info.count), search!.pack!.pakBasename)
+            }
+        }
+        search = search!.next
+    }
+
+    return String(info)
 }
 
 /**
@@ -894,8 +2474,21 @@ FS_ClearPakReferences
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2862
 func FS_ClearPakReferences(_ flags: Int32) {
-    // TODO: Port FS_ClearPakReferences
-    portMissing("FS_ClearPakReferences", source: "oracle/codemp/qcommon/files_pc.cpp:2862")
+    var search: Searchpath?
+    // Raven assigns his own `flags` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
+    var flags = flags
+
+    if flags == 0 {
+        flags = -1
+    }
+    search = fs_searchpaths
+    while search != nil {
+        // is the element a pak file and has it been referenced?
+        if search!.pack != nil {
+            search!.pack!.referenced &= ~flags
+        }
+        search = search!.next
+    }
 }
 
 /**
@@ -912,8 +2505,60 @@ exception of .cfg and .dat files.
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2887
 func FS_PureServerSetLoadedPaks(_ pakSums: String, _ pakNames: String) {
-    // TODO: Port FS_PureServerSetLoadedPaks
-    portMissing("FS_PureServerSetLoadedPaks", source: "oracle/codemp/qcommon/files_pc.cpp:2887")
+    var i: Int32
+    var c: Int32
+    var d: Int32
+
+    Cmd_TokenizeString(pakSums)
+
+    c = Cmd_Argc()
+    if c > MAX_SEARCH_PATHS {
+        c = MAX_SEARCH_PATHS
+    }
+
+    fs_numServerPaks = c
+
+    i = 0
+    while i < c {
+        fs_serverPaks[i] = atoi(Cmd_Argv(i))
+        i += 1
+    }
+
+    if fs_numServerPaks != 0 {
+        Com_DPrintf("Connected to a pure server.\n")
+    } else {
+        if fs_reordered {
+            // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=540
+            // force a restart to make sure the search order will be correct
+            Com_DPrintf("FS search reorder is required\n")
+            FS_Restart(fs_checksumFeed)
+            return
+        }
+    }
+
+    i = 0
+    while i < c {
+        // AI: Raven frees the CopyString block of the name.
+        // CopyString returns the text and leaves its block in the zone, so the slot takes the empty text, the NULL of the table.
+        fs_serverPakNames[i] = ""
+        i += 1
+    }
+    // Raven tests `pakNames` for NULL.
+    // Raven tests `*pakNames` for the empty text.
+    if !pakNames.isEmpty {
+        Cmd_TokenizeString(pakNames)
+
+        d = Cmd_Argc()
+        if d > MAX_SEARCH_PATHS {
+            d = MAX_SEARCH_PATHS
+        }
+
+        i = 0
+        while i < d {
+            fs_serverPakNames[i] = CopyString(Cmd_Argv(i))
+            i += 1
+        }
+    }
 }
 
 /**
@@ -929,8 +2574,48 @@ checksums to see if any pk3 files need to be auto-downloaded.
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2947
 func FS_PureServerSetReferencedPaks(_ pakSums: String, _ pakNames: String) {
-    // TODO: Port FS_PureServerSetReferencedPaks
-    portMissing("FS_PureServerSetReferencedPaks", source: "oracle/codemp/qcommon/files_pc.cpp:2947")
+    var i: Int32
+    var c: Int32
+    var d: Int32
+
+    Cmd_TokenizeString(pakSums)
+
+    c = Cmd_Argc()
+    if c > MAX_SEARCH_PATHS {
+        c = MAX_SEARCH_PATHS
+    }
+
+    fs_numServerReferencedPaks = c
+
+    i = 0
+    while i < c {
+        fs_serverReferencedPaks[i] = atoi(Cmd_Argv(i))
+        i += 1
+    }
+
+    i = 0
+    while i < c {
+        // AI: Raven frees the CopyString block of the name.
+        // CopyString returns the text and leaves its block in the zone, so the slot takes the empty text, the NULL of the table.
+        fs_serverReferencedPakNames[i] = ""
+        i += 1
+    }
+    // Raven tests `pakNames` for NULL.
+    // Raven tests `*pakNames` for the empty text.
+    if !pakNames.isEmpty {
+        Cmd_TokenizeString(pakNames)
+
+        d = Cmd_Argc()
+        if d > MAX_SEARCH_PATHS {
+            d = MAX_SEARCH_PATHS
+        }
+
+        i = 0
+        while i < d {
+            fs_serverReferencedPakNames[i] = CopyString(Cmd_Argv(i))
+            i += 1
+        }
+    }
 }
 
 /**
@@ -942,8 +2627,52 @@ FS_Restart
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2988
 func FS_Restart(_ checksumFeed: Int32) {
-    // TODO: Port FS_Restart
-    portMissing("FS_Restart", source: "oracle/codemp/qcommon/files_pc.cpp:2988")
+    // free anything we currently have loaded
+    FS_Shutdown(false)
+
+    // set the checksum feed
+    fs_checksumFeed = checksumFeed
+
+    // clear pak references
+    FS_ClearPakReferences(0)
+
+    // try to start up normally
+    FS_Startup(BASEGAME)
+
+    // see if we are going to allow add-ons
+    FS_SetRestrictions()
+
+    // if we can't find default.cfg, assume that the paths are
+    // busted and error out now, rather than getting an unreadable
+    // graphics screen when the font fails to load
+    var buffer: CharBuf? = nil
+    if FS_ReadFile("mpdefault.cfg", &buffer) <= 0 {
+        // this might happen when connecting to a pure server not using BASEGAME/pak0.pk3
+        // (for instance a TA demo server)
+        if lastValidBase[0] != 0 {
+            FS_PureServerSetLoadedPaks("", "")
+            Cvar_Set("fs_basepath", String(lastValidBase))
+            Cvar_Set("fs_gamedirvar", String(lastValidGame))
+            lastValidBase[0] = 0
+            lastValidGame[0] = 0
+            Cvar_Set("fs_restrict", "0")
+            FS_Restart(checksumFeed)
+            Com_Error(ERR_DROP, "Invalid game folder\n")
+            // Raven writes `return` after this call, which `Com_Error` never reaches.
+        }
+        Com_Error(ERR_FATAL, "Couldn't load mpdefault.cfg")
+    }
+
+    // bk010116 - new check before safeMode
+    if Q_stricmp(fs_gamedirvar!.string!, String(lastValidGame)) != 0 {
+        // skip the jampconfig.cfg if "safe" is on the command line
+        if !Com_SafeMode() {
+            Cbuf_AddText("exec jampserver.cfg\n")
+        }
+    }
+
+    Q_strncpyz(&lastValidBase, fs_basepath!.string!, Int32(lastValidBase.count))
+    Q_strncpyz(&lastValidGame, fs_gamedirvar!.string!, Int32(lastValidGame.count))
 }
 
 /**
@@ -956,24 +2685,80 @@ restart if necessary
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:3048
 func FS_ConditionalRestart(_ checksumFeed: Int32) -> Bool {
-    // TODO: Port FS_ConditionalRestart
-    portMissing("FS_ConditionalRestart", source: "oracle/codemp/qcommon/files_pc.cpp:3048")
+    if fs_gamedirvar!.modified || checksumFeed != fs_checksumFeed {
+        FS_Restart(checksumFeed)
+        return true
+    }
+    return false
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:3064
 func FS_FOpenFileByMode(_ qpath: String, _ f: inout Int32, _ mode: JKAShared.fsMode_t) -> Int32 {
-    // TODO: Port FS_FOpenFileByMode
-    portMissing("FS_FOpenFileByMode", source: "oracle/codemp/qcommon/files_pc.cpp:3064")
+    var r: Int32
+    var sync: Bool
+
+    sync = false
+
+    switch mode {
+    case FS_READ:
+        r = FS_FOpenFileRead(qpath, &f, true)
+
+    case FS_WRITE:
+        f = FS_FOpenFileWrite(qpath)
+        r = 0
+        if f == 0 {
+            r = -1
+        }
+
+    case FS_APPEND_SYNC:
+        sync = true
+        fallthrough
+
+    case FS_APPEND:
+        f = FS_FOpenFileAppend(qpath)
+        r = 0
+        if f == 0 {
+            r = -1
+        }
+
+    default:
+        Com_Error(ERR_FATAL, "FSH_FOpenFile: bad mode")
+        // Raven writes `return -1` after this call, which `Com_Error` never reaches.
+    }
+
+    if f != 0 {
+        if fsh[f].zipFile == true {
+            // C narrows the `long` position to the `int` field.
+            fsh[f].baseOffset = Int32(truncatingIfNeeded: unztell(fsh[f].handleFiles.file.z))
+        } else {
+            fsh[f].baseOffset = FileBackend.ftell(fsh[f].handleFiles.file.o)
+        }
+        fsh[f].fileSize = r
+        fsh[f].streamed = false
+
+        if mode == FS_READ {
+            Sys_BeginStreamedFile(f, 0x4000)
+            fsh[f].streamed = true
+        }
+    }
+    fsh[f].handleSync = sync
+
+    return r
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:3118
 func FS_FTell(_ f: JKAShared.fileHandle_t) -> Int32 {
-    // TODO: Port FS_FTell
-    portMissing("FS_FTell", source: "oracle/codemp/qcommon/files_pc.cpp:3118")
+    let pos: Int32
+    if fsh[f].zipFile == true {
+        // C narrows the `long` position to the `int` local.
+        pos = Int32(truncatingIfNeeded: unztell(fsh[f].handleFiles.file.z))
+    } else {
+        pos = FileBackend.ftell(fsh[f].handleFiles.file.o)
+    }
+    return pos
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:3128
 func FS_Flush(_ f: JKAShared.fileHandle_t) {
-    // TODO: Port FS_Flush
-    portMissing("FS_Flush", source: "oracle/codemp/qcommon/files_pc.cpp:3128")
+    FileBackend.fflush(fsh[f].handleFiles.file.o)
 }

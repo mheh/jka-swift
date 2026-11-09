@@ -84,6 +84,18 @@ public final class EngineWorld {
     /// Source: oracle/codemp/qcommon/common.cpp:1601
     var lastTime: Int32 = 0
 
+    // MARK: - files_common.cpp
+
+    /// Raven's `searchpath_t *fs_searchpaths` of `files_common.cpp`, the head of the search path, nil before FS_Startup.
+    /// Source: oracle/codemp/qcommon/files_common.cpp:193
+    // AI: Raven keeps fs_searchpaths at file scope, and the table has no row for `searchpath_t *`. The world holds the hand view.
+    var fs_searchpaths: Searchpath? = nil
+
+    /// Raven's `fileHandleData_t fsh[MAX_FILE_HANDLES]` of `files_common.cpp`.
+    /// Source: oracle/codemp/qcommon/files_common.cpp:202
+    // AI: Raven keeps fsh at file scope, and fileHandleData_t has no generated view. The world owns one zeroed table of the hand view.
+    let fsh = FileHandleData.table(count: MAX_FILE_HANDLES)
+
     // MARK: - net_chan.cpp
 
     /// Raven's `static char *netsrcString[2]` of `net_chan.cpp`.
