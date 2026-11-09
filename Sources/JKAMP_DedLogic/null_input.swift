@@ -5,24 +5,16 @@ import JKAMP_Ded
 
 /// Source: oracle/codemp/null/null_input.cpp:3
 func IN_Init() {
-    // TODO: Port IN_Init
-    portMissing("IN_Init", source: "oracle/codemp/null/null_input.cpp:3")
 }
 
 /// Source: oracle/codemp/null/null_input.cpp:6
 public func IN_Frame() {
-    // TODO: Port IN_Frame
-    portMissing("IN_Frame", source: "oracle/codemp/null/null_input.cpp:6")
 }
 
 /// Source: oracle/codemp/null/null_input.cpp:9
 func IN_Shutdown() {
-    // TODO: Port IN_Shutdown
-    portMissing("IN_Shutdown", source: "oracle/codemp/null/null_input.cpp:9")
 }
 
 /// Source: oracle/codemp/null/null_input.cpp:12
 func Sys_SendKeyEvents() {
-    // TODO: Port Sys_SendKeyEvents
-    portMissing("Sys_SendKeyEvents", source: "oracle/codemp/null/null_input.cpp:12")
 }
