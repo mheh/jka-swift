@@ -138,9 +138,9 @@ public struct Vm: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/qcommon/vm_local.h:132
-    public var instructionPointers: OpaquePointer? {
-        get { OpaquePointer(self.raw.pointee.instructionPointers) }
-        nonmutating set { self.raw.pointee.instructionPointers = UnsafeMutablePointer(newValue) }
+    public var instructionPointers: Slots<Int32>? {
+        get { self.raw.pointee.instructionPointers.map { Slots(scalars: UnsafeMutableRawPointer($0), count: Int.max) } }
+        nonmutating set { self.raw.pointee.instructionPointers = newValue?.base.assumingMemoryBound(to: Int32.self) }
     }
 
     /// Source: oracle/codemp/qcommon/vm_local.h:133
@@ -150,9 +150,9 @@ public struct Vm: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/qcommon/vm_local.h:135
-    public var dataBase: OpaquePointer? {
-        get { OpaquePointer(self.raw.pointee.dataBase) }
-        nonmutating set { self.raw.pointee.dataBase = UnsafeMutablePointer(newValue) }
+    public var dataBase: Slots<JKAShared.byte>? {
+        get { self.raw.pointee.dataBase.map { Slots(scalars: UnsafeMutableRawPointer($0), count: Int.max) } }
+        nonmutating set { self.raw.pointee.dataBase = newValue?.base.assumingMemoryBound(to: UInt8.self) }
     }
 
     /// Source: oracle/codemp/qcommon/vm_local.h:136
@@ -178,6 +178,9 @@ public struct Vm: Hashable, HandleView {
         get { self.raw.pointee.symbols.map { VmSymbol(handle: OpaquePointer($0)) } }
         nonmutating set { self.raw.pointee.symbols = UnsafeMutablePointer(newValue?.handle) }
     }
+
+    /// Raven's `&symbols`, the slot of the field as the Slots of one optional view.
+    public var symbolsSlot: Slots<VmSymbol?> { Slots(pointers: UnsafeMutableRawPointer(self.raw.pointer(to: \.symbols)!), count: 1) }
 
     /// Source: oracle/codemp/qcommon/vm_local.h:143
     public var callLevel: Int32 {

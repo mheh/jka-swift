@@ -7,6 +7,7 @@ import Musl
 #elseif canImport(ucrt)
 import ucrt
 #endif
+import JKAMP
 import JKAShared
 
 // MARK: - Byte fill at an offset
@@ -68,5 +69,31 @@ public enum CommonBackend {
         #elseif canImport(ucrt)
         return String(cString: ucrt.asctime(ucrt.localtime(&clock)))
         #endif
+    }
+
+    /// Raven's `tms = localtime(&t)` of Com_RealTime and the copy of its fields into the caller's record when it is not NULL.
+    /// Source: oracle/codemp/qcommon/common.cpp:721
+    public static func localtime(_ t: time_t, _ qtime: JKAMP.Qtime) {
+        var clock = t
+        #if canImport(Darwin)
+        let tms = Darwin.localtime(&clock)
+        #elseif canImport(Glibc)
+        let tms = Glibc.localtime(&clock)
+        #elseif canImport(Musl)
+        let tms = Musl.localtime(&clock)
+        #elseif canImport(ucrt)
+        let tms = ucrt.localtime(&clock)
+        #endif
+        if let tms {
+            qtime.tm_sec = tms.pointee.tm_sec
+            qtime.tm_min = tms.pointee.tm_min
+            qtime.tm_hour = tms.pointee.tm_hour
+            qtime.tm_mday = tms.pointee.tm_mday
+            qtime.tm_mon = tms.pointee.tm_mon
+            qtime.tm_year = tms.pointee.tm_year
+            qtime.tm_wday = tms.pointee.tm_wday
+            qtime.tm_yday = tms.pointee.tm_yday
+            qtime.tm_isdst = tms.pointee.tm_isdst
+        }
     }
 }

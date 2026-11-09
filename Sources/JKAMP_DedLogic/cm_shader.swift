@@ -67,7 +67,6 @@ func CM_CreateShaderTextHash() {
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:71
-// Port-note: FS_ListFiles of files_pc carries a signature marker for its `char **` return, and `shaderText` is a `String` with no home for the `Z_Malloc` block.
 func CM_LoadShaderFiles() {
     // TODO: Port CM_LoadShaderFiles
     portMissing("CM_LoadShaderFiles", source: "oracle/codemp/qcommon/cm_shader.cpp:71")
@@ -112,21 +111,37 @@ func CM_LoadShaderText(_ forceReload: Bool) {
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:261
-// TODO: Port signature
-// Raven wrote: void SV_ParseSurfaceParm( CCMShader * shader, const char **text )
-// No table row for `CCMShader * shader`.
-func SV_ParseSurfaceParm() -> Never {
-    // TODO: Port SV_ParseSurfaceParm
+func SV_ParseSurfaceParm(_ shader: CmShader, _ text: inout JKAShared.TextCursor) {
+    let token: String
+    // Port-note: A sizeof of `infoParm_t[26]` the draft cannot size.
+    // Raven wrote: int numsvInfoParms = sizeof(svInfoParms) / sizeof(svInfoParms[0]);
+    portMissing("SV_ParseSurfaceParm", source: "oracle/codemp/qcommon/cm_shader.cpp:261")
+    var i: Int32
+
+    token = COM_ParseExt(&text, false)
+    // Port-note: A read of `numsvInfoParms`, a local the draft left as a hole.
+    // Raven wrote: for ( i = 0 ; i < numsvInfoParms ; i++ ) { if ( !Q_stricmp( token, svInfoParms[i].name ) ) { shader->surfaceFlags |= svInfoParms[i].surfaceFlags; shader->contentFlags |= svInfoParms[i].contents; shader->contentFlags &= svInfoParms[i].clearSolid; break; } }
     portMissing("SV_ParseSurfaceParm", source: "oracle/codemp/qcommon/cm_shader.cpp:261")
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:290
-// TODO: Port signature
-// Raven wrote: void SV_ParseMaterial( CCMShader *shader, const char **text )
-// No table row for `CCMShader * shader`.
-func SV_ParseMaterial() -> Never {
-    // TODO: Port SV_ParseMaterial
-    portMissing("SV_ParseMaterial", source: "oracle/codemp/qcommon/cm_shader.cpp:290")
+func SV_ParseMaterial(_ shader: CmShader, _ text: inout JKAShared.TextCursor) {
+    let token: String
+    var i: Int32
+
+    token = COM_ParseExt(&text, false)
+    if token.isEmpty {
+        Com_Printf(S_COLOR_YELLOW + "WARNING: missing material in shader '%s'\n", shader.shader)
+        return
+    }
+    i = 0
+    while i < MATERIAL_LAST {
+        if Q_stricmp(token, svMaterialNames[i]) == 0 {
+            shader.surfaceFlags |= i
+            break
+        }
+        i += 1
+    }
 }
 
 /**
@@ -137,12 +152,36 @@ ParseVector
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:316
-// TODO: Port signature
-// Raven wrote: static qboolean CM_ParseVector( CCMShader *shader, const char **text, int count, float *v )
-// No table row for `CCMShader * shader`.
-private func CM_ParseVector() -> Never {
-    // TODO: Port CM_ParseVector
-    portMissing("CM_ParseVector", source: "oracle/codemp/qcommon/cm_shader.cpp:316")
+private func CM_ParseVector(_ shader: CmShader, _ text: inout JKAShared.TextCursor, _ count: Int32, _ v: Slots<Float>) -> Bool {
+    var token: String
+    var i: Int32
+    // Raven assigns his own `v` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
+    var v = v
+
+    // FIXME: spaces are currently required after parens, should change parseext...
+    token = COM_ParseExt(&text, false)
+    if strcmp(token, "(") != 0 {
+        Com_Printf(S_COLOR_YELLOW + "WARNING: missing parenthesis in shader '%s'\n", shader.shader)
+        return false
+    }
+
+    i = 0
+    while i < count {
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing vector element in shader '%s'\n", shader.shader)
+            return false
+        }
+        v[i] = Float(atof(token))
+        i += 1
+    }
+
+    token = COM_ParseExt(&text, false)
+    if strcmp(token, ")") != 0 {
+        Com_Printf(S_COLOR_YELLOW + "WARNING: missing parenthesis in shader '%s'\n", shader.shader)
+        return false
+    }
+    return true
 }
 
 /**
@@ -160,12 +199,82 @@ be initialised.
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:361
-// TODO: Port signature
-// Raven wrote: static void CM_ParseShader( CCMShader *shader, const char **text )
-// No table row for `CCMShader * shader`.
-private func CM_ParseShader() -> Never {
-    // TODO: Port CM_ParseShader
-    portMissing("CM_ParseShader", source: "oracle/codemp/qcommon/cm_shader.cpp:361")
+private func CM_ParseShader(_ shader: CmShader, _ text: inout JKAShared.TextCursor) {
+    var token: String
+
+    token = COM_ParseExt(&text, true)
+    if CharBuf(token)[0] != Int32(ascii: "{") {
+        Com_Printf(S_COLOR_YELLOW + "WARNING: expecting '{', found '%s' instead in shader '%s'\n", token, shader.shader)
+        return
+    }
+
+    while true {
+        token = COM_ParseExt(&text, true)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: no concluding '}' in shader %s\n", shader.shader)
+            return
+        }
+
+        // end of shader definition
+        if CharBuf(token)[0] == Int32(ascii: "}") {
+            break
+        } else if CharBuf(token)[0] == Int32(ascii: "{") {
+            // stage definition
+            SkipBracedSection(&text)
+            continue
+        } else if Q_stricmp(token, "material") == 0 || Q_stricmp(token, "q3map_material") == 0 {
+            // material deprecated as of 11 Jan 01
+            // material undeprecated as of 7 May 01 - q3map_material deprecated
+            SV_ParseMaterial(shader, &text)
+        } else if Q_stricmp(token, "sun") == 0 || Q_stricmp(token, "q3map_sun") == 0 {
+            // sun parms
+            // q3map_sun deprecated as of 11 Jan 01
+            //			float	a, b;
+
+            token = COM_ParseExt(&text, false)
+            //			shader->sunLight[0] = atof( token );
+            token = COM_ParseExt(&text, false)
+            //			shader->sunLight[1] = atof( token );
+            token = COM_ParseExt(&text, false)
+            //			shader->sunLight[2] = atof( token );
+
+            //			VectorNormalize( shader->sunLight );
+
+            token = COM_ParseExt(&text, false)
+            //			a = atof( token );
+            //			VectorScale( shader->sunLight, a, shader->sunLight);
+
+            token = COM_ParseExt(&text, false)
+            //			a = DEG2RAD(atof( token ));
+
+            token = COM_ParseExt(&text, false)
+            //			b = DEG2RAD(atof( token ));
+
+            //			shader->sunDirection[0] = cos( a ) * cos( b );
+            //			shader->sunDirection[1] = sin( a ) * cos( b );
+            //			shader->sunDirection[2] = sin( b );
+        } else if Q_stricmp(token, "surfaceParm") == 0 {
+            SV_ParseSurfaceParm(shader, &text)
+            continue
+        } else if Q_stricmp(token, "fogParms") == 0 {
+            var fogColor = vec3_t()
+            // Port-note: Raven passes `fogColor` to `CM_ParseVector`, whose `v` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
+            // Raven wrote: if ( !CM_ParseVector( shader, text, 3, fogColor ) ) { return; }
+            portMissing("CM_ParseShader", source: "oracle/codemp/qcommon/cm_shader.cpp:361")
+
+            token = COM_ParseExt(&text, false)
+            if token.isEmpty {
+                Com_Printf(S_COLOR_YELLOW + "WARNING: missing parm for 'fogParms' keyword in shader '%s'\n", shader.shader)
+                continue
+            }
+            //			shader->depthForOpaque = atof( token );
+
+            // skip any old gradient directions
+            SkipRestOfLine(&text)
+            continue
+        }
+    }
+    return
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:466
@@ -199,20 +308,14 @@ func CM_ShutdownShaderProperties() {
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:498
-// TODO: Port signature
-// Raven wrote: CCMShader *CM_GetShaderInfo( const char *name )
-// No table row for the return `CCMShader *`.
-func CM_GetShaderInfo(_ name: String) -> Never {
+func CM_GetShaderInfo(_ name: String) -> CmShader? {
     // Port-note: The parameter tells the two C++ overloads apart, so the gate keeps this stub as a hand function.
     // TODO: Port CM_GetShaderInfo
     portMissing("CM_GetShaderInfo", source: "oracle/codemp/qcommon/cm_shader.cpp:498")
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:526
-// TODO: Port signature
-// Raven wrote: CCMShader *CM_GetShaderInfo( int shaderNum )
-// No table row for the return `CCMShader *`.
-func CM_GetShaderInfo(_ shaderNum: Int32) -> Never {
+func CM_GetShaderInfo(_ shaderNum: Int32) -> CmShader? {
     // Port-note: The parameter tells the two C++ overloads apart, so the gate keeps this stub as a hand function.
     // TODO: Port CM_GetShaderInfo
     portMissing("CM_GetShaderInfo", source: "oracle/codemp/qcommon/cm_shader.cpp:526")

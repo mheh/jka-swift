@@ -67,6 +67,9 @@ public struct VmSymbol: Hashable, HandleView {
         nonmutating set { self.raw.pointee.next = UnsafeMutablePointer(newValue?.handle) }
     }
 
+    /// Raven's `&next`, the slot of the field as the Slots of one optional view.
+    public var nextSlot: Slots<VmSymbol?> { Slots(pointers: UnsafeMutableRawPointer(self.raw.pointer(to: \.next)!), count: 1) }
+
     /// Source: oracle/codemp/qcommon/vm_local.h:103
     public var symValue: Int32 {
         get { self.raw.pointee.symValue }
@@ -82,12 +85,12 @@ public struct VmSymbol: Hashable, HandleView {
     /// Source: oracle/codemp/qcommon/vm_local.h:105
     public var symName: String {
         get { cString(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.symName)!)) }
-        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.symName)!), capacity: 1) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.symName)!), capacity: Int(JKAShared.MAX_TOKEN_CHARS)) }
     }
 
     /// Raven's `symName` as the buffer a callee writes into, for a `char *` parameter the port spells `inout CharBuf`.
     public var symNameBuffer: JKAShared.CharBuf {
-        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.symName)!), capacity: 1) }
-        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.symName)!), capacity: 1) }
+        get { charBuf(at: UnsafeMutableRawPointer(self.raw.pointer(to: \.symName)!), capacity: Int(JKAShared.MAX_TOKEN_CHARS)) }
+        nonmutating set { store(newValue, at: UnsafeMutableRawPointer(self.raw.pointer(to: \.symName)!), capacity: Int(JKAShared.MAX_TOKEN_CHARS)) }
     }
 }

@@ -44,7 +44,7 @@ func VM_StackTrace(_ vm: Vm, _ programCounter: Int32, _ programStack: Int32) {
     // Raven assigns his own `programStack` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var programStack = programStack
     // Raven reads the frame words through `vm->dataBase`, and the raw pointer over the field is that read, under rule 11.
-    let dataBase: UnsafeMutableRawPointer = UnsafeMutableRawPointer(vm.dataBase!)
+    let dataBase: UnsafeMutableRawPointer = vm.dataBase!.base
 
     count = 0
     repeat {
@@ -78,7 +78,7 @@ func VM_PrepareInterpreter(_ vm: Vm, _ header: VmHeader) {
     vm.codeBase = OpaquePointer(Hunk_Alloc(vm.codeLength * 4, h_high))			// we're now int aligned
 //	memcpy( vm->codeBase, (byte *)header + header->codeOffset, vm->codeLength );
     // Raven indexes `vm->instructionPointers` in place, and the Slots over the field's table is that index, under rule 11.
-    let instructionPointers = Slots<Int32>(scalars: UnsafeMutableRawPointer(vm.instructionPointers!), count: Int(vm.instructionPointersLength >> 2))
+    let instructionPointers = Slots<Int32>(scalars: vm.instructionPointers!.base, count: Int(vm.instructionPointersLength >> 2))
 
     // we don't need to translate the instructions, but we still need
     // to find each instructions starting point for jumps
@@ -177,10 +177,10 @@ func VM_CallInterpreted(_ vm: Vm, _ args: [Int32]?) -> Int32 {
     // set up the stack frame 
 
     // Raven reads the data image through `vm->dataBase` and the code through `vm->codeBase`, and the raw pointer over each field is that read, under rule 11.
-    image = UnsafeMutableRawPointer(vm.dataBase!)
+    image = vm.dataBase!.base
     codeImage = Slots<Int32>(scalars: UnsafeMutableRawPointer(vm.codeBase!), count: Int(vm.codeLength))
     // Raven indexes `vm->instructionPointers` in place, and the Slots over the field's table is that index, under rule 11.
-    let instructionPointers = Slots<Int32>(scalars: UnsafeMutableRawPointer(vm.instructionPointers!), count: Int(vm.instructionPointersLength >> 2))
+    let instructionPointers = Slots<Int32>(scalars: vm.instructionPointers!.base, count: Int(vm.instructionPointersLength >> 2))
     dataMask = vm.dataMask
 
     // leave a free spot at start of stack so

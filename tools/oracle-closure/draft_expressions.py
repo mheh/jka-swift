@@ -337,6 +337,9 @@ class Expressions:
             return True
         if cur.kind == CursorKind.DECL_REF_EXPR and cur.spelling in ("qtrue", "qfalse"):
             return True
+        if cur.kind == CursorKind.CXX_BOOL_LITERAL_EXPR or cur.type.get_canonical().kind == TypeKind.BOOL:
+            # The C++ `bool` of a host file is a Swift Bool, so a test reads it as it stands, `if !baseTime` of Sys_Milliseconds.
+            return True
         if cur.kind == CursorKind.CALL_EXPR and self.callee_returns(self.callee_name(cur) or "") == "Bool":
             return True
         return cur.type.spelling.replace("const ", "") == "qboolean"
@@ -411,6 +414,9 @@ class Expressions:
             if IDENTIFIER.fullmatch(text):
                 if text == "NULL":
                     return "nil"
+                if self.strip(cur).kind == CursorKind.CXX_BOOL_LITERAL_EXPR:
+                    # The C++ `true` and `false` of a host file are the Swift literals, `while ( true )` of CM_ParseShader.
+                    return text
                 if self.record_thunk(text) is not None:
                     # The unity parse leaves a second file's `static` of the same name unresolved, and the name is a stored function.
                     return self.record_thunk(text)

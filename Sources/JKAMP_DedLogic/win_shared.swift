@@ -60,10 +60,28 @@ Sys_SnapVector
 ```
 */
 /// Source: oracle/codemp/win32/win_shared.cpp:41
-func Sys_SnapVector(_ v: inout Float) {
-    // Port-note: Raven steps `float *v` over three floats, and the stub takes one `inout Float`, row "Sys_SnapVector vector" of the win round.
-    // TODO: Port Sys_SnapVector
-    portMissing("Sys_SnapVector", source: "oracle/codemp/win32/win_shared.cpp:41")
+func Sys_SnapVector(_ v: inout JKAShared.vec3_t) {
+    var i: Int32
+    var f: Float
+
+    // AI: Raven loads each float and stores it with the x87 `fld` and `fistp`, which round to the nearest integer and an even one on a tie.
+    // The body rounds each component the same way with `rounded(.toNearestOrEven)`.
+    f = v[0]
+    i = Int32(f.rounded(.toNearestOrEven))
+    v[0] = Float(i)
+    f = v[1]
+    i = Int32(f.rounded(.toNearestOrEven))
+    v[1] = Float(i)
+    f = v[2]
+    i = Int32(f.rounded(.toNearestOrEven))
+    v[2] = Float(i)
+    /*
+    *v = myftol(*v);
+    v++;
+    *v = myftol(*v);
+    v++;
+    *v = myftol(*v);
+    */
 }
 
 /**

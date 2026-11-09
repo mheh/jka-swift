@@ -2152,6 +2152,12 @@ class Table:
             return ("OpaquePointer?", "")
         if ruled == "row_index":
             return ("Int32?", "")
+        if ruled == "word":
+            # The module returns a pointer-wide word, the text of GAME_CLIENT_CONNECT, so the return keeps the whole word of the export.
+            return ("Int", "")
+        if ruled == "record" and cur.result_type.get_canonical().kind == TypeKind.RECORD:
+            # Raven returns the record by value, and the body returns the view of a record that lives past the call, a storage record or a table slot.
+            return (self.views.qualified_view(self.views.record_name(cur.result_type), TARGET), "")
         if ruled == "slot":
             # The address of one record pointer slot is the Slots of one optional view over it, the form of a `node_t **` field.
             record = self.views.record_name(cur.result_type.get_canonical().get_pointee().get_canonical().get_pointee())

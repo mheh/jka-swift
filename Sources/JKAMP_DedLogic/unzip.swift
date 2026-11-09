@@ -166,10 +166,7 @@ func unzClose(_ file: OpaquePointer?) -> Int32 {
 ```
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:528
-// TODO: Port signature
-// Raven wrote: extern int unzGetGlobalInfo (unzFile file,unz_global_info *pglobal_info)
-// No table row for `unz_global_info * pglobal_info`.
-func unzGetGlobalInfo() -> Never {
+func unzGetGlobalInfo(_ file: OpaquePointer?, _ pglobal_info: Unz_global_info) -> Int32 {
     // TODO: Port unzGetGlobalInfo
     portMissing("unzGetGlobalInfo", source: "oracle/codemp/qcommon/unzip.cpp:528")
 }
@@ -180,10 +177,7 @@ func unzGetGlobalInfo() -> Never {
 ```
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:542
-// TODO: Port signature
-// Raven wrote: static void unzlocal_DosDateToTmuDate (uLong ulDosDate, tm_unz* ptm)
-// No table row for `tm_unz * ptm`.
-private func unzlocal_DosDateToTmuDate() -> Never {
+private func unzlocal_DosDateToTmuDate(_ ulDosDate: CUnsignedLong, _ ptm: Tm_unz) {
     // TODO: Port unzlocal_DosDateToTmuDate
     portMissing("unzlocal_DosDateToTmuDate", source: "oracle/codemp/qcommon/unzip.cpp:542")
 }
@@ -194,10 +188,7 @@ private func unzlocal_DosDateToTmuDate() -> Never {
 ```
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:558
-// TODO: Port signature
-// Raven wrote: static int unzlocal_GetCurrentFileInfoInternal (unzFile file, unz_file_info *pfile_info, unz_file_info_internal *pfile_info_internal, char *szFileName, uLong fileNameBufferSize, void *extraField, uLong extraFieldBufferSize, char *szComment, uLong commentBufferSize)
-// No table row for `unz_file_info * pfile_info`.
-private func unzlocal_GetCurrentFileInfoInternal() -> Never {
+private func unzlocal_GetCurrentFileInfoInternal(_ file: OpaquePointer?, _ pfile_info: Unz_file_info, _ pfile_info_internal: Unz_file_info_internal?, _ szFileName: inout JKAShared.CharBuf, _ fileNameBufferSize: CUnsignedLong, _ extraField: OpaquePointer?, _ extraFieldBufferSize: CUnsignedLong, _ szComment: inout JKAShared.CharBuf, _ commentBufferSize: CUnsignedLong) -> Int32 {
     // TODO: Port unzlocal_GetCurrentFileInfoInternal
     portMissing("unzlocal_GetCurrentFileInfoInternal", source: "oracle/codemp/qcommon/unzip.cpp:558")
 }
@@ -210,10 +201,7 @@ private func unzlocal_GetCurrentFileInfoInternal() -> Never {
 ```
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:722
-// TODO: Port signature
-// Raven wrote: extern int unzGetCurrentFileInfo ( unzFile file, unz_file_info *pfile_info, char *szFileName, uLong fileNameBufferSize, void *extraField, uLong extraFieldBufferSize, char *szComment, uLong commentBufferSize)
-// No table row for `unz_file_info * pfile_info`.
-func unzGetCurrentFileInfo() -> Never {
+func unzGetCurrentFileInfo(_ file: OpaquePointer?, _ pfile_info: Unz_file_info?, _ szFileName: inout JKAShared.CharBuf, _ fileNameBufferSize: CUnsignedLong, _ extraField: OpaquePointer?, _ extraFieldBufferSize: CUnsignedLong, _ szComment: inout JKAShared.CharBuf, _ commentBufferSize: CUnsignedLong) -> Int32 {
     // TODO: Port unzGetCurrentFileInfo
     portMissing("unzGetCurrentFileInfo", source: "oracle/codemp/qcommon/unzip.cpp:722")
 }
@@ -293,10 +281,7 @@ func unzLocateFile(_ file: OpaquePointer?, _ szFileName: String, _ iCaseSensitiv
 ```
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:877
-// TODO: Port signature
-// Raven wrote: static int unzlocal_CheckCurrentFileCoherencyHeader (unz_s* s, uInt* piSizeVar, uLong *poffset_local_extrafield, uInt *psize_local_extrafield)
-// No table row for `unz_s * s`.
-private func unzlocal_CheckCurrentFileCoherencyHeader() -> Never {
+private func unzlocal_CheckCurrentFileCoherencyHeader(_ s: UnzS, _ piSizeVar: inout UInt32, _ poffset_local_extrafield: inout CUnsignedLong, _ psize_local_extrafield: inout UInt32) -> Int32 {
     // TODO: Port unzlocal_CheckCurrentFileCoherencyHeader
     portMissing("unzlocal_CheckCurrentFileCoherencyHeader", source: "oracle/codemp/qcommon/unzip.cpp:877")
 }
@@ -326,7 +311,7 @@ func unzOpenCurrentFile(_ file: OpaquePointer?) -> Int32 {
 ```
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:1050
-func unzReadCurrentFile(_ file: OpaquePointer?, _ buf: OpaquePointer?, _ len: UInt32) -> Int32 {
+func unzReadCurrentFile(_ file: OpaquePointer?, _ buf: Slots<JKAShared.byte>, _ len: UInt32) -> Int32 {
     // TODO: Port unzReadCurrentFile
     portMissing("unzReadCurrentFile", source: "oracle/codemp/qcommon/unzip.cpp:1050")
 }

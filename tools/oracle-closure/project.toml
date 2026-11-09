@@ -78,20 +78,29 @@ rust = [
 ]
 store = "tools/oracle-closure/out/mp-engine-ded/table.sqlite"
 # The files of the link set that the skeleton writes no stub for in this stage, by the rows under the srcglob of the unit.
+# Stage E5 gives stubs to the Ghoul2 files and the renderer files of the dedicated build, WinDed.vcproj:301-425, whose DEDICATED arms Raven compiles.
+# It also gives stubs to cm_terrain.cpp and RM_Manager.cpp, the files that define CCMLandScape and TheRandomMissionManager of cm_load.cpp:800 to :809.
 deferred = [
     "codemp/renderer/*.c",
-    "codemp/renderer/*.cpp",
     "codemp/png/*.cpp",
     "codemp/zlib32/*.cpp",
     "codemp/qcommon/RoffSystem.cpp",
     "codemp/qcommon/cm_draw.cpp",
     "codemp/qcommon/cm_randomterrain.cpp",
-    "codemp/qcommon/cm_terrain.cpp",
-    "codemp/ghoul2/*.cpp",
     "codemp/server/NPCNav/*.cpp",
     "codemp/botlib/*.cpp",
     "codemp/icarus/*.cpp",
-    "codemp/RMG/*.cpp",
+    "codemp/RMG/RM_Area.cpp",
+    "codemp/RMG/RM_Instance.cpp",
+    "codemp/RMG/RM_Instance_BSP.cpp",
+    "codemp/RMG/RM_Instance_Group.cpp",
+    "codemp/RMG/RM_Instance_Random.cpp",
+    "codemp/RMG/RM_Instance_Void.cpp",
+    "codemp/RMG/RM_InstanceFile.cpp",
+    "codemp/RMG/RM_Mission.cpp",
+    "codemp/RMG/RM_Objective.cpp",
+    "codemp/RMG/RM_Path.cpp",
+    "codemp/RMG/RM_Terrain.cpp",
 ]
 
 [output]
@@ -399,6 +408,13 @@ defines = [
     # WinDed has no PATH_MAX, so MAX_OSPATH of q_shared.h:394 is 256, row S4. The macOS SDK defines PATH_MAX in sys/syslimits.h alone,
     # so the host parse takes that header's guard, and every triple sees no PATH_MAX.
     "_SYS_SYSLIMITS_H_",
+    # WinDed defines WIN32, and q_shared.h:178 gives PATH_SEP under it. The host parse defines no WIN32, so it takes WinDed's value here,
+    # the form of the mp-renderer row, and `*s = PATH_SEP` of files_common.cpp:282 parses as the store it is.
+    "PATH_SEP='\\\\'",
+    # win_net.cpp:27 to :29 declare the sockets as Winsock's SOCKET with INVALID_SOCKET, which the host parse lacks, so the writes of NET_OpenIP parse.
+    # The values are the ones of SysBackend.swift, an int descriptor and -1.
+    "SOCKET=int",
+    "INVALID_SOCKET=(-1)",
 ]
 flags = [
     "-fdeclspec",

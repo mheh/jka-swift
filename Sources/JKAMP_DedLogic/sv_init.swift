@@ -449,9 +449,7 @@ func SV_SpawnServer(_ server: String, _ killBots: Bool, _ eForceReload: JKAMP.Fo
 
     SV_SendMapChange()
 
-    // Port-note: Row S1. RE_RegisterMedia_LevelLoadBegin of tr_model.cpp has no Swift home, because row E5 makes the renderer files a later port stage.
-    // Raven wrote: RE_RegisterMedia_LevelLoadBegin(server, eForceReload)
-    portMissing("SV_SpawnServer", source: "oracle/codemp/server/sv_init.cpp:472")
+    RE_RegisterMedia_LevelLoadBegin(server, eForceReload)
 
     // shut down the existing game if it is running
     SV_ShutdownGameProgs()
@@ -490,12 +488,8 @@ func SV_SpawnServer(_ server: String, _ killBots: Bool, _ eForceReload: JKAMP.Fo
     Hunk_Clear()
 
 
-    // Port-note: Row S1. R_InitSkins of tr_image.cpp has no Swift home, because row E5 makes the renderer files a later port stage.
-    // Raven wrote: R_InitSkins()
-    portMissing("SV_SpawnServer", source: "oracle/codemp/server/sv_init.cpp:472")
-    // Port-note: Row S1. R_InitShaders of tr_shader.cpp has no Swift home, because row E5 makes the renderer files a later port stage.
-    // Raven wrote: R_InitShaders(qtrue)
-    portMissing("SV_SpawnServer", source: "oracle/codemp/server/sv_init.cpp:472")
+    R_InitSkins()
+    R_InitShaders(true)
 
     //Useful for memory debugging.  Please don't delete.  Comment out if
     //necessary.
@@ -531,9 +525,7 @@ func SV_SpawnServer(_ server: String, _ killBots: Bool, _ eForceReload: JKAMP.Fo
     else
     */
     if com_dedicated!.integer != 0 {
-        // Port-note: Row S1. R_SVModelInit of tr_model.cpp has no Swift home, because row E5 makes the renderer files a later port stage.
-        // Raven wrote: R_SVModelInit()
-        portMissing("SV_SpawnServer", source: "oracle/codemp/server/sv_init.cpp:472")
+        R_SVModelInit()
     }
 
     SV_SendMapChange()
@@ -575,9 +567,7 @@ func SV_SpawnServer(_ server: String, _ killBots: Bool, _ eForceReload: JKAMP.Fo
     }
 
     //rww - RAGDOLL_BEGIN
-    // Port-note: Row S1. G2API_SetTime of G2_API.cpp has no Swift home, because row E5 makes Ghoul2 a later port stage.
-    // Raven wrote: G2API_SetTime(svs.time,0)
-    portMissing("SV_SpawnServer", source: "oracle/codemp/server/sv_init.cpp:472")
+    G2API_SetTime(svs.time, 0)
     //rww - RAGDOLL_END
 
     // make sure we are not paused
@@ -624,9 +614,7 @@ func SV_SpawnServer(_ server: String, _ killBots: Bool, _ eForceReload: JKAMP.Fo
     i = 0
     while i < 3 {
         //rww - RAGDOLL_BEGIN
-        // Port-note: Row S1. G2API_SetTime of G2_API.cpp has no Swift home, because row E5 makes Ghoul2 a later port stage.
-        // Raven wrote: G2API_SetTime(svs.time,0)
-        portMissing("SV_SpawnServer", source: "oracle/codemp/server/sv_init.cpp:472")
+        G2API_SetTime(svs.time, 0)
         //rww - RAGDOLL_END
         VM_Call(gvm!, GAME_RUN_FRAME, svs.time)
         SV_BotFrame(svs.time)
@@ -634,9 +622,7 @@ func SV_SpawnServer(_ server: String, _ killBots: Bool, _ eForceReload: JKAMP.Fo
         i += 1
     }
     //rww - RAGDOLL_BEGIN
-    // Port-note: Row S1. G2API_SetTime of G2_API.cpp has no Swift home, because row E5 makes Ghoul2 a later port stage.
-    // Raven wrote: G2API_SetTime(svs.time,0)
-    portMissing("SV_SpawnServer", source: "oracle/codemp/server/sv_init.cpp:472")
+    G2API_SetTime(svs.time, 0)
     //rww - RAGDOLL_END
 
     // create a baseline for more efficient communications
@@ -660,9 +646,7 @@ func SV_SpawnServer(_ server: String, _ killBots: Bool, _ eForceReload: JKAMP.Fo
             }
 
             // connect the client again
-            // Port-note: Row S3. VM_ExplicitArgPtr carries a signature marker, so the text that GAME_CLIENT_CONNECT returns has no form.
-            // Raven wrote: denied = (char *)VM_ExplicitArgPtr( gvm, VM_Call( gvm, GAME_CLIENT_CONNECT, i, qfalse, isBot ) );	// firstTime = qfalse
-            portMissing("SV_SpawnServer", source: "oracle/codemp/server/sv_init.cpp:472")
+            denied = VM_ExplicitArgPtr(gvm!, VM_Call(gvm!, GAME_CLIENT_CONNECT, i, false, isBot)) // firstTime = qfalse
             if denied != nil {
                 // this generally shouldn't happen, because the client
                 // was connected before the level change
@@ -697,9 +681,7 @@ func SV_SpawnServer(_ server: String, _ killBots: Bool, _ eForceReload: JKAMP.Fo
     SV_BotFrame(svs.time)
     svs.time += 100
     //rww - RAGDOLL_BEGIN
-    // Port-note: Row S1. G2API_SetTime of G2_API.cpp has no Swift home, because row E5 makes Ghoul2 a later port stage.
-    // Raven wrote: G2API_SetTime(svs.time,0)
-    portMissing("SV_SpawnServer", source: "oracle/codemp/server/sv_init.cpp:472")
+    G2API_SetTime(svs.time, 0)
     //rww - RAGDOLL_END
 
     if sv_pure!.integer != 0 {
@@ -827,7 +809,7 @@ func SV_Init() {
 
     // Only allocated once, no point in moving it around and fragmenting
     // create a heap for Ghoul2 to use for game side model vertex transforms used in collision detection
-    // Port-note: Row S1. G2VertSpaceServer and CMiniHeap_singleton of tr_init.cpp have no Swift home, because row E5 makes the renderer files and Ghoul2 a later port stage.
+    // Port-note: Row S1. G2VertSpaceServer and CMiniHeap_singleton of tr_init.cpp are a `CMiniHeap *` and a `CMiniHeap` of the C++ track, so the stem of stage E5 gives them no storage.
     // Raven wrote: G2VertSpaceServer = &CMiniHeap_singleton
     portMissing("SV_Init", source: "oracle/codemp/server/sv_init.cpp:803")
 }

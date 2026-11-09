@@ -123,6 +123,9 @@ class Generator:
                     definition = decl.get_definition()
                     if definition is not None:
                         self.records.setdefault(cur.spelling, definition)
+                elif decl.kind == CursorKind.UNION_DECL and cur.spelling in UNIT_ROOTS and decl.get_definition() is not None:
+                    # A named union a root row names, `qfile_gut` of files.h:71, takes a view as a struct does.
+                    self.records.setdefault(cur.spelling, decl.get_definition())
                 elif decl.kind == CursorKind.ENUM_DECL:
                     self.enums.add(cur.spelling)
             elif cur.kind == CursorKind.ENUM_DECL and cur.is_definition() and cur.spelling and not cur.spelling.startswith("enum ("):
@@ -172,6 +175,9 @@ class Generator:
                 self.unnamed_of[name] = (owner, f"{path}.{field.spelling}" if path else field.spelling)
                 self.records[name] = decl
                 self.reach(name, self.view_name(name), target)
+                continue
+            if FIELDS.get((c_name, field.spelling)) == "opaque":
+                # The field holds a handle of the C library, the `FILE *` of `qfile_gut.o`, so the walk reaches no view through it.
                 continue
             self.reach_type(field.type)
 
@@ -305,6 +311,10 @@ class Generator:
             # The view's own `handle` and `raw` take these names under rule 11, so a field so named that a body reads takes the FIELD_NAMES name.
             renamed = FIELD_NAMES.get((self.owner_of(field), name))
             swift = self.types.scalar(t, target) if renamed else None
+            if renamed and swift is None and canonical.kind == TypeKind.POINTER and canonical.get_pointee().get_canonical().kind == TypeKind.VOID:
+                # A `void *` handle so named, the zip handle `pack->handle` of files.h:46, reads as the handle under the FIELD_NAMES name.
+                return [f"    // AI: Raven names the field `{name}`. The view's own slot pointer takes that name, so the field reads as `{renamed}`."] \
+                    + self.property(renamed, "OpaquePointer?", f"OpaquePointer({pointee})", f"{pointee} = UnsafeMutableRawPointer(newValue)")
             if swift is None:
                 # The engine writes a field so named, and no module body reads it.
                 return [f"    // Raven's `{name}` field is the engine's, and the view's own `{name}` takes the name. No module body reads it."]
@@ -328,8 +338,17 @@ class Generator:
                 if self.never_null(field):
                     get = f"{view}(handle: OpaquePointer({pointee}!))"
                     return self.trapping(name, view, get, f"{pointee} = UnsafeMutablePointer(newValue.handle)") + self.slots(field, view, self.c_name_of(inner), target)
-                return self.property(name, f"{view}?", f"{pointee}.map {{ {view}(handle: OpaquePointer($0)) }}",
-                                     f"{pointee} = UnsafeMutablePointer(newValue?.handle)") + self.slots(field, view, self.c_name_of(inner), target)
+                lines = self.property(name, f"{view}?", f"{pointee}.map {{ {view}(handle: OpaquePointer($0)) }}",
+                                      f"{pointee} = UnsafeMutablePointer(newValue?.handle)") + self.slots(field, view, self.c_name_of(inner), target)
+                if FIELDS.get((self.owner_of(field), name)) == "slot":
+                    # Raven takes the address of the pointer field, `prev = &sym->next` of vm.cpp:302, so a second accessor reads that address
+                    # as the Slots of one optional view over the field, the form of a `T **` field of kind `slot`.
+                    lines += [
+                        "",
+                        f"    /// Raven's `&{name}`, the slot of the field as the Slots of one optional view.",
+                        f"    public var {name}Slot: Slots<{view}?> {{ Slots(pointers: UnsafeMutableRawPointer(self.raw.pointer(to: \\.{name})!), count: 1) }}",
+                    ]
+                return lines
             ruled = FIELDS.get((self.owner_of(field), name))
             if ruled == "bytes" and inner.get_canonical().kind == TypeKind.UCHAR:
                 # The field holds the base of a byte buffer a body indexes, `cmd_text.data[i]`, so it reads as a Slots over the bytes.
@@ -337,6 +356,12 @@ class Generator:
                 count, _ = self.slots_count(field, target)
                 return self.property(name, "Slots<JKAShared.byte>?", f"{pointee}.map {{ Slots(scalars: UnsafeMutableRawPointer($0), count: {count}) }}",
                                      f"{pointee} = newValue?.base.assumingMemoryBound(to: UInt8.self)")
+            if ruled == "bytes" and inner.get_canonical().kind == TypeKind.INT:
+                # An `int *` field a body indexes, `cm->leafbrushes[i]` of cm_test.cpp and `vm->instructionPointers[value]` of vm.cpp,
+                # reads as a Slots over the words by the same rule, the widest count and the base of the assigned Slots on a store.
+                count, _ = self.slots_count(field, target)
+                return self.property(name, "Slots<Int32>?", f"{pointee}.map {{ Slots(scalars: UnsafeMutableRawPointer($0), count: {count}) }}",
+                                     f"{pointee} = newValue?.base.assumingMemoryBound(to: Int32.self)")
             if ruled == "slot" and inner.get_canonical().kind == TypeKind.POINTER:
                 # The field holds the address of one record pointer slot, so it reads as the Slots of one optional view over that slot.
                 # Two records that hold one address share the slot, as Raven's nodes of one block share their `head`.
@@ -345,6 +370,19 @@ class Generator:
                     view = self.qualified_view(record, target)
                     c_name = self.c_name_of(inner.get_canonical().get_pointee())
                     return self.property(name, f"Slots<{view}?>?", f"{pointee}.map {{ Slots(pointers: UnsafeMutableRawPointer($0), count: 1) }}",
+                                         f"{pointee} = newValue?.base.assumingMemoryBound(to: UnsafeMutablePointer<{c_name}>?.self)")
+            if ruled == "opaque":
+                # The field holds a handle of the C library, the stream of `qfile_gut.o`, which the view hands on as it is.
+                return self.property(name, "OpaquePointer?", f"OpaquePointer({pointee})", f"{pointee} = UnsafeMutablePointer(newValue)")
+            if ruled == "pointer_table" and inner.get_canonical().kind == TypeKind.POINTER:
+                # The field holds the base of an array of record pointers a body indexes, `pack->hashTable[hash]`, so it reads as a Slots of optional views.
+                # C gives the pointer no bound, so the Slots takes the widest count.
+                record = self.types.record_name(inner.get_canonical().get_pointee())
+                if record and record in self.views:
+                    view = self.qualified_view(record, target)
+                    c_name = self.c_name_of(inner.get_canonical().get_pointee())
+                    count, _ = self.slots_count(field, target)
+                    return self.property(name, f"Slots<{view}?>?", f"{pointee}.map {{ Slots(pointers: UnsafeMutableRawPointer($0), count: {count}) }}",
                                          f"{pointee} = newValue?.base.assumingMemoryBound(to: UnsafeMutablePointer<{c_name}>?.self)")
             if ruled == "raw" and inner.get_canonical().kind == TypeKind.VOID:
                 # The field holds one of several records, and a body views the record it holds through the cast Raven wrote.
@@ -474,7 +512,10 @@ class Generator:
         return self._exported[target]
 
     def bound(self, field: ci.Cursor, target: str, index: int, fallback: int) -> str:
-        """The array bound as Raven spelled it, `Int(JKAShared.MAX_QPATH)` for a macro a module exports, or the number when it is not one."""
+        """The array bound as Raven spelled it, `Int(JKAShared.MAX_QPATH)` for a macro a module exports, or the number when it is not one.
+        A SLOT_BOUNDS row bounds a char array field that Raven allocates past its C size, `char symName[1]` of vmSymbol_t."""
+        if index == 0 and (self.owner_of(field), field.spelling) in SLOT_BOUNDS:
+            return self.slots_count(field, target)[0]
         tokens = [t.spelling for t in field.get_tokens()]
         brackets = []
         for i, t in enumerate(tokens):

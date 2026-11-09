@@ -297,6 +297,12 @@ class Calls:
     def inout_positions(self, name: str) -> set[int]:
         return {i for i, (_, swift) in enumerate(self.callee_params(name)) if swift.startswith("inout ")}
 
+    @staticmethod
+    def declared_element(t: ci.Type) -> ci.Type:
+        """The element type of an array field as Raven declared it, which keeps a typedef that TYPES names.
+        A field whose declared type is a typedef of an array, `byte sys_packetReceived[...]` behind a typedef, has its element on the canonical array."""
+        return t.element_type if t.kind in (TypeKind.CONSTANTARRAY, TypeKind.INCOMPLETEARRAY) else t.get_canonical().element_type
+
     def argument(self, cur: ci.Cursor, inout: bool, param: tuple[str, str] | None = None, callee: str | None = None, position: int = 0) -> str:
         inner = self.strip(cur)
         spelled = " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split())
@@ -422,8 +428,8 @@ class Calls:
                 and inner.referenced.type.get_canonical().kind == TypeKind.CONSTANTARRAY \
                 and inner.referenced.type.get_canonical().element_type.kind != TypeKind.RECORD \
                 and param[1].replace("JKAShared.", "").removesuffix("?").removeprefix("Slots<").removesuffix(">") \
-                in (inner.referenced.type.element_type.spelling, SCALARS.get(inner.referenced.type.element_type.get_canonical().kind),
-                    self.types.fixed(inner.referenced.type.element_type)):
+                in (self.declared_element(inner.referenced.type).spelling, SCALARS.get(self.declared_element(inner.referenced.type).get_canonical().kind),
+                    self.types.fixed(self.declared_element(inner.referenced.type))):
             # The scalar array field of a view reads as its Slots, `cgs.gameModels`, and the callee takes the Slots of that scalar.
             # A TYPES typedef keeps its spelling, so `context->state` of `UINT4 state[4]` passes to a `Slots<UInt32>`.
             return text

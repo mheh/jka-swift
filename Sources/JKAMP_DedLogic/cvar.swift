@@ -34,10 +34,10 @@ var cvar_numIndexes: Int32 {
 }
 
 /// Source: oracle/codemp/qcommon/cvar.cpp:14
-let FILE_HASH_SIZE = 256 as Int32
+private let FILE_HASH_SIZE = 256 as Int32
 
 /// Source: oracle/codemp/qcommon/cvar.cpp:15
-var hashTable: Slots<JKAMP.Cvar?> { world.storage.hashTable }
+private var hashTable: Slots<JKAMP.Cvar?> { world.storage.cvar_hashTable }
 
 /// Source: oracle/codemp/qcommon/cvar.cpp:20
 var lastMemPool: String {

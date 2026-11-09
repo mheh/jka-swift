@@ -35,6 +35,9 @@ import JKAShared
 // TODO: Port HWND
 // Raven wrote: #define HWND void *
 
+// TODO: Port INVALID_SOCKET
+// Raven wrote: #define INVALID_SOCKET ( - 1 )
+
 // TODO: Port LPCTSTR
 // Raven wrote: #define LPCTSTR const char *
 
@@ -43,6 +46,12 @@ import JKAShared
 
 // TODO: Port OSVERSIONINFO
 // Raven wrote: #define OSVERSIONINFO struct { unsigned int dwOSVersionInfoSize ; unsigned int dwMajorVersion ; unsigned int dwMinorVersion ; unsigned int dwBuildNumber ; unsigned int dwPlatformId ; char szCSDVersion [ 128 ] ; }
+
+// Raven wrote: #define PATH_SEP '\\'
+// Not ported: the hand PATH_SEP of Sources/JKAMP_Ded/FileBackend.swift, the separator of the platform that builds.
+
+// TODO: Port SOCKET
+// Raven wrote: #define SOCKET int
 
 // TODO: Port UINT
 // Raven wrote: #define UINT unsigned int

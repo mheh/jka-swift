@@ -20,14 +20,16 @@ let c_totalPatchSurfaces: Int32 = 0
 let c_totalPatchEdges: Int32 = 0
 
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:89
-// TODO: Port global debugPatchCollide
-// Raven wrote: static const patchCollide_t *debugPatchCollide
-// No table row for `const patchCollide_t *`.
+var debugPatchCollide: PatchCollide? {
+    get { world.variables.debugPatchCollide }
+    set { world.variables.debugPatchCollide = newValue }
+}
 
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:90
-// TODO: Port global debugFacet
-// Raven wrote: static const facet_t *debugFacet
-// No table row for `const facet_t *`.
+var debugFacet: Facet? {
+    get { world.variables.debugFacet }
+    set { world.variables.debugFacet = newValue }
+}
 
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:91
 var debugBlock: Bool {
@@ -51,14 +53,13 @@ var numPlanes: Int32 {
 }
 
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:431
-// TODO: Port global planes
-// Raven wrote: static patchPlane_t planes[MAX_PATCH_PLANES]
-// No view for `patchPlane_t` of `cm_patch.h`.
+var planes: Slots<PatchPlane> { world.storage.planes }
 
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:435
-// TODO: Port global facets
-// Raven wrote: static facet_t *facets = NULL
-// No table row for `facet_t *`.
+var facets: Facet? {
+    get { world.variables.facets }
+    set { world.variables.facets = newValue }
+}
 
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:437
 let NORMAL_EPSILON = 0.0001 as Double
@@ -221,10 +222,7 @@ private func CM_RemoveDegenerateColumns() -> Never {
 }
 
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:440
-// TODO: Port signature
-// Raven wrote: static inline int CM_PlaneEqual(patchPlane_t *p, float plane[4], int *flipped)
-// No table row for `patchPlane_t * p`.
-private func CM_PlaneEqual() -> Never {
+private func CM_PlaneEqual(_ p: PatchPlane, _ plane: [Float], _ flipped: inout Int32) -> Int32 {
     // TODO: Port CM_PlaneEqual
     portMissing("CM_PlaneEqual", source: "oracle/codemp/qcommon/cm_patch.cpp:440")
 }
@@ -302,7 +300,7 @@ CM_SetBorderInward
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:675
 // TODO: Port signature
 // Raven wrote: static inline void CM_SetBorderInward( facet_t *facet, cGrid_t *grid, int gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2], int i, int j, int which )
-// No table row for `facet_t * facet`.
+// No table row for `cGrid_t * grid`.
 private func CM_SetBorderInward() -> Never {
     // TODO: Port CM_SetBorderInward
     portMissing("CM_SetBorderInward", source: "oracle/codemp/qcommon/cm_patch.cpp:675")
@@ -318,10 +316,7 @@ If the facet isn't bounded by its borders, we screwed up.
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:755
-// TODO: Port signature
-// Raven wrote: static inline qboolean CM_ValidateFacet( facet_t *facet )
-// No table row for `facet_t * facet`.
-private func CM_ValidateFacet() -> Never {
+private func CM_ValidateFacet(_ facet: Facet) -> Bool {
     // TODO: Port CM_ValidateFacet
     portMissing("CM_ValidateFacet", source: "oracle/codemp/qcommon/cm_patch.cpp:755")
 }
@@ -334,10 +329,7 @@ CM_AddFacetBevels
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:807
-// TODO: Port signature
-// Raven wrote: static inline void CM_AddFacetBevels( facet_t *facet )
-// No table row for `facet_t * facet`.
-private func CM_AddFacetBevels() -> Never {
+private func CM_AddFacetBevels(_ facet: Facet) {
     // TODO: Port CM_AddFacetBevels
     portMissing("CM_AddFacetBevels", source: "oracle/codemp/qcommon/cm_patch.cpp:807")
 }
@@ -371,10 +363,7 @@ Points is packed as concatenated rows.
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:1163
-// TODO: Port signature
-// Raven wrote: struct patchCollide_s *CM_GeneratePatchCollide( int width, int height, vec3_t *points )
-// No table row for the return `struct patchCollide_s *`.
-func CM_GeneratePatchCollide() -> Never {
+func CM_GeneratePatchCollide(_ width: Int32, _ height: Int32, _ points: inout JKAShared.vec3_t) -> PatchCollide? {
     // TODO: Port CM_GeneratePatchCollide
     portMissing("CM_GeneratePatchCollide", source: "oracle/codemp/qcommon/cm_patch.cpp:1163")
 }

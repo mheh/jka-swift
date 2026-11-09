@@ -26,22 +26,6 @@ public final class EngineWorld {
 
     // MARK: - Raven's data tables
 
-    // MARK: - cm_load.cpp
-
-    /// Raven's `clipMap_t cmg` of `cm_load.cpp`, the clip map of the world BSP.
-    /// Source: oracle/codemp/qcommon/cm_load.cpp:37
-    // AI: Raven's `cmg` is a C global with no generated view. The world owns one zeroed record of the hand view `ClipMap`.
-    let cmg = ClipMap.record()
-
-    /// Raven's `clipMap_t SubBSP[MAX_SUB_BSP]` of `cm_load.cpp`, the clip maps of the sub BSPs.
-    /// Source: oracle/codemp/qcommon/cm_load.cpp:60
-    // AI: Raven's `SubBSP` is a C global array with no generated view. The world owns one zeroed table of the hand view `ClipMap`.
-    let SubBSP = ClipMap.records(count: Int(MAX_SUB_BSP))
-
-    /// Raven's `cbrush_t *box_brush` of `cm_load.cpp`, the brush of the temporary box model.
-    /// Source: oracle/codemp/qcommon/cm_load.cpp:52
-    var box_brush: Cbrush? = nil
-
     // MARK: - cm_shader.cpp
 
     /// Raven's `CHash<CCMShaderText> shaderTextTable` of `cm_shader.cpp`, the name of each shader block to the byte offset of its text in `shaderText`.
@@ -106,21 +90,17 @@ public final class EngineWorld {
     /// Source: oracle/codemp/qcommon/common.cpp:252
     var errorCount: Int32 = 0
 
+    /// Raven's `static int printedWarning` of `Com_PushEvent` in `common.cpp`.
+    /// Source: oracle/codemp/qcommon/common.cpp:852
+    var printedWarning: Int32 = 0
+
+    /// Raven's `static int seed` of the SE_PACKET arm of `Com_EventLoop` in `common.cpp`.
+    /// Source: oracle/codemp/qcommon/common.cpp:986
+    var seed_Com_EventLoop: Int32 = 0
+
     /// Raven's `static int lastTime` of `Com_Frame` in `common.cpp`.
     /// Source: oracle/codemp/qcommon/common.cpp:1601
     var lastTime: Int32 = 0
-
-    // MARK: - files_common.cpp
-
-    /// Raven's `searchpath_t *fs_searchpaths` of `files_common.cpp`, the head of the search path, nil before FS_Startup.
-    /// Source: oracle/codemp/qcommon/files_common.cpp:193
-    // AI: Raven keeps fs_searchpaths at file scope, and the table has no row for `searchpath_t *`. The world holds the hand view.
-    var fs_searchpaths: Searchpath? = nil
-
-    /// Raven's `fileHandleData_t fsh[MAX_FILE_HANDLES]` of `files_common.cpp`.
-    /// Source: oracle/codemp/qcommon/files_common.cpp:202
-    // AI: Raven keeps fsh at file scope, and fileHandleData_t has no generated view. The world owns one zeroed table of the hand view.
-    let fsh = FileHandleData.table(count: MAX_FILE_HANDLES)
 
     // MARK: - net_chan.cpp
 
@@ -182,6 +162,57 @@ public final class EngineWorld {
         "SABER DEFENSE",//FP_SABER_DEFENSE
         "SABER THROW",//FP_SABERTHROW
     ]
+
+    // MARK: - tr_model.cpp
+
+    /// Raven's `static const byte FakeGLAFile[]` of `tr_model.cpp`, the GLA file that RE_RegisterModels_GetDiskFile hands out for `*default.gla`.
+    /// Source: oracle/codemp/renderer/tr_model.cpp:95
+    var FakeGLAFile: [JKAShared.byte] = [
+        0x32, 0x4C, 0x47, 0x41, 0x06, 0x00, 0x00, 0x00, 0x2A, 0x64, 0x65, 0x66, 0x61, 0x75, 0x6C, 0x74,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x3F, 0x01, 0x00, 0x00, 0x00,
+        0x14, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x18, 0x01, 0x00, 0x00, 0x68, 0x00, 0x00, 0x00,
+        0x26, 0x01, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x4D, 0x6F, 0x64, 0x56, 0x69, 0x65, 0x77, 0x20,
+        0x69, 0x6E, 0x74, 0x65, 0x72, 0x6E, 0x61, 0x6C, 0x20, 0x64, 0x65, 0x66, 0x61, 0x75, 0x6C, 0x74,
+        0x00, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD,
+        0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD,
+        0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF,
+        0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFD, 0xBF, 0xFE, 0x7F, 0xFE, 0x7F, 0xFE, 0x7F,
+        0x00, 0x80, 0x00, 0x80, 0x00, 0x80
+    ]
+
+    // MARK: - tr_shader.cpp
+
+    // AI: Raven fills the table with LIGHTMAP_NONE of tr_local.h:434, which has no re-export in the host target. The table holds its value, -1.
+    /// Raven's `const int lightmapsNone[MAXLIGHTMAPS]` of `tr_shader.cpp`.
+    /// Source: oracle/codemp/renderer/tr_shader.cpp:125
+    var lightmapsNone: [Int32] = [-1, -1, -1, -1]
+
+    // AI: Raven fills the table with LIGHTMAP_2D of tr_local.h:431, which has no re-export in the host target. The table holds its value, -4.
+    /// Raven's `const int lightmaps2d[MAXLIGHTMAPS]` of `tr_shader.cpp`.
+    /// Source: oracle/codemp/renderer/tr_shader.cpp:133
+    var lightmaps2d: [Int32] = [-4, -4, -4, -4]
+
+    /// Raven's `const byte stylesDefault[MAXLIGHTMAPS]` of `tr_shader.cpp`.
+    /// Source: oracle/codemp/renderer/tr_shader.cpp:157
+    var stylesDefault: [JKAShared.byte] = [
+        JKAShared.byte(LS_NORMAL),
+        JKAShared.byte(LS_LSNONE),
+        JKAShared.byte(LS_LSNONE),
+        JKAShared.byte(LS_LSNONE),
+    ]
+
+    /// Raven's `const char *materialNames[MATERIAL_LAST]` of `tr_shader.cpp`, the `MATERIALS` list of oracle/codemp/game/surfaceflags.h:90.
+    /// Source: oracle/codemp/renderer/tr_shader.cpp:2193
+    lazy var materialNames: [String] = self.svMaterialNames
 
     // MARK: - vm.cpp
 
@@ -304,14 +335,6 @@ public final class EngineWorld {
     /// Source: oracle/codemp/win32/win_net.cpp:22
     var socksRelayAddr = Sockaddr()
 
-    /// Raven's `static SOCKET ip_socket = INVALID_SOCKET` of `win_net.cpp`.
-    /// Source: oracle/codemp/win32/win_net.cpp:27
-    var ip_socket = INVALID_SOCKET
-
-    /// Raven's `static SOCKET socks_socket = INVALID_SOCKET` of `win_net.cpp`.
-    /// Source: oracle/codemp/win32/win_net.cpp:28
-    var socks_socket = INVALID_SOCKET
-
     // MARK: - win_shared.cpp
 
     /// Raven's `static int sys_timeBase = timeGetTime()` of `Sys_Milliseconds` in `win_shared.cpp`.
@@ -379,8 +402,13 @@ public final class EngineWorld {
 
     /// The shell entry builds a fresh world, so the initializer is public.
     public init() {
-        // Raven's `static SOCKET ipx_socket = INVALID_SOCKET` of win_net.cpp:29.
+        // Raven's `static SOCKET ip_socket = INVALID_SOCKET`, `socks_socket`, and `ipx_socket` of win_net.cpp:27 to :29.
+        self.variables.ip_socket = INVALID_SOCKET
+        self.variables.socks_socket = INVALID_SOCKET
         self.variables.ipx_socket = INVALID_SOCKET
+        // Raven's `static int CurrentTag=GORE_TAG_UPPER+1` and `static int CurrentTagUpper=GORE_TAG_UPPER` of G2_misc.cpp:32 and :33.
+        self.variables.CurrentTag = GORE_TAG_UPPER + 1
+        self.variables.CurrentTagUpper = GORE_TAG_UPPER
     }
 
     deinit {

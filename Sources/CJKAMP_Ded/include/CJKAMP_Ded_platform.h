@@ -15,9 +15,12 @@
 #define HGLRC void *
 #define HINSTANCE void *
 #define HWND void *
+#define INVALID_SOCKET (-1)
 #define LPCTSTR const char *
 #define LPVOID void *
 #define OSVERSIONINFO struct { unsigned int dwOSVersionInfoSize; unsigned int dwMajorVersion; unsigned int dwMinorVersion; unsigned int dwBuildNumber; unsigned int dwPlatformId; char szCSDVersion[128]; }
+#define PATH_SEP '\\'
+#define SOCKET int
 #define UINT unsigned int
 #define USHORT unsigned short
 #define WORD unsigned short

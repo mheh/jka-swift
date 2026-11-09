@@ -109,9 +109,10 @@ func Z_Malloc(_ iSize: Int32, _ eTag: JKAShared.memtag_t, _ bZeroit: Bool = fals
 
             // ditch the model-binaries cache...  (must be getting desperate here!)
             //
-            // Port-note: `RE_RegisterModels_LevelLoadEnd` of tr_model.cpp has no Swift stub, because the renderer files are a later port stage.
-            // Raven wrote: if (RE_RegisterModels_LevelLoadEnd(qtrue)) { gbMemFreeupOccured = qtrue; continue; }
-            portMissing("Z_Malloc", source: "oracle/codemp/qcommon/z_memman_pc.cpp:157")
+            if RE_RegisterModels_LevelLoadEnd(true) {
+                gbMemFreeupOccured = true
+                continue
+            }
 
             // as a last panic measure, dump all the audio memory, but not if we're in the audio loader
             //	(which is annoying, but I'm not sure how to ensure we're not dumping any memory needed by the sound
@@ -537,18 +538,16 @@ func Hunk_Clear() {
     Z_TagFree(TAG_HUNK_MARK1)
     Z_TagFree(TAG_HUNK_MARK2)
 
-    // Port-note: `R_HunkClearCrap` of tr_model.cpp has no Swift stub, because the renderer files are a later port stage.
-    // Raven wrote: R_HunkClearCrap();
-    portMissing("Hunk_Clear", source: "oracle/codemp/qcommon/z_memman_pc.cpp:752")
+    R_HunkClearCrap()
 
     //	Com_Printf( "Hunk_Clear: reset the hunk ok\n" );
     VM_Clear()
 
     //See if any ghoul2 stuff was leaked, at this point it should be all cleaned up.
-    // Port-note: `g_Ghoul2Allocations`, `g_G2ClientAlloc`, `g_G2ServerAlloc`, and `G2_DEBUG_ReportLeaks` of G2_API.cpp have no Swift home,
-    // because the Ghoul2 files are a later port stage.
-    // Raven wrote: if (g_Ghoul2Allocations) { Com_Printf("%i bytes leaked by ghoul2 routines (%i client, %i server)\n", g_Ghoul2Allocations, g_G2ClientAlloc, g_G2ServerAlloc); G2_DEBUG_ReportLeaks(); }
-    portMissing("Hunk_Clear", source: "oracle/codemp/qcommon/z_memman_pc.cpp:752")
+    if g_Ghoul2Allocations != 0 {
+        Com_Printf("%i bytes leaked by ghoul2 routines (%i client, %i server)\n", g_Ghoul2Allocations, g_G2ClientAlloc, g_G2ServerAlloc)
+        G2_DEBUG_ReportLeaks()
+    }
 }
 
 /**

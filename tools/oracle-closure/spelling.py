@@ -139,6 +139,14 @@ class Types:
     def record_name(self, t: ci.Type) -> str | None:
         """The typedef name of a struct type, or its tag when Raven gave it no typedef, or None for a non-struct."""
         decl = t.get_canonical().get_declaration()
+        if decl.kind == CursorKind.UNION_DECL:
+            # A named union takes a view only where a root row names its typedef, `qfile_gut` of files.h:71.
+            named = t.get_named_type() if t.kind == TypeKind.ELABORATED else t
+            return named.spelling if named.kind == TypeKind.TYPEDEF and named.spelling in self.views.records \
+                and self.views.records[named.spelling].kind == CursorKind.UNION_DECL else None
+        if decl.kind == CursorKind.CLASS_DECL and decl.spelling in self.views.views:
+            # A C++ class that C_STRUCT_CLASSES copies as a struct, `CCMShader` of cm_local.h:77, takes its view in the C++ parse of a body too.
+            return decl.spelling
         if decl.kind != CursorKind.STRUCT_DECL:
             return None
         if t.kind == TypeKind.ELABORATED:
@@ -300,6 +308,15 @@ class Types:
             return Answer(f"{inout}[Int32?], _ rows: {inout}[KeywordHashRow]", "bare")
         if facts.ruled == "row_index":
             return Answer("Int32", "bare")
+        if facts.ruled == "word":
+            # The module hands back a pointer-wide word, which VM_Call returns whole, so the parameter takes the same word.
+            return Answer("Int", "bare")
+        if facts.ruled == "callback" and canonical.kind == TypeKind.POINTER and canonical.get_pointee().get_canonical().kind == TypeKind.FUNCTIONPROTO:
+            # The body stores the function pointer into a view's stored function, so it is that field's callback type, optional,
+            # the form a function-pointer return has.
+            alias = self.views.callback_alias(canonical.get_pointee().get_canonical(), TARGET)
+            if alias:
+                return Answer(f"{alias}?", "bare")
         if facts.ruled == "bytes" and canonical.kind == TypeKind.POINTER:
             # The body hands the pointer on as bytes, `MD4Update(&ctx, (unsigned char *)buffer, length)`, so the caller's Slots over the bytes
             # crosses, the row a host `byte *` has.
@@ -527,6 +544,12 @@ class Types:
                 swift = self.scalar(element, TARGET)
                 if swift is not None and self.known(swift):
                     return Answer(f"inout [{swift}]", "out_array")
+        if canonical.kind == TypeKind.LVALUEREFERENCE and not facts.traps:
+            # A C++ reference to a record, `clipMap_t &cm` of CM_LoadMap_Actual, is the caller's record, so it crosses as its view,
+            # the shape a record pointer has.
+            record = self.record_name(canonical.get_pointee())
+            if record and record in self.views.views:
+                return Answer(self.views.qualified_view(record, TARGET), "view")
         if canonical.kind == TypeKind.RECORD and not facts.traps:
             # A record Raven passes by value, `netadr_t adr` of NET_SendPacket, crosses as its view, the shape a record pointer has.
             # The view aliases the caller's record, so a body that writes such a parameter takes a scratch copy.

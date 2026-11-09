@@ -20,6 +20,10 @@ let fs_scrambledProductId: [JKAShared.byte] = [
     203, 99, 102, 69, 97, 81, 27, 107, 81, 178, 63, 35, 185, 64, 115,
 ]
 
+/// Source: oracle/codemp/qcommon/files_pc.cpp:1263
+// AI: Raven declares `len` on the stack of FS_ReadFile. The function uses one zeroed allocation on the storage class.
+var len_FS_ReadFile: Slots<Int32> { world.storage.len_FS_ReadFile }
+
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1532
 private let MAX_FOUND_FILES = 0x1000 as Int32
 
@@ -34,13 +38,25 @@ FS_PakIsPure
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:39
-// TODO: Port signature
-// Raven wrote: qboolean FS_PakIsPure( pack_t *pack )
-// No table row for `pack_t * pack`.
-// Port-note: Row F1. The table has no row for `pack_t *`, and the hand view `Pack` of FileBackend.swift gives the form `_ pack: Pack`.
-func FS_PakIsPure() -> Never {
-    // TODO: Port FS_PakIsPure
-    portMissing("FS_PakIsPure", source: "oracle/codemp/qcommon/files_pc.cpp:39")
+func FS_PakIsPure(_ pack: Pack) -> Bool {
+    var i: Int32
+
+    if fs_numServerPaks != 0 {
+        // NOTE TTimo we are matching checksums without checking the pak names
+        //   this means you can have the same pk3 as the server under a different name, you will still get through sv_pure validation
+        //   (what happens when two pk3's have the same checkums? is it a likely situation?)
+        //   also, if there's a wrong checksumed pk3 and autodownload is enabled, the checksum will be appended to the downloaded pk3 name
+        i = 0
+        while i < fs_numServerPaks {
+            // FIXME: also use hashed file names
+            if pack.checksum == fs_serverPaks[i] {
+                return true // on the aproved list
+            }
+            i += 1
+        }
+        return false // not on the pure server pak list
+    }
+    return true
 }
 
 /**
@@ -83,22 +99,25 @@ private func FS_HashFileName(_ fname: String, _ hashSize: Int32) -> CLong {
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:85
-// TODO: Port signature
-// Raven wrote: static FILE *FS_FileForHandle( fileHandle_t f )
-// No table row for the return `FILE *`.
-// Port-note: Row F2. The table has no row for the return `FILE *`, and the stream handle of FileBackend gives the form `-> OpaquePointer?`.
-private func FS_FileForHandle() -> Never {
-    // TODO: Port FS_FileForHandle
-    portMissing("FS_FileForHandle", source: "oracle/codemp/qcommon/files_pc.cpp:85")
+private func FS_FileForHandle(_ f: JKAShared.fileHandle_t) -> OpaquePointer? {
+    if f < 0 || f > MAX_FILE_HANDLES {
+        Com_Error(ERR_DROP, "FS_FileForHandle: out of reange")
+    }
+    if fsh[f].zipFile == true {
+        Com_Error(ERR_DROP, "FS_FileForHandle: can't get FILE on zip file")
+    }
+    if fsh[f].handleFiles.file.o == nil {
+        Com_Error(ERR_DROP, "FS_FileForHandle: NULL")
+    }
+
+    return fsh[f].handleFiles.file.o
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:100
 func FS_ForceFlush(_ f: JKAShared.fileHandle_t) {
     let file: OpaquePointer?
 
-    // Port-note: Row F2. FS_FileForHandle has no signature, so the stream of `f` has no source.
-    // Raven wrote: file = FS_FileForHandle(f)
-    portMissing("FS_ForceFlush", source: "oracle/codemp/qcommon/files_pc.cpp:100")
+    file = FS_FileForHandle(f)
     FileBackend.setvbuf(file, nil, _IONBF, 0)
 }
 
@@ -119,9 +138,7 @@ func FS_filelength(_ f: JKAShared.fileHandle_t) -> Int32 {
     let end: Int32
     let h: OpaquePointer?
 
-    // Port-note: Row F2. FS_FileForHandle has no signature, so the stream of `f` has no source.
-    // Raven wrote: h = FS_FileForHandle(f)
-    portMissing("FS_filelength", source: "oracle/codemp/qcommon/files_pc.cpp:117")
+    h = FS_FileForHandle(f)
     pos = FileBackend.ftell(h)
     FileBackend.fseek(h, 0, SEEK_END)
     end = FileBackend.ftell(h)
@@ -609,7 +626,6 @@ func Sys_GetFileTime() -> Never {
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:600
-// Port-note: Row F3. Every statement of the body reads a `FILETIME` through Sys_GetFileTime, which has no signature.
 func Sys_FileOutOfDate(_ psFinalFileName: String, _ psDataFileName: String) -> Bool {
     // TODO: Port Sys_FileOutOfDate
     portMissing("Sys_FileOutOfDate", source: "oracle/codemp/qcommon/files_pc.cpp:600")
@@ -631,7 +647,7 @@ FS_ShiftedStrStr
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:649
-func FS_ShiftedStrStr(_ string: String, _ substring: String, _ shift: Int32) -> String {
+func FS_ShiftedStrStr(_ string: String, _ substring: String, _ shift: Int32) -> String? {
     var buf = CharBuf(MAX_STRING_TOKENS)
     var i: Int32
     // Raven indexes his own `substring` parameter by byte, so the body reads a CharBuf of it.
@@ -643,9 +659,8 @@ func FS_ShiftedStrStr(_ string: String, _ substring: String, _ shift: Int32) -> 
         i += 1
     }
     buf[i] = 0
-    // Port-note: Row F8. Raven returns the pointer of the match or NULL, and the `String` return holds no NULL.
-    // Raven wrote: return strstr(string, buf)
-    portMissing("FS_ShiftedStrStr", source: "oracle/codemp/qcommon/files_pc.cpp:649")
+    // AI: Raven returns the pointer into `string` at the match, or NULL. The return is the text from the match, or nil.
+    return strstr(CharBuf(string), buf).map { String(CharBuf(string)[$0...]) }
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:672
@@ -828,7 +843,7 @@ Properly handles partial reads
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1007
-func FS_Read2(_ buffer: OpaquePointer?, _ len: Int32, _ f: JKAShared.fileHandle_t) -> Int32 {
+func FS_Read2(_ buffer: Slots<JKAShared.byte>, _ len: Int32, _ f: JKAShared.fileHandle_t) -> Int32 {
     if fs_searchpaths == nil {
         Com_Error(ERR_FATAL, "Filesystem call made without initialization\n")
     }
@@ -848,7 +863,7 @@ func FS_Read2(_ buffer: OpaquePointer?, _ len: Int32, _ f: JKAShared.fileHandle_
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1026
-func FS_Read(_ buffer: OpaquePointer?, _ len: Int32, _ f: JKAShared.fileHandle_t) -> Int32 {
+func FS_Read(_ buffer: Slots<JKAShared.byte>, _ len: Int32, _ f: JKAShared.fileHandle_t) -> Int32 {
     var block: Int32
     var remaining: Int32
     var read: Int32
@@ -961,7 +976,7 @@ Properly handles partial writes
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1079
-func FS_Write(_ buffer: OpaquePointer?, _ len: Int32, _ h: JKAShared.fileHandle_t) -> Int32 {
+func FS_Write(_ buffer: Slots<JKAShared.byte>, _ len: Int32, _ h: JKAShared.fileHandle_t) -> Int32 {
     var block: Int32
     var remaining: Int32
     var written: Int32
@@ -977,9 +992,7 @@ func FS_Write(_ buffer: OpaquePointer?, _ len: Int32, _ h: JKAShared.fileHandle_
         return 0
     }
 
-    // Port-note: Row F2. FS_FileForHandle has no signature, so the stream of `h` has no source.
-    // Raven wrote: f = FS_FileForHandle(h)
-    portMissing("FS_Write", source: "oracle/codemp/qcommon/files_pc.cpp:1079")
+    f = FS_FileForHandle(h)
     // AI: Raven walks a `byte *` over the buffer. The walk is a byte offset into it, which FileBackend.fwrite takes.
     buf = 0
 
@@ -1012,57 +1025,10 @@ func FS_Write(_ buffer: OpaquePointer?, _ len: Int32, _ h: JKAShared.fileHandle_
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1079
-/// Raven's `buffer` takes a `char msg[MAXPRINTMSG]` at files_common.cpp:383, and this overload writes that buffer.
-// Port-note: The CharBuf overload of FS_Write, for the `char` arrays of FS_Printf and of the log file writes of common.cpp.
-// AI: Raven hands a `char` array to the `const void *` of FS_Write. The overload takes the caller's CharBuf, the form of MSG_WriteData.
+// Port-note: The CharBuf overload of FS_Write, for the `char msg[MAXPRINTMSG]` of FS_Printf at files_common.cpp:383 and the log file write of common.cpp:188.
+// AI: Raven casts the caller's `char *` to `const void *`. A CharBuf overload hands the bytes of the buffer on as a Slots of bytes.
 func FS_Write(_ buffer: CharBuf, _ len: Int32, _ h: JKAShared.fileHandle_t) -> Int32 {
-    var block: Int32
-    var remaining: Int32
-    var written: Int32
-    var buf: Int32
-    var tries: Int32
-    let f: OpaquePointer?
-
-    if fs_searchpaths == nil {
-        Com_Error(ERR_FATAL, "Filesystem call made without initialization\n")
-    }
-
-    if h == 0 {
-        return 0
-    }
-
-    // Port-note: Row F2. FS_FileForHandle has no signature, so the stream of `h` has no source.
-    // Raven wrote: f = FS_FileForHandle(h)
-    portMissing("FS_Write", source: "oracle/codemp/qcommon/files_pc.cpp:1079")
-    // AI: Raven walks a `byte *` over the buffer. The walk is a byte offset into it, which FileBackend.fwrite takes.
-    buf = 0
-
-    remaining = len
-    tries = 0
-    while remaining != 0 {
-        block = remaining
-        written = FileBackend.fwrite(buffer, at: buf, 1, block, f)
-        if written == 0 {
-            if tries == 0 {
-                tries = 1
-            } else {
-                Com_Printf("FS_Write: 0 bytes written\n")
-                return 0
-            }
-        }
-
-        if written == -1 {
-            Com_Printf("FS_Write: -1 bytes written\n")
-            return 0
-        }
-
-        remaining -= written
-        buf += written
-    }
-    if fsh[h].handleSync {
-        FileBackend.fflush(f)
-    }
-    return len
+    buffer.withSlots { FS_Write($0, len, h) }
 }
 
 /**
@@ -1108,9 +1074,7 @@ func FS_Seek(_ f: JKAShared.fileHandle_t, _ offset: CLong, _ origin: Int32) -> I
         }
     } else {
         let file: OpaquePointer?
-        // Port-note: Row F2. FS_FileForHandle has no signature, so the stream of `f` has no source.
-        // Raven wrote: file = FS_FileForHandle(f)
-        portMissing("FS_Seek", source: "oracle/codemp/qcommon/files_pc.cpp:1131")
+        file = FS_FileForHandle(f)
         switch origin {
         case FS_SEEK_CUR:
             _origin = SEEK_CUR
@@ -1166,9 +1130,9 @@ func FS_FileIsInPAK(_ filename: String, _ pChecksum: inout Int32) -> Int32 {
         // is the element a pak file?
         if search!.pack != nil && search!.pack!.hashTable![hash] != nil {
             // disregard if it doesn't match one of the allowed pure pak files
-            // Port-note: Row F1. FS_PakIsPure has no signature, so the pure test of the pak has no call.
-            // Raven wrote: if ( !FS_PakIsPure(search->pack) ) { continue; }
-            portMissing("FS_FileIsInPAK", source: "oracle/codemp/qcommon/files_pc.cpp:1191")
+            if !FS_PakIsPure(search!.pack!) {
+                continue
+            }
 
             // look through all the pak file elements
             let pak = search!.pack!
@@ -1219,9 +1183,38 @@ func FS_ReadFile(_ qpath: String, _ buffer: inout OpaquePointer?) -> Int32 {
         isConfig = true
         if com_journal != nil && com_journal!.integer == 2 {
             Com_DPrintf("Loading %s from journal file.\n", qpath)
-            // Port-note: Row F9. Raven reads the `int len` itself through `&len`, and FS_Read has no form for the address of an `int`.
-            // Raven wrote: r = FS_Read( &len, sizeof( len ), com_journalDataFile ), and the rest of the journal arm
-            portMissing("FS_ReadFile", source: "oracle/codemp/qcommon/files_pc.cpp:1259")
+            var r: Int32
+            // AI: Raven reads `len` itself through `&len`. The read fills the storage slot of `len`, and `len` takes its value.
+            r = FS_Read(len_FS_ReadFile.bytes, Int32(Int32.byteCount), com_journalDataFile)
+            len = len_FS_ReadFile[0]
+            if r != Int32(Int32.byteCount) {
+                buffer = nil
+                return -1
+            }
+            // if the file didn't exist when the journal was created
+            if len == 0 {
+                // Raven's `if (buffer == NULL)` arm has no path here, because an `inout` buffer is never NULL.
+                buffer = nil
+                return -1
+            }
+
+            let buf = Hunk_AllocateTempMemory(len + 1)
+            // AI: Raven stores the `byte *` of the block into the caller's `void *`. The store is the handle of the block.
+            buffer = OpaquePointer(buf)
+
+            // AI: Raven hands the `byte *` of the block to FS_Read. The call hands the Slots over the `len+1` bytes of the block.
+            r = FS_Read(Slots(scalars: buf, count: Int(len) + 1), len, com_journalDataFile)
+            if r != len {
+                Com_Error(ERR_FATAL, "Read from journalDataFile failed")
+            }
+
+            fs_loadCount += 1
+            fs_loadStack += 1
+
+            // guarantee that it will have a trailing 0 for string operations
+            buf[byte: len] = 0
+
+            return len
         }
     } else {
         isConfig = false
@@ -1235,9 +1228,9 @@ func FS_ReadFile(_ qpath: String, _ buffer: inout OpaquePointer?) -> Int32 {
         if isConfig && com_journal != nil && com_journal!.integer == 1 {
             Com_DPrintf("Writing zero for %s to journal file.\n", qpath)
             len = 0
-            // Port-note: Row F9. Raven writes the `int len` itself through `&len`, and FS_Write has no form for the address of an `int`.
-            // Raven wrote: FS_Write( &len, sizeof( len ), com_journalDataFile )
-            portMissing("FS_ReadFile", source: "oracle/codemp/qcommon/files_pc.cpp:1259")
+            // AI: Raven writes `len` itself through `&len`. The write copies `len` into its storage slot and hands on the bytes of the slot.
+            len_FS_ReadFile[0] = len
+            FS_Write(len_FS_ReadFile.bytes, Int32(Int32.byteCount), com_journalDataFile)
             FS_Flush(com_journalDataFile)
         }
         return -1
@@ -1258,7 +1251,8 @@ func FS_ReadFile(_ qpath: String, _ buffer: inout OpaquePointer?) -> Int32 {
 
     //	Z_Label(buf, qpath);
 
-    FS_Read(OpaquePointer(buf), len, h)
+    // AI: Raven hands the `byte *` of the zone block to FS_Read. The call hands the Slots over the `len+1` bytes of the block.
+    FS_Read(Slots(scalars: buf, count: Int(len) + 1), len, h)
 
     // guarantee that it will have a trailing 0 for string operations
     buf[byte: len] = 0
@@ -1267,10 +1261,10 @@ func FS_ReadFile(_ qpath: String, _ buffer: inout OpaquePointer?) -> Int32 {
     // if we are journalling and it is a config file, write it to the journal file
     if isConfig && com_journal != nil && com_journal!.integer == 1 {
         Com_DPrintf("Writing %s to journal file.\n", qpath)
-        // Port-note: Row F9. Raven writes the `int len` itself through `&len`, and FS_Write has no form for the address of an `int`.
-        // Raven wrote: FS_Write( &len, sizeof( len ), com_journalDataFile )
-        portMissing("FS_ReadFile", source: "oracle/codemp/qcommon/files_pc.cpp:1259")
-        FS_Write(OpaquePointer(buf), len, com_journalDataFile)
+        // AI: Raven writes `len` itself through `&len`. The write copies `len` into its storage slot and hands on the bytes of the slot.
+        len_FS_ReadFile[0] = len
+        FS_Write(len_FS_ReadFile.bytes, Int32(Int32.byteCount), com_journalDataFile)
+        FS_Write(Slots(scalars: buf, count: Int(len) + 1), len, com_journalDataFile)
         FS_Flush(com_journalDataFile)
     }
     return len
@@ -1300,9 +1294,46 @@ func FS_ReadFile(_ qpath: String, _ buffer: inout CharBuf?) -> Int32 {
         isConfig = true
         if com_journal != nil && com_journal!.integer == 2 {
             Com_DPrintf("Loading %s from journal file.\n", qpath)
-            // Port-note: Row F9. Raven reads the `int len` itself through `&len`, and FS_Read has no form for the address of an `int`.
-            // Raven wrote: r = FS_Read( &len, sizeof( len ), com_journalDataFile ), and the rest of the journal arm
-            portMissing("FS_ReadFile", source: "oracle/codemp/qcommon/files_pc.cpp:1259")
+            var r: Int32
+            // AI: Raven reads `len` itself through `&len`. The read fills the storage slot of `len`, and `len` takes its value.
+            r = FS_Read(len_FS_ReadFile.bytes, Int32(Int32.byteCount), com_journalDataFile)
+            len = len_FS_ReadFile[0]
+            if r != Int32(Int32.byteCount) {
+                if buffer != nil {
+                    buffer = nil
+                }
+                return -1
+            }
+            // if the file didn't exist when the journal was created
+            if len == 0 {
+                if buffer == nil {
+                    return 1 // hack for old journal files
+                }
+                buffer = nil
+                return -1
+            }
+            if buffer == nil {
+                return len
+            }
+
+            // AI: Raven takes `len+1` bytes of the hunk for the file. The buffer is a CharBuf of `len+1` bytes that the caller owns.
+            _ = Hunk_AllocateTempMemory(len + 1)
+            var buf = CharBuf(len + 1)
+
+            r = FS_Read(&buf, len, com_journalDataFile)
+            if r != len {
+                Com_Error(ERR_FATAL, "Read from journalDataFile failed")
+            }
+
+            fs_loadCount += 1
+            fs_loadStack += 1
+
+            // guarantee that it will have a trailing 0 for string operations
+            buf[len] = 0
+            // AI: Raven hands the caller the pointer before the read. A CharBuf is a value, so the store follows the read.
+            buffer = buf
+
+            return len
         }
     } else {
         isConfig = false
@@ -1318,9 +1349,9 @@ func FS_ReadFile(_ qpath: String, _ buffer: inout CharBuf?) -> Int32 {
         if isConfig && com_journal != nil && com_journal!.integer == 1 {
             Com_DPrintf("Writing zero for %s to journal file.\n", qpath)
             len = 0
-            // Port-note: Row F9. Raven writes the `int len` itself through `&len`, and FS_Write has no form for the address of an `int`.
-            // Raven wrote: FS_Write( &len, sizeof( len ), com_journalDataFile )
-            portMissing("FS_ReadFile", source: "oracle/codemp/qcommon/files_pc.cpp:1259")
+            // AI: Raven writes `len` itself through `&len`. The write copies `len` into its storage slot and hands on the bytes of the slot.
+            len_FS_ReadFile[0] = len
+            FS_Write(len_FS_ReadFile.bytes, Int32(Int32.byteCount), com_journalDataFile)
             FS_Flush(com_journalDataFile)
         }
         return -1
@@ -1329,9 +1360,9 @@ func FS_ReadFile(_ qpath: String, _ buffer: inout CharBuf?) -> Int32 {
     if buffer == nil {
         if isConfig && com_journal != nil && com_journal!.integer == 1 {
             Com_DPrintf("Writing len for %s to journal file.\n", qpath)
-            // Port-note: Row F9. Raven writes the `int len` itself through `&len`, and FS_Write has no form for the address of an `int`.
-            // Raven wrote: FS_Write( &len, sizeof( len ), com_journalDataFile )
-            portMissing("FS_ReadFile", source: "oracle/codemp/qcommon/files_pc.cpp:1259")
+            // AI: Raven writes `len` itself through `&len`. The write copies `len` into its storage slot and hands on the bytes of the slot.
+            len_FS_ReadFile[0] = len
+            FS_Write(len_FS_ReadFile.bytes, Int32(Int32.byteCount), com_journalDataFile)
             FS_Flush(com_journalDataFile)
         }
         FS_FCloseFile(h)
@@ -1362,9 +1393,9 @@ func FS_ReadFile(_ qpath: String, _ buffer: inout CharBuf?) -> Int32 {
     // if we are journalling and it is a config file, write it to the journal file
     if isConfig && com_journal != nil && com_journal!.integer == 1 {
         Com_DPrintf("Writing %s to journal file.\n", qpath)
-        // Port-note: Row F9. Raven writes the `int len` itself through `&len`, and FS_Write has no form for the address of an `int`.
-        // Raven wrote: FS_Write( &len, sizeof( len ), com_journalDataFile )
-        portMissing("FS_ReadFile", source: "oracle/codemp/qcommon/files_pc.cpp:1259")
+        // AI: Raven writes `len` itself through `&len`. The write copies `len` into its storage slot and hands on the bytes of the slot.
+        len_FS_ReadFile[0] = len
+        FS_Write(len_FS_ReadFile.bytes, Int32(Int32.byteCount), com_journalDataFile)
         FS_Write(buf, len, com_journalDataFile)
         FS_Flush(com_journalDataFile)
     }
@@ -1436,12 +1467,8 @@ of a zip file.
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1423
-// TODO: Port signature
-// Raven wrote: static pack_t *FS_LoadZipFile( char *zipfile, const char *basename )
-// No table row for the return `pack_t *`.
-// Port-note: Row F1. The table has no row for the return `pack_t *`.
-// Port-note: The body also needs unzOpen, unzGetGlobalInfo, and unzGetCurrentFileInfo, which carry signature markers in unzip.swift.
-private func FS_LoadZipFile() -> Never {
+private func FS_LoadZipFile(_ zipfile: String, _ basename: String) -> Pack? {
+    // Port-note: Row F1. The body opens the pak through unzOpen, unzGetGlobalInfo, and unzGetCurrentFileInfo, whose stubs in unzip.swift carry signature markers, so it waits on the unzip round.
     // TODO: Port FS_LoadZipFile
     portMissing("FS_LoadZipFile", source: "oracle/codemp/qcommon/files_pc.cpp:1423")
 }
@@ -1547,7 +1574,6 @@ FS_FreeFileList
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1733
-// Port-note: Row F4. The skeleton spells the `char **` list as a TextCursor, which holds one text and not a list of zone strings.
 func FS_FreeFileList(_ fileList: inout JKAShared.TextCursor) {
     // TODO: Port FS_FreeFileList
     portMissing("FS_FreeFileList", source: "oracle/codemp/qcommon/files_pc.cpp:1733")
@@ -1589,7 +1615,6 @@ FIXME TTimo those two should move to common.c next to Sys_ListFiles
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1803
-// Port-note: Row F4. The skeleton spells the `char **` list as a TextCursor, which holds one text and not a list of zone strings.
 private func Sys_CountFileList(_ list: inout JKAShared.TextCursor) -> UInt32 {
     // TODO: Port Sys_CountFileList
     portMissing("Sys_CountFileList", source: "oracle/codemp/qcommon/files_pc.cpp:1803")
@@ -1617,7 +1642,6 @@ The directories are searched in base path, cd path and home path
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1866
-// Port-note: Row F4. Every statement after the clear of `listbuf` walks a `char **` list of Sys_ListFiles, which has no signature in win_main.swift.
 func FS_GetModList(_ listbuf: inout JKAShared.CharBuf, _ bufsize: Int32) -> Int32 {
     // TODO: Port FS_GetModList
     portMissing("FS_GetModList", source: "oracle/codemp/qcommon/files_pc.cpp:1866")
@@ -1731,7 +1755,6 @@ FS_SortFileList
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2078
-// Port-note: Row F4. The skeleton spells the `char **` list as a TextCursor, which holds one text and not a list of zone strings.
 func FS_SortFileList(_ filelist: inout JKAShared.TextCursor, _ numfiles: Int32) {
     // TODO: Port FS_SortFileList
     portMissing("FS_SortFileList", source: "oracle/codemp/qcommon/files_pc.cpp:2078")
@@ -1782,9 +1805,11 @@ func FS_Path_f() {
         if s!.pack != nil {
             Com_Printf("%s (%i files)\n", s!.pack!.pakFilename, s!.pack!.numfiles)
             if fs_numServerPaks != 0 {
-                // Port-note: Row F1. FS_PakIsPure has no signature, so the pure test of the pak has no call.
-                // Raven wrote: if ( !FS_PakIsPure(s->pack) ) { Com_Printf( "    not on the pure list\n" ); } else { Com_Printf( "    on the pure list\n" ); }
-                portMissing("FS_Path_f", source: "oracle/codemp/qcommon/files_pc.cpp:2140")
+                if !FS_PakIsPure(s!.pack!) {
+                    Com_Printf("    not on the pure list\n")
+                } else {
+                    Com_Printf("    on the pure list\n")
+                }
             }
         } else {
             Com_Printf("%s/%s\n", s!.dir!.path, s!.dir!.gamedir)
@@ -1829,7 +1854,6 @@ func FS_TouchFile_f() {
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2194
-// Port-note: Row F4. The `qsort` comparator reads `char *` slots of a list through `void *` parameters, and the list has no type.
 private func paksort(_ a: OpaquePointer?, _ b: OpaquePointer?) -> Int32 {
     // TODO: Port paksort
     portMissing("paksort", source: "oracle/codemp/qcommon/files_pc.cpp:2194")
@@ -2038,7 +2062,7 @@ private func FS_ReorderPurePaks() {
     fs_reordered = false
 
     // Port-note: Row F10. Raven walks `searchpath_t **` slots, the address of `fs_searchpaths` and of each `next` field.
-    // Port-note: The views have no slot form for them.
+    // Port-note: `nextSlot` of the Searchpath view gives the slot of `next`, and `fs_searchpaths` is a variable of EngineVariables, which has no slot.
     // Raven wrote: p_insert_index = &fs_searchpaths; and the loop that moves each pure pak to the insert slot
     portMissing("FS_ReorderPurePaks", source: "oracle/codemp/qcommon/files_pc.cpp:2445")
 }
