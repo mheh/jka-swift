@@ -51,7 +51,11 @@ let package = Package(
         // The cgame module views: Cg, Cgs, Centity, and every struct they reach.
         .target(name: "JKAMP_CGame", dependencies: ["JKAMP", "CJKAMP_CGame"]),
         // The dedicated server views: ServerStatic, Server, Client, Msg, Vm, and every struct they reach.
-        .target(name: "JKAMP_Ded", dependencies: ["JKAMP", "CJKAMP_Ded"]),
+        // The pk3 reader of unzip.cpp reaches the system zlib through ZipBackend and JKAZlib.
+        .target(name: "JKAMP_Ded", dependencies: ["JKAMP", "CJKAMP_Ded", "JKAZlib"]),
+        // The system inflate calls in a module of their own, because zlib.h and Raven's zlib32 header both define `struct z_stream_s`.
+        // Clang refuses the two records in one module context, so no file that imports CJKAMP_Ded imports CJKAZlib.
+        .target(name: "JKAZlib", dependencies: ["CJKAZlib"]),
 
         // MARK: - Swift logic, ported bodies, no C import
         // bg_*.c, shared by the game and cgame modules.
