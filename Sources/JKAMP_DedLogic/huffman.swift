@@ -14,7 +14,7 @@ var bloc: Int32 {
 var seq: Slots<JKAShared.byte> { world.storage.seq }
 
 /// Source: oracle/codemp/qcommon/huffman.cpp:12
-func Huff_putBit(_ bit: Int32, _ fout: UnsafeMutableRawPointer, _ offset: inout Int32) {
+func Huff_putBit(_ bit: Int32, _ fout: Slots<JKAShared.byte>, _ offset: inout Int32) {
     bloc = offset
     if (bloc & 7) == 0 {
         fout[byte: (bloc >> 3)] = 0
@@ -25,7 +25,7 @@ func Huff_putBit(_ bit: Int32, _ fout: UnsafeMutableRawPointer, _ offset: inout 
 }
 
 /// Source: oracle/codemp/qcommon/huffman.cpp:22
-func Huff_getBit(_ fin: UnsafeMutableRawPointer, _ offset: inout Int32) -> Int32 {
+func Huff_getBit(_ fin: Slots<JKAShared.byte>, _ offset: inout Int32) -> Int32 {
     let t: Int32
     bloc = offset
     t = (fin[byte: (bloc >> 3)] >> (bloc & 7)) & 0x1
@@ -40,7 +40,7 @@ Add a bit to the output file (buffered)
 ```
 */
 /// Source: oracle/codemp/qcommon/huffman.cpp:32
-private func add_bit(_ bit: CChar, _ fout: UnsafeMutableRawPointer) {
+private func add_bit(_ bit: CChar, _ fout: Slots<JKAShared.byte>) {
     if (bloc & 7) == 0 {
         fout[byte: (bloc >> 3)] = 0
     }
@@ -54,7 +54,7 @@ Receive one bit from the input file (buffered)
 ```
 */
 /// Source: oracle/codemp/qcommon/huffman.cpp:41
-private func get_bit(_ fin: UnsafeMutableRawPointer) -> Int32 {
+private func get_bit(_ fin: Slots<JKAShared.byte>) -> Int32 {
     let t: Int32
     t = (fin[byte: (bloc >> 3)] >> (bloc & 7)) & 0x1
     bloc += 1
@@ -280,7 +280,7 @@ Get a symbol
 ```
 */
 /// Source: oracle/codemp/qcommon/huffman.cpp:236
-func Huff_Receive(_ node: Node, _ ch: inout Int32, _ fin: UnsafeMutableRawPointer) -> Int32 {
+func Huff_Receive(_ node: Node, _ ch: inout Int32, _ fin: Slots<JKAShared.byte>) -> Int32 {
     // Raven assigns his own `node` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var node: Node? = node
     while node != nil && node!.symbol == INTERNAL_NODE {
@@ -304,7 +304,7 @@ Get a symbol
 ```
 */
 /// Source: oracle/codemp/qcommon/huffman.cpp:252
-func Huff_offsetReceive(_ node: Node, _ ch: inout Int32, _ fin: UnsafeMutableRawPointer, _ offset: inout Int32) {
+func Huff_offsetReceive(_ node: Node, _ ch: inout Int32, _ fin: Slots<JKAShared.byte>, _ offset: inout Int32) {
     // Raven assigns his own `node` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var node: Node? = node
     bloc = offset
@@ -330,7 +330,7 @@ Send the prefix code for this node
 ```
 */
 /// Source: oracle/codemp/qcommon/huffman.cpp:271
-private func send(_ node: Node, _ child: Node?, _ fout: UnsafeMutableRawPointer) {
+private func send(_ node: Node, _ child: Node?, _ fout: Slots<JKAShared.byte>) {
     if node.parent != nil {
         send(node.parent!, node, fout)
     }
@@ -356,18 +356,16 @@ func Huff_transmit(_ huff: Huff, _ ch: Int32, _ fout: Slots<JKAShared.byte>) {
         Huff_transmit(huff, NYT, fout)
         i = 7
         while i >= 0 {
-            // AI: Raven hands the same `byte *` on. The body hands the base of the Slots to the raw `fout` of add_bit.
-            add_bit(CChar(((ch >> i) & 0x1)), fout.base)
+            add_bit(CChar(((ch >> i) & 0x1)), fout)
             i -= 1
         }
     } else {
-        // AI: Raven hands the same `byte *` on. The body hands the base of the Slots to the raw `fout` of send.
-        send(huff.loc[ch]!, nil, fout.base)
+        send(huff.loc[ch]!, nil, fout)
     }
 }
 
 /// Source: oracle/codemp/qcommon/huffman.cpp:298
-func Huff_offsetTransmit(_ huff: Huff, _ ch: Int32, _ fout: UnsafeMutableRawPointer, _ offset: inout Int32) {
+func Huff_offsetTransmit(_ huff: Huff, _ ch: Int32, _ fout: Slots<JKAShared.byte>, _ offset: inout Int32) {
     bloc = offset
     send(huff.loc[ch]!, nil, fout)
     offset = bloc
@@ -422,14 +420,12 @@ func Huff_Decompress(_ mbuf: Msg, _ offset: Int32) {
                 seq[j] = 0
                 break
             }
-            // AI: Raven hands the same `byte *` on. The body hands the base of the Slots to the raw `fin` of Huff_Receive.
-            _ = Huff_Receive(huff.tree!, &ch, buffer.base) /* Get a character */
+            _ = Huff_Receive(huff.tree!, &ch, buffer) /* Get a character */
             if ch == NYT { /* We got a NYT, get the symbol associated with it */
                 ch = 0
                 i = 0
                 while i < 8 {
-                    // AI: Raven hands the same `byte *` on. The body hands the base of the Slots to the raw `fin` of get_bit.
-                    ch = (ch << 1) + get_bit(buffer.base)
+                    ch = (ch << 1) + get_bit(buffer)
                     i += 1
                 }
             }
