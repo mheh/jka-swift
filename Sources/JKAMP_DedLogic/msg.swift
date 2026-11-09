@@ -516,18 +516,18 @@ func MSG_WriteBits(_ msg: Msg, _ value: Int32, _ bits: Int32) {
     if bits < 0 {
         bits = -bits
     }
-    // Raven indexes the bytes behind `data`, and the raw pointer over that buffer is the index, under rule 11.
+    // AI: Raven casts the address of a byte of `data` to a word pointer. The word subscripts of the byte Slots read and write the word at that offset.
     if msg.oob {
         if bits == 8 {
-            msg.data!.base[byte: msg.cursize] = value
+            msg.data![byte: msg.cursize] = value
             msg.cursize += 1
             msg.bit += 8
         } else if bits == 16 {
-            msg.data!.base[ushort: msg.cursize] = value
+            msg.data![ushort: msg.cursize] = value
             msg.cursize += 2
             msg.bit += 16
         } else if bits == 32 {
-            msg.data!.base[int: msg.cursize] = value
+            msg.data![int: msg.cursize] = value
             msg.cursize += 4
             msg.bit += 8
         } else {
@@ -576,18 +576,18 @@ func MSG_ReadBits(_ msg: Msg, _ bits: Int32) -> Int32 {
         sgn = false
     }
 
-    // Raven indexes the bytes behind `data`, and the raw pointer over that buffer is the index, under rule 11.
+    // AI: Raven casts the address of a byte of `data` to a word pointer. The word subscripts of the byte Slots read and write the word at that offset.
     if msg.oob {
         if bits == 8 {
-            value = Int32(msg.data!.base[byte: msg.readcount] as UInt8)
+            value = Int32(msg.data![byte: msg.readcount] as UInt8)
             msg.readcount += 1
             msg.bit += 8
         } else if bits == 16 {
-            value = msg.data!.base[ushort: msg.readcount]
+            value = msg.data![ushort: msg.readcount]
             msg.readcount += 2
             msg.bit += 16
         } else if bits == 32 {
-            value = msg.data!.base[int: msg.readcount]
+            value = msg.data![int: msg.readcount]
             msg.readcount += 4
             msg.bit += 32
         } else {
@@ -636,10 +636,10 @@ func MSG_WriteByte(_ sb: Msg, _ c: Int32) {
 /// Source: oracle/codemp/qcommon/msg.cpp:298
 func MSG_WriteData(_ buf: Msg, _ data: Slots<JKAShared.byte>, _ length: Int32) {
     var i: Int32
-    // Raven reads the caller's bytes through `(byte *)data`, and the raw pointer over that buffer is the read, under rule 11.
+    // AI: Raven casts `void *data` to a byte pointer. The parameter is a Slots of bytes, and the byte subscript reads it at the index.
     i = 0
     while i < length {
-        MSG_WriteByte(buf, Int32(data.base[byte: i] as UInt8))
+        MSG_WriteByte(buf, Int32(data[byte: i] as UInt8))
         i += 1
     }
 }
@@ -894,10 +894,10 @@ func MSG_ReadAngle16(_ msg: Msg) -> Float {
 func MSG_ReadData(_ msg: Msg, _ data: Slots<JKAShared.byte>, _ len: Int32) {
     var i: Int32
 
-    // Raven writes the caller's bytes through `(byte *)data`, and the raw pointer over that buffer is the write, under rule 11.
+    // AI: Raven casts `void *data` to a byte pointer. The parameter is a Slots of bytes, and the byte subscript writes it at the index.
     i = 0
     while i < len {
-        data.base[byte: i] = MSG_ReadByte(msg)
+        data[byte: i] = MSG_ReadByte(msg)
         i += 1
     }
 }
@@ -1157,8 +1157,8 @@ func MSG_WriteDeltaEntity(_ msg: Msg, _ from: JKAMP.EntityState, _ to: JKAMP.Ent
     var field: NetField
     var trunc: Int32
     var fullFloat: Float
-    var fromF: UnsafeMutableRawPointer
-    var toF: UnsafeMutableRawPointer
+    var fromF: Slots<JKAShared.byte>
+    var toF: Slots<JKAShared.byte>
 
     numFields = Int32(entityStateFields.count)
 
@@ -1178,7 +1178,7 @@ func MSG_WriteDeltaEntity(_ msg: Msg, _ from: JKAMP.EntityState, _ to: JKAMP.Ent
         Com_Error(ERR_FATAL, "MSG_WriteDeltaEntity: Bad entity number: %i", to.number)
     }
 
-    // Raven reads each field through `(byte *)from + field->offset`, and the raw pointer over the record is that read, under rule 11.
+    // AI: Raven casts the record to a byte pointer and adds the field offset. The bytes of the record view give the Slots tail from that offset.
     lc = 0
     // build the change vector as bytes so it is endien independent
     // TODO: OPTIMIZE: How about we do this in reverse order so we can
@@ -1186,8 +1186,8 @@ func MSG_WriteDeltaEntity(_ msg: Msg, _ from: JKAMP.EntityState, _ to: JKAMP.Ent
     i = 0
     while i < numFields {
         field = entityStateFields[i]
-        fromF = UnsafeMutableRawPointer(from.handle) + field.offset
-        toF = UnsafeMutableRawPointer(to.handle) + field.offset
+        fromF = Slots(record: from).bytes.suffix(from: field.offset)
+        toF = Slots(record: to).bytes.suffix(from: field.offset)
         if fromF[int: 0] != toF[int: 0] {
             lc = i + 1
             field.mCount += 1
@@ -1218,8 +1218,8 @@ func MSG_WriteDeltaEntity(_ msg: Msg, _ from: JKAMP.EntityState, _ to: JKAMP.Ent
     i = 0
     while i < lc {
         field = entityStateFields[i]
-        fromF = UnsafeMutableRawPointer(from.handle) + field.offset
-        toF = UnsafeMutableRawPointer(to.handle) + field.offset
+        fromF = Slots(record: from).bytes.suffix(from: field.offset)
+        toF = Slots(record: to).bytes.suffix(from: field.offset)
 
         if fromF[int: 0] == toF[int: 0] {
             MSG_WriteBits(msg, 0, 1)	// no change
@@ -1268,8 +1268,8 @@ func MSG_ReadDeltaEntity(_ msg: Msg, _ from: JKAMP.EntityState, _ to: JKAMP.Enti
     var lc: Int32
     var numFields: Int32
     var field: NetField
-    var fromF: UnsafeMutableRawPointer
-    var toF: UnsafeMutableRawPointer
+    var fromF: Slots<JKAShared.byte>
+    var toF: Slots<JKAShared.byte>
     var print: Int32
     var trunc: Int32
     var startBit: Int32
@@ -1316,12 +1316,12 @@ func MSG_ReadDeltaEntity(_ msg: Msg, _ from: JKAMP.EntityState, _ to: JKAMP.Enti
 
     to.number = number
 
-    // Raven reads each field through `(byte *)from + field->offset`, and the raw pointer over the record is that read, under rule 11.
+    // AI: Raven casts the record to a byte pointer and adds the field offset. The bytes of the record view give the Slots tail from that offset.
     i = 0
     while i < lc {
         field = entityStateFields[i]
-        fromF = UnsafeMutableRawPointer(from.handle) + field.offset
-        toF = UnsafeMutableRawPointer(to.handle) + field.offset
+        fromF = Slots(record: from).bytes.suffix(from: field.offset)
+        toF = Slots(record: to).bytes.suffix(from: field.offset)
 
         if MSG_ReadBits(msg, 1) == 0 {
             // no change
@@ -1366,8 +1366,8 @@ func MSG_ReadDeltaEntity(_ msg: Msg, _ from: JKAMP.EntityState, _ to: JKAMP.Enti
     i = lc
     while i < numFields {
         field = entityStateFields[i]
-        fromF = UnsafeMutableRawPointer(from.handle) + field.offset
-        toF = UnsafeMutableRawPointer(to.handle) + field.offset
+        fromF = Slots(record: from).bytes.suffix(from: field.offset)
+        toF = Slots(record: to).bytes.suffix(from: field.offset)
         // no change
         toF[int: 0] = fromF[int: 0]
         i += 1
@@ -1576,8 +1576,8 @@ func MSG_WriteDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState?, _ to: JKA
         var c: Int32
         var field: NetField
         var PSFields = playerStateFields
-        var fromF: UnsafeMutableRawPointer
-        var toF: UnsafeMutableRawPointer
+        var fromF: Slots<JKAShared.byte>
+        var toF: Slots<JKAShared.byte>
         var fullFloat: Float
         var trunc: Int32
         var lc: Int32
@@ -1605,13 +1605,13 @@ func MSG_WriteDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState?, _ to: JKA
         }
 //=====_OPTIMIZED_VEHICLE_NETWORKING=======================================================================
 
-        // Raven reads each field through `(byte *)from + field->offset`, and the raw pointer over the record is that read, under rule 11.
+        // AI: Raven casts the record to a byte pointer and adds the field offset. The bytes of the record view give the Slots tail from that offset.
         lc = 0
         i = 0
         while i < numFields {
             field = PSFields[i]
-            fromF = UnsafeMutableRawPointer(from!.handle) + field.offset
-            toF = UnsafeMutableRawPointer(to.handle) + field.offset
+            fromF = Slots(record: from!).bytes.suffix(from: field.offset)
+            toF = Slots(record: to).bytes.suffix(from: field.offset)
             if fromF[int: 0] != toF[int: 0] {
                 lc = i + 1
                 field.mCount += 1
@@ -1628,8 +1628,8 @@ func MSG_WriteDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState?, _ to: JKA
         i = 0
         while i < lc {
             field = PSFields[i]
-            fromF = UnsafeMutableRawPointer(from!.handle) + field.offset
-            toF = UnsafeMutableRawPointer(to.handle) + field.offset
+            fromF = Slots(record: from!).bytes.suffix(from: field.offset)
+            toF = Slots(record: to).bytes.suffix(from: field.offset)
 
             if fromF[int: 0] == toF[int: 0] {
                 MSG_WriteBits(msg, 0, 1)	// no change
@@ -1789,8 +1789,8 @@ func MSG_ReadDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState, _ to: JKAMP
     var startBit: Int32
     var endBit: Int32
     var print: Int32
-    var fromF: UnsafeMutableRawPointer
-    var toF: UnsafeMutableRawPointer
+    var fromF: Slots<JKAShared.byte>
+    var toF: Slots<JKAShared.byte>
     var trunc: Int32
 
     to.copy(from: from)
@@ -1827,12 +1827,12 @@ func MSG_ReadDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState, _ to: JKAMP
 
     lc = MSG_ReadByte(msg)
 
-    // Raven reads each field through `(byte *)from + field->offset`, and the raw pointer over the record is that read, under rule 11.
+    // AI: Raven casts the record to a byte pointer and adds the field offset. The bytes of the record view give the Slots tail from that offset.
     i = 0
     while i < lc {
         field = PSFields[i]
-        fromF = UnsafeMutableRawPointer(from.handle) + field.offset
-        toF = UnsafeMutableRawPointer(to.handle) + field.offset
+        fromF = Slots(record: from).bytes.suffix(from: field.offset)
+        toF = Slots(record: to).bytes.suffix(from: field.offset)
 
         if MSG_ReadBits(msg, 1) == 0 {
             // no change
@@ -1869,8 +1869,8 @@ func MSG_ReadDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState, _ to: JKAMP
     i = lc
     while i < numFields {
         field = PSFields[i]
-        fromF = UnsafeMutableRawPointer(from.handle) + field.offset
-        toF = UnsafeMutableRawPointer(to.handle) + field.offset
+        fromF = Slots(record: from).bytes.suffix(from: field.offset)
+        toF = Slots(record: to).bytes.suffix(from: field.offset)
         // no change
         toF[int: 0] = fromF[int: 0]
         i += 1
