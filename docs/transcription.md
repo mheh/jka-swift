@@ -172,6 +172,9 @@ The overload hands the engine the buffer's base inside the generated file, so a 
 The host's `FS_Read` takes the same `inout CharBuf` overload beside its `OpaquePointer?` form, so `FS_Read(overrideFile, len, f)` of `msg.cpp` reads `FS_Read(&overrideFile, len, f)`.
 The `CharBuf` forms of `FS_ReadFile` return Raven's length and leave the buffer empty for a missing file, so Raven's `if (!f)` after the call reads `if len < 0`.
 `FS_FreeFile` has a `CharBuf` overload that frees nothing, because a `CharBuf` owns its bytes, so Raven's `FS_FreeFile(f)` stays on the page.
+A host function whose `const void *data` is a `Slots<byte>` takes a `CharBuf` overload in the logic target when Raven's caller hands it a `char` array, and the overload forwards the bytes of the buffer through `withSlots` of `CharBuf.swift`.
+A `CharBuf` is a value over a Swift array, so its bytes have no fixed address, and the `Slots` lives for the call of the closure alone.
+So `NET_SendPacket( sock, strlen( string ), string, adr )` of `NET_OutOfBandPrint` reads `NET_SendPacket(sock, strlen(string), string, adr)`.
 A trap's `void /* struct ... */ *` parameter gains a second generated overload that takes the view, where Raven's comment names the struct and every caller passes that record, so `trap_EA_GetInput(bs->client, (float) time / 1000, &bi)` reads `trap_EA_GetInput(bs.client, Float(time) / 1000, bi)`.
 A trap's `const void *` parameter gains an overload that takes a `String` when Raven's own callers hand it a `char *` text, so a body writes `trap_FS_Write(str, strlen(str), fh)`.
 A `NIL_OVERLOADS` entry of `rulings.py` gives a trap a second overload that takes the named view as optional, so `trap_Cvar_Register` registers the three NULL rows of `gameCvarTable`.
@@ -345,6 +348,9 @@ A `void *` field that every store fills with one record or NULL has a `FIELDS` r
 A `byte *` field that holds the base of a byte buffer a body indexes has a `FIELDS` row of kind `bytes`, and the view spells it `Slots<JKAShared.byte>?` with the widest count, so `cmd_text.data[i]` reads `cmd_text.data![i]`.
 `Msg.data` takes the same row, and so do the `byte *` and `void *` parameters that store into it or read through it, `MSG_Init`, `MSG_InitOOB`, `MSG_WriteData`, `MSG_ReadData`, and `Netchan_Transmit`.
 A word at a byte offset of a `Slots<byte>` reads the word subscripts `[int:]`, `[float:]`, `[ushort:]`, and `[byte:]` of `Slots.swift`, the forms of the raw pointer subscripts, so `*(int *)(msg->data + msg->cursize)` reads `msg.data![int: msg.cursize]` and `((byte *)data)[i]` reads `data[byte: i]`.
+A store into one byte of a `Slots<byte>` whose value C computes in `int`, a literal or a compound assignment, takes the `[byte:]` subscript, which truncates as C's store does, so `fout[(bloc>>3)] |= bit << (bloc&7)` reads `fout[byte: (bloc >> 3)] |= bit << (bloc & 7)`.
+A store of a byte into a byte keeps the element subscript, `string_NET_OutOfBandData[i + 4] = format[i]`.
+A `bytes` field takes a `Slots<byte>` as it stands, so `mbuf.data = string` of a `BYTE_STORAGE_LOCALS` local reads `mbuf.data = string_NET_OutOfBandData`, and `buf->data = data` of `MSG_Init` reads `buf.data = data`.
 A word at a field offset of a record, `*(int *)((byte *)from + field->offset)` of the delta functions, reads the bytes of the record, `Slots(record: from).bytes[int: field.offset]`.
 A `T **` field that holds the address of one record pointer slot has a `FIELDS` row of kind `slot`, and the view spells it `Slots<View?>?` of count 1 over that slot, so `*node->head` reads `node.head![0]`.
 Two records that hold one address share the slot, as the nodes of one block share their `head`. `Node.head` and `Huff.freelist` take this form.
@@ -355,6 +361,10 @@ Raven's cast of an array to `unsigned char *` reads `bytes` of `Slots`, a `Slots
 The drafter writes this form, a cast of a `Slots<byte>` passes as it stands, `MD4Update(ctx, buffer, length)`, and the cast of `&key` of a parameter of the entry passes the bytes of its slot, `key_Com_BlockChecksumKey.bytes`.
 A scalar array field of a view whose element is a TYPES typedef passes to a `Slots` parameter of that typedef as it stands, `MD4Transform(context.state, context.buffer)`.
 Raven's cast of a slot to `node_t **` reads `slotAddress`, the accessor of `Sources/JKAMP_Ded/NodeSlots.swift` that reads and writes the first slot as the address of another slot.
+The zone records of `z_memman_pc.cpp`, `zoneHeader_t`, `zoneTail_t`, `zoneStats_t`, and `zone_t`, stand in `ded_types.h` and `HOST_ROOTS`, so `ZoneHeader`, `ZoneTail`, `ZoneStats`, and `Zone` are generated views and `TheZone` is a record on `EngineStorage`.
+`Sources/JKAMP_Ded/ZoneBlocks.swift` holds what a view cannot give, each under a rule 24 line: `ZoneHeader(block:)` for `((zoneHeader_t *)pvAddress) - 1`, `block` for `&pMemory[1]`, `ZoneTailFromHeader(_:)`, and `ZoneBackend`, the C library `malloc`, `calloc`, and `free` typed to the header view, with nil for a failed allocation.
+A field of an `ENUM_TYPEDEFS` typedef, `memtag_t eTag`, is the `Int32` alias, and the view widens the stored `char` on a read and truncates on a write.
+A function whose body the view target holds under Raven's name, `ZoneTailFromHeader`, has no stub in the logic file, as the traps of `g_syscalls.c` have none, so every call reaches the view target's function.
 A field whose C name is a member of every view, `handle` or `raw`, has a `FIELD_NAMES` row of `rulings.py` where a body reads it, and the view spells it under that name, so `vmCvar->handle` reads `vmCvar.cvarHandle`.
 The `handle:` form stays inside generated code under rule 11, and a signature keeps the plain view type Raven's parameter had, never a generic or protocol parameter that absorbs the cast.
 A struct pointer field a body indexes, such as `animations` of `pmove_t` where Raven writes `pm->animations[anim]`, carries a second accessor, `<name>Slots: Slots<View>`, the way a `float *` field carries its `<name>Vector` accessor.
@@ -456,6 +466,8 @@ The function carries one comment line that says this.
 The header `Sources/CJKAMP/include/bg_tables.h` stays hand work, and it declares each array with a written bound, because the Swift importer drops an array of unknown bound, and clang checks the bound against the initializer.
 Every other struct-typed table with Raven's data, such as `fields[]` of `g_spawn.c`, is C storage the same way, and its stub entry says so.
 A scalar table with Raven's data that `SCALAR_DATA_TABLES` of `rulings.py` names, `PADDING` of `md4.cpp`, is C storage the same way, and the view target reads it as a `Slots` of its scalar, so `MD4Update(context, PADDING, padLen)` reads as Raven wrote it.
+The static zone blocks of `z_memman_pc.cpp`, `gZeroMalloc`, `gEmptyString`, and `gNumberString`, are C storage the same way, with `StaticZeroMem_t` and `StaticMem_t` in `ded_types.h` under Raven's `#pragma pack(1)`, and `DedTables.swift` reads each one as its view or a `Slots` of views.
+So `(zoneHeader_t *) &gZeroMalloc` of `Z_Malloc` reads `ZoneHeader(gZeroMalloc)`, the cast form of a view, and `CopyString` returns the text of the `mem` bytes of a block under a rule 24 line.
 A table of records that hold the address of a function or of a struct is not C storage, because C storage cannot hold the address of a Swift function or of a `GameStorage` record.
 Such a table is a hand array of `<View>Row` values on `GameWorld`, with Raven's rows in his order, and the stub forwards it under Raven's name.
 `spawns` of `g_spawn.c` is the hand `let spawns: [SpawnRow]`, one row per Raven name with a closure that calls the spawn function of that name, and the array's count takes the place of his `{0, 0}` row.
@@ -566,6 +578,7 @@ A ported body calls them exactly as Raven called `holdrand`'s five functions, wi
 
 A call to a function not yet ported stays a call to its stub.
 The stub compiles and traps at runtime with `portMissing`. The transcriptor does not port the callee to unblock the caller.
+A call to a platform function that no header of the parse declares, `timeGetTime` and `WSAGetLastError` of the Windows library, is a hole of the drafter with a Port-note that names the function.
 
 ### Primitive types
 
