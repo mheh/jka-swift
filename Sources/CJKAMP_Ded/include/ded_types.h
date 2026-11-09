@@ -104,4 +104,24 @@ typedef struct zone_s
 	zoneHeader_t			Header;
 } zone_t;
 
+// Source: oracle/codemp/qcommon/z_memman_pc.cpp:122
+#pragma pack(push)
+#pragma pack(1)
+// Source: oracle/codemp/qcommon/z_memman_pc.cpp:124
+typedef struct
+{
+	zoneHeader_t	Header;
+//	byte mem[0];
+	zoneTail_t		Tail;
+} StaticZeroMem_t;
+
+// Source: oracle/codemp/qcommon/z_memman_pc.cpp:131
+typedef struct
+{
+	zoneHeader_t	Header;
+	byte mem[2];
+	zoneTail_t		Tail;
+} StaticMem_t;
+#pragma pack(pop)
+
 #endif

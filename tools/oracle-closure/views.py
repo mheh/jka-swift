@@ -45,7 +45,7 @@ from clang.cindex import CursorKind, TypeKind
 
 import closure as C
 from reexport import DEPS, SCALARS, SOURCES, VIEW_OF, source_lines
-from rulings import BYTE_STORAGE_FIELDS, FIELD_NAMES, FIELDS, NEVER_NULL, NULLABLE, PARAMS, ROOTS, SLOT_BOUNDS
+from rulings import BYTE_STORAGE_FIELDS, ENUM_TYPEDEFS, FIELD_NAMES, FIELDS, NEVER_NULL, NULLABLE, PARAMS, ROOTS, SLOT_BOUNDS
 from spelling import Types
 
 # Every C target the translation unit of the run's unit reaches, most specific first.
@@ -447,8 +447,13 @@ class Generator:
             return self.property(name, "Int32", f"Int32({pointee})", f"{pointee} = {storage}(truncatingIfNeeded: newValue)")
         if swift in SCALARS.values():
             return self.property(name, swift, pointee, f"{pointee} = newValue")
-        # A re-exported enum is an Int32 alias, and Clang imports the C field as a struct, so the property goes through its rawValue.
         base = swift.split(".")[-1]
+        if base in ENUM_TYPEDEFS:
+            # The typedef is the Int32 alias of a C enum, and Raven's typedef stores it as a `char`, `eTag` of zoneHeader_t.
+            # The getter widens the stored value, and the setter truncates it, as C's store does.
+            storage_type = SCALARS[canonical.kind]
+            return self.property(name, swift, f"{swift}({pointee})", f"{pointee} = {storage_type}(truncatingIfNeeded: newValue)")
+        # A re-exported enum is an Int32 alias, and Clang imports the C field as a struct, so the property goes through its rawValue.
         if base in self.enums:
             return self.property(name, swift, f"Int32(truncatingIfNeeded: {pointee}.rawValue)",
                                  f"{pointee} = .init(rawValue: .init(truncatingIfNeeded: newValue))")

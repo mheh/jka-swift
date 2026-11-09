@@ -135,7 +135,8 @@ class Expressions:
             return None
         if base.referenced is None or base.referenced.kind != CursorKind.VAR_DECL:
             return None
-        return f"{swift_name(base.spelling)}[{self.converted(index, 'Int32')}]"
+        # A BYTE_STORAGE_LOCALS ruling moved the local to the storage class, so the slot is in its forward, `string_NET_OutOfBandData`.
+        return f"{self.storage_locals.get(base.spelling, swift_name(base.spelling))}[{self.converted(index, 'Int32')}]"
 
     def narrow_field_element(self, cur: ci.Cursor) -> bool:
         """True for Raven's `legs.shaderRGBA[i]`, a subscript over a field whose element is narrower than int."""
@@ -464,6 +465,10 @@ class Expressions:
                 return cur.spelling
             return self.joined_literal(text)
         if kind == CursorKind.DECL_REF_EXPR:
+            unresolved = next((k.spelling for k in cur.get_children() if k.kind == CursorKind.OVERLOADED_DECL_REF), None)
+            if not cur.spelling and unresolved:
+                # The C++ parse declares no platform function, `timeGetTime` of the Windows library, so the name has no declaration to spell.
+                raise Hole(f"Raven calls `{unresolved}`, which no header of the parse declares.")
             word = self.reference(cur)
             if cur.spelling in self.narrow_locals and cur.referenced is not None and cur.referenced.kind == CursorKind.VAR_DECL:
                 # C widens the narrow local to int at every read.

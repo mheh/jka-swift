@@ -114,6 +114,10 @@ public final class EngineStorage {
     /// Source: oracle/codemp/win32/win_shared.cpp:230
     public let regs_IsMMX: Slots<UInt32>
 
+    /// Raven's `zone_t TheZone` of `z_memman_pc.cpp`.
+    /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:77
+    public let TheZone: Zone
+
     public init() {
         self.box_model = EngineStorage.record(of: Cmodel.self)
         self.p = Slots(vectors: EngineStorage.bytes(count: Int(JKAMP_Ded.MAX_POINTS_ON_WINDING) * JKAShared.vec3_t.byteCount), count: Int(JKAMP_Ded.MAX_POINTS_ON_WINDING))
@@ -142,6 +146,7 @@ public final class EngineStorage {
         self.regs_IsKNI = Slots(scalars: EngineStorage.bytes(count: 4 * MemoryLayout<UInt32>.stride), count: 4)
         self.regs_IsWIL = Slots(scalars: EngineStorage.bytes(count: 4 * MemoryLayout<UInt32>.stride), count: 4)
         self.regs_IsMMX = Slots(scalars: EngineStorage.bytes(count: 4 * MemoryLayout<UInt32>.stride), count: 4)
+        self.TheZone = EngineStorage.record(of: Zone.self)
     }
 
     deinit {
@@ -172,6 +177,7 @@ public final class EngineStorage {
         self.regs_IsKNI.base.deallocate()
         self.regs_IsWIL.base.deallocate()
         self.regs_IsMMX.base.deallocate()
+        UnsafeMutableRawPointer(self.TheZone.handle).deallocate()
     }
 
     /// One zeroed record, read through its view.

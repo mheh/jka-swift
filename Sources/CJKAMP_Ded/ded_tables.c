@@ -814,3 +814,25 @@ unsigned char PADDING[64] = {
 // Source: oracle/codemp/qcommon/md4.cpp:79-80
 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
+
+// Raven's magic number of z_memman_pc.cpp, which the static blocks below name.
+// Source: oracle/codemp/qcommon/z_memman_pc.cpp:28
+#define ZONE_MAGIC			0x21436587
+
+// Source: oracle/codemp/qcommon/z_memman_pc.cpp:139-154
+StaticZeroMem_t gZeroMalloc  =
+	{ {ZONE_MAGIC, TAG_STATIC,0,NULL,NULL},{ZONE_MAGIC}};
+StaticMem_t gEmptyString =
+	{ {ZONE_MAGIC, TAG_STATIC,2,NULL,NULL},'\0','\0',{ZONE_MAGIC}};
+StaticMem_t gNumberString[] = {
+	{ {ZONE_MAGIC, TAG_STATIC,2,NULL,NULL},'0','\0',{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, TAG_STATIC,2,NULL,NULL},'1','\0',{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, TAG_STATIC,2,NULL,NULL},'2','\0',{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, TAG_STATIC,2,NULL,NULL},'3','\0',{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, TAG_STATIC,2,NULL,NULL},'4','\0',{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, TAG_STATIC,2,NULL,NULL},'5','\0',{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, TAG_STATIC,2,NULL,NULL},'6','\0',{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, TAG_STATIC,2,NULL,NULL},'7','\0',{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, TAG_STATIC,2,NULL,NULL},'8','\0',{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, TAG_STATIC,2,NULL,NULL},'9','\0',{ZONE_MAGIC}},
+};

@@ -562,6 +562,13 @@ func NET_SendPacket(_ sock: netsrc_t, _ length: Int32, _ data: Slots<JKAShared.b
     Sys_SendPacket(length, data, to)
 }
 
+/// Source: oracle/codemp/qcommon/net_chan.cpp:531
+// Port-note: The overload of the row "CharBuf as send data", for the `char string[MAX_MSGLEN]` that NET_OutOfBandPrint hands to `const void *data`, net_chan.cpp:575.
+// AI: Raven casts the caller's `char *` to `const void *`. A CharBuf overload hands the bytes of the buffer on as a Slots of bytes.
+func NET_SendPacket(_ sock: netsrc_t, _ length: Int32, _ data: CharBuf, _ to: Netadr) {
+    data.withSlots { NET_SendPacket(sock, length, $0, to) }
+}
+
 /**
 ```
 ===============
@@ -585,9 +592,7 @@ func NET_OutOfBandPrint(_ sock: netsrc_t, _ adr: Netadr, _ format: String, _ arg
     strcpy(&string, JKAShared.format(format, args), at: 4)
 
     // send the datagram
-    // Port-note: Open row "CharBuf as send data". The local `char string[MAX_MSGLEN]` is a `CharBuf`, and the `data` parameter of `NET_SendPacket` takes a `Slots<byte>`.
-    // Raven wrote: NET_SendPacket( sock, strlen( string ), string, adr );
-    portMissing("NET_OutOfBandPrint", source: "oracle/codemp/qcommon/net_chan.cpp:559")
+    NET_SendPacket(sock, strlen(string), string, adr)
 }
 
 /**

@@ -898,6 +898,20 @@ class Classification:
     def expr_name(self, name: str) -> str:
         return self.names.get(name, swift_name(name))
 
+    def byte_slots_base(self, cur: ci.Cursor) -> str | None:
+        """The Slots spelling of the base of Raven's `fout[i]` over a `byte *` or a `byte` array that Swift holds as a Slots of bytes, or None."""
+        inner = self.unwrap(cur)
+        if inner.kind != CursorKind.ARRAY_SUBSCRIPT_EXPR:
+            return None
+        base = list(inner.get_children())[0]
+        t = self.strip(base).type.get_canonical()
+        element = t.get_pointee() if t.kind == TypeKind.POINTER else t.element_type if t.kind == TypeKind.CONSTANTARRAY else None
+        if element is None or element.get_canonical().kind != TypeKind.UCHAR:
+            return None
+        if self.narrow_element(cur) is not None or not self.slots_source(base):
+            return None
+        return self.slots_expression(base)
+
     def slots_source(self, cur: ci.Cursor) -> bool:
         """True when Swift holds the name as a `Slots<...>`: a file-scope table of records, a parameter the table gave that kind,
         or a local whose every store holds a table."""

@@ -24,12 +24,6 @@ public final class EngineWorld {
     /// Source: oracle/codemp/qcommon/msg.cpp:522
     var string_MSG_ReadStringLine = CharBuf(MAX_STRING_CHARS)
 
-    // MARK: - z_memman_pc.cpp
-
-    /// Raven's `zone_t TheZone` of `z_memman_pc.cpp`, one zeroed record.
-    /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:77
-    let TheZone = Zone.record()
-
     // MARK: - Raven's data tables
 
     // MARK: - cm_shader.cpp

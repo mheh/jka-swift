@@ -225,6 +225,14 @@ HOST_ROOTS = {
     "loopback_t": ("Loopback", "CJKAMP_Ded"),
     # The two file-scope lists of msg.cpp:2002, `g_netfBitStorage` and `g_psfBitStorage`, hold these nodes.
     "bitStorage_t": ("BitStorage", "CJKAMP_Ded"),
+    # The zone of z_memman_pc.cpp:30 to :72, the header before each block, the tail after it, the counts, and `TheZone` at :77.
+    "zoneHeader_t": ("ZoneHeader", "CJKAMP_Ded"),
+    "zoneTail_t": ("ZoneTail", "CJKAMP_Ded"),
+    "zoneStats_t": ("ZoneStats", "CJKAMP_Ded"),
+    "zone_t": ("Zone", "CJKAMP_Ded"),
+    # The static blocks of z_memman_pc.cpp:124 and :131, which hold `gZeroMalloc`, `gEmptyString`, and `gNumberString`, and ded_tables.c holds the three as C storage.
+    "StaticZeroMem_t": ("StaticZeroMem", "CJKAMP_Ded"),
+    "StaticMem_t": ("StaticMem", "CJKAMP_Ded"),
     # The four netField tables of msg.cpp hold these rows, and ded_tables.c holds the tables as C storage.
     "netField_t": ("NetField", "CJKAMP_Ded"),
 }
@@ -456,6 +464,9 @@ RETURNS = {
     # Hunk_Alloc of z_memman_pc.cpp:791 and Z_Malloc of z_memman_pc.cpp:157 return one block per call, the G_Alloc form.
     "Hunk_Alloc": "raw",
     "Z_Malloc": "raw",
+    # S_Malloc of z_memman_pc.cpp:480 and Hunk_AllocateTempMemory of :804 return the block of one Z_Malloc call, so each takes its row.
+    "S_Malloc": "raw",
+    "Hunk_AllocateTempMemory": "raw",
 }
 
 # Allocators whose `char *` result a body holds as a CharBuf of the constant size Raven asks for, when every store into the local is that call.
