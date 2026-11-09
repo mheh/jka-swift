@@ -43,9 +43,10 @@ var c_patch_traces: Int32 {
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:42
-// TODO: Port global cmod_base
-// Raven wrote: byte *cmod_base
-// No table row for `byte *`.
+var cmod_base: Slots<JKAShared.byte>? {
+    get { world.variables.cmod_base }
+    set { world.variables.cmod_base = newValue }
+}
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:45
 var cm_noAreas: JKAMP.Cvar? {

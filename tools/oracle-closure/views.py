@@ -399,6 +399,17 @@ class Generator:
                 # A pointer to a record no header completes, such as `struct worldSector_s *` of server.h, imports as an `OpaquePointer?` itself.
                 return self.property(name, "OpaquePointer?", pointee, f"{pointee} = newValue")
             back = "UnsafeMutableRawPointer" if inner.get_canonical().kind == TypeKind.VOID else "UnsafeMutablePointer"
+            if inner.is_const_qualified() and inner.get_canonical().kind == TypeKind.FLOAT:
+                # A `const float *` field, `mins` of moveclip_t, imports as an UnsafePointer, so the setter stores one and the vector reads alone.
+                lines = self.property(name, "OpaquePointer?", f"OpaquePointer({pointee})", f"{pointee} = UnsafePointer(newValue)")
+                return lines + [
+                    "",
+                    f"    /// Raven's `{name}[i]`, the vector the pointer holds. A NULL pointer traps with the field's name.",
+                    f"    public var {name}Vector: JKAShared.vec3_t {{",
+                    f"        precondition({pointee} != nil, \"{name} is NULL\")",
+                    f"        return JKAShared.vec3_t({pointee}![0], {pointee}![1], {pointee}![2])",
+                    "    }",
+                ]
             lines = self.property(name, "OpaquePointer?", f"OpaquePointer({pointee})", f"{pointee} = {back}(newValue)")
             if inner.get_canonical().kind == TypeKind.FLOAT:
                 # Raven reads a `float *` field as the vector it points at, so the view reads and writes three floats through the pointer.

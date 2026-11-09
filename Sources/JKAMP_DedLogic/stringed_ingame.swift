@@ -739,9 +739,8 @@ extension CStringEdPackage {
 // return is either NULL for good else error message to display...
 //
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:828
-// AI: Raven returns NULL for a good load. The function returns "" for NULL, because no message of his is empty.
-private func SE_Load_Actual(_ psFileName: String, _ bLoadDebug: Bool, _ bSpeculativeLoad: Bool) -> String {
-    var psErrorMessage = ""
+private func SE_Load_Actual(_ psFileName: String, _ bLoadDebug: Bool, _ bSpeculativeLoad: Bool) -> String? {
+    var psErrorMessage: String? = nil
 
     // Port-note: Row S2. SE_LoadFileData has no signature for its `unsigned char *` return, so the load stops here.
     // Raven wrote: unsigned char *psLoadedData = SE_LoadFileData( psFileName );
@@ -758,18 +757,20 @@ private func SE_Load_Actual(_ psFileName: String, _ bLoadDebug: Bool, _ bSpecula
         TheStringPackage.SetupNewFileParse(psFileName, bLoadDebug)
 
         var sLineBuffer = CharBuf(16384)	// should be enough for one line of text (some of them can be BIG though)
-        while psErrorMessage.isEmpty && TheStringPackage.ReadLine(&psParsePos, &sLineBuffer) {
+        while psErrorMessage == nil && TheStringPackage.ReadLine(&psParsePos, &sLineBuffer) {
             if strlen(sLineBuffer) != 0 {
                 //				__DEBUGOUT( sLineBuffer );
                 //				__DEBUGOUT( "\n" );
 
-                psErrorMessage = TheStringPackage.ParseLine(String(sLineBuffer))
+                // AI: Raven stores the NULL of ParseLine. The method returns "" for NULL, so the store reads "" as nil.
+                let psLineError = TheStringPackage.ParseLine(String(sLineBuffer))
+                psErrorMessage = psLineError.isEmpty ? nil : psLineError
             }
         }
 
         SE_FreeFileDataAfterLoad(psLoadedData!)
 
-        if psErrorMessage.isEmpty && !TheStringPackage.EndMarkerFoundDuringParse() {
+        if psErrorMessage == nil && !TheStringPackage.EndMarkerFoundDuringParse() {
             psErrorMessage = va("Truncated file, failed to find \"%s\" at file end!", sSE_KEYWORD_ENDMARKER)
         }
     } else {
@@ -784,11 +785,7 @@ private func SE_Load_Actual(_ psFileName: String, _ bLoadDebug: Bool, _ bSpecula
 }
 
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:875
-// TODO: Port signature
-// Raven wrote: static LPCSTR SE_GetFoundFile( string &strResult )
-// No table row for `string & strResult`.
-// Port-note: Row S1. The table has no row for the C++ `string &` parameter, so the stub keeps its marker.
-private func SE_GetFoundFile() -> Never {
+private func SE_GetFoundFile(_ strResult: inout String) -> String? {
     // TODO: Port SE_GetFoundFile
     portMissing("SE_GetFoundFile", source: "oracle/codemp/qcommon/stringed_ingame.cpp:875")
 }
@@ -800,8 +797,7 @@ private func SE_GetFoundFile() -> Never {
 // return is either NULL for good else error message to display...
 //
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:910
-// AI: Raven returns NULL for a good load. The function returns "" for NULL, because no message of his is empty.
-func SE_Load(_ psFileName: String, _ bLoadDebug: Bool, _ bFailIsCritical: Bool) -> String {
+func SE_Load(_ psFileName: String, _ bLoadDebug: Bool, _ bFailIsCritical: Bool) -> String? {
     // Raven sets his own `psFileName` parameter to the built name, so the body takes a copy.
     var psFileName = psFileName
     ////////////////////////////////////////////////////
@@ -828,7 +824,7 @@ func SE_Load(_ psFileName: String, _ bLoadDebug: Bool, _ bFailIsCritical: Bool) 
 
     // check for any corresponding / overriding .STE files and load them afterwards...
     //
-    if psErrorMessage.isEmpty {
+    if psErrorMessage == nil {
         var sFileName = CharBuf(iSE_MAX_FILENAME_LENGTH)
         strncpy(&sFileName, psFileName, sFileName.count - 1)
         sFileName[sFileName.count - 1] = 0
@@ -840,10 +836,10 @@ func SE_Load(_ psFileName: String, _ bLoadDebug: Bool, _ bFailIsCritical: Bool) 
         }
     }
 
-    if !psErrorMessage.isEmpty {
+    if psErrorMessage != nil {
         if bFailIsCritical {
             //		TheStringPackage.Clear(TRUE);	// Will we want to do this?  Any errors that arise should be fixed immediately
-            Com_Error(ERR_DROP, "SE_Load(): Couldn't load \"%s\"!\n\nError: \"%s\"\n", psFileName, psErrorMessage)
+            Com_Error(ERR_DROP, "SE_Load(): Couldn't load \"%s\"!\n\nError: \"%s\"\n", psFileName, psErrorMessage!)
         } else {
             Com_DPrintf(S_COLOR_YELLOW + "SE_Load(): Couldn't load \"%s\"!\n", psFileName)
         }
@@ -1017,8 +1013,8 @@ func SE_Init() {
     }
 
     let psErrorMessage = SE_LoadLanguage(se_language!.string!)
-    if !psErrorMessage.isEmpty {
-        Com_Error(ERR_DROP, "SE_Init() Unable to load language: \"%s\"!\nError: \"%s\"\n", se_language!.string!, psErrorMessage)
+    if psErrorMessage != nil {
+        Com_Error(ERR_DROP, "SE_Init() Unable to load language: \"%s\"!\nError: \"%s\"\n", se_language!.string!, psErrorMessage!)
     }
 }
 
@@ -1032,9 +1028,8 @@ func SE_ShutDown() {
 // Any errors that result from this should probably be treated as game-fatal, since an asset file is fuxored.
 //
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:1208
-// AI: Raven returns NULL for a good load. The function returns "" for NULL, because no message of his is empty.
-func SE_LoadLanguage(_ psLanguage: String, _ bLoadDebug: Bool = true) -> String {
-    let psErrorMessage = ""
+func SE_LoadLanguage(_ psLanguage: String, _ bLoadDebug: Bool = true) -> String? {
+    let psErrorMessage: String? = nil
 
     if !psLanguage.isEmpty {
         SE_NewLanguage()
@@ -1057,8 +1052,8 @@ func SE_LoadLanguage(_ psLanguage: String, _ bLoadDebug: Bool = true) -> String 
 func SE_CheckForLanguageUpdates() {
     if se_language != nil && se_language!.modified {
         let psErrorMessage = SE_LoadLanguage(se_language!.string!, true)
-        if !psErrorMessage.isEmpty {
-            Com_Error(ERR_DROP, psErrorMessage)
+        if psErrorMessage != nil {
+            Com_Error(ERR_DROP, psErrorMessage!)
         }
         se_language!.modified = false
     }

@@ -631,9 +631,11 @@ class Skeleton:
 
     def map_variable(self, var: Variable) -> None:
         """The Swift type of a variable, or the reason it has none. A struct table is C storage, never a Swift type."""
-        if var.name in TYPES:
+        key = next((k for k in (f"{var.stem}:{var.name}", var.name) if k in TYPES), None)
+        if key is not None:
             # A TYPES ruling names the variable, because Raven's declared type is not the type he stores through it.
-            var.swift = TYPES[var.name]
+            # A key `stem:name` names the variable of one file, where another file declares the name with another type.
+            var.swift = TYPES[key]
             return
         t = var.cur.type
         canonical = t.get_canonical()

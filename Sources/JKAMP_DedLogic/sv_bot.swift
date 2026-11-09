@@ -4,9 +4,10 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/server/sv_bot.cpp:16
-// TODO: Port global debugpolygons
-// Raven wrote: static bot_debugpoly_t *debugpolygons
-// No table row for `bot_debugpoly_t *`.
+private var debugpolygons: Slots<BotDebugpoly>? {
+    get { world.variables.sv_bot_debugpolygons }
+    set { world.variables.sv_bot_debugpolygons = newValue }
+}
 
 /// Source: oracle/codemp/server/sv_bot.cpp:17
 var bot_maxdebugpolys: Int32 {
@@ -27,9 +28,7 @@ var gWPNum: Int32 {
 }
 
 /// Source: oracle/codemp/server/sv_bot.cpp:23
-// TODO: Port global gWPArray
-// Raven wrote: static wpobject_t *gWPArray[MAX_WPARRAY_SIZE]
-// No table row for `wpobject_t *[4096]`.
+var gWPArray: Slots<JKAMP.Wpobject?> { world.storage.gWPArray }
 
 /// Source: oracle/codemp/server/sv_bot.cpp:25
 private func NotWithinRange(_ base: Int32, _ extent: Int32) -> Int32 {
@@ -65,10 +64,7 @@ func SV_OrgVisibleBox(_ org1: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs
 }
 
 /// Source: oracle/codemp/server/sv_bot.cpp:63
-// TODO: Port signature
-// Raven wrote: void SV_BotWaypointReception(int wpnum, wpobject_t **wps)
-// No table row for `wpobject_t ** wps`.
-func SV_BotWaypointReception() -> Never {
+func SV_BotWaypointReception(_ wpnum: Int32, _ wps: Slots<JKAMP.Wpobject?>) {
     // TODO: Port SV_BotWaypointReception
     portMissing("SV_BotWaypointReception", source: "oracle/codemp/server/sv_bot.cpp:63")
 }
@@ -392,10 +388,7 @@ func BotImport_BSPModelMinsMaxsOrigin(_ modelnum: Int32, _ angles: JKAShared.vec
 }
 
 /// Source: oracle/codemp/server/sv_bot.cpp:416
-// TODO: Port signature
-// Raven wrote: void *Bot_GetMemoryGame(int size)
-// No table row for the return `void *`.
-func Bot_GetMemoryGame() -> Never {
+func Bot_GetMemoryGame(_ size: Int32) -> UnsafeMutableRawPointer {
     // TODO: Port Bot_GetMemoryGame
     portMissing("Bot_GetMemoryGame", source: "oracle/codemp/server/sv_bot.cpp:416")
 }
@@ -420,10 +413,7 @@ BotImport_GetMemory
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:438
-// TODO: Port signature
-// Raven wrote: void *BotImport_GetMemory(int size)
-// No table row for the return `void *`.
-func BotImport_GetMemory() -> Never {
+func BotImport_GetMemory(_ size: Int32) -> UnsafeMutableRawPointer {
     // TODO: Port BotImport_GetMemory
     portMissing("BotImport_GetMemory", source: "oracle/codemp/server/sv_bot.cpp:438")
 }
@@ -448,10 +438,7 @@ BotImport_HunkAlloc
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:459
-// TODO: Port signature
-// Raven wrote: void *BotImport_HunkAlloc( int size )
-// No table row for the return `void *`.
-func BotImport_HunkAlloc() -> Never {
+func BotImport_HunkAlloc(_ size: Int32) -> UnsafeMutableRawPointer {
     // TODO: Port BotImport_HunkAlloc
     portMissing("BotImport_HunkAlloc", source: "oracle/codemp/server/sv_bot.cpp:459")
 }
@@ -464,7 +451,7 @@ BotImport_DebugPolygonCreate
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:471
-func BotImport_DebugPolygonCreate(_ color: Int32, _ numPoints: Int32, _ points: inout JKAShared.vec3_t) -> Int32 {
+func BotImport_DebugPolygonCreate(_ color: Int32, _ numPoints: Int32, _ points: Slots<JKAShared.vec3_t>) -> Int32 {
     // Port-note: A pointer local `bot_debugpoly_t * poly` with no view, row B3.
     // Raven wrote: bot_debugpoly_t *poly;
     portMissing("BotImport_DebugPolygonCreate", source: "oracle/codemp/server/sv_bot.cpp:471")
@@ -511,7 +498,7 @@ BotImport_DebugPolygonShow
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:498
-func BotImport_DebugPolygonShow(_ id: Int32, _ color: Int32, _ numPoints: Int32, _ points: inout JKAShared.vec3_t) {
+func BotImport_DebugPolygonShow(_ id: Int32, _ color: Int32, _ numPoints: Int32, _ points: Slots<JKAShared.vec3_t>) {
     // Port-note: A pointer local `bot_debugpoly_t * poly` with no view, row B3.
     // Raven wrote: bot_debugpoly_t *poly;
     portMissing("BotImport_DebugPolygonShow", source: "oracle/codemp/server/sv_bot.cpp:498")

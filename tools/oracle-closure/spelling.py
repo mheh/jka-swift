@@ -18,7 +18,7 @@ from clang.cindex import CursorKind, TypeKind
 
 import closure as C
 from reexport import NARROW, SCALARS
-from rulings import TYPES
+from rulings import CXX_CLASSES, TYPES
 
 TARGET = C.TARGETS["c_target"]
 BUILTINS = set(SCALARS.values()) | {"Bool", "Float", "Int32"}
@@ -318,9 +318,39 @@ class Types:
             if alias:
                 return Answer(f"{alias}?", "bare")
         if facts.ruled == "bytes" and canonical.kind == TypeKind.POINTER:
+            if canonical.get_pointee().get_canonical().kind == TypeKind.INT:
+                # An `int *` list the body fills, `int *entityList` of SV_AreaEntities, is the caller's Slots of Int32, the rule of the field kind.
+                return Answer("Slots<Int32>", "slots")
             # The body hands the pointer on as bytes, `MD4Update(&ctx, (unsigned char *)buffer, length)`, so the caller's Slots over the bytes
             # crosses, the row a host `byte *` has.
             return Answer("Slots<JKAShared.byte>", "slots")
+        if facts.ruled == "string_list":
+            # A `char **` list of zone texts the body reads or frees is the caller's array of texts, the return twin.
+            return Answer("[String]", "bare")
+        if facts.ruled == "string_list_mut":
+            # The body reorders the caller's list in place, FS_SortFileList.
+            return Answer("inout [String]", "bare")
+        if facts.ruled == "string_slice":
+            # The body fills the caller's list by index, `psList[*numfiles] = CopyString(...)`, the `char *infos[]` row.
+            return Answer("inout ArraySlice<String>", "string_slice")
+        if facts.ruled == "string_value":
+            # A qsort comparator reads its `const void *` as `*(char **)`, so the text crosses, the text twin of int_value.
+            return Answer("String", "bare")
+        if facts.ruled == "std_string" and canonical.kind == TypeKind.LVALUEREFERENCE:
+            # A C++ `std::string &` the body writes is the caller's String, the reference twin of out_string.
+            return Answer("inout String", "out_string_ref")
+        if facts.ruled == "vec4_const":
+            # The body reads the four floats of a plane and writes none, the form a `vec4_t` parameter has.
+            return Answer("JKAShared.vec4_t", "bare")
+        if facts.ruled == "table" and canonical.kind == TypeKind.POINTER and t.get_pointee().spelling.replace("const ", "") in VECTORS:
+            # Raven indexes the vectors through the pointer with a count beside it, so the Slots over them crosses, the row of a record table.
+            return Answer("Slots<JKAShared.vec3_t>", "slots")
+        if canonical.kind in (TypeKind.LVALUEREFERENCE, TypeKind.POINTER) and not facts.traps:
+            # A C++ class of CXX_CLASSES is the hand Swift class of the same name, a reference by itself and a pointer optional, rule 17.
+            declaration = canonical.get_pointee().get_canonical().get_declaration()
+            if declaration is not None and declaration.spelling in CXX_CLASSES:
+                swift = CXX_CLASSES[declaration.spelling]
+                return Answer(swift if canonical.kind == TypeKind.LVALUEREFERENCE else f"{swift}?", "bare")
         if facts.ruled == "int_array_mut":
             # The body writes the caller's `int` array by index, so the array crosses inout, the `int` twin of float_array.
             return Answer("inout [Int32]", "bare")
@@ -334,6 +364,9 @@ class Types:
         # A `sizeof` before a pointer is a byte stride and not a count, `trap_LocateGameData(..., sizeofGEntity_t, clients, ...)`.
         filled = facts.traps and facts.preceding is not None and facts.preceding.type.get_canonical().kind in INT_KINDS \
             and facts.preceding.spelling.startswith("max")
+        if t.spelling.split()[-1] == "vec3pair_t" and not facts.traps:
+            # `typedef vec3_t vec3pair_t[2]` is a pair of bounds, the caller's array of two vectors, the form of the axis.
+            return Answer("[JKAShared.vec3_t]", "bare") if "const" in t.spelling else Answer("inout [JKAShared.vec3_t]", "vec3_axis")
         # A vector parameter is the array type itself, and Clang keeps the typedef name on the parameter.
         if t.spelling.split()[-1] in VECTORS:
             if filled and "const" not in t.spelling:

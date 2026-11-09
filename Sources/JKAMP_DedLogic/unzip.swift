@@ -54,21 +54,13 @@ let BUFREADCOMMENT = (0x400) as Int32
 ```
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:255
-// TODO: Port signature
-// Raven wrote: static int unzlocal_getShort (ZIP_FILE* fin, uLong *pX)
-// No table row for `FILE * fin`.
-// Port-note: The signature waits for row U1 of the unzip round, so the function keeps its marker.
-private func unzlocal_getShort() -> Never {
+private func unzlocal_getShort(_ fin: OpaquePointer?, _ pX: inout CUnsignedLong) -> Int32 {
     // TODO: Port unzlocal_getShort
     portMissing("unzlocal_getShort", source: "oracle/codemp/qcommon/unzip.cpp:255")
 }
 
 /// Source: oracle/codemp/qcommon/unzip.cpp:265
-// TODO: Port signature
-// Raven wrote: static int unzlocal_getLong (ZIP_FILE *fin, uLong *pX)
-// No table row for `FILE * fin`.
-// Port-note: The signature waits for row U1 of the unzip round, so the function keeps its marker.
-private func unzlocal_getLong() -> Never {
+private func unzlocal_getLong(_ fin: OpaquePointer?, _ pX: inout CUnsignedLong) -> Int32 {
     // TODO: Port unzlocal_getLong
     portMissing("unzlocal_getLong", source: "oracle/codemp/qcommon/unzip.cpp:265")
 }
@@ -143,21 +135,13 @@ func unzStringFileNameCompare(_ fileName1: String, _ fileName2: String, _ iCaseS
 ```
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:335
-// TODO: Port signature
-// Raven wrote: static uLong unzlocal_SearchCentralDir(ZIP_FILE *fin)
-// No table row for `FILE * fin`.
-// Port-note: The signature waits for row U1 of the unzip round, so the function keeps its marker.
-private func unzlocal_SearchCentralDir() -> Never {
+private func unzlocal_SearchCentralDir(_ fin: OpaquePointer?) -> CUnsignedLong {
     // TODO: Port unzlocal_SearchCentralDir
     portMissing("unzlocal_SearchCentralDir", source: "oracle/codemp/qcommon/unzip.cpp:335")
 }
 
 /// Source: oracle/codemp/qcommon/unzip.cpp:388
-// TODO: Port signature
-// Raven wrote: extern unzFile unzReOpen (const char* path, unzFile file)
-// No table row for the return `unzFile`.
-// Port-note: The signature waits for row U2 of the unzip round, so the function keeps its marker.
-func unzReOpen() -> Never {
+func unzReOpen(_ path: String, _ file: OpaquePointer?) -> OpaquePointer? {
     // TODO: Port unzReOpen
     portMissing("unzReOpen", source: "oracle/codemp/qcommon/unzip.cpp:388")
 }
@@ -174,11 +158,7 @@ func unzReOpen() -> Never {
 ```
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:413
-// TODO: Port signature
-// Raven wrote: extern unzFile unzOpen (const char* path)
-// No table row for the return `unzFile`.
-// Port-note: The signature waits for row U2 of the unzip round, so the function keeps its marker.
-func unzOpen() -> Never {
+func unzOpen(_ path: String) -> OpaquePointer? {
     // TODO: Port unzOpen
     portMissing("unzOpen", source: "oracle/codemp/qcommon/unzip.cpp:413")
 }
@@ -240,7 +220,7 @@ private func unzlocal_DosDateToTmuDate(_ ulDosDate: CUnsignedLong, _ ptm: Tm_unz
 ```
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:558
-private func unzlocal_GetCurrentFileInfoInternal(_ file: OpaquePointer?, _ pfile_info: Unz_file_info, _ pfile_info_internal: Unz_file_info_internal?, _ szFileName: inout JKAShared.CharBuf, _ fileNameBufferSize: CUnsignedLong, _ extraField: OpaquePointer?, _ extraFieldBufferSize: CUnsignedLong, _ szComment: inout JKAShared.CharBuf, _ commentBufferSize: CUnsignedLong) -> Int32 {
+private func unzlocal_GetCurrentFileInfoInternal(_ file: OpaquePointer?, _ pfile_info: Unz_file_info?, _ pfile_info_internal: Unz_file_info_internal?, _ szFileName: inout JKAShared.CharBuf, _ fileNameBufferSize: CUnsignedLong, _ extraField: OpaquePointer?, _ extraFieldBufferSize: CUnsignedLong, _ szComment: inout JKAShared.CharBuf, _ commentBufferSize: CUnsignedLong) -> Int32 {
     // TODO: Port unzlocal_GetCurrentFileInfoInternal
     portMissing("unzlocal_GetCurrentFileInfoInternal", source: "oracle/codemp/qcommon/unzip.cpp:558")
 }

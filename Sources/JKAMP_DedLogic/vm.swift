@@ -885,7 +885,7 @@ func VM_Call(_ vm: Vm, _ callnum: Int32, _ args: any JKAShared.FormatArg...) -> 
 //=================================================================
 
 /// Source: oracle/codemp/qcommon/vm.cpp:833
-private func VM_ProfileSort(_ a: OpaquePointer?, _ b: OpaquePointer?) -> Int32 {
+private func VM_ProfileSort(_ a: VmSymbol?, _ b: VmSymbol?) -> Int32 {
     // TODO: Port VM_ProfileSort
     portMissing("VM_ProfileSort", source: "oracle/codemp/qcommon/vm.cpp:833")
 }

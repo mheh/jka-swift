@@ -2158,6 +2158,20 @@ class Table:
         if ruled == "record" and cur.result_type.get_canonical().kind == TypeKind.RECORD:
             # Raven returns the record by value, and the body returns the view of a record that lives past the call, a storage record or a table slot.
             return (self.views.qualified_view(self.views.record_name(cur.result_type), TARGET), "")
+        if ruled == "bytes":
+            # A row of a byte buffer the caller indexes, the return twin of the PARAMS kind.
+            return ("Slots<JKAShared.byte>", "")
+        if ruled == "optional_bytes":
+            return ("Slots<JKAShared.byte>?", "")
+        if ruled == "string_list":
+            # A `char **` list of zone texts with its count beside it, nil-free, and the count stays the `int *` out-param.
+            return ("[String]", "")
+        if ruled == "class_ref":
+            # A pointer to an instance of a C++ class of CXX_CLASSES, or NULL, is the hand Swift class, optional.
+            from rulings import CXX_CLASSES
+            declaration = cur.result_type.get_canonical().get_pointee().get_canonical().get_declaration()
+            if declaration is not None and declaration.spelling in CXX_CLASSES:
+                return (f"{CXX_CLASSES[declaration.spelling]}?", "")
         if ruled == "slot":
             # The address of one record pointer slot is the Slots of one optional view over it, the form of a `node_t **` field.
             record = self.views.record_name(cur.result_type.get_canonical().get_pointee().get_canonical().get_pointee())

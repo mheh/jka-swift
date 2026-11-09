@@ -5,6 +5,8 @@ import JKAMP
 import JKAShared
 
 /// The C types of the stored functions, one per signature, and the address compares Raven's `==` and `!=` did.
+public typealias LeafListStoreLeafs = @convention(c) (OpaquePointer?, Int32) -> Void
+
 public typealias VmEntryPoint = @convention(c) (Int32) -> Int32
 
 public typealias VmSystemCall = @convention(c) (OpaquePointer?) -> Int32

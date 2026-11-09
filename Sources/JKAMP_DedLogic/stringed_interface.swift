@@ -14,11 +14,7 @@ var giFilesFound: Int32 {
 //  returns either char * of loaded file, else NULL for failed-to-open...
 //
 /// Source: oracle/codemp/qcommon/stringed_interface.cpp:41
-// TODO: Port signature
-// Raven wrote: unsigned char *SE_LoadFileData( const char *psFileName, int *piLoadedLength /* = 0 */)
-// No table row for the return `unsigned char *`.
-// Port-note: Row S2. The table has no row for the `unsigned char *` return or the `int *` length, so the stub keeps its marker.
-func SE_LoadFileData() -> Never {
+func SE_LoadFileData(_ psFileName: String, _ piLoadedLength: inout Int32) -> Slots<JKAShared.byte>? {
     // TODO: Port SE_LoadFileData
     portMissing("SE_LoadFileData", source: "oracle/codemp/qcommon/stringed_interface.cpp:41")
 }
@@ -33,11 +29,7 @@ func SE_FreeFileDataAfterLoad(_ psLoadedFile: Slots<UInt8>) {
 }
 
 /// Source: oracle/codemp/qcommon/stringed_interface.cpp:132
-// TODO: Port signature
-// Raven wrote: static void SE_R_ListFiles( const char *psExtension, const char *psDir, string &strResults )
-// No table row for `string & strResults`.
-// Port-note: Row S1. The table has no row for the C++ `string &` parameter, and FS_ListFiles has no signature for its `char **` return.
-private func SE_R_ListFiles() -> Never {
+private func SE_R_ListFiles(_ psExtension: String, _ psDir: String, _ strResults: inout String) {
     // TODO: Port SE_R_ListFiles
     portMissing("SE_R_ListFiles", source: "oracle/codemp/qcommon/stringed_interface.cpp:132")
 }
@@ -47,11 +39,7 @@ private func SE_R_ListFiles() -> Never {
 // expected result is a ';'-delineated string (including last one) containing file-list search results
 //
 /// Source: oracle/codemp/qcommon/stringed_interface.cpp:192
-// TODO: Port signature
-// Raven wrote: int SE_BuildFileList( const char *psStartDir, string &strResults )
-// No table row for `string & strResults`.
-// Port-note: Row S1. The table has no row for the C++ `string &` parameter, so the stub keeps its marker.
-func SE_BuildFileList() -> Never {
+func SE_BuildFileList(_ psStartDir: String, _ strResults: inout String) -> Int32 {
     // TODO: Port SE_BuildFileList
     portMissing("SE_BuildFileList", source: "oracle/codemp/qcommon/stringed_interface.cpp:192")
 }
