@@ -54,7 +54,7 @@ var numPlanes: Int32 {
 var planes: Slots<PatchPlane> { world.storage.planes }
 
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:435
-var facets: Facet? {
+var facets: Slots<Facet>? {
     get { world.variables.facets }
     set { world.variables.facets = newValue }
 }
@@ -210,10 +210,7 @@ Swaps the rows and columns in place
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:218
-// TODO: Port signature
-// Raven wrote: static void CM_TransposeGrid( cGrid_t *grid )
-// No table row for `cGrid_t * grid`.
-private func CM_TransposeGrid() -> Never {
+private func CM_TransposeGrid(_ grid: CGrid) {
     // TODO: Port CM_TransposeGrid
     portMissing("CM_TransposeGrid", source: "oracle/codemp/qcommon/cm_patch.cpp:218")
 }
@@ -228,10 +225,7 @@ If the left and right columns are exactly equal, set grid->wrapWidth qtrue
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:269
-// TODO: Port signature
-// Raven wrote: static void CM_SetGridWrapWidth( cGrid_t *grid )
-// No table row for `cGrid_t * grid`.
-private func CM_SetGridWrapWidth() -> Never {
+private func CM_SetGridWrapWidth(_ grid: CGrid) {
     // TODO: Port CM_SetGridWrapWidth
     portMissing("CM_SetGridWrapWidth", source: "oracle/codemp/qcommon/cm_patch.cpp:269")
 }
@@ -248,10 +242,7 @@ from the true curve
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:301
-// TODO: Port signature
-// Raven wrote: static void CM_SubdivideGridColumns( cGrid_t *grid )
-// No table row for `cGrid_t * grid`.
-private func CM_SubdivideGridColumns() -> Never {
+private func CM_SubdivideGridColumns(_ grid: CGrid) {
     // TODO: Port CM_SubdivideGridColumns
     portMissing("CM_SubdivideGridColumns", source: "oracle/codemp/qcommon/cm_patch.cpp:301")
 }
@@ -285,16 +276,13 @@ If there are any identical columns, remove them
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:395
-// TODO: Port signature
-// Raven wrote: static void CM_RemoveDegenerateColumns( cGrid_t *grid )
-// No table row for `cGrid_t * grid`.
-private func CM_RemoveDegenerateColumns() -> Never {
+private func CM_RemoveDegenerateColumns(_ grid: CGrid) {
     // TODO: Port CM_RemoveDegenerateColumns
     portMissing("CM_RemoveDegenerateColumns", source: "oracle/codemp/qcommon/cm_patch.cpp:395")
 }
 
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:440
-private func CM_PlaneEqual(_ p: PatchPlane, _ plane: [Float], _ flipped: inout Int32) -> Int32 {
+private func CM_PlaneEqual(_ p: PatchPlane, _ plane: JKAShared.vec4_t, _ flipped: inout Int32) -> Int32 {
     // TODO: Port CM_PlaneEqual
     portMissing("CM_PlaneEqual", source: "oracle/codemp/qcommon/cm_patch.cpp:440")
 }
@@ -320,7 +308,7 @@ private func CM_SnapVector(_ normal: inout JKAShared.vec3_t) {
 }
 
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:489
-private func CM_FindPlane2(_ plane: [Float], _ flipped: inout Int32) -> Int32 {
+private func CM_FindPlane2(_ plane: JKAShared.vec4_t, _ flipped: inout Int32) -> Int32 {
     var i: Int32
 
     // see if the points are close enough to an existing plane
@@ -359,7 +347,7 @@ CM_FindPlane
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:517
-private func CM_FindPlane(_ p1: inout Float, _ p2: inout Float, _ p3: inout Float) -> Int32 {
+private func CM_FindPlane(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t, _ p3: JKAShared.vec3_t) -> Int32 {
     var plane: [Float] = [Float](repeating: 0, count: 4)
     var i: Int32
     var d: Float
@@ -429,7 +417,7 @@ CM_PointOnPlaneSide
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:570
-private func CM_PointOnPlaneSide(_ p: inout Float, _ planeNum: Int32) -> Int32 {
+private func CM_PointOnPlaneSide(_ p: JKAShared.vec3_t, _ planeNum: Int32) -> Int32 {
     // Port-note: A `float *` local into `planes`, which has no storage, row T8.
     // Raven wrote: float *plane;
     portMissing("CM_PointOnPlaneSide", source: "oracle/codemp/qcommon/cm_patch.cpp:570")
@@ -534,10 +522,7 @@ CM_PatchCollideFromGrid
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:983
-// TODO: Port signature
-// Raven wrote: static inline void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf )
-// No table row for `cGrid_t * grid`.
-private func CM_PatchCollideFromGrid() -> Never {
+private func CM_PatchCollideFromGrid(_ grid: CGrid, _ pf: PatchCollide) {
     // TODO: Port CM_PatchCollideFromGrid
     portMissing("CM_PatchCollideFromGrid", source: "oracle/codemp/qcommon/cm_patch.cpp:983")
 }
@@ -570,10 +555,7 @@ CM_TracePointThroughPatchCollide
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:1246
-// TODO: Port signature
-// Raven wrote: static inline void CM_TracePointThroughPatchCollide( traceWork_t *tw, trace_t &trace, const struct patchCollide_s *pc )
-// No table row for `traceWork_t * tw`.
-private func CM_TracePointThroughPatchCollide() -> Never {
+private func CM_TracePointThroughPatchCollide(_ tw: TraceWork, _ trace: JKAMP.Trace, _ pc: PatchCollide) {
     // TODO: Port CM_TracePointThroughPatchCollide
     portMissing("CM_TracePointThroughPatchCollide", source: "oracle/codemp/qcommon/cm_patch.cpp:1246")
 }
@@ -586,7 +568,7 @@ CM_CheckFacetPlane
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:1346
-private func CM_CheckFacetPlane(_ plane: Slots<Float>, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ enterFrac: inout Float, _ leaveFrac: inout Float, _ hit: inout Int32) -> Int32 {
+private func CM_CheckFacetPlane(_ plane: JKAShared.vec4_t, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ enterFrac: inout Float, _ leaveFrac: inout Float, _ hit: inout Int32) -> Int32 {
     let d1: Float
     let d2: Float
     var f: Float
@@ -643,10 +625,7 @@ CM_TraceThroughPatchCollide
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:1392
-// TODO: Port signature
-// Raven wrote: void CM_TraceThroughPatchCollide( traceWork_t *tw, trace_t &trace, const struct patchCollide_s *pc )
-// No table row for `traceWork_t * tw`.
-func CM_TraceThroughPatchCollide() -> Never {
+func CM_TraceThroughPatchCollide(_ tw: TraceWork, _ trace: JKAMP.Trace, _ pc: PatchCollide) {
     // TODO: Port CM_TraceThroughPatchCollide
     portMissing("CM_TraceThroughPatchCollide", source: "oracle/codemp/qcommon/cm_patch.cpp:1392")
 }
@@ -661,83 +640,14 @@ Modifies tr->tr if any of the facets effect the trace
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:1545
-// TODO: Port signature
-// Raven wrote: qboolean CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc )
-// No table row for `traceWork_t * tw`.
-func CM_PositionTestInPatchCollide() -> Never {
+func CM_PositionTestInPatchCollide(_ tw: TraceWork, _ pc: PatchCollide) -> Bool {
     // TODO: Port CM_PositionTestInPatchCollide
     portMissing("CM_PositionTestInPatchCollide", source: "oracle/codemp/qcommon/cm_patch.cpp:1545")
 }
 
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:1651
 func CM_DrawDebugSurface(_ drawPoly: ((Int32, Int32, inout Float) -> Void)?) {
-    // Port-note: A static local `cv` a statement reads before it writes, storage that outlives the call, row T11.
-    // Raven wrote: static cvar_t *cv;
+    // The renderer's R_DebugGraphics is the one caller, and the dedicated build never draws, so it is dead.
+    // TODO: Port CM_DrawDebugSurface
     portMissing("CM_DrawDebugSurface", source: "oracle/codemp/qcommon/cm_patch.cpp:1651")
-    // Port-note: A static local `cv2` a statement reads before it writes, storage that outlives the call, row T11.
-    // Raven wrote: static cvar_t *cv2;
-    portMissing("CM_DrawDebugSurface", source: "oracle/codemp/qcommon/cm_patch.cpp:1651")
-    // Port-note: A pointer local `const patchCollide_t * pc` with no view, row T8.
-    // Raven wrote: const patchCollide_t *pc;
-    portMissing("CM_DrawDebugSurface", source: "oracle/codemp/qcommon/cm_patch.cpp:1651")
-    // Port-note: A pointer local `facet_t * facet` with no view, row T8.
-    // Raven wrote: facet_t *facet;
-    portMissing("CM_DrawDebugSurface", source: "oracle/codemp/qcommon/cm_patch.cpp:1651")
-    var w: Winding?
-    var i: Int32
-    var j: Int32
-    var k: Int32
-    var n: Int32
-    var curplanenum: Int32
-    var planenum: Int32
-    var curinward: Int32
-    var inward: Int32
-    var plane: [Float] = [Float](repeating: 0, count: 4)
-    var mins = vec3_t(-15, -15, -28)
-    var maxs = vec3_t(15, 15, 28)
-    //vec3_t mins = {0, 0, 0}, maxs = {0, 0, 0};
-    var v1 = vec3_t()
-    var v2 = vec3_t()
-
-    // Port-note: A read of `cv2`, a local the draft left as a hole.
-    // Raven wrote: if ( !cv2 ) { cv2 = Cvar_Get( "r_debugSurface", "0", 0 ); }
-    portMissing("CM_DrawDebugSurface", source: "oracle/codemp/qcommon/cm_patch.cpp:1651")
-
-    // Port-note: A read of `cv2`, a local the draft left as a hole.
-    // Raven wrote: if (cv2->integer != 1) { BotDrawDebugPolygons(drawPoly, cv2->integer); return; }
-    portMissing("CM_DrawDebugSurface", source: "oracle/codemp/qcommon/cm_patch.cpp:1651")
-
-    // Port-note: `debugPatchCollide` has no storage, row T8.
-    // Raven wrote: if ( !debugPatchCollide ) { return; }
-    portMissing("CM_DrawDebugSurface", source: "oracle/codemp/qcommon/cm_patch.cpp:1651")
-
-    // Port-note: A read of `cv`, a local the draft left as a hole.
-    // Raven wrote: if ( !cv ) { cv = Cvar_Get( "cm_debugSize", "2", 0 ); }
-    portMissing("CM_DrawDebugSurface", source: "oracle/codemp/qcommon/cm_patch.cpp:1651")
-    // Port-note: A store into `pc`, a local the draft left as a hole.
-    // Raven wrote: pc = debugPatchCollide
-    portMissing("CM_DrawDebugSurface", source: "oracle/codemp/qcommon/cm_patch.cpp:1651")
-
-    // Port-note: A read of `pc`, a local the draft left as a hole.
-    // Raven wrote: for ( i = 0, facet = pc->facets ; i < pc->numFacets ; i++, facet++ ) { for ( k = 0 ; k < facet->numBorders + 1; k++ ) { // if (k < facet->numBorders) { planenum = facet->borderPlanes[k]; inward = facet->borderInward[k]; } else { planenum = facet->surfacePlane; inward = qfalse; //continue; } Vector4Copy( pc->planes[ planenum ].plane, plane ); //planenum = facet->surfacePlane; if ( inward ) { VectorSubtract( vec3_origin, plane, plane ); plane[3] = -plane[3]; } plane[3] += cv->value; //* for (n = 0; n < 3; n++) { if (plane[n] > 0) v1[n] = maxs[n]; else v1[n] = mins[n]; } //end for VectorNegate(plane, v2); plane[3] += fabs(DotProduct(v1, v2)); //*/ w = BaseWindingForPlane( plane, plane[3] ); for ( j = 0 ; j < facet->numBorders + 1 && w; j++ ) { // if (j < facet->numBorders) { curplanenum = facet->borderPlanes[j]; curinward = facet->borderInward[j]; } else { curplanenum = facet->surfacePlane; curinward = qfalse; //continue; } // if (curplanenum == planenum) continue; Vector4Copy( pc->planes[ curplanenum ].plane, plane ); if ( !curinward ) { VectorSubtract( vec3_origin, plane, plane ); plane[3] = -plane[3]; } // if ( !facet->borderNoAdjust[j] ) { plane[3] -= cv->value; // } for (n = 0; n < 3; n++) { if (plane[n] > 0) v1[n] = maxs[n]; else v1[n] = mins[n]; } //end for VectorNegate(plane, v2); plane[3] -= fabs(DotProduct(v1, v2)); ChopWindingInPlace( &w, plane, plane[3], 0.1f ); } if ( w ) { if ( facet == debugFacet ) { drawPoly( 4, w->numpoints, w->p[0] ); //Com_Printf("blue facet has %d border planes\n", facet->numBorders); } else { drawPoly( 1, w->numpoints, w->p[0] ); } FreeWinding( w ); } else Com_Printf("winding chopped away by border planes\n"); } }
-    portMissing("CM_DrawDebugSurface", source: "oracle/codemp/qcommon/cm_patch.cpp:1651")
-
-    // draw the debug block
-    do {
-        var v = [vec3_t](repeating: vec3_t(), count: 3)
-
-        v[0] = debugBlockPoints[0]
-        v[1] = debugBlockPoints[1]
-        v[2] = debugBlockPoints[2]
-        // Port-note: `drawPoly` takes an `inout Float` where Raven passes the address of the first point, row T11.
-        // Raven wrote: drawPoly( 2, 3, v[0] )
-        portMissing("CM_DrawDebugSurface", source: "oracle/codemp/qcommon/cm_patch.cpp:1651")
-
-        v[0] = debugBlockPoints[2]
-        v[1] = debugBlockPoints[3]
-        v[2] = debugBlockPoints[0]
-        // Port-note: `drawPoly` takes an `inout Float` where Raven passes the address of the first point, row T11.
-        // Raven wrote: drawPoly( 2, 3, v[0] )
-        portMissing("CM_DrawDebugSurface", source: "oracle/codemp/qcommon/cm_patch.cpp:1651")
-    }
 }

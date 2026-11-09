@@ -231,6 +231,16 @@ public final class EngineWorld {
         0x00, 0x80, 0x00, 0x80, 0x00, 0x80
     ]
 
+    // MARK: - be_aas_move.cpp
+
+    /// Raven's `static vec3_t VEC_UP` of `be_aas_move.cpp`, the angles AAS_SetMovedir reads as straight up.
+    /// Source: oracle/codemp/botlib/be_aas_move.cpp:213
+    var VEC_UP = vec3_t(0, -1, 0)
+
+    /// Raven's `static vec3_t VEC_DOWN` of `be_aas_move.cpp`, the angles AAS_SetMovedir reads as straight down.
+    /// Source: oracle/codemp/botlib/be_aas_move.cpp:215
+    var VEC_DOWN = vec3_t(0, -2, 0)
+
     // MARK: - tr_shader.cpp
 
     // AI: Raven fills the table with LIGHTMAP_NONE of tr_local.h:434, which has no re-export in the host target. The table holds its value, -1.
@@ -255,13 +265,6 @@ public final class EngineWorld {
     /// Raven's `const char *materialNames[MATERIAL_LAST]` of `tr_shader.cpp`, the `MATERIALS` list of oracle/codemp/game/surfaceflags.h:90.
     /// Source: oracle/codemp/renderer/tr_shader.cpp:2193
     lazy var materialNames: [String] = self.svMaterialNames
-
-    // MARK: - sv_world.cpp
-
-    /// Raven's `worldSector_t sv_worldSectors[AREA_NODES]` of `sv_world.cpp`, the nodes of the sector tree.
-    /// Source: oracle/codemp/server/sv_world.cpp:58
-    // AI: No generated storage holds worldSector_t, so the hand view gives one zeroed allocation of AREA_NODES nodes.
-    let sv_worldSectors = WorldSector.table(count: AREA_NODES)
 
     // MARK: - vm.cpp
 

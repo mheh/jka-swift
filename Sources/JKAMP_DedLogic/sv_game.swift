@@ -12,9 +12,7 @@ import JKAMP_Ded
 var gLocalModifier: JKAMP.SharedEntity { world.storage.gLocalModifier }
 
 /// Source: oracle/codemp/server/sv_game.cpp:454
-// TODO: Port global sv_siegePersData
-// Raven wrote: siegePers_t sv_siegePersData = {qfalse, 0, 0}
-// No view for `siegePers_s` of `q_shared.h`.
+var sv_siegePersData: JKAMP.SiegePers { world.storage.sv_siegePersData }
 
 /// Source: oracle/codemp/server/sv_game.cpp:36
 func SV_GameError(_ string: String) -> Never {

@@ -112,6 +112,143 @@ public struct EngineVariables {
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:13
     public var token: JKAShared.CharBuf = JKAShared.CharBuf(1024)
 
+    /// Raven's `int numVariables` of `Q3_Registers.cpp`.
+    /// Source: oracle/codemp/icarus/Q3_Registers.cpp:13
+    public var numVariables: Int32 = 0
+
+    /// Raven's `int debuglines[MAX_DEBUGLINES]` of `be_aas_debug.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_debug.cpp:31
+    public var debuglines: [Int32] = [Int32](repeating: 0, count: 1024)
+
+    /// Raven's `int debuglinevisible[MAX_DEBUGLINES]` of `be_aas_debug.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_debug.cpp:32
+    public var debuglinevisible: [Int32] = [Int32](repeating: 0, count: 1024)
+
+    /// Raven's `int numdebuglines` of `be_aas_debug.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_debug.cpp:33
+    public var numdebuglines: Int32 = 0
+
+    /// Raven's `int debugpolygons[MAX_DEBUGPOLYGONS]` of `be_aas_debug.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_debug.cpp:35
+    public var be_aas_debug_debugpolygons: [Int32] = [Int32](repeating: 0, count: 8192)
+
+    /// Raven's `int AAS_WriteAASLump_offset` of `be_aas_file.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_file.cpp:479
+    public var AAS_WriteAASLump_offset: Int32 = 0
+
+    /// Raven's `int reach_swim` of `be_aas_reach.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_reach.cpp:48
+    public var reach_swim: Int32 = 0
+
+    /// Raven's `int reach_equalfloor` of `be_aas_reach.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_reach.cpp:49
+    public var reach_equalfloor: Int32 = 0
+
+    /// Raven's `int reach_step` of `be_aas_reach.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_reach.cpp:50
+    public var reach_step: Int32 = 0
+
+    /// Raven's `int reach_walk` of `be_aas_reach.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_reach.cpp:51
+    public var reach_walk: Int32 = 0
+
+    /// Raven's `int reach_barrier` of `be_aas_reach.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_reach.cpp:52
+    public var reach_barrier: Int32 = 0
+
+    /// Raven's `int reach_waterjump` of `be_aas_reach.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_reach.cpp:53
+    public var reach_waterjump: Int32 = 0
+
+    /// Raven's `int reach_walkoffledge` of `be_aas_reach.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_reach.cpp:54
+    public var reach_walkoffledge: Int32 = 0
+
+    /// Raven's `int reach_jump` of `be_aas_reach.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_reach.cpp:55
+    public var reach_jump: Int32 = 0
+
+    /// Raven's `int reach_ladder` of `be_aas_reach.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_reach.cpp:56
+    public var reach_ladder: Int32 = 0
+
+    /// Raven's `int reach_teleport` of `be_aas_reach.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_reach.cpp:57
+    public var reach_teleport: Int32 = 0
+
+    /// Raven's `int reach_elevator` of `be_aas_reach.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_reach.cpp:58
+    public var reach_elevator: Int32 = 0
+
+    /// Raven's `int reach_funcbob` of `be_aas_reach.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_reach.cpp:59
+    public var reach_funcbob: Int32 = 0
+
+    /// Raven's `int reach_grapple` of `be_aas_reach.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_reach.cpp:60
+    public var reach_grapple: Int32 = 0
+
+    /// Raven's `int reach_rocketjump` of `be_aas_reach.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_reach.cpp:64
+    public var reach_rocketjump: Int32 = 0
+
+    /// Raven's `int reach_jumppad` of `be_aas_reach.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_reach.cpp:66
+    public var reach_jumppad: Int32 = 0
+
+    /// Raven's `int calcgrapplereach` of `be_aas_reach.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_reach.cpp:68
+    public var calcgrapplereach: Int32 = 0
+
+    /// Raven's `int numlreachabilities` of `be_aas_reach.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_reach.cpp:86
+    public var numlreachabilities: Int32 = 0
+
+    /// Raven's `int numareacacheupdates` of `be_aas_route.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_route.cpp:63
+    public var numareacacheupdates: Int32 = 0
+
+    /// Raven's `int numportalcacheupdates` of `be_aas_route.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_route.cpp:64
+    public var numportalcacheupdates: Int32 = 0
+
+    /// Raven's `int routingcachesize` of `be_aas_route.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_route.cpp:67
+    public var routingcachesize: Int32 = 0
+
+    /// Raven's `int max_routingcachesize` of `be_aas_route.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_route.cpp:68
+    public var max_routingcachesize: Int32 = 0
+
+    /// Raven's `int numclusterareas` of `be_aas_routealt.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_routealt.cpp:41
+    public var numclusterareas: Int32 = 0
+
+    /// Raven's `int numaaslinks` of `be_aas_sample.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_sample.cpp:48
+    public var numaaslinks: Int32 = 0
+
+    /// Raven's `int numlevelitems` of `be_ai_goal.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_goal.cpp:170
+    public var numlevelitems: Int32 = 0
+
+    /// Raven's `int g_gametype` of `be_ai_goal.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_goal.cpp:176
+    public var g_gametype: Int32 = 0
+
+    /// Raven's `int modeltypes[MAX_MODELS]` of `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:100
+    public var modeltypes: [Int32] = [Int32](repeating: 0, count: 512)
+
+    /// Raven's `int bot_developer` of `be_interface.cpp`.
+    /// Source: oracle/codemp/botlib/be_interface.cpp:44
+    public var bot_developer: Int32 = 0
+
+    /// Raven's `int botlibsetup` of `be_interface.cpp`.
+    /// Source: oracle/codemp/botlib/be_interface.cpp:46
+    // Raven wrote `= qfalse`, and the hand line in `EngineWorld.init` holds it.
+    public var botlibsetup: Int32 = 0
+
     /// Raven's `int c_pointcontents` of `cm_load.cpp`.
     /// Source: oracle/codemp/qcommon/cm_load.cpp:38
     public var c_pointcontents: Int32 = 0
@@ -127,6 +264,10 @@ public struct EngineVariables {
     /// Raven's `int c_traces, c_brush_traces, c_patch_traces` of `cm_load.cpp`.
     /// Source: oracle/codemp/qcommon/cm_load.cpp:39
     public var c_patch_traces: Int32 = 0
+
+    /// Raven's `byte *cmod_base` of `cm_load.cpp`.
+    /// Source: oracle/codemp/qcommon/cm_load.cpp:42
+    public var cmod_base: Slots<JKAShared.byte>? = nil
 
     /// Raven's `cvar_t *cm_noAreas` of `cm_load.cpp`.
     /// Source: oracle/codemp/qcommon/cm_load.cpp:45
@@ -194,7 +335,7 @@ public struct EngineVariables {
 
     /// Raven's `facet_t *facets` of `cm_patch.cpp`.
     /// Source: oracle/codemp/qcommon/cm_patch.cpp:435
-    public var facets: Facet? = nil
+    public var facets: Slots<Facet>? = nil
 
     /// Raven's `int c_active_windings` of `cm_polylib.cpp`.
     /// Source: oracle/codemp/qcommon/cm_polylib.cpp:12
@@ -234,7 +375,7 @@ public struct EngineVariables {
 
     /// Raven's `fileHandle_t logfile` of `common.cpp`.
     /// Source: oracle/codemp/qcommon/common.cpp:33
-    public var logfile: JKAShared.fileHandle_t = 0
+    public var common_logfile: JKAShared.fileHandle_t = 0
 
     /// Raven's `fileHandle_t com_journalFile` of `common.cpp`.
     /// Source: oracle/codemp/qcommon/common.cpp:34
@@ -536,6 +677,18 @@ public struct EngineVariables {
     /// Source: oracle/codemp/qcommon/huffman.cpp:10
     public var bloc: Int32 = 0
 
+    /// Raven's `int numtokens` of `l_precomp.cpp`.
+    /// Source: oracle/codemp/botlib/l_precomp.cpp:96
+    public var numtokens: Int32 = 0
+
+    /// Raven's `qboolean addGlobalDefine` of `l_precomp.cpp`.
+    /// Source: oracle/codemp/botlib/l_precomp.cpp:109
+    public var addGlobalDefine: Bool = false
+
+    /// Raven's `char basefolder[MAX_QPATH]` of `l_script.cpp`.
+    /// Source: oracle/codemp/botlib/l_script.cpp:151
+    public var basefolder: JKAShared.CharBuf = JKAShared.CharBuf(Int(JKAShared.MAX_QPATH))
+
     /// Raven's `qboolean msgInit` of `msg.cpp`.
     /// Source: oracle/codemp/qcommon/msg.cpp:21
     public var msgInit: Bool = false
@@ -564,6 +717,14 @@ public struct EngineVariables {
     /// Raven's `bitStorage_t *g_psfBitStorage` of `msg.cpp`.
     /// Source: oracle/codemp/qcommon/msg.cpp:2003
     public var g_psfBitStorage: BitStorage? = nil
+
+    /// Raven's `cvar_t *d_altRoutes` of `navigator.cpp`.
+    /// Source: oracle/codemp/server/NPCNav/navigator.cpp:36
+    public var d_altRoutes: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *d_patched` of `navigator.cpp`.
+    /// Source: oracle/codemp/server/NPCNav/navigator.cpp:37
+    public var d_patched: JKAMP.Cvar? = nil
 
     /// Raven's `cvar_t *showpackets` of `net_chan.cpp`.
     /// Source: oracle/codemp/qcommon/net_chan.cpp:40
@@ -600,6 +761,10 @@ public struct EngineVariables {
     /// Raven's `int giFilesFound` of `stringed_interface.cpp`.
     /// Source: oracle/codemp/qcommon/stringed_interface.cpp:131
     public var giFilesFound: Int32 = 0
+
+    /// Raven's `bot_debugpoly_t *debugpolygons` of `sv_bot.cpp`.
+    /// Source: oracle/codemp/server/sv_bot.cpp:16
+    public var sv_bot_debugpolygons: Slots<BotDebugpoly>? = nil
 
     /// Raven's `int bot_maxdebugpolys` of `sv_bot.cpp`.
     /// Source: oracle/codemp/server/sv_bot.cpp:17

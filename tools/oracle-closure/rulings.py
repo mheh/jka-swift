@@ -274,6 +274,23 @@ HOST_ROOTS = {
     "dbrushside_t": ("Dbrushside", "CJKAMP_Ded"),
     "dsurface_t": ("Dsurface", "CJKAMP_Ded"),
     "mapVert_t": ("MapVert", "CJKAMP_Ded"),
+    # The sector tree of sv_world.cpp:48, `sv_worldSectors` of :58, and the two stack records of SV_AreaEntities and SV_Trace at :359 and :440.
+    # Raven defines the three inside the .cpp file, and ded_types.h carries them into the host target, the cmd_t form.
+    "worldSector_t": ("WorldSector", "CJKAMP_Ded"),
+    "areaParms_t": ("AreaParms", "CJKAMP_Ded"),
+    "moveclip_t": ("Moveclip", "CJKAMP_Ded"),
+    # SV_BuildClientSnapshot declares the entity list of sv_snapshot.cpp:246 on its stack, and SV_AddEntToSnapshot fills it.
+    "snapshotEntityNumbers_t": ("SnapshotEntityNumbers", "CJKAMP_Ded"),
+    # The debug polygons of sv_bot.cpp:8 and :16, the Z_Malloc table of SV_BotInitBotLib.
+    "bot_debugpoly_t": ("BotDebugpoly", "CJKAMP_Ded"),
+    # `sv_siegePersData` of sv_game.cpp:454 and the waypoint table `gWPArray` of sv_bot.cpp:23 hold the records of q_shared.h the game views.
+    "siegePers_t": ("SiegePers", "CJKAMP"),
+    "wpobject_t": ("Wpobject", "CJKAMP"),
+    # The trace and box records of cm_local.h:230 to :274 and the grid of cm_patch.h:117, which CM_Trace, CM_BoxLeafnums, and CM_GeneratePatchCollide declare on their stacks.
+    "traceWork_t": ("TraceWork", "CJKAMP_Ded"),
+    "sphere_t": ("Sphere", "CJKAMP_Ded"),
+    "leafList_t": ("LeafList", "CJKAMP_Ded"),
+    "cGrid_t": ("CGrid", "CJKAMP_Ded"),
 }
 
 ROOTS = {"mp-game": GAME_ROOTS, "mp-cgame": CGAME_ROOTS, "mp-engine-ded": HOST_ROOTS}
@@ -370,6 +387,15 @@ BYTE_STORAGE_LOCALS = {
     ("len", "FS_ReadFile"): ("FS_ReadFile",),
     # VM_ValueToFunctionSymbol returns `&nullSym`, its `static vmSymbol_t nullSym`, at vm.cpp:125.
     ("nullSym", "VM_ValueToFunctionSymbol"): ("VM_ValueToFunctionSymbol",),
+    # `byte msgBuffer[MAX_MSGLEN]` of SV_SendClientGameState and SV_SendClientMapChange, and `byte msg_buf[MAX_MSGLEN]` of SV_SendClientSnapshot,
+    # go to MSG_Init at sv_client.cpp:705 and :827 and sv_snapshot.cpp:724.
+    ("msgBuffer", "SV_SendClientGameState"): ("SV_SendClientGameState",),
+    ("msgBuffer", "SV_SendClientMapChange"): ("SV_SendClientMapChange",),
+    ("msg_buf", "SV_SendClientSnapshot"): ("SV_SendClientSnapshot",),
+    # `int touch[MAX_GENTITIES]` of SV_PointContents and `int leafs[MAX_TOTAL_ENT_LEAFS]` of SV_LinkEntity go to the `int *` lists
+    # of SV_AreaEntities and CM_BoxLeafnums at sv_world.cpp:883 and :280.
+    ("touch", "SV_PointContents"): ("SV_PointContents",),
+    ("leafs", "SV_LinkEntity"): ("SV_LinkEntity",),
 }
 # A scalar data table Raven initializes at file scope that tables.py copies into C storage, which the view target reads as a Slots of its scalar.
 # `static unsigned char PADDING[64]` of md4.cpp goes to MD4Update at md4.cpp:157, whose `input` is a Slots of bytes.
@@ -431,6 +457,10 @@ FIELDS = {
     # the field twin of the PARAMS kind. FS_LoadZipFile fills `pack->hashTable[hash]` at files_pc.cpp:1477, and cm_trace.cpp reads `cmg.surfaces[i]`.
     ("pack_t", "hashTable"): "pointer_table",
     ("clipMap_t", "surfaces"): "pointer_table",
+    # SV_AreaEntities stores the caller's list at sv_world.cpp:427, and SV_AreaEntities_r writes `ap->list[ap->count]` at :399.
+    # CM_BoxLeafnums stores the caller's list at cm_test.cpp:410, and CM_StoreLeafs writes `ll->list[ll->count++]` at :356.
+    ("areaParms_t", "list"): "bytes",
+    ("leafList_t", "list"): "bytes",
 }
 
 # (struct, field) -> the accessor name of a field whose C name is a member of every view, `handle` or `raw`, where a body reads the field.
@@ -491,6 +521,13 @@ TYPES = {
     "opnames": "[String?]",
     # Raven declares the C++ `bool g_nOverrideChecked = false` at msg.cpp:40.
     "g_nOverrideChecked": "Bool",
+    # Raven declares `byte *cmod_base` at cm_load.cpp:64, the BSP file that CM_LoadMap_Actual reads, and each loader reads a lump at `cmod_base + l->fileofs`.
+    "cmod_base": "Slots<JKAShared.byte>?",
+    # Raven declares `static facet_t *facets` at cm_patch.cpp:435, and CM_PatchCollideFromGrid indexes `facets[numFacets]` at :1149.
+    "facets": "Slots<Facet>?",
+    # Raven declares `static bot_debugpoly_t *debugpolygons` at sv_bot.cpp:16, the Z_Malloc table of SV_BotInitBotLib, and indexes it by polygon id.
+    # be_aas_debug.cpp declares an `int debugpolygons[MAX_DEBUGPOLYGONS]` of its own, so the key names the file.
+    "sv_bot:debugpolygons": "Slots<BotDebugpoly>?",
 }
 
 # A typedef Raven gives a narrow C type whose values are the enumerators of an anonymous enum, which reexport.py writes as the Int32 alias of a C enum.
@@ -516,6 +553,10 @@ ENUM_TYPEDEFS = {"memtag_t"}
 #   slot           a Slots of one optional view over a pointer slot, for a `node_t **` Raven returns, the form of a `node_t **` field
 #   word           an Int, the pointer-wide word of the module's vmMain, which VM_Call returns whole
 #   record         the view of a record Raven returns by value, which the body takes from a storage record or a table slot and the caller copies
+#   bytes          a Slots<byte>, for a `byte *` Raven returns into a byte buffer the caller indexes, the return twin of the PARAMS kind
+#   optional_bytes  a Slots<byte>?, the same for a function that returns NULL on one path
+#   string_list    a [String], for a `char **` list of zone texts with its count beside it, the file lists of files_pc.cpp and win_main.cpp
+#   class_ref      the Swift class of a C++ class of CXX_CLASSES, optional, for a pointer to an instance Raven returns or NULL
 RETURNS = {
     # get_ppnode of huffman.cpp:48 returns the address of a `node_t *` slot of `nodePtrs` or of the free list.
     "get_ppnode": "slot",
@@ -579,6 +620,29 @@ RETURNS = {
     "Com_GetRealEvent": "record",
     "Com_GetEvent": "record",
     "Sys_GetEvent": "record",
+    # CM_ClusterPVS returns a row of `cmg.visibility` at cm_test.cpp:351, and SV_inPVS and the snapshot index it by cluster.
+    "CM_ClusterPVS": "bytes",
+    # SE_LoadFileData returns the FS_ReadFile buffer or NULL at stringed_interface.cpp:41.
+    "SE_LoadFileData": "optional_bytes",
+    # Raven returns `char **` lists of CopyString texts with `int *numfiles` beside them, files_pc.cpp:1587, :1724, :1818, and win_main.cpp:502.
+    "Sys_ListFiles": "string_list",
+    "FS_ListFilteredFiles": "string_list",
+    "FS_ListFiles": "string_list",
+    "Sys_ConcatenateFileLists": "string_list",
+    # Bot_GetMemoryGame, BotImport_GetMemory, and BotImport_HunkAlloc of sv_bot.cpp return the block of one Z_Malloc or Hunk_Alloc call, the S_Malloc row.
+    "Bot_GetMemoryGame": "raw",
+    "BotImport_GetMemory": "raw",
+    "BotImport_HunkAlloc": "raw",
+    # unzOpen and unzReOpen return the `unzFile` handle, a `void *` over the zone block of `unz_s`, unzip.cpp:388 and :413.
+    "unzOpen": "opaque",
+    "unzReOpen": "opaque",
+    # SE_GetFoundFile returns NULL at the end of the list, stringed_ingame.cpp:875, and SE_Load_Actual, SE_Load, and SE_LoadLanguage return NULL for success.
+    "SE_GetFoundFile": "optional_string",
+    "SE_Load_Actual": "optional_string",
+    "SE_Load": "optional_string",
+    "SE_LoadLanguage": "optional_string",
+    # Com_ParseTextFile of common.cpp:2209 returns a `new CGenericParser2` or NULL.
+    "Com_ParseTextFile": "class_ref",
 }
 
 # Allocators whose `char *` result a body holds as a CharBuf of the constant size Raven asks for, when every store into the local is that call.
@@ -612,6 +676,12 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #   bytes     a Slots<byte> for a `void *` or `byte *` of a host function that the body hands on as bytes, the row a host `byte *` has
 #   word      an Int for an `int` that takes the pointer-wide word VM_Call returns
 #   callback  the optional callback typealias of a view field for a function pointer the body stores into that field, the form of a function-pointer return
+#   string_list  a [String] by value, for a `char **` list of zone texts the body reads or frees, the parameter twin of the RETURNS kind
+#   string_list_mut  an inout [String], for a `char **` list the body reorders in place, FS_SortFileList
+#   string_slice  an inout ArraySlice<String>, for a `char **` the body fills by index from a caller's `&array[i]`, the `char *infos[]` row
+#   string_value  a String by value for a `const void *` a qsort comparator reads as `*(char **)`, the text twin of int_value
+#   std_string  an inout String, for a C++ `std::string &` the body writes, the reference twin of out_string
+#   vec4_const  a vec4_t by value for a `float plane[4]` or a `float *` plane the body only reads, the form a `vec4_t` parameter has
 PARAMS = {
     # free_ppnode of huffman.cpp:59 takes the slot address that get_ppnode returned, the form of a `node_t **` field.
     ("free_ppnode", "ppnode"): "slot",
@@ -758,11 +828,57 @@ PARAMS = {
     # and hands `systemcalls` to the module's dllEntry. The shell loads the library through jka_load_dll of CJKAHost.
     ("Sys_LoadDll", "entryPoint"): "raw",
     ("Sys_LoadDll", "systemcalls"): "opaque",
+    # The file lists of files_pc.cpp and win_main.cpp, the RETURNS kind `string_list` and its parameters.
+    ("Sys_ListFilteredFiles", "psList"): "string_slice",
+    ("Sys_FreeFileList", "psList"): "string_list",
+    ("FS_FreeFileList", "fileList"): "string_list",
+    ("Sys_CountFileList", "list"): "string_list",
+    ("Sys_ConcatenateFileLists", "list0"): "string_list",
+    ("Sys_ConcatenateFileLists", "list1"): "string_list",
+    ("Sys_ConcatenateFileLists", "list2"): "string_list",
+    ("FS_SortFileList", "filelist"): "string_list_mut",
+    # paksort of files_pc.cpp:2194 reads `*(char **)a`, and FS_AddGameDirectory sorts the pak names with it at :2261.
+    ("paksort", "a"): "string_value",
+    ("paksort", "b"): "string_value",
+    # VM_VmProfile_f sorts a table of `vmSymbol_t *` with VM_ProfileSort at vm.cpp:892, and the comparator reads `*(vmSymbol_t **)a` at :837.
+    ("VM_ProfileSort", "a"): ("view", "vmSymbol_t"),
+    ("VM_ProfileSort", "b"): ("view", "vmSymbol_t"),
+    # SV_BuildClientSnapshot sorts the entity numbers with SV_QsortEntityNumbers at sv_snapshot.cpp:588, which reads `*(int *)a`.
+    ("SV_QsortEntityNumbers", "a"): "int_value",
+    ("SV_QsortEntityNumbers", "b"): "int_value",
+    # SV_AreaEntities and CM_BoxLeafnums fill the caller's `int` list, and the G_ENTITIES_IN_BOX arm hands the module's array, sv_game.cpp:581.
+    # An `int *` of kind `bytes` is a Slots of Int32, the rule of the field kind.
+    ("SV_AreaEntities", "entityList"): "bytes",
+    ("CM_BoxLeafnums", "boxList"): "bytes",
+    # The debug polygon calls read `numPoints` vectors at sv_bot.cpp:527 and :569, and the G_DEBUG_POLYGON_CREATE arm hands the module's array.
+    ("BotImport_DebugPolygonCreate", "points"): "table",
+    ("BotImport_DebugPolygonShow", "points"): "table",
+    # SV_BotWaypointReception copies the module's table of waypoint pointers at sv_bot.cpp:41, the trap_Bot_UpdateWaypoints row.
+    ("SV_BotWaypointReception", "wps"): "pointer_table",
+    # unzlocal_getShort, unzlocal_getLong, and unzlocal_SearchCentralDir read the `ZIP_FILE *` stream of unzip.h:3, the stream of FileBackend.
+    ("unzlocal_getShort", "fin"): "opaque",
+    ("unzlocal_getLong", "fin"): "opaque",
+    ("unzlocal_SearchCentralDir", "fin"): "opaque",
+    # SE_GetFoundFile, SE_R_ListFiles, and SE_BuildFileList write the caller's `string &` at stringed_ingame.cpp:875 and stringed_interface.cpp:132 and :192.
+    ("SE_GetFoundFile", "strResult"): "std_string",
+    ("SE_R_ListFiles", "strResults"): "std_string",
+    ("SE_BuildFileList", "strResults"): "std_string",
+    # CM_FindPlane and CM_PointOnPlaneSide hand `float *` points to DotProduct and VectorSubtract at cm_patch.cpp:520 and :577, and read nothing past the third float.
+    ("CM_FindPlane", "p1"): "vec3_const",
+    ("CM_FindPlane", "p2"): "vec3_const",
+    ("CM_FindPlane", "p3"): "vec3_const",
+    ("CM_PointOnPlaneSide", "p"): "vec3_const",
+    # CM_PlaneEqual, CM_FindPlane2, and CM_CheckFacetPlane read the four floats of a plane, cm_patch.cpp:440, :489, and :1346.
+    ("CM_PlaneEqual", "plane"): "vec4_const",
+    ("CM_FindPlane2", "plane"): "vec4_const",
+    ("CM_CheckFacetPlane", "plane"): "vec4_const",
 }
 
 # Rule 20: a function with no caller in either tree stays as its stub, and the stub carries one note line that it is dead.
 DEAD = {
     "CG_ParticleExplosion": "Raven calls this function from no file of either tree",
+    # R_DebugGraphics of tr_main.cpp:1583 is the one caller, and the dedicated build never draws.
+    "CM_DrawDebugSurface": "The renderer's R_DebugGraphics is the one caller, and the dedicated build never draws",
 }
 
 # Functions of the oracle the port leaves out. The stub carries the cite, Raven's line, and the reason, and no function.
@@ -818,6 +934,13 @@ C_STRUCT_CLASSES = {
     "CCMLandScape": ("tag", "oracle/codemp/qcommon/cm_landscape.h:135"),
     # `traceWork_t` is a C struct but for its two C++ `bool` fields, which C spells `_Bool`, row S7.
     "traceWork_t": ("fields", "oracle/codemp/qcommon/cm_local.h:238"),
+}
+
+# C++ classes of the oracle that a hand Swift class of the same name ports, by the C++ track of rule 17.
+# A reference or a pointer parameter of the class is the Swift class, optional for a pointer, and a RETURNS kind `class_ref` returns it optional.
+# CGenericParser2 is the final class of GenericParser2.swift, row C3 of notes/2026-11-03/dedicated-cxx-docket.md and row G1 of the unzip round.
+CXX_CLASSES = {
+    "CGenericParser2": "CGenericParser2",
 }
 
 # C targets whose copied headers include a C library header, as CJKASyscall includes <stdint.h>.
@@ -909,6 +1032,16 @@ NULLABLE = {
     ("increment", "node"),
     # Com_RealTime tests `if (qtime)` at common.cpp:718, and the G_REAL_TIME arm of sv_game.cpp:679 passes the module's record.
     ("Com_RealTime", "qtime"),
+    # SV_WriteSnapshotToClient passes a NULL `oldframe` on a retransmit or a first snapshot, sv_snapshot.cpp:115 to :131, and the body tests `!from` at :43.
+    ("SV_EmitPacketEntities", "from"),
+    # unzGoToFirstFile and the three callers of unzip.cpp pass NULL for the info and the two text buffers, :737 to :827, and the body tests each one.
+    ("unzlocal_GetCurrentFileInfoInternal", "pfile_info"),
+    ("unzlocal_GetCurrentFileInfoInternal", "pfile_info_internal"),
+    ("unzlocal_GetCurrentFileInfoInternal", "szFileName"),
+    ("unzlocal_GetCurrentFileInfoInternal", "szComment"),
+    ("unzGetCurrentFileInfo", "pfile_info"),
+    ("unzGetCurrentFileInfo", "szFileName"),
+    ("unzGetCurrentFileInfo", "szComment"),
 }
 # Files whose functions a bg body reaches directly, because they live in the shared module or in bg itself.
 # The functions whose integer arithmetic is a generator or a hash, where C wraps at 32 bits and Swift's plain operators trap.

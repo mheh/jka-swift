@@ -2,64 +2,6 @@ internal import CJKAMP_Ded
 import JKAMP
 import JKAShared
 
-/// Source: oracle/codemp/qcommon/cm_local.h:230
-/// A view over one `sphere_t` in C memory, the capsule of an oriented capsule trace.
-/// A copy of a view is a copy of the pointer, and two views of one slot compare equal.
-// AI: Raven's `sphere_t` has no root in the view generator. This hand view gives the fields and the stack slot that the cm_trace bodies read, in the generated form.
-public struct Sphere: Hashable, HandleView {
-    let raw: UnsafeMutablePointer<sphere_t>
-
-    init(raw: UnsafeMutablePointer<sphere_t>) { self.raw = raw }
-
-    /// The slot behind a handle a generated thunk received. Rule 11 confines the handle to generated code.
-    public init(handle: OpaquePointer) { self.raw = UnsafeMutablePointer(handle) }
-
-    /// Raven's cast from a raw pointer, `(sphere_t *)p`. A body writes this where and only where Raven wrote the cast.
-    public init(_ raw: UnsafeMutableRawPointer) { self.raw = raw.assumingMemoryBound(to: sphere_t.self) }
-
-    /// Raven's cast from another struct's pointer over the same memory, `(sphere_t *)other`.
-    public init(_ other: some HandleView) { self.raw = UnsafeMutablePointer(other.handle) }
-
-    /// The slot as a handle, for a stored function call and for a view in another module.
-    public var handle: OpaquePointer { OpaquePointer(self.raw) }
-
-    /// The size of one slot in bytes, for a module that allocates its own slot and cannot see the C type.
-    public static let byteCount = MemoryLayout<sphere_t>.size
-
-    /// The distance between two slots of a C array of this type, for a Slots over one.
-    public static let stride = MemoryLayout<sphere_t>.stride
-
-    /// Raven's `sphere_t sphere;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
-    public static func scratch<Result>(_ body: (Sphere) throws -> Result) rethrows -> Result {
-        var slot = sphere_t()
-        return try withUnsafeMutablePointer(to: &slot) { try body(Sphere(raw: $0)) }
-    }
-
-    /// Source: oracle/codemp/qcommon/cm_local.h:232
-    public var use: Bool {
-        get { self.raw.pointee.use != qfalse }
-        nonmutating set { self.raw.pointee.use = newValue ? qtrue : qfalse }
-    }
-
-    /// Source: oracle/codemp/qcommon/cm_local.h:233
-    public var radius: Float {
-        get { self.raw.pointee.radius }
-        nonmutating set { self.raw.pointee.radius = newValue }
-    }
-
-    /// Source: oracle/codemp/qcommon/cm_local.h:234
-    public var halfheight: Float {
-        get { self.raw.pointee.halfheight }
-        nonmutating set { self.raw.pointee.halfheight = newValue }
-    }
-
-    /// Source: oracle/codemp/qcommon/cm_local.h:235
-    public var offset: JKAShared.vec3_t {
-        get { vec3(of: self.raw.pointee.offset) }
-        nonmutating set { self.raw.pointee.offset = tuple(of: newValue) }
-    }
-}
-
 extension Cbrushside {
     /// Raven's `b->sides[i]` through a `cbrushside_t *` field, the side `i` slots past this one.
     /// Source: oracle/codemp/qcommon/cm_test.cpp:269

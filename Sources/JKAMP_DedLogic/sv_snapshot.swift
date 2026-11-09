@@ -25,7 +25,7 @@ Writes a delta update of an entityState_t list to the message.
 ```
 */
 /// Source: oracle/codemp/server/sv_snapshot.cpp:36
-private func SV_EmitPacketEntities(_ from: ClientSnapshot, _ to: ClientSnapshot, _ msg: Msg) {
+private func SV_EmitPacketEntities(_ from: ClientSnapshot?, _ to: ClientSnapshot, _ msg: Msg) {
     var oldent: EntityState?
     var newent: EntityState?
     var oldindex: Int32
@@ -35,7 +35,11 @@ private func SV_EmitPacketEntities(_ from: ClientSnapshot, _ to: ClientSnapshot,
     let from_num_entities: Int32
 
     // generate the delta update
-    from_num_entities = from.num_entities
+    if from == nil {
+        from_num_entities = 0
+    } else {
+        from_num_entities = from!.num_entities
+    }
 
     newent = nil
     oldent = nil
@@ -52,7 +56,7 @@ private func SV_EmitPacketEntities(_ from: ClientSnapshot, _ to: ClientSnapshot,
         if oldindex >= from_num_entities {
             oldnum = 9999
         } else {
-            oldent = svs.snapshotEntitiesSlots[(from.first_entity + oldindex) % svs.numSnapshotEntities]
+            oldent = svs.snapshotEntitiesSlots[(from!.first_entity + oldindex) % svs.numSnapshotEntities]
             oldnum = oldent!.number
         }
 
@@ -223,7 +227,7 @@ SV_QsortEntityNumbers
 ```
 */
 /// Source: oracle/codemp/server/sv_snapshot.cpp:256
-private func SV_QsortEntityNumbers(_ a: OpaquePointer?, _ b: OpaquePointer?) -> Int32 {
+private func SV_QsortEntityNumbers(_ a: Int32, _ b: Int32) -> Int32 {
     // Port-note: A pointer local `int * ea` with no view, row N3.
     // Raven wrote: int *ea;
     portMissing("SV_QsortEntityNumbers", source: "oracle/codemp/server/sv_snapshot.cpp:256")
@@ -257,19 +261,13 @@ SV_AddEntToSnapshot
 ```
 */
 /// Source: oracle/codemp/server/sv_snapshot.cpp:279
-// TODO: Port signature
-// Raven wrote: static void SV_AddEntToSnapshot( svEntity_t *svEnt, sharedEntity_t *gEnt, snapshotEntityNumbers_t *eNums )
-// No table row for `snapshotEntityNumbers_t * eNums`.
-private func SV_AddEntToSnapshot() -> Never {
+private func SV_AddEntToSnapshot(_ svEnt: SvEntity, _ gEnt: JKAMP.SharedEntity, _ eNums: SnapshotEntityNumbers) {
     // TODO: Port SV_AddEntToSnapshot
     portMissing("SV_AddEntToSnapshot", source: "oracle/codemp/server/sv_snapshot.cpp:279")
 }
 
 /// Source: oracle/codemp/server/sv_snapshot.cpp:301
-// TODO: Port signature
-// Raven wrote: static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *frame, snapshotEntityNumbers_t *eNums, qboolean portal )
-// No table row for `snapshotEntityNumbers_t * eNums`.
-private func SV_AddEntitiesVisibleFromPoint() -> Never {
+private func SV_AddEntitiesVisibleFromPoint(_ origin: JKAShared.vec3_t, _ frame: ClientSnapshot, _ eNums: SnapshotEntityNumbers, _ portal: Bool) {
     // TODO: Port SV_AddEntitiesVisibleFromPoint
     portMissing("SV_AddEntitiesVisibleFromPoint", source: "oracle/codemp/server/sv_snapshot.cpp:301")
 }

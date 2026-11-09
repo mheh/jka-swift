@@ -51,8 +51,8 @@ let buildDate = "unknown"
 
 /// Source: oracle/codemp/qcommon/common.cpp:33
 var logfile: JKAShared.fileHandle_t {
-    get { world.variables.logfile }
-    set { world.variables.logfile = newValue }
+    get { world.variables.common_logfile }
+    set { world.variables.common_logfile = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:34
@@ -1982,31 +1982,19 @@ func Q_asin(_ c: Float) -> Float {
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:2179
-// TODO: Port signature
-// Raven wrote: bool Com_ParseTextFile(const char *file, class CGenericParser2 &parser, bool cleanFirst)
-// No table row for `class CGenericParser2 & parser`.
-// Port-note: Row C3 of the C++ docket. CGenericParser2 ports with the RMG stage, so the function keeps its signature marker.
-func Com_ParseTextFile() -> Never {
+func Com_ParseTextFile(_ file: String, _ parser: CGenericParser2, _ cleanFirst: Bool = true) -> Bool {
     // TODO: Port Com_ParseTextFile
     portMissing("Com_ParseTextFile", source: "oracle/codemp/qcommon/common.cpp:2179")
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:2204
-// TODO: Port signature
-// Raven wrote: void Com_ParseTextFileDestroy(class CGenericParser2 &parser)
-// No table row for `class CGenericParser2 & parser`.
-// Port-note: Row C3 of the C++ docket. CGenericParser2 ports with the RMG stage, so the function keeps its signature marker.
-func Com_ParseTextFileDestroy() -> Never {
+func Com_ParseTextFileDestroy(_ parser: CGenericParser2) {
     // TODO: Port Com_ParseTextFileDestroy
     portMissing("Com_ParseTextFileDestroy", source: "oracle/codemp/qcommon/common.cpp:2204")
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:2209
-// TODO: Port signature
-// Raven wrote: CGenericParser2 *Com_ParseTextFile(const char *file, bool cleanFirst, bool writeable)
-// No table row for the return `CGenericParser2 *`.
-func Com_ParseTextFile(_ file: String, _ cleanFirst: Bool, _ writeable: Bool) -> Never {
-    // Port-note: Row C3 of the C++ docket. CGenericParser2 ports with the RMG stage, so the function keeps its signature marker.
+func Com_ParseTextFile(_ file: String, _ cleanFirst: Bool, _ writeable: Bool) -> CGenericParser2? {
     // TODO: Port Com_ParseTextFile
     portMissing("Com_ParseTextFile", source: "oracle/codemp/qcommon/common.cpp:2209")
 }

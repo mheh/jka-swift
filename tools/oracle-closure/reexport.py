@@ -184,6 +184,9 @@ def swift_expression(cur: ci.Cursor, enum_of: dict[str, str], declared: dict[str
     text = " ".join(out).replace("\0 ", "").replace("( ", "(").replace(" )", ")")
     if literal_only and has_string:
         return text if len(out) == 1 else None
+    if literal_only and not has_float and re.fullmatch(r"0x[0-9a-fA-F]+", text) and 0x7fffffff < int(text, 16) <= 0xffffffff:
+        # A hex literal past INT_MAX has the type `unsigned int` in C, `HUNK_ID` of l_memory.cpp:24, so it is a UInt32.
+        return f"{text} as UInt32"
     if literal_only:
         return f"{text} as {('Float' if float_suffix and has_float_suffix else 'Double') if has_float else 'Int32'}"
     # C's `1 << n` is an int, and Swift reads a bare integer literal on the left of a shift as an Int.

@@ -124,4 +124,60 @@ typedef struct
 } StaticMem_t;
 #pragma pack(pop)
 
+// Source: oracle/codemp/server/sv_world.cpp:48
+typedef struct worldSector_s {
+	int		axis;		// -1 = leaf node
+	float	dist;
+	struct worldSector_s	*children[2];
+	svEntity_t	*entities;
+} worldSector_t;
+
+// Source: oracle/codemp/server/sv_world.cpp:359
+typedef struct {
+	const float	*mins;
+	const float	*maxs;
+	int			*list;
+	int			count, maxcount;
+} areaParms_t;
+
+// Source: oracle/codemp/server/sv_world.cpp:440
+typedef struct {
+	vec3_t		boxmins, boxmaxs;// enclose the test object along entire move
+	const float	*mins;
+	const float *maxs;	// size of the moving object
+/*
+Ghoul2 Insert Start
+*/
+	vec3_t		start;
+
+	vec3_t		end;
+
+	int			passEntityNum;
+	int			contentmask;
+	int			capsule;
+
+	int			traceFlags;
+	int			useLod;
+	trace_t		trace;			// make sure nothing goes under here for Ghoul2 collision purposes
+/*
+Ghoul2 Insert End
+*/
+} moveclip_t;
+
+// Source: oracle/codemp/server/sv_snapshot.cpp:244
+#define	MAX_SNAPSHOT_ENTITIES	1024
+typedef struct {
+	int		numSnapshotEntities;
+	int		snapshotEntities[MAX_SNAPSHOT_ENTITIES];	
+} snapshotEntityNumbers_t;
+
+// Source: oracle/codemp/server/sv_bot.cpp:8
+typedef struct bot_debugpoly_s
+{
+	int inuse;
+	int color;
+	int numPoints;
+	vec3_t points[128];
+} bot_debugpoly_t;
+
 #endif

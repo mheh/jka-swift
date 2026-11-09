@@ -10,8 +10,7 @@ let AREA_DEPTH = 4 as Int32
 let AREA_NODES = 64 as Int32
 
 /// Source: oracle/codemp/server/sv_world.cpp:58
-// AI: Raven declares the array at file scope. The world holds the hand allocation, and the forward keeps Raven's name.
-var sv_worldSectors: Slots<WorldSector> { world.sv_worldSectors }
+var sv_worldSectors: Slots<WorldSector> { world.storage.sv_worldSectors }
 
 /// Source: oracle/codemp/server/sv_world.cpp:59
 var sv_numworldSectors: Int32 {
@@ -87,10 +86,7 @@ Builds a uniformly subdivided tree for the given world size
 ```
 */
 /// Source: oracle/codemp/server/sv_world.cpp:90
-// TODO: Port signature
-// Raven wrote: worldSector_t *SV_CreateworldSector( int depth, vec3_t mins, vec3_t maxs )
-// No table row for the return `worldSector_t *`.
-func SV_CreateworldSector() -> Never {
+func SV_CreateworldSector(_ depth: Int32, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) -> WorldSector? {
     // TODO: Port SV_CreateworldSector
     portMissing("SV_CreateworldSector", source: "oracle/codemp/server/sv_world.cpp:90")
 }
@@ -138,7 +134,7 @@ func SV_UnlinkEntity(_ gEnt: JKAMP.SharedEntity) {
 
     gEnt.r.linked = false
 
-    ws = ent!.worldSectorNode
+    ws = ent!.worldSector
     if ws == nil {
         return // not linked in anywhere
     }
@@ -325,7 +321,7 @@ func SV_LinkEntity(_ gEnt: JKAMP.SharedEntity) {
     }
 
     // link it in
-    ent!.worldSectorNode = node
+    ent!.worldSector = node
     ent!.nextEntityInWorldSector = node.entities
     node.entities = ent
 
@@ -341,10 +337,7 @@ SV_AreaEntities_r
 ```
 */
 /// Source: oracle/codemp/server/sv_world.cpp:373
-// TODO: Port signature
-// Raven wrote: void SV_AreaEntities_r( worldSector_t *node, areaParms_t *ap )
-// No table row for `worldSector_t * node`.
-func SV_AreaEntities_r() -> Never {
+func SV_AreaEntities_r(_ node: Slots<WorldSector>, _ ap: AreaParms) {
     // TODO: Port SV_AreaEntities_r
     portMissing("SV_AreaEntities_r", source: "oracle/codemp/server/sv_world.cpp:373")
 }
@@ -357,7 +350,7 @@ SV_AreaEntities
 ```
 */
 /// Source: oracle/codemp/server/sv_world.cpp:421
-func SV_AreaEntities(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ entityList: inout Int32, _ maxcount: Int32) -> Int32 {
+func SV_AreaEntities(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ entityList: Slots<Int32>, _ maxcount: Int32) -> Int32 {
     // Port-note: A local `areaParms_t ap` the table has no type for, row W1.
     // Raven wrote: areaParms_t ap;
     portMissing("SV_AreaEntities", source: "oracle/codemp/server/sv_world.cpp:421")
@@ -440,10 +433,7 @@ private func VectorDistance(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> F
 }
 
 /// Source: oracle/codemp/server/sv_world.cpp:522
-// TODO: Port signature
-// Raven wrote: static void SV_ClipMoveToEntities( moveclip_t *clip )
-// No table row for `moveclip_t * clip`.
-private func SV_ClipMoveToEntities() -> Never {
+private func SV_ClipMoveToEntities(_ clip: Moveclip) {
     // TODO: Port SV_ClipMoveToEntities
     portMissing("SV_ClipMoveToEntities", source: "oracle/codemp/server/sv_world.cpp:522")
 }

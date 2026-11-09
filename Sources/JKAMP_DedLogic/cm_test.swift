@@ -29,19 +29,13 @@ func CM_PointLeafnum(_ p: JKAShared.vec3_t) -> Int32 {
 }
 
 /// Source: oracle/codemp/qcommon/cm_test.cpp:63
-// TODO: Port signature
-// Raven wrote: void CM_StoreLeafs( leafList_t *ll, int nodenum )
-// No table row for `leafList_t * ll`.
-func CM_StoreLeafs() -> Never {
+func CM_StoreLeafs(_ ll: LeafList, _ nodenum: Int32) {
     // TODO: Port CM_StoreLeafs
     portMissing("CM_StoreLeafs", source: "oracle/codemp/qcommon/cm_test.cpp:63")
 }
 
 /// Source: oracle/codemp/qcommon/cm_test.cpp:80
-// TODO: Port signature
-// Raven wrote: void CM_StoreBrushes( leafList_t *ll, int nodenum )
-// No table row for `leafList_t * ll`.
-func CM_StoreBrushes() -> Never {
+func CM_StoreBrushes(_ ll: LeafList, _ nodenum: Int32) {
     // TODO: Port CM_StoreBrushes
     portMissing("CM_StoreBrushes", source: "oracle/codemp/qcommon/cm_test.cpp:80")
 }
@@ -56,10 +50,7 @@ Fills in a list of all the leafs touched
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_test.cpp:130
-// TODO: Port signature
-// Raven wrote: void CM_BoxLeafnums_r( leafList_t *ll, int nodenum )
-// No table row for `leafList_t * ll`.
-func CM_BoxLeafnums_r() -> Never {
+func CM_BoxLeafnums_r(_ ll: LeafList, _ nodenum: Int32) {
     // TODO: Port CM_BoxLeafnums_r
     portMissing("CM_BoxLeafnums_r", source: "oracle/codemp/qcommon/cm_test.cpp:130")
 }
@@ -72,7 +63,7 @@ CM_BoxLeafnums
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_test.cpp:168
-func CM_BoxLeafnums(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ boxList: inout Int32, _ listsize: Int32, _ lastLeaf: inout Int32) -> Int32 {
+func CM_BoxLeafnums(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ boxList: Slots<Int32>, _ listsize: Int32, _ lastLeaf: inout Int32) -> Int32 {
     //rwwRMG - changed to boxList to not conflict with list type
     // Port-note: A local `leafList_t ll` has no view, row T4.
     // Raven wrote: leafList_t ll;
@@ -243,10 +234,7 @@ func CM_TransformedPointContents(_ p: JKAShared.vec3_t, _ model: JKAShared.clipH
 }
 
 /// Source: oracle/codemp/qcommon/cm_test.cpp:351
-// TODO: Port signature
-// Raven wrote: byte *CM_ClusterPVS (int cluster)
-// No table row for the return `byte *`.
-func CM_ClusterPVS() -> Never {
+func CM_ClusterPVS(_ cluster: Int32) -> Slots<JKAShared.byte> {
     // TODO: Port CM_ClusterPVS
     portMissing("CM_ClusterPVS", source: "oracle/codemp/qcommon/cm_test.cpp:351")
 }

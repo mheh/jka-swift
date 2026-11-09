@@ -62,9 +62,9 @@ public struct SvEntity: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/server/server.h:28
-    public var worldSector: OpaquePointer? {
-        get { self.raw.pointee.worldSector }
-        nonmutating set { self.raw.pointee.worldSector = newValue }
+    public var worldSector: WorldSector? {
+        get { self.raw.pointee.worldSector.map { WorldSector(handle: OpaquePointer($0)) } }
+        nonmutating set { self.raw.pointee.worldSector = UnsafeMutablePointer(newValue?.handle) }
     }
 
     /// Source: oracle/codemp/server/server.h:29

@@ -80,16 +80,14 @@ store = "tools/oracle-closure/out/mp-engine-ded/table.sqlite"
 # The files of the link set that the skeleton writes no stub for in this stage, by the rows under the srcglob of the unit.
 # Stage E5 gives stubs to the Ghoul2 files and the renderer files of the dedicated build, WinDed.vcproj:301-425, whose DEDICATED arms Raven compiles.
 # It also gives stubs to cm_terrain.cpp and RM_Manager.cpp, the files that define CCMLandScape and TheRandomMissionManager of cm_load.cpp:800 to :809.
+# The seventh batch gives stubs to the botlib, ICARUS, the NPC navigator, and the ROFF system, WinDed.vcproj:144, :365 to :368, :461 to :605, and :736 to :787.
+# The fork links the same files, MPBotlibBotlibFiles, MPEngineAndDedIcarusFiles, MPEngineAndDedServerFiles, and RoffSystem.cpp of openjk/codemp/CMakeLists.txt:62 to :336.
 deferred = [
     "codemp/renderer/*.c",
     "codemp/png/*.cpp",
     "codemp/zlib32/*.cpp",
-    "codemp/qcommon/RoffSystem.cpp",
     "codemp/qcommon/cm_draw.cpp",
     "codemp/qcommon/cm_randomterrain.cpp",
-    "codemp/server/NPCNav/*.cpp",
-    "codemp/botlib/*.cpp",
-    "codemp/icarus/*.cpp",
     "codemp/RMG/RM_Area.cpp",
     "codemp/RMG/RM_Instance.cpp",
     "codemp/RMG/RM_Instance_BSP.cpp",

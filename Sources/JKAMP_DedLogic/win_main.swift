@@ -430,7 +430,7 @@ func Sys_DefaultBasePath() -> String {
 }
 
 /// Source: oracle/codemp/null/win_main.cpp:434
-func Sys_ListFilteredFiles(_ basedir: String, _ subdirs: inout JKAShared.CharBuf, _ filter: String?, _ psList: inout JKAShared.TextCursor, _ numfiles: inout Int32) {
+func Sys_ListFilteredFiles(_ basedir: String, _ subdirs: inout JKAShared.CharBuf, _ filter: String?, _ psList: inout ArraySlice<String>, _ numfiles: inout Int32) {
     // Port-note: The stub takes `char **psList` as a `TextCursor`, and Raven stores a string into each slot.
     // The row is "the char ** file list" of the win round.
     // TODO: Port Sys_ListFilteredFiles
@@ -466,17 +466,13 @@ private func strgtr(_ s0: String, _ s1: String) -> Bool {
 }
 
 /// Source: oracle/codemp/null/win_main.cpp:502
-// TODO: Port signature
-// Raven wrote: char **Sys_ListFiles( const char *directory, const char *extension, char *filter, int *numfiles, qboolean wantsubs )
-// No table row for the return `char **`.
-func Sys_ListFiles() -> Never {
-    // Port-note: The table has no row for the `char **` return, row "the char ** file list" of the win round.
+func Sys_ListFiles(_ directory: String, _ `extension`: String?, _ filter: String?, _ numfiles: inout Int32, _ wantsubs: Bool) -> [String] {
     // TODO: Port Sys_ListFiles
     portMissing("Sys_ListFiles", source: "oracle/codemp/null/win_main.cpp:502")
 }
 
 /// Source: oracle/codemp/null/win_main.cpp:597
-func Sys_FreeFileList(_ psList: inout JKAShared.TextCursor) {
+func Sys_FreeFileList(_ psList: [String]) {
     // Port-note: The stub takes `char **psList` as a `TextCursor`, and Raven frees each slot, row "the char ** file list" of the win round.
     // TODO: Port Sys_FreeFileList
     portMissing("Sys_FreeFileList", source: "oracle/codemp/null/win_main.cpp:597")

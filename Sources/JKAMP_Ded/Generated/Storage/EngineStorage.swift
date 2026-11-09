@@ -110,9 +110,25 @@ public final class EngineStorage {
     /// Source: oracle/codemp/qcommon/net_chan.cpp:586
     public let string_NET_OutOfBandData: Slots<JKAShared.byte>
 
+    /// Raven's `wpobject_t *gWPArray[MAX_WPARRAY_SIZE]` of `sv_bot.cpp`.
+    /// Source: oracle/codemp/server/sv_bot.cpp:23
+    public let gWPArray: Slots<JKAMP.Wpobject?>
+
+    /// Raven's `byte msgBuffer[MAX_MSGLEN]` local of `SV_SendClientGameState` in `sv_client.cpp`.
+    /// Source: oracle/codemp/server/sv_client.cpp:701
+    public let msgBuffer_SV_SendClientGameState: Slots<JKAShared.byte>
+
+    /// Raven's `byte msgBuffer[MAX_MSGLEN]` local of `SV_SendClientMapChange` in `sv_client.cpp`.
+    /// Source: oracle/codemp/server/sv_client.cpp:823
+    public let msgBuffer_SV_SendClientMapChange: Slots<JKAShared.byte>
+
     /// Raven's `sharedEntity_t gLocalModifier` of `sv_game.cpp`.
     /// Source: oracle/codemp/server/sv_game.cpp:420
     public let gLocalModifier: JKAMP.SharedEntity
+
+    /// Raven's `siegePers_t sv_siegePersData` of `sv_game.cpp`.
+    /// Source: oracle/codemp/server/sv_game.cpp:454
+    public let sv_siegePersData: JKAMP.SiegePers
 
     /// Raven's `serverStatic_t svs` of `sv_main.cpp`.
     /// Source: oracle/codemp/server/sv_main.cpp:10
@@ -125,6 +141,22 @@ public final class EngineStorage {
     /// Raven's `cvar_t *sv_master[MAX_MASTER_SERVERS]` of `sv_main.cpp`.
     /// Source: oracle/codemp/server/sv_main.cpp:24
     public let sv_master: Slots<JKAMP.Cvar?>
+
+    /// Raven's `byte msg_buf[MAX_MSGLEN]` local of `SV_SendClientSnapshot` in `sv_snapshot.cpp`.
+    /// Source: oracle/codemp/server/sv_snapshot.cpp:720
+    public let msg_buf_SV_SendClientSnapshot: Slots<JKAShared.byte>
+
+    /// Raven's `worldSector_t sv_worldSectors[AREA_NODES]` of `sv_world.cpp`.
+    /// Source: oracle/codemp/server/sv_world.cpp:58
+    public let sv_worldSectors: Slots<WorldSector>
+
+    /// Raven's `int touch[MAX_GENTITIES]` local of `SV_PointContents` in `sv_world.cpp`.
+    /// Source: oracle/codemp/server/sv_world.cpp:872
+    public let touch_SV_PointContents: Slots<Int32>
+
+    /// Raven's `int leafs[MAX_TOTAL_ENT_LEAFS]` local of `SV_LinkEntity` in `sv_world.cpp`.
+    /// Source: oracle/codemp/server/sv_world.cpp:191
+    public let leafs_SV_LinkEntity: Slots<Int32>
 
     /// Raven's `vm_t vmTable[MAX_VM]` of `vm.cpp`.
     /// Source: oracle/codemp/qcommon/vm.cpp:29
@@ -193,10 +225,18 @@ public final class EngineStorage {
         self.send_buf_Netchan_TransmitNextFragment = Slots(scalars: EngineStorage.bytes(count: Int(JKAMP_Ded.MAX_PACKETLEN)), count: Int(JKAMP_Ded.MAX_PACKETLEN))
         self.send_buf_Netchan_Transmit = Slots(scalars: EngineStorage.bytes(count: Int(JKAMP_Ded.MAX_PACKETLEN)), count: Int(JKAMP_Ded.MAX_PACKETLEN))
         self.string_NET_OutOfBandData = Slots(scalars: EngineStorage.bytes(count: 98304), count: 98304)
+        self.gWPArray = EngineStorage.table(count: Int(JKAMP.MAX_WPARRAY_SIZE), of: JKAMP.Wpobject.self)
+        self.msgBuffer_SV_SendClientGameState = Slots(scalars: EngineStorage.bytes(count: Int(JKAMP_Ded.MAX_MSGLEN)), count: Int(JKAMP_Ded.MAX_MSGLEN))
+        self.msgBuffer_SV_SendClientMapChange = Slots(scalars: EngineStorage.bytes(count: Int(JKAMP_Ded.MAX_MSGLEN)), count: Int(JKAMP_Ded.MAX_MSGLEN))
         self.gLocalModifier = EngineStorage.record(of: JKAMP.SharedEntity.self)
+        self.sv_siegePersData = EngineStorage.record(of: JKAMP.SiegePers.self)
         self.svs = EngineStorage.record(of: ServerStatic.self)
         self.sv = EngineStorage.record(of: Server.self)
         self.sv_master = EngineStorage.table(count: Int(JKAMP_Ded.MAX_MASTER_SERVERS), of: JKAMP.Cvar.self)
+        self.msg_buf_SV_SendClientSnapshot = Slots(scalars: EngineStorage.bytes(count: Int(JKAMP_Ded.MAX_MSGLEN)), count: Int(JKAMP_Ded.MAX_MSGLEN))
+        self.sv_worldSectors = EngineStorage.records(count: 64, of: WorldSector.self)
+        self.touch_SV_PointContents = Slots(scalars: EngineStorage.bytes(count: Int(JKAShared.MAX_GENTITIES) * MemoryLayout<Int32>.stride), count: Int(JKAShared.MAX_GENTITIES))
+        self.leafs_SV_LinkEntity = Slots(scalars: EngineStorage.bytes(count: 128 * MemoryLayout<Int32>.stride), count: 128)
         self.vmTable = EngineStorage.records(count: 3, of: Vm.self)
         self.nullSym_VM_ValueToFunctionSymbol = EngineStorage.record(of: VmSymbol.self)
         self.eventQue = EngineStorage.records(count: Int(JKAMP_Ded.MAX_QUED_EVENTS), of: SysEvent.self)
@@ -236,10 +276,18 @@ public final class EngineStorage {
         self.send_buf_Netchan_TransmitNextFragment.base.deallocate()
         self.send_buf_Netchan_Transmit.base.deallocate()
         self.string_NET_OutOfBandData.base.deallocate()
+        self.gWPArray.base.deallocate()
+        self.msgBuffer_SV_SendClientGameState.base.deallocate()
+        self.msgBuffer_SV_SendClientMapChange.base.deallocate()
         UnsafeMutableRawPointer(self.gLocalModifier.handle).deallocate()
+        UnsafeMutableRawPointer(self.sv_siegePersData.handle).deallocate()
         UnsafeMutableRawPointer(self.svs.handle).deallocate()
         UnsafeMutableRawPointer(self.sv.handle).deallocate()
         self.sv_master.base.deallocate()
+        self.msg_buf_SV_SendClientSnapshot.base.deallocate()
+        self.sv_worldSectors.base.deallocate()
+        self.touch_SV_PointContents.base.deallocate()
+        self.leafs_SV_LinkEntity.base.deallocate()
         self.vmTable.base.deallocate()
         UnsafeMutableRawPointer(self.nullSym_VM_ValueToFunctionSymbol.handle).deallocate()
         self.eventQue.base.deallocate()

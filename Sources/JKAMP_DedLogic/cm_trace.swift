@@ -169,10 +169,7 @@ CM_TestBoxInBrush
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:161
-// TODO: Port signature
-// Raven wrote: void CM_TestBoxInBrush( traceWork_t *tw, trace_t &trace, cbrush_t *brush )
-// No table row for `traceWork_t * tw`.
-func CM_TestBoxInBrush() -> Never {
+func CM_TestBoxInBrush(_ tw: TraceWork, _ trace: JKAMP.Trace, _ brush: Cbrush) {
     // TODO: Port CM_TestBoxInBrush
     portMissing("CM_TestBoxInBrush", source: "oracle/codemp/qcommon/cm_trace.cpp:161")
 }
@@ -185,10 +182,7 @@ CM_TestInLeaf
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:262
-// TODO: Port signature
-// Raven wrote: void CM_TestInLeaf( traceWork_t *tw, trace_t &trace, cLeaf_t *leaf, clipMap_t *local )
-// No table row for `traceWork_t * tw`.
-func CM_TestInLeaf() -> Never {
+func CM_TestInLeaf(_ tw: TraceWork, _ trace: JKAMP.Trace, _ leaf: CLeaf, _ local: ClipMap) {
     // TODO: Port CM_TestInLeaf
     portMissing("CM_TestInLeaf", source: "oracle/codemp/qcommon/cm_trace.cpp:262")
 }
@@ -203,10 +197,7 @@ capsule inside capsule check
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:342
-// TODO: Port signature
-// Raven wrote: void CM_TestCapsuleInCapsule( traceWork_t *tw, trace_t &trace, clipHandle_t model )
-// No table row for `traceWork_t * tw`.
-func CM_TestCapsuleInCapsule() -> Never {
+func CM_TestCapsuleInCapsule(_ tw: TraceWork, _ trace: JKAMP.Trace, _ model: JKAShared.clipHandle_t) {
     // TODO: Port CM_TestCapsuleInCapsule
     portMissing("CM_TestCapsuleInCapsule", source: "oracle/codemp/qcommon/cm_trace.cpp:342")
 }
@@ -221,37 +212,25 @@ bounding box inside capsule check
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:411
-// TODO: Port signature
-// Raven wrote: void CM_TestBoundingBoxInCapsule( traceWork_t *tw, trace_t &trace, clipHandle_t model )
-// No table row for `traceWork_t * tw`.
-func CM_TestBoundingBoxInCapsule() -> Never {
+func CM_TestBoundingBoxInCapsule(_ tw: TraceWork, _ trace: JKAMP.Trace, _ model: JKAShared.clipHandle_t) {
     // TODO: Port CM_TestBoundingBoxInCapsule
     portMissing("CM_TestBoundingBoxInCapsule", source: "oracle/codemp/qcommon/cm_trace.cpp:411")
 }
 
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:448
-// TODO: Port signature
-// Raven wrote: void CM_PositionTest( traceWork_t *tw, trace_t &trace )
-// No table row for `traceWork_t * tw`.
-func CM_PositionTest() -> Never {
+func CM_PositionTest(_ tw: TraceWork, _ trace: JKAMP.Trace) {
     // TODO: Port CM_PositionTest
     portMissing("CM_PositionTest", source: "oracle/codemp/qcommon/cm_trace.cpp:448")
 }
 
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:500
-// TODO: Port signature
-// Raven wrote: void CM_TraceThroughPatch( traceWork_t *tw, trace_t &trace, cPatch_t *patch )
-// No table row for `traceWork_t * tw`.
-func CM_TraceThroughPatch() -> Never {
+func CM_TraceThroughPatch(_ tw: TraceWork, _ trace: JKAMP.Trace, _ patch: CPatch) {
     // TODO: Port CM_TraceThroughPatch
     portMissing("CM_TraceThroughPatch", source: "oracle/codemp/qcommon/cm_trace.cpp:500")
 }
 
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:523
-// TODO: Port signature
-// Raven wrote: bool CM_PlaneCollision(traceWork_t *tw, cbrushside_t *side)
-// No table row for `traceWork_t * tw`.
-func CM_PlaneCollision() -> Never {
+func CM_PlaneCollision(_ tw: TraceWork, _ side: Cbrushside) -> Bool {
     // TODO: Port CM_PlaneCollision
     portMissing("CM_PlaneCollision", source: "oracle/codemp/qcommon/cm_trace.cpp:523")
 }
@@ -264,19 +243,13 @@ CM_TraceThroughBrush
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:607
-// TODO: Port signature
-// Raven wrote: void CM_TraceThroughBrush( traceWork_t *tw, trace_t &trace, cbrush_t *brush, bool infoOnly )
-// No table row for `traceWork_t * tw`.
-func CM_TraceThroughBrush() -> Never {
+func CM_TraceThroughBrush(_ tw: TraceWork, _ trace: JKAMP.Trace, _ brush: Cbrush, _ infoOnly: Bool) {
     // TODO: Port CM_TraceThroughBrush
     portMissing("CM_TraceThroughBrush", source: "oracle/codemp/qcommon/cm_trace.cpp:607")
 }
 
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:703
-// TODO: Port signature
-// Raven wrote: void CM_TraceThroughTerrain( traceWork_t *tw, trace_t &trace, cbrush_t *brush )
-// No table row for `traceWork_t * tw`.
-func CM_TraceThroughTerrain() -> Never {
+func CM_TraceThroughTerrain(_ tw: TraceWork, _ trace: JKAMP.Trace, _ brush: Cbrush) {
     // TODO: Port CM_TraceThroughTerrain
     portMissing("CM_TraceThroughTerrain", source: "oracle/codemp/qcommon/cm_trace.cpp:703")
 }
@@ -291,10 +264,7 @@ func CM_HandlePatchCollision() -> Never {
 }
 
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:952
-// TODO: Port signature
-// Raven wrote: bool CM_GenericBoxCollide(const vec3pair_t abounds, const vec3pair_t bbounds)
-// No table row for `const vec3pair_t abounds`.
-func CM_GenericBoxCollide() -> Never {
+func CM_GenericBoxCollide(_ abounds: [JKAShared.vec3_t], _ bbounds: [JKAShared.vec3_t]) -> Bool {
     // TODO: Port CM_GenericBoxCollide
     portMissing("CM_GenericBoxCollide", source: "oracle/codemp/qcommon/cm_trace.cpp:952")
 }
@@ -307,10 +277,7 @@ CM_TraceThroughLeaf
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:976
-// TODO: Port signature
-// Raven wrote: void CM_TraceThroughLeaf( traceWork_t *tw, trace_t &trace, clipMap_t *local, cLeaf_t *leaf )
-// No table row for `traceWork_t * tw`.
-func CM_TraceThroughLeaf() -> Never {
+func CM_TraceThroughLeaf(_ tw: TraceWork, _ trace: JKAMP.Trace, _ local: ClipMap, _ leaf: CLeaf) {
     // TODO: Port CM_TraceThroughLeaf
     portMissing("CM_TraceThroughLeaf", source: "oracle/codemp/qcommon/cm_trace.cpp:976")
 }
@@ -325,10 +292,7 @@ get the first intersection of the ray with the sphere
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:1058
-// TODO: Port signature
-// Raven wrote: void CM_TraceThroughSphere( traceWork_t *tw, trace_t &trace, vec3_t origin, float radius, vec3_t start, vec3_t end )
-// No table row for `traceWork_t * tw`.
-func CM_TraceThroughSphere() -> Never {
+func CM_TraceThroughSphere(_ tw: TraceWork, _ trace: JKAMP.Trace, _ origin: JKAShared.vec3_t, _ radius: Float, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) {
     // TODO: Port CM_TraceThroughSphere
     portMissing("CM_TraceThroughSphere", source: "oracle/codemp/qcommon/cm_trace.cpp:1058")
 }
@@ -344,10 +308,7 @@ the cylinder extends halfheight above and below the origin
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:1146
-// TODO: Port signature
-// Raven wrote: void CM_TraceThroughVerticalCylinder( traceWork_t *tw, trace_t &trace, vec3_t origin, float radius, float halfheight, vec3_t start, vec3_t end)
-// No table row for `traceWork_t * tw`.
-func CM_TraceThroughVerticalCylinder() -> Never {
+func CM_TraceThroughVerticalCylinder(_ tw: TraceWork, _ trace: JKAMP.Trace, _ origin: JKAShared.vec3_t, _ radius: Float, _ halfheight: Float, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) {
     // TODO: Port CM_TraceThroughVerticalCylinder
     portMissing("CM_TraceThroughVerticalCylinder", source: "oracle/codemp/qcommon/cm_trace.cpp:1146")
 }
@@ -362,10 +323,7 @@ capsule vs. capsule collision (not rotated)
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:1249
-// TODO: Port signature
-// Raven wrote: void CM_TraceCapsuleThroughCapsule( traceWork_t *tw, trace_t &trace, clipHandle_t model )
-// No table row for `traceWork_t * tw`.
-func CM_TraceCapsuleThroughCapsule() -> Never {
+func CM_TraceCapsuleThroughCapsule(_ tw: TraceWork, _ trace: JKAMP.Trace, _ model: JKAShared.clipHandle_t) {
     // TODO: Port CM_TraceCapsuleThroughCapsule
     portMissing("CM_TraceCapsuleThroughCapsule", source: "oracle/codemp/qcommon/cm_trace.cpp:1249")
 }
@@ -380,10 +338,7 @@ bounding box vs. capsule collision
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:1311
-// TODO: Port signature
-// Raven wrote: void CM_TraceBoundingBoxThroughCapsule( traceWork_t *tw, trace_t &trace, clipHandle_t model )
-// No table row for `traceWork_t * tw`.
-func CM_TraceBoundingBoxThroughCapsule() -> Never {
+func CM_TraceBoundingBoxThroughCapsule(_ tw: TraceWork, _ trace: JKAMP.Trace, _ model: JKAShared.clipHandle_t) {
     // TODO: Port CM_TraceBoundingBoxThroughCapsule
     portMissing("CM_TraceBoundingBoxThroughCapsule", source: "oracle/codemp/qcommon/cm_trace.cpp:1311")
 }
@@ -396,10 +351,7 @@ CM_TraceToLeaf
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:1349
-// TODO: Port signature
-// Raven wrote: void CM_TraceToLeaf( traceWork_t *tw, trace_t &trace, cLeaf_t *leaf, clipMap_t *local )
-// No table row for `traceWork_t * tw`.
-func CM_TraceToLeaf() -> Never {
+func CM_TraceToLeaf(_ tw: TraceWork, _ trace: JKAMP.Trace, _ leaf: CLeaf, _ local: ClipMap) {
     // TODO: Port CM_TraceToLeaf
     portMissing("CM_TraceToLeaf", source: "oracle/codemp/qcommon/cm_trace.cpp:1349")
 }
@@ -417,19 +369,13 @@ a smaller intercept fraction.
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:1431
-// TODO: Port signature
-// Raven wrote: void CM_TraceThroughTree( traceWork_t *tw, trace_t &trace, clipMap_t *local, int num, float p1f, float p2f, vec3_t p1, vec3_t p2)
-// No table row for `traceWork_t * tw`.
-func CM_TraceThroughTree() -> Never {
+func CM_TraceThroughTree(_ tw: TraceWork, _ trace: JKAMP.Trace, _ local: ClipMap, _ num: Int32, _ p1f: Float, _ p2f: Float, _ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) {
     // TODO: Port CM_TraceThroughTree
     portMissing("CM_TraceThroughTree", source: "oracle/codemp/qcommon/cm_trace.cpp:1431")
 }
 
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:1550
-// TODO: Port signature
-// Raven wrote: void CM_CalcExtents(const vec3_t start, const vec3_t end, const traceWork_t *tw, vec3pair_t bounds)
-// No table row for `const traceWork_t * tw`.
-func CM_CalcExtents() -> Never {
+func CM_CalcExtents(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ tw: TraceWork, _ bounds: inout [JKAShared.vec3_t]) {
     // TODO: Port CM_CalcExtents
     portMissing("CM_CalcExtents", source: "oracle/codemp/qcommon/cm_trace.cpp:1550")
 }
@@ -442,10 +388,7 @@ CM_Trace
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:1577
-// TODO: Port signature
-// Raven wrote: void CM_Trace( trace_t *trace, const vec3_t start, const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model, const vec3_t origin, int brushmask, int capsule, sphere_t *sphere )
-// No table row for `sphere_t * sphere`.
-func CM_Trace() -> Never {
+func CM_Trace(_ trace: JKAMP.Trace, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ model: JKAShared.clipHandle_t, _ origin: JKAShared.vec3_t, _ brushmask: Int32, _ capsule: Int32, _ sphere: Sphere?) {
     // TODO: Port CM_Trace
     portMissing("CM_Trace", source: "oracle/codemp/qcommon/cm_trace.cpp:1577")
 }
@@ -586,10 +529,7 @@ func CM_CullBox(_ frustum: JKAShared.Cplane, _ transformed: inout [JKAShared.vec
 }
 
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:1979
-// TODO: Port signature
-// Raven wrote: bool CM_CullWorldBox (const cplane_t *frustum, const vec3pair_t bounds)
-// No table row for `const vec3pair_t bounds`.
-func CM_CullWorldBox() -> Never {
+func CM_CullWorldBox(_ frustum: JKAShared.Cplane, _ bounds: [JKAShared.vec3_t]) -> Bool {
     // TODO: Port CM_CullWorldBox
     portMissing("CM_CullWorldBox", source: "oracle/codemp/qcommon/cm_trace.cpp:1979")
 }

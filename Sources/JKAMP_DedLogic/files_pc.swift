@@ -1573,11 +1573,7 @@ from all search paths
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1587
-// TODO: Port signature
-// Raven wrote: char **FS_ListFilteredFiles( const char *path, const char *extension, char *filter, int *numfiles )
-// No table row for the return `char **`.
-// Port-note: Row F4. The table has no row for a returned `char **` list of zone strings.
-func FS_ListFilteredFiles() -> Never {
+func FS_ListFilteredFiles(_ path: String, _ `extension`: String, _ filter: String?, _ numfiles: inout Int32) -> [String] {
     // TODO: Port FS_ListFilteredFiles
     portMissing("FS_ListFilteredFiles", source: "oracle/codemp/qcommon/files_pc.cpp:1587")
 }
@@ -1590,11 +1586,7 @@ FS_ListFiles
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1724
-// TODO: Port signature
-// Raven wrote: char **FS_ListFiles( const char *path, const char *extension, int *numfiles )
-// No table row for the return `char **`.
-// Port-note: Row F4. The table has no row for a returned `char **` list of zone strings.
-func FS_ListFiles() -> Never {
+func FS_ListFiles(_ path: String, _ `extension`: String, _ numfiles: inout Int32) -> [String] {
     // TODO: Port FS_ListFiles
     portMissing("FS_ListFiles", source: "oracle/codemp/qcommon/files_pc.cpp:1724")
 }
@@ -1607,7 +1599,7 @@ FS_FreeFileList
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1733
-func FS_FreeFileList(_ fileList: inout JKAShared.TextCursor) {
+func FS_FreeFileList(_ fileList: [String]) {
     // TODO: Port FS_FreeFileList
     portMissing("FS_FreeFileList", source: "oracle/codemp/qcommon/files_pc.cpp:1733")
 }
@@ -1648,17 +1640,13 @@ FIXME TTimo those two should move to common.c next to Sys_ListFiles
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1803
-private func Sys_CountFileList(_ list: inout JKAShared.TextCursor) -> UInt32 {
+private func Sys_CountFileList(_ list: [String]) -> UInt32 {
     // TODO: Port Sys_CountFileList
     portMissing("Sys_CountFileList", source: "oracle/codemp/qcommon/files_pc.cpp:1803")
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1818
-// TODO: Port signature
-// Raven wrote: static char** Sys_ConcatenateFileLists( char **list0, char **list1, char **list2 )
-// No table row for the return `char **`.
-// Port-note: Row F4. The table has no row for a returned `char **` list of zone strings.
-private func Sys_ConcatenateFileLists() -> Never {
+private func Sys_ConcatenateFileLists(_ list0: [String], _ list1: [String], _ list2: [String]) -> [String] {
     // TODO: Port Sys_ConcatenateFileLists
     portMissing("Sys_ConcatenateFileLists", source: "oracle/codemp/qcommon/files_pc.cpp:1818")
 }
@@ -1788,7 +1776,7 @@ FS_SortFileList
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2078
-func FS_SortFileList(_ filelist: inout JKAShared.TextCursor, _ numfiles: Int32) {
+func FS_SortFileList(_ filelist: inout [String], _ numfiles: Int32) {
     // TODO: Port FS_SortFileList
     portMissing("FS_SortFileList", source: "oracle/codemp/qcommon/files_pc.cpp:2078")
 }
@@ -1887,7 +1875,7 @@ func FS_TouchFile_f() {
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2194
-private func paksort(_ a: OpaquePointer?, _ b: OpaquePointer?) -> Int32 {
+private func paksort(_ a: String, _ b: String) -> Int32 {
     // TODO: Port paksort
     portMissing("paksort", source: "oracle/codemp/qcommon/files_pc.cpp:2194")
 }
