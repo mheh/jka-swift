@@ -751,9 +751,107 @@ func FS_FOpenFileRead(_ filename: String, _ file: inout Int32, _ uniqueFILE: Boo
             // is the element a pak file?
             if search!.pack != nil && search!.pack!.hashTable![hash] != nil {
                 // disregard if it doesn't match one of the allowed pure pak files
-                // Port-note: Rows F1 and F11. FS_PakIsPure has no signature, and the copy into the zip handle needs a view of `unz_s`.
-                // Raven wrote: if ( !FS_PakIsPure(search->pack) ) { continue; } and the walk of the pak file elements
-                portMissing("FS_FOpenFileRead", source: "oracle/codemp/qcommon/files_pc.cpp:672")
+                if !FS_PakIsPure(search!.pack!) {
+                    search = search!.next
+                    continue
+                }
+
+                // look through all the pak file elements
+                let pak = search!.pack!
+                var pakFile = pak.hashTable![hash]
+                repeat {
+                    // case and separator insensitive comparisons
+                    if !FS_FilenameCompare(pakFile!.name!, filename.text) {
+                        // found it!
+
+                        // mark the pak as having been referenced and mark specifics on cgame and ui
+                        // shaders, txt, arena files  by themselves do not count as a reference as
+                        // these are loaded from all pk3s
+                        // from every pk3 file..
+                        l = strlen(filename.text)
+                        if (pak.referenced & FS_GENERAL_REF) == 0 {
+                            // Port-note: Raven reads before the name when it is shorter than the extension. The cursor reads the empty text there.
+                            if Q_stricmp(TextCursor(filename.buf, at: filename.offset! + l - 7).text, ".shader") != 0
+                                && Q_stricmp(TextCursor(filename.buf, at: filename.offset! + l - 4).text, ".txt") != 0
+                                && Q_stricmp(TextCursor(filename.buf, at: filename.offset! + l - 4).text, ".str") != 0
+                                && Q_stricmp(TextCursor(filename.buf, at: filename.offset! + l - 4).text, ".cfg") != 0
+                                && Q_stricmp(TextCursor(filename.buf, at: filename.offset! + l - 4).text, ".fcf") != 0
+                                && Q_stricmp(TextCursor(filename.buf, at: filename.offset! + l - 7).text, ".config") != 0
+                                && strstr(filename.text, "levelshots") == nil
+                                && Q_stricmp(TextCursor(filename.buf, at: filename.offset! + l - 4).text, ".bot") != 0
+                                && Q_stricmp(TextCursor(filename.buf, at: filename.offset! + l - 6).text, ".arena") != 0
+                                && Q_stricmp(TextCursor(filename.buf, at: filename.offset! + l - 5).text, ".menu") != 0 {
+                                pak.referenced |= FS_GENERAL_REF
+                            }
+                        }
+
+                        /*
+                        FS_ShiftedStrStr(filename, "jampgamex86.dll", -13);
+                                                  //]^&`cZT`Xk+)!W__
+                        FS_ShiftedStrStr(filename, "cgamex86.dll", -7);
+                                                  //\`Zf^q1/']ee
+                        FS_ShiftedStrStr(filename, "uix86.dll", -5);
+                                                  //pds31)_gg
+                        */
+
+                        // jampgame.qvm	- 13
+                        // ]^&`cZT`X!di`
+                        if (pak.referenced & FS_QAGAME_REF) == 0 {
+                            if FS_ShiftedStrStr(filename.text, "]T`cZT`X!di`", 13) != nil
+                                || FS_ShiftedStrStr(filename.text, "]T`cZT`Xk+)!W__", 13) != nil {
+                                pak.referenced |= FS_QAGAME_REF
+                            }
+                        }
+                        // cgame.qvm	- 7
+                        // \`Zf^'jof
+                        if (pak.referenced & FS_CGAME_REF) == 0 {
+                            if FS_ShiftedStrStr(filename.text, "\\`Zf^'jof", 7) != nil
+                                || FS_ShiftedStrStr(filename.text, "\\`Zf^q1/']ee", 7) != nil {
+                                pak.referenced |= FS_CGAME_REF
+                            }
+                        }
+                        // ui.qvm		- 5
+                        // pd)lqh
+                        if (pak.referenced & FS_UI_REF) == 0 {
+                            if FS_ShiftedStrStr(filename.text, "pd)lqh", 5) != nil
+                                || FS_ShiftedStrStr(filename.text, "pds31)_gg", 5) != nil {
+                                pak.referenced |= FS_UI_REF
+                            }
+                        }
+
+                        if uniqueFILE {
+                            // open a new file on the pakfile
+                            fsh[file].handleFiles.file.z = unzReOpen(pak.pakFilename, pak.packHandle)
+                            if fsh[file].handleFiles.file.z == nil {
+                                Com_Error(ERR_FATAL, "Couldn't reopen %s", pak.pakFilename)
+                            }
+                        } else {
+                            fsh[file].handleFiles.file.z = pak.packHandle
+                        }
+                        Q_strncpyz(&fsh[file].nameBuffer, filename.text, Int32(fsh[file].nameBuffer.count))
+                        fsh[file].zipFile = true
+                        let zfi = UnzS(fsh[file].handleFiles.file.z!)
+                        // in case the file was new
+                        let temp = zfi.file
+                        // set the file position in the zip file (also sets the current file info)
+                        unzSetCurrentFileInfoPosition(pak.packHandle, pakFile!.pos)
+                        // copy the file info into the unzip structure
+                        Com_Memcpy(zfi, UnzS(pak.packHandle!), UnzS.byteCount)
+                        // we copy this back into the structure
+                        zfi.file = temp
+                        // open the file in the zip
+                        unzOpenCurrentFile(fsh[file].handleFiles.file.z)
+                        // The `unsigned long` position narrows into the `int` field, as C's store does.
+                        fsh[file].zipFilePos = Int32(truncatingIfNeeded: pakFile!.pos)
+
+                        if fs_debug!.integer != 0 {
+                            Com_Printf("FS_FOpenFileRead: %s (found in '%s')\n", filename.text, pak.pakFilename)
+                        }
+                        // The `uLong` size narrows into the `int` return, as C's return does.
+                        return Int32(truncatingIfNeeded: zfi.cur_file_info.uncompressed_size)
+                    }
+                    pakFile = pakFile!.next
+                } while pakFile != nil
             } else if search!.dir != nil {
                 // check a file in the directory tree
 
@@ -993,9 +1091,7 @@ func FS_Read(_ buffer: inout CharBuf, _ len: Int32, _ f: JKAShared.fileHandle_t)
         }
         return len
     } else {
-        // Port-note: Row F13. unzReadCurrentFile of unzip.swift takes an `OpaquePointer?` buffer and no CharBuf.
-        // Raven wrote: return unzReadCurrentFile(fsh[f].handleFiles.file.z, buffer, len)
-        portMissing("FS_Read", source: "oracle/codemp/qcommon/files_pc.cpp:1026")
+        return unzReadCurrentFile(fsh[f].handleFiles.file.z, &buffer, UInt32(bitPattern: len))
     }
 }
 
@@ -1164,6 +1260,7 @@ func FS_FileIsInPAK(_ filename: String, _ pChecksum: inout Int32) -> Int32 {
         if search!.pack != nil && search!.pack!.hashTable![hash] != nil {
             // disregard if it doesn't match one of the allowed pure pak files
             if !FS_PakIsPure(search!.pack!) {
+                search = search!.next
                 continue
             }
 
@@ -1300,6 +1397,16 @@ func FS_ReadFile(_ qpath: String, _ buffer: inout OpaquePointer?) -> Int32 {
         FS_Write(Slots(scalars: buf, count: Int(len) + 1), len, com_journalDataFile)
         FS_Flush(com_journalDataFile)
     }
+    return len
+}
+
+/// Source: oracle/codemp/qcommon/files_pc.cpp:1259
+// Port-note: The VmHeader overload of row V3, for `(void **)&header` of VM_Create and VM_Restart, vm.cpp:530 and :416.
+// AI: Raven reads the QVM image into a zone block and stores its address in the `vmHeader_t *`. The overload gives the view over the block, or nil.
+func FS_ReadFile(_ qpath: String, _ buffer: inout VmHeader?) -> Int32 {
+    var block: OpaquePointer? = nil
+    let len = FS_ReadFile(qpath, &block)
+    buffer = block.map { VmHeader(handle: $0) }
     return len
 }
 
@@ -1489,6 +1596,20 @@ func FS_FreeFile(_ buffer: OpaquePointer?) {
 func FS_FreeFile(_ buffer: CharBuf) {
 }
 
+/// Source: oracle/codemp/qcommon/files_pc.cpp:1379
+// Port-note: The VmHeader overload of row V3, for the `vmHeader_t *` of VM_Create and VM_Restart, vm.cpp:587 and :455.
+// AI: Raven frees the block of the QVM image through the header pointer. The overload hands the handle of the view to the original.
+func FS_FreeFile(_ buffer: VmHeader?) {
+    FS_FreeFile(buffer.map { $0.handle })
+}
+
+/// Source: oracle/codemp/qcommon/files_pc.cpp:1379
+// Port-note: The Slots overload of the FS_FreeFile row, for the `unsigned char *` of SE_FreeFileDataAfterLoad, stringed_interface.cpp:117.
+// AI: Raven hands the block that FS_ReadFile gave. The overload hands the handle of the block the Slots covers to the original.
+func FS_FreeFile(_ buffer: Slots<JKAShared.byte>) {
+    FS_FreeFile(OpaquePointer(buffer.base))
+}
+
 /**
 ```
 =================
@@ -1501,9 +1622,117 @@ of a zip file.
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1423
 private func FS_LoadZipFile(_ zipfile: String, _ basename: String) -> Pack? {
-    // Port-note: Row F1. The body opens the pak through unzOpen, unzGetGlobalInfo, and unzGetCurrentFileInfo, whose stubs in unzip.swift carry signature markers, so it waits on the unzip round.
-    // TODO: Port FS_LoadZipFile
-    portMissing("FS_LoadZipFile", source: "oracle/codemp/qcommon/files_pc.cpp:1423")
+    return Unz_global_info.scratch { gi -> Pack? in
+        Unz_file_info.scratch { file_info -> Pack? in
+            let buildBuffer: Slots<FileInPack>
+            let pack: Pack
+            let uf: OpaquePointer?
+            var err: Int32
+            var filename_inzip = CharBuf(MAX_ZPATH)
+            // AI: Raven passes NULL for the comment. The call passes a scratch CharBuf with a size of 0, so it reads and writes no byte.
+            var szComment = CharBuf(1)
+            var i: Int32
+            var len: Int32
+            var hash: CLong
+            var fs_numHeaderLongs: Int32
+            let fs_headerLongs: Slots<Int32>
+
+            fs_numHeaderLongs = 0
+
+            uf = unzOpen(zipfile)
+            err = unzGetGlobalInfo(uf, gi)
+
+            if err != UNZ_OK {
+                return nil
+            }
+
+            // The `uLong` count narrows into the `int` total, as C's add does.
+            fs_packFiles += Int32(truncatingIfNeeded: gi.number_entry)
+
+            len = 0
+            unzGoToFirstFile(uf)
+            i = 0
+            while CUnsignedLong(i) < gi.number_entry {
+                err = unzGetCurrentFileInfo(uf, file_info, &filename_inzip, CUnsignedLong(filename_inzip.count), nil, 0, &szComment, 0)
+                if err != UNZ_OK {
+                    break
+                }
+                len += strlen(filename_inzip) + 1
+                unzGoToNextFile(uf)
+                i += 1
+            }
+
+            // AI: Raven copies each name into the block after the records. The name setter of the view keeps the text in the string pool, so those bytes stay unused.
+            buildBuffer = Slots<FileInPack>(Z_Malloc((Int32(truncatingIfNeeded: gi.number_entry) * Int32(FileInPack.byteCount)) + len, TAG_FILESYS, true), count: gi.number_entry)
+            fs_headerLongs = Slots<Int32>(scalars: Z_Malloc(Int32(truncatingIfNeeded: gi.number_entry) * Int32(Int32.byteCount), TAG_FILESYS, true), count: Int(gi.number_entry))
+
+            // get the hash table size from the number of files in the zip
+            // because lots of custom pk3 files have less than 32 or 64 files
+            i = 1
+            while i <= MAX_FILEHASH_SIZE {
+                if CUnsignedLong(i) > gi.number_entry {
+                    break
+                }
+                i <<= 1
+            }
+
+            // The table of `i` record pointers follows the record in the block, and `UInt.byteCount` is the size of one pointer.
+            let packBlock = Z_Malloc(Int32(Pack.byteCount) + i * Int32(UInt.byteCount), TAG_FILESYS, true)
+            pack = Pack(packBlock)
+            pack.hashSize = i
+            pack.hashTable = Slots(pointers: packBlock + Pack.byteCount, count: Int(i))
+            i = 0
+            while i < pack.hashSize {
+                pack.hashTable![i] = nil
+                i += 1
+            }
+
+            Q_strncpyz(&pack.pakFilenameBuffer, zipfile, Int32(pack.pakFilenameBuffer.count))
+            Q_strncpyz(&pack.pakBasenameBuffer, basename, Int32(pack.pakBasenameBuffer.count))
+
+            // strip .pk3 if needed
+            if strlen(pack.pakBasename) > 4 && Q_stricmp(TextCursor(pack.pakBasenameBuffer, at: strlen(pack.pakBasename) - 4).text, ".pk3") == 0 {
+                pack.pakBasenameBuffer[strlen(pack.pakBasename) - 4] = 0
+            }
+
+            pack.packHandle = uf
+            pack.numfiles = Int32(truncatingIfNeeded: gi.number_entry)
+            unzGoToFirstFile(uf)
+
+            i = 0
+            while CUnsignedLong(i) < gi.number_entry {
+                err = unzGetCurrentFileInfo(uf, file_info, &filename_inzip, CUnsignedLong(filename_inzip.count), nil, 0, &szComment, 0)
+                if err != UNZ_OK {
+                    break
+                }
+                if file_info.uncompressed_size > 0 {
+                    // LittleLong of the WinDed arm is its argument, and the `uLong` narrows into the `int` slot.
+                    fs_headerLongs[fs_numHeaderLongs] = Int32(truncatingIfNeeded: file_info.crc)
+                    fs_numHeaderLongs += 1
+                }
+                Q_strlwr(&filename_inzip)
+                hash = FS_HashFileName(String(filename_inzip), pack.hashSize)
+                buildBuffer[i].name = String(filename_inzip)
+                // store the file position in the zip
+                unzGetCurrentFileInfoPosition(uf, &buildBuffer[i].pos)
+                //
+                buildBuffer[i].next = pack.hashTable![hash]
+                pack.hashTable![hash] = buildBuffer[i]
+                unzGoToNextFile(uf)
+                i += 1
+            }
+
+            pack.checksum = Int32(bitPattern: Com_BlockChecksum(fs_headerLongs.bytes, 4 * fs_numHeaderLongs))
+            // LittleLong of the WinDed arm is its argument.
+            pack.pure_checksum = Int32(bitPattern: Com_BlockChecksumKey(fs_headerLongs.bytes, 4 * fs_numHeaderLongs, fs_checksumFeed))
+            // Raven's `pack->checksum = LittleLong( pack->checksum )` and the same line for `pure_checksum` have no line, because LittleLong of the WinDed arm is its argument.
+
+            Z_Free(OpaquePointer(fs_headerLongs.base))
+
+            pack.buildBufferSlots = buildBuffer
+            return pack
+        }
+    }
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1534
@@ -1574,8 +1803,145 @@ from all search paths
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1587
 func FS_ListFilteredFiles(_ path: String, _ `extension`: String, _ filter: String?, _ numfiles: inout Int32) -> [String] {
-    // TODO: Port FS_ListFilteredFiles
-    portMissing("FS_ListFilteredFiles", source: "oracle/codemp/qcommon/files_pc.cpp:1587")
+    var nfiles: Int32
+    var listCopy: [String]
+    var list = [String](repeating: "", count: Int(MAX_FOUND_FILES))
+    var search: Searchpath?
+    var i: Int32
+    var pathLength: Int32
+    let extensionLength: Int32
+    var length: Int32
+    var pathDepth: Int32 = 0
+    var temp: Int32
+    var pak: Pack
+    var buildBuffer: Slots<FileInPack>
+    var zpath = CharBuf(MAX_ZPATH)
+
+    if fs_searchpaths == nil {
+        Com_Error(ERR_FATAL, "Filesystem call made without initialization\n")
+    }
+
+    // Raven's `if ( !path )` and `if ( !extension )` arms have no path here, because the two texts are never NULL.
+
+    pathLength = strlen(path)
+    // Port-note: Raven reads `path[-1]` for an empty path, which FS_NewDir_f passes.
+    // The test reads no byte before the text, so the length stays 0.
+    if pathLength > 0 && (CharBuf(path)[pathLength - 1] == Int32(ascii: "\\") || CharBuf(path)[pathLength - 1] == Int32(ascii: "/")) {
+        pathLength -= 1
+    }
+    extensionLength = strlen(`extension`)
+    nfiles = 0
+    FS_ReturnPath(path, &zpath, &pathDepth)
+
+    //
+    // search through the path, one element at a time, adding to list
+    //
+    search = fs_searchpaths
+    while search != nil {
+        // is the element a pak file?
+        if search!.pack != nil {
+
+            //ZOID:  If we are pure, don't search for files on paks that
+            // aren't on the pure list
+            if !FS_PakIsPure(search!.pack!) {
+                search = search!.next
+                continue
+            }
+
+            // look through all the pak file elements
+            pak = search!.pack!
+            buildBuffer = pak.buildBufferSlots
+            i = 0
+            while i < pak.numfiles {
+                let name: String
+                var zpathLen: Int32
+                var depth: Int32 = 0
+
+                // check for directory match
+                name = buildBuffer[i].name!
+                //
+                if filter != nil {
+                    // case insensitive
+                    if Com_FilterPath(filter, name, 0) == 0 {
+                        i += 1
+                        continue
+                    }
+                    // unique the match
+                    nfiles = FS_AddFileToList(name, &list[...], nfiles)
+                } else {
+
+                    zpathLen = FS_ReturnPath(name, &zpath, &depth)
+
+                    if (depth - pathDepth) > 2 || pathLength > zpathLen || Q_stricmpn(name, path, pathLength) != 0 {
+                        i += 1
+                        continue
+                    }
+
+                    // check for extension match
+                    length = strlen(name)
+                    if length < extensionLength {
+                        i += 1
+                        continue
+                    }
+
+                    if Q_stricmp(TextCursor(CharBuf(name), at: length - extensionLength).text, `extension`) != 0 {
+                        i += 1
+                        continue
+                    }
+                    // unique the match
+
+                    temp = pathLength
+                    if pathLength != 0 {
+                        temp += 1 // include the '/'
+                    }
+                    nfiles = FS_AddFileToList(TextCursor(CharBuf(name), at: temp).text, &list[...], nfiles)
+                }
+                i += 1
+            }
+        } else if search!.dir != nil { // scan for files in the filesystem
+            let netpath: String
+            var numSysFiles: Int32 = 0
+            let sysFiles: [String]
+            var name: String
+
+            // don't scan directories for files if we are pure or restricted
+            // Raven's `!extension` term has no path here, because the text is never NULL.
+            if (fs_restrict!.integer != 0 || fs_numServerPaks != 0) && (Q_stricmp(`extension`, "fcf") != 0 || fs_restrict!.integer != 0) {
+                //rww - allow scanning for fcf files outside of pak even if pure
+                search = search!.next
+                continue
+            } else {
+                netpath = FS_BuildOSPath(search!.dir!.path, search!.dir!.gamedir, path)
+                sysFiles = Sys_ListFiles(netpath, `extension`, filter, &numSysFiles, false)
+                i = 0
+                while i < numSysFiles {
+                    // unique the match
+                    name = sysFiles[i]
+                    nfiles = FS_AddFileToList(name, &list[...], nfiles)
+                    i += 1
+                }
+                Sys_FreeFileList(sysFiles)
+            }
+        }
+        search = search!.next
+    }
+
+    // return a copy of the list
+    numfiles = nfiles
+
+    if nfiles == 0 {
+        return []
+    }
+
+    // AI: Raven copies the list into a Z_Malloc table with a NULL at the end. The array is the table, and its count ends the list.
+    listCopy = [String](repeating: "", count: Int(nfiles))
+    i = 0
+    while i < nfiles {
+        listCopy[i] = list[i]
+        i += 1
+    }
+
+    return listCopy
 }
 
 /**
@@ -1587,8 +1953,7 @@ FS_ListFiles
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1724
 func FS_ListFiles(_ path: String, _ `extension`: String, _ numfiles: inout Int32) -> [String] {
-    // TODO: Port FS_ListFiles
-    portMissing("FS_ListFiles", source: "oracle/codemp/qcommon/files_pc.cpp:1724")
+    return FS_ListFilteredFiles(path, `extension`, nil, &numfiles)
 }
 
 /**
@@ -1600,8 +1965,13 @@ FS_FreeFileList
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1733
 func FS_FreeFileList(_ fileList: [String]) {
-    // TODO: Port FS_FreeFileList
-    portMissing("FS_FreeFileList", source: "oracle/codemp/qcommon/files_pc.cpp:1733")
+    //rwwRMG - changed to fileList to not conflict with list type
+
+    if fs_searchpaths == nil {
+        Com_Error(ERR_FATAL, "Filesystem call made without initialization\n")
+    }
+
+    // AI: Raven frees each CopyString text and the Z_Malloc table. The list is a Swift array that frees itself, so the function frees nothing.
 }
 
 /**
@@ -1613,15 +1983,41 @@ FS_GetFileList
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1758
 func FS_GetFileList(_ path: String, _ `extension`: String, _ listbuf: inout JKAShared.CharBuf, _ bufsize: Int32) -> Int32 {
+    var nFiles: Int32
+    var i: Int32
+    var nTotal: Int32
+    var nLen: Int32
+    var pFiles: [String] = []
+    // Raven steps his own `listbuf` parameter, so the body writes at a byte offset into it.
+    var listbufIndex: Int32 = 0
+
     listbuf[0] = 0
+    nFiles = 0
+    nTotal = 0
 
     if Q_stricmp(path, "$modlist") == 0 {
         return FS_GetModList(&listbuf, bufsize)
     }
 
-    // Port-note: Row F4. FS_ListFiles has no signature, so the list of `pFiles` has no source and no type.
-    // Raven wrote: pFiles = FS_ListFiles(path, extension, &nFiles), the copy of each name into `listbuf`, and FS_FreeFileList(pFiles)
-    portMissing("FS_GetFileList", source: "oracle/codemp/qcommon/files_pc.cpp:1758")
+    pFiles = FS_ListFiles(path, `extension`, &nFiles)
+
+    i = 0
+    while i < nFiles {
+        nLen = strlen(pFiles[i]) + 1
+        if nTotal + nLen + 1 < bufsize {
+            strcpy(&listbuf, pFiles[i], at: listbufIndex)
+            listbufIndex += nLen
+            nTotal += nLen
+        } else {
+            nFiles = i
+            break
+        }
+        i += 1
+    }
+
+    FS_FreeFileList(pFiles)
+
+    return nFiles
 }
 
 // NOTE: could prolly turn out useful for the win32 version too, but it's used only by linux and Mac OS X
@@ -1641,14 +2037,46 @@ FIXME TTimo those two should move to common.c next to Sys_ListFiles
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1803
 private func Sys_CountFileList(_ list: [String]) -> UInt32 {
-    // TODO: Port Sys_CountFileList
-    portMissing("Sys_CountFileList", source: "oracle/codemp/qcommon/files_pc.cpp:1803")
+    var i: Int32 = 0
+
+    // AI: Raven walks the list to its NULL. The array count ends the list, so the walk stops at the count.
+    while i < list.count {
+        i += 1
+    }
+    return UInt32(bitPattern: i)
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1818
 private func Sys_ConcatenateFileLists(_ list0: [String], _ list1: [String], _ list2: [String]) -> [String] {
-    // TODO: Port Sys_ConcatenateFileLists
-    portMissing("Sys_ConcatenateFileLists", source: "oracle/codemp/qcommon/files_pc.cpp:1818")
+    var totalLength: Int32 = 0
+    var cat: [String]
+
+    totalLength += Int32(bitPattern: Sys_CountFileList(list0))
+    totalLength += Int32(bitPattern: Sys_CountFileList(list1))
+    totalLength += Int32(bitPattern: Sys_CountFileList(list2))
+
+    /* Create new list. */
+    // AI: Raven copies the texts into a Z_Malloc table of `totalLength + 1` slots. The array is the table, and its count ends the list.
+    cat = []
+    cat.reserveCapacity(Int(totalLength))
+
+    /* Copy over lists. */
+    for src in list0 {
+        cat.append(src)
+    }
+    for src in list1 {
+        cat.append(src)
+    }
+    for src in list2 {
+        cat.append(src)
+    }
+
+    // Terminate the list
+    // Free our old lists.
+    // NOTE: not freeing their content, it's been merged in dst and still being used
+    // AI: Raven frees the three old tables with Z_Free. Each list is a Swift array that frees itself.
+
+    return cat
 }
 
 /**
@@ -1664,8 +2092,130 @@ The directories are searched in base path, cd path and home path
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1866
 func FS_GetModList(_ listbuf: inout JKAShared.CharBuf, _ bufsize: Int32) -> Int32 {
-    // TODO: Port FS_GetModList
-    portMissing("FS_GetModList", source: "oracle/codemp/qcommon/files_pc.cpp:1866")
+    var nMods: Int32
+    var i: Int32
+    var j: Int32
+    var nTotal: Int32
+    var nLen: Int32
+    var nPaks: Int32
+    var nPotential: Int32
+    var nDescLen: Int32
+    var pFiles: [String] = []
+    var pPaks: [String] = []
+    var name: String
+    var path: String
+    var descPath = CharBuf(MAX_OSPATH)
+    var descHandle: fileHandle_t = 0
+    // Raven steps his own `listbuf` parameter, so the body writes at a byte offset into it.
+    var listbufIndex: Int32 = 0
+
+    var dummy: Int32 = 0
+    var pFiles0: [String] = []
+    var pFiles1: [String] = []
+    var pFiles2: [String] = []
+    var bDrop: Bool = false
+
+    listbuf[0] = 0
+    nTotal = 0
+    nPotential = nTotal
+    nMods = nPotential
+
+    pFiles0 = Sys_ListFiles(fs_homepath!.string!, nil, nil, &dummy, true)
+    pFiles1 = Sys_ListFiles(fs_basepath!.string!, nil, nil, &dummy, true)
+    pFiles2 = Sys_ListFiles(fs_cdpath!.string!, nil, nil, &dummy, true)
+    // we searched for mods in the three paths
+    // it is likely that we have duplicate names now, which we will cleanup below
+    pFiles = Sys_ConcatenateFileLists(pFiles0, pFiles1, pFiles2)
+    nPotential = Int32(bitPattern: Sys_CountFileList(pFiles))
+
+    i = 0
+    while i < nPotential {
+        name = pFiles[i]
+        // NOTE: cleaner would involve more changes
+        // ignore duplicate mod directories
+        if i != 0 {
+            bDrop = false
+            j = 0
+            while j < i {
+                if Q_stricmp(pFiles[j], name) == 0 {
+                    // this one can be dropped
+                    bDrop = true
+                    break
+                }
+                j += 1
+            }
+        }
+        if bDrop {
+            i += 1
+            continue
+        }
+        // we drop "base" "." and ".."
+        if Q_stricmp(name, "base") != 0 && Q_stricmpn(name, ".", 1) != 0 {
+            // now we need to find some .pk3 files to validate the mod
+            // NOTE TTimo: (actually I'm not sure why .. what if it's a mod under developement with no .pk3?)
+            // we didn't keep the information when we merged the directory names, as to what OS Path it was found under
+            //   so it could be in base path, cd path or home path
+            //   we will try each three of them here (yes, it's a bit messy)
+            path = FS_BuildOSPath(fs_basepath!.string!, name, "")
+            nPaks = 0
+            pPaks = Sys_ListFiles(path, ".pk3", nil, &nPaks, false)
+            Sys_FreeFileList(pPaks) // we only use Sys_ListFiles to check wether .pk3 files are present
+
+            /* Try on cd path */
+            if nPaks <= 0 {
+                path = FS_BuildOSPath(fs_cdpath!.string!, name, "")
+                nPaks = 0
+                pPaks = Sys_ListFiles(path, ".pk3", nil, &nPaks, false)
+                Sys_FreeFileList(pPaks)
+            }
+
+            /* try on home path */
+            if nPaks <= 0 {
+                path = FS_BuildOSPath(fs_homepath!.string!, name, "")
+                nPaks = 0
+                pPaks = Sys_ListFiles(path, ".pk3", nil, &nPaks, false)
+                Sys_FreeFileList(pPaks)
+            }
+
+            if nPaks > 0 {
+                nLen = strlen(name) + 1
+                // nLen is the length of the mod path
+                // we need to see if there is a description available
+                descPath[0] = 0
+                strcpy(&descPath, name)
+                strcat(&descPath, "/description.txt")
+                nDescLen = FS_SV_FOpenFileRead(String(descPath), &descHandle)
+                if nDescLen > 0 && descHandle != 0 {
+                    let file: OpaquePointer?
+                    file = FS_FileForHandle(descHandle)
+                    descPath.zero()
+                    nDescLen = FileBackend.fread(&descPath, at: 0, 1, 48, file)
+                    if nDescLen >= 0 {
+                        descPath[nDescLen] = 0
+                    }
+                    FS_FCloseFile(descHandle)
+                } else {
+                    strcpy(&descPath, name)
+                }
+                nDescLen = strlen(descPath) + 1
+
+                if nTotal + nLen + 1 + nDescLen + 1 < bufsize {
+                    strcpy(&listbuf, name, at: listbufIndex)
+                    listbufIndex += nLen
+                    strcpy(&listbuf, String(descPath), at: listbufIndex)
+                    listbufIndex += nDescLen
+                    nTotal += nLen + nDescLen
+                    nMods += 1
+                } else {
+                    break
+                }
+            }
+        }
+        i += 1
+    }
+    Sys_FreeFileList(pFiles)
+
+    return nMods
 }
 
 /**
@@ -1679,6 +2229,9 @@ FS_Dir_f
 func FS_Dir_f() {
     let path: String
     let `extension`: String
+    let dirnames: [String]
+    var ndirs: Int32 = 0
+    var i: Int32
 
     if Cmd_Argc() < 2 || Cmd_Argc() > 3 {
         Com_Printf("usage: dir <directory> [extension]\n")
@@ -1696,9 +2249,14 @@ func FS_Dir_f() {
     Com_Printf("Directory of %s %s\n", path, `extension`)
     Com_Printf("---------------\n")
 
-    // Port-note: Row F4. FS_ListFiles has no signature, so the list of `dirnames` has no source and no type.
-    // Raven wrote: dirnames = FS_ListFiles( path, extension, &ndirs ), the print of each name, and FS_FreeFileList( dirnames )
-    portMissing("FS_Dir_f", source: "oracle/codemp/qcommon/files_pc.cpp:1989")
+    dirnames = FS_ListFiles(path, `extension`, &ndirs)
+
+    i = 0
+    while i < ndirs {
+        Com_Printf("%s\n", dirnames[i])
+        i += 1
+    }
+    FS_FreeFileList(dirnames)
 }
 
 /**
@@ -1777,8 +2335,40 @@ FS_SortFileList
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2078
 func FS_SortFileList(_ filelist: inout [String], _ numfiles: Int32) {
-    // TODO: Port FS_SortFileList
-    portMissing("FS_SortFileList", source: "oracle/codemp/qcommon/files_pc.cpp:2078")
+    var i: Int32
+    var j: Int32
+    var k: Int32
+    var numsortedfiles: Int32
+    var sortedlist: [String]
+
+    // AI: Raven sorts into a Z_Malloc table of `numfiles + 1` slots. The table is a Swift array, and the empty text is his NULL.
+    sortedlist = [String](repeating: "", count: Int(numfiles + 1))
+    sortedlist[0] = ""
+    numsortedfiles = 0
+    i = 0
+    while i < numfiles {
+        j = 0
+        while j < numsortedfiles {
+            if FS_PathCmp(filelist[i], sortedlist[j]) < 0 {
+                break
+            }
+            j += 1
+        }
+        k = numsortedfiles
+        while k > j {
+            sortedlist[k] = sortedlist[k - 1]
+            k -= 1
+        }
+        sortedlist[j] = filelist[i]
+        numsortedfiles += 1
+        i += 1
+    }
+    // AI: Raven copies the sorted pointers back with Com_Memcpy and frees the table with Z_Free. The loop copies each text, and the array frees itself.
+    i = 0
+    while i < numfiles {
+        filelist[i] = sortedlist[i]
+        i += 1
+    }
 }
 
 /**
@@ -1791,6 +2381,9 @@ FS_NewDir_f
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2106
 func FS_NewDir_f() {
     let filter: String
+    var dirnames: [String]
+    var ndirs: Int32 = 0
+    var i: Int32
 
     if Cmd_Argc() < 2 {
         Com_Printf("usage: fdir <filter>\n")
@@ -1802,9 +2395,20 @@ func FS_NewDir_f() {
 
     Com_Printf("---------------\n")
 
-    // Port-note: Row F4. FS_ListFilteredFiles has no signature, so the list of `dirnames` has no source and no type.
-    // Raven wrote: dirnames = FS_ListFilteredFiles( "", "", filter, &ndirs ), the sort, the print of each name, and FS_FreeFileList( dirnames )
-    portMissing("FS_NewDir_f", source: "oracle/codemp/qcommon/files_pc.cpp:2106")
+    dirnames = FS_ListFilteredFiles("", "", filter, &ndirs)
+
+    FS_SortFileList(&dirnames, ndirs)
+
+    i = 0
+    while i < ndirs {
+        var dirname = CharBuf(dirnames[i])
+        FS_ConvertPath(&dirname)
+        dirnames[i] = String(dirname)
+        Com_Printf("%s\n", dirnames[i])
+        i += 1
+    }
+    Com_Printf("%d files listed\n", ndirs)
+    FS_FreeFileList(dirnames)
 }
 
 /**
@@ -1876,16 +2480,26 @@ func FS_TouchFile_f() {
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2194
 private func paksort(_ a: String, _ b: String) -> Int32 {
-    // TODO: Port paksort
-    portMissing("paksort", source: "oracle/codemp/qcommon/files_pc.cpp:2194")
+    let aa: String
+    let bb: String
+
+    aa = a
+    bb = b
+
+    return FS_PathCmp(aa, bb)
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2212
 private func FS_AddGameDirectory(_ path: String, _ dir: String) {
     var sp: Searchpath?
+    var i: Int32
     var search: Searchpath
-    var thedir: Searchpath
+    let thedir: Searchpath
+    var pak: Pack?
     var pakfile: CharBuf
+    var numfiles: Int32 = 0
+    let pakfiles: [String]
+    var sorted = [String](repeating: "", count: Int(MAX_PAKFILES))
 
     // this fixes the case where fs_basepath is the same as fs_cdpath
     // which happens on full installs
@@ -1916,9 +2530,54 @@ private func FS_AddGameDirectory(_ path: String, _ dir: String) {
     pakfile = CharBuf(FS_BuildOSPath(path, dir, ""))
     pakfile[strlen(pakfile) - 1] = 0 // strip the trailing slash
 
-    // Port-note: Rows F4 and F1. Sys_ListFiles has no signature in win_main.swift, and FS_LoadZipFile has none here.
-    // Raven wrote: pakfiles = Sys_ListFiles( pakfile, ".pk3", NULL, &numfiles, qfalse ), the sort, the load of each pak, and Sys_FreeFileList( pakfiles )
-    portMissing("FS_AddGameDirectory", source: "oracle/codemp/qcommon/files_pc.cpp:2212")
+    pakfiles = Sys_ListFiles(String(pakfile), ".pk3", nil, &numfiles, false)
+
+    // sort them so that later alphabetic matches override
+    // earlier ones.  This makes pak1.pk3 override pak0.pk3
+    if numfiles > MAX_PAKFILES {
+        numfiles = MAX_PAKFILES
+    }
+    i = 0
+    while i < numfiles {
+        sorted[i] = pakfiles[i]
+        i += 1
+    }
+
+    qsort(&sorted, numfiles, paksort)
+
+    i = 0
+    while i < numfiles {
+        pakfile = CharBuf(FS_BuildOSPath(path, dir, sorted[i]))
+        pak = FS_LoadZipFile(String(pakfile), sorted[i])
+        if pak == nil {
+            i += 1
+            continue
+        }
+        // store the game name for downloading
+        strcpy(&pak!.pakGamenameBuffer, dir)
+
+        search = Searchpath(Z_Malloc(Int32(Searchpath.byteCount), TAG_FILESYS, true))
+        search.pack = pak
+
+        // Raven's `&& thedir` term has no path here, because `thedir` is never NULL.
+        if fs_dirbeforepak != nil && fs_dirbeforepak!.integer != 0 {
+            var oldnext = thedir.next
+            thedir.next = search
+
+            while oldnext != nil {
+                search.next = oldnext
+                search = search.next!
+                oldnext = oldnext!.next
+            }
+        } else {
+            search.next = fs_searchpaths
+            fs_searchpaths = search
+        }
+        i += 1
+    }
+
+    // done
+    Sys_FreeFileList(pakfiles)
 }
 
 /**

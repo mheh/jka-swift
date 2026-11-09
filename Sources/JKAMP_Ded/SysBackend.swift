@@ -56,6 +56,21 @@ public struct FILETIME {
     public init() {}
 }
 
+/// Raven's `_A_SUBDIR` of `io.h`, the attribute bit of a directory entry.
+/// Source: oracle/codemp/null/win_main.cpp:457
+// AI: Raven read the Win32 CRT value. The backend sets this bit for an entry that the POSIX stat names a directory.
+public let _A_SUBDIR: Int32 = 0x10
+
+/// Raven's `struct _finddata_t` of `io.h`, the entry that `_findfirst` and `_findnext` fill.
+/// Source: oracle/codemp/null/win_main.cpp:438
+// AI: Raven read the Win32 CRT record. The value keeps the two fields the bodies read, and `name` holds the text of `char name[260]`.
+public struct _finddata_t {
+    public var attrib: Int32 = 0
+    public var name: String = ""
+
+    public init() {}
+}
+
 // MARK: - The address records
 
 /// Raven's `struct sockaddr` in its Winsock layout, the sixteen bytes that Raven reads as a `sockaddr_in` or a `sockaddr_ipx`.
@@ -522,6 +537,95 @@ public enum SysBackend {
         ft.dwLowDateTime = UInt32(truncatingIfNeeded: steps)
         ft.dwHighDateTime = UInt32(truncatingIfNeeded: steps >> 32)
         return true
+    }
+
+    /// Raven's `_findfirst`, the first entry of a directory that matches the last part of `search`, or -1 when no entry matches.
+    /// The last part of `search` is a pattern with `*` and `?`, which match without case as Win32 does.
+    /// Source: oracle/codemp/null/win_main.cpp:451
+    // AI: Raven called the Win32 CRT _findfirst. The backend reads the directory with the POSIX opendir and keeps the entries under the handle it returns.
+    public static func _findfirst(_ search: CharBuf, _ findinfo: inout _finddata_t) -> Int32 {
+        // A backslash is a path separator, as Win32 reads it.
+        let path = String(String(search).map { $0 == "\\" ? "/" : $0 })
+        let cut = path.lastIndex(of: "/")
+        let directory = cut.map { String(path[..<$0]) } ?? "."
+        let pattern = cut.map { String(path[path.index(after: $0)...]) } ?? path
+        guard let dir = opendir(directory.isEmpty ? "/" : directory) else { return -1 }
+        defer { closedir(dir) }
+        var entries: [_finddata_t] = []
+        while let entry = readdir(dir) {
+            let name = withUnsafeBytes(of: entry.pointee.d_name) { raw in
+                String(decoding: raw.prefix(while: { $0 != 0 }), as: UTF8.self)
+            }
+            if !self.wildcardMatch(Array(pattern.lowercased().utf8), Array(name.lowercased().utf8)) {
+                continue
+            }
+            var info = stat()
+            var found = _finddata_t()
+            found.name = name
+            if stat(directory + "/" + name, &info) == 0 && (info.st_mode & S_IFMT) == S_IFDIR {
+                found.attrib = _A_SUBDIR
+            }
+            entries.append(found)
+        }
+        if entries.isEmpty {
+            return -1
+        }
+        self.nextFindHandle += 1
+        findinfo = entries[0]
+        self.finds[self.nextFindHandle] = (entries, 1)
+        return self.nextFindHandle
+    }
+
+    /// Raven's `_findnext`, the next entry of the handle, or -1 after the last entry.
+    /// Source: oracle/codemp/null/win_main.cpp:476
+    // AI: Raven called the Win32 CRT _findnext. The backend steps through the entries it kept at _findfirst.
+    public static func _findnext(_ handle: Int32, _ findinfo: inout _finddata_t) -> Int32 {
+        guard let find = self.finds[handle], find.next < find.entries.count else { return -1 }
+        findinfo = find.entries[find.next]
+        self.finds[handle] = (find.entries, find.next + 1)
+        return 0
+    }
+
+    /// Raven's `_findclose`, which frees the entries of the handle.
+    /// Source: oracle/codemp/null/win_main.cpp:478
+    // AI: Raven called the Win32 CRT _findclose. The backend drops the entries it kept at _findfirst.
+    @discardableResult
+    public static func _findclose(_ handle: Int32) -> Int32 {
+        return self.finds.removeValue(forKey: handle) == nil ? -1 : 0
+    }
+
+    /// The entries of each open find handle, and the next entry that _findnext gives.
+    nonisolated(unsafe) private static var finds: [Int32: (entries: [_finddata_t], next: Int)] = [:]
+
+    /// The last handle that _findfirst gave.
+    nonisolated(unsafe) private static var nextFindHandle: Int32 = 0
+
+    /// This matches a name against a Win32 pattern, where `*` matches any run of bytes and `?` matches one byte.
+    private static func wildcardMatch(_ pattern: [UInt8], _ name: [UInt8]) -> Bool {
+        var p = 0
+        var n = 0
+        var star = -1
+        var mark = 0
+        while n < name.count {
+            if p < pattern.count && (pattern[p] == UInt8(ascii: "?") || pattern[p] == name[n]) {
+                p += 1
+                n += 1
+            } else if p < pattern.count && pattern[p] == UInt8(ascii: "*") {
+                star = p
+                mark = n
+                p += 1
+            } else if star >= 0 {
+                p = star + 1
+                mark += 1
+                n = mark
+            } else {
+                return false
+            }
+        }
+        while p < pattern.count && pattern[p] == UInt8(ascii: "*") {
+            p += 1
+        }
+        return p == pattern.count
     }
 
     /// Raven's `CopyFile( src, dest, FALSE )`, a copy of every byte that replaces the destination, false when a step fails.

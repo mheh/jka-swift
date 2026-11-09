@@ -39,6 +39,30 @@ extension Vm {
     public var entryPointAddress: UnsafeMutableRawPointer {
         UnsafeMutableRawPointer(self.raw.pointer(to: \.entryPoint)!)
     }
+
+    /// Raven's `(void *)((int)mem - (int)vm->dataBase)` of `VM_Shifted_Alloc`, the address of a block relative to the data of the module.
+    /// A NULL `dataBase`, the form of a dll module, gives the address of the block itself.
+    /// Source: oracle/codemp/qcommon/vm.cpp:716
+    // Port-note: Raven's `int` casts drop the high half of an address on a 64-bit host, so the difference takes the full width of the address.
+    public func shifted(_ mem: OpaquePointer?) -> OpaquePointer? {
+        OpaquePointer(bitPattern: Int(bitPattern: UnsafeRawPointer(mem)) &- Int(bitPattern: UnsafeRawPointer(self.raw.pointee.dataBase)))
+    }
+
+    /// Raven's `(void *)((int)vm->dataBase + (int)ptr)` of `VM_Shifted_Free`, the block of an address relative to the data of the module.
+    /// Source: oracle/codemp/qcommon/vm.cpp:730
+    // Port-note: Raven's `int` casts drop the high half of an address on a 64-bit host, so the sum takes the full width of the address.
+    public func unshifted(_ ptr: OpaquePointer?) -> OpaquePointer? {
+        OpaquePointer(bitPattern: Int(bitPattern: UnsafeRawPointer(self.raw.pointee.dataBase)) &+ Int(bitPattern: UnsafeRawPointer(ptr)))
+    }
+}
+
+extension VmHeader {
+    /// Raven's cast `(byte *)header` over the QVM image that FS_ReadFile gave, `count` bytes from the header on.
+    /// Source: oracle/codemp/qcommon/vm.cpp:564
+    // AI: Raven casts the header pointer to `byte *` and adds an offset. The Slots gives the bytes of the image to the body with no pointer type.
+    public func bytes(count: some BinaryInteger) -> Slots<JKAShared.byte> {
+        Slots(scalars: UnsafeMutableRawPointer(self.handle), count: Int(count))
+    }
 }
 
 /// Raven's `LoadLibrary`, `GetProcAddress`, and `dllEntry( systemcalls )` of Sys_LoadDll, which the shell installs at its entry.
