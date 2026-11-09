@@ -105,7 +105,33 @@ public final class EngineWorld {
         "server"
     ]
 
+    // MARK: - sv_main.cpp
+
+    /// Raven's `static char string[1024]` of `SV_ExpandNewlines` in `sv_main.cpp`.
+    /// Source: oracle/codemp/server/sv_main.cpp:60
+    var string_SV_ExpandNewlines = CharBuf(1024)
+
+    /// Raven's `static netadr_t adr[MAX_MASTER_SERVERS]` of `SV_MasterHeartbeat` in `sv_main.cpp`, zeroed as C zeroes a static.
+    /// Source: oracle/codemp/server/sv_main.cpp:223
+    var adr: Slots<Netadr> = {
+        let adr = Slots<Netadr>.new(count: MAX_MASTER_SERVERS)
+        adr.zero(count: MAX_MASTER_SERVERS)
+        return adr
+    }()
+
+    /// Raven's `static unsigned int lasttime` of `SVC_RemoteCommand` in `sv_main.cpp`.
+    /// Source: oracle/codemp/server/sv_main.cpp:496
+    var lasttime: UInt32 = 0
+
+    /// Raven's `static int lastMod` of `SV_CheckCvars` in `sv_main.cpp`.
+    /// Source: oracle/codemp/server/sv_main.cpp:792
+    var lastMod: Int32 = -1
+
     // MARK: - sv_ccmds.cpp
+
+    /// Raven's `static qboolean initialized` of `SV_AddOperatorCommands` in `sv_ccmds.cpp`.
+    /// Source: oracle/codemp/server/sv_ccmds.cpp:959
+    var initialized_SV_AddOperatorCommands = false
 
     // AI: Raven ended the table with NULL. A `[String]` holds no NULL, and every read of Raven stops below NUM_FORCE_POWERS, so the table ends at the last name.
     /// Raven's `static const char *forceToggleNamePrints[]` of `sv_ccmds.cpp`.
@@ -329,6 +355,10 @@ public final class EngineWorld {
     public init() {
         // Raven's `static SOCKET ipx_socket = INVALID_SOCKET` of win_net.cpp:29.
         self.variables.ipx_socket = INVALID_SOCKET
+    }
+
+    deinit {
+        self.adr.delete()
     }
 }
 
