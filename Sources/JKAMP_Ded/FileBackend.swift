@@ -221,3 +221,19 @@ public enum FileBackend {
         #endif
     }
 }
+
+// MARK: - The file table of a pak
+
+extension Pack {
+    /// Raven's `buildBuffer[i]` over `pak->buildBuffer`, the records the pointer holds. A NULL pointer traps with the field's name.
+    /// C gives the pointer no bound, so the Slots takes the widest count.
+    /// Source: oracle/codemp/qcommon/files_pc.cpp:1635
+    // AI: Raven indexes a local copy of the field, which the subscript sweep does not read. The hand accessor is the one the sweep gives an indexed field.
+    public var buildBufferSlots: Slots<FileInPack> {
+        get {
+            precondition(self.buildBuffer != nil, "buildBuffer is NULL")
+            return Slots(views: UnsafeMutableRawPointer(self.buildBuffer!.handle), count: Int.max, stride: FileInPack.stride)
+        }
+        nonmutating set { self.buildBuffer = FileInPack(newValue.base) }
+    }
+}

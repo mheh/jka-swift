@@ -742,10 +742,9 @@ extension CStringEdPackage {
 private func SE_Load_Actual(_ psFileName: String, _ bLoadDebug: Bool, _ bSpeculativeLoad: Bool) -> String? {
     var psErrorMessage: String? = nil
 
-    // Port-note: Row S2. SE_LoadFileData has no signature for its `unsigned char *` return, so the load stops here.
-    // Raven wrote: unsigned char *psLoadedData = SE_LoadFileData( psFileName );
-    portMissing("SE_Load_Actual", source: "oracle/codemp/qcommon/stringed_ingame.cpp:832")
-    let psLoadedData: Slots<UInt8>? = nil
+    // AI: Raven omits `piLoadedLength`, whose default is NULL. The call passes a scratch length, which the body reads nowhere.
+    var piLoadedLength: Int32 = 0
+    let psLoadedData = SE_LoadFileData(psFileName, &piLoadedLength)
     if psLoadedData != nil {
         // now parse the data...
         //
@@ -786,8 +785,31 @@ private func SE_Load_Actual(_ psFileName: String, _ bLoadDebug: Bool, _ bSpecula
 
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:875
 private func SE_GetFoundFile(_ strResult: inout String) -> String? {
-    // TODO: Port SE_GetFoundFile
-    portMissing("SE_GetFoundFile", source: "oracle/codemp/qcommon/stringed_ingame.cpp:875")
+    // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
+    var sTemp = CharBuf(1024/*MAX_PATH*/)
+
+    if strlen(strResult) == 0 {
+        return nil
+    }
+
+    strncpy(&sTemp, strResult, Int32(sTemp.count) - 1)
+    sTemp[sTemp.count - 1] = 0
+
+    let psSemiColon = strchr(sTemp, Int32(ascii: ";"))
+    if psSemiColon != nil {
+        sTemp[psSemiColon!] = 0
+
+        // AI: Raven erases the bytes up to the semicolon from the C++ string. The text after them is the new value.
+        strResult = String(CharBuf(strResult)[(psSemiColon! + 1)...])
+    } else {
+        // no semicolon found, probably last entry? (though i think even those have them on, oh well)
+        //
+        strResult = ""
+    }
+
+    //	strlwr(sTemp);	// just for consistancy and set<> -> set<> erasure checking etc
+
+    return String(sTemp)
 }
 
 //////////// API entry points from rest of game.... //////////////////////////////
@@ -947,9 +969,33 @@ var gvLanguagesAvailable: [String] {
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:1072
 func SE_GetNumLanguages() -> Int32 {
     if gvLanguagesAvailable.isEmpty {
-        // Port-note: Row S1. SE_BuildFileList and SE_GetFoundFile have no signature for the `string &` parameter, so the scan stops here.
-        // Raven wrote: string strResults; SE_BuildFileList( sSE_STRINGS_DIR, strResults ); set<string> strUniqueStrings; LPCSTR p; while ((p=SE_GetFoundFile (strResults)) != NULL) { LPCSTR psLanguage = TheStringPackage.ExtractLanguageFromPath( p ); if (!strUniqueStrings.count( psLanguage )) { strUniqueStrings.insert( psLanguage ); if (!stricmp(psLanguage,"english")) { gvLanguagesAvailable.insert( gvLanguagesAvailable.begin(), psLanguage ); } else { gvLanguagesAvailable.push_back( psLanguage ); } } }
-        portMissing("SE_GetNumLanguages", source: "oracle/codemp/qcommon/stringed_ingame.cpp:1076")
+        var strResults = ""
+        /*int iFilesFound = */SE_BuildFileList(sSE_STRINGS_DIR, &strResults)
+
+        // AI: Raven keeps a C++ `set<string>`. The Swift Set holds the same texts.
+        var strUniqueStrings = Set<String>()	// laziness <g>
+        var p: String
+        while let next = SE_GetFoundFile(&strResults) {
+            p = next
+            let psLanguage = TheStringPackage.ExtractLanguageFromPath(p)
+
+            //		__DEBUGOUT( p );
+            //		__DEBUGOUT( "\n" );
+            //		__DEBUGOUT( psLanguage );
+            //		__DEBUGOUT( "\n" );
+
+            if !strUniqueStrings.contains(psLanguage) {
+                strUniqueStrings.insert(psLanguage)
+
+                // if english is available, it should always be first... ( I suppose )
+                //
+                if stricmp(psLanguage, "english") == 0 {
+                    gvLanguagesAvailable.insert(psLanguage, at: 0)
+                } else {
+                    gvLanguagesAvailable.append(psLanguage)
+                }
+            }
+        }
     }
 
     return Int32(gvLanguagesAvailable.count)
@@ -1034,7 +1080,7 @@ func SE_LoadLanguage(_ psLanguage: String, _ bLoadDebug: Bool = true) -> String?
     if !psLanguage.isEmpty {
         SE_NewLanguage()
 
-        // Port-note: Row S1. SE_BuildFileList and SE_GetFoundFile have no signature for the `string &` parameter, so the load stops here.
+        // Port-note: Row S6. Raven calls SE_Load with two arguments, and the stub has no default for `bFailIsCritical`, so the load stops here.
         // Raven wrote: string strResults; SE_BuildFileList( sSE_STRINGS_DIR, strResults ); LPCSTR p; while ( (p=SE_GetFoundFile (strResults)) != NULL && !psErrorMessage ) { LPCSTR psThisLang = TheStringPackage.ExtractLanguageFromPath( p ); if ( !stricmp( psLanguage, psThisLang ) ) { psErrorMessage = SE_Load( p, bLoadDebug ); } }
         portMissing("SE_LoadLanguage", source: "oracle/codemp/qcommon/stringed_ingame.cpp:1216")
     } else {

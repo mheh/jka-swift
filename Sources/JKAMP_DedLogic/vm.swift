@@ -188,6 +188,7 @@ VM_SymbolToValue
 ```
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:148
+// Port-note: Raven calls this function from no file of either tree, so it is dead.
 func VM_SymbolToValue(_ vm: Vm, _ symbol: String) -> Int32 {
     // TODO: Port VM_SymbolToValue
     portMissing("VM_SymbolToValue", source: "oracle/codemp/qcommon/vm.cpp:148")
@@ -201,6 +202,7 @@ VM_SymbolForCompiledPointer
 ```
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:165
+// Port-note: Raven calls this function from no file of either tree, so it is dead.
 func VM_SymbolForCompiledPointer(_ vm: Vm, _ code: OpaquePointer?) -> String {
     // TODO: Port VM_SymbolForCompiledPointer
     portMissing("VM_SymbolForCompiledPointer", source: "oracle/codemp/qcommon/vm.cpp:165")
@@ -409,6 +411,7 @@ This allows a server to do a map_restart without changing memory allocation
 /// Source: oracle/codemp/qcommon/vm.cpp:391
 func VM_Restart(_ vm: Vm) -> Vm? {
     var header: VmHeader?
+    var length: Int32
     var dataLength: Int32
     var i: Int32
     var filename = CharBuf(64)
@@ -431,9 +434,7 @@ func VM_Restart(_ vm: Vm) -> Vm? {
     Com_Printf("VM_Restart()\n", filename)
     Com_sprintf(&filename, Int32((filename).count), "vm/%s.qvm", vm.name)
     Com_Printf("Loading vm file %s.\n", filename)
-    // Port-note: Row V3. A read of the file into a `vmHeader_t *` has no form.
-    // Raven wrote: length = FS_ReadFile( filename, (void **)&header )
-    portMissing("VM_Restart", source: "oracle/codemp/qcommon/vm.cpp:391")
+    length = FS_ReadFile(String(filename), &header)
     if header == nil {
         Com_Error(ERR_DROP, "VM_Restart failed.\n")
     }
@@ -441,9 +442,8 @@ func VM_Restart(_ vm: Vm) -> Vm? {
     // byte swap the header
     i = 0
     while i < Int32(VmHeader.byteCount) / 4 {
-        // Port-note: Row V3. A cast of the header to `int *` has no form.
-        // Raven wrote: ((int *)header)[i] = LittleLong( ((int *)header)[i] )
-        portMissing("VM_Restart", source: "oracle/codemp/qcommon/vm.cpp:391")
+        // LittleLong of the WinDed arm is its argument, so the store writes the word back.
+        header!.bytes(count: length)[int: i * 4] = header!.bytes(count: length)[int: i * 4]
         i += 1
     }
 
@@ -463,28 +463,21 @@ func VM_Restart(_ vm: Vm) -> Vm? {
     dataLength = 1 << i
 
     // clear the data
-    // Port-note: Row V3. Raven clears `dataLength` bytes of `vm->dataBase`, and the Slots of the field has the widest count, so a clear of the whole Slots has no bound.
-    // Raven wrote: Com_Memset( vm->dataBase, 0, dataLength )
-    portMissing("VM_Restart", source: "oracle/codemp/qcommon/vm.cpp:391")
+    Com_Memset(vm.dataBase!, 0, dataLength)
 
     // copy the intialized data
-    // Port-note: Row V3. Raven copies from the QVM image at `(byte *)header + header->dataOffset`, and the image read of this function has no form.
-    // Raven wrote: Com_Memcpy( vm->dataBase, (byte *)header + header->dataOffset, header->dataLength + header->litLength )
-    portMissing("VM_Restart", source: "oracle/codemp/qcommon/vm.cpp:391")
+    Com_Memcpy(vm.dataBase!, header!.bytes(count: length).suffix(from: header!.dataOffset), header!.dataLength + header!.litLength)
 
     // byte swap the longs
     i = 0
     while i < header!.dataLength {
-        // Port-note: Row V3. Raven reads an `int` at a byte offset of `vm->dataBase`, and the field has no form for it.
-        // Raven wrote: *(int *)(vm->dataBase + i) = LittleLong( *(int *)(vm->dataBase + i ) )
-        portMissing("VM_Restart", source: "oracle/codemp/qcommon/vm.cpp:391")
+        // LittleLong of the WinDed arm is its argument, so the store writes the word back.
+        vm.dataBase![int: i] = vm.dataBase![int: i]
         i += 4
     }
 
     // free the original file
-    // Port-note: Row V3. The free of a `vmHeader_t *` buffer has no form.
-    // Raven wrote: FS_FreeFile( header )
-    portMissing("VM_Restart", source: "oracle/codemp/qcommon/vm.cpp:391")
+    FS_FreeFile(header)
 
     return vm
 }
@@ -503,6 +496,7 @@ it will attempt to load as a system dll
 func VM_Create(_ module: String, _ systemCalls: VmSystemCall?, _ interpret: vmInterpret_t) -> Vm? {
     var vm: Vm?
     var header: VmHeader?
+    var length: Int32
     var dataLength: Int32
     var i: Int32
     var filename = CharBuf(64)
@@ -564,9 +558,7 @@ func VM_Create(_ module: String, _ systemCalls: VmSystemCall?, _ interpret: vmIn
     // load the image
     Com_sprintf(&filename, Int32((filename).count), "vm/%s.qvm", vm!.name)
     Com_Printf("Loading vm file %s.\n", filename)
-    // Port-note: Row V3. A read of the file into a `vmHeader_t *` has no form.
-    // Raven wrote: length = FS_ReadFile( filename, (void **)&header )
-    portMissing("VM_Create", source: "oracle/codemp/qcommon/vm.cpp:471")
+    length = FS_ReadFile(String(filename), &header)
     if header == nil {
         Com_Printf("Failed.\n")
         VM_Free(vm!)
@@ -576,9 +568,8 @@ func VM_Create(_ module: String, _ systemCalls: VmSystemCall?, _ interpret: vmIn
     // byte swap the header
     i = 0
     while i < Int32(VmHeader.byteCount) / 4 {
-        // Port-note: Row V3. A cast of the header to `int *` has no form.
-        // Raven wrote: ((int *)header)[i] = LittleLong( ((int *)header)[i] )
-        portMissing("VM_Create", source: "oracle/codemp/qcommon/vm.cpp:471")
+        // LittleLong of the WinDed arm is its argument, so the store writes the word back.
+        header!.bytes(count: length)[int: i * 4] = header!.bytes(count: length)[int: i * 4]
         i += 1
     }
 
@@ -603,16 +594,13 @@ func VM_Create(_ module: String, _ systemCalls: VmSystemCall?, _ interpret: vmIn
     vm!.dataMask = dataLength - 1
 
     // copy the intialized data
-    // Port-note: Row V3. Raven copies from the QVM image at `(byte *)header + header->dataOffset`, and the image read of this function has no form.
-    // Raven wrote: Com_Memcpy( vm->dataBase, (byte *)header + header->dataOffset, header->dataLength + header->litLength )
-    portMissing("VM_Create", source: "oracle/codemp/qcommon/vm.cpp:471")
+    Com_Memcpy(vm!.dataBase!, header!.bytes(count: length).suffix(from: header!.dataOffset), header!.dataLength + header!.litLength)
 
     // byte swap the longs
     i = 0
     while i < header!.dataLength {
-        // Port-note: Row V3. Raven reads an `int` at a byte offset of `vm->dataBase`, and the field has no form for it.
-        // Raven wrote: *(int *)(vm->dataBase + i) = LittleLong( *(int *)(vm->dataBase + i ) )
-        portMissing("VM_Create", source: "oracle/codemp/qcommon/vm.cpp:471")
+        // LittleLong of the WinDed arm is its argument, so the store writes the word back.
+        vm!.dataBase![int: i] = vm!.dataBase![int: i]
         i += 4
     }
 
@@ -633,9 +621,7 @@ func VM_Create(_ module: String, _ systemCalls: VmSystemCall?, _ interpret: vmIn
     }
 
     // free the original file
-    // Port-note: Row V3. The free of a `vmHeader_t *` buffer has no form.
-    // Raven wrote: FS_FreeFile( header )
-    portMissing("VM_Create", source: "oracle/codemp/qcommon/vm.cpp:471")
+    FS_FreeFile(header)
 
     // load the map file
     VM_LoadSymbols(vm!)
@@ -749,17 +735,17 @@ func VM_Shifted_Alloc(_ ptr: inout OpaquePointer?, _ size: Int32) {
     }
 
     //first allocate our desired memory, up front
+    let block = Z_Malloc(size + 1, TAG_VM_ALLOCATED, false)
     // Raven stores the allocation in `mem`, and the opaque pointer over the raw allocation is that store, under rule 11.
-    mem = OpaquePointer(Z_Malloc(size + 1, TAG_VM_ALLOCATED, false))
+    mem = OpaquePointer(block)
 
     if mem == nil {
         ptr = nil
         return
     }
 
-    // Port-note: Row V6. Raven's `memset` runs over the bytes of a raw block that has no view.
-    // Raven wrote: memset(mem, 0, size+1)
-    portMissing("VM_Shifted_Alloc", source: "oracle/codemp/qcommon/vm.cpp:679")
+    // AI: Raven clears the block with `memset`. The fill clears the `size+1` bytes of the Slots over the block.
+    Slots<JKAShared.byte>(scalars: block, count: Int(size + 1)).fill(0)
 
     //This can happen.. if a free chunk of memory is found before the vm alloc pointer, commonly happens
     //when allocating like 4 bytes or whatever. However it seems to actually be handled which I didn't
@@ -767,9 +753,7 @@ func VM_Shifted_Alloc(_ ptr: inout OpaquePointer?, _ size: Int32) {
 
     //Alright, subtract the database from the memory pointer to get a memory address relative to the VM.
     //When the VM modifies it it should be modifying the same chunk of memory we have allocated in the engine.
-    // Port-note: Row V6. Raven subtracts two pointers as `int`, which drops the high half of an address on a 64-bit host.
-    // Raven wrote: *ptr = (void *)((int)mem - (int)currentVM->dataBase);
-    portMissing("VM_Shifted_Alloc", source: "oracle/codemp/qcommon/vm.cpp:679")
+    ptr = currentVM!.shifted(mem)
 }
 
 /// Source: oracle/codemp/qcommon/vm.cpp:719
@@ -781,9 +765,7 @@ func VM_Shifted_Free(_ ptr: inout OpaquePointer?) {
     }
 
     //Shift the VM memory pointer back to get the same pointer we initially allocated in real memory space.
-    // Port-note: Row V6. Raven adds two pointers as `int`, which drops the high half of an address on a 64-bit host.
-    // Raven wrote: mem = (void *)((int)currentVM->dataBase + (int)*ptr);
-    portMissing("VM_Shifted_Free", source: "oracle/codemp/qcommon/vm.cpp:719")
+    mem = currentVM!.unshifted(ptr)
 
     if mem == nil {
         return
@@ -886,8 +868,19 @@ func VM_Call(_ vm: Vm, _ callnum: Int32, _ args: any JKAShared.FormatArg...) -> 
 
 /// Source: oracle/codemp/qcommon/vm.cpp:833
 private func VM_ProfileSort(_ a: VmSymbol?, _ b: VmSymbol?) -> Int32 {
-    // TODO: Port VM_ProfileSort
-    portMissing("VM_ProfileSort", source: "oracle/codemp/qcommon/vm.cpp:833")
+    let sa: VmSymbol?
+    let sb: VmSymbol?
+
+    sa = a
+    sb = b
+
+    if sa!.profileCount < sb!.profileCount {
+        return -1
+    }
+    if sa!.profileCount > sb!.profileCount {
+        return 1
+    }
+    return 0
 }
 
 /**
@@ -901,6 +894,10 @@ VM_VmProfile_f
 /// Source: oracle/codemp/qcommon/vm.cpp:854
 func VM_VmProfile_f() {
     var vm: Vm?
+    var sorted: [VmSymbol?]
+    var sym: VmSymbol?
+    var i: Int32
+    var total: Double
 
     if lastVM == nil {
         return
@@ -912,9 +909,32 @@ func VM_VmProfile_f() {
         return
     }
 
-    // Port-note: Row V8. Raven sorts a Z_Malloc table of `vmSymbol_t *` with qsort, and the host has no qsort and no form for the table.
-    // Raven wrote: sorted = Z_Malloc(...); qsort( sorted, vm->numSymbols, sizeof( *sorted ), VM_ProfileSort ); the print loop; Z_Free( sorted );
-    portMissing("VM_VmProfile_f", source: "oracle/codemp/qcommon/vm.cpp:854")
+    // AI: Raven sorts a Z_Malloc table of `vmSymbol_t *` and frees it with Z_Free. The table is a Swift array of the views, which frees itself.
+    sorted = [VmSymbol?](repeating: nil, count: Int(vm!.numSymbols))
+    sorted[0] = vm!.symbols
+    total = Double(sorted[0]!.profileCount)
+    i = 1
+    while i < vm!.numSymbols {
+        sorted[i] = sorted[i - 1]!.next
+        total += Double(sorted[i]!.profileCount)
+        i += 1
+    }
+
+    qsort(&sorted, vm!.numSymbols, VM_ProfileSort)
+
+    i = 0
+    while i < vm!.numSymbols {
+        var perc: Int32
+
+        sym = sorted[i]
+
+        perc = Int32(Double(100 * Float(sym!.profileCount)) / total)
+        Com_Printf("%2i%% %9i %s\n", perc, sym!.profileCount, sym!.symName)
+        sym!.profileCount = 0
+        i += 1
+    }
+
+    Com_Printf("    %9.0f total\n", total)
 }
 
 /**
@@ -965,6 +985,7 @@ Insert calls to this while debugging the vm compiler
 ```
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:934
+// Port-note: Raven calls this function only from comments of vm_interpreted.cpp and vm_x86.cpp, so it is dead.
 func VM_LogSyscalls(_ args: Slots<Int32>) {
     // TODO: Port VM_LogSyscalls
     portMissing("VM_LogSyscalls", source: "oracle/codemp/qcommon/vm.cpp:934")

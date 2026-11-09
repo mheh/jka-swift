@@ -100,6 +100,15 @@ extension CharBuf {
             try body(Slots(scalars: UnsafeMutableRawPointer(mutating: base), count: self.count))
         }
     }
+    /// The body gets the bytes of the buffer as a Slots of bytes that it writes, for a CharBuf overload that forwards to a function that fills a `void *`.
+    /// The Slots lives for the call of the body, because a CharBuf is a value with no fixed address.
+    // AI: Raven hands his `char` array to a `void *` parameter that the callee fills. The closure gives the bytes of the value as a Slots for that call.
+    public mutating func withMutableSlots<R>(_ body: (Slots<byte>) throws -> R) rethrows -> R {
+        let count = self.count
+        return try self.withUnsafeMutableRawPointer { base in
+            try body(Slots(scalars: base, count: count))
+        }
+    }
 }
 
 // MARK: - String conversion
