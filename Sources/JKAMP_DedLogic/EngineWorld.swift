@@ -100,6 +100,18 @@ public final class EngineWorld {
         "SABER THROW",//FP_SABERTHROW
     ]
 
+    // MARK: - vm.cpp
+
+    // AI: Raven's `std::map` of the symbol map of each VM is a Dictionary, under rule 17.
+    /// Raven's `symbolVMMap_t g_vmMap` of `vm.cpp`, from the VM to its symbol map, from a code offset to the symbol there.
+    /// Source: oracle/codemp/qcommon/vm.cpp:20
+    var g_vmMap: [Vm: [Int32: VmSymbol]] = [:]
+
+    // AI: Raven's `g_symbolMap` points at one map of `g_vmMap`. The world holds the VM, the key of that map.
+    /// Raven's `symbolMap_t *g_symbolMap` of `vm.cpp`, the symbol map of the VM that runs.
+    /// Source: oracle/codemp/qcommon/vm.cpp:21
+    var g_symbolMap: Vm? = nil
+
     // MARK: - vm_interpreted.cpp
 
     // AI: Raven sized the table at 256 and left the slots after OP_CVFI NULL. A `[String]` holds no NULL, so the table ends at the last name.
