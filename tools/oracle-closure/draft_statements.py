@@ -957,6 +957,11 @@ class Statements:
                         and self.sk.table.record_table(decayed.referenced) and self.unwrap(left).type.get_canonical().kind == TypeKind.POINTER:
                     # Raven's `cg_freeMarkPolys = cg_markPolys` points at the first record, and C's decay of the table is slot 0.
                     return [f"{pad}{self.expr(left)} = {swift_name(decayed.spelling)}[0]" + self.trailing(cur)]
+                if op == "=" and self.field_kind(left) == "bytes" and self.slots_source(right):
+                    # A FIELDS row of kind bytes holds the base of a byte buffer as a Slots of bytes, so the field takes the Slots, `mbuf.data = string`.
+                    field = self.unwrap(left)
+                    target = f"{self.base(list(field.get_children())[0])}.{swift_name(field.spelling)}"
+                    return [f"{pad}{target} = {self.slots_expression(right)}" + self.trailing(cur)]
                 if op == "=" and self.slots_source(right):
                     raven = self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace")
                     raise Hole(f"Raven stores `{raven}`, and Swift holds the source as a Slots where the target takes one record. A Slots ruling is due.")
@@ -973,6 +978,11 @@ class Statements:
                     if op == "=":
                         return [f"{pad}{slot} = {self.converted(right, narrow)}" + self.trailing(cur)]
                     return [f"{pad}{slot} = {narrow}(truncatingIfNeeded: Int32({slot}) {op[:-1]} {self.converted(right, 'Int32')})" + self.trailing(cur)]
+                byte_slots = self.byte_slots_base(left)
+                if byte_slots is not None and (op != "=" or self.types.narrow(self.strip(right).type) is None):
+                    # C computes the stored value in int and truncates it into the byte, which the `byte` subscript of a Slots of bytes does.
+                    index = list(self.unwrap(left).get_children())[1]
+                    return [f"{pad}{byte_slots}[byte: {self.converted(index, 'Int32')}] {op} {self.converted(right, 'Int32')}" + self.trailing(cur)]
                 if self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.narrow_locals:
                     # C computes in int and truncates into the narrow local at the store.
                     name = swift_name(self.unwrap(left).spelling)

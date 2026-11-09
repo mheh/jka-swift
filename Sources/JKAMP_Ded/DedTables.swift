@@ -26,6 +26,18 @@ public nonisolated(unsafe) let vehPlayerStateFields: Slots<NetField> = makeVehPl
 // AI: Raven keeps `PADDING` as a static array of md4.cpp. The port reads the C storage as a Slots of bytes, so MD4Update takes it.
 public nonisolated(unsafe) let PADDING: Slots<JKAShared.byte> = makePADDING()
 
+/// Raven's static block for a zone allocation of zero bytes, over the C storage of `Sources/CJKAMP_Ded/ded_tables.c`.
+/// Source: oracle/codemp/qcommon/z_memman_pc.cpp:139
+public nonisolated(unsafe) let gZeroMalloc: StaticZeroMem = makeGZeroMalloc()
+
+/// Raven's static block of the empty text that CopyString returns, over the C storage of `Sources/CJKAMP_Ded/ded_tables.c`.
+/// Source: oracle/codemp/qcommon/z_memman_pc.cpp:141
+public nonisolated(unsafe) let gEmptyString: StaticMem = makeGEmptyString()
+
+/// Raven's ten static blocks of the digit texts that CopyString returns, over the C storage of `Sources/CJKAMP_Ded/ded_tables.c`.
+/// Source: oracle/codemp/qcommon/z_memman_pc.cpp:143
+public nonisolated(unsafe) let gNumberString: Slots<StaticMem> = makeGNumberString()
+
 // MARK: - The bind over each C array
 
 /// The compiler crashes if a global initializer takes the address inline, so each table binds in a function.
@@ -57,4 +69,18 @@ private func makePADDING() -> Slots<JKAShared.byte> {
     let base = withUnsafeMutablePointer(to: &CJKAMP_Ded.PADDING) { UnsafeMutableRawPointer($0) }
     let count = MemoryLayout.size(ofValue: CJKAMP_Ded.PADDING)
     return Slots(scalars: base, count: count)
+}
+
+private func makeGZeroMalloc() -> StaticZeroMem {
+    StaticZeroMem(withUnsafeMutablePointer(to: &CJKAMP_Ded.gZeroMalloc) { UnsafeMutableRawPointer($0) })
+}
+
+private func makeGEmptyString() -> StaticMem {
+    StaticMem(withUnsafeMutablePointer(to: &CJKAMP_Ded.gEmptyString) { UnsafeMutableRawPointer($0) })
+}
+
+private func makeGNumberString() -> Slots<StaticMem> {
+    let base = withUnsafeMutablePointer(to: &CJKAMP_Ded.gNumberString) { UnsafeMutableRawPointer($0) }
+    let count = MemoryLayout.size(ofValue: CJKAMP_Ded.gNumberString) / StaticMem.stride
+    return Slots(views: base, count: count, stride: StaticMem.stride)
 }

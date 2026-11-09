@@ -3,13 +3,10 @@ import Testing
 @testable import JKAMP_DedLogic
 
 /// This suite checks the port of `cm_polylib.cpp` on the base winding of the plane z = 0.
-/// The run stays disabled until `Z_Malloc` and `Z_Free` have Swift bodies, because `AllocWinding` and `FreeWinding` call them.
+/// `AllocWinding` and `FreeWinding` go through `Z_Malloc` and `Z_Free`, so each test builds a fresh world for a fresh zone.
 @Suite(.serialized)
 struct PolylibSuite {
-    @Test(
-        "the base winding of a plane has four points, a positive area, and the plane of the input",
-        .disabled("AllocWinding stops at the Z_Malloc stub")
-    )
+    @Test("the base winding of a plane has four points, a positive area, and the plane of the input")
     func baseWindingKeepsThePlane() {
         world = EngineWorld()
         let normal = vec3_t(0, 0, 1)
@@ -31,10 +28,7 @@ struct PolylibSuite {
         #expect(abs(planeDist) < 1e-3)
     }
 
-    @Test(
-        "a chop through the origin halves the area of the base winding",
-        .disabled("AllocWinding stops at the Z_Malloc stub, and FreeWinding stops at the Z_Free stub")
-    )
+    @Test("a chop through the origin halves the area of the base winding")
     func chopHalvesTheArea() {
         world = EngineWorld()
 

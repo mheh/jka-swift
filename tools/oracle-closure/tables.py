@@ -138,10 +138,12 @@ CGAME_PIECES: tuple[Piece, ...] = (
 )
 
 
-# The host file, the four netField tables of msg.cpp and the padding table of md4.cpp. The netField tables read `netField_t` of ded_types.h and the tree's `entityState_t` and
+# The host file, the four netField tables of msg.cpp, the padding table of md4.cpp, and the static zone blocks of z_memman_pc.cpp. The netField tables read `netField_t` of ded_types.h and the tree's `entityState_t` and
 # `playerState_t` through `NETF` and `PSF`. Raven's `#ifdef _OPTIMIZED_VEHICLE_NETWORKING` arm of q_shared.h picks the three tables
 # of the first arm, and the copied range keeps both arms as he wrote them.
 MSG_FILE = "codemp/qcommon/msg.cpp"
+# The static zone blocks of z_memman_pc.cpp read `StaticZeroMem_t` and `StaticMem_t` of ded_types.h and the `TAG_` names of the tree.
+ZONE_FILE = "codemp/qcommon/z_memman_pc.cpp"
 DED_PIECES: tuple[Piece, ...] = (
     Piece(own=(
         "// Raven's `NETF` and `PSF` read a field offset as a cast of a pointer to `int`, which is narrower on a 64-bit target.",
@@ -162,6 +164,11 @@ DED_PIECES: tuple[Piece, ...] = (
         "// so this declaration line and its brace are the tool's own and Raven's bytes start at his first row.",
         "unsigned char PADDING[64] = {",
     ), source="codemp/qcommon/md4.cpp", first=79, last=80),
+    Piece(
+        own=("// Raven's magic number of z_memman_pc.cpp, which the static blocks below name.",),
+        source=ZONE_FILE, first=28, last=28, table=False,
+    ),
+    Piece(source=ZONE_FILE, first=139, last=154),
 )
 
 

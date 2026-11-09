@@ -20,23 +20,19 @@ var com_validateZone: JKAMP.Cvar? {
 }
 
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:77
-/// Raven's record, a hand property of `EngineWorld`.
-var TheZone: Zone { world.TheZone }
+var TheZone: Zone { world.storage.TheZone }
 
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:139
-// TODO: Port global gZeroMalloc
 // Raven wrote: StaticZeroMem_t gZeroMalloc
-// No view for `StaticZeroMem_t`, a struct Raven defines inside a .c file.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:141
-// TODO: Port global gEmptyString
 // Raven wrote: StaticMem_t gEmptyString
-// No view for `StaticMem_t`, a struct Raven defines inside a .c file.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:143
-// TODO: Port global gNumberString
 // Raven wrote: StaticMem_t gNumberString[]
-// No view for `StaticMem_t`, a struct Raven defines inside a .c file.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:156
 var gbMemFreeupOccured: Bool {
@@ -48,17 +44,6 @@ var gbMemFreeupOccured: Bool {
 var hunk_tag: JKAShared.memtag_t {
     get { world.variables.hunk_tag }
     set { world.variables.hunk_tag = newValue }
-}
-
-/// Source: oracle/codemp/qcommon/z_memman_pc.cpp:45
-// Port-note: The view target holds the body as `ZoneTailFromHeader(_:)` of Zone.swift, and the bodies of this file call it.
-// Port-note: The stub waits for a generated view of `zoneHeader_t`, which gives the table a row for `zoneHeader_t *`.
-// TODO: Port signature
-// Raven wrote: static inline zoneTail_t *ZoneTailFromHeader(zoneHeader_t *pHeader)
-// No table row for `zoneHeader_t * pHeader`.
-private func ZoneTailFromHeader() -> Never {
-    // TODO: Port ZoneTailFromHeader
-    portMissing("ZoneTailFromHeader", source: "oracle/codemp/qcommon/z_memman_pc.cpp:45")
 }
 
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:82
@@ -86,9 +71,8 @@ func Z_Malloc(_ iSize: Int32, _ eTag: JKAShared.memtag_t, _ bZeroit: Bool = fals
     gbMemFreeupOccured = false
 
     if iSize == 0 {
-        // Port-note: `gZeroMalloc` has no storage, because `StaticZeroMem_t` has no view and no C storage.
-        // Raven wrote: zoneHeader_t *pMemory = (zoneHeader_t *) &gZeroMalloc; return &pMemory[1];
-        portMissing("Z_Malloc", source: "oracle/codemp/qcommon/z_memman_pc.cpp:157")
+        let pMemory = ZoneHeader(gZeroMalloc)
+        return pMemory.block
     }
 
     // Add in tracking info
@@ -230,13 +214,26 @@ func Z_MorphMallocTag(_ pvAddress: OpaquePointer?, _ eDesiredTag: JKAShared.memt
 }
 
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:342
-// Port-note: The stub waits for a generated view of `zoneHeader_t`, which gives the table a row for `zoneHeader_t *`.
-// TODO: Port signature
-// Raven wrote: static void Zone_FreeBlock(zoneHeader_t *pMemory)
-// No table row for `zoneHeader_t * pMemory`.
-private func Zone_FreeBlock() -> Never {
-    // TODO: Port Zone_FreeBlock
-    portMissing("Zone_FreeBlock", source: "oracle/codemp/qcommon/z_memman_pc.cpp:342")
+private func Zone_FreeBlock(_ pMemory: ZoneHeader) {
+    if pMemory.eTag != TAG_STATIC { // belt and braces, should never hit this though
+        // Update stats...
+        //
+        TheZone.Stats.iCount -= 1
+        TheZone.Stats.iCurrent -= pMemory.iSize
+        TheZone.Stats.iSizesPerTag[pMemory.eTag] -= pMemory.iSize
+        TheZone.Stats.iCountsPerTag[pMemory.eTag] -= 1
+
+        // Sanity checks...
+        //
+
+        // Unlink and free...
+        //
+        pMemory.pPrev!.pNext = pMemory.pNext
+        if pMemory.pNext != nil {
+            pMemory.pNext!.pPrev = pMemory.pPrev
+        }
+        ZoneBackend.free(pMemory)
+    }
 }
 
 // stats-query function to ask how big a malloc is...
@@ -279,9 +276,7 @@ func Z_Free(_ pvAddress: OpaquePointer?) {
         Com_Error(ERR_FATAL, "Z_Free(): Corrupt zone tail!")
     }
 
-    // Port-note: `Zone_FreeBlock` has no signature, because the table has no row for `zoneHeader_t *`.
-    // Raven wrote: Zone_FreeBlock(pMemory);
-    portMissing("Z_Free", source: "oracle/codemp/qcommon/z_memman_pc.cpp:404")
+    Zone_FreeBlock(pMemory)
 }
 
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:446
@@ -301,9 +296,7 @@ func Z_TagFree(_ eTag: JKAShared.memtag_t) {
     while let current = pMemory {
         let pNext = current.pNext
         if (eTag == TAG_ALL) || (current.eTag == eTag) {
-            // Port-note: `Zone_FreeBlock` has no signature, because the table has no row for `zoneHeader_t *`.
-            // Raven wrote: Zone_FreeBlock(pMemory);
-            portMissing("Z_TagFree", source: "oracle/codemp/qcommon/z_memman_pc.cpp:453")
+            Zone_FreeBlock(current)
         }
         pMemory = pNext
     }
@@ -318,13 +311,8 @@ func Z_TagFree(_ eTag: JKAShared.memtag_t) {
 }
 
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:480
-// Port-note: The return `void *` has no RETURNS row, which `Z_Malloc` and `Hunk_Alloc` have as `raw`.
-// TODO: Port signature
-// Raven wrote: void *S_Malloc( int iSize )
-// No table row for the return `void *`.
-func S_Malloc() -> Never {
-    // TODO: Port S_Malloc
-    portMissing("S_Malloc", source: "oracle/codemp/qcommon/z_memman_pc.cpp:480")
+func S_Malloc(_ iSize: Int32) -> UnsafeMutableRawPointer {
+    return Z_Malloc(iSize, TAG_SMALL)
 }
 
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:510
@@ -402,18 +390,18 @@ CopyString
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:607
 func CopyString(_ `in`: String) -> String {
     if `in`.isEmpty {
-        // AI: Raven returns the text of the static block gEmptyString. The function returns the same empty text.
-        return ""
+        // AI: Raven returns the address of the bytes after the header of gEmptyString. The function returns the text of those bytes.
+        return String(CharBuf(bytes: gEmptyString.mem.map { CChar(bitPattern: $0) }))
     } else if CharBuf(`in`)[1] == 0 {
         if CharBuf(`in`)[0] >= Int32(ascii: "0") && CharBuf(`in`)[0] <= Int32(ascii: "9") {
-            // AI: Raven returns the text of the static block gNumberString[in[0]-'0']. The function returns the same digit text.
-            return `in`
+            // AI: Raven returns the address of the bytes after the header of one gNumberString block. The function returns the text of those bytes.
+            return String(CharBuf(bytes: gNumberString[CharBuf(`in`)[0] - Int32(ascii: "0")].mem.map { CChar(bitPattern: $0) }))
         }
     }
 
-    // Port-note: `S_Malloc` has no signature, because its return `void *` has no RETURNS row.
-    // Raven wrote: out = (char *) S_Malloc (strlen(in)+1); strcpy (out, in); return out;
-    portMissing("CopyString", source: "oracle/codemp/qcommon/z_memman_pc.cpp:607")
+    // AI: Raven copies the text into the S_Malloc block and returns the block. The call stays for the zone count, and the function returns the text.
+    _ = S_Malloc(strlen(`in`) + 1)
+    return `in`
 }
 
 /**
@@ -589,13 +577,9 @@ When the files-in-use count reaches zero, all temp memory will be deleted
 ```
 */
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:804
-// Port-note: The return `void *` has no RETURNS row, which `Z_Malloc` and `Hunk_Alloc` have as `raw`.
-// TODO: Port signature
-// Raven wrote: void *Hunk_AllocateTempMemory( int size )
-// No table row for the return `void *`.
-func Hunk_AllocateTempMemory() -> Never {
-    // TODO: Port Hunk_AllocateTempMemory
-    portMissing("Hunk_AllocateTempMemory", source: "oracle/codemp/qcommon/z_memman_pc.cpp:804")
+func Hunk_AllocateTempMemory(_ size: Int32) -> UnsafeMutableRawPointer {
+    // don't bother clearing, because we are going to load a file over it
+    return Z_Malloc(size, TAG_TEMP_HUNKALLOC, false)
 }
 
 /**

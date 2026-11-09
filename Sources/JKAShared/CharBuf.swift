@@ -89,6 +89,19 @@ public struct CharBuf: ExpressibleByStringLiteral {
     }
 }
 
+// MARK: - The bytes as a Slots
+
+extension CharBuf {
+    /// The body gets the bytes of the buffer as a Slots of bytes, for a CharBuf overload that forwards to a function of a `const void *`.
+    /// The Slots lives for the call of the body, because a CharBuf is a value with no fixed address, and the body only reads it.
+    // AI: Raven hands his `char` array to a `const void *` parameter. The closure gives the bytes of the value as a Slots for that call.
+    public func withSlots<R>(_ body: (Slots<byte>) throws -> R) rethrows -> R {
+        try self.withUnsafeRawPointer { base in
+            try body(Slots(scalars: UnsafeMutableRawPointer(mutating: base), count: self.count))
+        }
+    }
+}
+
 // MARK: - String conversion
 
 extension String {
