@@ -65,4 +65,43 @@ struct bitStorage_s
 	int				bits;
 };
 
+// Source: oracle/codemp/qcommon/z_memman_pc.cpp:30
+typedef struct zoneHeader_s
+{
+		int					iMagic;
+		memtag_t			eTag;
+		int					iSize;
+struct	zoneHeader_s		*pNext;
+struct	zoneHeader_s		*pPrev;
+} zoneHeader_t;
+
+// Source: oracle/codemp/qcommon/z_memman_pc.cpp:39
+typedef struct
+{
+	int iMagic;
+
+} zoneTail_t;
+
+// Source: oracle/codemp/qcommon/z_memman_pc.cpp:55
+typedef struct zoneStats_s
+{
+	int		iCount;
+	int		iCurrent;
+	int		iPeak;
+
+	// I'm keeping these updated on the fly, since it's quicker for cache-pool
+	//	purposes rather than recalculating each time...
+	//
+	int		iSizesPerTag [TAG_COUNT];
+	int		iCountsPerTag[TAG_COUNT];
+
+} zoneStats_t;
+
+// Source: oracle/codemp/qcommon/z_memman_pc.cpp:69
+typedef struct zone_s
+{
+	zoneStats_t				Stats;
+	zoneHeader_t			Header;
+} zone_t;
+
 #endif
