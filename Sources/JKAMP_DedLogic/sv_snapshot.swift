@@ -15,6 +15,10 @@ var g_svCullDist: Float {
 /// Source: oracle/codemp/server/sv_snapshot.cpp:622
 let HEADER_RATE_BYTES = 48 as Int32
 
+/// Source: oracle/codemp/server/sv_snapshot.cpp:720
+// AI: Raven declares `msg_buf` on the stack of SV_SendClientSnapshot. The function uses one zeroed allocation on the storage class.
+var msg_buf_SV_SendClientSnapshot: Slots<JKAShared.byte> { world.storage.msg_buf_SV_SendClientSnapshot }
+
 /**
 ```
 =============
@@ -178,12 +182,7 @@ private func SV_WriteSnapshotToClient(_ client: Client, _ msg: Msg) {
     }
 
     // delta encode the entities
-    if oldframe == nil {
-        // Port-note: Raven passes a NULL `oldframe`, and SV_EmitPacketEntities takes `from` as a view that is not optional, row N1.
-        // Raven wrote: SV_EmitPacketEntities (oldframe, frame, msg)
-        portMissing("SV_WriteSnapshotToClient", source: "oracle/codemp/server/sv_snapshot.cpp:103")
-    }
-    SV_EmitPacketEntities(oldframe!, frame!, msg)
+    SV_EmitPacketEntities(oldframe, frame!, msg)
 
     // padding for rate debugging
     if sv_padPackets!.integer != 0 {
@@ -228,27 +227,14 @@ SV_QsortEntityNumbers
 */
 /// Source: oracle/codemp/server/sv_snapshot.cpp:256
 private func SV_QsortEntityNumbers(_ a: Int32, _ b: Int32) -> Int32 {
-    // Port-note: A pointer local `int * ea` with no view, row N3.
-    // Raven wrote: int *ea;
-    portMissing("SV_QsortEntityNumbers", source: "oracle/codemp/server/sv_snapshot.cpp:256")
-    // Port-note: A pointer local `int * eb` with no view, row N3.
-    // Raven wrote: eb;
-    portMissing("SV_QsortEntityNumbers", source: "oracle/codemp/server/sv_snapshot.cpp:256")
+    // AI: Raven reads each entity number through an `int *` of the array. The comparator takes the two numbers by value.
+    if a == b {
+        Com_Error(ERR_DROP, "SV_QsortEntityStates: duplicated entity")
+    }
 
-    // Port-note: A store into `ea`, a local the draft left as a hole, row N3.
-    // Raven wrote: ea = (int *)a
-    portMissing("SV_QsortEntityNumbers", source: "oracle/codemp/server/sv_snapshot.cpp:256")
-    // Port-note: A store into `eb`, a local the draft left as a hole, row N3.
-    // Raven wrote: eb = (int *)b
-    portMissing("SV_QsortEntityNumbers", source: "oracle/codemp/server/sv_snapshot.cpp:256")
-
-    // Port-note: A pointer dereference the draft cannot place, row N3.
-    // Raven wrote: if ( *ea == *eb ) { Com_Error( ERR_DROP, "SV_QsortEntityStates: duplicated entity" ); }
-    portMissing("SV_QsortEntityNumbers", source: "oracle/codemp/server/sv_snapshot.cpp:256")
-
-    // Port-note: A pointer dereference the draft cannot place, row N3.
-    // Raven wrote: if ( *ea < *eb ) { return -1; }
-    portMissing("SV_QsortEntityNumbers", source: "oracle/codemp/server/sv_snapshot.cpp:256")
+    if a < b {
+        return -1
+    }
 
     return 1
 }
@@ -262,14 +248,217 @@ SV_AddEntToSnapshot
 */
 /// Source: oracle/codemp/server/sv_snapshot.cpp:279
 private func SV_AddEntToSnapshot(_ svEnt: SvEntity, _ gEnt: JKAMP.SharedEntity, _ eNums: SnapshotEntityNumbers) {
-    // TODO: Port SV_AddEntToSnapshot
-    portMissing("SV_AddEntToSnapshot", source: "oracle/codemp/server/sv_snapshot.cpp:279")
+    // if we have already added this entity to this snapshot, don't add again
+    if svEnt.snapshotCounter == sv.snapshotCounter {
+        return
+    }
+    svEnt.snapshotCounter = sv.snapshotCounter
+
+    // if we are full, silently discard entities
+    if eNums.numSnapshotEntities == MAX_SNAPSHOT_ENTITIES {
+        return
+    }
+
+    eNums.snapshotEntities[eNums.numSnapshotEntities] = gEnt.s.number
+    eNums.numSnapshotEntities += 1
 }
 
 /// Source: oracle/codemp/server/sv_snapshot.cpp:301
 private func SV_AddEntitiesVisibleFromPoint(_ origin: JKAShared.vec3_t, _ frame: ClientSnapshot, _ eNums: SnapshotEntityNumbers, _ portal: Bool) {
-    // TODO: Port SV_AddEntitiesVisibleFromPoint
-    portMissing("SV_AddEntitiesVisibleFromPoint", source: "oracle/codemp/server/sv_snapshot.cpp:301")
+    var e: Int32
+    var i: Int32
+    var ent: SharedEntity?
+    var svEnt: SvEntity?
+    var l: Int32
+    let clientarea: Int32
+    let clientcluster: Int32
+    let leafnum: Int32
+    var c_fullsend: Int32
+    let clientpvs: Slots<byte>
+    var bitvector: Slots<byte>
+    var difference = vec3_t()
+    var length: Float
+    var radius: Float
+
+    // during an error shutdown message we may need to transmit
+    // the shutdown message after the server has shutdown, so
+    // specfically check for it
+    if sv.state == 0 {
+        return
+    }
+
+    leafnum = CM_PointLeafnum(origin)
+    clientarea = CM_LeafArea(leafnum)
+    clientcluster = CM_LeafCluster(leafnum)
+
+    // calculate the visible areas
+    frame.areabytes = CM_WriteAreaBits(frame.areabits, clientarea)
+
+    clientpvs = CM_ClusterPVS(clientcluster)
+
+    c_fullsend = 0
+
+    e = 0
+    while e < sv.num_entities {
+        ent = SV_GentityNum(e)
+
+        // never send entities that aren't linked in
+        if !ent!.r.linked {
+            e += 1
+            continue
+        }
+
+        if (ent!.s.eFlags & EF_PERMANENT) != 0 {
+            // he's permanent, so don't send him down!
+            e += 1
+            continue
+        }
+
+        if ent!.s.number != e {
+            Com_DPrintf("FIXING ENT->S.NUMBER!!!\n")
+            ent!.s.number = e
+        }
+
+        // entities can be flagged to explicitly not be sent to the client
+        if (ent!.r.svFlags & SVF_NOCLIENT) != 0 {
+            e += 1
+            continue
+        }
+
+        // entities can be flagged to be sent to only one client
+        if (ent!.r.svFlags & SVF_SINGLECLIENT) != 0 {
+            if ent!.r.singleClient != frame.ps.clientNum {
+                e += 1
+                continue
+            }
+        }
+        // entities can be flagged to be sent to everyone but one client
+        if (ent!.r.svFlags & SVF_NOTSINGLECLIENT) != 0 {
+            if ent!.r.singleClient == frame.ps.clientNum {
+                e += 1
+                continue
+            }
+        }
+
+        svEnt = SV_SvEntityForGentity(ent!)
+
+        // don't double add an entity through portals
+        if svEnt!.snapshotCounter == sv.snapshotCounter {
+            e += 1
+            continue
+        }
+
+        // broadcast entities are always sent, and so is the main player so we don't see noclip weirdness
+        if (ent!.r.svFlags & SVF_BROADCAST) != 0 || (e == frame.ps.clientNum) || (ent!.r.broadcastClients[frame.ps.clientNum / 32] & (1 << (frame.ps.clientNum % 32))) != 0 {
+            SV_AddEntToSnapshot(svEnt!, ent!, eNums)
+            e += 1
+            continue
+        }
+
+        if ent!.s.isPortalEnt {
+            //rww - portal entities are always sent as well
+            SV_AddEntToSnapshot(svEnt!, ent!, eNums)
+            e += 1
+            continue
+        }
+
+        if com_RMG != nil && com_RMG!.integer != 0 {
+            difference = ent!.r.absmax + ent!.r.absmin
+            difference = difference * 0.5
+            difference = origin - difference
+            length = VectorLength(difference)
+
+            // calculate the diameter
+            difference = ent!.r.absmax - ent!.r.absmin
+            radius = VectorLength(difference)
+            if length - radius < /*sv_RMGDistanceCull->integer*/5000.0 {
+                // more of a diameter check
+                SV_AddEntToSnapshot(svEnt!, ent!, eNums)
+            }
+        } else {
+            // ignore if not touching a PV leaf
+            // check area
+            if !CM_AreasConnected(clientarea, svEnt!.areanum) {
+                // doors can legally straddle two areas, so
+                // we may need to check another one
+                if !CM_AreasConnected(clientarea, svEnt!.areanum2) {
+                    e += 1
+                    continue // blocked by a door
+                }
+            }
+
+            bitvector = clientpvs
+
+            // check individual leafs
+            if svEnt!.numClusters == 0 {
+                e += 1
+                continue
+            }
+            l = 0
+            i = 0
+            while i < svEnt!.numClusters {
+                l = svEnt!.clusternums[i]
+                if (Int32(bitvector[l >> 3]) & (1 << (l & 7))) != 0 {
+                    break
+                }
+                i += 1
+            }
+
+            // if we haven't found it to be visible,
+            // check overflow clusters that coudln't be stored
+            if i == svEnt!.numClusters {
+                if svEnt!.lastCluster != 0 {
+                    while l <= svEnt!.lastCluster {
+                        if (Int32(bitvector[l >> 3]) & (1 << (l & 7))) != 0 {
+                            break
+                        }
+                        l += 1
+                    }
+                    if l == svEnt!.lastCluster {
+                        e += 1
+                        continue // not visible
+                    }
+                } else {
+                    e += 1
+                    continue
+                }
+            }
+
+            if g_svCullDist != -1.0 {
+                //do a distance cull check
+                difference = ent!.r.absmax + ent!.r.absmin
+                difference = difference * 0.5
+                difference = origin - difference
+                length = VectorLength(difference)
+
+                // calculate the diameter
+                difference = ent!.r.absmax - ent!.r.absmin
+                radius = VectorLength(difference)
+                if length - radius >= g_svCullDist {
+                    //then don't add it
+                    e += 1
+                    continue
+                }
+            }
+
+            // add it
+            SV_AddEntToSnapshot(svEnt!, ent!, eNums)
+
+            // if its a portal entity, add everything visible from its camera position
+            if (ent!.r.svFlags & SVF_PORTAL) != 0 {
+                if ent!.s.generic1 != 0 {
+                    var dir = vec3_t()
+                    dir = ent!.s.origin - origin
+                    if VectorLengthSquared(dir) > Float(ent!.s.generic1) * ent!.s.generic1 {
+                        e += 1
+                        continue
+                    }
+                }
+                SV_AddEntitiesVisibleFromPoint(ent!.s.origin2, frame, eNums, true)
+            }
+        }
+        e += 1
+    }
 }
 
 /**
@@ -289,96 +478,108 @@ For viewing through other player's eyes, clent can be something other than clien
 */
 /// Source: oracle/codemp/server/sv_snapshot.cpp:513
 private func SV_BuildClientSnapshot(_ client: Client) {
-    var org = vec3_t()
-    var frame: ClientSnapshot?
-    // Port-note: A local `snapshotEntityNumbers_t entityNumbers` the table has no type for, row N2.
-    // Raven wrote: snapshotEntityNumbers_t entityNumbers;
-    portMissing("SV_BuildClientSnapshot", source: "oracle/codemp/server/sv_snapshot.cpp:513")
-    var i: Int32
-    var ent: SharedEntity?
-    var state: EntityState?
-    var svEnt: SvEntity?
-    var clent: SharedEntity?
-    var ps: PlayerState?
+    // Raven's record lives to the end of the function, so the body is the closure.
+    SnapshotEntityNumbers.scratch { entityNumbers in
+        var org = vec3_t()
+        var frame: ClientSnapshot?
+        var i: Int32
+        var ent: SharedEntity?
+        var state: EntityState?
+        var svEnt: SvEntity?
+        var clent: SharedEntity?
+        var ps: PlayerState?
 
-    // bump the counter used to prevent double adding
-    sv.snapshotCounter += 1
+        // bump the counter used to prevent double adding
+        sv.snapshotCounter += 1
 
-    // this is the frame we are creating
-    frame = client.frames[client.netchan.outgoingSequence & PACKET_MASK]
+        // this is the frame we are creating
+        frame = client.frames[client.netchan.outgoingSequence & PACKET_MASK]
 
-    // clear everything in this snapshot
-    // Port-note: A read of `entityNumbers`, a local of `snapshotEntityNumbers_t`, which has no view, row N2.
-    // Raven wrote: entityNumbers.numSnapshotEntities = 0
-    portMissing("SV_BuildClientSnapshot", source: "oracle/codemp/server/sv_snapshot.cpp:513")
-    frame!.areabits.zero()
+        // clear everything in this snapshot
+        entityNumbers.numSnapshotEntities = 0
+        frame!.areabits.zero()
 
-    frame!.num_entities = 0
+        frame!.num_entities = 0
 
-    clent = client.gentity
-    if clent == nil || client.state == CS_ZOMBIE {
-        return
-    }
+        clent = client.gentity
+        if clent == nil || client.state == CS_ZOMBIE {
+            return
+        }
 
-    // grab the current playerState_t
-    ps = SV_GameClientNum(svs.clientsSlots.index(of: client))
-    frame!.ps = ps!
+        // grab the current playerState_t
+        ps = SV_GameClientNum(svs.clientsSlots.index(of: client))
+        frame!.ps = ps!
 
-    if ps!.m_iVehicleNum != 0 {
-        //get the vehicle's playerstate too then
-        let veh: SharedEntity? = SV_GentityNum(ps!.m_iVehicleNum)
+        if ps!.m_iVehicleNum != 0 {
+            //get the vehicle's playerstate too then
+            let veh: SharedEntity? = SV_GentityNum(ps!.m_iVehicleNum)
 
-        if veh != nil && veh!.playerState != nil {
-            //Now VMA it and we've got ourselves a playerState
-            // Port-note: VM_ArgPtr carries a signature marker for its `void *` return, row N5.
-            // Raven wrote: playerState_t *vps = ((playerState_t *)VM_ArgPtr((int)veh->playerState)); frame->vps = *vps;
-            portMissing("SV_BuildClientSnapshot", source: "oracle/codemp/server/sv_snapshot.cpp:513")
+            if veh != nil && veh!.playerState != nil {
+                //Now VMA it and we've got ourselves a playerState
+                // AI: Raven maps the pointer through VM_ArgPtr, which gives the same address for a module library. The body reads the view of the field.
+                let vps: PlayerState? = veh!.playerState
+
+                frame!.vps = vps!
+            }
+        }
+
+        let clientNum: Int32
+        // never send client's own entity, because it can
+        // be regenerated from the playerstate
+        clientNum = frame!.ps.clientNum
+        if clientNum < 0 || clientNum >= MAX_GENTITIES {
+            Com_Error(ERR_DROP, "SV_SvEntityForGentity: bad gEnt")
+        }
+        svEnt = sv.svEntities[clientNum]
+        svEnt!.snapshotCounter = sv.snapshotCounter
+
+
+        // find the client's viewpoint
+        org = ps!.origin
+        org[2] += ps!.viewheight
+
+        // add all the entities directly visible to the eye, which
+        // may include portal entities that merge other viewpoints
+        SV_AddEntitiesVisibleFromPoint(org, frame!, entityNumbers, false)
+
+        // if there were portals visible, there may be out of order entities
+        // in the list which will need to be resorted for the delta compression
+        // to work correctly.  This also catches the error condition
+        // of an entity being included twice.
+        // AI: Raven sorts the array of the record in place. The body sorts a copy of the array and stores the sorted numbers back.
+        var snapshotEntities = Array(entityNumbers.snapshotEntities)
+        qsort(&snapshotEntities, entityNumbers.numSnapshotEntities, SV_QsortEntityNumbers)
+        i = 0
+        while i < entityNumbers.numSnapshotEntities {
+            entityNumbers.snapshotEntities[i] = snapshotEntities[i]
+            i += 1
+        }
+
+        // now that all viewpoint's areabits have been OR'd together, invert
+        // all of them to make it a mask vector, which is what the renderer wants
+        i = 0
+        while i < MAX_MAP_AREA_BYTES / 4 {
+            frame!.areabits[int: i * Int32(Int32.byteCount)] = frame!.areabits[int: i * Int32(Int32.byteCount)] ^ -1
+            i += 1
+        }
+
+        // copy the entity states out
+        frame!.num_entities = 0
+        frame!.first_entity = svs.nextSnapshotEntities
+        i = 0
+        while i < entityNumbers.numSnapshotEntities {
+            ent = SV_GentityNum(entityNumbers.snapshotEntities[i])
+            state = svs.snapshotEntitiesSlots[svs.nextSnapshotEntities % svs.numSnapshotEntities]
+            state!.copy(from: ent!.s)
+            svs.nextSnapshotEntities += 1
+            // this should never hit, map should always be restarted first in SV_Frame
+            if svs.nextSnapshotEntities >= 0x7FFFFFFE {
+                Com_Error(ERR_FATAL, "svs.nextSnapshotEntities wrapped")
+            }
+            frame!.num_entities += 1
+            i += 1
         }
     }
-
-    let clientNum: Int32
-    // never send client's own entity, because it can
-    // be regenerated from the playerstate
-    clientNum = frame!.ps.clientNum
-    if clientNum < 0 || clientNum >= MAX_GENTITIES {
-        Com_Error(ERR_DROP, "SV_SvEntityForGentity: bad gEnt")
-    }
-    svEnt = sv.svEntities[clientNum]
-    svEnt!.snapshotCounter = sv.snapshotCounter
-
-
-    // find the client's viewpoint
-    org = ps!.origin
-    org[2] += ps!.viewheight
-
-    // add all the entities directly visible to the eye, which
-    // may include portal entities that merge other viewpoints
-    // Port-note: A read of `entityNumbers`, a local of `snapshotEntityNumbers_t`, which has no view, row N2.
-    // Raven wrote: SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers, qfalse )
-    portMissing("SV_BuildClientSnapshot", source: "oracle/codemp/server/sv_snapshot.cpp:513")
-
-    // if there were portals visible, there may be out of order entities
-    // in the list which will need to be resorted for the delta compression
-    // to work correctly.  This also catches the error condition
-    // of an entity being included twice.
-    // Port-note: The host has no qsort, and SV_QsortEntityNumbers takes two `OpaquePointer?` parameters, rows N2 and N3.
-    // Raven wrote: qsort( entityNumbers.snapshotEntities, entityNumbers.numSnapshotEntities, sizeof( entityNumbers.snapshotEntities[0] ), SV_QsortEntityNumbers )
-    portMissing("SV_BuildClientSnapshot", source: "oracle/codemp/server/sv_snapshot.cpp:513")
-
-    // now that all viewpoint's areabits have been OR'd together, invert
-    // all of them to make it a mask vector, which is what the renderer wants
-    i = 0
-    while i < MAX_MAP_AREA_BYTES / 4 {
-        frame!.areabits[int: i * Int32(Int32.byteCount)] = frame!.areabits[int: i * Int32(Int32.byteCount)] ^ -1
-        i += 1
-    }
-
-    // copy the entity states out
-    frame!.num_entities = 0
-    frame!.first_entity = svs.nextSnapshotEntities
-    // Port-note: A read of `entityNumbers`, a local of `snapshotEntityNumbers_t`, which has no view, row N2.
-    // Raven wrote: for ( i = 0 ; i < entityNumbers.numSnapshotEntities ; i++ ) { ent = SV_GentityNum(entityNumbers.snapshotEntities[i]); state = &svs.snapshotEntities[svs.nextSnapshotEntities % svs.numSnapshotEntities]; *state = ent->s; svs.nextSnapshotEntities++; // this should never hit, map should always be restarted first in SV_Frame if ( svs.nextSnapshotEntities >= 0x7FFFFFFE ) { Com_Error(ERR_FATAL, "svs.nextSnapshotEntities wrapped"); } frame->num_entities++; }
-    portMissing("SV_BuildClientSnapshot", source: "oracle/codemp/server/sv_snapshot.cpp:513")
 }
 
 /// Source: oracle/codemp/server/sv_snapshot.cpp:623
@@ -478,9 +679,7 @@ func SV_SendClientSnapshot(_ client: Client) {
             //rww - if this is the case then make sure there is an svc_setgame sent before this snap
             var i: Int32 = 0
 
-            // Port-note: Raven's stack buffer `byte msg_buf[MAX_MSGLEN]` has no storage home for the `Slots<byte>` of MSG_Init, row N4.
-            // Raven wrote: MSG_Init (&msg, msg_buf, sizeof(msg_buf))
-            portMissing("SV_SendClientSnapshot", source: "oracle/codemp/server/sv_snapshot.cpp:719")
+            MSG_Init(msg, msg_buf_SV_SendClientSnapshot, Int32(msg_buf_SV_SendClientSnapshot.count))
 
             //have to include this for each message.
             MSG_WriteLong(msg, client.lastClientCommand)
@@ -524,9 +723,7 @@ func SV_SendClientSnapshot(_ client: Client) {
             return true
         }
 
-        // Port-note: Raven's stack buffer `byte msg_buf[MAX_MSGLEN]` has no storage home for the `Slots<byte>` of MSG_Init, row N4.
-        // Raven wrote: MSG_Init (&msg, msg_buf, sizeof(msg_buf))
-        portMissing("SV_SendClientSnapshot", source: "oracle/codemp/server/sv_snapshot.cpp:719")
+        MSG_Init(msg, msg_buf_SV_SendClientSnapshot, Int32(msg_buf_SV_SendClientSnapshot.count))
         msg.allowoverflow = true
 
         // NOTE, MRE: all server->client messages now acknowledge
