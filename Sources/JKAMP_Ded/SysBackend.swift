@@ -17,17 +17,17 @@ import JKAShared
 public let INVALID_SOCKET: Int32 = -1
 
 /// Raven's `SOCKET_ERROR` of `winsock.h`, the result of a failed socket call.
-/// Source: oracle/codemp/win32/win_net.cpp:265
+/// Source: oracle/codemp/win32/win_net.cpp:274
 // AI: Raven read the Winsock value. A POSIX socket call returns -1 on a failure, the same value.
 public let SOCKET_ERROR: Int32 = -1
 
 /// Raven's `WSAEWOULDBLOCK`, the error of a nonblocking call with no data.
-/// Source: oracle/codemp/win32/win_net.cpp:269
+/// Source: oracle/codemp/win32/win_net.cpp:278
 // AI: Raven read the Winsock code. The POSIX host reads the errno value of the same condition.
 public let WSAEWOULDBLOCK = Int32(EWOULDBLOCK)
 
 /// Raven's `WSAECONNRESET`, the error after a port-unreachable reply.
-/// Source: oracle/codemp/win32/win_net.cpp:269
+/// Source: oracle/codemp/win32/win_net.cpp:278
 // AI: Raven read the Winsock code. The POSIX host reads the errno value of the same condition.
 public let WSAECONNRESET = Int32(ECONNRESET)
 
@@ -37,7 +37,7 @@ public let WSAECONNRESET = Int32(ECONNRESET)
 public let WSAEAFNOSUPPORT = Int32(EAFNOSUPPORT)
 
 /// Raven's `WSAEADDRNOTAVAIL`, the error of a broadcast that a link refuses.
-/// Source: oracle/codemp/win32/win_net.cpp:463
+/// Source: oracle/codemp/win32/win_net.cpp:460
 // AI: Raven read the Winsock code. The POSIX host reads the errno value of the same condition.
 public let WSAEADDRNOTAVAIL = Int32(EADDRNOTAVAIL)
 
@@ -218,7 +218,7 @@ public enum SysBackend {
     }
 
     /// Raven's `GetUserName`, the login name of the process owner, or nil when the call fails.
-    /// Source: oracle/codemp/win32/win_shared.cpp:301
+    /// Source: oracle/codemp/win32/win_shared.cpp:302
     // AI: Raven called the Win32 GetUserName. The backend reads the name of the effective user from the password database.
     public static func GetUserName() -> String? {
         guard let entry = getpwuid(geteuid()), let name = entry.pointee.pw_name else { return nil }
@@ -322,7 +322,7 @@ public enum SysBackend {
     }
 
     /// Raven's `recvfrom` into the bytes of a message, which fills the sender's record and its length.
-    /// Source: oracle/codemp/win32/win_net.cpp:265
+    /// Source: oracle/codemp/win32/win_net.cpp:272
     // AI: Raven called the Winsock recvfrom with his record. The backend calls the POSIX recvfrom and converts the sender's address.
     public static func recvfrom(_ s: Int32, _ buf: Slots<byte>, _ len: Int32, _ from: inout Sockaddr, _ fromlen: inout Int32) -> Int32 {
         var platform = sockaddr_in()
@@ -345,7 +345,7 @@ public enum SysBackend {
     }
 
     /// Raven's `sendto` of bytes to an IPv4 address.
-    /// Source: oracle/codemp/win32/win_net.cpp:448
+    /// Source: oracle/codemp/win32/win_net.cpp:447
     // AI: Raven called the Winsock sendto with his record. The backend converts the record and calls the POSIX sendto.
     public static func sendto(_ s: Int32, _ data: Slots<byte>, _ len: Int32, _ to: Sockaddr) -> Int32 {
         // A POSIX host has no IPX family, so only an IPv4 record sends.
@@ -374,7 +374,7 @@ public enum SysBackend {
     }
 
     /// Raven's `gethostbyname`, the IPv4 record of a name, or nil when the name does not resolve.
-    /// Source: oracle/codemp/win32/win_net.cpp:205
+    /// Source: oracle/codemp/win32/win_net.cpp:206
     // AI: Raven called the Winsock gethostbyname. The backend calls the POSIX gethostbyname and copies the record before the next call reuses it.
     public static func gethostbyname(_ name: String) -> Hostent? {
         var buf = CharBuf(name)
@@ -410,7 +410,7 @@ public enum SysBackend {
     }
 
     /// Raven's `inet_addr`, the network-order address of a dotted text.
-    /// Source: oracle/codemp/win32/win_net.cpp:198
+    /// Source: oracle/codemp/win32/win_net.cpp:199
     // AI: Raven called the Winsock inet_addr. The backend calls the POSIX inet_addr.
     public static func inet_addr(_ s: String) -> Int32 {
         var buf = CharBuf(s)
@@ -420,14 +420,14 @@ public enum SysBackend {
     }
 
     /// Raven's `ntohl( *(int *)p )` over the four bytes of an address.
-    /// Source: oracle/codemp/win32/win_net.cpp:877
+    /// Source: oracle/codemp/win32/win_net.cpp:874
     // AI: Raven read the bytes as an int and swapped them with ntohl. The backend reads the four bytes in network order.
     public static func ntohl(_ p: [UInt8]) -> Int32 {
         Int32(bitPattern: UInt32(p[0]) << 24 | UInt32(p[1]) << 16 | UInt32(p[2]) << 8 | UInt32(p[3]))
     }
 
     /// Raven's `htons( (short)port )`, the port in network order.
-    /// Source: oracle/codemp/win32/win_net.cpp:631
+    /// Source: oracle/codemp/win32/win_net.cpp:633
     // AI: Raven called the Winsock htons. The backend swaps the bytes to big-endian order.
     public static func htons(_ port: Int16) -> UInt16 {
         UInt16(bitPattern: port).bigEndian
