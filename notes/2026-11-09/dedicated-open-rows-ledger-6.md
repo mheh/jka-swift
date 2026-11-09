@@ -264,3 +264,44 @@ The gate ran twice. The first run found three defects in the tools, which one fi
 The `portMissing` total over `Sources/JKAMP_DedLogic` is 798, from 435 on master. The 15 E5 stems add 374, and the other stems went down from 435 to 424. Per stem: common 12 to 10, files_pc 34 to 20, files_common 1 to 0, win_main 9 to 5, win_shared 3 to 2, vm 35 to 30, cm_load 26 to 30, cm_shader 10 to 9, sv_init 10 to 2, sv_ccmds 1 to 0, sv_main 1 to 0, and z_memman_pc 3 to 0. cm_load went up, because the drafted CM_BoundBrush, CM_LumpChecksum, CM_Checksum, and CM_ClipHandleToModel keep the drafter's holes, and each loader keeps its one marker.
 
 `swift build -j 2 --product jampded` passed, and `.build/debug/jampded` with standard input from `/dev/null` printed the version line and stopped at `TODO: Port Cmd_AddCommand, source: oracle/codemp/qcommon/cmd_pc.cpp:19`, exit 133.
+
+## Merge with the seventh wave
+
+The branch took master at `ec20f69` by `git merge master`, after PR 79, PR 80, and PR 81. Git found textual conflicts in three files, and every other file of the seventh wave merged with no conflict. Each resolution below is a readoption: a stem that master adopted keeps master's hand bodies and takes the signatures of this batch.
+
+- `unzip.swift`: the batch signatures replace the signature markers of unzGetGlobalInfo, unzlocal_DosDateToTmuDate, unzlocal_GetCurrentFileInfoInternal, unzGetCurrentFileInfo, and unzlocal_CheckCurrentFileCoherencyHeader, and their bodies keep the `portMissing` marker. unzReadCurrentFile takes the batch signature, `buf: Slots<JKAShared.byte>`, with master's body, and Raven's `stream.next_out = (Byte*)buf` at `unzip.cpp:1070` reads `stream.next_out = buf`. The callers of the five functions keep their Port-notes on rows U3 and U4 of the unzip round until a hole round fills them.
+- `EngineWorld.swift`: both sides stay in full. Master's `holdrand` stays. The generated `fs_searchpaths` of EngineVariables and `fsh` of EngineStorage replace master's hand properties of the same names. Master's `sv_worldSectors` and the batch's renderer tables stand side by side.
+- `common.swift`: master's `_ = FS_Write(msg, strlen(msg), logfile)` stays.
+
+The batch signatures of cm_patch, cm_test, and unzip stand in master's adopted files, and `skeleton.py --only` gives the same func lines as the tree for every stem the merge touched. Package.swift keeps master's `JKAZlib` target, and the batch did not change the file.
+
+The generator gives some views that master wrote by hand, so the hand copies are gone:
+
+- `ZipBackend.swift`: `UnzS`, `UnzGlobalInfo`, `UnzFileInfo`, `UnzFileInfoInternal`, `FileInZipReadInfo`, and `ZStream` go. The generated `UnzS`, `Unz_global_info`, `Unz_file_info`, `Unz_file_info_internal`, `File_in_zip_read_info_s`, and `Z_stream` replace them. The cast `UnzS(file)` of the `unzFile` handle stays as an extension of the generated view, and the inflate calls take `Z_stream`.
+- `TraceViews.swift`: `CArea` and the `ClipMap` accessors `areasSlots` and `areaPortals` go, because the CM1 rows generate them. `Sphere`, the `Cbrushside` subscript, and the `Com_Memset` overload stay.
+- `GameViews.swift`, `SnapshotViews.swift`, and `StringEdViews.swift` stay whole, because the generator gives none of their views or members.
+
+Three FIELDS rows give the generated zip views the forms of master's hand views, so master's bodies read them as they were: `("file_in_zip_read_info_s", "read_buffer")` is `opaque`, and `("z_stream", "next_in")` and `("z_stream", "next_out")` are `bytes`. `views.py` reads the `opaque` kind on a `char *` field before the text form.
+
+The generator sequence of `tools/oracle-closure/README.md` ran once after the merge, and every step exited 0. The merge moved an SP UI header on this case-insensitive file system again, and the tree kept master's `Sources/CJKASP_UI`.
+
+### The first gate and the fix pass
+
+The game and cgame snapshot checks found no difference. The host check found 69 files that differ and 82 new files. `swift build` failed with 3 errors, and `swift test`, `draftcheck.py`, and `swift build --product jampded` failed on the same errors. The tool tests passed. Each error is a master hand body that hands a handle to a file read that now takes a `Slots<byte>`, row F14 of this batch:
+
+- `unzip.cpp:1093` and `:1259`: the two `ZIP_fread` calls read `FileBackend.fread(ZipBackend.bytes(buffer, count: n)!, ...)` under an AI line, with `UNZ_BUFSIZE` for the read buffer and `size_to_read` for the caller's buffer.
+- `sv_client.cpp:1160`: the `FS_Read` of SV_WriteDownloadToClient is a hole under row G13, because `downloadBlocks` of client_t holds each block as a handle with no byte form.
+
+### The second gate
+
+- The game snapshot check read 372 files and found no difference, exit 0.
+- The cgame snapshot check read 246 files and found no difference, exit 0.
+- The host snapshot check read 253 files and found a difference, exit 1: 69 files differ and 82 files are new.
+- `swift build` passed, exit 0, 0 errors.
+- `swift test --no-parallel` passed 150 tests in nine runs, exit 0, 0 failures.
+- The tool tests passed 97 tests with 14 skipped, exit 0.
+- `draftcheck.py --unit mp-engine-ded` over the 23 stems the merge touched gave 1039 holes, 0 cascade errors, 0 defects, and 62 compile holes over 33 passes, exit 0. The compile holes are 40 in unzip, 15 in cm_patch, 4 in files_pc, and 1 each in GenericParser2, cm_test, and stringed_interface.
+
+The `portMissing` total over `Sources/JKAMP_DedLogic` is 765, from 798 on this batch before the merge and 435 on master. The merge adds no `Unsafe` type and no raw arithmetic to `Sources/JKAMP_DedLogic`.
+
+`swift build --product jampded` passed, and `.build/debug/jampded` with standard input from `/dev/null` printed the version line and `----- FS_Startup -----`, and stopped at `TODO: Port FS_AddGameDirectory, source: oracle/codemp/qcommon/files_pc.cpp:2212`, exit 133.
