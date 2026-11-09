@@ -26,32 +26,33 @@ public func Com_Memset(_ buf: inout CharBuf, _ val: Int32, _ count: some BinaryI
 // MARK: - The C library under common.cpp
 
 /// The C library functions that common.cpp calls on raw memory and on a `struct tm` pointer.
+/// A nil pointer traps at `memcpy` and `memset`, because the C library dereferences a NULL pointer there.
 /// Each call names the C library module of its platform, because the member of the same name hides the C function.
 // AI: Raven calls memcpy, memset, localtime, and asctime on raw pointers. The backend makes the calls in the view target.
 public enum CommonBackend {
     /// Source: oracle/codemp/qcommon/common.cpp:1817
     public static func memcpy(_ dest: OpaquePointer?, _ src: OpaquePointer?, _ count: CUnsignedLong) {
         #if canImport(Darwin)
-        _ = Darwin.memcpy(UnsafeMutableRawPointer(dest), UnsafeRawPointer(src), Int(count))
+        _ = Darwin.memcpy(UnsafeMutableRawPointer(dest!), UnsafeRawPointer(src!), Int(count))
         #elseif canImport(Glibc)
-        _ = Glibc.memcpy(UnsafeMutableRawPointer(dest), UnsafeRawPointer(src), Int(count))
+        _ = Glibc.memcpy(UnsafeMutableRawPointer(dest!), UnsafeRawPointer(src!), Int(count))
         #elseif canImport(Musl)
-        _ = Musl.memcpy(UnsafeMutableRawPointer(dest), UnsafeRawPointer(src), Int(count))
+        _ = Musl.memcpy(UnsafeMutableRawPointer(dest!), UnsafeRawPointer(src!), Int(count))
         #elseif canImport(ucrt)
-        _ = ucrt.memcpy(UnsafeMutableRawPointer(dest), UnsafeRawPointer(src), Int(count))
+        _ = ucrt.memcpy(UnsafeMutableRawPointer(dest!), UnsafeRawPointer(src!), Int(count))
         #endif
     }
 
     /// Source: oracle/codemp/qcommon/common.cpp:1822
     public static func memset(_ dest: OpaquePointer?, _ val: Int32, _ count: CUnsignedLong) {
         #if canImport(Darwin)
-        _ = Darwin.memset(UnsafeMutableRawPointer(dest), val, Int(count))
+        _ = Darwin.memset(UnsafeMutableRawPointer(dest!), val, Int(count))
         #elseif canImport(Glibc)
-        _ = Glibc.memset(UnsafeMutableRawPointer(dest), val, Int(count))
+        _ = Glibc.memset(UnsafeMutableRawPointer(dest!), val, Int(count))
         #elseif canImport(Musl)
-        _ = Musl.memset(UnsafeMutableRawPointer(dest), val, Int(count))
+        _ = Musl.memset(UnsafeMutableRawPointer(dest!), val, Int(count))
         #elseif canImport(ucrt)
-        _ = ucrt.memset(UnsafeMutableRawPointer(dest), val, Int(count))
+        _ = ucrt.memset(UnsafeMutableRawPointer(dest!), val, Int(count))
         #endif
     }
 
