@@ -435,9 +435,7 @@ public func Com_Printf(_ fmt: String, _ args: any JKAShared.FormatArg...) {
             }
         }
         if logfile != 0 && FS_Initialized() {
-            // Port-note: Row F1. FS_Write takes the buffer as an OpaquePointer, and files_pc.swift has no CharBuf overload of FS_Write.
-            // Raven wrote: FS_Write(msg, strlen(msg), logfile)
-            portMissing("Com_Printf", source: "oracle/codemp/qcommon/common.cpp:128")
+            _ = FS_Write(msg, strlen(msg), logfile)
         }
     }
 }
@@ -470,9 +468,7 @@ func Com_OPrintf(_ fmt: String, _ args: any JKAShared.FormatArg...) {
     var msg = CharBuf(MAXPRINTMSG)
 
     strcpy(&msg, JKAShared.format(fmt, args))
-    // Port-note: Row O1. Raven calls the Windows function OutputDebugString, which no header of the parse declares.
-    // Raven wrote: OutputDebugString(msg)
-    portMissing("Com_OPrintf", source: "oracle/codemp/qcommon/common.cpp:226")
+    // AI: Raven called the Win32 OutputDebugString for the debugger window. A POSIX host has no such window, so the call drops.
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:251
@@ -541,9 +537,9 @@ public func Com_Error(_ code: Int32, _ fmt: String, _ args: any JKAShared.Format
         CL_FlushMemory()
         com_errorEntered = false
 
-        // Port-note: Row C1. Raven throws the text to the catch of Com_Frame or Com_Init, and a Swift function that returns Never cannot throw.
-        // Raven wrote: throw ("DISCONNECTED\n")
-        portMissing("Com_Error", source: "oracle/codemp/qcommon/common.cpp:249")
+        // AI: Raven threw to the catch in Com_Frame, which printed the reason and returned to the loop. Swift cannot unwind here, so the process ends with the reason printed.
+        Com_Printf("DISCONNECTED\n")
+        exit(1)
     } else if code == ERR_DROP || code == ERR_DISCONNECT {
         Com_Printf("********************\nERROR: %s\n********************\n", com_errorMessage)
         SV_Shutdown(va("Server crashed: %s\n", com_errorMessage))
@@ -551,9 +547,9 @@ public func Com_Error(_ code: Int32, _ fmt: String, _ args: any JKAShared.Format
         CL_FlushMemory()
         com_errorEntered = false
 
-        // Port-note: Row C1. Raven throws the text to the catch of Com_Frame or Com_Init, and a Swift function that returns Never cannot throw.
-        // Raven wrote: throw ("DROPPED\n")
-        portMissing("Com_Error", source: "oracle/codemp/qcommon/common.cpp:249")
+        // AI: Raven threw to the catch in Com_Frame, which printed the reason and returned to the loop. Swift cannot unwind here, so the process ends with the reason printed.
+        Com_Printf("DROPPED\n")
+        exit(1)
     } else if code == ERR_NEED_CD {
         SV_Shutdown("Server didn't have CD\n")
         if com_cl_running != nil && com_cl_running!.integer != 0 {
@@ -563,9 +559,9 @@ public func Com_Error(_ code: Int32, _ fmt: String, _ args: any JKAShared.Format
         } else {
             Com_Printf("Server didn't have CD\n")
         }
-        // Port-note: Row C1. Raven throws the text to the catch of Com_Frame or Com_Init, and a Swift function that returns Never cannot throw.
-        // Raven wrote: throw ("NEED CD\n")
-        portMissing("Com_Error", source: "oracle/codemp/qcommon/common.cpp:249")
+        // AI: Raven threw to the catch in Com_Frame, which printed the reason and returned to the loop. Swift cannot unwind here, so the process ends with the reason printed.
+        Com_Printf("NEED CD\n")
+        exit(1)
     } else {
         CL_Shutdown()
         SV_Shutdown(va("Server fatal crashed: %s\n", com_errorMessage))
@@ -1265,7 +1261,7 @@ public func Com_Init(_ commandLine: inout JKAShared.CharBuf) {
     Com_Printf("%s %s %s\n", Q3_VERSION, CPUSTRING, buildDate)
 
     // Port-note: Raven wraps the rest in a try, and the catch hands the text a Com_Error throws to Sys_Error.
-    // The throw sites of Com_Error hold the markers of row C1, so no throw reaches this function.
+    // Row C1: the three throw sites of Com_Error print the text and end the process, so no throw reaches this function.
 
     // bk001129 - do this before anything else decides to push events
     Com_InitPushEvent()
@@ -1576,7 +1572,7 @@ Com_Frame
 /// Source: oracle/codemp/qcommon/common.cpp:1593
 public func Com_Frame() {
     // Port-note: Raven wraps the frame in a try, and the catch prints the text a Com_Error throws for an ERR_DROP and returns.
-    // The throw sites of Com_Error hold the markers of row C1, so no throw reaches this function.
+    // Row C1: the three throw sites of Com_Error print the text and end the process, so no throw reaches this function.
 
     // Port-note: Row G1. Raven starts the C++ timer G2PerformanceTimer_PreciseFrame of tr_ghoul2.cpp, which row E5 leaves to the Ghoul2 stage.
     // Raven wrote: G2PerformanceTimer_PreciseFrame.Start();
@@ -1853,4 +1849,39 @@ func Com_ParseTextFile(_ file: String, _ cleanFirst: Bool, _ writeable: Bool) ->
     // Port-note: Row C3 of the C++ docket. CGenericParser2 ports with the RMG stage, so the function keeps its signature marker.
     // TODO: Port Com_ParseTextFile
     portMissing("Com_ParseTextFile", source: "oracle/codemp/qcommon/common.cpp:2209")
+}
+
+// MARK: - The C library rand
+
+/// The seed of the C library `rand`, on the world.
+/// Source: oracle/codemp/server/sv_init.cpp:625
+var holdrand: UInt32 {
+    get { world.holdrand }
+    set { world.holdrand = newValue }
+}
+
+/// The C library `srand` of the MSVC runtime, which sets the seed.
+/// Source: oracle/codemp/server/sv_init.cpp:625
+// AI: Raven calls the C library srand of the MSVC runtime. The host has no such function, so this is its body over `holdrand`, the form of Sources/JKAMP_BG/bg_lib.swift.
+func srand(_ seed: UInt32) {
+    holdrand = seed
+}
+
+/// Source: oracle/codemp/server/sv_init.cpp:625
+/// This overload is the guide's form for an `int` argument to an `unsigned` parameter, and it converts the value once.
+func srand(_ seed: Int32) {
+    srand(UInt32(bitPattern: seed))
+}
+
+/// The C library `rand` of the MSVC runtime, a value from 0 to 0x7fff.
+/// Source: oracle/codemp/server/sv_init.cpp:626
+// AI: Raven calls the C library rand of the MSVC runtime. The host has no such function, so this is its body over `holdrand`, the form of Sources/JKAMP_BG/bg_lib.swift.
+func rand() -> Int32 {
+    holdrand = holdrand &* 214013 &+ 2531011
+    return Int32((holdrand >> 16) & 0x7fff)
+}
+
+/// Source: oracle/codemp/game/q_shared.h:1591
+func random() -> Float {
+    Float(rand() & 0x7fff) / Float(0x7fff)
 }

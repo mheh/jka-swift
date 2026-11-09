@@ -278,9 +278,15 @@ func Sys_SendPacket(_ length: Int32, _ data: Slots<JKAShared.byte>, _ to: Netadr
     NetadrToSockadr(to, &addr)
 
     if usingSocks && to.type == NA_IP {
-        // Port-note: Raven stores an int and a short into `char socksBuf[4096]` and copies the packet after them, row "SOCKS" of the win round.
-        // Raven wrote: socksBuf[0] = 0; ... memcpy( &socksBuf[10], data, length ); ret = sendto( net_socket, socksBuf, length+10, 0, &socksRelayAddr, sizeof(socksRelayAddr) );
-        portMissing("Sys_SendPacket", source: "oracle/codemp/win32/win_net.cpp:393")
+        socksBuf[0] = 0 // reserved
+        socksBuf[1] = 0
+        socksBuf[2] = 0 // fragment (not fragmented)
+        socksBuf[3] = 1 // address type: IPV4
+        socksBuf[int: 4] = addr.sin_addr
+        socksBuf[ushort: 8] = addr.sin_port
+        memcpy(&socksBuf, data, length, at: 10)
+        // AI: Raven called the Winsock sendto with his record. The backend converts the record and calls the POSIX sendto with the bytes of socksBuf.
+        ret = socksBuf.withSlots { SysBackend.sendto(net_socket, $0, length + 10, socksRelayAddr) }
     } else {
         // AI: Raven called the Winsock sendto with his record. The backend converts the record and calls the POSIX sendto.
         ret = SysBackend.sendto(net_socket, data, length, addr)
@@ -489,9 +495,194 @@ NET_OpenSocks
 */
 /// Source: oracle/codemp/win32/win_net.cpp:653
 func NET_OpenSocks(_ port: Int32) {
-    // Port-note: Raven's SOCKS client talks TCP through `unsigned char buf[64]` and copies cvar text into it, row "SOCKS" of the win round.
-    // TODO: Port NET_OpenSocks
-    portMissing("NET_OpenSocks", source: "oracle/codemp/win32/win_net.cpp:653")
+    var address = Sockaddr()
+    var err: Int32
+    let h: Hostent?
+    var len: Int32
+    let rfc1929: Bool
+    var buf = CharBuf(64)
+
+    usingSocks = false
+
+    Com_Printf("Opening connection to SOCKS server.\n")
+
+    // AI: Raven called the Winsock socket. The backend calls the POSIX socket with the same three values.
+    socks_socket = SysBackend.tcpSocket()
+    if socks_socket == INVALID_SOCKET {
+        // AI: Raven called the Winsock WSAGetLastError. The backend reads errno.
+        err = SysBackend.WSAGetLastError()
+        Com_Printf("WARNING: NET_OpenSocks: socket: %s\n", NET_ErrorString())
+        return
+    }
+
+    // AI: Raven called the Winsock gethostbyname. The backend calls the POSIX gethostbyname and copies the record.
+    h = SysBackend.gethostbyname(net_socksServer!.string!)
+    if h == nil {
+        // AI: Raven called the Winsock WSAGetLastError. The backend reads errno.
+        err = SysBackend.WSAGetLastError()
+        Com_Printf("WARNING: NET_OpenSocks: gethostbyname: %s\n", NET_ErrorString())
+        return
+    }
+    if h!.h_addrtype != SysBackend.AF_INET {
+        Com_Printf("WARNING: NET_OpenSocks: gethostbyname: address type was not AF_INET\n")
+        return
+    }
+    address.sin_family = SysBackend.AF_INET
+    // AI: Raven reads the first address of the record as an int. The four bytes of that address go into the address field as they stand.
+    address.bytes.replaceSubrange(4..<8, with: h!.h_addr_list[0])
+    // AI: Raven called the Winsock htons. The backend swaps the bytes to big-endian order.
+    address.sin_port = SysBackend.htons(Int16(truncatingIfNeeded: net_socksPort!.integer))
+
+    // AI: Raven called the Winsock connect with his record. The backend converts the record and calls the POSIX connect.
+    if SysBackend.connect(socks_socket, address) == SOCKET_ERROR {
+        // AI: Raven called the Winsock WSAGetLastError. The backend reads errno.
+        err = SysBackend.WSAGetLastError()
+        Com_Printf("NET_OpenSocks: connect: %s\n", NET_ErrorString())
+        return
+    }
+
+    // send socks authentication handshake
+    if !net_socksUsername!.string!.isEmpty || !net_socksPassword!.string!.isEmpty {
+        rfc1929 = true
+    } else {
+        rfc1929 = false
+    }
+
+    buf[0] = 5 // SOCKS version
+    // method count
+    if rfc1929 {
+        buf[1] = 2
+        len = 4
+    } else {
+        buf[1] = 1
+        len = 3
+    }
+    buf[2] = 0 // method #1 - method id #00: no authentication
+    if rfc1929 {
+        buf[2] = 2 // method #2 - method id #02: username/password
+    }
+    // AI: Raven called the Winsock send. The backend calls the POSIX send with the bytes of the buffer.
+    if SysBackend.send(socks_socket, buf, len) == SOCKET_ERROR {
+        // AI: Raven called the Winsock WSAGetLastError. The backend reads errno.
+        err = SysBackend.WSAGetLastError()
+        Com_Printf("NET_OpenSocks: send: %s\n", NET_ErrorString())
+        return
+    }
+
+    // get the response
+    // AI: Raven called the Winsock recv. The backend calls the POSIX recv into the bytes of the buffer.
+    len = SysBackend.recv(socks_socket, &buf, 64)
+    if len == SOCKET_ERROR {
+        // AI: Raven called the Winsock WSAGetLastError. The backend reads errno.
+        err = SysBackend.WSAGetLastError()
+        Com_Printf("NET_OpenSocks: recv: %s\n", NET_ErrorString())
+        return
+    }
+    if len != 2 || buf[0] != 5 {
+        Com_Printf("NET_OpenSocks: bad response\n")
+        return
+    }
+    switch buf[1] as UInt8 {
+    case 0: // no authentication
+        break
+    case 2: // username/password authentication
+        break
+    default:
+        Com_Printf("NET_OpenSocks: request denied\n")
+        return
+    }
+
+    // do username/password authentication if needed
+    if buf[1] == 2 {
+        let ulen: Int32
+        let plen: Int32
+
+        // build the request
+        ulen = strlen(net_socksUsername!.string!)
+        plen = strlen(net_socksPassword!.string!)
+
+        buf[0] = 1 // username/password authentication version
+        buf[1] = ulen
+        if ulen != 0 {
+            memcpy(&buf, CharBuf(net_socksUsername!.string!), ulen, at: 2)
+        }
+        buf[2 + ulen] = plen
+        if plen != 0 {
+            memcpy(&buf, CharBuf(net_socksPassword!.string!), plen, at: 3 + ulen)
+        }
+
+        // send it
+        // AI: Raven called the Winsock send. The backend calls the POSIX send with the bytes of the buffer.
+        if SysBackend.send(socks_socket, buf, 3 + ulen + plen) == SOCKET_ERROR {
+            // AI: Raven called the Winsock WSAGetLastError. The backend reads errno.
+            err = SysBackend.WSAGetLastError()
+            Com_Printf("NET_OpenSocks: send: %s\n", NET_ErrorString())
+            return
+        }
+
+        // get the response
+        // AI: Raven called the Winsock recv. The backend calls the POSIX recv into the bytes of the buffer.
+        len = SysBackend.recv(socks_socket, &buf, 64)
+        if len == SOCKET_ERROR {
+            // AI: Raven called the Winsock WSAGetLastError. The backend reads errno.
+            err = SysBackend.WSAGetLastError()
+            Com_Printf("NET_OpenSocks: recv: %s\n", NET_ErrorString())
+            return
+        }
+        if len != 2 || buf[0] != 1 {
+            Com_Printf("NET_OpenSocks: bad response\n")
+            return
+        }
+        if buf[1] != 0 {
+            Com_Printf("NET_OpenSocks: authentication failed\n")
+            return
+        }
+    }
+
+    // send the UDP associate request
+    buf[0] = 5 // SOCKS version
+    buf[1] = 3 // command: UDP associate
+    buf[2] = 0 // reserved
+    buf[3] = 1 // address type: IPV4
+    buf[int: 4] = SysBackend.INADDR_ANY
+    // AI: Raven called the Winsock htons. The backend swaps the bytes to big-endian order.
+    buf[ushort: 8] = SysBackend.htons(Int16(truncatingIfNeeded: port)) // port
+    // AI: Raven called the Winsock send. The backend calls the POSIX send with the bytes of the buffer.
+    if SysBackend.send(socks_socket, buf, 10) == SOCKET_ERROR {
+        // AI: Raven called the Winsock WSAGetLastError. The backend reads errno.
+        err = SysBackend.WSAGetLastError()
+        Com_Printf("NET_OpenSocks: send: %s\n", NET_ErrorString())
+        return
+    }
+
+    // get the response
+    // AI: Raven called the Winsock recv. The backend calls the POSIX recv into the bytes of the buffer.
+    len = SysBackend.recv(socks_socket, &buf, 64)
+    if len == SOCKET_ERROR {
+        // AI: Raven called the Winsock WSAGetLastError. The backend reads errno.
+        err = SysBackend.WSAGetLastError()
+        Com_Printf("NET_OpenSocks: recv: %s\n", NET_ErrorString())
+        return
+    }
+    if len < 2 || buf[0] != 5 {
+        Com_Printf("NET_OpenSocks: bad response\n")
+        return
+    }
+    // check completion code
+    if buf[1] != 0 {
+        Com_Printf("NET_OpenSocks: request denied: %i\n", buf[1] as UInt8)
+        return
+    }
+    if buf[3] != 1 {
+        Com_Printf("NET_OpenSocks: relay address is not IPV4: %i\n", buf[3] as UInt8)
+        return
+    }
+    socksRelayAddr.sin_family = SysBackend.AF_INET
+    socksRelayAddr.sin_addr = buf[int: 4]
+    socksRelayAddr.sin_port = buf[ushort: 8]
+    socksRelayAddr.sin_zero = [UInt8](repeating: 0, count: 8)
+
+    usingSocks = true
 }
 
 /**

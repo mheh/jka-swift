@@ -128,6 +128,12 @@ public final class EngineWorld {
     /// Source: oracle/codemp/qcommon/common.cpp:1601
     var lastTime: Int32 = 0
 
+    /// The seed of the C library `rand` that sv_init.cpp and files_pc.cpp call, the `holdrand` of the MSVC runtime that WinDed links.
+    /// The runtime starts the seed at 1, so a `rand` before any `srand` gives the runtime's first value.
+    /// Source: oracle/codemp/server/sv_init.cpp:625
+    // AI: Raven links the C library rand of the MSVC runtime. The world holds its seed, the form of `randSeed` in Sources/JKAMP_BG/bg_lib.swift.
+    var holdrand: UInt32 = 1
+
     // MARK: - files_common.cpp
 
     /// Raven's `searchpath_t *fs_searchpaths` of `files_common.cpp`, the head of the search path, nil before FS_Startup.
