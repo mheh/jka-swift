@@ -65,6 +65,25 @@ public final class EngineWorld {
         "computer",
     ]
 
+    // MARK: - common.cpp
+
+    /// Raven's `static void (*rd_flush)( char *buffer )` of `common.cpp`, the flush of the print redirect.
+    /// Source: oracle/codemp/qcommon/common.cpp:94
+    // AI: Raven stores a C function pointer. The port stores the Swift closure that Com_BeginRedirect takes.
+    var rd_flush: ((inout CharBuf) -> Void)? = nil
+
+    /// Raven's `static int lastErrorTime` of `Com_Error` in `common.cpp`.
+    /// Source: oracle/codemp/qcommon/common.cpp:251
+    var lastErrorTime: Int32 = 0
+
+    /// Raven's `static int errorCount` of `Com_Error` in `common.cpp`.
+    /// Source: oracle/codemp/qcommon/common.cpp:252
+    var errorCount: Int32 = 0
+
+    /// Raven's `static int lastTime` of `Com_Frame` in `common.cpp`.
+    /// Source: oracle/codemp/qcommon/common.cpp:1601
+    var lastTime: Int32 = 0
+
     // MARK: - net_chan.cpp
 
     /// Raven's `static char *netsrcString[2]` of `net_chan.cpp`.
