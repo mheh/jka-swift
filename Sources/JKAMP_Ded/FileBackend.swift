@@ -28,6 +28,7 @@ public let PATH_SEP = Int32(UInt8(ascii: "/"))
 /// The C library stream calls under Raven's file system.
 /// They are `fopen`, `fread`, `fwrite`, `fseek`, `ftell`, `fflush`, `setvbuf`, `fclose`, `remove`, and `rename`.
 /// A stream is the `OpaquePointer?` of the `o` field of `Qfile_gu`, and nil is Raven's NULL `FILE *`.
+/// A nil stream traps at `fclose`, `fread`, `fwrite`, `fseek`, `ftell`, and `setvbuf`, because the C library dereferences a NULL `FILE *` there.
 /// Each call names the C library module of its platform, because the member of the same name hides the C function.
 // AI: Raven calls the C library on a `FILE *`. The backend takes the stream as a handle, so the logic target holds no pointer type.
 public enum FileBackend {
@@ -49,13 +50,13 @@ public enum FileBackend {
     @discardableResult
     public static func fclose(_ stream: OpaquePointer?) -> Int32 {
         #if canImport(Darwin)
-        return Darwin.fclose(UnsafeMutablePointer(stream))
+        return Darwin.fclose(UnsafeMutablePointer(stream!))
         #elseif canImport(Glibc)
-        return Glibc.fclose(UnsafeMutablePointer(stream))
+        return Glibc.fclose(UnsafeMutablePointer(stream!))
         #elseif canImport(Musl)
-        return Musl.fclose(UnsafeMutablePointer(stream))
+        return Musl.fclose(UnsafeMutablePointer(stream!))
         #elseif canImport(ucrt)
-        return ucrt.fclose(UnsafeMutablePointer(stream))
+        return ucrt.fclose(UnsafeMutablePointer(stream!))
         #endif
     }
 
@@ -67,13 +68,13 @@ public enum FileBackend {
     public static func fread(_ buffer: Slots<JKAShared.byte>, at offset: Int32, _ size: Int32, _ count: Int32, _ stream: OpaquePointer?) -> Int32 {
         let base = buffer.base + Int(offset)
         #if canImport(Darwin)
-        let read = Darwin.fread(base, Int(size), Int(count), UnsafeMutablePointer(stream))
+        let read = Darwin.fread(base, Int(size), Int(count), UnsafeMutablePointer(stream!))
         #elseif canImport(Glibc)
-        let read = Glibc.fread(base, Int(size), Int(count), UnsafeMutablePointer(stream))
+        let read = Glibc.fread(base, Int(size), Int(count), UnsafeMutablePointer(stream!))
         #elseif canImport(Musl)
-        let read = Musl.fread(base, Int(size), Int(count), UnsafeMutablePointer(stream))
+        let read = Musl.fread(base, Int(size), Int(count), UnsafeMutablePointer(stream!))
         #elseif canImport(ucrt)
-        let read = ucrt.fread(base, Int(size), Int(count), UnsafeMutablePointer(stream))
+        let read = ucrt.fread(base, Int(size), Int(count), UnsafeMutablePointer(stream!))
         #endif
         return Int32(truncatingIfNeeded: read)
     }
@@ -85,13 +86,13 @@ public enum FileBackend {
         precondition(Int(offset) + Int(size) * Int(count) <= buffer.count, "fread past the end of the CharBuf")
         let read = buffer.withUnsafeMutableRawPointer { base in
             #if canImport(Darwin)
-            Darwin.fread(base + Int(offset), Int(size), Int(count), UnsafeMutablePointer(stream))
+            Darwin.fread(base + Int(offset), Int(size), Int(count), UnsafeMutablePointer(stream!))
             #elseif canImport(Glibc)
-            Glibc.fread(base + Int(offset), Int(size), Int(count), UnsafeMutablePointer(stream))
+            Glibc.fread(base + Int(offset), Int(size), Int(count), UnsafeMutablePointer(stream!))
             #elseif canImport(Musl)
-            Musl.fread(base + Int(offset), Int(size), Int(count), UnsafeMutablePointer(stream))
+            Musl.fread(base + Int(offset), Int(size), Int(count), UnsafeMutablePointer(stream!))
             #elseif canImport(ucrt)
-            ucrt.fread(base + Int(offset), Int(size), Int(count), UnsafeMutablePointer(stream))
+            ucrt.fread(base + Int(offset), Int(size), Int(count), UnsafeMutablePointer(stream!))
             #endif
         }
         return Int32(truncatingIfNeeded: read)
@@ -104,13 +105,13 @@ public enum FileBackend {
     public static func fwrite(_ buffer: Slots<JKAShared.byte>, at offset: Int32, _ size: Int32, _ count: Int32, _ stream: OpaquePointer?) -> Int32 {
         let base = buffer.base + Int(offset)
         #if canImport(Darwin)
-        let written = Darwin.fwrite(base, Int(size), Int(count), UnsafeMutablePointer(stream))
+        let written = Darwin.fwrite(base, Int(size), Int(count), UnsafeMutablePointer(stream!))
         #elseif canImport(Glibc)
-        let written = Glibc.fwrite(base, Int(size), Int(count), UnsafeMutablePointer(stream))
+        let written = Glibc.fwrite(base, Int(size), Int(count), UnsafeMutablePointer(stream!))
         #elseif canImport(Musl)
-        let written = Musl.fwrite(base, Int(size), Int(count), UnsafeMutablePointer(stream))
+        let written = Musl.fwrite(base, Int(size), Int(count), UnsafeMutablePointer(stream!))
         #elseif canImport(ucrt)
-        let written = ucrt.fwrite(base, Int(size), Int(count), UnsafeMutablePointer(stream))
+        let written = ucrt.fwrite(base, Int(size), Int(count), UnsafeMutablePointer(stream!))
         #endif
         return Int32(truncatingIfNeeded: written)
     }
@@ -122,13 +123,13 @@ public enum FileBackend {
         precondition(Int(offset) + Int(size) * Int(count) <= buffer.count, "fwrite past the end of the CharBuf")
         let written = buffer.withUnsafeRawPointer { base in
             #if canImport(Darwin)
-            Darwin.fwrite(base + Int(offset), Int(size), Int(count), UnsafeMutablePointer(stream))
+            Darwin.fwrite(base + Int(offset), Int(size), Int(count), UnsafeMutablePointer(stream!))
             #elseif canImport(Glibc)
-            Glibc.fwrite(base + Int(offset), Int(size), Int(count), UnsafeMutablePointer(stream))
+            Glibc.fwrite(base + Int(offset), Int(size), Int(count), UnsafeMutablePointer(stream!))
             #elseif canImport(Musl)
-            Musl.fwrite(base + Int(offset), Int(size), Int(count), UnsafeMutablePointer(stream))
+            Musl.fwrite(base + Int(offset), Int(size), Int(count), UnsafeMutablePointer(stream!))
             #elseif canImport(ucrt)
-            ucrt.fwrite(base + Int(offset), Int(size), Int(count), UnsafeMutablePointer(stream))
+            ucrt.fwrite(base + Int(offset), Int(size), Int(count), UnsafeMutablePointer(stream!))
             #endif
         }
         return Int32(truncatingIfNeeded: written)
@@ -138,13 +139,13 @@ public enum FileBackend {
     @discardableResult
     public static func fseek(_ stream: OpaquePointer?, _ offset: CLong, _ whence: Int32) -> Int32 {
         #if canImport(Darwin)
-        return Darwin.fseek(UnsafeMutablePointer(stream), offset, whence)
+        return Darwin.fseek(UnsafeMutablePointer(stream!), offset, whence)
         #elseif canImport(Glibc)
-        return Glibc.fseek(UnsafeMutablePointer(stream), offset, whence)
+        return Glibc.fseek(UnsafeMutablePointer(stream!), offset, whence)
         #elseif canImport(Musl)
-        return Musl.fseek(UnsafeMutablePointer(stream), offset, whence)
+        return Musl.fseek(UnsafeMutablePointer(stream!), offset, whence)
         #elseif canImport(ucrt)
-        return ucrt.fseek(UnsafeMutablePointer(stream), offset, whence)
+        return ucrt.fseek(UnsafeMutablePointer(stream!), offset, whence)
         #endif
     }
 
@@ -152,13 +153,13 @@ public enum FileBackend {
     /// Source: oracle/codemp/qcommon/files_pc.cpp:123
     public static func ftell(_ stream: OpaquePointer?) -> Int32 {
         #if canImport(Darwin)
-        let position = Darwin.ftell(UnsafeMutablePointer(stream))
+        let position = Darwin.ftell(UnsafeMutablePointer(stream!))
         #elseif canImport(Glibc)
-        let position = Glibc.ftell(UnsafeMutablePointer(stream))
+        let position = Glibc.ftell(UnsafeMutablePointer(stream!))
         #elseif canImport(Musl)
-        let position = Musl.ftell(UnsafeMutablePointer(stream))
+        let position = Musl.ftell(UnsafeMutablePointer(stream!))
         #elseif canImport(ucrt)
-        let position = ucrt.ftell(UnsafeMutablePointer(stream))
+        let position = ucrt.ftell(UnsafeMutablePointer(stream!))
         #endif
         return Int32(truncatingIfNeeded: position)
     }
@@ -183,13 +184,13 @@ public enum FileBackend {
     public static func setvbuf(_ stream: OpaquePointer?, _ buffer: OpaquePointer?, _ mode: Int32, _ size: Int32) -> Int32 {
         precondition(buffer == nil, "setvbuf takes the NULL buffer that Raven passes")
         #if canImport(Darwin)
-        return Darwin.setvbuf(UnsafeMutablePointer(stream), nil, mode, Int(size))
+        return Darwin.setvbuf(UnsafeMutablePointer(stream!), nil, mode, Int(size))
         #elseif canImport(Glibc)
-        return Glibc.setvbuf(UnsafeMutablePointer(stream), nil, mode, Int(size))
+        return Glibc.setvbuf(UnsafeMutablePointer(stream!), nil, mode, Int(size))
         #elseif canImport(Musl)
-        return Musl.setvbuf(UnsafeMutablePointer(stream), nil, mode, Int(size))
+        return Musl.setvbuf(UnsafeMutablePointer(stream!), nil, mode, Int(size))
         #elseif canImport(ucrt)
-        return ucrt.setvbuf(UnsafeMutablePointer(stream), nil, mode, Int(size))
+        return ucrt.setvbuf(UnsafeMutablePointer(stream!), nil, mode, Int(size))
         #endif
     }
 

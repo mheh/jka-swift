@@ -62,9 +62,9 @@ public struct Z_stream: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/zlib32/zip.h:131
-    public var next_in: OpaquePointer? {
-        get { OpaquePointer(self.raw.pointee.next_in) }
-        nonmutating set { self.raw.pointee.next_in = UnsafeMutablePointer(newValue) }
+    public var next_in: Slots<JKAShared.byte>? {
+        get { self.raw.pointee.next_in.map { Slots(scalars: UnsafeMutableRawPointer($0), count: Int.max) } }
+        nonmutating set { self.raw.pointee.next_in = newValue?.base.assumingMemoryBound(to: UInt8.self) }
     }
 
     /// Source: oracle/codemp/zlib32/zip.h:132
@@ -80,9 +80,9 @@ public struct Z_stream: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/zlib32/zip.h:135
-    public var next_out: OpaquePointer? {
-        get { OpaquePointer(self.raw.pointee.next_out) }
-        nonmutating set { self.raw.pointee.next_out = UnsafeMutablePointer(newValue) }
+    public var next_out: Slots<JKAShared.byte>? {
+        get { self.raw.pointee.next_out.map { Slots(scalars: UnsafeMutableRawPointer($0), count: Int.max) } }
+        nonmutating set { self.raw.pointee.next_out = newValue?.base.assumingMemoryBound(to: UInt8.self) }
     }
 
     /// Source: oracle/codemp/zlib32/zip.h:136

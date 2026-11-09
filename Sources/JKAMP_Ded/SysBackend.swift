@@ -41,6 +41,21 @@ public let WSAEAFNOSUPPORT = Int32(EAFNOSUPPORT)
 // AI: Raven read the Winsock code. The POSIX host reads the errno value of the same condition.
 public let WSAEADDRNOTAVAIL = Int32(EADDRNOTAVAIL)
 
+/// Raven's `FILE_ATTRIBUTE_READONLY` of `winnt.h`, the attribute bit of a file that refuses a write.
+/// Source: oracle/codemp/qcommon/files_pc.cpp:950
+// AI: Raven read the Win32 value. The backend gives this bit when the owner of the file has no write permission.
+public let FILE_ATTRIBUTE_READONLY: UInt32 = 0x0000_0001
+
+/// Raven's `FILETIME` of `windef.h`, a time in 100-nanosecond steps since 1 January 1601, split into two 32-bit halves.
+/// Source: oracle/codemp/qcommon/files_pc.cpp:568
+// AI: Raven read the Win32 record. The value keeps its two fields, and SysBackend.GetFileTime fills them from the POSIX modification time.
+public struct FILETIME {
+    public var dwLowDateTime: UInt32 = 0
+    public var dwHighDateTime: UInt32 = 0
+
+    public init() {}
+}
+
 // MARK: - The address records
 
 /// Raven's `struct sockaddr` in its Winsock layout, the sixteen bytes that Raven reads as a `sockaddr_in` or a `sockaddr_ipx`.
@@ -186,12 +201,12 @@ public enum SysBackend {
 
     /// Raven's `printf` of a text with no format argument, the bytes of the buffer up to its first NUL on standard output.
     /// Source: oracle/codemp/null/win_main.cpp:38
-    // AI: Raven called the C printf on the console. The backend writes the bytes of the buffer to standard output.
+    // AI: Raven called the C printf on the console. The backend writes the bytes of the buffer to the standard output descriptor.
+    // The `stdout` stream global is not concurrency-safe on Glibc, so the write goes to the descriptor, which needs no flush.
     public static func printf(_ text: CharBuf) {
         text.withUnsafeRawPointer { base in
-            _ = fwrite(base, 1, Int(strlen(base.assumingMemoryBound(to: CChar.self))), stdout)
+            _ = write(STDOUT_FILENO, base, Int(strlen(base.assumingMemoryBound(to: CChar.self))))
         }
-        fflush(stdout)
     }
 
     /// Raven's `_mkdir`, one directory at the path.
@@ -433,6 +448,159 @@ public enum SysBackend {
         UInt16(bitPattern: port).bigEndian
     }
 
+    /// Raven's `socket( AF_INET, SOCK_STREAM, IPPROTO_TCP )`, a TCP socket, or `INVALID_SOCKET`.
+    /// Source: oracle/codemp/win32/win_net.cpp:666
+    // AI: Raven called the Winsock socket. The backend calls the POSIX socket with the same three values.
+    public static func tcpSocket() -> Int32 {
+        #if canImport(Glibc)
+        socket(PF_INET, Int32(SOCK_STREAM.rawValue), Int32(IPPROTO_TCP))
+        #else
+        socket(PF_INET, SOCK_STREAM, Int32(IPPROTO_TCP))
+        #endif
+    }
+
+    /// Raven's `connect` of a socket to an IPv4 address.
+    /// Source: oracle/codemp/win32/win_net.cpp:692
+    // AI: Raven called the Winsock connect with his record. The backend converts the record and calls the POSIX connect.
+    public static func connect(_ s: Int32, _ address: Sockaddr) -> Int32 {
+        // A POSIX host has no IPX family, so only an IPv4 record connects.
+        if address.sa_family != self.AF_INET {
+            errno = EAFNOSUPPORT
+            return SOCKET_ERROR
+        }
+        var platform = self.platformAddress(address)
+        return withUnsafePointer(to: &platform) { pointer in
+            pointer.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+                c_connect(s, $0, socklen_t(MemoryLayout<sockaddr_in>.size))
+            }
+        }
+    }
+
+    /// Raven's `send` of the first `len` bytes of a buffer on a connected socket.
+    /// Source: oracle/codemp/win32/win_net.cpp:719
+    // AI: Raven called the Winsock send. The backend calls the POSIX send with the bytes of the buffer.
+    public static func send(_ s: Int32, _ buf: CharBuf, _ len: Int32) -> Int32 {
+        precondition(len >= 0 && Int(len) <= buf.count, "send: length past the end of the buffer")
+        let ret = buf.withUnsafeRawPointer { base in
+            c_send(s, base, Int(len), 0)
+        }
+        return Int32(truncatingIfNeeded: ret)
+    }
+
+    /// Raven's `recv` of at most `len` bytes into a buffer from a connected socket.
+    /// Source: oracle/codemp/win32/win_net.cpp:726
+    // AI: Raven called the Winsock recv. The backend calls the POSIX recv into the bytes of the buffer.
+    public static func recv(_ s: Int32, _ buf: inout CharBuf, _ len: Int32) -> Int32 {
+        precondition(len >= 0 && Int(len) <= buf.count, "recv: length past the end of the buffer")
+        let ret = buf.withUnsafeMutableRawPointer { base in
+            c_recv(s, base, Int(len), 0)
+        }
+        return Int32(truncatingIfNeeded: ret)
+    }
+
+    /// Raven's `CreateFile`, `GetFileTime`, and `CloseHandle` of Sys_GetFileTime, the last write time of a file, false when the file does not open.
+    /// Source: oracle/codemp/qcommon/files_pc.cpp:568
+    // AI: Raven read the last write time through the Win32 file handle. The backend reads the POSIX stat modification time as a FILETIME.
+    public static func GetFileTime(_ psFileName: String, _ ft: inout FILETIME) -> Bool {
+        var info = stat()
+        var path = CharBuf(psFileName)
+        let ret = path.withUnsafeMutableRawPointer { base in
+            stat(base.assumingMemoryBound(to: CChar.self), &info)
+        }
+        if ret != 0 {
+            return false
+        }
+        #if canImport(Darwin)
+        let seconds = Int64(info.st_mtimespec.tv_sec)
+        let nanoseconds = Int64(info.st_mtimespec.tv_nsec)
+        #else
+        let seconds = Int64(info.st_mtim.tv_sec)
+        let nanoseconds = Int64(info.st_mtim.tv_nsec)
+        #endif
+        // A FILETIME counts 100-nanosecond steps from 1601, which is 11644473600 seconds before the POSIX epoch.
+        let steps = UInt64(bitPattern: (seconds + 11_644_473_600) * 10_000_000 + nanoseconds / 100)
+        ft.dwLowDateTime = UInt32(truncatingIfNeeded: steps)
+        ft.dwHighDateTime = UInt32(truncatingIfNeeded: steps >> 32)
+        return true
+    }
+
+    /// Raven's `CopyFile( src, dest, FALSE )`, a copy of every byte that replaces the destination, false when a step fails.
+    /// Source: oracle/codemp/qcommon/files_pc.cpp:948
+    // AI: Raven called the Win32 CopyFile. The backend copies the bytes with the C library streams, the form of FileBackend.
+    public static func CopyFile(_ lpExistingFileName: String, _ lpNewFileName: String, _ bFailIfExists: Bool) -> Bool {
+        var source = CharBuf(lpExistingFileName)
+        var dest = CharBuf(lpNewFileName)
+        var readMode = CharBuf("rb")
+        var writeMode = CharBuf(bFailIfExists ? "wbx" : "wb")
+        let from = source.withUnsafeMutableRawPointer { name in
+            readMode.withUnsafeMutableRawPointer { mode in
+                fopen(name.assumingMemoryBound(to: CChar.self), mode.assumingMemoryBound(to: CChar.self))
+            }
+        }
+        guard let from else { return false }
+        defer { fclose(from) }
+        let to = dest.withUnsafeMutableRawPointer { name in
+            writeMode.withUnsafeMutableRawPointer { mode in
+                fopen(name.assumingMemoryBound(to: CChar.self), mode.assumingMemoryBound(to: CChar.self))
+            }
+        }
+        guard let to else { return false }
+        var chunk = [UInt8](repeating: 0, count: 65536)
+        var ok = true
+        while ok {
+            let count = chunk.withUnsafeMutableBytes { fread($0.baseAddress, 1, $0.count, from) }
+            if count == 0 {
+                ok = ferror(from) == 0
+                break
+            }
+            let written = chunk.withUnsafeBytes { fwrite($0.baseAddress, 1, count, to) }
+            ok = written == count
+        }
+        if fclose(to) != 0 {
+            ok = false
+        }
+        return ok
+    }
+
+    /// Raven's `GetFileAttributes`, the attribute bits of a file, or 0xFFFFFFFF when the file does not exist.
+    /// Source: oracle/codemp/qcommon/files_pc.cpp:950
+    // AI: Raven called the Win32 GetFileAttributes. The backend gives FILE_ATTRIBUTE_READONLY from the owner write bit of the POSIX mode, or 0x80 for a plain file.
+    public static func GetFileAttributes(_ lpFileName: String) -> UInt32 {
+        var info = stat()
+        var path = CharBuf(lpFileName)
+        let ret = path.withUnsafeMutableRawPointer { base in
+            stat(base.assumingMemoryBound(to: CChar.self), &info)
+        }
+        if ret != 0 {
+            return 0xFFFF_FFFF
+        }
+        if (info.st_mode & S_IWUSR) == 0 {
+            return FILE_ATTRIBUTE_READONLY
+        }
+        return 0x0000_0080
+    }
+
+    /// Raven's `SetFileAttributes`, which sets or clears the read-only state of a file, false when the call fails.
+    /// Source: oracle/codemp/qcommon/files_pc.cpp:951
+    // AI: Raven called the Win32 SetFileAttributes. The backend clears every write bit of the POSIX mode for FILE_ATTRIBUTE_READONLY, and sets the owner write bit for the rest.
+    public static func SetFileAttributes(_ lpFileName: String, _ dwFileAttributes: UInt32) -> Bool {
+        var info = stat()
+        var path = CharBuf(lpFileName)
+        return path.withUnsafeMutableRawPointer { base in
+            let name = base.assumingMemoryBound(to: CChar.self)
+            if stat(name, &info) != 0 {
+                return false
+            }
+            var mode = info.st_mode
+            if (dwFileAttributes & FILE_ATTRIBUTE_READONLY) != 0 {
+                mode &= ~(S_IWUSR | S_IWGRP | S_IWOTH)
+            } else {
+                mode |= S_IWUSR
+            }
+            return chmod(name, mode) == 0
+        }
+    }
+
     /// The POSIX `sockaddr_in` of Raven's Winsock record, with the port and the address bytes as Raven stored them.
     private static func platformAddress(_ address: Sockaddr) -> sockaddr_in {
         var platform = sockaddr_in()
@@ -478,9 +646,88 @@ private func c_inet_addr(_ s: UnsafePointer<CChar>) -> UInt32 {
     UInt32(inet_addr(s))
 }
 
+private func c_connect(_ s: Int32, _ address: UnsafePointer<sockaddr>, _ length: socklen_t) -> Int32 {
+    connect(s, address, length)
+}
+
+private func c_send(_ s: Int32, _ buf: UnsafeRawPointer, _ len: Int, _ flags: Int32) -> Int {
+    send(s, buf, len, flags)
+}
+
+private func c_recv(_ s: Int32, _ buf: UnsafeMutableRawPointer, _ len: Int, _ flags: Int32) -> Int {
+    recv(s, buf, len, flags)
+}
+
 /// The bytes of a C string as text, one byte for each scalar, through the codec of `CharBuf`.
 private func cText(_ p: UnsafePointer<CChar>) -> String {
     String(CharBuf(bytes: Array(UnsafeBufferPointer(start: p, count: Int(strlen(p)))) + [0]))
+}
+
+// MARK: - The SOCKS buffers
+
+extension CharBuf {
+    /// The `int` at a byte offset of the buffer, Raven's `*(int *)&buf[4]` over a `char` array.
+    // AI: Raven casts a `char` pointer to an `int` pointer. The subscript reads and writes the four bytes at the offset, the form of `Slots[int:]`.
+    public subscript(int ofs: some BinaryInteger) -> Int32 {
+        get {
+            self.withUnsafeRawPointer { base in
+                precondition(Int(ofs) >= 0 && Int(ofs) + 4 <= self.count, "CharBuf word past the end")
+                return base.loadUnaligned(fromByteOffset: Int(ofs), as: Int32.self)
+            }
+        }
+        set {
+            precondition(Int(ofs) >= 0 && Int(ofs) + 4 <= self.count, "CharBuf word past the end")
+            self.withUnsafeMutableRawPointer { base in
+                base.storeBytes(of: newValue, toByteOffset: Int(ofs), as: Int32.self)
+            }
+        }
+    }
+
+    /// The `short` at a byte offset of the buffer, Raven's `*(short *)&buf[8]`, which holds a port in network order.
+    /// The value is a `UInt16`, the type of `Sockaddr.sin_port` and of `SysBackend.htons`, so the two bytes move with no conversion.
+    // AI: Raven casts a `char` pointer to a `short` pointer. The subscript reads and writes the two bytes at the offset, the form of `Slots[ushort:]`.
+    public subscript(ushort ofs: some BinaryInteger) -> UInt16 {
+        get {
+            self.withUnsafeRawPointer { base in
+                precondition(Int(ofs) >= 0 && Int(ofs) + 2 <= self.count, "CharBuf short past the end")
+                return base.loadUnaligned(fromByteOffset: Int(ofs), as: UInt16.self)
+            }
+        }
+        set {
+            precondition(Int(ofs) >= 0 && Int(ofs) + 2 <= self.count, "CharBuf short past the end")
+            self.withUnsafeMutableRawPointer { base in
+                base.storeBytes(of: newValue, toByteOffset: Int(ofs), as: UInt16.self)
+            }
+        }
+    }
+}
+
+/// Raven's `memcpy( &buf[offset], src, count )` from a text into a `char` array at a byte offset.
+/// Source: oracle/codemp/win32/win_net.cpp:752
+// AI: Raven copies into a pointer into the buffer. The function takes the buffer and the byte offset of that pointer, the form of `Com_Memset(_:_:_:at:)`.
+public func memcpy(_ dest: inout CharBuf, _ src: CharBuf, _ count: some BinaryInteger, at offset: some BinaryInteger) {
+    let start = Int(offset)
+    let limit = Int(count)
+    precondition(limit >= 0 && start >= 0 && start + limit <= dest.count && limit <= src.count, "memcpy: count past the end of the buffer")
+    var index = 0
+    while index < limit {
+        dest[start + index] = src[index] as Int8
+        index += 1
+    }
+}
+
+/// Raven's `memcpy( &socksBuf[10], data, length )` from the bytes of a packet into a `char` array at a byte offset.
+/// Source: oracle/codemp/win32/win_net.cpp:442
+// AI: Raven copies into a pointer into the buffer. The function takes the buffer and the byte offset of that pointer, the form of `Com_Memset(_:_:_:at:)`.
+public func memcpy(_ dest: inout CharBuf, _ src: Slots<byte>, _ count: some BinaryInteger, at offset: some BinaryInteger) {
+    let start = Int(offset)
+    let limit = Int(count)
+    precondition(limit >= 0 && start >= 0 && start + limit <= dest.count && limit <= src.count, "memcpy: count past the end of the buffer")
+    var index = 0
+    while index < limit {
+        dest[start + index] = src[index]
+        index += 1
+    }
 }
 
 // MARK: - Raven's address conversions

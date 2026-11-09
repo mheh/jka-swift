@@ -26,7 +26,7 @@ func SV_SetConfigstring(_ index: Int32, _ val: String) {
 
 
     // don't bother broadcasting an update if no change
-    if strcmp(val.text, sv.configstrings[index]) == 0 {
+    if strcmp(val.text, sv.configstrings[index]!) == 0 {
         return
     }
 
@@ -574,9 +574,8 @@ func SV_SpawnServer(_ server: String, _ killBots: Bool, _ eForceReload: JKAMP.Fo
     Cvar_Set("cl_paused", "0")
 
     // get a new checksum feed and restart the file system
-    // Port-note: Row S2. The host has no `srand` and `rand` of the C library, and Swift makes the C `rand` unavailable on Apple platforms.
-    // Raven wrote: srand(Com_Milliseconds()); sv.checksumFeed = ( ((int) rand() << 16) ^ rand() ) ^ Com_Milliseconds()
-    portMissing("SV_SpawnServer", source: "oracle/codemp/server/sv_init.cpp:472")
+    srand(Com_Milliseconds())
+    sv.checksumFeed = ((rand() << 16) ^ rand()) ^ Com_Milliseconds()
     FS_Restart(sv.checksumFeed)
 
     //	RE_LoadWorldMap(va("maps/%s.bsp", server));

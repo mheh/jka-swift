@@ -62,9 +62,9 @@ public struct File_in_zip_read_info_s: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/qcommon/unzip.h:66
-    public var read_buffer: String? {
-        get { self.raw.pointee.read_buffer.map { cString(at: $0) } }
-        nonmutating set { self.raw.pointee.read_buffer = StringPool.shared.pointer(for: newValue) }
+    public var read_buffer: OpaquePointer? {
+        get { OpaquePointer(self.raw.pointee.read_buffer) }
+        nonmutating set { self.raw.pointee.read_buffer = UnsafeMutablePointer(newValue) }
     }
 
     /// Source: oracle/codemp/qcommon/unzip.h:67

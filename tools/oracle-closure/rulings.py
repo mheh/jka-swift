@@ -422,6 +422,11 @@ FIELDS = {
     # and Com_EventLoop casts it back at common.cpp:977 and :998.
     ("sysEvent_t", "evPtr"): "raw",
     ("file_in_zip_read_info_s", "file"): "opaque",
+    # unzOpenCurrentFile allocates the read buffer at unzip.cpp:988, and unzReadCurrentFile hands it to ZIP_fread and to the stream at :1093 and :1100.
+    ("file_in_zip_read_info_s", "read_buffer"): "opaque",
+    # unzReadCurrentFile stores the caller's buffer and the read buffer at unzip.cpp:1070 and :1100, and steps them at :1124 and :1125.
+    ("z_stream", "next_in"): "bytes",
+    ("z_stream", "next_out"): "bytes",
     # A `T **` field of kind `pointer_table` holds the base of an array of record pointers a body indexes, with the widest count,
     # the field twin of the PARAMS kind. FS_LoadZipFile fills `pack->hashTable[hash]` at files_pc.cpp:1477, and cm_trace.cpp reads `cmg.surfaces[i]`.
     ("pack_t", "hashTable"): "pointer_table",

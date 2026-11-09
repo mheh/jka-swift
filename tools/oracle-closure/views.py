@@ -325,6 +325,9 @@ class Generator:
             # Raven's `void (*clearScene) ();` declares no prototype, and Swift imports it as a function of no arguments.
             if inner.kind in (TypeKind.FUNCTIONPROTO, TypeKind.FUNCTIONNOPROTO):
                 return self.callback(field, target)
+            if inner.get_canonical().kind == TypeKind.CHAR_S and FIELDS.get((self.owner_of(field), name)) == "opaque":
+                # A `char *` field of kind `opaque` holds a byte buffer that a body hands on as a handle, `read_buffer` of unzip.h:66.
+                return self.property(name, "OpaquePointer?", f"OpaquePointer({pointee})", f"{pointee} = UnsafeMutablePointer(newValue)")
             if inner.get_canonical().kind == TypeKind.CHAR_S:
                 # A `char *` field reads as its text, and a store interns the text in the shared pool, so the engine reads a pointer that lives on.
                 get = f"{pointee}.map {{ cString(at: $0) }}"

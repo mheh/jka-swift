@@ -619,7 +619,7 @@ func FS_FOpenFileAppend(_ filename: String) -> JKAShared.fileHandle_t {
 // TODO: Port signature
 // Raven wrote: bool Sys_GetFileTime(LPCSTR psFileName, FILETIME &ft)
 // No table row for `int & ft`.
-// Port-note: Row F3. The Windows `FILETIME` has no type in the host parse, and `GetFileAttributesEx` is a Windows platform function.
+// Port-note: Row F3. The table has no row for `FILETIME &ft`, so Sys_FileOutOfDate reads SysBackend.GetFileTime, the POSIX form of this body.
 func Sys_GetFileTime() -> Never {
     // TODO: Port Sys_GetFileTime
     portMissing("Sys_GetFileTime", source: "oracle/codemp/qcommon/files_pc.cpp:568")
@@ -627,8 +627,32 @@ func Sys_GetFileTime() -> Never {
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:600
 func Sys_FileOutOfDate(_ psFinalFileName: String, _ psDataFileName: String) -> Bool {
-    // TODO: Port Sys_FileOutOfDate
-    portMissing("Sys_FileOutOfDate", source: "oracle/codemp/qcommon/files_pc.cpp:600")
+    var ftFinalFile = FILETIME()
+    var ftDataFile = FILETIME()
+
+    // AI: Raven calls Sys_GetFileTime, which reads the last write time through the Win32 file handle. SysBackend.GetFileTime reads the POSIX stat modification time.
+    if SysBackend.GetFileTime(psFinalFileName, &ftFinalFile) && SysBackend.GetFileTime(psDataFileName, &ftDataFile) {
+        // timer res only accurate to within 2 seconds on FAT, so can't do exact compare...
+        //
+        //LONG l = CompareFileTime( &ftFinalFile, &ftDataFile );
+        // Port-note: Raven hands the DWORD difference to abs as an int, and abs of the lowest int is undefined. The port reads the magnitude.
+        if (Int32(bitPattern: ftFinalFile.dwLowDateTime &- ftDataFile.dwLowDateTime).magnitude <= 20000000)
+            && ftFinalFile.dwHighDateTime == ftDataFile.dwHighDateTime {
+            return false // file not out of date, ie use it.
+        }
+        return true // flag return code to copy over a replacement version of this file
+    }
+
+    // extra error check, report as suspicious if you find a file locally but not out on the net.,.
+    //
+    if com_developer!.integer != 0 {
+        // AI: Raven calls Sys_GetFileTime, which reads the last write time through the Win32 file handle. SysBackend.GetFileTime reads the POSIX stat modification time.
+        if !SysBackend.GetFileTime(psDataFileName, &ftDataFile) {
+            Com_Printf("Sys_FileOutOfDate: reading %s but it's not on the net!\n", psFinalFileName)
+        }
+    }
+
+    return false
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:634
@@ -769,9 +793,7 @@ func FS_FOpenFileRead(_ filename: String, _ file: inout Int32, _ uniqueFILE: Boo
                     && Q_stricmp(TextCursor(filename.buf, at: filename.offset! + l - 5).text, ".game") != 0 // menu files
                     && Q_stricmp(TextCursor(filename.buf, at: filename.offset! + l - strlen(demoExt)).text, String(demoExt)) != 0 // menu files
                     && Q_stricmp(TextCursor(filename.buf, at: filename.offset! + l - 4).text, ".dat") != 0 { // for journal files
-                    // Port-note: Row F12. Raven's `random()` macro of q_shared.h has no home in the host, only in JKAMP_BG.
-                    // Raven wrote: fs_fakeChkSum = random()
-                    portMissing("FS_FOpenFileRead", source: "oracle/codemp/qcommon/files_pc.cpp:672")
+                    fs_fakeChkSum = Int32(random())
                 }
                 // if running with fs_copyfiles 2, and search path == local, then we need to fail to open
                 //	if the time/date stamp != the network version (so it'll loop round again and use the network path,
@@ -807,10 +829,21 @@ func FS_FOpenFileRead(_ filename: String, _ file: inout Int32, _ uniqueFILE: Boo
 
                             FS_CreatePath(&copypath)
 
-                            // Port-note: CopyFile, GetFileAttributes, and SetFileAttributes are Windows platform functions.
-                            // Port-note: No header of the parse declares them.
-                            // Raven wrote: bool bOk = true; if (!CopyFile( netpath, copypath, FALSE )) { ... } if (bOk) { bFasterToReOpenUsingNewLocalFile = qtrue; fclose(fsh[*file].handleFiles.file.o); fsh[*file].handleFiles.file.o = NULL; }
-                            portMissing("FS_FOpenFileRead", source: "oracle/codemp/qcommon/files_pc.cpp:672")
+                            var bOk = true
+                            // AI: Raven called the Win32 CopyFile, GetFileAttributes, and SetFileAttributes. SysBackend makes the copy and the read-only change with the POSIX calls.
+                            if !SysBackend.CopyFile(netpath, String(copypath), false) {
+                                let dwAttrs = SysBackend.GetFileAttributes(String(copypath))
+                                _ = SysBackend.SetFileAttributes(String(copypath), dwAttrs & ~FILE_ATTRIBUTE_READONLY)
+                                bOk = SysBackend.CopyFile(netpath, String(copypath), false)
+                            }
+
+                            if bOk {
+                                // clear this handle and setup for re-opening of the new local copy...
+                                //
+                                bFasterToReOpenUsingNewLocalFile = true
+                                FileBackend.fclose(fsh[file].handleFiles.file.o)
+                                fsh[file].handleFiles.file.o = nil
+                            }
                         }
 
                     default:

@@ -24,6 +24,24 @@ public final class EngineWorld {
     /// Source: oracle/codemp/qcommon/msg.cpp:522
     var string_MSG_ReadStringLine = CharBuf(MAX_STRING_CHARS)
 
+    // MARK: - cmd_pc.cpp
+
+    /// Raven's `static cmd_function_t *cmd_functions` of `cmd_pc.cpp`, the command list with its head at index 0.
+    /// Source: oracle/codemp/qcommon/cmd_pc.cpp:11
+    // AI: Raven links the commands through `next` in S_Malloc blocks. The list is an Array of rows in Raven's order, the form of `spawns` of the game.
+    var cmd_functions: [CmdFunctionRow] = []
+
+    // MARK: - stringed_ingame.cpp
+
+    /// Raven's `CStringEdPackage TheStringPackage` of `stringed_ingame.cpp`, the one string table.
+    /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:124
+    let TheStringPackage = CStringEdPackage()
+
+    /// Raven's `vector <string> gvLanguagesAvailable` of `stringed_ingame.cpp`, the cache of the language names.
+    /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:1071
+    // AI: Raven declares a global `vector<string>`. The cache is an Array, by the C++ docket.
+    var gvLanguagesAvailable: [String] = []
+
     // MARK: - Raven's data tables
 
     // MARK: - cm_shader.cpp
@@ -102,6 +120,12 @@ public final class EngineWorld {
     /// Source: oracle/codemp/qcommon/common.cpp:1601
     var lastTime: Int32 = 0
 
+    /// The seed of the C library `rand` that sv_init.cpp and files_pc.cpp call, the `holdrand` of the MSVC runtime that WinDed links.
+    /// The runtime starts the seed at 1, so a `rand` before any `srand` gives the runtime's first value.
+    /// Source: oracle/codemp/server/sv_init.cpp:625
+    // AI: Raven links the C library rand of the MSVC runtime. The world holds its seed, the form of `randSeed` in Sources/JKAMP_BG/bg_lib.swift.
+    var holdrand: UInt32 = 1
+
     // MARK: - net_chan.cpp
 
     /// Raven's `static char *netsrcString[2]` of `net_chan.cpp`.
@@ -132,6 +156,24 @@ public final class EngineWorld {
     /// Raven's `static int lastMod` of `SV_CheckCvars` in `sv_main.cpp`.
     /// Source: oracle/codemp/server/sv_main.cpp:792
     var lastMod: Int32 = -1
+
+    // MARK: - sv_bot.cpp
+
+    /// Raven's `static cvar_t *bot_debug` of `BotDrawDebugPolygons` in `sv_bot.cpp`.
+    /// Source: oracle/codemp/server/sv_bot.cpp:228
+    var bot_debug: Cvar? = nil
+
+    /// Raven's `static cvar_t *bot_groundonly` of `BotDrawDebugPolygons` in `sv_bot.cpp`.
+    /// Source: oracle/codemp/server/sv_bot.cpp:228
+    var bot_groundonly: Cvar? = nil
+
+    /// Raven's `static cvar_t *bot_reachability` of `BotDrawDebugPolygons` in `sv_bot.cpp`.
+    /// Source: oracle/codemp/server/sv_bot.cpp:228
+    var bot_reachability: Cvar? = nil
+
+    /// Raven's `static cvar_t *bot_highlightarea` of `BotDrawDebugPolygons` in `sv_bot.cpp`.
+    /// Source: oracle/codemp/server/sv_bot.cpp:228
+    var bot_highlightarea: Cvar? = nil
 
     // MARK: - sv_ccmds.cpp
 
@@ -213,6 +255,13 @@ public final class EngineWorld {
     /// Raven's `const char *materialNames[MATERIAL_LAST]` of `tr_shader.cpp`, the `MATERIALS` list of oracle/codemp/game/surfaceflags.h:90.
     /// Source: oracle/codemp/renderer/tr_shader.cpp:2193
     lazy var materialNames: [String] = self.svMaterialNames
+
+    // MARK: - sv_world.cpp
+
+    /// Raven's `worldSector_t sv_worldSectors[AREA_NODES]` of `sv_world.cpp`, the nodes of the sector tree.
+    /// Source: oracle/codemp/server/sv_world.cpp:58
+    // AI: No generated storage holds worldSector_t, so the hand view gives one zeroed allocation of AREA_NODES nodes.
+    let sv_worldSectors = WorldSector.table(count: AREA_NODES)
 
     // MARK: - vm.cpp
 
