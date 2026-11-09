@@ -153,6 +153,24 @@ public final class EngineWorld {
     /// Source: oracle/codemp/server/sv_main.cpp:792
     var lastMod: Int32 = -1
 
+    // MARK: - sv_bot.cpp
+
+    /// Raven's `static cvar_t *bot_debug` of `BotDrawDebugPolygons` in `sv_bot.cpp`.
+    /// Source: oracle/codemp/server/sv_bot.cpp:228
+    var bot_debug: Cvar? = nil
+
+    /// Raven's `static cvar_t *bot_groundonly` of `BotDrawDebugPolygons` in `sv_bot.cpp`.
+    /// Source: oracle/codemp/server/sv_bot.cpp:228
+    var bot_groundonly: Cvar? = nil
+
+    /// Raven's `static cvar_t *bot_reachability` of `BotDrawDebugPolygons` in `sv_bot.cpp`.
+    /// Source: oracle/codemp/server/sv_bot.cpp:228
+    var bot_reachability: Cvar? = nil
+
+    /// Raven's `static cvar_t *bot_highlightarea` of `BotDrawDebugPolygons` in `sv_bot.cpp`.
+    /// Source: oracle/codemp/server/sv_bot.cpp:228
+    var bot_highlightarea: Cvar? = nil
+
     // MARK: - sv_ccmds.cpp
 
     /// Raven's `static qboolean initialized` of `SV_AddOperatorCommands` in `sv_ccmds.cpp`.
@@ -182,6 +200,13 @@ public final class EngineWorld {
         "SABER DEFENSE",//FP_SABER_DEFENSE
         "SABER THROW",//FP_SABERTHROW
     ]
+
+    // MARK: - sv_world.cpp
+
+    /// Raven's `worldSector_t sv_worldSectors[AREA_NODES]` of `sv_world.cpp`, the nodes of the sector tree.
+    /// Source: oracle/codemp/server/sv_world.cpp:58
+    // AI: No generated storage holds worldSector_t, so the hand view gives one zeroed allocation of AREA_NODES nodes.
+    let sv_worldSectors = WorldSector.table(count: AREA_NODES)
 
     // MARK: - vm.cpp
 
