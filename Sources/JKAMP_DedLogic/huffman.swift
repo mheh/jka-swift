@@ -386,8 +386,7 @@ func Huff_Decompress(_ mbuf: Msg, _ offset: Int32) {
     let earlyOut = Huff.scratch { huff -> Bool in
 
         size = mbuf.cursize - offset
-        // Raven walks the message's bytes through `buffer`, and the raw pointer over the `data` field is that walk, under rule 11.
-        let buffer: UnsafeMutableRawPointer = mbuf.data!.base + offset
+        let buffer = mbuf.data!.suffix(from: offset)
 
         if size <= 0 {
             return true
@@ -407,7 +406,7 @@ func Huff_Decompress(_ mbuf: Msg, _ offset: Int32) {
         huff.tree!.left = huff.tree!.right
         huff.tree!.parent = huff.tree!.left
 
-        cch = Int32(buffer[byte: 0] as UInt8) * 256 + Int32(buffer[byte: 1] as UInt8)
+        cch = Int32(buffer[0]) * 256 + Int32(buffer[1])
         // don't overflow with bad messages
         if cch > mbuf.maxsize - offset {
             cch = mbuf.maxsize - offset
@@ -423,12 +422,14 @@ func Huff_Decompress(_ mbuf: Msg, _ offset: Int32) {
                 seq[j] = 0
                 break
             }
-            _ = Huff_Receive(huff.tree!, &ch, buffer) /* Get a character */
+            // AI: Raven hands the same `byte *` on. The body hands the base of the Slots to the raw `fin` of Huff_Receive.
+            _ = Huff_Receive(huff.tree!, &ch, buffer.base) /* Get a character */
             if ch == NYT { /* We got a NYT, get the symbol associated with it */
                 ch = 0
                 i = 0
                 while i < 8 {
-                    ch = (ch << 1) + get_bit(buffer)
+                    // AI: Raven hands the same `byte *` on. The body hands the base of the Slots to the raw `fin` of get_bit.
+                    ch = (ch << 1) + get_bit(buffer.base)
                     i += 1
                 }
             }
@@ -439,9 +440,7 @@ func Huff_Decompress(_ mbuf: Msg, _ offset: Int32) {
             j += 1
         }
         mbuf.cursize = cch + offset
-        // Port-note: Open row msg_t.data bytes field. The `data` field of the Msg view is an `OpaquePointer?`, so `mbuf.data!.suffix(from:)` has no form for the Slots overload of Com_Memcpy.
-        // Raven wrote: Com_Memcpy(mbuf->data + offset, seq, cch);
-        portMissing("Huff_Decompress", source: "oracle/codemp/qcommon/huffman.cpp:304")
+        Com_Memcpy(mbuf.data!.suffix(from: offset), seq, cch)
         return false
     }
     if earlyOut {
@@ -460,8 +459,7 @@ func Huff_Compress(_ mbuf: Msg, _ offset: Int32) {
     let earlyOut = Huff.scratch { huff -> Bool in
 
         size = mbuf.cursize - offset
-        // Raven walks the message's bytes through `buffer`, and the raw pointer over the `data` field is that walk, under rule 11.
-        let buffer: UnsafeMutableRawPointer = mbuf.data!.base + offset
+        let buffer = mbuf.data!.suffix(from: offset)
 
         if size <= 0 {
             return true
@@ -488,7 +486,7 @@ func Huff_Compress(_ mbuf: Msg, _ offset: Int32) {
 
         i = 0
         while i < size {
-            ch = Int32(buffer[byte: i] as UInt8)
+            ch = Int32(buffer[i])
             Huff_transmit(huff, ch, seq) /* Transmit symbol */
             Huff_addRef(huff, Int32(ch)) /* Do update */
             i += 1
@@ -497,9 +495,7 @@ func Huff_Compress(_ mbuf: Msg, _ offset: Int32) {
         bloc += 8 // next byte
 
         mbuf.cursize = (bloc >> 3) + offset
-        // Port-note: Open row msg_t.data bytes field. The `data` field of the Msg view is an `OpaquePointer?`, so `mbuf.data!.suffix(from:)` has no form for the Slots overload of Com_Memcpy.
-        // Raven wrote: Com_Memcpy(mbuf->data+offset, seq, (bloc>>3));
-        portMissing("Huff_Compress", source: "oracle/codemp/qcommon/huffman.cpp:358")
+        Com_Memcpy(mbuf.data!.suffix(from: offset), seq, (bloc >> 3))
         return false
     }
     if earlyOut {
