@@ -186,12 +186,12 @@ public enum SysBackend {
 
     /// Raven's `printf` of a text with no format argument, the bytes of the buffer up to its first NUL on standard output.
     /// Source: oracle/codemp/null/win_main.cpp:38
-    // AI: Raven called the C printf on the console. The backend writes the bytes of the buffer to standard output.
+    // AI: Raven called the C printf on the console. The backend writes the bytes of the buffer to the standard output descriptor.
+    // The `stdout` stream global is not concurrency-safe on Glibc, so the write goes to the descriptor, which needs no flush.
     public static func printf(_ text: CharBuf) {
         text.withUnsafeRawPointer { base in
-            _ = fwrite(base, 1, Int(strlen(base.assumingMemoryBound(to: CChar.self))), stdout)
+            _ = write(STDOUT_FILENO, base, Int(strlen(base.assumingMemoryBound(to: CChar.self))))
         }
-        fflush(stdout)
     }
 
     /// Raven's `_mkdir`, one directory at the path.
