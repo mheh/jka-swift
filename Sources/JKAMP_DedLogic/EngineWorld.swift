@@ -44,6 +44,12 @@ public final class EngineWorld {
 
     // MARK: - Raven's data tables
 
+    // MARK: - cm_load.cpp
+
+    /// Raven's `static unsigned last_checksum` of `CM_LoadMap_Actual` in `cm_load.cpp`, the checksum of the last map the loader read.
+    /// Source: oracle/codemp/qcommon/cm_load.cpp:610
+    var last_checksum: UInt32 = 0
+
     // MARK: - cm_shader.cpp
 
     /// Raven's `CHash<CCMShaderText> shaderTextTable` of `cm_shader.cpp`, the name of each shader block to the byte offset of its text in `shaderText`.
