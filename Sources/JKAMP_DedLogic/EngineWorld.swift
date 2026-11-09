@@ -26,7 +26,33 @@ public final class EngineWorld {
 
     // MARK: - Raven's data tables
 
+    // MARK: - cm_load.cpp
+
+    /// Raven's `clipMap_t cmg` of `cm_load.cpp`, the clip map of the world BSP.
+    /// Source: oracle/codemp/qcommon/cm_load.cpp:37
+    // AI: Raven's `cmg` is a C global with no generated view. The world owns one zeroed record of the hand view `ClipMap`.
+    let cmg = ClipMap.record()
+
+    /// Raven's `clipMap_t SubBSP[MAX_SUB_BSP]` of `cm_load.cpp`, the clip maps of the sub BSPs.
+    /// Source: oracle/codemp/qcommon/cm_load.cpp:60
+    // AI: Raven's `SubBSP` is a C global array with no generated view. The world owns one zeroed table of the hand view `ClipMap`.
+    let SubBSP = ClipMap.records(count: Int(MAX_SUB_BSP))
+
+    /// Raven's `cbrush_t *box_brush` of `cm_load.cpp`, the brush of the temporary box model.
+    /// Source: oracle/codemp/qcommon/cm_load.cpp:52
+    var box_brush: Cbrush? = nil
+
     // MARK: - cm_shader.cpp
+
+    /// Raven's `CHash<CCMShaderText> shaderTextTable` of `cm_shader.cpp`, the name of each shader block to the byte offset of its text in `shaderText`.
+    /// Source: oracle/codemp/qcommon/cm_shader.cpp:29
+    // AI: Raven keeps a `CHash` of `CCMShaderText` records. The table is a `Dictionary` from the name to the byte offset of the text.
+    var shaderTextTable: [String: Int32] = [:]
+
+    /// Raven's `CHash<CCMShader> cmShaderTable` of `cm_shader.cpp`, the name of each shader to its `CCMShader` record.
+    /// Source: oracle/codemp/qcommon/cm_shader.cpp:30
+    // AI: Raven keeps a `CHash` of `CCMShader` records. The table is a `Dictionary` from the name to the offset of the record.
+    var cmShaderTable: [String: Int32] = [:]
 
     /// Raven's `const char *svMaterialNames[MATERIAL_LAST]` of `cm_shader.cpp`, the `MATERIALS` list of oracle/codemp/game/surfaceflags.h:90.
     /// Source: oracle/codemp/qcommon/cm_shader.cpp:285
