@@ -218,11 +218,7 @@ func unzClose(_ file: OpaquePointer?) -> Int32 {
 ```
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:528
-// TODO: Port signature
-// Raven wrote: extern int unzGetGlobalInfo (unzFile file,unz_global_info *pglobal_info)
-// No table row for `unz_global_info * pglobal_info`.
-// Port-note: The signature waits for row U3 of the unzip round, so the function keeps its marker.
-func unzGetGlobalInfo() -> Never {
+func unzGetGlobalInfo(_ file: OpaquePointer?, _ pglobal_info: Unz_global_info) -> Int32 {
     // TODO: Port unzGetGlobalInfo
     portMissing("unzGetGlobalInfo", source: "oracle/codemp/qcommon/unzip.cpp:528")
 }
@@ -233,11 +229,7 @@ func unzGetGlobalInfo() -> Never {
 ```
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:542
-// TODO: Port signature
-// Raven wrote: static void unzlocal_DosDateToTmuDate (uLong ulDosDate, tm_unz* ptm)
-// No table row for `tm_unz * ptm`.
-// Port-note: The signature waits for row U3 of the unzip round, so the function keeps its marker.
-private func unzlocal_DosDateToTmuDate() -> Never {
+private func unzlocal_DosDateToTmuDate(_ ulDosDate: CUnsignedLong, _ ptm: Tm_unz) {
     // TODO: Port unzlocal_DosDateToTmuDate
     portMissing("unzlocal_DosDateToTmuDate", source: "oracle/codemp/qcommon/unzip.cpp:542")
 }
@@ -248,11 +240,7 @@ private func unzlocal_DosDateToTmuDate() -> Never {
 ```
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:558
-// TODO: Port signature
-// Raven wrote: static int unzlocal_GetCurrentFileInfoInternal (unzFile file, unz_file_info *pfile_info, unz_file_info_internal *pfile_info_internal, char *szFileName, uLong fileNameBufferSize, void *extraField, uLong extraFieldBufferSize, char *szComment, uLong commentBufferSize)
-// No table row for `unz_file_info * pfile_info`.
-// Port-note: The signature waits for row U4 of the unzip round, so the function keeps its marker.
-private func unzlocal_GetCurrentFileInfoInternal() -> Never {
+private func unzlocal_GetCurrentFileInfoInternal(_ file: OpaquePointer?, _ pfile_info: Unz_file_info, _ pfile_info_internal: Unz_file_info_internal?, _ szFileName: inout JKAShared.CharBuf, _ fileNameBufferSize: CUnsignedLong, _ extraField: OpaquePointer?, _ extraFieldBufferSize: CUnsignedLong, _ szComment: inout JKAShared.CharBuf, _ commentBufferSize: CUnsignedLong) -> Int32 {
     // TODO: Port unzlocal_GetCurrentFileInfoInternal
     portMissing("unzlocal_GetCurrentFileInfoInternal", source: "oracle/codemp/qcommon/unzip.cpp:558")
 }
@@ -265,11 +253,7 @@ private func unzlocal_GetCurrentFileInfoInternal() -> Never {
 ```
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:722
-// TODO: Port signature
-// Raven wrote: extern int unzGetCurrentFileInfo ( unzFile file, unz_file_info *pfile_info, char *szFileName, uLong fileNameBufferSize, void *extraField, uLong extraFieldBufferSize, char *szComment, uLong commentBufferSize)
-// No table row for `unz_file_info * pfile_info`.
-// Port-note: The signature waits for row U4 of the unzip round, so the function keeps its marker.
-func unzGetCurrentFileInfo() -> Never {
+func unzGetCurrentFileInfo(_ file: OpaquePointer?, _ pfile_info: Unz_file_info?, _ szFileName: inout JKAShared.CharBuf, _ fileNameBufferSize: CUnsignedLong, _ extraField: OpaquePointer?, _ extraFieldBufferSize: CUnsignedLong, _ szComment: inout JKAShared.CharBuf, _ commentBufferSize: CUnsignedLong) -> Int32 {
     // TODO: Port unzGetCurrentFileInfo
     portMissing("unzGetCurrentFileInfo", source: "oracle/codemp/qcommon/unzip.cpp:722")
 }
@@ -426,11 +410,7 @@ func unzLocateFile(_ file: OpaquePointer?, _ szFileName: String, _ iCaseSensitiv
 ```
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:877
-// TODO: Port signature
-// Raven wrote: static int unzlocal_CheckCurrentFileCoherencyHeader (unz_s* s, uInt* piSizeVar, uLong *poffset_local_extrafield, uInt *psize_local_extrafield)
-// No table row for `unz_s * s`.
-// Port-note: The signature waits for row U3 of the unzip round, so the function keeps its marker.
-private func unzlocal_CheckCurrentFileCoherencyHeader() -> Never {
+private func unzlocal_CheckCurrentFileCoherencyHeader(_ s: UnzS, _ piSizeVar: inout UInt32, _ poffset_local_extrafield: inout CUnsignedLong, _ psize_local_extrafield: inout UInt32) -> Int32 {
     // TODO: Port unzlocal_CheckCurrentFileCoherencyHeader
     portMissing("unzlocal_CheckCurrentFileCoherencyHeader", source: "oracle/codemp/qcommon/unzip.cpp:877")
 }
@@ -467,7 +447,7 @@ func unzOpenCurrentFile(_ file: OpaquePointer?) -> Int32 {
     portMissing("unzOpenCurrentFile", source: "oracle/codemp/qcommon/unzip.cpp:963")
 
     // ALLOC of unzip.cpp:243 is `Z_Malloc(size, TAG_FILESYS, qfalse)`.
-    let pfile_in_zip_read_info = FileInZipReadInfo(Z_Malloc(Int32(FileInZipReadInfo.byteCount), TAG_FILESYS, false))
+    let pfile_in_zip_read_info = File_in_zip_read_info_s(Z_Malloc(Int32(File_in_zip_read_info_s.byteCount), TAG_FILESYS, false))
     // AI: Raven stores the `char *` of the zone block. The field holds it as the handle that fread and Z_Free take.
     pfile_in_zip_read_info.read_buffer = OpaquePointer(Z_Malloc(UNZ_BUFSIZE, TAG_FILESYS, false))
     pfile_in_zip_read_info.offset_local_extrafield = offset_local_extrafield
@@ -526,7 +506,7 @@ func unzOpenCurrentFile(_ file: OpaquePointer?) -> Int32 {
 ```
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:1050
-func unzReadCurrentFile(_ file: OpaquePointer?, _ buf: OpaquePointer?, _ len: UInt32) -> Int32 {
+func unzReadCurrentFile(_ file: OpaquePointer?, _ buf: Slots<JKAShared.byte>, _ len: UInt32) -> Int32 {
     var err: Int32 = UNZ_OK
     var iRead: UInt32 = 0
 
@@ -545,7 +525,7 @@ func unzReadCurrentFile(_ file: OpaquePointer?, _ buf: OpaquePointer?, _ len: UI
         return 0
     }
 
-    pfile_in_zip_read_info.stream.next_out = ZipBackend.bytes(buf, count: len)
+    pfile_in_zip_read_info.stream.next_out = buf
 
     pfile_in_zip_read_info.stream.avail_out = CUnsignedLong(len)
 
@@ -569,7 +549,8 @@ func unzReadCurrentFile(_ file: OpaquePointer?, _ buf: OpaquePointer?, _ len: UI
                 }
             }
             // ZIP_fread is Raven's macro for fread.
-            if FileBackend.fread(pfile_in_zip_read_info.read_buffer, at: 0, Int32(bitPattern: uReadThis), 1, pfile_in_zip_read_info.file) != 1 {
+            // AI: Raven hands a pointer to ZIP_fread. FileBackend.fread takes a Slots of bytes, so ZipBackend.bytes gives one over the same buffer.
+            if FileBackend.fread(ZipBackend.bytes(pfile_in_zip_read_info.read_buffer, count: UNZ_BUFSIZE)!, at: 0, Int32(bitPattern: uReadThis), 1, pfile_in_zip_read_info.file) != 1 {
                 return UNZ_ERRNO
             }
             pfile_in_zip_read_info.pos_in_zipfile += CUnsignedLong(uReadThis)
@@ -736,7 +717,8 @@ func unzGetLocalExtrafield(_ file: OpaquePointer?, _ buf: OpaquePointer?, _ len:
         return UNZ_ERRNO
     }
 
-    if FileBackend.fread(buf, at: 0, Int32(truncatingIfNeeded: size_to_read), 1, pfile_in_zip_read_info.file) != 1 {
+    // AI: Raven hands a pointer to ZIP_fread. FileBackend.fread takes a Slots of bytes, so ZipBackend.bytes gives one over the same buffer.
+    if FileBackend.fread(ZipBackend.bytes(buf, count: size_to_read)!, at: 0, Int32(truncatingIfNeeded: size_to_read), 1, pfile_in_zip_read_info.file) != 1 {
         return UNZ_ERRNO
     }
 

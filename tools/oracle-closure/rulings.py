@@ -235,6 +235,45 @@ HOST_ROOTS = {
     "StaticMem_t": ("StaticMem", "CJKAMP_Ded"),
     # The four netField tables of msg.cpp hold these rows, and ded_tables.c holds the tables as C storage.
     "netField_t": ("NetField", "CJKAMP_Ded"),
+    # Com_RealTime of common.cpp:713 fills the record, the row GAME_ROOTS and CGAME_ROOTS hold for trap_RealTime.
+    "qtime_t": ("Qtime", "CJKAMP"),
+    # The event ring of common.cpp:752 and the queue of win_main.cpp:1113 hold these records, and Sys_QueEvent writes one through a pointer.
+    "sysEvent_t": ("SysEvent", "CJKAMP_Ded"),
+    # The file system of files.h:36 to :100: the handle table `fsh` of files_common.cpp:202, the search path, the paks, the directories, and the hash chains.
+    # A `fileHandleData_t` holds `qfile_ut` and `qfile_gut` by value, so the walk reaches both.
+    "fileHandleData_t": ("FileHandleData", "CJKAMP_Ded"),
+    "searchpath_t": ("Searchpath", "CJKAMP_Ded"),
+    "pack_t": ("Pack", "CJKAMP_Ded"),
+    "directory_t": ("Directory", "CJKAMP_Ded"),
+    "fileInPack_t": ("FileInPack", "CJKAMP_Ded"),
+    # A handle holds the pair of the stream and its flag, files.h:78, over the union of the stream and the zip handle, files.h:71.
+    "qfile_ut": ("Qfile_u", "CJKAMP_Ded"),
+    "qfile_gut": ("Qfile_gu", "CJKAMP_Ded"),
+    # The pak arm of FS_FOpenFileRead at files_pc.cpp:828 casts the zip handle to the record of unzip.h.
+    "unz_s": ("UnzS", "CJKAMP_Ded"),
+    # The clip map of cm_local.h:161, `cmg` of cm_load.cpp:37 and `SubBSP` of :60, and the records its fields point at.
+    "clipMap_t": ("ClipMap", "CJKAMP_Ded"),
+    "cbrush_t": ("Cbrush", "CJKAMP_Ded"),
+    "cbrushside_t": ("Cbrushside", "CJKAMP_Ded"),
+    "cNode_t": ("CNode", "CJKAMP_Ded"),
+    "cLeaf_t": ("CLeaf", "CJKAMP_Ded"),
+    "cPatch_t": ("CPatch", "CJKAMP_Ded"),
+    "cArea_t": ("CArea", "CJKAMP_Ded"),
+    # The view takes another name than the C struct, because the view target imports the C struct under its own name.
+    "CCMShader": ("CmShader", "CJKAMP_Ded"),
+    # The loaders of cm_load.cpp read the BSP file through these disk records of qfiles.h, at `cmod_base + l->fileofs`.
+    "dheader_t": ("Dheader", "CJKAMP_Ded"),
+    # qfiles.h is a header of the tree, and lump_t is the one disk record of it the merge places in CJKAMP.
+    "lump_t": ("Lump", "CJKAMP"),
+    "dshader_t": ("Dshader", "CJKAMP_Ded"),
+    "dmodel_t": ("Dmodel", "CJKAMP_Ded"),
+    "dnode_t": ("Dnode", "CJKAMP_Ded"),
+    "dleaf_t": ("Dleaf", "CJKAMP_Ded"),
+    "dplane_t": ("Dplane", "CJKAMP_Ded"),
+    "dbrush_t": ("Dbrush", "CJKAMP_Ded"),
+    "dbrushside_t": ("Dbrushside", "CJKAMP_Ded"),
+    "dsurface_t": ("Dsurface", "CJKAMP_Ded"),
+    "mapVert_t": ("MapVert", "CJKAMP_Ded"),
 }
 
 ROOTS = {"mp-game": GAME_ROOTS, "mp-cgame": CGAME_ROOTS, "mp-engine-ded": HOST_ROOTS}
@@ -258,6 +297,8 @@ SLOT_BOUNDS = {
     ("level_locals_t", "clients"): "MAX_CLIENTS",
     # cm_polylib.h:7 declares `p[4]` with the comment "variable sized", and cm_polylib.cpp:387 caps a clipped winding at MAX_POINTS_ON_WINDING.
     ("winding_t", "p"): "MAX_POINTS_ON_WINDING",
+    # vm_local.h:107 declares `char symName[1]`, and VM_LoadSymbols allocates `sizeof( *sym ) + chars` for a token of COM_Parse at vm.cpp:300.
+    ("vmSymbol_t", "symName"): "MAX_TOKEN_CHARS",
 }
 
 # File-scope variables a body reads with no bind, because Raven's callers always set them before any body runs.
@@ -288,7 +329,8 @@ HAND_VARS = {
 # `gSharedBuffer` of g_main.c goes to the engine through `trap_SV_RegisterSharedMemory`, and vmMain reads the ICARUS views at its base.
 # See "The post-spine walk", row P1, and the zeroed storage rule of docs/transcription.md.
 # `cmd_text_buf` of cmd_common.cpp is the buffer `cmd_text.data` points at, cmd_common.cpp:56, so its `byte` elements read as a Slots.
-BYTE_STORAGE_VARS = {"gSharedBuffer", "cmd_text_buf"}
+# `sys_packetReceived` of win_main.cpp:1116 is the buffer of the message that Sys_GetEvent hands MSG_Init at win_main.cpp:1198, the cmd_text_buf form.
+BYTE_STORAGE_VARS = {"gSharedBuffer", "cmd_text_buf", "sys_packetReceived"}
 # Function locals that a ruling moves to the storage class as one zeroed byte allocation, each with the functions that declare it, first one first.
 # `byte seq[65536]` of Huff_Decompress and Huff_Compress goes to the `byte *` of Huff_transmit and to Com_Memcpy, so a body needs its base.
 # The two functions never run at once, and add_bit zeroes each byte before it writes, so one allocation serves both. Row R-A of the huffman round.
@@ -319,6 +361,15 @@ BYTE_STORAGE_LOCALS = {
     ("send_buf", "Netchan_TransmitNextFragment"): ("Netchan_TransmitNextFragment",),
     ("send_buf", "Netchan_Transmit"): ("Netchan_Transmit",),
     ("string", "NET_OutOfBandData"): ("NET_OutOfBandData",),
+    # `byte bufData[MAX_MSGLEN]` of Com_EventLoop goes to MSG_Init at common.cpp:927.
+    ("bufData", "Com_EventLoop"): ("Com_EventLoop",),
+    # `sysEvent_t ev` of Com_GetRealEvent and of Sys_GetEvent is the record each function returns, common.cpp:791 and win_main.cpp:1161.
+    ("ev", "Com_GetRealEvent"): ("Com_GetRealEvent",),
+    ("ev", "Sys_GetEvent"): ("Sys_GetEvent",),
+    # FS_ReadFile reads and writes `int len` through `&len` in its journal arms, files_pc.cpp:1283, :1330, :1339, and :1367.
+    ("len", "FS_ReadFile"): ("FS_ReadFile",),
+    # VM_ValueToFunctionSymbol returns `&nullSym`, its `static vmSymbol_t nullSym`, at vm.cpp:125.
+    ("nullSym", "VM_ValueToFunctionSymbol"): ("VM_ValueToFunctionSymbol",),
 }
 # A scalar data table Raven initializes at file scope that tables.py copies into C storage, which the view target reads as a Slots of its scalar.
 # `static unsigned char PADDING[64]` of md4.cpp goes to MD4Update at md4.cpp:157, whose `input` is a Slots of bytes.
@@ -326,11 +377,14 @@ SCALAR_DATA_TABLES = {"PADDING"}
 # The field twin of BYTE_STORAGE_VARS: a character array field whose address the engine holds, which the view reads as the field's address.
 # `cg.sharedBuffer` of cg_local.h goes to the engine through `trap_CG_RegisterSharedMemory`, and the engine callbacks of cg_main.c read records at its base.
 BYTE_STORAGE_FIELDS = {("cg_t", "sharedBuffer")}
-# (struct, field) -> the kind of a pointer field, where the C type alone does not say. The field twin of PARAMS, with three of its kinds and one of its own:
+# (struct, field) -> the kind of a pointer field, where the C type alone does not say. The field twin of PARAMS, with four of its kinds and one of its own:
 #   raw   an UnsafeMutableRawPointer? for a `void *` that holds one of several records, which Raven casts back by another field
+#   opaque  an OpaquePointer? for a pointer to a record of the C library, `FILE *`, which no view covers
 #   view  the optional view of the record named beside the kind, ("view", record), for a `void *` every store fills with that record or NULL
-#   bytes a Slots of bytes for a `byte *` that holds the base of a byte buffer a body indexes
-#   slot  a Slots of one optional view for a pointer to a record pointer, over the slot the field points at, so `*node->head` reads `node.head![0]`
+#   bytes a Slots of bytes for a `byte *` that holds the base of a byte buffer a body indexes, and a Slots of Int32 for an `int *`
+#   slot  a Slots of one optional view for a pointer to a record pointer, over the slot the field points at, so `*node->head` reads `node.head![0]`.
+#         On a record pointer field it adds the accessor `<field>Slot`, the slot of the field itself, for Raven's `&sym->next`
+#   pointer_table  a Slots of optional views with the widest count for a `T **` field that holds an array of record pointers
 # Item_ValidateTypeData allocates one of five records into `typeData` by `item->type`, ui_shared.c:7279, and the bodies cast it back.
 FIELDS = {
     ("itemDef_t", "typeData"): "raw",
@@ -345,11 +399,47 @@ FIELDS = {
     # A `node_t **` field holds the address of one `node_t *` slot, and huffman.cpp:150 shares one slot between the nodes of a block.
     ("node_t", "head"): "slot",
     ("huff_t", "freelist"): "slot",
+    # The loaders of cm_load.cpp store an allocation in each, and cm_test.cpp and cm_trace.cpp index them, `cmg.leafbrushes[leaf->firstLeafBrush + k]`.
+    # An `int *` field of kind `bytes` is a Slots of Int32, the same rule.
+    ("clipMap_t", "leafbrushes"): "bytes",
+    ("clipMap_t", "leafsurfaces"): "bytes",
+    ("clipMap_t", "areaPortals"): "bytes",
+    ("clipMap_t", "visibility"): "bytes",
+    # VM_Restart and VM_Create clear and copy the QVM data at vm.cpp:416 and :564, and VM_LoadSymbols reads `vm->instructionPointers[value]` at :307.
+    ("vm_t", "dataBase"): "bytes",
+    ("vm_t", "instructionPointers"): "bytes",
+    # A record pointer field of kind `slot` also reads as the slot of the field, because a body takes its address.
+    # VM_LoadSymbols writes `prev = &vm->symbols` and `prev = &sym->next` at vm.cpp:268 and :302, and FS_ReorderPurePaks writes `&s->next` at files_pc.cpp:2470.
+    ("vm_t", "symbols"): "slot",
+    ("vmSymbol_s", "next"): "slot",
+    ("vmSymbol_t", "next"): "slot",
+    ("searchpath_t", "next"): "slot",
+    # The stream of a file handle, files.h:72, is the C library's `FILE *`, which the backend hands to each stream call as it is.
+    ("qfile_gut", "o"): "opaque",
+    # The zip records of unzip.h:80 and :90 hold the same stream as `ZIP_FILE *`, the `FILE` of unzip.h:3.
+    ("unz_s", "file"): "opaque",
+    # `evPtr` of qcommon.h:939 holds the text of an SE_CONSOLE event or a `netadr_t` with the packet after it for SE_PACKET, by `evType`,
+    # and Com_EventLoop casts it back at common.cpp:977 and :998.
+    ("sysEvent_t", "evPtr"): "raw",
+    ("file_in_zip_read_info_s", "file"): "opaque",
+    # unzOpenCurrentFile allocates the read buffer at unzip.cpp:988, and unzReadCurrentFile hands it to ZIP_fread and to the stream at :1093 and :1100.
+    ("file_in_zip_read_info_s", "read_buffer"): "opaque",
+    # unzReadCurrentFile stores the caller's buffer and the read buffer at unzip.cpp:1070 and :1100, and steps them at :1124 and :1125.
+    ("z_stream", "next_in"): "bytes",
+    ("z_stream", "next_out"): "bytes",
+    # A `T **` field of kind `pointer_table` holds the base of an array of record pointers a body indexes, with the widest count,
+    # the field twin of the PARAMS kind. FS_LoadZipFile fills `pack->hashTable[hash]` at files_pc.cpp:1477, and cm_trace.cpp reads `cmg.surfaces[i]`.
+    ("pack_t", "hashTable"): "pointer_table",
+    ("clipMap_t", "surfaces"): "pointer_table",
 }
 
 # (struct, field) -> the accessor name of a field whose C name is a member of every view, `handle` or `raw`, where a body reads the field.
 # Raven writes `vmCvar->handle` at cvar.cpp:896 and reads it at :913 and :917.
-FIELD_NAMES = {("vmCvar_t", "handle"): "cvarHandle"}
+FIELD_NAMES = {
+    ("vmCvar_t", "handle"): "cvarHandle",
+    # Raven stores the zip handle at files_pc.cpp:1460 and reads it at :774, :1001, and :1058.
+    ("pack_t", "handle"): "packHandle",
+}
 
 @dataclass(frozen=True)
 class HandMacro:
@@ -424,6 +514,8 @@ ENUM_TYPEDEFS = {"memtag_t"}
 #   opaque         an OpaquePointer?, for a `void *` handle Raven returns that is not an allocation, the spelling the Ghoul2 traps take
 #   row_index      an Int32? row index, for a `keywordHash_t *` row Raven returns or NULL, form A of R53
 #   slot           a Slots of one optional view over a pointer slot, for a `node_t **` Raven returns, the form of a `node_t **` field
+#   word           an Int, the pointer-wide word of the module's vmMain, which VM_Call returns whole
+#   record         the view of a record Raven returns by value, which the body takes from a storage record or a table slot and the caller copies
 RETURNS = {
     # get_ppnode of huffman.cpp:48 returns the address of a `node_t *` slot of `nodePtrs` or of the free list.
     "get_ppnode": "slot",
@@ -467,6 +559,26 @@ RETURNS = {
     # S_Malloc of z_memman_pc.cpp:480 and Hunk_AllocateTempMemory of :804 return the block of one Z_Malloc call, so each takes its row.
     "S_Malloc": "raw",
     "Hunk_AllocateTempMemory": "raw",
+    # VM_Alloc of vm.cpp:227 returns the block of one Hunk_Alloc call, and VM_ArgPtr of :640 and BotVMShift of :657 return an address in the module's data.
+    "VM_Alloc": "raw",
+    "VM_ArgPtr": "raw",
+    "BotVMShift": "raw",
+    # Every caller of VM_ExplicitArgPtr of vm.cpp:742 casts the return to `char *`, the denial text of GAME_CLIENT_CONNECT, and the body returns NULL for a zero word.
+    "VM_ExplicitArgPtr": "optional_string",
+    # FS_ShiftedStrStr of files_pc.cpp:649 returns `strstr(string, buf)`, the text from the match or NULL.
+    "FS_ShiftedStrStr": "optional_string",
+    # FS_FileForHandle of files_pc.cpp:85 returns the stdio stream of a handle, a handle that is not an allocation.
+    "FS_FileForHandle": "opaque",
+    # Sys_GetBotAIAPI of win_main.cpp:30 returns NULL, and Sys_LoadDll of :784 returns the library handle, the `void *` that `vm->dllHandle` holds.
+    "Sys_GetBotAIAPI": "opaque",
+    "Sys_LoadDll": "opaque",
+    # The module's vmMain returns a pointer-wide word, and GAME_CLIENT_CONNECT returns the address of the denial text, so VM_Call returns the whole word.
+    "VM_Call": "word",
+    # Raven returns a sysEvent_t by value at common.cpp:789 and :881 and win_main.cpp:1160.
+    # The body returns the view of a record that lives past the call, the storage record of its local `ev` or a slot of the ring.
+    "Com_GetRealEvent": "record",
+    "Com_GetEvent": "record",
+    "Sys_GetEvent": "record",
 }
 
 # Allocators whose `char *` result a body holds as a CharBuf of the constant size Raven asks for, when every store into the local is that call.
@@ -498,6 +610,8 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #   row_index  an Int32 row index for a `keywordHash_t *` row pointer, form A of R53
 #   opaque    an OpaquePointer? for a `byte *` buffer the body stores into a `byte *` field or hands on as a `void *`, the spelling of the field
 #   bytes     a Slots<byte> for a `void *` or `byte *` of a host function that the body hands on as bytes, the row a host `byte *` has
+#   word      an Int for an `int` that takes the pointer-wide word VM_Call returns
+#   callback  the optional callback typealias of a view field for a function pointer the body stores into that field, the form of a function-pointer return
 PARAMS = {
     # free_ppnode of huffman.cpp:59 takes the slot address that get_ppnode returned, the form of a `node_t **` field.
     ("free_ppnode", "ppnode"): "slot",
@@ -516,6 +630,8 @@ PARAMS = {
     ("BG_ValidateSkinForTeam", "colors"): "vec3_mut",
     ("G_SpawnVector", "out"): "vec3_mut",
     ("trap_SnapVector", "v"): "vec3_mut",
+    # Sys_SnapVector of win_shared.cpp:41 steps `float *v` over the three floats of the vector that the G_SNAPVECTOR arm of sv_game.cpp hands it.
+    ("Sys_SnapVector", "v"): "vec3_mut",
     # These bodies never write the vector, and an adopted file passes `&` there, so the parameter keeps inout.
     # g_exphysics.swift passes `&tr.endpos` to G_SetOrigin, and g_object.swift passes `&oldOrg` to G_MoverTouchPushTriggers.
     ("G_SetOrigin", "origin"): "vec3_mut",
@@ -623,6 +739,25 @@ PARAMS = {
     ("NET_SendPacket", "data"): "bytes",
     ("NET_SendLoopPacket", "data"): "bytes",
     ("Sys_SendPacket", "data"): "bytes",
+    # FS_Read, FS_Read2, FS_Write, and FS_WriteFile of files_pc.cpp:1007 to :1079 and files_common.cpp:401 walk `byte *buf = (byte *)buffer`.
+    # The CharBuf overloads beside them forward a `char` buffer through `withSlots`, the NET_SendPacket form.
+    ("FS_Read", "buffer"): "bytes",
+    ("FS_Read2", "buffer"): "bytes",
+    ("FS_Write", "buffer"): "bytes",
+    ("FS_WriteFile", "buffer"): "bytes",
+    # Sys_StreamedRead of win_main.cpp:861 hands `buffer` to FS_Read, and FS_Read hands it to unzReadCurrentFile at files_pc.cpp:1068.
+    ("Sys_StreamedRead", "buffer"): "bytes",
+    # Sys_QueEvent stores `ptr` into `ev->evPtr` at win_main.cpp:1150, the field of kind `raw`.
+    ("Sys_QueEvent", "ptr"): "raw",
+    ("unzReadCurrentFile", "buf"): "bytes",
+    # VM_ExplicitArgPtr takes the word VM_Call returns, sv_init.cpp:700 and sv_ccmds.cpp:326.
+    ("VM_ExplicitArgPtr", "intValue"): "word",
+    # VM_Create stores `systemCalls` into `vm->systemCall` at vm.cpp:506, and VM_Restart passes that field back at :408.
+    ("VM_Create", "systemCalls"): "callback",
+    # Sys_LoadDll of win_main.cpp:784 stores the module's vmMain through `entryPoint`, the address of `vm->entryPoint`,
+    # and hands `systemcalls` to the module's dllEntry. The shell loads the library through jka_load_dll of CJKAHost.
+    ("Sys_LoadDll", "entryPoint"): "raw",
+    ("Sys_LoadDll", "systemcalls"): "opaque",
 }
 
 # Rule 20: a function with no caller in either tree stays as its stub, and the stub carries one note line that it is dead.
@@ -644,6 +779,8 @@ NOT_PORTED = {
     "swapfunc": "Raven's byte-swap qsort has no view form, and the hand port is generic over the element type",
     "med3": "Raven's byte-swap qsort has no view form, and the hand port is generic over the element type",
     "qsort": "Raven's byte-swap qsort has no view form, and the hand port is generic over the element type",
+    # The module calls the C VM_DllSyscall of Sources/CJKAHost/jka_host.c, which hands the words to the host.
+    "VM_DllSyscall": "the C function of Sources/CJKAHost/jka_host.c, because Swift cannot write a C variadic callee, and the module reaches it through dllEntry",
 }
 
 # Game functions and globals the shell's `vmMain` names, which cross the module line, so each is public. Rule 11 and ruling E1.
@@ -692,6 +829,8 @@ NOT_PORTED_MACROS = {
     "MATERIALS": "a list of material names no body of the module names",
     "NAV_HEADER_ID": "a four-character constant no .c file of the module reads",
     "NODE_HEADER_ID": "a four-character constant no .c file of the module reads",
+    # The host parse takes WinDed's PATH_SEP so the store of FS_ReplaceSeparators parses, and the body reads the hand constant of the platform that builds.
+    "PATH_SEP": "the hand PATH_SEP of Sources/JKAMP_Ded/FileBackend.swift, the separator of the platform that builds",
 }
 
 # MARK: - The bg channel
@@ -768,6 +907,8 @@ NULLABLE = {
     ("displayContextDef_t.setColor", "v"),
     # Huff_addRef passes `tnode2->parent` at huffman.cpp:229, which is NULL when the new node is the root, and the body tests it at huffman.cpp:131.
     ("increment", "node"),
+    # Com_RealTime tests `if (qtime)` at common.cpp:718, and the G_REAL_TIME arm of sv_game.cpp:679 passes the module's record.
+    ("Com_RealTime", "qtime"),
 }
 # Files whose functions a bg body reaches directly, because they live in the shared module or in bg itself.
 # The functions whose integer arithmetic is a generator or a hash, where C wraps at 32 bits and Swift's plain operators trap.

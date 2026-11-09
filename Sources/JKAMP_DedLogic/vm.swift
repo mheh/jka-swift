@@ -41,6 +41,10 @@ let MAX_VM = 3 as Int32
 /// Source: oracle/codemp/qcommon/vm.cpp:29
 var vmTable: Slots<Vm> { world.storage.vmTable }
 
+/// Source: oracle/codemp/qcommon/vm.cpp:115
+// AI: Raven declares `nullSym` static in VM_ValueToFunctionSymbol. The function uses one zeroed allocation on the storage class.
+var nullSym_VM_ValueToFunctionSymbol: VmSymbol { world.storage.nullSym_VM_ValueToFunctionSymbol }
+
 /// Source: oracle/codemp/qcommon/vm.cpp:469
 let STACK_SIZE = 0x20000 as Int32
 
@@ -161,9 +165,7 @@ func VM_ValueToFunctionSymbol(_ vm: Vm, _ value: Int32) -> VmSymbol? {
     if sym == nil {
         sym = vm.symbols
         if sym == nil {
-            // Port-note: Row V5. Raven returns the address of his static `nullSym`, and the record has no storage that outlives the call.
-            // Raven wrote: static vmSymbol_t nullSym; return &nullSym;
-            portMissing("VM_ValueToFunctionSymbol", source: "oracle/codemp/qcommon/vm.cpp:113")
+            return nullSym_VM_ValueToFunctionSymbol
         }
 
         while sym!.next != nil && sym!.next!.symValue <= value {
@@ -186,7 +188,6 @@ VM_SymbolToValue
 ```
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:148
-// Port-note: Raven calls this function from no file of either tree, so it is dead.
 func VM_SymbolToValue(_ vm: Vm, _ symbol: String) -> Int32 {
     // TODO: Port VM_SymbolToValue
     portMissing("VM_SymbolToValue", source: "oracle/codemp/qcommon/vm.cpp:148")
@@ -200,7 +201,6 @@ VM_SymbolForCompiledPointer
 ```
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:165
-// Port-note: Raven calls this function from no file of either tree, so it is dead.
 func VM_SymbolForCompiledPointer(_ vm: Vm, _ code: OpaquePointer?) -> String {
     // TODO: Port VM_SymbolForCompiledPointer
     portMissing("VM_SymbolForCompiledPointer", source: "oracle/codemp/qcommon/vm.cpp:165")
@@ -252,13 +252,9 @@ Convenience function for changing the way VMs are allocated.
 ```
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:227
-// Port-note: Row V1. The `void *` return has no table row.
-// TODO: Port signature
-// Raven wrote: void *VM_Alloc( int size )
-// No table row for the return `void *`.
-func VM_Alloc() -> Never {
-    // TODO: Port VM_Alloc
-    portMissing("VM_Alloc", source: "oracle/codemp/qcommon/vm.cpp:227")
+func VM_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
+    return Hunk_Alloc(size, h_high)
+    //return Z_Malloc(size, TAG_ALL, qtrue);
 }
 
 /**
@@ -280,6 +276,9 @@ func VM_LoadSymbols(_ vm: Vm) {
     var value: Int32
     var segment: Int32
     let numInstructions: Int32
+    var prev: Slots<VmSymbol?>
+    var sym: VmSymbol
+    var chars: Int32
 
     // don't load symbols if not developer
     if com_developer!.integer == 0 {
@@ -299,9 +298,7 @@ func VM_LoadSymbols(_ vm: Vm) {
 
     // parse the symbols
     text_p = TextCursor(mapfile)
-    // Port-note: Row V7. Raven walks `prev`, the address of the `vmSymbol_t *` slot that takes the next symbol, and the slot has no form.
-    // Raven wrote: vmSymbol_t **prev; prev = &vm->symbols
-    portMissing("VM_LoadSymbols", source: "oracle/codemp/qcommon/vm.cpp:238")
+    prev = vm.symbolsSlot
     count = 0
 
     VM_SetSymbolMap(vm)
@@ -330,20 +327,22 @@ func VM_LoadSymbols(_ vm: Vm) {
             Com_Printf("WARNING: incomplete line at end of file\n")
             break
         }
-        // Port-note: Row V1 and row V7. VM_Alloc has no signature, and the stores through `prev` have no form.
-        // Raven wrote: chars = strlen( token ); sym = (struct vmSymbol_s *)VM_Alloc( sizeof( *sym ) + chars ); *prev = sym; prev = &sym->next; sym->next = NULL;
-        portMissing("VM_LoadSymbols", source: "oracle/codemp/qcommon/vm.cpp:238")
+        chars = strlen(token)
+        sym = VmSymbol(VM_Alloc(Int32(VmSymbol.byteCount) + chars))
+        prev[0] = sym
+        prev = sym.nextSlot
+        sym.next = nil
 
         // convert value from an instruction number to a code offset
         if value >= 0 && value < numInstructions {
-            // Port-note: Row V3. Raven reads `vm->instructionPointers[value]` through a `int *` field. The generated field is an `OpaquePointer?`, and rule 11 keeps a pointer out of a logic target.
-            // Raven wrote: value = vm->instructionPointers[value]
-            portMissing("VM_LoadSymbols", source: "oracle/codemp/qcommon/vm.cpp:238")
+            value = vm.instructionPointers![value]
         }
 
-        // Port-note: Row V7. Raven copies the name into `symName`, an array of one byte that he allocates past its C size.
-        // Raven wrote: sym->symValue = value; Q_strncpyz( sym->symName, token, chars + 1 ); (*g_symbolMap)[value] = sym;
-        portMissing("VM_LoadSymbols", source: "oracle/codemp/qcommon/vm.cpp:238")
+        sym.symValue = value
+        // The setter of `symName` holds Raven's Q_strncpyz, bounded by the token's MAX_TOKEN_CHARS.
+        sym.symName = token
+
+        g_vmMap[g_symbolMap!, default: [:]][value] = sym
 
         count += 1
     }
@@ -394,12 +393,8 @@ Dlls will call this directly
 ```
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:363
-// Port-note: Row V9. The module calls the C function of this name in CJKAHost, because Swift cannot write a C variadic callee.
-// This stub has no caller.
-func VM_DllSyscall(_ arg: Int32, _ args: any JKAShared.FormatArg...) -> Int32 {
-    // TODO: Port VM_DllSyscall
-    portMissing("VM_DllSyscall", source: "oracle/codemp/qcommon/vm.cpp:363")
-}
+// Raven wrote: int QDECL VM_DllSyscall( int arg, ... )
+// Not ported: the C function of Sources/CJKAHost/jka_host.c, because Swift cannot write a C variadic callee, and the module reaches it through dllEntry.
 
 /**
 ```
@@ -421,12 +416,15 @@ func VM_Restart(_ vm: Vm) -> Vm? {
     // DLL's can't be restarted in place
     if vm.dllHandle != nil {
         var name = CharBuf(64)
+        let systemCall: VmSystemCall?
 
+        systemCall = vm.systemCall
         Q_strncpyz(&name, vm.name, Int32((name).count))
 
-        // Port-note: Row V2. The `systemCalls` parameter of VM_Create is a Swift closure, and the field holds a C function.
-        // Raven wrote: systemCall = vm->systemCall; VM_Free( vm ); vm = VM_Create( name, systemCall, VMI_NATIVE ); return vm;
-        portMissing("VM_Restart", source: "oracle/codemp/qcommon/vm.cpp:391")
+        VM_Free(vm)
+
+        // Raven assigns the new VM to his own `vm` parameter and returns it, so the body returns it.
+        return VM_Create(String(name), systemCall, VMI_NATIVE)
     }
 
     // load the image
@@ -465,12 +463,12 @@ func VM_Restart(_ vm: Vm) -> Vm? {
     dataLength = 1 << i
 
     // clear the data
-    // Port-note: Row V3. Raven reads `vm->dataBase`, a `byte *` field. The generated field is an `OpaquePointer?`, and rule 11 keeps a pointer out of a logic target.
+    // Port-note: Row V3. Raven clears `dataLength` bytes of `vm->dataBase`, and the Slots of the field has the widest count, so a clear of the whole Slots has no bound.
     // Raven wrote: Com_Memset( vm->dataBase, 0, dataLength )
     portMissing("VM_Restart", source: "oracle/codemp/qcommon/vm.cpp:391")
 
     // copy the intialized data
-    // Port-note: Row V3. Raven reads `vm->dataBase`, a `byte *` field. The generated field is an `OpaquePointer?`, and rule 11 keeps a pointer out of a logic target.
+    // Port-note: Row V3. Raven copies from the QVM image at `(byte *)header + header->dataOffset`, and the image read of this function has no form.
     // Raven wrote: Com_Memcpy( vm->dataBase, (byte *)header + header->dataOffset, header->dataLength + header->litLength )
     portMissing("VM_Restart", source: "oracle/codemp/qcommon/vm.cpp:391")
 
@@ -502,7 +500,7 @@ it will attempt to load as a system dll
 ```
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:471
-func VM_Create(_ module: String, _ systemCalls: ((inout Int32) -> Int32)?, _ interpret: vmInterpret_t) -> Vm? {
+func VM_Create(_ module: String, _ systemCalls: VmSystemCall?, _ interpret: vmInterpret_t) -> Vm? {
     var vm: Vm?
     var header: VmHeader?
     var dataLength: Int32
@@ -541,9 +539,7 @@ func VM_Create(_ module: String, _ systemCalls: ((inout Int32) -> Int32)?, _ int
     vm = vmTable[i]
 
     Q_strncpyz(&vm!.nameBuffer, module, 64)
-    // Port-note: Row V2. The `systemCalls` parameter is a Swift closure, and the field holds a C function.
-    // Raven wrote: vm->systemCall = systemCalls;
-    portMissing("VM_Create", source: "oracle/codemp/qcommon/vm.cpp:471")
+    vm!.systemCall = systemCalls
 
     // never allow dll loading with a demo
     if interpret == VMI_NATIVE {
@@ -555,9 +551,8 @@ func VM_Create(_ module: String, _ systemCalls: ((inout Int32) -> Int32)?, _ int
     if interpret == VMI_NATIVE {
         // try to load as a system dll
         Com_Printf("Loading dll file %s.\n", vm!.name)
-        // Port-note: Row V4. The stub of Sys_LoadDll in win_main.swift has no signature.
-        // Raven wrote: vm->dllHandle = Sys_LoadDll( module, &vm->entryPoint, VM_DllSyscall );
-        portMissing("VM_Create", source: "oracle/codemp/qcommon/vm.cpp:471")
+        // AI: Raven hands VM_DllSyscall to the module. The C VM_DllSyscall of CJKAHost reaches the module through the load of the shell, so the call hands nil.
+        vm!.dllHandle = Sys_LoadDll(module, vm!.entryPointAddress, nil)
         if vm!.dllHandle != nil {
             return vm
         }
@@ -603,13 +598,12 @@ func VM_Create(_ module: String, _ systemCalls: ((inout Int32) -> Int32)?, _ int
     dataLength = 1 << i
 
     // allocate zero filled space for initialized and uninitialized data
-    // Port-note: Row V1. VM_Alloc has no signature.
-    // Raven wrote: vm->dataBase = (unsigned char *)VM_Alloc( dataLength )
-    portMissing("VM_Create", source: "oracle/codemp/qcommon/vm.cpp:471")
+    // AI: Raven stores the block of VM_Alloc into the `byte *` field. The store is the Slots over the `dataLength` bytes of the block.
+    vm!.dataBase = Slots(scalars: VM_Alloc(dataLength), count: Int(dataLength))
     vm!.dataMask = dataLength - 1
 
     // copy the intialized data
-    // Port-note: Row V3. Raven reads `vm->dataBase`, a `byte *` field. The generated field is an `OpaquePointer?`, and rule 11 keeps a pointer out of a logic target.
+    // Port-note: Row V3. Raven copies from the QVM image at `(byte *)header + header->dataOffset`, and the image read of this function has no form.
     // Raven wrote: Com_Memcpy( vm->dataBase, (byte *)header + header->dataOffset, header->dataLength + header->litLength )
     portMissing("VM_Create", source: "oracle/codemp/qcommon/vm.cpp:471")
 
@@ -624,9 +618,8 @@ func VM_Create(_ module: String, _ systemCalls: ((inout Int32) -> Int32)?, _ int
 
     // allocate space for the jump targets, which will be filled in by the compile/prep functions
     vm!.instructionPointersLength = header!.instructionCount * 4
-    // Port-note: Row V1. VM_Alloc has no signature.
-    // Raven wrote: vm->instructionPointers = (int *)VM_Alloc( vm->instructionPointersLength )
-    portMissing("VM_Create", source: "oracle/codemp/qcommon/vm.cpp:471")
+    // AI: Raven stores the block of VM_Alloc into the `int *` field. The store is the Slots over the words of the block.
+    vm!.instructionPointers = Slots(scalars: VM_Alloc(vm!.instructionPointersLength), count: Int(vm!.instructionPointersLength >> 2))
 
     // copy or compile the instructions
     vm!.codeLength = header!.codeLength
@@ -696,23 +689,54 @@ func VM_Clear() {
 }
 
 /// Source: oracle/codemp/qcommon/vm.cpp:640
-// Port-note: Row V1. The `void *` return has no table row.
-// TODO: Port signature
-// Raven wrote: void *VM_ArgPtr( int intValue )
-// No table row for the return `void *`.
-func VM_ArgPtr() -> Never {
-    // TODO: Port VM_ArgPtr
-    portMissing("VM_ArgPtr", source: "oracle/codemp/qcommon/vm.cpp:640")
+func VM_ArgPtr(_ intValue: Int32) -> UnsafeMutableRawPointer {
+    if intValue == 0 {
+        // Port-note: Raven returns NULL, and the function returns a `UnsafeMutableRawPointer`.
+        // Raven wrote: return NULL
+        portMissing("VM_ArgPtr", source: "oracle/codemp/qcommon/vm.cpp:640")
+    }
+    // bk001220 - currentVM is missing on reconnect
+    if currentVM == nil {
+        // Port-note: Raven returns NULL, and the function returns a `UnsafeMutableRawPointer`.
+        // Raven wrote: return NULL
+        portMissing("VM_ArgPtr", source: "oracle/codemp/qcommon/vm.cpp:640")
+    }
+
+    if currentVM!.entryPoint != nil {
+        // Port-note: A cast to `void *` the draft has no view for.
+        // Raven wrote: return (void *)(currentVM->dataBase + intValue)
+        portMissing("VM_ArgPtr", source: "oracle/codemp/qcommon/vm.cpp:640")
+    } else {
+        // Port-note: A cast to `void *` the draft has no view for.
+        // Raven wrote: return (void *)(currentVM->dataBase + (intValue & currentVM->dataMask))
+        portMissing("VM_ArgPtr", source: "oracle/codemp/qcommon/vm.cpp:640")
+    }
 }
 
 /// Source: oracle/codemp/qcommon/vm.cpp:657
-// Port-note: Row V1. The `void *` return has no table row.
-// TODO: Port signature
-// Raven wrote: void *BotVMShift( int ptr )
-// No table row for the return `void *`.
-func BotVMShift() -> Never {
-    // TODO: Port BotVMShift
-    portMissing("BotVMShift", source: "oracle/codemp/qcommon/vm.cpp:657")
+func BotVMShift(_ ptr: Int32) -> UnsafeMutableRawPointer {
+    if ptr == 0 {
+        // Port-note: Raven returns NULL, and the function returns a `UnsafeMutableRawPointer`.
+        // Raven wrote: return NULL
+        portMissing("BotVMShift", source: "oracle/codemp/qcommon/vm.cpp:657")
+    }
+
+    if gvm == nil {
+        //always using the game vm here.
+        // Port-note: Raven returns NULL, and the function returns a `UnsafeMutableRawPointer`.
+        // Raven wrote: return NULL
+        portMissing("BotVMShift", source: "oracle/codemp/qcommon/vm.cpp:657")
+    }
+
+    if gvm!.entryPoint != nil {
+        // Port-note: A cast to `void *` the draft has no view for.
+        // Raven wrote: return (void *)(gvm->dataBase + ptr)
+        portMissing("BotVMShift", source: "oracle/codemp/qcommon/vm.cpp:657")
+    } else {
+        // Port-note: A cast to `void *` the draft has no view for.
+        // Raven wrote: return (void *)(gvm->dataBase + (ptr & gvm->dataMask))
+        portMissing("BotVMShift", source: "oracle/codemp/qcommon/vm.cpp:657")
+    }
 }
 
 /// Source: oracle/codemp/qcommon/vm.cpp:679
@@ -770,13 +794,26 @@ func VM_Shifted_Free(_ ptr: inout OpaquePointer?) {
 }
 
 /// Source: oracle/codemp/qcommon/vm.cpp:742
-// Port-note: Row V1. The `void *` return has no table row.
-// TODO: Port signature
-// Raven wrote: void *VM_ExplicitArgPtr( vm_t *vm, int intValue )
-// No table row for the return `void *`.
-func VM_ExplicitArgPtr() -> Never {
-    // TODO: Port VM_ExplicitArgPtr
-    portMissing("VM_ExplicitArgPtr", source: "oracle/codemp/qcommon/vm.cpp:742")
+func VM_ExplicitArgPtr(_ vm: Vm, _ intValue: Int) -> String? {
+    if intValue == 0 {
+        return nil
+    }
+
+    // bk010124 - currentVM is missing on reconnect here as well?
+    if currentVM == nil {
+        return nil
+    }
+
+    //
+    if vm.entryPoint != nil {
+        // Port-note: A cast to `void *` the draft has no view for.
+        // Raven wrote: return (void *)(vm->dataBase + intValue)
+        portMissing("VM_ExplicitArgPtr", source: "oracle/codemp/qcommon/vm.cpp:742")
+    } else {
+        // Port-note: A cast to `void *` the draft has no view for.
+        // Raven wrote: return (void *)(vm->dataBase + (intValue & vm->dataMask))
+        portMissing("VM_ExplicitArgPtr", source: "oracle/codemp/qcommon/vm.cpp:742")
+    }
 }
 
 /**
@@ -805,9 +842,9 @@ locals from sp
 ```
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:787
-func VM_Call(_ vm: Vm, _ callnum: Int32, _ args: any JKAShared.FormatArg...) -> Int32 {
+func VM_Call(_ vm: Vm, _ callnum: Int32, _ args: any JKAShared.FormatArg...) -> Int {
     var oldVM: Vm?
-    var r: Int32
+    var r: Int
     // Raven's local `int args[16]` is `words`, because the variadic parameter holds the name `args`.
     var words = [Int32](repeating: 0, count: 16)
 
@@ -833,9 +870,10 @@ func VM_Call(_ vm: Vm, _ callnum: Int32, _ args: any JKAShared.FormatArg...) -> 
         //rcg010207 -  see dissertation at top of VM_DllSyscall() in this file.
         r = vm.runEntryPoint(callnum, words)
     } else if vm.compiled {
-        r = VM_CallCompiled(vm, [callnum] + words)
+        // AI: Raven's VM_Call returns the `int` of each arm. It returns the word of the module's vmMain, so the `int` of a QVM arm widens to it.
+        r = Int(VM_CallCompiled(vm, [callnum] + words))
     } else {
-        r = VM_CallInterpreted(vm, [callnum] + words)
+        r = Int(VM_CallInterpreted(vm, [callnum] + words))
     }
 
     if oldVM != nil { // bk001220 - assert(currentVM!=NULL) for oldVM==NULL
@@ -847,7 +885,6 @@ func VM_Call(_ vm: Vm, _ callnum: Int32, _ args: any JKAShared.FormatArg...) -> 
 //=================================================================
 
 /// Source: oracle/codemp/qcommon/vm.cpp:833
-// Port-note: Row V8. Raven reads each `vmSymbol_t *` through a `const void *` of qsort, and the parameters have no form.
 private func VM_ProfileSort(_ a: OpaquePointer?, _ b: OpaquePointer?) -> Int32 {
     // TODO: Port VM_ProfileSort
     portMissing("VM_ProfileSort", source: "oracle/codemp/qcommon/vm.cpp:833")
@@ -928,7 +965,6 @@ Insert calls to this while debugging the vm compiler
 ```
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:934
-// Port-note: Raven calls this function from no file of either tree, so it is dead.
 func VM_LogSyscalls(_ args: Slots<Int32>) {
     // TODO: Port VM_LogSyscalls
     portMissing("VM_LogSyscalls", source: "oracle/codemp/qcommon/vm.cpp:934")

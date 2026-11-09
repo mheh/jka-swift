@@ -60,9 +60,7 @@ let MAX_QUED_EVENTS = 256 as Int32
 let MASK_QUED_EVENTS = (JKAMP_Ded.MAX_QUED_EVENTS - 1)
 
 /// Source: oracle/codemp/null/win_main.cpp:1113
-// TODO: Port global eventQue
-// Raven wrote: sysEvent_t eventQue[MAX_QUED_EVENTS]
-// No view for `sysEvent_t` of `qcommon.h`.
+var eventQue: Slots<SysEvent> { world.storage.eventQue }
 
 /// Source: oracle/codemp/null/win_main.cpp:1114
 var eventHead: Int32 {
@@ -77,10 +75,11 @@ var eventTail: Int32 {
 }
 
 /// Source: oracle/codemp/null/win_main.cpp:1116
-var sys_packetReceived: [JKAShared.byte] {
-    get { world.variables.sys_packetReceived }
-    set { world.variables.sys_packetReceived = newValue }
-}
+var sys_packetReceived: Slots<JKAShared.byte> { world.storage.sys_packetReceived }
+
+/// Source: oracle/codemp/null/win_main.cpp:1162
+// AI: Raven declares `ev` on the stack of Sys_GetEvent. The function uses one zeroed allocation on the storage class.
+private var ev_Sys_GetEvent: SysEvent { world.storage.win_main_ev_Sys_GetEvent }
 
 /// Source: oracle/codemp/null/win_main.cpp:1262
 let OSR2_BUILD_NUMBER = 1111 as Int32
@@ -89,13 +88,8 @@ let OSR2_BUILD_NUMBER = 1111 as Int32
 let WIN98_BUILD_NUMBER = 1998 as Int32
 
 /// Source: oracle/codemp/null/win_main.cpp:30
-// TODO: Port signature
-// Raven wrote: void *Sys_GetBotAIAPI (void *parms )
-// No table row for the return `void *`.
-func Sys_GetBotAIAPI() -> Never {
-    // Port-note: The table has no row for the `void *` return, row "Sys_GetBotAIAPI return" of the win round.
-    // TODO: Port Sys_GetBotAIAPI
-    portMissing("Sys_GetBotAIAPI", source: "oracle/codemp/null/win_main.cpp:30")
+func Sys_GetBotAIAPI(_ parms: OpaquePointer?) -> OpaquePointer? {
+    return nil
 }
 
 /// Source: oracle/codemp/null/win_main.cpp:34
@@ -543,7 +537,8 @@ func Sys_UnloadDll(_ dllHandle: OpaquePointer?) {
 //a pure server -rww
 /// Source: oracle/codemp/null/win_main.cpp:735
 func Sys_UnpackDLL(_ name: String) -> Bool {
-    var data: OpaquePointer? = nil
+    // AI: Raven reads the dll into a `void *` block of the zone. The read takes the CharBuf form of FS_ReadFile, whose bytes the CharBuf FS_Write takes.
+    var data: CharBuf? = nil
     let f: fileHandle_t
     let len: Int32 = FS_ReadFile(name, &data)
     var ck: Int32 = 0
@@ -556,7 +551,7 @@ func Sys_UnpackDLL(_ name: String) -> Bool {
     if FS_FileIsInPAK(name, &ck) == -1 {
         //alright, it isn't in a pk3 anyway, so we don't need to write it.
         //this is allowable when running non-pure.
-        FS_FreeFile(data)
+        FS_FreeFile(data!)
         return true
     }
 
@@ -565,30 +560,67 @@ func Sys_UnpackDLL(_ name: String) -> Bool {
         //can't open for writing? Might be in use.
         //This is possibly a malicious user attempt to circumvent dll
         //replacement so we won't allow it.
-        FS_FreeFile(data)
+        FS_FreeFile(data!)
         return false
     }
 
-    if FS_Write(data, len, f) < len {
+    if FS_Write(data!, len, f) < len {
         //Failed to write the full length. Full disk maybe?
-        FS_FreeFile(data)
+        FS_FreeFile(data!)
         return false
     }
 
     FS_FCloseFile(f)
-    FS_FreeFile(data)
+    FS_FreeFile(data!)
 
     return true
 }
 
 /// Source: oracle/codemp/null/win_main.cpp:784
-// TODO: Port signature
-// Raven wrote: void * QDECL Sys_LoadDll( const char *name, int (QDECL **entryPoint)(int, ...), int (QDECL *systemcalls)(int, ...) )
-// No table row for `int (**)(int, ...) entryPoint`.
-func Sys_LoadDll() -> Never {
-    // Port-note: The table has no row for `int (**entryPoint)(int, ...)`, row "Sys_LoadDll entry point" of the win round.
-    // TODO: Port Sys_LoadDll
-    portMissing("Sys_LoadDll", source: "oracle/codemp/null/win_main.cpp:784")
+func Sys_LoadDll(_ name: String, _ entryPoint: UnsafeMutableRawPointer, _ systemcalls: OpaquePointer?) -> OpaquePointer? {
+    var libHandle: OpaquePointer?
+    let basepath: String
+    let cdpath: String
+    let gamedir: String
+    var fn: String
+    var filename = CharBuf(MAX_QPATH)
+
+    // AI: Raven names the Windows dll `%sx86.dll`. The name takes DLL_SUFFIX, the arch and the library extension of the build, `jampgamearm64.dylib` on Apple arm64.
+    Com_sprintf(&filename, Int32((filename).count), "%s%s", name, DLL_SUFFIX)
+
+    if !Sys_UnpackDLL(String(filename)) {
+        return nil
+    }
+
+    // rjr disable for final release #ifndef NDEBUG
+    // AI: Raven calls the Win32 LoadLibrary. The call is the loader closure that the shell installs over jka_load_dll.
+    libHandle = LoadLibrary!(String(filename), entryPoint)
+    if libHandle == nil {
+        //#endif
+        basepath = Cvar_VariableString("fs_basepath")
+        cdpath = Cvar_VariableString("fs_cdpath")
+        gamedir = Cvar_VariableString("fs_game")
+
+        fn = FS_BuildOSPath(basepath, gamedir, String(filename))
+        libHandle = LoadLibrary!(fn, entryPoint)
+
+        if libHandle == nil {
+            if !cdpath.isEmpty {
+                fn = FS_BuildOSPath(cdpath, gamedir, String(filename))
+                libHandle = LoadLibrary!(fn, entryPoint)
+            }
+
+            if libHandle == nil {
+                return nil
+            }
+        }
+        //#ifndef NDEBUG
+    }
+    //#endif
+
+    // AI: Raven reads dllEntry and vmMain with GetProcAddress, frees the library when one is missing, and hands `systemcalls` to dllEntry.
+    // The loader closure does these steps in jka_load_dll, which hands the module the C VM_DllSyscall.
+    return libHandle
 }
 
 /// Source: oracle/codemp/null/win_main.cpp:849
@@ -608,7 +640,7 @@ func Sys_EndStreamedFile(_ f: JKAShared.fileHandle_t) {
 }
 
 /// Source: oracle/codemp/null/win_main.cpp:861
-func Sys_StreamedRead(_ buffer: OpaquePointer?, _ size: Int32, _ count: Int32, _ f: JKAShared.fileHandle_t) -> Int32 {
+func Sys_StreamedRead(_ buffer: Slots<JKAShared.byte>, _ size: Int32, _ count: Int32, _ f: JKAShared.fileHandle_t) -> Int32 {
     return FS_Read(buffer, size * count, f)
 }
 
@@ -629,10 +661,34 @@ be freed by the game later.
 ```
 */
 /// Source: oracle/codemp/null/win_main.cpp:1127
-func Sys_QueEvent(_ time: Int32, _ type: sysEventType_t, _ value: Int32, _ value2: Int32, _ ptrLength: Int32, _ ptr: OpaquePointer?) {
-    // Port-note: `sysEvent_t` of qcommon.h has no view, so `eventQue` has no storage and `ev` has no type, row "sysEvent_t view" of the win round.
-    // TODO: Port Sys_QueEvent
-    portMissing("Sys_QueEvent", source: "oracle/codemp/null/win_main.cpp:1127")
+func Sys_QueEvent(_ time: Int32, _ type: sysEventType_t, _ value: Int32, _ value2: Int32, _ ptrLength: Int32, _ ptr: UnsafeMutableRawPointer) {
+    let ev: SysEvent
+    // Raven assigns his own `time` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
+    var time = time
+
+    ev = eventQue[eventHead & MASK_QUED_EVENTS]
+    if eventHead - eventTail >= MAX_QUED_EVENTS {
+        Com_Printf("Sys_QueEvent: overflow\n")
+        // we are discarding an event, but don't leak memory
+        if ev.evPtr != nil {
+            // AI: Raven frees the `void *` field. Z_Free takes the handle of the block.
+            Z_Free(OpaquePointer(ev.evPtr))
+        }
+        eventTail += 1
+    }
+
+    eventHead += 1
+
+    if time == 0 {
+        time = Sys_Milliseconds()
+    }
+
+    ev.evTime = time
+    ev.evType = type
+    ev.evValue = value
+    ev.evValue2 = value2
+    ev.evPtrLength = ptrLength
+    ev.evPtr = ptr
 }
 
 /**
@@ -644,13 +700,63 @@ Sys_GetEvent
 ```
 */
 /// Source: oracle/codemp/null/win_main.cpp:1160
-// TODO: Port signature
-// Raven wrote: sysEvent_t Sys_GetEvent( void )
-// No table row for the return `sysEvent_t`.
-func Sys_GetEvent() -> Never {
-    // Port-note: The table has no row for the `sysEvent_t` return, row "sysEvent_t view" of the win round.
-    // TODO: Port Sys_GetEvent
-    portMissing("Sys_GetEvent", source: "oracle/codemp/null/win_main.cpp:1160")
+func Sys_GetEvent() -> SysEvent {
+    let ev = ev_Sys_GetEvent
+    let s: String?
+
+    // return if we have data
+    if eventHead > eventTail {
+        eventTail += 1
+        return eventQue[(eventTail - 1) & MASK_QUED_EVENTS]
+    }
+
+    // pump the message loop
+    // AI: Raven pumps the Win32 message loop with PeekMessage, GetMessage, TranslateMessage, and DispatchMessage. A dedicated server on another platform has no such loop, so the pump drops.
+
+    // check for console commands
+    s = Sys_ConsoleInput()
+    if s != nil {
+        let len: Int32
+
+        len = strlen(s!) + 1
+        let b = Z_Malloc(len, TAG_EVENT)
+        // AI: Raven copies the text with Q_strncpyz at its length plus the NUL. strcpy into the raw block writes the same bytes.
+        strcpy(b, s!)
+        Sys_QueEvent(0, SE_CONSOLE, 0, 0, len, b)
+    }
+
+    // check for network packets
+    Msg.scratch { netmsg in
+        Netadr.scratch { adr in
+            MSG_Init(netmsg, sys_packetReceived, Int32(sys_packetReceived.count))
+            if Sys_GetPacket(adr, netmsg) {
+                let len: Int32
+
+                // copy out to a seperate buffer for qeueing
+                // the readcount stepahead is for SOCKS support
+                len = Int32(Netadr.byteCount) + netmsg.cursize - netmsg.readcount
+                let buf = Z_Malloc(len, TAG_EVENT, true)
+                Netadr(buf).copy(from: adr)
+                // AI: Raven copies the data after the record, to `buf+1`. The copy writes the tail of the block from the byte offset of one record.
+                Com_Memcpy(Slots<JKAShared.byte>(scalars: buf, count: Int(len)).suffix(from: Netadr.byteCount), netmsg.data!.suffix(from: netmsg.readcount), netmsg.cursize - netmsg.readcount)
+                Sys_QueEvent(0, SE_PACKET, 0, 0, len, buf)
+            }
+        }
+    }
+
+    // return if we have data
+    if eventHead > eventTail {
+        eventTail += 1
+        return eventQue[(eventTail - 1) & MASK_QUED_EVENTS]
+    }
+
+    // create an empty event to return
+
+    ev.clear()
+    // AI: Raven reads the Win32 timeGetTime. The backend reads the monotonic clock of the platform.
+    ev.evTime = SysBackend.timeGetTime()
+
+    return ev
 }
 
 /**

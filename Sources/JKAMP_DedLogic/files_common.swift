@@ -64,10 +64,9 @@ var fs_dirbeforepak: JKAMP.Cvar? {
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:193
-// AI: Raven's `searchpath_t *fs_searchpaths` has no table row. The forward reads the hand view that the world holds.
 var fs_searchpaths: Searchpath? {
-    get { world.fs_searchpaths }
-    set { world.fs_searchpaths = newValue }
+    get { world.variables.fs_searchpaths }
+    set { world.variables.fs_searchpaths = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:194
@@ -107,8 +106,7 @@ var fs_checksumFeed: Int32 {
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:202
-// AI: Raven's `fileHandleData_t fsh[MAX_FILE_HANDLES]` has no generated view. The forward reads the table of the hand view that the world owns.
-var fsh: Slots<FileHandleData> { world.fsh }
+var fsh: Slots<FileHandleData> { world.storage.fsh }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:206
 var fs_numServerPaks: Int32 {
@@ -223,17 +221,7 @@ Fix things up differently for win/unix/mac
 ```
 */
 /// Source: oracle/codemp/qcommon/files_common.cpp:277
-// Port-note: Row F7. Raven writes the separators into the caller's `char *path`, and a `String` parameter cannot carry the write back.
-// Port-note: The callers use the `inout CharBuf` overload below, so this form has no caller.
-func FS_ReplaceSeparators(_ path: String) {
-    // TODO: Port FS_ReplaceSeparators
-    portMissing("FS_ReplaceSeparators", source: "oracle/codemp/qcommon/files_common.cpp:277")
-}
-
-/// Source: oracle/codemp/qcommon/files_common.cpp:277
-// Port-note: The CharBuf overload of row F7, for the `char temp[MAX_OSPATH]` of the two FS_BuildOSPath forms.
-// AI: Raven writes through a `char *` into the caller's buffer. The overload takes the caller's CharBuf, so the write reaches it.
-func FS_ReplaceSeparators(_ path: inout CharBuf) {
+func FS_ReplaceSeparators(_ path: inout JKAShared.CharBuf) {
     var s: Int32
 
     s = 0
@@ -366,7 +354,7 @@ Filename are reletive to the quake search path
 ```
 */
 /// Source: oracle/codemp/qcommon/files_common.cpp:401
-func FS_WriteFile(_ qpath: String, _ buffer: OpaquePointer?, _ size: Int32) {
+func FS_WriteFile(_ qpath: String, _ buffer: Slots<JKAShared.byte>, _ size: Int32) {
     let f: fileHandle_t
 
     if fs_searchpaths == nil {

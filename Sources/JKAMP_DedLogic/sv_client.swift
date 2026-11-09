@@ -900,7 +900,9 @@ func SV_WriteDownloadToClient(_ cl: Client, _ msg: Msg) {
             portMissing("SV_WriteDownloadToClient", source: "oracle/codemp/server/sv_client.cpp:1090")
         }
 
-        cl.downloadBlockSize[curindex] = FS_Read(cl.downloadBlocks[curindex], MAX_DOWNLOAD_BLKSIZE, cl.download)
+        // Port-note: Row G13. FS_Read takes a Slots of bytes, and `downloadBlocks` of client_t holds each block as a handle with no byte form.
+        // Raven wrote: cl->downloadBlockSize[curindex] = FS_Read( cl->downloadBlocks[curindex], MAX_DOWNLOAD_BLKSIZE, cl->download )
+        portMissing("SV_WriteDownloadToClient", source: "oracle/codemp/server/sv_client.cpp:1090")
 
         if cl.downloadBlockSize[curindex] < 0 {
             // EOF right now

@@ -6,6 +6,108 @@ import JKAShared
 /// Raven's file-scope variables the module writes, one stored property each, with Raven's initializer or C's zero, owned by `EngineWorld` under rule 3.
 /// A body reaches each one by Raven's name through the forwarder in the stub of the file that declared it.
 public struct EngineVariables {
+    /// Raven's `int g_Ghoul2Allocations` of `G2_API.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_API.cpp:34
+    public var g_Ghoul2Allocations: Int32 = 0
+
+    /// Raven's `int g_G2ServerAlloc` of `G2_API.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_API.cpp:35
+    public var g_G2ServerAlloc: Int32 = 0
+
+    /// Raven's `int g_G2ClientAlloc` of `G2_API.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_API.cpp:36
+    public var g_G2ClientAlloc: Int32 = 0
+
+    /// Raven's `int g_G2AllocServer` of `G2_API.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_API.cpp:37
+    public var g_G2AllocServer: Int32 = 0
+
+    /// Raven's `int G2TimeBases[NUM_G2T_TIME]` of `G2_API.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_API.cpp:160
+    public var G2TimeBases: [Int32] = [Int32](repeating: 0, count: 2)
+
+    /// Raven's `qboolean gG2_GBMNoReconstruct` of `G2_API.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_API.cpp:1724
+    public var gG2_GBMNoReconstruct: Bool = false
+
+    /// Raven's `qboolean gG2_GBMUseSPMethod` of `G2_API.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_API.cpp:1725
+    public var gG2_GBMUseSPMethod: Bool = false
+
+    /// Raven's `int tempDependents[MAX_BONES_RAG]` of `G2_bones.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1219
+    public var tempDependents: [Int32] = [Int32](repeating: 0, count: 256)
+
+    /// Raven's `int ragBlistIndex[MAX_BONES_RAG]` of `G2_bones.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1220
+    public var ragBlistIndex: [Int32] = [Int32](repeating: 0, count: 256)
+
+    /// Raven's `int numRags` of `G2_bones.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1221
+    public var numRags: Int32 = 0
+
+    /// Raven's `vec3_t ragBoneMins` of `G2_bones.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1222
+    public var ragBoneMins: JKAShared.vec3_t = vec3_t()
+
+    /// Raven's `vec3_t ragBoneMaxs` of `G2_bones.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1223
+    public var ragBoneMaxs: JKAShared.vec3_t = vec3_t()
+
+    /// Raven's `vec3_t ragBoneCM` of `G2_bones.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1224
+    public var ragBoneCM: JKAShared.vec3_t = vec3_t()
+
+    /// Raven's `vec3_t desiredPelvisOffset` of `G2_bones.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1226
+    public var desiredPelvisOffset: JKAShared.vec3_t = vec3_t()
+
+    /// Raven's `float ragOriginChange` of `G2_bones.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1227
+    public var ragOriginChange: Float = 0.0
+
+    /// Raven's `vec3_t ragOriginChangeDir` of `G2_bones.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1228
+    public var ragOriginChangeDir: JKAShared.vec3_t = vec3_t()
+
+    /// Raven's `int ragState` of `G2_bones.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1239
+    public var ragState: Int32 = 0
+
+    /// Raven's `int CurrentTag` of `G2_misc.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_misc.cpp:32
+    // Raven wrote `= GORE_TAG_UPPER+1`, and the hand line in `EngineWorld.init` holds it.
+    public var CurrentTag: Int32 = 0
+
+    /// Raven's `int CurrentTagUpper` of `G2_misc.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_misc.cpp:33
+    // Raven wrote `= GORE_TAG_UPPER`, and the hand line in `EngineWorld.init` holds it.
+    public var CurrentTagUpper: Int32 = 0
+
+    /// Raven's `int goreModelIndex` of `G2_misc.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_misc.cpp:38
+    public var goreModelIndex: Int32 = 0
+
+    /// Raven's `cvar_t *cg_g2MarksAllModels` of `G2_misc.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_misc.cpp:40
+    public var cg_g2MarksAllModels: JKAMP.Cvar? = nil
+
+    /// Raven's `int CurrentGoreSet` of `G2_misc.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_misc.cpp:124
+    public var CurrentGoreSet: Int32 = 1
+
+    /// Raven's `int GoreIndexCopy[MAX_GORE_VERTS]` of `G2_misc.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_misc.cpp:794
+    public var GoreIndexCopy: [Int32] = [Int32](repeating: 0, count: 3000)
+
+    /// Raven's `int GoreTouch` of `G2_misc.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_misc.cpp:795
+    public var GoreTouch: Int32 = 1
+
+    /// Raven's `int GoreIndecies[MAX_GORE_INDECIES]` of `G2_misc.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_misc.cpp:798
+    public var GoreIndecies: [Int32] = [Int32](repeating: 0, count: 6000)
+
     /// Raven's `char token[MAX_TOKEN_SIZE]` of `GenericParser2.cpp`.
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:13
     public var token: JKAShared.CharBuf = JKAShared.CharBuf(1024)
@@ -42,6 +144,10 @@ public struct EngineVariables {
     /// Source: oracle/codemp/qcommon/cm_load.cpp:51
     public var box_planes: JKAShared.Cplane? = nil
 
+    /// Raven's `cbrush_t *box_brush` of `cm_load.cpp`.
+    /// Source: oracle/codemp/qcommon/cm_load.cpp:52
+    public var box_brush: Cbrush? = nil
+
     /// Raven's `int NumSubBSP, TotalSubModels` of `cm_load.cpp`.
     /// Source: oracle/codemp/qcommon/cm_load.cpp:61
     public var NumSubBSP: Int32 = 0
@@ -66,6 +172,14 @@ public struct EngineVariables {
     /// Source: oracle/codemp/qcommon/cm_patch.cpp:85
     public var c_totalPatchBlocks: Int32 = 0
 
+    /// Raven's `const patchCollide_t *debugPatchCollide` of `cm_patch.cpp`.
+    /// Source: oracle/codemp/qcommon/cm_patch.cpp:89
+    public var debugPatchCollide: PatchCollide? = nil
+
+    /// Raven's `const facet_t *debugFacet` of `cm_patch.cpp`.
+    /// Source: oracle/codemp/qcommon/cm_patch.cpp:90
+    public var debugFacet: Facet? = nil
+
     /// Raven's `qboolean debugBlock` of `cm_patch.cpp`.
     /// Source: oracle/codemp/qcommon/cm_patch.cpp:91
     public var debugBlock: Bool = false
@@ -77,6 +191,10 @@ public struct EngineVariables {
     /// Raven's `int numPlanes` of `cm_patch.cpp`.
     /// Source: oracle/codemp/qcommon/cm_patch.cpp:430
     public var numPlanes: Int32 = 0
+
+    /// Raven's `facet_t *facets` of `cm_patch.cpp`.
+    /// Source: oracle/codemp/qcommon/cm_patch.cpp:435
+    public var facets: Facet? = nil
 
     /// Raven's `int c_active_windings` of `cm_polylib.cpp`.
     /// Source: oracle/codemp/qcommon/cm_polylib.cpp:12
@@ -346,6 +464,10 @@ public struct EngineVariables {
     /// Source: oracle/codemp/qcommon/files_common.cpp:192
     public var fs_dirbeforepak: JKAMP.Cvar? = nil
 
+    /// Raven's `searchpath_t *fs_searchpaths` of `files_common.cpp`.
+    /// Source: oracle/codemp/qcommon/files_common.cpp:193
+    public var fs_searchpaths: Searchpath? = nil
+
     /// Raven's `int fs_readCount` of `files_common.cpp`.
     /// Source: oracle/codemp/qcommon/files_common.cpp:194
     public var fs_readCount: Int32 = 0
@@ -603,6 +725,566 @@ public struct EngineVariables {
     /// Source: oracle/codemp/server/sv_world.cpp:59
     public var sv_numworldSectors: Int32 = 0
 
+    /// Raven's `int G2PerformanceCounter_G2_TransformGhoulBones` of `tr_ghoul2.cpp`.
+    /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:52
+    public var G2PerformanceCounter_G2_TransformGhoulBones: Int32 = 0
+
+    /// Raven's `int G2Time_RenderSurfaces` of `tr_ghoul2.cpp`.
+    /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:54
+    public var G2Time_RenderSurfaces: Int32 = 0
+
+    /// Raven's `int G2Time_R_AddGHOULSurfaces` of `tr_ghoul2.cpp`.
+    /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:55
+    public var G2Time_R_AddGHOULSurfaces: Int32 = 0
+
+    /// Raven's `int G2Time_G2_TransformGhoulBones` of `tr_ghoul2.cpp`.
+    /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:56
+    public var G2Time_G2_TransformGhoulBones: Int32 = 0
+
+    /// Raven's `int G2Time_G2_ProcessGeneratedSurfaceBolts` of `tr_ghoul2.cpp`.
+    /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:57
+    public var G2Time_G2_ProcessGeneratedSurfaceBolts: Int32 = 0
+
+    /// Raven's `int G2Time_ProcessModelBoltSurfaces` of `tr_ghoul2.cpp`.
+    /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:58
+    public var G2Time_ProcessModelBoltSurfaces: Int32 = 0
+
+    /// Raven's `int G2Time_G2_ConstructGhoulSkeleton` of `tr_ghoul2.cpp`.
+    /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:59
+    public var G2Time_G2_ConstructGhoulSkeleton: Int32 = 0
+
+    /// Raven's `int G2Time_RB_SurfaceGhoul` of `tr_ghoul2.cpp`.
+    /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:60
+    public var G2Time_RB_SurfaceGhoul: Int32 = 0
+
+    /// Raven's `int G2Time_G2_SetupModelPointers` of `tr_ghoul2.cpp`.
+    /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:61
+    public var G2Time_G2_SetupModelPointers: Int32 = 0
+
+    /// Raven's `int G2Time_PreciseFrame` of `tr_ghoul2.cpp`.
+    /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:62
+    public var G2Time_PreciseFrame: Int32 = 0
+
+    /// Raven's `unsigned int NextRS` of `tr_ghoul2.cpp`.
+    /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:867
+    public var NextRS: UInt32 = 0
+
+    /// Raven's `cvar_t *r_verbose` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:40
+    public var r_verbose: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_ignore` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:41
+    public var r_ignore: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_displayRefresh` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:43
+    public var r_displayRefresh: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_detailTextures` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:45
+    public var r_detailTextures: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_znear` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:47
+    public var r_znear: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_skipBackEnd` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:49
+    public var r_skipBackEnd: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_ignorehwgamma` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:51
+    public var r_ignorehwgamma: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_measureOverdraw` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:52
+    public var r_measureOverdraw: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_inGameVideo` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:54
+    public var r_inGameVideo: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_fastsky` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:55
+    public var r_fastsky: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_drawSun` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:56
+    public var r_drawSun: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_dynamiclight` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:57
+    public var r_dynamiclight: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_lodbias` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:60
+    public var r_lodbias: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_lodscale` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:61
+    public var r_lodscale: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_autolodscalevalue` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:62
+    public var r_autolodscalevalue: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_norefresh` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:64
+    public var r_norefresh: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_drawentities` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:65
+    public var r_drawentities: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_drawworld` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:66
+    public var r_drawworld: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_drawfog` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:67
+    public var r_drawfog: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_speeds` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:68
+    public var r_speeds: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_fullbright` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:69
+    public var r_fullbright: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_novis` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:70
+    public var r_novis: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_nocull` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:71
+    public var r_nocull: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_facePlaneCull` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:72
+    public var r_facePlaneCull: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_cullRoofFaces` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:73
+    public var r_cullRoofFaces: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_roofCullCeilDist` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:74
+    public var r_roofCullCeilDist: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_roofCullFloorDist` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:75
+    public var r_roofCullFloorDist: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_showcluster` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:76
+    public var r_showcluster: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_nocurves` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:77
+    public var r_nocurves: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_autoMap` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:79
+    public var r_autoMap: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_autoMapBackAlpha` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:80
+    public var r_autoMapBackAlpha: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_autoMapDisable` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:81
+    public var r_autoMapDisable: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_dlightStyle` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:83
+    public var r_dlightStyle: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_surfaceSprites` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:84
+    public var r_surfaceSprites: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_surfaceWeather` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:85
+    public var r_surfaceWeather: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_windSpeed` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:87
+    public var r_windSpeed: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_windAngle` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:88
+    public var r_windAngle: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_windGust` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:89
+    public var r_windGust: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_windDampFactor` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:90
+    public var r_windDampFactor: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_windPointForce` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:91
+    public var r_windPointForce: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_windPointX` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:92
+    public var r_windPointX: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_windPointY` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:93
+    public var r_windPointY: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_allowExtensions` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:95
+    public var r_allowExtensions: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_ext_compressed_textures` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:97
+    public var r_ext_compressed_textures: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_ext_compressed_lightmaps` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:98
+    public var r_ext_compressed_lightmaps: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_ext_preferred_tc_method` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:99
+    public var r_ext_preferred_tc_method: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_ext_gamma_control` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:100
+    public var r_ext_gamma_control: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_ext_multitexture` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:101
+    public var r_ext_multitexture: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_ext_compiled_vertex_array` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:102
+    public var r_ext_compiled_vertex_array: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_ext_texture_env_add` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:103
+    public var r_ext_texture_env_add: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_ext_texture_filter_anisotropic` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:104
+    public var r_ext_texture_filter_anisotropic: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_DynamicGlow` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:106
+    public var r_DynamicGlow: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_DynamicGlowPasses` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:107
+    public var r_DynamicGlowPasses: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_DynamicGlowDelta` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:108
+    public var r_DynamicGlowDelta: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_DynamicGlowIntensity` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:109
+    public var r_DynamicGlowIntensity: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_DynamicGlowSoft` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:110
+    public var r_DynamicGlowSoft: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_DynamicGlowWidth` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:111
+    public var r_DynamicGlowWidth: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_DynamicGlowHeight` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:112
+    public var r_DynamicGlowHeight: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_ignoreGLErrors` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:114
+    public var r_ignoreGLErrors: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_logFile` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:115
+    public var r_logFile: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_stencilbits` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:117
+    public var r_stencilbits: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_depthbits` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:118
+    public var r_depthbits: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_colorbits` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:119
+    public var r_colorbits: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_stereo` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:120
+    public var r_stereo: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_primitives` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:121
+    public var r_primitives: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_texturebits` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:122
+    public var r_texturebits: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_texturebitslm` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:123
+    public var r_texturebitslm: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_lightmap` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:125
+    public var r_lightmap: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_vertexLight` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:126
+    public var r_vertexLight: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_uiFullScreen` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:127
+    public var r_uiFullScreen: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_shadows` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:128
+    public var r_shadows: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_shadowRange` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:129
+    public var r_shadowRange: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_flares` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:130
+    public var r_flares: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_mode` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:131
+    public var r_mode: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_nobind` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:132
+    public var r_nobind: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_singleShader` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:133
+    public var r_singleShader: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_colorMipLevels` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:134
+    public var r_colorMipLevels: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_picmip` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:135
+    public var r_picmip: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_showtris` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:136
+    public var r_showtris: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_showsky` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:137
+    public var r_showsky: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_shownormals` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:138
+    public var r_shownormals: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_finish` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:139
+    public var r_finish: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_clear` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:140
+    public var r_clear: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_swapInterval` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:141
+    public var r_swapInterval: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_markcount` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:142
+    public var r_markcount: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_textureMode` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:143
+    public var r_textureMode: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_offsetFactor` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:144
+    public var r_offsetFactor: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_offsetUnits` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:145
+    public var r_offsetUnits: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_gamma` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:146
+    public var r_gamma: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_intensity` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:147
+    public var r_intensity: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_lockpvs` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:148
+    public var r_lockpvs: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_noportals` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:149
+    public var r_noportals: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_portalOnly` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:150
+    public var r_portalOnly: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_subdivisions` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:152
+    public var r_subdivisions: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_lodCurveError` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:153
+    public var r_lodCurveError: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_fullscreen` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:155
+    public var r_fullscreen: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_customwidth` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:157
+    public var r_customwidth: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_customheight` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:158
+    public var r_customheight: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_overBrightBits` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:160
+    public var r_overBrightBits: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_debugSurface` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:162
+    public var r_debugSurface: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_simpleMipMaps` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:163
+    public var r_simpleMipMaps: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_showImages` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:165
+    public var r_showImages: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_ambientScale` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:167
+    public var r_ambientScale: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_directedScale` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:168
+    public var r_directedScale: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_debugLight` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:169
+    public var r_debugLight: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_debugSort` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:170
+    public var r_debugSort: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_maxpolys` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:172
+    public var r_maxpolys: JKAMP.Cvar? = nil
+
+    /// Raven's `int max_polys` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:173
+    public var max_polys: Int32 = 0
+
+    /// Raven's `cvar_t *r_maxpolyverts` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:174
+    public var r_maxpolyverts: JKAMP.Cvar? = nil
+
+    /// Raven's `int max_polyverts` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:175
+    public var max_polyverts: Int32 = 0
+
+    /// Raven's `cvar_t *r_modelpoolmegs` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:177
+    public var r_modelpoolmegs: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_noServerGhoul2` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:195
+    public var r_noServerGhoul2: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_Ghoul2AnimSmooth` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:196
+    public var r_Ghoul2AnimSmooth: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *r_Ghoul2UnSqashAfterSmooth` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:197
+    public var r_Ghoul2UnSqashAfterSmooth: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *broadsword` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:204
+    public var broadsword: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *broadsword_kickbones` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:205
+    public var broadsword_kickbones: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *broadsword_kickorigin` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:206
+    public var broadsword_kickorigin: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *broadsword_playflop` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:207
+    public var broadsword_playflop: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *broadsword_dontstopanim` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:208
+    public var broadsword_dontstopanim: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *broadsword_waitforshot` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:209
+    public var broadsword_waitforshot: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *broadsword_smallbbox` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:210
+    public var broadsword_smallbbox: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *broadsword_extra1` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:211
+    public var broadsword_extra1: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *broadsword_extra2` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:212
+    public var broadsword_extra2: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *broadsword_effcorr` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:214
+    public var broadsword_effcorr: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *broadsword_ragtobase` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:215
+    public var broadsword_ragtobase: JKAMP.Cvar? = nil
+
+    /// Raven's `cvar_t *broadsword_dircap` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:216
+    public var broadsword_dircap: JKAMP.Cvar? = nil
+
+    /// Raven's `int giRegisterMedia_CurrentLevel` of `tr_model.cpp`.
+    /// Source: oracle/codemp/renderer/tr_model.cpp:521
+    public var giRegisterMedia_CurrentLevel: Int32 = 0
+
+    /// Raven's `qboolean gbInsideRegisterModel` of `tr_model.cpp`.
+    /// Source: oracle/codemp/renderer/tr_model.cpp:1406
+    public var gbInsideRegisterModel: Bool = false
+
+    /// Raven's `qboolean deferLoad` of `tr_shader.cpp`.
+    /// Source: oracle/codemp/renderer/tr_shader.cpp:103
+    public var deferLoad: Bool = false
+
     /// Raven's `symbolVMMap_t g_vmMap` of `vm.cpp`.
     /// Source: oracle/codemp/qcommon/vm.cpp:20
     public var g_vmMap: Int32 = 0
@@ -634,10 +1316,6 @@ public struct EngineVariables {
     /// Raven's `int eventTail` of `win_main.cpp`.
     /// Source: oracle/codemp/null/win_main.cpp:1115
     public var eventTail: Int32 = 0
-
-    /// Raven's `byte sys_packetReceived[MAX_MSGLEN]` of `win_main.cpp`.
-    /// Source: oracle/codemp/null/win_main.cpp:1116
-    public var sys_packetReceived: [JKAShared.byte] = [JKAShared.byte](repeating: 0, count: 49152)
 
     /// Raven's `qboolean winsockInitialized` of `win_net.cpp`.
     /// Source: oracle/codemp/win32/win_net.cpp:8
@@ -682,6 +1360,16 @@ public struct EngineVariables {
     /// Raven's `cvar_t *net_socksPassword` of `win_net.cpp`.
     /// Source: oracle/codemp/win32/win_net.cpp:21
     public var net_socksPassword: JKAMP.Cvar? = nil
+
+    /// Raven's `SOCKET ip_socket` of `win_net.cpp`.
+    /// Source: oracle/codemp/win32/win_net.cpp:27
+    // Raven wrote `= INVALID_SOCKET`, and the hand line in `EngineWorld.init` holds it.
+    public var ip_socket: Int32 = 0
+
+    /// Raven's `SOCKET socks_socket` of `win_net.cpp`.
+    /// Source: oracle/codemp/win32/win_net.cpp:28
+    // Raven wrote `= INVALID_SOCKET`, and the hand line in `EngineWorld.init` holds it.
+    public var socks_socket: Int32 = 0
 
     /// Raven's `SOCKET ipx_socket` of `win_net.cpp`.
     /// Source: oracle/codemp/win32/win_net.cpp:29

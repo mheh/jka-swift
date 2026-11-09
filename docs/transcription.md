@@ -123,6 +123,13 @@ An enum of that last kind is `private let` constants of type `Int32` at the top 
 | a fixed C array parameter of a scalar that a host body writes, such as `UINT4 state[4]` of `MD4Transform` | `Slots<UInt32>`, the caller's `Slots` over the array, so the write reaches the caller as Raven means. A body that only reads the array takes it by value. |
 | a `void *` or `byte *` parameter of a host function that the body hands on as bytes, such as `buffer` of `Com_BlockChecksum` and `fout` of `Huff_transmit` | `Slots<JKAShared.byte>`, PARAMS kind `bytes`, the row a host `byte *` has. |
 | a C++ parameter with a default, such as `readUntilEOL = false` of `GetToken` and `bZeroit = qfalse` and `iAlign = 4` of `Z_Malloc` | the same default in the Swift spelling, `false` for `qfalse`, the number as Raven wrote it, `nil` for a NULL into an optional, and an enumerator by name, so a caller that omits the argument reads as Raven's call. |
+| a C++ reference to a record, such as `clipMap_t &cm` of `CM_LoadMap_Actual` | the record's view, the shape a record pointer has. |
+| a C++ `T **` parameter with a default, such as `clipMap_t **clipMap = NULL` of `CM_ClipHandleToModel` | `inout View?` with no default, because Swift gives an `inout` parameter none, and a caller that omits the argument passes a scratch optional. |
+| a pointer to a C++ class that `C_STRUCT_CLASSES` copies as a struct, such as `CCMShader *` | the class's view, `CmShader`. |
+| a record Raven returns by value, such as `sysEvent_t Com_GetEvent( void )` | the record's view, RETURNS kind `record`. The body returns the storage record of its local, `ev_Com_GetRealEvent`, or a slot of a table, and the caller copies it, `ev.copy(from: Com_GetEvent())`. |
+| the return of `VM_Call` and the `int intValue` of `VM_ExplicitArgPtr` | `Int`, RETURNS and PARAMS kind `word`, the pointer-wide word of the module's vmMain, so the denial text of GAME_CLIENT_CONNECT keeps its address on a 64-bit host. |
+| a function pointer the body stores into a view field, such as `systemCalls` of `VM_Create` | the field's callback typealias, optional, PARAMS kind `callback`, so `vm->systemCall = systemCalls` reads `vm!.systemCall = systemCalls`. |
+| the `void *` buffer of `FS_Read`, `FS_Read2`, `FS_Write`, `FS_WriteFile`, `Sys_StreamedRead`, and `unzReadCurrentFile` | `Slots<JKAShared.byte>`, PARAMS kind `bytes`. A caller with a zone block hands `Slots(scalars: buf, count: Int(len) + 1)`, and a record's bytes pass as `Slots(record: ev).bytes`. |
 
 A caller of an `out_string` parameter that the callee may leave NULL passes a buffer's own text as the `inout` and writes the result back into the buffer.
 Raven's `GAME_ICARUS_GETSTRING` arm starts `char *crap = NULL`, passes `&crap` to `Q3_GetString`, and copies into `sharedMem->value` only when `crap` is set.
@@ -175,6 +182,8 @@ The `CharBuf` forms of `FS_ReadFile` return Raven's length and leave the buffer 
 A host function whose `const void *data` is a `Slots<byte>` takes a `CharBuf` overload in the logic target when Raven's caller hands it a `char` array, and the overload forwards the bytes of the buffer through `withSlots` of `CharBuf.swift`.
 A `CharBuf` is a value over a Swift array, so its bytes have no fixed address, and the `Slots` lives for the call of the closure alone.
 So `NET_SendPacket( sock, strlen( string ), string, adr )` of `NET_OutOfBandPrint` reads `NET_SendPacket(sock, strlen(string), string, adr)`.
+The CharBuf overload of `FS_Write` takes the same form, so `FS_Write(msg, strlen(msg), logfile)` of `Com_Printf` reads as Raven wrote it.
+An `int` local whose address Raven hands to a `void *` buffer, `FS_Write( &len, sizeof( len ), com_journalDataFile )` of `FS_ReadFile`, is a `BYTE_STORAGE_LOCALS` slot, and the body copies the local into the slot, `len_FS_ReadFile[0] = len`, before it hands on `len_FS_ReadFile.bytes`, the form of `key_Com_BlockChecksumKey`.
 A trap's `void /* struct ... */ *` parameter gains a second generated overload that takes the view, where Raven's comment names the struct and every caller passes that record, so `trap_EA_GetInput(bs->client, (float) time / 1000, &bi)` reads `trap_EA_GetInput(bs.client, Float(time) / 1000, bi)`.
 A trap's `const void *` parameter gains an overload that takes a `String` when Raven's own callers hand it a `char *` text, so a body writes `trap_FS_Write(str, strlen(str), fh)`.
 A `NIL_OVERLOADS` entry of `rulings.py` gives a trap a second overload that takes the named view as optional, so `trap_Cvar_Register` registers the three NULL rows of `gameCvarTable`.
@@ -366,6 +375,13 @@ The zone records of `z_memman_pc.cpp`, `zoneHeader_t`, `zoneTail_t`, `zoneStats_
 A field of an `ENUM_TYPEDEFS` typedef, `memtag_t eTag`, is the `Int32` alias, and the view widens the stored `char` on a read and truncates on a write.
 A function whose body the view target holds under Raven's name, `ZoneTailFromHeader`, has no stub in the logic file, as the traps of `g_syscalls.c` have none, so every call reaches the view target's function.
 A field whose C name is a member of every view, `handle` or `raw`, has a `FIELD_NAMES` row of `rulings.py` where a body reads it, and the view spells it under that name, so `vmCvar->handle` reads `vmCvar.cvarHandle`.
+A `void *` field so named takes the same row, and the view spells it `OpaquePointer?`, so `pak->handle` reads `pak.packHandle`.
+An `int *` field that a body indexes takes the `FIELDS` kind `bytes` too, and the view spells it `Slots<Int32>?` with the widest count, so `cm->leafbrushes[i]` reads `cm!.leafbrushes![i]` and `vm->instructionPointers[value]` reads `vm.instructionPointers![value]`.
+A `T **` field that holds an array of record pointers has the `FIELDS` kind `pointer_table`, and the view spells it `Slots<View?>?` with the widest count, so `pack->hashTable[hash]` reads `pack.hashTable![hash]` and `cm->surfaces[i]` reads `cm!.surfaces![i]`.
+A record pointer field of `FIELDS` kind `slot` carries a second accessor, `<name>Slot`, the slot of the field itself as a `Slots<View?>` of count 1, so `prev = &sym->next` reads `prev = sym.nextSlot` and `*prev = sym` reads `prev[0] = sym`.
+A pointer field to a record of the C library, the `FILE *` of `qfile_gut.o`, has the `FIELDS` kind `opaque`, and the view spells it `OpaquePointer?`, the stream handle that `FileBackend` takes, and the walk of the views reaches no record through it.
+A named union that a root row names, `qfile_gut` of `files.h`, takes a view as a struct does, so `fsh[f].handleFiles.file.o` reads as Raven wrote it.
+A `SLOT_BOUNDS` row also bounds a `char` array field that Raven allocates past its C size, so the setter of `symName` of `vmSymbol_t`, `char symName[1]`, holds his `Q_strncpyz` to `MAX_TOKEN_CHARS`, and `sym.symName = token` writes the text and its NUL alone.
 The `handle:` form stays inside generated code under rule 11, and a signature keeps the plain view type Raven's parameter had, never a generic or protocol parameter that absorbs the cast.
 A struct pointer field a body indexes, such as `animations` of `pmove_t` where Raven writes `pm->animations[anim]`, carries a second accessor, `<name>Slots: Slots<View>`, the way a `float *` field carries its `<name>Vector` accessor.
 The same subscript sweep of `table.py` names the fields that get it, and `views.py` reads that set.
@@ -787,6 +803,9 @@ No `Unsafe` type appears in a logic target, under rule 11. A pointer stays insid
 A transcriptor that finds it needs one stops and writes a Port-note instead.
 
 ### A pointer word in the shell
+
+`Sys_LoadDll` loads the module through `LoadLibrary`, the closure of `Sources/JKAMP_Ded/VmEntry.swift` that the shell installs over `jka_load_dll` of `CJKAHost`, in the shape of `sharedChannel`, because the logic target cannot import `CJKAHost`.
+`VM_Create` hands it `vm!.entryPointAddress`, the address of the `entryPoint` field in the view target, and the library name takes `DLL_SUFFIX`, `jampgamearm64.dylib` on Apple arm64.
 
 Rule 11 names the shell's `vmMain` as a pointer place, so the decode of a pointer word lives in `Sources/jampgame/jampgame.swift`.
 Two private helpers hold the decode, and an arm calls them on its word.

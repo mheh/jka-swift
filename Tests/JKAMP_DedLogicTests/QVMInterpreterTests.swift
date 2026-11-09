@@ -109,7 +109,7 @@ struct QVMInterpreterSuite {
         for i in 0..<(dataLength + litLength) {
             data.storeBytes(of: image[image.startIndex + dataOffset + i], toByteOffset: i, as: UInt8.self)
         }
-        vm.dataBase = OpaquePointer(data)
+        vm.dataBase = Slots(scalars: data, count: size)
         vm.dataMask = Int32(size - 1)
 
         // The jump targets and the code words
@@ -150,7 +150,7 @@ struct QVMInterpreterSuite {
                 pc += 1
             }
         }
-        vm.instructionPointers = OpaquePointer(pointers)
+        vm.instructionPointers = Slots(scalars: UnsafeMutableRawPointer(pointers), count: instructionCount)
         vm.instructionPointersLength = Int32(instructionCount * 4)
         vm.codeBase = OpaquePointer(code)
         vm.codeLength = Int32(codeLength)

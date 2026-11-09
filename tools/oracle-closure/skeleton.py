@@ -985,6 +985,9 @@ class Skeleton:
             elif var.local and len(var.local) > 1:
                 # The ruling moves Raven's stack local to the storage class, so the forward carries the rule 24 line.
                 lines.insert(1, f"// AI: Raven declares `{var.name}` on the stack of {' and '.join(var.local)}. The functions share one zeroed allocation on the storage class.")
+            elif var.local and var.cur.storage_class == ci.StorageClass.STATIC:
+                # A static local outlives the call, `static vmSymbol_t nullSym` of VM_ValueToFunctionSymbol, so the line names the static.
+                lines.insert(1, f"// AI: Raven declares `{var.name}` static in {var.local[0]}. The function uses one zeroed allocation on the storage class.")
             elif var.local:
                 lines.insert(1, f"// AI: Raven declares `{var.name}` on the stack of {var.local[0]}. The function uses one zeroed allocation on the storage class.")
         else:
@@ -1255,7 +1258,10 @@ class Skeleton:
     def cxx_default(self, cur: ci.Cursor, i: int, swift: str | None) -> str | None:
         """The C++ default of a parameter, from the definition or the first declaration, in the Swift spelling of the parameter.
         `qboolean bZeroit = qfalse` of Z_Malloc is `= false`, `int iAlign = 4` is `= 4`, and a NULL into an optional is `= nil`.
-        A default the parameter's spelling cannot hold, or an expression past one token, gives None."""
+        A default the parameter's spelling cannot hold, or an expression past one token, gives None.
+        Swift gives an `inout` parameter no default, so `clipMap_t **clipMap = NULL` of CM_ClipHandleToModel gives None."""
+        if swift is not None and swift.startswith("inout "):
+            return None
         for decl in (cur, cur.canonical):
             params = list(decl.get_arguments())
             if i >= len(params):
@@ -1345,8 +1351,24 @@ class Skeleton:
             self.counts["not ported by ruling"] += 1
             lines += [f"// Raven wrote: {source.c_signature(fn.cur)}", f"// Not ported: {NOT_PORTED[fn.raven_name]}."]
             return lines
+        if not fn.mapped and getattr(self, "_marked", {}).get(fn.stem, {}).get(self.signature(fn), fn.cite) != fn.cite:
+            # A C++ overload whose parameters the table cannot shape spells the empty signature of the overload before it,
+            # `G2_SetupModelPointers` of G2_API.cpp:2675 and :2773, so it is a marker with no function, the form of a NOT_PORTED stub.
+            self.counts["TODO: Port signature"] += 1
+            lines += [
+                "// TODO: Port signature",
+                f"// Raven wrote: {source.c_signature(fn.cur)}",
+                f"// {fn.reason}",
+                f"// TODO: Port {fn.name}",
+                "// An overload before it holds the empty signature, so this marker has no function until the table shapes its parameters.",
+            ]
+            return lines
         if not fn.mapped:
             self.counts["TODO: Port signature"] += 1
+            if not hasattr(self, "_marked"):
+                self._marked: dict[str, dict[str, str]] = {}
+            # The first function of a signature keeps it, and a second run of the same stub finds its own cite.
+            self._marked.setdefault(fn.stem, {}).setdefault(self.signature(fn), fn.cite)
             lines += [
                 "// TODO: Port signature",
                 f"// Raven wrote: {source.c_signature(fn.cur)}",
@@ -1585,6 +1607,10 @@ class Skeleton:
                 declaration = " ".join(text.split("=", 1)[0].split()).removeprefix("static ")
                 lines += [f"    /// Raven's `{declaration}` of `{C.file_name(stem)}`.", f"    /// Source: {var.cite}"]
                 value = self.initializer(var)
+                if target == LOGIC and value is not None and re.fullmatch(r"\w+", value) and value in self.module_lets(target_of(stem)):
+                    # A constant of the logic target, a `.c` macro such as GORE_TAG_UPPER of G2_misc.cpp:29, is out of the view target's sight,
+                    # so the hand line of the state object holds the value. The bg variables stand in the bg target beside its constants.
+                    value = None
                 if value is None and "=" in text:
                     raw = " ".join(text.split("=", 1)[1].split()).rstrip(";")
                     lines.append(f"    // Raven wrote `= {raw}`, and the hand line in `{home}.init` holds it.")

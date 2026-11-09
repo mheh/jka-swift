@@ -1,5 +1,7 @@
 import Foundation
+import CJKAHost
 import JKAShared
+import JKAMP_Ded
 import JKAMP_DedLogic
 
 // The entry point of the dedicated server, Raven's WinDed binary.
@@ -16,6 +18,10 @@ world = EngineWorld()
 // The host installs the shared channel here, in the shape of the cgame's dllEntry.
 sharedChannel.error = { level, text in JKAMP_DedLogic.Com_Error(level, text) }
 sharedChannel.print = { text in JKAMP_DedLogic.Com_Printf(text) }
+// The host installs the module loader of Sys_LoadDll here, over jka_load_dll of CJKAHost, which the logic target cannot import.
+LoadLibrary = { path, entryPoint in
+    jka_load_dll(path, entryPoint.assumingMemoryBound(to: jka_vmmain_fn?.self)).map { OpaquePointer($0) }
+}
 
 // merge the command line, this is kinda silly
 var cmdline = CharBuf(CommandLine.arguments.dropFirst().joined(separator: " "))

@@ -6,9 +6,21 @@ import JKAShared
 /// Raven's file-scope struct tables, struct records, and arrays of struct pointers, one zeroed allocation each, born and freed with `EngineWorld` under rule 3.
 /// A body reaches each one by Raven's name through the forwarder in the stub of the file that declared it.
 public final class EngineStorage {
+    /// Raven's `clipMap_t cmg` of `cm_load.cpp`.
+    /// Source: oracle/codemp/qcommon/cm_load.cpp:37
+    public let cmg: ClipMap
+
     /// Raven's `cmodel_t box_model` of `cm_load.cpp`.
     /// Source: oracle/codemp/qcommon/cm_load.cpp:50
     public let box_model: Cmodel
+
+    /// Raven's `clipMap_t SubBSP[MAX_SUB_BSP]` of `cm_load.cpp`.
+    /// Source: oracle/codemp/qcommon/cm_load.cpp:60
+    public let SubBSP: Slots<ClipMap>
+
+    /// Raven's `patchPlane_t planes[MAX_PATCH_PLANES]` of `cm_patch.cpp`.
+    /// Source: oracle/codemp/qcommon/cm_patch.cpp:431
+    public let planes: Slots<PatchPlane>
 
     /// Raven's `vec3_t p[MAX_POINTS_ON_WINDING]` local of `RemoveColinearPoints` in `cm_polylib.cpp`.
     /// Source: oracle/codemp/qcommon/cm_polylib.cpp:69
@@ -30,13 +42,33 @@ public final class EngineStorage {
     /// Source: oracle/codemp/qcommon/cmd_common.cpp:18
     public let cmd_text_buf: Slots<JKAShared.byte>
 
+    /// Raven's `sysEvent_t com_pushedEvents[MAX_PUSHED_EVENTS]` of `common.cpp`.
+    /// Source: oracle/codemp/qcommon/common.cpp:752
+    public let com_pushedEvents: Slots<SysEvent>
+
+    /// Raven's `byte bufData[MAX_MSGLEN]` local of `Com_EventLoop` in `common.cpp`.
+    /// Source: oracle/codemp/qcommon/common.cpp:924
+    public let bufData_Com_EventLoop: Slots<JKAShared.byte>
+
+    /// Raven's `sysEvent_t ev` local of `Com_GetRealEvent` in `common.cpp`.
+    /// Source: oracle/codemp/qcommon/common.cpp:791
+    public let common_ev_Com_GetRealEvent: SysEvent
+
     /// Raven's `cvar_t cvar_indexes[MAX_CVARS]` of `cvar.cpp`.
     /// Source: oracle/codemp/qcommon/cvar.cpp:11
     public let cvar_indexes: Slots<JKAMP.Cvar>
 
     /// Raven's `cvar_t* hashTable[FILE_HASH_SIZE]` of `cvar.cpp`.
     /// Source: oracle/codemp/qcommon/cvar.cpp:15
-    public let hashTable: Slots<JKAMP.Cvar?>
+    public let cvar_hashTable: Slots<JKAMP.Cvar?>
+
+    /// Raven's `fileHandleData_t fsh[MAX_FILE_HANDLES]` of `files_common.cpp`.
+    /// Source: oracle/codemp/qcommon/files_common.cpp:202
+    public let fsh: Slots<FileHandleData>
+
+    /// Raven's `int len` local of `FS_ReadFile` in `files_pc.cpp`.
+    /// Source: oracle/codemp/qcommon/files_pc.cpp:1263
+    public let len_FS_ReadFile: Slots<Int32>
 
     /// Raven's `byte seq[65536]` local of `Huff_Decompress` and `Huff_Compress` in `huffman.cpp`.
     /// Source: oracle/codemp/qcommon/huffman.cpp:306
@@ -98,6 +130,22 @@ public final class EngineStorage {
     /// Source: oracle/codemp/qcommon/vm.cpp:29
     public let vmTable: Slots<Vm>
 
+    /// Raven's `vmSymbol_t nullSym` local of `VM_ValueToFunctionSymbol` in `vm.cpp`.
+    /// Source: oracle/codemp/qcommon/vm.cpp:115
+    public let nullSym_VM_ValueToFunctionSymbol: VmSymbol
+
+    /// Raven's `sysEvent_t eventQue[MAX_QUED_EVENTS]` of `win_main.cpp`.
+    /// Source: oracle/codemp/null/win_main.cpp:1113
+    public let eventQue: Slots<SysEvent>
+
+    /// Raven's `byte sys_packetReceived[MAX_MSGLEN]` of `win_main.cpp`.
+    /// Source: oracle/codemp/null/win_main.cpp:1116
+    public let sys_packetReceived: Slots<JKAShared.byte>
+
+    /// Raven's `sysEvent_t ev` local of `Sys_GetEvent` in `win_main.cpp`.
+    /// Source: oracle/codemp/null/win_main.cpp:1162
+    public let win_main_ev_Sys_GetEvent: SysEvent
+
     /// Raven's `unsigned regs[4]` local of `Is3DNOW` in `win_shared.cpp`.
     /// Source: oracle/codemp/win32/win_shared.cpp:137
     public let regs_Is3DNOW: Slots<UInt32>
@@ -119,14 +167,22 @@ public final class EngineStorage {
     public let TheZone: Zone
 
     public init() {
+        self.cmg = EngineStorage.record(of: ClipMap.self)
         self.box_model = EngineStorage.record(of: Cmodel.self)
+        self.SubBSP = EngineStorage.records(count: Int(JKAShared.MAX_SUB_BSP), of: ClipMap.self)
+        self.planes = EngineStorage.records(count: Int(JKAMP_Ded.MAX_PATCH_PLANES), of: PatchPlane.self)
         self.p = Slots(vectors: EngineStorage.bytes(count: Int(JKAMP_Ded.MAX_POINTS_ON_WINDING) * JKAShared.vec3_t.byteCount), count: Int(JKAMP_Ded.MAX_POINTS_ON_WINDING))
         self.hullPoints = Slots(vectors: EngineStorage.bytes(count: 128 * JKAShared.vec3_t.byteCount), count: 128)
         self.newHullPoints = Slots(vectors: EngineStorage.bytes(count: 128 * JKAShared.vec3_t.byteCount), count: 128)
         self.cmd_text = EngineStorage.record(of: Cmd.self)
         self.cmd_text_buf = Slots(scalars: EngineStorage.bytes(count: 16384), count: 16384)
+        self.com_pushedEvents = EngineStorage.records(count: 1024, of: SysEvent.self)
+        self.bufData_Com_EventLoop = Slots(scalars: EngineStorage.bytes(count: Int(JKAMP_Ded.MAX_MSGLEN)), count: Int(JKAMP_Ded.MAX_MSGLEN))
+        self.common_ev_Com_GetRealEvent = EngineStorage.record(of: SysEvent.self)
         self.cvar_indexes = EngineStorage.records(count: 1224, of: JKAMP.Cvar.self)
-        self.hashTable = EngineStorage.table(count: 256, of: JKAMP.Cvar.self)
+        self.cvar_hashTable = EngineStorage.table(count: 256, of: JKAMP.Cvar.self)
+        self.fsh = EngineStorage.records(count: Int(JKAMP_Ded.MAX_FILE_HANDLES), of: FileHandleData.self)
+        self.len_FS_ReadFile = Slots(scalars: EngineStorage.bytes(count: 1 * MemoryLayout<Int32>.stride), count: 1)
         self.seq = Slots(scalars: EngineStorage.bytes(count: 65536), count: 65536)
         self.digest = Slots(scalars: EngineStorage.bytes(count: 4 * MemoryLayout<Int32>.stride), count: 4)
         self.key_Com_BlockChecksumKey = Slots(scalars: EngineStorage.bytes(count: 1 * MemoryLayout<Int32>.stride), count: 1)
@@ -142,6 +198,10 @@ public final class EngineStorage {
         self.sv = EngineStorage.record(of: Server.self)
         self.sv_master = EngineStorage.table(count: Int(JKAMP_Ded.MAX_MASTER_SERVERS), of: JKAMP.Cvar.self)
         self.vmTable = EngineStorage.records(count: 3, of: Vm.self)
+        self.nullSym_VM_ValueToFunctionSymbol = EngineStorage.record(of: VmSymbol.self)
+        self.eventQue = EngineStorage.records(count: Int(JKAMP_Ded.MAX_QUED_EVENTS), of: SysEvent.self)
+        self.sys_packetReceived = Slots(scalars: EngineStorage.bytes(count: Int(JKAMP_Ded.MAX_MSGLEN)), count: Int(JKAMP_Ded.MAX_MSGLEN))
+        self.win_main_ev_Sys_GetEvent = EngineStorage.record(of: SysEvent.self)
         self.regs_Is3DNOW = Slots(scalars: EngineStorage.bytes(count: 4 * MemoryLayout<UInt32>.stride), count: 4)
         self.regs_IsKNI = Slots(scalars: EngineStorage.bytes(count: 4 * MemoryLayout<UInt32>.stride), count: 4)
         self.regs_IsWIL = Slots(scalars: EngineStorage.bytes(count: 4 * MemoryLayout<UInt32>.stride), count: 4)
@@ -150,14 +210,22 @@ public final class EngineStorage {
     }
 
     deinit {
+        UnsafeMutableRawPointer(self.cmg.handle).deallocate()
         UnsafeMutableRawPointer(self.box_model.handle).deallocate()
+        self.SubBSP.base.deallocate()
+        self.planes.base.deallocate()
         self.p.base.deallocate()
         self.hullPoints.base.deallocate()
         self.newHullPoints.base.deallocate()
         UnsafeMutableRawPointer(self.cmd_text.handle).deallocate()
         self.cmd_text_buf.base.deallocate()
+        self.com_pushedEvents.base.deallocate()
+        self.bufData_Com_EventLoop.base.deallocate()
+        UnsafeMutableRawPointer(self.common_ev_Com_GetRealEvent.handle).deallocate()
         self.cvar_indexes.base.deallocate()
-        self.hashTable.base.deallocate()
+        self.cvar_hashTable.base.deallocate()
+        self.fsh.base.deallocate()
+        self.len_FS_ReadFile.base.deallocate()
         self.seq.base.deallocate()
         self.digest.base.deallocate()
         self.key_Com_BlockChecksumKey.base.deallocate()
@@ -173,6 +241,10 @@ public final class EngineStorage {
         UnsafeMutableRawPointer(self.sv.handle).deallocate()
         self.sv_master.base.deallocate()
         self.vmTable.base.deallocate()
+        UnsafeMutableRawPointer(self.nullSym_VM_ValueToFunctionSymbol.handle).deallocate()
+        self.eventQue.base.deallocate()
+        self.sys_packetReceived.base.deallocate()
+        UnsafeMutableRawPointer(self.win_main_ev_Sys_GetEvent.handle).deallocate()
         self.regs_Is3DNOW.base.deallocate()
         self.regs_IsKNI.base.deallocate()
         self.regs_IsWIL.base.deallocate()

@@ -12,10 +12,7 @@ CM_PointLeafnum_r
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_test.cpp:16
-// TODO: Port signature
-// Raven wrote: int CM_PointLeafnum_r( const vec3_t p, int num, clipMap_t *local )
-// No table row for `clipMap_t * local`.
-func CM_PointLeafnum_r() -> Never {
+func CM_PointLeafnum_r(_ p: JKAShared.vec3_t, _ num: Int32, _ local: ClipMap) -> Int32 {
     // TODO: Port CM_PointLeafnum_r
     portMissing("CM_PointLeafnum_r", source: "oracle/codemp/qcommon/cm_test.cpp:16")
 }
@@ -128,10 +125,7 @@ CM_BoxBrushes
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_test.cpp:194
-// TODO: Port signature
-// Raven wrote: int CM_BoxBrushes( const vec3_t mins, const vec3_t maxs, cbrush_t **boxList, int listsize )
-// No table row for `cbrush_t ** boxList`.
-func CM_BoxBrushes() -> Never {
+func CM_BoxBrushes(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ boxList: inout Cbrush?, _ listsize: Int32) -> Int32 {
     // TODO: Port CM_BoxBrushes
     portMissing("CM_BoxBrushes", source: "oracle/codemp/qcommon/cm_test.cpp:194")
 }
@@ -258,19 +252,13 @@ func CM_ClusterPVS() -> Never {
 }
 
 /// Source: oracle/codemp/qcommon/cm_test.cpp:395
-// TODO: Port signature
-// Raven wrote: void CM_FloodArea_r( int areaNum, int floodnum, clipMap_t &cm )
-// No table row for `clipMap_t & cm`.
-func CM_FloodArea_r() -> Never {
+func CM_FloodArea_r(_ areaNum: Int32, _ floodnum: Int32, _ cm: ClipMap) {
     // TODO: Port CM_FloodArea_r
     portMissing("CM_FloodArea_r", source: "oracle/codemp/qcommon/cm_test.cpp:395")
 }
 
 /// Source: oracle/codemp/qcommon/cm_test.cpp:448
-// TODO: Port signature
-// Raven wrote: void CM_FloodAreaConnections( clipMap_t &cm )
-// No table row for `clipMap_t & cm`.
-func CM_FloodAreaConnections() -> Never {
+func CM_FloodAreaConnections(_ cm: ClipMap) {
     // TODO: Port CM_FloodAreaConnections
     portMissing("CM_FloodAreaConnections", source: "oracle/codemp/qcommon/cm_test.cpp:448")
 }

@@ -1105,9 +1105,7 @@ func SV_Frame(_ msec: Int32) {
     }
 
     //rww - RAGDOLL_BEGIN
-    // Port-note: Row S1. G2API_SetTime of G2_API.cpp has no Swift home, because row E5 makes Ghoul2 a later port stage.
-    // Raven wrote: G2API_SetTime(svs.time,0)
-    portMissing("SV_Frame", source: "oracle/codemp/server/sv_main.cpp:826")
+    G2API_SetTime(svs.time, 0)
     //rww - RAGDOLL_END
 
     if com_speeds!.integer != 0 {

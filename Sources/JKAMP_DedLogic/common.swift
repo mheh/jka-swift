@@ -323,10 +323,15 @@ var com_pushedEventsTail: Int32 {
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:752
-// TODO: Port global com_pushedEvents
-// Raven wrote: static sysEvent_t com_pushedEvents[MAX_PUSHED_EVENTS]
-// No view for `sysEvent_t` of `qcommon.h`.
-// Port-note: Row S1. `sysEvent_t` needs a HOST_ROOTS row before the ring has storage.
+var com_pushedEvents: Slots<SysEvent> { world.storage.com_pushedEvents }
+
+/// Source: oracle/codemp/qcommon/common.cpp:791
+// AI: Raven declares `ev` on the stack of Com_GetRealEvent. The function uses one zeroed allocation on the storage class.
+private var ev_Com_GetRealEvent: SysEvent { world.storage.common_ev_Com_GetRealEvent }
+
+/// Source: oracle/codemp/qcommon/common.cpp:924
+// AI: Raven declares `bufData` on the stack of Com_EventLoop. The function uses one zeroed allocation on the storage class.
+var bufData_Com_EventLoop: Slots<JKAShared.byte> { world.storage.bufData_Com_EventLoop }
 
 
 /// Source: oracle/codemp/qcommon/common.cpp:96
@@ -1003,13 +1008,17 @@ Com_RealTime
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:713
-// TODO: Port signature
-// Raven wrote: int Com_RealTime(qtime_t *qtime)
-// No table row for `qtime_t * qtime`.
-// Port-note: Row R1. The host table has no row for `qtime_t *`, so the function keeps its signature marker.
-func Com_RealTime() -> Never {
-    // TODO: Port Com_RealTime
-    portMissing("Com_RealTime", source: "oracle/codemp/qcommon/common.cpp:713")
+func Com_RealTime(_ qtime: JKAMP.Qtime?) -> Int32 {
+    let t: time_t
+
+    t = time(nil)
+    if qtime == nil {
+        // C narrows the `time_t` to the `int` return.
+        return Int32(truncatingIfNeeded: t)
+    }
+    // AI: Raven reads `tms = localtime(&t)` and copies its fields when it is not NULL. The backend does the read and the copy into the view.
+    CommonBackend.localtime(t, qtime!)
+    return Int32(truncatingIfNeeded: t)
 }
 
 /**
@@ -1053,13 +1062,42 @@ Com_GetRealEvent
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:789
-// TODO: Port signature
-// Raven wrote: sysEvent_t Com_GetRealEvent( void )
-// No table row for the return `sysEvent_t`.
-// Port-note: Row S1. The host table has no row for a `sysEvent_t` return, so the function keeps its signature marker.
-func Com_GetRealEvent() -> Never {
-    // TODO: Port Com_GetRealEvent
-    portMissing("Com_GetRealEvent", source: "oracle/codemp/qcommon/common.cpp:789")
+func Com_GetRealEvent() -> SysEvent {
+    var r: Int32
+    let ev = ev_Com_GetRealEvent
+
+    // either get an event from the system or the journal file
+    if com_journal!.integer == 2 {
+        r = FS_Read(Slots(record: ev).bytes, Int32(SysEvent.byteCount), com_journalFile)
+        if r != Int32(SysEvent.byteCount) {
+            Com_Error(ERR_FATAL, "Error reading from journal file")
+        }
+        if ev.evPtrLength != 0 {
+            let block = Z_Malloc(ev.evPtrLength, TAG_EVENT, true)
+            ev.evPtr = block
+            r = FS_Read(Slots(scalars: block, count: Int(ev.evPtrLength)), ev.evPtrLength, com_journalFile)
+            if r != ev.evPtrLength {
+                Com_Error(ERR_FATAL, "Error reading from journal file")
+            }
+        }
+    } else {
+        ev.copy(from: Sys_GetEvent())
+
+        // write the journal value out if needed
+        if com_journal!.integer == 1 {
+            r = FS_Write(Slots(record: ev).bytes, Int32(SysEvent.byteCount), com_journalFile)
+            if r != Int32(SysEvent.byteCount) {
+                Com_Error(ERR_FATAL, "Error writing to journal file")
+            }
+            if ev.evPtrLength != 0 {
+                // Port-note: Raven writes the bytes of the `void *` field `ev.evPtr`, and FS_Write takes a Slots of bytes, which a handle field does not give.
+                // Raven wrote: r = FS_Write( ev.evPtr, ev.evPtrLength, com_journalFile ), and its test of `r`
+                portMissing("Com_GetRealEvent", source: "oracle/codemp/qcommon/common.cpp:789")
+            }
+        }
+    }
+
+    return ev
 }
 
 /**
@@ -1074,9 +1112,7 @@ Com_InitPushEvent
 func Com_InitPushEvent() {
     // clear the static buffer array
     // this requires SE_NONE to be accepted as a valid but NOP event
-    // Port-note: Row S1. `com_pushedEvents` has no storage, because `sysEvent_t` has no view.
-    // Raven wrote: memset( com_pushedEvents, 0, sizeof(com_pushedEvents) )
-    portMissing("Com_InitPushEvent", source: "oracle/codemp/qcommon/common.cpp:834")
+    com_pushedEvents.zero()
     // reset counters while we are at it
     // beware: GetEvent might still return an SE_NONE from the buffer
     com_pushedEventsHead = 0
@@ -1091,13 +1127,35 @@ Com_PushEvent
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:850
-// TODO: Port signature
-// Raven wrote: void Com_PushEvent( sysEvent_t *event )
-// No table row for `sysEvent_t * event`.
-// Port-note: Row S1. The host table has no row for `sysEvent_t *`, so the function keeps its signature marker.
-func Com_PushEvent() -> Never {
-    // TODO: Port Com_PushEvent
-    portMissing("Com_PushEvent", source: "oracle/codemp/qcommon/common.cpp:850")
+func Com_PushEvent(_ event: SysEvent) {
+    let ev: SysEvent
+
+    ev = com_pushedEvents[com_pushedEventsHead & (MAX_PUSHED_EVENTS - 1)]
+
+    if com_pushedEventsHead - com_pushedEventsTail >= MAX_PUSHED_EVENTS {
+        // don't print the warning constantly, or it can give time for more...
+        if printedWarning == 0 {
+            printedWarning = 1
+            Com_Printf("WARNING: Com_PushEvent overflow\n")
+        }
+
+        if ev.evPtr != nil {
+            // AI: Raven frees the `void *` field. Z_Free takes the handle of the block.
+            Z_Free(OpaquePointer(ev.evPtr))
+        }
+        com_pushedEventsTail += 1
+    } else {
+        printedWarning = 0
+    }
+
+    ev.copy(from: event)
+    com_pushedEventsHead += 1
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:852
+var printedWarning: Int32 {
+    get { world.printedWarning }
+    set { world.printedWarning = newValue }
 }
 
 /**
@@ -1108,13 +1166,12 @@ Com_GetEvent
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:881
-// TODO: Port signature
-// Raven wrote: sysEvent_t Com_GetEvent( void )
-// No table row for the return `sysEvent_t`.
-// Port-note: Row S1. The host table has no row for a `sysEvent_t` return, so the function keeps its signature marker.
-func Com_GetEvent() -> Never {
-    // TODO: Port Com_GetEvent
-    portMissing("Com_GetEvent", source: "oracle/codemp/qcommon/common.cpp:881")
+func Com_GetEvent() -> SysEvent {
+    if com_pushedEventsHead > com_pushedEventsTail {
+        com_pushedEventsTail += 1
+        return com_pushedEvents[(com_pushedEventsTail - 1) & (MAX_PUSHED_EVENTS - 1)]
+    }
+    return Com_GetRealEvent()
 }
 
 /**
@@ -1158,10 +1215,100 @@ Returns last event time
 */
 /// Source: oracle/codemp/qcommon/common.cpp:921
 func Com_EventLoop() -> Int32 {
-    // Port-note: Row S1. Raven's `sysEvent_t ev` has no view, and Com_GetEvent keeps its signature marker.
-    // Port-note: Row S2. Raven's `byte bufData[MAX_MSGLEN]` has no BYTE_STORAGE_LOCALS row, so MSG_Init has no Slots to take.
-    // Raven wrote: sysEvent_t ev; netadr_t evFrom; byte bufData[MAX_MSGLEN]; msg_t buf; MSG_Init( &buf, bufData, sizeof( bufData ) );
-    portMissing("Com_EventLoop", source: "oracle/codemp/qcommon/common.cpp:921")
+    return SysEvent.scratch { ev -> Int32 in
+        Netadr.scratch { evFrom -> Int32 in
+            Msg.scratch { buf -> Int32 in
+                MSG_Init(buf, bufData_Com_EventLoop, Int32(bufData_Com_EventLoop.count))
+
+                while true {
+                    ev.copy(from: Com_GetEvent())
+
+                    // if no more events are available
+                    if ev.evType == SE_NONE {
+                        // manually send packet events for the loopback channel
+                        while NET_GetLoopPacket(NS_CLIENT, evFrom, buf) {
+                            CL_PacketEvent(evFrom, buf)
+                        }
+
+                        while NET_GetLoopPacket(NS_SERVER, evFrom, buf) {
+                            // if the server just shut down, flush the events
+                            if com_sv_running!.integer != 0 {
+                                Com_RunAndTimeServerPacket(evFrom, buf)
+                            }
+                        }
+
+                        return ev.evTime
+                    }
+
+                    switch ev.evType {
+                    case SE_NONE:
+                        break
+                    case SE_KEY:
+                        // C converts the `int` time to the `unsigned` parameter.
+                        CL_KeyEvent(ev.evValue, ev.evValue2 != 0, UInt32(bitPattern: ev.evTime))
+                    case SE_CHAR:
+                        CL_CharEvent(ev.evValue)
+                    case SE_MOUSE:
+                        CL_MouseEvent(ev.evValue, ev.evValue2, ev.evTime)
+                    case SE_JOYSTICK_AXIS:
+                        CL_JoystickEvent(ev.evValue, ev.evValue2, ev.evTime)
+                    case SE_CONSOLE:
+                        // AI: Raven reads the text at `(char *)ev.evPtr`. The body reads the text of the raw block of the event.
+                        let text = cString(at: ev.evPtr!)
+                        if text.hasPrefix("\\") || text.hasPrefix("/") {
+                            Cbuf_AddText(String(text.dropFirst()))
+                        } else {
+                            Cbuf_AddText(text)
+                        }
+                        Cbuf_AddText("\n")
+                    case SE_PACKET:
+                        // this cvar allows simulation of connections that
+                        // drop a lot of packets.  Note that loopback connections
+                        // don't go through here at all.
+                        if com_dropsim!.value > 0 {
+                            if Q_random(&seed_Com_EventLoop) < com_dropsim!.value {
+                                break // drop this packet
+                            }
+                        }
+
+                        evFrom.copy(from: Netadr(ev.evPtr!))
+                        buf.cursize = ev.evPtrLength - Int32(Netadr.byteCount)
+
+                        // we must copy the contents of the message out, because
+                        // the event buffers are only large enough to hold the
+                        // exact payload, but channel messages need to be large
+                        // enough to hold fragment reassembly
+                        if UInt32(bitPattern: buf.cursize) > UInt32(bitPattern: buf.maxsize) {
+                            Com_Printf("Com_EventLoop: oversize packet\n")
+                            continue
+                        }
+                        // AI: Raven copies from `(netadr_t *)ev.evPtr + 1`. The copy reads the tail of the block from the byte offset of one record.
+                        Com_Memcpy(buf.data!, Slots<JKAShared.byte>(scalars: ev.evPtr!, count: Int(ev.evPtrLength)).suffix(from: Netadr.byteCount), buf.cursize)
+                        if com_sv_running!.integer != 0 {
+                            Com_RunAndTimeServerPacket(evFrom, buf)
+                        } else {
+                            CL_PacketEvent(evFrom, buf)
+                        }
+                    default:
+                        // bk001129 - was ev.evTime
+                        Com_Error(ERR_FATAL, "Com_EventLoop: bad event type %i", ev.evType)
+                    }
+
+                    // free any block data
+                    if ev.evPtr != nil {
+                        // AI: Raven frees the `void *` field. Z_Free takes the handle of the block.
+                        Z_Free(OpaquePointer(ev.evPtr))
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// Source: oracle/codemp/qcommon/common.cpp:986
+var seed_Com_EventLoop: Int32 {
+    get { world.seed_Com_EventLoop }
+    set { world.seed_Com_EventLoop = newValue }
 }
 
 /**
@@ -1175,9 +1322,17 @@ Can be used for profiling, but will be journaled accurately
 */
 /// Source: oracle/codemp/qcommon/common.cpp:1028
 func Com_Milliseconds() -> Int32 {
-    // Port-note: Row S1. Raven's `sysEvent_t ev` has no view, and Com_GetRealEvent and Com_PushEvent keep their signature markers.
-    // Raven wrote: sysEvent_t ev; do { ev = Com_GetRealEvent(); if ( ev.evType != SE_NONE ) { Com_PushEvent( &ev ); } } while ( ev.evType != SE_NONE ); return ev.evTime;
-    portMissing("Com_Milliseconds", source: "oracle/codemp/qcommon/common.cpp:1028")
+    return SysEvent.scratch { ev -> Int32 in
+        // get events and push them until we get a null event with the current time
+        repeat {
+            ev.copy(from: Com_GetRealEvent())
+            if ev.evType != SE_NONE {
+                Com_PushEvent(ev)
+            }
+        } while ev.evType != SE_NONE
+
+        return ev.evTime
+    }
 }
 
 /**
@@ -1574,7 +1729,7 @@ public func Com_Frame() {
     // Port-note: Raven wraps the frame in a try, and the catch prints the text a Com_Error throws for an ERR_DROP and returns.
     // Row C1: the three throw sites of Com_Error print the text and end the process, so no throw reaches this function.
 
-    // Port-note: Row G1. Raven starts the C++ timer G2PerformanceTimer_PreciseFrame of tr_ghoul2.cpp, which row E5 leaves to the Ghoul2 stage.
+    // Port-note: Row G1. Raven starts the C++ timer G2PerformanceTimer_PreciseFrame, a `timing_c` of the C++ track that stage E5 gives no storage.
     // Raven wrote: G2PerformanceTimer_PreciseFrame.Start();
     portMissing("Com_Frame", source: "oracle/codemp/qcommon/common.cpp:1593")
     var msec: Int32
@@ -1729,9 +1884,14 @@ public func Com_Frame() {
 
     com_frameNumber += 1
 
-    // Port-note: Row G1. Raven adds the end of the C++ timer to G2Time_PreciseFrame, and reports and resets the Ghoul2 timers of tr_ghoul2.cpp, which row E5 leaves to the Ghoul2 stage.
-    // Raven wrote: G2Time_PreciseFrame += G2PerformanceTimer_PreciseFrame.End(); if (com_G2Report && com_G2Report->integer) { G2Time_ReportTimers(); } G2Time_ResetTimers();
+    // Port-note: Row G1. Raven adds the end of the C++ timer G2PerformanceTimer_PreciseFrame, a `timing_c` of the C++ track that stage E5 gives no storage.
+    // Raven wrote: G2Time_PreciseFrame += G2PerformanceTimer_PreciseFrame.End();
     portMissing("Com_Frame", source: "oracle/codemp/qcommon/common.cpp:1593")
+
+    if com_G2Report != nil && com_G2Report!.integer != 0 {
+        G2Time_ReportTimers()
+    }
+    G2Time_ResetTimers()
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:1785

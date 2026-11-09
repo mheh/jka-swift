@@ -331,9 +331,7 @@ private func SV_MapRestart_f() {
         SV_AddServerCommand(client!, "map_restart\n")
 
         // connect the client again, without the firstTime flag
-        // Port-note: Row S3. VM_ExplicitArgPtr carries a signature marker, so the text that GAME_CLIENT_CONNECT returns has no form.
-        // Raven wrote: denied = (char *)VM_ExplicitArgPtr( gvm, VM_Call( gvm, GAME_CLIENT_CONNECT, i, qfalse, isBot ) )
-        portMissing("SV_MapRestart_f", source: "oracle/codemp/server/sv_ccmds.cpp:234")
+        denied = VM_ExplicitArgPtr(gvm!, VM_Call(gvm!, GAME_CLIENT_CONNECT, i, false, isBot))
         if denied != nil {
             // this generally shouldn't happen, because the client
             // was connected before the level change

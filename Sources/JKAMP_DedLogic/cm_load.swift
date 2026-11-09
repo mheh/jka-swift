@@ -16,8 +16,7 @@ let BOX_LEAFS = 2 as Int32
 let BOX_PLANES = 12 as Int32
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:37
-// AI: Raven's `clipMap_t cmg` had no view. The forward reaches the hand `ClipMap` record that `EngineWorld` owns.
-var cmg: ClipMap { world.cmg }
+var cmg: ClipMap { world.storage.cmg }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:38
 var c_pointcontents: Int32 {
@@ -76,15 +75,13 @@ var box_planes: JKAShared.Cplane? {
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:52
-// AI: Raven's `cbrush_t *box_brush` had no table row. The forward reaches the hand `Cbrush?` that `EngineWorld` owns.
 var box_brush: Cbrush? {
-    get { world.box_brush }
-    set { world.box_brush = newValue }
+    get { world.variables.box_brush }
+    set { world.variables.box_brush = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:60
-// AI: Raven's `clipMap_t SubBSP[MAX_SUB_BSP]` had no view. The forward reaches the hand `Slots<ClipMap>` that `EngineWorld` owns.
-var SubBSP: Slots<ClipMap> { world.SubBSP }
+var SubBSP: Slots<ClipMap> { world.storage.SubBSP }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:61
 var NumSubBSP: Int32 {
@@ -130,12 +127,10 @@ CMod_LoadShaders
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:76
-// TODO: Port signature
-// Raven wrote: void CMod_LoadShaders( lump_t *l, clipMap_t &cm )
-// No table row for `lump_t * l`.
-func CMod_LoadShaders() -> Never {
+func CMod_LoadShaders(_ l: JKAMP.Lump, _ cm: ClipMap) {
+    // Port-note: Row CM2. Raven reads the lump at `cmod_base + l->fileofs`, and `cmod_base`, the `byte *` of cm_load.cpp:64, has no storage row, so the body waits on the cm_load round.
     // TODO: Port CMod_LoadShaders
-    portMissing("CMod_LoadShaders", source: "oracle/codemp/qcommon/cm_load.cpp:76")
+    portMissing("CMod_LoadShaders", source: "oracle/codemp/qcommon/cm_load.cpp:29")
 }
 
 /**
@@ -146,10 +141,8 @@ CMod_LoadSubmodels
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:109
-// TODO: Port signature
-// Raven wrote: void CMod_LoadSubmodels( lump_t *l, clipMap_t &cm )
-// No table row for `lump_t * l`.
-func CMod_LoadSubmodels() -> Never {
+func CMod_LoadSubmodels(_ l: JKAMP.Lump, _ cm: ClipMap) {
+    // Port-note: Row CM2. Raven reads the lump at `cmod_base + l->fileofs`, and `cmod_base`, the `byte *` of cm_load.cpp:64, has no storage row, so the body waits on the cm_load round.
     // TODO: Port CMod_LoadSubmodels
     portMissing("CMod_LoadSubmodels", source: "oracle/codemp/qcommon/cm_load.cpp:109")
 }
@@ -163,10 +156,8 @@ CMod_LoadNodes
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:175
-// TODO: Port signature
-// Raven wrote: void CMod_LoadNodes( lump_t *l, clipMap_t &cm )
-// No table row for `lump_t * l`.
-func CMod_LoadNodes() -> Never {
+func CMod_LoadNodes(_ l: JKAMP.Lump, _ cm: ClipMap) {
+    // Port-note: Row CM2. Raven reads the lump at `cmod_base + l->fileofs`, and `cmod_base`, the `byte *` of cm_load.cpp:64, has no storage row, so the body waits on the cm_load round.
     // TODO: Port CMod_LoadNodes
     portMissing("CMod_LoadNodes", source: "oracle/codemp/qcommon/cm_load.cpp:175")
 }
@@ -180,12 +171,15 @@ CM_BoundBrush
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:211
-// TODO: Port signature
-// Raven wrote: void CM_BoundBrush( cbrush_t *b )
-// No table row for `cbrush_t * b`.
-func CM_BoundBrush() -> Never {
-    // TODO: Port CM_BoundBrush
-    portMissing("CM_BoundBrush", source: "oracle/codemp/qcommon/cm_load.cpp:211")
+func CM_BoundBrush(_ b: Cbrush) {
+    b.bounds[0][0] = -b.sidesSlots[0].plane!.dist
+    b.bounds[1][0] = b.sidesSlots[1].plane!.dist
+
+    b.bounds[0][1] = -b.sidesSlots[2].plane!.dist
+    b.bounds[1][1] = b.sidesSlots[3].plane!.dist
+
+    b.bounds[0][2] = -b.sidesSlots[4].plane!.dist
+    b.bounds[1][2] = b.sidesSlots[5].plane!.dist
 }
 
 /**
@@ -197,10 +191,8 @@ CMod_LoadBrushes
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:229
-// TODO: Port signature
-// Raven wrote: void CMod_LoadBrushes( lump_t *l, clipMap_t &cm )
-// No table row for `lump_t * l`.
-func CMod_LoadBrushes() -> Never {
+func CMod_LoadBrushes(_ l: JKAMP.Lump, _ cm: ClipMap) {
+    // Port-note: Row CM2. Raven reads the lump at `cmod_base + l->fileofs`, and `cmod_base`, the `byte *` of cm_load.cpp:64, has no storage row, so the body waits on the cm_load round.
     // TODO: Port CMod_LoadBrushes
     portMissing("CMod_LoadBrushes", source: "oracle/codemp/qcommon/cm_load.cpp:229")
 }
@@ -213,10 +205,8 @@ CMod_LoadLeafs
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:269
-// TODO: Port signature
-// Raven wrote: void CMod_LoadLeafs (lump_t *l, clipMap_t &cm)
-// No table row for `lump_t * l`.
-func CMod_LoadLeafs() -> Never {
+func CMod_LoadLeafs(_ l: JKAMP.Lump, _ cm: ClipMap) {
+    // Port-note: Row CM2. Raven reads the lump at `cmod_base + l->fileofs`, and `cmod_base`, the `byte *` of cm_load.cpp:64, has no storage row, so the body waits on the cm_load round.
     // TODO: Port CMod_LoadLeafs
     portMissing("CMod_LoadLeafs", source: "oracle/codemp/qcommon/cm_load.cpp:269")
 }
@@ -229,10 +219,8 @@ CMod_LoadPlanes
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:312
-// TODO: Port signature
-// Raven wrote: void CMod_LoadPlanes (lump_t *l, clipMap_t &cm)
-// No table row for `lump_t * l`.
-func CMod_LoadPlanes() -> Never {
+func CMod_LoadPlanes(_ l: JKAMP.Lump, _ cm: ClipMap) {
+    // Port-note: Row CM2. Raven reads the lump at `cmod_base + l->fileofs`, and `cmod_base`, the `byte *` of cm_load.cpp:64, has no storage row, so the body waits on the cm_load round.
     // TODO: Port CMod_LoadPlanes
     portMissing("CMod_LoadPlanes", source: "oracle/codemp/qcommon/cm_load.cpp:312")
 }
@@ -245,10 +233,8 @@ CMod_LoadLeafBrushes
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:353
-// TODO: Port signature
-// Raven wrote: void CMod_LoadLeafBrushes (lump_t *l, clipMap_t &cm)
-// No table row for `lump_t * l`.
-func CMod_LoadLeafBrushes() -> Never {
+func CMod_LoadLeafBrushes(_ l: JKAMP.Lump, _ cm: ClipMap) {
+    // Port-note: Row CM2. Raven reads the lump at `cmod_base + l->fileofs`, and `cmod_base`, the `byte *` of cm_load.cpp:64, has no storage row, so the body waits on the cm_load round.
     // TODO: Port CMod_LoadLeafBrushes
     portMissing("CMod_LoadLeafBrushes", source: "oracle/codemp/qcommon/cm_load.cpp:353")
 }
@@ -261,10 +247,8 @@ CMod_LoadLeafSurfaces
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:380
-// TODO: Port signature
-// Raven wrote: void CMod_LoadLeafSurfaces( lump_t *l, clipMap_t &cm )
-// No table row for `lump_t * l`.
-func CMod_LoadLeafSurfaces() -> Never {
+func CMod_LoadLeafSurfaces(_ l: JKAMP.Lump, _ cm: ClipMap) {
+    // Port-note: Row CM2. Raven reads the lump at `cmod_base + l->fileofs`, and `cmod_base`, the `byte *` of cm_load.cpp:64, has no storage row, so the body waits on the cm_load round.
     // TODO: Port CMod_LoadLeafSurfaces
     portMissing("CMod_LoadLeafSurfaces", source: "oracle/codemp/qcommon/cm_load.cpp:380")
 }
@@ -277,10 +261,8 @@ CMod_LoadBrushSides
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:407
-// TODO: Port signature
-// Raven wrote: void CMod_LoadBrushSides (lump_t *l, clipMap_t &cm)
-// No table row for `lump_t * l`.
-func CMod_LoadBrushSides() -> Never {
+func CMod_LoadBrushSides(_ l: JKAMP.Lump, _ cm: ClipMap) {
+    // Port-note: Row CM2. Raven reads the lump at `cmod_base + l->fileofs`, and `cmod_base`, the `byte *` of cm_load.cpp:64, has no storage row, so the body waits on the cm_load round.
     // TODO: Port CMod_LoadBrushSides
     portMissing("CMod_LoadBrushSides", source: "oracle/codemp/qcommon/cm_load.cpp:407")
 }
@@ -293,47 +275,80 @@ CMod_LoadEntityString
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:442
-// TODO: Port signature
-// Raven wrote: void CMod_LoadEntityString( lump_t *l, clipMap_t &cm )
-// No table row for `lump_t * l`.
-func CMod_LoadEntityString() -> Never {
+func CMod_LoadEntityString(_ l: JKAMP.Lump, _ cm: ClipMap) {
+    // Port-note: Row CM2. Raven reads the lump at `cmod_base + l->fileofs`, and `cmod_base`, the `byte *` of cm_load.cpp:64, has no storage row, so the body waits on the cm_load round.
     // TODO: Port CMod_LoadEntityString
     portMissing("CMod_LoadEntityString", source: "oracle/codemp/qcommon/cm_load.cpp:442")
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:454
-// TODO: Port signature
-// Raven wrote: void CMod_LoadVisibility( lump_t *l, clipMap_t &cm )
-// No table row for `lump_t * l`.
-func CMod_LoadVisibility() -> Never {
-    // TODO: Port CMod_LoadVisibility
+func CMod_LoadVisibility(_ l: JKAMP.Lump, _ cm: ClipMap) {
+    let len: Int32
+    // Port-note: A pointer local `byte * buf` with no view.
+    // Raven wrote: byte *buf;
+    portMissing("CMod_LoadVisibility", source: "oracle/codemp/qcommon/cm_load.cpp:454")
+
+    len = l.filelen
+    if len == 0 {
+        cm.clusterBytes = (cm.numClusters + 31) & ~31
+        // Port-note: Raven reads `cm.visibility`, a `byte *` field. The generated field is an `OpaquePointer?`, and rule 11 keeps a pointer out of a logic target.
+        // Raven wrote: cm.visibility = (unsigned char *)Hunk_Alloc( cm.clusterBytes, h_high )
+        portMissing("CMod_LoadVisibility", source: "oracle/codemp/qcommon/cm_load.cpp:454")
+        // Port-note: Raven reads `cm.visibility`, a `byte *` field. The generated field is an `OpaquePointer?`, and rule 11 keeps a pointer out of a logic target.
+        // Raven wrote: Com_Memset( cm.visibility, 255, cm.clusterBytes )
+        portMissing("CMod_LoadVisibility", source: "oracle/codemp/qcommon/cm_load.cpp:454")
+        return
+    }
+    // Port-note: A store into `buf`, a local the draft left as a hole.
+    // Raven wrote: buf = cmod_base + l->fileofs
+    portMissing("CMod_LoadVisibility", source: "oracle/codemp/qcommon/cm_load.cpp:454")
+
+    cm.vised = true
+    // Port-note: Raven reads `cm.visibility`, a `byte *` field. The generated field is an `OpaquePointer?`, and rule 11 keeps a pointer out of a logic target.
+    // Raven wrote: cm.visibility = (unsigned char *)Hunk_Alloc( len, h_high )
+    portMissing("CMod_LoadVisibility", source: "oracle/codemp/qcommon/cm_load.cpp:454")
+    // Port-note: An unexposed expression with 2 children.
+    // Raven wrote: cm.numClusters = LittleLong( ((int *)buf)[0] )
+    portMissing("CMod_LoadVisibility", source: "oracle/codemp/qcommon/cm_load.cpp:454")
+    // Port-note: An unexposed expression with 2 children.
+    // Raven wrote: cm.clusterBytes = LittleLong( ((int *)buf)[1] )
+    portMissing("CMod_LoadVisibility", source: "oracle/codemp/qcommon/cm_load.cpp:454")
+    // Port-note: Raven reads `cm.visibility`, a `byte *` field. The generated field is an `OpaquePointer?`, and rule 11 keeps a pointer out of a logic target.
+    // Raven wrote: Com_Memcpy (cm.visibility, buf + VIS_HEADER, len - VIS_HEADER )
     portMissing("CMod_LoadVisibility", source: "oracle/codemp/qcommon/cm_load.cpp:454")
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:483
-// TODO: Port signature
-// Raven wrote: void CMod_LoadPatches( lump_t *surfs, lump_t *verts, clipMap_t &cm )
-// No table row for `lump_t * surfs`.
-func CMod_LoadPatches() -> Never {
+func CMod_LoadPatches(_ surfs: JKAMP.Lump, _ verts: JKAMP.Lump, _ cm: ClipMap) {
+    // Port-note: Row CM2. Raven reads the lump at `cmod_base + l->fileofs`, and `cmod_base`, the `byte *` of cm_load.cpp:64, has no storage row, so the body waits on the cm_load round.
     // TODO: Port CMod_LoadPatches
     portMissing("CMod_LoadPatches", source: "oracle/codemp/qcommon/cm_load.cpp:483")
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:540
-// TODO: Port signature
-// Raven wrote: unsigned CM_LumpChecksum(lump_t *lump)
-// No table row for `lump_t * lump`.
-func CM_LumpChecksum() -> Never {
-    // TODO: Port CM_LumpChecksum
+func CM_LumpChecksum(_ lump: JKAMP.Lump) -> UInt32 {
+    // Port-note: An unexposed expression with 2 children.
+    // Raven wrote: return LittleLong (Com_BlockChecksum (cmod_base + lump->fileofs, lump->filelen))
     portMissing("CM_LumpChecksum", source: "oracle/codemp/qcommon/cm_load.cpp:540")
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:544
-// TODO: Port signature
-// Raven wrote: unsigned CM_Checksum(dheader_t *header)
-// No table row for `dheader_t * header`.
-func CM_Checksum() -> Never {
-    // TODO: Port CM_Checksum
+func CM_Checksum(_ header: Dheader) -> UInt32 {
+    var checksums: [UInt32] = [UInt32](repeating: 0, count: 16)
+    checksums[0] = CM_LumpChecksum(header.lumps[LUMP_SHADERS])
+    checksums[1] = CM_LumpChecksum(header.lumps[LUMP_LEAFS])
+    checksums[2] = CM_LumpChecksum(header.lumps[LUMP_LEAFBRUSHES])
+    checksums[3] = CM_LumpChecksum(header.lumps[LUMP_LEAFSURFACES])
+    checksums[4] = CM_LumpChecksum(header.lumps[LUMP_PLANES])
+    checksums[5] = CM_LumpChecksum(header.lumps[LUMP_BRUSHSIDES])
+    checksums[6] = CM_LumpChecksum(header.lumps[LUMP_BRUSHES])
+    checksums[7] = CM_LumpChecksum(header.lumps[LUMP_MODELS])
+    checksums[8] = CM_LumpChecksum(header.lumps[LUMP_NODES])
+    checksums[9] = CM_LumpChecksum(header.lumps[LUMP_SURFACES])
+    checksums[10] = CM_LumpChecksum(header.lumps[LUMP_DRAWVERTS])
+
+    // Port-note: An unexposed expression with 2 children.
+    // Raven wrote: return LittleLong(Com_BlockChecksum(checksums, 11 * 4))
     portMissing("CM_Checksum", source: "oracle/codemp/qcommon/cm_load.cpp:544")
 }
 
@@ -365,10 +380,8 @@ func CM_DeleteCachedMap(_ bGuaranteedOkToDelete: Bool) -> Bool {
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:605
-// TODO: Port signature
-// Raven wrote: static void CM_LoadMap_Actual( const char *name, qboolean clientload, int *checksum, clipMap_t &cm )
-// No table row for `clipMap_t & cm`.
-private func CM_LoadMap_Actual() -> Never {
+private func CM_LoadMap_Actual(_ name: String, _ clientload: Bool, _ checksum: inout Int32, _ cm: ClipMap) {
+    // Port-note: Row CM2. Raven reads the BSP through `cmod_base`, the `byte *` of cm_load.cpp:64 with no storage row, and through the static `last_checksum`, so the body waits on the cm_load round.
     // TODO: Port CM_LoadMap_Actual
     portMissing("CM_LoadMap_Actual", source: "oracle/codemp/qcommon/cm_load.cpp:605")
 }
@@ -400,12 +413,12 @@ func CM_ClearMap() {
     CM_ShutdownShaderProperties()
     //	MAT_Shutdown();
 
-    // Port-note: `TheRandomMissionManager` belongs to the RMG, which row E5 links as C++, and it has no Swift name.
+    // Port-note: Row CM6. `TheRandomMissionManager` of RM_Manager.cpp:23 is a `CRMManager *` of the C++ track, so the stem of stage E5 gives it no storage.
     // Raven wrote: if (TheRandomMissionManager) { delete TheRandomMissionManager; TheRandomMissionManager = 0; }
     portMissing("CM_ClearMap", source: "oracle/codemp/qcommon/cm_load.cpp:791")
 
     if cmg.landScape != nil {
-        // Port-note: `CCMLandScape` belongs to the terrain, which row E5 links as C++, and its destructor has no Swift name.
+        // Port-note: Row CM6. `CCMLandScape` of cm_landscape.h:135 is a class of the C++ track, and stage E5 gives its destructor no Swift name.
         // Raven wrote: delete cmg.landScape;
         portMissing("CM_ClearMap", source: "oracle/codemp/qcommon/cm_load.cpp:791")
         cmg.landScape = nil
@@ -431,12 +444,39 @@ CM_ClipHandleToModel
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:828
-// TODO: Port signature
-// Raven wrote: cmodel_t *CM_ClipHandleToModel( clipHandle_t handle, clipMap_t **clipMap )
-// No table row for `clipMap_t ** clipMap`.
-func CM_ClipHandleToModel() -> Never {
-    // TODO: Port CM_ClipHandleToModel
-    portMissing("CM_ClipHandleToModel", source: "oracle/codemp/qcommon/cm_load.cpp:828")
+func CM_ClipHandleToModel(_ handle: JKAShared.clipHandle_t, _ clipMap: inout ClipMap?) -> Cmodel? {
+    var i: Int32
+    var count: Int32
+
+    if handle < 0 {
+        Com_Error(ERR_DROP, "CM_ClipHandleToModel: bad handle %i", handle)
+    }
+    if handle < cmg.numSubModels {
+        clipMap = cmg
+        return cmg.cmodelsSlots[handle]
+    }
+    if handle == BOX_MODEL_HANDLE {
+        clipMap = cmg
+        return box_model
+    }
+
+    count = cmg.numSubModels
+    i = 0
+    while i < NumSubBSP {
+        if handle < count + SubBSP[i].numSubModels {
+            clipMap = SubBSP[i]
+            return SubBSP[i].cmodelsSlots[handle - count]
+        }
+        count += SubBSP[i].numSubModels
+        i += 1
+    }
+
+    if handle < MAX_SUBMODELS {
+        Com_Error(ERR_DROP, "CM_ClipHandleToModel: bad handle %i < %i < %i", cmg.numSubModels, handle, MAX_SUBMODELS)
+    }
+    Com_Error(ERR_DROP, "CM_ClipHandleToModel: bad handle %i", handle + MAX_SUBMODELS)
+
+    return nil
 }
 
 /**
@@ -619,7 +659,7 @@ func CM_ShutdownTerrain(_ terrainId: JKAShared.thandle_t) {
     landscape = cmg.landScape
 
     if landscape != nil {
-        // Port-note: `CCMLandScape` belongs to the terrain, which row E5 links as C++, and its methods have no Swift name.
+        // Port-note: Row CM6. `CCMLandScape` of cm_landscape.h:135 is a class of the C++ track, and stage E5 gives its methods no Swift name.
         // Raven wrote: landscape->DecreaseRefCount(); if(landscape->GetRefCount() <= 0) { delete landscape; cmg.landScape = NULL; }
         portMissing("CM_ShutdownTerrain", source: "oracle/codemp/qcommon/cm_load.cpp:1065")
     }
@@ -681,12 +721,41 @@ func CM_GetWorldBounds(_ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.v
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:1138
-// TODO: Port signature
-// Raven wrote: int CM_ModelContents_Actual( clipHandle_t model, clipMap_t *cm )
-// No table row for `clipMap_t * cm`.
-func CM_ModelContents_Actual() -> Never {
-    // TODO: Port CM_ModelContents_Actual
-    portMissing("CM_ModelContents_Actual", source: "oracle/codemp/qcommon/cm_load.cpp:1138")
+func CM_ModelContents_Actual(_ model: JKAShared.clipHandle_t, _ cm: ClipMap?) -> Int32 {
+    var cmod: Cmodel?
+    var contents: Int32 = 0
+    var i: Int32
+    // Raven assigns his own `cm` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
+    var cm = cm
+
+    if cm == nil {
+        cm = cmg
+    }
+
+    cmod = CM_ClipHandleToModel(model, &cm)
+
+    //MCG ADDED - return the contents, too
+    if cmod!.leaf.numLeafBrushes != 0 {
+        var brushNum: Int32
+        i = cmod!.leaf.firstLeafBrush
+        while i < cmod!.leaf.firstLeafBrush + cmod!.leaf.numLeafBrushes {
+            brushNum = cm!.leafbrushes![i]
+            contents |= cm!.brushesSlots[brushNum].contents
+            i += 1
+        }
+    }
+    if cmod!.leaf.numLeafSurfaces != 0 {
+        var surfaceNum: Int32
+        i = cmod!.leaf.firstLeafSurface
+        while i < cmod!.leaf.firstLeafSurface + cmod!.leaf.numLeafSurfaces {
+            surfaceNum = cm!.leafsurfaces![i]
+            if cm!.surfaces![surfaceNum] != nil { //HERNH? How could we have a null surf within our cmod->leaf.numLeafSurfaces?
+                contents |= cm!.surfaces![surfaceNum]!.contents
+            }
+            i += 1
+        }
+    }
+    return contents
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:1176

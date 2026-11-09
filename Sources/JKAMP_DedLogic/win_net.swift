@@ -81,14 +81,14 @@ var socksRelayAddr: Sockaddr {
 
 /// Source: oracle/codemp/win32/win_net.cpp:27
 var ip_socket: Int32 {
-    get { world.ip_socket }
-    set { world.ip_socket = newValue }
+    get { world.variables.ip_socket }
+    set { world.variables.ip_socket = newValue }
 }
 
 /// Source: oracle/codemp/win32/win_net.cpp:28
 var socks_socket: Int32 {
-    get { world.socks_socket }
-    set { world.socks_socket = newValue }
+    get { world.variables.socks_socket }
+    set { world.variables.socks_socket = newValue }
 }
 
 /// Source: oracle/codemp/win32/win_net.cpp:29
