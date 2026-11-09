@@ -224,6 +224,38 @@ public final class EngineWorld {
         "OP_CVFI"
     ]
 
+    // MARK: - win_main.cpp
+
+    /// Raven's `static int len` of `Sys_ConsoleInput` in `win_main.cpp`, the count of keys on the console line.
+    /// Source: oracle/codemp/null/win_main.cpp:204
+    var len: Int32 = 0
+
+    /// Raven's `static bool bPendingExtended` of `Sys_ConsoleInput` in `win_main.cpp`, true after the first byte of a function key.
+    /// Source: oracle/codemp/null/win_main.cpp:205
+    var bPendingExtended = false
+
+    // MARK: - win_net.cpp
+
+    /// Raven's `static struct sockaddr socksRelayAddr` of `win_net.cpp`.
+    /// Source: oracle/codemp/win32/win_net.cpp:22
+    var socksRelayAddr = Sockaddr()
+
+    /// Raven's `static SOCKET ip_socket = INVALID_SOCKET` of `win_net.cpp`.
+    /// Source: oracle/codemp/win32/win_net.cpp:27
+    var ip_socket = INVALID_SOCKET
+
+    /// Raven's `static SOCKET socks_socket = INVALID_SOCKET` of `win_net.cpp`.
+    /// Source: oracle/codemp/win32/win_net.cpp:28
+    var socks_socket = INVALID_SOCKET
+
+    // MARK: - win_shared.cpp
+
+    /// Raven's `static int sys_timeBase = timeGetTime()` of `Sys_Milliseconds` in `win_shared.cpp`.
+    /// The first read sets it, as C++ sets a static local on the first pass through its declaration.
+    /// Source: oracle/codemp/win32/win_shared.cpp:24
+    // AI: Raven read the Win32 timeGetTime for the base. The backend reads the monotonic clock of the platform.
+    lazy var sys_timeBase: Int32 = SysBackend.timeGetTime()
+
     // MARK: - z_memman_pc.cpp
 
     /// Raven's `const static char *psTagStrings[TAG_COUNT+1]` of `z_memman_pc.cpp`, the `TAGDEF` list of oracle/codemp/qcommon/tags.h with no `_XBOX`.
@@ -282,7 +314,10 @@ public final class EngineWorld {
     ]
 
     /// The shell entry builds a fresh world, so the initializer is public.
-    public init() {}
+    public init() {
+        // Raven's `static SOCKET ipx_socket = INVALID_SOCKET` of win_net.cpp:29.
+        self.variables.ipx_socket = INVALID_SOCKET
+    }
 }
 
 /// The one instance. The engine runs one thread, so this is not isolated.
