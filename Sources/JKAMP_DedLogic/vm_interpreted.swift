@@ -163,9 +163,7 @@ func VM_CallInterpreted(_ vm: Vm, _ args: [Int32]?) -> Int32 {
 
     // interpret the code
     vm.currentlyInterpreting = true
-    // Port-note: `VM_SetSymbolMap` is an inline function of vm_local.h over the `std::map` of `g_vmMap`, and it has no Swift home.
-    // Raven wrote: VM_SetSymbolMap(vm);
-    portMissing("VM_CallInterpreted", source: "oracle/codemp/qcommon/vm_interpreted.cpp:296")
+    VM_SetSymbolMap(vm)
 
     // we might be called recursively, so this might not be the very top
     stackOnEntry = vm.programStack
