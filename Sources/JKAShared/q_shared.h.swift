@@ -13,6 +13,19 @@ public func RAD2DEG(_ a: Float) -> Float {
     (a * 180.0) / M_PI
 }
 
+/// C computes the product in the type of the argument, so a `float` and a `double` argument each keep their type.
+/// Source: oracle/codemp/game/q_shared.h:3005
+public func Square<T: Numeric>(_ x: T) -> T {
+    x * x
+}
+
+/// Source: oracle/codemp/game/q_shared.h:1370
+public func VectorAdvance(_ a: vec3_t, _ s: Float, _ b: vec3_t, _ c: inout vec3_t) {
+    c[0] = a[0] + s * (b[0] - a[0])
+    c[1] = a[1] + s * (b[1] - a[1])
+    c[2] = a[2] + s * (b[2] - a[2])
+}
+
 /// Source: oracle/codemp/game/q_shared.h:30
 public func VALIDSTRING(_ a: String) -> Bool {
     !a.isEmpty

@@ -63,3 +63,9 @@ extension SIMD4 where Scalar == Float {
     /// Raven's `sizeof(vec4_t)`, four floats.
     public static var byteCount: Int { 4 * MemoryLayout<Float>.size }
 }
+
+extension OpaquePointer {
+    /// Raven's `sizeof(T *)`, the size of one pointer, `sizeof( cm.surfaces[0] )` of `CMod_LoadPatches`.
+    /// Source: oracle/codemp/qcommon/cm_load.cpp:498
+    public static var byteCount: Int { MemoryLayout<OpaquePointer>.size }
+}
