@@ -306,18 +306,38 @@ Verdict: open, no precedent. Proposed form: each class is a `final class` with R
 
 `grep Unsafe` over `Sources/JKAMP_DedLogic` gives the signatures of the RETURNS and PARAMS kind `raw`, among them the three new rows of B5, and vm_interpreted.swift. No body of this batch adds raw arithmetic.
 
-## The gate, as far as it ran
+## The open rows
 
-The batch is paused by the user's word before the end of step 3. The loop of step 3 ran six passes of the sequence. Passes 1 to 5 each stopped at the build: a `const float *` field of `moveclip_t` and `areaParms_t` that views.py wrote with a setter, the `HUNK_ID` literal, `VEC_UP` and `VEC_DOWN`, the optional `from` of SV_EmitPacketEntities, and the renamed `logfile` storage. Each pass fixed its findings and ran the sequence again. The sixth pass:
+Each row below stays open, with its proposed form in its own section above. Only a row with no precedent goes to the user.
 
-- The sequence ran whole, every step exit 0.
+- G13, `downloadBlocks`: a FIELDS kind `bytes_table` that gives `[Slots<byte>?]`. No precedent.
+- B1, the botlib edge: a copy of `botlib_export_t`, `botlib_import_t`, and the PRT_ macros in `ded_types.h` under HOST_ROOTS, and the export table as a record on EngineStorage. No precedent in the host.
+- S4, the constants of `stringed_ingame.h`: not taken, because a new header in the host entry list moves the merge placement and needs its own gate.
+- S6, the defaults of SE_Load: the stub has no default, and the cause in `cxx_default` is not found. The fix is a tool fix of the next batch.
+- U5, the CharBuf read of a zip: a hand piece with a body, so it goes to the unzip round.
+- V3 and V6: an FS_ReadFile overload over `VmHeader` and a full-width accessor on `Vm`, both hand pieces of the vm round.
+- C, the C++ classes of ICARUS, the navigator, and ROFF: one `final class` per Raven class, with Raven's name, fields, and methods. No precedent.
+
+## Where jampded stops
+
+`swift build --product jampded` passes, exit 0. `.build/debug/jampded < /dev/null` prints the version line and `----- FS_Startup -----`, then traps at `FS_AddGameDirectory` (`files_pc.cpp:2212`), exit 133 after the trap. This is the stop of master. Row F4 gives FS_AddGameDirectory and the list functions their generated signatures, and the batch writes no body, so the stop moves when the files round fills the bodies.
+
+## The test count
+
+The sixth pass recorded 147 tests, and master recorded 150. The branch changes no file under `Tests/` and does not change `Package.swift`, and `swift test list` names 150 tests. The gate of the seventh pass ran all 150 tests in nine runs: 1, 1, 1, 98, 13, 14, 3, 15, and 4. No test is missing, so nothing comes back. The count of 147 was a wrong sum of the sixth pass.
+
+## The gate
+
+The loop of step 3 ran seven passes of the sequence. Passes 1 to 5 each stopped at the build: a `const float *` field of `moveclip_t` and `areaParms_t` that views.py wrote with a setter, the `HUNK_ID` literal, `VEC_UP` and `VEC_DOWN`, the optional `from` of SV_EmitPacketEntities, and the renamed `logfile` storage. Each pass fixed its findings and ran the sequence again. Pass 6 was green but did not run the two jampded checks. Pass 7 ran the full gate after the user's pause:
+
+- The sequence ran whole, every step exit 0, and changed no tracked file.
 - `swift build` passed, exit 0.
+- `swift build --product jampded` passed, exit 0.
 - The game snapshot check read 372 files and found no difference, exit 0.
 - The cgame snapshot check read 246 files and found no difference, exit 0.
-- The host snapshot check read 373 files and found a difference, exit 1: 49 files differ and 120 are new.
-- `swift test --no-parallel` passed 147 tests in nine runs, exit 0.
+- The host snapshot check read 373 files and found a difference, exit 1: 49 files differ and 120 are new. These are the signatures and the new stems of this batch, and the caches take them at the refresh after the landing.
+- `swift test --no-parallel` passed 150 tests in nine runs, exit 0, 0 failures.
 - The tool tests passed 97 tests with 14 skipped, exit 0.
-- `draftcheck.py --unit mp-engine-ded` over cm_load, cm_patch, cm_test, cm_trace, common, files_pc, stringed_ingame, stringed_interface, sv_bot, sv_game, sv_snapshot, sv_world, unzip, vm, and win_main gave 1208 holes, 0 cascade errors, 0 defects, and 133 compile holes over 19 passes, exit 0.
-- Not run yet: `swift build --product jampded` and the run of `.build/debug/jampded`.
+- `draftcheck.py --unit mp-engine-ded` over cm_load, cm_patch, cm_test, cm_trace, common, files_pc, stringed_ingame, stringed_interface, sv_bot, sv_game, sv_snapshot, sv_world, unzip, vm, and win_main gave 1208 holes, 0 cascade errors, 0 defects, and 133 compile holes over 19 passes, exit 0. The 36 new stems are stubs and were not draftchecked.
 
 The `portMissing` total over `Sources/JKAMP_DedLogic` is 1549: 795 in the 36 new stems and 754 in the old stems, from 765 on master.
