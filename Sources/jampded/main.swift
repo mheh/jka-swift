@@ -22,6 +22,11 @@ sharedChannel.print = { text in JKAMP_DedLogic.Com_Printf(text) }
 LoadLibrary = { path, entryPoint in
     jka_load_dll(path, entryPoint.assumingMemoryBound(to: jka_vmmain_fn?.self)).map { OpaquePointer($0) }
 }
+// The host installs SV_GameSystemCalls here for the thunk of the view target, which cannot see the logic target.
+GameSystemCalls = SV_GameSystemCalls
+// The host installs the callee of VM_DllSyscall of CJKAHost here, Raven's `currentVM->systemCall( args )` at oracle/codemp/qcommon/vm.cpp:376.
+// AI: Raven calls the systemCall of currentVM. The dedicated host loads one module, the game, so the callee is the thunk of SV_GameSystemCalls.
+jka_systemCall = { parms in intptr_t(SV_GameSystemCallThunk(OpaquePointer(parms))) }
 
 // merge the command line, this is kinda silly
 var cmdline = CharBuf(CommandLine.arguments.dropFirst().joined(separator: " "))

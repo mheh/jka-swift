@@ -404,7 +404,8 @@ func ConvertedEntity(_ ent: JKAMP.SharedEntity) -> JKAMP.SharedEntity? {
 }
 
 /// Source: oracle/codemp/server/sv_game.cpp:458
-func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
+// AI: Raven's function is file-scope. It is public, because the shell installs it as `GameSystemCalls` of the view target.
+public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
     // AI: Raven's VMA and VMF macros read the local `args`. Each macro is a method of `args` in the view target, `args.VMA(1)` and `args.VMF(1)`.
     switch args[0] {
     //rww - alright, DO NOT EVER add a GAME/CGAME/UI generic call without adding a trap to match, and
@@ -1066,10 +1067,8 @@ func SV_InitGameProgs() {
     }
 
     // load the dll or bytecode
-    // Port-note: Row V2. VM_Create takes `VmSystemCall?`, a C function over the words, and SV_GameSystemCalls takes a `Slots<Int32>`.
-    // Port-note: Row V2. No C thunk over SV_GameSystemCalls exists, and the shell does not set `jka_systemCall` of CJKAHost.
-    // Raven wrote: gvm = VM_Create( "jampgame", SV_GameSystemCalls, (vmInterpret_t)(int)Cvar_VariableValue( "vm_game" ) )
-    portMissing("SV_InitGameProgs", source: "oracle/codemp/server/sv_game.cpp:1731")
+    // AI: Raven passes SV_GameSystemCalls. The call passes the C thunk over it that the view target holds, because VM_Create stores a C function.
+    gvm = VM_Create("jampgame", SV_GameSystemCallThunk, Int32(Cvar_VariableValue("vm_game")))
     if gvm == nil {
         Com_Error(ERR_FATAL, "VM_Create on game failed")
     }
