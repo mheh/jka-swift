@@ -119,19 +119,13 @@ let g_strGlowPShaderARB: [UInt8] = [
 let s_shaderText: String = ""
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:100
-// TODO: Port global stages
-// Raven wrote: static shaderStage_t stages[MAX_SHADER_STAGES]
-// No view for `shaderStage_t` of `tr_local.h`.
+var stages: Slots<ShaderStage> { world.storage.stages }
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:101
-// TODO: Port global shader
-// Raven wrote: static shader_t shader
-// No view for `shader_s` of `tr_local.h`.
+var shader: Shader { world.storage.shader }
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:102
-// TODO: Port global texMods
-// Raven wrote: static texModInfo_t texMods[MAX_SHADER_STAGES][TR_MAX_TEXMODS]
-// No view for `texModInfo_t` of `tr_local.h`.
+var texMods: Slots<TexModInfo> { world.storage.texMods }
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:103
 var deferLoad: Bool {
@@ -143,17 +137,17 @@ var deferLoad: Bool {
 private let FILE_HASH_SIZE = 1024 as Int32
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:106
-// TODO: Port global hashTable
-// Raven wrote: static shader_t* hashTable[FILE_HASH_SIZE]
-// No table row for `shader_t *[1024]`.
+private var hashTable: Slots<Shader?> { world.storage.tr_shader_hashTable }
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:108
 let MAX_SHADERTEXT_HASH = 2048 as Int32
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:109
-// TODO: Port global shaderTextHashTable
-// Raven wrote: static char **shaderTextHashTable[MAX_SHADERTEXT_HASH] = { 0 }
-// No table row for `char **[2048]`.
+/// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
+var shaderTextHashTable: [[TextCursor]] {
+    get { world.shaderTextHashTable }
+    set { world.shaderTextHashTable = newValue }
+}
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:125
 /// Raven's data table, a hand property of `EngineWorld`.
@@ -171,22 +165,20 @@ var lightmaps2d: [Int32] {
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:141
 // Raven wrote: const int lightmapsVertex[MAXLIGHTMAPS]
-// AI: Raven fills the table with LIGHTMAP_BY_VERTEX of tr_local.h:432, which has no re-export in the host target. The table holds its value, -3.
 let lightmapsVertex: [Int32] = [
-    -3,
-    -3,
-    -3,
-    -3,
+    LIGHTMAP_BY_VERTEX,
+    LIGHTMAP_BY_VERTEX,
+    LIGHTMAP_BY_VERTEX,
+    LIGHTMAP_BY_VERTEX,
 ]
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:149
 // Raven wrote: const int lightmapsFullBright[MAXLIGHTMAPS]
-// AI: Raven fills the table with LIGHTMAP_WHITEIMAGE of tr_local.h:433, which has no re-export in the host target. The table holds its value, -2.
 let lightmapsFullBright: [Int32] = [
-    -2,
-    -2,
-    -2,
-    -2,
+    LIGHTMAP_WHITEIMAGE,
+    LIGHTMAP_WHITEIMAGE,
+    LIGHTMAP_WHITEIMAGE,
+    LIGHTMAP_WHITEIMAGE,
 ]
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:157
@@ -236,8 +228,7 @@ R_CreateExtendedName
 */
 //rwwRMG - added
 /// Source: oracle/codemp/renderer/tr_shader.cpp:177
-func R_CreateExtendedName(_ extendedName: inout JKAShared.CharBuf, _ name: String, _ lightmapIndex: Int32, _ styles: Slots<UInt8>) {
-    // Port-note: Row TR8. The signature takes `Int32` for `const int *lightmapIndex`, and Raven indexes the pointer and compares it with the four lightmap tables.
+func R_CreateExtendedName(_ extendedName: inout JKAShared.CharBuf, _ name: String, _ lightmapIndex: [Int32]?, _ styles: Slots<UInt8>) {
     // TODO: Port R_CreateExtendedName
     portMissing("R_CreateExtendedName", source: "oracle/codemp/renderer/tr_shader.cpp:177")
 }
@@ -359,11 +350,7 @@ NameToGenFunc
 ```
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:479
-// TODO: Port signature
-// Raven wrote: static genFunc_t NameToGenFunc( const char *funcname )
-// No table row for the return `genFunc_t`.
-private func NameToGenFunc() -> Never {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
+private func NameToGenFunc(_ funcname: String) -> genFunc_t {
     // TODO: Port NameToGenFunc
     portMissing("NameToGenFunc", source: "oracle/codemp/renderer/tr_shader.cpp:479")
 }
@@ -376,11 +363,7 @@ ParseWaveForm
 ```
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:520
-// TODO: Port signature
-// Raven wrote: static void ParseWaveForm( const char **text, waveForm_t *wave )
-// No table row for `waveForm_t * wave`.
-private func ParseWaveForm() -> Never {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
+private func ParseWaveForm(_ text: inout JKAShared.TextCursor, _ wave: WaveForm) {
     // TODO: Port ParseWaveForm
     portMissing("ParseWaveForm", source: "oracle/codemp/renderer/tr_shader.cpp:520")
 }
@@ -393,11 +376,7 @@ ParseTexMod
 ```
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:572
-// TODO: Port signature
-// Raven wrote: static void ParseTexMod( const char *_text, shaderStage_t *stage )
-// No table row for `shaderStage_t * stage`.
-private func ParseTexMod() -> Never {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
+private func ParseTexMod(_ _text: String, _ stage: ShaderStage) {
     // TODO: Port ParseTexMod
     portMissing("ParseTexMod", source: "oracle/codemp/renderer/tr_shader.cpp:572")
 }
@@ -415,11 +394,7 @@ ParseSurfaceSprites
 // NOTE:  This parsing function used to be 12 pages long and very complex.  The new version of surfacesprites
 // utilizes optional parameters parsed in ParseSurfaceSpriteOptional.
 /// Source: oracle/codemp/renderer/tr_shader.cpp:808
-// TODO: Port signature
-// Raven wrote: static void ParseSurfaceSprites( const char *_text, shaderStage_t *stage )
-// No table row for `shaderStage_t * stage`.
-private func ParseSurfaceSprites() -> Never {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
+private func ParseSurfaceSprites(_ _text: String, _ stage: ShaderStage) {
     // TODO: Port ParseSurfaceSprites
     portMissing("ParseSurfaceSprites", source: "oracle/codemp/renderer/tr_shader.cpp:808")
 }
@@ -450,11 +425,7 @@ ParseSurfaceSpritesOptional
 // Optional parameters that will override the defaults set in the surfacesprites command above.
 //
 /// Source: oracle/codemp/renderer/tr_shader.cpp:970
-// TODO: Port signature
-// Raven wrote: static void ParseSurfaceSpritesOptional( const char *param, const char *_text, shaderStage_t *stage )
-// No table row for `shaderStage_t * stage`.
-private func ParseSurfaceSpritesOptional() -> Never {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
+private func ParseSurfaceSpritesOptional(_ param: String, _ _text: String, _ stage: ShaderStage) {
     // TODO: Port ParseSurfaceSpritesOptional
     portMissing("ParseSurfaceSpritesOptional", source: "oracle/codemp/renderer/tr_shader.cpp:970")
 }
@@ -467,11 +438,7 @@ ParseStage
 ```
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:1279
-// TODO: Port signature
-// Raven wrote: static qboolean ParseStage( shaderStage_t *stage, const char **text )
-// No table row for `shaderStage_t * stage`.
-private func ParseStage() -> Never {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
+private func ParseStage(_ stage: ShaderStage, _ text: inout JKAShared.TextCursor) -> Bool {
     // TODO: Port ParseStage
     portMissing("ParseStage", source: "oracle/codemp/renderer/tr_shader.cpp:1279")
 }
@@ -615,11 +582,7 @@ GeneratePermanentShader
 ```
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:2753
-// TODO: Port signature
-// Raven wrote: static shader_t *GeneratePermanentShader( void )
-// No table row for the return `shader_t *`.
-private func GeneratePermanentShader() -> Never {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
+private func GeneratePermanentShader() -> Shader? {
     // TODO: Port GeneratePermanentShader
     portMissing("GeneratePermanentShader", source: "oracle/codemp/renderer/tr_shader.cpp:2753")
 }
@@ -635,11 +598,7 @@ from the current global working shader
 ```
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:2941
-// TODO: Port signature
-// Raven wrote: static shader_t *FinishShader( void )
-// No table row for the return `shader_t *`.
-private func FinishShader() -> Never {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
+private func FinishShader() -> Shader? {
     // TODO: Port FinishShader
     portMissing("FinishShader", source: "oracle/codemp/renderer/tr_shader.cpp:2941")
 }
@@ -676,21 +635,13 @@ default shader if the real one can't be found.
 ```
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3342
-// TODO: Port signature
-// Raven wrote: shader_t *R_FindShaderByName( const char *name )
-// No table row for the return `shader_t *`.
-func R_FindShaderByName() -> Never {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
+func R_FindShaderByName(_ name: String) -> Shader? {
     // TODO: Port R_FindShaderByName
     portMissing("R_FindShaderByName", source: "oracle/codemp/renderer/tr_shader.cpp:3342")
 }
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3373
-// TODO: Port signature
-// Raven wrote: inline qboolean IsShader(shader_t *sh, const char *name, const int *lightmapIndex, const byte *styles)
-// No table row for `shader_t * sh`.
-func IsShader() -> Never {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
+func IsShader(_ sh: Shader, _ name: String, _ lightmapIndex: [Int32]?, _ styles: Slots<UInt8>) -> Bool {
     // TODO: Port IsShader
     portMissing("IsShader", source: "oracle/codemp/renderer/tr_shader.cpp:3373")
 }
@@ -726,31 +677,19 @@ most world construction surfaces.
 ```
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3428
-// TODO: Port signature
-// Raven wrote: shader_t *R_FindShader( const char *name, const int *lightmapIndex, const byte *styles, qboolean mipRawImage )
-// No table row for the return `shader_t *`.
-func R_FindShader() -> Never {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
+func R_FindShader(_ name: String, _ lightmapIndex: [Int32]?, _ styles: Slots<UInt8>, _ mipRawImage: Bool) -> Shader? {
     // TODO: Port R_FindShader
     portMissing("R_FindShader", source: "oracle/codemp/renderer/tr_shader.cpp:3428")
 }
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3560
-// TODO: Port signature
-// Raven wrote: shader_t *R_FindServerShader( const char *name, const int *lightmapIndex, const byte *styles, qboolean mipRawImage )
-// No table row for the return `shader_t *`.
-func R_FindServerShader() -> Never {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
+func R_FindServerShader(_ name: String, _ lightmapIndex: [Int32]?, _ styles: Slots<UInt8>, _ mipRawImage: Bool) -> Shader? {
     // TODO: Port R_FindServerShader
     portMissing("R_FindServerShader", source: "oracle/codemp/renderer/tr_shader.cpp:3560")
 }
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3598
-// TODO: Port signature
-// Raven wrote: qhandle_t RE_RegisterShaderFromImage(const char *name, int *lightmapIndex, byte *styles, image_t *image, qboolean mipRawImage)
-// No table row for `image_t * image`.
-func RE_RegisterShaderFromImage() -> Never {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
+func RE_RegisterShaderFromImage(_ name: String, _ lightmapIndex: [Int32]?, _ styles: Slots<UInt8>, _ image: Image, _ mipRawImage: Bool) -> JKAShared.qhandle_t {
     // TODO: Port RE_RegisterShaderFromImage
     portMissing("RE_RegisterShaderFromImage", source: "oracle/codemp/renderer/tr_shader.cpp:3598")
 }
@@ -769,8 +708,7 @@ way to ask for different implicit lighting modes (vertex, lightmap, etc)
 ```
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3696
-func RE_RegisterShaderLightMap(_ name: String, _ lightmapIndex: Int32, _ styles: Slots<UInt8>) -> JKAShared.qhandle_t {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
+func RE_RegisterShaderLightMap(_ name: String, _ lightmapIndex: [Int32]?, _ styles: Slots<UInt8>) -> JKAShared.qhandle_t {
     // TODO: Port RE_RegisterShaderLightMap
     portMissing("RE_RegisterShaderLightMap", source: "oracle/codemp/renderer/tr_shader.cpp:3696")
 }
@@ -830,11 +768,7 @@ it and returns a valid (possibly default) shader_t to be used internally.
 ```
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3800
-// TODO: Port signature
-// Raven wrote: shader_t *R_GetShaderByHandle( qhandle_t hShader )
-// No table row for the return `shader_t *`.
-func R_GetShaderByHandle() -> Never {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
+func R_GetShaderByHandle(_ hShader: JKAShared.qhandle_t) -> Shader? {
     // TODO: Port R_GetShaderByHandle
     portMissing("R_GetShaderByHandle", source: "oracle/codemp/renderer/tr_shader.cpp:3800")
 }

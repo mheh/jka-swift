@@ -28,4 +28,8 @@ extern StaticMem_t gEmptyString;
 // Source: oracle/codemp/qcommon/z_memman_pc.cpp:143
 extern StaticMem_t gNumberString[10];
 
+// Raven declares the table `const` with no bound in tr_init.cpp, and ded_tables.c defines it with the bound of his 13 rows, so a view can bind over it.
+// Source: oracle/codemp/renderer/tr_init.cpp:465
+extern vidmode_t r_vidModes[13];
+
 #endif

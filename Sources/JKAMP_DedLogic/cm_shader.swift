@@ -262,7 +262,7 @@ ParseVector
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:316
-private func CM_ParseVector(_ shader: CmShader, _ text: inout JKAShared.TextCursor, _ count: Int32, _ v: Slots<Float>) -> Bool {
+private func CM_ParseVector(_ shader: CmShader, _ text: inout JKAShared.TextCursor, _ count: Int32, _ v: inout JKAShared.vec3_t) -> Bool {
     var token: String
     var i: Int32
     // Raven assigns his own `v` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.

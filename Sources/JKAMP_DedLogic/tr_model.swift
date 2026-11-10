@@ -7,14 +7,14 @@ import JKAMP_Ded
 private let FILE_HASH_SIZE = 1024 as Int32
 
 /// Source: oracle/codemp/renderer/tr_model.cpp:36
-// TODO: Port global mhHashTable
-// Raven wrote: static modelHash_t *mhHashTable[FILE_HASH_SIZE]
-// No table row for `modelHash_t *[1024]`.
+var mhHashTable: Slots<ModelHash?> { world.storage.mhHashTable }
 
 /// Source: oracle/codemp/renderer/tr_model.cpp:68
-// TODO: Port global CachedModels
-// Raven wrote: CachedModels_t *CachedModels = NULL
-// No table row for `CachedModels_t *`.
+/// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
+var CachedModels: [String: CachedEndianedModelBinary_t]? {
+    get { world.CachedModels }
+    set { world.CachedModels = newValue }
+}
 
 /// Source: oracle/codemp/renderer/tr_model.cpp:95
 /// Raven's data table, a hand property of `EngineWorld`.
@@ -59,7 +59,6 @@ func RE_RegisterModels_GetDiskFile(_ psModelFileName: String, _ ppvBuffer: inout
 // Raven wrote: void *RE_RegisterModels_Malloc(int iSize, void *pvDiskBufferIfJustLoaded, const char *psModelFileName, qboolean *pqbAlreadyFound, memtag_t eTag)
 // No table row for the return `void *`.
 func RE_RegisterModels_Malloc() -> Never {
-    // Port-note: Row TR2. `CachedModels` is a `map<sstring_t, CachedEndianedModelBinary_t>` of the C++ track, rule 17, so the stem gives it no storage.
     // TODO: Port RE_RegisterModels_Malloc
     portMissing("RE_RegisterModels_Malloc", source: "oracle/codemp/renderer/tr_model.cpp:179")
 }
@@ -71,7 +70,6 @@ func RE_RegisterModels_Malloc() -> Never {
 // Raven wrote: void *RE_RegisterServerModels_Malloc(int iSize, void *pvDiskBufferIfJustLoaded, const char *psModelFileName, qboolean *pqbAlreadyFound, memtag_t eTag)
 // No table row for the return `void *`.
 func RE_RegisterServerModels_Malloc() -> Never {
-    // Port-note: Row TR2. `CachedModels` is a `map<sstring_t, CachedEndianedModelBinary_t>` of the C++ track, rule 17, so the stem gives it no storage.
     // TODO: Port RE_RegisterServerModels_Malloc
     portMissing("RE_RegisterServerModels_Malloc", source: "oracle/codemp/renderer/tr_model.cpp:253")
 }
@@ -118,6 +116,12 @@ private func RE_RegisterModels_DeleteAll() {
     // Port-note: Row TR2. `CachedModels` is a `map<sstring_t, CachedEndianedModelBinary_t>` of the C++ track, rule 17, so the stem gives it no storage.
     // TODO: Port RE_RegisterModels_DeleteAll
     portMissing("RE_RegisterModels_DeleteAll", source: "oracle/codemp/renderer/tr_model.cpp:496")
+}
+
+/// Source: oracle/codemp/renderer/tr_model.cpp:560
+var sPrevMapName: CharBuf {
+    get { world.sPrevMapName }
+    set { world.sPrevMapName = newValue }
 }
 
 /// Source: oracle/codemp/renderer/tr_model.cpp:522
@@ -167,11 +171,7 @@ func RE_RegisterMedia_LevelLoadEnd() {
 ```
 */
 /// Source: oracle/codemp/renderer/tr_model.cpp:593
-// TODO: Port signature
-// Raven wrote: model_t *R_GetModelByHandle( qhandle_t index )
-// No table row for the return `model_t *`.
-func R_GetModelByHandle() -> Never {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
+func R_GetModelByHandle(_ index: JKAShared.qhandle_t) -> Model? {
     // TODO: Port R_GetModelByHandle
     portMissing("R_GetModelByHandle", source: "oracle/codemp/renderer/tr_model.cpp:593")
 }
@@ -182,11 +182,7 @@ func R_GetModelByHandle() -> Never {
 ```
 */
 /// Source: oracle/codemp/renderer/tr_model.cpp:611
-// TODO: Port signature
-// Raven wrote: model_t *R_AllocModel( void )
-// No table row for the return `model_t *`.
-func R_AllocModel() -> Never {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
+func R_AllocModel() -> Model? {
     // TODO: Port R_AllocModel
     portMissing("R_AllocModel", source: "oracle/codemp/renderer/tr_model.cpp:611")
 }
@@ -227,11 +223,7 @@ private func generateHashValue(_ fname: String, _ size: Int32) -> CLong {
 }
 
 /// Source: oracle/codemp/renderer/tr_model.cpp:653
-// TODO: Port signature
-// Raven wrote: void RE_InsertModelIntoHash(const char *name, model_t *mod)
-// No table row for `model_t * mod`.
-func RE_InsertModelIntoHash() -> Never {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
+func RE_InsertModelIntoHash(_ name: String, _ mod: Model) {
     // TODO: Port RE_InsertModelIntoHash
     portMissing("RE_InsertModelIntoHash", source: "oracle/codemp/renderer/tr_model.cpp:653")
 }
@@ -246,9 +238,8 @@ ServerLoadMDXA - load a Ghoul 2 animation file
 /// Source: oracle/codemp/renderer/tr_model.cpp:683
 // TODO: Port signature
 // Raven wrote: qboolean ServerLoadMDXA( model_t *mod, void *buffer, const char *mod_name, qboolean &bAlreadyCached )
-// No table row for `model_t * mod`.
+// No table row for `qboolean & bAlreadyCached`.
 func ServerLoadMDXA() -> Never {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
     // TODO: Port ServerLoadMDXA
     portMissing("ServerLoadMDXA", source: "oracle/codemp/renderer/tr_model.cpp:683")
 }
@@ -263,9 +254,8 @@ ServerLoadMDXM - load a Ghoul 2 Mesh file
 /// Source: oracle/codemp/renderer/tr_model.cpp:799
 // TODO: Port signature
 // Raven wrote: qboolean ServerLoadMDXM( model_t *mod, void *buffer, const char *mod_name, qboolean &bAlreadyCached )
-// No table row for `model_t * mod`.
+// No table row for `qboolean & bAlreadyCached`.
 func ServerLoadMDXM() -> Never {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
     // TODO: Port ServerLoadMDXM
     portMissing("ServerLoadMDXM", source: "oracle/codemp/renderer/tr_model.cpp:799")
 }
@@ -329,9 +319,8 @@ R_LoadMD3
 /// Source: oracle/codemp/renderer/tr_model.cpp:1427
 // TODO: Port signature
 // Raven wrote: static qboolean R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_name, qboolean &bAlreadyCached )
-// No table row for `model_t * mod`.
+// No table row for `qboolean & bAlreadyCached`.
 private func R_LoadMD3() -> Never {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
     // TODO: Port R_LoadMD3
     portMissing("R_LoadMD3", source: "oracle/codemp/renderer/tr_model.cpp:1427")
 }
@@ -393,11 +382,7 @@ R_GetTag
 ```
 */
 /// Source: oracle/codemp/renderer/tr_model.cpp:1744
-// TODO: Port signature
-// Raven wrote: static md3Tag_t *R_GetTag( md3Header_t *mod, int frame, const char *tagName )
-// No table row for `md3Header_t * mod`.
-private func R_GetTag() -> Never {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
+private func R_GetTag(_ mod: JKAMP.Md3Header, _ frame: Int32, _ tagName: String) -> Md3Tag? {
     // TODO: Port R_GetTag
     portMissing("R_GetTag", source: "oracle/codemp/renderer/tr_model.cpp:1744")
 }
@@ -414,7 +399,6 @@ R_LerpTag
 // Raven wrote: int R_LerpTag( orientation_t *tag, qhandle_t handle, int startFrame, int endFrame, float frac, const char *tagName )
 // No table row for `orientation_t * tag`.
 func R_LerpTag() -> Never {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
     // TODO: Port R_LerpTag
     portMissing("R_LerpTag", source: "oracle/codemp/renderer/tr_model.cpp:1768")
 }

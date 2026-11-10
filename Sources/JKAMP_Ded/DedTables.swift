@@ -38,6 +38,10 @@ public nonisolated(unsafe) let gEmptyString: StaticMem = makeGEmptyString()
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:143
 public nonisolated(unsafe) let gNumberString: Slots<StaticMem> = makeGNumberString()
 
+/// Raven's table of video modes, over the C storage of `Sources/CJKAMP_Ded/ded_tables.c`.
+/// Source: oracle/codemp/renderer/tr_init.cpp:465
+public nonisolated(unsafe) let r_vidModes: Slots<Vidmode> = makeR_vidModes()
+
 // MARK: - The bind over each C array
 
 /// The compiler crashes if a global initializer takes the address inline, so each table binds in a function.
@@ -83,4 +87,10 @@ private func makeGNumberString() -> Slots<StaticMem> {
     let base = withUnsafeMutablePointer(to: &CJKAMP_Ded.gNumberString) { UnsafeMutableRawPointer($0) }
     let count = MemoryLayout.size(ofValue: CJKAMP_Ded.gNumberString) / StaticMem.stride
     return Slots(views: base, count: count, stride: StaticMem.stride)
+}
+
+private func makeR_vidModes() -> Slots<Vidmode> {
+    let base = withUnsafeMutablePointer(to: &CJKAMP_Ded.r_vidModes) { UnsafeMutableRawPointer($0) }
+    let count = MemoryLayout.size(ofValue: CJKAMP_Ded.r_vidModes) / Vidmode.stride
+    return Slots(views: base, count: count, stride: Vidmode.stride)
 }

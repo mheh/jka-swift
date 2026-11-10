@@ -11,16 +11,16 @@ let LANCZOS3 = (3.0) as Float
 // The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
 
 /// Source: oracle/codemp/renderer/tr_image.cpp:2967
-// TODO: Port global gServerSkinHack
-// Raven wrote: bool gServerSkinHack = false
-// No table row for `bool`.
+var gServerSkinHack: Bool {
+    get { world.variables.gServerSkinHack }
+    set { world.variables.gServerSkinHack = newValue }
+}
 
 /// Source: oracle/codemp/renderer/tr_image.cpp:1421
 // TODO: Port signature
 // Raven wrote: void LoadTGA ( const char *name, byte **pic, int *width, int *height)
 // No table row for `byte ** pic`.
 func LoadTGA() -> Never {
-    // Port-note: Row TR9. No caller of this function builds under DEDICATED, so it is dead in the host, rule 20.
     // TODO: Port LoadTGA
     portMissing("LoadTGA", source: "oracle/codemp/renderer/tr_image.cpp:1421")
 }
@@ -278,11 +278,7 @@ R_GetSkinByHandle
 ```
 */
 /// Source: oracle/codemp/renderer/tr_image.cpp:3342
-// TODO: Port signature
-// Raven wrote: skin_t *R_GetSkinByHandle( qhandle_t hSkin )
-// No table row for the return `skin_t *`.
-func R_GetSkinByHandle() -> Never {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
+func R_GetSkinByHandle(_ hSkin: JKAShared.qhandle_t) -> Skin? {
     // TODO: Port R_GetSkinByHandle
     portMissing("R_GetSkinByHandle", source: "oracle/codemp/renderer/tr_image.cpp:3342")
 }

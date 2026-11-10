@@ -6,6 +6,10 @@ import JKAMP_Ded
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:447
 let MAX_POSITION_LEAFS = 1024 as Int32
 
+/// Source: oracle/codemp/qcommon/cm_trace.cpp:449
+// AI: Raven declares `leafs` on the stack of CM_PositionTest. The function uses one zeroed allocation on the storage class.
+private var leafs_CM_PositionTest: Slots<Int32> { world.storage.cm_trace_leafs_CM_PositionTest }
+
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:1049
 let RADIUS_EPSILON = 1.0 as Float
 
@@ -263,7 +267,8 @@ func CM_TestInLeaf(_ tw: TraceWork, _ trace: JKAMP.Trace, _ leaf: CLeaf, _ local
     // test box position against all brushes in the leaf
     k = 0
     while k < leaf.numLeafBrushes {
-        brushnum = local.leafbrushes![leaf.firstLeafBrush + k]
+        // AI: Raven indexes the table with no bound, and a submodel leaf points into another hunk block. The view reads the word as C does.
+        brushnum = local.leafbrush(at: leaf.firstLeafBrush + k)
         b = local.brushesSlots[brushnum]
         if b.checkcount == local.checkcount {
             k += 1
@@ -301,7 +306,8 @@ func CM_TestInLeaf(_ tw: TraceWork, _ trace: JKAMP.Trace, _ leaf: CLeaf, _ local
             //			int index = CM_GetSurfaceIndex(leaf->firstLeafSurface + k);
             //			patch = local->surfaces[ index ];
             //#else
-            patch = local.surfaces![local.leafsurfaces![leaf.firstLeafSurface + k]]
+            // AI: Raven indexes the table with no bound, and a submodel leaf points into another hunk block. The view reads the word as C does.
+            patch = local.surfaces![local.leafsurface(at: leaf.firstLeafSurface + k)]
             //#endif
             if patch == nil {
                 k += 1
@@ -791,7 +797,7 @@ func CM_TraceThroughTerrain(_ tw: TraceWork, _ trace: JKAMP.Trace, _ brush: Cbru
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:914
 // TODO: Port signature
 // Raven wrote: void CM_HandlePatchCollision(struct traceWork_s *tw, trace_t &trace, const vec3_t tStart, const vec3_t tEnd, CCMPatch *patch, int checkcount)
-// No table row for `struct traceWork_s * tw`.
+// No table row for `CCMPatch * patch`.
 func CM_HandlePatchCollision() -> Never {
     // TODO: Port CM_HandlePatchCollision
     portMissing("CM_HandlePatchCollision", source: "oracle/codemp/qcommon/cm_trace.cpp:914")
@@ -832,7 +838,8 @@ func CM_TraceThroughLeaf(_ tw: TraceWork, _ trace: JKAMP.Trace, _ local: ClipMap
     // trace line against all brushes in the leaf
     k = 0
     while k < leaf.numLeafBrushes {
-        brushnum = local.leafbrushes![leaf.firstLeafBrush + k]
+        // AI: Raven indexes the table with no bound, and a submodel leaf points into another hunk block. The view reads the word as C does.
+        brushnum = local.leafbrush(at: leaf.firstLeafBrush + k)
 
         b = local.brushesSlots[brushnum]
         if b.checkcount == local.checkcount {
@@ -870,7 +877,8 @@ func CM_TraceThroughLeaf(_ tw: TraceWork, _ trace: JKAMP.Trace, _ local: ClipMap
             //			int index = CM_GetSurfaceIndex(leaf->firstLeafSurface + k);
             //			patch = local->surfaces[ index ];
             //#else
-            patch = local.surfaces![local.leafsurfaces![leaf.firstLeafSurface + k]]
+            // AI: Raven indexes the table with no bound, and a submodel leaf points into another hunk block. The view reads the word as C does.
+            patch = local.surfaces![local.leafsurface(at: leaf.firstLeafSurface + k)]
             //#endif
             if patch == nil {
                 k += 1
@@ -1242,7 +1250,8 @@ func CM_TraceToLeaf(_ tw: TraceWork, _ trace: JKAMP.Trace, _ leaf: CLeaf, _ loca
     // trace line against all brushes in the leaf
     k = 0
     while k < leaf.numLeafBrushes {
-        brushnum = local.leafbrushes![leaf.firstLeafBrush + k]
+        // AI: Raven indexes the table with no bound, and a submodel leaf points into another hunk block. The view reads the word as C does.
+        brushnum = local.leafbrush(at: leaf.firstLeafBrush + k)
 
         b = local.brushesSlots[brushnum]
         if b.checkcount == local.checkcount {
@@ -1278,7 +1287,8 @@ func CM_TraceToLeaf(_ tw: TraceWork, _ trace: JKAMP.Trace, _ leaf: CLeaf, _ loca
     if cm_noCurves!.integer == 0 {
         k = 0
         while k < leaf.numLeafSurfaces {
-            patch = local.surfaces![local.leafsurfaces![leaf.firstLeafSurface + k]]
+            // AI: Raven indexes the table with no bound, and a submodel leaf points into another hunk block. The view reads the word as C does.
+            patch = local.surfaces![local.leafsurface(at: leaf.firstLeafSurface + k)]
             if patch == nil {
                 k += 1
                 continue
@@ -1317,7 +1327,7 @@ a smaller intercept fraction.
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:1431
 func CM_TraceThroughTree(_ tw: TraceWork, _ trace: JKAMP.Trace, _ local: ClipMap, _ num: Int32, _ p1f: Float, _ p2f: Float, _ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) {
-    let node: CNode
+    let node: CmNode
     let plane: JKAShared.Cplane
     let t1: Float
     let t2: Float

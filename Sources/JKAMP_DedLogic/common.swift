@@ -47,7 +47,6 @@ let buildDate = "unknown"
 // TODO: Port global debuglogfile
 // Raven wrote: FILE *debuglogfile
 // No table row for `FILE *`.
-// Raven never reads or writes it, so it is dead under rule 20.
 
 /// Source: oracle/codemp/qcommon/common.cpp:33
 var logfile: JKAShared.fileHandle_t {

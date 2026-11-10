@@ -220,12 +220,12 @@ private func CM_TransposeGrid(_ grid: CGrid) {
             while j < grid.width {
                 if j < grid.height {
                     // swap the value
-                    temp = grid.pointsRows[i][j]
-                    grid.pointsRows[i][j] = grid.pointsRows[j][i]
-                    grid.pointsRows[j][i] = temp
+                    temp = grid.points[i][j]
+                    grid.points[i][j] = grid.points[j][i]
+                    grid.points[j][i] = temp
                 } else {
                     // just copy
-                    grid.pointsRows[i][j] = grid.pointsRows[j][i]
+                    grid.points[i][j] = grid.points[j][i]
                 }
                 j += 1
             }
@@ -238,12 +238,12 @@ private func CM_TransposeGrid(_ grid: CGrid) {
             while j < grid.height {
                 if j < grid.width {
                     // swap the value
-                    temp = grid.pointsRows[j][i]
-                    grid.pointsRows[j][i] = grid.pointsRows[i][j]
-                    grid.pointsRows[i][j] = temp
+                    temp = grid.points[j][i]
+                    grid.points[j][i] = grid.points[i][j]
+                    grid.points[i][j] = temp
                 } else {
                     // just copy
-                    grid.pointsRows[j][i] = grid.pointsRows[i][j]
+                    grid.points[j][i] = grid.points[i][j]
                 }
                 j += 1
             }
@@ -279,7 +279,7 @@ private func CM_SetGridWrapWidth(_ grid: CGrid) {
     while i < grid.height {
         j = 0
         while j < 3 {
-            d = grid.pointsRows[0][i][j] - grid.pointsRows[grid.width - 1][i][j]
+            d = grid.points[0][i][j] - grid.points[grid.width - 1][i][j]
             if Double(d) < -WRAP_POINT_EPSILON || Double(d) > WRAP_POINT_EPSILON {
                 break
             }
@@ -325,7 +325,7 @@ private func CM_SubdivideGridColumns(_ grid: CGrid) {
         //
         j = 0
         while j < grid.height {
-            if CM_NeedsSubdivision(grid.pointsRows[i][j], grid.pointsRows[i + 1][j], grid.pointsRows[i + 2][j]) {
+            if CM_NeedsSubdivision(grid.points[i][j], grid.points[i + 1][j], grid.points[i + 2][j]) {
                 break
             }
             j += 1
@@ -338,7 +338,7 @@ private func CM_SubdivideGridColumns(_ grid: CGrid) {
                 // remove the column
                 k = i + 2
                 while k < grid.width {
-                    grid.pointsRows[k - 1][j] = grid.pointsRows[k][j]
+                    grid.points[k - 1][j] = grid.points[k][j]
                     k += 1
                 }
                 j += 1
@@ -361,21 +361,21 @@ private func CM_SubdivideGridColumns(_ grid: CGrid) {
             var next = vec3_t()
 
             // save the control points now
-            prev = grid.pointsRows[i][j]
-            mid = grid.pointsRows[i + 1][j]
-            next = grid.pointsRows[i + 2][j]
+            prev = grid.points[i][j]
+            mid = grid.points[i + 1][j]
+            next = grid.points[i + 2][j]
 
             // make room for two additional columns in the grid
             // columns i+1 will be replaced, column i+2 will become i+4
             // i+1, i+2, and i+3 will be generated
             k = grid.width - 1
             while k > i + 1 {
-                grid.pointsRows[k + 2][j] = grid.pointsRows[k][j]
+                grid.points[k + 2][j] = grid.points[k][j]
                 k -= 1
             }
 
             // generate the subdivided points
-            CM_Subdivide(prev, mid, next, &grid.pointsRows[i + 1][j], &grid.pointsRows[i + 2][j], &grid.pointsRows[i + 3][j])
+            CM_Subdivide(prev, mid, next, &grid.points[i + 1][j], &grid.points[i + 2][j], &grid.points[i + 3][j])
             j += 1
         }
 
@@ -387,7 +387,7 @@ private func CM_SubdivideGridColumns(_ grid: CGrid) {
 }
 
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:370
-private func CM_ComparePoints(_ a: Slots<Float>, _ b: Slots<Float>) -> Bool {
+private func CM_ComparePoints(_ a: JKAShared.vec3_t, _ b: JKAShared.vec3_t) -> Bool {
     var d: Float
 
     d = a[0] - b[0]
@@ -440,7 +440,7 @@ private func CM_RemoveDegenerateColumns(_ grid: CGrid) {
             // remove the column
             k = i + 2
             while k < grid.width {
-                grid.pointsRows[k - 1][j] = grid.pointsRows[k][j]
+                grid.points[k - 1][j] = grid.points[k][j]
                 k += 1
             }
             j += 1
@@ -645,7 +645,7 @@ CM_EdgePlaneNum
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:615
 // TODO: Port signature
 // Raven wrote: static inline int CM_EdgePlaneNum( cGrid_t *grid, int gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2], int i, int j, int k )
-// No table row for `cGrid_t * grid`.
+// No table row for `int[129][129][2] gridPlanes`.
 private func CM_EdgePlaneNum() -> Never {
     // TODO: Port CM_EdgePlaneNum
     portMissing("CM_EdgePlaneNum", source: "oracle/codemp/qcommon/cm_patch.cpp:615")
@@ -661,7 +661,7 @@ CM_SetBorderInward
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:675
 // TODO: Port signature
 // Raven wrote: static inline void CM_SetBorderInward( facet_t *facet, cGrid_t *grid, int gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2], int i, int j, int which )
-// No table row for `cGrid_t * grid`.
+// No table row for `int[129][129][2] gridPlanes`.
 private func CM_SetBorderInward() -> Never {
     // TODO: Port CM_SetBorderInward
     portMissing("CM_SetBorderInward", source: "oracle/codemp/qcommon/cm_patch.cpp:675")
@@ -1019,14 +1019,14 @@ private func CM_PatchCollideFromGrid(_ grid: CGrid, _ pf: PatchCollide) {
     while i < grid.width - 1 {
         j = 0
         while j < grid.height - 1 {
-            p1 = grid.pointsRows[i][j]
-            p2 = grid.pointsRows[i + 1][j]
-            p3 = grid.pointsRows[i + 1][j + 1]
+            p1 = grid.points[i][j]
+            p2 = grid.points[i + 1][j]
+            p3 = grid.points[i + 1][j + 1]
             gridPlanes[i][j][0] = CM_FindPlane(p1, p2, p3)
 
-            p1 = grid.pointsRows[i + 1][j + 1]
-            p2 = grid.pointsRows[i][j + 1]
-            p3 = grid.pointsRows[i][j]
+            p1 = grid.points[i + 1][j + 1]
+            p2 = grid.points[i][j + 1]
+            p3 = grid.points[i][j]
             gridPlanes[i][j][1] = CM_FindPlane(p1, p2, p3)
             j += 1
         }
@@ -1206,7 +1206,7 @@ Points is packed as concatenated rows.
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:1163
-func CM_GeneratePatchCollide(_ width: Int32, _ height: Int32, _ points: inout JKAShared.vec3_t) -> PatchCollide? {
+func CM_GeneratePatchCollide(_ width: Int32, _ height: Int32, _ points: [JKAShared.vec3_t]) -> PatchCollide? {
     return CGrid.scratch { grid -> PatchCollide? in
         let pf: PatchCollide
         var i: Int32
@@ -1263,7 +1263,7 @@ func CM_GeneratePatchCollide(_ width: Int32, _ height: Int32, _ points: inout JK
         while i < grid.width {
             j = 0
             while j < grid.height {
-                AddPointToBounds(grid.pointsRows[i][j], &pf.bounds[0], &pf.bounds[1])
+                AddPointToBounds(grid.points[i][j], &pf.bounds[0], &pf.bounds[1])
                 j += 1
             }
             i += 1
@@ -1285,6 +1285,12 @@ func CM_GeneratePatchCollide(_ width: Int32, _ height: Int32, _ points: inout JK
 
         return pf
     }
+}
+
+/// Source: oracle/codemp/qcommon/cm_patch.cpp:1256
+var cv_CM_TracePointThroughPatchCollide: Cvar? {
+    get { world.cv_CM_TracePointThroughPatchCollide }
+    set { world.cv_CM_TracePointThroughPatchCollide = newValue }
 }
 
 /**
@@ -1447,6 +1453,12 @@ private func CM_CheckFacetPlane(_ plane: JKAShared.vec4_t, _ start: JKAShared.ve
         }
     }
     return 1
+}
+
+/// Source: oracle/codemp/qcommon/cm_patch.cpp:1401
+var cv_CM_TraceThroughPatchCollide: Cvar? {
+    get { world.cv_CM_TraceThroughPatchCollide }
+    set { world.cv_CM_TraceThroughPatchCollide = newValue }
 }
 
 /**

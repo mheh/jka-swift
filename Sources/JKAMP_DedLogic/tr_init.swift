@@ -7,14 +7,15 @@ import JKAMP_Ded
 let G2_VERT_SPACE_SERVER_SIZE = 256 as Int32
 
 /// Source: oracle/codemp/renderer/tr_init.cpp:29
-// TODO: Port global G2VertSpaceServer
-// Raven wrote: CMiniHeap *G2VertSpaceServer = NULL
-// No table row for `CMiniHeap *`.
+/// Raven's instance, a hand property of `EngineWorld`, by the HAND_VARS ruling.
+var G2VertSpaceServer: CMiniHeap? {
+    get { world.G2VertSpaceServer }
+    set { world.G2VertSpaceServer = newValue }
+}
 
 /// Source: oracle/codemp/renderer/tr_init.cpp:30
-// TODO: Port global CMiniHeap_singleton
-// Raven wrote: CMiniHeap CMiniHeap_singleton(G2_VERT_SPACE_SERVER_SIZE * 1024)
-// No view for `CMiniHeap` of `MiniHeap.h`.
+/// Raven's instance, a hand property of `EngineWorld`, by the HAND_VARS ruling.
+var CMiniHeap_singleton: CMiniHeap { world.CMiniHeap_singleton }
 
 /// Source: oracle/codemp/renderer/tr_init.cpp:40
 var r_verbose: JKAMP.Cvar? {
@@ -773,9 +774,8 @@ var broadsword_dircap: JKAMP.Cvar? {
 }
 
 /// Source: oracle/codemp/renderer/tr_init.cpp:465
-// TODO: Port global r_vidModes
 // Raven wrote: const vidmode_t r_vidModes[]
-// No view for `vidmode_s`, a struct Raven defines inside a .c file.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/renderer/tr_init.cpp:481
 // Raven wrote: static const int s_numVidModes = ( sizeof( r_vidModes ) / sizeof( r_vidModes[0] ) )
@@ -967,10 +967,8 @@ func R_Register() {
     r_shadows = Cvar_Get("cg_shadows", "1", 0)
     r_shadowRange = Cvar_Get("r_shadowRange", "1000", 0)
 
-    // AI: Raven formats MAX_POLYS of tr_local.h:2256, which has no re-export in the host target. The call formats its value, 600.
-    r_maxpolys = Cvar_Get("r_maxpolys", va("%d", 600), 0)
-    // AI: Raven formats MAX_POLYVERTS of tr_local.h:2257, which has no re-export in the host target. The call formats its value, 3000.
-    r_maxpolyverts = Cvar_Get("r_maxpolyverts", va("%d", 3000), 0)
+    r_maxpolys = Cvar_Get("r_maxpolys", va("%d", MAX_POLYS), 0)
+    r_maxpolyverts = Cvar_Get("r_maxpolyverts", va("%d", MAX_POLYVERTS), 0)
     /*
     Ghoul2 Insert Start
     */
@@ -1057,7 +1055,6 @@ GetRefAPI
 // Raven wrote: refexport_t *GetRefAPI ( int apiVersion )
 // No table row for the return `refexport_t *`.
 func GetRefAPI() -> Never {
-    // Port-note: Row TR9. No caller of this function builds under DEDICATED, so it is dead in the host, rule 20.
     // TODO: Port GetRefAPI
     portMissing("GetRefAPI", source: "oracle/codemp/renderer/tr_init.cpp:1459")
 }

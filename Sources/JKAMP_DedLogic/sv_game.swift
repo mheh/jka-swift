@@ -4,9 +4,10 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/server/sv_game.cpp:32
-// TODO: Port global botlib_export
-// Raven wrote: botlib_export_t *botlib_export
-// No table row for `botlib_export_t *`.
+var botlib_export: BotlibExport? {
+    get { world.variables.botlib_export }
+    set { world.variables.botlib_export = newValue }
+}
 
 /// Source: oracle/codemp/server/sv_game.cpp:420
 var gLocalModifier: JKAMP.SharedEntity { world.storage.gLocalModifier }

@@ -70,7 +70,6 @@ func VM_SetSymbolMap(_ vm: Vm) {
 // converts a VM pointer to a C pointer and
 // checks to make sure that the range is acceptable
 /// Source: oracle/codemp/qcommon/vm.cpp:37
-// Port-note: Raven calls this function from no file of either tree, so it is dead.
 // TODO: Port signature
 // Raven wrote: void *VM_VM2C( vmptr_t p, int length )
 // No table row for the return `void *`.
@@ -675,7 +674,7 @@ func VM_Clear() {
 }
 
 /// Source: oracle/codemp/qcommon/vm.cpp:640
-func VM_ArgPtr(_ intValue: Int32) -> UnsafeMutableRawPointer {
+func VM_ArgPtr(_ intValue: Int32) -> UnsafeMutableRawPointer? {
     if intValue == 0 {
         // Port-note: Raven returns NULL, and the function returns a `UnsafeMutableRawPointer`.
         // Raven wrote: return NULL
@@ -700,7 +699,7 @@ func VM_ArgPtr(_ intValue: Int32) -> UnsafeMutableRawPointer {
 }
 
 /// Source: oracle/codemp/qcommon/vm.cpp:657
-func BotVMShift(_ ptr: Int32) -> UnsafeMutableRawPointer {
+func BotVMShift(_ ptr: Int32) -> UnsafeMutableRawPointer? {
     if ptr == 0 {
         // Port-note: Raven returns NULL, and the function returns a `UnsafeMutableRawPointer`.
         // Raven wrote: return NULL

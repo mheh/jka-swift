@@ -23,7 +23,11 @@ let MAX_TOTAL_ENT_LEAFS = 128 as Int32
 
 /// Source: oracle/codemp/server/sv_world.cpp:191
 // AI: Raven declares `leafs` on the stack of SV_LinkEntity. The function uses one zeroed allocation on the storage class.
-var leafs_SV_LinkEntity: Slots<Int32> { world.storage.leafs_SV_LinkEntity }
+var leafs_SV_LinkEntity: Slots<Int32> { world.storage.sv_world_leafs_SV_LinkEntity }
+
+/// Source: oracle/codemp/server/sv_world.cpp:523
+// AI: Raven declares `touchlist` static in SV_ClipMoveToEntities. The function uses one zeroed allocation on the storage class.
+var touchlist_SV_ClipMoveToEntities: Slots<Int32> { world.storage.touchlist_SV_ClipMoveToEntities }
 
 /// Source: oracle/codemp/server/sv_world.cpp:872
 // AI: Raven declares `touch` on the stack of SV_PointContents. The function uses one zeroed allocation on the storage class.
@@ -386,12 +390,12 @@ func SV_AreaEntities_r(_ node: Slots<WorldSector>, _ ap: AreaParms) {
 
         gcheck = SV_GEntityForSvEntity(check!)
 
-        if gcheck!.r.absmin[0] > ap.maxsVector[0]
-            || gcheck!.r.absmin[1] > ap.maxsVector[1]
-            || gcheck!.r.absmin[2] > ap.maxsVector[2]
-            || gcheck!.r.absmax[0] < ap.minsVector[0]
-            || gcheck!.r.absmax[1] < ap.minsVector[1]
-            || gcheck!.r.absmax[2] < ap.minsVector[2] {
+        if gcheck!.r.absmin[0] > ap.maxs[0]
+            || gcheck!.r.absmin[1] > ap.maxs[1]
+            || gcheck!.r.absmin[2] > ap.maxs[2]
+            || gcheck!.r.absmax[0] < ap.mins[0]
+            || gcheck!.r.absmax[1] < ap.mins[1]
+            || gcheck!.r.absmax[2] < ap.mins[2] {
             check = next
             continue
         }
@@ -411,10 +415,10 @@ func SV_AreaEntities_r(_ node: Slots<WorldSector>, _ ap: AreaParms) {
     }
 
     // recurse down both sides
-    if ap.maxsVector[node[0].axis] > node[0].dist {
+    if ap.maxs[node[0].axis] > node[0].dist {
         SV_AreaEntities_r(Slots(record: node[0].children[0]!), ap)
     }
-    if ap.minsVector[node[0].axis] < node[0].dist {
+    if ap.mins[node[0].axis] < node[0].dist {
         SV_AreaEntities_r(Slots(record: node[0].children[1]!), ap)
     }
 }
@@ -429,12 +433,9 @@ SV_AreaEntities
 /// Source: oracle/codemp/server/sv_world.cpp:421
 func SV_AreaEntities(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ entityList: Slots<Int32>, _ maxcount: Int32) -> Int32 {
     return AreaParms.scratch { ap in
-        // Port-note: Row SV1. The `const float *` fields of `areaParms_t` have no store form, because a Swift vector has no address to store.
-        // Raven wrote: ap.mins = mins
-        portMissing("SV_AreaEntities", source: "oracle/codemp/server/sv_world.cpp:421")
-        // Port-note: Row SV1. The `const float *` fields of `areaParms_t` have no store form, because a Swift vector has no address to store.
-        // Raven wrote: ap.maxs = maxs
-        portMissing("SV_AreaEntities", source: "oracle/codemp/server/sv_world.cpp:421")
+        // AI: Raven stores the address of the caller's vector. The record holds a copy of the vector, which the body only reads.
+        ap.mins = mins
+        ap.maxs = maxs
         ap.list = entityList
         ap.count = 0
         ap.maxcount = maxcount
@@ -591,7 +592,7 @@ private func SV_ClipMoveToEntities(_ clip: Moveclip) {
                     angles = vec3_origin // boxes don't rotate
                 }
 
-                CM_TransformedBoxTrace(trace, clip.start, clip.end, clip.minsVector, clip.maxsVector, clipHandle, clip.contentmask, origin, angles, clip.capsule)
+                CM_TransformedBoxTrace(trace, clip.start, clip.end, clip.mins, clip.maxs, clipHandle, clip.contentmask, origin, angles, clip.capsule)
 
                 if (clip.traceFlags & G2TRFLAG_DOGHOULTRACE) != 0 {
                     // keep these older variables around for a bit, incase we need to replace them in the Ghoul2 Collision check
@@ -696,12 +697,9 @@ func SV_Trace(_ results: JKAMP.Trace, _ start: JKAShared.vec3_t, _ mins: JKAShar
         */
         //	VectorCopy( clip.trace.endpos, clip.end );
         clip.end = end
-        // Port-note: Row SV1. The `const float *` fields of `moveclip_t` have no store form, because a Swift vector has no address to store.
-        // Raven wrote: clip.mins = mins
-        portMissing("SV_Trace", source: "oracle/codemp/server/sv_world.cpp:803")
-        // Port-note: Row SV1. The `const float *` fields of `moveclip_t` have no store form, because a Swift vector has no address to store.
-        // Raven wrote: clip.maxs = maxs
-        portMissing("SV_Trace", source: "oracle/codemp/server/sv_world.cpp:803")
+        // AI: Raven stores the address of the caller's vector. The record holds a copy of the vector, which the body only reads.
+        clip.mins = mins!
+        clip.maxs = maxs!
         clip.passEntityNum = passEntityNum
         clip.capsule = capsule
 
@@ -712,11 +710,11 @@ func SV_Trace(_ results: JKAMP.Trace, _ start: JKAShared.vec3_t, _ mins: JKAShar
         i = 0
         while i < 3 {
             if end[i] > start[i] {
-                clip.boxmins[i] = clip.start[i] + clip.minsVector[i] - 1
-                clip.boxmaxs[i] = clip.end[i] + clip.maxsVector[i] + 1
+                clip.boxmins[i] = clip.start[i] + clip.mins[i] - 1
+                clip.boxmaxs[i] = clip.end[i] + clip.maxs[i] + 1
             } else {
-                clip.boxmins[i] = clip.end[i] + clip.minsVector[i] - 1
-                clip.boxmaxs[i] = clip.start[i] + clip.maxsVector[i] + 1
+                clip.boxmins[i] = clip.end[i] + clip.mins[i] - 1
+                clip.boxmaxs[i] = clip.start[i] + clip.maxs[i] + 1
             }
             i += 1
         }

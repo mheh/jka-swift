@@ -819,7 +819,7 @@ private func SE_GetFoundFile(_ strResult: inout String) -> String? {
 // return is either NULL for good else error message to display...
 //
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:910
-func SE_Load(_ psFileName: String, _ bLoadDebug: Bool, _ bFailIsCritical: Bool) -> String? {
+func SE_Load(_ psFileName: String, _ bLoadDebug: Bool = true, _ bFailIsCritical: Bool = true) -> String? {
     // Raven sets his own `psFileName` parameter to the built name, so the body takes a copy.
     var psFileName = psFileName
     ////////////////////////////////////////////////////

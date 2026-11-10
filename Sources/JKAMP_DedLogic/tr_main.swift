@@ -4,9 +4,7 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/renderer/tr_main.cpp:15
-// TODO: Port global tr
-// Raven wrote: trGlobals_t tr
-// No view for `trGlobals_t` of `tr_local.h`.
+var tr: TrGlobals { world.storage.tr }
 
 /// Source: oracle/codemp/renderer/tr_main.cpp:17
 // Raven wrote: static float s_flipMatrix[16]

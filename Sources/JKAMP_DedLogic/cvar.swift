@@ -914,7 +914,6 @@ func Cvar_Init() {
 // TODO: Port signature
 // Raven wrote: static void Cvar_Realloc(char **string, char *memPool, int &memPoolUsed)
 // No table row for `int & memPoolUsed`.
-// Not ported: no caller, because Cvar_Defrag is a no-op under the string pool.
 private func Cvar_Realloc() -> Never {
     // TODO: Port Cvar_Realloc
     portMissing("Cvar_Realloc", source: "oracle/codemp/qcommon/cvar.cpp:965")

@@ -619,7 +619,6 @@ func FS_FOpenFileAppend(_ filename: String) -> JKAShared.fileHandle_t {
 // TODO: Port signature
 // Raven wrote: bool Sys_GetFileTime(LPCSTR psFileName, FILETIME &ft)
 // No table row for `int & ft`.
-// Port-note: Row F3. The table has no row for `FILETIME &ft`, so Sys_FileOutOfDate reads SysBackend.GetFileTime, the POSIX form of this body.
 func Sys_GetFileTime() -> Never {
     // TODO: Port Sys_GetFileTime
     portMissing("Sys_GetFileTime", source: "oracle/codemp/qcommon/files_pc.cpp:568")

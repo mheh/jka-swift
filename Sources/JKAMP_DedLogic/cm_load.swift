@@ -216,14 +216,24 @@ func CMod_LoadSubmodels(_ l: JKAMP.Lump, _ cm: ClipMap) {
 
         // make a "leaf" just to hold the model's brushes and surfaces
         out.leaf.numLeafBrushes = `in`[i].numBrushes
-        // Port-note: Raven stores the distance between two hunk blocks, `indexes - cm.leafbrushes`, and reads the new block through `cm.leafbrushes`. The Slots of `leafbrushes` takes no negative index and has no pointer difference.
-        // Raven wrote: indexes = (int *)Hunk_Alloc( out->leaf.numLeafBrushes * 4, h_high ); out->leaf.firstLeafBrush = indexes - cm.leafbrushes; for ( j = 0 ; j < out->leaf.numLeafBrushes ; j++ ) { indexes[j] = LittleLong( in->firstBrush ) + j; }
-        portMissing("CMod_LoadSubmodels", source: "oracle/codemp/qcommon/cm_load.cpp:109")
+        var indexes = Slots<Int32>(scalars: Hunk_Alloc(out.leaf.numLeafBrushes * 4, h_high), count: Int(out.leaf.numLeafBrushes))
+        // AI: Raven subtracts two hunk pointers. The view gives the word distance from the table, so the leaf keeps his number.
+        out.leaf.firstLeafBrush = cm.leafbrushes(indexes)
+        j = 0
+        while j < out.leaf.numLeafBrushes {
+            indexes[j] = `in`[i].firstBrush + j
+            j += 1
+        }
 
         out.leaf.numLeafSurfaces = `in`[i].numSurfaces
-        // Port-note: Raven stores the distance between two hunk blocks, `indexes - cm.leafsurfaces`, and reads the new block through `cm.leafsurfaces`. The Slots of `leafsurfaces` takes no negative index and has no pointer difference.
-        // Raven wrote: indexes = (int *)Hunk_Alloc( out->leaf.numLeafSurfaces * 4, h_high ); out->leaf.firstLeafSurface = indexes - cm.leafsurfaces; for ( j = 0 ; j < out->leaf.numLeafSurfaces ; j++ ) { indexes[j] = LittleLong( in->firstSurface ) + j; }
-        portMissing("CMod_LoadSubmodels", source: "oracle/codemp/qcommon/cm_load.cpp:109")
+        indexes = Slots<Int32>(scalars: Hunk_Alloc(out.leaf.numLeafSurfaces * 4, h_high), count: Int(out.leaf.numLeafSurfaces))
+        // AI: Raven subtracts two hunk pointers. The view gives the word distance from the table, so the leaf keeps his number.
+        out.leaf.firstLeafSurface = cm.leafsurfaces(indexes)
+        j = 0
+        while j < out.leaf.numLeafSurfaces {
+            indexes[j] = `in`[i].firstSurface + j
+            j += 1
+        }
         i += 1
     }
 }
@@ -240,7 +250,7 @@ CMod_LoadNodes
 func CMod_LoadNodes(_ l: JKAMP.Lump, _ cm: ClipMap) {
     let `in`: Slots<Dnode>
     var child: Int32
-    var out: CNode
+    var out: CmNode
     var i: Int32
     var j: Int32
     let count: Int32
@@ -255,7 +265,7 @@ func CMod_LoadNodes(_ l: JKAMP.Lump, _ cm: ClipMap) {
     if count < 1 {
         Com_Error(ERR_DROP, "Map has no nodes")
     }
-    cm.nodes = CNode(Hunk_Alloc(count * Int32(CNode.byteCount), h_high))
+    cm.nodes = CmNode(Hunk_Alloc(count * Int32(CmNode.byteCount), h_high))
     cm.numNodes = count
 
     i = 0
@@ -578,7 +588,7 @@ func CMod_LoadVisibility(_ l: JKAMP.Lump, _ cm: ClipMap) {
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:483
 func CMod_LoadPatches(_ surfs: JKAMP.Lump, _ verts: JKAMP.Lump, _ cm: ClipMap) {
-    let dv: Slots<MapVert>
+    let dv: Slots<DrawVert>
     var dv_p: Int32
     let `in`: Slots<Dsurface>
     let count: Int32
@@ -600,9 +610,8 @@ func CMod_LoadPatches(_ surfs: JKAMP.Lump, _ verts: JKAMP.Lump, _ cm: ClipMap) {
     cm.numSurfaces = count
     cm.surfaces = Slots(pointers: Hunk_Alloc(cm.numSurfaces * Int32(OpaquePointer.byteCount), h_high), count: Int(cm.numSurfaces))
 
-    // AI: Raven reads the vertex lump as `drawVert_t`. The view is `MapVert`, the record of the same layout that the view target holds.
-    dv = Slots<MapVert>(cmod_base!.suffix(from: verts.fileofs), count: verts.filelen / Int32(MapVert.byteCount))
-    if verts.filelen % Int32(MapVert.byteCount) != 0 {
+    dv = Slots<DrawVert>(cmod_base!.suffix(from: verts.fileofs), count: verts.filelen / Int32(DrawVert.byteCount))
+    if verts.filelen % Int32(DrawVert.byteCount) != 0 {
         Com_Error(ERR_DROP, "MOD_LoadBmodel: funny lump size")
     }
 
@@ -1216,7 +1225,8 @@ func CM_ModelContents_Actual(_ model: JKAShared.clipHandle_t, _ cm: ClipMap?) ->
         var brushNum: Int32
         i = cmod!.leaf.firstLeafBrush
         while i < cmod!.leaf.firstLeafBrush + cmod!.leaf.numLeafBrushes {
-            brushNum = cm!.leafbrushes![i]
+            // AI: Raven indexes the table with no bound, and a submodel leaf points into another hunk block. The view reads the word as C does.
+            brushNum = cm!.leafbrush(at: i)
             contents |= cm!.brushesSlots[brushNum].contents
             i += 1
         }
@@ -1225,7 +1235,8 @@ func CM_ModelContents_Actual(_ model: JKAShared.clipHandle_t, _ cm: ClipMap?) ->
         var surfaceNum: Int32
         i = cmod!.leaf.firstLeafSurface
         while i < cmod!.leaf.firstLeafSurface + cmod!.leaf.numLeafSurfaces {
-            surfaceNum = cm!.leafsurfaces![i]
+            // AI: Raven indexes the table with no bound, and a submodel leaf points into another hunk block. The view reads the word as C does.
+            surfaceNum = cm!.leafsurface(at: i)
             if cm!.surfaces![surfaceNum] != nil { //HERNH? How could we have a null surf within our cmod->leaf.numLeafSurfaces?
                 contents |= cm!.surfaces![surfaceNum]!.contents
             }

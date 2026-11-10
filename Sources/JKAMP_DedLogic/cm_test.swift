@@ -16,7 +16,7 @@ func CM_PointLeafnum_r(_ p: JKAShared.vec3_t, _ num: Int32, _ local: ClipMap) ->
     // Raven assigns his own `num` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var num = num
     var d: Float
-    var node: CNode
+    var node: CmNode
     var plane: JKAShared.Cplane
 
     while num >= 0 {
@@ -84,7 +84,8 @@ func CM_StoreBrushes(_ ll: LeafList, _ nodenum: Int32) {
 
     k = 0
     while k < leaf.numLeafBrushes {
-        brushnum = cmg.leafbrushes![leaf.firstLeafBrush + k]
+        // AI: Raven indexes the table with no bound, and a submodel leaf points into another hunk block. The view reads the word as C does.
+        brushnum = cmg.leafbrush(at: leaf.firstLeafBrush + k)
         b = cmg.brushesSlots[brushnum]
         if b.checkcount == cmg.checkcount {
             k += 1
@@ -127,7 +128,7 @@ func CM_BoxLeafnums_r(_ ll: LeafList, _ nodenum: Int32) {
     // Raven assigns his own `nodenum` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var nodenum = nodenum
     var plane: JKAShared.Cplane
-    var node: CNode
+    var node: CmNode
     var s: Int32
 
     while true {
@@ -243,7 +244,8 @@ func CM_PointContents(_ p: JKAShared.vec3_t, _ model: JKAShared.clipHandle_t) ->
     contents = 0
     k = 0
     while k < leaf!.numLeafBrushes {
-        brushnum = local!.leafbrushes![leaf!.firstLeafBrush + k]
+        // AI: Raven indexes the table with no bound, and a submodel leaf points into another hunk block. The view reads the word as C does.
+        brushnum = local!.leafbrush(at: leaf!.firstLeafBrush + k)
         b = local!.brushesSlots[brushnum]
 
         // see if the point is in the brush

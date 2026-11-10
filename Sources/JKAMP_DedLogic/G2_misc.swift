@@ -22,14 +22,18 @@ var CurrentTagUpper: Int32 {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:35
-// TODO: Port global GoreRecords
-// Raven wrote: static map<int,GoreTextureCoordinates> GoreRecords
-// No view for `std::map<int, GoreTextureCoordinates>`, a struct Raven defines inside a .c file.
+/// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
+var GoreRecords: [Int32: GoreTextureCoordinates] {
+    get { world.GoreRecords }
+    set { world.GoreRecords = newValue }
+}
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:36
-// TODO: Port global GoreTagsTemp
-// Raven wrote: static map<pair<int,int>,int> GoreTagsTemp
-// No view for `std::map<std::pair<int, int>, int>`, a struct Raven defines inside a .c file.
+/// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
+var GoreTagsTemp: [[Int32]: Int32] {
+    get { world.GoreTagsTemp }
+    set { world.GoreTagsTemp = newValue }
+}
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:38
 var goreModelIndex: Int32 {
@@ -53,9 +57,11 @@ var CurrentGoreSet: Int32 {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:125
-// TODO: Port global GoreSets
-// Raven wrote: static map<int,CGoreSet *> GoreSets
-// No view for `std::map<int, CGoreSet *>`, a struct Raven defines inside a .c file.
+/// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
+var GoreSets: [Int32: CGoreSet] {
+    get { world.GoreSets }
+    set { world.GoreSets = newValue }
+}
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:792
 let MAX_GORE_VERTS = (3000) as Int32
@@ -123,10 +129,7 @@ func ResetGoreTag() {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:103
-// TODO: Port signature
-// Raven wrote: GoreTextureCoordinates *FindGoreRecord(int tag)
-// No table row for the return `GoreTextureCoordinates *`.
-func FindGoreRecord() -> Never {
+func FindGoreRecord(_ tag: Int32) -> GoreTextureCoordinates? {
     // TODO: Port FindGoreRecord
     portMissing("FindGoreRecord", source: "oracle/codemp/ghoul2/G2_misc.cpp:103")
 }
@@ -148,19 +151,13 @@ func DeleteGoreRecord(_ tag: Int32) {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:127
-// TODO: Port signature
-// Raven wrote: CGoreSet *FindGoreSet(int goreSetTag)
-// No table row for the return `CGoreSet *`.
-func FindGoreSet() -> Never {
+func FindGoreSet(_ goreSetTag: Int32) -> CGoreSet? {
     // TODO: Port FindGoreSet
     portMissing("FindGoreSet", source: "oracle/codemp/ghoul2/G2_misc.cpp:127")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:142
-// TODO: Port signature
-// Raven wrote: CGoreSet *NewGoreSet()
-// No table row for the return `CGoreSet *`.
-func NewGoreSet() -> Never {
+func NewGoreSet() -> CGoreSet? {
     // TODO: Port NewGoreSet
     portMissing("NewGoreSet", source: "oracle/codemp/ghoul2/G2_misc.cpp:142")
 }
@@ -212,37 +209,25 @@ func G2_GetAnimFileName(_ fileName: String, _ filename: inout JKAShared.TextCurs
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:376
-// TODO: Port signature
-// Raven wrote: int G2_DecideTraceLod(CGhoul2Info &ghoul2, int useLod)
-// No table row for `CGhoul2Info & ghoul2`.
-func G2_DecideTraceLod() -> Never {
+func G2_DecideTraceLod(_ ghoul2: CGhoul2Info, _ useLod: Int32) -> Int32 {
     // TODO: Port G2_DecideTraceLod
     portMissing("G2_DecideTraceLod", source: "oracle/codemp/ghoul2/G2_misc.cpp:376")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:404
-// TODO: Port signature
-// Raven wrote: void R_TransformEachSurface( const mdxmSurface_t *surface, vec3_t scale, CMiniHeap *G2VertSpace, int *TransformedVertsArray,CBoneCache *boneCache)
-// No table row for `const mdxmSurface_t * surface`.
-func R_TransformEachSurface() -> Never {
+func R_TransformEachSurface(_ surface: MdxmSurface, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ TransformedVertsArray: inout Int32, _ boneCache: CBoneCache?) {
     // TODO: Port R_TransformEachSurface
     portMissing("R_TransformEachSurface", source: "oracle/codemp/ghoul2/G2_misc.cpp:404")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:517
-// TODO: Port signature
-// Raven wrote: void G2_TransformSurfaces(int surfaceNum, surfaceInfo_v &rootSList, CBoneCache *boneCache, const model_t *currentModel, int lod, vec3_t scale, CMiniHeap *G2VertSpace, int *TransformedVertArray, bool secondTimeAround)
-// No table row for `surfaceInfo_v & rootSList`.
-func G2_TransformSurfaces() -> Never {
+func G2_TransformSurfaces(_ surfaceNum: Int32, _ rootSList: inout [surfaceInfo_t], _ boneCache: CBoneCache?, _ currentModel: Model, _ lod: Int32, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ TransformedVertArray: inout Int32, _ secondTimeAround: Bool) {
     // TODO: Port G2_TransformSurfaces
     portMissing("G2_TransformSurfaces", source: "oracle/codemp/ghoul2/G2_misc.cpp:517")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:560
-// TODO: Port signature
-// Raven wrote: void G2_TransformModel(CGhoul2Info_v &ghoul2, const int frameNum, vec3_t scale, CMiniHeap *G2VertSpace, int useLod, bool ApplyGore) #else void G2_TransformModel(CGhoul2Info_v &ghoul2, const int frameNum, vec3_t scale, CMiniHeap *G2VertSpace, int useLod) #endif
-// No table row for `CGhoul2Info_v & ghoul2`.
-func G2_TransformModel() -> Never {
+func G2_TransformModel(_ ghoul2: CGhoul2Info_v, _ frameNum: Int32, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ useLod: Int32, _ ApplyGore: Bool) {
     // TODO: Port G2_TransformModel
     portMissing("G2_TransformModel", source: "oracle/codemp/ghoul2/G2_misc.cpp:560")
 }
@@ -338,40 +323,28 @@ func G2_SegmentTriangleTest(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, 
 
 // now we at poly level, check each model space transformed poly against the model world transfomed ray
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:804
-// TODO: Port signature
-// Raven wrote: void G2_GorePolys( const mdxmSurface_t *surface, CTraceSurface &TS, const mdxmSurfHierarchy_t *surfInfo)
-// No table row for `const mdxmSurface_t * surface`.
-func G2_GorePolys() -> Never {
+func G2_GorePolys(_ surface: MdxmSurface, _ TS: CTraceSurface, _ surfInfo: MdxmSurfHierarchy) {
     // TODO: Port G2_GorePolys
     portMissing("G2_GorePolys", source: "oracle/codemp/ghoul2/G2_misc.cpp:804")
 }
 
 // now we're at poly level, check each model space transformed poly against the model world transfomed ray
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1092
-// TODO: Port signature
-// Raven wrote: static bool G2_TracePolys(const mdxmSurface_t *surface, const mdxmSurfHierarchy_t *surfInfo, CTraceSurface &TS)
-// No table row for `const mdxmSurface_t * surface`.
-private func G2_TracePolys() -> Never {
+private func G2_TracePolys(_ surface: MdxmSurface, _ surfInfo: MdxmSurfHierarchy, _ TS: CTraceSurface) -> Bool {
     // TODO: Port G2_TracePolys
     portMissing("G2_TracePolys", source: "oracle/codemp/ghoul2/G2_misc.cpp:1092")
 }
 
 // now we're at poly level, check each model space transformed poly against the model world transfomed ray
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1222
-// TODO: Port signature
-// Raven wrote: static bool G2_RadiusTracePolys( const mdxmSurface_t *surface, CTraceSurface &TS )
-// No table row for `const mdxmSurface_t * surface`.
-private func G2_RadiusTracePolys() -> Never {
+private func G2_RadiusTracePolys(_ surface: MdxmSurface, _ TS: CTraceSurface) -> Bool {
     // TODO: Port G2_RadiusTracePolys
     portMissing("G2_RadiusTracePolys", source: "oracle/codemp/ghoul2/G2_misc.cpp:1222")
 }
 
 // look at a surface and then do the trace on each poly
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1428
-// TODO: Port signature
-// Raven wrote: static void G2_TraceSurfaces(CTraceSurface &TS)
-// No table row for `CTraceSurface & TS`.
-private func G2_TraceSurfaces() -> Never {
+private func G2_TraceSurfaces(_ TS: CTraceSurface) {
     // TODO: Port G2_TraceSurfaces
     portMissing("G2_TraceSurfaces", source: "oracle/codemp/ghoul2/G2_misc.cpp:1428")
 }
@@ -379,46 +352,34 @@ private func G2_TraceSurfaces() -> Never {
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1514
 // TODO: Port signature
 // Raven wrote: void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, CollisionRecord_t *collRecMap, int entNum, int eG2TraceType, int useLod, float fRadius, float ssize,float tsize,float theta,int shader, SSkinGoreData *gore, qboolean skipIfLODNotMatch) #else void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, CollisionRecord_t *collRecMap, int entNum, int eG2TraceType, int useLod, float fRadius) #endif
-// No table row for `CGhoul2Info_v & ghoul2`.
+// No table row for `SSkinGoreData * gore`.
 func G2_TraceModels() -> Never {
     // TODO: Port G2_TraceModels
     portMissing("G2_TraceModels", source: "oracle/codemp/ghoul2/G2_misc.cpp:1514")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1613
-// TODO: Port signature
-// Raven wrote: void TransformPoint (const vec3_t in, vec3_t out, mdxaBone_t *mat)
-// No table row for `mdxaBone_t * mat`.
-func TransformPoint() -> Never {
+func TransformPoint(_ `in`: JKAShared.vec3_t, _ out: inout JKAShared.vec3_t, _ mat: JKAMP.MdxaBone) {
     // TODO: Port TransformPoint
     portMissing("TransformPoint", source: "oracle/codemp/ghoul2/G2_misc.cpp:1613")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1620
-// TODO: Port signature
-// Raven wrote: void TransformAndTranslatePoint (const vec3_t in, vec3_t out, mdxaBone_t *mat)
-// No table row for `mdxaBone_t * mat`.
-func TransformAndTranslatePoint() -> Never {
+func TransformAndTranslatePoint(_ `in`: JKAShared.vec3_t, _ out: inout JKAShared.vec3_t, _ mat: JKAMP.MdxaBone) {
     // TODO: Port TransformAndTranslatePoint
     portMissing("TransformAndTranslatePoint", source: "oracle/codemp/ghoul2/G2_misc.cpp:1620")
 }
 
 // create a matrix using a set of angles
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1630
-// TODO: Port signature
-// Raven wrote: void Create_Matrix(const float *angle, mdxaBone_t *matrix)
-// No table row for `mdxaBone_t * matrix`.
-func Create_Matrix() -> Never {
+func Create_Matrix(_ angle: JKAShared.vec4_t?, _ matrix: JKAMP.MdxaBone) {
     // TODO: Port Create_Matrix
     portMissing("Create_Matrix", source: "oracle/codemp/ghoul2/G2_misc.cpp:1630")
 }
 
 // given a matrix, generate the inverse of that matrix
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1656
-// TODO: Port signature
-// Raven wrote: void Inverse_Matrix(mdxaBone_t *src, mdxaBone_t *dest)
-// No table row for `mdxaBone_t * src`.
-func Inverse_Matrix() -> Never {
+func Inverse_Matrix(_ src: JKAMP.MdxaBone, _ dest: JKAMP.MdxaBone) {
     // TODO: Port Inverse_Matrix
     portMissing("Inverse_Matrix", source: "oracle/codemp/ghoul2/G2_misc.cpp:1656")
 }
@@ -442,10 +403,7 @@ private func G2_FindSurface() -> Never {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1719
-// TODO: Port signature
-// Raven wrote: qboolean G2_SaveGhoul2Models(CGhoul2Info_v &ghoul2, char **buffer, int *size)
-// No table row for `CGhoul2Info_v & ghoul2`.
-func G2_SaveGhoul2Models() -> Never {
+func G2_SaveGhoul2Models(_ ghoul2: CGhoul2Info_v, _ buffer: inout JKAShared.TextCursor, _ size: inout Int32) -> Bool {
     // TODO: Port G2_SaveGhoul2Models
     portMissing("G2_SaveGhoul2Models", source: "oracle/codemp/ghoul2/G2_misc.cpp:1719")
 }
@@ -479,19 +437,13 @@ func G2_FindConfigStringSpace(_ name: String, _ start: Int32, _ max: Int32) -> I
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1841
-// TODO: Port signature
-// Raven wrote: void G2_LoadGhoul2Model(CGhoul2Info_v &ghoul2, char *buffer)
-// No table row for `CGhoul2Info_v & ghoul2`.
-func G2_LoadGhoul2Model() -> Never {
+func G2_LoadGhoul2Model(_ ghoul2: CGhoul2Info_v, _ buffer: inout JKAShared.CharBuf) {
     // TODO: Port G2_LoadGhoul2Model
     portMissing("G2_LoadGhoul2Model", source: "oracle/codemp/ghoul2/G2_misc.cpp:1841")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1912
-// TODO: Port signature
-// Raven wrote: void G2_LerpAngles(CGhoul2Info_v &ghoul2,CGhoul2Info_v &nextGhoul2, float interpolation)
-// No table row for `CGhoul2Info_v & ghoul2`.
-func G2_LerpAngles() -> Never {
+func G2_LerpAngles(_ ghoul2: CGhoul2Info_v, _ nextGhoul2: CGhoul2Info_v, _ interpolation: Float) {
     // TODO: Port G2_LerpAngles
     portMissing("G2_LerpAngles", source: "oracle/codemp/ghoul2/G2_misc.cpp:1912")
 }

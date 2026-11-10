@@ -6,10 +6,7 @@ import JKAMP_Ded
 // leave these two as standard mallocs for the moment, there's something weird happening in ICARUS...
 //
 /// Source: oracle/codemp/icarus/Memory.cpp:8
-// TODO: Port signature
-// Raven wrote: void *ICARUS_Malloc(int iSize)
-// No table row for the return `void *`.
-func ICARUS_Malloc() -> Never {
+func ICARUS_Malloc(_ iSize: Int32) -> UnsafeMutableRawPointer {
     // TODO: Port ICARUS_Malloc
     portMissing("ICARUS_Malloc", source: "oracle/codemp/icarus/Memory.cpp:8")
 }

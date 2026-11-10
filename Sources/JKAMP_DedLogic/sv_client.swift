@@ -729,7 +729,7 @@ private func SV_CloseDownload(_ cl: Client) {
     i = 0
     while i < MAX_DOWNLOAD_WINDOW {
         if cl.downloadBlocks[i] != nil {
-            Z_Free(cl.downloadBlocks[i])
+            Z_Free(OpaquePointer(cl.downloadBlocks[i]!.base))
             cl.downloadBlocks[i] = nil
         }
         i += 1
