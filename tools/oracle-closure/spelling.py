@@ -326,9 +326,9 @@ class Types:
                 return Answer(f"{alias}?", "bare")
         if facts.ruled == "bytes" and canonical.kind == TypeKind.POINTER:
             pointee = canonical.get_pointee().get_canonical()
-            if pointee.kind == TypeKind.POINTER and pointee.get_pointee().get_canonical().kind == TypeKind.VOID:
+            if pointee.kind == TypeKind.POINTER and pointee.get_pointee().get_canonical().kind in (TypeKind.VOID, TypeKind.UCHAR):
                 # A `void **` the body sets to a byte buffer, `ppvBuffer` of RE_RegisterModels_GetDiskFile, is the caller's optional Slots of bytes,
-                # inout, the shape a `void **` handle has, row TR13.
+                # inout, the shape a `void **` handle has, row TR13. A `byte **`, `pic` of LoadTGA at tr_image.cpp:1421, is the same, row G11 of docket 13.
                 return Answer("inout Slots<JKAShared.byte>?", "out_opaque")
             if canonical.get_pointee().get_canonical().kind == TypeKind.INT:
                 # An `int *` list the body fills, `int *entityList` of SV_AreaEntities, is the caller's Slots of Int32, the rule of the field kind.
@@ -345,6 +345,13 @@ class Types:
         if facts.ruled == "string_slice":
             # The body fills the caller's list by index, `psList[*numfiles] = CopyString(...)`, the `char *infos[]` row.
             return Answer("inout ArraySlice<String>", "string_slice")
+        slot = canonical.get_pointee() if canonical.kind == TypeKind.POINTER else \
+            canonical.element_type if canonical.kind in (TypeKind.CONSTANTARRAY, TypeKind.INCOMPLETEARRAY) else None
+        if facts.ruled == "string_slots" and slot is not None and slot.get_canonical().kind == TypeKind.POINTER \
+                and slot.get_canonical().get_pointee().get_canonical().kind == TypeKind.CHAR_S:
+            # A `char *x[]` table whose slots can hold NULL, `stringindex` of AAS_StringFromIndex at be_aas_main.cpp:68, is the caller's Slots
+            # of optional texts, the type of the `configstrings` field it comes from, the text twin of pointer_table, row G22 of docket 13.
+            return Answer("Slots<String?>", "slots")
         if facts.ruled == "string_value":
             # A qsort comparator reads its `const void *` as `*(char **)`, so the text crosses, the text twin of int_value.
             return Answer("String", "bare")
@@ -376,6 +383,13 @@ class Types:
                 declaration = canonical.get_pointee().get_canonical().get_pointee().get_canonical().get_declaration()
                 if declaration is not None and declaration.spelling in CXX_CLASSES:
                     return Answer(f"inout {CXX_CLASSES[declaration.spelling]}?", "out_opaque")
+            if canonical.kind == TypeKind.POINTER and t.kind == TypeKind.POINTER:
+                # A pointer to a handle typedef of TYPES, `TGenericParser2 *GP2` of GP_Delete at GenericParser2.cpp:952, is the caller's optional
+                # handle, inout, the form of the class pointer above, row G1 of docket 13.
+                handle = t.get_pointee()
+                named = (handle.get_named_type() if handle.kind == TypeKind.ELABORATED else handle).spelling
+                if named in TYPES and TYPES[named].endswith("?") and not handle.is_const_qualified():
+                    return Answer(f"inout {TYPES[named]}", "out_opaque")
             # A C++ reference to a record pointer, `mdxaBone_t *&retBasepose` of G2_GetBoneBasepose at tr_ghoul2.cpp:656, is the caller's
             # optional view, inout, the form of a pointer to a struct pointer, row X14 G1c of docket 10.
             if canonical.kind == TypeKind.LVALUEREFERENCE and canonical.get_pointee().get_canonical().kind == TypeKind.POINTER \

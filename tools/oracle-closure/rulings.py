@@ -464,6 +464,13 @@ HOST_ROOTS = {
     "cvalue": ("Cvalue", "CJKAMP_Ded"),
     # GetAutomapSymbol of RM_Manager.cpp:418 returns the record of client.h:143, which ded_types.h copies, row X41 of docket 10.
     "rmAutomapSymbol_t": ("RmAutomapSymbol", "CJKAMP_Ded"),
+    # The renderer records of row G16 of docket 13.
+    # R_LerpTag of tr_model.cpp:1768 fills an `orientation_t`, the record GAME_ROOTS holds for trap_R_LerpTag.
+    # GetRefAPI of tr_init.cpp:1459 returns its static `refexport_t`, the form of GetBotLibAPI and `botlib_export_t`.
+    # LoadTGA of tr_image.cpp:1447 reads the file header through `TGAHeader_t` of tr_image.cpp:1393, which ded_types.h copies under its `#pragma pack(1)`.
+    "orientation_t": ("Orientation", "CJKAShared"),
+    "refexport_t": ("Refexport", "CJKAMP_Ded"),
+    "TGAHeader_t": ("TGAHeader", "CJKAMP_Ded"),
 }
 
 ROOTS = {"mp-game": GAME_ROOTS, "mp-cgame": CGAME_ROOTS, "mp-engine-ded": HOST_ROOTS}
@@ -574,6 +581,8 @@ HAND_VARS = {
     "interface_export": "interface_export_t",
     "TheRandomMissionManager": "CRMManager?",
     "mCurObjective": "CRMObjective?",
+    # `static CRenderableSurface RSStorage[MAX_RENDER_SURFACES]` of tr_ghoul2.cpp:866 holds the records by value, and AllocRS of :869 hands one out, row G17 of docket 13.
+    "RSStorage": "[CRenderableSurface]",
 }
 
 # File-scope character arrays whose address the engine holds, so each one is one zeroed byte allocation on the storage class, not a `CharBuf`.
@@ -725,6 +734,12 @@ BYTE_STORAGE_LOCALS = {
     ("height", "FlattenArea"): ("FlattenArea",),
     ("height2", "FlattenArea"): ("FlattenArea",),
     ("info", "FlattenArea"): ("FlattenArea",),
+    # CCMLandScape::FractionBelowLevel hands its `ivec3_t info` to the `int *user` of CM_CircularIterate at cm_terrain.cpp:1401, the FlattenArea row.
+    # CM_Checksum hands `unsigned checksums[16]` to the `const void *` of Com_BlockChecksum at cm_load.cpp:558, the `digest` row, row G6 of docket 13.
+    ("info", "FractionBelowLevel"): ("FractionBelowLevel",),
+    ("checksums", "CM_Checksum"): ("CM_Checksum",),
+    # GetRefAPI returns the address of its `static refexport_t re` at tr_init.cpp:1460 and :1530, the `nullSym` row, row G16 of docket 13.
+    ("re", "GetRefAPI"): ("GetRefAPI",),
 }
 # A scalar data table Raven initializes at file scope that tables.py copies into C storage, which the view target reads as a Slots of its scalar.
 # `static unsigned char PADDING[64]` of md4.cpp goes to MD4Update at md4.cpp:157, whose `input` is a Slots of bytes.
@@ -823,6 +838,9 @@ FIELDS = {
     # and AAS_OptimizeEdge indexes `optimized->vertexes[...]` of be_aas_optimize.cpp.
     ("aas_t", "vertexes"): "vectors",
     ("optimized_t", "vertexes"): "vectors",
+    # ParseStage stores the Hunk_Alloc block of two vectors at tr_shader.cpp:1772 and fills `tcGenVectors[0]` and `[1]` at :1773 and :1774,
+    # and ComputeTexCoords indexes the same two at tr_shade.cpp:1858 and :1859, row G15 of docket 13.
+    ("textureBundle_t", "tcGenVectors"): "vectors",
     # The stream of the bot log, `logfile.fp` of l_log.cpp:29, is the C library's `FILE *`, the `qfile_gut.o` row, row D20.
     ("logfile_t", "fp"): "opaque",
     # The text of a script and the cursors into it, row N1. LoadScriptFile sets `script->buffer` to the bytes after the record at l_script.cpp:1323,
@@ -877,6 +895,13 @@ HAND_MACROS = {
         "saberInvalid(saberent, saberOwner, other)",
         "saberInvalid, a hand Bool function of JKAMP_GameLogic, because the macro reads three parameters of its four callers and is not a constant",
         swift="Bool",
+    ),
+    # `PATHSEPERATOR_STR` of l_precomp.h:21 and :23 takes a platform `#ifdef`, the form of PATH_SEP, and FileBackend.swift holds the text
+    # of the platform that builds beside PATH_SEP, row G20 of docket 13.
+    "PATHSEPERATOR_STR": HandMacro(
+        "PATHSEPERATOR_STR",
+        "PATHSEPERATOR_STR, a hand string constant of JKAMP_Ded beside PATH_SEP, because Raven picks the separator by a platform `#ifdef`",
+        swift="String",
     ),
 }
 
@@ -943,6 +968,11 @@ TYPES = {
     "botinputs": "Slots<BotInput>?",
     # `int *clusterareas` of be_aas_routealt.cpp:40 is the table of be_aas_routealt.cpp:205, the `cmod_base` row.
     "clusterareas": "Slots<Int32>?",
+    # The handles of the C interface of GenericParser2.h:166 to :168 are `void *`, and each routine of GenericParser2.cpp:928 to :1203 casts
+    # its handle to `CGenericParser2 *`, `CGPGroup *`, or `CGPValue *`, so each handle is the hand Swift type, optional for Raven's 0, the `captureData` row.
+    "TGenericParser2": "CGenericParser2?",
+    "TGPGroup": "CGPGroup?",
+    "TGPValue": "CGPValue?",
 }
 
 # The folders whose `long`, `unsigned long`, and `long double` are the widths of WinDed, 32, 32, and 64 bits, row D5 of the ninth batch.
@@ -1129,6 +1159,13 @@ RETURNS = {
     "StringContainsWord": "text_offset",
     # AAS_LoadAASLump of be_aas_file.cpp:273 returns the block of the lump or NULL on a failed read, the GetMemory row, row X36 A3.
     "AAS_LoadAASLump": "optional_raw",
+    # GPG_FindPairValue of GenericParser2.cpp:1089 returns `CGPGroup::FindPairValue`, which returns NULL for a missing key and a NULL default,
+    # and GPV_GetTopValue of :1172 returns `CGPValue::GetTopValue`, which returns NULL for an empty list, row G4 of docket 13.
+    # The `bool` overloads of :1099 and :1182 keep their Bool, because the kind reads a pointer return alone.
+    "GPG_FindPairValue": "optional_string",
+    "GPV_GetTopValue": "optional_string",
+    # VM_VM2C of vm.cpp:37 returns the module address `(void *)p`, the `void *` of Sys_GetBotAIAPI, row G18 of docket 13.
+    "VM_VM2C": "opaque",
 }
 
 # Allocators whose `char *` result a body holds as a CharBuf of the constant size Raven asks for, when every store into the local is that call.
@@ -1175,6 +1212,7 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #   string_list  a [String] by value, for a `char **` list of zone texts the body reads or frees, the parameter twin of the RETURNS kind
 #   string_list_mut  an inout [String], for a `char **` list the body reorders in place, FS_SortFileList
 #   string_slice  an inout ArraySlice<String>, for a `char **` the body fills by index from a caller's `&array[i]`, the `char *infos[]` row
+#   string_slots  a Slots<String?>, for a `char *x[]` table whose slots can hold NULL, the text twin of pointer_table
 #   string_value  a String by value for a `const void *` a qsort comparator reads as `*(char **)`, the text twin of int_value
 #   std_string  an inout String, for a C++ `std::string &` the body writes, the reference twin of out_string
 #   vec4_const  a vec4_t by value for a `float plane[4]` or a `float *` plane the body only reads, the form a `vec4_t` parameter has
@@ -1506,40 +1544,54 @@ PARAMS = {
     ("CM_GetAverage", "user"): "bytes",
     ("CM_Smooth", "user"): "bytes",
     ("CM_MakeAverage", "user"): "bytes",
+    # The rows of docket 13.
+    # A key of a C++ method names the method by its bare name, the name skeleton.py:383 and table.py:1632 pass as the owner,
+    # the form of the FlattenArea key of BYTE_STORAGE_LOCALS.
+    # The skeleton writes no stub for a method, so such a row records the hand signature.
+    # CCMLandScape::CarveBezierCurve multiplies the caller's control points in place at cm_terrain.cpp:1269 and :1270,
+    # and CM_CarveBezierCurve of :1643 hands its `ctls` on, so both cross as the Slots of vectors, row G7.
+    ("CM_CarveBezierCurve", "ctls"): "table",
+    ("CarveBezierCurve", "ctlPoints"): "table",
+    # CRMManager::ProcessAutomapSymbols of RM_Manager.cpp:442 reads `count` records of `symbols`, the table rule, row G7.
+    ("ProcessAutomapSymbols", "symbols"): "table",
+    # CM_BoxBrushes of cm_test.cpp:194 hands `boxList` to `ll.list` at :204, a table of brush pointers, the form of `wps`, row G8.
+    ("CM_BoxBrushes", "boxList"): "pointer_table",
+    # The ICARUS save functions write and read the bytes of a value, Instance.cpp:316 to :612, and AppendToSaveGame and ReadFromSaveGame
+    # of Q3_Interface.cpp:695 and :701 fill the table fields at :1006 and :1007, the FS_Write row, row G9.
+    ("AppendToSaveGame", "data"): "bytes",
+    ("ReadFromSaveGame", "pvAddress"): "bytes",
+    ("interface_export_t.I_WriteSaveData", "data"): "bytes",
+    ("interface_export_t.I_ReadSaveData", "address"): "bytes",
+    # CBlockMember::WriteMember of BlockStream.cpp:133 hands its `FILE *` to fwrite, the stream of the l_struct.cpp writers, row G10.
+    ("WriteMember", "m_fileHandle"): "opaque",
+    # CRC_ContinueProcessString of l_crc.cpp:126 reads `length` bytes of `data`, and LoadTGA of tr_image.cpp:1421 sets `*pic` to a byte buffer,
+    # the rows of Com_BlockChecksum and RE_RegisterModels_GetDiskFile, row G11.
+    ("CRC_ContinueProcessString", "data"): "bytes",
+    ("LoadTGA", "pic"): "bytes",
+    # MC_Compress and MC_UnCompress of matcomp.c:50 and :163 read and write the `matrix` of an `mdxaBone_t`, the MC_UnCompressQuat row, row G13.
+    ("MC_Compress", "mat"): ("view", "mdxaBone_t"),
+    ("MC_UnCompress", "mat"): ("view", "mdxaBone_t"),
+    # ParseVector of tr_shader.cpp:323 fills three floats of a vector, and its callers pass a `vec3_t` at :1604, :1773, :1774, :2398, and :2473,
+    # the CM_ParseVector row, row G14.
+    ("ParseVector", "v"): "vec3_mut",
+    # Export_BotLibVarSet of be_interface.cpp:202 only reads both texts, and Raven left out the `const`, the BotClientCommand row, row G19.
+    ("botlib_export_t.BotLibVarSet", "var_name"): "text",
+    ("botlib_export_t.BotLibVarSet", "value"): "text",
+    # The string index functions of be_aas_main.cpp:56, :84, and :125 test a slot of the table for NULL at :68, :94, and :131,
+    # and the callers pass `&aasworld.configstrings[CS_MODELS]` at :107 and :117, row G22.
+    ("AAS_StringFromIndex", "stringindex"): "string_slots",
+    ("AAS_IndexFromString", "stringindex"): "string_slots",
+    ("AAS_UpdateStringIndexes", "configstrings"): "string_slots",
 }
 
-# Rule 20: a function with no caller in either tree stays as its stub, and the stub carries one note line that it is dead.
+# Rule 20: a function with no caller in either tree gets its real body like any other function,
+# and the body carries one note line that says it has no caller and why.
+# A row here names a stub that has no body yet.
+# The stub prints the reason as that note, and the draft keeps the stub.
+# The row goes out in the commit of the body.
+# CG_ParticleExplosion of cg_marks.c:1496 is the one cgame stub of the rule, row R10 of ledger 13.
 DEAD = {
     "CG_ParticleExplosion": "Raven calls this function from no file of either tree",
-    # R_DebugGraphics of tr_main.cpp:1583 is the one caller, and the dedicated build never draws.
-    "CM_DrawDebugSurface": "The renderer's R_DebugGraphics is the one caller, and the dedicated build never draws",
-    # tr_image.cpp:2252 and :2295 call LoadTGA under `#ifndef DEDICATED`, and client/cl_main.cpp:2483 calls GetRefAPI, row TR9.
-    "LoadTGA": "Its two callers in tr_image.cpp stand under `#ifndef DEDICATED`, so no caller builds in the dedicated host",
-    "GetRefAPI": "The client's cl_main.cpp is the one caller, and the dedicated host does not link it",
-    # R_AddGhoulSurfaces of tr_ghoul2.cpp:3384 is the one caller, under `#ifndef DEDICATED`, row G2B7.
-    "bInShadowRange": "R_AddGhoulSurfaces is the one caller, under `#ifndef DEDICATED`, so no caller builds in the dedicated host",
-    # CM_BoxBrushes of cm_test.cpp:194 has no caller in either tree, and it is the one function that stores CM_StoreBrushes, row R4.
-    "CM_BoxBrushes": "Raven calls this function from no file of either tree",
-    "CM_StoreBrushes": "CM_BoxBrushes is the one function that stores it, and no file of either tree calls CM_BoxBrushes",
-    # GetRefAPI stores R_LerpTag into `re.LerpTag` at tr_init.cpp:1488, and the client's trap_R_LerpTag reaches it. GetRefAPI is dead under row TR9.
-    "R_LerpTag": "GetRefAPI is the one function that stores it, and the dedicated host does not link the client that calls GetRefAPI",
-    # G2API_SaveGhoul2Models and G2API_LoadGhoul2Models of G2_API.cpp:2472 and :2477 are the one caller of each, and no file of the MP tree calls them.
-    # The SP calls of code/game/g_savegame.cpp:856 and :1058 reach the SP tree's own G2_API.cpp, row R9.
-    "G2_SaveGhoul2Models": "G2API_SaveGhoul2Models is the one caller, and no file of the MP tree calls it",
-    "G2_LoadGhoul2Model": "G2API_LoadGhoul2Models is the one caller, and no file of the MP tree calls it",
-    # CM_Checksum of cm_load.cpp:544 has no caller in either tree, row X45 of docket 10.
-    "CM_Checksum": "Raven calls this function from no file of either tree",
-    # CM_DrawDebugSurface of cm_patch.cpp:1674 is the one caller of BotDrawDebugPolygons of sv_bot.cpp:227, and it is dead above, row X45 B6.
-    "BotDrawDebugPolygons": "CM_DrawDebugSurface is the one caller, and the dedicated build never draws",
-    # WriteStructWithIndent of l_struct.cpp:355 is the one caller of each, and WriteStructure, its one caller, is called only by DumpWeaponConfig
-    # of be_ai_weap.cpp:156 under DEBUG_AI_WEAP, which the build does not define, row X34 of docket 10.
-    # The calls of be_ai_weight.cpp:433 to :525 stand under the `#if 0` of :421 to :533, docket 12.
-    "WriteIndent": "WriteStructWithIndent is the one live caller, its one caller WriteStructure stands only under DEBUG_AI_WEAP, which the build does not define, and the calls of be_ai_weight.cpp stand under `#if 0`",
-    "WriteFloat": "WriteStructWithIndent is the one live caller, its one caller WriteStructure stands only under DEBUG_AI_WEAP, which the build does not define, and the calls of be_ai_weight.cpp stand under `#if 0`",
-    # The body of RM_Manager.cpp:444 to :473 and both callers of RM_Mission.cpp:1508 and :1512 stand under `#ifndef DEDICATED`, row 8 of docket 11.
-    "ProcessAutomapSymbols": "Its body and its two callers in RM_Mission.cpp stand under `#ifndef DEDICATED`, so no caller builds in the dedicated host",
-    # tr_terrain.cpp:923 of the renderer and RM_CreateRandomModels of RM_Terrain.cpp:493 are the callers, and only cl_cgame.cpp:1707 calls the second, row 8 of docket 11.
-    "CM_TerrainPatchIterate": "The renderer's tr_terrain.cpp and RM_CreateRandomModels are the callers, and only the client calls RM_CreateRandomModels",
 }
 
 # Functions of the oracle the port leaves out. The stub carries the cite, Raven's line, and the reason, and no function.
@@ -1562,6 +1614,20 @@ NOT_PORTED = {
     "Cvar_FreeString": "the string pool holds every cvar string, and each caller drops the free under an AI line",
     # Sys_FileOutOfDate of files_pc.cpp:600 is the one caller, and the Swift body calls SysBackend.GetFileTime under an AI line, row NOT_PORTED-replaced of docket 12.
     "Sys_GetFileTime": "SysBackend.GetFileTime of Sources/JKAMP_Ded/SysBackend.swift reads the POSIX modification time, and Sys_FileOutOfDate calls it",
+    # CGenericParser2::Clean of GenericParser2.cpp:907 is the one caller, and the Swift Clean drops the call under an AI line, row R5 of ledger 13.
+    "CleanTextPool": "row C3 makes the text pool a String, so the chain it frees does not exist, and CGenericParser2::Clean drops the call",
+    # Cvar_Defrag of cvar.cpp:979 is the one caller, at :1007 to :1010, and the Swift Cvar_Defrag is a no-op under an AI line, row G5 of docket 13.
+    "Cvar_Realloc": "the string pool holds every cvar string, so the memory pool it copies into does not exist, and Cvar_Defrag is a no-op",
+    # navigator.h:182 declares the method, and no file of either tree defines it or calls it, so the generator never meets it, row G5 of docket 13.
+    "GetNodeLeadDistance": "Raven declares the method in navigator.h and defines no body for it",
+    # The value part of row N-GP2, ruled by the user on 2026-11-10: ruling C3 makes the pair and value lists Arrays of a struct,
+    # so the chains these handle routines of GenericParser2.cpp:1029 to :1203 walk do not exist, and ruling C3 wins over rule 20 here.
+    "GPG_GetPairs": "C3 makes the value list an Array, so the chain does not exist",
+    "GPG_GetInOrderPairs": "C3 makes the value list an Array, so the chain does not exist",
+    "GPV_GetNext": "C3 makes the value list an Array, so the chain does not exist",
+    "GPV_GetInOrderNext": "C3 makes the value list an Array, so the chain does not exist",
+    "GPV_GetInOrderPrevious": "C3 makes the value list an Array, so the chain does not exist",
+    "GPV_GetList": "C3 makes the value list an Array, so the chain does not exist",
 }
 
 # Game functions and globals the shell's `vmMain` names, which cross the module line, so each is public. Rule 11 and ruling E1.
@@ -1627,6 +1693,8 @@ WIDENED_FIELDS = {
 # CGenericParser2 is the final class of GenericParser2.swift, row C3 of notes/2026-11-03/dedicated-cxx-docket.md and row G1 of the unzip round.
 CXX_CLASSES = {
     "CGenericParser2": "CGenericParser2",
+    # The group class of GenericParser2.h, the final class of GenericParser2.swift that the TGPGroup handle names, row G2 of docket 13.
+    "CGPGroup": "CGPGroup",
     # Row C of notes/2026-11-09/dedicated-open-rows-ledger-7.md: one final class per Raven class of ICARUS, the navigator, and ROFF.
     "CBlockMember": "CBlockMember", "CBlock": "CBlock", "CBlockStream": "CBlockStream",
     "CSequence": "CSequence", "CSequencer": "CSequencer",
