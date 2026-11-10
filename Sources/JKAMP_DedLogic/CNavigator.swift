@@ -487,6 +487,7 @@ final class CNavigator {
                 continue
             }
             //Are we within the known clear radius of this node?
+            // C converts the `int` square to `unsigned` for the compare.
             if nci.distance < UInt32(bitPattern: radius * radius) {
                 //Do a z-difference sanity check
                 if abs(position[2] - ent!.r.currentOrigin[2]) < MAX_Z_DELTA {
@@ -524,6 +525,7 @@ final class CNavigator {
             }
 
             if targetID != -1 {//we want to find the one with the shortest route here
+                // C converts the unsigned cost to `int` at the store.
                 dist = Int32(bitPattern: self.GetPathCost(nci.nodeID, targetID))
                 if dist < bestDist {
                     bestDist = dist
@@ -782,6 +784,7 @@ final class CNavigator {
                 //Done
                 if edgeID == endID {
                     // Port-note: Raven's `int` sum can pass INT_MAX on a path through failed edges, which C leaves undefined. The sum wraps.
+                    // C converts the `int` sum to the unsigned return.
                     return UInt32(bitPattern: pathCost &+ moveNode!.GetEdgeCost(i))
                 }
 
@@ -814,6 +817,7 @@ final class CNavigator {
             }
         }
 
+        // C converts the `int` sum to the unsigned return.
         return UInt32(bitPattern: pathCost)
     }
 
@@ -839,6 +843,7 @@ final class CNavigator {
         let start = self.m_nodes[startID]
         let end = self.m_nodes[endID]
 
+        // C converts the `int` cost to the unsigned return.
         return UInt32(bitPattern: self.GetEdgeCost(start, end))
     }
 
@@ -1039,23 +1044,174 @@ final class CNavigator {
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1867
     func ClearAllFailedEdges() {
-        // Port-note: The body needs the storage of failedEdges of navigator.h:245, and no storage exists.
-        // TODO: Port CNavigator::ClearAllFailedEdges
-        portMissing("CNavigator::ClearAllFailedEdges", source: "oracle/codemp/server/NPCNav/navigator.cpp:1867")
+        // AI: Raven calls memset over the array with WAYPOINT_NONE of g_nav.h and MAX_FAILED_EDGES of navigator.h, which no module of the host declares.
+        // The body calls Com_Memset over the bytes of the records, the form of cm_test.swift:456, with the values -1 and 32.
+        Com_Memset(self.failedEdges.bytes, -1, JKAMP.FailedEdge.byteCount * 32)
+        var j: Int32 = 0
+        while j < 32 {
+            self.ClearFailedEdge(self.failedEdges[j])
+            j += 1
+        }
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1876
     func EdgeFailed(_ startID: Int32, _ endID: Int32) -> Int32 {
-        // Port-note: The body needs the storage of failedEdges of navigator.h:245, and no storage exists.
-        // TODO: Port CNavigator::EdgeFailed
-        portMissing("CNavigator::EdgeFailed", source: "oracle/codemp/server/NPCNav/navigator.cpp:1876")
+        //OPTIMIZED WAY  (bjg 01/02)
+        //find in lookup map
+        // AI: Raven walks the equal_range of the multimap. The body walks the Array of the key, which holds the values in their insert order.
+        for value in self.m_edgeLookupMap[startID] ?? [] {
+            if self.failedEdges[value].endID == endID {
+                return value
+            }
+        }
+        for value in self.m_edgeLookupMap[endID] ?? [] {
+            if self.failedEdges[value].endID == startID {
+                return value
+            }
+        }
+
+        return -1
+
+        //Old way (linear search)
+        /*
+        for ( int j = 0; j < MAX_FAILED_EDGES; j++ )
+        {
+            if ( failedEdges[j].startID == startID )
+            {
+                if ( failedEdges[j].endID == endID )
+                {
+                    return j;
+                }
+            }
+            else if ( failedEdges[j].startID == endID )
+            {
+                if ( failedEdges[j].endID == startID )
+                {
+                    return j;
+                }
+            }
+        }
+        return -1;
+        */
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1925
     func AddFailedEdge(_ entID: Int32, _ startID: Int32, _ endID: Int32) {
-        // Port-note: The body needs the storage of failedEdges of navigator.h:245, and no storage exists.
-        // TODO: Port CNavigator::AddFailedEdge
-        portMissing("CNavigator::AddFailedEdge", source: "oracle/codemp/server/NPCNav/navigator.cpp:1925")
+        var j: Int32 //, nextID;
+
+        //Must have nodes
+        if self.m_nodes.count == 0 {
+            return
+        }
+
+        if d_patched!.integer != 0 {//use patch-style navigation
+            if startID == endID {//not an edge!
+                return
+            }
+        }
+
+        //Validate the ent number
+        if (entID < 0) || (entID > ENTITYNUM_NONE) {
+            Com_Printf(S_COLOR_RED + "NAV ERROR: envalid ent %d\n", entID)
+            return
+        }
+
+        //Validate the start position
+        if (startID < 0) || (startID >= self.m_nodes.count) {
+            Com_Printf(S_COLOR_RED + "NAV ERROR: tried to fail invalid waypoint %d\n", startID)
+            return
+        }
+
+        //Validate the end position
+        if (endID < 0) || (endID >= self.m_nodes.count) {
+            Com_Printf(S_COLOR_RED + "NAV ERROR: tried to fail invalid waypoint %d\n", endID)
+            return
+        }
+
+        //First see if we already have this one
+        j = self.EdgeFailed(startID, endID)
+        if j != -1 {
+            //just remember this guy instead
+            self.failedEdges[j].entID = entID
+            return
+        }
+
+        //Okay, new one, find an empty slot
+        // AI: Raven compares with WAYPOINT_NONE of g_nav.h and counts to MAX_FAILED_EDGES of navigator.h, which no module of the host declares.
+        // The body reads their values, -1 and 32.
+        j = 0
+        while j < 32 {
+            if self.failedEdges[j].startID == -1 {
+                self.failedEdges[j].startID = startID
+                self.failedEdges[j].endID = endID
+                //Check one second from now to see if it's clear
+                self.failedEdges[j].checkTime = svs.time + CHECK_FAILED_EDGE_INTERVAL + Q_irand(0, 1000)
+
+                self.m_edgeLookupMap[startID, default: []].append(j)
+
+                /*
+                //DISABLED this for now, makes people stand around too long when
+                //			collision avoidance just wasn't at it's best but path is clear
+                CNode *start = m_nodes[startID];
+                CNode *end = m_nodes[endID];
+
+                for ( int i = 0; i < start->GetNumEdges(); i++ )
+                {
+                    nextID = start->GetEdge(i);
+
+                    if ( EdgeFailed( startID, nextID ) != -1 )
+                    {
+                        //This edge blocked, check next
+                        continue;
+                    }
+
+                    if ( nextID == endID || end->GetRank( nextID ) >= 0 )
+                    {//neighbor of or route to end
+                        //There's an alternate route, so don't check this one for 10 seconds
+                        failedEdges[j].checkTime = svs.time + CHECK_FAILED_EDGE_INTITIAL;
+                        break;
+                    }
+                }
+                */
+
+                //Remember who needed it
+                self.failedEdges[j].entID = entID
+
+                //set the edge failed flags
+                /*
+                CNode *node = m_nodes[startID];
+                int edgeNum = node->GetEdgeNumToNode( endID );
+                int	flags;
+                if ( edgeNum != -1 )
+                {
+                    flags = node->GetEdgeFlags( edgeNum )|EFLAG_FAILED;
+                    node->SetEdgeFlags( edgeNum, flags );
+                }
+                node = m_nodes[endID];
+                edgeNum = node->GetEdgeNumToNode( startID );
+                if ( edgeNum != -1 )
+                {
+                    flags = node->GetEdgeFlags( edgeNum )|EFLAG_FAILED;
+                    node->SetEdgeFlags( edgeNum, flags );
+                }
+                */
+
+                //stuff the index to this one in our lookup map
+
+                //now recalc all the paths!
+                if self.pathsCalculated {
+                    //reconnect the nodes and mark every node's flag NF_RECALC
+                    //Com_Printf( S_COLOR_CYAN"%d marking all nodes for recalc\n", svs.time );
+                    self.SetEdgeCost(startID, endID, Q3_INFINITE)
+                    // AI: Raven sets NF_RECALC of navigator.h, which no module of the host declares. The body reads its value, 4.
+                    self.FlagAllNodes(4)
+                }
+                return
+            }
+            j += 1
+        }
+
+        Com_Printf(S_COLOR_RED + "NAV ERROR: too many blocked waypoint connections (%d)!!!\n", j)
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2057
@@ -1141,9 +1297,30 @@ final class CNavigator {
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2144
     func CheckAllFailedEdges() {
-        // Port-note: The body needs the storage of failedEdges of navigator.h:245, and no storage exists.
-        // TODO: Port CNavigator::CheckAllFailedEdges
-        portMissing("CNavigator::CheckAllFailedEdges", source: "oracle/codemp/server/NPCNav/navigator.cpp:2144")
+        var failedEdge: JKAMP.FailedEdge
+        var clearedAny = false
+
+        //Must have nodes
+        if self.m_nodes.count == 0 {
+            return
+        }
+
+        // AI: Raven counts to MAX_FAILED_EDGES of navigator.h, which no module of the host declares. The body reads its value, 32.
+        var j: Int32 = 0
+        while j < 32 {
+            failedEdge = self.failedEdges[j]
+
+            clearedAny = self.CheckFailedEdge(failedEdge) ? true : clearedAny
+            j += 1
+        }
+        if clearedAny {//need to recalc the paths
+            if self.pathsCalculated {
+                //reconnect the nodes and mark every node's flag NF_RECALC
+                //Com_Printf( S_COLOR_CYAN"%d marking all nodes for recalc\n", svs.time );
+                // AI: Raven sets NF_RECALC of navigator.h, which no module of the host declares. The body reads its value, 4.
+                self.FlagAllNodes(4)
+            }
+        }
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2170
@@ -1278,6 +1455,7 @@ final class CNavigator {
             var i: Int32 = 0
             while i < start!.GetNumEdges() {
                 if start!.GetEdge(i) == rejectID {
+                    // C converts the unsigned cost to `int` at the store.
                     rejectRank = Int32(bitPattern: self.GetPathCost(startID, endID))//end->GetRank( start->GetEdge(i) );
                     break
                 }
@@ -1289,6 +1467,7 @@ final class CNavigator {
         while i < start!.GetNumEdges() {
             let edgeID = start!.GetEdge(i)
 
+            // C converts the unsigned cost to `int` at the store.
             testRank = Int32(bitPattern: self.GetPathCost(edgeID, endID))//end->GetRank( edgeID );
 
             //Make sure it's not worse than our reject rank
@@ -1401,6 +1580,7 @@ final class CNavigator {
                 radius = node!.GetRadius()
 
                 //If we're not within the known clear radius of this node OR out of Z height range...
+                // C converts the `int` square to `unsigned` for the compare.
                 if nci.distance >= UInt32(bitPattern: radius * radius) || (abs(position[2] - ent!.r.currentOrigin[2]) >= MAX_Z_DELTA) {
                     //We're not *within* this node, so check clear path, etc.
 
@@ -1453,6 +1633,7 @@ final class CNavigator {
                     nextNode = self.GetBestNodeAltRoute(nci.nodeID, nci2.nodeID, &pathCost, bestNode)
                     cost += pathCost
                 } else {
+                    // C converts the unsigned cost to `int` at the add.
                     cost += Int32(bitPattern: self.GetPathCost(nci.nodeID, nci2.nodeID))
                 }
 
@@ -1473,6 +1654,7 @@ final class CNavigator {
                     radius = node2!.GetRadius()
 
                     //If we're not within the known clear radius of this node OR out of Z height range...
+                    // C converts the `int` square to `unsigned` for the compare.
                     if nci2.distance >= UInt32(bitPattern: radius * radius) || (abs(position2[2] - goal!.r.currentOrigin[2]) >= MAX_Z_DELTA) {
                         //We're not *within* this node, so check clear path, etc.
 
@@ -1663,7 +1845,8 @@ final class CNavigator {
             return -1
         }
 
-        if lastID >= self.m_nodes.count {
+        // AI: Raven compares the signed index with the unsigned size, so a negative index is out of range. The test names that case.
+        if lastID < 0 || lastID >= self.m_nodes.count {
             return -1
         }
 

@@ -430,9 +430,9 @@ private func CM_RemoveDegenerateColumns(_ grid: CGrid) {
     while i < grid.width - 1 {
         j = 0
         while j < grid.height {
-            // Port-note: CM_ComparePoints takes a `Slots<Float>`, and the grid point is a `vec3_t`, so the call waits for the `vec3_const` row.
-            // Raven wrote: if ( !CM_ComparePoints( grid->points[i][j], grid->points[i+1][j] ) ) { break; }
-            portMissing("CM_RemoveDegenerateColumns", source: "oracle/codemp/qcommon/cm_patch.cpp:395")
+            if !CM_ComparePoints(grid.points[i][j], grid.points[i + 1][j]) {
+                break
+            }
             j += 1
         }
 
@@ -583,7 +583,6 @@ private func CM_FindPlane(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t, _ p3: 
 
         // found it
         return i
-        i += 1
     }
 
     // add a new plane
@@ -1205,9 +1204,7 @@ func CM_GeneratePatchCollide(_ width: Int32, _ height: Int32, _ points: [JKAShar
         while i < width {
             j = 0
             while j < height {
-                // Port-note: `points` is one `inout vec3_t`, where Raven indexes the `vec3_t *` as the packed rows, so the read waits for the signature row.
-                // Raven wrote: VectorCopy( points[j*width + i], grid.points[i][j] );
-                portMissing("CM_GeneratePatchCollide", source: "oracle/codemp/qcommon/cm_patch.cpp:1163")
+                grid.points[i][j] = points[j * width + i]
                 j += 1
             }
             i += 1

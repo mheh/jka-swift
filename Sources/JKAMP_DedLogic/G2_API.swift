@@ -646,7 +646,7 @@ func G2API_SetBoneAnim(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ boneName:
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1140
-func G2API_GetBoneAnim(_ ghlInfo: CGhoul2Info?, _ boneName: String, _ currentTime: Int32, _ currentFrame: inout Float, _ startFrame: inout Int32, _ endFrame: inout Int32, _ flags: inout Int32, _ animSpeed: inout Float, _ modelList: inout Int32) -> Bool {
+func G2API_GetBoneAnim(_ ghlInfo: CGhoul2Info?, _ boneName: String, _ currentTime: Int32, _ currentFrame: inout Float, _ startFrame: inout Int32, _ endFrame: inout Int32, _ flags: inout Int32, _ animSpeed: inout Float, _ modelList: Slots<qhandle_t>?) -> Bool {
     // Port-note: Raven passes `int *modelList` to G2_Get_Bone_Anim, and the stub spells it `inout Int32` where the callee takes `Slots<qhandle_t>?`.
     // TODO: Port G2API_GetBoneAnim
     portMissing("G2API_GetBoneAnim", source: "oracle/codemp/ghoul2/G2_API.cpp:1140")
@@ -776,9 +776,16 @@ func G2API_RemoveBone(_ ghlInfo: CGhoul2Info?, _ boneName: String) -> Bool {
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1434
 func G2API_AnimateG2Models(_ ghoul2: CGhoul2Info_v, _ AcurrentTime: Int32, _ params: CRagDollUpdateParams?) {
-    // Port-note: Raven calls the four-argument G2_Animate_Bone_List of G2_bones.cpp:4498, and the Swift function has the three arguments of G2_bones.cpp:1065.
-    // TODO: Port G2API_AnimateG2Models
-    portMissing("G2API_AnimateG2Models", source: "oracle/codemp/ghoul2/G2_API.cpp:1434")
+    var model: Int32 = 0
+    let currentTime = G2API_GetTime(AcurrentTime)
+
+    // Walk the list and find all models that are active
+    while model < ghoul2.size() {
+        if ghoul2[model].mModel != 0 {
+            G2_Animate_Bone_List(ghoul2, currentTime, model, params)
+        }
+        model += 1
+    }
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1472
@@ -1488,8 +1495,13 @@ func G2_SetupModelPointers(_ ghlInfo: CGhoul2Info?) -> Bool {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2773
-// TODO: Port signature
-// Raven wrote: qboolean G2_SetupModelPointers(CGhoul2Info_v &ghoul2) // returns true if any model is properly set up
-// No table row for `CGhoul2Info_v & ghoul2`.
-// TODO: Port G2_SetupModelPointers
-// An overload before it holds the empty signature, so this marker has no function until the table shapes its parameters.
+func G2_SetupModelPointers(_ ghoul2: CGhoul2Info_v) -> Bool { // returns true if any model is properly set up
+    var ret = false
+    var i: Int32 = 0
+    while i < ghoul2.size() {
+        let r = G2_SetupModelPointers(ghoul2[i])
+        ret = ret || r
+        i += 1
+    }
+    return ret
+}

@@ -14,6 +14,37 @@ extension Slots where Element: HandleView {
     }
 }
 
+// MARK: - A record at a byte offset of another record
+
+extension HandleView {
+    /// Raven's cast of a record address plus a byte offset to a record pointer, `(mdxaSkel_t *)((byte *)mdxa + sizeof(mdxaHeader_t) + offsets->offsets[i])`.
+    /// The model files hold their records at byte offsets from a header, and an offset can be negative, as `ofsHeader` of a surface is.
+    /// Source: oracle/codemp/ghoul2/G2_bones.cpp:46
+    // AI: Raven adds a byte offset to the address of a record and casts the result. The initializer does the step in the view target.
+    public init(_ record: some HandleView, byteOffset: some BinaryInteger) {
+        self.init(handle: OpaquePointer(UnsafeMutableRawPointer(record.handle) + Int(byteOffset)))
+    }
+}
+
+extension MdxmSurfHierarchy {
+    /// Raven's `(int)( &((mdxmSurfHierarchy_t *)0)->childIndexes[ n ] )`, the size of a hierarchy record with `n` children.
+    /// The walks of the hierarchy step to the next record by this size.
+    /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:80
+    // AI: Raven takes the address of child n of a null record pointer. The static gives the byte offset of child n, the form of `Winding.byteCount(points:)`.
+    public static func byteCount(childIndexes n: some BinaryInteger) -> Int {
+        MemoryLayout<mdxmSurfHierarchy_t>.offset(of: \mdxmSurfHierarchy_t.childIndexes)! + Int(n) * Int32.byteCount
+    }
+}
+
+extension MdxaSkel {
+    /// Raven's `(int)( &((mdxaSkel_t *)0)->children[ n ] )`, the size of a skeleton record with `n` children.
+    /// Source: oracle/codemp/renderer/tr_model.cpp:769
+    // AI: Raven takes the address of child n of a null record pointer. The static gives the byte offset of child n, the form of `Winding.byteCount(points:)`.
+    public static func byteCount(children n: some BinaryInteger) -> Int {
+        MemoryLayout<mdxaSkel_t>.offset(of: \mdxaSkel_t.children)! + Int(n) * Int32.byteCount
+    }
+}
+
 // MARK: - The leaf index blocks of a clip map
 
 extension ClipMap {

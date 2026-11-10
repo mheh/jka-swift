@@ -260,7 +260,8 @@ func CM_PointContents(_ p: JKAShared.vec3_t, _ model: JKAShared.clipHandle_t) ->
 
         if i == b.numsides {
             contents |= b.contents
-            if cmg.landScape != nil && (contents & CONTENTS_TERRAIN) != 0 {
+            // AI: Raven reads the class pointer `cmg.landScape` of the C record. The world holds the Swift class as `landScape_cmg`, the C field stays unused.
+            if landScape_cmg != nil && (contents & CONTENTS_TERRAIN) != 0 {
                 // Port-note: The methods of CCMLandScape have no Swift name, row CM6 of the cm_load round.
                 // Raven wrote: if(p[2] < cmg.landScape->GetWaterHeight()) { contents |= cmg.landScape->GetWaterContents(); }
                 portMissing("CM_PointContents", source: "oracle/codemp/qcommon/cm_test.cpp:224")

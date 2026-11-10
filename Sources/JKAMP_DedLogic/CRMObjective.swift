@@ -20,12 +20,44 @@ final class CRMObjective {
     private var mName: String = ""			// name of objective
     private var mTrigger: String = ""		// trigger associated with objective
 
+    /**
+    ```
+    ************************************************************************************************
+     * CRMObjective::CRMObjective
+     *	Constructs a random mission objective and fills in the default properties
+     *
+     * inputs:
+     *  none
+     *
+     * return:
+     *	none
+     *
+     ************************************************************************************************
+    ```
+    */
     /// Source: oracle/codemp/RMG/RM_Objective.cpp:26
     init(_ group: CGPGroup?) {
         // TODO: Port CRMObjective::CRMObjective
         portMissing("CRMObjective::CRMObjective", source: "oracle/codemp/RMG/RM_Objective.cpp:26")
     }
 
+    /**
+    ```
+    ************************************************************************************************
+     * CRMObjective::Link
+     *	Links the objective into the world using the current state of the world to determine
+     *  where it should link
+     *
+     * inputs:
+     *  none
+     *
+     * return:
+     *	true: objective successfully linked
+     *  false: objective failed to link
+     *
+     ************************************************************************************************
+    ```
+    */
     /// Source: oracle/codemp/RMG/RM_Objective.cpp:122
     func Link() -> Bool {
         // TODO: Port CRMObjective::Link

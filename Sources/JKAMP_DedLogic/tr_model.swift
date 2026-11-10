@@ -48,7 +48,7 @@ func RE_RegisterModels_StoreShaderRequest(_ psModelFileName: String, _ psShaderN
 // don't use ri.xxx functions in case running on dedicated...
 //
 /// Source: oracle/codemp/renderer/tr_model.cpp:125
-func RE_RegisterModels_GetDiskFile(_ psModelFileName: String, _ ppvBuffer: inout OpaquePointer?, _ pqbAlreadyCached: inout Bool) -> Bool {
+func RE_RegisterModels_GetDiskFile(_ psModelFileName: String, _ ppvBuffer: inout Slots<JKAShared.byte>?, _ pqbAlreadyCached: inout Bool) -> Bool {
     var sModelName = CharBuf(MAX_QPATH)
 
     Q_strncpyz(&sModelName, psModelFileName, Int32(sModelName.count))
@@ -74,12 +74,15 @@ func RE_RegisterModels_GetDiskFile(_ psModelFileName: String, _ ppvBuffer: inout
             for i in 0..<FakeGLAFile.count {
                 pvFakeGLAFile[i] = FakeGLAFile[i]
             }
-            ppvBuffer = OpaquePointer(pvFakeGLAFile.base)
+            ppvBuffer = pvFakeGLAFile
             pqbAlreadyCached = false // faking it like this should mean that it works fine on the Mac as well
             return true
         }
 
-        FS_ReadFile(String(sModelName), &ppvBuffer)
+        var pvLoadedData: OpaquePointer? = nil
+        let iLen = FS_ReadFile(String(sModelName), &pvLoadedData)
+        // AI: Raven hands `ppvBuffer` to FS_ReadFile. The buffer is the Slots over the `iLen` bytes and the NUL that FS_ReadFile puts after them, or nil.
+        ppvBuffer = ZipBackend.bytes(pvLoadedData, count: iLen + 1)
         pqbAlreadyCached = false
         let bSuccess = ppvBuffer != nil
 
@@ -89,30 +92,98 @@ func RE_RegisterModels_GetDiskFile(_ psModelFileName: String, _ ppvBuffer: inout
 
         return bSuccess
     } else {
-        ppvBuffer = OpaquePointer(ModelBin.pModelDiskImage!.base)
+        ppvBuffer = ModelBin.pModelDiskImage
         pqbAlreadyCached = true
         return true
     }
 }
 
 /// Source: oracle/codemp/renderer/tr_model.cpp:179
-// TODO: Port signature
-// Raven wrote: void *RE_RegisterModels_Malloc(int iSize, void *pvDiskBufferIfJustLoaded, const char *psModelFileName, qboolean *pqbAlreadyFound, memtag_t eTag)
-// No table row for the return `void *`.
-func RE_RegisterModels_Malloc() -> Never {
-    // TODO: Port RE_RegisterModels_Malloc
-    portMissing("RE_RegisterModels_Malloc", source: "oracle/codemp/renderer/tr_model.cpp:179")
+func RE_RegisterModels_Malloc(_ iSize: Int32, _ pvDiskBufferIfJustLoaded: Slots<JKAShared.byte>, _ psModelFileName: String, _ pqbAlreadyFound: inout Bool, _ eTag: JKAShared.memtag_t) -> Slots<JKAShared.byte> {
+    var sModelName = CharBuf(MAX_QPATH)
+
+    Q_strncpyz(&sModelName, psModelFileName, Int32(sModelName.count))
+    Q_strlwr(&sModelName)
+
+    // AI: Raven's `(*CachedModels)[sModelName]` inserts a default entry for a new name. The body inserts one before the read.
+    if CachedModels![String(sModelName)] == nil {
+        CachedModels![String(sModelName)] = CachedEndianedModelBinary_t()
+    }
+    let ModelBin = CachedModels![String(sModelName)]!
+
+    if ModelBin.pModelDiskImage == nil {
+        // ... then this entry has only just been created, ie we need to load it fully...
+        //
+        // new, instead of doing a Z_Malloc and assigning that we just morph the disk buffer alloc
+        //	then don't thrown it away on return - cuts down on mem overhead
+        //
+        // Raven's `if ( pvDiskBufferIfJustLoaded )` test has no path here, because each caller passes the buffer of RE_RegisterModels_GetDiskFile,
+        // so the Z_Malloc arm for a NULL buffer drops.
+        Z_MorphMallocTag(OpaquePointer(pvDiskBufferIfJustLoaded.base), eTag)
+
+        ModelBin.pModelDiskImage = pvDiskBufferIfJustLoaded
+        ModelBin.iAllocSize = iSize
+
+        var iCheckSum: Int32 = 0
+        if FS_FileIsInPAK(String(sModelName), &iCheckSum) == 1 {
+            ModelBin.iPAKFileCheckSum = iCheckSum // else ModelBin's constructor will leave it as -1
+        }
+
+        pqbAlreadyFound = false
+    } else {
+        // Raven re-registers the shaders of the model here under `#ifndef DEDICATED`, tr_model.cpp:219, so the dedicated build has no line.
+        pqbAlreadyFound = true // tell caller not to re-Endian or re-Shader this binary
+    }
+
+    ModelBin.iLastLevelUsedOn = RE_RegisterMedia_GetLevel()
+
+    return ModelBin.pModelDiskImage!
 }
 
 // Unfortunately the dedicated server also hates shader loading. So we need an alternate of this func.
 //
 /// Source: oracle/codemp/renderer/tr_model.cpp:253
-// TODO: Port signature
-// Raven wrote: void *RE_RegisterServerModels_Malloc(int iSize, void *pvDiskBufferIfJustLoaded, const char *psModelFileName, qboolean *pqbAlreadyFound, memtag_t eTag)
-// No table row for the return `void *`.
-func RE_RegisterServerModels_Malloc() -> Never {
-    // TODO: Port RE_RegisterServerModels_Malloc
-    portMissing("RE_RegisterServerModels_Malloc", source: "oracle/codemp/renderer/tr_model.cpp:253")
+func RE_RegisterServerModels_Malloc(_ iSize: Int32, _ pvDiskBufferIfJustLoaded: Slots<JKAShared.byte>, _ psModelFileName: String, _ pqbAlreadyFound: inout Bool, _ eTag: JKAShared.memtag_t) -> Slots<JKAShared.byte> {
+    var sModelName = CharBuf(MAX_QPATH)
+
+    Q_strncpyz(&sModelName, psModelFileName, Int32(sModelName.count))
+    Q_strlwr(&sModelName)
+
+    // AI: Raven's `(*CachedModels)[sModelName]` inserts a default entry for a new name. The body inserts one before the read.
+    if CachedModels![String(sModelName)] == nil {
+        CachedModels![String(sModelName)] = CachedEndianedModelBinary_t()
+    }
+    let ModelBin = CachedModels![String(sModelName)]!
+
+    if ModelBin.pModelDiskImage == nil {
+        // ... then this entry has only just been created, ie we need to load it fully...
+        //
+        // new, instead of doing a Z_Malloc and assigning that we just morph the disk buffer alloc
+        //	then don't thrown it away on return - cuts down on mem overhead
+        //
+        // Raven's `if ( pvDiskBufferIfJustLoaded )` test has no path here, because each caller passes the buffer of RE_RegisterModels_GetDiskFile,
+        // so the Z_Malloc arm for a NULL buffer drops.
+        Z_MorphMallocTag(OpaquePointer(pvDiskBufferIfJustLoaded.base), eTag)
+
+        ModelBin.pModelDiskImage = pvDiskBufferIfJustLoaded
+        ModelBin.iAllocSize = iSize
+
+        var iCheckSum: Int32 = 0
+        if FS_FileIsInPAK(String(sModelName), &iCheckSum) == 1 {
+            ModelBin.iPAKFileCheckSum = iCheckSum // else ModelBin's constructor will leave it as -1
+        }
+
+        pqbAlreadyFound = false
+    } else {
+        // if we already had this model entry, then re-register all the shaders it wanted...
+        // Raven's loop stands in a comment block, tr_model.cpp:288 to :307.
+        //No. Bad.
+        pqbAlreadyFound = true // tell caller not to re-Endian or re-Shader this binary
+    }
+
+    ModelBin.iLastLevelUsedOn = RE_RegisterMedia_GetLevel()
+
+    return ModelBin.pModelDiskImage!
 }
 
 // dump any models not being used by this level if we're running low on memory...
@@ -388,9 +459,7 @@ func RE_InsertModelIntoHash(_ name: String, _ mod: Model) {
     mh = ModelHash(Hunk_Alloc(Int32(ModelHash.byteCount), h_low))
 
     mh.next = mhHashTable[hash]
-    // Port-note: Row TR12. The view's own `handle` hides the `handle` field of `modelHash_t`, and FIELD_NAMES has no row for it.
-    // Raven wrote: mh->handle = mod->index;
-    portMissing("RE_InsertModelIntoHash", source: "oracle/codemp/renderer/tr_model.cpp:664")
+    mh.modelHandle = mod.index
     mh.name = name
     mhHashTable[hash] = mh
 }
@@ -403,10 +472,7 @@ ServerLoadMDXA - load a Ghoul 2 animation file
 ```
 */
 /// Source: oracle/codemp/renderer/tr_model.cpp:683
-// TODO: Port signature
-// Raven wrote: qboolean ServerLoadMDXA( model_t *mod, void *buffer, const char *mod_name, qboolean &bAlreadyCached )
-// No table row for `qboolean & bAlreadyCached`.
-func ServerLoadMDXA() -> Never {
+func ServerLoadMDXA(_ mod: Model, _ buffer: Slots<JKAShared.byte>, _ mod_name: String, _ bAlreadyCached: inout Bool) -> Bool {
     // TODO: Port ServerLoadMDXA
     portMissing("ServerLoadMDXA", source: "oracle/codemp/renderer/tr_model.cpp:683")
 }
@@ -419,10 +485,7 @@ ServerLoadMDXM - load a Ghoul 2 Mesh file
 ```
 */
 /// Source: oracle/codemp/renderer/tr_model.cpp:799
-// TODO: Port signature
-// Raven wrote: qboolean ServerLoadMDXM( model_t *mod, void *buffer, const char *mod_name, qboolean &bAlreadyCached )
-// No table row for `qboolean & bAlreadyCached`.
-func ServerLoadMDXM() -> Never {
+func ServerLoadMDXM(_ mod: Model, _ buffer: Slots<JKAShared.byte>, _ mod_name: String, _ bAlreadyCached: inout Bool) -> Bool {
     // TODO: Port ServerLoadMDXM
     portMissing("ServerLoadMDXM", source: "oracle/codemp/renderer/tr_model.cpp:799")
 }
@@ -439,7 +502,7 @@ Same as RE_RegisterModel, except used by the server to handle ghoul2 instance mo
 /// Source: oracle/codemp/renderer/tr_model.cpp:1003
 func RE_RegisterServerModel(_ name: String) -> JKAShared.qhandle_t {
     var mod: Model?
-    var buf: OpaquePointer? = nil
+    var buf: Slots<JKAShared.byte>? = nil
     var lod: Int32
     var loaded = false
     //	qhandle_t	hModel;
@@ -473,9 +536,7 @@ func RE_RegisterServerModel(_ name: String) -> JKAShared.qhandle_t {
     mh = mhHashTable[hash]
     while let m = mh {
         if Q_stricmp(m.name, name) == 0 {
-            // Port-note: Row TR12. The view's own `handle` hides the `handle` field of `modelHash_t`, and FIELD_NAMES has no row for it.
-            // Raven wrote: return mh->handle;
-            portMissing("RE_RegisterServerModel", source: "oracle/codemp/renderer/tr_model.cpp:1040")
+            return m.modelHandle
         }
         mh = m.next
     }
@@ -529,13 +590,24 @@ func RE_RegisterServerModel(_ name: String) -> JKAShared.qhandle_t {
         //	because 'filename' accounts for any LOD mangling etc so guarantees unique lookups for yet more
         //	internal caching...
         //
-        // Port-note: Row TR13. `buf` is the `OpaquePointer` of RE_RegisterModels_GetDiskFile, so the body cannot read the word at its base.
-        // Port-note: ServerLoadMDXA and ServerLoadMDXM keep their `TODO: Port signature` markers, so the switch has no call form.
-        // Raven wrote: ident = *(unsigned *)buf; if (!bAlreadyCached) ident = LittleLong(ident); switch (ident) { case MDXA_IDENT: loaded = ServerLoadMDXA( mod, buf, filename, bAlreadyCached ); break; case MDXM_IDENT: loaded = ServerLoadMDXM( mod, buf, filename, bAlreadyCached ); break; default: goto fail; }
-        portMissing("RE_RegisterServerModel", source: "oracle/codemp/renderer/tr_model.cpp:1094")
+        // AI: Raven reads the first word of the buffer as `unsigned`. The word reads as Int32, the type of the ident macros, so the compare has the same bits.
+        let ident = buf![int: 0]
+        // Raven's `if (!bAlreadyCached) ident = LittleLong(ident)` has no line, because LittleLong of the WinDed arm is its argument.
+
+        switch ident { //if you're trying to register anything else as a model type on the server, you are out of luck
+        case MDXA_IDENT:
+            loaded = ServerLoadMDXA(mod!, buf!, String(filename), &bAlreadyCached)
+        case MDXM_IDENT:
+            loaded = ServerLoadMDXM(mod!, buf!, String(filename), &bAlreadyCached)
+        default:
+            failed = true
+        }
+        if failed {
+            break
+        }
 
         if !bAlreadyCached { // important to check!!
-            FS_FreeFile(buf)
+            FS_FreeFile(buf!)
         }
 
         if !loaded {
@@ -598,7 +670,7 @@ asked for again.
 /// Source: oracle/codemp/renderer/tr_model.cpp:1169
 private func RE_RegisterModel_Actual(_ name: String) -> JKAShared.qhandle_t {
     var mod: Model?
-    var buf: OpaquePointer? = nil
+    var buf: Slots<JKAShared.byte>? = nil
     var lod: Int32
     var loaded = false
     //	qhandle_t	hModel;
@@ -640,9 +712,7 @@ private func RE_RegisterModel_Actual(_ name: String) -> JKAShared.qhandle_t {
     mh = mhHashTable[hash]
     while let m = mh {
         if Q_stricmp(m.name, name) == 0 {
-            // Port-note: Row TR12. The view's own `handle` hides the `handle` field of `modelHash_t`, and FIELD_NAMES has no row for it.
-            // Raven wrote: return mh->handle;
-            portMissing("RE_RegisterModel_Actual", source: "oracle/codemp/renderer/tr_model.cpp:1213")
+            return m.modelHandle
         }
         mh = m.next
     }
@@ -666,9 +736,7 @@ private func RE_RegisterModel_Actual(_ name: String) -> JKAShared.qhandle_t {
         mh = mhHashTable[hash]
         while let m = mh {
             if Q_stricmp(m.name, String(temp)) == 0 {
-                // Port-note: Row TR12. The view's own `handle` hides the `handle` field of `modelHash_t`, and FIELD_NAMES has no row for it.
-                // Raven wrote: return mh->handle;
-                portMissing("RE_RegisterModel_Actual", source: "oracle/codemp/renderer/tr_model.cpp:1241")
+                return m.modelHandle
             }
             mh = m.next
         }
@@ -738,13 +806,12 @@ private func RE_RegisterModel_Actual(_ name: String) -> JKAShared.qhandle_t {
         //	because 'filename' accounts for any LOD mangling etc so guarantees unique lookups for yet more
         //	internal caching...
         //
-        // Port-note: Row TR13. `buf` is the `OpaquePointer` of RE_RegisterModels_GetDiskFile, so the body cannot read the word at its base.
-        // Port-note: R_LoadMD3 keeps its `TODO: Port signature` marker, so the switch has no call form for MD3_IDENT.
+        // Port-note: R_LoadMDXA and R_LoadMDXM of tr_ghoul2.swift keep their `TODO: Port signature` markers, so the switch has no call form for them.
         // Raven wrote: ident = *(unsigned *)buf; if (!bAlreadyCached) ident = LittleLong(ident); switch (ident) { case MDXA_IDENT: loaded = R_LoadMDXA( mod, buf, filename, bAlreadyCached ); break; case MDXM_IDENT: loaded = R_LoadMDXM( mod, buf, filename, bAlreadyCached ); break; case MD3_IDENT: loaded = R_LoadMD3( mod, lod, buf, filename, bAlreadyCached ); break; default: Com_Printf (S_COLOR_YELLOW"RE_RegisterModel: unknown fileid for %s\n", filename); goto fail; }
         portMissing("RE_RegisterModel_Actual", source: "oracle/codemp/renderer/tr_model.cpp:1313")
 
         if !bAlreadyCached { // important to check!!
-            FS_FreeFile(buf)
+            FS_FreeFile(buf!)
         }
 
         if !loaded {
@@ -816,10 +883,7 @@ R_LoadMD3
 ```
 */
 /// Source: oracle/codemp/renderer/tr_model.cpp:1427
-// TODO: Port signature
-// Raven wrote: static qboolean R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_name, qboolean &bAlreadyCached )
-// No table row for `qboolean & bAlreadyCached`.
-private func R_LoadMD3() -> Never {
+private func R_LoadMD3(_ mod: Model, _ lod: Int32, _ buffer: Slots<JKAShared.byte>, _ mod_name: String, _ bAlreadyCached: inout Bool) -> Bool {
     // TODO: Port R_LoadMD3
     portMissing("R_LoadMD3", source: "oracle/codemp/renderer/tr_model.cpp:1427")
 }
@@ -930,7 +994,7 @@ R_LerpTag
 // Raven wrote: int R_LerpTag( orientation_t *tag, qhandle_t handle, int startFrame, int endFrame, float frac, const char *tagName )
 // No table row for `orientation_t * tag`.
 func R_LerpTag() -> Never {
-    // TODO: Port R_LerpTag
+    // GetRefAPI is the one function that stores it, and the dedicated host does not link the client that calls GetRefAPI, so it is dead.
     portMissing("R_LerpTag", source: "oracle/codemp/renderer/tr_model.cpp:1768")
 }
 

@@ -229,7 +229,7 @@ R_CreateExtendedName
 */
 //rwwRMG - added
 /// Source: oracle/codemp/renderer/tr_shader.cpp:177
-func R_CreateExtendedName(_ extendedName: inout JKAShared.CharBuf, _ name: String, _ lightmapIndex: [Int32]?, _ styles: Slots<UInt8>) {
+func R_CreateExtendedName(_ extendedName: inout JKAShared.CharBuf, _ name: String, _ lightmapIndex: [Int32]?, _ styles: [JKAShared.byte]) {
     var i: Int32
 
     // Set the basename
@@ -985,7 +985,7 @@ func R_FindShaderByName(_ name: String) -> Shader? {
 }
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3373
-func IsShader(_ sh: Shader, _ name: String, _ lightmapIndex: [Int32]?, _ styles: Slots<UInt8>) -> Bool {
+func IsShader(_ sh: Shader, _ name: String, _ lightmapIndex: [Int32]?, _ styles: [JKAShared.byte]) -> Bool {
     var i: Int32
 
     if Q_stricmp(sh.name, name) != 0 {
@@ -1040,7 +1040,7 @@ most world construction surfaces.
 ```
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3428
-func R_FindShader(_ name: String, _ lightmapIndex: [Int32]?, _ styles: Slots<UInt8>, _ mipRawImage: Bool) -> Shader? {
+func R_FindShader(_ name: String, _ lightmapIndex: [Int32]?, _ styles: [JKAShared.byte], _ mipRawImage: Bool) -> Shader? {
     var strippedName = CharBuf(MAX_QPATH)
     var hash: Int32
     var sh: Shader?
@@ -1084,7 +1084,10 @@ func R_FindShader(_ name: String, _ lightmapIndex: [Int32]?, _ styles: Slots<UIn
     for i in 0..<shader.lightmapIndex.count {
         shader.lightmapIndex[i] = lightmapIndex![i]
     }
-    Com_Memcpy(shader.styles, styles, shader.styles.count)
+    // AI: Raven copies the styles with memcpy. The list is a Swift array, so the loop copies each index into the record.
+    for i in 0..<shader.styles.count {
+        shader.styles[i] = styles[i]
+    }
 
     //
     // attempt to define shader from an explicit parameter file
@@ -1113,7 +1116,7 @@ func R_FindShader(_ name: String, _ lightmapIndex: [Int32]?, _ styles: Slots<UIn
 }
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3560
-func R_FindServerShader(_ name: String, _ lightmapIndex: [Int32]?, _ styles: Slots<UInt8>, _ mipRawImage: Bool) -> Shader? {
+func R_FindServerShader(_ name: String, _ lightmapIndex: [Int32]?, _ styles: [JKAShared.byte], _ mipRawImage: Bool) -> Shader? {
     var strippedName = CharBuf(MAX_QPATH)
     var hash: Int32
     var sh: Shader?
@@ -1148,7 +1151,10 @@ func R_FindServerShader(_ name: String, _ lightmapIndex: [Int32]?, _ styles: Slo
     for i in 0..<shader.lightmapIndex.count {
         shader.lightmapIndex[i] = lightmapIndex![i]
     }
-    Com_Memcpy(shader.styles, styles, shader.styles.count)
+    // AI: Raven copies the styles with memcpy. The list is a Swift array, so the loop copies each index into the record.
+    for i in 0..<shader.styles.count {
+        shader.styles[i] = styles[i]
+    }
 
     // Port-note: Row TR15. `shader_t` declares `defaultShader` as a C++ `bool`, and the view has no accessor for a `_Bool` field.
     // Raven wrote: shader.defaultShader = true; return FinishShader();
@@ -1156,7 +1162,7 @@ func R_FindServerShader(_ name: String, _ lightmapIndex: [Int32]?, _ styles: Slo
 }
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3598
-func RE_RegisterShaderFromImage(_ name: String, _ lightmapIndex: [Int32]?, _ styles: Slots<UInt8>, _ image: Image, _ mipRawImage: Bool) -> JKAShared.qhandle_t {
+func RE_RegisterShaderFromImage(_ name: String, _ lightmapIndex: [Int32]?, _ styles: [JKAShared.byte], _ image: Image, _ mipRawImage: Bool) -> JKAShared.qhandle_t {
     // TODO: Port RE_RegisterShaderFromImage
     portMissing("RE_RegisterShaderFromImage", source: "oracle/codemp/renderer/tr_shader.cpp:3598")
 }
@@ -1175,7 +1181,7 @@ way to ask for different implicit lighting modes (vertex, lightmap, etc)
 ```
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3696
-func RE_RegisterShaderLightMap(_ name: String, _ lightmapIndex: [Int32]?, _ styles: Slots<UInt8>) -> JKAShared.qhandle_t {
+func RE_RegisterShaderLightMap(_ name: String, _ lightmapIndex: [Int32]?, _ styles: [JKAShared.byte]) -> JKAShared.qhandle_t {
     var sh: Shader?
 
     if strlen(name) >= MAX_QPATH {

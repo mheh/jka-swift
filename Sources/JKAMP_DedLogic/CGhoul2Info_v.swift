@@ -113,10 +113,12 @@ final class CGhoul2Info_v {
     }
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:430
-    // Port-note: Raven appends a copy of the model, and CGhoul2Info is a class with no copy of its value, so the body has no form, row G2A1.
+    // AI: Raven appends a copy of the model. The list holds the instance itself, because the one caller hands a new temporary, G2_API.cpp:645.
     func push_back(_ model: CGhoul2Info) {
-        // TODO: Port CGhoul2Info_v::push_back
-        portMissing("CGhoul2Info_v::push_back", source: "oracle/codemp/ghoul2/ghoul2_shared.h:430")
+        if self.mItem == 0 {
+            self.Alloc()
+        }
+        self.Array.append(model)
     }
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:438

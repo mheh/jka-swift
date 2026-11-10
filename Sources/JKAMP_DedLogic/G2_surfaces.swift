@@ -22,10 +22,23 @@ func G2_FindOverrideSurface(_ surfaceNum: Int32, _ surfaceList: inout [surfaceIn
 
 // given a surface name, lets see if it's legal in the model
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:65
-func G2_IsSurfaceLegal(_ mod: OpaquePointer?, _ surfaceName: String, _ flags: inout Int32) -> Int32 {
-    // Port-note: The parameter `mod` is an `OpaquePointer?`, which a logic body cannot read, and the walk of the hierarchy is at a byte offset from `mdxm`.
-    // TODO: Port G2_IsSurfaceLegal
-    portMissing("G2_IsSurfaceLegal", source: "oracle/codemp/ghoul2/G2_surfaces.cpp:65")
+func G2_IsSurfaceLegal(_ mod: Model?, _ surfaceName: String, _ flags: inout Int32) -> Int32 {
+    // damn include file dependancies
+    var surf: MdxmSurfHierarchy
+    let mod_m = mod!
+    surf = MdxmSurfHierarchy(mod_m.mdxm!, byteOffset: mod_m.mdxm!.ofsSurfHierarchy)
+
+    var i: Int32 = 0
+    while i < mod_m.mdxm!.numSurfaces {
+        if Q_stricmp(surfaceName, surf.name) == 0 {
+            flags = Int32(truncatingIfNeeded: surf.flags)
+            return i
+        }
+        // find the next surface
+        surf = MdxmSurfHierarchy(surf, byteOffset: MdxmSurfHierarchy.byteCount(childIndexes: surf.numChildren))
+        i += 1
+    }
+    return -1
 }
 
 /**

@@ -1243,11 +1243,33 @@ private func G2_DoIK(_ ghoul2V: CGhoul2Info_v, _ g2Index: Int32, _ params: CRagD
 
 //rww - cut out the entire non-ragdoll section of this..
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:4498
-// TODO: Port signature
-// Raven wrote: void G2_Animate_Bone_List(CGhoul2Info_v &ghoul2, const int currentTime, const int index,CRagDollUpdateParams *params)
-// No table row for `CGhoul2Info_v & ghoul2`.
-// TODO: Port G2_Animate_Bone_List
-// An overload before it holds the empty signature, so this marker has no function until the table shapes its parameters.
+func G2_Animate_Bone_List(_ ghoul2: CGhoul2Info_v, _ currentTime: Int32, _ index: Int32, _ params: CRagDollUpdateParams?) {
+    var i: Int32 = 0
+    var anyRagDoll = false
+    var anyIK = false
+    while i < Int32(ghoul2[index].mBlist.count) {
+        if ghoul2[index].mBlist[i].boneNumber != -1 {
+            if (ghoul2[index].mBlist[i].flags & BONE_ANGLES_RAGDOLL) != 0 {
+                if (ghoul2[index].mBlist[i].RagFlags & RAG_PCJ_IK_CONTROLLED) != 0 {
+                    anyIK = true
+                }
+                anyRagDoll = true
+
+                if anyIK && anyRagDoll {
+                    break
+                }
+            }
+        }
+        i += 1
+    }
+    if index == 0 && params != nil {
+        if anyIK { //we use ragdoll params so we know what our current position, etc. is.
+            G2_DoIK(ghoul2, 0, params)
+        } else {
+            G2_RagDoll(ghoul2, 0, params, currentTime)
+        }
+    }
+}
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:4536
 private func G2_Set_Bone_Angles_IK(_ ghoul2: CGhoul2Info, _ mod_a: MdxaHeader, _ blist: inout [boneInfo_t], _ boneName: String, _ flags: Int32, _ radius: Float, _ angleMin: JKAShared.vec3_t, _ angleMax: JKAShared.vec3_t, _ blendTime: Int32 = 500) -> Int32 {

@@ -489,10 +489,8 @@ func G2_GenerateWorldMatrix(_ angles: JKAShared.vec3_t, _ origin: JKAShared.vec3
 
 // go away and determine what the pointer for a specific surface definition within the model definition is
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1689
-// TODO: Port signature
-// Raven wrote: void *G2_FindSurface(void *mod_t, int index, int lod)
-// No table row for the return `void *`.
-private func G2_FindSurface() -> Never {
+func G2_FindSurface(_ mod_t: Model?, _ index: Int32, _ lod: Int32) -> MdxmSurface? {
+    // Port-note: Raven reads the offset table through `mdxmLODSurfOffset_t`, and that record has no view.
     // TODO: Port G2_FindSurface
     portMissing("G2_FindSurface", source: "oracle/codemp/ghoul2/G2_misc.cpp:1689")
 }
