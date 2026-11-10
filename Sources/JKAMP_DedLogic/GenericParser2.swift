@@ -304,10 +304,12 @@ struct CGPValue {
 /// The pairs and the subgroups are arrays in the add order, and the `mInOrder` arrays hold the same items in name order.
 /// Source: oracle/codemp/qcommon/GenericParser2.h:93
 // AI: Raven links the pairs and subgroups through `mNext` and `mInOrderNext` and keeps the tail in `mCurrentPair` and `mCurrentSubGroup`.
-// The arrays hold the two orders, and a subgroup keeps a weak `mNext` for the sibling walk.
+// The arrays hold the two orders, and a subgroup keeps a weak `mNext`, `mInOrderNext`, and `mInOrderPrevious` for the sibling walks.
 final class CGPGroup {
     var mName: String
     weak var mNext: CGPGroup?
+    weak var mInOrderNext: CGPGroup?
+    weak var mInOrderPrevious: CGPGroup?
     var mPairs: [CGPValue] = []
     var mInOrderPairs: [CGPValue] = []
     var mSubGroups: [CGPGroup] = []
@@ -334,6 +336,16 @@ final class CGPGroup {
     /// Source: oracle/codemp/qcommon/GenericParser2.h:110
     func GetNext() -> CGPGroup? {
         self.mNext
+    }
+
+    /// Source: oracle/codemp/qcommon/GenericParser2.h:57
+    func GetInOrderNext() -> CGPGroup? {
+        self.mInOrderNext
+    }
+
+    /// Source: oracle/codemp/qcommon/GenericParser2.h:59
+    func GetInOrderPrevious() -> CGPGroup? {
+        self.mInOrderPrevious
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:476
@@ -461,6 +473,19 @@ final class CGPGroup {
         // Raven's SortObject sets `mNext` of the last subgroup to the new one.
         self.mSubGroups.last?.mNext = NewGroup
         self.SortObject(NewGroup, &self.mSubGroups, &self.mInOrderSubGroups) { $0.GetName() }
+
+        // Raven's SortObject links the new subgroup to its neighbors in name order, at GenericParser2.cpp:596 to :606.
+        let index = self.mInOrderSubGroups.firstIndex { $0 === NewGroup }!
+        if index + 1 < self.mInOrderSubGroups.count {
+            let test = self.mInOrderSubGroups[index + 1]
+            test.mInOrderPrevious = NewGroup
+            NewGroup.mInOrderNext = test
+        }
+        if index > 0 {
+            let last = self.mInOrderSubGroups[index - 1]
+            last.mInOrderNext = NewGroup
+            NewGroup.mInOrderPrevious = last
+        }
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:663
@@ -681,203 +706,239 @@ final class CGenericParser2 {
 //
 // CGenericParser2 (void *) routines
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:928
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
+// Port-note: Rule 20. No file of oracle/codemp calls this function.
 func GP_Parse(_ dataPtr: inout JKAShared.TextCursor, _ cleanFirst: Bool, _ writeable: Bool) -> CGenericParser2? {
-    // TODO: Port GP_Parse
-    portMissing("GP_Parse", source: "oracle/codemp/qcommon/GenericParser2.cpp:928")
+    let parse: CGenericParser2
+
+    parse = CGenericParser2()
+    if parse.Parse(&dataPtr, cleanFirst, writeable) {
+        return parse
+    }
+
+    // AI: Raven deletes the parser here. The return of nil releases the class, and the release frees its tree.
+    return nil
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:942
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
+// Port-note: Rule 20. No file of oracle/codemp calls this function.
 func GP_Clean(_ GP2: CGenericParser2?) {
-    // TODO: Port GP_Clean
-    portMissing("GP_Clean", source: "oracle/codemp/qcommon/GenericParser2.cpp:942")
+    guard let GP2 else {
+        return
+    }
+
+    GP2.Clean()
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:952
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
+// Port-note: Rule 20. No file of oracle/codemp calls this function.
 func GP_Delete(_ GP2: inout CGenericParser2?) {
-    // TODO: Port GP_Delete
-    portMissing("GP_Delete", source: "oracle/codemp/qcommon/GenericParser2.cpp:952")
+    if GP2 == nil {
+        return
+    }
+
+    // AI: Raven deletes the parser and then clears the handle. The store of nil releases the class, and the release frees its tree.
+    GP2 = nil
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:963
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
+// Port-note: Rule 20. No file of oracle/codemp calls this function.
 func GP_GetBaseParseGroup(_ GP2: CGenericParser2?) -> CGPGroup? {
-    // TODO: Port GP_GetBaseParseGroup
-    portMissing("GP_GetBaseParseGroup", source: "oracle/codemp/qcommon/GenericParser2.cpp:963")
+    guard let GP2 else {
+        return nil
+    }
+
+    return GP2.GetBaseParseGroup()
 }
 
 // CGPGroup (void *) routines
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:977
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
+// Port-note: Rule 20. No file of oracle/codemp calls this function.
 func GPG_GetName(_ GPG: CGPGroup?) -> String {
-    // TODO: Port GPG_GetName
-    portMissing("GPG_GetName", source: "oracle/codemp/qcommon/GenericParser2.cpp:977")
+    guard let GPG else {
+        return ""
+    }
+
+    return GPG.GetName()
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:987
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
+// Port-note: Rule 20. No file of oracle/codemp calls this function.
 func GPG_GetName(_ GPG: CGPGroup?, _ Value: inout JKAShared.CharBuf) -> Bool {
-    // TODO: Port GPG_GetName
-    portMissing("GPG_GetName", source: "oracle/codemp/qcommon/GenericParser2.cpp:987")
+    guard let GPG else {
+        Value[0] = 0
+        return false
+    }
+
+    strcpy(&Value, GPG.GetName())
+    return true
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:999
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
+// Port-note: Rule 20. No file of oracle/codemp calls this function.
 func GPG_GetNext(_ GPG: CGPGroup?) -> CGPGroup? {
-    // TODO: Port GPG_GetNext
-    portMissing("GPG_GetNext", source: "oracle/codemp/qcommon/GenericParser2.cpp:999")
+    guard let GPG else {
+        return nil
+    }
+
+    return GPG.GetNext()
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1009
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
+// Port-note: Rule 20. No file of oracle/codemp calls this function.
 func GPG_GetInOrderNext(_ GPG: CGPGroup?) -> CGPGroup? {
-    // TODO: Port GPG_GetInOrderNext
-    portMissing("GPG_GetInOrderNext", source: "oracle/codemp/qcommon/GenericParser2.cpp:1009")
+    guard let GPG else {
+        return nil
+    }
+
+    return GPG.GetInOrderNext()
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1019
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
+// Port-note: Rule 20. No file of oracle/codemp calls this function.
 func GPG_GetInOrderPrevious(_ GPG: CGPGroup?) -> CGPGroup? {
-    // TODO: Port GPG_GetInOrderPrevious
-    portMissing("GPG_GetInOrderPrevious", source: "oracle/codemp/qcommon/GenericParser2.cpp:1019")
+    guard let GPG else {
+        return nil
+    }
+
+    return GPG.GetInOrderPrevious()
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1029
-// TODO: Port signature
 // Raven wrote: TGPGroup GPG_GetPairs(TGPGroup GPG)
-// No table row for the return `TGPGroup`.
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GPG_GetPairs() -> Never {
-    // TODO: Port GPG_GetPairs
-    portMissing("GPG_GetPairs", source: "oracle/codemp/qcommon/GenericParser2.cpp:1029")
-}
+// Not ported: C3 makes the value list an Array, so the chain does not exist.
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1039
-// TODO: Port signature
 // Raven wrote: TGPGroup GPG_GetInOrderPairs(TGPGroup GPG)
-// No table row for the return `TGPGroup`.
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GPG_GetInOrderPairs() -> Never {
-    // TODO: Port GPG_GetInOrderPairs
-    portMissing("GPG_GetInOrderPairs", source: "oracle/codemp/qcommon/GenericParser2.cpp:1039")
-}
+// Not ported: C3 makes the value list an Array, so the chain does not exist.
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1049
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
+// Port-note: Rule 20. No file of oracle/codemp calls this function.
 func GPG_GetSubGroups(_ GPG: CGPGroup?) -> CGPGroup? {
-    // TODO: Port GPG_GetSubGroups
-    portMissing("GPG_GetSubGroups", source: "oracle/codemp/qcommon/GenericParser2.cpp:1049")
+    guard let GPG else {
+        return nil
+    }
+
+    return GPG.GetSubGroups()
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1059
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
+// Port-note: Rule 20. No file of oracle/codemp calls this function.
 func GPG_GetInOrderSubGroups(_ GPG: CGPGroup?) -> CGPGroup? {
-    // TODO: Port GPG_GetInOrderSubGroups
-    portMissing("GPG_GetInOrderSubGroups", source: "oracle/codemp/qcommon/GenericParser2.cpp:1059")
+    guard let GPG else {
+        return nil
+    }
+
+    return GPG.GetInOrderSubGroups().first
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1069
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
+// Port-note: Rule 20. No file of oracle/codemp calls this function.
 func GPG_FindSubGroup(_ GPG: CGPGroup?, _ name: String) -> CGPGroup? {
-    // TODO: Port GPG_FindSubGroup
-    portMissing("GPG_FindSubGroup", source: "oracle/codemp/qcommon/GenericParser2.cpp:1069")
+    guard let GPG else {
+        return nil
+    }
+
+    return GPG.FindSubGroup(name)
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1079
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
+// Port-note: Rule 20. No file of oracle/codemp calls this function.
 func GPG_FindPair(_ GPG: CGPGroup?, _ key: String) -> CGPValue? {
-    // TODO: Port GPG_FindPair
-    portMissing("GPG_FindPair", source: "oracle/codemp/qcommon/GenericParser2.cpp:1079")
+    guard let GPG else {
+        return nil
+    }
+
+    return GPG.FindPair(key)
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1089
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
+// Port-note: Rule 20. No file of oracle/codemp calls this function.
 func GPG_FindPairValue(_ GPG: CGPGroup?, _ key: String, _ defaultVal: String) -> String? {
-    // TODO: Port GPG_FindPairValue
-    portMissing("GPG_FindPairValue", source: "oracle/codemp/qcommon/GenericParser2.cpp:1089")
+    guard let GPG else {
+        return defaultVal
+    }
+
+    return GPG.FindPairValue(key, defaultVal)
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1099
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
+// Port-note: Rule 20. No file of oracle/codemp calls this function.
 func GPG_FindPairValue(_ GPG: CGPGroup?, _ key: String, _ defaultVal: String, _ Value: inout JKAShared.CharBuf) -> Bool {
-    // TODO: Port GPG_FindPairValue
-    portMissing("GPG_FindPairValue", source: "oracle/codemp/qcommon/GenericParser2.cpp:1099")
+    // Port-note: Rule 19. Raven's strcpy reads through NULL when the pair holds an empty list, so the unwrap traps there.
+    strcpy(&Value, GPG_FindPairValue(GPG, key, defaultVal)!)
+
+    return true
 }
 
 // CGPValue (void *) routines
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1110
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
+// Port-note: Rule 20. No file of oracle/codemp calls this function.
 func GPV_GetName(_ GPV: CGPValue?) -> String {
-    // TODO: Port GPV_GetName
-    portMissing("GPV_GetName", source: "oracle/codemp/qcommon/GenericParser2.cpp:1110")
+    guard let GPV else {
+        return ""
+    }
+
+    return GPV.GetName()
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1120
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
+// Port-note: Rule 20. No file of oracle/codemp calls this function.
 func GPV_GetName(_ GPV: CGPValue?, _ Value: inout JKAShared.CharBuf) -> Bool {
-    // TODO: Port GPV_GetName
-    portMissing("GPV_GetName", source: "oracle/codemp/qcommon/GenericParser2.cpp:1120")
+    guard let GPV else {
+        Value[0] = 0
+        return false
+    }
+
+    strcpy(&Value, GPV.GetName())
+    return true
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1132
-// TODO: Port signature
 // Raven wrote: TGPValue GPV_GetNext(TGPValue GPV)
-// No table row for the return `TGPValue`.
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GPV_GetNext() -> Never {
-    // TODO: Port GPV_GetNext
-    portMissing("GPV_GetNext", source: "oracle/codemp/qcommon/GenericParser2.cpp:1132")
-}
+// Not ported: C3 makes the value list an Array, so the chain does not exist.
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1142
-// TODO: Port signature
 // Raven wrote: TGPValue GPV_GetInOrderNext(TGPValue GPV)
-// No table row for the return `TGPValue`.
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GPV_GetInOrderNext() -> Never {
-    // TODO: Port GPV_GetInOrderNext
-    portMissing("GPV_GetInOrderNext", source: "oracle/codemp/qcommon/GenericParser2.cpp:1142")
-}
+// Not ported: C3 makes the value list an Array, so the chain does not exist.
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1152
-// TODO: Port signature
 // Raven wrote: TGPValue GPV_GetInOrderPrevious(TGPValue GPV)
-// No table row for the return `TGPValue`.
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GPV_GetInOrderPrevious() -> Never {
-    // TODO: Port GPV_GetInOrderPrevious
-    portMissing("GPV_GetInOrderPrevious", source: "oracle/codemp/qcommon/GenericParser2.cpp:1152")
-}
+// Not ported: C3 makes the value list an Array, so the chain does not exist.
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1162
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
+// Port-note: Rule 20. No file of oracle/codemp calls this function.
 func GPV_IsList(_ GPV: CGPValue?) -> Bool {
-    // TODO: Port GPV_IsList
-    portMissing("GPV_IsList", source: "oracle/codemp/qcommon/GenericParser2.cpp:1162")
+    guard let GPV else {
+        return false
+    }
+
+    return GPV.IsList()
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1172
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
+// Port-note: Rule 20. No file of oracle/codemp calls this function.
 func GPV_GetTopValue(_ GPV: CGPValue?) -> String? {
-    // TODO: Port GPV_GetTopValue
-    portMissing("GPV_GetTopValue", source: "oracle/codemp/qcommon/GenericParser2.cpp:1172")
+    guard let GPV else {
+        return ""
+    }
+
+    return GPV.GetTopValue()
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1182
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
+// Port-note: Rule 20. No file of oracle/codemp calls this function.
 func GPV_GetTopValue(_ GPV: CGPValue?, _ Value: inout JKAShared.CharBuf) -> Bool {
-    // TODO: Port GPV_GetTopValue
-    portMissing("GPV_GetTopValue", source: "oracle/codemp/qcommon/GenericParser2.cpp:1182")
+    guard let GPV else {
+        Value[0] = 0
+        return false
+    }
+
+    // Port-note: Rule 19. Raven's strcpy reads through NULL when the value holds an empty list, so the unwrap traps there.
+    strcpy(&Value, GPV.GetTopValue()!)
+
+    return true
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1195
-// TODO: Port signature
 // Raven wrote: TGPValue GPV_GetList(TGPValue GPV)
-// No table row for the return `TGPValue`.
-// Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GPV_GetList() -> Never {
-    // TODO: Port GPV_GetList
-    portMissing("GPV_GetList", source: "oracle/codemp/qcommon/GenericParser2.cpp:1195")
-}
+// Not ported: C3 makes the value list an Array, so the chain does not exist.
