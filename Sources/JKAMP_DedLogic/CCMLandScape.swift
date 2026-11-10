@@ -49,27 +49,364 @@ final class CCMLandScape {
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:116
     init(_ configstring: String, _ server: Bool) {
-        // TODO: Port CCMLandScape::CCMLandScape
+        var numPatches: Int32
+        var numBrushesPerPatch: Int32
+        var size: Int32
+        var seed: Int32
+        var heightMap = CharBuf(MAX_QPATH)
+
+        self.holdrand = 0x89abcdef
+
+        // Clear out the height details
+        // AI: Raven zeroes the HEIGHT_RESOLUTION records with memset. The field initializer already gives zero records, so the call drops.
+        self.mBaseWaterHeight = 0
+        self.mWaterHeight = 0.0
+
+        // When constructed, referenced once
+        self.mRefCount = 1
+
+        // Extract the relevant data from the config string
+        Com_sprintf(&heightMap, MAX_QPATH, "%s", Info_ValueForKey(configstring, "heightMap"))
+        // Port-note: The port has no `atol`, and no rule names its spelling.
+        // Raven wrote: numPatches = atol(Info_ValueForKey(configstring, "numPatches"));
         portMissing("CCMLandScape::CCMLandScape", source: "oracle/codemp/qcommon/cm_terrain.cpp:116")
+        // Port-note: The port has no `atol`, and no rule names its spelling.
+        // Raven wrote: mTerxels = atol(Info_ValueForKey(configstring, "terxels"));
+        portMissing("CCMLandScape::CCMLandScape", source: "oracle/codemp/qcommon/cm_terrain.cpp:116")
+        // Port-note: The port has no `atol`, and no rule names its spelling.
+        // Raven wrote: mHasPhysics = !!atol(Info_ValueForKey(configstring, "physics"));
+        portMissing("CCMLandScape::CCMLandScape", source: "oracle/codemp/qcommon/cm_terrain.cpp:116")
+        // Port-note: The port has no `strtoul`, and no rule names its spelling.
+        // Raven wrote: seed = strtoul(Info_ValueForKey(configstring, "seed"), &ptr, 10);
+        portMissing("CCMLandScape::CCMLandScape", source: "oracle/codemp/qcommon/cm_terrain.cpp:116")
+
+        self.mBounds[0][0] = Float(atof(Info_ValueForKey(configstring, "minx")))
+        self.mBounds[0][1] = Float(atof(Info_ValueForKey(configstring, "miny")))
+        self.mBounds[0][2] = Float(atof(Info_ValueForKey(configstring, "minz")))
+        self.mBounds[1][0] = Float(atof(Info_ValueForKey(configstring, "maxx")))
+        self.mBounds[1][1] = Float(atof(Info_ValueForKey(configstring, "maxy")))
+        self.mBounds[1][2] = Float(atof(Info_ValueForKey(configstring, "maxz")))
+
+        // Calculate size of the brush
+        self.mSize = self.mBounds[1] - self.mBounds[0]
+
+        // Work out the dimensions of the brush in blocks - the object is to make the blocks as square as possible
+        // Port-note: The inline function `Round` of qcommon.h:1094 has no Swift function.
+        // Raven wrote: mBlockWidth = Round(sqrtf(numPatches * mSize[0] / mSize[1]));
+        portMissing("CCMLandScape::CCMLandScape", source: "oracle/codemp/qcommon/cm_terrain.cpp:116")
+        // Port-note: The inline function `Round` of qcommon.h:1094 has no Swift function.
+        // Raven wrote: mBlockHeight = Round(sqrtf(numPatches * mSize[1] / mSize[0]));
+        portMissing("CCMLandScape::CCMLandScape", source: "oracle/codemp/qcommon/cm_terrain.cpp:116")
+
+        // ...which lets us get the size of the heightmap
+        self.mWidth = self.mBlockWidth * self.mTerxels
+        self.mHeight = self.mBlockHeight * self.mTerxels
+
+        self.mHeightMap = Slots<JKAShared.byte>(scalars: Z_Malloc(self.GetRealArea(), TAG_CM_TERRAIN), count: Int(self.GetRealArea()))
+        self.mFlattenMap = Slots<JKAShared.byte>(scalars: Z_Malloc(self.GetRealArea(), TAG_CM_TERRAIN), count: Int(self.GetRealArea()))
+
+        // Zero means unused.
+        self.mFlattenMap!.zero()
+
+        if strlen(heightMap) != 0 {
+            var imageData: Slots<JKAShared.byte>?
+
+            Com_DPrintf("CM_Terrain: Loading heightmap %s.....\n", heightMap)
+            // Port-note: The class holds no `mRandomTerrain`, because `CRandomTerrain` has no Swift class.
+            // Raven wrote: mRandomTerrain = 0;
+            portMissing("CCMLandScape::CCMLandScape", source: "oracle/codemp/qcommon/cm_terrain.cpp:116")
+            imageData = nil
+        } else {
+            Com_Error(ERR_FATAL, "Terrain has no heightmap specified\n")
+        }
+
+        // Work out the dimensions of the terxel - should be almost square
+        self.mTerxelSize[0] = self.mSize[0] / self.mWidth
+        self.mTerxelSize[1] = self.mSize[1] / self.mHeight
+        self.mTerxelSize[2] = self.mSize[2] / 255.0
+
+        // Work out the patchsize
+        self.mPatchSize[0] = self.mSize[0] / self.mBlockWidth
+        self.mPatchSize[1] = self.mSize[1] / self.mBlockHeight
+        self.mPatchSize[2] = 1.0
+        self.mPatchScalarSize = VectorLength(self.mPatchSize)
+
+        // Loads in the water height and properties
+        // Gets the shader properties for the blended shaders
+        self.LoadTerrainDef(configstring)
+
+        Com_DPrintf("CM_Terrain: Creating patches.....\n")
+        // AI: Raven allocates the patches as one Z_Malloc block. The array takes GetBlockCount new patches, the form of the field `mHeightDetails`.
+        self.mPatches = (0..<self.GetBlockCount()).map { _ in CCMPatch() }
+
+        numBrushesPerPatch = self.mTerxels * self.mTerxels * 2
+        size = (numBrushesPerPatch * Int32(Cbrush.byteCount)) + (numBrushesPerPatch * BRUSH_SIDES_PER_TERXEL * 2 * (Int32(Cbrushside.byteCount) + Int32(JKAShared.Cplane.byteCount)))
+        self.mPatchBrushData = Slots<JKAShared.byte>(scalars: Z_Malloc(size * self.GetBlockCount(), TAG_CM_TERRAIN), count: Int(size * self.GetBlockCount()))
+
+        // Initialize all terrain patches
+        self.UpdatePatches()
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1583
     deinit {
-        // TODO: Port CCMLandScape::~CCMLandScape
+        if self.mHeightMap != nil {
+            Z_Free(OpaquePointer(self.mHeightMap!.base))
+            self.mHeightMap = nil
+        }
+        if self.mFlattenMap != nil {
+            Z_Free(OpaquePointer(self.mFlattenMap!.base))
+            self.mFlattenMap = nil
+        }
+        if self.mPatchBrushData != nil {
+            Z_Free(OpaquePointer(self.mPatchBrushData!.base))
+            self.mPatchBrushData = nil
+        }
+        if !self.mPatches.isEmpty {
+            // AI: Raven frees the patch block with Z_Free. Emptying the array frees the patches.
+            self.mPatches = []
+        }
+        // Port-note: The class holds no `mRandomTerrain`, because `CRandomTerrain` has no Swift class.
+        // Raven wrote: if (mRandomTerrain) { delete mRandomTerrain; }
         portMissing("CCMLandScape::~CCMLandScape", source: "oracle/codemp/qcommon/cm_terrain.cpp:1583")
+
+        // AI: Raven deletes each area through the iterator. The clear below frees them.
+        self.mAreas.removeAll()
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:593
     func GetPatch(_ x: Int32, _ y: Int32) -> CCMPatch? {
-        // TODO: Port CCMLandScape::GetPatch
-        portMissing("CCMLandScape::GetPatch", source: "oracle/codemp/qcommon/cm_terrain.cpp:593")
+        return (self.mPatches[(y * self.mBlockWidth) + x])
     }
 
     // Prototypes
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:600
     func PatchCollide(_ tw: TraceWork, _ trace: JKAMP.Trace, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ checkcount: Int32) {
-        // TODO: Port CCMLandScape::PatchCollide
-        portMissing("CCMLandScape::PatchCollide", source: "oracle/codemp/qcommon/cm_terrain.cpp:600")
+        var tBounds: [JKAShared.vec3_t] = [JKAShared.vec3_t(), JKAShared.vec3_t()]
+
+        // Convert to valid bounding box
+        CM_CalcExtents(start, end, tw, &tBounds)
+
+        //if (com_newtrace->integer)
+        if 1 != 0 {
+            var slope: Float
+            var offset: Float
+            var startPatchLoc: Float
+            var endPatchLoc: Float
+            var startPos: Float
+            var endPos: Float
+            var patchDirection: Float = 1
+            var checkDirection: Float = 1
+            var countPatches: Int32
+            var count: Int32
+            var patch: CCMPatch?
+            let fraction: Float = trace.fraction
+
+            if abs(end[0] - start[0]) >= abs(abs(end[1] - start[1])) {
+                // x travels more than y
+                // calculate line slope and offset
+                if (end[0] - start[0]) != 0 {
+                    slope = (end[1] - start[1]) / (end[0] - start[0])
+                } else {
+                    slope = 0
+                }
+                offset = start[1] - (start[0] * slope)
+
+                // find the starting
+                startPatchLoc = floor((start[0] - self.mBounds[0][0]) / self.mPatchSize[0])
+                endPatchLoc = floor((end[0] - self.mBounds[0][0]) / self.mPatchSize[0])
+
+                if startPatchLoc <= endPatchLoc {
+                    // moving along slope in a positive direction
+                    endPatchLoc += 1
+                    startPatchLoc -= 1
+                    countPatches = Int32(endPatchLoc - startPatchLoc + 1)
+                } else {
+                    // moving along slope in a negative direction
+                    endPatchLoc -= 1
+                    startPatchLoc += 1
+                    patchDirection = -1
+                    countPatches = Int32(startPatchLoc - endPatchLoc + 1)
+                }
+                if Double(slope) < 0.0 {
+                    checkDirection = -1
+                }
+
+                // first calculate the real world location
+                startPos = ((startPatchLoc * self.mPatchSize[0] + self.mBounds[0][0]) * slope) + offset
+                // calculate it back into patch coords
+                startPos = floor((startPos - self.mBounds[0][1] + tw.size[0][1]) / self.mPatchSize[1])
+                repeat {
+                    if startPatchLoc >= 0 && startPatchLoc < self.mBlockWidth {
+                        // valid location
+                        // first calculate the real world location
+                        endPos = (((startPatchLoc + patchDirection) * self.mPatchSize[0] + self.mBounds[0][0]) * slope) + offset
+                        // calculate it back into patch coords
+                        endPos = floor((endPos - self.mBounds[0][1] + tw.size[1][1]) / self.mPatchSize[1])
+
+                        if checkDirection < 0 {
+                            startPos += 1
+                            endPos -= 1
+                        } else {
+                            startPos -= 1
+                            endPos += 1
+                        }
+                        count = Int32(abs(endPos - startPos) + 1)
+                        while count != 0 {
+                            if startPos >= 0 && startPos < self.mBlockHeight {
+                                // valid location
+                                patch = self.GetPatch(Int32(startPatchLoc), Int32(startPos))
+                                // Collide with every patch to find the minimum fraction
+                                // Port-note: CM_HandlePatchCollision keeps its signature marker, because its `CCMPatch *` parameter has no table row.
+                                // Raven wrote: CM_HandlePatchCollision(tw, trace, tBounds[0], tBounds[1], patch, checkcount);
+                                portMissing("CCMLandScape::PatchCollide", source: "oracle/codemp/qcommon/cm_terrain.cpp:600")
+
+                                if Double(trace.fraction) <= 0.0 {
+                                    return
+                                }
+                            }
+                            startPos += checkDirection
+                            count -= 1
+                        }
+
+                        if trace.fraction < fraction {
+                            return
+                        }
+                    }
+                    // move to the next spot
+                    // we still stay one behind, to get the opposite edge of the terrain patch
+                    startPos = ((startPatchLoc * self.mPatchSize[0] + self.mBounds[0][0]) * slope) + offset
+                    startPatchLoc += patchDirection
+                    // first calculate the real world location
+                    // calculate it back into patch coords
+                    startPos = floor((startPos - self.mBounds[0][1] + tw.size[0][1]) / self.mPatchSize[1])
+
+                    countPatches -= 1
+                } while countPatches != 0
+            } else {
+                // calculate line slope and offset
+                slope = (end[0] - start[0]) / (end[1] - start[1])
+                offset = start[0] - (start[1] * slope)
+
+                // find the starting
+                startPatchLoc = floor((start[1] - self.mBounds[0][1]) / self.mPatchSize[1])
+                endPatchLoc = floor((end[1] - self.mBounds[0][1]) / self.mPatchSize[1])
+
+                if startPatchLoc <= endPatchLoc {
+                    // moving along slope in a positive direction
+                    endPatchLoc += 1
+                    startPatchLoc -= 1
+                    countPatches = Int32(endPatchLoc - startPatchLoc + 1)
+                } else {
+                    // moving along slope in a negative direction
+                    endPatchLoc -= 1
+                    startPatchLoc += 1
+                    patchDirection = -1
+                    countPatches = Int32(startPatchLoc - endPatchLoc + 1)
+                }
+                if Double(slope) < 0.0 {
+                    checkDirection = -1
+                }
+
+                // first calculate the real world location
+                startPos = ((startPatchLoc * self.mPatchSize[1] + self.mBounds[0][1]) * slope) + offset
+                // calculate it back into patch coords
+                startPos = floor((startPos - self.mBounds[0][0] + tw.size[0][0]) / self.mPatchSize[0])
+                repeat {
+                    if startPatchLoc >= 0 && startPatchLoc < self.mBlockHeight {
+                        // valid location
+                        // first calculate the real world location
+                        endPos = (((startPatchLoc + patchDirection) * self.mPatchSize[1] + self.mBounds[0][1]) * slope) + offset
+                        // calculate it back into patch coords
+                        endPos = floor((endPos - self.mBounds[0][0] + tw.size[1][0]) / self.mPatchSize[0])
+
+                        if checkDirection < 0 {
+                            startPos += 1
+                            endPos -= 1
+                        } else {
+                            startPos -= 1
+                            endPos += 1
+                        }
+
+                        count = Int32(abs(endPos - startPos) + 1)
+                        while count != 0 {
+                            if startPos >= 0 && startPos < self.mBlockWidth {
+                                // valid location
+                                patch = self.GetPatch(Int32(startPos), Int32(startPatchLoc))
+                                // Collide with every patch to find the minimum fraction
+                                // Port-note: CM_HandlePatchCollision keeps its signature marker, because its `CCMPatch *` parameter has no table row.
+                                // Raven wrote: CM_HandlePatchCollision(tw, trace, tBounds[0], tBounds[1], patch, checkcount);
+                                portMissing("CCMLandScape::PatchCollide", source: "oracle/codemp/qcommon/cm_terrain.cpp:600")
+
+                                if Double(trace.fraction) <= 0.0 {
+                                    return
+                                }
+                            }
+                            startPos += checkDirection
+                            count -= 1
+                        }
+
+                        if trace.fraction < fraction {
+                            return
+                        }
+                    }
+
+                    // move to the next spot
+                    // we still stay one behind, to get the opposite edge of the terrain patch
+                    startPos = ((startPatchLoc * self.mPatchSize[1] + self.mBounds[0][1]) * slope) + offset
+                    startPatchLoc += patchDirection
+                    // first calculate the real world location
+                    // calculate it back into patch coords
+                    startPos = floor((startPos - self.mBounds[0][0] + tw.size[0][0]) / self.mPatchSize[0])
+                    countPatches -= 1
+                } while countPatches != 0
+            }
+        } else {
+            var x: Int32
+            var y: Int32
+            var tWork = JKAShared.vec3_t()
+            var pStart = JKAShared.vec3_t()
+            var pEnd = JKAShared.vec3_t()
+            var minx: Int32
+            var maxx: Int32
+            var miny: Int32
+            var maxy: Int32
+            var patch: CCMPatch?
+
+            // Work out and grab the relevant patches
+            tWork = tBounds[0] - self.mBounds[0]
+            // Raven's VectorInverseScaleVector macro of q_shared.h expands here, because the port has no function for it.
+            pStart[0] = tWork[0] / self.mPatchSize[0]
+            pStart[1] = tWork[1] / self.mPatchSize[1]
+            pStart[2] = tWork[2] / self.mPatchSize[2]
+            tWork = tBounds[1] - self.mBounds[0]
+            pEnd[0] = tWork[0] / self.mPatchSize[0]
+            pEnd[1] = tWork[1] / self.mPatchSize[1]
+            pEnd[2] = tWork[2] / self.mPatchSize[2]
+
+            minx = Int32(Com_Clamp(0, Float(self.mBlockWidth - 1), floorf(pStart[0])))
+            maxx = Int32(Com_Clamp(0, Float(self.mBlockWidth - 1), ceilf(pEnd[0])))
+            miny = Int32(Com_Clamp(0, Float(self.mBlockHeight - 1), floorf(pStart[1])))
+            maxy = Int32(Com_Clamp(0, Float(self.mBlockHeight - 1), ceilf(pEnd[1])))
+
+            // generic box collide with each one
+            y = miny
+            while y <= maxy {
+                x = minx
+                while x <= maxx {
+                    patch = self.GetPatch(x, y)
+                    // Collide with every patch to find the minimum fraction
+                    // Port-note: CM_HandlePatchCollision keeps its signature marker, because its `CCMPatch *` parameter has no table row.
+                    // Raven wrote: CM_HandlePatchCollision(tw, trace, tBounds[0], tBounds[1], patch, checkcount);
+                    portMissing("CCMLandScape::PatchCollide", source: "oracle/codemp/qcommon/cm_terrain.cpp:600")
+
+                    if Double(trace.fraction) <= 0.0 {
+                        break
+                    }
+                    x += 1
+                }
+                y += 1
+            }
+        }
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:997
@@ -83,49 +420,337 @@ final class CCMLandScape {
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1011
     func GetWorldHeight(_ origin: JKAShared.vec3_t, _ bounds: [JKAShared.vec3_t], _ aboveGround: Bool) -> Float {
-        // TODO: Port CCMLandScape::GetWorldHeight
+        var work = JKAShared.vec3_t()
+        var minx: Int32
+        var maxx: Int32
+        var miny: Int32
+        var maxy: Int32
+        var TL: Int32
+        var TR: Int32
+        var BL: Int32
+        var BR: Int32
+        var `final`: Int32
+
+        work = origin - self.mBounds[0]
+        // Raven's VectorInverseScaleVector macro of q_shared.h expands here, because the port has no function for it.
+        work[0] = work[0] / self.mTerxelSize[0]
+        work[1] = work[1] / self.mTerxelSize[1]
+        work[2] = work[2] / self.mTerxelSize[2]
+
+        // Presume the bases of all misc models are less than 1 terxel square
+        minx = Int32(Com_Clamp(0, Float(self.GetWidth()), Float(Int32(floorf(work[0])))))
+        maxx = Int32(Com_Clamp(0, Float(self.GetWidth()), Float(Int32(ceilf(work[0])))))
+        miny = Int32(Com_Clamp(0, Float(self.GetHeight()), Float(Int32(floorf(work[1])))))
+        maxy = Int32(Com_Clamp(0, Float(self.GetHeight()), Float(Int32(ceilf(work[1])))))
+
+        // C widens the unsigned byte to `int` at each store.
+        TL = Int32(self.mHeightMap![(miny * self.GetRealWidth()) + minx])
+        TR = Int32(self.mHeightMap![(miny * self.GetRealWidth()) + maxx])
+        BL = Int32(self.mHeightMap![(maxy * self.GetRealWidth()) + minx])
+        BR = Int32(self.mHeightMap![(maxy * self.GetRealWidth()) + maxx])
+
+        if aboveGround {
+            //		int			max1, max2;
+            //		max1 = maximum(TL, TR);
+            //		max2 = maximum(BL, BR);
+            //		final = maximum(max1, max2);
+            var h1: Float
+            var h2: Float
+            var tx: Float
+            var ty: Float
+            tx = (work[0] - minx) / (Float(maxx - minx))
+            ty = (work[1] - miny) / (Float(maxy - miny))
+            // Raven's LERP macro of this file expands at each site, because the stub has no function for it.
+            h1 = ((TR - TL) * tx + TL)
+            h2 = ((BR - BL) * tx + BL)
+            `final` = Int32((h2 - h1) * ty + h1)
+        } else {
+            var min1: Int32
+            var min2: Int32
+
+            // Raven's minimum macro of q_shared.h expands at each site, because the port has no function for it.
+            min1 = (TL < TR ? TL : TR)
+            min2 = (BL < BR ? BL : BR)
+            `final` = (min1 < min2 ? min1 : min2)
+        }
+        // Port-note: The parameter `origin` is a value, so the store does not reach the caller, and RM_Mission.cpp:403 reads it.
+        // Raven wrote: origin[2] = (final * mTerxelSize[2]) + mBounds[0][2];
         portMissing("CCMLandScape::GetWorldHeight", source: "oracle/codemp/qcommon/cm_terrain.cpp:1011")
+
+        // compute slope at this spot
+        if maxx == minx {
+            maxx = Int32(Com_Clamp(0, Float(self.GetWidth()), Float(minx + 1)))
+        }
+        if maxy == miny {
+            maxy = Int32(Com_Clamp(0, Float(self.GetHeight()), Float(miny + 1)))
+        }
+        BR = Int32(self.mHeightMap![(maxy * self.GetRealWidth()) + maxx])
+
+        // rise over run
+        return (abs(Float(BR - TL)) * self.mTerxelSize[2]) / self.mTerxelSize[0]
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:836
     func WaterCollide(_ begin: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ fraction: Float) -> Float {
-        // TODO: Port CCMLandScape::WaterCollide
-        portMissing("CCMLandScape::WaterCollide", source: "oracle/codemp/qcommon/cm_terrain.cpp:836")
+        // Raven assigns his own `fraction` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
+        var fraction = fraction
+
+        // Check for completely above water
+        if (begin[2] > self.mWaterHeight) && (end[2] > self.mWaterHeight) {
+            return (fraction)
+        }
+        // Check for completely below water
+        if (begin[2] < self.mWaterHeight) && (end[2] < self.mWaterHeight) {
+            return (fraction)
+        }
+        // Check for starting in water and leaving
+        if Double(begin[2]) < Double(self.mWaterHeight) - SURFACE_CLIP_EPSILON {
+            fraction = Float(((Double(self.mWaterHeight) - SURFACE_CLIP_EPSILON) - Double(begin[2])) / Double(end[2] - begin[2]))
+            return (fraction)
+        }
+        // Now the trace must be entering the water
+        if Double(begin[2]) > Double(self.mWaterHeight) + SURFACE_CLIP_EPSILON {
+            fraction = Float((Double(begin[2]) - (Double(self.mWaterHeight) + SURFACE_CLIP_EPSILON)) / Double(begin[2] - end[2]))
+        }
+        return (fraction)
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:898
     func UpdatePatches() {
-        // TODO: Port CCMLandScape::UpdatePatches
-        portMissing("CCMLandScape::UpdatePatches", source: "oracle/codemp/qcommon/cm_terrain.cpp:898")
+        var x: Int32
+        var y: Int32
+        var ix: Int32
+        var iy: Int32
+        var numBrushesPerPatch: Int32
+        var world = JKAShared.vec3_t()
+        var size: Int32
+        var patchIndex: Int32
+
+        /*	for(y=0;y<GetRealHeight();y++)
+        	{
+        		for(x=0;x<GetRealWidth();x++)
+        		{
+        			Com_Printf("(%d,%d) = %u\n", x, y, (unsigned)mHeightMap[y*GetRealWidth() + x]);
+        		}
+        	}
+        */
+        // Calculate real world coordinates from the heightmap
+        self.CalcRealCoords()
+
+        numBrushesPerPatch = self.mTerxels * self.mTerxels * 2
+        size = (numBrushesPerPatch * Int32(Cbrush.byteCount)) + (numBrushesPerPatch * BRUSH_SIDES_PER_TERXEL * 2 * (Int32(Cbrushside.byteCount) + Int32(JKAShared.Cplane.byteCount)))
+
+        // AI: Raven walks the patch block with the pointer `patch`. The walk is the index `patchIndex` into the array.
+        patchIndex = 0
+        y = 0
+        iy = 0
+        while y < self.mHeight {
+            x = 0
+            ix = 0
+            while x < self.mWidth {
+                world = JKAShared.vec3_t(self.mBounds[0][0] + (x * self.mTerxelSize[0]), self.mBounds[0][1] + (y * self.mTerxelSize[1]), self.mBounds[0][2])
+                // AI: Raven passes the bytes of the patch, and Init casts them at cm_terrain.cpp:588. The cast moves to the call, with the brush count of a patch.
+                self.mPatches[patchIndex].Init(self, x, y, world, self.mHeightMap, Slots<Cbrush>(self.mPatchBrushData!.suffix(from: size * (ix + (iy * self.mBlockWidth))).base, count: numBrushesPerPatch))
+                x += self.mTerxels
+                ix += 1
+                patchIndex += 1
+            }
+            y += self.mTerxels
+            iy += 1
+        }
+
+        /*
+        	for ( y = mTerxels; y < mHeight - mTerxels; y ++ )
+        	{
+        		for ( x = mTerxels; x < mWidth - mTerxels; x ++ )
+        		{
+        			int xo     = x % mTerxels;
+        			int yo     = y % mTerxels;
+        			int xor    = (x + 1) % mTerxels;
+        			int yob    = (y + 1) % mTerxels;
+
+        			CCMPatch*	patch  = mPatches + (mWidth / mTerxels) * y + (x / mTerxels);
+        			CCMPatch*	rpatch = mPatches + (mWidth / mTerxels) * y + ((x+1) / mTerxels);
+        			CCMPatch*	bpatch = mPatches + (mWidth / mTerxels) * (y + 1) + (x / mTerxels);
+
+        			int		offsets[4];
+        			vec3_t	localCoords[8];
+        			vec3_t	localCoordsR[8];
+        			vec3_t	localCoordsL[8];
+
+        			GetTerxelLocalCoords ( x, y, localCoords );
+        			GetTerxelLocalCoords ( x + 1, y, localCoordsR );
+        			GetTerxelLocalCoords ( x, y + 1, localCoordsB );
+
+        			brush = patch->GetCollisionData ( );;
+        			side  = (cbrushside_t *)(mPatchBrushData + patch->GetNumBrushes ( ) );
+        			plane = (cplane_t *)(side + (mNumBrushes * BRUSH_SIDES_PER_TERXEL * 2));
+
+
+        			float V = DotProduct ( (plane + 8)->normal, localCoords[0] ) + plane->dist;
+
+        			if ( V < 0 )
+        			{
+        				InitPlane ( brush[0].sides + brush[0].numsides, plane + brush[0].numsides, localCoords[3], localCoords[2], localCoords[1]);
+        				brush[0].numsides++;
+
+        				InitPlane ( brush[1].sides + brush[1].numsides, plane + 8 + brush[1].numsides, localCoords[0], localCoords[1], localCoords[2]);
+        				brush[1].numsides++;
+        			}
+        		}
+        	}
+        */
+
+        // Cleanup coord array
+        Z_Free(OpaquePointer(self.mCoords!.base))
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:862
     // AI: Raven fills the caller's `vec3_t coords[8]`. The parameter is the Slots over the vectors, the PARAMS kind `table` of a `vec3_t *`.
     func GetTerxelLocalCoords(_ x: Int32, _ y: Int32, _ coords: Slots<JKAShared.vec3_t>) {
+        // Raven's one call is in the comment block of UpdatePatches at cm_terrain.cpp:948, and no file of either tree calls it, so the function is dead.
         // TODO: Port CCMLandScape::GetTerxelLocalCoords
         portMissing("CCMLandScape::GetTerxelLocalCoords", source: "oracle/codemp/qcommon/cm_terrain.cpp:862")
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:39
     func LoadTerrainDef(_ td: String) {
-        // TODO: Port CCMLandScape::LoadTerrainDef
-        portMissing("CCMLandScape::LoadTerrainDef", source: "oracle/codemp/qcommon/cm_terrain.cpp:39")
+        var terrainDef = CharBuf(MAX_QPATH)
+        let parse = CGenericParser2()
+        var basegroup: CGPGroup?
+        var classes: CGPGroup?
+        var items: CGPGroup?
+
+        Com_sprintf(&terrainDef, MAX_QPATH, "ext_data/RMG/%s.terrain", Info_ValueForKey(td, "terrainDef"))
+        Com_DPrintf("CM_Terrain: Loading and parsing terrainDef %s.....\n", Info_ValueForKey(td, "terrainDef"))
+
+        if !Com_ParseTextFile(String(terrainDef), parse) {
+            Com_sprintf(&terrainDef, MAX_QPATH, "ext_data/arioche/%s.terrain", Info_ValueForKey(td, "terrainDef"))
+            if !Com_ParseTextFile(String(terrainDef), parse) {
+                Com_Printf("Could not open %s\n", terrainDef)
+                return
+            }
+        }
+        // The whole file....
+        basegroup = parse.GetBaseParseGroup()
+
+        // The root { } struct
+        classes = basegroup!.GetSubGroups()
+        while classes != nil {
+            items = classes!.GetSubGroups()
+            while items != nil {
+                if Q_stricmp(items!.GetName(), "altitudetexture") == 0 {
+                    var height: Int32
+                    var shaderName: String?
+                    var shader: CmShader?
+
+                    // Height must exist - the rest are optional
+                    // Port-note: The port has no `atol`, and no rule names its spelling.
+                    // Raven wrote: height = atol(items->FindPairValue("height", "0"));
+                    portMissing("CCMLandScape::LoadTerrainDef", source: "oracle/codemp/qcommon/cm_terrain.cpp:39")
+
+                    // Shader for this height
+                    shaderName = items!.FindPairValue("shader", "")
+                    if strlen(shaderName!) != 0 {
+                        shader = CM_GetShaderInfo(shaderName!)
+                        if shader != nil {
+                            self.SetShaders(height, shader)
+                        }
+                    }
+                } else if Q_stricmp(items!.GetName(), "water") == 0 {
+                    var shaderName: String?
+                    var shader: CmShader?
+
+                    // Grab the height of the water
+                    // Port-note: The port has no `atol`, and no rule names its spelling.
+                    // Raven wrote: mBaseWaterHeight = atol(items->FindPairValue("height", "0"));
+                    portMissing("CCMLandScape::LoadTerrainDef", source: "oracle/codemp/qcommon/cm_terrain.cpp:39")
+                    self.SetRealWaterHeight(self.mBaseWaterHeight)
+
+                    // Grab the material of the water
+                    shaderName = items!.FindPairValue("shader", "")
+                    shader = CM_GetShaderInfo(shaderName!)
+                    if shader != nil {
+                        self.mWaterContents = shader!.contentFlags
+                        self.mWaterSurfaceFlags = shader!.surfaceFlags
+                    }
+                }
+                items = items!.GetNext()
+            }
+            classes = classes!.GetNext()
+        }
+        Com_ParseTextFileDestroy(parse)
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:26
     func SetShaders(_ height: Int32, _ shader: CmShader?) {
-        // TODO: Port CCMLandScape::SetShaders
-        portMissing("CCMLandScape::SetShaders", source: "oracle/codemp/qcommon/cm_terrain.cpp:26")
+        var i: Int32
+
+        i = height
+        while shader != nil && (i < HEIGHT_RESOLUTION) {
+            if self.mHeightDetails[i].GetSurfaceFlags() == 0 {
+                self.mHeightDetails[i].SetFlags(shader!.contentFlags, shader!.surfaceFlags)
+            }
+            i += 1
+        }
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1312
     func FlattenArea(_ area: CArea?, _ height: Int32, _ save: Bool, _ forceHeight: Bool, _ smooth: Bool) {
-        // TODO: Port CCMLandScape::FlattenArea
-        portMissing("CCMLandScape::FlattenArea", source: "oracle/codemp/qcommon/cm_terrain.cpp:1312")
+        // Raven assigns his own `height` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
+        var height = height
+        var temp = JKAShared.vec3_t()
+        var icoords = [Int32](repeating: 0, count: 3)
+        var radius: Int32
+        var height2: Int32
+
+        if save {
+            self.SaveArea(area)
+            //	mAreas.push_back(*area);
+        }
+
+        // Work out coords in the heightmap
+        temp = area!.GetPosition() - self.mBounds[0]
+        icoords[0] = Int32(temp[0] / (self.mBounds[1][0] - self.mBounds[0][0]) * Float(self.GetRealWidth()))
+        icoords[1] = Int32(temp[1] / (self.mBounds[1][1] - self.mBounds[0][1]) * Float(self.GetRealHeight()))
+
+        //	VectorInverseScaleVector(temp, mTerxelSize, icoords);
+
+        // round up, we'd rather have a little more area flattened than have less then what was requested
+        radius = Int32(ceilf((area!.GetRadius() / self.mTerxelSize[1])))
+
+        // Work out the average height of the surrounding terrain
+        height2 = height
+        if height < 0 {
+            var info = [Int32](repeating: 0, count: 3)
+
+            info[0] = 0
+            info[1] = 0
+            // Port-note: CM_CircularIterate takes `inout Int32` for `int *user`, and CM_GetAverage takes the Slots of the `ivec3_t`, so the call has no form.
+            // Raven wrote: CM_CircularIterate(mHeightMap, GetRealWidth(), GetRealHeight(), icoords[0], icoords[1], 0, radius, info, CM_GetAverage);
+            portMissing("CCMLandScape::FlattenArea", source: "oracle/codemp/qcommon/cm_terrain.cpp:1312")
+            if info[1] != 0 {
+                height = info[0] / info[1]
+            }
+        } else {
+            height = height & 0x7F
+        }
+
+        if smooth {
+            CM_CircularIterate(self.mHeightMap!, self.GetRealWidth(), self.GetRealHeight(), icoords[0], icoords[1], radius, radius * 3, &height, CM_Smooth)
+        }
+
+        if forceHeight {
+            CM_CircularIterate(self.mHeightMap!, self.GetRealWidth(), self.GetRealHeight(), icoords[0], icoords[1], 0, radius + 1, &height, CM_ForceHeight)
+            CM_CircularIterate(self.mFlattenMap!, self.GetRealWidth(), self.GetRealHeight(), icoords[0], icoords[1], 0, radius + 1, &height2, CM_ForceHeight)
+        } else if smooth {
+            CM_CircularIterate(self.mHeightMap!, self.GetRealWidth(), self.GetRealHeight(), icoords[0], icoords[1], 0, radius, &height, CM_Smooth)
+        }
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1133
     func CarveLine(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ depth: Int32, _ width: Int32) {
+        // Raven's one call is in CarveBezierCurve, which is dead, so the function is dead too.
         // TODO: Port CCMLandScape::CarveLine
         portMissing("CCMLandScape::CarveLine", source: "oracle/codemp/qcommon/cm_terrain.cpp:1133")
     }
@@ -133,18 +758,19 @@ final class CCMLandScape {
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1245
     // AI: Raven reads `numCtlPoints` vectors through `vec3_t *ctlPoints`. The parameter is the caller's array, the PARAMS kind `vec3_array`.
     func CarveBezierCurve(_ numCtlPoints: Int32, _ ctlPoints: [JKAShared.vec3_t], _ steps: Int32, _ depth: Int32, _ size: Int32) {
+        // Raven calls this method only from CM_CarveBezierCurve, and no file of either tree calls that function, so the method is dead.
         // TODO: Port CCMLandScape::CarveBezierCurve
         portMissing("CCMLandScape::CarveBezierCurve", source: "oracle/codemp/qcommon/cm_terrain.cpp:1245")
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1128
     func SaveArea(_ area: CArea?) {
-        // TODO: Port CCMLandScape::SaveArea
-        portMissing("CCMLandScape::SaveArea", source: "oracle/codemp/qcommon/cm_terrain.cpp:1128")
+        self.mAreas.append(area)
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1379
     func FractionBelowLevel(_ area: CArea?, _ height: Int32) -> Float {
+        // Raven calls this method only from CM_FractionBelowLevel, and no file of either tree calls that function, so the method is dead.
         // TODO: Port CCMLandScape::FractionBelowLevel
         portMissing("CCMLandScape::FractionBelowLevel", source: "oracle/codemp/qcommon/cm_terrain.cpp:1379")
     }
@@ -152,36 +778,91 @@ final class CCMLandScape {
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1488
     // AI: Raven reads `areaTypeCount` types through `int *areaTypes`. The parameter is the caller's array, the PARAMS kind `int_array`.
     func AreaCollision(_ area: CArea?, _ areaTypes: [Int32]?, _ areaTypeCount: Int32) -> Bool {
-        // TODO: Port CCMLandScape::AreaCollision
-        portMissing("CCMLandScape::AreaCollision", source: "oracle/codemp/qcommon/cm_terrain.cpp:1488")
+        var areas: CArea?
+        var i: Int32
+        var segment: Float
+        var collision: Bool
+
+        areas = self.GetFirstArea()
+        while areas != nil {
+            collision = false
+
+            if area!.GetVillageID() == areas!.GetVillageID() {
+                // Check for being too close angularly
+                if area!.GetAngleDiff() != 0 && areas!.GetAngleDiff() != 0 {
+                    segment = areas!.GetAngle() - area!.GetAngle()
+                    // JKAShared's M_PI is the float of Raven's macro at q_shared.h:548, and the qualifier breaks the tie with the double of Foundation.
+                    if segment < JKAShared.M_PI {
+                        segment += 2 * JKAShared.M_PI
+                    }
+                    if segment > JKAShared.M_PI {
+                        segment -= 2 * JKAShared.M_PI
+                    }
+                    if abs(segment) < areas!.GetAngleDiff() + area!.GetAngleDiff() {
+                        collision = true
+                    }
+                }
+            }
+
+            // Check for buildings being too close together
+            if Distance(areas!.GetPosition(), area!.GetPosition()) < areas!.GetRadius() + area!.GetRadius() {
+                collision = true
+            }
+
+            if collision {
+                // If no area type list was specified then all areas are fair game
+                if areaTypes == nil {
+                    return true
+                }
+
+                i = 0
+                while i < areaTypeCount {
+                    if areas!.GetType() == areaTypes![i] {
+                        return (true)
+                    }
+                    i += 1
+                }
+            }
+            areas = self.GetNextArea()
+        }
+        return (false)
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1412
     func GetFirstArea() -> CArea? {
-        // TODO: Port CCMLandScape::GetFirstArea
-        portMissing("CCMLandScape::GetFirstArea", source: "oracle/codemp/qcommon/cm_terrain.cpp:1412")
+        if self.mAreas.count == 0 {
+            return (nil)
+        }
+        self.mAreasIt = 0
+        return (self.mAreas[self.mAreasIt])
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1422
     func GetFirstObjectiveArea() -> CArea? {
+        // Raven calls this method only from CM_GetFirstObjectiveArea, and no file of either tree calls that function, so the method is dead.
         // TODO: Port CCMLandScape::GetFirstObjectiveArea
         portMissing("CCMLandScape::GetFirstObjectiveArea", source: "oracle/codemp/qcommon/cm_terrain.cpp:1422")
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1442
     func GetPlayerArea() -> CArea? {
+        // Raven calls this method only from CM_GetPlayerArea, and no file of either tree calls that function, so the method is dead.
         // TODO: Port CCMLandScape::GetPlayerArea
         portMissing("CCMLandScape::GetPlayerArea", source: "oracle/codemp/qcommon/cm_terrain.cpp:1442")
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1462
     func GetNextArea() -> CArea? {
-        // TODO: Port CCMLandScape::GetNextArea
-        portMissing("CCMLandScape::GetNextArea", source: "oracle/codemp/qcommon/cm_terrain.cpp:1462")
+        self.mAreasIt += 1
+        if self.mAreasIt == self.mAreas.count {
+            return (nil)
+        }
+        return (self.mAreas[self.mAreasIt])
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1472
     func GetNextObjectiveArea() -> CArea? {
+        // Raven calls this method only from CM_GetNextObjectiveArea, and no file of either tree calls that function, so the method is dead.
         // TODO: Port CCMLandScape::GetNextObjectiveArea
         portMissing("CCMLandScape::GetNextObjectiveArea", source: "oracle/codemp/qcommon/cm_terrain.cpp:1472")
     }
@@ -330,6 +1011,8 @@ final class CCMLandScape {
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:224
     func GetIsRandom() -> Bool {
+        // Port-note: The class holds no `mRandomTerrain`, because `CRandomTerrain` has no Swift class.
+        // Raven wrote: const bool GetIsRandom(void) const { return(mRandomTerrain != 0); }
         // TODO: Port CCMLandScape::GetIsRandom
         portMissing("CCMLandScape::GetIsRandom", source: "oracle/codemp/qcommon/cm_landscape.h:224")
     }
@@ -346,8 +1029,33 @@ final class CCMLandScape {
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:975
     func CalcRealCoords() {
-        // TODO: Port CCMLandScape::CalcRealCoords
-        portMissing("CCMLandScape::CalcRealCoords", source: "oracle/codemp/qcommon/cm_terrain.cpp:975")
+        var x: Int32
+        var y: Int32
+
+        self.mCoords = Slots<JKAShared.vec3_t>(vectors: Z_Malloc(Int32(JKAShared.vec3_t.byteCount) * self.GetRealWidth() * self.GetRealHeight(), TAG_CM_TERRAIN_TEMP), count: Int(self.GetRealWidth() * self.GetRealHeight()))
+
+        // Work out the real world coordinates of each heightmap entry
+        y = 0
+        while y < self.GetRealHeight() {
+            x = 0
+            while x < self.GetRealWidth() {
+                var icoords = [Int32](repeating: 0, count: 3)
+                var offset: Int32
+
+                offset = (y * self.GetRealWidth()) + x
+
+                // Raven's VectorSet and VectorScaleVectorAdd macros of q_shared.h expand here, because the port has no function for an `ivec3_t`.
+                // C widens the unsigned byte to `int` at the store.
+                icoords[0] = x
+                icoords[1] = y
+                icoords[2] = Int32(self.mHeightMap![offset])
+                self.mCoords![offset][0] = self.GetMins()[0] + (icoords[0] * self.GetTerxelSize()[0])
+                self.mCoords![offset][1] = self.GetMins()[1] + (icoords[1] * self.GetTerxelSize()[1])
+                self.mCoords![offset][2] = self.GetMins()[2] + (icoords[2] * self.GetTerxelSize()[2])
+                x += 1
+            }
+            y += 1
+        }
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:228
@@ -392,8 +1100,9 @@ final class CCMLandScape {
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1548
     func rand_seed(_ seed: Int32) {
-        // TODO: Port CCMLandScape::rand_seed
-        portMissing("CCMLandScape::rand_seed", source: "oracle/codemp/qcommon/cm_terrain.cpp:1548")
+        self.holdrand = UInt32(bitPattern: seed)
+        // AI: Raven passes the `unsigned long` to `%d`, which reads its bits as an `int`. The argument converts by bit pattern, because the format takes no UInt32.
+        Com_Printf("rand_seed = %d\n", Int32(bitPattern: self.holdrand))
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:239
@@ -403,13 +1112,32 @@ final class CCMLandScape {
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1554
     func flrand(_ min: Float, _ max: Float) -> Float {
-        // TODO: Port CCMLandScape::flrand
-        portMissing("CCMLandScape::flrand", source: "oracle/codemp/qcommon/cm_terrain.cpp:1554")
+        var result: Float
+
+        assert((max - min) < 32768)
+
+        self.holdrand = (self.holdrand &* 214013) &+ 2531011
+        result = Float(self.holdrand >> 17)						// 0 - 32767 range
+        result = ((result * (max - min)) / 32768.0) + min
+        //	Com_Printf("flrand: Seed = %d\n", holdrand);
+
+        return (result)
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1568
     func irand(_ min: Int32, _ max: Int32) -> Int32 {
-        // TODO: Port CCMLandScape::irand
-        portMissing("CCMLandScape::irand", source: "oracle/codemp/qcommon/cm_terrain.cpp:1568")
+        // Raven assigns his own `max` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
+        var max = max
+        var result: Int32
+
+        assert((max - min) < 32768)
+
+        max &+= 1
+        self.holdrand = (self.holdrand &* 214013) &+ 2531011
+        result = Int32(bitPattern: self.holdrand >> 17)
+        result = ((result &* (max &- min)) >> 15) &+ min
+        //	Com_Printf("irand: Seed = %d\n", holdrand);
+
+        return (result)
     }
 }

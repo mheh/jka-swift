@@ -265,8 +265,6 @@ ParseVector
 private func CM_ParseVector(_ shader: CmShader, _ text: inout JKAShared.TextCursor, _ count: Int32, _ v: inout JKAShared.vec3_t) -> Bool {
     var token: String
     var i: Int32
-    // Raven assigns his own `v` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
-    var v = v
 
     // FIXME: spaces are currently required after parens, should change parseext...
     token = COM_ParseExt(&text, false)
@@ -368,9 +366,9 @@ private func CM_ParseShader(_ shader: CmShader, _ text: inout JKAShared.TextCurs
             continue
         } else if Q_stricmp(token, "fogParms") == 0 {
             var fogColor = vec3_t()
-            // Port-note: Raven passes `fogColor` to `CM_ParseVector`, whose `v` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-            // Raven wrote: if ( !CM_ParseVector( shader, text, 3, fogColor ) ) { return; }
-            portMissing("CM_ParseShader", source: "oracle/codemp/qcommon/cm_shader.cpp:361")
+            if !CM_ParseVector(shader, &text, 3, &fogColor) {
+                return
+            }
 
             token = COM_ParseExt(&text, false)
             if token.isEmpty {

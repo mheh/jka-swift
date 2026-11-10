@@ -551,9 +551,18 @@ func SV_DropClient(_ drop: Client, _ reason: String) {
 
 /// Source: oracle/codemp/server/sv_client.cpp:668
 func SV_WriteRMGAutomapSymbols(_ msg: Msg) {
-    // Port-note: Row C. TheRandomMissionManager is an instance of the C++ class CRMManager, which has no port.
-    // Raven wrote: int count = TheRandomMissionManager->GetAutomapSymbolCount ( ); ... MSG_WriteShort ( msg, count ); for ( i = 0; i < count; i ++ ) { ... }
-    portMissing("SV_WriteRMGAutomapSymbols", source: "oracle/codemp/server/sv_client.cpp:668")
+    let count = TheRandomMissionManager!.GetAutomapSymbolCount()
+    var i: Int32
+
+    MSG_WriteShort(msg, count)
+
+    i = 0
+    while i < count {
+        // Port-note: Row C. CRMManager.GetAutomapSymbol carries a signature marker, so the symbol has no form.
+        // Raven wrote: rmAutomapSymbol_t* symbol = TheRandomMissionManager->GetAutomapSymbol ( i ); MSG_WriteByte ( msg, symbol->mType ); MSG_WriteByte ( msg, symbol->mSide ); MSG_WriteLong ( msg, (long)symbol->mOrigin[0] ); MSG_WriteLong ( msg, (long)symbol->mOrigin[1] );
+        portMissing("SV_WriteRMGAutomapSymbols", source: "oracle/codemp/server/sv_client.cpp:668")
+        i += 1
+    }
 }
 
 /**
@@ -646,9 +655,13 @@ func SV_SendClientGameState(_ client: Client) {
         MSG_WriteLong(msg, sv.checksumFeed)
 
         //rwwRMG - send info for the terrain
-        // Port-note: Row C. TheRandomMissionManager is an instance of the C++ class CRMManager, which has no port, so Raven's test of it has no form.
-        // Raven wrote: if ( TheRandomMissionManager ) { z_stream zdata; // Send the height map memset(&zdata, 0, sizeof(z_stream)); deflateInit ( &zdata, Z_MAX_COMPRESSION ); unsigned char heightmap[15000]; zdata.next_out = (unsigned char*)heightmap; zdata.avail_out = 15000; zdata.next_in = TheRandomMissionManager->GetLandScape()->GetHeightMap(); zdata.avail_in = TheRandomMissionManager->GetLandScape()->GetRealArea(); deflate(&zdata, Z_SYNC_FLUSH); MSG_WriteShort ( &msg, (unsigned short)zdata.total_out ); MSG_WriteBits ( &msg, 1, 1 ); MSG_WriteData ( &msg, heightmap, zdata.total_out); deflateEnd(&zdata); // Send the flatten map memset(&zdata, 0, sizeof(z_stream)); deflateInit ( &zdata, Z_MAX_COMPRESSION ); zdata.next_out = (unsigned char*)heightmap; zdata.avail_out = 15000; zdata.next_in = TheRandomMissionManager->GetLandScape()->GetFlattenMap(); zdata.avail_in = TheRandomMissionManager->GetLandScape()->GetRealArea(); deflate(&zdata, Z_SYNC_FLUSH); MSG_WriteShort ( &msg, (unsigned short)zdata.total_out ); MSG_WriteBits ( &msg, 1, 1 ); MSG_WriteData ( &msg, heightmap, zdata.total_out); deflateEnd(&zdata); // Seed is needed for misc ents and noise MSG_WriteLong ( &msg, TheRandomMissionManager->GetLandScape()->get_rand_seed ( ) ); SV_WriteRMGAutomapSymbols ( &msg ); } else { MSG_WriteShort ( &msg, 0 ); }
-        portMissing("SV_SendClientGameState", source: "oracle/codemp/server/sv_client.cpp:697")
+        if TheRandomMissionManager != nil {
+            // Port-note: Row C2. The port has no zlib `deflate`, so the height map and the flatten map have no compressed form.
+            // Raven wrote: z_stream zdata; // Send the height map memset(&zdata, 0, sizeof(z_stream)); deflateInit ( &zdata, Z_MAX_COMPRESSION ); unsigned char heightmap[15000]; zdata.next_out = (unsigned char*)heightmap; zdata.avail_out = 15000; zdata.next_in = TheRandomMissionManager->GetLandScape()->GetHeightMap(); zdata.avail_in = TheRandomMissionManager->GetLandScape()->GetRealArea(); deflate(&zdata, Z_SYNC_FLUSH); MSG_WriteShort ( &msg, (unsigned short)zdata.total_out ); MSG_WriteBits ( &msg, 1, 1 ); MSG_WriteData ( &msg, heightmap, zdata.total_out); deflateEnd(&zdata); // Send the flatten map memset(&zdata, 0, sizeof(z_stream)); deflateInit ( &zdata, Z_MAX_COMPRESSION ); zdata.next_out = (unsigned char*)heightmap; zdata.avail_out = 15000; zdata.next_in = TheRandomMissionManager->GetLandScape()->GetFlattenMap(); zdata.avail_in = TheRandomMissionManager->GetLandScape()->GetRealArea(); deflate(&zdata, Z_SYNC_FLUSH); MSG_WriteShort ( &msg, (unsigned short)zdata.total_out ); MSG_WriteBits ( &msg, 1, 1 ); MSG_WriteData ( &msg, heightmap, zdata.total_out); deflateEnd(&zdata); // Seed is needed for misc ents and noise MSG_WriteLong ( &msg, TheRandomMissionManager->GetLandScape()->get_rand_seed ( ) ); SV_WriteRMGAutomapSymbols ( &msg );
+            portMissing("SV_SendClientGameState", source: "oracle/codemp/server/sv_client.cpp:697")
+        } else {
+            MSG_WriteShort(msg, 0)
+        }
 
         // deliver this to the client
         SV_SendMessageToClient(msg, client)
@@ -900,14 +913,10 @@ func SV_WriteDownloadToClient(_ cl: Client, _ msg: Msg) {
         curindex = (cl.downloadCurrentBlock % MAX_DOWNLOAD_WINDOW)
 
         if cl.downloadBlocks[curindex] == nil {
-            // Port-note: Row G13. `downloadBlocks` of client_t holds `unsigned char *` blocks as handles, so the Z_Malloc block has no byte form.
-            // Raven wrote: cl->downloadBlocks[curindex] = (unsigned char *)Z_Malloc( MAX_DOWNLOAD_BLKSIZE, TAG_DOWNLOAD, qtrue )
-            portMissing("SV_WriteDownloadToClient", source: "oracle/codemp/server/sv_client.cpp:1090")
+            cl.downloadBlocks[curindex] = Slots<JKAShared.byte>(scalars: Z_Malloc(MAX_DOWNLOAD_BLKSIZE, TAG_DOWNLOAD, true), count: Int(MAX_DOWNLOAD_BLKSIZE))
         }
 
-        // Port-note: Row G13. FS_Read takes a Slots of bytes, and `downloadBlocks` of client_t holds each block as a handle with no byte form.
-        // Raven wrote: cl->downloadBlockSize[curindex] = FS_Read( cl->downloadBlocks[curindex], MAX_DOWNLOAD_BLKSIZE, cl->download )
-        portMissing("SV_WriteDownloadToClient", source: "oracle/codemp/server/sv_client.cpp:1090")
+        cl.downloadBlockSize[curindex] = FS_Read(cl.downloadBlocks[curindex]!, MAX_DOWNLOAD_BLKSIZE, cl.download)
 
         if cl.downloadBlockSize[curindex] < 0 {
             // EOF right now
@@ -995,9 +1004,7 @@ func SV_WriteDownloadToClient(_ cl: Client, _ msg: Msg) {
 
         // Write the block
         if cl.downloadBlockSize[curindex] != 0 {
-            // Port-note: Row G13. `downloadBlocks` of client_t holds the blocks as handles, and MSG_WriteData takes a Slots of bytes.
-            // Raven wrote: MSG_WriteData( msg, cl->downloadBlocks[curindex], cl->downloadBlockSize[curindex] );
-            portMissing("SV_WriteDownloadToClient", source: "oracle/codemp/server/sv_client.cpp:1090")
+            MSG_WriteData(msg, cl.downloadBlocks[curindex]!, cl.downloadBlockSize[curindex])
         }
 
         Com_DPrintf("clientDownload: %d : writing block %d\n", svs.clientsSlots.index(of: cl), cl.downloadXmitBlock)

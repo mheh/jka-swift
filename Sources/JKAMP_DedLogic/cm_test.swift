@@ -107,7 +107,7 @@ func CM_StoreBrushes(_ ll: LeafList, _ nodenum: Int32) {
             ll.overflowed = true
             return
         }
-        // Port-note: The `int *list` of `leafList_t` holds `cbrush_t *` slots here, and the view gives it as a `Slots<Int32>`.
+        // Port-note: The `int *list` of `leafList_t` holds `cbrush_t *` slots here, and the view gives it as a `Slots<Int32>`. Only the dead CM_BoxBrushes stores this function.
         // Raven wrote: ((cbrush_t **)ll->list)[ ll->count++ ] = b;
         portMissing("CM_StoreBrushes", source: "oracle/codemp/qcommon/cm_test.cpp:80")
         k += 1
@@ -195,6 +195,7 @@ CM_BoxBrushes
 */
 /// Source: oracle/codemp/qcommon/cm_test.cpp:194
 func CM_BoxBrushes(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ boxList: inout Cbrush?, _ listsize: Int32) -> Int32 {
+    // Port-note: Raven calls this function from no file of either tree, so it is dead.
     // TODO: Port CM_BoxBrushes
     portMissing("CM_BoxBrushes", source: "oracle/codemp/qcommon/cm_test.cpp:194")
 }
@@ -262,9 +263,9 @@ func CM_PointContents(_ p: JKAShared.vec3_t, _ model: JKAShared.clipHandle_t) ->
             contents |= b.contents
             // AI: Raven reads the class pointer `cmg.landScape` of the C record. The world holds the Swift class as `landScape_cmg`, the C field stays unused.
             if landScape_cmg != nil && (contents & CONTENTS_TERRAIN) != 0 {
-                // Port-note: The methods of CCMLandScape have no Swift name, row CM6 of the cm_load round.
-                // Raven wrote: if(p[2] < cmg.landScape->GetWaterHeight()) { contents |= cmg.landScape->GetWaterContents(); }
-                portMissing("CM_PointContents", source: "oracle/codemp/qcommon/cm_test.cpp:224")
+                if p[2] < landScape_cmg!.GetWaterHeight() {
+                    contents |= landScape_cmg!.GetWaterContents()
+                }
             }
         }
         k += 1

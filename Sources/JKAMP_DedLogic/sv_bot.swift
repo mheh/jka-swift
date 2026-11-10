@@ -65,8 +65,15 @@ func SV_OrgVisibleBox(_ org1: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs
 
 /// Source: oracle/codemp/server/sv_bot.cpp:63
 func SV_BotWaypointReception(_ wpnum: Int32, _ wps: Slots<JKAMP.Wpobject?>) {
-    // TODO: Port SV_BotWaypointReception
-    portMissing("SV_BotWaypointReception", source: "oracle/codemp/server/sv_bot.cpp:63")
+    var i: Int32 = 0
+
+    gWPNum = wpnum
+
+    while i < gWPNum {
+        // AI: Raven maps each pointer through BotVMShift, which gives the same address for a module library. The body copies the pointer.
+        gWPArray[i] = wps[i]
+        i += 1
+    }
 }
 
 /**
@@ -106,9 +113,14 @@ func SV_BotCalculatePaths(_ rmg: Int32) {
     i = 0
 
     while i < gWPNum {
-        // Port-note: The file-scope `wpobject_t *gWPArray[MAX_WPARRAY_SIZE]` has no table row, row B2.
-        // Raven wrote: if (gWPArray[i] && gWPArray[i]->inuse && gWPArray[i]->neighbornum) { while (gWPArray[i]->neighbornum >= 0) { gWPArray[i]->neighbors[gWPArray[i]->neighbornum].num = 0; gWPArray[i]->neighbors[gWPArray[i]->neighbornum].forceJumpTo = 0; gWPArray[i]->neighbornum--; } gWPArray[i]->neighbornum = 0; }
-        portMissing("SV_BotCalculatePaths", source: "oracle/codemp/server/sv_bot.cpp:81")
+        if gWPArray[i] != nil && gWPArray[i]!.inuse != 0 && gWPArray[i]!.neighbornum != 0 {
+            while gWPArray[i]!.neighbornum >= 0 {
+                gWPArray[i]!.neighbors[gWPArray[i]!.neighbornum].num = 0
+                gWPArray[i]!.neighbors[gWPArray[i]!.neighbornum].forceJumpTo = 0
+                gWPArray[i]!.neighbornum -= 1
+            }
+            gWPArray[i]!.neighbornum = 0
+        }
 
         i += 1
     }
@@ -116,9 +128,33 @@ func SV_BotCalculatePaths(_ rmg: Int32) {
     i = 0
 
     while i < gWPNum {
-        // Port-note: The file-scope `wpobject_t *gWPArray[MAX_WPARRAY_SIZE]` has no table row, row B2.
-        // Raven wrote: if (gWPArray[i] && gWPArray[i]->inuse) { c = 0; while (c < gWPNum) { if (gWPArray[c] && gWPArray[c]->inuse && i != c && NotWithinRange(i, c)) { VectorSubtract(gWPArray[i]->origin, gWPArray[c]->origin, a); nLDist = VectorLength(a); forceJumpable = qfalse;//CanForceJumpTo(i, c, nLDist); if ((nLDist < maxNeighborDist || forceJumpable) && ((int)gWPArray[i]->origin[2] == (int)gWPArray[c]->origin[2] || forceJumpable) && (SV_OrgVisibleBox(gWPArray[i]->origin, mins, maxs, gWPArray[c]->origin, ENTITYNUM_NONE, rmg) || forceJumpable)) { gWPArray[i]->neighbors[gWPArray[i]->neighbornum].num = c; if (forceJumpable && ((int)gWPArray[i]->origin[2] != (int)gWPArray[c]->origin[2] || nLDist < maxNeighborDist)) { gWPArray[i]->neighbors[gWPArray[i]->neighbornum].forceJumpTo = 999;//forceJumpable; //FJSR } else { gWPArray[i]->neighbors[gWPArray[i]->neighbornum].forceJumpTo = 0; } gWPArray[i]->neighbornum++; } if (gWPArray[i]->neighbornum >= MAX_NEIGHBOR_SIZE) { break; } } c++; } }
-        portMissing("SV_BotCalculatePaths", source: "oracle/codemp/server/sv_bot.cpp:81")
+        if gWPArray[i] != nil && gWPArray[i]!.inuse != 0 {
+            c = 0
+
+            while c < gWPNum {
+                if gWPArray[c] != nil && gWPArray[c]!.inuse != 0 && i != c && NotWithinRange(i, c) != 0 {
+                    a = gWPArray[i]!.origin - gWPArray[c]!.origin
+
+                    nLDist = VectorLength(a)
+                    forceJumpable = 0 //CanForceJumpTo(i, c, nLDist);
+
+                    if (nLDist < maxNeighborDist || forceJumpable != 0) && (Int32(gWPArray[i]!.origin[2]) == Int32(gWPArray[c]!.origin[2]) || forceJumpable != 0) && (SV_OrgVisibleBox(gWPArray[i]!.origin, mins, maxs, gWPArray[c]!.origin, ENTITYNUM_NONE, rmg) != 0 || forceJumpable != 0) {
+                        gWPArray[i]!.neighbors[gWPArray[i]!.neighbornum].num = c
+                        if forceJumpable != 0 && (Int32(gWPArray[i]!.origin[2]) != Int32(gWPArray[c]!.origin[2]) || nLDist < maxNeighborDist) {
+                            gWPArray[i]!.neighbors[gWPArray[i]!.neighbornum].forceJumpTo = 999 //forceJumpable; //FJSR
+                        } else {
+                            gWPArray[i]!.neighbors[gWPArray[i]!.neighbornum].forceJumpTo = 0
+                        }
+                        gWPArray[i]!.neighbornum += 1
+                    }
+
+                    if gWPArray[i]!.neighbornum >= MAX_NEIGHBOR_SIZE {
+                        break
+                    }
+                }
+                c += 1
+            }
+        }
         i += 1
     }
 }
@@ -208,15 +244,13 @@ BotDrawDebugPolygons
 /// Source: oracle/codemp/server/sv_bot.cpp:227
 func BotDrawDebugPolygons(_ drawPoly: ((Int32, Int32, inout Float) -> Void)?, _ value: Int32) {
     // Raven's `static cvar_t *bot_debug, *bot_groundonly, *bot_reachability, *bot_highlightarea` are the forwards above the function.
-    // Port-note: A pointer local `bot_debugpoly_t * poly` with no view, row B3.
-    // Raven wrote: bot_debugpoly_t *poly;
-    portMissing("BotDrawDebugPolygons", source: "oracle/codemp/server/sv_bot.cpp:227")
+    var poly: BotDebugpoly
     var i: Int32
     var parm0: Int32
 
-    // Port-note: The file-scope `bot_debugpoly_t *debugpolygons` has no table row, row B3.
-    // Raven wrote: if (!debugpolygons) return
-    portMissing("BotDrawDebugPolygons", source: "oracle/codemp/server/sv_bot.cpp:227")
+    if debugpolygons == nil {
+        return
+    }
     //bot debugging
     if bot_debug == nil {
         bot_debug = Cvar_Get("bot_debug", "0", 0)
@@ -246,21 +280,21 @@ func BotDrawDebugPolygons(_ drawPoly: ((Int32, Int32, inout Float) -> Void)?, _ 
         if bot_groundonly!.integer != 0 {
             parm0 |= 4
         }
-        // Port-note: The host has no form for the botlib export table `botlib_export`, row B1.
-        // Raven wrote: botlib_export->BotLibVarSet("bot_highlightarea", bot_highlightarea->string); botlib_export->Test(parm0, NULL, svs.clients[0].gentity->r.currentOrigin, svs.clients[0].gentity->r.currentAngles);
+        // Port-note: Row B5. `runBotLibVarSet` of BotlibExport takes the two `char *` texts as untyped OpaquePointer values, so the call has no form.
+        // Raven wrote: botlib_export->BotLibVarSet("bot_highlightarea", bot_highlightarea->string);
         portMissing("BotDrawDebugPolygons", source: "oracle/codemp/server/sv_bot.cpp:227")
+        botlib_export!.runTest(parm0, nil, &svs.clientsSlots[0].gentity!.r.currentOrigin, &svs.clientsSlots[0].gentity!.r.currentAngles)
     } //end if
     //draw all debug polys
     i = 0
     while i < bot_maxdebugpolys {
-        // Port-note: The file-scope `bot_debugpoly_t *debugpolygons` has no table row, row B3.
-        // Raven wrote: poly = &debugpolygons[i]
-        portMissing("BotDrawDebugPolygons", source: "oracle/codemp/server/sv_bot.cpp:227")
-        // Port-note: A read of `poly`, a local of `bot_debugpoly_t`, which has no view, row B3.
-        // Raven wrote: if (!poly->inuse) continue
-        portMissing("BotDrawDebugPolygons", source: "oracle/codemp/server/sv_bot.cpp:227")
-        // Port-note: A read of `poly`, a local of `bot_debugpoly_t`, which has no view, row B3.
-        // Raven wrote: drawPoly(poly->color, poly->numPoints, (float *) poly->points)
+        poly = debugpolygons![i]
+        if poly.inuse == 0 {
+            i += 1
+            continue
+        }
+        // Port-note: Row B6. The third parameter of `drawPoly` is one `inout Float`, and Raven hands the `float *` over all the points of `poly->points`.
+        // Raven wrote: drawPoly(poly->color, poly->numPoints, (float *) poly->points);
         portMissing("BotDrawDebugPolygons", source: "oracle/codemp/server/sv_bot.cpp:227")
         //Com_Printf("poly %i, numpoints = %d\n", i, poly->numPoints);
         i += 1
@@ -280,9 +314,25 @@ func BotImport_Print(_ type: Int32, _ fmt: String, _ args: any JKAShared.FormatA
 
     strcpy(&str, JKAShared.format(fmt, args))
 
-    // Port-note: The `PRT_` print types of botlib.h have no host re-export, row B1.
-    // Raven wrote: switch(type) { case PRT_MESSAGE: { Com_Printf("%s", str); break; } case PRT_WARNING: { Com_Printf(S_COLOR_YELLOW "Warning: %s", str); break; } case PRT_ERROR: { Com_Printf(S_COLOR_RED "Error: %s", str); break; } case PRT_FATAL: { Com_Printf(S_COLOR_RED "Fatal: %s", str); break; } case PRT_EXIT: { Com_Error(ERR_DROP, S_COLOR_RED "Exit: %s", str); break; } default: { Com_Printf("unknown print type\n"); break; } }
-    portMissing("BotImport_Print", source: "oracle/codemp/server/sv_bot.cpp:267")
+    switch type {
+    case PRT_MESSAGE:
+        Com_Printf("%s", str)
+
+    case PRT_WARNING:
+        Com_Printf(S_COLOR_YELLOW + "Warning: %s", str)
+
+    case PRT_ERROR:
+        Com_Printf(S_COLOR_RED + "Error: %s", str)
+
+    case PRT_FATAL:
+        Com_Printf(S_COLOR_RED + "Fatal: %s", str)
+
+    case PRT_EXIT:
+        Com_Error(ERR_DROP, S_COLOR_RED + "Exit: %s", str)
+
+    default:
+        Com_Printf("unknown print type\n")
+    }
 }
 
 /**
@@ -294,8 +344,25 @@ BotImport_Trace
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:309
 func BotImport_Trace(_ bsptrace: BspTrace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ passent: Int32, _ contentmask: Int32) {
-    // TODO: Port BotImport_Trace
-    portMissing("BotImport_Trace", source: "oracle/codemp/server/sv_bot.cpp:309")
+    // Raven's record lives to the end of his block, so the block is the closure.
+    Trace.scratch { trace in
+
+        SV_Trace(trace, start, mins, maxs, end, passent, contentmask, 0, 0, 10)
+        //copy the trace information
+        bsptrace.allsolid = trace.allsolid != 0
+        bsptrace.startsolid = trace.startsolid != 0
+        bsptrace.fraction = trace.fraction
+        bsptrace.endpos = trace.endpos
+        bsptrace.plane.dist = trace.plane.dist
+        bsptrace.plane.normal = trace.plane.normal
+        bsptrace.plane.signbits = trace.plane.signbits
+        bsptrace.plane.type = trace.plane.type
+        bsptrace.surface.value = trace.surfaceFlags
+        bsptrace.ent = trace.entityNum
+        bsptrace.exp_dist = 0
+        bsptrace.sidenum = 0
+        bsptrace.contents = 0
+    }
 }
 
 /**
@@ -307,8 +374,25 @@ BotImport_EntityTrace
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:334
 func BotImport_EntityTrace(_ bsptrace: BspTrace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ entnum: Int32, _ contentmask: Int32) {
-    // TODO: Port BotImport_EntityTrace
-    portMissing("BotImport_EntityTrace", source: "oracle/codemp/server/sv_bot.cpp:334")
+    // Raven's record lives to the end of his block, so the block is the closure.
+    Trace.scratch { trace in
+
+        SV_ClipToEntity(trace, start, mins, maxs, end, entnum, contentmask, 0)
+        //copy the trace information
+        bsptrace.allsolid = trace.allsolid != 0
+        bsptrace.startsolid = trace.startsolid != 0
+        bsptrace.fraction = trace.fraction
+        bsptrace.endpos = trace.endpos
+        bsptrace.plane.dist = trace.plane.dist
+        bsptrace.plane.normal = trace.plane.normal
+        bsptrace.plane.signbits = trace.plane.signbits
+        bsptrace.plane.type = trace.plane.type
+        bsptrace.surface.value = trace.surfaceFlags
+        bsptrace.ent = trace.entityNum
+        bsptrace.exp_dist = 0
+        bsptrace.sidenum = 0
+        bsptrace.contents = 0
+    }
 }
 
 /**
@@ -383,8 +467,9 @@ func BotImport_BSPModelMinsMaxsOrigin(_ modelnum: Int32, _ angles: JKAShared.vec
 
 /// Source: oracle/codemp/server/sv_bot.cpp:416
 func Bot_GetMemoryGame(_ size: Int32) -> UnsafeMutableRawPointer {
-    // TODO: Port Bot_GetMemoryGame
-    portMissing("Bot_GetMemoryGame", source: "oracle/codemp/server/sv_bot.cpp:416")
+    let ptr = Z_Malloc(size, TAG_BOTGAME, true)
+
+    return ptr
 }
 
 /**
@@ -408,8 +493,8 @@ BotImport_GetMemory
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:438
 func BotImport_GetMemory(_ size: Int32) -> UnsafeMutableRawPointer {
-    // TODO: Port BotImport_GetMemory
-    portMissing("BotImport_GetMemory", source: "oracle/codemp/server/sv_bot.cpp:438")
+    let ptr = Z_Malloc(size, TAG_BOTLIB, true)
+    return ptr
 }
 
 /**
@@ -433,8 +518,10 @@ BotImport_HunkAlloc
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:459
 func BotImport_HunkAlloc(_ size: Int32) -> UnsafeMutableRawPointer {
-    // TODO: Port BotImport_HunkAlloc
-    portMissing("BotImport_HunkAlloc", source: "oracle/codemp/server/sv_bot.cpp:459")
+    if Hunk_CheckMark() {
+        Com_Error(ERR_DROP, "SV_Bot_HunkAlloc: Alloc with marks already set\n")
+    }
+    return Hunk_Alloc(size, h_high)
 }
 
 /**
@@ -446,40 +533,28 @@ BotImport_DebugPolygonCreate
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:471
 func BotImport_DebugPolygonCreate(_ color: Int32, _ numPoints: Int32, _ points: Slots<JKAShared.vec3_t>) -> Int32 {
-    // Port-note: A pointer local `bot_debugpoly_t * poly` with no view, row B3.
-    // Raven wrote: bot_debugpoly_t *poly;
-    portMissing("BotImport_DebugPolygonCreate", source: "oracle/codemp/server/sv_bot.cpp:471")
+    let poly: BotDebugpoly
     var i: Int32
 
-    // Port-note: The file-scope `bot_debugpoly_t *debugpolygons` has no table row, row B3.
-    // Raven wrote: if (!debugpolygons) return 0
-    portMissing("BotImport_DebugPolygonCreate", source: "oracle/codemp/server/sv_bot.cpp:471")
+    if debugpolygons == nil {
+        return 0
+    }
 
     i = 1
     while i < bot_maxdebugpolys {
-        // Port-note: The file-scope `bot_debugpoly_t *debugpolygons` has no table row, row B3.
-        // Raven wrote: if (!debugpolygons[i].inuse) break
-        portMissing("BotImport_DebugPolygonCreate", source: "oracle/codemp/server/sv_bot.cpp:471")
+        if debugpolygons![i].inuse == 0 {
+            break
+        }
         i += 1
     }
     if i >= bot_maxdebugpolys {
         return 0
     }
-    // Port-note: The file-scope `bot_debugpoly_t *debugpolygons` has no table row, row B3.
-    // Raven wrote: poly = &debugpolygons[i]
-    portMissing("BotImport_DebugPolygonCreate", source: "oracle/codemp/server/sv_bot.cpp:471")
-    // Port-note: A read of `poly`, a local of `bot_debugpoly_t`, which has no view, row B3.
-    // Raven wrote: poly->inuse = qtrue
-    portMissing("BotImport_DebugPolygonCreate", source: "oracle/codemp/server/sv_bot.cpp:471")
-    // Port-note: A read of `poly`, a local of `bot_debugpoly_t`, which has no view, row B3.
-    // Raven wrote: poly->color = color
-    portMissing("BotImport_DebugPolygonCreate", source: "oracle/codemp/server/sv_bot.cpp:471")
-    // Port-note: A read of `poly`, a local of `bot_debugpoly_t`, which has no view, row B3.
-    // Raven wrote: poly->numPoints = numPoints
-    portMissing("BotImport_DebugPolygonCreate", source: "oracle/codemp/server/sv_bot.cpp:471")
-    // Port-note: A read of `poly`, a local of `bot_debugpoly_t`, which has no view, row B3.
-    // Raven wrote: Com_Memcpy(poly->points, points, numPoints * sizeof(vec3_t))
-    portMissing("BotImport_DebugPolygonCreate", source: "oracle/codemp/server/sv_bot.cpp:471")
+    poly = debugpolygons![i]
+    poly.inuse = 1
+    poly.color = color
+    poly.numPoints = numPoints
+    Com_Memcpy(poly.points, points, numPoints * Int32(vec3_t.byteCount))
     //
     return i
 }
@@ -493,28 +568,16 @@ BotImport_DebugPolygonShow
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:498
 func BotImport_DebugPolygonShow(_ id: Int32, _ color: Int32, _ numPoints: Int32, _ points: Slots<JKAShared.vec3_t>) {
-    // Port-note: A pointer local `bot_debugpoly_t * poly` with no view, row B3.
-    // Raven wrote: bot_debugpoly_t *poly;
-    portMissing("BotImport_DebugPolygonShow", source: "oracle/codemp/server/sv_bot.cpp:498")
+    let poly: BotDebugpoly
 
-    // Port-note: The file-scope `bot_debugpoly_t *debugpolygons` has no table row, row B3.
-    // Raven wrote: if (!debugpolygons) return
-    portMissing("BotImport_DebugPolygonShow", source: "oracle/codemp/server/sv_bot.cpp:498")
-    // Port-note: The file-scope `bot_debugpoly_t *debugpolygons` has no table row, row B3.
-    // Raven wrote: poly = &debugpolygons[id]
-    portMissing("BotImport_DebugPolygonShow", source: "oracle/codemp/server/sv_bot.cpp:498")
-    // Port-note: A read of `poly`, a local of `bot_debugpoly_t`, which has no view, row B3.
-    // Raven wrote: poly->inuse = qtrue
-    portMissing("BotImport_DebugPolygonShow", source: "oracle/codemp/server/sv_bot.cpp:498")
-    // Port-note: A read of `poly`, a local of `bot_debugpoly_t`, which has no view, row B3.
-    // Raven wrote: poly->color = color
-    portMissing("BotImport_DebugPolygonShow", source: "oracle/codemp/server/sv_bot.cpp:498")
-    // Port-note: A read of `poly`, a local of `bot_debugpoly_t`, which has no view, row B3.
-    // Raven wrote: poly->numPoints = numPoints
-    portMissing("BotImport_DebugPolygonShow", source: "oracle/codemp/server/sv_bot.cpp:498")
-    // Port-note: A read of `poly`, a local of `bot_debugpoly_t`, which has no view, row B3.
-    // Raven wrote: Com_Memcpy(poly->points, points, numPoints * sizeof(vec3_t))
-    portMissing("BotImport_DebugPolygonShow", source: "oracle/codemp/server/sv_bot.cpp:498")
+    if debugpolygons == nil {
+        return
+    }
+    poly = debugpolygons![id]
+    poly.inuse = 1
+    poly.color = color
+    poly.numPoints = numPoints
+    Com_Memcpy(poly.points, points, numPoints * Int32(vec3_t.byteCount))
 }
 
 /**
@@ -526,12 +589,10 @@ BotImport_DebugPolygonDelete
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:514
 func BotImport_DebugPolygonDelete(_ id: Int32) {
-    // Port-note: The file-scope `bot_debugpoly_t *debugpolygons` has no table row, row B3.
-    // Raven wrote: if (!debugpolygons) return
-    portMissing("BotImport_DebugPolygonDelete", source: "oracle/codemp/server/sv_bot.cpp:514")
-    // Port-note: The file-scope `bot_debugpoly_t *debugpolygons` has no table row, row B3.
-    // Raven wrote: debugpolygons[id].inuse = qfalse
-    portMissing("BotImport_DebugPolygonDelete", source: "oracle/codemp/server/sv_bot.cpp:514")
+    if debugpolygons == nil {
+        return
+    }
+    debugpolygons![id].inuse = 0
 }
 
 /**
@@ -544,8 +605,8 @@ BotImport_DebugLineCreate
 /// Source: oracle/codemp/server/sv_bot.cpp:525
 func BotImport_DebugLineCreate() -> Int32 {
     var points = [vec3_t](repeating: vec3_t(), count: 1)
-    // Port-note: The `vec3_t *points` parameter with a count beside it is one `inout vec3_t`, and Raven hands it an array, row B4.
-    // Raven wrote: return BotImport_DebugPolygonCreate(0, 0, points)
+    // Port-note: Row B4. The parameter `points` is a `Slots<vec3_t>`, and the local `vec3_t` array of Raven has no Slots form.
+    // Raven wrote: return BotImport_DebugPolygonCreate(0, 0, points);
     portMissing("BotImport_DebugLineCreate", source: "oracle/codemp/server/sv_bot.cpp:525")
 }
 
@@ -600,8 +661,8 @@ func BotImport_DebugLineShow(_ line: Int32, _ start: JKAShared.vec3_t, _ end: JK
     _VectorMA(points[2], -2, cross, &points[2])
     _VectorMA(points[3], 2, cross, &points[3])
 
-    // Port-note: The `vec3_t *points` parameter with a count beside it is one `inout vec3_t`, and Raven hands it an array, row B4.
-    // Raven wrote: BotImport_DebugPolygonShow(line, color, 4, points)
+    // Port-note: Row B4. The parameter `points` is a `Slots<vec3_t>`, and the local `vec3_t` array of Raven has no Slots form.
+    // Raven wrote: BotImport_DebugPolygonShow(line, color, 4, points);
     portMissing("BotImport_DebugLineShow", source: "oracle/codemp/server/sv_bot.cpp:544")
 }
 
@@ -649,13 +710,12 @@ func SV_BotLibSetup() -> Int32 {
         return 0
     }
 
-    // Port-note: The host has no form for the botlib export table `botlib_export`, row B1.
-    // Raven wrote: if ( !botlib_export ) { Com_Printf( S_COLOR_RED "Error: SV_BotLibSetup without SV_BotInitBotLib\n" ); return -1; }
-    portMissing("SV_BotLibSetup", source: "oracle/codemp/server/sv_bot.cpp:598")
+    if botlib_export == nil {
+        Com_Printf(S_COLOR_RED + "Error: SV_BotLibSetup without SV_BotInitBotLib\n")
+        return -1
+    }
 
-    // Port-note: The host has no form for the botlib export table `botlib_export`, row B1.
-    // Raven wrote: return botlib_export->BotLibSetup()
-    portMissing("SV_BotLibSetup", source: "oracle/codemp/server/sv_bot.cpp:598")
+    return botlib_export!.runBotLibSetup()
 }
 
 /**
@@ -670,13 +730,11 @@ it is changing to a different game directory.
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:619
 func SV_BotLibShutdown() -> Int32 {
-    // Port-note: The host has no form for the botlib export table `botlib_export`, row B1.
-    // Raven wrote: if ( !botlib_export ) { return -1; }
-    portMissing("SV_BotLibShutdown", source: "oracle/codemp/server/sv_bot.cpp:619")
+    if botlib_export == nil {
+        return -1
+    }
 
-    // Port-note: The host has no form for the botlib export table `botlib_export`, row B1.
-    // Raven wrote: return botlib_export->BotLibShutdown()
-    portMissing("SV_BotLibShutdown", source: "oracle/codemp/server/sv_bot.cpp:619")
+    return botlib_export!.runBotLibShutdown()
 }
 
 /**
@@ -739,97 +797,23 @@ SV_BotInitBotLib
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:684
 func SV_BotInitBotLib() {
-    // Port-note: A local `botlib_import_t botlib_import`, the import table of the botlib, has no host type, row B1.
-    // Raven wrote: botlib_import_t botlib_import;
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
+    // Raven's record lives to the end of his block, so the block is the closure.
+    BotlibImport.scratch { botlib_import in
 
-    // Port-note: The file-scope `bot_debugpoly_t *debugpolygons` has no table row, row B3.
-    // Raven wrote: if (debugpolygons) Z_Free(debugpolygons)
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    bot_maxdebugpolys = Cvar_VariableIntegerValue("bot_maxdebugpolys")
-    // Port-note: The file-scope `bot_debugpoly_t *debugpolygons` has no table row, row B3.
-    // Raven wrote: debugpolygons = (struct bot_debugpoly_s *)Z_Malloc(sizeof(bot_debugpoly_t) * bot_maxdebugpolys, TAG_BOTLIB, qtrue)
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
+        if debugpolygons != nil {
+            Z_Free(OpaquePointer(debugpolygons!.base))
+        }
+        bot_maxdebugpolys = Cvar_VariableIntegerValue("bot_maxdebugpolys")
+        debugpolygons = Slots<BotDebugpoly>(Z_Malloc(Int32(BotDebugpoly.byteCount) * bot_maxdebugpolys, TAG_BOTLIB, true), count: bot_maxdebugpolys)
 
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.Print = BotImport_Print
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.Trace = BotImport_Trace
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.EntityTrace = BotImport_EntityTrace
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.PointContents = BotImport_PointContents
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.inPVS = BotImport_inPVS
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.BSPEntityData = BotImport_BSPEntityData
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.BSPModelMinsMaxsOrigin = BotImport_BSPModelMinsMaxsOrigin
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.BotClientCommand = BotClientCommand
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
+        // Port-note: Row B1. No thunk enum of BotlibImport exists for this adopted stem, and Print is variadic, so the stores have no form.
+        // Raven wrote: botlib_import.Print = BotImport_Print; ... the 21 stores of sv_bot.cpp:694 to :724, under //memory management, // file system access, //debug lines, and //debug polygons.
+        portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
 
-    //memory management
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.GetMemory = BotImport_GetMemory
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.FreeMemory = BotImport_FreeMemory
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.AvailableMemory = bot_Z_AvailableMemory
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.HunkAlloc = BotImport_HunkAlloc
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-
-    // file system access
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.FS_FOpenFile = FS_FOpenFileByMode
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.FS_Read = FS_Read2
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.FS_Write = FS_Write
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.FS_FCloseFile = FS_FCloseFile
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.FS_Seek = FS_Seek
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-
-    //debug lines
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.DebugLineCreate = BotImport_DebugLineCreate
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.DebugLineDelete = BotImport_DebugLineDelete
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.DebugLineShow = BotImport_DebugLineShow
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-
-    //debug polygons
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.DebugPolygonCreate = BotImport_DebugPolygonCreate
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.DebugPolygonDelete = BotImport_DebugPolygonDelete
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-
-    // Port-note: The host has no form for the botlib export table `botlib_export` or for `GetBotLibAPI`, row B1.
-    // Raven wrote: botlib_export = (botlib_export_t *)GetBotLibAPI( BOTLIB_API_VERSION, &botlib_import )
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // bk001129 - somehow we end up with a zero import.
+        // AI: Raven passes BOTLIB_API_VERSION of botlib.h:16, which the reexport of the dedicated target does not give. The call passes its value 2.
+        botlib_export = GetBotLibAPI(2, botlib_import)
+        assert(botlib_export != nil) // bk001129 - somehow we end up with a zero import.
+    }
 }
 
 /**
