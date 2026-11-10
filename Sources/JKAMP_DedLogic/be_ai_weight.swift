@@ -69,10 +69,11 @@ func ReadFuzzyWeight(_ source: Source, _ fs: Fuzzyseperator) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:95
-func FreeFuzzySeperators_r(_ fs: Fuzzyseperator) {
-    if fs.child != nil { FreeFuzzySeperators_r(fs.child!) }
-    if fs.next != nil { FreeFuzzySeperators_r(fs.next!) }
-    FreeMemory(fs.handle)
+func FreeFuzzySeperators_r(_ fs: Fuzzyseperator?) {
+    if fs == nil { return }
+    if fs!.child != nil { FreeFuzzySeperators_r(fs!.child) }
+    if fs!.next != nil { FreeFuzzySeperators_r(fs!.next) }
+    FreeMemory(fs!.handle)
 }
 
 //===========================================================================
@@ -87,7 +88,7 @@ func FreeWeightConfig2(_ config: Weightconfig) {
 
     i = 0
     while i < config.numweights {
-        FreeFuzzySeperators_r(config.weights[i].firstseperator!)
+        FreeFuzzySeperators_r(config.weights[i].firstseperator)
         // AI: Raven frees the GetMemory block of the name. The field holds a pooled text, so the free drops.
         i += 1
     }
@@ -126,7 +127,8 @@ func ReadFuzzySeperators_r(_ source: Source) -> Fuzzyseperator? {
         var fs: Fuzzyseperator
 
         if PC_ExpectTokenType(source, TT_NUMBER, TT_INTEGER, token) == 0 { return nil }
-        index = Int32(truncatingIfNeeded: token.intvalue)
+        // C converts the unsigned long to an int.
+        index = Int32(bitPattern: token.intvalue)
         if PC_ExpectTokenString(source, ")") == 0 { return nil }
         if PC_ExpectTokenString(source, "{") == 0 { return nil }
         if PC_ExpectAnyToken(source, token) == 0 { return nil }
@@ -144,39 +146,40 @@ func ReadFuzzySeperators_r(_ source: Source) -> Fuzzyseperator? {
                 if def {
                     if founddefault {
                         SourceError(source, "switch already has a default\n")
-                        FreeFuzzySeperators_r(firstfs!)
+                        FreeFuzzySeperators_r(firstfs)
                         return nil
                     }
                     fs.value = MAX_INVENTORYVALUE
                     founddefault = true
                 } else {
                     if PC_ExpectTokenType(source, TT_NUMBER, TT_INTEGER, token) == 0 {
-                        FreeFuzzySeperators_r(firstfs!)
+                        FreeFuzzySeperators_r(firstfs)
                         return nil
                     }
-                    fs.value = Int32(truncatingIfNeeded: token.intvalue)
+                    // C converts the unsigned long to an int.
+                    fs.value = Int32(bitPattern: token.intvalue)
                 }
                 if PC_ExpectTokenString(source, ":") == 0 || PC_ExpectAnyToken(source, token) == 0 {
-                    FreeFuzzySeperators_r(firstfs!)
+                    FreeFuzzySeperators_r(firstfs)
                     return nil
                 }
                 newindent = false
                 if strcmp(token.string, "{") == 0 {
                     newindent = true
                     if PC_ExpectAnyToken(source, token) == 0 {
-                        FreeFuzzySeperators_r(firstfs!)
+                        FreeFuzzySeperators_r(firstfs)
                         return nil
                     }
                 }
                 if strcmp(token.string, "return") == 0 {
                     if ReadFuzzyWeight(source, fs) == 0 {
-                        FreeFuzzySeperators_r(firstfs!)
+                        FreeFuzzySeperators_r(firstfs)
                         return nil
                     }
                 } else if strcmp(token.string, "switch") == 0 {
                     fs.child = ReadFuzzySeperators_r(source)
                     if fs.child == nil {
-                        FreeFuzzySeperators_r(firstfs!)
+                        FreeFuzzySeperators_r(firstfs)
                         return nil
                     }
                 } else {
@@ -185,19 +188,17 @@ func ReadFuzzySeperators_r(_ source: Source) -> Fuzzyseperator? {
                 }
                 if newindent {
                     if PC_ExpectTokenString(source, "}") == 0 {
-                        FreeFuzzySeperators_r(firstfs!)
+                        FreeFuzzySeperators_r(firstfs)
                         return nil
                     }
                 }
             } else {
-                // Port-note: Raven passes a NULL `firstfs` here when the first name is invalid, and FreeFuzzySeperators_r returns on NULL.
-                // Its parameter is not optional, so the unwrap traps there, row P6 of the bot-ai round.
-                FreeFuzzySeperators_r(firstfs!)
+                FreeFuzzySeperators_r(firstfs)
                 SourceError(source, "invalid name %s\n", token.string)
                 return nil
             }
             if PC_ExpectAnyToken(source, token) == 0 {
-                FreeFuzzySeperators_r(firstfs!)
+                FreeFuzzySeperators_r(firstfs)
                 return nil
             }
         } while strcmp(token.string, "}") != 0
@@ -254,18 +255,14 @@ func ReadWeightConfig(_ filename: inout JKAShared.CharBuf) -> Weightconfig? {
         }
 
         if avail == -1 {
-            // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-            // Raven wrote: botimport.Print( PRT_ERROR, "weightFileList was full trying to load %s\n", filename );
-            portMissing("ReadWeightConfig", source: "oracle/codemp/botlib/be_ai_weight.cpp:262")
+            botimport.runPrint(PRT_ERROR, "weightFileList was full trying to load %s\n", String(filename))
             return nil
         }
     }
 
     PC_SetBaseFolder(BOTFILESBASEFOLDER)
     guard let source = LoadSourceFile(String(filename)) else {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_ERROR, "counldn't load %s\n", filename);
-        portMissing("ReadWeightConfig", source: "oracle/codemp/botlib/be_ai_weight.cpp:262")
+        botimport.runPrint(PRT_ERROR, "counldn't load %s\n", String(filename))
         return nil
     }
     //
@@ -353,9 +350,7 @@ func ReadWeightConfig(_ filename: inout JKAShared.CharBuf) -> Weightconfig? {
     //free the source at the end of a pass
     FreeSource(source)
     //if the file was located in a pak file
-    // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-    // Raven wrote: botimport.Print(PRT_MESSAGE, "loaded %s\n", filename);
-    portMissing("ReadWeightConfig", source: "oracle/codemp/botlib/be_ai_weight.cpp:262")
+    botimport.runPrint(PRT_MESSAGE, "loaded %s\n", String(filename))
     //
     if LibVarGetValue("bot_reloadcharacters") == 0 {
         weightFileList[avail] = config
@@ -471,10 +466,8 @@ func FuzzyWeightUndecided_r(_ inventory: Slots<Int32>, _ fs: Fuzzyseperator) -> 
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:627
-// Port-note: The `int *inventory` crosses as one `inout Int32`, and the body hands it to a `Slots<Int32>` parameter, row P4 of the bot-ai round (docket D16).
-func FuzzyWeight(_ inventory: inout Int32, _ wc: Weightconfig, _ weightnum: Int32) -> Float {
-    // TODO: Port FuzzyWeight
-    portMissing("FuzzyWeight", source: "oracle/codemp/botlib/be_ai_weight.cpp:627")
+func FuzzyWeight(_ inventory: Slots<Int32>, _ wc: Weightconfig, _ weightnum: Int32) -> Float {
+    return FuzzyWeight_r(inventory, wc.weights[weightnum].firstseperator!)
 }
 
 //===========================================================================
@@ -484,10 +477,8 @@ func FuzzyWeight(_ inventory: inout Int32, _ wc: Weightconfig, _ weightnum: Int3
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:658
-// Port-note: The `int *inventory` crosses as one `inout Int32`, and the body hands it to a `Slots<Int32>` parameter, row P4 of the bot-ai round (docket D16).
-func FuzzyWeightUndecided(_ inventory: inout Int32, _ wc: Weightconfig, _ weightnum: Int32) -> Float {
-    // TODO: Port FuzzyWeightUndecided
-    portMissing("FuzzyWeightUndecided", source: "oracle/codemp/botlib/be_ai_weight.cpp:658")
+func FuzzyWeightUndecided(_ inventory: Slots<Int32>, _ wc: Weightconfig, _ weightnum: Int32) -> Float {
+    return FuzzyWeightUndecided_r(inventory, wc.weights[weightnum].firstseperator!)
 }
 
 //===========================================================================
@@ -502,9 +493,11 @@ func EvolveFuzzySeperator_r(_ fs: Fuzzyseperator) {
         EvolveFuzzySeperator_r(fs.child!)
     } else if fs.type == WT_BALANCE {
         //every once in a while an evolution leap occurs, mutation
-        // Port-note: The dedicated logic target has no `crandom` of q_shared.h, row P7 of the bot-ai round.
-        // Raven wrote: if (random() < 0.01) fs->weight += crandom() * (fs->maxweight - fs->minweight); else fs->weight += crandom() * (fs->maxweight - fs->minweight) * 0.5;
-        portMissing("EvolveFuzzySeperator_r", source: "oracle/codemp/botlib/be_ai_weight.cpp:689")
+        if Double(random()) < 0.01 {
+            fs.weight = Float(Double(fs.weight) + crandom() * Double(fs.maxweight - fs.minweight))
+        } else {
+            fs.weight = Float(Double(fs.weight) + crandom() * Double(fs.maxweight - fs.minweight) * 0.5)
+        }
         //modify bounds if necesary because of mutation
         if fs.weight < fs.minweight {
             fs.minweight = fs.weight
@@ -636,9 +629,7 @@ func ScaleFuzzyBalanceRange(_ config: Weightconfig, _ scale: Float) {
 func InterbreedFuzzySeperator_r(_ fs1: Fuzzyseperator, _ fs2: Fuzzyseperator, _ fsout: Fuzzyseperator) -> Int32 {
     if fs1.child != nil {
         if fs2.child == nil || fsout.child == nil {
-            // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-            // Raven wrote: botimport.Print(PRT_ERROR, "cannot interbreed weight configs, unequal child\n");
-            portMissing("InterbreedFuzzySeperator_r", source: "oracle/codemp/botlib/be_ai_weight.cpp:812")
+            botimport.runPrint(PRT_ERROR, "cannot interbreed weight configs, unequal child\n")
             return 0
         }
         if InterbreedFuzzySeperator_r(fs2.child!, fs2.child!, fsout.child!) == 0 {
@@ -646,9 +637,7 @@ func InterbreedFuzzySeperator_r(_ fs1: Fuzzyseperator, _ fs2: Fuzzyseperator, _ 
         }
     } else if fs1.type == WT_BALANCE {
         if fs2.type != WT_BALANCE || fsout.type != WT_BALANCE {
-            // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-            // Raven wrote: botimport.Print(PRT_ERROR, "cannot interbreed weight configs, unequal balance\n");
-            portMissing("InterbreedFuzzySeperator_r", source: "oracle/codemp/botlib/be_ai_weight.cpp:812")
+            botimport.runPrint(PRT_ERROR, "cannot interbreed weight configs, unequal balance\n")
             return 0
         }
         fsout.weight = (fs1.weight + fs2.weight) / 2
@@ -657,9 +646,7 @@ func InterbreedFuzzySeperator_r(_ fs1: Fuzzyseperator, _ fs2: Fuzzyseperator, _ 
     }
     if fs1.next != nil {
         if fs2.next == nil || fsout.next == nil {
-            // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-            // Raven wrote: botimport.Print(PRT_ERROR, "cannot interbreed weight configs, unequal next\n");
-            portMissing("InterbreedFuzzySeperator_r", source: "oracle/codemp/botlib/be_ai_weight.cpp:812")
+            botimport.runPrint(PRT_ERROR, "cannot interbreed weight configs, unequal next\n")
             return 0
         }
         if InterbreedFuzzySeperator_r(fs1.next!, fs2.next!, fsout.next!) == 0 {
@@ -682,9 +669,7 @@ func InterbreedWeightConfigs(_ config1: Weightconfig, _ config2: Weightconfig, _
 
     if config1.numweights != config2.numweights ||
         config1.numweights != configout.numweights {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_ERROR, "cannot interbreed weight configs, unequal numweights\n");
-        portMissing("InterbreedWeightConfigs", source: "oracle/codemp/botlib/be_ai_weight.cpp:859")
+        botimport.runPrint(PRT_ERROR, "cannot interbreed weight configs, unequal numweights\n")
         return
     }
     i = 0

@@ -27,8 +27,7 @@ func AAS_UpdateEntity(_ entnum: Int32, _ state: BotEntitystate) -> Int32 {
     var absmins = vec3_t(), absmaxs = vec3_t()
 
     if aasworld.loaded == 0 {
-        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_entity.cpp:54")
+        botimport.runPrint(PRT_MESSAGE, "AAS_UpdateEntity: not loaded\n")
         return BLERR_NOAASFILE
     } //end if
 
@@ -67,7 +66,9 @@ func AAS_UpdateEntity(_ entnum: Int32, _ state: BotEntitystate) -> Int32 {
         } //end if
         //get the mins and maxs of the model
         //FIXME: rotate mins and maxs
-        AAS_BSPModelMinsMaxsOrigin(ent.i.modelindex, ent.i.angles, ent.i.mins, ent.i.maxs, nil)
+        // Raven passes NULL for the `origin` output, and the scratch local takes the write.
+        var scratchOrigin = vec3_t()
+        AAS_BSPModelMinsMaxsOrigin(ent.i.modelindex, ent.i.angles, &ent.i.mins, &ent.i.maxs, &scratchOrigin)
     } //end if
     else if ent.i.solid == SOLID_BBOX {
         //if the bounding box size changed
@@ -92,13 +93,11 @@ func AAS_UpdateEntity(_ entnum: Int32, _ state: BotEntitystate) -> Int32 {
             absmins = ent.i.mins + ent.i.origin
             absmaxs = ent.i.maxs + ent.i.origin
             //unlink the entity
-            // Port-note: AAS_UnlinkFromAreas takes a value, and Raven passes `ent->areas`, which can be NULL here, row of the NULL sweep.
-            portMissing("AAS_UnlinkFromAreas", source: "oracle/codemp/botlib/be_aas_entity.cpp:137")
+            AAS_UnlinkFromAreas(ent.areas)
             //relink the entity to the AAS areas (use the larges bbox)
             ent.areas = AAS_LinkEntityClientBBox(absmins, absmaxs, entnum, PRESENCE_NORMAL)
             //unlink the entity from the BSP leaves
-            // Port-note: AAS_UnlinkFromBSPLeaves takes a value, and Raven passes `ent->leaves`, which can be NULL here, row of the NULL sweep.
-            portMissing("AAS_UnlinkFromBSPLeaves", source: "oracle/codemp/botlib/be_aas_entity.cpp:141")
+            AAS_UnlinkFromBSPLeaves(ent.leaves)
             //link the entity to the world BSP tree
             ent.leaves = AAS_BSPLinkEntity(absmins, absmaxs, entnum, 0)
         } //end if
@@ -115,15 +114,13 @@ func AAS_UpdateEntity(_ entnum: Int32, _ state: BotEntitystate) -> Int32 {
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:154
 func AAS_EntityInfo(_ entnum: Int32, _ info: AasEntityinfo) {
     if aasworld.initialized == 0 {
-        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_entity.cpp:158")
+        botimport.runPrint(PRT_FATAL, "AAS_EntityInfo: aasworld not initialized\n")
         info.clear()
         return
     } //end if
 
     if entnum < 0 || entnum >= aasworld.maxentities {
-        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_entity.cpp:165")
+        botimport.runPrint(PRT_FATAL, "AAS_EntityInfo: entnum %d out of range\n", entnum)
         info.clear()
         return
     } //end if
@@ -153,8 +150,7 @@ func AAS_EntityOrigin(_ entnum: Int32, _ origin: inout JKAShared.vec3_t) {
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:195
 func AAS_EntityModelindex(_ entnum: Int32) -> Int32 {
     if entnum < 0 || entnum >= aasworld.maxentities {
-        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_entity.cpp:199")
+        botimport.runPrint(PRT_FATAL, "AAS_EntityModelindex: entnum %d out of range\n", entnum)
         return 0
     } //end if
     return aasworld.entitiesSlots[entnum].i.modelindex
@@ -171,8 +167,7 @@ func AAS_EntityType(_ entnum: Int32) -> Int32 {
     if aasworld.initialized == 0 { return 0 }
 
     if entnum < 0 || entnum >= aasworld.maxentities {
-        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_entity.cpp:216")
+        botimport.runPrint(PRT_FATAL, "AAS_EntityType: entnum %d out of range\n", entnum)
         return 0
     } //end if
     return aasworld.entitiesSlots[entnum].i.type
@@ -189,8 +184,7 @@ func AAS_EntityModelNum(_ entnum: Int32) -> Int32 {
     if aasworld.initialized == 0 { return 0 }
 
     if entnum < 0 || entnum >= aasworld.maxentities {
-        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_entity.cpp:233")
+        botimport.runPrint(PRT_FATAL, "AAS_EntityModelNum: entnum %d out of range\n", entnum)
         return 0
     } //end if
     return aasworld.entitiesSlots[entnum].i.modelindex
@@ -296,11 +290,9 @@ func AAS_UnlinkInvalidEntities() {
     while i < aasworld.maxentities {
         ent = aasworld.entitiesSlots[i]
         if ent.i.valid == 0 {
-            // Port-note: AAS_UnlinkFromAreas takes a value, and Raven passes `ent->areas`, which can be NULL here, row of the NULL sweep.
-            portMissing("AAS_UnlinkFromAreas", source: "oracle/codemp/botlib/be_aas_entity.cpp:349")
+            AAS_UnlinkFromAreas(ent.areas)
             ent.areas = nil
-            // Port-note: AAS_UnlinkFromBSPLeaves takes a value, and Raven passes `ent->leaves`, which can be NULL here, row of the NULL sweep.
-            portMissing("AAS_UnlinkFromBSPLeaves", source: "oracle/codemp/botlib/be_aas_entity.cpp:351")
+            AAS_UnlinkFromBSPLeaves(ent.leaves)
             ent.leaves = nil
         } //end for
         i += 1

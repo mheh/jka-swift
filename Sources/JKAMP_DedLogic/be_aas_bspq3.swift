@@ -19,13 +19,18 @@ var bspworld: Bsp { world.storage.bspworld }
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
+/// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:132
+// AI: Raven declares `bsptrace` on the stack of AAS_Trace. The function uses one zeroed allocation on the storage class.
+var bsptrace_AAS_Trace: BspTrace { world.storage.bsptrace_AAS_Trace }
+
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:130
-// TODO: Port signature
-// Raven wrote: bsp_trace_t AAS_Trace(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask)
-// No table row for the return `bsp_trace_t`.
-func AAS_Trace() -> Never {
-    // TODO: Port AAS_Trace
-    portMissing("AAS_Trace", source: "oracle/codemp/botlib/be_aas_bspq3.cpp:130")
+func AAS_Trace(_ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ end: JKAShared.vec3_t, _ passent: Int32, _ contentmask: Int32) -> BspTrace {
+    let bsptrace = bsptrace_AAS_Trace
+    // The engine only reads the four vectors, at sv_bot.cpp:312, so the copies are behavior-equal.
+    // SV_Trace reads a NULL `mins` or `maxs` as the zero vector, so a scratch zero vector stands for NULL.
+    var start = start, mins = mins ?? vec3_t(), maxs = maxs ?? vec3_t(), end = end
+    botimport.runTrace(bsptrace, &start, &mins, &maxs, &end, passent, contentmask)
+    return bsptrace
 }
 
 //===========================================================================
@@ -97,10 +102,10 @@ func AAS_inPHS(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:195
-func AAS_BSPModelMinsMaxsOrigin(_ modelnum: Int32, _ angles: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ origin: JKAShared.vec3_t?) {
-    // Port-note: Raven's body writes mins, maxs, and origin through botimport, and the signature takes mins and maxs by value, so the writes have no way back.
-    // TODO: Port AAS_BSPModelMinsMaxsOrigin
-    portMissing("AAS_BSPModelMinsMaxsOrigin", source: "oracle/codemp/botlib/be_aas_bspq3.cpp:195")
+func AAS_BSPModelMinsMaxsOrigin(_ modelnum: Int32, _ angles: JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ origin: inout JKAShared.vec3_t) {
+    // The engine only reads the angles, at sv_bot.cpp:396, so the copy is behavior-equal.
+    var angles = angles
+    botimport.runBSPModelMinsMaxsOrigin(modelnum, &angles, &mins, &maxs, &origin)
 }
 
 //===========================================================================
@@ -111,7 +116,7 @@ func AAS_BSPModelMinsMaxsOrigin(_ modelnum: Int32, _ angles: JKAShared.vec3_t, _
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:206
-func AAS_UnlinkFromBSPLeaves(_ leaves: BspLink) {
+func AAS_UnlinkFromBSPLeaves(_ leaves: BspLink?) {
 }
 
 //===========================================================================
@@ -161,8 +166,7 @@ func AAS_NextBSPEntity(_ ent: Int32) -> Int32 {
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:247
 func AAS_BSPEntityInRange(_ ent: Int32) -> Int32 {
     if ent <= 0 || ent >= bspworld.numentities {
-        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_bspq3.cpp:251")
+        botimport.runPrint(PRT_MESSAGE, "bsp entity out of range\n")
         return 0
     } //end if
     return 1
@@ -209,8 +213,7 @@ func AAS_VectorForBSPEpairKey(_ ent: Int32, _ key: String, _ v: inout JKAShared.
     v1 = 0
     v2 = 0
     v3 = 0
-    // Port-note: sscanf has no overload that reads "%lf %lf %lf" into three doubles.
-    portMissing("sscanf", source: "oracle/codemp/botlib/be_aas_bspq3.cpp:294")
+    sscanf(buf, "%lf %lf %lf", &v1, &v2, &v3)
     v[0] = Float(v1)
     v[1] = Float(v2)
     v[2] = Float(v3)
@@ -304,8 +307,7 @@ func AAS_ParseBSPEntities() {
                 return
             } //end if
             if bspworld.numentities >= MAX_BSPENTITIES {
-                // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_bspq3.cpp:385")
+                botimport.runPrint(PRT_MESSAGE, "too many entities in BSP file\n")
                 break
             } //end if
             ent = bspworld.entities[bspworld.numentities]
@@ -313,7 +315,7 @@ func AAS_ParseBSPEntities() {
             ent.epairs = nil
             while PS_ReadToken(script, token) != 0 {
                 if strcmp(token.string, "}") == 0 { break }
-                epair = BspEpair(GetClearedHunkMemory(UInt32(BspEpair.byteCount)))
+                epair = BspEpair(GetClearedHunkMemory(Int32(BspEpair.byteCount)))
                 epair.next = ent.epairs
                 ent.epairs = epair
                 if token.type != TT_STRING {
@@ -324,7 +326,7 @@ func AAS_ParseBSPEntities() {
                 } //end if
                 StripDoubleQuotes(&token.stringBuffer)
                 // AI: Raven copies the text into the GetHunkMemory block. The call stays for the hunk count, and the field takes the text.
-                _ = GetHunkMemory(UInt32(strlen(token.string) + 1))
+                _ = GetHunkMemory(strlen(token.string) + 1)
                 epair.key = token.string
                 if PS_ExpectTokenType(script, TT_STRING, 0, token) == 0 {
                     AAS_FreeBSPEntities()
@@ -333,7 +335,7 @@ func AAS_ParseBSPEntities() {
                 } //end if
                 StripDoubleQuotes(&token.stringBuffer)
                 // AI: Raven copies the text into the GetHunkMemory block. The call stays for the hunk count, and the field takes the text.
-                _ = GetHunkMemory(UInt32(strlen(token.string) + 1))
+                _ = GetHunkMemory(strlen(token.string) + 1)
                 epair.value = token.string
             } //end while
             if strcmp(token.string, "}") != 0 {
@@ -390,7 +392,7 @@ func AAS_LoadBSPFile() -> Int32 {
     AAS_DumpBSPData()
     bspworld.entdatasize = strlen(botimport.runBSPEntityData()!) + 1
     // AI: Raven copies the entity text into the GetClearedHunkMemory block. The call stays for the hunk count, and the field takes the text.
-    _ = GetClearedHunkMemory(UInt32(bspworld.entdatasize))
+    _ = GetClearedHunkMemory(bspworld.entdatasize)
     bspworld.dentdata = botimport.runBSPEntityData()
     AAS_ParseBSPEntities()
     bspworld.loaded = 1

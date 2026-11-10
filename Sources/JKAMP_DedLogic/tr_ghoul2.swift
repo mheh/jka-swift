@@ -137,6 +137,34 @@ private let DEBUG_G2_TIMING = (0) as Int32
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1165
 let DEBUG_G2_TIMING_RENDER_ONLY = (1) as Int32
 
+/// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1544
+// AI: Raven declares `tbone` static in G2_TransformBone. The function uses one zeroed allocation on the storage class.
+var tbone_G2_TransformBone: Slots<JKAMP.MdxaBone> { world.storage.tbone_G2_TransformBone }
+
+/// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1549
+var skel: MdxaSkel? {
+    get { world.skel }
+    set { world.skel = newValue }
+}
+
+/// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1550
+var offsets: MdxaSkelOffsets? {
+    get { world.offsets }
+    set { world.offsets = newValue }
+}
+
+/// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1552
+var j_G2_TransformBone: Int32 {
+    get { world.j_G2_TransformBone }
+    set { world.j_G2_TransformBone = newValue }
+}
+
+/// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1552
+var boneListIndex: Int32 {
+    get { world.boneListIndex }
+    set { world.boneListIndex = newValue }
+}
+
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2071
 private let GHOUL2_RAG_STARTED = 0x0010 as Int32
 
@@ -523,20 +551,20 @@ func Multiply_3x4Matrix(_ out: JKAMP.MdxaBone, _ in2: JKAMP.MdxaBone, _ `in`: JK
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1148
 private func G2_GetBonePoolIndex(_ pMDXAHeader: MdxaHeader, _ iFrame: Int32, _ iBone: Int32) -> Int32 {
-    // Port-note: Raven casts the bytes at `ofsFrames` of the header to `mdxaIndex_t` of mdx_format.h:410, and the host target has no view of that record.
-    // TODO: Port G2_GetBonePoolIndex
-    portMissing("G2_GetBonePoolIndex", source: "oracle/codemp/renderer/tr_ghoul2.cpp:1148")
+    let iOffsetToIndex: Int32 = (iFrame * pMDXAHeader.numBones * 3) + (iBone * 3)
+
+    let pIndex = MdxaIndex(pMDXAHeader, byteOffset: pMDXAHeader.ofsFrames + iOffsetToIndex)
+
+    return pIndex.iIndex & 0x00FFFFFF	// this will cause problems for big-endian machines... ;-)
 }
 
+/*static inline*/
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1158
-// TODO: Port signature
-// Raven wrote: void UnCompressBone(float mat[3][4], int iBoneIndex, const mdxaHeader_t *pMDXAHeader, int iFrame)
-// No table row for `float[3][4] mat`.
-// Port-note: Every caller passes the `matrix` of an `mdxaBone_t` that the body writes, and the store gives `[[Float]]` by value, which cannot carry the write back.
-// Port-note: The body calls MC_UnCompressQuat of renderer/matcomp.c, which has no Swift stub in the host target, and reads `mdxaCompQuatBone_t`, which has no view.
-func UnCompressBone() -> Never {
-    // TODO: Port UnCompressBone
-    portMissing("UnCompressBone", source: "oracle/codemp/renderer/tr_ghoul2.cpp:1158")
+func UnCompressBone(_ mat: JKAMP.MdxaBone?, _ iBoneIndex: Int32, _ pMDXAHeader: MdxaHeader, _ iFrame: Int32) {
+    // AI: Raven indexes the record pointer at `ofsCompBonePool` of the header.
+    // The element is the view at that offset plus the pool index times the record size.
+    let pCompBonePool = MdxaCompQuatBone(pMDXAHeader, byteOffset: pMDXAHeader.ofsCompBonePool + G2_GetBonePoolIndex(pMDXAHeader, iFrame, iBoneIndex) * Int32(MdxaCompQuatBone.byteCount))
+    MC_UnCompressQuat(mat, pCompBonePool.Comp)
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1167
@@ -696,17 +724,494 @@ func G2_TimingModel(_ bone: boneInfo_t, _ currentTime: Int32, _ numFramesInFile:
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1417
 func G2_RagGetAnimMatrix(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ matrix: JKAMP.MdxaBone, _ frame: Int32) {
-    // Port-note: The body calls UnCompressBone, which keeps its signature marker and its Port-notes.
-    // TODO: Port G2_RagGetAnimMatrix
-    portMissing("G2_RagGetAnimMatrix", source: "oracle/codemp/renderer/tr_ghoul2.cpp:1417")
+    MdxaBone.scratch { animMatrix in
+        let skel: MdxaSkel
+        let pskel: MdxaSkel
+        let offsets: MdxaSkelOffsets
+        let parent: Int32
+        var bListIndex: Int32
+        var parentBlistIndex: Int32
+
+        assert(ghoul2.mBoneCache != nil)
+        assert(ghoul2.animModel != nil)
+
+        offsets = MdxaSkelOffsets(ghoul2.mBoneCache!.header!, byteOffset: MdxaHeader.byteCount)
+        skel = MdxaSkel(ghoul2.mBoneCache!.header!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[boneNum])
+
+        //find/add the bone in the list
+        // Raven tests `!skel->name` and `!skel->name[0]`.
+        // Both read as the same Swift test, so the draft writes it once.
+        if skel.name.isEmpty {
+            bListIndex = -1
+        } else {
+            bListIndex = G2_Find_Bone(ghoul2.animModel!, &ghoul2.mBlist, skel.name)
+            if bListIndex == -1 {
+                bListIndex = G2_Add_Bone(ghoul2.animModel!, &ghoul2.mBlist, skel.name)
+            }
+        }
+
+        assert(bListIndex != -1)
+
+        let bone = ghoul2.mBlist[bListIndex]
+
+        if bone.hasAnimFrameMatrix == frame { //already calculated so just grab it
+            matrix.copy(from: bone.animFrameMatrix)
+            return
+        }
+
+        //get the base matrix for the specified frame
+        UnCompressBone(animMatrix, boneNum, ghoul2.mBoneCache!.header!, frame)
+
+        parent = skel.parent
+        if boneNum > 0 && parent > -1 {
+            //recursively call to assure all parent matrices are set up
+            G2_RagGetAnimMatrix(ghoul2, parent, matrix, frame)
+
+            //assign the new skel ptr for our parent
+            pskel = MdxaSkel(ghoul2.mBoneCache!.header!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[parent])
+
+            //taking bone matrix for the skeleton frame and parent's animFrameMatrix into account, determine our final animFrameMatrix
+            // Raven tests `!pskel->name` and `!pskel->name[0]`.
+            // Both read as the same Swift test, so the draft writes it once.
+            if pskel.name.isEmpty {
+                parentBlistIndex = -1
+            } else {
+                parentBlistIndex = G2_Find_Bone(ghoul2.animModel!, &ghoul2.mBlist, pskel.name)
+                if parentBlistIndex == -1 {
+                    parentBlistIndex = G2_Add_Bone(ghoul2.animModel!, &ghoul2.mBlist, pskel.name)
+                }
+            }
+
+            assert(parentBlistIndex != -1)
+
+            let pbone = ghoul2.mBlist[parentBlistIndex]
+
+            assert(pbone.hasAnimFrameMatrix == frame) //this should have been calc'd in the recursive call
+
+            Multiply_3x4Matrix(bone.animFrameMatrix, pbone.animFrameMatrix, animMatrix)
+        } else { //root
+            Multiply_3x4Matrix(bone.animFrameMatrix, ghoul2.mBoneCache!.rootMatrix, animMatrix)
+            //bone.animFrameMatrix = ghoul2.mBoneCache->mFinalBones[boneNum].boneMatrix;
+            //Maybe use this for the root, so that the orientation is in sync with the current
+            //root matrix? However this would require constant recalculation of this base
+            //skeleton which I currently do not want.
+        }
+
+        //never need to figure it out again
+        bone.hasAnimFrameMatrix = frame
+
+        matrix.copy(from: bone.animFrameMatrix)
+    }
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1541
 func G2_TransformBone(_ child: Int32, _ BC: CBoneCache) {
-    // Port-note: The body calls UnCompressBone, which keeps its signature marker and its Port-notes.
-    // Port-note: Raven's static locals `tbone[6]`, `skel`, `offsets`, `j`, and `boneListIndex` have no storage, and the body reads `tbone` as Raven left it.
-    // TODO: Port G2_TransformBone
-    portMissing("G2_TransformBone", source: "oracle/codemp/renderer/tr_ghoul2.cpp:1541")
+    // Raven's static locals `tbone` and `j` are `tbone_G2_TransformBone` and `j_G2_TransformBone`, because other functions of the file have a static `j`.
+    let TB = BC.mBones[child]
+// 	mdxaFrame_t		*aFrame=0;
+//	mdxaFrame_t		*bFrame=0;
+//	mdxaFrame_t		*aoldFrame=0;
+//	mdxaFrame_t		*boldFrame=0;
+    // Raven's `boneList` is a reference to the list of the cache, and the body only reads it.
+    var boneList = BC.rootBoneList
+    var angleOverride: Int32 = 0
+
+    // should this bone be overridden by a bone in the bone list?
+    boneListIndex = G2_Find_Bone_In_List(&boneList, child)
+    if boneListIndex != -1 {
+        // we found a bone in the list - we need to override something here.
+
+        // do we override the rotational angles?
+        if ((boneList[boneListIndex].flags) & (BONE_ANGLES_TOTAL)) != 0 {
+            angleOverride = (boneList[boneListIndex].flags) & (BONE_ANGLES_TOTAL)
+        }
+
+        // set blending stuff if we need to
+        if (boneList[boneListIndex].flags & BONE_ANIM_BLEND) != 0 {
+            let blendTime = Float(BC.incomingTime - boneList[boneListIndex].blendStart)
+            // only set up the blend anim if we actually have some blend time left on this bone anim - otherwise we might corrupt some blend higher up the hiearchy
+            if blendTime >= 0.0 && blendTime < boneList[boneListIndex].blendTime {
+                TB.blendFrame = boneList[boneListIndex].blendFrame
+                TB.blendOldFrame = boneList[boneListIndex].blendLerpFrame
+                TB.blendLerp = (blendTime / boneList[boneListIndex].blendTime)
+                TB.blendMode = true
+            } else {
+                TB.blendMode = false
+            }
+        } else if /*r_Ghoul2NoBlend->integer||*/((boneList[boneListIndex].flags) & (BONE_ANIM_OVERRIDE_LOOP | BONE_ANIM_OVERRIDE)) != 0 {
+            // turn off blending if we are just doing a straing animation override
+            TB.blendMode = false
+        }
+
+        // should this animation be overridden by an animation in the bone list?
+        if ((boneList[boneListIndex].flags) & (BONE_ANIM_OVERRIDE_LOOP | BONE_ANIM_OVERRIDE)) != 0 {
+            G2_TimingModel(boneList[boneListIndex], BC.incomingTime, BC.header!.numFrames, &TB.currentFrame, &TB.newFrame, &TB.backlerp)
+        }
+        /*
+        if ((r_Ghoul2NoLerp->integer)||((boneList[boneListIndex].flags) & (BONE_ANIM_NO_LERP)))
+        {
+            TB.backlerp = 0.0f;
+        }
+        */
+        //rwwFIXMEFIXME: Use?
+    }
+    // figure out where the location of the bone animation data is
+    assert(TB.newFrame >= 0 && TB.newFrame < BC.header!.numFrames)
+    if !(TB.newFrame >= 0 && TB.newFrame < BC.header!.numFrames) {
+        TB.newFrame = 0
+    }
+//	aFrame = (mdxaFrame_t *)((byte *)BC.header + BC.header->ofsFrames + TB.newFrame * BC.frameSize );
+    assert(TB.currentFrame >= 0 && TB.currentFrame < BC.header!.numFrames)
+    if !(TB.currentFrame >= 0 && TB.currentFrame < BC.header!.numFrames) {
+        TB.currentFrame = 0
+    }
+//	aoldFrame = (mdxaFrame_t *)((byte *)BC.header + BC.header->ofsFrames + TB.currentFrame * BC.frameSize );
+
+    // figure out where the location of the blended animation data is
+    assert(!(TB.blendFrame < 0.0 || TB.blendFrame >= (BC.header!.numFrames + 1)))
+    if TB.blendFrame < 0.0 || TB.blendFrame >= (BC.header!.numFrames + 1) {
+        TB.blendFrame = 0.0
+    }
+//	bFrame = (mdxaFrame_t *)((byte *)BC.header + BC.header->ofsFrames + (int)TB.blendFrame * BC.frameSize );
+    assert(TB.blendOldFrame >= 0 && TB.blendOldFrame < BC.header!.numFrames)
+    if !(TB.blendOldFrame >= 0 && TB.blendOldFrame < BC.header!.numFrames) {
+        TB.blendOldFrame = 0
+    }
+//	boldFrame = (mdxaFrame_t *)((byte *)BC.header + BC.header->ofsFrames + TB.blendOldFrame * BC.frameSize );
+
+//	mdxaCompBone_t	*compBonePointer = (mdxaCompBone_t *)((byte *)BC.header + BC.header->ofsCompBonePool);
+
+    assert(child >= 0 && child < BC.header!.numBones)
+//	assert(bFrame->boneIndexes[child]>=0);
+//	assert(boldFrame->boneIndexes[child]>=0);
+//	assert(aFrame->boneIndexes[child]>=0);
+//	assert(aoldFrame->boneIndexes[child]>=0);
+
+    // decide where the transformed bone is going
+
+    // AI: Raven casts each record to a float pointer and indexes its 12 floats.
+    // Each loop reads and writes the float at byte offset `j * 4` of the record bytes, the form of the record casts of msg.cpp.
+
+    // are we blending with another frame of anim?
+    if TB.blendMode {
+        let backlerp: Float = TB.blendFrame - Int32(TB.blendFrame)
+        let frontlerp: Float = 1.0 - backlerp
+
+// 		MC_UnCompress(tbone[3].matrix,compBonePointer[bFrame->boneIndexes[child]].Comp);
+// 		MC_UnCompress(tbone[4].matrix,compBonePointer[boldFrame->boneIndexes[child]].Comp);
+        UnCompressBone(tbone_G2_TransformBone[3], child, BC.header!, Int32(TB.blendFrame))
+        UnCompressBone(tbone_G2_TransformBone[4], child, BC.header!, TB.blendOldFrame)
+
+        j_G2_TransformBone = 0
+        while j_G2_TransformBone < 12 {
+            Slots(record: tbone_G2_TransformBone[5]).bytes[float: j_G2_TransformBone * 4] =
+                (backlerp * Slots(record: tbone_G2_TransformBone[3]).bytes[float: j_G2_TransformBone * 4])
+                + (frontlerp * Slots(record: tbone_G2_TransformBone[4]).bytes[float: j_G2_TransformBone * 4])
+            j_G2_TransformBone += 1
+        }
+    }
+
+    //
+    // lerp this bone - use the temp space on the ref entity to put the bone transforms into
+    //
+    if TB.backlerp == 0 {
+// 		MC_UnCompress(tbone[2].matrix,compBonePointer[aoldFrame->boneIndexes[child]].Comp);
+        UnCompressBone(tbone_G2_TransformBone[2], child, BC.header!, TB.currentFrame)
+
+        // blend in the other frame if we need to
+        if TB.blendMode {
+            let blendFrontlerp: Float = 1.0 - TB.blendLerp
+            j_G2_TransformBone = 0
+            while j_G2_TransformBone < 12 {
+                Slots(record: tbone_G2_TransformBone[2]).bytes[float: j_G2_TransformBone * 4] =
+                    (TB.blendLerp * Slots(record: tbone_G2_TransformBone[2]).bytes[float: j_G2_TransformBone * 4])
+                    + (blendFrontlerp * Slots(record: tbone_G2_TransformBone[5]).bytes[float: j_G2_TransformBone * 4])
+                j_G2_TransformBone += 1
+            }
+        }
+
+        if child == 0 {
+            // now multiply by the root matrix, so we can offset this model should we need to
+            Multiply_3x4Matrix(BC.mFinalBones[child].boneMatrix, BC.rootMatrix, tbone_G2_TransformBone[2])
+        }
+    } else {
+        let frontlerp: Float = 1.0 - TB.backlerp
+// 		MC_UnCompress(tbone[0].matrix,compBonePointer[aFrame->boneIndexes[child]].Comp);
+//		MC_UnCompress(tbone[1].matrix,compBonePointer[aoldFrame->boneIndexes[child]].Comp);
+        UnCompressBone(tbone_G2_TransformBone[0], child, BC.header!, TB.newFrame)
+        UnCompressBone(tbone_G2_TransformBone[1], child, BC.header!, TB.currentFrame)
+
+        j_G2_TransformBone = 0
+        while j_G2_TransformBone < 12 {
+            Slots(record: tbone_G2_TransformBone[2]).bytes[float: j_G2_TransformBone * 4] =
+                (TB.backlerp * Slots(record: tbone_G2_TransformBone[0]).bytes[float: j_G2_TransformBone * 4])
+                + (frontlerp * Slots(record: tbone_G2_TransformBone[1]).bytes[float: j_G2_TransformBone * 4])
+            j_G2_TransformBone += 1
+        }
+
+        // blend in the other frame if we need to
+        if TB.blendMode {
+            let blendFrontlerp: Float = 1.0 - TB.blendLerp
+            j_G2_TransformBone = 0
+            while j_G2_TransformBone < 12 {
+                Slots(record: tbone_G2_TransformBone[2]).bytes[float: j_G2_TransformBone * 4] =
+                    (TB.blendLerp * Slots(record: tbone_G2_TransformBone[2]).bytes[float: j_G2_TransformBone * 4])
+                    + (blendFrontlerp * Slots(record: tbone_G2_TransformBone[5]).bytes[float: j_G2_TransformBone * 4])
+                j_G2_TransformBone += 1
+            }
+        }
+
+        if child == 0 {
+            // now multiply by the root matrix, so we can offset this model should we need to
+            Multiply_3x4Matrix(BC.mFinalBones[child].boneMatrix, BC.rootMatrix, tbone_G2_TransformBone[2])
+        }
+    }
+    // figure out where the bone hirearchy info is
+    offsets = MdxaSkelOffsets(BC.header!, byteOffset: MdxaHeader.byteCount)
+    skel = MdxaSkel(BC.header!, byteOffset: Int32(MdxaHeader.byteCount) + offsets!.offsets[child])
+//	skel = BC.mSkels[child];
+    //rww - removed mSkels
+
+    let parent: Int32 = BC.mFinalBones[child].parent
+    assert((parent == -1 && child == 0) || (parent >= 0 && parent < BC.mBones.count))
+    if (angleOverride & BONE_ANGLES_REPLACE) != 0 {
+        var isRag: Bool = (angleOverride & BONE_ANGLES_RAGDOLL) != 0
+        if !isRag { //do the same for ik.. I suppose.
+            isRag = (angleOverride & BONE_ANGLES_IK) != 0
+        }
+
+        let bone = BC.mFinalBones[child].boneMatrix
+        let boneOverride = boneList[boneListIndex]
+
+        if isRag {
+            MdxaBone.scratch { temp in
+                MdxaBone.scratch { firstPass in
+                    // give us the matrix the animation thinks we should have, so we can get the correct X&Y coors
+                    Multiply_3x4Matrix(firstPass, BC.mFinalBones[parent].boneMatrix, tbone_G2_TransformBone[2])
+                    // this is crazy, we are gonna drive the animation to ID while we are doing post mults to compensate.
+                    Multiply_3x4Matrix(temp, firstPass, skel!.BasePoseMat)
+                    // AI: Raven casts the record to a float pointer for VectorLength. The call reads the vector accessor of the first row.
+                    let matrixScale: Float = VectorLength(temp.matrix[0].vector)
+                    // AI: Raven declares `toMatrix` static with the identity initializer.
+                    // Every call writes the six floats that change before the read, so the record is a scratch local with the identity values.
+                    MdxaBone.scratch { toMatrix in
+                        toMatrix.copy(from: identityMatrix)
+                        toMatrix.matrix[0][0] = matrixScale
+                        toMatrix.matrix[1][1] = matrixScale
+                        toMatrix.matrix[2][2] = matrixScale
+                        toMatrix.matrix[0][3] = temp.matrix[0][3]
+                        toMatrix.matrix[1][3] = temp.matrix[1][3]
+                        toMatrix.matrix[2][3] = temp.matrix[2][3]
+
+                        Multiply_3x4Matrix(temp, toMatrix, skel!.BasePoseMatInv) //dest first arg
+                    }
+
+                    let blendTime = Float(BC.incomingTime - boneList[boneListIndex].boneBlendStart)
+                    let blendLerp: Float = (blendTime / boneList[boneListIndex].boneBlendTime)
+                    if blendLerp > 0.0 {
+                        // has started
+                        if blendLerp > 1.0 {
+                            // done
+//							Multiply_3x4Matrix(&bone, &BC.mFinalBones[parent].boneMatrix,&temp);
+                            bone.copy(from: temp)
+                        } else {
+//							mdxaBone_t lerp;
+                            // now do the blend into the destination
+                            let blendFrontlerp: Float = 1.0 - blendLerp
+                            j_G2_TransformBone = 0
+                            while j_G2_TransformBone < 12 {
+                                Slots(record: bone).bytes[float: j_G2_TransformBone * 4] =
+                                    (blendLerp * Slots(record: temp).bytes[float: j_G2_TransformBone * 4])
+                                    + (blendFrontlerp * Slots(record: tbone_G2_TransformBone[2]).bytes[float: j_G2_TransformBone * 4])
+                                j_G2_TransformBone += 1
+                            }
+//							Multiply_3x4Matrix(&bone, &BC.mFinalBones[parent].boneMatrix,&lerp);
+                        }
+                    }
+                }
+            }
+        } else {
+            MdxaBone.scratch { temp in
+                MdxaBone.scratch { firstPass in
+                    // give us the matrix the animation thinks we should have, so we can get the correct X&Y coors
+                    Multiply_3x4Matrix(firstPass, BC.mFinalBones[parent].boneMatrix, tbone_G2_TransformBone[2])
+
+                    // are we attempting to blend with the base animation? and still within blend time?
+                    if boneOverride.boneBlendTime != 0 && (((boneOverride.boneBlendTime + boneOverride.boneBlendStart) < BC.incomingTime)) {
+                        // ok, we are supposed to be blending. Work out lerp
+                        let blendTime = Float(BC.incomingTime - boneList[boneListIndex].boneBlendStart)
+                        let blendLerp: Float = (blendTime / boneList[boneListIndex].boneBlendTime)
+
+                        if blendLerp <= 1 {
+                            if blendLerp < 0 {
+                                assert(false)
+                            }
+
+                            // now work out the matrix we want to get *to* - firstPass is where we are coming *from*
+                            Multiply_3x4Matrix(temp, firstPass, skel!.BasePoseMat)
+
+                            // AI: Raven casts the record to a float pointer for VectorLength. The call reads the vector accessor of the first row.
+                            let matrixScale: Float = VectorLength(temp.matrix[0].vector)
+
+                            MdxaBone.scratch { newMatrixTemp in
+                                if HackadelicOnClient {
+                                    var i: Int32 = 0
+                                    while i < 3 {
+                                        var x: Int32 = 0
+                                        while x < 3 {
+                                            newMatrixTemp.matrix[i][x] = boneOverride.newMatrix.matrix[i][x] * matrixScale
+                                            x += 1
+                                        }
+                                        i += 1
+                                    }
+
+                                    newMatrixTemp.matrix[0][3] = temp.matrix[0][3]
+                                    newMatrixTemp.matrix[1][3] = temp.matrix[1][3]
+                                    newMatrixTemp.matrix[2][3] = temp.matrix[2][3]
+                                } else {
+                                    var i: Int32 = 0
+                                    while i < 3 {
+                                        var x: Int32 = 0
+                                        while x < 3 {
+                                            newMatrixTemp.matrix[i][x] = boneOverride.matrix.matrix[i][x] * matrixScale
+                                            x += 1
+                                        }
+                                        i += 1
+                                    }
+
+                                    newMatrixTemp.matrix[0][3] = temp.matrix[0][3]
+                                    newMatrixTemp.matrix[1][3] = temp.matrix[1][3]
+                                    newMatrixTemp.matrix[2][3] = temp.matrix[2][3]
+                                }
+
+                                Multiply_3x4Matrix(temp, newMatrixTemp, skel!.BasePoseMatInv)
+                            }
+
+                            // now do the blend into the destination
+                            let blendFrontlerp: Float = 1.0 - blendLerp
+                            j_G2_TransformBone = 0
+                            while j_G2_TransformBone < 12 {
+                                Slots(record: bone).bytes[float: j_G2_TransformBone * 4] =
+                                    (blendLerp * Slots(record: temp).bytes[float: j_G2_TransformBone * 4])
+                                    + (blendFrontlerp * Slots(record: firstPass).bytes[float: j_G2_TransformBone * 4])
+                                j_G2_TransformBone += 1
+                            }
+                        } else {
+                            bone.copy(from: firstPass)
+                        }
+                    }
+                    // no, so just override it directly
+                    else {
+                        Multiply_3x4Matrix(temp, firstPass, skel!.BasePoseMat)
+                        // AI: Raven casts the record to a float pointer for VectorLength. The call reads the vector accessor of the first row.
+                        let matrixScale: Float = VectorLength(temp.matrix[0].vector)
+
+                        MdxaBone.scratch { newMatrixTemp in
+                            if HackadelicOnClient {
+                                var i: Int32 = 0
+                                while i < 3 {
+                                    var x: Int32 = 0
+                                    while x < 3 {
+                                        newMatrixTemp.matrix[i][x] = boneOverride.newMatrix.matrix[i][x] * matrixScale
+                                        x += 1
+                                    }
+                                    i += 1
+                                }
+
+                                newMatrixTemp.matrix[0][3] = temp.matrix[0][3]
+                                newMatrixTemp.matrix[1][3] = temp.matrix[1][3]
+                                newMatrixTemp.matrix[2][3] = temp.matrix[2][3]
+                            } else {
+                                var i: Int32 = 0
+                                while i < 3 {
+                                    var x: Int32 = 0
+                                    while x < 3 {
+                                        newMatrixTemp.matrix[i][x] = boneOverride.matrix.matrix[i][x] * matrixScale
+                                        x += 1
+                                    }
+                                    i += 1
+                                }
+
+                                newMatrixTemp.matrix[0][3] = temp.matrix[0][3]
+                                newMatrixTemp.matrix[1][3] = temp.matrix[1][3]
+                                newMatrixTemp.matrix[2][3] = temp.matrix[2][3]
+                            }
+
+                            Multiply_3x4Matrix(bone, newMatrixTemp, skel!.BasePoseMatInv)
+                        }
+                    }
+                }
+            }
+        }
+    } else if (angleOverride & BONE_ANGLES_PREMULT) != 0 {
+        if (angleOverride & BONE_ANGLES_RAGDOLL) != 0 || (angleOverride & BONE_ANGLES_IK) != 0 {
+            MdxaBone.scratch { tmp in
+                if child == 0 {
+                    if HackadelicOnClient {
+                        Multiply_3x4Matrix(tmp, BC.rootMatrix, boneList[boneListIndex].newMatrix)
+                    } else {
+                        Multiply_3x4Matrix(tmp, BC.rootMatrix, boneList[boneListIndex].matrix)
+                    }
+                } else {
+                    if HackadelicOnClient {
+                        Multiply_3x4Matrix(tmp, BC.mFinalBones[parent].boneMatrix, boneList[boneListIndex].newMatrix)
+                    } else {
+                        Multiply_3x4Matrix(tmp, BC.mFinalBones[parent].boneMatrix, boneList[boneListIndex].matrix)
+                    }
+                }
+                Multiply_3x4Matrix(BC.mFinalBones[child].boneMatrix, tmp, tbone_G2_TransformBone[2])
+            }
+        } else {
+            if child == 0 {
+                // use the in coming root matrix as our basis
+                if HackadelicOnClient {
+                    Multiply_3x4Matrix(BC.mFinalBones[child].boneMatrix, BC.rootMatrix, boneList[boneListIndex].newMatrix)
+                } else {
+                    Multiply_3x4Matrix(BC.mFinalBones[child].boneMatrix, BC.rootMatrix, boneList[boneListIndex].matrix)
+                }
+            } else {
+                // convert from 3x4 matrix to a 4x4 matrix
+                if HackadelicOnClient {
+                    Multiply_3x4Matrix(BC.mFinalBones[child].boneMatrix, BC.mFinalBones[parent].boneMatrix, boneList[boneListIndex].newMatrix)
+                } else {
+                    Multiply_3x4Matrix(BC.mFinalBones[child].boneMatrix, BC.mFinalBones[parent].boneMatrix, boneList[boneListIndex].matrix)
+                }
+            }
+        }
+    } else if child != 0 {
+        // now transform the matrix by it's parent, asumming we have a parent, and we aren't overriding the angles absolutely
+        Multiply_3x4Matrix(BC.mFinalBones[child].boneMatrix, BC.mFinalBones[parent].boneMatrix, tbone_G2_TransformBone[2])
+    }
+
+    // now multiply our resulting bone by an override matrix should we need to
+    if (angleOverride & BONE_ANGLES_POSTMULT) != 0 {
+        MdxaBone.scratch { tempMatrix in
+            tempMatrix.copy(from: BC.mFinalBones[child].boneMatrix)
+            if HackadelicOnClient {
+                Multiply_3x4Matrix(BC.mFinalBones[child].boneMatrix, tempMatrix, boneList[boneListIndex].newMatrix)
+            } else {
+                Multiply_3x4Matrix(BC.mFinalBones[child].boneMatrix, tempMatrix, boneList[boneListIndex].matrix)
+            }
+        }
+    }
+    /*
+    if (r_Ghoul2UnSqash->integer)
+    {
+        mdxaBone_t tempMatrix;
+        Multiply_3x4Matrix(&tempMatrix,&BC.mFinalBones[child].boneMatrix, &skel->BasePoseMat);
+        float maxl;
+        maxl=VectorLength(&skel->BasePoseMat.matrix[0][0]);
+        VectorNormalize(&tempMatrix.matrix[0][0]);
+        VectorNormalize(&tempMatrix.matrix[1][0]);
+        VectorNormalize(&tempMatrix.matrix[2][0]);
+
+        VectorScale(&tempMatrix.matrix[0][0],maxl,&tempMatrix.matrix[0][0]);
+        VectorScale(&tempMatrix.matrix[1][0],maxl,&tempMatrix.matrix[1][0]);
+        VectorScale(&tempMatrix.matrix[2][0],maxl,&tempMatrix.matrix[2][0]);
+        Multiply_3x4Matrix(&BC.mFinalBones[child].boneMatrix,&tempMatrix,&skel->BasePoseMatInv);
+    }
+    */
+    //rwwFIXMEFIXME: Care?
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2053
@@ -1056,14 +1561,266 @@ func G2_FindSurface_BC(_ mod: Model, _ index: Int32, _ lod: Int32) -> MdxmSurfac
     return MdxmSurface(indexes, byteOffset: indexes.offsets[index])
 }
 
+// these are convenience functions that I can invoked in code. Do NOT change them (because this is a shared file),
+//	but if you want to copy the logic out and use your own versions then fine...
+//
+/// Source: oracle/codemp/renderer/mdx_format.h:290
+func G2_GetVertWeights(_ pVert: MdxmVertex) -> Int32 {
+    let iNumWeights: Int32 = Int32(truncatingIfNeeded: pVert.uiNmWeightsAndBoneIndexes >> 30) + 1	// 1..4 count
+
+    return iNumWeights
+}
+
+/// Source: oracle/codemp/renderer/mdx_format.h:297
+func G2_GetVertBoneIndex(_ pVert: MdxmVertex, _ iWeightNum: Int32) -> Int32 {
+    let iBoneIndex: Int32 = Int32(truncatingIfNeeded: pVert.uiNmWeightsAndBoneIndexes >> (iG2_BITS_PER_BONEREF * iWeightNum)) & ((1 << iG2_BITS_PER_BONEREF) - 1)
+
+    return iBoneIndex
+}
+
+/// Source: oracle/codemp/renderer/mdx_format.h:304
+func G2_GetVertBoneWeight(_ pVert: MdxmVertex, _ iWeightNum: Int32, _ fTotalWeight: inout Float, _ iNumWeights: Int32) -> Float {
+    let fBoneWeight: Float
+
+    if iWeightNum == iNumWeights - 1 {
+        fBoneWeight = 1.0 - fTotalWeight
+    } else {
+        var iTemp = Int32(pVert.BoneWeightings[iWeightNum])
+        iTemp |= Int32(truncatingIfNeeded: pVert.uiNmWeightsAndBoneIndexes >> (iG2_BONEWEIGHT_TOPBITS_SHIFT + (iWeightNum * 2))) & iG2_BONEWEIGHT_TOPBITS_AND
+
+        // AI: Raven multiplies by the macro `fG2_BONEWEIGHT_RECIPROCAL_MULT`, `((float)(1.0f/1023.0f))` of mdx_format.h:60.
+        // The generated file has no form for that macro, so the site writes its float quotient.
+        fBoneWeight = ((1.0 as Float) / 1023.0) * iTemp
+        fTotalWeight += fBoneWeight
+    }
+
+    return fBoneWeight
+}
+
 // We've come across a surface that's designated as a bolt surface, process it and put it in the appropriate bolt place
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2983
 // G2_GetBoltMatrixLow passes NULL for a generated surface, so `surface` is optional, the form of a view parameter that a caller passes NULL to.
 func G2_ProcessSurfaceBolt2(_ boneCache: CBoneCache, _ surface: MdxmSurface?, _ boltNum: Int32, _ boltList: inout [boltInfo_t], _ surfInfo: surfaceInfo_t?, _ mod: Model, _ retMatrix: JKAMP.MdxaBone) {
-    // Port-note: The body calls G2_GetVertWeights, G2_GetVertBoneIndex, and G2_GetVertBoneWeight, the static inline functions of mdx_format.h:290 to :322, which have no Swift home.
-    // Port-note: The body reads `mdxmTriangle_t` of mdx_format.h:250, which has no view.
-    // TODO: Port G2_ProcessSurfaceBolt2
-    portMissing("G2_ProcessSurfaceBolt2", source: "oracle/codemp/renderer/tr_ghoul2.cpp:2983")
+    var v: MdxmVertex
+    var vert0: MdxmVertex
+    var vert1: MdxmVertex
+    var vert2: MdxmVertex
+    var axes = [vec3_t](repeating: vec3_t(), count: 3)
+    var sides = [vec3_t](repeating: vec3_t(), count: 3)
+    var pTri = [vec3_t](repeating: vec3_t(), count: 3)
+    var d: Float
+    var j: Int32
+    var k: Int32
+
+    // AI: Raven hands each row of four floats of a bone to DotProduct. Each call below reads the vector accessor of the row.
+
+    // now there are two types of tag surface - model ones and procedural generated types - lets decide which one we have here.
+    if surfInfo != nil && surfInfo!.offFlags == G2SURFACEFLAG_GENERATED {
+        let surfNumber: Int32 = surfInfo!.genPolySurfaceIndex & 0x0ffff
+        let polyNumber: Int32 = (surfInfo!.genPolySurfaceIndex >> 16) & 0x0ffff
+
+        // find original surface our original poly was in.
+        let originalSurf = G2_FindSurface_BC(mod, surfNumber, surfInfo!.genLod)!
+        // AI: Raven casts the surface address plus `ofsTriangles` to a triangle pointer and indexes it with `polyNumber`.
+        // The view is the triangle at that offset plus `polyNumber` times the record size.
+        let originalTriangleIndexes = MdxmTriangle(originalSurf, byteOffset: originalSurf.ofsTriangles + polyNumber * Int32(MdxmTriangle.byteCount))
+
+        // get the original polys indexes
+        let index0: Int32 = originalTriangleIndexes.indexes[0]
+        let index1: Int32 = originalTriangleIndexes.indexes[1]
+        let index2: Int32 = originalTriangleIndexes.indexes[2]
+
+        // decide where the original verts are
+        // AI: Raven adds a vertex index to a vertex pointer. The view steps by that index times the record size.
+        vert0 = MdxmVertex(originalSurf, byteOffset: originalSurf.ofsVerts)
+        vert0 = MdxmVertex(vert0, byteOffset: index0 * Int32(MdxmVertex.byteCount))
+
+        vert1 = MdxmVertex(originalSurf, byteOffset: originalSurf.ofsVerts)
+        vert1 = MdxmVertex(vert1, byteOffset: index1 * Int32(MdxmVertex.byteCount))
+
+        vert2 = MdxmVertex(originalSurf, byteOffset: originalSurf.ofsVerts)
+        vert2 = MdxmVertex(vert2, byteOffset: index2 * Int32(MdxmVertex.byteCount))
+
+        // clear out the triangle verts to be
+        pTri[0] = vec3_t()
+        pTri[1] = vec3_t()
+        pTri[2] = vec3_t()
+        let piBoneReferences = originalSurf.boneReferences
+
+//		mdxmWeight_t	*w;
+
+        // now go and transform just the points we need from the surface that was hit originally
+//		w = vert0->weights;
+        var fTotalWeight: Float = 0.0
+        var iNumWeights: Int32 = G2_GetVertWeights(vert0)
+        k = 0
+        while k < iNumWeights {
+            let iBoneIndex: Int32 = G2_GetVertBoneIndex(vert0, k)
+            let fBoneWeight: Float = G2_GetVertBoneWeight(vert0, k, &fTotalWeight, iNumWeights)
+
+            let bone = boneCache.Eval(piBoneReferences[iBoneIndex])
+
+            pTri[0][0] += fBoneWeight * (_DotProduct(bone.matrix[0].vector, vert0.vertCoords) + bone.matrix[0][3])
+            pTri[0][1] += fBoneWeight * (_DotProduct(bone.matrix[1].vector, vert0.vertCoords) + bone.matrix[1][3])
+            pTri[0][2] += fBoneWeight * (_DotProduct(bone.matrix[2].vector, vert0.vertCoords) + bone.matrix[2][3])
+            k += 1
+        }
+
+//		w = vert1->weights;
+        fTotalWeight = 0.0
+        iNumWeights = G2_GetVertWeights(vert1)
+        k = 0
+        while k < iNumWeights {
+            let iBoneIndex: Int32 = G2_GetVertBoneIndex(vert1, k)
+            let fBoneWeight: Float = G2_GetVertBoneWeight(vert1, k, &fTotalWeight, iNumWeights)
+
+            let bone = boneCache.Eval(piBoneReferences[iBoneIndex])
+
+            pTri[1][0] += fBoneWeight * (_DotProduct(bone.matrix[0].vector, vert1.vertCoords) + bone.matrix[0][3])
+            pTri[1][1] += fBoneWeight * (_DotProduct(bone.matrix[1].vector, vert1.vertCoords) + bone.matrix[1][3])
+            pTri[1][2] += fBoneWeight * (_DotProduct(bone.matrix[2].vector, vert1.vertCoords) + bone.matrix[2][3])
+            k += 1
+        }
+
+//		w = vert2->weights;
+        fTotalWeight = 0.0
+        iNumWeights = G2_GetVertWeights(vert2)
+        k = 0
+        while k < iNumWeights {
+            let iBoneIndex: Int32 = G2_GetVertBoneIndex(vert2, k)
+            let fBoneWeight: Float = G2_GetVertBoneWeight(vert2, k, &fTotalWeight, iNumWeights)
+
+            let bone = boneCache.Eval(piBoneReferences[iBoneIndex])
+
+            pTri[2][0] += fBoneWeight * (_DotProduct(bone.matrix[0].vector, vert2.vertCoords) + bone.matrix[0][3])
+            pTri[2][1] += fBoneWeight * (_DotProduct(bone.matrix[1].vector, vert2.vertCoords) + bone.matrix[1][3])
+            pTri[2][2] += fBoneWeight * (_DotProduct(bone.matrix[2].vector, vert2.vertCoords) + bone.matrix[2][3])
+            k += 1
+        }
+
+        var normal = vec3_t()
+        var up = vec3_t()
+        var right = vec3_t()
+        var vec0 = vec3_t()
+        var vec1 = vec3_t()
+        // work out baryCentricK
+        let baryCentricK: Float = 1.0 - (surfInfo!.genBarycentricI + surfInfo!.genBarycentricJ)
+
+        // now we have the model transformed into model space, now generate an origin.
+        retMatrix.matrix[0][3] = (pTri[0][0] * surfInfo!.genBarycentricI) + (pTri[1][0] * surfInfo!.genBarycentricJ) + (pTri[2][0] * baryCentricK)
+        retMatrix.matrix[1][3] = (pTri[0][1] * surfInfo!.genBarycentricI) + (pTri[1][1] * surfInfo!.genBarycentricJ) + (pTri[2][1] * baryCentricK)
+        retMatrix.matrix[2][3] = (pTri[0][2] * surfInfo!.genBarycentricI) + (pTri[1][2] * surfInfo!.genBarycentricJ) + (pTri[2][2] * baryCentricK)
+
+        // generate a normal to this new triangle
+        _VectorSubtract(pTri[0], pTri[1], &vec0)
+        _VectorSubtract(pTri[2], pTri[1], &vec1)
+
+        CrossProduct(vec0, vec1, &normal)
+        _ = VectorNormalize(&normal)
+
+        // forward vector
+        retMatrix.matrix[0][0] = normal[0]
+        retMatrix.matrix[1][0] = normal[1]
+        retMatrix.matrix[2][0] = normal[2]
+
+        // up will be towards point 0 of the original triangle.
+        // so lets work it out. Vector is hit point - point 0
+        up[0] = retMatrix.matrix[0][3] - pTri[0][0]
+        up[1] = retMatrix.matrix[1][3] - pTri[0][1]
+        up[2] = retMatrix.matrix[2][3] - pTri[0][2]
+
+        // normalise it
+        _ = VectorNormalize(&up)
+
+        // that's the up vector
+        retMatrix.matrix[0][1] = up[0]
+        retMatrix.matrix[1][1] = up[1]
+        retMatrix.matrix[2][1] = up[2]
+
+        // right is always straight
+
+        CrossProduct(normal, up, &right)
+        // that's the up vector
+        retMatrix.matrix[0][2] = right[0]
+        retMatrix.matrix[1][2] = right[1]
+        retMatrix.matrix[2][2] = right[2]
+    }
+    // no, we are looking at a normal model tag
+    else {
+        // whip through and actually transform each vertex
+        v = MdxmVertex(surface!, byteOffset: surface!.ofsVerts)
+        let piBoneReferences = surface!.boneReferences
+        j = 0
+        while j < 3 {
+// 			mdxmWeight_t	*w;
+
+            pTri[j] = vec3_t()
+ //			w = v->weights;
+
+            let iNumWeights: Int32 = G2_GetVertWeights(v)
+
+            var fTotalWeight: Float = 0.0
+            k = 0
+            while k < iNumWeights {
+                let iBoneIndex: Int32 = G2_GetVertBoneIndex(v, k)
+                let fBoneWeight: Float = G2_GetVertBoneWeight(v, k, &fTotalWeight, iNumWeights)
+
+                let bone = boneCache.Eval(piBoneReferences[iBoneIndex])
+
+                pTri[j][0] += fBoneWeight * (_DotProduct(bone.matrix[0].vector, v.vertCoords) + bone.matrix[0][3])
+                pTri[j][1] += fBoneWeight * (_DotProduct(bone.matrix[1].vector, v.vertCoords) + bone.matrix[1][3])
+                pTri[j][2] += fBoneWeight * (_DotProduct(bone.matrix[2].vector, v.vertCoords) + bone.matrix[2][3])
+                k += 1
+            }
+
+            // AI: Raven steps the vertex pointer by one record. The view steps by the record size.
+            v = MdxmVertex(v, byteOffset: MdxmVertex.byteCount)// = (mdxmVertex_t *)&v->weights[/*v->numWeights*/surface->maxVertBoneWeights];
+            j += 1
+        }
+
+        // clear out used arrays
+        axes.fill(vec3_t())
+        sides.fill(vec3_t())
+
+        // work out actual sides of the tag triangle
+        j = 0
+        while j < 3 {
+            sides[j][0] = pTri[(j + 1) % 3][0] - pTri[j][0]
+            sides[j][1] = pTri[(j + 1) % 3][1] - pTri[j][1]
+            sides[j][2] = pTri[(j + 1) % 3][2] - pTri[j][2]
+            j += 1
+        }
+
+        // do math trig to work out what the matrix will be from this triangle's translated position
+        _ = VectorNormalize2(sides[iG2_TRISIDE_LONGEST], &axes[0])
+        _ = VectorNormalize2(sides[iG2_TRISIDE_SHORTEST], &axes[1])
+
+        // project shortest side so that it is exactly 90 degrees to the longer side
+        d = _DotProduct(axes[0], axes[1])
+        _VectorMA(axes[0], -d, axes[1], &axes[0])
+        _ = VectorNormalize2(axes[0], &axes[0])
+
+        CrossProduct(sides[iG2_TRISIDE_LONGEST], sides[iG2_TRISIDE_SHORTEST], &axes[2])
+        _ = VectorNormalize2(axes[2], &axes[2])
+
+        // set up location in world space of the origin point in out going matrix
+        retMatrix.matrix[0][3] = pTri[MDX_TAG_ORIGIN][0]
+        retMatrix.matrix[1][3] = pTri[MDX_TAG_ORIGIN][1]
+        retMatrix.matrix[2][3] = pTri[MDX_TAG_ORIGIN][2]
+
+        // copy axis to matrix - do some magic to orient minus Y to positive X and so on so bolt on stuff is oriented correctly
+        retMatrix.matrix[0][0] = axes[1][0]
+        retMatrix.matrix[0][1] = axes[0][0]
+        retMatrix.matrix[0][2] = -axes[2][0]
+
+        retMatrix.matrix[1][0] = axes[1][1]
+        retMatrix.matrix[1][1] = axes[0][1]
+        retMatrix.matrix[1][2] = -axes[2][1]
+
+        retMatrix.matrix[2][0] = axes[1][2]
+        retMatrix.matrix[2][1] = axes[0][2]
+        retMatrix.matrix[2][2] = -axes[2][2]
+    }
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:3253

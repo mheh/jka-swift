@@ -68,8 +68,10 @@ STATE = C.TARGETS["state"]
 C_TARGET = C.TARGETS["c_target"]
 BG = "JKAMP_BG"
 SHARED = "JKAShared"
-# The C integer kinds of a local or a parameter that a BYTE_STORAGE_LOCALS ruling holds as a Slots of its scalar.
-INT_ELEMENTS = (TypeKind.INT, TypeKind.UINT)
+# The C scalar kinds of a local or a parameter that a BYTE_STORAGE_LOCALS ruling holds as a Slots of its scalar.
+# A `float` local is a Slots of Float and an `unsigned short` local a Slots of UInt16, `rankings` of be_ai_gen.cpp:75
+# and `startareatraveltimes` of be_aas_route.cpp:1275, row X20 of docket 10.
+INT_ELEMENTS = (TypeKind.INT, TypeKind.UINT, TypeKind.FLOAT, TypeKind.USHORT)
 # The parameter kinds of an optional inout vector or axis, which a forward with the plain inout serves for the callers that pass one.
 OPTIONAL_INOUTS = ("vec3_mut_opt", "axis_mut_opt")
 # The C++ definitions of a host file that the skeleton skips, by kind, and the records whose bodies define them.
@@ -401,6 +403,19 @@ class Skeleton:
             cursors += [(cur, True) for cur in self.cgame_tu.cursor.get_children()]
         return cursors
 
+    def method_of(self, name: str) -> tuple[ci.Cursor | None, str | None]:
+        """The definition of a C++ method of a hand class and its stem, for a BYTE_STORAGE_LOCALS key of a host.
+        The skeleton writes no stub for a method, and a local whose address the method takes still needs storage,
+        `height` of CCMLandScape::FlattenArea at cm_terrain.cpp:1356, row X42 R5 of docket 10."""
+        if not C.HOST:
+            return None, None
+        for cur, _ in self.file_scope_cursors():
+            if cur.kind == CursorKind.CXX_METHOD and cur.spelling == name and cur.is_definition() and cur.location.file:
+                stem = Path(cur.location.file.name).stem
+                if stem in self.files:
+                    return cur, stem
+        return None, None
+
     def cgame_bg_function(self, cur: ci.Cursor) -> bool:
         """A function of a bg file that the cgame parse compiles and the game parse does not, so its writes count for the bg variables."""
         if not cur.location.file or cur.spelling in self.by_name:
@@ -440,15 +455,16 @@ class Skeleton:
             # A key of a local and its function names one local of several that share the name, and its storage takes the suffix.
             name = key[0] if isinstance(key, tuple) else key
             fn = self.by_name.get(functions[0])
-            local = next((c for c in fn.cur.walk_preorder() if c.kind in (CursorKind.VAR_DECL, CursorKind.PARM_DECL) and c.spelling == name),
-                         None) if fn else None
+            body, stem = (fn.cur, fn.stem) if fn else self.method_of(functions[0])
+            local = next((c for c in body.walk_preorder() if c.kind in (CursorKind.VAR_DECL, CursorKind.PARM_DECL) and c.spelling == name),
+                         None) if body is not None else None
             if local is None:
                 continue
-            var = Variable(local, fn.stem)
+            var = Variable(local, stem)
             var.local = functions
             var.suffixed = isinstance(key, tuple)
             self.map_variable(var)
-            self.variables[fn.stem].append(var)
+            self.variables[stem].append(var)
         owners: dict[str, set[str]] = defaultdict(set)
         for stem, variables in self.variables.items():
             for var in variables:
@@ -704,7 +720,8 @@ class Skeleton:
                 inner = inner.element_type.get_canonical()
             var.swift = f"Slots<{var.view}>" if depth else var.view
             return
-        if self.table.views.is_vec3(t) or (depth and "vec3_t" in t.spelling):
+        # The word match keeps `ivec3_t`, an `int[3]`, out, `info` of CCMLandScape::FlattenArea, row X42 R5 of docket 10.
+        if self.table.views.is_vec3(t) or (depth and re.search(r"\bvec3_t\b", t.spelling)):
             if depth == 2 and var.local:
                 # A BYTE_STORAGE_LOCALS ruling moves a `vec3_t` array local to the storage class, so a body hands it to a Slots parameter.
                 var.reason = "byte_storage"
@@ -727,7 +744,8 @@ class Skeleton:
             var.swift = "JKAShared.vec4_t"
             return
         # The element type as Raven spelled it, which keeps a typedef that TYPES names.
-        typed = (t.element_type.spelling if depth == 1 else t.spelling).replace("const ", "")
+        # A typedef of an array, `ivec3_t`, has its element type on the canonical type alone.
+        typed = ((t if t.kind == TypeKind.CONSTANTARRAY else t.get_canonical()).element_type.spelling if depth == 1 else t.spelling).replace("const ", "")
         if not depth and var.name in self.table.file_walks:
             # Raven walks the pointer over a file-scope table of records, so the port holds the index of the slot it points at.
             var.walk = self.table.file_walks[var.name]
@@ -1503,7 +1521,9 @@ class Skeleton:
         lines = [f"    /// Source: {fn.cite}"]
         # A vector, a text, or a scalar output crosses as a C pointer with no view, and only a view target may read it under rule 11.
         # A thunk with such an argument keeps the marker, unless the function takes the pointer as it is.
-        raw = fn.mapped and any(self.raw_argument(arg, fn.params[i] if i < len(fn.params) else None)
+        # A host thunk reads a text and a vector the function takes by value through the readers of the view target, `text(at:)` and `vector(at:)`,
+        # the form of the cgame thunks of cg_main.swift, rows X1 and X2 of docket 10.
+        raw = fn.mapped and any(self.raw_argument(arg, fn.params[i] if i < len(fn.params) else None) and self.host_reader(fn.params[i] if i < len(fn.params) else None) is None
                                 for i, arg in enumerate(proto.argument_types()))
         if not fn.mapped or raw:
             self.counts["thunks over an unmapped signature"] += 1
@@ -1516,21 +1536,57 @@ class Skeleton:
         args: list[str] = []
         for i, arg in enumerate(proto.argument_types()):
             canonical = arg.get_canonical()
+            param = fn.params[i] if i < len(fn.params) else None
             if canonical.kind == TypeKind.POINTER:
                 record = self.table.views.record_name(canonical.get_pointee())
                 view = self.table.views.qualified_view(record, C_TARGET) if record in self.table.views.views else None
-                args.append(f"{view}(handle: ${i}!)" if view else f"${i}")
+                if view and param is not None and (param.swift or "").startswith("Slots<"):
+                    # The function takes the table of records with its count beside it, which no reader gives from the word alone.
+                    self.counts["thunks over an unmapped signature"] += 1
+                    ignored = ", ".join("_" for _ in proto.argument_types())
+                    return lines + ["    // TODO: Port signature",
+                                    f'    static let {swift_name(fn.name)}: {alias} = {{ {ignored} in portMissing("{fn.name}", source: "{fn.cite}") }}']
+                reader = None if view else self.host_reader(fn.params[i] if i < len(fn.params) else None)
+                args.append(f"{view}(handle: ${i}!)" if view else reader.replace("{}", f"${i}") if reader else f"${i}")
             elif self.table.views.scalar(arg, C_TARGET) == "Bool":
                 args.append(f"${i} != 0")
+            elif C.HOST and canonical.kind in (TypeKind.LONG, TypeKind.ULONG) and param is not None and param.swift in ("Int32", "UInt32"):
+                # The C `long` of the stored function is the 32 bits of WinDed in the botlib function, MSVC_WIDTH_FOLDERS,
+                # so the thunk keeps the low 32 bits, BotFindMatch of be_ai_chat.cpp, row X2 of docket 10.
+                args.append(f"{param.swift}(truncatingIfNeeded: ${i})")
             else:
                 args.append(f"${i}")
+        if C.HOST and proto.is_function_variadic() and args and fn.params and fn.params[-1].swift == "String":
+            # The run method of a variadic stored function hands over text it already formatted, so the filler prints it through "%s",
+            # BotImport_Print of sv_bot.cpp:267, row X1a of docket 10.
+            args[-1] = f'"%s", {args[-1]}'
         # A closure that names only some of its parameters names none, so every argument is positional.
         call = f"{target_of(fn.stem)}.{swift_name(fn.name)}({', '.join(args)})"
         if fn.returns == "Bool":
             call = f"{call} ? 1 : 0"
+        result = proto.get_result().get_canonical()
+        if C.HOST and result.kind == TypeKind.POINTER and fn.returns in ("String", "String?"):
+            # A host thunk hands the C caller the text in the ring of the view target, the `va` form, BotImport_BSPEntityData of sv_bot.cpp:378, row X1.
+            call = f"ringText({call})" if fn.returns == "String" else f"{call}.map(ringText)"
+        elif C.HOST and result.kind == TypeKind.POINTER and fn.returns in ("UnsafeMutableRawPointer", "UnsafeMutableRawPointer?"):
+            # A host thunk hands the C caller the block as the word, the form of `Z_Free(OpaquePointer(x.base))`, BotImport_GetMemory of sv_bot.cpp:438, row X1.
+            call = f"OpaquePointer({call})" if fn.returns == "UnsafeMutableRawPointer" else f"{call}.map(OpaquePointer.init)"
         lines.append(f"    static let {swift_name(fn.name)}: {alias} = {{ {call} }}")
         self.counts["thunks"] += 1
         return lines
+
+    def host_reader(self, param: Param | None) -> str | None:
+        """The reader of the view target that turns a host thunk's C word into the parameter, with `{}` for the word, or None.
+        A text is `text(at:)` and a vector by value is `vector(at:)`, the readers of ThunkReaders.swift, rows X1 and X2 of docket 10."""
+        if not C.HOST or param is None:
+            return None
+        if param.swift == "String":
+            return "text(at: {}!)"
+        if param.swift == "String?":
+            return "{}.map(text(at:))"
+        if param.swift == "JKAShared.vec3_t":
+            return "vector(at: {}!)"
+        return None
 
     def raw_argument(self, arg: ci.Type, param: Param | None) -> bool:
         """Whether a thunk argument is a C pointer that no view reads and that the stored function does not take as an `OpaquePointer?`."""

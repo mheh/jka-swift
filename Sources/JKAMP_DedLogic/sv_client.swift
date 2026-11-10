@@ -7,6 +7,10 @@ import JKAMP_Ded
 // AI: Raven declares `msgBuffer` on the stack of SV_SendClientGameState. The function uses one zeroed allocation on the storage class.
 var msgBuffer_SV_SendClientGameState: Slots<JKAShared.byte> { world.storage.msgBuffer_SV_SendClientGameState }
 
+/// Source: oracle/codemp/server/sv_client.cpp:776
+// AI: Raven declares `heightmap` on the stack of SV_SendClientGameState. The function uses one zeroed allocation on the storage class.
+var heightmap_SV_SendClientGameState: Slots<JKAShared.byte> { world.storage.heightmap_SV_SendClientGameState }
+
 /// Source: oracle/codemp/server/sv_client.cpp:823
 // AI: Raven declares `msgBuffer` on the stack of SV_SendClientMapChange. The function uses one zeroed allocation on the storage class.
 var msgBuffer_SV_SendClientMapChange: Slots<JKAShared.byte> { world.storage.msgBuffer_SV_SendClientMapChange }
@@ -558,9 +562,12 @@ func SV_WriteRMGAutomapSymbols(_ msg: Msg) {
 
     i = 0
     while i < count {
-        // Port-note: Row C. CRMManager.GetAutomapSymbol carries a signature marker, so the symbol has no form.
-        // Raven wrote: rmAutomapSymbol_t* symbol = TheRandomMissionManager->GetAutomapSymbol ( i ); MSG_WriteByte ( msg, symbol->mType ); MSG_WriteByte ( msg, symbol->mSide ); MSG_WriteLong ( msg, (long)symbol->mOrigin[0] ); MSG_WriteLong ( msg, (long)symbol->mOrigin[1] );
-        portMissing("SV_WriteRMGAutomapSymbols", source: "oracle/codemp/server/sv_client.cpp:668")
+        let symbol = TheRandomMissionManager!.GetAutomapSymbol(i)
+
+        MSG_WriteByte(msg, symbol!.mType)
+        MSG_WriteByte(msg, symbol!.mSide)
+        MSG_WriteLong(msg, Int32(symbol!.mOrigin[0]))
+        MSG_WriteLong(msg, Int32(symbol!.mOrigin[1]))
         i += 1
     }
 }
@@ -656,9 +663,48 @@ func SV_SendClientGameState(_ client: Client) {
 
         //rwwRMG - send info for the terrain
         if TheRandomMissionManager != nil {
-            // Port-note: Row C2. The port has no zlib `deflate`, so the height map and the flatten map have no compressed form.
-            // Raven wrote: z_stream zdata; // Send the height map memset(&zdata, 0, sizeof(z_stream)); deflateInit ( &zdata, Z_MAX_COMPRESSION ); unsigned char heightmap[15000]; zdata.next_out = (unsigned char*)heightmap; zdata.avail_out = 15000; zdata.next_in = TheRandomMissionManager->GetLandScape()->GetHeightMap(); zdata.avail_in = TheRandomMissionManager->GetLandScape()->GetRealArea(); deflate(&zdata, Z_SYNC_FLUSH); MSG_WriteShort ( &msg, (unsigned short)zdata.total_out ); MSG_WriteBits ( &msg, 1, 1 ); MSG_WriteData ( &msg, heightmap, zdata.total_out); deflateEnd(&zdata); // Send the flatten map memset(&zdata, 0, sizeof(z_stream)); deflateInit ( &zdata, Z_MAX_COMPRESSION ); zdata.next_out = (unsigned char*)heightmap; zdata.avail_out = 15000; zdata.next_in = TheRandomMissionManager->GetLandScape()->GetFlattenMap(); zdata.avail_in = TheRandomMissionManager->GetLandScape()->GetRealArea(); deflate(&zdata, Z_SYNC_FLUSH); MSG_WriteShort ( &msg, (unsigned short)zdata.total_out ); MSG_WriteBits ( &msg, 1, 1 ); MSG_WriteData ( &msg, heightmap, zdata.total_out); deflateEnd(&zdata); // Seed is needed for misc ents and noise MSG_WriteLong ( &msg, TheRandomMissionManager->GetLandScape()->get_rand_seed ( ) ); SV_WriteRMGAutomapSymbols ( &msg );
-            portMissing("SV_SendClientGameState", source: "oracle/codemp/server/sv_client.cpp:697")
+            Z_stream.scratch { zdata in
+                // Send the height map
+                zdata.clear()
+                ZipBackend.deflateInit(zdata, Z_MAX_COMPRESSION)
+
+                // AI: Raven declares `unsigned char heightmap[15000]` on his stack. The body uses the zeroed allocation of the storage class through the `heightmap_SV_SendClientGameState` forward.
+                zdata.next_out = heightmap_SV_SendClientGameState
+                zdata.avail_out = 15000
+                zdata.next_in = TheRandomMissionManager!.GetLandScape()!.GetHeightMap()
+                // C converts the `int` area to the `ulong` count.
+                zdata.avail_in = CUnsignedLong(TheRandomMissionManager!.GetLandScape()!.GetRealArea())
+                ZipBackend.deflate(zdata, Z_SYNC_FLUSH)
+
+                // C converts the `ulong` total to the `int` parameter.
+                MSG_WriteShort(msg, Int32(UInt16(truncatingIfNeeded: zdata.total_out)))
+                MSG_WriteBits(msg, 1, 1)
+                MSG_WriteData(msg, heightmap_SV_SendClientGameState, Int32(truncatingIfNeeded: zdata.total_out))
+
+                ZipBackend.deflateEnd(zdata)
+
+                // Send the flatten map
+                zdata.clear()
+                ZipBackend.deflateInit(zdata, Z_MAX_COMPRESSION)
+
+                zdata.next_out = heightmap_SV_SendClientGameState
+                zdata.avail_out = 15000
+                zdata.next_in = TheRandomMissionManager!.GetLandScape()!.GetFlattenMap()
+                zdata.avail_in = CUnsignedLong(TheRandomMissionManager!.GetLandScape()!.GetRealArea())
+                ZipBackend.deflate(zdata, Z_SYNC_FLUSH)
+
+                MSG_WriteShort(msg, Int32(UInt16(truncatingIfNeeded: zdata.total_out)))
+                MSG_WriteBits(msg, 1, 1)
+                MSG_WriteData(msg, heightmap_SV_SendClientGameState, Int32(truncatingIfNeeded: zdata.total_out))
+
+                ZipBackend.deflateEnd(zdata)
+            }
+
+            // Seed is needed for misc ents and noise
+            // C converts the `unsigned long` seed to the `int` parameter by its bits.
+            MSG_WriteLong(msg, Int32(bitPattern: TheRandomMissionManager!.GetLandScape()!.get_rand_seed()))
+
+            SV_WriteRMGAutomapSymbols(msg)
         } else {
             MSG_WriteShort(msg, 0)
         }

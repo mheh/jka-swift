@@ -627,9 +627,7 @@ final class CTaskManager {
 
             //If this hasn't been stamped, do so
             if task!.GetTimeStamp() == 0 {
-                // Port-note: CTask keeps Raven's `DWORD` time stamp as Int32, and I_GetTime returns UInt32, so the store needs a conversion Raven did not write.
-                // Raven wrote: task->SetTimeStamp( ( m_owner->GetInterface())->I_GetTime() );
-                portMissing("CTaskManager::Go", source: "oracle/codemp/icarus/TaskManager.cpp:700")
+                task!.SetTimeStamp((self.m_owner!.GetInterface())!.I_GetTime!())
             }
 
             //Switch and call the proper function
@@ -938,12 +936,75 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1062
-    // Port-note: CTask keeps Raven's `DWORD` time stamp as Int32, and Raven adds it to a float and compares the sum with the UInt32 of I_GetTime.
-    // The body also hands the address of a local float to SetData, which takes a Slots. Neither has a form, so the body waits for a row.
     @discardableResult
     private func Wait(_ task: CTask?, _ completed: inout Bool) -> Int32 {
-        // TODO: Port CTaskManager::Wait
-        portMissing("CTaskManager::Wait", source: "oracle/codemp/icarus/TaskManager.cpp:1062")
+        let bm: CBlockMember?
+        let block: CBlock? = task!.GetBlock()
+        var sVal = ""
+        var dwtime: Float = 0
+        var memberNum: Int32 = 0
+
+        completed = false
+
+        bm = block!.GetMember(0)
+
+        //Check if this is a task completion wait
+        if bm!.GetID() == TK_STRING {
+            // ICARUS_VALIDATE
+            if self.Get(self.m_ownerID, block, &memberNum, &sVal) == 0 { return TASK_FAILED }
+
+            if task!.GetTimeStamp() == (self.m_owner!.GetInterface())!.I_GetTime!() {
+                //Print out the debug info
+                (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d wait(\"%s\"); [%d]", self.m_ownerID, sVal, task!.GetTimeStamp())
+            }
+
+            let group: CTaskGroup? = self.GetTaskGroup(sVal)
+
+            if group == nil {
+                //TODO: Emit warning
+                completed = false
+                return TASK_FAILED
+            }
+
+            completed = group!.Complete()
+        } else {	//Otherwise it's a time completion wait
+            if self.Check(ID_RANDOM, block, memberNum) {//get it random only the first time
+                let min: Float
+                let max: Float
+
+                dwtime = block!.GetMemberData(memberNum)![float: 0]
+                memberNum += 1
+                if dwtime == Q3_INFINITE {//we have not evaluated this random yet
+                    min = block!.GetMemberData(memberNum)![float: 0]
+                    memberNum += 1
+                    max = block!.GetMemberData(memberNum)![float: 0]
+                    memberNum += 1
+
+                    dwtime = (self.m_owner!.GetInterface())!.I_Random!(min, max)
+
+                    //store the result in the first member
+                    // Port-note: Raven hands the address of the local `dwtime` to SetData, which takes a Slots of bytes.
+                    // The BYTE_STORAGE_LOCALS row of `dwtime` gives no storage, because the skeleton reads no method of a C++ class.
+                    // Raven wrote: bm->SetData( &dwtime, sizeof( dwtime ) );
+                    portMissing("CTaskManager::Wait", source: "oracle/codemp/icarus/TaskManager.cpp:1111")
+                }
+            } else {
+                // ICARUS_VALIDATE
+                if self.GetFloat(self.m_ownerID, block, &memberNum, &dwtime) == 0 { return TASK_FAILED }
+            }
+
+            if task!.GetTimeStamp() == (self.m_owner!.GetInterface())!.I_GetTime!() {
+                //Print out the debug info
+                (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d wait( %d ); [%d]", self.m_ownerID, Int32(dwtime), task!.GetTimeStamp())
+            }
+
+            // Port-note: Raven adds the `DWORD` time stamp to a float and compares the sum with the `DWORD` of I_GetTime.
+            // Promotion.swift has no operator between `UInt32` and `Float`, so the sum needs a conversion Raven did not write.
+            // Raven wrote: if ( (task->GetTimeStamp() + dwtime) < ((m_owner->GetInterface())->I_GetTime()) )
+            portMissing("CTaskManager::Wait", source: "oracle/codemp/icarus/TaskManager.cpp:1122")
+        }
+
+        return TASK_OK
     }
 
     /**

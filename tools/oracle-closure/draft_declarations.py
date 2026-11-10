@@ -828,7 +828,8 @@ class Declarations:
             if c.kind != CursorKind.VAR_DECL or c.type.get_canonical().kind != TypeKind.CONSTANTARRAY:
                 continue
             narrow = self.types.narrow(c.type.get_canonical().element_type)
-            if narrow is not None:
+            # A `char name[N]` is a CharBuf, row X23 of docket 10, so its element is not a narrow slot.
+            if narrow is not None and not self.types.is_char_array(c.type):
                 out[c.spelling] = narrow
         return out
 

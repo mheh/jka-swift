@@ -144,7 +144,8 @@ class Expressions:
         if cur.kind != CursorKind.ARRAY_SUBSCRIPT_EXPR:
             return False
         base = self.strip(list(cur.get_children())[0])
-        return base.kind == CursorKind.MEMBER_REF_EXPR and self.types.narrow(cur.type) is not None
+        # A `char name[N]` field is a CharBuf, row X23 of docket 10, so its element is not a narrow slot.
+        return base.kind == CursorKind.MEMBER_REF_EXPR and self.types.narrow(cur.type) is not None and not self.types.is_char_array(base.type)
 
     def strip(self, cur: ci.Cursor) -> ci.Cursor:
         """The expression under the implicit casts Clang wraps around it."""

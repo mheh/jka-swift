@@ -68,8 +68,8 @@ public struct ZoneHeader: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:33
-    public var eTag: JKAShared.memtag_t {
-        get { JKAShared.memtag_t(self.raw.pointee.eTag) }
+    public var eTag: Int32 {
+        get { Int32(self.raw.pointee.eTag) }
         nonmutating set { self.raw.pointee.eTag = CChar(truncatingIfNeeded: newValue) }
     }
 

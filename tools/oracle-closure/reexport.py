@@ -55,7 +55,9 @@ SCALARS = {
 
 # A C integer narrower than int, which C widens to int at every read. A view's scalar field, a parameter, and a return of one of
 # these is Int32 in Swift, and the view's setter stores the truncation C performs. The storage type stays what Raven wrote.
-NARROW = {TypeKind.SHORT, TypeKind.USHORT, TypeKind.SCHAR, TypeKind.UCHAR}
+# A plain `char` scalar is signed in MSVC, so it is narrow too, `bot_characteristic_t.type` of be_ai_char.cpp:47, row X23 of docket 10.
+# A `char` array keeps its CharBuf.
+NARROW = {TypeKind.SHORT, TypeKind.USHORT, TypeKind.SCHAR, TypeKind.UCHAR, TypeKind.CHAR_S}
 
 ANSI = re.compile(r"\x1b\[[0-9;]*m")
 
@@ -287,7 +289,8 @@ def emit(target: str, unimportable: set[str], narrowed: set[str], typed: set[str
             seen.add(name)
             sources = source_lines(cur)
             block = doc(sources)
-            expression = swift_expression(cur, enum_of, declared, narrow=name in narrowed) if name in unimportable else None
+            # A literal Raven wrote with `f` inside parentheses is a Float, the C type, `TERRAIN_STEP_MAGIC` of cm_landscape.h:17, row X45 of docket 10.
+            expression = swift_expression(cur, enum_of, declared, narrow=name in narrowed, float_suffix=True) if name in unimportable else None
             if name in NOT_PORTED_MACROS:
                 block += [f"// Raven wrote: #define {macro_text(cur)}", f"// Not ported: {NOT_PORTED_MACROS[name]}."]
             elif name in typed and name not in unexpressible and cast_literal(cur, typealiases, declared) is not None:

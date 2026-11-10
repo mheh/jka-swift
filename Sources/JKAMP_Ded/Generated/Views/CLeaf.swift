@@ -74,7 +74,7 @@ public struct CLeaf: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/qcommon/cm_local.h:38
-    public var firstLeafBrush: Int32 {
+    public var firstLeafBrush: Int {
         get { self.raw.pointee.firstLeafBrush }
         nonmutating set { self.raw.pointee.firstLeafBrush = newValue }
     }
@@ -86,7 +86,7 @@ public struct CLeaf: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/qcommon/cm_local.h:41
-    public var firstLeafSurface: Int32 {
+    public var firstLeafSurface: Int {
         get { self.raw.pointee.firstLeafSurface }
         nonmutating set { self.raw.pointee.firstLeafSurface = newValue }
     }

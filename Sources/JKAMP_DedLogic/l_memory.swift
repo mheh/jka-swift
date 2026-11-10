@@ -23,9 +23,13 @@ let numblocks: Int32 = 0
 
 /// Source: oracle/codemp/botlib/l_memory.cpp:325
 func GetMemory(_ size: UInt32) -> UnsafeMutableRawPointer? {
-    // Port-note: botimport.runGetMemory returns nothing through its run method, so the body has no address of the block, row BL1.
-    // TODO: Port GetMemory
-    portMissing("GetMemory", source: "oracle/codemp/botlib/l_memory.cpp:325")
+    let memid: Slots<UInt32>
+
+    let ptr = botimport.runGetMemory(Int32(bitPattern: size + UInt32(UInt32.byteCount)))
+    // AI: Raven returns NULL when the import gives no block. The run method returns a block that is never nil, so the test goes.
+    memid = Slots<UInt32>(scalars: ptr, count: 1)
+    memid[0] = UInt32(bitPattern: MEM_ID)
+    return ptr + UInt32.byteCount
 }
 
 /// Source: oracle/codemp/botlib/l_memory.cpp:346
@@ -38,9 +42,13 @@ func GetClearedMemory(_ size: UInt32) -> UnsafeMutableRawPointer {
 
 /// Source: oracle/codemp/botlib/l_memory.cpp:367
 func GetHunkMemory(_ size: UInt32) -> UnsafeMutableRawPointer? {
-    // Port-note: botimport.runHunkAlloc returns nothing through its run method, so the body has no address of the block, row BL1.
-    // TODO: Port GetHunkMemory
-    portMissing("GetHunkMemory", source: "oracle/codemp/botlib/l_memory.cpp:367")
+    let memid: Slots<UInt32>
+
+    let ptr = botimport.runHunkAlloc(Int32(bitPattern: size + UInt32(UInt32.byteCount)))
+    // AI: Raven returns NULL when the import gives no block. The run method returns a block that is never nil, so the test goes.
+    memid = Slots<UInt32>(scalars: ptr, count: 1)
+    memid[0] = HUNK_ID
+    return ptr + UInt32.byteCount
 }
 
 /// Source: oracle/codemp/botlib/l_memory.cpp:388

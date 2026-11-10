@@ -434,8 +434,9 @@ class Calls:
             # A TYPES typedef keeps its spelling, so `context->state` of `UINT4 state[4]` passes to a `Slots<UInt32>`.
             return text
         if param is not None and self.types.is_slots(param[1]) and not ((self.text_kind(inner) is not None or self.unwrap(inner).kind == CursorKind.STRING_LITERAL)
-                     and self.overload_takes(callee, position, "CharBuf")):
+                     and (self.overload_takes(callee, position, "CharBuf") or callee in self.sdk_functions())):
             # A text argument or a literal passes on to an overload that takes a CharBuf, `MSG_WriteData(sb, string, l+1)` of the MSG_WriteData row.
+            # The SDK declaration of a C library function takes the text too, so `strncmp(cgs.voteString, "map", 3)` keeps the libc overload.
             raven = " ".join(self.bytes[cur.extent.start.offset:cur.extent.end.offset].decode("utf-8", "replace").split())
             raise Hole(f"Raven passes `{raven}` to `{callee}`, whose `{param[0]}` parameter takes the Slots over the records, "
                        "and Swift holds one record here. A Slots over one record has no form yet.")

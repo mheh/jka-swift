@@ -170,9 +170,7 @@ func ReadString(_ source: Source, _ fd: Fielddef, _ p: UnsafeMutableRawPointer) 
         //remove the double quotes
         StripDoubleQuotes(&token.stringBuffer)
         //copy the string
-        // Port-note: No strncpy takes a raw destination, so the text has no form into the `char [MAX_STRINGFIELD]` field at `p`, row BL3.
-        // Raven wrote: strncpy((char *) p, token.string, MAX_STRINGFIELD)
-        portMissing("ReadString", source: "oracle/codemp/botlib/l_struct.cpp:207")
+        strncpy(p, token.string, MAX_STRINGFIELD)
         //make sure the string is closed with a zero
         p[byte: MAX_STRINGFIELD - 1] = 0 as Int32
         //
@@ -261,7 +259,8 @@ func ReadStructure(_ source: Source, _ def: Structdef, _ structure: UnsafeMutabl
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_struct.cpp:313
 func WriteIndent(_ fp: OpaquePointer?, _ indent: Int32) -> Int32 {
-    // Port-note: FileBackend has no fprintf, so no call writes the tab to the stream, row BL2.
+    // WriteStructWithIndent is the one caller, and its one caller WriteStructure stands only under DEBUG_AI_WEAP.
+    // The build does not define DEBUG_AI_WEAP, so this function is dead.
     // TODO: Port WriteIndent
     portMissing("WriteIndent", source: "oracle/codemp/botlib/l_struct.cpp:313")
 }
@@ -274,7 +273,8 @@ func WriteIndent(_ fp: OpaquePointer?, _ indent: Int32) -> Int32 {
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_struct.cpp:327
 func WriteFloat(_ fp: OpaquePointer?, _ value: Float) -> Int32 {
-    // Port-note: FileBackend has no fprintf, so no call writes the text of the float to the stream, row BL2.
+    // WriteStructWithIndent is the one caller, and its one caller WriteStructure stands only under DEBUG_AI_WEAP.
+    // The build does not define DEBUG_AI_WEAP, so this function is dead.
     // TODO: Port WriteFloat
     portMissing("WriteFloat", source: "oracle/codemp/botlib/l_struct.cpp:327")
 }

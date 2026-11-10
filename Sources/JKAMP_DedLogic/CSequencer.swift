@@ -974,9 +974,7 @@ final class CSequencer {
             // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
             var runName = CharBuf(block!.GetMember(0)!.GetSize())
             Com_Memcpy(&runName, block!.GetMemberData(0)!, runName.count)
-            // Port-note: Raven prints the `DWORD` of I_GetTime with `%d`, and the format takes no UInt32, so the call needs a conversion Raven did not write.
-            // Raven wrote: m_ie->I_DPrintf( WL_DEBUG, "%4d run( \"%s\" ); [%d]", m_ownerID, (char *) block->GetMemberData(0), m_ie->I_GetTime() );
-            portMissing("CSequencer::CheckRun", source: "oracle/codemp/icarus/Sequencer.cpp:961")
+            self.m_ie!.I_DPrintf!(WL_DEBUG, "%4d run( \"%s\" ); [%d]", self.m_ownerID, runName, self.m_ie!.I_GetTime!())
 
             if self.m_curSequence!.HasFlag(SQ_RETAIN) != 0 {
                 self.PushCommand(block, PUSH_FRONT)

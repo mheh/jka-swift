@@ -2073,3 +2073,13 @@ func rand() -> Int32 {
 func random() -> Float {
     Float(rand() & 0x7fff) / Float(0x7fff)
 }
+
+/// Source: oracle/codemp/game/q_shared.h:1592
+func crandom() -> Double {
+    2.0 * (Double(random()) - 0.5)
+}
+
+/// Source: oracle/codemp/qcommon/qcommon.h:1094
+func Round(_ value: Float) -> Int32 {
+    return Int32(floorf(value + 0.5))
+}

@@ -1,4 +1,4 @@
-/// This file holds the `printf` subset Raven's game code prints through: `%i`, `%d`, `%s`, `%f`, with an optional `-` flag, a width, and a precision.
+/// This file holds the `printf` subset Raven's game code prints through: `%i`, `%d`, `%s`, `%f`, with an optional `-` flag, a width, a precision, and an `l` length on `%i` and `%d`.
 /// A ported body passes its arguments as `[any FormatArg]`, and the callers `va`, `Com_sprintf`, and `Com_Printf` build that array.
 /// The port is by hand, so the semantics are ours and the tests can hold them, and no Foundation call decides them.
 
@@ -30,6 +30,11 @@ extension Int32: FormatArg {
 
 /// C promotes a `byte` vararg to `int`, so a byte prints as its integer value.
 extension UInt8: FormatArg {
+    public var formatValue: FormatValue { .integer(Int64(self)) }
+}
+
+/// Raven's `DWORD` of the ICARUS time stamp prints as its integer value.
+extension UInt32: FormatArg {
     public var formatValue: FormatValue { .integer(Int64(self)) }
 }
 
@@ -66,7 +71,7 @@ extension Bool: FormatArg {
 // MARK: - format
 
 /// This prints `fmt` with `args` substituted, Raven's `printf` over the specifiers the game uses.
-/// A specifier outside `%[-][width][.precision](i|d|s|f)`, an argument of the wrong shape, or a missing argument traps, so a new shape surfaces at once instead of printing wrong text.
+/// A specifier outside `%[-][width][.precision][l](i|d|s|f)`, an argument of the wrong shape, or a missing argument traps, so a new shape surfaces at once instead of printing wrong text.
 public func format(_ fmt: String, _ args: [any FormatArg]) -> String {
     let characters = Array(fmt)
     var out = ""
@@ -114,8 +119,16 @@ public func format(_ fmt: String, _ args: [any FormatArg]) -> String {
             precision = places
         }
 
+        // An `l` length prints the integer as the specifier does, in the 32 bits of `long` in the MSVC build.
+        var long = false
+        if index < characters.count, characters[index] == "l" {
+            long = true
+            index += 1
+        }
+
         precondition(index < characters.count, "format: the format string ends inside a specifier")
         let conversion = characters[index]
+        precondition(!long || conversion == "i" || conversion == "d", "format: %l\(conversion) is not a specifier this port supports")
         index += 1
 
         precondition(nextArg < args.count, "format: too few arguments for \(fmt)")
@@ -128,7 +141,7 @@ public func format(_ fmt: String, _ args: [any FormatArg]) -> String {
                 preconditionFailure("format: %\(conversion) needs an integer argument")
             }
             out += pad(
-                String(number),
+                long ? String(Int32(truncatingIfNeeded: number)) : String(number),
                 width: width,
                 leftAlign: leftAlign
             )

@@ -451,6 +451,19 @@ HOST_ROOTS = {
     "value_t": ("Value", "CJKAMP_Ded"),
     # PC_ReadTokenHandle of l_precomp.cpp:3253 fills the record of q_shared.h the game views, row D17, the qtime_t form.
     "pc_token_t": ("PcToken", "CJKAMP"),
+    # The model records of mdx_format.h and qfiles.h that the bone path and the bolts read, rows X4, X6, X10, and R6 of docket 10, the mdx rows above.
+    # UnCompressBone reads the compressed bone pool at tr_ghoul2.cpp:1160, G2_GetBonePoolIndex reads the index table at :1152,
+    # G2_ProcessSurfaceBolt2 reads the triangles of a surface at :2895, and the md3 loader reads the surfaces of an `.md3` model.
+    "mdxaCompQuatBone_t": ("MdxaCompQuatBone", "CJKAMP_Ded"),
+    "mdxaIndex_t": ("MdxaIndex", "CJKAMP_Ded"),
+    "mdxmTriangle_t": ("MdxmTriangle", "CJKAMP_Ded"),
+    "md3Surface_t": ("Md3Surface", "CJKAMP_Ded"),
+    # R_TransformEachSurface reads the texture coordinates of a surface at G2_misc.cpp:388, row X8 of docket 10.
+    "mdxmVertexTexCoord_t": ("MdxmVertexTexCoord", "CJKAMP_Ded"),
+    # The named union of be_ai_char.cpp:39 that `bot_characteristic_t.value` holds, the `qfile_gut` row, row X22 of docket 10.
+    "cvalue": ("Cvalue", "CJKAMP_Ded"),
+    # GetAutomapSymbol of RM_Manager.cpp:418 returns the record of client.h:143, which ded_types.h copies, row X41 of docket 10.
+    "rmAutomapSymbol_t": ("RmAutomapSymbol", "CJKAMP_Ded"),
 }
 
 ROOTS = {"mp-game": GAME_ROOTS, "mp-cgame": CGAME_ROOTS, "mp-engine-ded": HOST_ROOTS}
@@ -656,6 +669,62 @@ BYTE_STORAGE_LOCALS = {
     ("areas", "BotExportTest"): ("BotExportTest",),
     # `int modelList[256]` of G2_ConstructGhoulSkeleton goes to the `int *` list of G2_Sort_Models at tr_ghoul2.cpp:3592, row R8.
     ("modelList", "G2_ConstructGhoulSkeleton"): ("G2_ConstructGhoulSkeleton",),
+    # The record each function of RETURNS kind `record` returns, the `ev` rows above, row X17 of docket 10.
+    # AAS_Trace returns `bsptrace` at be_aas_bspq3.cpp:142, AAS_TraceClientBBox returns `trace` of be_aas_sample.cpp,
+    # and the travel functions of be_ai_move.cpp return `result`.
+    ("bsptrace", "AAS_Trace"): ("AAS_Trace",),
+    ("trace", "AAS_TraceClientBBox"): ("AAS_TraceClientBBox",),
+    ("result", "BotTravel_Walk"): ("BotTravel_Walk",),
+    ("result", "BotFinishTravel_Walk"): ("BotFinishTravel_Walk",),
+    ("result", "BotTravel_Crouch"): ("BotTravel_Crouch",),
+    ("result", "BotTravel_BarrierJump"): ("BotTravel_BarrierJump",),
+    ("result", "BotFinishTravel_BarrierJump"): ("BotFinishTravel_BarrierJump",),
+    ("result", "BotTravel_Swim"): ("BotTravel_Swim",),
+    ("result", "BotTravel_WaterJump"): ("BotTravel_WaterJump",),
+    ("result", "BotFinishTravel_WaterJump"): ("BotFinishTravel_WaterJump",),
+    ("result", "BotTravel_WalkOffLedge"): ("BotTravel_WalkOffLedge",),
+    ("result", "BotFinishTravel_WalkOffLedge"): ("BotFinishTravel_WalkOffLedge",),
+    ("result", "BotTravel_Jump"): ("BotTravel_Jump",),
+    ("result", "BotFinishTravel_Jump"): ("BotFinishTravel_Jump",),
+    ("result", "BotTravel_Ladder"): ("BotTravel_Ladder",),
+    ("result", "BotTravel_Teleport"): ("BotTravel_Teleport",),
+    ("result", "BotTravel_Elevator"): ("BotTravel_Elevator",),
+    ("result", "BotFinishTravel_Elevator"): ("BotFinishTravel_Elevator",),
+    ("result", "BotTravel_FuncBobbing"): ("BotTravel_FuncBobbing",),
+    ("result", "BotFinishTravel_FuncBobbing"): ("BotFinishTravel_FuncBobbing",),
+    ("result", "BotTravel_Grapple"): ("BotTravel_Grapple",),
+    ("result", "BotTravel_RocketJump"): ("BotTravel_RocketJump",),
+    ("result", "BotTravel_BFGJump"): ("BotTravel_BFGJump",),
+    ("result", "BotFinishTravel_WeaponJump"): ("BotFinishTravel_WeaponJump",),
+    ("result", "BotTravel_JumpPad"): ("BotTravel_JumpPad",),
+    ("result", "BotFinishTravel_JumpPad"): ("BotFinishTravel_JumpPad",),
+    ("result", "BotMoveInGoalArea"): ("BotMoveInGoalArea",),
+    # The `float` and `unsigned short` locals a body hands to a list parameter, row X20 of docket 10, the `int` rows above.
+    # GeneticParentsAndChildSelection hands `rankings` to GeneticSelection at be_ai_gen.cpp:75, and BotPredictVisiblePosition hands
+    # its three avoid lists to BotGetReachabilityToGoal at be_ai_move.cpp:899 to :901.
+    ("rankings", "GeneticParentsAndChildSelection"): ("GeneticParentsAndChildSelection",),
+    ("avoidreach", "BotPredictVisiblePosition"): ("BotPredictVisiblePosition",),
+    ("avoidreachtimes", "BotPredictVisiblePosition"): ("BotPredictVisiblePosition",),
+    ("avoidreachtries", "BotPredictVisiblePosition"): ("BotPredictVisiblePosition",),
+    # AAS_UpdateAreaRoutingCache keeps the address of `startareatraveltimes` in a routing update at be_aas_route.cpp:1275.
+    ("startareatraveltimes", "AAS_UpdateAreaRoutingCache"): ("AAS_UpdateAreaRoutingCache",),
+    # BotImport_DebugLineCreate and BotImport_DebugLineShow hand their `vec3_t points[]` locals to the `vec3_t *` table of the polygon calls,
+    # sv_bot.cpp:526 and :569, row B4 of the cmsv round, the `hullPoints` rule.
+    ("points", "BotImport_DebugLineCreate"): ("BotImport_DebugLineCreate",),
+    ("points", "BotImport_DebugLineShow"): ("BotImport_DebugLineShow",),
+    # The static record locals of the bone path and the AAS debug code, the `nullSym` row, rows X5 and X36 A6 of docket 10.
+    # G2_TransformBone declares `static mdxaBone_t tbone[6]` at tr_ghoul2.cpp:1544, and AAS_ShowReachableAreas `static aas_reachability_t reach`
+    # at be_aas_debug.cpp:670. The scalar statics beside them are properties of EngineWorld.
+    ("tbone", "G2_TransformBone"): ("G2_TransformBone",),
+    ("reach", "AAS_ShowReachableAreas"): ("AAS_ShowReachableAreas",),
+    # `unsigned char heightmap[15000]` of SV_SendClientGameState is the output of deflate at sv_client.cpp:747 and goes to MSG_WriteData at :753,
+    # the `msgBuffer` row of the same function, row X44 of docket 10.
+    ("heightmap", "SV_SendClientGameState"): ("SV_SendClientGameState",),
+    # CCMLandScape::FlattenArea hands `&height`, `&height2`, and its `ivec3_t info` to the `int *user` of CM_CircularIterate,
+    # cm_terrain.cpp:1343 to :1366, the `key` row of Com_BlockChecksumKey. A key of a method gives storage too, row X42 R5 of docket 10.
+    ("height", "FlattenArea"): ("FlattenArea",),
+    ("height2", "FlattenArea"): ("FlattenArea",),
+    ("info", "FlattenArea"): ("FlattenArea",),
 }
 # A scalar data table Raven initializes at file scope that tables.py copies into C storage, which the view target reads as a Slots of its scalar.
 # `static unsigned char PADDING[64]` of md4.cpp goes to MD4Update at md4.cpp:157, whose `input` is a Slots of bytes.
@@ -766,6 +835,10 @@ FIELDS = {
     ("script_t", "endwhitespace_p"): ("text_offset", "buffer"),
     ("token_t", "whitespace_p"): ("text_offset", None),
     ("token_t", "endwhitespace_p"): ("text_offset", None),
+    # The weight index tables of the weapon and goal states, which WeaponWeightIndex and ItemWeightIndex allocate,
+    # and be_ai_weap.cpp:407 and be_ai_goal.cpp:1329 and :1500 index, the `aas_t.edgeindex` row, row X21 of docket 10.
+    ("bot_weaponstate_t", "weaponweightindex"): "bytes",
+    ("bot_goalstate_t", "itemweightindex"): "bytes",
 }
 
 # (struct, field) -> the accessor name of a field whose C name is a member of every view, `handle` or `raw`, where a body reads the field.
@@ -903,6 +976,7 @@ ENUM_TYPEDEFS = {"memtag_t"}
 #   string_list    a [String], for a `char **` list of zone texts with its count beside it, the file lists of files_pc.cpp and win_main.cpp
 #   class_ref      the Swift class of a C++ class of CXX_CLASSES, optional, for a pointer to an instance Raven returns or NULL
 #   int32          an Int32, for an `unsigned` mask Raven returns into an `int` of every caller
+# A key `record.field` names the stored function of a view field, and its run method takes the kind, `botlib_import_t.GetMemory`.
 RETURNS = {
     # get_ppnode of huffman.cpp:48 returns the address of a `node_t *` slot of `nodePtrs` or of the free list.
     "get_ppnode": "slot",
@@ -1009,6 +1083,48 @@ RETURNS = {
     # NameToAFunc of tr_shader.cpp:358 returns `unsigned`, and ParseStage stores it into `int atestBits` at :1502. GLS_ATEST_GE_C0 is the unsigned 0x80000000,
     # so the body spells it as the Int32 complement, the form of CONTENTS_TRANSLUCENT in cm_shader.swift, row TR18.
     "NameToAFunc": "int32",
+    # The stored functions of the botlib import return the block of BotImport_GetMemory and BotImport_HunkAlloc, sv_bot.cpp:438 and :459,
+    # the rows above, so the run methods return the block, row X1 of docket 10.
+    "botlib_import_t.GetMemory": "raw",
+    "botlib_import_t.HunkAlloc": "raw",
+    # G2_FindSurface_BC of tr_ghoul2.cpp:2952 returns a `void *` that every caller casts to `mdxmSurface_t *`, the G2_FindSurface row, row X14 G1d.
+    "G2_FindSurface_BC": ("view", "mdxmSurface_t"),
+    # Raven returns a record by value, the Com_GetRealEvent rows, row X17 of docket 10. AAS_Trace of be_aas_bspq3.cpp:130 returns a `bsp_trace_t`,
+    # AAS_TraceClientBBox of be_aas_sample.cpp:432 an `aas_trace_t`, and the travel functions of be_ai_move.cpp:1328 to :2981 a `bot_moveresult_t`.
+    "AAS_Trace": "record",
+    "AAS_TraceClientBBox": "record",
+    "BotTravel_Walk": "record",
+    "BotFinishTravel_Walk": "record",
+    "BotTravel_Crouch": "record",
+    "BotTravel_BarrierJump": "record",
+    "BotFinishTravel_BarrierJump": "record",
+    "BotTravel_Swim": "record",
+    "BotTravel_WaterJump": "record",
+    "BotFinishTravel_WaterJump": "record",
+    "BotTravel_WalkOffLedge": "record",
+    "BotFinishTravel_WalkOffLedge": "record",
+    "BotTravel_Jump": "record",
+    "BotFinishTravel_Jump": "record",
+    "BotTravel_Ladder": "record",
+    "BotTravel_Teleport": "record",
+    "BotTravel_Elevator": "record",
+    "BotFinishTravel_Elevator": "record",
+    "BotTravel_FuncBobbing": "record",
+    "BotFinishTravel_FuncBobbing": "record",
+    "BotTravel_Grapple": "record",
+    "BotTravel_RocketJump": "record",
+    "BotTravel_BFGJump": "record",
+    "BotFinishTravel_WeaponJump": "record",
+    "BotTravel_JumpPad": "record",
+    "BotFinishTravel_JumpPad": "record",
+    "BotMoveInGoalArea": "record",
+    # WeaponWeightIndex of be_ai_weap.cpp and ItemWeightIndex of be_ai_goal.cpp return the `int *` table that the state field holds, row X21 of docket 10.
+    "WeaponWeightIndex": "bytes",
+    "ItemWeightIndex": "bytes",
+    # StringContainsWord of be_ai_chat.cpp:478 returns a pointer into `str1`, which StringReplaceWords steps at :534 to :544, the Q_strrchr row, row X24 P15.
+    "StringContainsWord": "text_offset",
+    # AAS_LoadAASLump of be_aas_file.cpp:273 returns the block of the lump or NULL on a failed read, the GetMemory row, row X36 A3.
+    "AAS_LoadAASLump": "optional_raw",
 }
 
 # Allocators whose `char *` result a body holds as a CharBuf of the constant size Raven asks for, when every store into the local is that call.
@@ -1037,7 +1153,11 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #   model_list  a Slots<qhandle_t>? for an `int *modelList` the engine reads as the array of model handles, the form a `qhandle_t *` has
 #   out_opaque  an inout OpaquePointer? for a `void *` Raven's callers pass the address of a handle field to, the shape a `void **` already has
 #   view      the optional view of the record named beside the kind, ("view", record), for a `void *` every caller fills with that record or NULL
-#   float_mut  an inout Float for a `float *` of a stored function that the function reads and writes as one float, keyed by "record.field"
+#   float_mut  an inout Float for a `float *` of a stored function that the function reads and writes as one float, keyed by "record.field",
+#             and an inout Int32 for an `int *` of the same use, the `fileHandle_t *` of `botlib_import_t.FS_FOpenFile`
+#   view_array  an inout [View?] for a `T **` that is the caller's C array of struct pointers the function fills, the rule of a `T *name[N]` parameter
+#   out_scalar  an inout CChar for a `char *` that holds one character the body writes, the rule of a pointer to one scalar
+#   text      a String for a `char *` of a stored function that the filler only reads, Raven's missing `const`, keyed by "record.field"
 #   keyword_buckets  the bucket table of row indices and the row table beside it, form A of R53, for `keywordHash_t *table[]`
 #   keyword_buckets_mut  the same pair inout, for the function that links a row into the buckets
 #   row_index  an Int32 row index for a `keywordHash_t *` row pointer, form A of R53
@@ -1340,6 +1460,43 @@ PARAMS = {
     ("WriteFloat", "fp"): "opaque",
     ("WriteStructWithIndent", "fp"): "opaque",
     ("WriteStructure", "fp"): "opaque",
+    # The stored functions of the botlib import, keyed by "record.field", row X1 of docket 10. FS_FOpenFile writes the handle through `file`,
+    # the FS_FOpenFileByMode of files_pc.cpp that sv_bot.cpp:702 stores. FS_Read and FS_Write move the bytes of `buffer`, the FS_Read2 and FS_Write rows,
+    # and DebugPolygonCreate reads `numPoints` vectors, the BotImport_DebugPolygonCreate row.
+    ("botlib_import_t.FS_FOpenFile", "file"): "float_mut",
+    ("botlib_import_t.FS_Read", "buffer"): "bytes",
+    ("botlib_import_t.FS_Write", "buffer"): "bytes",
+    ("botlib_import_t.DebugPolygonCreate", "points"): "table",
+    # BotImport_BotClientCommand of sv_bot.cpp:577 only reads `command`, and Raven left out the `const`, the trap rule of docs/transcription.md:105.
+    # Row X1b of docket 10, ruled 2026-11-10.
+    ("botlib_import_t.BotClientCommand", "command"): "text",
+    # Every caller of UnCompressBone hands the `matrix` of an `mdxaBone_t`, tr_ghoul2.cpp:1464 and :1707 to :1748, so the parameter is that view, row X4.
+    ("UnCompressBone", "mat"): ("view", "mdxaBone_t"),
+    # UnCompressBone hands its `mat` on to MC_UnCompressQuat of matcomp.c, the same matrix, row X4.
+    ("MC_UnCompressQuat", "mat"): ("view", "mdxaBone_t"),
+    # AAS_BSPModelMinsMaxsOrigin hands its three vectors to botimport.BSPModelMinsMaxsOrigin at be_aas_bspq3.cpp:195, which writes them, row X18.
+    ("AAS_BSPModelMinsMaxsOrigin", "mins"): "vec3_mut",
+    ("AAS_BSPModelMinsMaxsOrigin", "maxs"): "vec3_mut",
+    ("AAS_BSPModelMinsMaxsOrigin", "origin"): "vec3_mut",
+    # BotGetReachabilityToGoal reads the table `ms->avoidspots` that be_ai_move.cpp:3279 and :3401 hand it, row X19 P11.
+    ("BotGetReachabilityToGoal", "avoidspots"): "table",
+    # FuzzyWeight and FuzzyWeightUndecided hand `inventory` to FuzzyWeight_r, which indexes it, be_ai_weight.cpp:627 and :658, row X21 P4.
+    ("FuzzyWeight", "inventory"): "bytes",
+    ("FuzzyWeightUndecided", "inventory"): "bytes",
+    # The hash table of define pointers, `source->definehash` or `globaldefines`, l_precomp.cpp:516, :559, and :585, row X29, the D6 row of the ninth batch.
+    ("PC_PrintDefineHashTable", "definehash"): "pointer_table",
+    ("PC_AddDefineToHash", "definehash"): "pointer_table",
+    ("PC_FindHashedDefine", "definehash"): "pointer_table",
+    # PC_ReadDefineParms fills the caller's `token_t *parms[MAX_DEFINEPARMS]` at l_precomp.cpp:351, row X31.
+    ("PC_ReadDefineParms", "parms"): "view_array",
+    # PS_ReadEscapeCharacter writes one character through `ch`, l_script.cpp:344, and the callers pass `&token->string[len]` at :446 and :735, row X32.
+    ("PS_ReadEscapeCharacter", "ch"): "out_scalar",
+    # CM_CircularIterate hands the caller's `ivec3_t` or `int` to each callback as `int *user`, cm_terrain.cpp:1067 to :1114, the `int *` list rule, row X42 R5.
+    ("CM_CircularIterate", "user"): "bytes",
+    ("CM_ForceHeight", "user"): "bytes",
+    ("CM_GetAverage", "user"): "bytes",
+    ("CM_Smooth", "user"): "bytes",
+    ("CM_MakeAverage", "user"): "bytes",
 }
 
 # Rule 20: a function with no caller in either tree stays as its stub, and the stub carries one note line that it is dead.
@@ -1361,6 +1518,14 @@ DEAD = {
     # The SP calls of code/game/g_savegame.cpp:856 and :1058 reach the SP tree's own G2_API.cpp, row R9.
     "G2_SaveGhoul2Models": "G2API_SaveGhoul2Models is the one caller, and no file of the MP tree calls it",
     "G2_LoadGhoul2Model": "G2API_LoadGhoul2Models is the one caller, and no file of the MP tree calls it",
+    # CM_Checksum of cm_load.cpp:544 has no caller in either tree, row X45 of docket 10.
+    "CM_Checksum": "Raven calls this function from no file of either tree",
+    # CM_DrawDebugSurface of cm_patch.cpp:1674 is the one caller of BotDrawDebugPolygons of sv_bot.cpp:227, and it is dead above, row X45 B6.
+    "BotDrawDebugPolygons": "CM_DrawDebugSurface is the one caller, and the dedicated build never draws",
+    # WriteStructWithIndent of l_struct.cpp:355 is the one caller of each, and WriteStructure, its one caller, is called only by DumpWeaponConfig
+    # of be_ai_weap.cpp:156 under DEBUG_AI_WEAP, which the build does not define, row X34 of docket 10.
+    "WriteIndent": "WriteStructWithIndent is the one caller, and its one caller WriteStructure stands only under DEBUG_AI_WEAP, which the build does not define",
+    "WriteFloat": "WriteStructWithIndent is the one caller, and its one caller WriteStructure stands only under DEBUG_AI_WEAP, which the build does not define",
 }
 
 # Functions of the oracle the port leaves out. The stub carries the cite, Raven's line, and the reason, and no function.
@@ -1401,7 +1566,8 @@ LIBC_FUNCTIONS = {"sqrt": ([("x", "Float")], "Float", "x.squareRoot()")}
 
 # The Swift name of a C library function whose Foundation name Swift deprecates, so a body writes `abs` where Raven wrote `fabs`.
 # Raven's `stricmp` is the platform's `strcasecmp`, and `Q_stricmp` gives the same zero test over ASCII, `CG_DrawVote` of cg_draw.c.
-LIBC_SPELLINGS = {"fabs": "abs", "fabsf": "abs", "stricmp": "Q_stricmp"}
+# Raven's `atol` reads a 32-bit `long` in MSVC, so it is `atoi`, cm_terrain.cpp:74, :93, and :134 to :136, row X45 R1 of docket 10.
+LIBC_SPELLINGS = {"fabs": "abs", "fabsf": "abs", "stricmp": "Q_stricmp", "atol": "atoi"}
 
 # Macros a platform defines or not, so a conditional that names one stays as Raven wrote it in the extracted header, and each platform build takes its own arm.
 # PATH_MAX picks the arm of MAX_OSPATH at q_shared.h:394, and Windows has no PATH_MAX.
@@ -1424,6 +1590,18 @@ C_STRUCT_CLASSES = {
     # `tr.landScape` holds the record by value, and its `class CTRLandScape *` field points at the renderer's terrain class, which C never reads.
     "srfTerrain_t": ("fields", "oracle/codemp/renderer/tr_local.h:744"),
     "CTRLandScape": ("tag", "oracle/codemp/renderer/tr_local.h:747"),
+    # The compressed bone of mdx_format.h:119 is a C struct but for its `operator <`, which C leaves out, the CCMShader row, row X4 of docket 10.
+    "mdxaCompQuatBone_t": ("fields", "oracle/codemp/renderer/mdx_format.h:119"),
+}
+
+# Record fields whose C width the copied header changes, record -> (the C type, the fields, the cite of the precedent).
+# extract.py writes the record with the type of each field changed and one AI line, and it writes no layout asserts for the record,
+# because the oracle's numbers no longer hold on a 64-bit triple.
+# CMod_LoadSubmodels stores the difference of two zone blocks into `firstLeafBrush` and `firstLeafSurface` at cm_load.cpp:154 and :161,
+# which overflows an `int` when the blocks lie far apart on a 64-bit host. OpenJK widens both to `ptrdiff_t`.
+# Row X46 of docket 10, ruled 2026-11-10 by the user.
+WIDENED_FIELDS = {
+    "cLeaf_t": ("ptrdiff_t", ("firstLeafBrush", "firstLeafSurface"), "openjk/codemp/qcommon/cm_local.h:48 and :51"),
 }
 
 # C++ classes of the oracle that a hand Swift class of the same name ports, by the C++ track of rule 17.
@@ -1454,6 +1632,8 @@ CXX_CLASSES = {
     # The terrain classes of cm_landscape.h:42 to :135 and the random mission classes of RM_Manager.h:9 and RM_Objective.h:9, rows S1 and CM6.
     "CArea": "CArea", "CCMHeightDetails": "CCMHeightDetails", "CCMPatch": "CCMPatch", "CCMLandScape": "CCMLandScape",
     "CRMManager": "CRMManager", "CRMObjective": "CRMObjective",
+    # The random terrain class of cm_randomterrain.h and the mission class of RM_Mission.h, which CCMLandScape and CRMManager hold, row X41 of docket 10.
+    "CRandomTerrain": "CRandomTerrain", "CRMMission": "CRMMission",
 }
 
 # C targets whose copied headers include a C library header, as CJKASyscall includes <stdint.h>.
@@ -1580,6 +1760,33 @@ NULLABLE = {
     ("G2_TraceModels", "gore"),
     # tr_arioche.cpp:29 passes NULL for `timeOffset`, and R_RemapShader tests it at tr_shader.cpp:313 before the store.
     ("R_RemapShader", "timeOffset"),
+    # G2_GetBoltMatrixLow passes NULL for the surface at tr_ghoul2.cpp:3316 to :3324, row X14 G1e of docket 10.
+    ("G2_ProcessSurfaceBolt2", "surface"),
+    # The botlib frees and walks of a list that starts NULL, row X19 of docket 10. be_ai_chat.cpp:1142, :1205, :1264, :1273, :1836, :1958, and :1578
+    # hand a local that starts NULL, and each body tests or walks it.
+    ("BotFreeMatchPieces", "matchpieces"),
+    ("BotFreeMatchTemplates", "mt"),
+    ("BotFreeReplyChat", "replychat"),
+    ("BotCheckReplyChatIntegrety", "replychat"),
+    ("BotCheckChatMessageIntegrety", "stringlist"),
+    ("BotFindStringInList", "list"),
+    # AAS_UnlinkFromAreas, AAS_UnlinkFromBSPLeaves, and AAS_BestReachableLinkArea walk a link list that a caller hands as NULL,
+    # be_aas_sample.cpp:1175, be_aas_bspq3.cpp:206, and be_aas_reach.cpp:168.
+    ("AAS_UnlinkFromAreas", "areas"),
+    ("AAS_UnlinkFromBSPLeaves", "leaves"),
+    ("AAS_BestReachableLinkArea", "areas"),
+    # PC_ExpandDefine hands `parms[parmnum]`, NULL for an empty argument, to PC_StringizeTokens at l_precomp.cpp:848.
+    ("PC_StringizeTokens", "tokens"),
+    # FreeFuzzySeperators_r tests `!fs` at be_ai_weight.cpp:97, and ReadFuzzySeperators_r hands it a NULL `firstfs`.
+    ("FreeFuzzySeperators_r", "fs"),
+    ("BotGetReachabilityToGoal", "avoidspots"),
+    # BotGetReachabilityToGoal hands its NULL `avoidspots` on to BotAvoidSpots, which loops `numavoidspots` times, be_ai_move.cpp:790.
+    ("BotAvoidSpots", "avoidspots"),
+    # The module hands NULL for an unused variable through the export, and the bodies test `if (var0)` at be_ai_chat.cpp:2499 and :2682, row X24 P19.
+    ("BotInitialChat", "var0"), ("BotInitialChat", "var1"), ("BotInitialChat", "var2"), ("BotInitialChat", "var3"),
+    ("BotInitialChat", "var4"), ("BotInitialChat", "var5"), ("BotInitialChat", "var6"), ("BotInitialChat", "var7"),
+    ("BotReplyChat", "var0"), ("BotReplyChat", "var1"), ("BotReplyChat", "var2"), ("BotReplyChat", "var3"),
+    ("BotReplyChat", "var4"), ("BotReplyChat", "var5"), ("BotReplyChat", "var6"), ("BotReplyChat", "var7"),
 }
 # (struct, field) pairs of a record pointer field a body indexes through a local copy or a `++` walk, which the subscript sweep cannot see.
 # The view gives the field its `<field>Slots` accessor, as the sweep does for a field a body indexes in place.

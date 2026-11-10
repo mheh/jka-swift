@@ -30,15 +30,11 @@ var botcharacters: Slots<BotCharacter?> { world.storage.botcharacters }
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:68
 func BotCharacterFromHandle(_ handle: Int32) -> BotCharacter? {
     if handle <= 0 || handle > MAX_CLIENTS {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "character handle %d out of range\n", handle);
-        portMissing("BotCharacterFromHandle", source: "oracle/codemp/botlib/be_ai_char.cpp:68")
+        botimport.runPrint(PRT_FATAL, "character handle %d out of range\n", handle)
         return nil
     }
     if botcharacters[handle] == nil {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "invalid character %d\n", handle);
-        portMissing("BotCharacterFromHandle", source: "oracle/codemp/botlib/be_ai_char.cpp:68")
+        botimport.runPrint(PRT_FATAL, "invalid character %d\n", handle)
         return nil
     }
     return botcharacters[handle]
@@ -54,14 +50,11 @@ func BotCharacterFromHandle(_ handle: Int32) -> BotCharacter? {
 func BotDumpCharacter(_ ch: BotCharacter) {
     var i: Int32
 
-    var fmt = CharBuf("%s")
-    Log_Write(&fmt, ch.filename)
-    var fmt2 = CharBuf("skill %d\n")
+    Log_Write("%s", ch.filename)
     // Port-note: Raven passes the float `skill` to a `%d`, which reads the bits of a double as an int, undefined.
     // The port passes the integer part of the skill.
-    Log_Write(&fmt2, Int32(ch.skill))
-    var fmt3 = CharBuf("{\n")
-    Log_Write(&fmt3)
+    Log_Write("skill %d\n", Int32(ch.skill))
+    Log_Write("{\n")
     i = 0
     while i < MAX_CHARACTERISTICS {
         // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
@@ -69,8 +62,7 @@ func BotDumpCharacter(_ ch: BotCharacter) {
         portMissing("BotDumpCharacter", source: "oracle/codemp/botlib/be_ai_char.cpp:88")
         i += 1
     }
-    var fmt4 = CharBuf("}\n")
-    Log_Write(&fmt4)
+    Log_Write("}\n")
 }
 
 //========================================================================
@@ -103,15 +95,11 @@ func BotFreeCharacterStrings(_ ch: BotCharacter) {
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:130
 func BotFreeCharacter2(_ handle: Int32) {
     if handle <= 0 || handle > MAX_CLIENTS {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "character handle %d out of range\n", handle);
-        portMissing("BotFreeCharacter2", source: "oracle/codemp/botlib/be_ai_char.cpp:130")
+        botimport.runPrint(PRT_FATAL, "character handle %d out of range\n", handle)
         return
     }
     if botcharacters[handle] == nil {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "invalid character %d\n", handle);
-        portMissing("BotFreeCharacter2", source: "oracle/codemp/botlib/be_ai_char.cpp:130")
+        botimport.runPrint(PRT_FATAL, "invalid character %d\n", handle)
         return
     }
     BotFreeCharacterStrings(botcharacters[handle]!)
@@ -149,17 +137,17 @@ func BotDefaultCharacteristics(_ ch: BotCharacter, _ defaultch: BotCharacter) {
         }
         //
         if Int32(defaultch.c[i].type) == CT_FLOAT {
-            ch.c[i].type = CChar(CT_FLOAT)
+            ch.c[i].type = CT_FLOAT
             // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
             // Raven wrote: ch->c[i].value._float = defaultch->c[i].value._float;
             portMissing("BotDefaultCharacteristics", source: "oracle/codemp/botlib/be_ai_char.cpp:163")
         } else if Int32(defaultch.c[i].type) == CT_INTEGER {
-            ch.c[i].type = CChar(CT_INTEGER)
+            ch.c[i].type = CT_INTEGER
             // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
             // Raven wrote: ch->c[i].value.integer = defaultch->c[i].value.integer;
             portMissing("BotDefaultCharacteristics", source: "oracle/codemp/botlib/be_ai_char.cpp:163")
         } else if Int32(defaultch.c[i].type) == CT_STRING {
-            ch.c[i].type = CChar(CT_STRING)
+            ch.c[i].type = CT_STRING
             // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
             // Raven wrote: ch->c[i].value.string = (char *) GetMemory(strlen(defaultch->c[i].value.string)+1); strcpy(ch->c[i].value.string, defaultch->c[i].value.string);
             portMissing("BotDefaultCharacteristics", source: "oracle/codemp/botlib/be_ai_char.cpp:163")
@@ -183,9 +171,7 @@ func BotLoadCharacterFromFile(_ charfile: inout JKAShared.CharBuf, _ skill: Int3
     //a bot character is parsed in two phases
     PC_SetBaseFolder(BOTFILESBASEFOLDER)
     guard let source = LoadSourceFile(String(charfile)) else {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_ERROR, "counldn't load %s\n", charfile);
-        portMissing("BotLoadCharacterFromFile", source: "oracle/codemp/botlib/be_ai_char.cpp:195")
+        botimport.runPrint(PRT_ERROR, "counldn't load %s\n", String(charfile))
         return nil
     }
     ch = BotCharacter(GetClearedMemory(UInt32(Int32(BotCharacter.byteCount) + MAX_CHARACTERISTICS * Int32(BotCharacteristic.byteCount))))
@@ -208,6 +194,7 @@ func BotLoadCharacterFromFile(_ charfile: inout JKAShared.CharBuf, _ skill: Int3
                     return nil
                 }
                 //if it's the correct skill
+                // C converts the int to an unsigned long at the compare.
                 if skill < 0 || token.intvalue == UInt32(bitPattern: skill) {
                     foundcharacter = true
                     ch.skill = Float(token.intvalue)
@@ -220,7 +207,8 @@ func BotLoadCharacterFromFile(_ charfile: inout JKAShared.CharBuf, _ skill: Int3
                             FreeMemory(ch.handle)
                             return nil
                         }
-                        index = Int32(truncatingIfNeeded: token.intvalue)
+                        // C converts the unsigned long to an int.
+                        index = Int32(bitPattern: token.intvalue)
                         if index < 0 || index > MAX_CHARACTERISTICS {
                             SourceError(source, "characteristic index out of range [0, %d]\n", MAX_CHARACTERISTICS)
                             FreeSource(source)
@@ -248,19 +236,19 @@ func BotLoadCharacterFromFile(_ charfile: inout JKAShared.CharBuf, _ skill: Int3
                                 // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
                                 // Raven wrote: ch->c[index].value._float = token.floatvalue;
                                 portMissing("BotLoadCharacterFromFile", source: "oracle/codemp/botlib/be_ai_char.cpp:195")
-                                ch.c[index].type = CChar(CT_FLOAT)
+                                ch.c[index].type = CT_FLOAT
                             } else {
                                 // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
                                 // Raven wrote: ch->c[index].value.integer = token.intvalue;
                                 portMissing("BotLoadCharacterFromFile", source: "oracle/codemp/botlib/be_ai_char.cpp:195")
-                                ch.c[index].type = CChar(CT_INTEGER)
+                                ch.c[index].type = CT_INTEGER
                             }
                         } else if token.type == TT_STRING {
                             StripDoubleQuotes(&token.stringBuffer)
                             // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
                             // Raven wrote: ch->c[index].value.string = (char *)GetMemory(strlen(token.string)+1); strcpy(ch->c[index].value.string, token.string);
                             portMissing("BotLoadCharacterFromFile", source: "oracle/codemp/botlib/be_ai_char.cpp:195")
-                            ch.c[index].type = CChar(CT_STRING)
+                            ch.c[index].type = CT_STRING
                         } else {
                             SourceError(source, "expected integer, float or string, found %s\n", token.string)
                             FreeSource(source)
@@ -352,9 +340,7 @@ func BotLoadCachedCharacter(_ charfile: inout JKAShared.CharBuf, _ skill: Float,
     if reload == 0 {
         cachedhandle = BotFindCachedCharacter(String(charfile), skill)
         if cachedhandle != 0 {
-            // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-            // Raven wrote: botimport.Print(PRT_MESSAGE, "loaded cached skill %f from %s\n", skill, charfile);
-            portMissing("BotLoadCachedCharacter", source: "oracle/codemp/botlib/be_ai_char.cpp:366")
+            botimport.runPrint(PRT_MESSAGE, "loaded cached skill %f from %s\n", skill, String(charfile))
             return cachedhandle
         }
     }
@@ -365,23 +351,17 @@ func BotLoadCachedCharacter(_ charfile: inout JKAShared.CharBuf, _ skill: Float,
     if ch != nil {
         botcharacters[handle] = ch
         //
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_MESSAGE, "loaded skill %d from %s\n", intskill, charfile);
-        portMissing("BotLoadCachedCharacter", source: "oracle/codemp/botlib/be_ai_char.cpp:366")
+        botimport.runPrint(PRT_MESSAGE, "loaded skill %d from %s\n", intskill, String(charfile))
         return handle
     }
     //
-    // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-    // Raven wrote: botimport.Print(PRT_WARNING, "couldn't find skill %d in %s\n", intskill, charfile);
-    portMissing("BotLoadCachedCharacter", source: "oracle/codemp/botlib/be_ai_char.cpp:366")
+    botimport.runPrint(PRT_WARNING, "couldn't find skill %d in %s\n", intskill, String(charfile))
     //
     if reload == 0 {
         //try to load a cached default character with the given skill
         cachedhandle = BotFindCachedCharacter(DEFAULT_CHARACTER, skill)
         if cachedhandle != 0 {
-            // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-            // Raven wrote: botimport.Print(PRT_MESSAGE, "loaded cached default skill %d from %s\n", intskill, charfile);
-            portMissing("BotLoadCachedCharacter", source: "oracle/codemp/botlib/be_ai_char.cpp:366")
+            botimport.runPrint(PRT_MESSAGE, "loaded cached default skill %d from %s\n", intskill, String(charfile))
             return cachedhandle
         }
     }
@@ -390,9 +370,7 @@ func BotLoadCachedCharacter(_ charfile: inout JKAShared.CharBuf, _ skill: Float,
     ch = BotLoadCharacterFromFile(&defaultcharacter, intskill)
     if ch != nil {
         botcharacters[handle] = ch
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_MESSAGE, "loaded default skill %d from %s\n", intskill, charfile);
-        portMissing("BotLoadCachedCharacter", source: "oracle/codemp/botlib/be_ai_char.cpp:366")
+        botimport.runPrint(PRT_MESSAGE, "loaded default skill %d from %s\n", intskill, String(charfile))
         return handle
     }
     //
@@ -400,9 +378,7 @@ func BotLoadCachedCharacter(_ charfile: inout JKAShared.CharBuf, _ skill: Float,
         //try to load a cached character with any skill
         cachedhandle = BotFindCachedCharacter(String(charfile), -1)
         if cachedhandle != 0 {
-            // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-            // Raven wrote: botimport.Print(PRT_MESSAGE, "loaded cached skill %f from %s\n", botcharacters[cachedhandle]->skill, charfile);
-            portMissing("BotLoadCachedCharacter", source: "oracle/codemp/botlib/be_ai_char.cpp:366")
+            botimport.runPrint(PRT_MESSAGE, "loaded cached skill %f from %s\n", botcharacters[cachedhandle]!.skill, String(charfile))
             return cachedhandle
         }
     }
@@ -410,9 +386,7 @@ func BotLoadCachedCharacter(_ charfile: inout JKAShared.CharBuf, _ skill: Float,
     ch = BotLoadCharacterFromFile(&charfile, -1)
     if ch != nil {
         botcharacters[handle] = ch
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_MESSAGE, "loaded skill %f from %s\n", ch->skill, charfile);
-        portMissing("BotLoadCachedCharacter", source: "oracle/codemp/botlib/be_ai_char.cpp:366")
+        botimport.runPrint(PRT_MESSAGE, "loaded skill %f from %s\n", ch!.skill, String(charfile))
         return handle
     }
     //
@@ -420,9 +394,7 @@ func BotLoadCachedCharacter(_ charfile: inout JKAShared.CharBuf, _ skill: Float,
         //try to load a cached character with any skill
         cachedhandle = BotFindCachedCharacter(DEFAULT_CHARACTER, -1)
         if cachedhandle != 0 {
-            // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-            // Raven wrote: botimport.Print(PRT_MESSAGE, "loaded cached default skill %f from %s\n", botcharacters[cachedhandle]->skill, charfile);
-            portMissing("BotLoadCachedCharacter", source: "oracle/codemp/botlib/be_ai_char.cpp:366")
+            botimport.runPrint(PRT_MESSAGE, "loaded cached default skill %f from %s\n", botcharacters[cachedhandle]!.skill, String(charfile))
             return cachedhandle
         }
     }
@@ -430,15 +402,11 @@ func BotLoadCachedCharacter(_ charfile: inout JKAShared.CharBuf, _ skill: Float,
     ch = BotLoadCharacterFromFile(&defaultcharacter, -1)
     if ch != nil {
         botcharacters[handle] = ch
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_MESSAGE, "loaded default skill %f from %s\n", ch->skill, charfile);
-        portMissing("BotLoadCachedCharacter", source: "oracle/codemp/botlib/be_ai_char.cpp:366")
+        botimport.runPrint(PRT_MESSAGE, "loaded default skill %f from %s\n", ch!.skill, String(charfile))
         return handle
     }
     //
-    // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-    // Raven wrote: botimport.Print(PRT_WARNING, "couldn't load any skill from %s\n", charfile);
-    portMissing("BotLoadCachedCharacter", source: "oracle/codemp/botlib/be_ai_char.cpp:366")
+    botimport.runPrint(PRT_WARNING, "couldn't load any skill from %s\n", String(charfile))
     //couldn't load any character
     return 0
 }
@@ -496,17 +464,17 @@ func BotInterpolateCharacters(_ handle1: Int32, _ handle2: Int32, _ desiredskill
     while i < MAX_CHARACTERISTICS {
         //
         if Int32(ch1.c[i].type) == CT_FLOAT && Int32(ch2.c[i].type) == CT_FLOAT {
-            out.c[i].type = CChar(CT_FLOAT)
+            out.c[i].type = CT_FLOAT
             // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
             // Raven wrote: out->c[i].value._float = ch1->c[i].value._float + (ch2->c[i].value._float - ch1->c[i].value._float) * scale;
             portMissing("BotInterpolateCharacters", source: "oracle/codemp/botlib/be_ai_char.cpp:499")
         } else if Int32(ch1.c[i].type) == CT_INTEGER {
-            out.c[i].type = CChar(CT_INTEGER)
+            out.c[i].type = CT_INTEGER
             // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
             // Raven wrote: out->c[i].value.integer = ch1->c[i].value.integer;
             portMissing("BotInterpolateCharacters", source: "oracle/codemp/botlib/be_ai_char.cpp:499")
         } else if Int32(ch1.c[i].type) == CT_STRING {
-            out.c[i].type = CChar(CT_STRING)
+            out.c[i].type = CT_STRING
             // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
             // Raven wrote: out->c[i].value.string = (char *) GetMemory(strlen(ch1->c[i].value.string)+1); strcpy(out->c[i].value.string, ch1->c[i].value.string);
             portMissing("BotInterpolateCharacters", source: "oracle/codemp/botlib/be_ai_char.cpp:499")
@@ -540,9 +508,7 @@ func BotLoadCharacter(_ charfile: inout JKAShared.CharBuf, _ skill: Float) -> In
     //check if there's a cached skill
     handle = BotFindCachedCharacter(String(charfile), skill)
     if handle != 0 {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_MESSAGE, "loaded cached skill %f from %s\n", skill, charfile);
-        portMissing("BotLoadCharacter", source: "oracle/codemp/botlib/be_ai_char.cpp:551")
+        botimport.runPrint(PRT_MESSAGE, "loaded cached skill %f from %s\n", skill, String(charfile))
         return handle
     }
     if skill < 4.0 {
@@ -577,15 +543,11 @@ func BotLoadCharacter(_ charfile: inout JKAShared.CharBuf, _ skill: Float) -> In
 func CheckCharacteristicIndex(_ character: Int32, _ index: Int32) -> Int32 {
     guard let ch = BotCharacterFromHandle(character) else { return 0 }
     if index < 0 || index >= MAX_CHARACTERISTICS {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_ERROR, "characteristic %d does not exist\n", index);
-        portMissing("CheckCharacteristicIndex", source: "oracle/codemp/botlib/be_ai_char.cpp:600")
+        botimport.runPrint(PRT_ERROR, "characteristic %d does not exist\n", index)
         return 0
     }
     if ch.c[index].type == 0 {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_ERROR, "characteristic %d is not initialized\n", index);
-        portMissing("CheckCharacteristicIndex", source: "oracle/codemp/botlib/be_ai_char.cpp:600")
+        botimport.runPrint(PRT_ERROR, "characteristic %d is not initialized\n", index)
         return 0
     }
     return 1
@@ -616,9 +578,7 @@ func Characteristic_Float(_ character: Int32, _ index: Int32) -> Float {
     }
     //cannot convert a string pointer to a float
     else {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_ERROR, "characteristic %d is not a float\n", index);
-        portMissing("Characteristic_Float", source: "oracle/codemp/botlib/be_ai_char.cpp:624")
+        botimport.runPrint(PRT_ERROR, "characteristic %d is not a float\n", index)
         return 0
     }
 //	return 0;
@@ -636,9 +596,7 @@ func Characteristic_BFloat(_ character: Int32, _ index: Int32, _ min: Float, _ m
 
     if BotCharacterFromHandle(character) == nil { return 0 }
     if min > max {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_ERROR, "cannot bound characteristic %d between %f and %f\n", index, min, max);
-        portMissing("Characteristic_BFloat", source: "oracle/codemp/botlib/be_ai_char.cpp:656")
+        botimport.runPrint(PRT_ERROR, "cannot bound characteristic %d between %f and %f\n", index, min, max)
         return 0
     }
     value = Characteristic_Float(character, index)
@@ -670,9 +628,7 @@ func Characteristic_Integer(_ character: Int32, _ index: Int32) -> Int32 {
         // Raven wrote: return (int) ch->c[index].value._float;
         portMissing("Characteristic_Integer", source: "oracle/codemp/botlib/be_ai_char.cpp:679")
     } else {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_ERROR, "characteristic %d is not a integer\n", index);
-        portMissing("Characteristic_Integer", source: "oracle/codemp/botlib/be_ai_char.cpp:679")
+        botimport.runPrint(PRT_ERROR, "characteristic %d is not a integer\n", index)
         return 0
     }
 //	return 0;
@@ -690,9 +646,7 @@ func Characteristic_BInteger(_ character: Int32, _ index: Int32, _ min: Int32, _
 
     if BotCharacterFromHandle(character) == nil { return 0 }
     if min > max {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_ERROR, "cannot bound characteristic %d between %d and %d\n", index, min, max);
-        portMissing("Characteristic_BInteger", source: "oracle/codemp/botlib/be_ai_char.cpp:710")
+        botimport.runPrint(PRT_ERROR, "cannot bound characteristic %d between %d and %d\n", index, min, max)
         return 0
     }
     value = Characteristic_Integer(character, index)
@@ -720,9 +674,7 @@ func Characteristic_String(_ character: Int32, _ index: Int32, _ buf: inout JKAS
         buf[size - 1] = 0
         return
     } else {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_ERROR, "characteristic %d is not a string\n", index);
-        portMissing("Characteristic_String", source: "oracle/codemp/botlib/be_ai_char.cpp:733")
+        botimport.runPrint(PRT_ERROR, "characteristic %d is not a string\n", index)
         return
     }
 }

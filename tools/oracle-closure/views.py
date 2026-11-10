@@ -45,7 +45,7 @@ from clang.cindex import CursorKind, TypeKind
 
 import closure as C
 from reexport import DEPS, SCALARS, SOURCES, VIEW_OF, source_lines
-from rulings import BYTE_STORAGE_FIELDS, ENUM_TYPEDEFS, FIELD_NAMES, FIELDS, INDEXED_FIELDS, NEVER_NULL, NULLABLE, PARAMS, ROOTS, SLOT_BOUNDS
+from rulings import BYTE_STORAGE_FIELDS, ENUM_TYPEDEFS, FIELD_NAMES, FIELDS, INDEXED_FIELDS, NEVER_NULL, NULLABLE, PARAMS, RETURNS, ROOTS, SLOT_BOUNDS
 from spelling import Types
 
 # Every C target the translation unit of the run's unit reaches, most specific first.
@@ -123,6 +123,9 @@ class Generator:
         for cur in self.tu.cursor.get_children():
             if cur.kind == CursorKind.STRUCT_DECL and cur.is_definition():
                 self.records[cur.spelling] = cur
+            elif cur.kind == CursorKind.UNION_DECL and cur.is_definition() and cur.spelling in UNIT_ROOTS:
+                # A union Raven named by its tag alone, `union cvalue` of be_ai_char.cpp:39, takes a view where a root row names the tag, row X22.
+                self.records.setdefault(cur.spelling, cur)
             elif cur.kind == CursorKind.TYPEDEF_DECL:
                 under = cur.underlying_typedef_type
                 decl = under.get_declaration()
@@ -586,7 +589,7 @@ class Generator:
         if storage is not None:
             # C widens the field to int at every read, so the getter does, and the setter truncates as C's store does.
             return self.property(name, "Int32", f"Int32({pointee})", f"{pointee} = {storage}(truncatingIfNeeded: newValue)")
-        if swift in SCALARS.values():
+        if swift in SCALARS.values() or swift == "Int":
             return self.property(name, swift, pointee, f"{pointee} = newValue")
         base = swift.split(".")[-1]
         if base in ENUM_TYPEDEFS:
@@ -781,16 +784,39 @@ class Generator:
                 if record in self.views:
                     params.append(f"_ {label}: {self.qualified_view(record, target)}?")
                     args.append(f"{label}?.handle")
-                elif pointee.get_canonical().kind == TypeKind.CHAR_S and pointee.is_const_qualified():
+                elif pointee.get_canonical().kind == TypeKind.CHAR_S and (pointee.is_const_qualified() or PARAMS.get((f"{owner}.{name}", label)) == "text"):
                     # A `const char *` is the text, and JKAShared's withCString hands the C function its bytes for the call.
+                    # A PARAMS row of kind `text` names a `char *` that the function only reads, Raven's missing `const`,
+                    # `command` of `botlib_import_t.BotClientCommand`, row X1b of docket 10.
                     params.append(f"_ {label}: String")
                     layers.append(f"withCString({label}) {{ {label} in")
                     args.append(f"OpaquePointer({label})")
-                elif PARAMS.get((f"{owner}.{name}", label)) == "float_mut" and pointee.get_canonical().kind == TypeKind.FLOAT:
-                    # A rulings row names a `float *` the stored function reads and writes as one float.
-                    params.append(f"_ {label}: inout Float")
+                elif pointee.get_canonical().kind == TypeKind.CHAR_S and proto.is_function_variadic() and i == len(arg_types) - 1:
+                    # The format of a variadic stored function, `Print` of `botlib_import_t`, which Swift cannot call with its arguments.
+                    # The method formats the text with the arguments in Swift and hands the function the text as the format word,
+                    # and the thunk of the filler prints that word through "%s", row X1a of docket 10.
+                    params.append(f"_ {label}: String")
+                    params.append("_ args: any JKAShared.FormatArg...")
+                    layers.append(f"withCString(JKAShared.format({label}, args)) {{ {label} in")
+                    args.append(f"OpaquePointer({label})")
+                elif PARAMS.get((f"{owner}.{name}", label)) == "float_mut" and pointee.get_canonical().kind in (TypeKind.FLOAT, TypeKind.INT):
+                    # A rulings row names a `float *` or an `int *` the stored function reads and writes as one scalar,
+                    # the `fileHandle_t *file` of `botlib_import_t.FS_FOpenFile` among them.
+                    scalar = "Float" if pointee.get_canonical().kind == TypeKind.FLOAT else "Int32"
+                    params.append(f"_ {label}: inout {scalar}")
                     layers.append(f"withUnsafeMutablePointer(to: &{label}) {{ {label} in")
                     args.append(f"OpaquePointer({label})")
+                elif PARAMS.get((f"{owner}.{name}", label)) == "bytes" and pointee.get_canonical().kind == TypeKind.VOID:
+                    # A rulings row names a `void *` buffer the stored function reads or fills as bytes, so the caller's Slots of bytes crosses,
+                    # the row a host function's buffer has, and the method hands the function its base.
+                    params.append(f"_ {label}: Slots<JKAShared.byte>")
+                    args.append(f"OpaquePointer({label}.base)")
+                elif PARAMS.get((f"{owner}.{name}", label)) == "table" and pointee.get_canonical().kind == TypeKind.CONSTANTARRAY \
+                        and pointee.get_canonical().element_count == 3 and pointee.get_canonical().element_type.get_canonical().kind == TypeKind.FLOAT:
+                    # A rulings row names a `vec3_t *` the stored function reads as a table of vectors with a count beside it,
+                    # so the caller's Slots of vectors crosses, and the method hands the function its base.
+                    params.append(f"_ {label}: Slots<JKAShared.vec3_t>")
+                    args.append(f"OpaquePointer({label}.base)")
                 elif pointee.get_canonical().kind == TypeKind.CONSTANTARRAY and pointee.get_canonical().element_count == 4 \
                         and pointee.get_canonical().element_type.get_canonical().kind == TypeKind.FLOAT:
                     # Raven's `vec4_t *color` points at one color of four floats, which the stored function fills.
@@ -859,6 +885,11 @@ class Generator:
         if text_result:
             # Raven reads the text the stored function returns, and NULL is nil.
             returns = "String?"
+        # A RETURNS row of kind `raw` keyed by `record.field` names a `void *` block the stored function allocates, the row its filler has.
+        raw_result = RETURNS.get(f"{owner}.{name}") == "raw" and result.get_canonical().kind == TypeKind.POINTER \
+            and result.get_canonical().get_pointee().get_canonical().kind == TypeKind.VOID
+        if raw_result:
+            returns = "UnsafeMutableRawPointer"
         self.callbacks[(target, alias)] = self.c_signature(proto, target)
         # When Raven's first parameter is the owner, the run method passes this slot and takes the rest.
         # Otherwise every parameter is the caller's, as `pm->trace(&trace, start, ...)` is.
@@ -887,6 +918,9 @@ class Generator:
                 call = f"{call} != 0"
             if text_result:
                 call = f"{call}.map {{ cString(at: UnsafeRawPointer($0)) }}"
+            if raw_result:
+                # The filler never returns NULL, the Z_Malloc and Hunk_Alloc of sv_bot.cpp.
+                call = f"UnsafeMutableRawPointer({call}!)"
             doc += f"\n    /// A NULL `{name}` traps with the field's name, as Raven's call through the pointer would crash."
         body: list[str] = []
         if not always:

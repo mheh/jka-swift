@@ -29,6 +29,9 @@ var leafs_SV_LinkEntity: Slots<Int32> { world.storage.sv_world_leafs_SV_LinkEnti
 // AI: Raven declares `touchlist` static in SV_ClipMoveToEntities. The function uses one zeroed allocation on the storage class.
 var touchlist_SV_ClipMoveToEntities: Slots<Int32> { world.storage.touchlist_SV_ClipMoveToEntities }
 
+/// Source: oracle/codemp/server/sv_world.cpp:695
+var G2Trace: Slots<CollisionRecord> { world.G2Trace }
+
 /// Source: oracle/codemp/server/sv_world.cpp:872
 // AI: Raven declares `touch` on the stack of SV_PointContents. The function uses one zeroed allocation on the storage class.
 var touch_SV_PointContents: Slots<Int32> { world.storage.touch_SV_PointContents }
@@ -625,9 +628,80 @@ private func SV_ClipMoveToEntities(_ clip: Moveclip) {
                 if (clip.traceFlags & G2TRFLAG_DOGHOULTRACE) != 0 && trace.entityNum == touch!.s.number && touch!.ghoul2 != nil
                     && ((clip.traceFlags & G2TRFLAG_HITCORPSES) != 0 || (touch!.s.eFlags & EF_DEAD) == 0) {
                     //standard behavior will be to ignore g2 col on dead ents, but if traceFlags is set to allow, then we'll try g2 col on EF_DEAD people too.
-                    // Port-note: Row Z6. The static `G2Trace_t G2Trace` has no storage, and `touch->ghoul2` is a word with no form as the Swift class `CGhoul2Info_v`.
-                    // Raven wrote: static G2Trace_t G2Trace; ... the Ghoul2 collision test of sv_world.cpp:692 to :782, with oldTrace and VectorDistance.
-                    portMissing("SV_ClipMoveToEntities", source: "oracle/codemp/server/sv_world.cpp:522")
+                    var angles = vec3_t()
+                    var fRadius: Float = 0.0
+                    var tN: Int32 = 0
+                    var bestTr: Int32 = -1
+
+                    if clip.mins[0] != 0 ||
+                        clip.maxs[0] != 0
+                    {
+                        fRadius = (clip.maxs[0] - clip.mins[0]) / 2.0
+                    }
+
+                    if (clip.traceFlags & G2TRFLAG_THICK) != 0 { //if using this flag, make sure it's at least 1.0f
+                        if fRadius < 1.0 {
+                            fRadius = 1.0
+                        }
+                    }
+
+                    G2Trace.zero()
+                    while tN < MAX_G2_COLLISIONS {
+                        G2Trace[tN].mEntityNum = -1
+                        tN += 1
+                    }
+
+                    if touch!.s.number < MAX_CLIENTS {
+                        angles = touch!.s.apos.trBase
+                    } else {
+                        angles = touch!.r.currentAngles
+                    }
+                    angles[PITCH] = 0
+                    angles[ROLL] = angles[PITCH]
+
+                    // AI: Raven reads `touch->ghoul2` as the address of a `CGhoul2Info_v`. The word names the instance in `ghoul2Instances`, row Z6 of docket 10.
+                    let ghoul2 = ghoul2Instances.instance(word: touch!.ghoul2)!
+
+                    //I would think that you could trace from trace.endpos instead of clip->start, but that causes it to miss sometimes.. Not sure what it's off, but if it could be done like that, it would probably
+                    //be faster.
+                    if sv_showghoultraces!.integer != 0 {
+                        Com_Printf("Ghoul2 trace   lod=%1d   length=%6.0f   to %s\n", clip.useLod, VectorDistance(clip.start, clip.end), ghoul2[0].mFileName)
+                    }
+
+                    if com_optvehtrace != nil &&
+                        com_optvehtrace!.integer != 0 &&
+                        touch!.s.eType == ET_NPC &&
+                        touch!.s.NPC_class == CLASS_VEHICLE &&
+                        touch!.m_pVehicle != nil
+                    { //for vehicles cache the transform data.
+                        G2API_CollisionDetectCache(G2Trace, ghoul2, angles, touch!.r.currentOrigin, svs.time, touch!.s.number, clip.start, clip.end, touch!.modelScale, G2VertSpaceServer, 0, clip.useLod, fRadius)
+                    } else {
+                        G2API_CollisionDetect(G2Trace, ghoul2, angles, touch!.r.currentOrigin, svs.time, touch!.s.number, clip.start, clip.end, touch!.modelScale, G2VertSpaceServer, 0, clip.useLod, fRadius)
+                    }
+
+                    tN = 0
+                    while tN < MAX_G2_COLLISIONS {
+                        if G2Trace[tN].mEntityNum == touch!.s.number { //ok, valid
+                            bestTr = tN
+                            break
+                        } else if G2Trace[tN].mEntityNum == -1 { //there should not be any after the first -1
+                            break
+                        }
+                        tN += 1
+                    }
+
+                    if bestTr == -1 { //Well then, put the trace back to the old one.
+                        clip.trace = oldTrace
+                    } else { //Otherwise, set the endpos/normal/etc. to the model location hit instead of leaving it out in space.
+                        clip.trace.endpos = G2Trace[bestTr].mCollisionPosition
+                        clip.trace.plane.normal = G2Trace[bestTr].mCollisionNormal
+
+                        if (clip.traceFlags & G2TRFLAG_GETSURFINDEX) != 0 { //we have requested that surfaceFlags be stomped over with the g2 hit surface index.
+                            if clip.trace.entityNum == G2Trace[bestTr].mEntityNum {
+                                clip.trace.surfaceFlags = G2Trace[bestTr].mSurfaceIndex
+                            }
+                        }
+                    }
                 }
                 /*
                 Ghoul2 Insert End

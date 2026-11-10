@@ -49,8 +49,7 @@ func AAS_DropToFloor(_ origin: inout JKAShared.vec3_t, _ mins: JKAShared.vec3_t,
     end = origin
     end[2] -= 100
     return BspTrace.scratch { trace -> Int32 in
-        // Port-note: AAS_Trace keeps its signature marker, because no table row gives its `bsp_trace_t` return, so the call has no form.
-        portMissing("AAS_Trace", source: "oracle/codemp/botlib/be_aas_move.cpp:46")
+        trace.copy(from: AAS_Trace(origin, mins, maxs, end, 0, CONTENTS_SOLID))
         if trace.startsolid {
             return 0
         }
@@ -199,8 +198,7 @@ func AAS_OnGround(_ origin: JKAShared.vec3_t, _ presencetype: Int32, _ passent: 
     return AasTrace.scratch { trace -> Int32 in
         let plane: AasPlane?
 
-        // Port-note: AAS_TraceClientBBox keeps its signature marker, because no table row gives its `aas_trace_t` return, so the call has no form.
-        portMissing("AAS_TraceClientBBox", source: "oracle/codemp/botlib/be_aas_move.cpp:177")
+        trace.copy(from: AAS_TraceClientBBox(origin, end, presencetype, passent))
 
         //if in solid
         if trace.startsolid {
@@ -325,8 +323,7 @@ func AAS_WeaponJumpZVelocity(_ origin: JKAShared.vec3_t, _ radiusdamage: Float) 
         var points: Float
 
         //trace a line to get the impact point
-        // Port-note: AAS_Trace keeps its signature marker, because no table row gives its `bsp_trace_t` return, so the call has no form.
-        portMissing("AAS_Trace", source: "oracle/codemp/botlib/be_aas_move.cpp:296")
+        bsptrace.copy(from: AAS_Trace(start, nil, nil, end, 1, CONTENTS_SOLID))
         //calculate the damage the bot will get from the rocket impact
         v = botmins + botmaxs
         v[0] = Float(Double(origin[0]) + Double(v[0]) * 0.5)
@@ -734,15 +731,12 @@ func AAS_ClientMovementPrediction(_ move: AasClientmove, _ entnum: Int32, _ orig
                 repeat {
                     end = org + left_test_vel
                     //trace a bounding box
-                    // Port-note: AAS_TraceClientBBox keeps its signature marker, because no table row gives its `aas_trace_t` return.
-                    // So the call has no form.
-                    portMissing("AAS_TraceClientBBox", source: "oracle/codemp/botlib/be_aas_move.cpp:636")
+                    trace.copy(from: AAS_TraceClientBBox(org, end, presencetype, entnum))
                     //
                     //#ifdef AAS_MOVE_DEBUG
                     if visualize != 0 {
                         if trace.startsolid {
-                            // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                            portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_move.cpp:641")
+                            botimport.runPrint(PRT_MESSAGE, "PredictMovement: start solid\n")
                         }
                         AAS_DebugLine(org, trace.endpos, LINECOLOR_RED)
                     } //end if
@@ -862,9 +856,7 @@ func AAS_ClientMovementPrediction(_ move: AasClientmove, _ entnum: Int32, _ orig
                             start[2] = Float(Double(org[2]) + Double(plane!.normal[2]) * -0.25)
                             stepend = start
                             start[2] += phys_maxstep
-                            // Port-note: AAS_TraceClientBBox keeps its signature marker, because no table row gives its `aas_trace_t` return.
-                            // So the call has no form.
-                            portMissing("AAS_TraceClientBBox", source: "oracle/codemp/botlib/be_aas_move.cpp:773")
+                            steptrace.copy(from: AAS_TraceClientBBox(start, stepend, presencetype, entnum))
                             //
                             if !steptrace.startsolid {
                                 plane2 = AAS_PlaneFromNum(steptrace.planenum)
@@ -1023,9 +1015,7 @@ func AAS_ClientMovementPrediction(_ move: AasClientmove, _ entnum: Int32, _ orig
                         start = org
                         end = start
                         end[2] -= 48 + aassettings.phys_maxbarrier
-                        // Port-note: AAS_TraceClientBBox keeps its signature marker, because no table row gives its `aas_trace_t` return.
-                        // So the call has no form.
-                        portMissing("AAS_TraceClientBBox", source: "oracle/codemp/botlib/be_aas_move.cpp:935")
+                        gaptrace.copy(from: AAS_TraceClientBBox(start, end, PRESENCE_CROUCH, -1))
                         //if solid is found the bot cannot walk any further and will not fall into a gap
                         if !gaptrace.startsolid {
                             //if it is a gap (lower than one step height)

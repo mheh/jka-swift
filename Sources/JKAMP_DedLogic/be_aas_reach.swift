@@ -277,7 +277,7 @@ func AAS_AreaVolume(_ areanum: Int32) -> Float {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:168
-func AAS_BestReachableLinkArea(_ areas: AasLink) -> Int32 {
+func AAS_BestReachableLinkArea(_ areas: AasLink?) -> Int32 {
     var link: AasLink?
 
     link = areas
@@ -327,9 +327,7 @@ func AAS_GetJumpPadInfo(_ ent: Int32, _ areastart: inout JKAShared.vec3_t, _ abs
         } else {
             modelnum = 0
         }
-        // Port-note: AAS_BSPModelMinsMaxsOrigin takes mins, maxs, and origin by value, so its writes do not reach the caller.
-        // Raven wrote: AAS_BSPModelMinsMaxsOrigin(modelnum, angles, absmins, absmaxs, origin);
-        portMissing("AAS_BSPModelMinsMaxsOrigin", source: "oracle/codemp/botlib/be_aas_reach.cpp:213")
+        AAS_BSPModelMinsMaxsOrigin(modelnum, angles, &absmins, &absmaxs, &origin)
         absmins = origin + absmins
         absmaxs = origin + absmaxs
         origin = absmins + absmaxs
@@ -338,12 +336,9 @@ func AAS_GetJumpPadInfo(_ ent: Int32, _ areastart: inout JKAShared.vec3_t, _ abs
         //get the start areas
         teststart = origin
         teststart[2] += 64
-        // Port-note: AAS_TraceClientBBox keeps its signature marker, so the body cannot call it.
-        // Raven wrote: trace = AAS_TraceClientBBox(teststart, origin, PRESENCE_CROUCH, -1);
-        portMissing("AAS_TraceClientBBox", source: "oracle/codemp/botlib/be_aas_reach.cpp:222")
+        trace.copy(from: AAS_TraceClientBBox(teststart, origin, PRESENCE_CROUCH, -1))
         if trace.startsolid {
-            // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-            portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_reach.cpp:225")
+            botimport.runPrint(PRT_MESSAGE, "trigger_push start solid\n")
             areastart = origin
         } //end if
         else {
@@ -364,8 +359,7 @@ func AAS_GetJumpPadInfo(_ ent: Int32, _ areastart: inout JKAShared.vec3_t, _ abs
             ent2 = AAS_NextBSPEntity(ent2)
         } //end for
         if ent2 == 0 {
-            // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-            portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_reach.cpp:244")
+            botimport.runPrint(PRT_MESSAGE, "trigger_push without target entity %s\n", String(target))
             return 0
         } //end if
         _ = AAS_VectorForBSPEpairKey(ent2, "origin", &ent2origin)
@@ -374,8 +368,7 @@ func AAS_GetJumpPadInfo(_ ent: Int32, _ areastart: inout JKAShared.vec3_t, _ abs
         gravity = aassettings.phys_gravity
         time = Float(sqrt(Double(height) / (0.5 * Double(gravity))))
         if time == 0 {
-            // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-            portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_reach.cpp:254")
+            botimport.runPrint(PRT_MESSAGE, "trigger_push without time\n")
             return 0
         } //end if
         // set s.origin2 to the push velocity
@@ -432,10 +425,8 @@ func AAS_BestReachableFromJumpPadArea(_ origin: JKAShared.vec3_t, _ mins: JKASha
                 link = link!.next_area
             } //end for
             if link == nil {
-                // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_reach.cpp:304")
-                // Port-note: AAS_UnlinkFromAreas takes a value, and Raven passes `areas`, which can be NULL here, row of the NULL sweep.
-                portMissing("AAS_UnlinkFromAreas", source: "oracle/codemp/botlib/be_aas_reach.cpp:305")
+                botimport.runPrint(PRT_MESSAGE, "trigger_push not in any jump pad area\n")
+                AAS_UnlinkFromAreas(areas)
                 ent = AAS_NextBSPEntity(ent)
                 continue
             } //end if
@@ -462,12 +453,10 @@ func AAS_BestReachableFromJumpPadArea(_ origin: JKAShared.vec3_t, _ mins: JKASha
                     } //end if
                     link = link!.next_area
                 } //end if
-                // Port-note: AAS_UnlinkFromAreas takes a value, and Raven passes `areas`, which can be NULL here, row of the NULL sweep.
-                portMissing("AAS_UnlinkFromAreas", source: "oracle/codemp/botlib/be_aas_reach.cpp:330")
+                AAS_UnlinkFromAreas(areas)
                 return bestareanum
             } //end if
-            // Port-note: AAS_UnlinkFromAreas takes a value, and Raven passes `areas`, which can be NULL here, row of the NULL sweep.
-            portMissing("AAS_UnlinkFromAreas", source: "oracle/codemp/botlib/be_aas_reach.cpp:333")
+            AAS_UnlinkFromAreas(areas)
             ent = AAS_NextBSPEntity(ent)
         } //end for
         return 0
@@ -490,8 +479,7 @@ func AAS_BestReachableArea(_ origin: JKAShared.vec3_t, _ mins: JKAShared.vec3_t,
         var start = vec3_t(), end = vec3_t()
 
         if aasworld.loaded == 0 {
-            // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-            portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_reach.cpp:354")
+            botimport.runPrint(PRT_ERROR, "AAS_BestReachableArea: aas not loaded\n")
             return 0
         } //end if
         //find a point in an area
@@ -525,9 +513,7 @@ func AAS_BestReachableArea(_ origin: JKAShared.vec3_t, _ mins: JKAShared.vec3_t,
             end = start
             start[2] += 0.25
             end[2] -= 50
-            // Port-note: AAS_TraceClientBBox keeps its signature marker, so the body cannot call it.
-            // Raven wrote: trace = AAS_TraceClientBBox(start, end, PRESENCE_CROUCH, -1);
-            portMissing("AAS_TraceClientBBox", source: "oracle/codemp/botlib/be_aas_reach.cpp:385")
+            trace.copy(from: AAS_TraceClientBBox(start, end, PRESENCE_CROUCH, -1))
             if !trace.startsolid {
                 areanum = AAS_PointAreaNum(trace.endpos)
                 goalorigin = trace.endpos
@@ -559,11 +545,9 @@ func AAS_BestReachableArea(_ origin: JKAShared.vec3_t, _ mins: JKAShared.vec3_t,
         //link an invalid (-1) entity
         areas = AAS_LinkEntityClientBBox(absmins, absmaxs, -1, PRESENCE_CROUCH)
         //get the reachable link arae
-        // Port-note: AAS_BestReachableLinkArea takes a value, and Raven passes `areas`, which can be NULL here, row of the NULL sweep.
-        portMissing("AAS_BestReachableLinkArea", source: "oracle/codemp/botlib/be_aas_reach.cpp:427")
+        areanum = AAS_BestReachableLinkArea(areas)
         //unlink the invalid entity
-        // Port-note: AAS_UnlinkFromAreas takes a value, and Raven passes `areas`, which can be NULL here, row of the NULL sweep.
-        portMissing("AAS_UnlinkFromAreas", source: "oracle/codemp/botlib/be_aas_reach.cpp:429")
+        AAS_UnlinkFromAreas(areas)
         //
         return areanum
     }
@@ -579,7 +563,7 @@ func AAS_BestReachableArea(_ origin: JKAShared.vec3_t, _ mins: JKAShared.vec3_t,
 func AAS_SetupReachabilityHeap() {
     var i: Int32
 
-    reachabilityheap = Slots<AasLreachability>(GetClearedMemory(UInt32(AAS_MAX_REACHABILITYSIZE * Int32(AasLreachability.byteCount))), count: AAS_MAX_REACHABILITYSIZE)
+    reachabilityheap = Slots<AasLreachability>(GetClearedMemory(AAS_MAX_REACHABILITYSIZE * Int32(AasLreachability.byteCount)), count: AAS_MAX_REACHABILITYSIZE)
     i = 0
     while i < AAS_MAX_REACHABILITYSIZE - 1 {
         reachabilityheap![i].next = reachabilityheap![i + 1]
@@ -1708,9 +1692,7 @@ func AAS_Reachability_Step_Barrier_WaterJump_WalkOffLedge(_ area1num: Int32, _ a
                     start[2] = ground_beststart[2]
                     end = ground_bestend
                     end[2] += 4
-                    // Port-note: AAS_TraceClientBBox keeps its signature marker, so the body cannot call it.
-                    // Raven wrote: trace = AAS_TraceClientBBox(start, end, PRESENCE_NORMAL, -1);
-                    portMissing("AAS_TraceClientBBox", source: "oracle/codemp/botlib/be_aas_reach.cpp:1533")
+                    trace.copy(from: AAS_TraceClientBBox(start, end, PRESENCE_NORMAL, -1))
                     //if no solids were found
                     if !trace.startsolid && Double(trace.fraction) >= 1.0 {
                         //the trace end point must be in the goal area
@@ -2174,9 +2156,7 @@ func AAS_Reachability_Jump(_ area1num: Int32, _ area2num: Int32) -> Int32 {
                 //
                 testend = teststart
                 testend[2] -= 100
-                // Port-note: AAS_TraceClientBBox keeps its signature marker, so the body cannot call it.
-                // Raven wrote: trace = AAS_TraceClientBBox(teststart, testend, PRESENCE_NORMAL, -1);
-                portMissing("AAS_TraceClientBBox", source: "oracle/codemp/botlib/be_aas_reach.cpp:2209")
+                trace.copy(from: AAS_TraceClientBBox(teststart, testend, PRESENCE_NORMAL, -1))
                 //
                 if trace.startsolid {
                     return 0
@@ -2198,9 +2178,7 @@ func AAS_Reachability_Jump(_ area1num: Int32, _ area2num: Int32) -> Int32 {
                 //
                 testend = teststart
                 testend[2] -= 100
-                // Port-note: AAS_TraceClientBBox keeps its signature marker, so the body cannot call it.
-                // Raven wrote: trace = AAS_TraceClientBBox(teststart, testend, PRESENCE_NORMAL, -1);
-                portMissing("AAS_TraceClientBBox", source: "oracle/codemp/botlib/be_aas_reach.cpp:2232")
+                trace.copy(from: AAS_TraceClientBBox(teststart, testend, PRESENCE_NORMAL, -1))
                 //
                 if trace.startsolid {
                     return 0
@@ -2553,9 +2531,7 @@ func AAS_Reachability_Ladder(_ area1num: Int32, _ area2num: Int32) -> Int32 {
                 start[2] += 5
                 end[2] -= 100
                 //trace without entity collision
-                // Port-note: AAS_TraceClientBBox keeps its signature marker, so the body cannot call it.
-                // Raven wrote: trace = AAS_TraceClientBBox(start, end, PRESENCE_NORMAL, -1);
-                portMissing("AAS_TraceClientBBox", source: "oracle/codemp/botlib/be_aas_reach.cpp:2576")
+                trace.copy(from: AAS_TraceClientBBox(start, end, PRESENCE_NORMAL, -1))
                 //
                 //
                 trace.endpos[2] += 1
@@ -2729,17 +2705,13 @@ func AAS_Reachability_Teleport() {
                 if strcmp(classname, "trigger_multiple") == 0 {
                     _ = AAS_ValueForBSPEpairKey(ent, "model", &model, MAX_EPAIRKEY)
     //#ifdef REACH_DEBUG
-                    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_reach.cpp:2757")
+                    botimport.runPrint(PRT_MESSAGE, "trigger_multiple model = \"%s\"\n", String(model))
     //#endif REACH_DEBUG
                     angles = vec3_t()
-                    // Port-note: AAS_BSPModelMinsMaxsOrigin takes mins, maxs, and origin by value, so its writes do not reach the caller.
-                    // Raven wrote: AAS_BSPModelMinsMaxsOrigin(atoi(model+1), angles, mins, maxs, origin);
-                    portMissing("AAS_BSPModelMinsMaxsOrigin", source: "oracle/codemp/botlib/be_aas_reach.cpp:2760")
+                    AAS_BSPModelMinsMaxsOrigin(atoi(model[1...]), angles, &mins, &maxs, &origin)
                     //
                     if AAS_ValueForBSPEpairKey(ent, "target", &target, MAX_EPAIRKEY) == 0 {
-                        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_reach.cpp:2764")
+                        botimport.runPrint(PRT_ERROR, "trigger_multiple at %1.0f %1.0f %1.0f without target\n", origin[0], origin[1], origin[2])
                         ent = AAS_NextBSPEntity(ent)
                         continue
                     } //end if
@@ -2765,8 +2737,7 @@ func AAS_Reachability_Teleport() {
                         continue
                     } //end if
                     if AAS_ValueForBSPEpairKey(dest, "target", &target, MAX_EPAIRKEY) == 0 {
-                        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_reach.cpp:2786")
+                        botimport.runPrint(PRT_ERROR, "target_teleporter without target\n")
                         ent = AAS_NextBSPEntity(ent)
                         continue
                     } //end if
@@ -2774,17 +2745,13 @@ func AAS_Reachability_Teleport() {
                 else if strcmp(classname, "trigger_teleport") == 0 {
                     _ = AAS_ValueForBSPEpairKey(ent, "model", &model, MAX_EPAIRKEY)
     //#ifdef REACH_DEBUG
-                    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_reach.cpp:2794")
+                    botimport.runPrint(PRT_MESSAGE, "trigger_teleport model = \"%s\"\n", String(model))
     //#endif REACH_DEBUG
                     angles = vec3_t()
-                    // Port-note: AAS_BSPModelMinsMaxsOrigin takes mins, maxs, and origin by value, so its writes do not reach the caller.
-                    // Raven wrote: AAS_BSPModelMinsMaxsOrigin(atoi(model+1), angles, mins, maxs, origin);
-                    portMissing("AAS_BSPModelMinsMaxsOrigin", source: "oracle/codemp/botlib/be_aas_reach.cpp:2797")
+                    AAS_BSPModelMinsMaxsOrigin(atoi(model[1...]), angles, &mins, &maxs, &origin)
                     //
                     if AAS_ValueForBSPEpairKey(ent, "target", &target, MAX_EPAIRKEY) == 0 {
-                        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_reach.cpp:2801")
+                        botimport.runPrint(PRT_ERROR, "trigger_teleport at %1.0f %1.0f %1.0f without target\n", origin[0], origin[1], origin[2])
                         ent = AAS_NextBSPEntity(ent)
                         continue
                     } //end if
@@ -2807,14 +2774,12 @@ func AAS_Reachability_Teleport() {
                     dest = AAS_NextBSPEntity(dest)
                 } //end for
                 if dest == 0 {
-                    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_reach.cpp:2826")
+                    botimport.runPrint(PRT_ERROR, "teleporter without misc_teleporter_dest (%s)\n", String(target))
                     ent = AAS_NextBSPEntity(ent)
                     continue
                 } //end if
                 if AAS_VectorForBSPEpairKey(dest, "origin", &destorigin) == 0 {
-                    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_reach.cpp:2831")
+                    botimport.runPrint(PRT_ERROR, "teleporter destination (%s) without origin\n", String(target))
                     ent = AAS_NextBSPEntity(ent)
                     continue
                 } //end if
@@ -2824,12 +2789,9 @@ func AAS_Reachability_Teleport() {
                 if AAS_AreaTeleporter(area2num) == 0 && AAS_AreaJumpPad(area2num) == 0 {
                     end = destorigin
                     end[2] -= 64
-                    // Port-note: AAS_TraceClientBBox keeps its signature marker, so the body cannot call it.
-                    // Raven wrote: trace = AAS_TraceClientBBox(destorigin, end, PRESENCE_CROUCH, -1);
-                    portMissing("AAS_TraceClientBBox", source: "oracle/codemp/botlib/be_aas_reach.cpp:2841")
+                    trace.copy(from: AAS_TraceClientBBox(destorigin, end, PRESENCE_CROUCH, -1))
                     if trace.startsolid {
-                        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_reach.cpp:2844")
+                        botimport.runPrint(PRT_ERROR, "teleporter destination (%s) in solid\n", String(target))
                         ent = AAS_NextBSPEntity(ent)
                         continue
                     } //end if
@@ -2861,8 +2823,7 @@ func AAS_Reachability_Teleport() {
                         _ = AAS_PredictClientMovement(move, -1, destorigin, PRESENCE_NORMAL, 0, velocity, cmdmove, 0, 30, 0.1, SE_HITGROUND | SE_ENTERWATER | SE_ENTERSLIME | SE_ENTERLAVA | SE_HITGROUNDDAMAGE | SE_TOUCHJUMPPAD | SE_TOUCHTELEPORTER, 0, 0) //qtrue);
                         area2num = AAS_PointAreaNum(move.endpos)
                         if (move.stopevent & (SE_ENTERSLIME | SE_ENTERLAVA)) != 0 {
-                            // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                            portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_reach.cpp:2878")
+                            botimport.runPrint(PRT_WARNING, "teleported into slime or lava at dest %s\n", String(target))
                         } //end if
                         destorigin = move.endpos
                     } //end else
@@ -2879,8 +2840,7 @@ func AAS_Reachability_Teleport() {
                 //link an invalid (-1) entity
                 areas = AAS_LinkEntityClientBBox(mins, maxs, -1, PRESENCE_CROUCH)
                 if areas == nil {
-                    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_reach.cpp:2894")
+                    botimport.runPrint(PRT_MESSAGE, "trigger_multiple not in any area\n")
                 }
                 //
                 link = areas
@@ -2910,8 +2870,7 @@ func AAS_Reachability_Teleport() {
                     link = link!.next_area
                 } //end for
                 //unlink the invalid entity
-                // Port-note: AAS_UnlinkFromAreas takes a value, and Raven passes `areas`, which can be NULL here, row of the NULL sweep.
-                portMissing("AAS_UnlinkFromAreas", source: "oracle/codemp/botlib/be_aas_reach.cpp:2919")
+                AAS_UnlinkFromAreas(areas)
                 ent = AAS_NextBSPEntity(ent)
             } //end for
         }
@@ -2949,25 +2908,21 @@ func AAS_Reachability_Elevator() {
             }
             if strcmp(classname, "func_plat") == 0 {
                 if AAS_ValueForBSPEpairKey(ent, "model", &model, MAX_EPAIRKEY) == 0 {
-                    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_reach.cpp:2956")
+                    botimport.runPrint(PRT_ERROR, "func_plat without model\n")
                     ent = AAS_NextBSPEntity(ent)
                     continue
                 } //end if
                 //get the model number, and skip the leading *
                 modelnum = atoi(model[1...])
                 if modelnum <= 0 {
-                    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_reach.cpp:2963")
+                    botimport.runPrint(PRT_ERROR, "func_plat with invalid model number\n")
                     ent = AAS_NextBSPEntity(ent)
                     continue
                 } //end if
                 //get the mins, maxs and origin of the model
                 //NOTE: the origin is usually (0,0,0) and the mins and maxs
                 //      are the absolute mins and maxs
-                // Port-note: AAS_BSPModelMinsMaxsOrigin takes mins, maxs, and origin by value, so its writes do not reach the caller.
-                // Raven wrote: AAS_BSPModelMinsMaxsOrigin(modelnum, angles, mins, maxs, origin);
-                portMissing("AAS_BSPModelMinsMaxsOrigin", source: "oracle/codemp/botlib/be_aas_reach.cpp:2969")
+                AAS_BSPModelMinsMaxsOrigin(modelnum, angles, &mins, &maxs, &origin)
                 //
                 _ = AAS_VectorForBSPEpairKey(ent, "origin", &origin)
                 //pos1 is the top position, pos2 is the bottom
@@ -3111,9 +3066,7 @@ func AAS_Reachability_Elevator() {
                                         start[2] += 32
                                         end = toporg
                                         end[2] += 1
-                                        // Port-note: AAS_TraceClientBBox keeps its signature marker, so the body cannot call it.
-                                        // Raven wrote: trace = AAS_TraceClientBBox(start, end, PRESENCE_CROUCH, -1);
-                                        portMissing("AAS_TraceClientBBox", source: "oracle/codemp/botlib/be_aas_reach.cpp:3084")
+                                        trace.copy(from: AAS_TraceClientBBox(start, end, PRESENCE_CROUCH, -1))
                                         if trace.fraction >= 1 { break }
                                     } //end if
                                 } //end if
@@ -3380,16 +3333,14 @@ func AAS_Reachability_FuncBobbing() {
                 if height == 0 { height = 32 }
                 //
                 if AAS_ValueForBSPEpairKey(ent, "model", &model, MAX_EPAIRKEY) == 0 {
-                    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_reach.cpp:3291")
+                    botimport.runPrint(PRT_ERROR, "func_bobbing without model\n")
                     ent = AAS_NextBSPEntity(ent)
                     continue
                 } //end if
                 //get the model number, and skip the leading *
                 modelnum = atoi(model[1...])
                 if modelnum <= 0 {
-                    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_reach.cpp:3298")
+                    botimport.runPrint(PRT_ERROR, "func_bobbing with invalid model number\n")
                     ent = AAS_NextBSPEntity(ent)
                     continue
                 } //end if
@@ -3398,9 +3349,9 @@ func AAS_Reachability_FuncBobbing() {
                     origin = vec3_t(0, 0, 0)
                 }
                 //
-                // Port-note: AAS_BSPModelMinsMaxsOrigin takes mins, maxs, and origin by value, so its writes do not reach the caller.
-                // Raven wrote: AAS_BSPModelMinsMaxsOrigin(modelnum, angles, mins, maxs, NULL);
-                portMissing("AAS_BSPModelMinsMaxsOrigin", source: "oracle/codemp/botlib/be_aas_reach.cpp:3305")
+                // Raven passes NULL for the `origin` output, and the scratch local takes the write.
+                var scratchOrigin = vec3_t()
+                AAS_BSPModelMinsMaxsOrigin(modelnum, angles, &mins, &maxs, &scratchOrigin)
                 //
                 mins = mins + origin
                 maxs = maxs + origin
@@ -3425,8 +3376,7 @@ func AAS_Reachability_FuncBobbing() {
                 move_start[axis] -= height
                 move_end[axis] += height
                 //
-                var fmt = CharBuf("funcbob model %d, start = {%1.1f, %1.1f, %1.1f} end = {%1.1f, %1.1f, %1.1f}\n")
-                Log_Write(&fmt, modelnum, move_start[0], move_start[1], move_start[2], move_end[0], move_end[1], move_end[2])
+                Log_Write("funcbob model %d, start = {%1.1f, %1.1f, %1.1f} end = {%1.1f, %1.1f, %1.1f}\n", modelnum, move_start[0], move_start[1], move_start[2], move_end[0], move_end[1], move_end[2])
                 //
                 /*
                 AAS_DrawPermanentCross(move_start, 4, 1);
@@ -3514,8 +3464,7 @@ func AAS_Reachability_FuncBobbing() {
                             //trace = AAS_TraceClientBBox(endreach->end, move_end_top, PRESENCE_NORMAL, -1);
                             //if (trace.fraction < 1) continue;
                             //
-                            var fmt = CharBuf("funcbob reach from area %d to %d\n")
-                            Log_Write(&fmt, startreach!.areanum, endreach!.areanum)
+                            Log_Write("funcbob reach from area %d to %d\n", startreach!.areanum, endreach!.areanum)
                             //
                             //
                             if i == 0 {
@@ -3724,16 +3673,13 @@ func AAS_Reachability_JumpPad() {
                 link = link!.next_area
             } //end for
             if link == nil {
-                // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_reach.cpp:3598")
-                // Port-note: AAS_UnlinkFromAreas takes a value, and Raven passes `areas`, which can be NULL here, row of the NULL sweep.
-                portMissing("AAS_UnlinkFromAreas", source: "oracle/codemp/botlib/be_aas_reach.cpp:3599")
+                botimport.runPrint(PRT_MESSAGE, "trigger_push not in any jump pad area\n")
+                AAS_UnlinkFromAreas(areas)
                 ent = AAS_NextBSPEntity(ent)
                 continue
             } //end if
             //
-            // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-            portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_reach.cpp:3603")
+            botimport.runPrint(PRT_MESSAGE, "found a trigger_push with velocity %f %f %f\n", velocity[0], velocity[1], velocity[2])
             //if there is a horizontal velocity check for a reachability without air control
             if velocity[0] != 0 || velocity[1] != 0 {
                 cmdmove = vec3_t(0, 0, 0)
@@ -3773,8 +3719,7 @@ func AAS_Reachability_JumpPad() {
                         //create a rocket or bfg jump reachability from area1 to area2
                         lreach = AAS_AllocReachability()
                         if lreach == nil {
-                            // Port-note: AAS_UnlinkFromAreas takes a value, and Raven passes `areas`, which can be NULL here, row of the NULL sweep.
-                            portMissing("AAS_UnlinkFromAreas", source: "oracle/codemp/botlib/be_aas_reach.cpp:3638")
+                            AAS_UnlinkFromAreas(areas)
                             return
                         } //end if
                         lreach!.areanum = area2num
@@ -3889,8 +3834,7 @@ func AAS_Reachability_JumpPad() {
                                         //create a jumppad reachability from area1 to area2
                                         lreach = AAS_AllocReachability()
                                         if lreach == nil {
-                                            // Port-note: AAS_UnlinkFromAreas takes a value, and Raven passes `areas`, which can be NULL here, row of the NULL sweep.
-                                            portMissing("AAS_UnlinkFromAreas", source: "oracle/codemp/botlib/be_aas_reach.cpp:3741")
+                                            AAS_UnlinkFromAreas(areas)
                                             return
                                         } //end if
                                         lreach!.areanum = move.endarea
@@ -3917,8 +3861,7 @@ func AAS_Reachability_JumpPad() {
                 } //end for
                 area2num += 1
             } //end for
-            // Port-note: AAS_UnlinkFromAreas takes a value, and Raven passes `areas`, which can be NULL here, row of the NULL sweep.
-            portMissing("AAS_UnlinkFromAreas", source: "oracle/codemp/botlib/be_aas_reach.cpp:3765")
+            AAS_UnlinkFromAreas(areas)
             ent = AAS_NextBSPEntity(ent)
         } //end for
     }
@@ -3963,14 +3906,11 @@ func AAS_Reachability_Grapple(_ area1num: Int32, _ area2num: Int32) -> Int32 {
             //if not a swim area
             if AAS_AreaSwim(area1num) == 0 {
                 if AAS_PointAreaNum(start) == 0 {
-                    var fmt = CharBuf("area %d center %f %f %f in solid?\r\n")
-                    Log_Write(&fmt, area1num, start[0], start[1], start[2])
+                    Log_Write("area %d center %f %f %f in solid?\r\n", area1num, start[0], start[1], start[2])
                 }
                 end = start
                 end[2] -= 1000
-                // Port-note: AAS_TraceClientBBox keeps its signature marker, so the body cannot call it.
-                // Raven wrote: trace = AAS_TraceClientBBox(start, end, PRESENCE_CROUCH, -1);
-                portMissing("AAS_TraceClientBBox", source: "oracle/codemp/botlib/be_aas_reach.cpp:3808")
+                trace.copy(from: AAS_TraceClientBBox(start, end, PRESENCE_CROUCH, -1))
                 if trace.startsolid { return 0 }
                 areastart = trace.endpos
             } //end if
@@ -4034,9 +3974,7 @@ func AAS_Reachability_Grapple(_ area1num: Int32, _ area2num: Int32) -> Int32 {
                 start = facecenter
                 _VectorMA(facecenter, -500, aasworld.planesSlots[face2.planenum].normal, &end)
                 //
-                // Port-note: AAS_Trace keeps its signature marker, so the body cannot call it.
-                // Raven wrote: bsptrace = AAS_Trace(start, NULL, NULL, end, 0, CONTENTS_SOLID);
-                portMissing("AAS_Trace", source: "oracle/codemp/botlib/be_aas_reach.cpp:3852")
+                bsptrace.copy(from: AAS_Trace(start, nil, nil, end, 0, CONTENTS_SOLID))
                 //the grapple won't stick to the sky and the grapple point should be near the AAS wall
                 if (bsptrace.surface.flags & SURF_SKY) != 0 || (bsptrace.fraction * 500 > 32) {
                     i += 1
@@ -4048,9 +3986,7 @@ func AAS_Reachability_Grapple(_ area1num: Int32, _ area2num: Int32) -> Int32 {
                 VectorNormalize(&dir)
                 _VectorMA(areastart, 4, dir, &start)
                 end = bsptrace.endpos
-                // Port-note: AAS_TraceClientBBox keeps its signature marker, so the body cannot call it.
-                // Raven wrote: trace = AAS_TraceClientBBox(start, end, PRESENCE_NORMAL, -1);
-                portMissing("AAS_TraceClientBBox", source: "oracle/codemp/botlib/be_aas_reach.cpp:3861")
+                trace.copy(from: AAS_TraceClientBBox(start, end, PRESENCE_NORMAL, -1))
                 dir = trace.endpos - facecenter
                 if VectorLength(dir) > 24 {
                     i += 1
@@ -4060,9 +3996,7 @@ func AAS_Reachability_Grapple(_ area1num: Int32, _ area2num: Int32) -> Int32 {
                 start = trace.endpos
                 end = trace.endpos
                 end[2] -= AAS_FallDamageDistance()
-                // Port-note: AAS_TraceClientBBox keeps its signature marker, so the body cannot call it.
-                // Raven wrote: trace = AAS_TraceClientBBox(start, end, PRESENCE_NORMAL, -1);
-                portMissing("AAS_TraceClientBBox", source: "oracle/codemp/botlib/be_aas_reach.cpp:3868")
+                trace.copy(from: AAS_TraceClientBBox(start, end, PRESENCE_NORMAL, -1))
                 if trace.fraction >= 1 {
                     i += 1
                     continue
@@ -4162,8 +4096,7 @@ func AAS_SetWeaponJumpAreaFlags() {
                 //if not a stationary item
                 if (spawnflags & 1) == 0 {
                     if AAS_DropToFloor(&origin, mins, maxs) == 0 {
-                        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_reach.cpp:3947")
+                        botimport.runPrint(PRT_MESSAGE, "%s in solid at (%1.1f %1.1f %1.1f)\n", String(classname), origin[0], origin[1], origin[2])
                     } //end if
                 } //end if
                 //areanum = AAS_PointAreaNum(origin);
@@ -4187,8 +4120,7 @@ func AAS_SetWeaponJumpAreaFlags() {
         } //end if
         i += 1
     } //end for
-    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_reach.cpp:3971")
+    botimport.runPrint(PRT_MESSAGE, "%d weapon jump areas\n", weaponjumpareas)
 }
 
 //===========================================================================
@@ -4232,14 +4164,11 @@ func AAS_Reachability_WeaponJump(_ area1num: Int32, _ area2num: Int32) -> Int32 
             start = aasworld.areasSlots[area1num].center
             //if not a swim area
             if AAS_PointAreaNum(start) == 0 {
-                var fmt = CharBuf("area %d center %f %f %f in solid?\r\n")
-                Log_Write(&fmt, area1num, start[0], start[1], start[2])
+                Log_Write("area %d center %f %f %f in solid?\r\n", area1num, start[0], start[1], start[2])
             }
             end = start
             end[2] -= 1000
-            // Port-note: AAS_TraceClientBBox keeps its signature marker, so the body cannot call it.
-            // Raven wrote: trace = AAS_TraceClientBBox(start, end, PRESENCE_CROUCH, -1);
-            portMissing("AAS_TraceClientBBox", source: "oracle/codemp/botlib/be_aas_reach.cpp:4017")
+            trace.copy(from: AAS_TraceClientBBox(start, end, PRESENCE_CROUCH, -1))
             if trace.startsolid { return 0 }
             areastart = trace.endpos
             //
@@ -4452,9 +4381,7 @@ func AAS_Reachability_WalkOffLedge(_ areanum: Int32) {
                             //
                             testend = mid
                             testend[2] -= 1000
-                            // Port-note: AAS_TraceClientBBox keeps its signature marker, so the body cannot call it.
-                            // Raven wrote: trace = AAS_TraceClientBBox(mid, testend, PRESENCE_CROUCH, -1);
-                            portMissing("AAS_TraceClientBBox", source: "oracle/codemp/botlib/be_aas_reach.cpp:4213")
+                            trace.copy(from: AAS_TraceClientBBox(mid, testend, PRESENCE_CROUCH, -1))
                             //
                             if trace.startsolid {
                                 //Log_Write("area %d: trace.startsolid\r\n", areanum);
@@ -4542,7 +4469,7 @@ func AAS_StoreReachability() {
     var reach: AasReachability
 
     if aasworld.reachability != nil { FreeMemory(aasworld.reachability?.handle) }
-    aasworld.reachability = AasReachability(GetClearedMemory(UInt32((numlreachabilities + 10) * Int32(AasReachability.byteCount))))
+    aasworld.reachability = AasReachability(GetClearedMemory((numlreachabilities + 10) * Int32(AasReachability.byteCount)))
     aasworld.reachabilitysize = 1
     i = 0
     while i < aasworld.numareas {
@@ -4593,12 +4520,175 @@ func AAS_StoreReachability() {
 // Returns:				true if NOT finished
 // Changes Globals:		-
 //===========================================================================
+/// Raven's `static float framereachability` of `AAS_ContinueInitReachability`, a property of `EngineWorld`.
+/// Source: oracle/codemp/botlib/be_aas_reach.cpp:4350
+var framereachability: Float {
+    get { world.framereachability }
+    set { world.framereachability = newValue }
+}
+
+/// Raven's `static float reachability_delay` of `AAS_ContinueInitReachability`, a property of `EngineWorld`.
+/// Source: oracle/codemp/botlib/be_aas_reach.cpp:4350
+var reachability_delay: Float {
+    get { world.reachability_delay }
+    set { world.reachability_delay = newValue }
+}
+
+/// Raven's `static int lastpercentage` of `AAS_ContinueInitReachability`, a property of `EngineWorld`.
+/// Source: oracle/codemp/botlib/be_aas_reach.cpp:4351
+var lastpercentage: Int32 {
+    get { world.lastpercentage }
+    set { world.lastpercentage = newValue }
+}
+
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:4347
 func AAS_ContinueInitReachability(_ time: Float) -> Int32 {
-    // Port-note: Raven's static locals `framereachability`, `reachability_delay`, and `lastpercentage` have no storage on EngineWorld.
-    // So the body cannot keep their values from one call to the next.
-    // TODO: Port AAS_ContinueInitReachability
-    portMissing("AAS_ContinueInitReachability", source: "oracle/codemp/botlib/be_aas_reach.cpp:4347")
+    var i: Int32, j: Int32, todo: Int32
+    let start_time: Int32
+
+    if aasworld.loaded == 0 { return 0 }
+    //if reachability is calculated for all areas
+    if aasworld.numreachabilityareas >= aasworld.numareas + 2 { return 0 }
+    //if starting with area 1 (area 0 is a dummy)
+    if aasworld.numreachabilityareas == 1 {
+        botimport.runPrint(PRT_MESSAGE, "calculating reachability...\n")
+        lastpercentage = 0
+        framereachability = 2000
+        reachability_delay = 1000
+    } //end if
+    //number of areas to calculate reachability for this cycle
+    todo = aasworld.numreachabilityareas + Int32(framereachability)
+    start_time = Sys_MilliSeconds()
+    //loop over the areas
+    i = aasworld.numreachabilityareas
+    while i < aasworld.numareas && i < todo {
+        aasworld.numreachabilityareas += 1
+        //only create jumppad reachabilities from jumppad areas
+        if (aasworld.areasettingsSlots[i].contents & AREACONTENTS_JUMPPAD) != 0 {
+            i += 1
+            continue
+        } //end if
+        //loop over the areas
+        j = 1
+        while j < aasworld.numareas {
+            if i == j {
+                j += 1
+                continue
+            }
+            //never create reachabilities from teleporter or jumppad areas to regular areas
+            if (aasworld.areasettingsSlots[i].contents & (AREACONTENTS_TELEPORTER | AREACONTENTS_JUMPPAD)) != 0 {
+                if (aasworld.areasettingsSlots[j].contents & (AREACONTENTS_TELEPORTER | AREACONTENTS_JUMPPAD)) == 0 {
+                    j += 1
+                    continue
+                } //end if
+            } //end if
+            //if there already is a reachability link from area i to j
+            if AAS_ReachabilityExists(i, j) {
+                j += 1
+                continue
+            }
+            //check for a swim reachability
+            if AAS_Reachability_Swim(i, j) != 0 {
+                j += 1
+                continue
+            }
+            //check for a simple walk on equal floor height reachability
+            if AAS_Reachability_EqualFloorHeight(i, j) != 0 {
+                j += 1
+                continue
+            }
+            //check for step, barrier, waterjump and walk off ledge reachabilities
+            if AAS_Reachability_Step_Barrier_WaterJump_WalkOffLedge(i, j) != 0 {
+                j += 1
+                continue
+            }
+            //check for ladder reachabilities
+            if AAS_Reachability_Ladder(i, j) != 0 {
+                j += 1
+                continue
+            }
+            //check for a jump reachability
+            if AAS_Reachability_Jump(i, j) != 0 {
+                j += 1
+                continue
+            }
+            j += 1
+        } //end for
+        //never create these reachabilities from teleporter or jumppad areas
+        if (aasworld.areasettingsSlots[i].contents & (AREACONTENTS_TELEPORTER | AREACONTENTS_JUMPPAD)) != 0 {
+            i += 1
+            continue
+        } //end if
+        //loop over the areas
+        j = 1
+        while j < aasworld.numareas {
+            if i == j {
+                j += 1
+                continue
+            }
+            //
+            if AAS_ReachabilityExists(i, j) {
+                j += 1
+                continue
+            }
+            //check for a grapple hook reachability
+            if calcgrapplereach != 0 { _ = AAS_Reachability_Grapple(i, j) }
+            //check for a weapon jump reachability
+            _ = AAS_Reachability_WeaponJump(i, j)
+            j += 1
+        } //end for
+        //if the calculation took more time than the max reachability delay
+        if Sys_MilliSeconds() - start_time > Int32(reachability_delay) { break }
+        //
+        if aasworld.numreachabilityareas * 1000 / aasworld.numareas > lastpercentage { break }
+        i += 1
+    } //end for
+    //
+    if aasworld.numreachabilityareas == aasworld.numareas {
+        botimport.runPrint(PRT_MESSAGE, "\r%6.1f%%", Float(100.0))
+        botimport.runPrint(PRT_MESSAGE, "\nplease wait while storing reachability...\n")
+        aasworld.numreachabilityareas += 1
+    } //end if
+    //if this is the last step in the reachability calculations
+    else if aasworld.numreachabilityareas == aasworld.numareas + 1 {
+        //create additional walk off ledge reachabilities for every area
+        i = 1
+        while i < aasworld.numareas {
+            //only create jumppad reachabilities from jumppad areas
+            if (aasworld.areasettingsSlots[i].contents & AREACONTENTS_JUMPPAD) != 0 {
+                i += 1
+                continue
+            } //end if
+            AAS_Reachability_WalkOffLedge(i)
+            i += 1
+        } //end for
+        //create jump pad reachabilities
+        AAS_Reachability_JumpPad()
+        //create teleporter reachabilities
+        AAS_Reachability_Teleport()
+        //create elevator (func_plat) reachabilities
+        AAS_Reachability_Elevator()
+        //create func_bobbing reachabilities
+        AAS_Reachability_FuncBobbing()
+        //
+        //*/
+        //store all the reachabilities
+        AAS_StoreReachability()
+        //free the reachability link heap
+        AAS_ShutDownReachabilityHeap()
+        //
+        FreeMemory(OpaquePointer(areareachability!.base))
+        //
+        aasworld.numreachabilityareas += 1
+        //
+        botimport.runPrint(PRT_MESSAGE, "calculating clusters...\n")
+    } //end if
+    else {
+        lastpercentage = aasworld.numreachabilityareas * 1000 / aasworld.numareas
+        botimport.runPrint(PRT_MESSAGE, "\r%6.1f%%", Float(lastpercentage) / 10)
+    } //end else
+    //not yet finished
+    return 1
 }
 
 //===========================================================================
@@ -4626,7 +4716,7 @@ func AAS_InitReachability() {
     AAS_SetupReachabilityHeap()
     //allocate area reachability link array
     // `UInt.byteCount` is the size of one record pointer.
-    areareachability = Slots(pointers: GetClearedMemory(UInt32(aasworld.numareas * Int32(UInt.byteCount))), count: Int(aasworld.numareas))
+    areareachability = Slots(pointers: GetClearedMemory(aasworld.numareas * Int32(UInt.byteCount)), count: Int(aasworld.numareas))
     //
     AAS_SetWeaponJumpAreaFlags()
 }

@@ -82,8 +82,8 @@ store = "tools/oracle-closure/out/mp-engine-ded/table.sqlite"
 # It also gives stubs to cm_terrain.cpp and RM_Manager.cpp, the files that define CCMLandScape and TheRandomMissionManager of cm_load.cpp:800 to :809.
 # The seventh batch gives stubs to the botlib, ICARUS, the NPC navigator, and the ROFF system, WinDed.vcproj:144, :365 to :368, :461 to :605, and :736 to :787.
 # The fork links the same files, MPBotlibBotlibFiles, MPEngineAndDedIcarusFiles, MPEngineAndDedServerFiles, and RoffSystem.cpp of openjk/codemp/CMakeLists.txt:62 to :336.
+# matcomp.c is no longer deferred, because UnCompressBone of tr_ghoul2.cpp:1158 calls MC_UnCompressQuat, row X4 of docket 10.
 deferred = [
-    "codemp/renderer/*.c",
     "codemp/png/*.cpp",
     "codemp/zlib32/*.cpp",
     "codemp/qcommon/cm_draw.cpp",
@@ -355,6 +355,7 @@ lang = "c++"
 # The renderer header tr_local.h joins the list for the records of `tr`, the models, and the shaders, row TR1 of notes/2026-11-09/dedicated-open-rows-ledger-8.md.
 # stringed_ingame.h joins the list for its constants, row S4 of that ledger.
 # Q3_Registers.h, navigator.h, g_nav.h, and RoffSystem.h join the list for their constants, rows 4 and 5 of notes/2026-11-09/dedicated-body-round-icarus.md.
+# Q3_Interface.h joins the list for the `SET_` names that ICARUS_InterrogateScript of GameInterface.cpp:540 reads, row X11 of docket 10.
 # The null folder has no header of its own.
 # cm_local.h reaches <list> through cm_landscape.h, and the foreign triples have no C++ library, so their parse stops there.
 # The lp64 asserts alone cover the C++ reach of cm_local.h, row S2, and the ilp32 and llp64 blocks say "did not parse for" at each such record.
@@ -371,6 +372,7 @@ entry = [
     "codemp/renderer/tr_local.h",
     "codemp/qcommon/stringed_ingame.h",
     "codemp/icarus/Q3_Registers.h",
+    "codemp/icarus/Q3_Interface.h",
     "codemp/server/NPCNav/navigator.h",
     "codemp/game/g_nav.h",
     "codemp/qcommon/RoffSystem.h",

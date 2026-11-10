@@ -27,6 +27,13 @@ var g_G2AllocServer: Int32 {
     set { world.variables.g_G2AllocServer = newValue }
 }
 
+/// Source: oracle/codemp/ghoul2/G2_API.cpp:616
+// AI: Raven hands the module the address of each `CGhoul2Info_v`. The world holds the instances in a table, and the module's word is the slot number plus 1, row Z6 of docket 10.
+var ghoul2Instances: [CGhoul2Info_v?] {
+    get { world.ghoul2Instances }
+    set { world.ghoul2Instances = newValue }
+}
+
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:42
 let MAX_TRACKED_ALLOC = 4096 as Int32
 
@@ -261,6 +268,8 @@ func G2API_CleanGhoul2Models(_ ghoul2Ptr: inout CGhoul2Info_v?) {
         g_Ghoul2Allocations -= Int32(UInt.byteCount)
         G2_DEBUG_RemovePtrFromTracker(ghoul2Ptr)
 
+        // AI: Raven deletes the instance. The table drops its reference, so the deinit frees the item, row Z6 of docket 10.
+        ghoul2Instances.freeSlot(ghoul2Ptr!)
         ghoul2Ptr = nil
     }
 }
@@ -300,6 +309,8 @@ func G2API_InitGhoul2Model(_ ghoul2Ptr: inout CGhoul2Info_v?, _ fileName: String
 
     if ghoul2Ptr == nil {
         ghoul2Ptr = CGhoul2Info_v()
+        // AI: Raven hands the module the address of the new instance. The instance takes a free slot of the table, row Z6 of docket 10.
+        ghoul2Instances.takeSlot(ghoul2Ptr!)
         // Raven's `sizeof(CGhoul2Info_v)` is the size of its one `int` field.
         if g_G2AllocServer != 0 {
             g_G2ServerAlloc += Int32(Int32.byteCount)
@@ -518,6 +529,8 @@ func G2API_RemoveGhoul2Model(_ ghlRemove: inout CGhoul2Info_v?, _ modelIndex: In
             g_Ghoul2Allocations -= Int32(UInt.byteCount)
             // AI: Raven deletes the instance, and its destructor calls Free. The body calls clear, whose body is the same call, then drops the reference.
             ghlRemove!.clear()
+            // AI: The table drops its reference to the deleted instance, row Z6 of docket 10.
+            ghoul2Instances.freeSlot(ghlRemove!)
             ghlRemove = nil
         }
     }
@@ -596,6 +609,8 @@ func G2API_RemoveGhoul2Models(_ ghlRemove: inout CGhoul2Info_v?) -> Bool {
         g_Ghoul2Allocations -= Int32(UInt.byteCount)
         // AI: Raven deletes the instance, and its destructor calls Free. The body calls clear, whose body is the same call, then drops the reference.
         ghlRemove!.clear()
+        // AI: The table drops its reference to the deleted instance, row Z6 of docket 10.
+        ghoul2Instances.freeSlot(ghlRemove!)
         ghlRemove = nil
     }
     return true
@@ -1437,9 +1452,7 @@ func G2API_CollisionDetectCache(_ collRecMap: Slots<CollisionRecord>, _ ghoul2: 
         }
 
         // now sort the resulting array of collision records so they are distance ordered
-        // Port-note: Raven sorts the first `i` records of `collRecMap` in place, and no `qsort` form takes a Slots of records.
-        // Raven wrote: qsort( collRecMap, i, sizeof( CollisionRecord_t ), QsortDistance );
-        portMissing("G2API_CollisionDetectCache", source: "oracle/codemp/ghoul2/G2_API.cpp:2035")
+        qsort(collRecMap, i, QsortDistance)
     }
 }
 
@@ -1483,9 +1496,7 @@ func G2API_CollisionDetect(_ collRecMap: Slots<CollisionRecord>, _ ghoul2: CGhou
         }
 
         // now sort the resulting array of collision records so they are distance ordered
-        // Port-note: Raven sorts the first `i` records of `collRecMap` in place, and no `qsort` form takes a Slots of records.
-        // Raven wrote: qsort( collRecMap, i, sizeof( CollisionRecord_t ), QsortDistance );
-        portMissing("G2API_CollisionDetect", source: "oracle/codemp/ghoul2/G2_API.cpp:2124")
+        qsort(collRecMap, i, QsortDistance)
     }
 }
 
@@ -1603,6 +1614,8 @@ func G2API_DuplicateGhoul2Instance(_ g2From: CGhoul2Info_v, _ g2To: inout CGhoul
     }
 
     g2To = CGhoul2Info_v()
+    // AI: Raven hands the module the address of the new instance. The instance takes a free slot of the table, row Z6 of docket 10.
+    ghoul2Instances.takeSlot(g2To!)
     // Raven's `sizeof(CGhoul2Info_v)` is the size of its one `int` field.
     if g_G2AllocServer != 0 {
         g_G2ServerAlloc += Int32(Int32.byteCount)

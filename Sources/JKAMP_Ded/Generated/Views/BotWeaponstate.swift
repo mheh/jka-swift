@@ -67,8 +67,8 @@ public struct BotWeaponstate: Hashable, HandleView {
     }
 
     /// Source: unknown:3
-    public var weaponweightindex: OpaquePointer? {
-        get { OpaquePointer(self.raw.pointee.weaponweightindex) }
-        nonmutating set { self.raw.pointee.weaponweightindex = UnsafeMutablePointer(newValue) }
+    public var weaponweightindex: Slots<Int32>? {
+        get { self.raw.pointee.weaponweightindex.map { Slots(scalars: UnsafeMutableRawPointer($0), count: Int.max) } }
+        nonmutating set { self.raw.pointee.weaponweightindex = newValue?.base.assumingMemoryBound(to: Int32.self) }
     }
 }

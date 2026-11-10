@@ -2795,7 +2795,7 @@ private func CG_Cvar_Get(_ cvar: String) -> Float {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3027
-func CG_Text_PaintWithCursor(_ x: Float, _ y: Float, _ scale: Float, _ color: JKAShared.vec4_t, _ text: String, _ cursorPos: Int32, _ cursor: CChar, _ limit: Int32, _ style: Int32, _ iMenuFont: Int32) {
+func CG_Text_PaintWithCursor(_ x: Float, _ y: Float, _ scale: Float, _ color: JKAShared.vec4_t, _ text: String, _ cursorPos: Int32, _ cursor: Int32, _ limit: Int32, _ style: Int32, _ iMenuFont: Int32) {
     CG_Text_Paint(x, y, scale, color, text, 0, limit, style, iMenuFont)
 }
 
@@ -3897,7 +3897,7 @@ private enum DisplayContextDefThunks {
             vector4(at: color!),
             JKAMP_CGame.text(at: text!),
             cursorPos,
-            cursor,
+            Int32(cursor),
             limit,
             style,
             iMenuFont

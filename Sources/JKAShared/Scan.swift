@@ -47,9 +47,15 @@ private func skipScanSpace(_ bytes: [UInt8], _ i: inout Int) {
 
 // MARK: - Conversions
 
-/// This reads one `%f` at the cursor, `strtod`'s form: an optional sign, digits, an optional fraction, and an optional exponent.
+/// This reads one `%f` at the cursor, the `float` that `readScanDouble` reads.
 /// It gives `nil` and leaves the cursor alone when there is no number there, which is how a conversion fails.
 private func readScanFloat(_ bytes: [UInt8], _ i: inout Int) -> Float? {
+    return readScanDouble(bytes, &i).map { Float($0) }
+}
+
+/// This reads one `%lf` at the cursor, `strtod`'s form: an optional sign, digits, an optional fraction, and an optional exponent.
+/// It gives `nil` and leaves the cursor alone when there is no number there, which is how a conversion fails.
+private func readScanDouble(_ bytes: [UInt8], _ i: inout Int) -> Double? {
     var j = i
     skipScanSpace(bytes, &j)
 
@@ -97,7 +103,7 @@ private func readScanFloat(_ bytes: [UInt8], _ i: inout Int) -> Float? {
     }
 
     i = j
-    return Float(Double(text) ?? 0)
+    return Double(text) ?? 0
 }
 
 /// This reads one `%d` at the cursor, `strtol` base 10: an optional sign and digits.
@@ -140,6 +146,19 @@ private func scanVector(_ bytes: [UInt8], _ v: inout vec3_t) -> Int32 {
     return read
 }
 
+/// This reads three doubles into `d0`, `d1`, and `d2`, and gives the count of numbers it read.
+/// A double past the last number keeps its old value.
+private func scanDoubles(_ bytes: [UInt8], _ d0: inout Double, _ d1: inout Double, _ d2: inout Double) -> Int32 {
+    var i = 0
+    guard let value0 = readScanDouble(bytes, &i) else { return 0 }
+    d0 = value0
+    guard let value1 = readScanDouble(bytes, &i) else { return 1 }
+    d1 = value1
+    guard let value2 = readScanDouble(bytes, &i) else { return 2 }
+    d2 = value2
+    return 3
+}
+
 /// This reads one float into `f`, and gives 1 for a number and 0 for text with no number.
 private func scanFloat(_ bytes: [UInt8], _ f: inout Float) -> Int32 {
     var i = 0
@@ -172,6 +191,14 @@ public func sscanf(_ s: String, _ fmt: String, _ v: inout vec3_t) -> Int32 {
 public func sscanf(_ s: CharBuf, _ fmt: String, _ v: inout vec3_t) -> Int32 {
     precondition(fmt == "%f %f %f", "sscanf: the vector overload serves \"%f %f %f\" alone, and the format was \"\(fmt)\"")
     return scanVector(scanBytes(of: s), &v)
+}
+
+/// This reads three doubles out of a `char` buffer, Raven's `sscanf(buf, "%lf %lf %lf", &v1, &v2, &v3)` of AAS_VectorForBSPEpairKey.
+/// The result is the count of numbers it read, and a double past the last number keeps its old value.
+@discardableResult
+public func sscanf(_ s: CharBuf, _ fmt: String, _ d0: inout Double, _ d1: inout Double, _ d2: inout Double) -> Int32 {
+    precondition(fmt == "%lf %lf %lf", "sscanf: the double overload serves \"%lf %lf %lf\" alone, and the format was \"\(fmt)\"")
+    return scanDoubles(scanBytes(of: s), &d0, &d1, &d2)
 }
 
 /// This reads one float into `f`, Raven's `sscanf(s, "%f", &f)`.

@@ -8,7 +8,7 @@ import JKAShared
 public let HEIGHT_RESOLUTION = CJKAMP_Ded.HEIGHT_RESOLUTION
 
 /// Source: oracle/codemp/qcommon/cm_landscape.h:17
-public let TERRAIN_STEP_MAGIC = (1.0 / 1.2071) as Double
+public let TERRAIN_STEP_MAGIC = (1.0 / 1.2071) as Float
 
 /// Source: oracle/codemp/qcommon/cm_landscape.h:19
 public let MIN_TERXELS = CJKAMP_Ded.MIN_TERXELS

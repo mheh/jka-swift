@@ -5,15 +5,18 @@
 
 #include "CJKAMP_Ded_forward.h"
 
+#include <stddef.h>
+
 // Source: oracle/codemp/qcommon/cm_local.h:34
+// AI: Raven typed firstLeafBrush, firstLeafSurface as int. The copy takes the ptrdiff_t of OpenJK, openjk/codemp/qcommon/cm_local.h:48 and :51, so the distance of two zone blocks fits on a 64-bit host.
 typedef struct {
 	int			cluster;
 	int			area;
 
-	int			firstLeafBrush;
+	ptrdiff_t			firstLeafBrush;
 	int			numLeafBrushes;
 
-	int			firstLeafSurface;
+	ptrdiff_t			firstLeafSurface;
 	int			numLeafSurfaces;
 } cLeaf_t;
 

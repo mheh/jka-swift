@@ -120,15 +120,11 @@ private let ET_ITEM = 2 as Int32
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:186
 func BotGoalStateFromHandle(_ handle: Int32) -> BotGoalstate? {
     if handle <= 0 || handle > MAX_CLIENTS {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "goal state handle %d out of range\n", handle);
-        portMissing("BotGoalStateFromHandle", source: "oracle/codemp/botlib/be_ai_goal.cpp:186")
+        botimport.runPrint(PRT_FATAL, "goal state handle %d out of range\n", handle)
         return nil
     }
     if botgoalstates[handle] == nil {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "invalid goal state %d\n", handle);
-        portMissing("BotGoalStateFromHandle", source: "oracle/codemp/botlib/be_ai_goal.cpp:186")
+        botimport.runPrint(PRT_FATAL, "invalid goal state %d\n", handle)
         return nil
     }
     return botgoalstates[handle]
@@ -198,9 +194,7 @@ func LoadItemConfig(_ filename: String) -> Itemconfig? {
 
         max_iteminfo = Int32(LibVarValue("max_iteminfo", "256"))
         if max_iteminfo < 0 {
-            // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-            // Raven wrote: botimport.Print(PRT_ERROR, "max_iteminfo = %d\n", max_iteminfo);
-            portMissing("LoadItemConfig", source: "oracle/codemp/botlib/be_ai_goal.cpp:251")
+            botimport.runPrint(PRT_ERROR, "max_iteminfo = %d\n", max_iteminfo)
             max_iteminfo = 256
             LibVarSet("max_iteminfo", "256")
         }
@@ -208,9 +202,7 @@ func LoadItemConfig(_ filename: String) -> Itemconfig? {
         strncpy(&path, filename, MAX_PATH)
         PC_SetBaseFolder(BOTFILESBASEFOLDER)
         guard let source = LoadSourceFile(String(path)) else {
-            // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-            // Raven wrote: botimport.Print( PRT_ERROR, "counldn't load %s\n", path );
-            portMissing("LoadItemConfig", source: "oracle/codemp/botlib/be_ai_goal.cpp:251")
+            botimport.runPrint(PRT_ERROR, "counldn't load %s\n", String(path))
             return nil
         }
         //initialize item config
@@ -255,13 +247,9 @@ func LoadItemConfig(_ filename: String) -> Itemconfig? {
         FreeSource(source)
         //
         if ic.numiteminfo == 0 {
-            // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-            // Raven wrote: botimport.Print(PRT_WARNING, "no item info loaded\n");
-            portMissing("LoadItemConfig", source: "oracle/codemp/botlib/be_ai_goal.cpp:251")
+            botimport.runPrint(PRT_WARNING, "no item info loaded\n")
         }
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_MESSAGE, "loaded %s\n", path);
-        portMissing("LoadItemConfig", source: "oracle/codemp/botlib/be_ai_goal.cpp:251")
+        botimport.runPrint(PRT_MESSAGE, "loaded %s\n", String(path))
         return ic
     }
 }
@@ -274,12 +262,21 @@ func LoadItemConfig(_ filename: String) -> Itemconfig? {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:332
-// TODO: Port signature
-// Raven wrote: int *ItemWeightIndex(weightconfig_t *iwc, itemconfig_t *ic)
-// No table row for the return `int *`.
-func ItemWeightIndex() -> Never {
-    // TODO: Port ItemWeightIndex
-    portMissing("ItemWeightIndex", source: "oracle/codemp/botlib/be_ai_goal.cpp:332")
+func ItemWeightIndex(_ iwc: Weightconfig, _ ic: Itemconfig) -> Slots<Int32> {
+    var index: Slots<Int32>, i: Int32
+
+    //initialize item weight index
+    index = Slots<Int32>(scalars: GetClearedMemory(Int32(Int32.byteCount) * ic.numiteminfo), count: Int(ic.numiteminfo))
+
+    i = 0
+    while i < ic.numiteminfo {
+        index[i] = FindFuzzyWeight(iwc, ic.iteminfoSlots[i].classname)
+        if index[i] < 0 {
+            Log_Write("item info %d \"%s\" has no fuzzy weight\r\n", i, ic.iteminfoSlots[i].classname)
+        } //end if
+        i += 1
+    } //end for
+    return index
 }
 
 //===========================================================================
@@ -316,9 +313,7 @@ func InitLevelItemHeap() {
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:378
 func AllocLevelItem() -> Levelitem? {
     guard let li = freelevelitems else {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "out of level items\n");
-        portMissing("AllocLevelItem", source: "oracle/codemp/botlib/be_ai_goal.cpp:378")
+        botimport.runPrint(PRT_FATAL, "out of level items\n")
         return nil
     }
     //
@@ -442,9 +437,7 @@ func BotInitInfoEntities() {
             AAS_FloatForBSPEpairKey(ent, "random", &cs.random)
             cs.areanum = AAS_PointAreaNum(cs.origin)
             if cs.areanum == 0 {
-                // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-                // Raven wrote: botimport.Print(PRT_MESSAGE, "camp spot at %1.1f %1.1f %1.1f in solid\n", cs->origin[0], cs->origin[1], cs->origin[2]);
-                portMissing("BotInitInfoEntities", source: "oracle/codemp/botlib/be_ai_goal.cpp:459")
+                botimport.runPrint(PRT_MESSAGE, "camp spot at %1.1f %1.1f %1.1f in solid\n", cs.origin[0], cs.origin[1], cs.origin[2])
                 FreeMemory(cs.handle)
                 ent = AAS_NextBSPEntity(ent)
                 continue
@@ -457,12 +450,8 @@ func BotInitInfoEntities() {
         ent = AAS_NextBSPEntity(ent)
     }
     if bot_developer != 0 {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_MESSAGE, "%d map locations\n", numlocations);
-        portMissing("BotInitInfoEntities", source: "oracle/codemp/botlib/be_ai_goal.cpp:459")
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_MESSAGE, "%d camp spots\n", numcampspots);
-        portMissing("BotInitInfoEntities", source: "oracle/codemp/botlib/be_ai_goal.cpp:459")
+        botimport.runPrint(PRT_MESSAGE, "%d map locations\n", numlocations)
+        botimport.runPrint(PRT_MESSAGE, "%d camp spots\n", numcampspots)
     }
 }
 
@@ -499,8 +488,7 @@ func BotInitLevelItems() {
         while i < ic.numiteminfo {
             //ic->iteminfo[i].modelindex = AAS_IndexFromModel(ic->iteminfo[i].model);
             if ic.iteminfoSlots[i].modelindex == 0 {
-                var fmt = CharBuf("item %s has modelindex 0")
-                Log_Write(&fmt, ic.iteminfoSlots[i].classname)
+                Log_Write("item %s has modelindex 0", ic.iteminfoSlots[i].classname)
             }
             i += 1
         }
@@ -521,16 +509,13 @@ func BotInitLevelItems() {
                 i += 1
             }
             if i >= ic.numiteminfo {
-                var fmt = CharBuf("entity %s unknown item\r\n")
-                Log_Write(&fmt, classname)
+                Log_Write("entity %s unknown item\r\n", classname)
                 ent = AAS_NextBSPEntity(ent)
                 continue
             }
             //get the origin of the item
             if AAS_VectorForBSPEpairKey(ent, "origin", &origin) == 0 {
-                // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-                // Raven wrote: botimport.Print(PRT_ERROR, "item %s without origin\n", classname);
-                portMissing("BotInitLevelItems", source: "oracle/codemp/botlib/be_ai_goal.cpp:521")
+                botimport.runPrint(PRT_ERROR, "item %s without origin\n", String(classname))
                 ent = AAS_NextBSPEntity(ent)
                 continue
             }
@@ -542,15 +527,12 @@ func BotInitLevelItems() {
                 if (AAS_PointContents(origin) & CONTENTS_WATER) == 0 {
                     end = origin
                     end[2] -= 32
-                    // Port-note: AAS_Trace has an open signature marker and no parameters, so the call and its `bsp_trace_t` return have no form.
-                    // Raven wrote: trace = AAS_Trace(origin, ic->iteminfo[i].mins, ic->iteminfo[i].maxs, end, -1, CONTENTS_SOLID|CONTENTS_PLAYERCLIP);
-                    portMissing("BotInitLevelItems", source: "oracle/codemp/botlib/be_ai_goal.cpp:521")
+                    trace.copy(from: AAS_Trace(origin, ic.iteminfoSlots[i].mins, ic.iteminfoSlots[i].maxs, end, -1, CONTENTS_SOLID | CONTENTS_PLAYERCLIP))
                     //if the item not near the ground
                     if trace.fraction >= 1 {
                         //if the item is not reachable from a jumppad
                         goalareanum = AAS_BestReachableFromJumpPadArea(origin, ic.iteminfoSlots[i].mins, ic.iteminfoSlots[i].maxs)
-                        var fmt = CharBuf("item %s reachable from jumppad area %d\r\n")
-                        Log_Write(&fmt, ic.iteminfoSlots[i].classname, goalareanum)
+                        Log_Write("item %s reachable from jumppad area %d\r\n", ic.iteminfoSlots[i].classname, goalareanum)
                         //botimport.Print(PRT_MESSAGE, "item %s reachable from jumppad area %d\r\n", ic->iteminfo[i].classname, goalareanum);
                         if goalareanum == 0 {
                             ent = AAS_NextBSPEntity(ent)
@@ -583,9 +565,7 @@ func BotInitLevelItems() {
             //if not a stationary item
             if (spawnflags & 1) == 0 {
                 if AAS_DropToFloor(&origin, ic.iteminfoSlots[i].mins, ic.iteminfoSlots[i].maxs) == 0 {
-                    // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-                    // Raven wrote: botimport.Print(PRT_MESSAGE, "%s in solid at (%1.1f %1.1f %1.1f)\n", classname, origin[0], origin[1], origin[2]);
-                    portMissing("BotInitLevelItems", source: "oracle/codemp/botlib/be_ai_goal.cpp:521")
+                    botimport.runPrint(PRT_MESSAGE, "%s in solid at (%1.1f %1.1f %1.1f)\n", String(classname), origin[0], origin[1], origin[2])
                 }
             }
             //item info of the level item
@@ -600,18 +580,14 @@ func BotInitLevelItems() {
                 //get the item goal area and goal origin
                 li.goalareanum = AAS_BestReachableArea(origin, ic.iteminfoSlots[i].mins, ic.iteminfoSlots[i].maxs, &li.goalorigin)
                 if li.goalareanum == 0 {
-                    // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-                    // Raven wrote: botimport.Print(PRT_MESSAGE, "%s not reachable for bots at (%1.1f %1.1f %1.1f)\n", classname, origin[0], origin[1], origin[2]);
-                    portMissing("BotInitLevelItems", source: "oracle/codemp/botlib/be_ai_goal.cpp:521")
+                    botimport.runPrint(PRT_MESSAGE, "%s not reachable for bots at (%1.1f %1.1f %1.1f)\n", String(classname), origin[0], origin[1], origin[2])
                 }
             }
             //
             AddLevelItemToList(li)
             ent = AAS_NextBSPEntity(ent)
         }
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_MESSAGE, "found %d level items\n", numlevelitems);
-        portMissing("BotInitLevelItems", source: "oracle/codemp/botlib/be_ai_goal.cpp:521")
+        botimport.runPrint(PRT_MESSAGE, "found %d level items\n", numlevelitems)
     }
 }
 
@@ -669,8 +645,7 @@ func BotDumpAvoidGoals(_ goalstate: Int32) {
     while i < MAX_AVOIDGOALS {
         if gs.avoidgoaltimes[i] >= AAS_Time() {
             BotGoalName(gs.avoidgoals[i], &name, 32)
-            var fmt = CharBuf("avoid goal %s, number %d for %f seconds")
-            Log_Write(&fmt, name, gs.avoidgoals[i], gs.avoidgoaltimes[i] - AAS_Time())
+            Log_Write("avoid goal %s, number %d for %f seconds", name, gs.avoidgoals[i], gs.avoidgoaltimes[i] - AAS_Time())
         }
         i += 1
     }
@@ -1121,8 +1096,7 @@ func BotDumpGoalStack(_ goalstate: Int32) {
     i = 1
     while i <= gs.goalstacktop {
         BotGoalName(gs.goalstack[i].number, &name, 32)
-        var fmt = CharBuf("%d: %s")
-        Log_Write(&fmt, i, name)
+        Log_Write("%d: %s", i, name)
         i += 1
     }
 }
@@ -1137,9 +1111,7 @@ func BotDumpGoalStack(_ goalstate: Int32) {
 func BotPushGoal(_ goalstate: Int32, _ goal: BotGoal) {
     guard let gs = BotGoalStateFromHandle(goalstate) else { return }
     if gs.goalstacktop >= MAX_GOALSTACK - 1 {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_ERROR, "goal heap overflow\n");
-        portMissing("BotPushGoal", source: "oracle/codemp/botlib/be_ai_goal.cpp:1186")
+        botimport.runPrint(PRT_ERROR, "goal heap overflow\n")
         BotDumpGoalStack(goalstate)
         return
     }
@@ -1276,17 +1248,13 @@ func BotChooseLTGItem(_ goalstate: Int32, _ origin: JKAShared.vec3_t, _ inventor
             }
             //get the fuzzy weight function for this item
             iteminfo = ic.iteminfoSlots[li!.iteminfo]
-            // Port-note: The `int *itemweightindex` field of `bot_goalstate_t` is an `OpaquePointer?` on its view, with no indexed form.
-            // Raven wrote: weightnum = gs->itemweightindex[iteminfo->number];
-            portMissing("BotChooseLTGItem", source: "oracle/codemp/botlib/be_ai_goal.cpp:1268")
+            weightnum = gs.itemweightindex![iteminfo.number]
             if weightnum < 0 {
                 li = li!.next
                 continue
             }
 
-            // Port-note: FuzzyWeightUndecided takes `inout Int32` for Raven's `int *inventory`, and this body holds the `Slots<Int32>` of row D16.
-            // Raven wrote: weight = FuzzyWeightUndecided(inventory, gs->itemweightconfig, weightnum);
-            portMissing("BotChooseLTGItem", source: "oracle/codemp/botlib/be_ai_goal.cpp:1268")
+            weight = FuzzyWeightUndecided(inventory, gs.itemweightconfig!, weightnum)
             //HACK: to make dropped items more attractive
             if li!.timeout != 0 {
                 weight += droppedweight!.value
@@ -1457,17 +1425,13 @@ func BotChooseNBGItem(_ goalstate: Int32, _ origin: JKAShared.vec3_t, _ inventor
             }
             //get the fuzzy weight function for this item
             iteminfo = ic.iteminfoSlots[li!.iteminfo]
-            // Port-note: The `int *itemweightindex` field of `bot_goalstate_t` is an `OpaquePointer?` on its view, with no indexed form.
-            // Raven wrote: weightnum = gs->itemweightindex[iteminfo->number];
-            portMissing("BotChooseNBGItem", source: "oracle/codemp/botlib/be_ai_goal.cpp:1435")
+            weightnum = gs.itemweightindex![iteminfo.number]
             if weightnum < 0 {
                 li = li!.next
                 continue
             }
             //
-            // Port-note: FuzzyWeightUndecided takes `inout Int32` for Raven's `int *inventory`, and this body holds the `Slots<Int32>` of row D16.
-            // Raven wrote: weight = FuzzyWeightUndecided(inventory, gs->itemweightconfig, weightnum);
-            portMissing("BotChooseNBGItem", source: "oracle/codemp/botlib/be_ai_goal.cpp:1435")
+            weight = FuzzyWeightUndecided(inventory, gs.itemweightconfig!, weightnum)
             //HACK: to make dropped items more attractive
             if li!.timeout != 0 {
                 weight += droppedweight!.value
@@ -1596,9 +1560,7 @@ func BotItemGoalInVisButNotVisible(_ viewer: Int32, _ eye: JKAShared.vec3_t, _ v
             middle = middle * 0.5
             middle = goal.origin + middle
             //
-            // Port-note: AAS_Trace has an open signature marker and no parameters, so the call and its `bsp_trace_t` return have no form.
-            // Raven wrote: trace = AAS_Trace(eye, NULL, NULL, middle, viewer, CONTENTS_SOLID);
-            portMissing("BotItemGoalInVisButNotVisible", source: "oracle/codemp/botlib/be_ai_goal.cpp:1621")
+            trace.copy(from: AAS_Trace(eye, nil, nil, middle, viewer, CONTENTS_SOLID))
             //if the goal middle point is visible
             if trace.fraction >= 1 {
                 //the goal entity number doesn't have to be valid
@@ -1647,17 +1609,13 @@ func BotLoadItemWeights(_ goalstate: Int32, _ filename: inout JKAShared.CharBuf)
     //load the weight configuration
     gs.itemweightconfig = ReadWeightConfig(&filename)
     if gs.itemweightconfig == nil {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "couldn't load weights\n");
-        portMissing("BotLoadItemWeights", source: "oracle/codemp/botlib/be_ai_goal.cpp:1674")
+        botimport.runPrint(PRT_FATAL, "couldn't load weights\n")
         return BLERR_CANNOTLOADITEMWEIGHTS
     }
     //if there's no item configuration
     if itemconfig == nil { return BLERR_CANNOTLOADITEMWEIGHTS }
     //create the item weight index
-    // Port-note: ItemWeightIndex has an open signature marker for its `int *` return, and the `int *itemweightindex` field is an `OpaquePointer?`.
-    // Raven wrote: gs->itemweightindex = ItemWeightIndex(gs->itemweightconfig, itemconfig);
-    portMissing("BotLoadItemWeights", source: "oracle/codemp/botlib/be_ai_goal.cpp:1674")
+    gs.itemweightindex = ItemWeightIndex(gs.itemweightconfig!, itemconfig!)
     //everything went ok
     return BLERR_NOERROR
 }
@@ -1672,7 +1630,7 @@ func BotLoadItemWeights(_ goalstate: Int32, _ filename: inout JKAShared.CharBuf)
 func BotFreeItemWeights(_ goalstate: Int32) {
     guard let gs = BotGoalStateFromHandle(goalstate) else { return }
     if gs.itemweightconfig != nil { FreeWeightConfig(gs.itemweightconfig!) }
-    if gs.itemweightindex != nil { FreeMemory(gs.itemweightindex) }
+    if gs.itemweightindex != nil { FreeMemory(OpaquePointer(gs.itemweightindex!.base)) }
 }
 
 //===========================================================================
@@ -1706,15 +1664,11 @@ func BotAllocGoalState(_ client: Int32) -> Int32 {
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1736
 func BotFreeGoalState(_ handle: Int32) {
     if handle <= 0 || handle > MAX_CLIENTS {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "goal state handle %d out of range\n", handle);
-        portMissing("BotFreeGoalState", source: "oracle/codemp/botlib/be_ai_goal.cpp:1736")
+        botimport.runPrint(PRT_FATAL, "goal state handle %d out of range\n", handle)
         return
     }
     if botgoalstates[handle] == nil {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "invalid goal state handle %d\n", handle);
-        portMissing("BotFreeGoalState", source: "oracle/codemp/botlib/be_ai_goal.cpp:1736")
+        botimport.runPrint(PRT_FATAL, "invalid goal state handle %d\n", handle)
         return
     }
     BotFreeItemWeights(handle)
@@ -1739,9 +1693,7 @@ func BotSetupGoalAI() -> Int32 {
     //load the item configuration
     itemconfig = LoadItemConfig(filename)
     if itemconfig == nil {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "couldn't load item config\n");
-        portMissing("BotSetupGoalAI", source: "oracle/codemp/botlib/be_ai_goal.cpp:1758")
+        botimport.runPrint(PRT_FATAL, "couldn't load item config\n")
         return BLERR_CANNOTLOADITEMCONFIG
     }
     //

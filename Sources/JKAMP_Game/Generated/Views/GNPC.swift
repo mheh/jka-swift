@@ -488,15 +488,15 @@ public struct GNPC: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/game/b_public.h:212
-    public var last_forwardmove: CChar {
-        get { self.raw.pointee.last_forwardmove }
-        nonmutating set { self.raw.pointee.last_forwardmove = newValue }
+    public var last_forwardmove: Int32 {
+        get { Int32(self.raw.pointee.last_forwardmove) }
+        nonmutating set { self.raw.pointee.last_forwardmove = CChar(truncatingIfNeeded: newValue) }
     }
 
     /// Source: oracle/codemp/game/b_public.h:213
-    public var last_rightmove: CChar {
-        get { self.raw.pointee.last_rightmove }
-        nonmutating set { self.raw.pointee.last_rightmove = newValue }
+    public var last_rightmove: Int32 {
+        get { Int32(self.raw.pointee.last_rightmove) }
+        nonmutating set { self.raw.pointee.last_rightmove = CChar(truncatingIfNeeded: newValue) }
     }
 
     /// Source: oracle/codemp/game/b_public.h:214

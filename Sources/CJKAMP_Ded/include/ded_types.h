@@ -237,6 +237,10 @@ typedef struct vidmode_s
 } vidmode_t;
 
 // The botlib edge of botlib.h, a header of the game parse that the host parse does not read, row B1.
+// GetBotLibAPI of be_interface.cpp:842 and SV_BotInitBotLib of sv_bot.cpp:722 read the version, row X3 of docket 10.
+// Source: oracle/codemp/game/botlib.h:16
+#define	BOTLIB_API_VERSION		2
+
 // Source: oracle/codemp/game/botlib.h:18
 struct aas_clientmove_s;
 struct aas_entityinfo_s;
@@ -2240,5 +2244,16 @@ typedef struct value_s
 	int parentheses;
 	struct value_s *prev, *next;
 } value_t;
+
+// The automap symbol of client.h, a header the host parse does not read, which GetAutomapSymbol of RM_Manager.cpp:418 returns
+// and SV_SendClientGameState of sv_client.cpp:677 reads, row X41 of docket 10.
+// Source: oracle/codemp/client/client.h:142
+typedef struct 
+{
+	int			mType;
+	int			mSide;
+	vec3_t		mOrigin;
+
+} rmAutomapSymbol_t;
 
 #endif

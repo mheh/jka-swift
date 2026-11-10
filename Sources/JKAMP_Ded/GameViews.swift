@@ -110,6 +110,13 @@ extension Slots where Element == Int32 {
         Slots<V?>(pointers: self.word(x)!, count: Int.max / MemoryLayout<Int>.stride)
     }
 
+    /// Raven's `(T *)VMA(x)` of a record array that the callee indexes and writes, `(CollisionRecord_t*)VMA(1)`, the records at the word with the widest count.
+    /// Source: oracle/codemp/server/sv_game.cpp:1415
+    // AI: Raven's macro reads the local `args` of the switch. The accessor is a method of `args`, and it gives the records at the word.
+    public func VMA<V: HandleView>(_ x: Int32) -> Slots<V> {
+        Slots<V>(views: self.word(x)!, count: Int.max / V.stride, stride: V.stride)
+    }
+
     /// Raven's `VMF(x)`, `((float *)args)[x]`, the float whose bits `PASSFLOAT` put in the low half of the word.
     /// Source: oracle/codemp/server/sv_game.cpp:406
     // AI: Raven's macro reads the local `args` of the switch as floats. The accessor is a method of `args`, and it reads the low int as float bits.
@@ -177,5 +184,47 @@ extension Server {
     private static func moved(_ pointer: UnsafeMutablePointer<CChar>?, by cursor: TextCursor) -> UnsafeMutablePointer<CChar>? {
         guard let pointer, let offset = cursor.offset else { return nil }
         return pointer + Int(offset)
+    }
+}
+
+// MARK: - The module's word of a Ghoul2 instance
+
+extension Array {
+    /// Raven's `new CGhoul2Info_v`, the instance in the first free slot of the host table, or in a new slot at the end.
+    /// The module names the instance by its word, the slot number plus 1, so 0 stays NULL.
+    /// Source: oracle/codemp/ghoul2/G2_API.cpp:616
+    // AI: Raven hands the module the address of the instance. The table holds the instance, and the word is its slot number plus 1, row Z6 of docket 10.
+    public mutating func takeSlot<T: AnyObject>(_ instance: T) where Element == T? {
+        if let free = self.firstIndex(where: { $0 == nil }) {
+            self[free] = instance
+        } else {
+            self.append(instance)
+        }
+    }
+
+    /// Raven's `delete` of a `CGhoul2Info_v`, the slot of the instance back to nil, so the last reference drops and the deinit runs.
+    /// Source: oracle/codemp/ghoul2/G2_API.cpp:563
+    // AI: Raven deletes the instance. The table drops its reference, row Z6 of docket 10.
+    public mutating func freeSlot<T: AnyObject>(_ instance: T) where Element == T? {
+        if let slot = self.firstIndex(where: { $0 === instance }) {
+            self[slot] = nil
+        }
+    }
+
+    /// Raven's `*((CGhoul2Info_v *)args[1])`, the instance that a module's word names, and nil for NULL.
+    /// Source: oracle/codemp/server/sv_game.cpp:1325
+    // AI: Raven reads the word as the address of the instance. The word is the slot number plus 1 in the host table, row Z6 of docket 10.
+    public func instance<T: AnyObject>(word: OpaquePointer?) -> T? where Element == T? {
+        let slot = Int(bitPattern: word)
+        precondition(slot >= 0 && slot <= self.count, "Ghoul2 word \(slot) names no slot of the table")
+        return slot == 0 ? nil : self[slot - 1]
+    }
+
+    /// Raven's `*ghoul2Ptr` written back to the module, the word of an instance of the table, and NULL for nil.
+    /// Source: oracle/codemp/server/sv_game.cpp:1340
+    // AI: Raven's callee writes the address of the instance into the module's slot. The word is the slot number plus 1 in the host table, row Z6 of docket 10.
+    public func word<T: AnyObject>(of instance: T?) -> OpaquePointer? where Element == T? {
+        guard let instance, let slot = self.firstIndex(where: { $0 === instance }) else { return nil }
+        return OpaquePointer(bitPattern: slot + 1)
     }
 }

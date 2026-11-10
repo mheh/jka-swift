@@ -87,10 +87,30 @@ func AAS_DumpAASData() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_file.cpp:273
-func AAS_LoadAASLump(_ fp: JKAShared.fileHandle_t, _ offset: Int32, _ length: Int32, _ lastoffset: inout Int32, _ size: Int32) -> String? {
-    // Port-note: Raven returns the raw block of the lump, which the callers cast to a table of disk records, and the signature returns a `String?`, row D12 shape 7.
-    // TODO: Port AAS_LoadAASLump
-    portMissing("AAS_LoadAASLump", source: "oracle/codemp/botlib/be_aas_file.cpp:273")
+func AAS_LoadAASLump(_ fp: JKAShared.fileHandle_t, _ offset: Int32, _ length: Int32, _ lastoffset: inout Int32, _ size: Int32) -> UnsafeMutableRawPointer? {
+    //
+    if length == 0 {
+        //just alloc a dummy
+        return GetClearedHunkMemory(size + 1)
+    } //end if
+    //seek to the data
+    if offset != lastoffset {
+        botimport.runPrint(PRT_WARNING, "AAS file not sequentially read\n")
+        if botimport.runFS_Seek(fp, CLong(offset), FS_SEEK_SET) != 0 {
+            AAS_Error("can't seek to aas lump\n")
+            AAS_DumpAASData()
+            botimport.runFS_FCloseFile(fp)
+            return nil
+        } //end if
+    } //end if
+    //allocate memory
+    let buf = GetClearedHunkMemory(length + 1)
+    //read the data
+    if length != 0 {
+        botimport.runFS_Read(Slots<byte>(scalars: buf, count: Int(length)), length, fp)
+        lastoffset += length
+    } //end if
+    return buf
 }
 
 //===========================================================================
@@ -119,9 +139,142 @@ func AAS_DData(_ data: Slots<UInt8>, _ size: Int32) {
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_file.cpp:326
 func AAS_LoadAASFile(_ filename: inout JKAShared.CharBuf) -> Int32 {
-    // Port-note: AAS_LoadAASLump returns a `String?` where the body casts the block to each lump table, and runFS_FOpenFile takes the `fileHandle_t *` as an OpaquePointer.
-    // TODO: Port AAS_LoadAASFile
-    portMissing("AAS_LoadAASFile", source: "oracle/codemp/botlib/be_aas_file.cpp:326")
+    var fp: fileHandle_t = 0
+
+    botimport.runPrint(PRT_MESSAGE, "trying to load %s\n", String(filename))
+    //dump current loaded aas file
+    AAS_DumpAASData()
+    //open the file
+    botimport.runFS_FOpenFile(String(filename), &fp, FS_READ)
+    if fp == 0 {
+        AAS_Error("can't open %s\n", String(filename))
+        return BLERR_CANNOTOPENAASFILE
+    } //end if
+    return AasHeader.scratch { header -> Int32 in
+        var offset: Int32, length: Int32, lastoffset: Int32
+
+        //read the header
+        botimport.runFS_Read(Slots(record: header).bytes, Int32(AasHeader.byteCount), fp)
+        lastoffset = Int32(AasHeader.byteCount)
+        //check header identification
+        // LittleLong of the WinDed arm is its argument, so each `LittleLong` of this body has no line.
+        if header.ident != AASID {
+            AAS_Error("%s is not an AAS file\n", String(filename))
+            botimport.runFS_FCloseFile(fp)
+            return BLERR_WRONGAASFILEID
+        } //end if
+        //check the version
+        //
+        if header.version != AASVERSION_OLD && header.version != AASVERSION {
+            AAS_Error("aas file %s is version %i, not %i\n", String(filename), header.version, AASVERSION)
+            botimport.runFS_FCloseFile(fp)
+            return BLERR_WRONGAASFILEVERSION
+        } //end if
+        //
+        if header.version == AASVERSION {
+            AAS_DData(Slots(record: header).bytes.suffix(from: 8), Int32(AasHeader.byteCount) - 8)
+        } //end if
+        //
+        aasworld.bspchecksum = atoi(LibVarGetString("sv_mapChecksum"))
+        if header.bspchecksum != aasworld.bspchecksum {
+            AAS_Error("aas file %s is out of date\n", String(filename))
+            botimport.runFS_FCloseFile(fp)
+            return BLERR_WRONGAASFILEVERSION
+        } //end if
+        //load the lumps:
+        //bounding boxes
+        offset = header.lumps[AASLUMP_BBOXES].fileofs
+        length = header.lumps[AASLUMP_BBOXES].filelen
+        aasworld.bboxes = AAS_LoadAASLump(fp, offset, length, &lastoffset, Int32(AasBbox.byteCount)).map { AasBbox($0) }
+        aasworld.numbboxes = length / Int32(AasBbox.byteCount)
+        if aasworld.numbboxes != 0 && aasworld.bboxes == nil { return BLERR_CANNOTREADAASLUMP }
+        //vertexes
+        offset = header.lumps[AASLUMP_VERTEXES].fileofs
+        length = header.lumps[AASLUMP_VERTEXES].filelen
+        aasworld.vertexes = AAS_LoadAASLump(fp, offset, length, &lastoffset, Int32(vec3_t.byteCount)).map { Slots(vectors: $0, count: Int(length / Int32(vec3_t.byteCount))) }
+        aasworld.numvertexes = length / Int32(vec3_t.byteCount)
+        if aasworld.numvertexes != 0 && aasworld.vertexes == nil { return BLERR_CANNOTREADAASLUMP }
+        //planes
+        offset = header.lumps[AASLUMP_PLANES].fileofs
+        length = header.lumps[AASLUMP_PLANES].filelen
+        aasworld.planes = AAS_LoadAASLump(fp, offset, length, &lastoffset, Int32(AasPlane.byteCount)).map { AasPlane($0) }
+        aasworld.numplanes = length / Int32(AasPlane.byteCount)
+        if aasworld.numplanes != 0 && aasworld.planes == nil { return BLERR_CANNOTREADAASLUMP }
+        //edges
+        offset = header.lumps[AASLUMP_EDGES].fileofs
+        length = header.lumps[AASLUMP_EDGES].filelen
+        aasworld.edges = AAS_LoadAASLump(fp, offset, length, &lastoffset, Int32(AasEdge.byteCount)).map { AasEdge($0) }
+        aasworld.numedges = length / Int32(AasEdge.byteCount)
+        if aasworld.numedges != 0 && aasworld.edges == nil { return BLERR_CANNOTREADAASLUMP }
+        //edgeindex
+        offset = header.lumps[AASLUMP_EDGEINDEX].fileofs
+        length = header.lumps[AASLUMP_EDGEINDEX].filelen
+        aasworld.edgeindex = AAS_LoadAASLump(fp, offset, length, &lastoffset, Int32(Int32.byteCount)).map { Slots<Int32>(scalars: $0, count: Int(length / Int32(Int32.byteCount))) }
+        aasworld.edgeindexsize = length / Int32(Int32.byteCount)
+        if aasworld.edgeindexsize != 0 && aasworld.edgeindex == nil { return BLERR_CANNOTREADAASLUMP }
+        //faces
+        offset = header.lumps[AASLUMP_FACES].fileofs
+        length = header.lumps[AASLUMP_FACES].filelen
+        aasworld.faces = AAS_LoadAASLump(fp, offset, length, &lastoffset, Int32(AasFace.byteCount)).map { AasFace($0) }
+        aasworld.numfaces = length / Int32(AasFace.byteCount)
+        if aasworld.numfaces != 0 && aasworld.faces == nil { return BLERR_CANNOTREADAASLUMP }
+        //faceindex
+        offset = header.lumps[AASLUMP_FACEINDEX].fileofs
+        length = header.lumps[AASLUMP_FACEINDEX].filelen
+        aasworld.faceindex = AAS_LoadAASLump(fp, offset, length, &lastoffset, Int32(Int32.byteCount)).map { Slots<Int32>(scalars: $0, count: Int(length / Int32(Int32.byteCount))) }
+        aasworld.faceindexsize = length / Int32(Int32.byteCount)
+        if aasworld.faceindexsize != 0 && aasworld.faceindex == nil { return BLERR_CANNOTREADAASLUMP }
+        //convex areas
+        offset = header.lumps[AASLUMP_AREAS].fileofs
+        length = header.lumps[AASLUMP_AREAS].filelen
+        aasworld.areas = AAS_LoadAASLump(fp, offset, length, &lastoffset, Int32(AasArea.byteCount)).map { AasArea($0) }
+        aasworld.numareas = length / Int32(AasArea.byteCount)
+        if aasworld.numareas != 0 && aasworld.areas == nil { return BLERR_CANNOTREADAASLUMP }
+        //area settings
+        offset = header.lumps[AASLUMP_AREASETTINGS].fileofs
+        length = header.lumps[AASLUMP_AREASETTINGS].filelen
+        aasworld.areasettings = AAS_LoadAASLump(fp, offset, length, &lastoffset, Int32(AasAreasettings.byteCount)).map { AasAreasettings($0) }
+        aasworld.numareasettings = length / Int32(AasAreasettings.byteCount)
+        if aasworld.numareasettings != 0 && aasworld.areasettings == nil { return BLERR_CANNOTREADAASLUMP }
+        //reachability list
+        offset = header.lumps[AASLUMP_REACHABILITY].fileofs
+        length = header.lumps[AASLUMP_REACHABILITY].filelen
+        aasworld.reachability = AAS_LoadAASLump(fp, offset, length, &lastoffset, Int32(AasReachability.byteCount)).map { AasReachability($0) }
+        aasworld.reachabilitysize = length / Int32(AasReachability.byteCount)
+        if aasworld.reachabilitysize != 0 && aasworld.reachability == nil { return BLERR_CANNOTREADAASLUMP }
+        //nodes
+        offset = header.lumps[AASLUMP_NODES].fileofs
+        length = header.lumps[AASLUMP_NODES].filelen
+        aasworld.nodes = AAS_LoadAASLump(fp, offset, length, &lastoffset, Int32(AasNode.byteCount)).map { AasNode($0) }
+        aasworld.numnodes = length / Int32(AasNode.byteCount)
+        if aasworld.numnodes != 0 && aasworld.nodes == nil { return BLERR_CANNOTREADAASLUMP }
+        //cluster portals
+        offset = header.lumps[AASLUMP_PORTALS].fileofs
+        length = header.lumps[AASLUMP_PORTALS].filelen
+        aasworld.portals = AAS_LoadAASLump(fp, offset, length, &lastoffset, Int32(AasPortal.byteCount)).map { AasPortal($0) }
+        aasworld.numportals = length / Int32(AasPortal.byteCount)
+        if aasworld.numportals != 0 && aasworld.portals == nil { return BLERR_CANNOTREADAASLUMP }
+        //cluster portal index
+        offset = header.lumps[AASLUMP_PORTALINDEX].fileofs
+        length = header.lumps[AASLUMP_PORTALINDEX].filelen
+        aasworld.portalindex = AAS_LoadAASLump(fp, offset, length, &lastoffset, Int32(Int32.byteCount)).map { Slots<Int32>(scalars: $0, count: Int(length / Int32(Int32.byteCount))) }
+        aasworld.portalindexsize = length / Int32(Int32.byteCount)
+        if aasworld.portalindexsize != 0 && aasworld.portalindex == nil { return BLERR_CANNOTREADAASLUMP }
+        //clusters
+        offset = header.lumps[AASLUMP_CLUSTERS].fileofs
+        length = header.lumps[AASLUMP_CLUSTERS].filelen
+        aasworld.clusters = AAS_LoadAASLump(fp, offset, length, &lastoffset, Int32(AasCluster.byteCount)).map { AasCluster($0) }
+        aasworld.numclusters = length / Int32(AasCluster.byteCount)
+        if aasworld.numclusters != 0 && aasworld.clusters == nil { return BLERR_CANNOTREADAASLUMP }
+        //swap everything
+        AAS_SwapAASData()
+        //aas file is loaded
+        aasworld.loaded = 1
+        //close the file
+        botimport.runFS_FCloseFile(fp)
+        //
+        return BLERR_NOERROR
+    }
 }
 
 /// Source: oracle/codemp/botlib/be_aas_file.cpp:481
@@ -135,7 +288,9 @@ func AAS_WriteAASLump(_ fp: JKAShared.fileHandle_t, _ h: AasHeader, _ lumpnum: I
     lump.filelen = length
 
     if length > 0 {
-        botimport.runFS_Write(data, length, fp)
+        // Port-note: runFS_Write takes a Slots of bytes, and no form binds the OpaquePointer `data` without an `Unsafe` type.
+        // Raven wrote: botimport.FS_Write(data, length, fp );
+        portMissing("botimport.FS_Write", source: "oracle/codemp/botlib/be_aas_file.cpp:492")
     } //end if
 
     AAS_WriteAASLump_offset += length
@@ -154,8 +309,7 @@ func AAS_WriteAASLump(_ fp: JKAShared.fileHandle_t, _ h: AasHeader, _ lumpnum: I
 func AAS_WriteAASFile(_ filename: inout JKAShared.CharBuf) -> Bool {
     var fp: fileHandle_t = 0
 
-    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_file.cpp:511")
+    botimport.runPrint(PRT_MESSAGE, "writing %s\n", String(filename))
     //swap the aas data
     AAS_SwapAASData()
     return AasHeader.scratch { header -> Bool in
@@ -165,15 +319,13 @@ func AAS_WriteAASFile(_ filename: inout JKAShared.CharBuf) -> Bool {
         header.version = AASVERSION
         header.bspchecksum = aasworld.bspchecksum
         //open a new file
-        // Port-note: runFS_FOpenFile takes the `fileHandle_t *` as an OpaquePointer, so the handle has no way back.
-        portMissing("botimport.FS_FOpenFile", source: "oracle/codemp/botlib/be_aas_file.cpp:520")
+        botimport.runFS_FOpenFile(String(filename), &fp, FS_WRITE)
         if fp == 0 {
-            // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-            portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_file.cpp:523")
+            botimport.runPrint(PRT_ERROR, "error opening %s\n", String(filename))
             return false
         } //end if
         //write the header
-        botimport.runFS_Write(header.handle, Int32(AasHeader.byteCount), fp)
+        botimport.runFS_Write(Slots(record: header).bytes, Int32(AasHeader.byteCount), fp)
         AAS_WriteAASLump_offset = Int32(AasHeader.byteCount)
         //add the data lumps to the file
         if AAS_WriteAASLump(fp, header, AASLUMP_BBOXES, aasworld.bboxes?.handle, aasworld.numbboxes * Int32(AasBbox.byteCount)) == 0 { return false }
@@ -193,7 +345,7 @@ func AAS_WriteAASFile(_ filename: inout JKAShared.CharBuf) -> Bool {
         //rewrite the header with the added lumps
         botimport.runFS_Seek(fp, 0, FS_SEEK_SET)
         AAS_DData(Slots(record: header).bytes.suffix(from: 8), Int32(AasHeader.byteCount) - 8)
-        botimport.runFS_Write(header.handle, Int32(AasHeader.byteCount), fp)
+        botimport.runFS_Write(Slots(record: header).bytes, Int32(AasHeader.byteCount), fp)
         //close the file
         botimport.runFS_FCloseFile(fp)
         return true

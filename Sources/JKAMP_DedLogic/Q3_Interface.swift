@@ -253,18 +253,18 @@ func Q3_SetVar(_ taskID: Int32, _ entID: Int32, _ type_name: String, _ data: Str
             //Check to see if increment command
             val = Q3_CheckStringCounterIncrement(data)
             if val != 0 {
-                _ = Q3_GetFloatVariable(type_name, &float_data)
+                Q3_GetFloatVariable(type_name, &float_data)
                 float_data += val
             } else {
                 float_data = Float(atof(data))
             }
-            _ = Q3_SetFloatVariable(type_name, float_data)
+            Q3_SetFloatVariable(type_name, float_data)
 
         case VTYPE_STRING:
-            _ = Q3_SetStringVariable(type_name, data)
+            Q3_SetStringVariable(type_name, data)
 
         case VTYPE_VECTOR:
-            _ = Q3_SetVectorVariable(type_name, data)
+            Q3_SetVectorVariable(type_name, data)
 
         default:
             break

@@ -105,6 +105,7 @@ func Q3_FreeVariable(_ name: String) {
 }
 
 /// Source: oracle/codemp/icarus/Q3_Registers.cpp:130
+@discardableResult
 func Q3_GetFloatVariable(_ name: String, _ value: inout Float) -> Int32 {
     //Check the floats
     if let vfi = varFloats[name] {
@@ -153,6 +154,7 @@ func Q3_InitVariables() {
 }
 
 /// Source: oracle/codemp/icarus/Q3_Registers.cpp:210
+@discardableResult
 func Q3_SetFloatVariable(_ name: String, _ value: Float) -> Int32 {
     //Check the floats
     if varFloats[name] == nil {
@@ -165,6 +167,7 @@ func Q3_SetFloatVariable(_ name: String, _ value: Float) -> Int32 {
 }
 
 /// Source: oracle/codemp/icarus/Q3_Registers.cpp:229
+@discardableResult
 func Q3_SetStringVariable(_ name: String, _ value: String) -> Int32 {
     //Check the strings
     if varStrings[name] == nil {
@@ -177,6 +180,7 @@ func Q3_SetStringVariable(_ name: String, _ value: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/icarus/Q3_Registers.cpp:248
+@discardableResult
 func Q3_SetVectorVariable(_ name: String, _ value: String) -> Int32 {
     //Check the strings
     if varVectors[name] == nil {

@@ -36,6 +36,7 @@
 #include "code/game/ghoul2_shared/EG2_Collision.h"
 #include "code/renderer/mdx_format/constants.h"
 #include "code/renderer/mdx_format/mdxaBone_t.h"
+#include "code/renderer/mdx_format/mdxaCompQuatBone_t.h"
 #include "code/renderer/mdx_format/mdxaIndex_t.h"
 #include "code/renderer/mdx_format/mdxaSkelOffsets_t.h"
 #include "code/renderer/mdx_format/mdxmHierarchyOffsets_t.h"

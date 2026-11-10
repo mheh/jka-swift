@@ -59,8 +59,8 @@ public final class EngineWorld {
 
     /// Raven's `CHash<CCMShader> cmShaderTable` of `cm_shader.cpp`, the name of each shader to its `CCMShader` record.
     /// Source: oracle/codemp/qcommon/cm_shader.cpp:30
-    // AI: Raven keeps a `CHash` of `CCMShader` records. The table is a `Dictionary` from the name to the offset of the record.
-    var cmShaderTable: [String: Int32] = [:]
+    // AI: Raven keeps a `CHash` of `CCMShader` records. The table is a `Dictionary` from the name to the view of the record, in `cmg.shaders` or in a Hunk_Alloc block, rule 17.
+    var cmShaderTable: [String: CmShader] = [:]
 
     /// Raven's `const char *svMaterialNames[MATERIAL_LAST]` of `cm_shader.cpp`, the `MATERIALS` list of oracle/codemp/game/surfaceflags.h:90.
     /// Source: oracle/codemp/qcommon/cm_shader.cpp:285
@@ -246,6 +246,35 @@ public final class EngineWorld {
     /// Raven's `static vec3_t VEC_DOWN` of `be_aas_move.cpp`, the angles AAS_SetMovedir reads as straight down.
     /// Source: oracle/codemp/botlib/be_aas_move.cpp:215
     var VEC_DOWN = vec3_t(0, -2, 0)
+
+    // MARK: - be_aas_reach.cpp
+
+    /// Raven's `static float framereachability` of `AAS_ContinueInitReachability` in `be_aas_reach.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_reach.cpp:4350
+    var framereachability: Float = 0
+
+    /// Raven's `static float reachability_delay` of `AAS_ContinueInitReachability` in `be_aas_reach.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_reach.cpp:4350
+    var reachability_delay: Float = 0
+
+    /// Raven's `static int lastpercentage` of `AAS_ContinueInitReachability` in `be_aas_reach.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_reach.cpp:4351
+    var lastpercentage: Int32 = 0
+
+    // MARK: - be_aas_debug.cpp
+
+    /// Raven's `static int index` of `AAS_ShowReachableAreas` in `be_aas_debug.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_debug.cpp:671
+    var index: Int32 = 0
+
+    /// Raven's `static int lastareanum` of `AAS_ShowReachableAreas` in `be_aas_debug.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_debug.cpp:671
+    var lastareanum: Int32 = 0
+
+    /// Raven's `static float lasttime` of `AAS_ShowReachableAreas` in `be_aas_debug.cpp`.
+    /// The name takes the function as a suffix, because `SVC_RemoteCommand` has a static `lasttime` too.
+    /// Source: oracle/codemp/botlib/be_aas_debug.cpp:672
+    var lasttime_AAS_ShowReachableAreas: Float = 0
 
     // MARK: - l_precomp.cpp
 
@@ -573,6 +602,23 @@ public final class EngineWorld {
     /// Source: oracle/codemp/ghoul2/G2_API.cpp:477
     var singleton: Ghoul2InfoArray? = nil
 
+    /// The `CGhoul2Info_v` instances that the game module names by a word, the slot number plus 1, so 0 stays NULL.
+    /// `new` takes a free slot, and `delete` stores nil, so the deinit frees the item.
+    /// Source: oracle/codemp/ghoul2/G2_API.cpp:616
+    // AI: Raven hands the module the address of each instance. The world holds the instances in this table, row Z6 of docket 10.
+    var ghoul2Instances: [CGhoul2Info_v?] = []
+
+    // MARK: - sv_world.cpp
+
+    /// Raven's `static G2Trace_t G2Trace` of SV_ClipMoveToEntities, the collision records of one Ghoul2 trace.
+    /// Source: oracle/codemp/server/sv_world.cpp:695
+    // AI: Raven declares the table static in the function. The world owns one allocation of the records, and the deinit frees it.
+    let G2Trace: Slots<CollisionRecord> = {
+        let G2Trace = Slots<CollisionRecord>.new(count: MAX_G2_COLLISIONS)
+        G2Trace.zero(count: MAX_G2_COLLISIONS)
+        return G2Trace
+    }()
+
     // MARK: - G2_bones.cpp
 
     /// Raven's `static boneInfo_t *ragBoneData[MAX_BONES_RAG]` of `G2_bones.cpp`.
@@ -611,6 +657,22 @@ public final class EngineWorld {
     let G2PerformanceTimer_RB_SurfaceGhoul = timing_c()
     let G2PerformanceTimer_G2_SetupModelPointers = timing_c()
     let G2PerformanceTimer_PreciseFrame = timing_c()
+
+    /// Raven's `static mdxaSkel_t *skel` of G2_TransformBone.
+    /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1549
+    var skel: MdxaSkel? = nil
+
+    /// Raven's `static mdxaSkelOffsets_t *offsets` of G2_TransformBone.
+    /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1550
+    var offsets: MdxaSkelOffsets? = nil
+
+    /// Raven's `static int j` of G2_TransformBone.
+    /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1552
+    var j_G2_TransformBone: Int32 = 0
+
+    /// Raven's `static int boneListIndex` of G2_TransformBone.
+    /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1552
+    var boneListIndex: Int32 = 0
 
     // MARK: - tr_model.cpp and tr_shader.cpp
 
@@ -660,6 +722,7 @@ public final class EngineWorld {
 
     deinit {
         self.adr.delete()
+        self.G2Trace.delete()
     }
 }
 
