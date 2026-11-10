@@ -14,8 +14,9 @@
 // AI: Raven passed each syscall word as an int, which holds a pointer only on a 32-bit build. The words are intptr_t, so a pointer stays whole on a 64-bit host.
 typedef intptr_t (*jka_systemcall_fn)(const intptr_t *parms);
 
+// The shell sets it once at its entry, before any thread starts, so Swift reads it as nonisolated(unsafe).
 // Source: oracle/codemp/qcommon/vm.cpp:506
-extern jka_systemcall_fn jka_systemCall;
+extern jka_systemcall_fn jka_systemCall __attribute__((swift_attr("nonisolated(unsafe)")));
 
 // The module's vmMain, the command and twelve words.
 // Port-note: Raven called vmMain through a variadic pointer, and the module defines vmMain with a fixed count of words.
