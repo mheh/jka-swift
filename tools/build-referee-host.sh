@@ -1,6 +1,8 @@
 #!/bin/sh
 # This script builds the dedicated server of the OpenJK fork at the pinned submodule commit, the reference host of every referee step.
-# The build sets -ffp-contract=off, because Raven's x86 build fused no multiply and add, and the script fails if the binary holds a fused instruction.
+# The build sets -ffp-contract=off, so the reference does each `float` operation of the source text alone, with one IEEE rounding each.
+# The port's rules require the same of the Swift, and the other oracle builds of the project set the same flag.
+# The script fails if the binary holds a fused instruction.
 # Usage: `tools/build-referee-host.sh`. JOBS=N sets the build jobs, 2 by default.
 # The binary is `.build/openjk-nocontract/openjkded.arm64`, out of tree, and the script writes nothing into `openjk/`.
 
