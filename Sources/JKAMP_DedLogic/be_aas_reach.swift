@@ -810,8 +810,8 @@ func AAS_AreaSwim(_ areanum: Int32) -> Int32 {
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:664
 func AAS_AreaLiquid(_ areanum: Int32) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port AAS_AreaLiquid
-    portMissing("AAS_AreaLiquid", source: "oracle/codemp/botlib/be_aas_reach.cpp:664")
+    if (aasworld.areasettingsSlots[areanum].areaflags & AREA_LIQUID) != 0 { return 1 }
+    else { return 0 }
 }
 
 //===========================================================================
@@ -913,9 +913,8 @@ func AAS_AreaDoNotEnter(_ areanum: Int32) -> Int32 {
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:758
 func AAS_BarrierJumpTravelTime() -> Int32 {
-    // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port AAS_BarrierJumpTravelTime
-    portMissing("AAS_BarrierJumpTravelTime", source: "oracle/codemp/botlib/be_aas_reach.cpp:758")
+    // Port-note: Raven calls this function only from a comment, at be_aas_reach.cpp:1471, so it is dead.
+    return Int32(UInt16(truncatingIfNeeded: Int32(Double(aassettings.phys_jumpvel) / (Double(aassettings.phys_gravity) * 0.1))))
 }
 
 //===========================================================================
@@ -948,8 +947,26 @@ func AAS_ReachabilityExists(_ area1num: Int32, _ area2num: Int32) -> Bool {
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:787
 func AAS_NearbySolidOrGap(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) -> Int32 {
     // Port-note: Raven calls this function only from comments, at be_aas_reach.cpp:978 and in the blocks of :1022 and :1366, so it is dead.
-    // TODO: Port AAS_NearbySolidOrGap
-    portMissing("AAS_NearbySolidOrGap", source: "oracle/codemp/botlib/be_aas_reach.cpp:787")
+    var dir = vec3_t(), testpoint = vec3_t()
+    var areanum: Int32
+
+    dir = end - start
+    dir[2] = 0
+    _ = VectorNormalize(&dir)
+    _VectorMA(end, 48, dir, &testpoint)
+
+    areanum = AAS_PointAreaNum(testpoint)
+    if areanum == 0 {
+        testpoint[2] += 16
+        areanum = AAS_PointAreaNum(testpoint)
+        if areanum == 0 { return 1 }
+    } //end if
+    _VectorMA(end, 64, dir, &testpoint)
+    areanum = AAS_PointAreaNum(testpoint)
+    if areanum != 0 {
+        if AAS_AreaSwim(areanum) == 0 && AAS_AreaGrounded(areanum) == 0 { return 1 }
+    } //end if
+    return 0
 }
 
 //===========================================================================
