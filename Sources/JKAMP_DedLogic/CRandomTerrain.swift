@@ -76,16 +76,35 @@ final class CRandomTerrain {
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:605
     func CreatePath(_ PathID: Int32, _ ConnectedID: Int32, _ CreationFlags: UInt32, _ numPoints: Int32, _ bx: Float, _ by: Float, _ ex: Float, _ ey: Float, _ minWidth: Float, _ maxWidth: Float, _ depth: Float, _ deviation: Float, _ breadth: Float) -> Bool {
-        // Raven calls this method only from a client build, so it is dead.
-        // TODO: Port CRandomTerrain::CreatePath
-        portMissing("CRandomTerrain::CreatePath", source: "oracle/codemp/qcommon/cm_randomterrain.cpp:605")
+        // The dedicated build never makes a CRandomTerrain, so it never calls this method.
+        var connected: CPathInfo? = nil
+
+        if PathID < 0 || PathID >= MAX_RANDOM_PATHS || self.mPaths[PathID] != nil {
+            return false
+        }
+
+        if ConnectedID >= 0 && ConnectedID < MAX_RANDOM_PATHS {
+            connected = self.mPaths[ConnectedID]
+        }
+
+        self.mPaths[PathID] = CPathInfo(self.mLandScape, numPoints, bx, by, ex, ey,
+            minWidth, maxWidth, depth, deviation, breadth,
+            connected, CreationFlags)
+
+        return true
     }
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:628
+    @discardableResult
     func GetPathInfo(_ PathNum: Int32, _ PercentInto: Float, _ Coord: inout JKAShared.vec4_t, _ Vector: inout JKAShared.vec4_t) -> Bool {
-        // Raven calls this method only from a client build, so it is dead.
-        // TODO: Port CRandomTerrain::GetPathInfo
-        portMissing("CRandomTerrain::GetPathInfo", source: "oracle/codemp/qcommon/cm_randomterrain.cpp:628")
+        // The dedicated build never makes a CRandomTerrain, so it never calls this method.
+        if PathNum < 0 || PathNum >= MAX_RANDOM_PATHS || self.mPaths[PathNum] == nil {
+            return false
+        }
+
+        self.mPaths[PathNum]!.GetInfo(PercentInto, &Coord, &Vector)
+
+        return true
     }
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:640
@@ -94,14 +113,104 @@ final class CRandomTerrain {
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:644
     func Smooth() {
-        // Raven calls this method only from a client build, so it is dead.
-        // TODO: Port CRandomTerrain::Smooth
-        portMissing("CRandomTerrain::Smooth", source: "oracle/codemp/qcommon/cm_randomterrain.cpp:644")
+        // The dedicated build never makes a CRandomTerrain, so it never calls this method.
+        // Scale down to 1/4 size then back up to smooth out the terrain
+        var temp: Slots<JKAShared.byte>?
+        var x: Int32
+        var y: Int32
+        var o: Int32
+
+        temp = self.mLandScape!.GetFlattenMap()
+
+        // Copy over anything in the flatten map
+        o = 0
+        while o < self.mHeight * self.mWidth {
+            if temp![o] > 0 {
+                self.mGrid![o] = temp![o] & 0x7F
+            }
+            o += 1
+        }
+
+        // Port-note: Rule 19. The loop below never writes the border bytes of the block, and Raven's Z_Malloc does not zero it, so his memcpy puts unset bytes in the border of `mGrid`.
+        // The Swift Z_Malloc calls malloc for a block that is not zeroed, so the port asks for a zeroed block, and the border becomes 0.
+        temp = Slots<JKAShared.byte>(scalars: Z_Malloc(self.mWidth * self.mHeight, TAG_RESAMPLE, true), count: Int(self.mWidth * self.mHeight))
+        var total: UInt32
+        var count: UInt32
+        x = 1
+        while x < self.mWidth - 1 {
+            y = 1
+            while y < self.mHeight - 1 {
+                total = 0
+                count = 2
+
+                // Left
+                // C widens the unsigned byte to `unsigned` at the add.
+                total += UInt32(self.mGrid![((y) * self.mWidth) + (x - 1)])
+                count += 1
+
+                // Right
+                // C widens the unsigned byte to `unsigned` at the add.
+                total += UInt32(self.mGrid![((y) * self.mWidth) + (x + 1)])
+                count += 1
+
+                // Up
+                // C widens the unsigned byte to `unsigned` at the add.
+                total += UInt32(self.mGrid![((y - 1) * self.mWidth) + (x)])
+                count += 1
+
+                // Down
+                // C widens the unsigned byte to `unsigned` at the add.
+                total += UInt32(self.mGrid![((y + 1) * self.mWidth) + (x)])
+                count += 1
+
+                // Up-Left
+                // C widens the unsigned byte to `unsigned` at the add.
+                total += UInt32(self.mGrid![((y - 1) * self.mWidth) + (x - 1)])
+                count += 1
+
+                // Down-Left
+                // C widens the unsigned byte to `unsigned` at the add.
+                total += UInt32(self.mGrid![((y + 1) * self.mWidth) + (x - 1)])
+                count += 1
+
+                // Up-Right
+                // C widens the unsigned byte to `unsigned` at the add.
+                total += UInt32(self.mGrid![((y - 1) * self.mWidth) + (x + 1)])
+                count += 1
+
+                // Down-Right
+                // C widens the unsigned byte to `unsigned` at the add.
+                total += UInt32(self.mGrid![((y + 1) * self.mWidth) + (x + 1)])
+                count += 1
+
+                // C widens the unsigned byte to `unsigned` at the multiply.
+                total += UInt32(self.mGrid![((y) * self.mWidth) + (x)]) * 2
+
+                // C converts the `unsigned` quotient to the unsigned byte by its low bits at the store.
+                temp![((y) * self.mWidth) + (x)] = JKAShared.byte(truncatingIfNeeded: total / count)
+                y += 1
+            }
+            x += 1
+        }
+
+        // AI: Raven calls memcpy on the two pointers. Com_Memcpy over the two Slots copies the same bytes.
+        Com_Memcpy(self.mGrid!, temp!, self.mWidth * self.mHeight)
+
+        // AI: Raven frees the `byte *` of the zone block. The call frees the handle of the block.
+        Z_Free(OpaquePointer(temp!.base))
+
+        /* Uncomment to see the symmetry line on the map
+
+        	for ( x = 0; x < mWidth; x ++ )
+        	{
+        		mGrid[x * mWidth + x] = 255;
+        	}
+        */
     }
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:770
     func Generate(_ symmetric: Int32) {
-        // Raven calls this method only from a client build, so it is dead.
+        // The dedicated build never makes a CRandomTerrain, so it never calls this method.
         // TODO: Port CRandomTerrain::Generate
         portMissing("CRandomTerrain::Generate", source: "oracle/codemp/qcommon/cm_randomterrain.cpp:770")
     }
