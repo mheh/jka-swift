@@ -490,7 +490,7 @@ func PC_FindHashedDefine(_ definehash: Slots<Define?>, _ name: String) -> Define
     hash = PC_NameHash(name)
     d = definehash[hash]
     while d != nil {
-        if strcmp(d!.name, name) == 0 { return d }
+        if strcmp(d!.name!, name) == 0 { return d }
         d = d!.hashnext
     } //end for
     return nil
