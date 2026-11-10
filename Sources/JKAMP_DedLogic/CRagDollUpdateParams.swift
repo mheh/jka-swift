@@ -13,8 +13,9 @@ final class SRagDollEffectorCollision {
 
     /// Source: oracle/codemp/ghoul2/G2_gore.h:86
     init(_ effectorPos: JKAShared.vec3_t, _ t: Trace) {
-        // TODO: Port SRagDollEffectorCollision::SRagDollEffectorCollision
-        portMissing("SRagDollEffectorCollision::SRagDollEffectorCollision", source: "oracle/codemp/ghoul2/G2_gore.h:86")
+        self.tr = t
+        self.useTracePlane = false
+        self.effectorPosition = effectorPos
     }
 }
 
@@ -34,25 +35,22 @@ final class CRagDollUpdateParams {
     //at some point I'll want to make VM callbacks in here. For now I am just doing nothing.
     /// Source: oracle/codemp/ghoul2/G2_gore.h:106
     func EffectorCollision(_ data: SRagDollEffectorCollision) {
-        // TODO: Port CRagDollUpdateParams::EffectorCollision
-        portMissing("CRagDollUpdateParams::EffectorCollision", source: "oracle/codemp/ghoul2/G2_gore.h:106")
+    //	assert(0); // you probably meant to override this
     }
 
     /// Source: oracle/codemp/ghoul2/G2_gore.h:110
     func RagDollBegin() {
-        // TODO: Port CRagDollUpdateParams::RagDollBegin
-        portMissing("CRagDollUpdateParams::RagDollBegin", source: "oracle/codemp/ghoul2/G2_gore.h:110")
+    //	assert(0); // you probably meant to override this
     }
 
     /// Source: oracle/codemp/ghoul2/G2_gore.h:114
     func RagDollSettled() {
-        // TODO: Port CRagDollUpdateParams::RagDollSettled
-        portMissing("CRagDollUpdateParams::RagDollSettled", source: "oracle/codemp/ghoul2/G2_gore.h:114")
+    //	assert(0); // you probably meant to override this
     }
 
     /// Source: oracle/codemp/ghoul2/G2_gore.h:119
     func Collision() {
-        // TODO: Port CRagDollUpdateParams::Collision
-        portMissing("CRagDollUpdateParams::Collision", source: "oracle/codemp/ghoul2/G2_gore.h:119")
+    //	assert(0); // you probably meant to override this
+        // we had a collision, uhh I guess call SetRagDoll RP_DEATH_COLLISION
     }
 }

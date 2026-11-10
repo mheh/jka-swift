@@ -57,7 +57,26 @@ final class CTraceSurface {
         _ initghoul2info: CGhoul2Info?,
         _ initgore: SkinGoreData?
     ) {
-        // TODO: Port CTraceSurface::CTraceSurface
-        portMissing("CTraceSurface::CTraceSurface", source: "oracle/codemp/ghoul2/G2_misc.cpp:221")
+        self.surfaceNum = initsurfaceNum
+        self.rootSList = initrootSList
+        self.currentModel = initcurrentModel
+        self.lod = initlod
+        self.collRecMap = initcollRecMap
+        self.entNum = initentNum
+        self.modelIndex = initmodelIndex
+        self.skin = initskin
+        self.cust_shader = initcust_shader
+        self.traceFlags = inittraceFlags
+        self.TransformedVertsArray = initTransformedVertsArray
+        self.m_fRadius = fRadius
+        self.ssize = initssize
+        self.tsize = inittsize
+        self.theta = inittheta
+        self.goreShader = initgoreShader
+        self.ghoul2info = initghoul2info
+        self.gore = initgore
+        self.rayStart = initrayStart
+        self.rayEnd = initrayEnd
+        self.hitOne = false
     }
 }

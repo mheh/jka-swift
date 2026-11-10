@@ -109,29 +109,55 @@ let GORE_MARGIN = (0.0) as Float
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:43
 private func DestroyGoreTexCoordinates(_ tag: Int32) {
-    // Port-note: FindGoreRecord has a signature marker, and GoreTextureCoordinates has no view, so the body cannot run its destructor.
-    // TODO: Port DestroyGoreTexCoordinates
-    portMissing("DestroyGoreTexCoordinates", source: "oracle/codemp/ghoul2/G2_misc.cpp:43")
+    let gTC = FindGoreRecord(tag)
+    if gTC == nil {
+        return
+    }
+    // AI: Raven runs the destructor of the record, which frees its `tex` blocks. The class has no destructor, so the call drops.
+    //I don't know what's going on here, it should call the destructor for
+    //this when it erases the record but sometimes it doesn't. -rww
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:58
 func AllocGoreRecord() -> Int32 {
-    // Port-note: The global GoreRecords has no storage, so the body cannot walk or fill the map.
-    // TODO: Port AllocGoreRecord
-    portMissing("AllocGoreRecord", source: "oracle/codemp/ghoul2/G2_misc.cpp:58")
+    while GoreRecords.count > MAX_GORE_RECORDS {
+        // AI: Raven reads the first record of an ordered map. The Dictionary has no order, so the body takes the least tag.
+        let tagHigh = GoreRecords.keys.min()! & GORE_TAG_MASK
+        var it: Int32
+
+        it = GoreRecords.keys.min()!
+
+        // AI: Raven runs the destructor of the record here. The class has no destructor, so the call drops.
+        GoreRecords[it] = nil
+        while GoreRecords.count != 0 {
+            if (GoreRecords.keys.min()! & GORE_TAG_MASK) != tagHigh {
+                break
+            }
+            it = GoreRecords.keys.min()!
+
+            // AI: Raven runs the destructor of the record here. The class has no destructor, so the call drops.
+            GoreRecords[it] = nil
+        }
+    }
+    let ret = CurrentTag
+    GoreRecords[CurrentTag] = GoreTextureCoordinates()
+    CurrentTag += 1
+    return ret
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:96
 func ResetGoreTag() {
-    // Port-note: The global GoreTagsTemp has no storage, so the body cannot clear the map.
-    // TODO: Port ResetGoreTag
-    portMissing("ResetGoreTag", source: "oracle/codemp/ghoul2/G2_misc.cpp:96")
+    GoreTagsTemp.removeAll()
+    CurrentTag = CurrentTagUpper
+    CurrentTagUpper += GORE_TAG_UPPER
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:103
 func FindGoreRecord(_ tag: Int32) -> GoreTextureCoordinates? {
-    // TODO: Port FindGoreRecord
-    portMissing("FindGoreRecord", source: "oracle/codemp/ghoul2/G2_misc.cpp:103")
+    if let i = GoreRecords[tag] {
+        return i
+    }
+    return nil
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:113
@@ -145,35 +171,44 @@ func G2_GetGoreRecord() -> Never {
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:118
 func DeleteGoreRecord(_ tag: Int32) {
-    // Port-note: The global GoreRecords has no storage, so the body cannot erase the record.
-    // TODO: Port DeleteGoreRecord
-    portMissing("DeleteGoreRecord", source: "oracle/codemp/ghoul2/G2_misc.cpp:118")
+    DestroyGoreTexCoordinates(tag)
+    GoreRecords[tag] = nil
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:127
 func FindGoreSet(_ goreSetTag: Int32) -> CGoreSet? {
-    // TODO: Port FindGoreSet
-    portMissing("FindGoreSet", source: "oracle/codemp/ghoul2/G2_misc.cpp:127")
+    if let f = GoreSets[goreSetTag] {
+        return f
+    }
+    return nil
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:142
 func NewGoreSet() -> CGoreSet? {
-    // TODO: Port NewGoreSet
-    portMissing("NewGoreSet", source: "oracle/codemp/ghoul2/G2_misc.cpp:142")
+    let ret = CGoreSet(CurrentGoreSet)
+    CurrentGoreSet += 1
+    GoreSets[ret.mMyGoreSetTag] = ret
+    ret.mRefCount = 1
+    return ret
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:153
 func DeleteGoreSet(_ goreSetTag: Int32) {
-    // Port-note: The global GoreSets has no storage, and CGoreSet has no view, so the body cannot find or delete the set.
-    // TODO: Port DeleteGoreSet
-    portMissing("DeleteGoreSet", source: "oracle/codemp/ghoul2/G2_misc.cpp:153")
+    if let f = GoreSets[goreSetTag] {
+        if f.mRefCount == 0 || f.mRefCount - 1 == 0 {
+            // AI: Raven deletes the set and then erases its entry. The body erases the entry, and the deinit runs when the last reference goes.
+            GoreSets[goreSetTag] = nil
+        } else {
+            f.mRefCount -= 1
+        }
+    }
 }
 
 // assorted Ghoul 2 functions.
 // list all surfaces associated with a model
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:279
 func G2_List_Model_Surfaces(_ fileName: String) {
-    // Port-note: R_GetModelByHandle has a signature marker, and model_t and mdxmSurfHierarchy_t have no view.
+    // Port-note: Raven casts a record at a byte offset of `mod_m->mdxm`, and the view target has no accessor for a view at a byte offset.
     // TODO: Port G2_List_Model_Surfaces
     portMissing("G2_List_Model_Surfaces", source: "oracle/codemp/ghoul2/G2_misc.cpp:279")
 }
@@ -181,7 +216,7 @@ func G2_List_Model_Surfaces(_ fileName: String) {
 // list all bones associated with a model
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:307
 func G2_List_Model_Bones(_ fileName: String, _ frame: Int32) {
-    // Port-note: R_GetModelByHandle has a signature marker, and model_t, mdxaHeader_t, and mdxaSkel_t have no view.
+    // Port-note: Raven casts a record at a byte offset of `header`, and the view target has no accessor for a view at a byte offset.
     // TODO: Port G2_List_Model_Bones
     portMissing("G2_List_Model_Bones", source: "oracle/codemp/ghoul2/G2_misc.cpp:307")
 }
@@ -203,31 +238,55 @@ func G2_List_Model_Bones(_ fileName: String, _ frame: Int32) {
 */
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:356
 func G2_GetAnimFileName(_ fileName: String, _ filename: inout JKAShared.TextCursor) -> Bool {
-    // Port-note: R_GetModelByHandle has a signature marker, and model_t has no view of mdxm->animName.
-    // TODO: Port G2_GetAnimFileName
-    portMissing("G2_GetAnimFileName", source: "oracle/codemp/ghoul2/G2_misc.cpp:356")
+    // find the model we want
+    let mod = R_GetModelByHandle(RE_RegisterModel(fileName))
+
+    if let mod, let mdxm = mod.mdxm, !mdxm.animName.isEmpty {
+        filename = TextCursor(mdxm.animNameBuffer)
+        return true
+    }
+    return false
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:376
 func G2_DecideTraceLod(_ ghoul2: CGhoul2Info, _ useLod: Int32) -> Int32 {
-    // TODO: Port G2_DecideTraceLod
-    portMissing("G2_DecideTraceLod", source: "oracle/codemp/ghoul2/G2_misc.cpp:376")
+    var returnLod = useLod
+
+    // if we are overriding the LOD at top level, then we can afford to only check this level of model
+    if ghoul2.mLodBias > returnLod {
+        returnLod = ghoul2.mLodBias
+    }
+//	assert(G2_MODEL_OK(&ghoul2));
+
+    //what about r_lodBias?
+
+    // now ensure that we haven't selected a lod that doesn't exist for this model
+    if returnLod >= ghoul2.currentModel!.mdxm!.numLODs {
+        returnLod = ghoul2.currentModel!.mdxm!.numLODs - 1
+    }
+
+    return returnLod
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:404
 func R_TransformEachSurface(_ surface: MdxmSurface, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ TransformedVertsArray: inout Int32, _ boneCache: CBoneCache?) {
+    // Port-note: Raven casts a record at a byte offset of `surface`, and the view target has no accessor for a view at a byte offset.
     // TODO: Port R_TransformEachSurface
     portMissing("R_TransformEachSurface", source: "oracle/codemp/ghoul2/G2_misc.cpp:404")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:517
 func G2_TransformSurfaces(_ surfaceNum: Int32, _ rootSList: inout [surfaceInfo_t], _ boneCache: CBoneCache?, _ currentModel: Model, _ lod: Int32, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ TransformedVertArray: inout Int32, _ secondTimeAround: Bool) {
+    // Port-note: The body calls G2_FindSurface, which keeps its signature marker.
+    // Port-note: Raven casts a record at a byte offset of `currentModel->mdxm`, and the view target has no accessor for a view at a byte offset.
     // TODO: Port G2_TransformSurfaces
     portMissing("G2_TransformSurfaces", source: "oracle/codemp/ghoul2/G2_misc.cpp:517")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:560
 func G2_TransformModel(_ ghoul2: CGhoul2Info_v, _ frameNum: Int32, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ useLod: Int32, _ ApplyGore: Bool) {
+    // Port-note: G2_TransformSurfaces takes `int *TransformedVertArray` as `inout Int32`, and the field `mTransformedVertsArray` is `Slots<Int32>?`, so the call has no form.
+    // Port-note: Raven casts the `char *` of MiniHeapAlloc to `int *` and clears `numSurfaces * 4` bytes of it, and the body has no form for the cast or the partial memset.
     // TODO: Port G2_TransformModel
     portMissing("G2_TransformModel", source: "oracle/codemp/ghoul2/G2_misc.cpp:560")
 }
@@ -324,6 +383,8 @@ func G2_SegmentTriangleTest(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, 
 // now we at poly level, check each model space transformed poly against the model world transfomed ray
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:804
 func G2_GorePolys(_ surface: MdxmSurface, _ TS: CTraceSurface, _ surfInfo: MdxmSurfHierarchy) {
+    // Port-note: Raven casts a record at a byte offset of `surface`, and the view target has no accessor for a view at a byte offset.
+    // Port-note: Raven casts the `int` of `TS.TransformedVertsArray` back to a `float *`, and `GoreVerts` has no storage.
     // TODO: Port G2_GorePolys
     portMissing("G2_GorePolys", source: "oracle/codemp/ghoul2/G2_misc.cpp:804")
 }
@@ -331,6 +392,8 @@ func G2_GorePolys(_ surface: MdxmSurface, _ TS: CTraceSurface, _ surfInfo: MdxmS
 // now we're at poly level, check each model space transformed poly against the model world transfomed ray
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1092
 private func G2_TracePolys(_ surface: MdxmSurface, _ surfInfo: MdxmSurfHierarchy, _ TS: CTraceSurface) -> Bool {
+    // Port-note: Raven casts a record at a byte offset of `surface`, and the view target has no accessor for a view at a byte offset.
+    // Port-note: Raven casts the `int` of `TS.TransformedVertsArray` back to a `float *`, and the body calls G2_BuildHitPointST, which keeps its signature marker.
     // TODO: Port G2_TracePolys
     portMissing("G2_TracePolys", source: "oracle/codemp/ghoul2/G2_misc.cpp:1092")
 }
@@ -338,6 +401,8 @@ private func G2_TracePolys(_ surface: MdxmSurface, _ surfInfo: MdxmSurfHierarchy
 // now we're at poly level, check each model space transformed poly against the model world transfomed ray
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1222
 private func G2_RadiusTracePolys(_ surface: MdxmSurface, _ TS: CTraceSurface) -> Bool {
+    // Port-note: Raven casts a record at a byte offset of `surface`, and the view target has no accessor for a view at a byte offset.
+    // Port-note: Raven casts the `int` of `TS.TransformedVertsArray` back to a `float *`, and `GoreVerts` has no storage.
     // TODO: Port G2_RadiusTracePolys
     portMissing("G2_RadiusTracePolys", source: "oracle/codemp/ghoul2/G2_misc.cpp:1222")
 }
@@ -345,6 +410,8 @@ private func G2_RadiusTracePolys(_ surface: MdxmSurface, _ TS: CTraceSurface) ->
 // look at a surface and then do the trace on each poly
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1428
 private func G2_TraceSurfaces(_ TS: CTraceSurface) {
+    // Port-note: The body calls G2_FindSurface, which keeps its signature marker.
+    // Port-note: Raven casts a record at a byte offset of `TS.currentModel->mdxm`, and the view target has no accessor for a view at a byte offset.
     // TODO: Port G2_TraceSurfaces
     portMissing("G2_TraceSurfaces", source: "oracle/codemp/ghoul2/G2_misc.cpp:1428")
 }
@@ -360,19 +427,27 @@ func G2_TraceModels() -> Never {
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1613
 func TransformPoint(_ `in`: JKAShared.vec3_t, _ out: inout JKAShared.vec3_t, _ mat: JKAMP.MdxaBone) {
-    // TODO: Port TransformPoint
-    portMissing("TransformPoint", source: "oracle/codemp/ghoul2/G2_misc.cpp:1613")
+    var i: Int32 = 0
+    while i < 3 {
+        out[i] = `in`[0] * mat.matrix[i][0] + `in`[1] * mat.matrix[i][1] + `in`[2] * mat.matrix[i][2]
+        i += 1
+    }
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1620
 func TransformAndTranslatePoint(_ `in`: JKAShared.vec3_t, _ out: inout JKAShared.vec3_t, _ mat: JKAMP.MdxaBone) {
-    // TODO: Port TransformAndTranslatePoint
-    portMissing("TransformAndTranslatePoint", source: "oracle/codemp/ghoul2/G2_misc.cpp:1620")
+
+    var i: Int32 = 0
+    while i < 3 {
+        out[i] = `in`[0] * mat.matrix[i][0] + `in`[1] * mat.matrix[i][1] + `in`[2] * mat.matrix[i][2] + mat.matrix[i][3]
+        i += 1
+    }
 }
 
 // create a matrix using a set of angles
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1630
 func Create_Matrix(_ angle: JKAShared.vec4_t?, _ matrix: JKAMP.MdxaBone) {
+    // Port-note: The signature gives `const float *angle` as `vec4_t?`, and AnglesToAxis takes a `vec3_t`, the type every caller passes.
     // TODO: Port Create_Matrix
     portMissing("Create_Matrix", source: "oracle/codemp/ghoul2/G2_misc.cpp:1630")
 }
@@ -380,14 +455,34 @@ func Create_Matrix(_ angle: JKAShared.vec4_t?, _ matrix: JKAMP.MdxaBone) {
 // given a matrix, generate the inverse of that matrix
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1656
 func Inverse_Matrix(_ src: JKAMP.MdxaBone, _ dest: JKAMP.MdxaBone) {
-    // TODO: Port Inverse_Matrix
-    portMissing("Inverse_Matrix", source: "oracle/codemp/ghoul2/G2_misc.cpp:1656")
+    var i: Int32
+    var j: Int32
+
+    i = 0
+    while i < 3 {
+        j = 0
+        while j < 3 {
+            dest.matrix[i][j] = src.matrix[j][i]
+            j += 1
+        }
+        i += 1
+    }
+    i = 0
+    while i < 3 {
+        dest.matrix[i][3] = 0
+        j = 0
+        while j < 3 {
+            dest.matrix[i][3] -= dest.matrix[i][j] * src.matrix[j][3]
+            j += 1
+        }
+        i += 1
+    }
 }
 
 // generate the world matrix for a given set of angles and origin - called from lots of places
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1678
 func G2_GenerateWorldMatrix(_ angles: JKAShared.vec3_t, _ origin: JKAShared.vec3_t) {
-    // Port-note: Create_Matrix and Inverse_Matrix have signature markers, and worldMatrix and worldMatrixInv have no storage.
+    // Port-note: Create_Matrix takes `angle` as `vec4_t?`, and Raven passes the `vec3_t` angles, so the call has no form.
     // TODO: Port G2_GenerateWorldMatrix
     portMissing("G2_GenerateWorldMatrix", source: "oracle/codemp/ghoul2/G2_misc.cpp:1678")
 }
@@ -404,6 +499,8 @@ private func G2_FindSurface() -> Never {
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1719
 func G2_SaveGhoul2Models(_ ghoul2: CGhoul2Info_v, _ buffer: inout JKAShared.TextCursor, _ size: inout Int32) -> Bool {
+    // Port-note: Raven copies the bytes of `CGhoul2Info` from `mModelindex` to `mTransformedVertsArray`, and of `surfaceInfo_t`, `boneInfo_t`, and `boltInfo_t`, into a zone block.
+    // The Swift classes have no byte layout, and `char **buffer` is a `TextCursor`, so the body has no form.
     // TODO: Port G2_SaveGhoul2Models
     portMissing("G2_SaveGhoul2Models", source: "oracle/codemp/ghoul2/G2_misc.cpp:1719")
 }
@@ -411,9 +508,7 @@ func G2_SaveGhoul2Models(_ ghoul2: CGhoul2Info_v, _ buffer: inout JKAShared.Text
 // have to free space malloced in the save system here because the game DLL can't.
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1812
 func G2_FreeSaveBuffer(_ buffer: inout JKAShared.CharBuf) {
-    // Port-note: Z_Free takes the zone block, and a CharBuf parameter holds no zone block, so the body cannot free it.
-    // TODO: Port G2_FreeSaveBuffer
-    portMissing("G2_FreeSaveBuffer", source: "oracle/codemp/ghoul2/G2_misc.cpp:1812")
+    // AI: Raven frees the zone block of the save buffer with Z_Free. The CharBuf owns its bytes, so the body frees nothing.
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1817
@@ -438,12 +533,15 @@ func G2_FindConfigStringSpace(_ name: String, _ start: Int32, _ max: Int32) -> I
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1841
 func G2_LoadGhoul2Model(_ ghoul2: CGhoul2Info_v, _ buffer: inout JKAShared.CharBuf) {
+    // Port-note: Raven copies bytes of the buffer into `CGhoul2Info` from `mModelindex` to `mTransformedVertsArray`, and into `surfaceInfo_t`, `boneInfo_t`, and `boltInfo_t`.
+    // The Swift classes have no byte layout, so the body has no form.
     // TODO: Port G2_LoadGhoul2Model
     portMissing("G2_LoadGhoul2Model", source: "oracle/codemp/ghoul2/G2_misc.cpp:1841")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1912
 func G2_LerpAngles(_ ghoul2: CGhoul2Info_v, _ nextGhoul2: CGhoul2Info_v, _ interpolation: Float) {
+    // Raven calls this function from no file of either tree, so it is dead.
     // TODO: Port G2_LerpAngles
     portMissing("G2_LerpAngles", source: "oracle/codemp/ghoul2/G2_misc.cpp:1912")
 }

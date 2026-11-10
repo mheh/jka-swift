@@ -37,7 +37,11 @@ final class CGoreSet {
 
     /// Source: oracle/codemp/ghoul2/G2_misc.cpp:174
     deinit {
-        // TODO: Port CGoreSet::~CGoreSet
-        portMissing("CGoreSet::~CGoreSet", source: "oracle/codemp/ghoul2/G2_misc.cpp:174")
+        // AI: Raven walks the multimap in the order of its keys. The body walks the sorted keys of the Dictionary, and each array in its order.
+        for i in self.mGoreRecords.keys.sorted() {
+            for surface in self.mGoreRecords[i]! {
+                DeleteGoreRecord(surface.mGoreTag)
+            }
+        }
     }
 }
