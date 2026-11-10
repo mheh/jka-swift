@@ -428,9 +428,21 @@ func PC_MergeTokens(_ t1: Token, _ t2: Token) -> Int32 {
 /// Source: oracle/codemp/botlib/l_precomp.cpp:516
 func PC_PrintDefineHashTable(_ definehash: Slots<Define?>) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port PC_PrintDefineHashTable
-    portMissing("PC_PrintDefineHashTable", source: "oracle/codemp/botlib/l_precomp.cpp:516")
-}
+    var i: Int32
+    var d: Define?
+
+    i = 0
+    while i < DEFINEHASHSIZE {
+        Log_Write("%4d:", i)
+        d = definehash[i]
+        while d != nil {
+            Log_Write(" %s", d!.name!)
+            d = d!.hashnext
+        } //end for
+        Log_Write("\n")
+        i += 1
+    } //end for
+} //end of the function PC_PrintDefineHashTable
 
 /// Source: oracle/codemp/botlib/l_precomp.cpp:539
 func PC_NameHash(_ name: String) -> Int32 {
@@ -505,9 +517,15 @@ func PC_FindHashedDefine(_ definehash: Slots<Define?>, _ name: String) -> Define
 /// Source: oracle/codemp/botlib/l_precomp.cpp:604
 func PC_FindDefine(_ defines: Define, _ name: String) -> Define? {
     // Port-note: Every call of Raven's stands in an arm that `DEFINEHASHING` turns off, so it is dead.
-    // TODO: Port PC_FindDefine
-    portMissing("PC_FindDefine", source: "oracle/codemp/botlib/l_precomp.cpp:604")
-}
+    var d: Define?
+
+    d = defines
+    while d != nil {
+        if strcmp(d!.name!, name) == 0 { return d }
+        d = d!.next
+    } //end for
+    return nil
+} //end of the function PC_FindDefine
 
 //============================================================================
 //
@@ -1097,9 +1115,52 @@ func PC_Directive_define(_ source: Source) -> Int32 {
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1323
 func PC_DefineFromString(_ string: String) -> Define? {
     // Port-note: The two calls of Raven's stand in PC_AddDefine, which no file calls, and in an arm that `DEFINEHASHING` turns off, so it is dead.
-    // TODO: Port PC_DefineFromString
-    portMissing("PC_DefineFromString", source: "oracle/codemp/botlib/l_precomp.cpp:1323")
-}
+    return Source.scratch { src -> Define? in
+        let script: Script?
+        var t: Token?
+        let res: Int32
+        var i: Int32
+        var def: Define?
+
+        PC_InitTokenHeap()
+
+        script = LoadScriptMemory(string, strlen(string), "*extern")
+        //create a new source
+        src.clear()
+        strncpy(&src.filenameBuffer, "*extern", MAX_PATH)
+        src.scriptstack = script
+        // The table holds `DEFINEHASHSIZE` record pointers, and `UInt.byteCount` is the size of one pointer.
+        src.definehash = Slots(pointers: GetClearedMemory(DEFINEHASHSIZE * Int32(UInt.byteCount)), count: Int(DEFINEHASHSIZE))
+        //create a define from the source
+        res = PC_Directive_define(src)
+        //free any tokens if left
+        t = src.tokens
+        while t != nil {
+            src.tokens = src.tokens!.next
+            PC_FreeToken(t!)
+            t = src.tokens
+        } //end for
+        def = nil
+        i = 0
+        while i < DEFINEHASHSIZE {
+            if src.definehash![i] != nil {
+                def = src.definehash![i]
+                break
+            } //end if
+            i += 1
+        } //end for
+        //
+        FreeMemory(OpaquePointer(src.definehash!.base))
+        //
+        FreeScript(script!)
+        //if the define was created succesfully
+        if res > 0 { return def }
+        //free the define is created
+        if src.defines != nil { PC_FreeDefine(def!) }
+        //
+        return nil
+    }
+} //end of the function PC_DefineFromString
 
 //============================================================================
 //
@@ -1110,9 +1171,17 @@ func PC_DefineFromString(_ string: String) -> Define? {
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1381
 func PC_AddDefine(_ source: Source, _ string: String) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port PC_AddDefine
-    portMissing("PC_AddDefine", source: "oracle/codemp/botlib/l_precomp.cpp:1381")
-}
+    let define: Define?
+
+    if addGlobalDefine {
+        return PC_AddGlobalDefine(string)
+    }
+
+    define = PC_DefineFromString(string)
+    if define == nil { return 0 }
+    PC_AddDefineToHash(define!, source.definehash!)
+    return 1
+} //end of the function PC_AddDefine
 
 //============================================================================
 // add a globals define that will be added to all opened sources
@@ -1136,9 +1205,8 @@ func PC_AddGlobalDefine(_ string: String) -> Int32 {
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1426
 func PC_RemoveGlobalDefine(_ name: String) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port PC_RemoveGlobalDefine
-    portMissing("PC_RemoveGlobalDefine", source: "oracle/codemp/botlib/l_precomp.cpp:1426")
-}
+    return 0
+} //end of the function PC_RemoveGlobalDefine
 
 //============================================================================
 // remove all globals defines
@@ -1174,9 +1242,43 @@ func PC_RemoveAllGlobalDefines() {
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1479
 func PC_CopyDefine(_ source: Source, _ define: Define) -> Define? {
     // Port-note: The one call of Raven's stands in an arm that `DEFINEHASHING` turns off, so it is dead.
-    // TODO: Port PC_CopyDefine
-    portMissing("PC_CopyDefine", source: "oracle/codemp/botlib/l_precomp.cpp:1479")
-}
+    let newdefine: Define
+    var token: Token?, newtoken: Token?, lasttoken: Token?
+
+    newdefine = Define(GetMemory(Int32(Define.byteCount) + strlen(define.name!) + 1)!)
+    //copy the define name
+    // AI: Raven points the name at the bytes after the record. The setter keeps the text in the string pool, so those bytes stay unused.
+    newdefine.name = define.name
+    newdefine.flags = define.flags
+    newdefine.builtin = define.builtin
+    newdefine.numparms = define.numparms
+    //the define is not linked
+    newdefine.next = nil
+    newdefine.hashnext = nil
+    //copy the define tokens
+    newdefine.tokens = nil
+    lasttoken = nil
+    token = define.tokens
+    while token != nil {
+        newtoken = PC_CopyToken(token!)
+        newtoken!.next = nil
+        if lasttoken != nil { lasttoken!.next = newtoken } else { newdefine.tokens = newtoken }
+        lasttoken = newtoken
+        token = token!.next
+    } //end for
+    //copy the define parameters
+    newdefine.parms = nil
+    lasttoken = nil
+    token = define.parms
+    while token != nil {
+        newtoken = PC_CopyToken(token!)
+        newtoken!.next = nil
+        if lasttoken != nil { lasttoken!.next = newtoken } else { newdefine.parms = newtoken }
+        lasttoken = newtoken
+        token = token!.next
+    } //end for
+    return newdefine
+} //end of the function PC_CopyDefine
 
 //============================================================================
 //
@@ -2328,9 +2430,19 @@ func PC_CheckTokenString(_ source: Source, _ string: String) -> Int32 {
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2955
 func PC_CheckTokenType(_ source: Source, _ type: Int32, _ subtype: Int32, _ token: Token) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port PC_CheckTokenType
-    portMissing("PC_CheckTokenType", source: "oracle/codemp/botlib/l_precomp.cpp:2955")
-}
+    return Token.scratch { tok -> Int32 in
+        if PC_ReadToken(source, tok) == 0 { return 0 }
+        //if the type matches
+        if tok.type == type &&
+            (tok.subtype & subtype) == subtype {
+            token.copy(from: tok)
+            return 1
+        } //end if
+        //
+        PC_UnreadSourceToken(source, tok)
+        return 0
+    }
+} //end of the function PC_CheckTokenType
 
 //============================================================================
 //
@@ -2341,9 +2453,13 @@ func PC_CheckTokenType(_ source: Source, _ type: Int32, _ subtype: Int32, _ toke
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2977
 func PC_SkipUntilString(_ source: Source, _ string: String) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port PC_SkipUntilString
-    portMissing("PC_SkipUntilString", source: "oracle/codemp/botlib/l_precomp.cpp:2977")
-}
+    return Token.scratch { token -> Int32 in
+        while PC_ReadToken(source, token) != 0 {
+            if strcmp(token.string, string) == 0 { return 1 }
+        } //end while
+        return 0
+    }
+} //end of the function PC_SkipUntilString
 
 //============================================================================
 //
@@ -2389,9 +2505,8 @@ func PC_SetIncludePath(_ source: Source, _ path: String) {
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3029
 func PC_SetPunctuations(_ source: Source, _ p: Punctuation) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port PC_SetPunctuations
-    portMissing("PC_SetPunctuations", source: "oracle/codemp/botlib/l_precomp.cpp:3029")
-}
+    source.punctuations = p
+} //end of the function PC_SetPunctuations
 
 //============================================================================
 //
@@ -2441,9 +2556,30 @@ func LoadSourceFile(_ filename: String) -> Source? {
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3080
 func LoadSourceMemory(_ ptr: String, _ length: Int32, _ name: String) -> Source? {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port LoadSourceMemory
-    portMissing("LoadSourceMemory", source: "oracle/codemp/botlib/l_precomp.cpp:3080")
-}
+    let source: Source
+    let script: Script?
+
+    PC_InitTokenHeap()
+
+    script = LoadScriptMemory(ptr, length, name)
+    if script == nil { return nil }
+    script!.next = nil
+
+    source = Source(GetMemory(Int32(Source.byteCount))!)
+    source.clear()
+
+    strncpy(&source.filenameBuffer, name, MAX_PATH)
+    source.scriptstack = script
+    source.tokens = nil
+    source.defines = nil
+    source.indentstack = nil
+    source.skip = 0
+
+    // The table holds `DEFINEHASHSIZE` record pointers, and `UInt.byteCount` is the size of one pointer.
+    source.definehash = Slots(pointers: GetClearedMemory(DEFINEHASHSIZE * Int32(UInt.byteCount)), count: Int(DEFINEHASHSIZE))
+    PC_AddGlobalDefinesToSource(source)
+    return source
+} //end of the function LoadSourceMemory
 
 //============================================================================
 //
