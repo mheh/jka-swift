@@ -90,3 +90,35 @@ The Swift host prints each `Com_Printf` call of `ref_dump` on its own line, so `
 ### The gate
 
 `swift test --no-parallel -j 2` passes with 156 tests.
+
+## The green replay against a fork host with no float contraction
+
+### The g_maxForceRank line
+
+The fork changed one default that the game reads: its `SV_Init` registers `g_maxForceRank` with 7 (`openjk/codemp/server/sv_init.cpp:943`), where Raven's registers it with 6 (`oracle/codemp/server/sv_init.cpp:816`). `tools/host-referee.sh` now sets `+set g_maxForceRank 7` on both host lines, the form of the other defaults of row H8 (`81ebedf`). The Swift port keeps Raven's default.
+
+### The second fork binary
+
+The H14 binary `.build/openjk/openjkded.arm64` stays as it is. A second copy of the fork host, from the same source (`openjk` at `35e4184f`, no change in the tree), is at `/tmp/referee-scratch/openjk-nocontract/openjkded.arm64`. Its build folder is `/tmp/referee-scratch/openjk-nocontract/`, configured with the CMake lines of `notes/2026-10-09/engine-build.md`, only `BuildMPDed=ON`, and `-DCMAKE_C_FLAGS=-ffp-contract=off -DCMAKE_CXX_FLAGS=-ffp-contract=off`. The disassembly of the second binary holds no `fmadd` or `fmsub` instruction, against 861 in the H14 binary and 3 in its `CM_Trace`.
+
+### The result
+
+The replay of `corpus-ffa1.rec`, 2400 frames, with `g_maxForceRank 7` on both lines, the second fork binary against the release `jampded`, and one module (shasum `90dafaa2a81cda8d8db817e499ac521353edbd21`) in both homepaths:
+
+- The `REF READY` lines are equal: `REF READY map=mp/ffa1 seed=42 fps=40 es=532 er=112 ps=1552 cmd=28`.
+- Both hosts print 2400 `REF STEP` lines, and the diff of the two streams is empty. First and last steps: `n=1 t=425 ck=3cfa876c` and `n=2400 t=60400 ck=1b1716ec`.
+- Both hosts print `REF REPLAY END` once.
+- Frame 27 now matches, `ck=f283977f` on both hosts, so the contraction of the H14 binary was the cause of the frame 27 mismatch.
+- Wall time: 4 s for the fork host, 25 s for the Swift host.
+
+The streams and logs are in `/tmp/referee-run/rank7/`, with `n` for the second fork binary and `s` for the Swift host. No fix of a mismatch was needed after the stop fix of `4b26d54`.
+
+### Rows for a ruling
+
+1. The `g_maxForceRank 7` line on both hosts, an OpenJK default under row H9.
+2. The reference binary: the H14 binary fuses multiply and add on arm64, and Raven's x87 build did not. The candidate is the fork host built with `-ffp-contract=off` as the reference of every host step, which changes the binary of row H14.
+3. The line form of `ref_dump` on the Swift host: each `Com_Printf` call ends its own line, where the fork prints one line per record.
+
+### The gate
+
+`swift test --no-parallel -j 4` passes with 156 tests.
