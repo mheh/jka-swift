@@ -3,7 +3,8 @@
 # Usage: `tools/host-referee.sh <file.rec> <host A> <host B> [extra args to both hosts]`.
 # Host A and host B are paths to dedicated server binaries, for example `.build/openjk/openjkded.arm64` on both sides.
 # FRAMES=N grants N frames after the map load, 4000 by default. Set N above the last frame of the file.
-# The logs and the filtered streams go to /tmp/jka-referee/, and the script exits 0 when the run is green.
+# The logs and the filtered streams go to SCRATCH, /tmp/referee-scratch/ by default, and the script exits 0 when the run is green.
+# The script deletes SCRATCH at the start of a run, so SCRATCH must name a folder that holds nothing else.
 # notes/2026-11-03/dedicated-referee-docket.md section 3 gives the command lines and the green test.
 
 set -u
@@ -18,7 +19,7 @@ REC=$1
 HOST_A=$2
 HOST_B=$3
 shift 3
-SCRATCH=/tmp/jka-referee
+SCRATCH=${SCRATCH:-/tmp/referee-scratch}
 MOD=swift
 BASE_PATH="$HOME/Library/Application Support/Steam/steamapps/common/Jedi Academy/SWJKJA.app/Contents"
 FRAMES=${FRAMES:-4000}
