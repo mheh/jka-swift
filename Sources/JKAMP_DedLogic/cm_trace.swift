@@ -268,7 +268,8 @@ func CM_TestInLeaf(_ tw: TraceWork, _ trace: JKAMP.Trace, _ leaf: CLeaf, _ local
     k = 0
     while k < leaf.numLeafBrushes {
         // AI: Raven indexes the table with no bound, and a submodel leaf points into another hunk block. The view reads the word as C does.
-        brushnum = local.leafbrush(at: leaf.firstLeafBrush + k)
+        // C converts the int to the ptrdiff_t of the field at the add.
+        brushnum = local.leafbrush(at: leaf.firstLeafBrush + Int(k))
         b = local.brushesSlots[brushnum]
         if b.checkcount == local.checkcount {
             k += 1
@@ -308,7 +309,8 @@ func CM_TestInLeaf(_ tw: TraceWork, _ trace: JKAMP.Trace, _ leaf: CLeaf, _ local
             //			patch = local->surfaces[ index ];
             //#else
             // AI: Raven indexes the table with no bound, and a submodel leaf points into another hunk block. The view reads the word as C does.
-            patch = local.surfaces![local.leafsurface(at: leaf.firstLeafSurface + k)]
+            // C converts the int to the ptrdiff_t of the field at the add.
+            patch = local.surfaces![local.leafsurface(at: leaf.firstLeafSurface + Int(k))]
             //#endif
             if patch == nil {
                 k += 1
@@ -848,7 +850,8 @@ func CM_TraceThroughLeaf(_ tw: TraceWork, _ trace: JKAMP.Trace, _ local: ClipMap
     k = 0
     while k < leaf.numLeafBrushes {
         // AI: Raven indexes the table with no bound, and a submodel leaf points into another hunk block. The view reads the word as C does.
-        brushnum = local.leafbrush(at: leaf.firstLeafBrush + k)
+        // C converts the int to the ptrdiff_t of the field at the add.
+        brushnum = local.leafbrush(at: leaf.firstLeafBrush + Int(k))
 
         b = local.brushesSlots[brushnum]
         if b.checkcount == local.checkcount {
@@ -888,7 +891,8 @@ func CM_TraceThroughLeaf(_ tw: TraceWork, _ trace: JKAMP.Trace, _ local: ClipMap
             //			patch = local->surfaces[ index ];
             //#else
             // AI: Raven indexes the table with no bound, and a submodel leaf points into another hunk block. The view reads the word as C does.
-            patch = local.surfaces![local.leafsurface(at: leaf.firstLeafSurface + k)]
+            // C converts the int to the ptrdiff_t of the field at the add.
+            patch = local.surfaces![local.leafsurface(at: leaf.firstLeafSurface + Int(k))]
             //#endif
             if patch == nil {
                 k += 1
@@ -1261,7 +1265,8 @@ func CM_TraceToLeaf(_ tw: TraceWork, _ trace: JKAMP.Trace, _ leaf: CLeaf, _ loca
     k = 0
     while k < leaf.numLeafBrushes {
         // AI: Raven indexes the table with no bound, and a submodel leaf points into another hunk block. The view reads the word as C does.
-        brushnum = local.leafbrush(at: leaf.firstLeafBrush + k)
+        // C converts the int to the ptrdiff_t of the field at the add.
+        brushnum = local.leafbrush(at: leaf.firstLeafBrush + Int(k))
 
         b = local.brushesSlots[brushnum]
         if b.checkcount == local.checkcount {
@@ -1299,7 +1304,8 @@ func CM_TraceToLeaf(_ tw: TraceWork, _ trace: JKAMP.Trace, _ leaf: CLeaf, _ loca
         k = 0
         while k < leaf.numLeafSurfaces {
             // AI: Raven indexes the table with no bound, and a submodel leaf points into another hunk block. The view reads the word as C does.
-            patch = local.surfaces![local.leafsurface(at: leaf.firstLeafSurface + k)]
+            // C converts the int to the ptrdiff_t of the field at the add.
+            patch = local.surfaces![local.leafsurface(at: leaf.firstLeafSurface + Int(k))]
             if patch == nil {
                 k += 1
                 continue

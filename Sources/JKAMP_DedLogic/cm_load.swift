@@ -390,9 +390,11 @@ func CMod_LoadLeafs(_ l: JKAMP.Lump, _ cm: ClipMap) {
         out = cm.leafsSlots[i]
         out.cluster = `in`[i].cluster
         out.area = `in`[i].area
-        out.firstLeafBrush = `in`[i].firstLeafBrush
+        // C converts the int of the disk leaf to the ptrdiff_t of the field at the store.
+        out.firstLeafBrush = Int(`in`[i].firstLeafBrush)
         out.numLeafBrushes = `in`[i].numLeafBrushes
-        out.firstLeafSurface = `in`[i].firstLeafSurface
+        // C converts the int of the disk leaf to the ptrdiff_t of the field at the store.
+        out.firstLeafSurface = Int(`in`[i].firstLeafSurface)
         out.numLeafSurfaces = `in`[i].numLeafSurfaces
 
         if out.cluster >= cm.numClusters {
@@ -1031,7 +1033,8 @@ func CM_InitBoxHull() {
     box_model.firstNode = -1
     box_model.leaf.numLeafBrushes = 1
     //	box_model.leaf.firstLeafBrush = cmg.numBrushes;
-    box_model.leaf.firstLeafBrush = cmg.numLeafBrushes
+    // C converts the int to the ptrdiff_t of the field at the store.
+    box_model.leaf.firstLeafBrush = Int(cmg.numLeafBrushes)
     cmg.leafbrushes![cmg.numLeafBrushes] = cmg.numBrushes
 
     i = 0
@@ -1230,20 +1233,24 @@ func CM_ModelContents_Actual(_ model: JKAShared.clipHandle_t, _ cm: ClipMap?) ->
     //MCG ADDED - return the contents, too
     if cmod!.leaf.numLeafBrushes != 0 {
         var brushNum: Int32
-        i = cmod!.leaf.firstLeafBrush
-        while i < cmod!.leaf.firstLeafBrush + cmod!.leaf.numLeafBrushes {
+        // AI: Raven walks the int `i` from `firstLeafBrush`, which no longer holds the ptrdiff_t of the field.
+        // The loop counts from 0 and adds the field, the form of OpenJK cm_load.cpp:1094, so the distance keeps its width.
+        i = 0
+        while i < cmod!.leaf.numLeafBrushes {
             // AI: Raven indexes the table with no bound, and a submodel leaf points into another hunk block. The view reads the word as C does.
-            brushNum = cm!.leafbrush(at: i)
+            brushNum = cm!.leafbrush(at: cmod!.leaf.firstLeafBrush + Int(i))
             contents |= cm!.brushesSlots[brushNum].contents
             i += 1
         }
     }
     if cmod!.leaf.numLeafSurfaces != 0 {
         var surfaceNum: Int32
-        i = cmod!.leaf.firstLeafSurface
-        while i < cmod!.leaf.firstLeafSurface + cmod!.leaf.numLeafSurfaces {
+        // AI: Raven walks the int `i` from `firstLeafSurface`, which no longer holds the ptrdiff_t of the field.
+        // The loop counts from 0 and adds the field, the form of OpenJK cm_load.cpp:1094, so the distance keeps its width.
+        i = 0
+        while i < cmod!.leaf.numLeafSurfaces {
             // AI: Raven indexes the table with no bound, and a submodel leaf points into another hunk block. The view reads the word as C does.
-            surfaceNum = cm!.leafsurface(at: i)
+            surfaceNum = cm!.leafsurface(at: cmod!.leaf.firstLeafSurface + Int(i))
             if cm!.surfaces![surfaceNum] != nil { //HERNH? How could we have a null surf within our cmod->leaf.numLeafSurfaces?
                 contents |= cm!.surfaces![surfaceNum]!.contents
             }

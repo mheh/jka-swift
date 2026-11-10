@@ -1115,8 +1115,8 @@ func AAS_ReadCache(_ fp: JKAShared.fileHandle_t) -> AasRoutingcache? {
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1033
 @discardableResult
 func AAS_ReadRouteCache() -> Int32 {
-    var i: Int32
-    var clusterareanum: Int32 //, size;
+    var i: Int32 = 0
+    var clusterareanum: Int32 = 0 //, size;
     var fp: fileHandle_t = 0
     var filename = CharBuf(MAX_QPATH)
     var cache: AasRoutingcache?

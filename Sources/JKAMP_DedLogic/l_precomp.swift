@@ -284,7 +284,7 @@ func PC_ReadDefineParms(_ source: Source, _ define: Define, _ parms: inout [Toke
         var i: Int32, done: Int32, lastcomma: Int32, numparms: Int32, indent: Int32
 
         if PC_ReadSourceToken(source, token) == 0 {
-            SourceError(source, "define %s missing parms", define.name)
+            SourceError(source, "define %s missing parms", define.name!)
             return 0
         } //end if
         //
@@ -301,7 +301,7 @@ func PC_ReadDefineParms(_ source: Source, _ define: Define, _ parms: inout [Toke
         //if no leading "("
         if strcmp(token.string, "(") != 0 {
             PC_UnreadSourceToken(source, token)
-            SourceError(source, "define %s missing parms", define.name)
+            SourceError(source, "define %s missing parms", define.name!)
             return 0
         } //end if
         //read the define parameters
@@ -310,11 +310,11 @@ func PC_ReadDefineParms(_ source: Source, _ define: Define, _ parms: inout [Toke
         indent = 0
         while done == 0 {
             if numparms >= maxparms {
-                SourceError(source, "define %s with too many parms", define.name)
+                SourceError(source, "define %s with too many parms", define.name!)
                 return 0
             } //end if
             if numparms >= define.numparms {
-                SourceWarning(source, "define %s has too many parms", define.name)
+                SourceWarning(source, "define %s has too many parms", define.name!)
                 return 0
             } //end if
             parms[numparms] = nil
@@ -323,7 +323,7 @@ func PC_ReadDefineParms(_ source: Source, _ define: Define, _ parms: inout [Toke
             while done == 0 {
                 //
                 if PC_ReadSourceToken(source, token) == 0 {
-                    SourceError(source, "define %s incomplete", define.name)
+                    SourceError(source, "define %s incomplete", define.name!)
                     return 0
                 } //end if
                 //
@@ -467,7 +467,7 @@ func PC_AddDefineToHash(_ define: Define, _ definehash: Slots<Define?>) {
         define.flags |= DEFINE_GLOBAL
     }
 
-    hash = PC_NameHash(define.name)
+    hash = PC_NameHash(define.name!)
     define.hashnext = definehash[hash]
     definehash[hash] = define
 

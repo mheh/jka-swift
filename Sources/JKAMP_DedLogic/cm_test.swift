@@ -85,7 +85,8 @@ func CM_StoreBrushes(_ ll: LeafList, _ nodenum: Int32) {
     k = 0
     while k < leaf.numLeafBrushes {
         // AI: Raven indexes the table with no bound, and a submodel leaf points into another hunk block. The view reads the word as C does.
-        brushnum = cmg.leafbrush(at: leaf.firstLeafBrush + k)
+        // C converts the int to the ptrdiff_t of the field at the add.
+        brushnum = cmg.leafbrush(at: leaf.firstLeafBrush + Int(k))
         b = cmg.brushesSlots[brushnum]
         if b.checkcount == cmg.checkcount {
             k += 1
@@ -244,7 +245,8 @@ func CM_PointContents(_ p: JKAShared.vec3_t, _ model: JKAShared.clipHandle_t) ->
     k = 0
     while k < leaf!.numLeafBrushes {
         // AI: Raven indexes the table with no bound, and a submodel leaf points into another hunk block. The view reads the word as C does.
-        brushnum = local!.leafbrush(at: leaf!.firstLeafBrush + k)
+        // C converts the int to the ptrdiff_t of the field at the add.
+        brushnum = local!.leafbrush(at: leaf!.firstLeafBrush + Int(k))
         b = local!.brushesSlots[brushnum]
 
         // see if the point is in the brush

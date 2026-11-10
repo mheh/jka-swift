@@ -544,7 +544,7 @@ func BotImport_DebugPolygonDelete(_ id: Int32) {
 
 /// Source: oracle/codemp/server/sv_bot.cpp:526
 // AI: Raven declares `points` on the stack of BotImport_DebugLineCreate. The function uses one zeroed allocation on the storage class.
-var points_BotImport_DebugLineCreate: Slots<JKAShared.vec3_t> { world.storage.points_BotImport_DebugLineCreate }
+var points_BotImport_DebugLineCreate: Slots<JKAShared.vec3_t> { world.storage.sv_bot_points_BotImport_DebugLineCreate }
 
 /**
 ```
@@ -573,7 +573,7 @@ func BotImport_DebugLineDelete(_ line: Int32) {
 
 /// Source: oracle/codemp/server/sv_bot.cpp:545
 // AI: Raven declares `points` on the stack of BotImport_DebugLineShow. The function uses one zeroed allocation on the storage class.
-var points_BotImport_DebugLineShow: Slots<JKAShared.vec3_t> { world.storage.points_BotImport_DebugLineShow }
+var points_BotImport_DebugLineShow: Slots<JKAShared.vec3_t> { world.storage.sv_bot_points_BotImport_DebugLineShow }
 
 /**
 ```

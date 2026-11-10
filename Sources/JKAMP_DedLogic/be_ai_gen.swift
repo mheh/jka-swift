@@ -70,7 +70,7 @@ func GeneticParentsAndChildSelection(_ numranks: Int32, _ ranks: Slots<Float>, _
         child = 0
         parent2 = child
         parent1 = parent2
-        return qfalse
+        return 0
     }
     max = 0
     i = 0
@@ -87,7 +87,7 @@ func GeneticParentsAndChildSelection(_ numranks: Int32, _ ranks: Slots<Float>, _
         child = 0
         parent2 = child
         parent1 = parent2
-        return qfalse
+        return 0
     }
     Com_Memcpy(rankings_GeneticParentsAndChildSelection, ranks, Int32(Float.byteCount) * numranks)
     //select first parent
@@ -118,5 +118,5 @@ func GeneticParentsAndChildSelection(_ numranks: Int32, _ ranks: Slots<Float>, _
     }
     //select child
     child = GeneticSelection(numranks, rankings_GeneticParentsAndChildSelection)
-    return qtrue
+    return 1
 }

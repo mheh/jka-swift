@@ -137,17 +137,17 @@ func BotDefaultCharacteristics(_ ch: BotCharacter, _ defaultch: BotCharacter) {
         }
         //
         if Int32(defaultch.c[i].type) == CT_FLOAT {
-            ch.c[i].type = CChar(CT_FLOAT)
+            ch.c[i].type = CT_FLOAT
             // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
             // Raven wrote: ch->c[i].value._float = defaultch->c[i].value._float;
             portMissing("BotDefaultCharacteristics", source: "oracle/codemp/botlib/be_ai_char.cpp:163")
         } else if Int32(defaultch.c[i].type) == CT_INTEGER {
-            ch.c[i].type = CChar(CT_INTEGER)
+            ch.c[i].type = CT_INTEGER
             // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
             // Raven wrote: ch->c[i].value.integer = defaultch->c[i].value.integer;
             portMissing("BotDefaultCharacteristics", source: "oracle/codemp/botlib/be_ai_char.cpp:163")
         } else if Int32(defaultch.c[i].type) == CT_STRING {
-            ch.c[i].type = CChar(CT_STRING)
+            ch.c[i].type = CT_STRING
             // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
             // Raven wrote: ch->c[i].value.string = (char *) GetMemory(strlen(defaultch->c[i].value.string)+1); strcpy(ch->c[i].value.string, defaultch->c[i].value.string);
             portMissing("BotDefaultCharacteristics", source: "oracle/codemp/botlib/be_ai_char.cpp:163")
@@ -236,19 +236,19 @@ func BotLoadCharacterFromFile(_ charfile: inout JKAShared.CharBuf, _ skill: Int3
                                 // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
                                 // Raven wrote: ch->c[index].value._float = token.floatvalue;
                                 portMissing("BotLoadCharacterFromFile", source: "oracle/codemp/botlib/be_ai_char.cpp:195")
-                                ch.c[index].type = CChar(CT_FLOAT)
+                                ch.c[index].type = CT_FLOAT
                             } else {
                                 // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
                                 // Raven wrote: ch->c[index].value.integer = token.intvalue;
                                 portMissing("BotLoadCharacterFromFile", source: "oracle/codemp/botlib/be_ai_char.cpp:195")
-                                ch.c[index].type = CChar(CT_INTEGER)
+                                ch.c[index].type = CT_INTEGER
                             }
                         } else if token.type == TT_STRING {
                             StripDoubleQuotes(&token.stringBuffer)
                             // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
                             // Raven wrote: ch->c[index].value.string = (char *)GetMemory(strlen(token.string)+1); strcpy(ch->c[index].value.string, token.string);
                             portMissing("BotLoadCharacterFromFile", source: "oracle/codemp/botlib/be_ai_char.cpp:195")
-                            ch.c[index].type = CChar(CT_STRING)
+                            ch.c[index].type = CT_STRING
                         } else {
                             SourceError(source, "expected integer, float or string, found %s\n", token.string)
                             FreeSource(source)
@@ -386,7 +386,7 @@ func BotLoadCachedCharacter(_ charfile: inout JKAShared.CharBuf, _ skill: Float,
     ch = BotLoadCharacterFromFile(&charfile, -1)
     if ch != nil {
         botcharacters[handle] = ch
-        botimport.runPrint(PRT_MESSAGE, "loaded skill %f from %s\n", ch.skill, String(charfile))
+        botimport.runPrint(PRT_MESSAGE, "loaded skill %f from %s\n", ch!.skill, String(charfile))
         return handle
     }
     //
@@ -402,7 +402,7 @@ func BotLoadCachedCharacter(_ charfile: inout JKAShared.CharBuf, _ skill: Float,
     ch = BotLoadCharacterFromFile(&defaultcharacter, -1)
     if ch != nil {
         botcharacters[handle] = ch
-        botimport.runPrint(PRT_MESSAGE, "loaded default skill %f from %s\n", ch.skill, String(charfile))
+        botimport.runPrint(PRT_MESSAGE, "loaded default skill %f from %s\n", ch!.skill, String(charfile))
         return handle
     }
     //
@@ -464,17 +464,17 @@ func BotInterpolateCharacters(_ handle1: Int32, _ handle2: Int32, _ desiredskill
     while i < MAX_CHARACTERISTICS {
         //
         if Int32(ch1.c[i].type) == CT_FLOAT && Int32(ch2.c[i].type) == CT_FLOAT {
-            out.c[i].type = CChar(CT_FLOAT)
+            out.c[i].type = CT_FLOAT
             // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
             // Raven wrote: out->c[i].value._float = ch1->c[i].value._float + (ch2->c[i].value._float - ch1->c[i].value._float) * scale;
             portMissing("BotInterpolateCharacters", source: "oracle/codemp/botlib/be_ai_char.cpp:499")
         } else if Int32(ch1.c[i].type) == CT_INTEGER {
-            out.c[i].type = CChar(CT_INTEGER)
+            out.c[i].type = CT_INTEGER
             // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
             // Raven wrote: out->c[i].value.integer = ch1->c[i].value.integer;
             portMissing("BotInterpolateCharacters", source: "oracle/codemp/botlib/be_ai_char.cpp:499")
         } else if Int32(ch1.c[i].type) == CT_STRING {
-            out.c[i].type = CChar(CT_STRING)
+            out.c[i].type = CT_STRING
             // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
             // Raven wrote: out->c[i].value.string = (char *) GetMemory(strlen(ch1->c[i].value.string)+1); strcpy(out->c[i].value.string, ch1->c[i].value.string);
             portMissing("BotInterpolateCharacters", source: "oracle/codemp/botlib/be_ai_char.cpp:499")

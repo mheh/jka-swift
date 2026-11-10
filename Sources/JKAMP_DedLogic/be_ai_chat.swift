@@ -423,18 +423,18 @@ func StringReplaceWords(_ string: inout JKAShared.CharBuf, _ synonym: String, _ 
     var str: Int32?, str2: Int32?
 
     //find the synonym in the string
-    str = StringContainsWord(&string, synonym, qfalse)
+    str = StringContainsWord(&string, synonym, 0)
     //if the synonym occured in the string
     while str != nil {
         //if the synonym isn't part of the replacement which is already in the string
         //usefull for abreviations
-        str2 = StringContainsWord(&string, replacement, qfalse)
+        str2 = StringContainsWord(&string, replacement, 0)
         while str2 != nil {
             if str2! <= str! && str! < str2! + strlen(replacement) { break }
             // AI: Raven hands a pointer into `string`. The call takes a copy of the tail, so its offset adds the tail start.
             let tailStart = str2! + 1
             var tail = string[tailStart...]
-            str2 = StringContainsWord(&tail, replacement, qfalse)
+            str2 = StringContainsWord(&tail, replacement, 0)
             if str2 != nil { str2! += tailStart }
         } //end while
         if str2 == nil {
@@ -446,7 +446,7 @@ func StringReplaceWords(_ string: inout JKAShared.CharBuf, _ synonym: String, _ 
         // AI: Raven hands a pointer into `string`. The call takes a copy of the tail, so its offset adds the tail start.
         let tailStart = str! + strlen(replacement)
         var tail = string[tailStart...]
-        str = StringContainsWord(&tail, synonym, qfalse)
+        str = StringContainsWord(&tail, synonym, 0)
         if str != nil { str! += tailStart }
     } //end if
 }
@@ -725,7 +725,7 @@ func BotReplaceReplySynonyms(_ string: inout JKAShared.CharBuf, _ context: UInt3
                 //if the synonym is not at the front of the string continue
                 // AI: Raven hands a pointer into `string`. The call takes a copy of the tail, so its offset adds the tail start.
                 var tail = string[str1...]
-                str2 = StringContainsWord(&tail, synonym!.string!, qfalse)
+                str2 = StringContainsWord(&tail, synonym!.string!, 0)
                 if str2 != nil { str2! += str1 }
                 if str2 == nil || str2 != str1 {
                     synonym = synonym!.next
@@ -735,7 +735,7 @@ func BotReplaceReplySynonyms(_ string: inout JKAShared.CharBuf, _ context: UInt3
                 replacement = syn!.firstsynonym!.string!
                 //if the replacement IS in front of the string continue
                 tail = string[str1...]
-                str2 = StringContainsWord(&tail, replacement, qfalse)
+                str2 = StringContainsWord(&tail, replacement, 0)
                 if str2 != nil { str2! += str1 }
                 if str2 != nil && str2 == str1 {
                     synonym = synonym!.next
@@ -1246,8 +1246,7 @@ func StringsMatch(_ pieces: BotMatchpiece, _ match: BotMatch) -> Int32 {
                 if index >= 0 {
                     newstrptr = strptr + index
                     if lastvariable >= 0 {
-                        // AI: The view reads the `char offset` field as `Int8`. The read widens it as C does.
-                        match.variables[lastvariable].length = newstrptr! - Int32(match.variables[lastvariable].offset)
+                        match.variables[lastvariable].length = newstrptr! - match.variables[lastvariable].offset
                         //newstrptr - match->variables[lastvariable].ptr;
                         lastvariable = -1
                         break
@@ -1264,7 +1263,7 @@ func StringsMatch(_ pieces: BotMatchpiece, _ match: BotMatch) -> Int32 {
         //if it is a variable piece of string
         else if mp!.type == MT_VARIABLE {
             //Log_Write("MT_VARIABLE");
-            match.variables[mp!.variable].offset = Int8(truncatingIfNeeded: strptr)
+            match.variables[mp!.variable].offset = strptr
             lastvariable = mp!.variable
         }
         mp = mp!.next
@@ -1274,7 +1273,7 @@ func StringsMatch(_ pieces: BotMatchpiece, _ match: BotMatch) -> Int32 {
         //if the last piece was a variable string
         if lastvariable >= 0 {
             assert(match.variables[lastvariable].offset >= 0) // bk001204
-            match.variables[lastvariable].length = strlen(match.stringBuffer[Int32(match.variables[lastvariable].offset)...])
+            match.variables[lastvariable].length = strlen(match.stringBuffer[match.variables[lastvariable].offset...])
         }
         return 1
     }
@@ -1343,7 +1342,7 @@ func BotMatchVariable(_ match: BotMatch, _ variable: Int32, _ buf: inout JKAShar
             size = match.variables[variable].length + 1
         }
         assert(match.variables[variable].offset >= 0) // bk001204
-        strncpy(&buf, match.stringBuffer[Int32(match.variables[variable].offset)...], size - 1)
+        strncpy(&buf, match.stringBuffer[match.variables[variable].offset...], size - 1)
         buf[size - 1] = 0
     } else {
         strcpy(&buf, "")
@@ -2082,7 +2081,7 @@ func BotExpandChatMessage(_ outmessage: inout JKAShared.CharBuf, _ message: inou
                 // Port-note: The Slots subscript traps at that index, rule 19.
                 if match.variables[num].offset >= 0 {
                     assert(match.variables[num].offset >= 0) // bk001204
-                    let ptr = Int32(match.variables[num].offset)
+                    let ptr = match.variables[num].offset
                     i = 0
                     while i < match.variables[num].length {
                         temp[i] = match.stringBuffer[ptr + i]
@@ -2300,49 +2299,49 @@ func BotInitialChat(_ chatstate: Int32, _ type: String, _ mcontext: Int32, _ var
         index = 0
         if var0 != nil {
             strcat(&match.stringBuffer, var0!)
-            match.variables[0].offset = Int8(truncatingIfNeeded: index)
+            match.variables[0].offset = index
             match.variables[0].length = strlen(var0!)
             index += strlen(var0!)
         }
         if var1 != nil {
             strcat(&match.stringBuffer, var1!)
-            match.variables[1].offset = Int8(truncatingIfNeeded: index)
+            match.variables[1].offset = index
             match.variables[1].length = strlen(var1!)
             index += strlen(var1!)
         }
         if var2 != nil {
             strcat(&match.stringBuffer, var2!)
-            match.variables[2].offset = Int8(truncatingIfNeeded: index)
+            match.variables[2].offset = index
             match.variables[2].length = strlen(var2!)
             index += strlen(var2!)
         }
         if var3 != nil {
             strcat(&match.stringBuffer, var3!)
-            match.variables[3].offset = Int8(truncatingIfNeeded: index)
+            match.variables[3].offset = index
             match.variables[3].length = strlen(var3!)
             index += strlen(var3!)
         }
         if var4 != nil {
             strcat(&match.stringBuffer, var4!)
-            match.variables[4].offset = Int8(truncatingIfNeeded: index)
+            match.variables[4].offset = index
             match.variables[4].length = strlen(var4!)
             index += strlen(var4!)
         }
         if var5 != nil {
             strcat(&match.stringBuffer, var5!)
-            match.variables[5].offset = Int8(truncatingIfNeeded: index)
+            match.variables[5].offset = index
             match.variables[5].length = strlen(var5!)
             index += strlen(var5!)
         }
         if var6 != nil {
             strcat(&match.stringBuffer, var6!)
-            match.variables[6].offset = Int8(truncatingIfNeeded: index)
+            match.variables[6].offset = index
             match.variables[6].length = strlen(var6!)
             index += strlen(var6!)
         }
         if var7 != nil {
             strcat(&match.stringBuffer, var7!)
-            match.variables[7].offset = Int8(truncatingIfNeeded: index)
+            match.variables[7].offset = index
             match.variables[7].length = strlen(var7!)
             index += strlen(var7!)
         }
@@ -2472,49 +2471,49 @@ func BotReplyChat(_ chatstate: Int32, _ message: inout JKAShared.CharBuf, _ mcon
                 index = strlen(bestmatch.string)
                 if var0 != nil {
                     strcat(&bestmatch.stringBuffer, var0!)
-                    bestmatch.variables[0].offset = Int8(truncatingIfNeeded: index)
+                    bestmatch.variables[0].offset = index
                     bestmatch.variables[0].length = strlen(var0!)
                     index += strlen(var0!)
                 }
                 if var1 != nil {
                     strcat(&bestmatch.stringBuffer, var1!)
-                    bestmatch.variables[1].offset = Int8(truncatingIfNeeded: index)
+                    bestmatch.variables[1].offset = index
                     bestmatch.variables[1].length = strlen(var1!)
                     index += strlen(var1!)
                 }
                 if var2 != nil {
                     strcat(&bestmatch.stringBuffer, var2!)
-                    bestmatch.variables[2].offset = Int8(truncatingIfNeeded: index)
+                    bestmatch.variables[2].offset = index
                     bestmatch.variables[2].length = strlen(var2!)
                     index += strlen(var2!)
                 }
                 if var3 != nil {
                     strcat(&bestmatch.stringBuffer, var3!)
-                    bestmatch.variables[3].offset = Int8(truncatingIfNeeded: index)
+                    bestmatch.variables[3].offset = index
                     bestmatch.variables[3].length = strlen(var3!)
                     index += strlen(var3!)
                 }
                 if var4 != nil {
                     strcat(&bestmatch.stringBuffer, var4!)
-                    bestmatch.variables[4].offset = Int8(truncatingIfNeeded: index)
+                    bestmatch.variables[4].offset = index
                     bestmatch.variables[4].length = strlen(var4!)
                     index += strlen(var4!)
                 }
                 if var5 != nil {
                     strcat(&bestmatch.stringBuffer, var5!)
-                    bestmatch.variables[5].offset = Int8(truncatingIfNeeded: index)
+                    bestmatch.variables[5].offset = index
                     bestmatch.variables[5].length = strlen(var5!)
                     index += strlen(var5!)
                 }
                 if var6 != nil {
                     strcat(&bestmatch.stringBuffer, var6!)
-                    bestmatch.variables[6].offset = Int8(truncatingIfNeeded: index)
+                    bestmatch.variables[6].offset = index
                     bestmatch.variables[6].length = strlen(var6!)
                     index += strlen(var6!)
                 }
                 if var7 != nil {
                     strcat(&bestmatch.stringBuffer, var7!)
-                    bestmatch.variables[7].offset = Int8(truncatingIfNeeded: index)
+                    bestmatch.variables[7].offset = index
                     bestmatch.variables[7].length = strlen(var7!)
                     index += strlen(var7!)
                 }

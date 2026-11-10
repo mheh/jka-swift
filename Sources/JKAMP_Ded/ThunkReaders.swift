@@ -42,4 +42,9 @@ extension Slots {
     public init(vectors handle: OpaquePointer, count: Int) where Element == vec3_t {
         self.init(vectors: UnsafeMutableRawPointer(handle), count: count)
     }
+
+    /// A C array of records at a word the C side passes, such as the `aas_altroutegoal_t *` of `AAS_AlternativeRouteGoals`.
+    public init(views handle: OpaquePointer, count: Int) where Element: HandleView {
+        self.init(views: UnsafeMutableRawPointer(handle), count: count, stride: Element.byteCount)
+    }
 }

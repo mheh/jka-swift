@@ -504,7 +504,7 @@ func GetBotLibAPI(_ apiVersion: Int32, _ `import`: BotlibImport) -> BotlibExport
 /// The thunks stand in this file, because the functions they call are private to it.
 private enum Aas_exportThunks {
     /// Source: oracle/codemp/botlib/be_aas_routealt.cpp:82
-    static let AAS_AlternativeRouteGoals: Aas_exportAAS_AlternativeRouteGoals = { JKAMP_DedLogic.AAS_AlternativeRouteGoals(vector(at: $0!), $1, vector(at: $2!), $3, $4, AasAltroutegoal(handle: $5!), $6, $7) }
+    static let AAS_AlternativeRouteGoals: Aas_exportAAS_AlternativeRouteGoals = { JKAMP_DedLogic.AAS_AlternativeRouteGoals(vector(at: $0!), $1, vector(at: $2!), $3, $4, Slots(views: $5!, count: Int($6)), $6, $7) }
 
     /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1346
     static let AAS_AreaInfo: Aas_exportAAS_AreaInfo = { JKAMP_DedLogic.AAS_AreaInfo($0, AasAreainfo(handle: $1!)) }
@@ -660,7 +660,8 @@ private enum Ai_exportThunks {
     static let BotEnterChat: Ai_exportBotEnterChat = { JKAMP_DedLogic.BotEnterChat($0, $1, $2) }
 
     /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1417
-    static let BotFindMatch: Ai_exportBotFindMatch = { JKAMP_DedLogic.BotFindMatch(text(at: $0!), BotMatch(handle: $1!), $2) }
+    // AI: Raven's `unsigned long context` is 32 bits in WinDed. The thunk keeps the low 32 bits of the host's `unsigned long`.
+    static let BotFindMatch: Ai_exportBotFindMatch = { JKAMP_DedLogic.BotFindMatch(text(at: $0!), BotMatch(handle: $1!), UInt32(truncatingIfNeeded: $2)) }
 
     /// Source: oracle/codemp/botlib/be_ai_char.cpp:152
     static let BotFreeCharacter: Ai_exportBotFreeCharacter = { JKAMP_DedLogic.BotFreeCharacter($0) }
