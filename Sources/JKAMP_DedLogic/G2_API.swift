@@ -403,8 +403,11 @@ func G2API_GetSurfaceOnOff(_ ghlInfo: CGhoul2Info?, _ surfaceName: String) -> In
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:733
 func G2API_SetRootSurface(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ surfaceName: String) -> Bool {
-    // TODO: Port G2API_SetRootSurface
-    portMissing("G2API_SetRootSurface", source: "oracle/codemp/ghoul2/G2_API.cpp:733")
+    if G2_SetupModelPointers(ghoul2) {
+        return G2_SetRootSurface(ghoul2, modelIndex, surfaceName)
+    }
+
+    return false
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:743
@@ -601,8 +604,28 @@ func G2API_RemoveGhoul2Models(_ ghlRemove: inout CGhoul2Info_v?) -> Bool {
 //check if a bone exists on skeleton without actually adding to the bone list -rww
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:963
 func G2API_DoesBoneExist(_ ghlInfo: CGhoul2Info?, _ boneName: String) -> Bool {
-    // TODO: Port G2API_DoesBoneExist
-    portMissing("G2API_DoesBoneExist", source: "oracle/codemp/ghoul2/G2_API.cpp:963")
+    if G2_SetupModelPointers(ghlInfo) { //model is valid
+        let mdxa = ghlInfo!.currentModel!.mdxa
+        if mdxa != nil { //get the skeleton data and iterate through the bones
+            var i: Int32
+            var skel: MdxaSkel
+            let offsets: MdxaSkelOffsets
+
+            offsets = MdxaSkelOffsets(mdxa!, byteOffset: MdxaHeader.byteCount)
+
+            i = 0
+            while i < mdxa!.numBones {
+                skel = MdxaSkel(mdxa!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[i])
+                if Q_stricmp(skel.name, boneName) == 0 { //got it
+                    return true
+                }
+                i += 1
+            }
+        }
+    }
+
+    //guess it doesn't exist
+    return false
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:996
@@ -1054,8 +1077,25 @@ func G2API_AddBoltSurfNum(_ ghlInfo: CGhoul2Info?, _ surfIndex: Int32) -> Int32 
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1658
 func G2API_AttachG2Model(_ ghoul2From: CGhoul2Info_v, _ modelFrom: Int32, _ ghoul2To: CGhoul2Info_v, _ toBoltIndex: Int32, _ toModel: Int32) -> Bool {
-    // TODO: Port G2API_AttachG2Model
-    portMissing("G2API_AttachG2Model", source: "oracle/codemp/ghoul2/G2_API.cpp:1658")
+    var toBoltIndex = toBoltIndex
+    var toModel = toModel
+    assert(toBoltIndex >= 0)
+    if toBoltIndex < 0 {
+        return false
+    }
+    if G2_SetupModelPointers(ghoul2From) && G2_SetupModelPointers(ghoul2To) {
+        // make sure we have a model to attach, a model to attach to, and a bolt on that model
+        if (ghoul2From.size() > modelFrom) &&
+            (ghoul2To.size() > toModel) &&
+            ((ghoul2To[toModel].mBltlist[toBoltIndex].boneNumber != -1) || (ghoul2To[toModel].mBltlist[toBoltIndex].surfaceNumber != -1)) {
+            // encode the bolt address into the model bolt link
+            toModel &= MODEL_AND
+            toBoltIndex &= BOLT_AND
+            ghoul2From[modelFrom].mModelBoltLink = (toModel << MODEL_SHIFT) | (toBoltIndex << BOLT_SHIFT)
+            return true
+        }
+    }
+    return false
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1684
@@ -1324,14 +1364,129 @@ private func G2_NeedRetransform(_ g2: CGhoul2Info?, _ frameNum: Int32) -> Bool {
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2035
 func G2API_CollisionDetectCache(_ collRecMap: Slots<CollisionRecord>, _ ghoul2: CGhoul2Info_v, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNumber: Int32, _ entNum: Int32, _ rayStart: JKAShared.vec3_t, _ rayEnd: JKAShared.vec3_t, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ traceFlags: Int32, _ useLod: Int32, _ fRadius: Float) {
-    // TODO: Port G2API_CollisionDetectCache
-    portMissing("G2API_CollisionDetectCache", source: "oracle/codemp/ghoul2/G2_API.cpp:2035")
+    //this will store off the transformed verts for the next trace - this is slower, but for models that do not animate
+    //frequently it is much much faster. -rww
+    let test = ghoul2[0].mTransformedVertsArray
+    if G2_SetupModelPointers(ghoul2) {
+        var transRayStart = vec3_t()
+        var transRayEnd = vec3_t()
+
+        let tframeNum = G2API_GetTime(frameNumber)
+        // make sure we have transformed the whole skeletons for each model
+        if G2_NeedRetransform(ghoul2[0], tframeNum) || ghoul2[0].mTransformedVertsArray == nil { //optimization, only create new transform space if we need to, otherwise
+            //store it off!
+            var i: Int32 = 0
+            while i < ghoul2.size() {
+                let g2 = ghoul2[i]
+
+                /*
+                if ((g2.mFlags & GHOUL2_ZONETRANSALLOC) && g2.mTransformedVertsArray)
+                { //clear it out, yo.
+                    Z_Free(g2.mTransformedVertsArray);
+                    g2.mTransformedVertsArray = 0;
+                }
+                */
+                if g2.mTransformedVertsArray == nil || (g2.mFlags & GHOUL2_ZONETRANSALLOC) == 0 { //reworked so we only alloc once!
+                    //if we have a pointer, but not a ghoul2_zonetransalloc flag, then that means
+                    //it is a miniheap pointer. Just stomp over it.
+                    let iSize: Int32 = g2.currentModel!.mdxm!.numSurfaces * 4
+                    g2.mTransformedVertsArray = Slots<Int32>(scalars: Z_Malloc(iSize, TAG_GHOUL2, true), count: Int(g2.currentModel!.mdxm!.numSurfaces))
+                }
+
+                g2.mFlags |= GHOUL2_ZONETRANSALLOC
+
+                i += 1
+            }
+            G2_ConstructGhoulSkeleton(ghoul2, frameNumber, true, scale)
+            G2VertSpace!.ResetHeap()
+
+            // now having done that, time to build the model
+            G2_TransformModel(ghoul2, frameNumber, scale, G2VertSpace, useLod, false)
+
+            //don't need to do this anymore now that I am using a flag for zone alloc.
+            /*
+            i = 0;
+            while (i < ghoul2.size())
+            {
+                CGhoul2Info &g2 = ghoul2[i];
+                int iSize = g2.currentModel->mdxm->numSurfaces * 4;
+
+                int *zoneMem = (int *)Z_Malloc(iSize, TAG_GHOUL2, qtrue);
+                memcpy(zoneMem, g2.mTransformedVertsArray, iSize);
+                g2.mTransformedVertsArray = zoneMem;
+                g2.mFlags |= GHOUL2_ZONETRANSALLOC;
+                i++;
+            }
+            */
+        }
+
+        // pre generate the world matrix - used to transform the incoming ray
+        G2_GenerateWorldMatrix(angles, position)
+
+        // model is built. Lets check to see if any triangles are actually hit.
+        // first up, translate the ray to model space
+        TransformAndTranslatePoint(rayStart, &transRayStart, worldMatrixInv)
+        TransformAndTranslatePoint(rayEnd, &transRayEnd, worldMatrixInv)
+
+        // now walk each model and check the ray against each poly - sigh, this is SO expensive. I wish there was a better way to do this.
+        G2_TraceModels(ghoul2, transRayStart, transRayEnd, collRecMap, entNum, traceFlags, useLod, fRadius, 0, 0, 0, 0, nil, false)
+        var i: Int32
+        i = 0
+        while i < MAX_G2_COLLISIONS && collRecMap[i].mEntityNum != -1 {
+            i += 1
+        }
+
+        // now sort the resulting array of collision records so they are distance ordered
+        // Port-note: Raven sorts the first `i` records of `collRecMap` in place, and no `qsort` form takes a Slots of records.
+        // Raven wrote: qsort( collRecMap, i, sizeof( CollisionRecord_t ), QsortDistance );
+        portMissing("G2API_CollisionDetectCache", source: "oracle/codemp/ghoul2/G2_API.cpp:2035")
+    }
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2124
 func G2API_CollisionDetect(_ collRecMap: Slots<CollisionRecord>, _ ghoul2: CGhoul2Info_v, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNumber: Int32, _ entNum: Int32, _ rayStart: JKAShared.vec3_t, _ rayEnd: JKAShared.vec3_t, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ traceFlags: Int32, _ useLod: Int32, _ fRadius: Float) {
-    // TODO: Port G2API_CollisionDetect
-    portMissing("G2API_CollisionDetect", source: "oracle/codemp/ghoul2/G2_API.cpp:2124")
+    /*
+    if (1)
+    {
+        G2API_CollisionDetectCache(collRecMap, ghoul2, angles, position, frameNumber, entNum,
+            rayStart, rayEnd, scale, G2VertSpace, traceFlags, useLod, fRadius);
+        return;
+    }
+    */
+
+    if G2_SetupModelPointers(ghoul2) {
+        var transRayStart = vec3_t()
+        var transRayEnd = vec3_t()
+
+        // make sure we have transformed the whole skeletons for each model
+        G2_ConstructGhoulSkeleton(ghoul2, frameNumber, true, scale)
+
+        // pre generate the world matrix - used to transform the incoming ray
+        G2_GenerateWorldMatrix(angles, position)
+
+        G2VertSpace!.ResetHeap()
+
+        // now having done that, time to build the model
+        G2_TransformModel(ghoul2, frameNumber, scale, G2VertSpace, useLod, false)
+
+        // model is built. Lets check to see if any triangles are actually hit.
+        // first up, translate the ray to model space
+        TransformAndTranslatePoint(rayStart, &transRayStart, worldMatrixInv)
+        TransformAndTranslatePoint(rayEnd, &transRayEnd, worldMatrixInv)
+
+        // now walk each model and check the ray against each poly - sigh, this is SO expensive. I wish there was a better way to do this.
+        G2_TraceModels(ghoul2, transRayStart, transRayEnd, collRecMap, entNum, traceFlags, useLod, fRadius, 0, 0, 0, 0, nil, false)
+        var i: Int32
+        i = 0
+        while i < MAX_G2_COLLISIONS && collRecMap[i].mEntityNum != -1 {
+            i += 1
+        }
+
+        // now sort the resulting array of collision records so they are distance ordered
+        // Port-note: Raven sorts the first `i` records of `collRecMap` in place, and no `qsort` form takes a Slots of records.
+        // Raven wrote: qsort( collRecMap, i, sizeof( CollisionRecord_t ), QsortDistance );
+        portMissing("G2API_CollisionDetect", source: "oracle/codemp/ghoul2/G2_API.cpp:2124")
+    }
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2175
@@ -1465,8 +1620,36 @@ func G2API_DuplicateGhoul2Instance(_ g2From: CGhoul2Info_v, _ g2To: inout CGhoul
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2360
 func G2API_GetSurfaceName(_ ghlInfo: CGhoul2Info?, _ surfNumber: Int32) -> String {
-    // TODO: Port G2API_GetSurfaceName
-    portMissing("G2API_GetSurfaceName", source: "oracle/codemp/ghoul2/G2_API.cpp:2360")
+    // Raven returns his static empty buffer `noSurface`, and the String return is a copy of its empty text.
+    let noSurface = ""
+    if G2_SetupModelPointers(ghlInfo) {
+        let mod = ghlInfo!.currentModel
+        var surf: MdxmSurface? = nil
+        var surfInfo: MdxmSurfHierarchy? = nil
+
+        if mod == nil || mod!.mdxm == nil {
+            Com_Error(ERR_DROP, "G2API_GetSurfaceName: Bad model on instance %s.", String(ghlInfo!.mFileName))
+        }
+
+        //ok, I guess it's semi-valid for the user to be passing in surface > numSurfs because they don't know how many surfs a model
+        //may have.. but how did they get that surf index to begin with? Oh well.
+        if surfNumber < 0 || surfNumber >= mod!.mdxm!.numSurfaces {
+            Com_Printf("G2API_GetSurfaceName: You passed in an invalid surface number (%i) for model %s.\n", surfNumber, String(ghlInfo!.mFileName))
+            return noSurface
+        }
+
+
+        surf = G2_FindSurface(mod, surfNumber, 0)
+        if surf != nil {
+            if surf!.thisSurfaceIndex < 0 || surf!.thisSurfaceIndex >= mod!.mdxm!.numSurfaces {
+                Com_Error(ERR_DROP, "G2API_GetSurfaceName: Bad surf num (%i) on surf for instance %s.", surf!.thisSurfaceIndex, String(ghlInfo!.mFileName))
+            }
+            let surfIndexes = MdxmHierarchyOffsets(mod!.mdxm!, byteOffset: MdxmHeader.byteCount)
+            surfInfo = MdxmSurfHierarchy(surfIndexes, byteOffset: surfIndexes.offsets[surf!.thisSurfaceIndex])
+            return surfInfo!.name
+        }
+    }
+    return noSurface
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2403
@@ -1479,8 +1662,16 @@ func G2API_GetSurfaceIndex(_ ghlInfo: CGhoul2Info?, _ surfaceName: String) -> In
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2412
 func G2API_GetGLAName(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32) -> String? {
-    // TODO: Port G2API_GetGLAName
-    portMissing("G2API_GetGLAName", source: "oracle/codemp/ghoul2/G2_API.cpp:2412")
+    if G2_SetupModelPointers(ghoul2) {
+        if ghoul2.size() > modelIndex {
+            //model_t	*mod = R_GetModelByHandle(RE_RegisterModel(ghoul2[modelIndex].mFileName));
+            //return mod->mdxm->animName;
+
+            assert(ghoul2[modelIndex].currentModel != nil && ghoul2[modelIndex].currentModel!.mdxm != nil)
+            return ghoul2[modelIndex].currentModel!.mdxm!.animName
+        }
+    }
+    return nil
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2428
@@ -1549,8 +1740,32 @@ func G2API_LoadSaveCodeDestructGhoul2Info(_ ghoul2: CGhoul2Info_v) {
 //see if surfs have any shader info...
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2499
 func G2API_SkinlessModel(_ g2: CGhoul2Info?) -> Bool {
-    // TODO: Port G2API_SkinlessModel
-    portMissing("G2API_SkinlessModel", source: "oracle/codemp/ghoul2/G2_API.cpp:2499")
+    if G2_SetupModelPointers(g2) {
+        let mod = g2!.currentModel
+
+        if mod != nil &&
+            mod!.mdxm != nil {
+            var surf: MdxmSurfHierarchy
+            var i: Int32
+
+            surf = MdxmSurfHierarchy(mod!.mdxm!, byteOffset: mod!.mdxm!.ofsSurfHierarchy)
+
+            i = 0
+            while i < mod!.mdxm!.numSurfaces {
+                // Raven tests `surf->shader` and `surf->shader[0]`.
+                // Both read as the same Swift test, so the draft writes it once.
+                if !surf.shader.isEmpty { //found a surface with a shader name, ok.
+                    return false
+                }
+
+                surf = MdxmSurfHierarchy(surf, byteOffset: MdxmSurfHierarchy.byteCount(childIndexes: surf.numChildren))
+                i += 1
+            }
+        }
+    }
+
+    //found nothing.
+    return true
 }
 
 //way of seeing how many marks are on a model currently -rww

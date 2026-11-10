@@ -273,12 +273,9 @@ func RemoveBoneCache(_ boneCache: CBoneCache?) {
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:585
-// TODO: Port signature
-// Raven wrote: const mdxaBone_t &EvalBoneCache(int index,CBoneCache *boneCache)
-// No table row for the return `const mdxaBone_t &`.
-func EvalBoneCache() -> Never {
-    // TODO: Port EvalBoneCache
-    portMissing("EvalBoneCache", source: "oracle/codemp/renderer/tr_ghoul2.cpp:585")
+// AI: Raven returns a reference to the matrix. The function returns the view of the matrix, the form of `CBoneCache.Eval`.
+func EvalBoneCache(_ index: Int32, _ boneCache: CBoneCache?) -> MdxaBone {
+    return boneCache!.Eval(index)
 }
 
 //rww - RAGDOLL_BEGIN
@@ -346,35 +343,94 @@ func G2_WasBoneRendered(_ ghoul2: CGhoul2Info, _ boneNum: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:656
-// TODO: Port signature
-// Raven wrote: void G2_GetBoneBasepose(CGhoul2Info &ghoul2,int boneNum,mdxaBone_t *&retBasepose,mdxaBone_t *&retBaseposeInv)
-// No table row for `mdxaBone_t *& retBasepose`.
-func G2_GetBoneBasepose() -> Never {
-    // TODO: Port G2_GetBoneBasepose
-    portMissing("G2_GetBoneBasepose", source: "oracle/codemp/renderer/tr_ghoul2.cpp:656")
+// AI: Raven takes `mdxaBone_t *&` for the two out pointers. The parameters are `inout MdxaBone?`, the form of a pointer to a record pointer.
+func G2_GetBoneBasepose(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ retBasepose: inout MdxaBone?, _ retBaseposeInv: inout MdxaBone?) {
+    if ghoul2.mBoneCache == nil {
+        // yikes
+        retBasepose = identityMatrix
+        retBaseposeInv = identityMatrix
+        return
+    }
+    let boneCache = ghoul2.mBoneCache!
+
+    let skel: MdxaSkel
+    let offsets: MdxaSkelOffsets
+    offsets = MdxaSkelOffsets(boneCache.header!, byteOffset: MdxaHeader.byteCount)
+    skel = MdxaSkel(boneCache.header!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[boneNum])
+    retBasepose = skel.BasePoseMat
+    retBaseposeInv = skel.BasePoseMatInv
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:678
 func G2_GetBoneNameFromSkel(_ ghoul2: CGhoul2Info, _ boneNum: Int32) -> String? {
-    // Port-note: Raven casts a record at a byte offset of `boneCache.header`, and the view target has no accessor for a view at a byte offset.
+    // Raven declares it at G2_bones.cpp:2607 and calls it from no file of either tree, so it is dead.
     // TODO: Port G2_GetBoneNameFromSkel
     portMissing("G2_GetBoneNameFromSkel", source: "oracle/codemp/renderer/tr_ghoul2.cpp:678")
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:696
 func G2_RagGetBoneBasePoseMatrixLow(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ boneMatrix: JKAMP.MdxaBone, _ retMatrix: JKAMP.MdxaBone, _ scale: JKAShared.vec3_t) {
-    // Port-note: Raven casts a record at a byte offset of `boneCache.header`, and the view target has no accessor for a view at a byte offset.
-    // TODO: Port G2_RagGetBoneBasePoseMatrixLow
-    portMissing("G2_RagGetBoneBasePoseMatrixLow", source: "oracle/codemp/renderer/tr_ghoul2.cpp:696")
+    let boneCache = ghoul2.mBoneCache!
+
+    let skel: MdxaSkel
+    let offsets: MdxaSkelOffsets
+    offsets = MdxaSkelOffsets(boneCache.header!, byteOffset: MdxaHeader.byteCount)
+    skel = MdxaSkel(boneCache.header!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[boneNum])
+    Multiply_3x4Matrix(retMatrix, boneMatrix, skel.BasePoseMat)
+
+    if scale[0] != 0 {
+        retMatrix.matrix[0][3] *= scale[0]
+    }
+    if scale[1] != 0 {
+        retMatrix.matrix[1][3] *= scale[1]
+    }
+    if scale[2] != 0 {
+        retMatrix.matrix[2][3] *= scale[2]
+    }
+
+    // AI: Raven casts each row of four floats to a float pointer for VectorNormalize. The call normalizes the vector accessor of the row.
+    _ = VectorNormalize(&retMatrix.matrix[0].vector)
+    _ = VectorNormalize(&retMatrix.matrix[1].vector)
+    _ = VectorNormalize(&retMatrix.matrix[2].vector)
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:727
-// TODO: Port signature
-// Raven wrote: void G2_GetBoneMatrixLow(CGhoul2Info &ghoul2,int boneNum,const vec3_t scale,mdxaBone_t &retMatrix,mdxaBone_t *&retBasepose,mdxaBone_t *&retBaseposeInv)
-// No table row for `mdxaBone_t *& retBasepose`.
-func G2_GetBoneMatrixLow() -> Never {
-    // TODO: Port G2_GetBoneMatrixLow
-    portMissing("G2_GetBoneMatrixLow", source: "oracle/codemp/renderer/tr_ghoul2.cpp:727")
+// AI: Raven takes `mdxaBone_t *&` for the two out pointers. The parameters are `inout MdxaBone?`, the form of a pointer to a record pointer.
+func G2_GetBoneMatrixLow(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ scale: JKAShared.vec3_t, _ retMatrix: JKAMP.MdxaBone, _ retBasepose: inout MdxaBone?, _ retBaseposeInv: inout MdxaBone?) {
+    if ghoul2.mBoneCache == nil {
+        retMatrix.copy(from: identityMatrix)
+        // yikes
+        retBasepose = identityMatrix
+        retBaseposeInv = identityMatrix
+        return
+    }
+    MdxaBone.scratch { bolt in
+        let boneCache = ghoul2.mBoneCache!
+
+        let skel: MdxaSkel
+        let offsets: MdxaSkelOffsets
+        offsets = MdxaSkelOffsets(boneCache.header!, byteOffset: MdxaHeader.byteCount)
+        skel = MdxaSkel(boneCache.header!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[boneNum])
+        Multiply_3x4Matrix(bolt, boneCache.Eval(boneNum), skel.BasePoseMat) // DEST FIRST ARG
+        retBasepose = skel.BasePoseMat
+        retBaseposeInv = skel.BasePoseMatInv
+
+        if scale[0] != 0 {
+            bolt.matrix[0][3] *= scale[0]
+        }
+        if scale[1] != 0 {
+            bolt.matrix[1][3] *= scale[1]
+        }
+        if scale[2] != 0 {
+            bolt.matrix[2][3] *= scale[2]
+        }
+        // AI: Raven casts each row of four floats to a float pointer for VectorNormalize. The call normalizes the vector accessor of the row.
+        _ = VectorNormalize(&bolt.matrix[0].vector)
+        _ = VectorNormalize(&bolt.matrix[1].vector)
+        _ = VectorNormalize(&bolt.matrix[2].vector)
+
+        Multiply_3x4Matrix(retMatrix, worldMatrix, bolt)
+    }
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:780
@@ -382,6 +438,7 @@ func G2_GetBoneMatrixLow() -> Never {
 // Raven wrote: int G2_GetParentBoneMatrixLow(CGhoul2Info &ghoul2,int boneNum,const vec3_t scale,mdxaBone_t &retMatrix,mdxaBone_t *&retBasepose,mdxaBone_t *&retBaseposeInv)
 // No table row for `mdxaBone_t *& retBasepose`.
 func G2_GetParentBoneMatrixLow() -> Never {
+    // Raven's one call stands in a comment at G2_bones.cpp:1339, so no file of either tree calls it, and it is dead.
     // TODO: Port G2_GetParentBoneMatrixLow
     portMissing("G2_GetParentBoneMatrixLow", source: "oracle/codemp/renderer/tr_ghoul2.cpp:780")
 }
@@ -466,7 +523,7 @@ func Multiply_3x4Matrix(_ out: JKAMP.MdxaBone, _ in2: JKAMP.MdxaBone, _ `in`: JK
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1148
 private func G2_GetBonePoolIndex(_ pMDXAHeader: MdxaHeader, _ iFrame: Int32, _ iBone: Int32) -> Int32 {
-    // Port-note: Raven casts a record at a byte offset of `pMDXAHeader`, and the view target has no accessor for a view at a byte offset.
+    // Port-note: Raven casts the bytes at `ofsFrames` of the header to `mdxaIndex_t` of mdx_format.h:410, and the host target has no view of that record.
     // TODO: Port G2_GetBonePoolIndex
     portMissing("G2_GetBonePoolIndex", source: "oracle/codemp/renderer/tr_ghoul2.cpp:1148")
 }
@@ -475,39 +532,186 @@ private func G2_GetBonePoolIndex(_ pMDXAHeader: MdxaHeader, _ iFrame: Int32, _ i
 // TODO: Port signature
 // Raven wrote: void UnCompressBone(float mat[3][4], int iBoneIndex, const mdxaHeader_t *pMDXAHeader, int iFrame)
 // No table row for `float[3][4] mat`.
+// Port-note: Every caller passes the `matrix` of an `mdxaBone_t` that the body writes, and the store gives `[[Float]]` by value, which cannot carry the write back.
+// Port-note: The body calls MC_UnCompressQuat of renderer/matcomp.c, which has no Swift stub in the host target, and reads `mdxaCompQuatBone_t`, which has no view.
 func UnCompressBone() -> Never {
     // TODO: Port UnCompressBone
     portMissing("UnCompressBone", source: "oracle/codemp/renderer/tr_ghoul2.cpp:1158")
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1167
-// TODO: Port signature
-// Raven wrote: void G2_TimingModel(boneInfo_t &bone,int currentTime,int numFramesInFile,int &currentFrame,int &newFrame,float &lerp)
-// No table row for `int & currentFrame`.
-func G2_TimingModel() -> Never {
-    // TODO: Port G2_TimingModel
-    portMissing("G2_TimingModel", source: "oracle/codemp/renderer/tr_ghoul2.cpp:1167")
+func G2_TimingModel(_ bone: boneInfo_t, _ currentTime: Int32, _ numFramesInFile: Int32, _ currentFrame: inout Int32, _ newFrame: inout Int32, _ lerp: inout Float) {
+    // yes - add in animation speed to current frame
+    let animSpeed = bone.animSpeed
+    var time: Float
+    if bone.pauseTime != 0 {
+        time = (bone.pauseTime - bone.startTime) / 50.0
+    } else {
+        time = (currentTime - bone.startTime) / 50.0
+    }
+    if time < 0.0 {
+        time = 0.0
+    }
+    var newFrame_g: Float = bone.startFrame + (time * animSpeed)
+
+    let animSize = bone.endFrame - bone.startFrame
+    let endFrame = Float(bone.endFrame)
+    // we are supposed to be animating right?
+    if animSize != 0 {
+        // did we run off the end?
+        if ((animSpeed > 0.0) && (newFrame_g > endFrame - 1)) ||
+            ((animSpeed < 0.0) && (newFrame_g < endFrame + 1))
+        {
+            // yep - decide what to do
+            if (bone.flags & BONE_ANIM_OVERRIDE_LOOP) != 0 {
+                // get our new animation frame back within the bounds of the animation set
+                if animSpeed < 0.0 {
+                    // we don't use this case, or so I am told
+                    // if we do, let me know, I need to insure the mod works
+
+                    // should we be creating a virtual frame?
+                    if (newFrame_g < endFrame + 1) && (newFrame_g >= endFrame) {
+                        // now figure out what we are lerping between
+                        // delta is the fraction between this frame and the next, since the new anim is always at a .0f;
+                        lerp = Float(endFrame + 1) - newFrame_g
+                        // frames are easy to calculate
+                        currentFrame = Int32(endFrame)
+                        newFrame = bone.startFrame
+                    } else {
+                        if newFrame_g <= endFrame + 1 {
+                            newFrame_g = endFrame + fmod(newFrame_g - endFrame, Float(animSize)) - animSize
+                        }
+                        // now figure out what we are lerping between
+                        // delta is the fraction between this frame and the next, since the new anim is always at a .0f;
+                        lerp = (ceil(newFrame_g) - newFrame_g)
+                        // frames are easy to calculate
+                        currentFrame = Int32(ceil(newFrame_g))
+                        // should we be creating a virtual frame?
+                        if currentFrame <= endFrame + 1 {
+                            newFrame = bone.startFrame
+                        } else {
+                            newFrame = currentFrame - 1
+                        }
+                    }
+                } else {
+                    // should we be creating a virtual frame?
+                    if (newFrame_g > endFrame - 1) && (newFrame_g < endFrame) {
+                        // now figure out what we are lerping between
+                        // delta is the fraction between this frame and the next, since the new anim is always at a .0f;
+                        lerp = (newFrame_g - Int32(newFrame_g))
+                        // frames are easy to calculate
+                        currentFrame = Int32(newFrame_g)
+                        newFrame = bone.startFrame
+                    } else {
+                        if newFrame_g >= endFrame {
+                            newFrame_g = endFrame + fmod(newFrame_g - endFrame, Float(animSize)) - animSize
+                        }
+                        // now figure out what we are lerping between
+                        // delta is the fraction between this frame and the next, since the new anim is always at a .0f;
+                        lerp = (newFrame_g - Int32(newFrame_g))
+                        // frames are easy to calculate
+                        currentFrame = Int32(newFrame_g)
+                        // should we be creating a virtual frame?
+                        if newFrame_g >= endFrame - 1 {
+                            newFrame = bone.startFrame
+                        } else {
+                            newFrame = currentFrame + 1
+                        }
+                    }
+                }
+                // sanity check
+            } else {
+                if (bone.flags & (BONE_ANIM_OVERRIDE_FREEZE)) == (BONE_ANIM_OVERRIDE_FREEZE) {
+                    // if we are supposed to reset the default anim, then do so
+                    if animSpeed > 0.0 {
+                        currentFrame = bone.endFrame - 1
+                    } else {
+                        currentFrame = bone.endFrame + 1
+                    }
+
+                    newFrame = currentFrame
+                    lerp = 0
+                } else {
+                    bone.flags &= ~(BONE_ANIM_TOTAL)
+                }
+            }
+        } else {
+            if animSpeed > 0.0 {
+                // frames are easy to calculate
+                currentFrame = Int32(newFrame_g)
+
+                // figure out the difference between the two frames	- we have to decide what frame and what percentage of that
+                // frame we want to display
+                lerp = (newFrame_g - currentFrame)
+
+                newFrame = currentFrame + 1
+                // are we now on the end frame?
+                if newFrame >= Int32(endFrame) {
+                    // we only want to lerp with the first frame of the anim if we are looping
+                    if (bone.flags & BONE_ANIM_OVERRIDE_LOOP) != 0 {
+                        newFrame = bone.startFrame
+                    }
+                    // if we intend to end this anim or freeze after this, then just keep on the last frame
+                    else {
+                        newFrame = bone.endFrame - 1
+                    }
+                }
+            } else {
+                lerp = (ceil(newFrame_g) - newFrame_g)
+                // frames are easy to calculate
+                currentFrame = Int32(ceil(newFrame_g))
+                if currentFrame > bone.startFrame {
+                    currentFrame = bone.startFrame
+                    newFrame = currentFrame
+                    lerp = 0.0
+                } else {
+                    newFrame = currentFrame - 1
+                    // are we now on the end frame?
+                    if newFrame < endFrame + 1 {
+                        // we only want to lerp with the first frame of the anim if we are looping
+                        if (bone.flags & BONE_ANIM_OVERRIDE_LOOP) != 0 {
+                            newFrame = bone.startFrame
+                        }
+                        // if we intend to end this anim or freeze after this, then just keep on the last frame
+                        else {
+                            newFrame = bone.endFrame + 1
+                        }
+                    }
+                }
+            }
+        }
+    } else {
+        if animSpeed < 0.0 {
+            currentFrame = bone.endFrame + 1
+        } else {
+            currentFrame = bone.endFrame - 1
+        }
+        if currentFrame < 0 {
+            currentFrame = 0
+        }
+        newFrame = currentFrame
+        lerp = 0
+    }
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1417
 func G2_RagGetAnimMatrix(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ matrix: JKAMP.MdxaBone, _ frame: Int32) {
-    // Port-note: Raven casts a record at a byte offset of `ghoul2.mBoneCache->header`, and the view target has no accessor for a view at a byte offset.
-    // Port-note: The body calls UnCompressBone, which keeps its signature marker.
+    // Port-note: The body calls UnCompressBone, which keeps its signature marker and its Port-notes.
     // TODO: Port G2_RagGetAnimMatrix
     portMissing("G2_RagGetAnimMatrix", source: "oracle/codemp/renderer/tr_ghoul2.cpp:1417")
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1541
 func G2_TransformBone(_ child: Int32, _ BC: CBoneCache) {
-    // Port-note: Raven casts a record at a byte offset of `BC.header`, and the view target has no accessor for a view at a byte offset.
-    // Port-note: The body calls G2_TimingModel and UnCompressBone, which keep their signature markers.
+    // Port-note: The body calls UnCompressBone, which keeps its signature marker and its Port-notes.
+    // Port-note: Raven's static locals `tbone[6]`, `skel`, `offsets`, `j`, and `boneListIndex` have no storage, and the body reads `tbone` as Raven left it.
     // TODO: Port G2_TransformBone
     portMissing("G2_TransformBone", source: "oracle/codemp/renderer/tr_ghoul2.cpp:1541")
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2053
 func G2_SetUpBolts(_ header: MdxaHeader, _ ghoul2: CGhoul2Info, _ bonePtr: inout [(Int32, MdxaBone)], _ boltList: inout [boltInfo_t]) {
-    // Port-note: Raven casts a record at a byte offset of `header`, and the view target has no accessor for a view at a byte offset.
+    // Raven calls this function from no file of either tree, so it is dead.
     // TODO: Port G2_SetUpBolts
     portMissing("G2_SetUpBolts", source: "oracle/codemp/renderer/tr_ghoul2.cpp:2053")
 }
@@ -652,8 +856,7 @@ func G2_TransformGhoulBones(_ rootBoneList: inout [boneInfo_t], _ rootMatrix: JK
 // We've come across a surface that's designated as a bolt surface, process it and put it in the appropriate bolt place
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2246
 func G2_ProcessSurfaceBolt(_ bonePtr: inout [(Int32, MdxaBone)], _ surface: MdxmSurface?, _ boltNum: Int32, _ boltList: inout [boltInfo_t], _ surfInfo: surfaceInfo_t?, _ mod: Model) {
-    // Port-note: The body calls G2_FindSurface, which keeps its signature marker.
-    // Port-note: Raven casts a record at a byte offset of `originalSurf`, and the view target has no accessor for a view at a byte offset.
+    // Raven's two callers are G2_ProcessGeneratedSurfaceBolts and ProcessModelBoltSurfaces, which are both dead, so the function is dead too.
     // TODO: Port G2_ProcessSurfaceBolt
     portMissing("G2_ProcessSurfaceBolt", source: "oracle/codemp/renderer/tr_ghoul2.cpp:2246")
 }
@@ -669,8 +872,7 @@ func G2_ProcessGeneratedSurfaceBolts(_ ghoul2: CGhoul2Info, _ bonePtr: inout [(I
 // Go through the model and deal with just the surfaces that are tagged as bolt on points - this is for the server side skeleton construction
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2739
 func ProcessModelBoltSurfaces(_ surfaceNum: Int32, _ rootSList: inout [surfaceInfo_t], _ bonePtr: inout [(Int32, MdxaBone)], _ currentModel: Model, _ lod: Int32, _ boltList: inout [boltInfo_t]) {
-    // Port-note: The body calls G2_FindSurface, which keeps its signature marker.
-    // Port-note: Raven casts a record at a byte offset of `currentModel->mdxm`, and the view target has no accessor for a view at a byte offset.
+    // Raven's one call is its own recursion at tr_ghoul2.cpp:2786, and no other function calls it, so it is dead.
     // TODO: Port ProcessModelBoltSurfaces
     portMissing("ProcessModelBoltSurfaces", source: "oracle/codemp/renderer/tr_ghoul2.cpp:2739")
 }
@@ -678,10 +880,82 @@ func ProcessModelBoltSurfaces(_ surfaceNum: Int32, _ rootSList: inout [surfaceIn
 // build the used bone list so when doing bone transforms we can determine if we need to do it or not
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2796
 func G2_ConstructUsedBoneList(_ CBL: CConstructBoneList) {
-    // Port-note: The body calls G2_FindSurface, which keeps its signature marker.
-    // Port-note: Raven casts a record at a byte offset of `CBL.currentModel->mdxm`, and the view target has no accessor for a view at a byte offset.
-    // TODO: Port G2_ConstructUsedBoneList
-    portMissing("G2_ConstructUsedBoneList", source: "oracle/codemp/renderer/tr_ghoul2.cpp:2796")
+    var i: Int32
+    var j: Int32
+    var offFlags: Int32 = 0
+
+    // back track and get the surfinfo struct for this surface
+    let surface = G2_FindSurface(CBL.currentModel, CBL.surfaceNum, 0)!
+    let surfIndexes = MdxmHierarchyOffsets(CBL.currentModel!.mdxm!, byteOffset: MdxmHeader.byteCount)
+    let surfInfo = MdxmSurfHierarchy(surfIndexes, byteOffset: surfIndexes.offsets[surface.thisSurfaceIndex])
+    let mod_a = R_GetModelByHandle(CBL.currentModel!.mdxm!.animIndex)!
+    let offsets = MdxaSkelOffsets(mod_a.mdxa!, byteOffset: MdxaHeader.byteCount)
+    var skel: MdxaSkel
+    var childSkel: MdxaSkel
+
+    // see if we have an override surface in the surface list
+    let surfOverride = G2_FindOverrideSurface(CBL.surfaceNum, &CBL.rootSList)
+
+    // really, we should use the default flags for this surface unless it's been overriden
+    offFlags = Int32(truncatingIfNeeded: surfInfo.flags)
+
+    // set the off flags if we have some
+    if surfOverride != nil {
+        offFlags = surfOverride!.offFlags
+    }
+
+    // if this surface is not off, add it to the shader render list
+    if (offFlags & G2SURFACEFLAG_OFF) == 0 {
+        let bonesReferenced = surface.boneReferences
+        // now whip through the bones this surface uses
+        i = 0
+        while i < surface.numBoneReferences {
+            let iBoneIndex = bonesReferenced[i]
+            CBL.boneUsedList![iBoneIndex] = 1
+
+            // now go and check all the descendant bones attached to this bone and see if any have the always flag on them. If so, activate them
+            skel = MdxaSkel(mod_a.mdxa!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[iBoneIndex])
+
+            // for every child bone...
+            j = 0
+            while j < skel.numChildren {
+                // get the skel data struct for each child bone of the referenced bone
+                childSkel = MdxaSkel(mod_a.mdxa!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[skel.children[j]])
+
+                // does it have the always on flag on?
+                if (Int32(truncatingIfNeeded: childSkel.flags) & G2BONEFLAG_ALWAYSXFORM) != 0 {
+                    // yes, make sure it's in the list of bones to be transformed.
+                    CBL.boneUsedList![skel.children[j]] = 1
+                }
+                j += 1
+            }
+
+            // now we need to ensure that the parents of this bone are actually active...
+            //
+            var iParentBone = skel.parent
+            while iParentBone != -1 {
+                if CBL.boneUsedList![iParentBone] != 0 { // no need to go higher
+                    break
+                }
+                CBL.boneUsedList![iParentBone] = 1
+                skel = MdxaSkel(mod_a.mdxa!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[iParentBone])
+                iParentBone = skel.parent
+            }
+            i += 1
+        }
+    } else
+    // if we are turning off all descendants, then stop this recursion now
+    if (offFlags & G2SURFACEFLAG_NODESCENDANTS) != 0 {
+        return
+    }
+
+    // now recursively call for the children
+    i = 0
+    while i < surfInfo.numChildren {
+        CBL.surfaceNum = surfInfo.childIndexes[i]
+        G2_ConstructUsedBoneList(CBL)
+        i += 1
+    }
 }
 
 // NOTE!! This assumes at least one model will NOT have a parent. If it does - we are screwed
@@ -761,37 +1035,112 @@ private func G2_Sort_Models(_ ghoul2: CGhoul2Info_v, _ modelList: Slots<Int32>, 
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2952
-// TODO: Port signature
-// Raven wrote: void *G2_FindSurface_BC(const model_s *mod, int index, int lod)
-// No table row for the return `void *`.
-func G2_FindSurface_BC() -> Never {
-    // TODO: Port G2_FindSurface_BC
-    portMissing("G2_FindSurface_BC", source: "oracle/codemp/renderer/tr_ghoul2.cpp:2952")
+// AI: Raven returns `void *`, and every caller casts it to `mdxmSurface_t *`. The function returns that view, the form of G2_FindSurface of G2_misc.cpp.
+func G2_FindSurface_BC(_ mod: Model, _ index: Int32, _ lod: Int32) -> MdxmSurface? {
+    // point at first lod list
+    // Raven's `current` is a byte pointer, and each read casts it to the record at its address.
+    var current = MdxmLOD(mod.mdxm!, byteOffset: mod.mdxm!.ofsLODs)
+    var i: Int32
+
+    //walk the lods
+    i = 0
+    while i < lod {
+        let lodData = current
+        current = MdxmLOD(current, byteOffset: lodData.ofsEnd)
+        i += 1
+    }
+
+    // avoid the lod pointer data structure
+    let indexes = MdxmLODSurfOffset(current, byteOffset: MdxmLOD.byteCount)
+    // we are now looking at the offset array
+    return MdxmSurface(indexes, byteOffset: indexes.offsets[index])
 }
 
 // We've come across a surface that's designated as a bolt surface, process it and put it in the appropriate bolt place
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2983
-func G2_ProcessSurfaceBolt2(_ boneCache: CBoneCache, _ surface: MdxmSurface, _ boltNum: Int32, _ boltList: inout [boltInfo_t], _ surfInfo: surfaceInfo_t?, _ mod: Model, _ retMatrix: JKAMP.MdxaBone) {
-    // Port-note: The body calls G2_FindSurface_BC, which keeps its signature marker.
-    // Port-note: Raven casts a record at a byte offset of `originalSurf`, and the view target has no accessor for a view at a byte offset.
+// G2_GetBoltMatrixLow passes NULL for a generated surface, so `surface` is optional, the form of a view parameter that a caller passes NULL to.
+func G2_ProcessSurfaceBolt2(_ boneCache: CBoneCache, _ surface: MdxmSurface?, _ boltNum: Int32, _ boltList: inout [boltInfo_t], _ surfInfo: surfaceInfo_t?, _ mod: Model, _ retMatrix: JKAMP.MdxaBone) {
+    // Port-note: The body calls G2_GetVertWeights, G2_GetVertBoneIndex, and G2_GetVertBoneWeight, the static inline functions of mdx_format.h:290 to :322, which have no Swift home.
+    // Port-note: The body reads `mdxmTriangle_t` of mdx_format.h:250, which has no view.
     // TODO: Port G2_ProcessSurfaceBolt2
     portMissing("G2_ProcessSurfaceBolt2", source: "oracle/codemp/renderer/tr_ghoul2.cpp:2983")
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:3253
 func G2_GetBoltMatrixLow(_ ghoul2: CGhoul2Info, _ boltNum: Int32, _ scale: JKAShared.vec3_t, _ retMatrix: JKAMP.MdxaBone) {
-    // Port-note: The file-scope `identityMatrix` has no storage.
-    // Port-note: Raven casts a record at a byte offset of `boneCache.header`, and the view target has no accessor for a view at a byte offset.
-    // Port-note: The body calls G2_FindSurface_BC, which keeps its signature marker.
-    // TODO: Port G2_GetBoltMatrixLow
-    portMissing("G2_GetBoltMatrixLow", source: "oracle/codemp/renderer/tr_ghoul2.cpp:3253")
+    if ghoul2.mBoneCache == nil {
+        retMatrix.copy(from: identityMatrix)
+        return
+    }
+    let boneCache = ghoul2.mBoneCache!
+    // Raven's `boltList` is a reference to `ghoul2.mBltlist`, so the call to G2_ProcessSurfaceBolt2 hands the list itself.
+    let boltList = ghoul2.mBltlist
+    if boltList[boltNum].boneNumber >= 0 {
+        let skel: MdxaSkel
+        let offsets: MdxaSkelOffsets
+        offsets = MdxaSkelOffsets(boneCache.header!, byteOffset: MdxaHeader.byteCount)
+        skel = MdxaSkel(boneCache.header!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[boltList[boltNum].boneNumber])
+        Multiply_3x4Matrix(retMatrix, boneCache.EvalUnsmooth(boltList[boltNum].boneNumber), skel.BasePoseMat)
+    } else if boltList[boltNum].surfaceNumber >= 0 {
+        var surfInfo: surfaceInfo_t? = nil
+        do {
+            var i: Int32
+            i = 0
+            while i < ghoul2.mSlist.count {
+                let t = ghoul2.mSlist[i]
+                if t.surface == boltList[boltNum].surfaceNumber {
+                    surfInfo = t
+                }
+                i += 1
+            }
+        }
+        var surface: MdxmSurface? = nil
+        if surfInfo == nil {
+            surface = G2_FindSurface_BC(boneCache.mod!, boltList[boltNum].surfaceNumber, 0)
+        }
+        if surface == nil && surfInfo != nil && surfInfo!.surface < 10000 {
+            surface = G2_FindSurface_BC(boneCache.mod!, surfInfo!.surface, 0)
+        }
+        G2_ProcessSurfaceBolt2(boneCache, surface, boltNum, &ghoul2.mBltlist, surfInfo, boneCache.mod!, retMatrix)
+    } else {
+        // we have a bolt without a bone or surface, not a huge problem but we ought to at least clear the bolt matrix
+        retMatrix.copy(from: identityMatrix)
+    }
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:3333
 private func RootMatrix(_ ghoul2: CGhoul2Info_v, _ time: Int32, _ scale: JKAShared.vec3_t, _ retMatrix: JKAMP.MdxaBone) {
-    // Port-note: The file-scope `identityMatrix` has no storage.
-    // TODO: Port RootMatrix
-    portMissing("RootMatrix", source: "oracle/codemp/renderer/tr_ghoul2.cpp:3333")
+    var i: Int32
+    i = 0
+    while i < ghoul2.size() {
+        if ghoul2[i].mModelindex != -1 && ghoul2[i].mValid {
+            if (ghoul2[i].mFlags & GHOUL2_NEWORIGIN) != 0 {
+                MdxaBone.scratch { bolt in
+                    MdxaBone.scratch { tempMatrix in
+                        G2_ConstructGhoulSkeleton(ghoul2, time, false, scale)
+                        G2_GetBoltMatrixLow(ghoul2[i], ghoul2[i].mNewOrigin, scale, bolt)
+                        tempMatrix.matrix[0][0] = 1.0
+                        tempMatrix.matrix[0][1] = 0.0
+                        tempMatrix.matrix[0][2] = 0.0
+                        tempMatrix.matrix[0][3] = -bolt.matrix[0][3]
+                        tempMatrix.matrix[1][0] = 0.0
+                        tempMatrix.matrix[1][1] = 1.0
+                        tempMatrix.matrix[1][2] = 0.0
+                        tempMatrix.matrix[1][3] = -bolt.matrix[1][3]
+                        tempMatrix.matrix[2][0] = 0.0
+                        tempMatrix.matrix[2][1] = 0.0
+                        tempMatrix.matrix[2][2] = 1.0
+                        tempMatrix.matrix[2][3] = -bolt.matrix[2][3]
+//				Inverse_Matrix(&bolt, &tempMatrix);
+                        Multiply_3x4Matrix(retMatrix, tempMatrix, identityMatrix)
+                    }
+                }
+                return
+            }
+        }
+        i += 1
+    }
+    retMatrix.copy(from: identityMatrix)
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:3369
@@ -840,9 +1189,44 @@ var modelList_G2_ConstructGhoulSkeleton: Slots<Int32> { world.storage.modelList_
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:3570
 func G2_ConstructGhoulSkeleton(_ ghoul2: CGhoul2Info_v, _ frameNum: Int32, _ checkForNewOrigin: Bool, _ scale: JKAShared.vec3_t) {
-    // Port-note: The file-scope `identityMatrix` has no storage, and the local `int modelList[256]` has no `Slots<Int32>` storage for G2_Sort_Models.
-    // TODO: Port G2_ConstructGhoulSkeleton
-    portMissing("G2_ConstructGhoulSkeleton", source: "oracle/codemp/renderer/tr_ghoul2.cpp:3570")
+    G2PerformanceTimer_G2_ConstructGhoulSkeleton.Start()
+    var i: Int32 = 0
+    var j: Int32 = 0
+    var modelCount: Int32 = 0
+    MdxaBone.scratch { rootMatrix in
+        // AI: Raven declares `int modelList[256]` on the stack. The body reads the forward `modelList_G2_ConstructGhoulSkeleton`.
+        modelList_G2_ConstructGhoulSkeleton[255] = 548
+
+        if checkForNewOrigin {
+            RootMatrix(ghoul2, frameNum, scale, rootMatrix)
+        } else {
+            rootMatrix.copy(from: identityMatrix)
+        }
+
+        G2_Sort_Models(ghoul2, modelList_G2_ConstructGhoulSkeleton, &modelCount)
+
+        j = 0
+        while j < modelCount {
+            // get the sorted model to play with
+            i = modelList_G2_ConstructGhoulSkeleton[j]
+
+            if ghoul2[i].mValid {
+                if j != 0 && ghoul2[i].mModelBoltLink != -1 {
+                    let boltMod = (ghoul2[i].mModelBoltLink >> MODEL_SHIFT) & MODEL_AND
+                    let boltNum = (ghoul2[i].mModelBoltLink >> BOLT_SHIFT) & BOLT_AND
+
+                    MdxaBone.scratch { bolt in
+                        G2_GetBoltMatrixLow(ghoul2[boltMod], boltNum, scale, bolt)
+                        G2_TransformGhoulBones(&ghoul2[i].mBlist, bolt, ghoul2[i], frameNum, checkForNewOrigin)
+                    }
+                } else {
+                    G2_TransformGhoulBones(&ghoul2[i].mBlist, rootMatrix, ghoul2[i], frameNum, checkForNewOrigin)
+                }
+            }
+            j += 1
+        }
+    }
+    G2Time_G2_ConstructGhoulSkeleton += G2PerformanceTimer_G2_ConstructGhoulSkeleton.End()
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:4816

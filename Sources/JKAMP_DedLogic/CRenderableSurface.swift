@@ -21,6 +21,7 @@ final class CRenderableSurface {
     // AI: Raven defines `operator=`. The method is `copy`.
     @discardableResult
     func copy(_ src: CRenderableSurface) -> CRenderableSurface {
+        // Raven's one use is in RenderSurfaces at tr_ghoul2.cpp:2661, under `#ifndef DEDICATED`, so the method is dead in the dedicated build.
         // TODO: Port CRenderableSurface::operator=
         portMissing("CRenderableSurface::operator=", source: "oracle/codemp/renderer/tr_local.h:2067")
     }
@@ -36,6 +37,7 @@ final class CRenderableSurface {
 
     /// Source: oracle/codemp/renderer/tr_local.h:2092
     func Init() {
+        // Raven's one call is in AllocRS at tr_ghoul2.cpp:872, which is dead in the dedicated build, so the method is dead too.
         // TODO: Port CRenderableSurface::Init
         portMissing("CRenderableSurface::Init", source: "oracle/codemp/renderer/tr_local.h:2092")
     }

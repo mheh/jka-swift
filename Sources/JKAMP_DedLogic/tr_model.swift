@@ -1084,6 +1084,7 @@ R_LoadMD3
 /// Source: oracle/codemp/renderer/tr_model.cpp:1427
 private func R_LoadMD3(_ mod: Model, _ lod: Int32, _ buffer: Slots<JKAShared.byte>, _ mod_name: String, _ bAlreadyCached: inout Bool) -> Bool {
     // RE_RegisterModel_Actual calls it at tr_model.cpp:1333 only for a name that RE_RegisterServerModel did not load first, and no dedicated path gives such a name.
+    // Port-note: The body walks `md3Surface_t` of qfiles.h, which has no view in the host target.
     // TODO: Port R_LoadMD3
     portMissing("R_LoadMD3", source: "oracle/codemp/renderer/tr_model.cpp:1427")
 }

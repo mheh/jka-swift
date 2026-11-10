@@ -109,8 +109,15 @@ func ICARUS_RunScript(_ ent: JKAMP.SharedEntity, _ name: String) -> Int32 {
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:143
 func ICARUS_Init() {
-    // TODO: Port ICARUS_Init
-    portMissing("ICARUS_Init", source: "oracle/codemp/icarus/GameInterface.cpp:143")
+    //Link all interface functions
+    Interface_Init(interface_export)
+
+    //Create the ICARUS instance for this session
+    iICARUS = ICARUS_Instance.Create(interface_export)
+
+    if iICARUS == nil {
+        Com_Error(ERR_DROP, "Unable to initialize ICARUS instance\n")
+    }
 }
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:166
@@ -319,8 +326,139 @@ func ICARUS_GetIDForString(_ string: String) -> Int32 {
 //
 /// Source: oracle/codemp/icarus/GameInterface.cpp:426
 func ICARUS_InterrogateScript(_ filename: String) {
-    // TODO: Port ICARUS_InterrogateScript
-    portMissing("ICARUS_InterrogateScript", source: "oracle/codemp/icarus/GameInterface.cpp:426")
+    let stream = CBlockStream()
+    var blockMember: CBlockMember?
+    let block = CBlock()
+
+    if Q_stricmp(filename, "NULL") == 0 || Q_stricmp(filename, "default") == 0 {
+        return
+    }
+
+    //////////////////////////////////
+    //
+    // ensure "scripts" (Q3_SCRIPT_DIR), which will be missing if this was called recursively...
+    //
+    var sFilename = CharBuf(MAX_FILENAME_LENGTH)	// should really be MAX_QPATH (and 64 bytes instead of 1024), but this fits the rest of the code
+
+    if Q_stricmpn(filename, Q3_SCRIPT_DIR, strlen(Q3_SCRIPT_DIR)) == 0 {
+        Q_strncpyz(&sFilename, filename, Int32(sFilename.count))
+    } else {
+        Q_strncpyz(&sFilename, va("%s/%s", Q3_SCRIPT_DIR, filename), Int32(sFilename.count))
+    }
+    //
+    //////////////////////////////////
+
+
+    //Attempt to register this script
+    if ICARUS_RegisterScript(String(sFilename), true) == false {	// true = bCalledDuringInterrogate
+        return
+    }
+
+    var buf = TextCursor()
+    var len: Int32
+
+    //Attempt to retrieve the new script data
+    len = ICARUS_GetScript(String(sFilename), &buf)
+    if len == 0 {
+        return
+    }
+
+    //Open the stream
+    if stream.Open(buf.buf, len) == 0 {
+        return
+    }
+
+    var sVal1: CharBuf
+    var sVal2: CharBuf
+    var temp = CharBuf(1024)
+    var setID: Int32
+
+    //Now iterate through all blocks of the script, searching for keywords
+    while stream.BlockAvailable() != 0 {
+        //Get a block
+        if stream.ReadBlock(block) == 0 {
+            return
+        }
+
+        //Determine what type of block this is
+        switch block.GetBlockID() {
+        case ID_CAMERA:	// to cache ROFF files
+            let f: Float = block.GetMemberData(0)![float: 0]
+
+            if f == TYPE_PATH {
+                // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+                sVal1 = CharBuf(block.GetMember(1)!.GetSize())
+                Com_Memcpy(&sVal1, block.GetMemberData(1)!, sVal1.count)
+
+                //we can do this I guess since the roff is loaded on the server.
+                theROFFSystem.Cache(String(sVal1), false)
+            }
+
+        case ID_PLAY:	// to cache ROFF files
+
+            // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+            sVal1 = CharBuf(block.GetMember(0)!.GetSize())
+            Com_Memcpy(&sVal1, block.GetMemberData(0)!, sVal1.count)
+
+            if Q_stricmp(String(sVal1), "PLAY_ROFF") == 0 {
+                // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+                sVal1 = CharBuf(block.GetMember(1)!.GetSize())
+                Com_Memcpy(&sVal1, block.GetMemberData(1)!, sVal1.count)
+
+                //we can do this I guess since the roff is loaded on the server.
+                theROFFSystem.Cache(String(sVal1), false)
+            }
+
+        //Run commands
+        case ID_RUN:
+
+            // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+            sVal1 = CharBuf(block.GetMember(0)!.GetSize())
+            Com_Memcpy(&sVal1, block.GetMemberData(0)!, sVal1.count)
+
+            COM_StripExtension(String(sVal1), &temp)
+            ICARUS_InterrogateScript(String(temp))
+
+        case ID_SOUND:
+            //We can't just call over to S_RegisterSound or whatever because this is on the server.
+            // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+            sVal1 = CharBuf(block.GetMember(1)!.GetSize())
+            Com_Memcpy(&sVal1, block.GetMemberData(1)!, sVal1.count)	//0 is channel, 1 is filename
+            ICARUS_SoundPrecache(String(sVal1))
+
+        case ID_SET:
+            blockMember = block.GetMember(0)
+
+            //NOTENOTE: This will not catch special case get() inlines! (There's not really a good way to do that)
+
+            //Make sure we're testing against strings
+            if blockMember!.GetID() == TK_STRING {
+                // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+                sVal1 = CharBuf(block.GetMember(0)!.GetSize())
+                Com_Memcpy(&sVal1, block.GetMemberData(0)!, sVal1.count)
+                // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+                sVal2 = CharBuf(block.GetMember(1)!.GetSize())
+                Com_Memcpy(&sVal2, block.GetMemberData(1)!, sVal2.count)
+
+                //Get the id for this set identifier
+                setID = ICARUS_GetIDForString(String(sVal1))
+
+                //Check against valid types
+                // Port-note: The switch on setID needs the SET_ names of icarus/Q3_Interface.h:6 to :255, and only JKAMP_Game exports them.
+                // Raven's arms call ICARUS_InterrogateScript( sVal2 ) for the 16 script sets and ICARUS_SoundPrecache( sVal2 ) for SET_LOOPSOUND.
+                portMissing("ICARUS_InterrogateScript", source: "oracle/codemp/icarus/GameInterface.cpp:426")
+            }
+
+        default:
+            break
+        }
+
+        //Clean out the block for the next pass
+        block.Free()
+    }
+
+    //All done
+    stream.Free()
 }
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:617

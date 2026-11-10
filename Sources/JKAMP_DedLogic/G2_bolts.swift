@@ -103,8 +103,115 @@ func G2_Add_Bolt_Surf_Num(_ ghlInfo: CGhoul2Info?, _ bltlist: inout [boltInfo_t]
 
 /// Source: oracle/codemp/ghoul2/G2_bolts.cpp:119
 func G2_Add_Bolt(_ ghlInfo: CGhoul2Info?, _ bltlist: inout [boltInfo_t], _ slist: inout [surfaceInfo_t], _ boneName: String) -> Int32 {
-    // TODO: Port G2_Add_Bolt
-    portMissing("G2_Add_Bolt", source: "oracle/codemp/ghoul2/G2_bolts.cpp:119")
+    assert(ghlInfo != nil && ghlInfo!.mValid)
+    let mod_m = ghlInfo!.currentModel!
+    let mod_a = ghlInfo!.animModel!
+    var i: Int32
+    var x: Int32
+    var surfNum: Int32 = -1
+    var skel: MdxaSkel
+    let offsets: MdxaSkelOffsets
+    let surfOffsets: MdxmHierarchyOffsets
+    let tempBolt = boltInfo_t()
+    var flags: Int32 = 0
+
+    surfOffsets = MdxmHierarchyOffsets(mod_m.mdxm!, byteOffset: MdxmHeader.byteCount)
+    // first up, we'll search for that which this bolt names in all the surfaces
+    surfNum = G2_IsSurfaceLegal(mod_m, boneName, &flags)
+
+    // did we find it as a surface?
+    if surfNum != -1 {
+        // look through entire list - see if it's already there first
+        i = 0
+        while i < bltlist.count {
+            // already there??
+            if bltlist[i].surfaceNumber == surfNum {
+                // increment the usage count
+                bltlist[i].boltUsed += 1
+                return i
+            }
+            i += 1
+        }
+
+        // look through entire list - see if we can re-use one
+        i = 0
+        while i < bltlist.count {
+            // if this surface entry has info in it, bounce over it
+            if bltlist[i].boneNumber == -1 && bltlist[i].surfaceNumber == -1 {
+                // if we found an entry that had a -1 for the bone / surface number, then we hit a surface / bone slot that was empty
+                bltlist[i].surfaceNumber = surfNum
+                bltlist[i].boltUsed = 1
+                bltlist[i].surfaceType = 0
+                return i
+            }
+            i += 1
+        }
+
+        // ok, we didn't find an existing surface of that name, or an empty slot. Lets add an entry
+        tempBolt.surfaceNumber = surfNum
+        tempBolt.boneNumber = -1
+        tempBolt.boltUsed = 1
+        tempBolt.surfaceType = 0
+        bltlist.append(tempBolt)
+        return Int32(bltlist.count) - 1
+    }
+
+    // no, check to see if it's a bone then
+
+    offsets = MdxaSkelOffsets(mod_a.mdxa!, byteOffset: MdxaHeader.byteCount)
+
+    // walk the entire list of bones in the gla file for this model and see if any match the name of the bone we want to find
+    x = 0
+    while x < mod_a.mdxa!.numBones {
+        skel = MdxaSkel(mod_a.mdxa!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[x])
+        // if name is the same, we found it
+        if Q_stricmp(skel.name, boneName) == 0 {
+            break
+        }
+        x += 1
+    }
+
+    // check to see we did actually make a match with a bone in the model
+    if x == mod_a.mdxa!.numBones {
+        // didn't find it? Error
+        //assert(0&&x == mod_a->mdxa->numBones);
+        return -1
+    }
+
+    // look through entire list - see if it's already there first
+    i = 0
+    while i < bltlist.count {
+        // already there??
+        if bltlist[i].boneNumber == x {
+            // increment the usage count
+            bltlist[i].boltUsed += 1
+            return i
+        }
+        i += 1
+    }
+
+    // look through entire list - see if we can re-use it
+    i = 0
+    while i < bltlist.count {
+        // if this bone entry has info in it, bounce over it
+        if bltlist[i].boneNumber == -1 && bltlist[i].surfaceNumber == -1 {
+            // if we found an entry that had a -1 for the bonenumber, then we hit a bone slot that was empty
+            bltlist[i].boneNumber = x
+            bltlist[i].boltUsed = 1
+            bltlist[i].surfaceType = 0
+            return i
+        }
+        i += 1
+    }
+
+    // ok, we didn't find an existing bone of that name, or an empty slot. Lets add an entry
+    tempBolt.boneNumber = x
+    tempBolt.surfaceNumber = -1
+    tempBolt.boltUsed = 1
+    tempBolt.surfaceType = 0
+    bltlist.append(tempBolt)
+    return Int32(bltlist.count) - 1
+
 }
 
 // Given a model handle, and a bone name, we want to remove this bone from the bone override list

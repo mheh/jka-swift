@@ -5,8 +5,7 @@ import JKAMP_Ded
 
 /// Raven's block member, one typed value of a block, which an IBI stream holds as an ID, a size, and the data.
 /// Source: oracle/codemp/icarus/blockstream.h:38
-// AI: Raven allocates the class with Z_Malloc in operator new, and the destructor only frees the data.
-// ARC frees the class, so the two operators and the destructor drop.
+// AI: Raven allocates the class with Z_Malloc in operator new. ARC frees the class, so the two operators drop.
 final class CBlockMember {
     private var m_id: Int32 = 0		//ID of the value contained in data
     private var m_size: Int32 = 0		//Size of the data member variable
@@ -30,6 +29,11 @@ final class CBlockMember {
         self.m_data = nil
     }
 
+    /// Source: oracle/codemp/icarus/BlockStream.cpp:33
+    deinit {
+        self.Free()
+    }
+
     /**
     ```
     -------------------------
@@ -38,10 +42,15 @@ final class CBlockMember {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:44
-    // Port-note: The body reads or writes `m_data`, which is `OpaquePointer?` and has no body form, so the body waits for that row.
     func Free() {
-        // TODO: Port CBlockMember::Free
-        portMissing("CBlockMember::Free", source: "oracle/codemp/icarus/BlockStream.cpp:44")
+        if self.m_data != nil {
+            // AI: Raven frees the `void *` block. The call frees the base of the Slots, the form of the download blocks of SV_CloseDownload.
+            ICARUS_Free(OpaquePointer(self.m_data!.base))
+            self.m_data = nil
+
+            self.m_size = -1
+            self.m_id = self.m_size
+        }
     }
 
     /**
@@ -53,8 +62,9 @@ final class CBlockMember {
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:61
     func GetInfo(_ id: inout Int32, _ size: inout Int32, _ data: inout Slots<JKAShared.byte>?) {
-        // TODO: Port CBlockMember::GetInfo
-        portMissing("CBlockMember::GetInfo", source: "oracle/codemp/icarus/BlockStream.cpp:61")
+        id = self.m_id
+        size = self.m_size
+        data = self.m_data
     }
 
     /**
@@ -65,23 +75,27 @@ final class CBlockMember {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:74
-    // Port-note: The body reads or writes `m_data`, which is `OpaquePointer?` and has no body form, so the body waits for that row.
     func SetData(_ data: String) {
-        // TODO: Port CBlockMember::SetData
-        portMissing("CBlockMember::SetData", source: "oracle/codemp/icarus/BlockStream.cpp:74")
+        self.WriteDataPointer(data, strlen(data) + 1)
     }
 
     /// Source: oracle/codemp/icarus/BlockStream.cpp:79
-    // Port-note: The body reads or writes `m_data`, which is `OpaquePointer?` and has no body form, so the body waits for that row.
     func SetData(_ data: JKAShared.vec3_t) {
-        // TODO: Port CBlockMember::SetData
-        portMissing("CBlockMember::SetData", source: "oracle/codemp/icarus/BlockStream.cpp:79")
+        self.WriteDataPointer(data, 3)
     }
 
     /// Source: oracle/codemp/icarus/BlockStream.cpp:84
     func SetData(_ data: Slots<JKAShared.byte>?, _ size: Int32) {
-        // TODO: Port CBlockMember::SetData
-        portMissing("CBlockMember::SetData", source: "oracle/codemp/icarus/BlockStream.cpp:84")
+        if self.m_data != nil {
+            // AI: Raven frees the `void *` block. The call frees the base of the Slots, the form of the download blocks of SV_CloseDownload.
+            ICARUS_Free(OpaquePointer(self.m_data!.base))
+        }
+
+        // AI: Raven holds the ICARUS_Malloc block as `void *`. The field is the Slots over its bytes, the form of the fake GLA file of RE_RegisterModels_GetDiskFile.
+        self.m_data = Slots<JKAShared.byte>(scalars: ICARUS_Malloc(size), count: Int(size))
+        // AI: Raven calls memcpy on the two pointers. Com_Memcpy over the two Slots copies the same bytes.
+        Com_Memcpy(self.m_data!, data!, size)
+        self.m_size = size
     }
 
     //	Member I/O functions
@@ -93,11 +107,32 @@ final class CBlockMember {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:102
-    // Port-note: The body reads or writes `m_data`, which is `OpaquePointer?` and has no body form, so the body waits for that row.
     @discardableResult
     func ReadMember(_ stream: CharBuf, _ streamPos: inout Int32) -> Int32 {
-        // TODO: Port CBlockMember::ReadMember
-        portMissing("CBlockMember::ReadMember", source: "oracle/codemp/icarus/BlockStream.cpp:102")
+        self.m_id = stream.withSlots { $0[int: streamPos] }
+        streamPos += Int32(Int32.byteCount)
+
+        if self.m_id == ID_RANDOM {//special case, need to initialize this member's data to Q3_INFINITE so we can randomize the number only the first time random is checked when inside a wait
+            self.m_size = Int32(Float.byteCount)
+            // AI: Raven steps over a `long`, 4 bytes on WinDed.
+            streamPos += Int32(Int32.byteCount)
+            // AI: Raven holds the ICARUS_Malloc block as `void *`. The field is the Slots over its bytes, the form of the fake GLA file of RE_RegisterModels_GetDiskFile.
+            self.m_data = Slots<JKAShared.byte>(scalars: ICARUS_Malloc(self.m_size), count: Int(self.m_size))
+            let infinite = Float(Q3_INFINITE)
+            // AI: Raven copies the float through its address. The body stores the float at byte 0 of the block.
+            self.m_data![float: 0] = infinite
+        } else {
+            // AI: Raven reads a `long`, 4 bytes on WinDed.
+            self.m_size = stream.withSlots { $0[int: streamPos] }
+            streamPos += Int32(Int32.byteCount)
+            // AI: Raven holds the ICARUS_Malloc block as `void *`. The field is the Slots over its bytes, the form of the fake GLA file of RE_RegisterModels_GetDiskFile.
+            self.m_data = Slots<JKAShared.byte>(scalars: ICARUS_Malloc(self.m_size), count: Int(self.m_size))
+            // AI: Raven calls memcpy on the two pointers. Com_Memcpy over the two Slots copies the same bytes.
+            stream.withSlots { Com_Memcpy(self.m_data!, $0.suffix(from: streamPos), self.m_size) }
+        }
+        streamPos += self.m_size
+
+        return 1
     }
 
     /**
@@ -111,6 +146,7 @@ final class CBlockMember {
     // TODO: Port signature
     // Raven wrote: int CBlockMember::WriteMember( FILE *m_fileHandle )
     // No table row for `FILE *`.
+    // Port-note: Rule 20. The one caller is CBlockStream::WriteBlock, whose callers are in Interpreter.cpp, and WinDed does not link Interpreter.cpp, so the function keeps its marker.
     func WriteMember() -> Never {
         // TODO: Port CBlockMember::WriteMember
         portMissing("CBlockMember::WriteMember", source: "oracle/codemp/icarus/BlockStream.cpp:133")
@@ -124,10 +160,18 @@ final class CBlockMember {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:148
-    // Port-note: The body reads or writes `m_data`, which is `OpaquePointer?` and has no body form, so the body waits for that row.
     func Duplicate() -> CBlockMember? {
-        // TODO: Port CBlockMember::Duplicate
-        portMissing("CBlockMember::Duplicate", source: "oracle/codemp/icarus/BlockStream.cpp:148")
+        let newblock: CBlockMember? = CBlockMember()
+
+        if newblock == nil {
+            return nil
+        }
+
+        newblock!.SetData(self.m_data, self.m_size)
+        newblock!.SetSize(self.m_size)
+        newblock!.SetID(self.m_id)
+
+        return newblock
     }
 
     //Set the ID member variable
@@ -163,26 +207,62 @@ final class CBlockMember {
     /// Source: oracle/codemp/icarus/blockstream.h:76
     // AI: Raven defines a template. The class has one overload for each type Raven's calls take, `float` and `int` of CBlock::Write at BlockStream.cpp:278 and :291.
     func WriteData(_ data: inout Float) {
-        // TODO: Port CBlockMember::WriteData
-        portMissing("CBlockMember::WriteData", source: "oracle/codemp/icarus/blockstream.h:76")
+        if self.m_data != nil {
+            // AI: Raven frees the `void *` block. The call frees the base of the Slots, the form of the download blocks of SV_CloseDownload.
+            ICARUS_Free(OpaquePointer(self.m_data!.base))
+        }
+
+        // AI: Raven holds the ICARUS_Malloc block as `void *`. The field is the Slots over its bytes, the form of the fake GLA file of RE_RegisterModels_GetDiskFile.
+        self.m_data = Slots<JKAShared.byte>(scalars: ICARUS_Malloc(Int32(Float.byteCount)), count: Float.byteCount)
+        // AI: Raven stores through the cast of the block to `T *`. The body stores the value at byte 0 of the block.
+        self.m_data![float: 0] = data
+        self.m_size = Int32(Float.byteCount)
     }
 
     /// Source: oracle/codemp/icarus/blockstream.h:76
     func WriteData(_ data: inout Int32) {
-        // TODO: Port CBlockMember::WriteData
-        portMissing("CBlockMember::WriteData", source: "oracle/codemp/icarus/blockstream.h:76")
+        if self.m_data != nil {
+            // AI: Raven frees the `void *` block. The call frees the base of the Slots, the form of the download blocks of SV_CloseDownload.
+            ICARUS_Free(OpaquePointer(self.m_data!.base))
+        }
+
+        // AI: Raven holds the ICARUS_Malloc block as `void *`. The field is the Slots over its bytes, the form of the fake GLA file of RE_RegisterModels_GetDiskFile.
+        self.m_data = Slots<JKAShared.byte>(scalars: ICARUS_Malloc(Int32(Int32.byteCount)), count: Int32.byteCount)
+        // AI: Raven stores through the cast of the block to `T *`. The body stores the value at byte 0 of the block.
+        self.m_data![int: 0] = data
+        self.m_size = Int32(Int32.byteCount)
     }
 
     /// Source: oracle/codemp/icarus/blockstream.h:88
     // AI: Raven defines a template. The class has one overload for each type Raven's calls take, the text and the vector of SetData at BlockStream.cpp:76 and :81.
     func WriteDataPointer(_ data: String, _ num: Int32) {
-        // TODO: Port CBlockMember::WriteDataPointer
-        portMissing("CBlockMember::WriteDataPointer", source: "oracle/codemp/icarus/blockstream.h:88")
+        if self.m_data != nil {
+            // AI: Raven frees the `void *` block. The call frees the base of the Slots, the form of the download blocks of SV_CloseDownload.
+            ICARUS_Free(OpaquePointer(self.m_data!.base))
+        }
+
+        // AI: Raven holds the ICARUS_Malloc block as `void *`. The field is the Slots over its bytes, the form of the fake GLA file of RE_RegisterModels_GetDiskFile.
+        self.m_data = Slots<JKAShared.byte>(scalars: ICARUS_Malloc(num * Int32(CChar.byteCount)), count: Int(num * Int32(CChar.byteCount)))
+        // AI: Raven copies the text through its pointer. Com_Memcpy copies the same bytes from a CharBuf of the text.
+        Com_Memcpy(self.m_data!, CharBuf(data), num * Int32(CChar.byteCount))
+        self.m_size = num * Int32(CChar.byteCount)
     }
 
     /// Source: oracle/codemp/icarus/blockstream.h:88
     func WriteDataPointer(_ data: JKAShared.vec3_t, _ num: Int32) {
-        // TODO: Port CBlockMember::WriteDataPointer
-        portMissing("CBlockMember::WriteDataPointer", source: "oracle/codemp/icarus/blockstream.h:88")
+        if self.m_data != nil {
+            // AI: Raven frees the `void *` block. The call frees the base of the Slots, the form of the download blocks of SV_CloseDownload.
+            ICARUS_Free(OpaquePointer(self.m_data!.base))
+        }
+
+        // AI: Raven holds the ICARUS_Malloc block as `void *`. The field is the Slots over its bytes, the form of the fake GLA file of RE_RegisterModels_GetDiskFile.
+        self.m_data = Slots<JKAShared.byte>(scalars: ICARUS_Malloc(num * Int32(Float.byteCount)), count: Int(num * Int32(Float.byteCount)))
+        // AI: Raven copies `num` floats from the vector with memcpy. The body stores each float at its byte offset of the block.
+        var i: Int32 = 0
+        while i < num {
+            self.m_data![float: i * Int32(Float.byteCount)] = data[i]
+            i += 1
+        }
+        self.m_size = num * Int32(Float.byteCount)
     }
 }

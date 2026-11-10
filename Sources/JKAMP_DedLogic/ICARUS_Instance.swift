@@ -43,8 +43,10 @@ final class ICARUS_Instance {
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:56
     static func Create(_ ie: interface_export_t?) -> ICARUS_Instance? {
-        // TODO: Port ICARUS_Instance::Create
-        portMissing("ICARUS_Instance::Create", source: "oracle/codemp/icarus/Instance.cpp:56")
+        let instance: ICARUS_Instance? = ICARUS_Instance()
+        instance!.m_interface = ie
+        // AI: Raven calls the Win32 OutputDebugString for the debugger window. A POSIX host has no such window, so the call drops.
+        return instance
     }
 
     /**
@@ -235,7 +237,7 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:312
-    // Port-note: The body calls through `m_interface`, and `interface_export_t` has no Swift form, so the body waits for that row.
+    // Port-note: Rule 20. The one path to this function is ICARUS_Instance::Save, which has no caller in oracle/codemp, so the function keeps its marker.
     @discardableResult
     private func SaveSequenceIDTable() -> Int32 {
         // TODO: Port ICARUS_Instance::SaveSequenceIDTable
@@ -270,7 +272,7 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:367
-    // Port-note: The body calls through `m_interface`, and `interface_export_t` has no Swift form, so the body waits for that row.
+    // Port-note: Rule 20. The one path to this function is ICARUS_Instance::Save, which has no caller in oracle/codemp, so the function keeps its marker.
     private func SaveSequencers() -> Int32 {
         // TODO: Port ICARUS_Instance::SaveSequencers
         portMissing("ICARUS_Instance::SaveSequencers", source: "oracle/codemp/icarus/Instance.cpp:367")
@@ -284,7 +286,7 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:389
-    // Port-note: The body calls through `m_interface`, and `interface_export_t` has no Swift form, so the body waits for that row.
+    // Port-note: Rule 20. The one path to this function is ICARUS_Instance::Save, which has no caller in oracle/codemp, so the function keeps its marker.
     private func SaveSignals() -> Int32 {
         // TODO: Port ICARUS_Instance::SaveSignals
         portMissing("ICARUS_Instance::SaveSignals", source: "oracle/codemp/icarus/Instance.cpp:389")
@@ -298,7 +300,7 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:422
-    // Port-note: The body calls through `m_interface`, and `interface_export_t` has no Swift form, so the body waits for that row.
+    // Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
     @discardableResult
     func Save() -> Int32 {
         // TODO: Port ICARUS_Instance::Save
@@ -313,7 +315,7 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:451
-    // Port-note: The body calls through `m_interface`, and `interface_export_t` has no Swift form, so the body waits for that row.
+    // Port-note: Rule 20. The one path to this function is ICARUS_Instance::Load, which has no caller in oracle/codemp, so the function keeps its marker.
     private func LoadSignals() -> Int32 {
         // TODO: Port ICARUS_Instance::LoadSignals
         portMissing("ICARUS_Instance::LoadSignals", source: "oracle/codemp/icarus/Instance.cpp:451")
@@ -349,7 +351,7 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:503
-    // Port-note: The body calls through `m_interface`, and `interface_export_t` has no Swift form, so the body waits for that row.
+    // Port-note: Rule 20. The one path to this function is ICARUS_Instance::Load, which has no caller in oracle/codemp, so the function keeps its marker.
     private func LoadSequences() -> Int32 {
         // TODO: Port ICARUS_Instance::LoadSequences
         portMissing("ICARUS_Instance::LoadSequences", source: "oracle/codemp/icarus/Instance.cpp:503")
@@ -363,7 +365,7 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:547
-    // Port-note: The body calls through `m_interface`, and `interface_export_t` has no Swift form, so the body waits for that row.
+    // Port-note: Rule 20. The one path to this function is ICARUS_Instance::Load, which has no caller in oracle/codemp, so the function keeps its marker.
     private func LoadSequencers() -> Int32 {
         // TODO: Port ICARUS_Instance::LoadSequencers
         portMissing("ICARUS_Instance::LoadSequencers", source: "oracle/codemp/icarus/Instance.cpp:547")
@@ -377,7 +379,7 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:575
-    // Port-note: The body calls through `m_interface`, and `interface_export_t` has no Swift form, so the body waits for that row.
+    // Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
     @discardableResult
     func Load() -> Int32 {
         // TODO: Port ICARUS_Instance::Load

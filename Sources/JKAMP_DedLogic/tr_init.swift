@@ -1123,6 +1123,7 @@ GetRefAPI
 // Raven wrote: refexport_t *GetRefAPI ( int apiVersion )
 // No table row for the return `refexport_t *`.
 func GetRefAPI() -> Never {
+    // The client's cl_main.cpp is the one caller, and the dedicated host does not link it, so the function is dead.
     // TODO: Port GetRefAPI
     portMissing("GetRefAPI", source: "oracle/codemp/renderer/tr_init.cpp:1459")
 }

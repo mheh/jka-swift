@@ -147,6 +147,11 @@ let handPos: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
 // Raven wrote: static vec3_t handPos2={0,0,0}
 let handPos2: JKAShared.vec3_t = JKAShared.vec3_t(0, 0, 0)
 
+/// Source: oracle/codemp/ghoul2/G2_bones.cpp:1233
+private let ERS_DYNAMIC = 0 as Int32
+private let ERS_SETTLING = 1 as Int32
+private let ERS_SETTLED = 2 as Int32
+
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1239
 var ragState: Int32 {
     get { world.variables.ragState }
@@ -167,15 +172,93 @@ let MAX_GRAVITY_PULL = 256 as Int32
 // gla file, not the glm file type.
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:40
 func G2_Find_Bone(_ mod: Model, _ blist: inout [boneInfo_t], _ boneName: String) -> Int32 {
-    // TODO: Port G2_Find_Bone
-    portMissing("G2_Find_Bone", source: "oracle/codemp/ghoul2/G2_bones.cpp:40")
+    var i: Int32
+    var skel: MdxaSkel
+    let offsets: MdxaSkelOffsets
+    offsets = MdxaSkelOffsets(mod.mdxa!, byteOffset: MdxaHeader.byteCount)
+    skel = MdxaSkel(mod.mdxa!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[0])
+
+    // look through entire list
+    i = 0
+    while i < blist.count {
+        // if this bone entry has no info in it, bounce over it
+        if blist[i].boneNumber == -1 {
+            i += 1
+            continue
+        }
+
+        // figure out what skeletal info structure this bone entry is looking at
+        skel = MdxaSkel(mod.mdxa!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[blist[i].boneNumber])
+
+        // if name is the same, we found it
+        if Q_stricmp(skel.name, boneName) == 0 {
+            return i
+        }
+        i += 1
+    }
+
+    // didn't find it
+    return -1
 }
 
 // we need to add a bone to the list - find a free one and see if we can find a corresponding bone in the gla file
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:72
 func G2_Add_Bone(_ mod: Model, _ blist: inout [boneInfo_t], _ boneName: String) -> Int32 {
-    // TODO: Port G2_Add_Bone
-    portMissing("G2_Add_Bone", source: "oracle/codemp/ghoul2/G2_bones.cpp:72")
+    var i: Int32
+    var x: Int32
+    var skel: MdxaSkel
+    let offsets: MdxaSkelOffsets
+    let tempBone = boneInfo_t()
+
+    //rww - RAGDOLL_BEGIN
+    // AI: Raven zeroes the whole record with memset after the constructor.
+    // The constructor gives zero to every field but boneNumber, and the body sets boneNumber before the push.
+    //rww - RAGDOLL_END
+
+    offsets = MdxaSkelOffsets(mod.mdxa!, byteOffset: MdxaHeader.byteCount)
+
+    // walk the entire list of bones in the gla file for this model and see if any match the name of the bone we want to find
+    x = 0
+    while x < mod.mdxa!.numBones {
+        skel = MdxaSkel(mod.mdxa!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[x])
+        // if name is the same, we found it
+        if Q_stricmp(skel.name, boneName) == 0 {
+            break
+        }
+        x += 1
+    }
+
+    // check to see we did actually make a match with a bone in the model
+    if x == mod.mdxa!.numBones {
+        // didn't find it? Error
+        //assert(0);
+        return -1
+    }
+
+    // look through entire list - see if it's already there first
+    i = 0
+    while i < blist.count {
+        // if this bone entry has info in it, bounce over it
+        if blist[i].boneNumber != -1 {
+            skel = MdxaSkel(mod.mdxa!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[blist[i].boneNumber])
+            // if name is the same, we found it
+            if Q_stricmp(skel.name, boneName) == 0 {
+                return i
+            }
+        } else {
+            // if we found an entry that had a -1 for the bonenumber, then we hit a bone slot that was empty
+            blist[i].boneNumber = x
+            blist[i].flags = 0
+            return i
+        }
+        i += 1
+    }
+
+    // ok, we didn't find an existing bone of that name, or an empty slot. Lets add an entry
+    tempBone.boneNumber = x
+    tempBone.flags = 0
+    blist.append(tempBone)
+    return Int32(blist.count) - 1
 }
 
 // Given a model handle, and a bone name, we want to remove this bone from the bone override list
@@ -254,8 +337,167 @@ func G2_Stop_Bone_Index(_ blist: inout [boneInfo_t], _ index: Int32, _ flags: In
 // generate a matrix for a given bone given some new angles for it.
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:228
 func G2_Generate_Matrix(_ mod: Model?, _ blist: inout [boneInfo_t], _ index: Int32, _ angles: JKAShared.vec3_t, _ flags: Int32, _ up: JKAMP.Eorientations, _ left: JKAMP.Eorientations, _ forward: JKAMP.Eorientations) {
-    // TODO: Port G2_Generate_Matrix
-    portMissing("G2_Generate_Matrix", source: "oracle/codemp/ghoul2/G2_bones.cpp:228")
+    let boneOverride = blist[index].matrix
+    var newAngles = vec3_t()
+
+    MdxaBone.scratch { temp1 in
+        MdxaBone.scratch { permutation in
+            if (flags & (BONE_ANGLES_PREMULT | BONE_ANGLES_POSTMULT)) != 0 {
+                // build us a matrix out of the angles we are fed - but swap y and z because of wacky Quake setup
+                var newAngles = vec3_t()
+
+                // determine what axis newAngles Yaw should revolve around
+                switch up {
+                case NEGATIVE_X:
+                    newAngles[1] = angles[2] + 180
+                case POSITIVE_X:
+                    newAngles[1] = angles[2]
+                case NEGATIVE_Y:
+                    newAngles[1] = angles[0]
+                case POSITIVE_Y:
+                    newAngles[1] = angles[0]
+                case NEGATIVE_Z:
+                    newAngles[1] = angles[1] + 180
+                case POSITIVE_Z:
+                    newAngles[1] = angles[1]
+                default:
+                    break
+                }
+
+                // determine what axis newAngles pitch should revolve around
+                switch left {
+                case NEGATIVE_X:
+                    newAngles[0] = angles[2]
+                case POSITIVE_X:
+                    newAngles[0] = angles[2] + 180
+                case NEGATIVE_Y:
+                    newAngles[0] = angles[0]
+                case POSITIVE_Y:
+                    newAngles[0] = angles[0] + 180
+                case NEGATIVE_Z:
+                    newAngles[0] = angles[1]
+                case POSITIVE_Z:
+                    newAngles[0] = angles[1]
+                default:
+                    break
+                }
+
+                // determine what axis newAngles Roll should revolve around
+                switch forward {
+                case NEGATIVE_X:
+                    newAngles[2] = angles[2]
+                case POSITIVE_X:
+                    newAngles[2] = angles[2]
+                case NEGATIVE_Y:
+                    newAngles[2] = angles[0]
+                case POSITIVE_Y:
+                    newAngles[2] = angles[0] + 180
+                case NEGATIVE_Z:
+                    newAngles[2] = angles[1]
+                case POSITIVE_Z:
+                    newAngles[2] = angles[1] + 180
+                default:
+                    break
+                }
+
+                Create_Matrix(newAngles, boneOverride)
+
+                // figure out where the bone hirearchy info is
+                // Raven declares `skel` and `offsets` at the top of the function, and only this arm reads them.
+                let skel: MdxaSkel
+                let offsets: MdxaSkelOffsets
+                offsets = MdxaSkelOffsets(mod!.mdxa!, byteOffset: MdxaHeader.byteCount)
+                skel = MdxaSkel(mod!.mdxa!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[blist[index].boneNumber])
+
+                Multiply_3x4Matrix(temp1, boneOverride, skel.BasePoseMatInv)
+                Multiply_3x4Matrix(boneOverride, skel.BasePoseMat, temp1)
+
+            } else {
+                newAngles = angles
+
+                // why I should need do this Fuck alone knows. But I do.
+                if left == POSITIVE_Y {
+                    newAngles[0] += 180
+                }
+
+                Create_Matrix(newAngles, temp1)
+
+                permutation.matrix[0][0] = 0
+                permutation.matrix[0][1] = 0
+                permutation.matrix[0][2] = 0
+                permutation.matrix[0][3] = 0
+                permutation.matrix[1][0] = 0
+                permutation.matrix[1][1] = 0
+                permutation.matrix[1][2] = 0
+                permutation.matrix[1][3] = 0
+                permutation.matrix[2][0] = 0
+                permutation.matrix[2][1] = 0
+                permutation.matrix[2][2] = 0
+                permutation.matrix[2][3] = 0
+
+                // determine what axis newAngles Yaw should revolve around
+                switch forward {
+                case NEGATIVE_X:
+                    permutation.matrix[0][0] = -1		// works
+                case POSITIVE_X:
+                    permutation.matrix[0][0] = 1		// works
+                case NEGATIVE_Y:
+                    permutation.matrix[1][0] = -1
+                case POSITIVE_Y:
+                    permutation.matrix[1][0] = 1
+                case NEGATIVE_Z:
+                    permutation.matrix[2][0] = -1
+                case POSITIVE_Z:
+                    permutation.matrix[2][0] = 1
+                default:
+                    break
+                }
+
+                // determine what axis newAngles pitch should revolve around
+                switch left {
+                case NEGATIVE_X:
+                    permutation.matrix[0][1] = -1
+                case POSITIVE_X:
+                    permutation.matrix[0][1] = 1
+                case NEGATIVE_Y:
+                    permutation.matrix[1][1] = -1		// works
+                case POSITIVE_Y:
+                    permutation.matrix[1][1] = 1		// works
+                case NEGATIVE_Z:
+                    permutation.matrix[2][1] = -1
+                case POSITIVE_Z:
+                    permutation.matrix[2][1] = 1
+                default:
+                    break
+                }
+
+                // determine what axis newAngles Roll should revolve around
+                switch up {
+                case NEGATIVE_X:
+                    permutation.matrix[0][2] = -1
+                case POSITIVE_X:
+                    permutation.matrix[0][2] = 1
+                case NEGATIVE_Y:
+                    permutation.matrix[1][2] = -1
+                case POSITIVE_Y:
+                    permutation.matrix[1][2] = 1
+                case NEGATIVE_Z:
+                    permutation.matrix[2][2] = -1		// works
+                case POSITIVE_Z:
+                    permutation.matrix[2][2] = 1		// works
+                default:
+                    break
+                }
+
+                Multiply_3x4Matrix(boneOverride, temp1, permutation)
+
+            }
+        }
+    }
+
+    // keep a copy of the matrix in the newmatrix which is actually what we use
+    blist[index].newMatrix.copy(from: blist[index].matrix)
+
 }
 
 // Given a model handle, and a bone name, we want to remove this bone from the bone override list
@@ -580,9 +822,31 @@ func G2_Get_Bone_Anim_Range(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t]
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:872
 func G2_Get_Bone_Anim_Index(_ blist: inout [boneInfo_t], _ index: Int32, _ currentTime: Int32, _ currentFrame: inout Float, _ startFrame: inout Int32, _ endFrame: inout Int32, _ flags: inout Int32, _ retAnimSpeed: inout Float, _ modelList: Slots<qhandle_t>?, _ numFrames: Int32) -> Bool {
-    // Port-note: G2_TimingModel has a signature marker, so the body cannot call it.
-    // TODO: Port G2_Get_Bone_Anim_Index
-    portMissing("G2_Get_Bone_Anim_Index", source: "oracle/codemp/ghoul2/G2_bones.cpp:872")
+
+    // did we find it?
+    if (index >= 0) && !((index >= blist.count) || (blist[index].boneNumber == -1)) {
+
+        // are we an animating bone?
+        if (blist[index].flags & (BONE_ANIM_OVERRIDE_LOOP | BONE_ANIM_OVERRIDE)) != 0 {
+            var lcurrentFrame: Int32 = 0
+            var newFrame: Int32 = 0
+            var lerp: Float = 0
+            G2_TimingModel(blist[index], currentTime, numFrames, &lcurrentFrame, &newFrame, &lerp)
+
+            currentFrame = Float(lcurrentFrame) + lerp
+            startFrame = blist[index].startFrame
+            endFrame = blist[index].endFrame
+            flags = blist[index].flags
+            retAnimSpeed = blist[index].animSpeed
+            return true
+        }
+    }
+    startFrame = 0
+    endFrame = 1
+    currentFrame = 0.0
+    flags = 0
+    retAnimSpeed = 0.0
+    return false
 }
 
 // given a model, bonelist and bonename, return the current frame, startframe and endframe of the current animation
@@ -749,18 +1013,77 @@ private func G2_Generate_MatrixRag(_ blist: inout [boneInfo_t], _ index: Int32) 
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1267
 func G2_Find_Bone_Rag(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ boneName: String) -> Int32 {
-    // TODO: Port G2_Find_Bone_Rag
-    portMissing("G2_Find_Bone_Rag", source: "oracle/codemp/ghoul2/G2_bones.cpp:1267")
+    var i: Int32
+    var skel: MdxaSkel
+    let offsets: MdxaSkelOffsets
+
+    offsets = MdxaSkelOffsets(ghlInfo!.aHeader!, byteOffset: MdxaHeader.byteCount)
+    skel = MdxaSkel(ghlInfo!.aHeader!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[0])
+
+    /*
+    model_t			*currentModel;
+    model_t			*animModel;
+    mdxaHeader_t	*aHeader;
+
+    currentModel = R_GetModelByHandle(RE_RegisterModel(ghlInfo->mFileName));
+    assert(currentModel);
+    animModel =  R_GetModelByHandle(currentModel->mdxm->animIndex);
+    assert(animModel);
+    aHeader = animModel->mdxa;
+    assert(aHeader);
+
+    offsets = (mdxaSkelOffsets_t *)((byte *)aHeader + sizeof(mdxaHeader_t));
+    skel = (mdxaSkel_t *)((byte *)aHeader + sizeof(mdxaHeader_t) + offsets->offsets[0]);
+    */
+
+    // look through entire list
+    i = 0
+    while i < blist.count {
+        // if this bone entry has no info in it, bounce over it
+        if blist[i].boneNumber == -1 {
+            i += 1
+            continue
+        }
+
+        // figure out what skeletal info structure this bone entry is looking at
+        skel = MdxaSkel(ghlInfo!.aHeader!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[blist[i].boneNumber])
+        //skel = (mdxaSkel_t *)((byte *)aHeader + sizeof(mdxaHeader_t) + offsets->offsets[blist[i].boneNumber]);
+
+        // if name is the same, we found it
+        if Q_stricmp(skel.name, boneName) == 0 {
+            return i
+        }
+        i += 1
+    }
+    // didn't find it
+    return -1
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1318
+@discardableResult
 private func G2_Set_Bone_Rag(_ mod_a: MdxaHeader, _ blist: inout [boneInfo_t], _ boneName: String, _ ghoul2: CGhoul2Info, _ scale: JKAShared.vec3_t, _ origin: JKAShared.vec3_t) -> Int32 {
-    // Port-note: G2_GetBoneMatrixLow has a signature marker, so the body cannot call it.
-    // TODO: Port G2_Set_Bone_Rag
-    portMissing("G2_Set_Bone_Rag", source: "oracle/codemp/ghoul2/G2_bones.cpp:1318")
+    // do not change the state of the skeleton here
+    var index: Int32 = G2_Find_Bone_Rag(ghoul2, &blist, boneName)
+
+    if index == -1 {
+        index = G2_Add_Bone(ghoul2.animModel!, &blist, boneName)
+    }
+
+    if index != -1 {
+        let bone = blist[index]
+        bone.extraVec1 = origin
+
+        G2_GetBoneMatrixLow(ghoul2, bone.boneNumber, scale, bone.originalTrueBoneMatrix, &bone.basepose, &bone.baseposeInv)
+//		bone.parentRawBoneIndex=G2_GetParentBoneMatrixLow(ghoul2,bone.boneNumber,scale,bone.parentTrueBoneMatrix,bone.baseposeParent,bone.baseposeInvParent);
+        bone.originalOrigin[0] = bone.originalTrueBoneMatrix.matrix[0][3]
+        bone.originalOrigin[1] = bone.originalTrueBoneMatrix.matrix[1][3]
+        bone.originalOrigin[2] = bone.originalTrueBoneMatrix.matrix[2][3]
+    }
+    return index
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1349
+@discardableResult
 private func G2_Set_Bone_Angles_Rag(_ ghoul2: CGhoul2Info, _ mod_a: MdxaHeader, _ blist: inout [boneInfo_t], _ boneName: String, _ flags: Int32, _ radius: Float, _ angleMin: JKAShared.vec3_t? = nil, _ angleMax: JKAShared.vec3_t? = nil, _ blendTime: Int32 = 500) -> Int32 {
     var index: Int32 = G2_Find_Bone_Rag(ghoul2, &blist, boneName)
 
@@ -892,6 +1215,7 @@ private func G2_RagDollMatchPosition() {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1522
+@discardableResult
 func G2_Set_Bone_Anim_No_BS(_ ghoul2: CGhoul2Info, _ mod: MdxaHeader, _ blist: inout [boneInfo_t], _ boneName: String, _ argStartFrame: Int32, _ argEndFrame: Int32, _ flags: Int32, _ animSpeed: Float, _ currentTime: Int32, _ setFrame: Float, _ blendTime: Int32, _ creationID: Int32, _ resetBonemap: Bool = true) -> Bool {
     var index: Int32 = G2_Find_Bone_Rag(ghoul2, &blist, boneName)
     var modFlags: Int32 = flags
@@ -969,8 +1293,228 @@ func G2_ResetRagDoll(_ ghoul2V: CGhoul2Info_v) {
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1622
 func G2_SetRagDoll(_ ghoul2V: CGhoul2Info_v, _ parms: CRagDollParams?) {
-    // TODO: Port G2_SetRagDoll
-    portMissing("G2_SetRagDoll", source: "oracle/codemp/ghoul2/G2_bones.cpp:1622")
+    if parms != nil {
+        parms!.CallRagDollBegin = false
+    }
+    guard broadsword != nil, broadsword!.integer != 0, let parms = parms else {
+        return
+    }
+    var model: Int32
+    model = 0
+    while model < ghoul2V.size() {
+        if ghoul2V[model].mModelindex != -1 {
+            break
+        }
+        model += 1
+    }
+    if model == ghoul2V.size() {
+        return
+    }
+    let ghoul2 = ghoul2V[model]
+    guard let mod_a = G2_GetModA(ghoul2) else {
+        return
+    }
+    let curTime = G2API_GetTime(0)
+    // Raven's `blist` is a reference to `ghoul2.mBlist`.
+    // Raven reads `index` only in the `#ifndef DEDICATED` arm and an `#if 0` block, which the dedicated build drops.
+    let index = G2_Find_Bone_Rag(ghoul2, &ghoul2.mBlist, "model_root")
+    if (ghoul2.mFlags & GHOUL2_RAG_STARTED) != 0 {
+        // only going to begin ragdoll once, everything else depends on what happens to the origin
+        return
+    }
+
+    ghoul2.mFlags |= GHOUL2_RAG_PENDING | GHOUL2_RAG_DONE | GHOUL2_RAG_STARTED  // well anyway we are going live
+    parms.CallRagDollBegin = true
+
+    G2_GenerateWorldMatrix(parms.angles, parms.position)
+    G2_ConstructGhoulSkeleton(ghoul2V, curTime, false, parms.scale)
+
+    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "model_root", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "pelvis", ghoul2, parms.scale, parms.position)
+
+    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "lower_lumbar", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "upper_lumbar", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "thoracic", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "cranium", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "rhumerus", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "lhumerus", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "rradius", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "lradius", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "rfemurYZ", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "lfemurYZ", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "rtibia", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "ltibia", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "rhand", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "lhand", ghoul2, parms.scale, parms.position)
+    //G2_Set_Bone_Rag(mod_a,blist,"rtarsal",ghoul2,parms->scale,parms->position);
+    //G2_Set_Bone_Rag(mod_a,blist,"ltarsal",ghoul2,parms->scale,parms->position);
+    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "rtalus", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "ltalus", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "rradiusX", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "lradiusX", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "rfemurX", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "lfemurX", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "ceyebrow", ghoul2, parms.scale, parms.position)
+
+    //int startFrame = 3665, endFrame = 3665+1;
+    let startFrame = parms.startFrame
+    let endFrame = parms.endFrame
+
+    G2_Set_Bone_Anim_No_BS(ghoul2, mod_a, &ghoul2.mBlist, "upper_lumbar", startFrame, endFrame - 1,
+                           BONE_ANIM_OVERRIDE_FREEZE | BONE_ANIM_BLEND,
+                           1.0, curTime, Float(startFrame), 150, 0, true)
+    G2_Set_Bone_Anim_No_BS(ghoul2, mod_a, &ghoul2.mBlist, "lower_lumbar", startFrame, endFrame - 1,
+                           BONE_ANIM_OVERRIDE_FREEZE | BONE_ANIM_BLEND,
+                           1.0, curTime, Float(startFrame), 150, 0, true)
+    G2_Set_Bone_Anim_No_BS(ghoul2, mod_a, &ghoul2.mBlist, "Motion", startFrame, endFrame - 1,
+                           BONE_ANIM_OVERRIDE_FREEZE | BONE_ANIM_BLEND,
+                           1.0, curTime, Float(startFrame), 150, 0, true)
+//	G2_Set_Bone_Anim_No_BS(ghoul2, mod_a,blist,"model_root",startFrame,endFrame-1,
+//		BONE_ANIM_OVERRIDE_FREEZE|BONE_ANIM_BLEND,
+//		1.0f,curTime,float(startFrame),150,0,true);
+    G2_Set_Bone_Anim_No_BS(ghoul2, mod_a, &ghoul2.mBlist, "lfemurYZ", startFrame, endFrame - 1,
+                           BONE_ANIM_OVERRIDE_FREEZE | BONE_ANIM_BLEND,
+                           1.0, curTime, Float(startFrame), 150, 0, true)
+    G2_Set_Bone_Anim_No_BS(ghoul2, mod_a, &ghoul2.mBlist, "rfemurYZ", startFrame, endFrame - 1,
+                           BONE_ANIM_OVERRIDE_FREEZE | BONE_ANIM_BLEND,
+                           1.0, curTime, Float(startFrame), 150, 0, true)
+
+    G2_Set_Bone_Anim_No_BS(ghoul2, mod_a, &ghoul2.mBlist, "rhumerus", startFrame, endFrame - 1,
+                           BONE_ANIM_OVERRIDE_FREEZE | BONE_ANIM_BLEND,
+                           1.0, curTime, Float(startFrame), 150, 0, true)
+    G2_Set_Bone_Anim_No_BS(ghoul2, mod_a, &ghoul2.mBlist, "lhumerus", startFrame, endFrame - 1,
+                           BONE_ANIM_OVERRIDE_FREEZE | BONE_ANIM_BLEND,
+                           1.0, curTime, Float(startFrame), 150, 0, true)
+
+//    should already be set					G2_GenerateWorldMatrix(parms->angles, parms->position);
+    G2_ConstructGhoulSkeleton(ghoul2V, curTime, false, parms.scale)
+
+    let fRadScale: Float = 0.3//0.5f;
+
+    var pcjMin: vec3_t
+    var pcjMax: vec3_t
+    pcjMin = vec3_t(-90.0, -45.0, -45.0)
+    pcjMax = vec3_t(90.0, 45.0, 45.0)
+    G2_Set_Bone_Angles_Rag(ghoul2, mod_a, &ghoul2.mBlist, "model_root", RAG_PCJ_MODEL_ROOT | RAG_PCJ | RAG_UNSNAPPABLE, 10.0 * fRadScale, pcjMin, pcjMax, 100)
+    pcjMin = vec3_t(-45.0, -45.0, -45.0)
+    pcjMax = vec3_t(45.0, 45.0, 45.0)
+    G2_Set_Bone_Angles_Rag(ghoul2, mod_a, &ghoul2.mBlist, "pelvis", RAG_PCJ_PELVIS | RAG_PCJ | RAG_PCJ_POST_MULT | RAG_UNSNAPPABLE, 10.0 * fRadScale, pcjMin, pcjMax, 100)
+
+    // new base anim, unconscious flop
+    let pcjflags: Int32 = RAG_PCJ | RAG_PCJ_POST_MULT//|RAG_EFFECTOR;
+
+    pcjMin = vec3_t(-15.0, -15.0, -15.0)
+    pcjMax = vec3_t(15.0, 15.0, 15.0)
+    G2_Set_Bone_Angles_Rag(ghoul2, mod_a, &ghoul2.mBlist, "lower_lumbar", pcjflags | RAG_UNSNAPPABLE, 10.0 * fRadScale, pcjMin, pcjMax, 500)
+    G2_Set_Bone_Angles_Rag(ghoul2, mod_a, &ghoul2.mBlist, "upper_lumbar", pcjflags | RAG_UNSNAPPABLE, 10.0 * fRadScale, pcjMin, pcjMax, 500)
+    pcjMin = vec3_t(-25.0, -25.0, -25.0)
+    pcjMax = vec3_t(25.0, 25.0, 25.0)
+    G2_Set_Bone_Angles_Rag(ghoul2, mod_a, &ghoul2.mBlist, "thoracic", pcjflags | RAG_EFFECTOR | RAG_UNSNAPPABLE, 12.0 * fRadScale, pcjMin, pcjMax, 500)
+
+    pcjMin = vec3_t(-10.0, -10.0, -90.0)
+    pcjMax = vec3_t(10.0, 10.0, 90.0)
+    G2_Set_Bone_Angles_Rag(ghoul2, mod_a, &ghoul2.mBlist, "cranium", pcjflags | RAG_BONE_LIGHTWEIGHT | RAG_UNSNAPPABLE, 6.0 * fRadScale, pcjMin, pcjMax, 500)
+
+    let sFactLeg: Float = 1.0
+    let sFactArm: Float = 1.0
+    let sRadArm: Float = 1.0
+    let sRadLeg: Float = 1.0
+
+    pcjMin = vec3_t(-100.0, -40.0, -15.0)
+    pcjMax = vec3_t(-15.0, 80.0, 15.0)
+    pcjMin = pcjMin * sFactArm
+    pcjMax = pcjMax * sFactArm
+    G2_Set_Bone_Angles_Rag(ghoul2, mod_a, &ghoul2.mBlist, "rhumerus", pcjflags | RAG_BONE_LIGHTWEIGHT | RAG_UNSNAPPABLE, (4.0 * sRadArm) * fRadScale, pcjMin, pcjMax, 500)
+    pcjMin = vec3_t(-50.0, -80.0, -15.0)
+    pcjMax = vec3_t(15.0, 40.0, 15.0)
+    pcjMin = pcjMin * sFactArm
+    pcjMax = pcjMax * sFactArm
+    G2_Set_Bone_Angles_Rag(ghoul2, mod_a, &ghoul2.mBlist, "lhumerus", pcjflags | RAG_BONE_LIGHTWEIGHT | RAG_UNSNAPPABLE, (4.0 * sRadArm) * fRadScale, pcjMin, pcjMax, 500)
+
+    pcjMin = vec3_t(-25.0, -20.0, -20.0)
+    pcjMax = vec3_t(90.0, 20.0, -20.0)
+    pcjMin = pcjMin * sFactArm
+    pcjMax = pcjMax * sFactArm
+    G2_Set_Bone_Angles_Rag(ghoul2, mod_a, &ghoul2.mBlist, "rradius", pcjflags | RAG_BONE_LIGHTWEIGHT, (3.0 * sRadArm) * fRadScale, pcjMin, pcjMax, 500)
+    pcjMin = vec3_t(-90.0, -20.0, -20.0)
+    pcjMax = vec3_t(30.0, 20.0, -20.0)
+    pcjMin = pcjMin * sFactArm
+    pcjMax = pcjMax * sFactArm
+    G2_Set_Bone_Angles_Rag(ghoul2, mod_a, &ghoul2.mBlist, "lradius", pcjflags | RAG_BONE_LIGHTWEIGHT, (3.0 * sRadArm) * fRadScale, pcjMin, pcjMax, 500)
+
+
+    pcjMin = vec3_t(-80.0, -50.0, -20.0)
+    pcjMax = vec3_t(30.0, 5.0, 20.0)
+    pcjMin = pcjMin * sFactLeg
+    pcjMax = pcjMax * sFactLeg
+    G2_Set_Bone_Angles_Rag(ghoul2, mod_a, &ghoul2.mBlist, "rfemurYZ", pcjflags | RAG_BONE_LIGHTWEIGHT, (6.0 * sRadLeg) * fRadScale, pcjMin, pcjMax, 500)
+    pcjMin = vec3_t(-60.0, -5.0, -20.0)
+    pcjMax = vec3_t(50.0, 50.0, 20.0)
+    pcjMin = pcjMin * sFactLeg
+    pcjMax = pcjMax * sFactLeg
+    G2_Set_Bone_Angles_Rag(ghoul2, mod_a, &ghoul2.mBlist, "lfemurYZ", pcjflags | RAG_BONE_LIGHTWEIGHT, (6.0 * sRadLeg) * fRadScale, pcjMin, pcjMax, 500)
+
+    pcjMin = vec3_t(-20.0, -15.0, -15.0)
+    pcjMax = vec3_t(100.0, 15.0, 15.0)
+    pcjMin = pcjMin * sFactLeg
+    pcjMax = pcjMax * sFactLeg
+    G2_Set_Bone_Angles_Rag(ghoul2, mod_a, &ghoul2.mBlist, "rtibia", pcjflags | RAG_EFFECTOR | RAG_BONE_LIGHTWEIGHT, (4.0 * sRadLeg) * fRadScale, pcjMin, pcjMax, 500)
+    pcjMin = vec3_t(20.0, -15.0, -15.0)
+    pcjMax = vec3_t(100.0, 15.0, 15.0)
+    pcjMin = pcjMin * sFactLeg
+    pcjMax = pcjMax * sFactLeg
+    G2_Set_Bone_Angles_Rag(ghoul2, mod_a, &ghoul2.mBlist, "ltibia", pcjflags | RAG_EFFECTOR | RAG_BONE_LIGHTWEIGHT, (4.0 * sRadLeg) * fRadScale, pcjMin, pcjMax, 500)
+
+
+    let sRadEArm: Float = 1.2
+    let sRadELeg: Float = 1.2
+
+//	int rhand=
+    G2_Set_Bone_Angles_Rag(ghoul2, mod_a, &ghoul2.mBlist, "rhand", RAG_EFFECTOR | RAG_BONE_LIGHTWEIGHT, (6.0 * sRadEArm) * fRadScale)
+    G2_Set_Bone_Angles_Rag(ghoul2, mod_a, &ghoul2.mBlist, "lhand", RAG_EFFECTOR | RAG_BONE_LIGHTWEIGHT, (6.0 * sRadEArm) * fRadScale)
+    //G2_Set_Bone_Angles_Rag(ghoul2, mod_a,blist,"rtarsal",RAG_EFFECTOR|RAG_BONE_LIGHTWEIGHT,(4.0f*sRadELeg)*fRadScale);
+    //G2_Set_Bone_Angles_Rag(ghoul2, mod_a,blist,"ltarsal",RAG_EFFECTOR|RAG_BONE_LIGHTWEIGHT,(4.0f*sRadELeg)*fRadScale);
+//	G2_Set_Bone_Angles_Rag(ghoul2, mod_a,blist,"rtibia",RAG_EFFECTOR|RAG_BONE_LIGHTWEIGHT,(4.0f*sRadELeg)*fRadScale);
+//	G2_Set_Bone_Angles_Rag(ghoul2, mod_a,blist,"ltibia",RAG_EFFECTOR|RAG_BONE_LIGHTWEIGHT,(4.0f*sRadELeg)*fRadScale);
+    G2_Set_Bone_Angles_Rag(ghoul2, mod_a, &ghoul2.mBlist, "rtalus", RAG_EFFECTOR | RAG_BONE_LIGHTWEIGHT, (4.0 * sRadELeg) * fRadScale)
+    G2_Set_Bone_Angles_Rag(ghoul2, mod_a, &ghoul2.mBlist, "ltalus", RAG_EFFECTOR | RAG_BONE_LIGHTWEIGHT, (4.0 * sRadELeg) * fRadScale)
+    G2_Set_Bone_Angles_Rag(ghoul2, mod_a, &ghoul2.mBlist, "rradiusX", RAG_EFFECTOR | RAG_BONE_LIGHTWEIGHT, (6.0 * sRadEArm) * fRadScale)
+    G2_Set_Bone_Angles_Rag(ghoul2, mod_a, &ghoul2.mBlist, "lradiusX", RAG_EFFECTOR | RAG_BONE_LIGHTWEIGHT, (6.0 * sRadEArm) * fRadScale)
+    G2_Set_Bone_Angles_Rag(ghoul2, mod_a, &ghoul2.mBlist, "rfemurX", RAG_EFFECTOR | RAG_BONE_LIGHTWEIGHT, (10.0 * sRadELeg) * fRadScale)
+    G2_Set_Bone_Angles_Rag(ghoul2, mod_a, &ghoul2.mBlist, "lfemurX", RAG_EFFECTOR | RAG_BONE_LIGHTWEIGHT, (10.0 * sRadELeg) * fRadScale)
+    //G2_Set_Bone_Angles_Rag(ghoul2, mod_a,blist,"ceyebrow",RAG_EFFECTOR|RAG_BONE_LIGHTWEIGHT,10.0f*fRadScale);
+    G2_Set_Bone_Angles_Rag(ghoul2, mod_a, &ghoul2.mBlist, "ceyebrow", RAG_EFFECTOR | RAG_BONE_LIGHTWEIGHT, 5.0)
+//match the currrent animation
+    if !G2_RagDollSetup(ghoul2, curTime, true, parms.position, false) {
+        assert(false, "failed to add any rag bones")
+        return
+    }
+    G2_RagDollCurrentPosition(ghoul2V, model, curTime, parms.angles, parms.position, parms.scale)
+    var k: Int32
+
+    let fparms = CRagDollUpdateParams()
+    fparms.position = parms.position
+    fparms.angles = parms.angles
+    fparms.scale = parms.scale
+    fparms.velocity = vec3_t()
+    fparms.me = parms.me
+    fparms.settleFrame = parms.endFrame
+
+    //Guess I don't need to do this, do I?
+    G2_ConstructGhoulSkeleton(ghoul2V, curTime, false, parms.scale)
+
+    var dPos: vec3_t
+    dPos = parms.position
+
+    k = 0
+    while k < /*10*/20 {
+        G2_RagDollSettlePositionNumeroTrois(ghoul2V, dPos, fparms, curTime)
+
+        G2_RagDollCurrentPosition(ghoul2V, model, curTime, parms.angles, dPos, parms.scale)
+        G2_RagDollMatchPosition()
+        G2_RagDollSolve(ghoul2V, model, 1.0 * (1.0 - k / 40.0), curTime, dPos, false)
+        k += 1
+    }
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:2040
@@ -981,26 +1525,263 @@ func G2_SetRagDollBullet(_ ghoul2: CGhoul2Info, _ rayStart: JKAShared.vec3_t, _ 
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:2152
-// TODO: Port signature
-// Raven wrote: static float G2_RagSetState(CGhoul2Info &ghoul2, boneInfo_t &bone,int frameNum,const vec3_t origin,bool &resetOrigin)
-// No table row for `bool & resetOrigin`.
-private func G2_RagSetState() -> Never {
-    // TODO: Port G2_RagSetState
-    portMissing("G2_RagSetState", source: "oracle/codemp/ghoul2/G2_bones.cpp:2152")
+private func G2_RagSetState(_ ghoul2: CGhoul2Info, _ bone: boneInfo_t, _ frameNum: Int32, _ origin: JKAShared.vec3_t, _ resetOrigin: inout Bool) -> Float {
+    ragOriginChange = DistanceSquared(origin, bone.extraVec1)
+    ragOriginChangeDir = origin - bone.extraVec1
+
+    var decay: Float = 1.0
+
+    let dynamicTime: Int32 = 1000
+    let settleTime: Int32 = 1000
+
+    if (ghoul2.mFlags & GHOUL2_RAG_FORCESOLVE) != 0 {
+        ragState = ERS_DYNAMIC
+        if frameNum > bone.firstCollisionTime + dynamicTime {
+            bone.extraVec1 = origin
+            if ragOriginChange > 15.0 { //if we moved, or if this bone is still in solid
+                bone.firstCollisionTime = frameNum
+            } else {
+                // settle out
+                bone.firstCollisionTime = 0
+                bone.restTime = frameNum
+                ragState = ERS_SETTLING
+            }
+        }
+    } else if bone.firstCollisionTime > 0 {
+        ragState = ERS_DYNAMIC
+        if frameNum > bone.firstCollisionTime + dynamicTime {
+            bone.extraVec1 = origin
+            if ragOriginChange > 15.0 { //if we moved, or if this bone is still in solid
+                bone.firstCollisionTime = frameNum
+            } else {
+                // settle out
+                bone.firstCollisionTime = 0
+                bone.restTime = frameNum
+                ragState = ERS_SETTLING
+            }
+        }
+//decay=0.0f;
+    } else if bone.restTime > 0 {
+        decay = 1.0 - (frameNum - bone.restTime) / Float(dynamicTime)
+        if decay < 0.0 {
+            decay = 0.0
+        }
+        if decay > 1.0 {
+            decay = 1.0
+        }
+        let magicFactor8: Float = 1.0 // Power for decay
+        decay = pow(decay, magicFactor8)
+        ragState = ERS_SETTLING
+        if frameNum > bone.restTime + settleTime {
+            bone.extraVec1 = origin
+            if ragOriginChange > 15.0 {
+                bone.restTime = frameNum
+            } else {
+                // stop
+                bone.restTime = 0
+                ragState = ERS_SETTLED
+            }
+        }
+//decay=0.0f;
+    } else {
+        if (bone.RagFlags & RAG_PCJ_IK_CONTROLLED) != 0 {
+            bone.firstCollisionTime = frameNum
+            ragState = ERS_DYNAMIC
+        } else if ragOriginChange > 15.0 {
+            bone.firstCollisionTime = frameNum
+            ragState = ERS_DYNAMIC
+        } else {
+            ragState = ERS_SETTLED
+        }
+        decay = 0.0
+    }
+//			ragState=ERS_SETTLED;
+//			decay=0.0f;
+    return decay
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:2254
 private func G2_RagDollSetup(_ ghoul2: CGhoul2Info, _ frameNum: Int32, _ resetOrigin: Bool, _ origin: JKAShared.vec3_t, _ anyRendered: Bool) -> Bool {
-    // Port-note: G2_GetBoneBasepose has a signature marker, so the body cannot call it.
-    // TODO: Port G2_RagDollSetup
-    portMissing("G2_RagDollSetup", source: "oracle/codemp/ghoul2/G2_bones.cpp:2254")
+    var i: Int32
+    var minSurvivingBone: Int32 = 10000
+    var minSurvivingBoneAt: Int32 = -1
+    var minSurvivingBoneAlt: Int32 = 10000
+    var minSurvivingBoneAtAlt: Int32 = -1
+
+    assert(ghoul2.mFileName[0] != 0)
+    // Raven's `blist` is a reference to `ghoul2.mBlist`.
+    rag.removeAll()
+    var numRendered: Int32 = 0
+    var numNotRendered: Int32 = 0
+    var pelvisAt: Int32 = -1
+    i = 0
+    while i < ghoul2.mBlist.count {
+        let bone = ghoul2.mBlist[i]
+        if bone.boneNumber >= 0 {
+            assert(bone.boneNumber < MAX_BONES_RAG)
+            if (bone.flags & BONE_ANGLES_RAGDOLL) != 0 || (bone.flags & BONE_ANGLES_IK) != 0 {
+                //rww - this was (!anyRendered) before. Isn't that wrong? (if anyRendered, then wasRendered should be true)
+                let wasRendered =
+                    (!anyRendered) ||   // offscreeen or something
+                    G2_WasBoneRendered(ghoul2, bone.boneNumber)
+                if !wasRendered {
+                    bone.RagFlags |= RAG_WAS_NOT_RENDERED
+                    numNotRendered += 1
+                } else {
+                    bone.RagFlags &= ~RAG_WAS_NOT_RENDERED
+                    bone.RagFlags |= RAG_WAS_EVER_RENDERED
+                    numRendered += 1
+                }
+                if (bone.RagFlags & RAG_PCJ_PELVIS) != 0 {
+                    pelvisAt = i
+                } else if (bone.RagFlags & RAG_PCJ_MODEL_ROOT) != 0 {
+                } else if wasRendered && (bone.RagFlags & RAG_PCJ) != 0 {
+                    if minSurvivingBone > bone.boneNumber {
+                        minSurvivingBone = bone.boneNumber
+                        minSurvivingBoneAt = i
+                    }
+                } else if wasRendered {
+                    if minSurvivingBoneAlt > bone.boneNumber {
+                        minSurvivingBoneAlt = bone.boneNumber
+                        minSurvivingBoneAtAlt = i
+                    }
+                }
+                if anyRendered &&
+                    (bone.RagFlags & RAG_WAS_EVER_RENDERED) != 0 &&
+                    (bone.RagFlags & RAG_PCJ_MODEL_ROOT) == 0 &&
+                    (bone.RagFlags & RAG_PCJ_PELVIS) == 0 &&
+                    !wasRendered &&
+                    (bone.RagFlags & RAG_EFFECTOR) != 0 {
+                    // this thing was rendered in the past, but wasn't now, although other bones were, lets get rid of it
+//					bone.flags &= ~BONE_ANGLES_RAGDOLL;
+//					bone.RagFlags = 0;
+//OutputDebugString(va("Deleted Effector %d\n",i));
+//					continue;
+                }
+                if rag.count < bone.boneNumber + 1 {
+                    // Raven's `resize` fills each new slot with his 0.
+                    while rag.count < bone.boneNumber + 1 {
+                        rag.append(nil)
+                    }
+                }
+                rag[bone.boneNumber] = bone
+                ragBlistIndex[bone.boneNumber] = i
+
+                bone.lastTimeUpdated = frameNum
+                if resetOrigin {
+                    bone.extraVec1 = origin // this is only done incase a limb is removed
+                }
+            }
+        }
+        i += 1
+    }
+    numRags = 0
+    var ragStartTime: Int32 = 0
+    i = 0
+    while i < rag.count {
+        if rag[i] != nil {
+            let bone = rag[i]!
+            assert(bone.boneNumber >= 0)
+            assert(numRags < MAX_BONES_RAG)
+
+            ragStartTime = bone.ragStartTime
+
+            bone.ragIndex = numRags
+            ragBoneData[numRags] = bone
+            ragEffectors[numRags].radius = bone.radius
+            ragEffectors[numRags].weight = bone.weight
+            G2_GetBoneBasepose(ghoul2, bone.boneNumber, &bone.basepose, &bone.baseposeInv)
+            numRags += 1
+        }
+        i += 1
+    }
+    if numRags == 0 {
+        return false
+    }
+    return true
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:2403
 private func G2_RagDoll(_ ghoul2V: CGhoul2Info_v, _ g2Index: Int32, _ params: CRagDollUpdateParams?, _ curTime: Int32) {
-    // Port-note: G2_RagSetState has a signature marker, so the body cannot call it.
-    // TODO: Port G2_RagDoll
-    portMissing("G2_RagDoll", source: "oracle/codemp/ghoul2/G2_bones.cpp:2403")
+    var i: Int32
+    if broadsword == nil || broadsword!.integer == 0 {
+        return
+    }
+
+    guard let params = params else {
+        assert(false)
+        return
+    }
+
+    var dPos: vec3_t
+    dPos = params.position
+
+//	params->DebugLine(handPos,handPos2,false);
+    let frameNum = G2API_GetTime(0)
+    let ghoul2 = ghoul2V[g2Index]
+    // Raven's `blist` is a reference to `ghoul2.mBlist`.
+
+    // hack for freezing ragdoll (no idea if it works)
+
+    var decay: Float = 1.0
+    var resetOrigin = false
+    var anyRendered = false
+
+    // this loop checks for settled
+    i = 0
+    while i < ghoul2.mBlist.count {
+        let bone = ghoul2.mBlist[i]
+        if bone.boneNumber >= 0 {
+            assert(bone.boneNumber < MAX_BONES_RAG)
+            if (bone.flags & BONE_ANGLES_RAGDOLL) != 0 {
+                // check for state transitions
+                decay = G2_RagSetState(ghoul2, bone, frameNum, dPos, &resetOrigin) // set the current state
+
+                if ragState == ERS_SETTLED {
+                    params.RagDollSettled()
+                    return
+                }
+                if G2_WasBoneRendered(ghoul2, bone.boneNumber) {
+                    anyRendered = true
+                    break
+                }
+            }
+        }
+        i += 1
+    }
+    //int iters=(ragState==ERS_DYNAMIC)?2:1;
+    var iters: Int32 = (ragState == ERS_DYNAMIC) ? 4 : 2
+    var kicked = false
+    if ragOriginChangeDir[2] < -100.0 {
+        kicked = true
+        //iters*=8;
+        iters *= 2 //rww - changed to this.. it was getting up to around 600 traces at times before (which is insane)
+    }
+    if iters != 0 {
+        if !G2_RagDollSetup(ghoul2, frameNum, resetOrigin, dPos, anyRendered) {
+            return
+        }
+        // ok, now our data structures are compact and set up in topological order
+
+        i = 0
+        while i < iters {
+            G2_RagDollCurrentPosition(ghoul2V, g2Index, frameNum, params.angles, dPos, params.scale)
+
+            if G2_RagDollSettlePositionNumeroTrois(ghoul2V, dPos, params, curTime) {
+            }
+            //params->position[2] += 16;
+            G2_RagDollSolve(ghoul2V, g2Index, decay * 2.0, frameNum, dPos, true, params)
+            i += 1
+        }
+    }
+
+    if params.me != ENTITYNUM_NONE {
+        G2_RagDollCurrentPosition(ghoul2V, g2Index, frameNum, params.angles, params.position, params.scale)
+//		SV_UnlinkEntity(params->me);
+//		params->me->SetMins(BB_SHOOTING_SIZE,ragBoneMins);
+//		params->me->SetMaxs(BB_SHOOTING_SIZE,ragBoneMaxs);
+//		SV_LinkEntity(params->me);
+    }
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:2580
@@ -1012,9 +1793,62 @@ private func G2_Get_Bone_Name(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:2609
 private func G2_RagDollCurrentPosition(_ ghoul2V: CGhoul2Info_v, _ g2Index: Int32, _ frameNum: Int32, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ scale: JKAShared.vec3_t) {
-    // Port-note: G2_GetBoneMatrixLow has a signature marker, so the body cannot call it.
-    // TODO: Port G2_RagDollCurrentPosition
-    portMissing("G2_RagDollCurrentPosition", source: "oracle/codemp/ghoul2/G2_bones.cpp:2609")
+    let ghoul2 = ghoul2V[g2Index]
+    assert(ghoul2.mFileName[0] != 0)
+//OutputDebugString(va("angles %f %f %f\n",angles[0],angles[1],angles[2]));
+    G2_GenerateWorldMatrix(angles, position)
+    G2_ConstructGhoulSkeleton(ghoul2V, frameNum, false, scale)
+
+    var totalWt: Float = 0.0
+    var i: Int32
+    i = 0
+    while i < numRags {
+        let bone = ragBoneData[i]!
+        G2_GetBoneMatrixLow(ghoul2, bone.boneNumber, scale, ragBones[i], &ragBasepose[i], &ragBaseposeInv[i])
+
+        var k: Int32
+        //float cmweight=ragEffectors[numRags].weight;
+        let cmweight: Float = 1.0
+        k = 0
+        while k < 3 {
+            ragEffectors[i].currentOrigin[k] = ragBones[i].matrix[k][3]
+            if i == 0 {
+                // set mins, maxs and cm
+                ragBoneCM[k] = ragEffectors[i].currentOrigin[k] * cmweight
+                ragBoneMaxs[k] = ragEffectors[i].currentOrigin[k]
+                ragBoneMins[k] = ragEffectors[i].currentOrigin[k]
+            } else {
+                ragBoneCM[k] += ragEffectors[i].currentOrigin[k] * ragEffectors[i].weight
+                if ragEffectors[i].currentOrigin[k] > ragBoneMaxs[k] {
+                    ragBoneMaxs[k] = ragEffectors[i].currentOrigin[k]
+                }
+                if ragEffectors[i].currentOrigin[k] < ragBoneMins[k] {
+                    ragBoneMins[k] = ragEffectors[i].currentOrigin[k]
+                }
+            }
+            k += 1
+        }
+
+        totalWt += cmweight
+        i += 1
+    }
+
+    assert(totalWt > 0.0)
+    var k: Int32
+    do {
+        let wtInv: Float = 1.0 / totalWt
+        k = 0
+        while k < 3 {
+            ragBoneMaxs[k] -= position[k]
+            ragBoneMins[k] -= position[k]
+            ragBoneMaxs[k] += 10.0
+            ragBoneMins[k] -= 10.0
+            ragBoneCM[k] *= wtInv
+
+            ragBoneCM[k] = ragEffectors[0].currentOrigin[k] // use the pelvis
+            k += 1
+        }
+    }
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:2683
@@ -1218,8 +2052,350 @@ private func G2_RagGetPelvisLumbarOffsets(_ ghoul2: CGhoul2Info, _ params: CRagD
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:3449
 private func G2_RagDollSettlePositionNumeroTrois(_ ghoul2V: CGhoul2Info_v, _ currentOrg: JKAShared.vec3_t, _ params: CRagDollUpdateParams?, _ curTime: Int32) -> Bool {
-    // TODO: Port G2_RagDollSettlePositionNumeroTrois
-    portMissing("G2_RagDollSettlePositionNumeroTrois", source: "oracle/codemp/ghoul2/G2_bones.cpp:3449")
+    //now returns true if any bone was in solid, otherwise false
+    let ignoreNum = params!.me
+    // Raven's static locals are scratch, because each call writes them before a read.
+    var i: Int32 = 0
+    var goalSpot = vec3_t()
+    var k: Int32 = 0
+    let velocityDampening: Float = 1.0
+    let velocityMultiplier: Float = 60.0
+    var testMins = vec3_t()
+    var testMaxs = vec3_t()
+    var velDir = vec3_t()
+    var startSolid = false
+    var anySolid = false
+    var parentOrigin = vec3_t()
+    var basePos = vec3_t()
+    var entScale = vec3_t()
+    var hasDaddy = false
+    var hasBasePos = false
+    var animPelvisDir = vec3_t()
+    var pelvisDir = vec3_t()
+    var animPelvisPos = vec3_t()
+    var pelvisPos = vec3_t()
+
+    //Maybe customize per-bone?
+    let gravity: Float = 3.0
+    let mass: Float = 0.09
+    let bounce: Float = 0.0//1.3f;
+    //Bouncing and stuff unfortunately does not work too well at the moment.
+    //Need to keep a seperate "physics origin" or make the filthy solve stuff
+    //better.
+
+    var inAir = false
+
+    if params!.velocity[0] != 0 || params!.velocity[1] != 0 || params!.velocity[2] != 0 {
+        inAir = true
+    }
+
+    if params!.scale[0] == 0 && params!.scale[1] == 0 && params!.scale[2] == 0 {
+        entScale = vec3_t(1.0, 1.0, 1.0)
+    } else {
+        entScale = params!.scale
+    }
+
+    if broadsword_ragtobase != nil &&
+        broadsword_ragtobase!.integer > 1 {
+        //grab the pelvis directions to offset base positions for bones
+        G2_RagGetPelvisLumbarOffsets(ghoul2V[0], params, &pelvisPos, &pelvisDir, &animPelvisPos,
+                                     &animPelvisDir)
+
+        //don't care about the pitch offsets
+        pelvisDir[2] = 0
+        animPelvisDir[2] = 0
+
+        /*
+        vec3_t upelvisPos, uanimPelvisPos;
+        vec3_t blah;
+        VectorCopy(pelvisPos, upelvisPos);
+        VectorCopy(animPelvisPos, uanimPelvisPos);
+        upelvisPos[2] += 64;
+        uanimPelvisPos[2] += 64;
+
+        VectorMA(upelvisPos, 32.0f, pelvisDir, blah);
+        G2_RagDebugLine(upelvisPos, blah, 50, 0x00ff00, 1);
+        VectorMA(uanimPelvisPos, 32.0f, animPelvisDir, blah);
+        G2_RagDebugLine(uanimPelvisPos, blah, 50, 0xff0000, 1);
+        */
+
+        //just convert to angles now, that's all we'll ever use them for
+        vectoangles(pelvisDir, &pelvisDir)
+        vectoangles(animPelvisDir, &animPelvisDir)
+    }
+
+    Trace.scratch { tr in
+        MdxaBone.scratch { worldBaseMatrix in
+            i = 0
+            while i < numRags {
+                let bone = ragBoneData[i]!
+                let e = ragEffectors[i]
+
+                if inAir {
+                    bone.airTime = curTime + 30
+                }
+
+                if (bone.RagFlags & RAG_PCJ_PELVIS) != 0 {
+                    goalSpot = vec3_t(params!.position[0], params!.position[1], (params!.position[2] + DEFAULT_MINS_2) + ((bone.radius * entScale[2]) + 2))
+
+                    desiredPelvisOffset = goalSpot - e.currentOrigin
+                    haveDesiredPelvisOffset = true
+                    bone.lastPosition = e.currentOrigin
+                    i += 1
+                    continue
+                }
+
+                if (bone.RagFlags & RAG_EFFECTOR) == 0 {
+                    i += 1
+                    continue
+                }
+
+                if bone.hasOverGoal { //api call was made to override the goal spot
+                    goalSpot = bone.overGoalSpot
+                    bone.solidCount = 0
+                    k = 0
+                    while k < 3 {
+                        e.desiredDirection[k] = (goalSpot[k] - e.currentOrigin[k])
+                        e.desiredDirection[k] += (velocityMultiplier * bone.velocityEffector[k])
+                        bone.velocityEffector[k] *= velocityDampening
+                        k += 1
+                    }
+                    bone.lastPosition = e.currentOrigin
+
+                    i += 1
+                    continue
+                }
+
+                testMins = vec3_t(-e.radius * entScale[0], -e.radius * entScale[1], -e.radius * entScale[2])
+                testMaxs = vec3_t(e.radius * entScale[0], e.radius * entScale[1], e.radius * entScale[2])
+
+                assert(ghoul2V[0].mBoneCache != nil)
+
+                //get the parent bone's position
+                hasDaddy = false
+                if bone.boneNumber != 0 {
+                    assert(ghoul2V[0].animModel != nil)
+                    assert(ghoul2V[0].aHeader != nil)
+
+                    if bone.parentBoneIndex == -1 {
+                        var skel: MdxaSkel
+                        let offsets: MdxaSkelOffsets
+                        var bParentIndex: Int32
+                        var bParentListIndex: Int32 = -1
+
+                        offsets = MdxaSkelOffsets(ghoul2V[0].aHeader!, byteOffset: MdxaHeader.byteCount)
+                        skel = MdxaSkel(ghoul2V[0].aHeader!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[bone.boneNumber])
+
+                        bParentIndex = skel.parent
+
+                        while bParentIndex > 0 { //go upward through hierarchy searching for the first parent that is a rag bone
+                            skel = MdxaSkel(ghoul2V[0].aHeader!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[bParentIndex])
+                            bParentIndex = skel.parent
+                            bParentListIndex = G2_Find_Bone(ghoul2V[0].animModel!, &ghoul2V[0].mBlist, skel.name)
+
+                            if bParentListIndex != -1 {
+                                let pbone = ghoul2V[0].mBlist[bParentListIndex]
+                                if (pbone.flags & BONE_ANGLES_RAGDOLL) != 0 { //valid rag bone
+                                    break
+                                }
+                            }
+
+                            //didn't work out, reset to -1 again
+                            bParentListIndex = -1
+                        }
+
+                        bone.parentBoneIndex = bParentListIndex
+                    }
+
+                    if bone.parentBoneIndex != -1 {
+                        let pbone = ghoul2V[0].mBlist[bone.parentBoneIndex]
+
+                        if (pbone.flags & BONE_ANGLES_RAGDOLL) != 0 { //has origin calculated for us already
+                            parentOrigin = ragEffectors[pbone.ragIndex].currentOrigin
+                            hasDaddy = true
+                        }
+                    }
+                }
+
+                //get the position this bone would be in if we were in the desired frame
+                hasBasePos = false
+                if broadsword_ragtobase != nil &&
+                    broadsword_ragtobase!.integer != 0 {
+                    var v = vec3_t()
+                    var a = vec3_t()
+                    var f: Float
+
+                    G2_RagGetWorldAnimMatrix(ghoul2V[0], bone, params, worldBaseMatrix)
+                    G2API_GiveMeVectorFromMatrix(worldBaseMatrix, ORIGIN, &basePos)
+
+                    if broadsword_ragtobase!.integer > 1 {
+                        var fa: Float = AngleNormalize180(animPelvisDir[YAW] - pelvisDir[YAW])
+                        let d: Float = fa - bone.offsetRotation
+
+                        if d > 16.0 ||
+                            d < -16.0 { //don't update unless x degrees away from the ideal to avoid moving goal spots too much if pelvis rotates
+                            bone.offsetRotation = fa
+                        } else {
+                            fa = bone.offsetRotation
+                        }
+                        //Rotate the point around the pelvis based on the offsets between pelvis positions
+                        v = basePos - animPelvisPos
+                        f = VectorLength(v)
+                        vectoangles(v, &a)
+                        a[YAW] -= fa
+                        // Raven passes NULL for `right` and `up`, so the two scratch vectors take the outputs Raven skips.
+                        var right = vec3_t()
+                        var up = vec3_t()
+                        AngleVectors(a, &v, &right, &up)
+                        _ = VectorNormalize(&v)
+                        _VectorMA(animPelvisPos, f, v, &basePos)
+
+                        //re-orient the position of the bone to the current position of the pelvis
+                        v = basePos - animPelvisPos
+                        //push the spots outward? (to stretch the skeleton more)
+                        //v[0] *= 1.5f;
+                        //v[1] *= 1.5f;
+                        basePos = pelvisPos + v
+                    }
+                    hasBasePos = true
+                }
+
+                //Are we in solid?
+                if hasDaddy {
+                    Rag_Trace(tr, e.currentOrigin, testMins, testMaxs, parentOrigin, ignoreNum, RAG_MASK, G2_NOCOLLIDE, 0)
+                    //Rag_Trace(&tr, parentOrigin, testMins, testMaxs, e.currentOrigin, ignoreNum, RAG_MASK, G2_NOCOLLIDE, 0);
+                } else {
+                    Rag_Trace(tr, e.currentOrigin, testMins, testMaxs, params!.position, ignoreNum, RAG_MASK, G2_NOCOLLIDE, 0)
+                }
+
+                if tr.startsolid != 0 || tr.allsolid != 0 || tr.fraction != 1.0 { //currently in solid, see what we can do about it
+                    var vSub = vec3_t()
+
+                    startSolid = true
+                    anySolid = true
+
+                    if hasBasePos {// && bone.solidCount < 32)
+                        //only go to the base pos for slightly in solid bones
+                        //just use the spot directly
+                        goalSpot = basePos
+                        goalSpot[2] = (params!.position[2] - 23) - testMins[2]
+                        //Com_Printf("%i: %f %f %f\n", bone.boneNumber, basePos[0], basePos[1], basePos[2]);
+                    } else { //if deep in solid want to try to rise up out of solid before hinting back to base
+                        vSub = e.currentOrigin - params!.position
+                        _ = VectorNormalize(&vSub)
+                        _VectorMA(params!.position, 40.0, vSub, &goalSpot)
+
+                        //should be 1 unit above the ground taking bounding box sizes into account
+                        goalSpot[2] = (params!.position[2] - 23) - testMins[2]
+                    }
+
+                    //Trace from the entity origin in the direction between the origin and current bone position to
+                    //find a good eventual goal position
+                    Rag_Trace(tr, params!.position, testMins, testMaxs, goalSpot, params!.me, RAG_MASK, G2_NOCOLLIDE, 0)
+                    goalSpot = tr.endpos
+                } else {
+                    startSolid = false
+
+                    //Hint the bone back to the base origin
+                    if hasDaddy || hasBasePos {
+                        if hasBasePos {
+                            velDir = basePos - e.currentOrigin
+                        } else {
+                            velDir = e.currentOrigin - parentOrigin
+                        }
+                    } else {
+                        velDir = e.currentOrigin - params!.position
+                    }
+
+                    if VectorLength(velDir) > 2.0 { //don't bother if already close
+                        _ = VectorNormalize(&velDir)
+                        velDir = velDir * 8.0
+                        velDir[2] = 0 //don't want to nudge on Z, the gravity will take care of things.
+                        bone.epVelocity = bone.epVelocity + velDir
+                    }
+
+                    //Factor the object's velocity into the bone's velocity, by pushing the bone
+                    //opposite the velocity to give the apperance the lighter limbs are being "dragged"
+                    //behind those of greater mass.
+                    if (bone.RagFlags & RAG_BONE_LIGHTWEIGHT) != 0 {
+                        var vel: vec3_t
+                        var vellen: Float
+
+                        vel = params!.velocity
+
+                        //Scale down since our velocity scale is different from standard game physics
+                        vel = vel * 0.5
+
+                        vellen = VectorLength(vel)
+
+                        if vellen > 64.0 { //cap it off
+                            vel = vel * (64.0 / vellen)
+                        }
+
+                        //Invert the velocity so we go opposite the heavier parts and drag behind
+                        VectorInverse(&vel)
+
+                        if vel[2] != 0 { //want to override entirely instead then
+                            bone.epVelocity = vel
+                        } else {
+                            bone.epVelocity = bone.epVelocity + vel
+                        }
+                    }
+
+                    //We're not in solid so we can apply physics freely now.
+                    if !G2_ApplyRealBonePhysics(bone, e, params, &goalSpot, testMins, testMaxs,
+                                                gravity, mass, bounce) { //if this is the case then somehow we failed to apply physics/get a good goal spot, just use the ent origin
+                        goalSpot = params!.position
+                    }
+                }
+
+                //Set this now so we know what to do for angle limiting
+                if startSolid {
+                    bone.solidCount += 1
+                } else {
+                    bone.solidCount = 0
+                }
+
+                //Set the desired direction based on the goal position and other factors.
+                k = 0
+                while k < 3 {
+                    e.desiredDirection[k] = (goalSpot[k] - e.currentOrigin[k])
+
+                    if broadsword_dircap != nil &&
+                        broadsword_dircap!.value != 0 {
+                        var cap: Float = broadsword_dircap!.value
+
+                        if bone.solidCount > 5 {
+                            var solidFactor: Float = bone.solidCount * 0.2
+
+                            if solidFactor > 16.0 { //don't go too high or something ugly might happen
+                                solidFactor = 16.0
+                            }
+
+                            e.desiredDirection[k] *= solidFactor
+                            cap *= 8
+                        }
+
+                        if e.desiredDirection[k] > cap {
+                            e.desiredDirection[k] = cap
+                        } else if e.desiredDirection[k] < -cap {
+                            e.desiredDirection[k] = -cap
+                        }
+                    }
+
+                    e.desiredDirection[k] += (velocityMultiplier * bone.velocityEffector[k])
+                    e.desiredDirection[k] += (flrand(-0.75, 0.75) * flrand(-0.75, 0.75))
+
+                    bone.velocityEffector[k] *= velocityDampening
+                    k += 1
+                }
+                bone.lastPosition = e.currentOrigin
+                i += 1
+            }
+        }
+    }
+
+    return anySolid
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:3936
@@ -1240,8 +2416,269 @@ private func G2_BoneSnap(_ ghoul2V: CGhoul2Info_v, _ bone: boneInfo_t, _ params:
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:3970
 private func G2_RagDollSolve(_ ghoul2V: CGhoul2Info_v, _ g2Index: Int32, _ decay: Float, _ frameNum: Int32, _ currentOrg: JKAShared.vec3_t, _ limitAngles: Bool, _ params: CRagDollUpdateParams? = nil) {
-    // TODO: Port G2_RagDollSolve
-    portMissing("G2_RagDollSolve", source: "oracle/codemp/ghoul2/G2_bones.cpp:3970")
+    var i: Int32 = 0
+
+    let ghoul2 = ghoul2V[g2Index]
+
+    // Raven's `blist` is a reference to `ghoul2.mBlist`.
+    // Raven's eight matrix locals are scratch slots, one closure each, and the closures stay at one indent so the body keeps Raven's shape.
+    MdxaBone.scratch { N in
+    MdxaBone.scratch { P in
+    MdxaBone.scratch { temp1 in
+    MdxaBone.scratch { temp2 in
+    MdxaBone.scratch { curRot in
+    MdxaBone.scratch { curRotInv in
+    MdxaBone.scratch(count: 3) { Gs in
+    MdxaBone.scratch(count: 3) { Enew in
+
+    // END this is the objective function thing
+    i = 0
+    while i < numRags {
+        // these are used for affecting the end result
+        let bone = ragBoneData[i]!
+        if (bone.RagFlags & RAG_PCJ) == 0 {
+            i += 1
+            continue // not an active ragdoll PCJ
+        }
+                        /* the situation is thus. (the dependent bone is in essence an effector)
+
+                            The effector true bone matrix is:
+                                Ecur = ragBones[depIndex] =
+                                    EntToWorld * [skeletal heirachy1] *
+                                    MyAnimMatrix * ragBasepose[i] * current_rot_matrix * ragBaseposeInv[i] *
+                                    [skeletal heirachy2] * EffectorAnimMatrix * ragBasepose[depIndex]
+
+                        My ( sub-i) true bone matrix is:
+                                M = ragBones[i] = EntToWorld * [skeletal heirachry1] *
+                                MyAnimMatrix * ragBasepose[i] * current_rot_matrix * ragBaseposeInv[i] * ragBasepose[i]
+
+                            Simplifies to:
+                                M = ragBones[i] = EntToWorld * [skeletal heirachry1] *
+                                MyAnimMatrix * ragBasepose[i] * current_rot_matrix
+
+
+                            Enew is:
+
+                                Enew = M *
+                                    inv(current_rot_matrix) * ragBaseposeInv[i] *
+                                    ragBasepose[i] * new_rot_matrix * ragBaseposeInv[i] *
+                                    inv(M*ragBaseposeInv[i]) * Ecur
+
+                            We can simplify a bit:
+
+                                Enew = M *
+                                    inv(current_rot_matrix) * ragBaseposeInv[i] *
+                                    ragBasepose[i] * new_rot_matrix * ragBaseposeInv[i] *
+                                    ragBasepose[i] * inv(M) * Ecur
+
+                                Enew =
+                                    M * inv(current_rot_matrix) *
+                                    new_rot_matrix * inv(M) * Ecur
+
+                            We define P to be:
+                                P = M * inv(current_rot_matrix)
+
+                            We define N to be:
+                                N = inv(M)
+
+                            then it is just:
+
+                                Enew= P * new_rot_matrix * N * Ecur
+
+                            Ri=new_rot_matrix (for each euler angle)
+                            we are gonna use three R's, so will will precompute them as Gi = P * Ri * N
+
+
+                            and then Enewi= Gi * Ecur
+
+                            we are gonna evaluate Enewi for "goodness" and accumulate changes in delAngles
+
+                        */
+
+        Inverse_Matrix(ragBones[i], N)  // dest 2nd arg
+
+        var k: Int32
+        var tAngles: vec3_t
+        tAngles = bone.currentAngles
+        Create_Matrix(tAngles, curRot)  //dest 2nd arg
+        Inverse_Matrix(curRot, curRotInv)  // dest 2nd arg
+
+        Multiply_3x4Matrix(P, ragBones[i], curRotInv) //dest first arg
+
+
+
+        if (bone.RagFlags & RAG_PCJ_MODEL_ROOT) != 0 {
+            if haveDesiredPelvisOffset {
+                let magicFactor12: Float = 0.25 // dampfactor for pelvis pos
+                let magicFactor13: Float = 0.20 //controls the speed of the gradient descent (pelvis pos)
+                var deltaInEntitySpace = vec3_t()
+                TransformPoint(desiredPelvisOffset, &deltaInEntitySpace, N) // dest middle arg
+                k = 0
+                while k < 3 {
+                    let moveTo: Float = bone.velocityRoot[k] + deltaInEntitySpace[k] * magicFactor13
+                    bone.velocityRoot[k] = (bone.velocityRoot[k] - moveTo) * magicFactor12 + moveTo
+                    /*
+                    if (bone.velocityRoot[k]>50.0f)
+                    {
+                        bone.velocityRoot[k]=50.0f;
+                    }
+                    if (bone.velocityRoot[k]<-50.0f)
+                    {
+                        bone.velocityRoot[k]=-50.0f;
+                    }
+                    */
+                    //No -rww
+                    bone.ragOverrideMatrix.matrix[k][3] = bone.velocityRoot[k]
+                    k += 1
+                }
+            }
+        } else {
+            var delAngles: vec3_t
+            delAngles = vec3_t()
+
+            k = 0
+            while k < 3 {
+                tAngles[k] += 0.5
+                Create_Matrix(tAngles, temp2)  //dest 2nd arg
+                tAngles[k] -= 0.5
+                Multiply_3x4Matrix(temp1, P, temp2) //dest first arg
+                Multiply_3x4Matrix(Gs[k], temp1, N) //dest first arg
+
+                k += 1
+            }
+
+            var allSolidCount: Int32 = 0//bone.solidCount;
+
+            // fixme precompute this
+            let numDep = G2_GetBoneDependents(ghoul2, bone.boneNumber, tempDependents, MAX_BONES_RAG)
+            var j: Int32
+            var numRagDep: Int32 = 0
+            j = 0
+            while j < numDep {
+                //fixme why do this for the special roots?
+                // AI: Raven compares the signed index with the unsigned size, so a negative index is out of range. The test names that case.
+                if !(tempDependents[j] >= 0 && tempDependents[j] < rag.count && rag[tempDependents[j]] != nil) {
+                    j += 1
+                    continue
+                }
+                let depIndex = rag[tempDependents[j]]!.ragIndex
+                assert(depIndex > i) // these are supposed to be topologically sorted
+                assert(ragBoneData[depIndex] != nil)
+                let depBone = ragBoneData[depIndex]!
+                if (depBone.RagFlags & RAG_EFFECTOR) != 0 {						// rag doll effector
+                    // this is a dependent of me, and also a rag
+                    numRagDep += 1
+                    k = 0
+                    while k < 3 {
+                        Multiply_3x4Matrix(Enew[k], Gs[k], ragBones[depIndex]) //dest first arg
+                        var tPosition = vec3_t()
+                        tPosition[0] = Enew[k].matrix[0][3]
+                        tPosition[1] = Enew[k].matrix[1][3]
+                        tPosition[2] = Enew[k].matrix[2][3]
+
+                        var change: vec3_t
+                        change = tPosition - ragEffectors[depIndex].currentOrigin // dest is last arg
+                        var goodness: Float = _DotProduct(change, ragEffectors[depIndex].desiredDirection)
+                        goodness *= depBone.weight
+                        delAngles[k] += goodness // keep bigger stuff more out of wall or something
+                        k += 1
+                    }
+                    allSolidCount += depBone.solidCount
+                }
+                j += 1
+            }
+
+            //bone.solidCount = allSolidCount;
+            allSolidCount += bone.solidCount
+
+            bone.lastAngles = bone.currentAngles
+            //		Update angles
+            var magicFactor9: Float = 0.75 // dampfactor for angle changes
+            var magicFactor1: Float = 0.40 //controls the speed of the gradient descent
+            var magicFactor32: Float = 1.5
+            var recip: Float = 0.0
+            if numRagDep != 0 {
+                recip = sqrt(4.0 / Float(numRagDep))
+            }
+
+            if allSolidCount > 32 {
+                magicFactor1 = 0.6
+            } else if allSolidCount > 10 {
+                magicFactor1 = 0.5
+            }
+
+            if bone.overGradSpeed != 0 { //api call was made to specify a speed for this bone
+                magicFactor1 = bone.overGradSpeed
+            }
+
+            let fac: Float = decay * recip * magicFactor1
+            assert(fac >= 0.0)
+            if ragState == ERS_DYNAMIC {
+                magicFactor9 = 0.85 // we don't want this swinging radically, make the whole thing kindof unstable
+            }
+
+            //constraint breaks?
+            if (bone.RagFlags & RAG_UNSNAPPABLE) != 0 {
+                magicFactor32 = 1.0
+            }
+
+            k = 0
+            while k < 3 {
+                bone.currentAngles[k] += delAngles[k] * fac
+
+                bone.currentAngles[k] = (bone.lastAngles[k] - bone.currentAngles[k]) * magicFactor9 + bone.currentAngles[k]
+                bone.currentAngles[k] = AngleNormZero(bone.currentAngles[k])
+//	bone.currentAngles[k]=flrand(bone.minAngles[k],bone.maxAngles[k]);
+                //constraint breaks?
+                if limitAngles && (allSolidCount < 32 || (bone.RagFlags & RAG_UNSNAPPABLE) != 0) { //32 tries and still in solid? Then we'll let you move freely
+                    if !bone.snapped || (bone.RagFlags & RAG_UNSNAPPABLE) != 0 {
+                        //magicFactor32 += (allSolidCount/32);
+
+                        if bone.currentAngles[k] > bone.maxAngles[k] * magicFactor32 {
+                            bone.currentAngles[k] = bone.maxAngles[k] * magicFactor32
+                        }
+                        if bone.currentAngles[k] < bone.minAngles[k] * magicFactor32 {
+                            bone.currentAngles[k] = bone.minAngles[k] * magicFactor32
+                        }
+                    }
+                }
+                k += 1
+            }
+
+            var isSnapped = false
+            k = 0
+            while k < 3 {
+                if bone.currentAngles[k] > bone.maxAngles[k] * magicFactor32 {
+                    isSnapped = true
+                    break
+                }
+                if bone.currentAngles[k] < bone.minAngles[k] * magicFactor32 {
+                    isSnapped = true
+                    break
+                }
+                k += 1
+            }
+
+            if isSnapped != bone.snapped {
+                G2_BoneSnap(ghoul2V, bone, params)
+                bone.snapped = isSnapped
+            }
+
+            Create_Matrix(bone.currentAngles, temp1)
+            Multiply_3x4Matrix(temp2, temp1, bone.baseposeInv!)
+            Multiply_3x4Matrix(bone.ragOverrideMatrix, bone.basepose!, temp2)
+        }
+        G2_Generate_MatrixRag(&ghoul2.mBlist, ragBlistIndex[bone.boneNumber])
+        i += 1
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:4257
@@ -1286,8 +2723,160 @@ private func G2_IKReposition(_ currentOrg: JKAShared.vec3_t, _ params: CRagDollU
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:4297
 private func G2_IKSolve(_ ghoul2V: CGhoul2Info_v, _ g2Index: Int32, _ decay: Float, _ frameNum: Int32, _ currentOrg: JKAShared.vec3_t, _ limitAngles: Bool) {
-    // TODO: Port G2_IKSolve
-    portMissing("G2_IKSolve", source: "oracle/codemp/ghoul2/G2_bones.cpp:4297")
+    var i: Int32 = 0
+
+    let ghoul2 = ghoul2V[g2Index]
+
+    // Raven's `blist` is a reference to `ghoul2.mBlist`.
+    // Raven's eight matrix locals are scratch slots, one closure each, and the closures stay at one indent so the body keeps Raven's shape.
+    MdxaBone.scratch { N in
+    MdxaBone.scratch { P in
+    MdxaBone.scratch { temp1 in
+    MdxaBone.scratch { temp2 in
+    MdxaBone.scratch { curRot in
+    MdxaBone.scratch { curRotInv in
+    MdxaBone.scratch(count: 3) { Gs in
+    MdxaBone.scratch(count: 3) { Enew in
+
+    // END this is the objective function thing
+    i = 0
+    while i < numRags {
+        // these are used for affecting the end result
+        let bone = ragBoneData[i]!
+
+        if (bone.RagFlags & RAG_PCJ_MODEL_ROOT) != 0 {
+            i += 1
+            continue
+        }
+
+        if (bone.RagFlags & RAG_PCJ_IK_CONTROLLED) == 0 {
+            i += 1
+            continue
+        }
+
+        Inverse_Matrix(ragBones[i], N)  // dest 2nd arg
+
+        var k: Int32
+        var tAngles: vec3_t
+        tAngles = bone.currentAngles
+        Create_Matrix(tAngles, curRot)  //dest 2nd arg
+        Inverse_Matrix(curRot, curRotInv)  // dest 2nd arg
+
+        Multiply_3x4Matrix(P, ragBones[i], curRotInv) //dest first arg
+
+
+        var delAngles: vec3_t
+        delAngles = vec3_t()
+
+        k = 0
+        while k < 3 {
+            tAngles[k] += 0.5
+            Create_Matrix(tAngles, temp2)  //dest 2nd arg
+            tAngles[k] -= 0.5
+            Multiply_3x4Matrix(temp1, P, temp2) //dest first arg
+            Multiply_3x4Matrix(Gs[k], temp1, N) //dest first arg
+            k += 1
+        }
+
+        // fixme precompute this
+        let numDep = G2_GetBoneDependents(ghoul2, bone.boneNumber, tempDependents, MAX_BONES_RAG)
+        var j: Int32
+        var numRagDep: Int32 = 0
+        j = 0
+        while j < numDep {
+            //fixme why do this for the special roots?
+            // AI: Raven compares the signed index with the unsigned size, so a negative index is out of range. The test names that case.
+            if !(tempDependents[j] >= 0 && tempDependents[j] < rag.count && rag[tempDependents[j]] != nil) {
+                j += 1
+                continue
+            }
+            let depIndex = rag[tempDependents[j]]!.ragIndex
+            if ragBoneData[depIndex] == nil {
+                j += 1
+                continue
+            }
+            let depBone = ragBoneData[depIndex]!
+            if (depBone.RagFlags & RAG_EFFECTOR) != 0 {
+                // this is a dependent of me, and also a rag
+                numRagDep += 1
+                k = 0
+                while k < 3 {
+                    Multiply_3x4Matrix(Enew[k], Gs[k], ragBones[depIndex]) //dest first arg
+                    var tPosition = vec3_t()
+                    tPosition[0] = Enew[k].matrix[0][3]
+                    tPosition[1] = Enew[k].matrix[1][3]
+                    tPosition[2] = Enew[k].matrix[2][3]
+
+                    var change: vec3_t
+                    change = tPosition - ragEffectors[depIndex].currentOrigin // dest is last arg
+                    var goodness: Float = _DotProduct(change, ragEffectors[depIndex].desiredDirection)
+                    goodness *= depBone.weight
+                    delAngles[k] += goodness // keep bigger stuff more out of wall or something
+                    k += 1
+                }
+            }
+            j += 1
+        }
+
+        bone.lastAngles = bone.currentAngles
+
+        //		Update angles
+        var magicFactor9: Float = 0.75 // dampfactor for angle changes
+        var magicFactor1: Float = bone.ikSpeed //controls the speed of the gradient descent
+        let magicFactor32: Float = 1.0
+        var recip: Float = 0.0
+        var freeThisBone = false
+
+        if magicFactor1 == 0 {
+            magicFactor1 = 0.40
+        }
+
+        recip = sqrt(4.0 / 1.0)
+
+        let fac: Float = (decay * recip * magicFactor1)
+        assert(fac >= 0.0)
+
+        if ragState == ERS_DYNAMIC {
+            magicFactor9 = 0.85 // we don't want this swinging radically, make the whole thing kindof unstable
+        }
+
+
+        if bone.maxAngles[0] == 0 && bone.maxAngles[1] == 0 && bone.maxAngles[2] == 0 &&
+            bone.minAngles[0] == 0 && bone.minAngles[1] == 0 && bone.minAngles[2] == 0 {
+            freeThisBone = true
+        }
+
+        k = 0
+        while k < 3 {
+            bone.currentAngles[k] += delAngles[k] * fac
+
+            bone.currentAngles[k] = (bone.lastAngles[k] - bone.currentAngles[k]) * magicFactor9 + bone.currentAngles[k]
+            bone.currentAngles[k] = AngleNormZero(bone.currentAngles[k])
+            if limitAngles && !freeThisBone {
+                if bone.currentAngles[k] > bone.maxAngles[k] * magicFactor32 {
+                    bone.currentAngles[k] = bone.maxAngles[k] * magicFactor32
+                }
+                if bone.currentAngles[k] < bone.minAngles[k] * magicFactor32 {
+                    bone.currentAngles[k] = bone.minAngles[k] * magicFactor32
+                }
+            }
+            k += 1
+        }
+        Create_Matrix(bone.currentAngles, temp1)
+        Multiply_3x4Matrix(temp2, temp1, bone.baseposeInv!)
+        Multiply_3x4Matrix(bone.ragOverrideMatrix, bone.basepose!, temp2)
+
+        G2_Generate_MatrixRag(&ghoul2.mBlist, ragBlistIndex[bone.boneNumber])
+        i += 1
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:4453
