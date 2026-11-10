@@ -1251,8 +1251,454 @@ ParseStage
 /// Source: oracle/codemp/renderer/tr_shader.cpp:1279
 private func ParseStage(_ stage: ShaderStage, _ text: inout JKAShared.TextCursor) -> Bool {
     // Raven's one call is in ParseShader at tr_shader.cpp:2336, which is dead in the dedicated build, so the function is dead too.
-    // TODO: Port ParseStage
-    portMissing("ParseStage", source: "oracle/codemp/renderer/tr_shader.cpp:1279")
+    var token: String
+    var depthMaskBits: Int32 = GLS_DEPTHMASK_TRUE
+    var blendSrcBits: Int32 = 0
+    var blendDstBits: Int32 = 0
+    var atestBits: Int32 = 0
+    var depthFuncBits: Int32 = 0
+    var depthMaskExplicit = false
+
+    stage.active = true
+
+    while true {
+        token = COM_ParseExt(&text, true)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: no matching '}' found\n")
+            return false
+        }
+
+        if CharBuf(token)[0] == Int32(ascii: "}") {
+            break
+        }
+        //
+        // map <name>
+        //
+        else if Q_stricmp(token, "map") == 0 {
+            token = COM_ParseExt(&text, false)
+            if token.isEmpty {
+                Com_Printf(S_COLOR_YELLOW + "WARNING: missing parameter for 'map' keyword in shader '%s'\n", shader.name)
+                return false
+            }
+
+            if Q_stricmp(token, "$whiteimage") == 0 {
+                stage.bundle[0].image = tr.whiteImage
+                continue
+            } else if Q_stricmp(token, "$lightmap") == 0 {
+                stage.bundle[0].isLightmap = true
+                if shader.lightmapIndex[0] < 0 || shader.lightmapIndex[0] >= tr.numLightmaps {
+                    Com_Printf(S_COLOR_RED + "Lightmap requested but none available for shader %s\n", shader.name)
+                    stage.bundle[0].image = tr.whiteImage
+                } else {
+                    stage.bundle[0].image = tr.lightmaps[shader.lightmapIndex[0]]
+                }
+                continue
+            } else {
+                stage.bundle[0].image = nil
+                return false
+            }
+        }
+        //
+        // clampmap <name>
+        //
+        else if Q_stricmp(token, "clampmap") == 0 {
+            token = COM_ParseExt(&text, false)
+            if token.isEmpty {
+                Com_Printf(S_COLOR_YELLOW + "WARNING: missing parameter for 'clampmap' keyword in shader '%s'\n", shader.name)
+                return false
+            }
+            stage.bundle[0].image = nil
+            return false
+        }
+        //
+        // animMap <frequency> <image1> .... <imageN>
+        //
+        else if Q_stricmp(token, "animMap") == 0 || Q_stricmp(token, "clampanimMap") == 0 || Q_stricmp(token, "oneshotanimMap") == 0 {
+            // AI: Raven declares `image_t *images[MAX_IMAGE_ANIMATIONS]` on the stack. The local is a Swift array of optional views, and the dedicated arm never writes it.
+            let images = [Image?](repeating: nil, count: Int(MAX_IMAGE_ANIMATIONS))
+            let bClamp = Q_stricmp(token, "clampanimMap") == 0
+            let oneShot = Q_stricmp(token, "oneshotanimMap") == 0
+
+            token = COM_ParseExt(&text, false)
+            if token.isEmpty {
+                Com_Printf(S_COLOR_YELLOW + "WARNING: missing parameter for '%s' keyword in shader '%s'\n", bClamp ? "animMap" : "clampanimMap", shader.name)
+                return false
+            }
+            stage.bundle[0].imageAnimationSpeed = Float(atof(token))
+            stage.bundle[0].oneShotAnimMap = oneShot
+
+            // parse up to MAX_IMAGE_ANIMATIONS animations
+            while true {
+                var num: Int32
+
+                token = COM_ParseExt(&text, false)
+                if token.isEmpty {
+                    break
+                }
+                num = stage.bundle[0].numImageAnimations
+                if num < MAX_IMAGE_ANIMATIONS {
+                    stage.bundle[0].image = nil
+                    return false
+                }
+            }
+            // Copy image ptrs into an array of ptrs
+            let block = Hunk_Alloc(stage.bundle[0].numImageAnimations * Int32(OpaquePointer.byteCount), h_low)
+            stage.bundle[0].image = Image(block)
+            // AI: Raven copies the pointers with memcpy. `images` is a Swift array, so a loop copies each pointer into a Slots over the block.
+            let imageSlots = Slots<Image?>(pointers: block, count: Int(stage.bundle[0].numImageAnimations))
+            var i: Int32 = 0
+            while i < stage.bundle[0].numImageAnimations {
+                imageSlots[i] = images[i]
+                i += 1
+            }
+        } else if Q_stricmp(token, "videoMap") == 0 {
+            token = COM_ParseExt(&text, false)
+            if token.isEmpty {
+                Com_Printf(S_COLOR_YELLOW + "WARNING: missing parameter for 'videoMap' keyword in shader '%s'\n", shader.name)
+                return false
+            }
+            stage.bundle[0].videoMapHandle = -1
+            if stage.bundle[0].videoMapHandle != -1 {
+                stage.bundle[0].isVideoMap = true
+                assert(stage.bundle[0].videoMapHandle < NUM_SCRATCH_IMAGES)
+                stage.bundle[0].image = tr.scratchImage[stage.bundle[0].videoMapHandle]
+            }
+        }
+        //
+        // alphafunc <func>
+        //
+        else if Q_stricmp(token, "alphaFunc") == 0 {
+            token = COM_ParseExt(&text, false)
+            if token.isEmpty {
+                Com_Printf(S_COLOR_YELLOW + "WARNING: missing parameter for 'alphaFunc' keyword in shader '%s'\n", shader.name)
+                return false
+            }
+
+            atestBits = NameToAFunc(token)
+        }
+        //
+        // depthFunc <func>
+        //
+        else if Q_stricmp(token, "depthfunc") == 0 {
+            token = COM_ParseExt(&text, false)
+
+            if token.isEmpty {
+                Com_Printf(S_COLOR_YELLOW + "WARNING: missing parameter for 'depthfunc' keyword in shader '%s'\n", shader.name)
+                return false
+            }
+
+            if Q_stricmp(token, "lequal") == 0 {
+                depthFuncBits = 0
+            } else if Q_stricmp(token, "equal") == 0 {
+                depthFuncBits = GLS_DEPTHFUNC_EQUAL
+            } else if Q_stricmp(token, "disable") == 0 {
+                depthFuncBits = GLS_DEPTHTEST_DISABLE
+            } else {
+                Com_Printf(S_COLOR_YELLOW + "WARNING: unknown depthfunc '%s' in shader '%s'\n", token, shader.name)
+                continue
+            }
+        }
+        //
+        // detail
+        //
+        else if Q_stricmp(token, "detail") == 0 {
+            stage.isDetail = true
+        }
+        //
+        // blendfunc <srcFactor> <dstFactor>
+        // or blendfunc <add|filter|blend>
+        //
+        else if Q_stricmp(token, "blendfunc") == 0 {
+            token = COM_ParseExt(&text, false)
+            if token.isEmpty {
+                Com_Printf(S_COLOR_YELLOW + "WARNING: missing parm for blendFunc in shader '%s'\n", shader.name)
+                continue
+            }
+            // check for "simple" blends first
+            if Q_stricmp(token, "add") == 0 {
+                blendSrcBits = GLS_SRCBLEND_ONE
+                blendDstBits = GLS_DSTBLEND_ONE
+            } else if Q_stricmp(token, "filter") == 0 {
+                blendSrcBits = GLS_SRCBLEND_DST_COLOR
+                blendDstBits = GLS_DSTBLEND_ZERO
+            } else if Q_stricmp(token, "blend") == 0 {
+                blendSrcBits = GLS_SRCBLEND_SRC_ALPHA
+                blendDstBits = GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA
+            } else {
+                // complex double blends
+                blendSrcBits = NameToSrcBlendMode(token)
+
+                token = COM_ParseExt(&text, false)
+                if token.isEmpty {
+                    Com_Printf(S_COLOR_YELLOW + "WARNING: missing parm for blendFunc in shader '%s'\n", shader.name)
+                    continue
+                }
+                blendDstBits = NameToDstBlendMode(token)
+            }
+
+            // clear depth mask for blended surfaces
+            if !depthMaskExplicit {
+                depthMaskBits = 0
+            }
+        }
+        //
+        // rgbGen
+        //
+        else if Q_stricmp(token, "rgbGen") == 0 {
+            token = COM_ParseExt(&text, false)
+            if token.isEmpty {
+                Com_Printf(S_COLOR_YELLOW + "WARNING: missing parameters for rgbGen in shader '%s'\n", shader.name)
+                continue
+            }
+
+            if Q_stricmp(token, "wave") == 0 {
+                ParseWaveForm(&text, stage.rgbWave)
+                stage.rgbGen = CGEN_WAVEFORM
+            } else if Q_stricmp(token, "const") == 0 {
+                var color = vec3_t()
+
+                _ = ParseVector(&text, 3, &color)
+                // C converts each float product to the byte at the store.
+                stage.constantColor[0] = UInt8(truncatingIfNeeded: Int32(255 * color[0]))
+                stage.constantColor[1] = UInt8(truncatingIfNeeded: Int32(255 * color[1]))
+                stage.constantColor[2] = UInt8(truncatingIfNeeded: Int32(255 * color[2]))
+
+                stage.rgbGen = CGEN_CONST
+            } else if Q_stricmp(token, "identity") == 0 {
+                stage.rgbGen = CGEN_IDENTITY
+            } else if Q_stricmp(token, "identityLighting") == 0 {
+                stage.rgbGen = CGEN_IDENTITY_LIGHTING
+            } else if Q_stricmp(token, "entity") == 0 {
+                stage.rgbGen = CGEN_ENTITY
+            } else if Q_stricmp(token, "oneMinusEntity") == 0 {
+                stage.rgbGen = CGEN_ONE_MINUS_ENTITY
+            } else if Q_stricmp(token, "vertex") == 0 {
+                stage.rgbGen = CGEN_VERTEX
+                if stage.alphaGen == 0 {
+                    stage.alphaGen = AGEN_VERTEX
+                }
+            } else if Q_stricmp(token, "exactVertex") == 0 {
+                stage.rgbGen = CGEN_EXACT_VERTEX
+            } else if Q_stricmp(token, "lightingDiffuse") == 0 {
+                stage.rgbGen = CGEN_LIGHTING_DIFFUSE
+            } else if Q_stricmp(token, "lightingDiffuseEntity") == 0 {
+                if shader.lightmapIndex[0] != LIGHTMAP_NONE {
+                    Com_Printf(S_COLOR_RED + "ERROR: rgbGen lightingDiffuseEntity used on a misc_model! in shader '%s'\n", shader.name)
+                }
+                stage.rgbGen = CGEN_LIGHTING_DIFFUSE_ENTITY
+            } else if Q_stricmp(token, "oneMinusVertex") == 0 {
+                stage.rgbGen = CGEN_ONE_MINUS_VERTEX
+            } else {
+                Com_Printf(S_COLOR_YELLOW + "WARNING: unknown rgbGen parameter '%s' in shader '%s'\n", token, shader.name)
+                continue
+            }
+        }
+        //
+        // alphaGen
+        //
+        else if Q_stricmp(token, "alphaGen") == 0 {
+            token = COM_ParseExt(&text, false)
+            if token.isEmpty {
+                Com_Printf(S_COLOR_YELLOW + "WARNING: missing parameters for alphaGen in shader '%s'\n", shader.name)
+                continue
+            }
+
+            if Q_stricmp(token, "wave") == 0 {
+                ParseWaveForm(&text, stage.alphaWave)
+                stage.alphaGen = AGEN_WAVEFORM
+            } else if Q_stricmp(token, "const") == 0 {
+                token = COM_ParseExt(&text, false)
+                // C multiplies in `double`, because `atof` returns a double, and converts the product to the byte at the store.
+                stage.constantColor[3] = UInt8(truncatingIfNeeded: Int32(255 * atof(token)))
+                stage.alphaGen = AGEN_CONST
+            } else if Q_stricmp(token, "identity") == 0 {
+                stage.alphaGen = AGEN_IDENTITY
+            } else if Q_stricmp(token, "entity") == 0 {
+                stage.alphaGen = AGEN_ENTITY
+            } else if Q_stricmp(token, "oneMinusEntity") == 0 {
+                stage.alphaGen = AGEN_ONE_MINUS_ENTITY
+            } else if Q_stricmp(token, "vertex") == 0 {
+                stage.alphaGen = AGEN_VERTEX
+            } else if Q_stricmp(token, "lightingSpecular") == 0 {
+                stage.alphaGen = AGEN_LIGHTING_SPECULAR
+            } else if Q_stricmp(token, "oneMinusVertex") == 0 {
+                stage.alphaGen = AGEN_ONE_MINUS_VERTEX
+            } else if Q_stricmp(token, "dot") == 0 {
+                stage.alphaGen = AGEN_DOT
+            } else if Q_stricmp(token, "oneMinusDot") == 0 {
+                stage.alphaGen = AGEN_ONE_MINUS_DOT
+            } else if Q_stricmp(token, "portal") == 0 {
+                stage.alphaGen = AGEN_PORTAL
+                token = COM_ParseExt(&text, false)
+                if token.isEmpty {
+                    shader.portalRange = 256
+                    Com_Printf(S_COLOR_YELLOW + "WARNING: missing range parameter for alphaGen portal in shader '%s', defaulting to 256\n", shader.name)
+                } else {
+                    shader.portalRange = Float(atof(token))
+                }
+            } else {
+                Com_Printf(S_COLOR_YELLOW + "WARNING: unknown alphaGen parameter '%s' in shader '%s'\n", token, shader.name)
+                continue
+            }
+        }
+        //
+        // tcGen <function>
+        //
+        else if Q_stricmp(token, "texgen") == 0 || Q_stricmp(token, "tcGen") == 0 {
+            token = COM_ParseExt(&text, false)
+            if token.isEmpty {
+                Com_Printf(S_COLOR_YELLOW + "WARNING: missing texgen parm in shader '%s'\n", shader.name)
+                continue
+            }
+
+            if Q_stricmp(token, "environment") == 0 {
+                stage.bundle[0].tcGen = TCGEN_ENVIRONMENT_MAPPED
+            } else if Q_stricmp(token, "lightmap") == 0 {
+                stage.bundle[0].tcGen = TCGEN_LIGHTMAP
+            } else if Q_stricmp(token, "texture") == 0 || Q_stricmp(token, "base") == 0 {
+                stage.bundle[0].tcGen = TCGEN_TEXTURE
+            } else if Q_stricmp(token, "vector") == 0 {
+                stage.bundle[0].tcGenVectors = Slots(vectors: Hunk_Alloc(2 * Int32(vec3_t.byteCount), h_low), count: 2)
+                _ = ParseVector(&text, 3, &stage.bundle[0].tcGenVectors![0])
+                _ = ParseVector(&text, 3, &stage.bundle[0].tcGenVectors![1])
+
+                stage.bundle[0].tcGen = TCGEN_VECTOR
+            } else {
+                Com_Printf(S_COLOR_YELLOW + "WARNING: unknown texgen parm in shader '%s'\n", shader.name)
+            }
+        }
+        //
+        // tcMod <type> <...>
+        //
+        else if Q_stricmp(token, "tcMod") == 0 {
+            var buffer = CharBuf(1024)
+
+            while true {
+                token = COM_ParseExt(&text, false)
+                if token.isEmpty {
+                    break
+                }
+                strcat(&buffer, token)
+                strcat(&buffer, " ")
+            }
+
+            ParseTexMod(String(buffer), stage)
+
+            continue
+        }
+        //
+        // depthmask
+        //
+        else if Q_stricmp(token, "depthwrite") == 0 {
+            depthMaskBits = GLS_DEPTHMASK_TRUE
+            depthMaskExplicit = true
+
+            continue
+        }
+        // If this stage has glow...	GLOWXXX
+        else if Q_stricmp(token, "glow") == 0 {
+            stage.glow = true
+
+            continue
+        }
+        //
+        // surfaceSprites <type> ...
+        //
+        else if Q_stricmp(token, "surfaceSprites") == 0 {
+            var buffer = CharBuf(1024)
+
+            while true {
+                token = COM_ParseExt(&text, false)
+                if token.isEmpty {
+                    break
+                }
+                strcat(&buffer, token)
+                strcat(&buffer, " ")
+            }
+
+            ParseSurfaceSprites(String(buffer), stage)
+
+            continue
+        }
+        //
+        // ssFademax <fademax>
+        // ssFadescale <fadescale>
+        // ssVariance <varwidth> <varheight>
+        // ssHangdown
+        // ssAnyangle
+        // ssFaceup
+        // ssWind <wind>
+        // ssWindIdle <windidle>
+        // ssDuration <duration>
+        // ssGrow <growwidth> <growheight>
+        // ssWeather
+        //
+        else if Q_stricmpn(token, "ss", 2) == 0 { // <--- NOTE ONLY COMPARING FIRST TWO LETTERS
+            var buffer = CharBuf(1024)
+            var param = CharBuf(128)
+            strcpy(&param, token)
+
+            while true {
+                token = COM_ParseExt(&text, false)
+                if token.isEmpty {
+                    break
+                }
+                strcat(&buffer, token)
+                strcat(&buffer, " ")
+            }
+
+            ParseSurfaceSpritesOptional(String(param), String(buffer), stage)
+
+            continue
+        } else {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: unknown parameter '%s' in shader '%s'\n", token, shader.name)
+            return false
+        }
+    }
+
+    //
+    // if cgen isn't explicitly specified, use either identity or identitylighting
+    //
+    if stage.rgbGen == CGEN_BAD {
+        if //blendSrcBits == 0 ||
+            blendSrcBits == GLS_SRCBLEND_ONE ||
+            blendSrcBits == GLS_SRCBLEND_SRC_ALPHA
+        {
+            stage.rgbGen = CGEN_IDENTITY_LIGHTING
+        } else {
+            stage.rgbGen = CGEN_IDENTITY
+        }
+    }
+
+    //
+    // implicitly assume that a GL_ONE GL_ZERO blend mask disables blending
+    //
+    if (blendSrcBits == GLS_SRCBLEND_ONE) &&
+        (blendDstBits == GLS_DSTBLEND_ZERO)
+    {
+        blendSrcBits = 0
+        blendDstBits = blendSrcBits
+        depthMaskBits = GLS_DEPTHMASK_TRUE
+    }
+
+    // decide which agens we can skip
+    if stage.alphaGen == AGEN_IDENTITY {
+        if stage.rgbGen == CGEN_IDENTITY ||
+            stage.rgbGen == CGEN_LIGHTING_DIFFUSE
+        {
+            stage.alphaGen = AGEN_SKIP
+        }
+    }
+
+    //
+    // compute state bits
+    //
+    stage.stateBits = UInt32(bitPattern: depthMaskBits |
+        blendSrcBits | blendDstBits |
+        atestBits |
+        depthFuncBits)
+
+    return true
 }
 
 /**
@@ -1569,8 +2015,215 @@ will optimize it.
 /// Source: oracle/codemp/renderer/tr_shader.cpp:2300
 private func ParseShader(_ text: inout JKAShared.TextCursor) -> Bool {
     // R_FindShader calls it only on a text that ScanAndLoadShaderFiles loads under `#ifndef DEDICATED` at tr_shader.cpp:3812, so the function is dead in the dedicated build.
-    // TODO: Port ParseShader
-    portMissing("ParseShader", source: "oracle/codemp/renderer/tr_shader.cpp:2300")
+    var token: String
+    var s: Int32
+
+    s = 0
+
+    token = COM_ParseExt(&text, true)
+    if CharBuf(token)[0] != Int32(ascii: "{") {
+        Com_Printf(S_COLOR_YELLOW + "WARNING: expecting '{', found '%s' instead in shader '%s'\n", token, shader.name)
+        return false
+    }
+
+    while true {
+        token = COM_ParseExt(&text, true)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: no concluding '}' in shader %s\n", shader.name)
+            return false
+        }
+
+        // end of shader definition
+        if CharBuf(token)[0] == Int32(ascii: "}") {
+            break
+        }
+        // stage definition
+        else if CharBuf(token)[0] == Int32(ascii: "{") {
+            if !ParseStage(stages[s], &text) {
+                return false
+            }
+            stages[s].active = true
+            // GLOWXXX
+            if stages[s].glow {
+                shader.hasGlow = true
+            }
+            s += 1
+            continue
+        }
+        // skip stuff that only the QuakeEdRadient needs
+        else if Q_stricmpn(token, "qer", 3) == 0 {
+            SkipRestOfLine(&text)
+            continue
+        }
+        // material deprecated as of 11 Jan 01
+        // material undeprecated as of 7 May 01 - q3map_material deprecated
+        else if Q_stricmp(token, "material") == 0 || Q_stricmp(token, "q3map_material") == 0 {
+            ParseMaterial(&text)
+        }
+        // sun parms
+        else if Q_stricmp(token, "sun") == 0 || Q_stricmp(token, "q3map_sun") == 0 {
+            token = COM_ParseExt(&text, false)
+            tr.sunLight[0] = Float(atof(token))
+            token = COM_ParseExt(&text, false)
+            tr.sunLight[1] = Float(atof(token))
+            token = COM_ParseExt(&text, false)
+            tr.sunLight[2] = Float(atof(token))
+
+            _ = VectorNormalize(&tr.sunLight)
+
+            token = COM_ParseExt(&text, false)
+            var a = Float(atof(token))
+            tr.sunLight = tr.sunLight * a
+
+            token = COM_ParseExt(&text, false)
+            a = Float(atof(token))
+            // JKAShared's M_PI is the float of Raven's macro at q_shared.h:548, and the qualifier breaks the tie with the double of Foundation.
+            a = a / 180 * JKAShared.M_PI
+
+            token = COM_ParseExt(&text, false)
+            var b = Float(atof(token))
+            b = b / 180 * JKAShared.M_PI
+
+            tr.sunDirection[0] = cos(a) * cos(b)
+            tr.sunDirection[1] = sin(a) * cos(b)
+            tr.sunDirection[2] = sin(b)
+        }
+        // q3map_surfacelight deprecated as of 16 Jul 01
+        else if Q_stricmp(token, "surfacelight") == 0 || Q_stricmp(token, "q3map_surfacelight") == 0 {
+            token = COM_ParseExt(&text, false)
+            tr.sunSurfaceLight = atoi(token)
+        } else if Q_stricmp(token, "lightColor") == 0 {
+            /*
+            if ( !ParseVector( text, 3, tr.sunAmbient ) )
+            {
+            	return qfalse;
+            }
+            */
+            //SP skips this so I'm skipping it here too.
+            SkipRestOfLine(&text)
+            continue
+        } else if Q_stricmp(token, "deformvertexes") == 0 || Q_stricmp(token, "deform") == 0 {
+            ParseDeform(&text)
+            continue
+        } else if Q_stricmp(token, "tesssize") == 0 {
+            SkipRestOfLine(&text)
+            continue
+        } else if Q_stricmp(token, "clampTime") == 0 {
+            token = COM_ParseExt(&text, false)
+            if !token.isEmpty {
+                shader.clampTime = Float(atof(token))
+            }
+        }
+        // skip stuff that only the q3map needs
+        else if Q_stricmpn(token, "q3map", 5) == 0 {
+            SkipRestOfLine(&text)
+            continue
+        }
+        // skip stuff that only q3map or the server needs
+        else if Q_stricmp(token, "surfaceParm") == 0 {
+            ParseSurfaceParm(&text)
+            continue
+        }
+        // no mip maps
+        else if Q_stricmp(token, "nomipmaps") == 0 {
+            shader.noMipMaps = true
+            shader.noPicMip = true
+            continue
+        }
+        // no picmip adjustment
+        else if Q_stricmp(token, "nopicmip") == 0 {
+            shader.noPicMip = true
+            continue
+        } else if Q_stricmp(token, "noglfog") == 0 {
+            shader.fogPass = FP_NONE
+            continue
+        }
+        // polygonOffset
+        else if Q_stricmp(token, "polygonOffset") == 0 {
+            shader.polygonOffset = true
+            continue
+        } else if Q_stricmp(token, "noTC") == 0 {
+            shader.noTC = true
+            continue
+        }
+        // entityMergable, allowing sprite surfaces from multiple entities
+        // to be merged into one batch.  This is a savings for smoke
+        // puffs and blood, but can't be used for anything where the
+        // shader calcs (not the surface function) reference the entity color or scroll
+        else if Q_stricmp(token, "entityMergable") == 0 {
+            shader.entityMergable = true
+            continue
+        }
+        // fogParms
+        else if Q_stricmp(token, "fogParms") == 0 {
+            shader.fogParms = FogParms(Hunk_Alloc(Int32(FogParms.byteCount), h_low))
+            if !ParseVector(&text, 3, &shader.fogParms!.color) {
+                return false
+            }
+
+            token = COM_ParseExt(&text, false)
+            if token.isEmpty {
+                Com_Printf(S_COLOR_YELLOW + "WARNING: missing parm for 'fogParms' keyword in shader '%s'\n", shader.name)
+                continue
+            }
+            shader.fogParms!.depthForOpaque = Float(atof(token))
+
+            // skip any old gradient directions
+            SkipRestOfLine(&text)
+            continue
+        }
+        // portal
+        else if Q_stricmp(token, "portal") == 0 {
+            shader.sort = Float(SS_PORTAL)
+            continue
+        }
+        // skyparms <cloudheight> <outerbox> <innerbox>
+        else if Q_stricmp(token, "skyparms") == 0 {
+            ParseSkyParms(&text)
+            continue
+        }
+        // light <value> determines flaring in q3map, not needed here
+        else if Q_stricmp(token, "light") == 0 {
+            token = COM_ParseExt(&text, false)
+            continue
+        }
+        // cull <face>
+        else if Q_stricmp(token, "cull") == 0 {
+            token = COM_ParseExt(&text, false)
+            if token.isEmpty {
+                Com_Printf(S_COLOR_YELLOW + "WARNING: missing cull parms in shader '%s'\n", shader.name)
+                continue
+            }
+
+            if Q_stricmp(token, "none") == 0 || Q_stricmp(token, "twosided") == 0 || Q_stricmp(token, "disable") == 0 {
+                shader.cullType = CT_TWO_SIDED
+            } else if Q_stricmp(token, "back") == 0 || Q_stricmp(token, "backside") == 0 || Q_stricmp(token, "backsided") == 0 {
+                shader.cullType = CT_BACK_SIDED
+            } else {
+                Com_Printf(S_COLOR_YELLOW + "WARNING: invalid cull parm '%s' in shader '%s'\n", token, shader.name)
+            }
+            continue
+        }
+        // sort
+        else if Q_stricmp(token, "sort") == 0 {
+            ParseSort(&text)
+            continue
+        } else {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: unknown general shader parameter '%s' in '%s'\n", token, shader.name)
+            return false
+        }
+    }
+
+    //
+    // ignore shaders that don't have any stages, unless it is a sky or fog
+    //
+    if s == 0 && shader.sky == nil && (shader.contentFlags & CONTENTS_FOG) == 0 {
+        return false
+    }
+
+    shader.explicitlyDefined = true
+
+    return true
 }
 
 /**
