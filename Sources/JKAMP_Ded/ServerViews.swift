@@ -34,3 +34,21 @@ extension Slots where Element: HandleView {
         self.base.initializeMemory(as: UInt8.self, repeating: 0, count: Int(count) * self.stride)
     }
 }
+
+extension Slots where Element == byte {
+    /// Raven's C library `malloc( size )` of a byte block, the heap of `CMiniHeap`.
+    /// The bytes are not zeroed, as `malloc` leaves them, and `free()` frees them.
+    /// Source: oracle/codemp/qcommon/MiniHeap.h:22
+    // AI: Raven allocates the heap with the C library malloc. The Swift allocator gives the bytes in the view target.
+    public static func malloc(_ size: some BinaryInteger) -> Slots<byte> {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: Int(size), alignment: 16)
+        return Slots(scalars: base, count: Int(size))
+    }
+
+    /// Raven's C library `free( mHeap )` of a byte block that `malloc(_:)` gave.
+    /// Source: oracle/codemp/qcommon/MiniHeap.h:35
+    // AI: Raven frees the heap with the C library free. The Swift allocator frees the bytes in the view target.
+    public func free() {
+        self.base.deallocate()
+    }
+}

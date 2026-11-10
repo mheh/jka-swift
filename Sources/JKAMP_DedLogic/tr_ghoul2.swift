@@ -286,7 +286,7 @@ func G2_GetModA(_ ghoul2: CGhoul2Info) -> MdxaHeader? {
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:603
-func G2_GetBoneDependents(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ tempDependents: inout Int32, _ maxDep: Int32) -> Int32 {
+func G2_GetBoneDependents(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ tempDependents: Slots<Int32>, _ maxDep: Int32) -> Int32 {
     // Port-note: Raven casts a record at a byte offset of `boneCache.header`, and the view target has no accessor for a view at a byte offset.
     // TODO: Port G2_GetBoneDependents
     portMissing("G2_GetBoneDependents", source: "oracle/codemp/renderer/tr_ghoul2.cpp:603")
@@ -661,6 +661,10 @@ G2_ConstructGhoulSkeleton - builds a complete skeleton for all ghoul models in a
 ==============
 ```
 */
+/// Source: oracle/codemp/renderer/tr_ghoul2.cpp:3579
+// AI: Raven declares `modelList` on the stack of G2_ConstructGhoulSkeleton. The function uses one zeroed allocation on the storage class.
+var modelList_G2_ConstructGhoulSkeleton: Slots<Int32> { world.storage.modelList_G2_ConstructGhoulSkeleton }
+
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:3570
 func G2_ConstructGhoulSkeleton(_ ghoul2: CGhoul2Info_v, _ frameNum: Int32, _ checkForNewOrigin: Bool, _ scale: JKAShared.vec3_t) {
     // Port-note: The file-scope `identityMatrix` has no storage, and the local `int modelList[256]` has no `Slots<Int32>` storage for G2_Sort_Models.
@@ -669,12 +673,136 @@ func G2_ConstructGhoulSkeleton(_ ghoul2: CGhoul2Info_v, _ frameNum: Int32, _ che
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:4816
-// TODO: Port signature
-// Raven wrote: qboolean R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, qboolean &bAlreadyCached )
-// No table row for `qboolean & bAlreadyCached`.
-func R_LoadMDXM() -> Never {
-    // TODO: Port R_LoadMDXM
-    portMissing("R_LoadMDXM", source: "oracle/codemp/renderer/tr_ghoul2.cpp:4816")
+func R_LoadMDXM(_ mod: Model, _ buffer: Slots<JKAShared.byte>, _ mod_name: String, _ bAlreadyCached: inout Bool) -> Bool {
+    var i: Int32
+    var l: Int32
+    var pinmodel: MdxmHeader
+    var mdxm: MdxmHeader
+    var lod: MdxmLOD
+    var surf: MdxmSurface
+    var version: Int32
+    var size: Int32
+    var surfInfo: MdxmSurfHierarchy
+
+    pinmodel = MdxmHeader(buffer.base)
+    //
+    // read some fields from the binary, but only LittleLong() them when we know this wasn't an already-cached model...
+    //
+    version = pinmodel.version
+    size = pinmodel.ofsEnd
+
+    // Raven's two LittleLong calls under `if (!bAlreadyCached)` have no line, because LittleLong of the WinDed arm is its argument.
+
+    if version != MDXM_VERSION {
+        Com_Printf(S_COLOR_YELLOW + "R_LoadMDXM: %s has wrong version (%i should be %i)\n",
+                   mod_name, version, MDXM_VERSION)
+        return false
+    }
+
+    mod.type = MOD_MDXM
+    mod.dataSize += size
+
+    var bAlreadyFound = false
+    mdxm = MdxmHeader(/*Hunk_Alloc( size );*/ RE_RegisterModels_Malloc(size, buffer, mod_name, &bAlreadyFound, TAG_MODEL_GLM).base)
+    mod.mdxm = mdxm
+
+    assert(bAlreadyCached == bAlreadyFound)
+
+    if !bAlreadyFound {
+        // horrible new hackery, if !bAlreadyFound then we've just done a tag-morph, so we need to set the
+        //	bool reference passed into this function to true, to tell the caller NOT to do an FS_Freefile since
+        //	we've hijacked that memory block...
+        //
+        // Aaaargh. Kill me now...
+        //
+        bAlreadyCached = true
+        assert(mdxm == MdxmHeader(buffer.base))
+        //		memcpy( mdxm, buffer, size );	// and don't do this now, since it's the same thing
+
+        // Raven's seven LL calls have no line, because LittleLong of the WinDed arm is its argument.
+    }
+
+    // first up, go load in the animation file we need that has the skeletal animation info for this model
+    mdxm.animIndex = RE_RegisterModel(va("%s.gla", mdxm.animName))
+
+    if mdxm.animIndex == 0 {
+        Com_Printf(S_COLOR_YELLOW + "R_LoadMDXM: missing animation file %s for mesh %s\n", mdxm.animName, mdxm.name)
+        return false
+    }
+
+    mod.numLods = mdxm.numLODs - 1 //copy this up to the model for ease of use - it wil get inced after this.
+
+    if bAlreadyFound {
+        return true // All done. Stop, go no further, do not LittleLong(), do not pass Go...
+    }
+
+    var isAnOldModelFile = false
+    if mdxm.numBones == 72 && strstr(mdxm.animName, "_humanoid") != nil {
+        isAnOldModelFile = true
+    }
+
+    surfInfo = MdxmSurfHierarchy(mdxm, byteOffset: mdxm.ofsSurfHierarchy)
+    i = 0
+    while i < mdxm.numSurfaces {
+        // Raven's LL calls of the two counts have no line, because LittleLong of the WinDed arm is its argument.
+
+        Q_strlwr(&surfInfo.nameBuffer) //just in case
+        // Port-note: Raven reads before the buffer when the surface name has fewer than four bytes. The cursor reads the empty text there.
+        if strcmp(TextCursor(surfInfo.nameBuffer, at: strlen(surfInfo.name) - 4).text, "_off") == 0 {
+            surfInfo.nameBuffer[strlen(surfInfo.name) - 4] = 0 //remove "_off" from name
+        }
+
+        // Raven's LL call of each child index has no line, because LittleLong of the WinDed arm is its argument.
+        surfInfo.shaderIndex = 0
+        // AI: Raven hands the addresses of the two fields. The call hands their byte distances from the disk image, which the callee stores.
+        RE_RegisterModels_StoreShaderRequest(mod_name, surfInfo.shader(buffer), surfInfo.shaderIndex(buffer))
+
+        // find the next surface
+        surfInfo = MdxmSurfHierarchy(surfInfo, byteOffset: MdxmSurfHierarchy.byteCount(childIndexes: surfInfo.numChildren))
+        i += 1
+    }
+
+    // swap all the LOD's	(we need to do the middle part of this even for intel, because of shader reg and err-check)
+    lod = MdxmLOD(mdxm, byteOffset: mdxm.ofsLODs)
+    l = 0
+    while l < mdxm.numLODs {
+        var triCount: Int32 = 0
+
+        // swap all the surfaces
+        surf = MdxmSurface(lod, byteOffset: Int32(MdxmLOD.byteCount) + (mdxm.numSurfaces * Int32(MdxmLODSurfOffset.byteCount)))
+        i = 0
+        while i < mdxm.numSurfaces {
+            // Raven's LL calls of the counts and offsets have no line, because LittleLong of the WinDed arm is its argument.
+
+            triCount += surf.numTriangles
+
+            if surf.numVerts > SHADER_MAX_VERTEXES {
+                Com_Error(ERR_DROP, "R_LoadMDXM: %s has more than %i verts on a surface (%i)",
+                          mod_name, SHADER_MAX_VERTEXES, surf.numVerts)
+            }
+            if surf.numTriangles * 3 > SHADER_MAX_INDEXES {
+                Com_Error(ERR_DROP, "R_LoadMDXM: %s has more than %i triangles on a surface (%i)",
+                          mod_name, SHADER_MAX_INDEXES / 3, surf.numTriangles)
+            }
+
+            // change to surface identifier
+            surf.ident = SF_MDX
+            // register the shaders
+
+            if isAnOldModelFile {
+                // Port-note: Raven casts `(byte *)surf + surf->ofsBoneReferences` to an `int *`, and the view target has no Slots of words at a byte offset of a record.
+                // Raven wrote: int *boneRef = (int *) ( (byte *)surf + surf->ofsBoneReferences ); for ( j = 0 ; j < surf->numBoneReferences ; j++ ) { assert(boneRef[j] >= 0 && boneRef[j] < 72); if (boneRef[j] >= 0 && boneRef[j] < 72) { boneRef[j]=OldToNewRemapTable[boneRef[j]]; } else { boneRef[j]=0; } }
+                portMissing("R_LoadMDXM", source: "oracle/codemp/renderer/tr_ghoul2.cpp:5026")
+            }
+            // find the next surface
+            surf = MdxmSurface(surf, byteOffset: surf.ofsEnd)
+            i += 1
+        }
+        // find the next LOD
+        lod = MdxmLOD(lod, byteOffset: lod.ofsEnd)
+        l += 1
+    }
+    return true
 }
 
 /**
@@ -685,10 +813,59 @@ R_LoadMDXA - load a Ghoul 2 animation file
 ```
 */
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:5256
-// TODO: Port signature
-// Raven wrote: qboolean R_LoadMDXA( model_t *mod, void *buffer, const char *mod_name, qboolean &bAlreadyCached )
-// No table row for `qboolean & bAlreadyCached`.
-func R_LoadMDXA() -> Never {
-    // TODO: Port R_LoadMDXA
-    portMissing("R_LoadMDXA", source: "oracle/codemp/renderer/tr_ghoul2.cpp:5256")
+func R_LoadMDXA(_ mod: Model, _ buffer: Slots<JKAShared.byte>, _ mod_name: String, _ bAlreadyCached: inout Bool) -> Bool {
+    var pinmodel: MdxaHeader
+    var mdxa: MdxaHeader
+    var version: Int32
+    var size: Int32
+
+    pinmodel = MdxaHeader(buffer.base)
+    //
+    // read some fields from the binary, but only LittleLong() them when we know this wasn't an already-cached model...
+    //
+    version = pinmodel.version
+    size = pinmodel.ofsEnd
+
+    // Raven's two LittleLong calls under `if (!bAlreadyCached)` have no line, because LittleLong of the WinDed arm is its argument.
+
+    if version != MDXA_VERSION {
+        Com_Printf(S_COLOR_YELLOW + "R_LoadMDXA: %s has wrong version (%i should be %i)\n",
+                   mod_name, version, MDXA_VERSION)
+        return false
+    }
+
+    mod.type = MOD_MDXA
+    mod.dataSize += size
+
+    var bAlreadyFound = false
+
+    mdxa = MdxaHeader(/*Hunk_Alloc( size );*/ RE_RegisterModels_Malloc(size, buffer, mod_name, &bAlreadyFound, TAG_MODEL_GLA).base)
+    mod.mdxa = mdxa
+
+    assert(bAlreadyCached == bAlreadyFound) // I should probably eliminate 'bAlreadyFound', but wtf?
+
+    if !bAlreadyFound {
+        // horrible new hackery, if !bAlreadyFound then we've just done a tag-morph, so we need to set the
+        //	bool reference passed into this function to true, to tell the caller NOT to do an FS_Freefile since
+        //	we've hijacked that memory block...
+        //
+        // Aaaargh. Kill me now...
+        //
+        bAlreadyCached = true
+        assert(mdxa == MdxaHeader(buffer.base))
+        //		memcpy( mdxa, buffer, size );	// and don't do this now, since it's the same thing
+
+        // Raven's six LL calls have no line, because LittleLong of the WinDed arm is its argument.
+    }
+
+    if mdxa.numFrames < 1 {
+        Com_Printf(S_COLOR_YELLOW + "R_LoadMDXA: %s has no frames\n", mod_name)
+        return false
+    }
+
+    if bAlreadyFound {
+        return true // All done, stop here, do not LittleLong() etc. Do not pass go...
+    }
+
+    return true
 }

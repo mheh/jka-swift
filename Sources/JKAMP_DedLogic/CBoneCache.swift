@@ -118,7 +118,6 @@ final class CBoneCache {
 //rww - RAGDOLL_BEGIN
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:267
     private func SmoothLow(_ index: Int32) {
-        // Port-note: Raven casts a record at a byte offset of `header`, and the view target has no accessor for a view at a byte offset.
         // TODO: Port CBoneCache::SmoothLow
         portMissing("CBoneCache::SmoothLow", source: "oracle/codemp/renderer/tr_ghoul2.cpp:267")
     }
@@ -126,7 +125,6 @@ final class CBoneCache {
 
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:390
     init(_ amod: Model?, _ aheader: MdxaHeader?) {
-        // Port-note: Raven casts a record at a byte offset of `header`, and the view target has no accessor for a view at a byte offset.
         // TODO: Port CBoneCache::CBoneCache
         portMissing("CBoneCache::CBoneCache", source: "oracle/codemp/renderer/tr_ghoul2.cpp:390")
     }

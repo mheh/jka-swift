@@ -84,14 +84,16 @@ public func withVectorWords<Result>(_ vectors: JKAShared.vec3_t..., body: ([Int]
 /// Raven's `SV_GameSystemCalls`, which the shell installs at its entry, for the thunk that VM_Create stores in `systemCall`.
 /// Source: oracle/codemp/server/sv_game.cpp:458
 // AI: Raven passes the C function SV_GameSystemCalls to VM_Create. The view target cannot see the logic target, so the shell installs a closure over it, the form of `LoadLibrary`.
-public nonisolated(unsafe) var GameSystemCalls: ((Slots<Int32>) -> Int32)? = nil
+// AI: Raven's function returns an `int`. The closure returns the pointer-wide word, the form of VM_Call, so the address of TRAP_STRNCPY stays whole.
+public nonisolated(unsafe) var GameSystemCalls: ((Slots<Int32>) -> Int)? = nil
 
 /// The C function over `GameSystemCalls`, the `int (*systemCalls)( int * )` that SV_InitGameProgs hands to VM_Create.
 /// It reads the 16 pointer-wide words that VM_DllSyscall of jka_host.c gathers from the module.
 /// Source: oracle/codemp/server/sv_game.cpp:1750
 // AI: Raven's SV_GameSystemCalls is a C function over `int` words. The thunk gives the words to the Swift body as `Slots(syscallWords:)`.
+// AI: The C field `systemCall` of vm_t returns an `int`, so the thunk gives the low half. The shell hands VM_DllSyscall the whole word.
 public func SV_GameSystemCallThunk(_ parms: OpaquePointer?) -> Int32 {
-    GameSystemCalls!(Slots(syscallWords: UnsafeMutableRawPointer(parms!), count: 16))
+    Int32(truncatingIfNeeded: GameSystemCalls!(Slots(syscallWords: UnsafeMutableRawPointer(parms!), count: 16)))
 }
 
 extension VmHeader {

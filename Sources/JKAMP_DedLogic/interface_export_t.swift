@@ -10,7 +10,8 @@ import JKAMP_Ded
 // C never reads the table, so it is a final class of stored Swift functions, the form of `captureFunc` and `rd_flush`, and nil is Raven's NULL.
 final class interface_export_t {
     //General
-    var I_LoadFile: ((String, inout OpaquePointer?) -> Int32)? = nil
+    // AI: Raven's `void **buf` holds a `char *` cursor into the script. The parameter is the inout TextCursor of Q3_ReadScript.
+    var I_LoadFile: ((String, inout JKAShared.TextCursor) -> Int32)? = nil
     var I_CenterPrint: ((String, any JKAShared.FormatArg...) -> Void)? = nil
     var I_DPrintf: ((Int32, String, any JKAShared.FormatArg...) -> Void)? = nil
     var I_GetEntityByName: ((String) -> JKAMP.SharedEntity?)? = nil		//Polls the engine for the sequencer of the entity matching the name passed

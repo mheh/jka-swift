@@ -83,10 +83,7 @@ var ragBoneData: [boneInfo_t?] {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1219
-var tempDependents: [Int32] {
-    get { world.variables.tempDependents }
-    set { world.variables.tempDependents = newValue }
-}
+var tempDependents: Slots<Int32> { world.storage.tempDependents }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1220
 var ragBlistIndex: [Int32] {
@@ -170,7 +167,6 @@ let MAX_GRAVITY_PULL = 256 as Int32
 // gla file, not the glm file type.
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:40
 func G2_Find_Bone(_ mod: Model, _ blist: inout [boneInfo_t], _ boneName: String) -> Int32 {
-    // Port-note: Raven casts a record at a byte offset of the mdxa header, and the view target has no accessor for a view at a byte offset.
     // TODO: Port G2_Find_Bone
     portMissing("G2_Find_Bone", source: "oracle/codemp/ghoul2/G2_bones.cpp:40")
 }
@@ -178,7 +174,6 @@ func G2_Find_Bone(_ mod: Model, _ blist: inout [boneInfo_t], _ boneName: String)
 // we need to add a bone to the list - find a free one and see if we can find a corresponding bone in the gla file
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:72
 func G2_Add_Bone(_ mod: Model, _ blist: inout [boneInfo_t], _ boneName: String) -> Int32 {
-    // Port-note: Raven casts a record at a byte offset of the mdxa header, and the view target has no accessor for a view at a byte offset.
     // TODO: Port G2_Add_Bone
     portMissing("G2_Add_Bone", source: "oracle/codemp/ghoul2/G2_bones.cpp:72")
 }
@@ -258,8 +253,7 @@ func G2_Stop_Bone_Index(_ blist: inout [boneInfo_t], _ index: Int32, _ flags: In
 
 // generate a matrix for a given bone given some new angles for it.
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:228
-func G2_Generate_Matrix(_ mod: Model?, _ blist: inout [boneInfo_t], _ index: Int32, _ angles: JKAShared.vec4_t?, _ flags: Int32, _ up: JKAMP.Eorientations, _ left: JKAMP.Eorientations, _ forward: JKAMP.Eorientations) {
-    // Port-note: Raven casts a record at a byte offset of the mdxa header, and the view target has no accessor for a view at a byte offset.
+func G2_Generate_Matrix(_ mod: Model?, _ blist: inout [boneInfo_t], _ index: Int32, _ angles: JKAShared.vec3_t, _ flags: Int32, _ up: JKAMP.Eorientations, _ left: JKAMP.Eorientations, _ forward: JKAMP.Eorientations) {
     // TODO: Port G2_Generate_Matrix
     portMissing("G2_Generate_Matrix", source: "oracle/codemp/ghoul2/G2_bones.cpp:228")
 }
@@ -276,8 +270,9 @@ func G2_Remove_Bone(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ bone
 
 // Given a model handle, and a bone name, we want to set angles specifically for overriding
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:435
-func G2_Set_Bone_Angles_Index(_ blist: inout [boneInfo_t], _ index: Int32, _ angles: JKAShared.vec4_t?, _ flags: Int32, _ yaw: JKAMP.Eorientations, _ pitch: JKAMP.Eorientations, _ roll: JKAMP.Eorientations, _ modelList: Slots<qhandle_t>?, _ modelIndex: Int32, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
-    if (index >= blist.count) || (blist[index].boneNumber == -1) {
+func G2_Set_Bone_Angles_Index(_ blist: inout [boneInfo_t], _ index: Int32, _ angles: JKAShared.vec3_t, _ flags: Int32, _ yaw: JKAMP.Eorientations, _ pitch: JKAMP.Eorientations, _ roll: JKAMP.Eorientations, _ modelList: Slots<qhandle_t>?, _ modelIndex: Int32, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
+    // AI: Raven compares the signed index with the unsigned size, so a negative index is out of range. The test names that case.
+    if (index < 0 || index >= blist.count) || (blist[index].boneNumber == -1) {
         // we are attempting to set a bone override that doesn't exist
         return false
     }
@@ -306,7 +301,7 @@ func G2_Set_Bone_Angles_Index(_ blist: inout [boneInfo_t], _ index: Int32, _ ang
 
 // Given a model handle, and a bone name, we want to set angles specifically for overriding
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:477
-func G2_Set_Bone_Angles(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ boneName: String, _ angles: JKAShared.vec4_t?, _ flags: Int32, _ up: JKAMP.Eorientations, _ left: JKAMP.Eorientations, _ forward: JKAMP.Eorientations, _ modelList: Slots<qhandle_t>?, _ modelIndex: Int32, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
+func G2_Set_Bone_Angles(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ boneName: String, _ angles: JKAShared.vec3_t, _ flags: Int32, _ up: JKAMP.Eorientations, _ left: JKAMP.Eorientations, _ forward: JKAMP.Eorientations, _ modelList: Slots<qhandle_t>?, _ modelIndex: Int32, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
     let mod_m: Model?
     let mod_a: Model?
 
@@ -356,7 +351,8 @@ func G2_Set_Bone_Angles(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:536
 func G2_Set_Bone_Angles_Matrix_Index(_ blist: inout [boneInfo_t], _ index: Int32, _ matrix: JKAMP.MdxaBone, _ flags: Int32, _ modelList: Slots<qhandle_t>?, _ modelIndex: Int32, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
 
-    if (index >= blist.count) || (blist[index].boneNumber == -1) {
+    // AI: Raven compares the signed index with the unsigned size, so a negative index is out of range. The test names that case.
+    if (index < 0 || index >= blist.count) || (blist[index].boneNumber == -1) {
         // we are attempting to set a bone override that doesn't exist
         return false
     }
@@ -429,7 +425,8 @@ func G2_Set_Bone_Angles_Matrix(_ fileName: String, _ blist: inout [boneInfo_t], 
 func G2_Set_Bone_Anim_Index(_ blist: inout [boneInfo_t], _ index: Int32, _ startFrame: Int32, _ endFrame: Int32, _ flags: Int32, _ animSpeed: Float, _ currentTime: Int32, _ setFrame: Float, _ blendTime: Int32, _ numFrames: Int32) -> Bool {
     var modFlags: Int32 = flags
 
-    if (index >= blist.count) || (blist[index].boneNumber == -1) {
+    // AI: Raven compares the signed index with the unsigned size, so a negative index is out of range. The test names that case.
+    if (index < 0 || index >= blist.count) || (blist[index].boneNumber == -1) {
         // we are attempting to set a bone override that doesn't exist
         return false
     }
@@ -524,7 +521,9 @@ func G2_Set_Bone_Anim_Index(_ blist: inout [boneInfo_t], _ index: Int32, _ start
     blist[index].pauseTime = 0
     // start up the animation:)
     if setFrame != -1 {
-        blist[index].startTime = Int32(Double(currentTime) - ((Double(setFrame - Float(startFrame)) * 50.0) / Double(animSpeed)))
+        // Port-note: With an animation speed of 0, Raven converts an infinite or NaN start time to `int`, which C leaves undefined.
+        // The body saturates the value and reads a NaN as 0, the conversion of truncateToInt in q_math.swift.
+        blist[index].startTime = truncateToInt(Double(currentTime) - ((Double(setFrame - Float(startFrame)) * 50.0) / Double(animSpeed)))
         blist[index].lastTime = blist[index].startTime
     } else {
         blist[index].startTime = currentTime
@@ -669,7 +668,8 @@ func G2_IsPaused(_ fileName: String, _ blist: inout [boneInfo_t], _ boneName: St
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:993
 func G2_Stop_Bone_Anim_Index(_ blist: inout [boneInfo_t], _ index: Int32) -> Bool {
 
-    if (index >= blist.count) || (blist[index].boneNumber == -1) {
+    // AI: Raven compares the signed index with the unsigned size, so a negative index is out of range. The test names that case.
+    if (index < 0 || index >= blist.count) || (blist[index].boneNumber == -1) {
         // we are attempting to set a bone override that doesn't exist
         return false
     }
@@ -700,7 +700,8 @@ func G2_Stop_Bone_Anim(_ fileName: String, _ blist: inout [boneInfo_t], _ boneNa
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1028
 func G2_Stop_Bone_Angles_Index(_ blist: inout [boneInfo_t], _ index: Int32) -> Bool {
 
-    if (index >= blist.count) || (blist[index].boneNumber == -1) {
+    // AI: Raven compares the signed index with the unsigned size, so a negative index is out of range. The test names that case.
+    if (index < 0 || index >= blist.count) || (blist[index].boneNumber == -1) {
         // we are attempting to set a bone override that doesn't exist
         return false
     }
@@ -748,7 +749,6 @@ private func G2_Generate_MatrixRag(_ blist: inout [boneInfo_t], _ index: Int32) 
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1267
 func G2_Find_Bone_Rag(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ boneName: String) -> Int32 {
-    // Port-note: Raven casts a record at a byte offset of the mdxa header, and the view target has no accessor for a view at a byte offset.
     // TODO: Port G2_Find_Bone_Rag
     portMissing("G2_Find_Bone_Rag", source: "oracle/codemp/ghoul2/G2_bones.cpp:1267")
 }
@@ -761,10 +761,102 @@ private func G2_Set_Bone_Rag(_ mod_a: MdxaHeader, _ blist: inout [boneInfo_t], _
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1349
-private func G2_Set_Bone_Angles_Rag(_ ghoul2: CGhoul2Info, _ mod_a: MdxaHeader, _ blist: inout [boneInfo_t], _ boneName: String, _ flags: Int32, _ radius: Float, _ angleMin: JKAShared.vec3_t, _ angleMax: JKAShared.vec3_t, _ blendTime: Int32 = 500) -> Int32 {
-    // Port-note: The static local `id` has no storage, and angleMin and angleMax take no NULL for Raven's `angleMin&&angleMax` test.
-    // TODO: Port G2_Set_Bone_Angles_Rag
-    portMissing("G2_Set_Bone_Angles_Rag", source: "oracle/codemp/ghoul2/G2_bones.cpp:1349")
+private func G2_Set_Bone_Angles_Rag(_ ghoul2: CGhoul2Info, _ mod_a: MdxaHeader, _ blist: inout [boneInfo_t], _ boneName: String, _ flags: Int32, _ radius: Float, _ angleMin: JKAShared.vec3_t? = nil, _ angleMax: JKAShared.vec3_t? = nil, _ blendTime: Int32 = 500) -> Int32 {
+    var index: Int32 = G2_Find_Bone_Rag(ghoul2, &blist, boneName)
+
+    if index == -1 {
+        index = G2_Add_Bone(ghoul2.animModel!, &blist, boneName)
+    }
+    if index != -1 {
+        let bone = blist[index]
+        bone.flags &= ~(BONE_ANGLES_TOTAL)
+        bone.flags |= BONE_ANGLES_RAGDOLL
+        if (flags & RAG_PCJ) != 0 {
+            if (flags & RAG_PCJ_POST_MULT) != 0 {
+                bone.flags |= BONE_ANGLES_POSTMULT
+            } else if (flags & RAG_PCJ_MODEL_ROOT) != 0 {
+                bone.flags |= BONE_ANGLES_PREMULT
+//				bone.flags |= BONE_ANGLES_POSTMULT;
+            } else {
+                assert(false, "Invalid RAG PCJ\n")
+            }
+        }
+        bone.ragStartTime = G2API_GetTime(0)
+        bone.boneBlendStart = bone.ragStartTime
+        bone.boneBlendTime = blendTime
+        bone.radius = radius
+        bone.weight = 1.0
+
+        //init the others to valid values
+        bone.epGravFactor = 0
+        bone.epVelocity = vec3_t()
+        bone.solidCount = 0
+        bone.physicsSettled = false
+        bone.snapped = false
+
+        bone.parentBoneIndex = -1
+
+        bone.offsetRotation = 0.0
+
+        bone.overGradSpeed = 0.0
+        bone.overGoalSpot = vec3_t()
+        bone.hasOverGoal = false
+        bone.hasAnimFrameMatrix = -1
+
+//		bone.weight=pow(radius,1.7f); //cubed was too harsh
+//		bone.weight=radius*radius*radius;
+        if angleMin != nil && angleMax != nil {
+            bone.minAngles = angleMin!
+            bone.maxAngles = angleMax!
+        } else {
+            bone.minAngles = bone.currentAngles // I guess this isn't a rag pcj then
+            bone.maxAngles = bone.currentAngles
+        }
+        if bone.lastTimeUpdated == 0 {
+            bone.ragOverrideMatrix.copy(from: id_G2_Set_Bone_Angles_Rag)
+            bone.anglesOffset = vec3_t()
+            bone.positionOffset = vec3_t()
+            bone.velocityEffector = vec3_t()  // this is actually a velocity now
+            bone.velocityRoot = vec3_t()  // this is actually a velocity now
+            bone.lastPosition = vec3_t()
+            bone.lastShotDir = vec3_t()
+            bone.lastContents = 0
+            // if this is non-zero, we are in a dynamic state
+            bone.firstCollisionTime = bone.ragStartTime
+            // if this is non-zero, we are in a settling state
+            bone.restTime = 0
+            // if they are both zero, we are in a settled state
+
+            bone.firstTime = 0
+
+            bone.RagFlags = flags
+            bone.DependentRagIndexMask = 0
+
+            G2_Generate_MatrixRag(&blist, index) // set everything to th id
+
+            if (flags & RAG_PCJ_MODEL_ROOT) != 0 ||
+                (flags & RAG_PCJ_PELVIS) != 0 ||
+                (flags & RAG_PCJ) == 0 {
+                bone.currentAngles = vec3_t()
+            } else {
+                var k: Int32 = 0
+                while k < 3 {
+                    var scalar = flrand(-1.0, 1.0)
+                    scalar *= flrand(-1.0, 1.0) * flrand(-1.0, 1.0)
+                    // this is a heavily central distribution
+                    // center it on .5 (and make it small)
+                    scalar *= 0.5
+                    scalar += 0.5
+
+                    bone.currentAngles[k] = (bone.minAngles[k] - bone.maxAngles[k]) * scalar + bone.maxAngles[k]
+                    k += 1
+                }
+            }
+//			VectorClear(bone.currentAngles);
+            bone.lastAngles = bone.currentAngles
+        }
+    }
+    return index
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1491
@@ -877,7 +969,6 @@ func G2_ResetRagDoll(_ ghoul2V: CGhoul2Info_v) {
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1622
 func G2_SetRagDoll(_ ghoul2V: CGhoul2Info_v, _ parms: CRagDollParams?) {
-    // Port-note: Raven calls G2_Set_Bone_Angles_Rag with no angleMin and angleMax, and its Swift signature takes no NULL for them.
     // TODO: Port G2_SetRagDoll
     portMissing("G2_SetRagDoll", source: "oracle/codemp/ghoul2/G2_bones.cpp:1622")
 }
@@ -1127,7 +1218,6 @@ private func G2_RagGetPelvisLumbarOffsets(_ ghoul2: CGhoul2Info, _ params: CRagD
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:3449
 private func G2_RagDollSettlePositionNumeroTrois(_ ghoul2V: CGhoul2Info_v, _ currentOrg: JKAShared.vec3_t, _ params: CRagDollUpdateParams?, _ curTime: Int32) -> Bool {
-    // Port-note: Raven casts a record at a byte offset of the mdxa header, and the view target has no accessor for a view at a byte offset.
     // TODO: Port G2_RagDollSettlePositionNumeroTrois
     portMissing("G2_RagDollSettlePositionNumeroTrois", source: "oracle/codemp/ghoul2/G2_bones.cpp:3449")
 }
@@ -1150,7 +1240,7 @@ private func G2_BoneSnap(_ ghoul2V: CGhoul2Info_v, _ bone: boneInfo_t, _ params:
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:3970
 private func G2_RagDollSolve(_ ghoul2V: CGhoul2Info_v, _ g2Index: Int32, _ decay: Float, _ frameNum: Int32, _ currentOrg: JKAShared.vec3_t, _ limitAngles: Bool, _ params: CRagDollUpdateParams? = nil) {
-    // Port-note: G2_GetBoneDependents takes tempDependents as one inout Int32, and Raven fills the table through the pointer.
+    // Port-note: G2_GetBoneDependents of tr_ghoul2.swift still takes one inout Int32, where the PARAMS row gives the Slots of Int32 that Raven fills.
     // TODO: Port G2_RagDollSolve
     portMissing("G2_RagDollSolve", source: "oracle/codemp/ghoul2/G2_bones.cpp:3970")
 }
@@ -1197,7 +1287,7 @@ private func G2_IKReposition(_ currentOrg: JKAShared.vec3_t, _ params: CRagDollU
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:4297
 private func G2_IKSolve(_ ghoul2V: CGhoul2Info_v, _ g2Index: Int32, _ decay: Float, _ frameNum: Int32, _ currentOrg: JKAShared.vec3_t, _ limitAngles: Bool) {
-    // Port-note: G2_GetBoneDependents takes tempDependents as one inout Int32, and Raven fills the table through the pointer.
+    // Port-note: G2_GetBoneDependents of tr_ghoul2.swift still takes one inout Int32, where the PARAMS row gives the Slots of Int32 that Raven fills.
     // TODO: Port G2_IKSolve
     portMissing("G2_IKSolve", source: "oracle/codemp/ghoul2/G2_bones.cpp:4297")
 }
@@ -1272,37 +1362,228 @@ func G2_Animate_Bone_List(_ ghoul2: CGhoul2Info_v, _ currentTime: Int32, _ index
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:4536
-private func G2_Set_Bone_Angles_IK(_ ghoul2: CGhoul2Info, _ mod_a: MdxaHeader, _ blist: inout [boneInfo_t], _ boneName: String, _ flags: Int32, _ radius: Float, _ angleMin: JKAShared.vec3_t, _ angleMax: JKAShared.vec3_t, _ blendTime: Int32 = 500) -> Int32 {
-    // Port-note: The static local `id` has no storage, and angleMin and angleMax take no NULL for Raven's `angleMin&&angleMax` test.
-    // TODO: Port G2_Set_Bone_Angles_IK
-    portMissing("G2_Set_Bone_Angles_IK", source: "oracle/codemp/ghoul2/G2_bones.cpp:4536")
+private func G2_Set_Bone_Angles_IK(_ ghoul2: CGhoul2Info, _ mod_a: MdxaHeader?, _ blist: inout [boneInfo_t], _ boneName: String, _ flags: Int32, _ radius: Float, _ angleMin: JKAShared.vec3_t? = nil, _ angleMax: JKAShared.vec3_t? = nil, _ blendTime: Int32 = 500) -> Int32 {
+    var index: Int32 = G2_Find_Bone_Rag(ghoul2, &blist, boneName)
+
+    if index == -1 {
+        index = G2_Add_Bone(ghoul2.animModel!, &blist, boneName)
+    }
+    if index != -1 {
+        let bone = blist[index]
+        bone.flags |= BONE_ANGLES_IK
+        bone.flags &= ~BONE_ANGLES_RAGDOLL
+
+        bone.ragStartTime = G2API_GetTime(0)
+        bone.radius = radius
+        bone.weight = 1.0
+
+        if angleMin != nil && angleMax != nil {
+            bone.minAngles = angleMin!
+            bone.maxAngles = angleMax!
+        } else {
+            bone.minAngles = bone.currentAngles // I guess this isn't a rag pcj then
+            bone.maxAngles = bone.currentAngles
+        }
+        if bone.lastTimeUpdated == 0 {
+            bone.ragOverrideMatrix.copy(from: id_G2_Set_Bone_Angles_IK)
+            bone.anglesOffset = vec3_t()
+            bone.positionOffset = vec3_t()
+            bone.velocityEffector = vec3_t()  // this is actually a velocity now
+            bone.velocityRoot = vec3_t()  // this is actually a velocity now
+            bone.lastPosition = vec3_t()
+            bone.lastShotDir = vec3_t()
+            bone.lastContents = 0
+            // if this is non-zero, we are in a dynamic state
+            bone.firstCollisionTime = bone.ragStartTime
+            // if this is non-zero, we are in a settling state
+            bone.restTime = 0
+            // if they are both zero, we are in a settled state
+
+            bone.firstTime = 0
+
+            bone.RagFlags = flags
+            bone.DependentRagIndexMask = 0
+
+            G2_Generate_MatrixRag(&blist, index) // set everything to th id
+
+            bone.currentAngles = vec3_t()
+            bone.lastAngles = bone.currentAngles
+        }
+    }
+    return index
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:4609
-// TODO: Port signature
-// Raven wrote: void G2_InitIK(CGhoul2Info_v &ghoul2V, sharedRagDollUpdateParams_t *parms, int time, const mdxaHeader_t *mod_a, int model)
-// No table row for `sharedRagDollUpdateParams_t * parms`.
-func G2_InitIK() -> Never {
-    // TODO: Port G2_InitIK
-    portMissing("G2_InitIK", source: "oracle/codemp/ghoul2/G2_bones.cpp:4609")
+func G2_InitIK(_ ghoul2V: CGhoul2Info_v, _ parms: SharedRagDollUpdateParams, _ time: Int32, _ mod_a: MdxaHeader?, _ model: Int32) {
+    let ghoul2 = ghoul2V[model]
+    let curTime = time
+    // Raven's `blist` is a reference to `ghoul2.mBlist`.
+
+    G2_GenerateWorldMatrix(parms.angles, parms.position)
+    G2_ConstructGhoulSkeleton(ghoul2V, curTime, false, parms.scale)
+
+    // new base anim, unconscious flop
+    var pcjFlags: Int32
+    //Only need the standard effectors for this.
+    pcjFlags = RAG_PCJ | RAG_PCJ_POST_MULT | RAG_EFFECTOR
+
+    G2_Set_Bone_Angles_IK(ghoul2, mod_a, &ghoul2.mBlist, "rhand", pcjFlags, 6.0)
+    G2_Set_Bone_Angles_IK(ghoul2, mod_a, &ghoul2.mBlist, "lhand", pcjFlags, 6.0)
+//	G2_Set_Bone_Angles_IK(ghoul2, mod_a,blist,"rtarsal",pcjFlags,4.0f);
+//	G2_Set_Bone_Angles_IK(ghoul2, mod_a,blist,"ltarsal",pcjFlags,4.0f);
+    G2_Set_Bone_Angles_IK(ghoul2, mod_a, &ghoul2.mBlist, "rtibia", pcjFlags, 4.0)
+    G2_Set_Bone_Angles_IK(ghoul2, mod_a, &ghoul2.mBlist, "ltibia", pcjFlags, 4.0)
+    G2_Set_Bone_Angles_IK(ghoul2, mod_a, &ghoul2.mBlist, "rtalus", pcjFlags, 4.0)
+    G2_Set_Bone_Angles_IK(ghoul2, mod_a, &ghoul2.mBlist, "ltalus", pcjFlags, 4.0)
+    G2_Set_Bone_Angles_IK(ghoul2, mod_a, &ghoul2.mBlist, "rradiusX", pcjFlags, 6.0)
+    G2_Set_Bone_Angles_IK(ghoul2, mod_a, &ghoul2.mBlist, "lradiusX", pcjFlags, 6.0)
+    G2_Set_Bone_Angles_IK(ghoul2, mod_a, &ghoul2.mBlist, "rfemurX", pcjFlags, 10.0)
+    G2_Set_Bone_Angles_IK(ghoul2, mod_a, &ghoul2.mBlist, "lfemurX", pcjFlags, 10.0)
+    G2_Set_Bone_Angles_IK(ghoul2, mod_a, &ghoul2.mBlist, "ceyebrow", pcjFlags, 10.0)
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:4663
-// TODO: Port signature
-// Raven wrote: qboolean G2_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params)
-// No table row for `sharedSetBoneIKStateParams_t * params`.
-func G2_SetBoneIKState() -> Never {
-    // TODO: Port G2_SetBoneIKState
-    portMissing("G2_SetBoneIKState", source: "oracle/codemp/ghoul2/G2_bones.cpp:4663")
+func G2_SetBoneIKState(_ ghoul2: CGhoul2Info_v, _ time: Int32, _ boneName: String?, _ ikState: Int32, _ params: SharedSetBoneIKStateParams?) -> Bool {
+    let mod_a: Model?
+    let g2index: Int32 = 0
+    let curTime = time
+    let g2 = ghoul2[g2index]
+    let rmod_a = G2_GetModA(g2)
+
+    // Raven's `blist` is a reference to `g2.mBlist`.
+    mod_a = g2.animModel
+
+    if boneName == nil { //null bonename param means it's time to init the ik stuff on this instance
+        if ikState == IKS_NONE { //this means we want to reset the IK state completely.. run through the bone list, and reset all the appropriate flags
+            var i: Int32 = 0
+            while i < g2.mBlist.count { //we can't use this method for ragdoll. However, since we expect them to set their anims/angles again on the PCJ
+              //limb after they reset it gameside, it's reasonable for IK bones.
+                let bone = g2.mBlist[i]
+                if bone.boneNumber != -1 {
+                    bone.flags &= ~BONE_ANGLES_RAGDOLL
+                    bone.flags &= ~BONE_ANGLES_IK
+                    bone.RagFlags = 0
+                    bone.lastTimeUpdated = 0
+                }
+                i += 1
+            }
+            return true
+        }
+        assert(params != nil)
+
+        if params == nil {
+            return false
+        }
+
+        SharedRagDollUpdateParams.scratch { sRDUP in
+            sRDUP.me = 0
+            sRDUP.angles = params!.angles
+            sRDUP.position = params!.origin
+            sRDUP.scale = params!.scale
+            sRDUP.velocity = vec3_t()
+            G2_InitIK(ghoul2, sRDUP, curTime, rmod_a, g2index)
+        }
+        return true
+    }
+
+    if rmod_a == nil || mod_a == nil {
+        return false
+    }
+
+    var index: Int32 = G2_Find_Bone(mod_a!, &g2.mBlist, boneName!)
+
+    if index == -1 {
+        index = G2_Add_Bone(mod_a!, &g2.mBlist, boneName!)
+    }
+
+    if index == -1 { //couldn't find or add the bone..
+        return false
+    }
+
+    let bone = g2.mBlist[index]
+
+    if ikState == IKS_NONE { //remove the bone from the list then, so it has to reinit. I don't think this should hurt anything since
+      //we don't store bone index handles gameside anywhere.
+        if (bone.flags & BONE_ANGLES_RAGDOLL) == 0 { //you can't set the ik state to none if it's not a rag/ik bone.
+            return false
+        }
+        //bone.flags = 0;
+        //G2_Remove_Bone_Index(blist, index);
+        //actually, I want to keep it on the rag list, and remove it as an IK bone instead.
+        bone.flags &= ~BONE_ANGLES_RAGDOLL
+        bone.flags |= BONE_ANGLES_IK
+        bone.RagFlags &= ~RAG_PCJ_IK_CONTROLLED
+        return true
+    }
+
+    //need params if we're not resetting.
+    if params == nil {
+        assert(false)
+        return false
+    }
+
+    if (bone.flags & BONE_ANGLES_RAGDOLL) != 0 { //otherwise if the bone is already flagged as rag, then we can't set it again. (non-active ik bones will be BONE_ANGLES_IK, active are considered rag)
+        return false
+    }
+    G2_GenerateWorldMatrix(params!.angles, params!.origin)
+    G2_ConstructGhoulSkeleton(ghoul2, curTime, false, params!.scale)
+
+    var pcjFlags: Int32 = RAG_PCJ | RAG_PCJ_IK_CONTROLLED | RAG_PCJ_POST_MULT | RAG_EFFECTOR
+
+    if params!.pcjOverrides != 0 {
+        pcjFlags = params!.pcjOverrides
+    }
+
+    bone.ikSpeed = 0.4
+    bone.ikPosition = vec3_t()
+
+    G2_Set_Bone_Rag(rmod_a!, &g2.mBlist, boneName!, g2, params!.scale, params!.origin)
+
+    let startFrame = params!.startFrame
+    let endFrame = params!.endFrame
+
+    if bone.startFrame != startFrame || bone.endFrame != endFrame || params!.forceAnimOnBone { //if it's already on this anim leave it alone, to allow smooth transitions into IK on the current anim if it is so desired.
+        G2_Set_Bone_Anim_No_BS(g2, rmod_a!, &g2.mBlist, boneName!, startFrame, endFrame - 1,
+            BONE_ANIM_OVERRIDE_FREEZE | BONE_ANIM_BLEND,
+            1.0, curTime, Float(startFrame), 150, 0, true)
+    }
+
+    G2_ConstructGhoulSkeleton(ghoul2, curTime, false, params!.scale)
+
+    bone.lastTimeUpdated = 0
+    G2_Set_Bone_Angles_Rag(g2, rmod_a!, &g2.mBlist, boneName!, pcjFlags, params!.radius, params!.pcjMins, params!.pcjMaxs, params!.blendTime)
+
+    if !G2_RagDollSetup(g2, curTime, true, params!.origin, false) {
+        assert(false, "failed to add any rag bones")
+        return false
+    }
+
+    return true
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:4816
-// TODO: Port signature
-// Raven wrote: qboolean G2_IKMove(CGhoul2Info_v &ghoul2, int time, sharedIKMoveParams_t *params)
-// No table row for `sharedIKMoveParams_t * params`.
-func G2_IKMove() -> Never {
-    // TODO: Port G2_IKMove
-    portMissing("G2_IKMove", source: "oracle/codemp/ghoul2/G2_bones.cpp:4816")
+func G2_IKMove(_ ghoul2: CGhoul2Info_v, _ time: Int32, _ params: SharedIKMoveParams) -> Bool {
+    let g2index: Int32 = 0
+    let curTime = time
+    let g2 = ghoul2[g2index]
+
+    //rwwFIXMEFIXME: Doing this on all bones at the moment, fix this later?
+    if !G2_RagDollSetup(g2, curTime, true, params.origin, false) { //changed models, possibly.
+        return false
+    }
+
+    var i: Int32 = 0
+    while i < numRags {
+        let bone = ragBoneData[i]!
+
+        //if (bone.boneNumber == blist[index].boneNumber)
+        do {
+            bone.ikPosition = params.desiredOrigin
+            bone.ikSpeed = params.movementSpeed
+        }
+        i += 1
+    }
+    return true
 }
 
 // set the bone list to all unused so the bone transformation routine ignores it.

@@ -362,7 +362,7 @@ private func generateHashValue(_ fname: String, _ size: Int32) -> CLong {
 }
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:273
-func R_RemapShader(_ shaderName: String, _ newShaderName: String, _ timeOffset: String) {
+func R_RemapShader(_ shaderName: String, _ newShaderName: String, _ timeOffset: String?) {
     var strippedName = CharBuf(MAX_QPATH)
     var hash: Int32
     var sh: Shader?
@@ -405,7 +405,9 @@ func R_RemapShader(_ shaderName: String, _ newShaderName: String, _ timeOffset: 
         }
         sh = s.next
     }
-    sh2!.timeOffset = Float(atof(timeOffset))
+    if timeOffset != nil {
+        sh2!.timeOffset = Float(atof(timeOffset!))
+    }
 }
 
 /**
@@ -622,6 +624,7 @@ ParseTexMod
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:572
 private func ParseTexMod(_ _text: String, _ stage: ShaderStage) {
+    // Raven's one call is in ParseStage at tr_shader.cpp:1799, which is dead in the dedicated build, so the function is dead too.
     // TODO: Port ParseTexMod
     portMissing("ParseTexMod", source: "oracle/codemp/renderer/tr_shader.cpp:572")
 }
@@ -640,6 +643,7 @@ ParseSurfaceSprites
 // utilizes optional parameters parsed in ParseSurfaceSpriteOptional.
 /// Source: oracle/codemp/renderer/tr_shader.cpp:808
 private func ParseSurfaceSprites(_ _text: String, _ stage: ShaderStage) {
+    // Raven's one call is in ParseStage at tr_shader.cpp:1836, which is dead in the dedicated build, so the function is dead too.
     // TODO: Port ParseSurfaceSprites
     portMissing("ParseSurfaceSprites", source: "oracle/codemp/renderer/tr_shader.cpp:808")
 }
@@ -671,6 +675,7 @@ ParseSurfaceSpritesOptional
 //
 /// Source: oracle/codemp/renderer/tr_shader.cpp:970
 private func ParseSurfaceSpritesOptional(_ param: String, _ _text: String, _ stage: ShaderStage) {
+    // Raven's one call is in ParseStage at tr_shader.cpp:1868, which is dead in the dedicated build, so the function is dead too.
     // TODO: Port ParseSurfaceSpritesOptional
     portMissing("ParseSurfaceSpritesOptional", source: "oracle/codemp/renderer/tr_shader.cpp:970")
 }
@@ -684,6 +689,7 @@ ParseStage
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:1279
 private func ParseStage(_ stage: ShaderStage, _ text: inout JKAShared.TextCursor) -> Bool {
+    // Raven's one call is in ParseShader at tr_shader.cpp:2336, which is dead in the dedicated build, so the function is dead too.
     // TODO: Port ParseStage
     portMissing("ParseStage", source: "oracle/codemp/renderer/tr_shader.cpp:1279")
 }
@@ -706,6 +712,7 @@ deformVertexes text[0-7]
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:1936
 private func ParseDeform(_ text: inout JKAShared.TextCursor) {
+    // Raven's one call is in ParseShader at tr_shader.cpp:2408, which is dead in the dedicated build, so the function is dead too.
     // TODO: Port ParseDeform
     portMissing("ParseDeform", source: "oracle/codemp/renderer/tr_shader.cpp:1936")
 }
@@ -872,6 +879,7 @@ will optimize it.
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:2300
 private func ParseShader(_ text: inout JKAShared.TextCursor) -> Bool {
+    // R_FindShader calls it only on a text that ScanAndLoadShaderFiles loads under `#ifndef DEDICATED` at tr_shader.cpp:3812, so the function is dead in the dedicated build.
     // TODO: Port ParseShader
     portMissing("ParseShader", source: "oracle/codemp/renderer/tr_shader.cpp:2300")
 }
@@ -1010,8 +1018,318 @@ from the current global working shader
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:2941
 private func FinishShader() -> Shader? {
-    // TODO: Port FinishShader
-    portMissing("FinishShader", source: "oracle/codemp/renderer/tr_shader.cpp:2941")
+    var stage: Int32
+    var lmStage: Int32
+    var stageIndex: Int32 //rwwRMG - stageIndex for AGEN_BLEND
+    var hasLightmapStage: Bool
+    var vertexLightmap: Bool
+
+    hasLightmapStage = false
+    vertexLightmap = false
+
+    //
+    // set sky stuff appropriate
+    //
+    if shader.sky != nil {
+        shader.sort = Float(SS_ENVIRONMENT)
+    }
+
+    //
+    // set polygon offset
+    //
+    if shader.polygonOffset && shader.sort == 0 {
+        shader.sort = Float(SS_DECAL)
+    }
+
+    lmStage = 0
+    while lmStage < MAX_SHADER_STAGES {
+        let pStage = stages[lmStage]
+        if pStage.active && pStage.bundle[0].isLightmap {
+            break
+        }
+        lmStage += 1
+    }
+
+    if lmStage < MAX_SHADER_STAGES {
+        if shader.lightmapIndex[0] == LIGHTMAP_BY_VERTEX {
+            if lmStage == 0 { //< MAX_SHADER_STAGES-1)
+                //copy the rest down over the lightmap slot
+                memmove(stages.suffix(from: lmStage).bytes, stages.suffix(from: lmStage + 1).bytes, Int32(ShaderStage.byteCount) * (MAX_SHADER_STAGES - lmStage - 1))
+                stages[MAX_SHADER_STAGES - 1].clear()
+                //change blending on the moved down stage
+                // C converts the `int` mask to the `unsigned` field at the store.
+                stages[lmStage].stateBits = UInt32(bitPattern: GLS_DEFAULT)
+            }
+            //change anything that was moved down (or the *white if LM is first) to use vertex color
+            stages[lmStage].rgbGen = CGEN_EXACT_VERTEX
+            stages[lmStage].alphaGen = AGEN_SKIP
+            lmStage = MAX_SHADER_STAGES //skip the style checking below
+        }
+    }
+
+    if lmStage < MAX_SHADER_STAGES { // && !r_fullbright->value)
+        var numStyles: Int32
+        var i: Int32
+
+        numStyles = 0
+        while numStyles < MAXLIGHTMAPS {
+            if shader.styles[numStyles] >= LS_UNUSED {
+                break
+            }
+            numStyles += 1
+        }
+        numStyles -= 1
+        if numStyles > 0 {
+            i = MAX_SHADER_STAGES - 1
+            while i > lmStage + numStyles {
+                stages[i] = stages[i - numStyles]
+                i -= 1
+            }
+
+            i = 0
+            while i < numStyles {
+                stages[lmStage + i + 1] = stages[lmStage]
+                if shader.lightmapIndex[i + 1] == LIGHTMAP_BY_VERTEX {
+                    stages[lmStage + i + 1].bundle[0].image = tr.whiteImage
+                } else if shader.lightmapIndex[i + 1] < 0 {
+                    Com_Error(ERR_DROP, "FinishShader: light style with no light map or vertex color for shader %s", shader.name)
+                } else {
+                    stages[lmStage + i + 1].bundle[0].image = tr.lightmaps[shader.lightmapIndex[i + 1]]
+                    stages[lmStage + i + 1].bundle[0].tcGen = TCGEN_LIGHTMAP + i + 1
+                }
+                stages[lmStage + i + 1].rgbGen = CGEN_LIGHTMAPSTYLE
+                // C converts the `int` masks to the `unsigned` field at each store.
+                stages[lmStage + i + 1].stateBits &= UInt32(bitPattern: ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS))
+                stages[lmStage + i + 1].stateBits |= UInt32(bitPattern: GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE)
+                i += 1
+            }
+        }
+
+        i = 0
+        while i <= numStyles {
+            // C widens the byte to `int` at the store.
+            stages[lmStage + i].lightmapStyle = Int32(shader.styles[i])
+            i += 1
+        }
+    }
+
+    //
+    // set appropriate stage information
+    //
+    // The `int` masks meet the `unsigned` `stateBits` in each test of the loop, and the bit pattern of the field gives the bits C tests.
+    stageIndex = 0 //rwwRMG - needed for AGEN_BLEND
+    stage = 0
+    while stage < MAX_SHADER_STAGES {
+        let pStage = stages[stage]
+
+        if !pStage.active {
+            break
+        }
+
+        // check for a missing texture
+        if pStage.bundle[0].image == nil {
+            Com_Printf(S_COLOR_YELLOW + "Shader %s has a stage with no image\n", shader.name)
+            pStage.active = false
+            stage += 1
+            continue
+        }
+
+        //
+        // ditch this stage if it's detail and detail textures are disabled
+        //
+        if pStage.isDetail && r_detailTextures!.integer == 0 {
+            if stage < (MAX_SHADER_STAGES - 1) {
+                memmove(stages.suffix(from: stage).bytes, stages.suffix(from: stage + 1).bytes, Int32(ShaderStage.byteCount) * (MAX_SHADER_STAGES - stage - 1))
+
+                // rww - 9-13-01 [1-26-01-sof2]
+                stages[stage + (MAX_SHADER_STAGES - stage - 1)].clear() //clear the last one moved down
+                stage -= 1 //look at this stage next time around
+            }
+            stage += 1
+            continue
+        }
+
+        pStage.index = stageIndex //rwwRMG - needed for AGEN_BLEND
+
+        //
+        // default texture coordinate generation
+        //
+        if pStage.bundle[0].isLightmap {
+            if pStage.bundle[0].tcGen == TCGEN_BAD {
+                pStage.bundle[0].tcGen = TCGEN_LIGHTMAP
+            }
+            hasLightmapStage = true
+        } else {
+            if pStage.bundle[0].tcGen == TCGEN_BAD {
+                pStage.bundle[0].tcGen = TCGEN_TEXTURE
+            }
+        }
+
+        // not a true lightmap but we want to leave existing
+        // behaviour in place and not print out a warning
+        //if (pStage->rgbGen == CGEN_VERTEX) {
+        //  vertexLightmap = qtrue;
+        //}
+
+        //
+        // determine sort order and fog color adjustment
+        //
+        if (Int32(bitPattern: pStage.stateBits) & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)) != 0 &&
+            (Int32(bitPattern: stages[0].stateBits) & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)) != 0
+        {
+            let blendSrcBits = Int32(bitPattern: pStage.stateBits) & GLS_SRCBLEND_BITS
+            let blendDstBits = Int32(bitPattern: pStage.stateBits) & GLS_DSTBLEND_BITS
+
+            // fog color adjustment only works for blend modes that have a contribution
+            // that aproaches 0 as the modulate values aproach 0 --
+            // GL_ONE, GL_ONE
+            // GL_ZERO, GL_ONE_MINUS_SRC_COLOR
+            // GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+
+            // modulate, additive
+            if ((blendSrcBits == GLS_SRCBLEND_ONE) && (blendDstBits == GLS_DSTBLEND_ONE)) ||
+                ((blendSrcBits == GLS_SRCBLEND_ZERO) && (blendDstBits == GLS_DSTBLEND_ONE_MINUS_SRC_COLOR))
+            {
+                pStage.adjustColorsForFog = ACFF_MODULATE_RGB
+            }
+            // strict blend
+            else if (blendSrcBits == GLS_SRCBLEND_SRC_ALPHA) && (blendDstBits == GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA) {
+                pStage.adjustColorsForFog = ACFF_MODULATE_ALPHA
+            }
+            // premultiplied alpha
+            else if (blendSrcBits == GLS_SRCBLEND_ONE) && (blendDstBits == GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA) {
+                pStage.adjustColorsForFog = ACFF_MODULATE_RGBA
+            } else {
+                // we can't adjust this one correctly, so it won't be exactly correct in fog
+            }
+
+            // don't screw with sort order if this is a portal or environment
+            if shader.sort == 0 {
+                // see through item, like a grill or grate
+                if (Int32(bitPattern: pStage.stateBits) & GLS_DEPTHMASK_TRUE) != 0 {
+                    shader.sort = Float(SS_SEE_THROUGH)
+                } else {
+                    /*
+                    if (( blendSrcBits == GLS_SRCBLEND_ONE ) && ( blendDstBits == GLS_DSTBLEND_ONE ))
+                    {
+                    	// GL_ONE GL_ONE needs to come a bit later
+                    	shader.sort = SS_BLEND2;
+                    }
+                    else if (( blendSrcBits == GLS_SRCBLEND_SRC_ALPHA ) && ( blendDstBits == GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA ))
+                    { //rww - Pushed SS_BLEND1 up to SS_BLEND2, inserting this so that saber glow will render above water and things.
+                      //Unfortunately it still affects other shaders with the same blend settings, but it seems more or less alright.
+                    	shader.sort = SS_BLEND1;
+                    }
+                    else
+                    {
+                    	shader.sort = SS_BLEND0;
+                    }
+                    */
+                    if (blendSrcBits == GLS_SRCBLEND_ONE) && (blendDstBits == GLS_DSTBLEND_ONE) {
+                        // GL_ONE GL_ONE needs to come a bit later
+                        shader.sort = Float(SS_BLEND1)
+                    } else {
+                        shader.sort = Float(SS_BLEND0)
+                    }
+                }
+            }
+        }
+
+        //rww - begin hw fog
+        if (Int32(bitPattern: pStage.stateBits) & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)) == (GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE) {
+            pStage.mGLFogColorOverride = GLFOGOVERRIDE_BLACK
+        } else if (Int32(bitPattern: pStage.stateBits) & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)) == (GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE) &&
+            pStage.alphaGen == AGEN_LIGHTING_SPECULAR && stage != 0
+        {
+            pStage.mGLFogColorOverride = GLFOGOVERRIDE_BLACK
+        } else if (Int32(bitPattern: pStage.stateBits) & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)) == (GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ZERO) {
+            pStage.mGLFogColorOverride = GLFOGOVERRIDE_WHITE
+        } else if (Int32(bitPattern: pStage.stateBits) & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)) == (GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO) {
+            pStage.mGLFogColorOverride = GLFOGOVERRIDE_WHITE
+        } else if (Int32(bitPattern: pStage.stateBits) & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)) == 0 && stage != 0 {
+            pStage.mGLFogColorOverride = GLFOGOVERRIDE_WHITE
+        } else if (Int32(bitPattern: pStage.stateBits) & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)) == 0 && pStage.bundle[0].isLightmap && stage < MAX_SHADER_STAGES - 1 &&
+            stages[stage + 1].bundle[0].isLightmap
+        { // multiple light map blending
+            pStage.mGLFogColorOverride = GLFOGOVERRIDE_WHITE
+        } else if (Int32(bitPattern: pStage.stateBits) & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)) == (GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO) && pStage.bundle[0].isLightmap { //I don't know, it works. -rww
+            pStage.mGLFogColorOverride = GLFOGOVERRIDE_WHITE
+        } else if (Int32(bitPattern: pStage.stateBits) & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)) == (GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO) { //I don't know, it works. -rww
+            pStage.mGLFogColorOverride = GLFOGOVERRIDE_BLACK
+        } else if (Int32(bitPattern: pStage.stateBits) & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)) == (GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE_MINUS_SRC_COLOR) { //I don't know, it works. -rww
+            pStage.mGLFogColorOverride = GLFOGOVERRIDE_BLACK
+        } else {
+            pStage.mGLFogColorOverride = GLFOGOVERRIDE_NONE
+        }
+        //rww - end hw fog
+
+        stageIndex += 1 //rwwRMG - needed for AGEN_BLEND
+        stage += 1
+    }
+
+    // there are times when you will need to manually apply a sort to
+    // opaque alpha tested shaders that have later blend passes
+    if shader.sort == 0 {
+        shader.sort = Float(SS_OPAQUE)
+    }
+
+    //
+    // if we are in r_vertexLight mode, never use a lightmap texture
+    //
+    if stage > 1 && (r_vertexLight!.integer != 0 && r_uiFullScreen!.integer == 0) {
+        //stage = VertexLightingCollapse();
+        //rww - since this does bad things, I am commenting it out for now. If you want to attempt a fix, feel free.
+        hasLightmapStage = false
+    }
+
+    //
+    // look for multitexture potential
+    //
+    if stage > 1 && CollapseMultitexture() {
+        stage -= 1
+    }
+
+    if shader.lightmapIndex[0] >= 0 && !hasLightmapStage {
+        if vertexLightmap {
+            //			ri.DPrintf( "WARNING: shader '%s' has VERTEX forced lightmap!\n", shader.name );
+        } else {
+            Com_Printf("WARNING: shader '%s' has lightmap but no lightmap stage!\n", shader.name)
+            // AI: Raven copies the table with memcpy. The table is a Swift array, so the loop copies each index into the record.
+            for i in 0..<shader.lightmapIndex.count {
+                shader.lightmapIndex[i] = lightmapsNone[i]
+            }
+            // AI: Raven copies the styles with memcpy. The list is a Swift array, so the loop copies each index into the record.
+            for i in 0..<shader.styles.count {
+                shader.styles[i] = stylesDefault[i]
+            }
+        }
+    }
+
+    //
+    // compute number of passes
+    //
+    shader.numUnfoggedPasses = stage
+
+    // fogonly shaders don't have any normal passes
+    if stage == 0 {
+        shader.sort = Float(SS_FOG)
+    }
+
+    stage = 1
+    while stage < shader.numUnfoggedPasses {
+        // Make sure stage is non detail and active
+        if stages[stage].isDetail || !stages[stage].active {
+            break
+        }
+        // MT lightmaps are always in bundle 1
+        if stages[stage].bundle[0].isLightmap {
+            stage += 1
+            continue
+        }
+        stage += 1
+    }
+
+    return GeneratePermanentShader()
 }
 
 /**
@@ -1290,6 +1608,7 @@ func R_FindServerShader(_ name: String, _ lightmapIndex: [Int32]?, _ styles: [JK
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3598
 func RE_RegisterShaderFromImage(_ name: String, _ lightmapIndex: [Int32]?, _ styles: [JKAShared.byte], _ image: Image, _ mipRawImage: Bool) -> JKAShared.qhandle_t {
+    // No file of the oracle calls it, and tr_local.h:1775 only declares it, so the function is dead.
     // TODO: Port RE_RegisterShaderFromImage
     portMissing("RE_RegisterShaderFromImage", source: "oracle/codemp/renderer/tr_shader.cpp:3598")
 }

@@ -490,8 +490,56 @@ ServerLoadMDXA - load a Ghoul 2 animation file
 */
 /// Source: oracle/codemp/renderer/tr_model.cpp:683
 func ServerLoadMDXA(_ mod: Model, _ buffer: Slots<JKAShared.byte>, _ mod_name: String, _ bAlreadyCached: inout Bool) -> Bool {
-    // TODO: Port ServerLoadMDXA
-    portMissing("ServerLoadMDXA", source: "oracle/codemp/renderer/tr_model.cpp:683")
+    var pinmodel: MdxaHeader
+    var mdxa: MdxaHeader
+    var version: Int32
+    var size: Int32
+
+    pinmodel = MdxaHeader(buffer.base)
+    //
+    // read some fields from the binary, but only LittleLong() them when we know this wasn't an already-cached model...
+    //
+    version = pinmodel.version
+    size = pinmodel.ofsEnd
+
+    // Raven's two LittleLong calls under `if (!bAlreadyCached)` have no line, because LittleLong of the WinDed arm is its argument.
+
+    if version != MDXA_VERSION {
+        return false
+    }
+
+    mod.type = MOD_MDXA
+    mod.dataSize += size
+
+    var bAlreadyFound = false
+    mdxa = MdxaHeader(/*Hunk_Alloc( size );*/ RE_RegisterServerModels_Malloc(size, buffer, mod_name, &bAlreadyFound, TAG_MODEL_GLA).base)
+    mod.mdxa = mdxa
+
+    assert(bAlreadyCached == bAlreadyFound) // I should probably eliminate 'bAlreadyFound', but wtf?
+
+    if !bAlreadyFound {
+        // horrible new hackery, if !bAlreadyFound then we've just done a tag-morph, so we need to set the
+        //	bool reference passed into this function to true, to tell the caller NOT to do an FS_Freefile since
+        //	we've hijacked that memory block...
+        //
+        // Aaaargh. Kill me now...
+        //
+        bAlreadyCached = true
+        assert(mdxa == MdxaHeader(buffer.base))
+        //		memcpy( mdxa, buffer, size );	// and don't do this now, since it's the same thing
+
+        // Raven's six LL calls have no line, because LittleLong of the WinDed arm is its argument.
+    }
+
+    if mdxa.numFrames < 1 {
+        return false
+    }
+
+    if bAlreadyFound {
+        return true // All done, stop here, do not LittleLong() etc. Do not pass go...
+    }
+
+    return true
 }
 
 /**
@@ -503,8 +551,121 @@ ServerLoadMDXM - load a Ghoul 2 Mesh file
 */
 /// Source: oracle/codemp/renderer/tr_model.cpp:799
 func ServerLoadMDXM(_ mod: Model, _ buffer: Slots<JKAShared.byte>, _ mod_name: String, _ bAlreadyCached: inout Bool) -> Bool {
-    // TODO: Port ServerLoadMDXM
-    portMissing("ServerLoadMDXM", source: "oracle/codemp/renderer/tr_model.cpp:799")
+    var i: Int32
+    var l: Int32
+    var pinmodel: MdxmHeader
+    var mdxm: MdxmHeader
+    var lod: MdxmLOD
+    var surf: MdxmSurface
+    var version: Int32
+    var size: Int32
+    var sh: Shader?
+    var surfInfo: MdxmSurfHierarchy
+
+    pinmodel = MdxmHeader(buffer.base)
+    //
+    // read some fields from the binary, but only LittleLong() them when we know this wasn't an already-cached model...
+    //
+    version = pinmodel.version
+    size = pinmodel.ofsEnd
+
+    // Raven's two LittleLong calls under `if (!bAlreadyCached)` have no line, because LittleLong of the WinDed arm is its argument.
+
+    if version != MDXM_VERSION {
+        return false
+    }
+
+    mod.type = MOD_MDXM
+    mod.dataSize += size
+
+    var bAlreadyFound = false
+    mdxm = MdxmHeader(/*Hunk_Alloc( size );*/ RE_RegisterServerModels_Malloc(size, buffer, mod_name, &bAlreadyFound, TAG_MODEL_GLM).base)
+    mod.mdxm = mdxm
+
+    assert(bAlreadyCached == bAlreadyFound) // I should probably eliminate 'bAlreadyFound', but wtf?
+
+    if !bAlreadyFound {
+        // horrible new hackery, if !bAlreadyFound then we've just done a tag-morph, so we need to set the
+        //	bool reference passed into this function to true, to tell the caller NOT to do an FS_Freefile since
+        //	we've hijacked that memory block...
+        //
+        // Aaaargh. Kill me now...
+        //
+        bAlreadyCached = true
+        assert(mdxm == MdxmHeader(buffer.base))
+        //		memcpy( mdxm, buffer, size );	// and don't do this now, since it's the same thing
+
+        // Raven's seven LL calls have no line, because LittleLong of the WinDed arm is its argument.
+    }
+
+    // first up, go load in the animation file we need that has the skeletal animation info for this model
+    mdxm.animIndex = RE_RegisterServerModel(va("%s.gla", mdxm.animName))
+    if mdxm.animIndex == 0 {
+        return false
+    }
+
+    mod.numLods = mdxm.numLODs - 1 //copy this up to the model for ease of use - it wil get inced after this.
+
+    if bAlreadyFound {
+        return true // All done. Stop, go no further, do not LittleLong(), do not pass Go...
+    }
+
+    surfInfo = MdxmSurfHierarchy(mdxm, byteOffset: mdxm.ofsSurfHierarchy)
+    i = 0
+    while i < mdxm.numSurfaces {
+        // Raven's LL calls of the counts and of each child index have no line, because LittleLong of the WinDed arm is its argument.
+
+        // We will not be using shaders on the server.
+        sh = nil
+        // insert it in the surface list
+
+        surfInfo.shaderIndex = 0
+
+        // AI: Raven hands the addresses of the two fields. The call hands their byte distances from the disk image, which the callee stores.
+        RE_RegisterModels_StoreShaderRequest(mod_name, surfInfo.shader(buffer), surfInfo.shaderIndex(buffer))
+
+        // find the next surface
+        surfInfo = MdxmSurfHierarchy(surfInfo, byteOffset: MdxmSurfHierarchy.byteCount(childIndexes: surfInfo.numChildren))
+        i += 1
+    }
+
+    // swap all the LOD's	(we need to do the middle part of this even for intel, because of shader reg and err-check)
+    lod = MdxmLOD(mdxm, byteOffset: mdxm.ofsLODs)
+    l = 0
+    while l < mdxm.numLODs {
+        var triCount: Int32 = 0
+
+        // swap all the surfaces
+        surf = MdxmSurface(lod, byteOffset: Int32(MdxmLOD.byteCount) + (mdxm.numSurfaces * Int32(MdxmLODSurfOffset.byteCount)))
+        i = 0
+        while i < mdxm.numSurfaces {
+            // Raven's LL calls of the counts and offsets have no line, because LittleLong of the WinDed arm is its argument.
+
+            triCount += surf.numTriangles
+
+            if surf.numVerts > SHADER_MAX_VERTEXES {
+                return false
+            }
+            if surf.numTriangles * 3 > SHADER_MAX_INDEXES {
+                return false
+            }
+
+            // change to surface identifier
+            surf.ident = SF_MDX
+
+            // register the shaders
+
+            // find the next surface
+            surf = MdxmSurface(surf, byteOffset: surf.ofsEnd)
+            i += 1
+        }
+
+        // find the next LOD
+        lod = MdxmLOD(lod, byteOffset: lod.ofsEnd)
+        l += 1
+    }
+
+    return true
 }
 
 /**
@@ -823,9 +984,30 @@ private func RE_RegisterModel_Actual(_ name: String) -> JKAShared.qhandle_t {
         //	because 'filename' accounts for any LOD mangling etc so guarantees unique lookups for yet more
         //	internal caching...
         //
-        // Port-note: R_LoadMDXA and R_LoadMDXM of tr_ghoul2.swift keep their `TODO: Port signature` markers, so the switch has no call form for them.
-        // Raven wrote: ident = *(unsigned *)buf; if (!bAlreadyCached) ident = LittleLong(ident); switch (ident) { case MDXA_IDENT: loaded = R_LoadMDXA( mod, buf, filename, bAlreadyCached ); break; case MDXM_IDENT: loaded = R_LoadMDXM( mod, buf, filename, bAlreadyCached ); break; case MD3_IDENT: loaded = R_LoadMD3( mod, lod, buf, filename, bAlreadyCached ); break; default: Com_Printf (S_COLOR_YELLOW"RE_RegisterModel: unknown fileid for %s\n", filename); goto fail; }
-        portMissing("RE_RegisterModel_Actual", source: "oracle/codemp/renderer/tr_model.cpp:1313")
+        // AI: Raven reads the first word of the buffer as `unsigned`. The word reads as Int32, the type of the ident macros, so the compare has the same bits.
+        let ident = buf![int: 0]
+        // Raven's `if (!bAlreadyCached) ident = LittleLong(ident)` has no line, because LittleLong of the WinDed arm is its argument.
+
+        switch ident {
+        // if you add any new types of model load in this switch-case, tell me,
+        //	or copy what I've done with the cache scheme (-ste).
+        //
+        case MDXA_IDENT:
+            loaded = R_LoadMDXA(mod!, buf!, String(filename), &bAlreadyCached)
+
+        case MDXM_IDENT:
+            loaded = R_LoadMDXM(mod!, buf!, String(filename), &bAlreadyCached)
+
+        case MD3_IDENT:
+            loaded = R_LoadMD3(mod!, lod, buf!, String(filename), &bAlreadyCached)
+
+        default:
+            Com_Printf(S_COLOR_YELLOW + "RE_RegisterModel: unknown fileid for %s\n", String(filename))
+            failed = true
+        }
+        if failed {
+            break
+        }
 
         if !bAlreadyCached { // important to check!!
             FS_FreeFile(buf!)
@@ -901,6 +1083,7 @@ R_LoadMD3
 */
 /// Source: oracle/codemp/renderer/tr_model.cpp:1427
 private func R_LoadMD3(_ mod: Model, _ lod: Int32, _ buffer: Slots<JKAShared.byte>, _ mod_name: String, _ bAlreadyCached: inout Bool) -> Bool {
+    // RE_RegisterModel_Actual calls it at tr_model.cpp:1333 only for a name that RE_RegisterServerModel did not load first, and no dedicated path gives such a name.
     // TODO: Port R_LoadMD3
     portMissing("R_LoadMD3", source: "oracle/codemp/renderer/tr_model.cpp:1427")
 }
@@ -1031,6 +1214,7 @@ R_LerpTag
 // No table row for `orientation_t * tag`.
 func R_LerpTag() -> Never {
     // GetRefAPI is the one function that stores it, and the dedicated host does not link the client that calls GetRefAPI, so it is dead.
+    // TODO: Port R_LerpTag
     portMissing("R_LerpTag", source: "oracle/codemp/renderer/tr_model.cpp:1768")
 }
 

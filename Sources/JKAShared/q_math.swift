@@ -122,7 +122,7 @@ private func colorByte(_ value: Float) -> byte {
 
 /// Raven writes `(int)d`, and C leaves a double outside the `int` range undefined. Rule 19.
 /// This saturates at both ends and turns a NaN into 0, which is the one defined behavior jka-rust also took.
-private func truncateToInt(_ value: Double) -> Int32 {
+public func truncateToInt(_ value: Double) -> Int32 {
     if value.isNaN {
         return 0
     }

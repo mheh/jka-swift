@@ -70,6 +70,7 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:173
+    @discardableResult
     func Init(_ owner: CSequencer?) -> Int32 {
         //TODO: Emit warning
         if owner == nil {
@@ -94,6 +95,7 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:195
+    @discardableResult
     func Free() -> Int32 {
         //Clear out all pending tasks
         for ti in self.m_tasks {
@@ -119,6 +121,7 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:227
+    @discardableResult
     func Flush() -> Int32 {
         //FIXME: Rewrite
 
@@ -345,66 +348,66 @@ final class CTaskManager {
             switch task!.GetID() {
             case ID_WAIT:
 
-                _ = self.Wait(task, &completed)
+                self.Wait(task, &completed)
 
                 //Push it to consider it again on the next frame if not complete
                 if completed == false {
-                    _ = self.PushTask(task, PUSH_BACK)
+                    self.PushTask(task, PUSH_BACK)
                     return TASK_OK
                 }
 
-                _ = self.Completed(task!.GetGUID())
+                self.Completed(task!.GetGUID())
 
             case ID_WAITSIGNAL:
 
-                _ = self.WaitSignal(task, &completed)
+                self.WaitSignal(task, &completed)
 
                 //Push it to consider it again on the next frame if not complete
                 if completed == false {
-                    _ = self.PushTask(task, PUSH_BACK)
+                    self.PushTask(task, PUSH_BACK)
                     return TASK_OK
                 }
 
-                _ = self.Completed(task!.GetGUID())
+                self.Completed(task!.GetGUID())
 
             case ID_PRINT:	//print( STRING )
-                _ = self.Print(task)
+                self.Print(task)
 
             case ID_SOUND:	//sound( name )
-                _ = self.Sound(task)
+                self.Sound(task)
 
             case ID_MOVE:	//move ( ORIGIN, ANGLES, DURATION )
-                _ = self.Move(task)
+                self.Move(task)
 
             case ID_ROTATE:	//rotate( ANGLES, DURATION )
-                _ = self.Rotate(task)
+                self.Rotate(task)
 
             case ID_KILL:	//kill( NAME )
-                _ = self.Kill(task)
+                self.Kill(task)
 
             case ID_REMOVE:	//remove( NAME )
-                _ = self.Remove(task)
+                self.Remove(task)
 
             case ID_CAMERA:	//camera( ? )
-                _ = self.Camera(task)
+                self.Camera(task)
 
             case ID_SET:	//set( NAME, ? )
-                _ = self.Set(task)
+                self.Set(task)
 
             case ID_USE:	//use( NAME )
-                _ = self.Use(task)
+                self.Use(task)
 
             case ID_DECLARE://declare( TYPE, NAME )
-                _ = self.DeclareVariable(task)
+                self.DeclareVariable(task)
 
             case ID_FREE:	//free( NAME )
-                _ = self.FreeVariable(task)
+                self.FreeVariable(task)
 
             case ID_SIGNAL:	//signal( NAME )
-                _ = self.Signal(task)
+                self.Signal(task)
 
             case ID_PLAY:	//play ( NAME )
-                _ = self.Play(task)
+                self.Play(task)
 
             default:
                 task!.Free()
@@ -415,7 +418,7 @@ final class CTaskManager {
             }
 
             //Pump the sequencer for another task
-            _ = self.CallbackCommand(task, TASK_RETURN_COMPLETE)
+            self.CallbackCommand(task, TASK_RETURN_COMPLETE)
 
             task!.Free()
         }
@@ -434,13 +437,14 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:841
+    @discardableResult
     func SetCommand(_ command: CBlock?, _ type: Int32) -> Int32 {
         let task: CTask? = CTask.Create(self.m_GUID, command)
         self.m_GUID += 1
 
         //If this is part of a task group, add it in
         if self.m_curGroup != nil {
-            _ = self.m_curGroup!.Add(task)
+            self.m_curGroup!.Add(task)
         }
 
         //TODO: Emit warning
@@ -451,7 +455,7 @@ final class CTaskManager {
             return TASK_FAILED
         }
 
-        _ = self.PushTask(task, type)
+        self.PushTask(task, type)
 
         return TASK_OK
     }
@@ -496,6 +500,7 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:912
+    @discardableResult
     func Completed(_ id: Int32) -> Int32 {
         //Mark the task as completed
         for tgi in self.m_taskGroups {
@@ -516,6 +521,7 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:933
+    @discardableResult
     private func CallbackCommand(_ task: CTask?, _ returnCode: Int32) -> Int32 {
         if self.m_owner!.Callback(self, task!.GetBlock(), returnCode) == SEQ_OK {
             return self.Go()
@@ -560,6 +566,7 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:975
+    @discardableResult
     private func PushTask(_ task: CTask?, _ flag: Int32) -> Int32 {
         switch flag {
         case PUSH_FRONT:
@@ -649,6 +656,7 @@ final class CTaskManager {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1062
     // Port-note: The body reads block member data, which waits for the `m_data` row, and it calls through the interface.
+    @discardableResult
     private func Wait(_ task: CTask?, _ completed: inout Bool) -> Int32 {
         // TODO: Port CTaskManager::Wait
         portMissing("CTaskManager::Wait", source: "oracle/codemp/icarus/TaskManager.cpp:1062")
@@ -663,6 +671,7 @@ final class CTaskManager {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1146
     // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
+    @discardableResult
     private func WaitSignal(_ task: CTask?, _ completed: inout Bool) -> Int32 {
         // TODO: Port CTaskManager::WaitSignal
         portMissing("CTaskManager::WaitSignal", source: "oracle/codemp/icarus/TaskManager.cpp:1146")
@@ -677,6 +686,7 @@ final class CTaskManager {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1177
     // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
+    @discardableResult
     private func Print(_ task: CTask?) -> Int32 {
         // TODO: Port CTaskManager::Print
         portMissing("CTaskManager::Print", source: "oracle/codemp/icarus/TaskManager.cpp:1177")
@@ -691,6 +701,7 @@ final class CTaskManager {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1200
     // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
+    @discardableResult
     private func Sound(_ task: CTask?) -> Int32 {
         // TODO: Port CTaskManager::Sound
         portMissing("CTaskManager::Sound", source: "oracle/codemp/icarus/TaskManager.cpp:1200")
@@ -705,6 +716,7 @@ final class CTaskManager {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1224
     // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
+    @discardableResult
     private func Rotate(_ task: CTask?) -> Int32 {
         // TODO: Port CTaskManager::Rotate
         portMissing("CTaskManager::Rotate", source: "oracle/codemp/icarus/TaskManager.cpp:1224")
@@ -719,6 +731,7 @@ final class CTaskManager {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1269
     // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
+    @discardableResult
     private func Remove(_ task: CTask?) -> Int32 {
         // TODO: Port CTaskManager::Remove
         portMissing("CTaskManager::Remove", source: "oracle/codemp/icarus/TaskManager.cpp:1269")
@@ -733,6 +746,7 @@ final class CTaskManager {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1291
     // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
+    @discardableResult
     private func Camera(_ task: CTask?) -> Int32 {
         // TODO: Port CTaskManager::Camera
         portMissing("CTaskManager::Camera", source: "oracle/codemp/icarus/TaskManager.cpp:1291")
@@ -747,6 +761,7 @@ final class CTaskManager {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1425
     // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
+    @discardableResult
     private func Move(_ task: CTask?) -> Int32 {
         // TODO: Port CTaskManager::Move
         portMissing("CTaskManager::Move", source: "oracle/codemp/icarus/TaskManager.cpp:1425")
@@ -761,6 +776,7 @@ final class CTaskManager {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1462
     // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
+    @discardableResult
     private func Kill(_ task: CTask?) -> Int32 {
         // TODO: Port CTaskManager::Kill
         portMissing("CTaskManager::Kill", source: "oracle/codemp/icarus/TaskManager.cpp:1462")
@@ -775,6 +791,7 @@ final class CTaskManager {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1484
     // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
+    @discardableResult
     private func Set(_ task: CTask?) -> Int32 {
         // TODO: Port CTaskManager::Set
         portMissing("CTaskManager::Set", source: "oracle/codemp/icarus/TaskManager.cpp:1484")
@@ -789,6 +806,7 @@ final class CTaskManager {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1505
     // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
+    @discardableResult
     private func Use(_ task: CTask?) -> Int32 {
         // TODO: Port CTaskManager::Use
         portMissing("CTaskManager::Use", source: "oracle/codemp/icarus/TaskManager.cpp:1505")
@@ -803,6 +821,7 @@ final class CTaskManager {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1527
     // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
+    @discardableResult
     private func DeclareVariable(_ task: CTask?) -> Int32 {
         // TODO: Port CTaskManager::DeclareVariable
         portMissing("CTaskManager::DeclareVariable", source: "oracle/codemp/icarus/TaskManager.cpp:1527")
@@ -817,6 +836,7 @@ final class CTaskManager {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1552
     // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
+    @discardableResult
     private func FreeVariable(_ task: CTask?) -> Int32 {
         // TODO: Port CTaskManager::FreeVariable
         portMissing("CTaskManager::FreeVariable", source: "oracle/codemp/icarus/TaskManager.cpp:1552")
@@ -831,6 +851,7 @@ final class CTaskManager {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1575
     // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
+    @discardableResult
     private func Signal(_ task: CTask?) -> Int32 {
         // TODO: Port CTaskManager::Signal
         portMissing("CTaskManager::Signal", source: "oracle/codemp/icarus/TaskManager.cpp:1575")
@@ -845,6 +866,7 @@ final class CTaskManager {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1597
     // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
+    @discardableResult
     private func Play(_ task: CTask?) -> Int32 {
         // TODO: Port CTaskManager::Play
         portMissing("CTaskManager::Play", source: "oracle/codemp/icarus/TaskManager.cpp:1597")

@@ -33,6 +33,13 @@ extension Slots where Element == Int32 {
         self.word(x).map { OpaquePointer($0) }
     }
 
+    /// Raven's `(int)VMA(x)`, the address at the word as a number, the return of TRAP_STRNCPY.
+    /// Source: oracle/codemp/server/sv_game.cpp:471
+    // AI: Raven casts the address to `int`, which holds an address only on a 32-bit build. The accessor gives the whole word.
+    public func VMA(_ x: Int32) -> Int {
+        Int(bitPattern: self.word(x))
+    }
+
     /// Raven's `(const char *)VMA(x)`, the text at the word.
     /// Source: oracle/codemp/server/sv_game.cpp:403
     // AI: Raven's macro reads the local `args` of the switch. The accessor is a method of `args`, and it reads the text at the word.

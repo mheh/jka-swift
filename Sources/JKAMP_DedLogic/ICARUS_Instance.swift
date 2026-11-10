@@ -55,11 +55,12 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:72
+    @discardableResult
     private func Free() -> Int32 {
         //Delete any residual sequencers
         for sri in self.m_sequencers {
             // AI: Raven deletes each sequencer, and the destructor calls Free. ARC runs no destructor here, so the loop calls Free.
-            _ = sri.Free()
+            sri.Free()
         }
 
         self.m_sequencers.removeAll()
@@ -88,7 +89,7 @@ final class ICARUS_Instance {
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:121
     func Delete() -> Int32 {
-        _ = self.Free()
+        self.Free()
 
         // AI: Raven deletes the instance here. ARC frees it when ICARUS_Shutdown drops `iICARUS`, so the step drops.
 
@@ -111,7 +112,7 @@ final class ICARUS_Instance {
         // Raven wrote: sequencer->Init( ownerID, m_interface, taskManager, this );
         sequencer!.Init()
 
-        _ = taskManager!.Init(sequencer)
+        taskManager!.Init(sequencer)
 
         self.m_sequencers.append(sequencer!)
 
@@ -128,17 +129,17 @@ final class ICARUS_Instance {
     /// Source: oracle/codemp/icarus/Instance.cpp:191
     func DeleteSequencer(_ sequencer: CSequencer?) {
         // added 2/12/2 to properly delete blocks that were passed to the task manager
-        _ = sequencer!.Recall()
+        sequencer!.Recall()
 
         let taskManager: CTaskManager? = sequencer!.GetTaskManager()
 
         if taskManager != nil {
-            _ = taskManager!.Free()
+            taskManager!.Free()
         }
 
         self.m_sequencers.removeAll { $0 === sequencer }
 
-        _ = sequencer!.Free()
+        sequencer!.Free()
     }
 
     /**
@@ -237,6 +238,7 @@ final class ICARUS_Instance {
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:312
     // Port-note: The body calls through `m_interface`, and `interface_export_t` has no Swift form, so the body waits for that row.
+    @discardableResult
     private func SaveSequenceIDTable() -> Int32 {
         // TODO: Port ICARUS_Instance::SaveSequenceIDTable
         portMissing("ICARUS_Instance::SaveSequenceIDTable", source: "oracle/codemp/icarus/Instance.cpp:312")
@@ -252,11 +254,11 @@ final class ICARUS_Instance {
     /// Source: oracle/codemp/icarus/Instance.cpp:346
     private func SaveSequences() -> Int32 {
         //Save out a listing of all the used sequences by ID
-        _ = self.SaveSequenceIDTable()
+        self.SaveSequenceIDTable()
 
         //Save all the information in order
         for sqi in self.m_sequences {
-            _ = sqi.Save()
+            sqi.Save()
         }
 
         return 1
@@ -299,6 +301,7 @@ final class ICARUS_Instance {
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:422
     // Port-note: The body calls through `m_interface`, and `interface_export_t` has no Swift form, so the body waits for that row.
+    @discardableResult
     func Save() -> Int32 {
         // TODO: Port ICARUS_Instance::Save
         portMissing("ICARUS_Instance::Save", source: "oracle/codemp/icarus/Instance.cpp:422")
@@ -330,7 +333,7 @@ final class ICARUS_Instance {
         let sequence: CSequence? = self.GetSequence()
 
         //Load the sequence back in
-        _ = sequence!.Load()
+        sequence!.Load()
 
         //If this sequence had a higher GUID than the current, save it
         if sequence!.GetID() > self.m_GUID {
@@ -377,6 +380,7 @@ final class ICARUS_Instance {
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:575
     // Port-note: The body calls through `m_interface`, and `interface_export_t` has no Swift form, so the body waits for that row.
+    @discardableResult
     func Load() -> Int32 {
         // TODO: Port ICARUS_Instance::Load
         portMissing("ICARUS_Instance::Load", source: "oracle/codemp/icarus/Instance.cpp:575")

@@ -74,6 +74,10 @@ private let GHOUL2_RAG_STARTED = 0x0010 as Int32
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:993
 private let GHOUL2_RAG_FORCESOLVE = 0x1000 as Int32
 
+/// Source: oracle/codemp/ghoul2/G2_local.h:12
+// AI: Raven defines the flag in G2_local.h, which no module of the host declares. The file that sets it holds the value as a `let`.
+let GHOUL2_CRAZY_SMOOTH = 0x2000 as Int32		//hack for smoothing during ugly situations. forgive me.
+
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1469
 private let RAG_PCJ = (0x00001) as Int32
 
@@ -148,7 +152,9 @@ func G2_DEBUG_ShovePtrInTracker(_ g2: CGhoul2Info_v?) {
 
     // Raven tests `currentModel->name`, the address of the array, which is never NULL.
     // Raven tests `currentModel->name[0]`, the first byte of the name.
-    if g2v[0].currentModel != nil && !g2v[0].currentModel!.name.isEmpty {
+    // Port-note: Raven reads `g2v[0]` of an empty list here, whose element 0 C leaves undefined.
+    // The body reads element 0 only when the list holds a model, and an empty list takes the second arm.
+    if g2v.size() > 0 && g2v[0].currentModel != nil && !g2v[0].currentModel!.name.isEmpty {
         Com_Printf("%s could not be fit into g2 debug instance tracker.\n", g2v[0].currentModel!.name)
     } else {
         Com_Printf("Crap g2 instance passed to instance tracker (in).\n")
@@ -175,7 +181,9 @@ func G2_DEBUG_RemovePtrFromTracker(_ g2: CGhoul2Info_v?) {
 
     // Raven tests `currentModel->name`, the address of the array, which is never NULL.
     // Raven tests `currentModel->name[0]`, the first byte of the name.
-    if g2v[0].currentModel != nil && !g2v[0].currentModel!.name.isEmpty {
+    // Port-note: Raven reads `g2v[0]` of an empty list here, whose element 0 C leaves undefined.
+    // The body reads element 0 only when the list holds a model, and an empty list takes the second arm.
+    if g2v.size() > 0 && g2v[0].currentModel != nil && !g2v[0].currentModel!.name.isEmpty {
         Com_Printf("%s not in g2 debug instance tracker.\n", g2v[0].currentModel!.name)
     } else {
         Com_Printf("Crap g2 instance passed to instance tracker (out).\n")
@@ -282,9 +290,60 @@ func G2API_PrecacheGhoul2Model(_ fileName: String) -> JKAShared.qhandle_t {
 // initialise all that needs to be on a new Ghoul II model
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:601
 func G2API_InitGhoul2Model(_ ghoul2Ptr: inout CGhoul2Info_v?, _ fileName: String, _ modelIndex: Int32, _ customSkin: JKAShared.qhandle_t, _ customShader: JKAShared.qhandle_t, _ modelFlags: Int32 = 0, _ lodBias: Int32 = 0) -> Int32 {
-    // Port-note: Raven assigns `ghoul2[model]=CGhoul2Info()` into a slot, and the subscript of CGhoul2Info_v returns the class and has no setter.
-    // TODO: Port G2API_InitGhoul2Model
-    portMissing("G2API_InitGhoul2Model", source: "oracle/codemp/ghoul2/G2_API.cpp:601")
+    var model: Int32
+
+    // are we actually asking for a model to be loaded.
+    if fileName.isEmpty {
+        assert(false)
+        return -1
+    }
+
+    if ghoul2Ptr == nil {
+        ghoul2Ptr = CGhoul2Info_v()
+        // Raven's `sizeof(CGhoul2Info_v)` is the size of its one `int` field.
+        if g_G2AllocServer != 0 {
+            g_G2ServerAlloc += Int32(Int32.byteCount)
+        } else {
+            g_G2ClientAlloc += Int32(Int32.byteCount)
+        }
+        g_Ghoul2Allocations += Int32(Int32.byteCount)
+        G2_DEBUG_ShovePtrInTracker(ghoul2Ptr)
+    }
+
+    let ghoul2 = ghoul2Ptr!
+
+    // find a free spot in the list
+    model = 0
+    while model < ghoul2.size() {
+        if ghoul2[model].mModelindex == -1 {
+            // AI: Raven copies a new model into the slot. The slot holds the new instance itself, because the right side is a new temporary.
+            ghoul2[model] = CGhoul2Info()
+            break
+        }
+        model += 1
+    }
+    if model == ghoul2.size() {	//init should not be used to create additional models, only the first one
+        assert(ghoul2.size() < 4) //use G2API_CopySpecificG2Model to add models
+        ghoul2.push_back(CGhoul2Info())
+    }
+
+    strcpy(&ghoul2[model].mFileName, fileName)
+    ghoul2[model].mModelindex = model
+    if !G2_TestModelPointers(ghoul2[model]) {
+        ghoul2[model].mFileName[0] = 0
+        ghoul2[model].mModelindex = -1
+    } else {
+        G2_Init_Bone_List(&ghoul2[model].mBlist)
+        G2_Init_Bolt_List(&ghoul2[model].mBltlist)
+        ghoul2[model].mCustomShader = customShader
+        ghoul2[model].mCustomSkin = customSkin
+        ghoul2[model].mLodBias = lodBias
+        ghoul2[model].mAnimFrameDefault = 0
+        ghoul2[model].mFlags = 0
+
+        ghoul2[model].mModelBoltLink = -1
+    }
+    return ghoul2[model].mModelindex
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:670
@@ -344,7 +403,6 @@ func G2API_GetSurfaceOnOff(_ ghlInfo: CGhoul2Info?, _ surfaceName: String) -> In
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:733
 func G2API_SetRootSurface(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ surfaceName: String) -> Bool {
-    // Port-note: Raven calls the `CGhoul2Info_v &` overload of G2_SetupModelPointers at G2_API.cpp:2773, which has no Swift function.
     // TODO: Port G2API_SetRootSurface
     portMissing("G2API_SetRootSurface", source: "oracle/codemp/ghoul2/G2_API.cpp:733")
 }
@@ -543,7 +601,6 @@ func G2API_RemoveGhoul2Models(_ ghlRemove: inout CGhoul2Info_v?) -> Bool {
 //check if a bone exists on skeleton without actually adding to the bone list -rww
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:963
 func G2API_DoesBoneExist(_ ghlInfo: CGhoul2Info?, _ boneName: String) -> Bool {
-    // Port-note: Raven walks the `mdxaSkel_t` records at a byte offset from `mdxa`, and a logic body has no form for a view at a byte offset past a record.
     // TODO: Port G2API_DoesBoneExist
     portMissing("G2API_DoesBoneExist", source: "oracle/codemp/ghoul2/G2_API.cpp:963")
 }
@@ -647,9 +704,13 @@ func G2API_SetBoneAnim(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ boneName:
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1140
 func G2API_GetBoneAnim(_ ghlInfo: CGhoul2Info?, _ boneName: String, _ currentTime: Int32, _ currentFrame: inout Float, _ startFrame: inout Int32, _ endFrame: inout Int32, _ flags: inout Int32, _ animSpeed: inout Float, _ modelList: Slots<qhandle_t>?) -> Bool {
-    // Port-note: Raven passes `int *modelList` to G2_Get_Bone_Anim, and the stub spells it `inout Int32` where the callee takes `Slots<qhandle_t>?`.
-    // TODO: Port G2API_GetBoneAnim
-    portMissing("G2API_GetBoneAnim", source: "oracle/codemp/ghoul2/G2_API.cpp:1140")
+    if G2_SetupModelPointers(ghlInfo) {
+        let aCurrentTime = G2API_GetTime(currentTime)
+        let ret = G2_Get_Bone_Anim(ghlInfo, &ghlInfo!.mBlist, boneName, aCurrentTime, &currentFrame,
+            &startFrame, &endFrame, &flags, &animSpeed, modelList, ghlInfo!.mModelindex)
+        return ret
+    }
+    return false
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1191
@@ -695,16 +756,57 @@ func G2API_StopBoneAnim(_ ghlInfo: CGhoul2Info?, _ boneName: String) -> Bool {
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1261
 func G2API_SetBoneAnglesIndex(_ ghlInfo: CGhoul2Info?, _ index: Int32, _ angles: JKAShared.vec3_t, _ flags: Int32, _ yaw: JKAMP.Eorientations, _ pitch: JKAMP.Eorientations, _ roll: JKAMP.Eorientations, _ modelList: Slots<qhandle_t>?, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
-    // Port-note: Raven passes `const vec3_t angles` to G2_Set_Bone_Angles_Index, whose `const float *` parameter is `vec4_t?`.
-    // TODO: Port G2API_SetBoneAnglesIndex
-    portMissing("G2API_SetBoneAnglesIndex", source: "oracle/codemp/ghoul2/G2_API.cpp:1261")
+    var setPtrs = false
+    var res = false
+
+    //rww - RAGDOLL_BEGIN
+    if ghlInfo != nil {
+        res = G2_SetupModelPointers(ghlInfo)
+        setPtrs = true
+
+        if res {
+            if (ghlInfo!.mFlags & GHOUL2_RAG_STARTED) != 0 {
+                return false
+            }
+        }
+    }
+    //rww - RAGDOLL_END
+
+    if !setPtrs {
+        res = G2_SetupModelPointers(ghlInfo)
+    }
+
+    if res {
+        // ensure we flush the cache
+        ghlInfo!.mSkelFrameNum = 0
+        return G2_Set_Bone_Angles_Index(&ghlInfo!.mBlist, index, angles, flags, yaw, pitch, roll, modelList, ghlInfo!.mModelindex, blendTime, currentTime)
+    }
+    return false
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1298
 func G2API_SetBoneAngles(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ boneName: String, _ angles: JKAShared.vec3_t, _ flags: Int32, _ up: JKAMP.Eorientations, _ left: JKAMP.Eorientations, _ forward: JKAMP.Eorientations, _ modelList: Slots<qhandle_t>?, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
-    // Port-note: Raven passes `const vec3_t angles` to G2_Set_Bone_Angles, whose `const float *` parameter is `vec4_t?`.
-    // TODO: Port G2API_SetBoneAngles
-    portMissing("G2API_SetBoneAngles", source: "oracle/codemp/ghoul2/G2_API.cpp:1298")
+    if ghoul2.size() > modelIndex {
+        let ghlInfo = ghoul2[modelIndex]
+        var res = false
+
+        //rww - RAGDOLL_BEGIN
+        res = G2_SetupModelPointers(ghlInfo)
+
+        if res {
+            if (ghlInfo.mFlags & GHOUL2_RAG_STARTED) != 0 {
+                return false
+            }
+        }
+        //rww - RAGDOLL_END
+
+        if res {
+            // ensure we flush the cache
+            ghlInfo.mSkelFrameNum = 0
+            return G2_Set_Bone_Angles(ghlInfo, &ghlInfo.mBlist, boneName, angles, flags, up, left, forward, modelList, ghlInfo.mModelindex, blendTime, currentTime)
+        }
+    }
+    return false
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1339
@@ -749,9 +851,14 @@ func G2API_StopBoneAngles(_ ghlInfo: CGhoul2Info?, _ boneName: String) -> Bool {
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1386
 func G2API_AbsurdSmoothing(_ ghoul2: CGhoul2Info_v, _ status: Bool) {
-    // Port-note: Raven sets GHOUL2_CRAZY_SMOOTH of G2_local.h:12, and no module of the host declares the constant.
-    // TODO: Port G2API_AbsurdSmoothing
-    portMissing("G2API_AbsurdSmoothing", source: "oracle/codemp/ghoul2/G2_API.cpp:1386")
+    assert(ghoul2.size() != 0)
+    let ghlInfo = ghoul2[0]
+
+    if status { //turn it on
+        ghlInfo.mFlags |= GHOUL2_CRAZY_SMOOTH
+    } else { //off
+        ghlInfo.mFlags &= ~GHOUL2_CRAZY_SMOOTH
+    }
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1404
@@ -847,7 +954,7 @@ func G2API_RagPCJGradientSpeed(_ ghoul2: CGhoul2Info_v, _ boneName: String, _ sp
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1538
-func G2API_RagEffectorGoal(_ ghoul2: CGhoul2Info_v, _ boneName: String, _ pos: JKAShared.vec3_t) -> Bool {
+func G2API_RagEffectorGoal(_ ghoul2: CGhoul2Info_v, _ boneName: String, _ pos: JKAShared.vec3_t? = nil) -> Bool {
     let bone = G2_GetRagBoneConveniently(ghoul2, boneName)
 
     if bone == nil {
@@ -858,8 +965,12 @@ func G2API_RagEffectorGoal(_ ghoul2: CGhoul2Info_v, _ boneName: String, _ pos: J
         return false
     }
 
-    _VectorCopy(pos, &bone!.overGoalSpot)
-    bone!.hasOverGoal = true
+    if pos == nil { //go back to none in case we have one then
+        bone!.hasOverGoal = false
+    } else {
+        _VectorCopy(pos!, &bone!.overGoalSpot)
+        bone!.hasOverGoal = true
+    }
     return true
 }
 
@@ -905,21 +1016,13 @@ func G2API_RagForceSolve(_ ghoul2: CGhoul2Info_v, _ force: Bool) -> Bool {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1613
-// TODO: Port signature
-// Raven wrote: qboolean G2API_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params)
-// No table row for `sharedSetBoneIKStateParams_t * params`.
-func G2API_SetBoneIKState() -> Never {
-    // TODO: Port G2API_SetBoneIKState
-    portMissing("G2API_SetBoneIKState", source: "oracle/codemp/ghoul2/G2_API.cpp:1613")
+func G2API_SetBoneIKState(_ ghoul2: CGhoul2Info_v, _ time: Int32, _ boneName: String?, _ ikState: Int32, _ params: SharedSetBoneIKStateParams?) -> Bool {
+    return G2_SetBoneIKState(ghoul2, time, boneName, ikState, params)
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1619
-// TODO: Port signature
-// Raven wrote: qboolean G2API_IKMove(CGhoul2Info_v &ghoul2, int time, sharedIKMoveParams_t *params)
-// No table row for `sharedIKMoveParams_t * params`.
-func G2API_IKMove() -> Never {
-    // TODO: Port G2API_IKMove
-    portMissing("G2API_IKMove", source: "oracle/codemp/ghoul2/G2_API.cpp:1619")
+func G2API_IKMove(_ ghoul2: CGhoul2Info_v, _ time: Int32, _ params: SharedIKMoveParams) -> Bool {
+    return G2_IKMove(ghoul2, time, params)
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1624
@@ -951,7 +1054,6 @@ func G2API_AddBoltSurfNum(_ ghlInfo: CGhoul2Info?, _ surfIndex: Int32) -> Int32 
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1658
 func G2API_AttachG2Model(_ ghoul2From: CGhoul2Info_v, _ modelFrom: Int32, _ ghoul2To: CGhoul2Info_v, _ toBoltIndex: Int32, _ toModel: Int32) -> Bool {
-    // Port-note: Raven calls the `CGhoul2Info_v &` overload of G2_SetupModelPointers at G2_API.cpp:2773, which has no Swift function.
     // TODO: Port G2API_AttachG2Model
     portMissing("G2API_AttachG2Model", source: "oracle/codemp/ghoul2/G2_API.cpp:1658")
 }
@@ -1003,7 +1105,6 @@ func G2API_GetBoltMatrix_SPMethod(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, 
 //							 const vec3_t position, const int AframeNum, qhandle_t *modelList, const vec3_t scale )
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1795
 func G2API_GetBoltMatrix(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: Slots<qhandle_t>?, _ scale: JKAShared.vec3_t) -> Bool {
-    // Port-note: Raven calls the `CGhoul2Info_v &` overload of G2_SetupModelPointers at G2_API.cpp:2773, which has no Swift function.
     // TODO: Port G2API_GetBoltMatrix
     portMissing("G2API_GetBoltMatrix", source: "oracle/codemp/ghoul2/G2_API.cpp:1795")
 }
@@ -1118,14 +1219,12 @@ private func G2_NeedRetransform(_ g2: CGhoul2Info?, _ frameNum: Int32) -> Bool {
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2035
 func G2API_CollisionDetectCache(_ collRecMap: Slots<CollisionRecord>, _ ghoul2: CGhoul2Info_v, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNumber: Int32, _ entNum: Int32, _ rayStart: JKAShared.vec3_t, _ rayEnd: JKAShared.vec3_t, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ traceFlags: Int32, _ useLod: Int32, _ fRadius: Float) {
-    // Port-note: Raven calls the `CGhoul2Info_v &` overload of G2_SetupModelPointers, which has no Swift function, and G2_TraceModels, which has a signature marker.
     // TODO: Port G2API_CollisionDetectCache
     portMissing("G2API_CollisionDetectCache", source: "oracle/codemp/ghoul2/G2_API.cpp:2035")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2124
 func G2API_CollisionDetect(_ collRecMap: Slots<CollisionRecord>, _ ghoul2: CGhoul2Info_v, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNumber: Int32, _ entNum: Int32, _ rayStart: JKAShared.vec3_t, _ rayEnd: JKAShared.vec3_t, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ traceFlags: Int32, _ useLod: Int32, _ fRadius: Float) {
-    // Port-note: Raven calls the `CGhoul2Info_v &` overload of G2_SetupModelPointers, which has no Swift function, and G2_TraceModels, which has a signature marker.
     // TODO: Port G2API_CollisionDetect
     portMissing("G2API_CollisionDetect", source: "oracle/codemp/ghoul2/G2_API.cpp:2124")
 }
@@ -1196,7 +1295,7 @@ func G2API_CopyGhoul2Instance(_ g2From: CGhoul2Info_v, _ g2To: CGhoul2Info_v, _ 
         while model < g2To.size() {
             if g2To[model].mGoreSetTag != 0 {
                 let gore = FindGoreSet(g2To[model].mGoreSetTag)
-                gore!.mRefCount &+= 1
+                gore!.mRefCount += 1
             }
 
             model += 1
@@ -1210,7 +1309,7 @@ func G2API_CopyGhoul2Instance(_ g2From: CGhoul2Info_v, _ g2To: CGhoul2Info_v, _ 
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2282
 func G2API_CopySpecificG2Model(_ ghoul2From: CGhoul2Info_v, _ modelFrom: Int32, _ ghoul2To: CGhoul2Info_v, _ modelTo: Int32) {
-    // Port-note: Raven assigns `ghoul2To[modelTo] = ghoul2From[modelFrom]`, a copy by value into a slot, and the subscript of CGhoul2Info_v has no setter.
+    // Port-note: Raven assigns `ghoul2To[modelTo] = ghoul2From[modelFrom]`, a copy by value into a slot, and CGhoul2Info is a class with no copy of its value.
     // TODO: Port G2API_CopySpecificG2Model
     portMissing("G2API_CopySpecificG2Model", source: "oracle/codemp/ghoul2/G2_API.cpp:2282")
 }
@@ -1242,7 +1341,6 @@ func G2API_DuplicateGhoul2Instance(_ g2From: CGhoul2Info_v, _ g2To: inout CGhoul
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2360
 func G2API_GetSurfaceName(_ ghlInfo: CGhoul2Info?, _ surfNumber: Int32) -> String {
-    // Port-note: Raven calls G2_FindSurface of G2_misc.cpp:1689, which has a signature marker, and walks the hierarchy at a byte offset from `mdxm`.
     // TODO: Port G2API_GetSurfaceName
     portMissing("G2API_GetSurfaceName", source: "oracle/codemp/ghoul2/G2_API.cpp:2360")
 }
@@ -1257,7 +1355,6 @@ func G2API_GetSurfaceIndex(_ ghlInfo: CGhoul2Info?, _ surfaceName: String) -> In
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2412
 func G2API_GetGLAName(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32) -> String? {
-    // Port-note: Raven calls the `CGhoul2Info_v &` overload of G2_SetupModelPointers at G2_API.cpp:2773, which has no Swift function.
     // TODO: Port G2API_GetGLAName
     portMissing("G2API_GetGLAName", source: "oracle/codemp/ghoul2/G2_API.cpp:2412")
 }
@@ -1328,7 +1425,6 @@ func G2API_LoadSaveCodeDestructGhoul2Info(_ ghoul2: CGhoul2Info_v) {
 //see if surfs have any shader info...
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2499
 func G2API_SkinlessModel(_ g2: CGhoul2Info?) -> Bool {
-    // Port-note: Raven walks the `mdxmSurfHierarchy_t` records at a byte offset from `mdxm`, and a logic body has no form for a view at a byte offset past a record.
     // TODO: Port G2API_SkinlessModel
     portMissing("G2API_SkinlessModel", source: "oracle/codemp/ghoul2/G2_API.cpp:2499")
 }
@@ -1372,12 +1468,41 @@ func G2API_Ghoul2Size(_ ghoul2: CGhoul2Info_v) -> Int32 {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2569
-// TODO: Port signature
-// Raven wrote: void G2API_AddSkinGore(CGhoul2Info_v &ghoul2,SSkinGoreData &gore)
-// No table row for `SSkinGoreData & gore`.
-func G2API_AddSkinGore() -> Never {
-    // TODO: Port G2API_AddSkinGore
-    portMissing("G2API_AddSkinGore", source: "oracle/codemp/ghoul2/G2_API.cpp:2569")
+func G2API_AddSkinGore(_ ghoul2: CGhoul2Info_v, _ gore: SkinGoreData) {
+    if VectorLength(gore.rayDirection) < 0.1 {
+        assert(false) // can't add gore without a shot direction
+        return
+    }
+
+    // make sure we have transformed the whole skeletons for each model
+    //G2_ConstructGhoulSkeleton(ghoul2, gore.currentTime, NULL, true, gore.angles, gore.position, gore.scale, false);
+    G2_ConstructGhoulSkeleton(ghoul2, gore.currentTime, true, gore.scale)
+
+    // pre generate the world matrix - used to transform the incoming ray
+    G2_GenerateWorldMatrix(gore.angles, gore.position)
+
+    // first up, translate the ray to model space
+    var transRayDirection = vec3_t()
+    var transHitLocation = vec3_t()
+    TransformAndTranslatePoint(gore.hitLocation, &transHitLocation, worldMatrixInv)
+    TransformPoint(gore.rayDirection, &transRayDirection, worldMatrixInv)
+
+    var lod: Int32
+    ResetGoreTag()
+    // C converts the float clamp to `int` at the store.
+    let lodbias = Int32(Com_Clamp(0, 2, Float(G2_DecideTraceLod(ghoul2[0], r_lodbias!.integer))))
+    let maxLod = Int32(Com_Clamp(0, Float(ghoul2[0].currentModel!.numLods), 3))	//limit to the number of lods the main model has
+    lod = lodbias
+    while lod < maxLod {
+        // now having done that, time to build the model
+        G2VertSpaceServer!.ResetHeap()
+
+        G2_TransformModel(ghoul2, gore.currentTime, gore.scale, G2VertSpaceServer, lod, true)
+
+        // now walk each model and compute new texture coordinates
+        G2_TraceModels(ghoul2, transHitLocation, transRayDirection, nil, gore.entNum, 0, lod, 0.0, gore.SSize, gore.TSize, gore.theta, gore.shader, gore, true)
+        lod += 1
+    }
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2606

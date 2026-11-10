@@ -14,8 +14,8 @@ let MAX_FILENAME_LENGTH: Int32 = 1024
 // AI: Raven's destructor has an empty body. ARC frees the class, so the destructor drops.
 final class CBlockStream {
     private var m_fileSize: Int32 = 0							//Size of the file
-    // TODO: Port m_fileHandle
-    // Raven wrote: FILE	*m_fileHandle;						//Global file handle of current I/O source
+    // AI: Raven holds a `FILE *`. The field is the OpaquePointer? of FileBackend, the form of `fin` of unzip.swift.
+    private var m_fileHandle: OpaquePointer? = nil						//Global file handle of current I/O source
     private var m_fileName = CharBuf(MAX_FILENAME_LENGTH)	//Name of the current file
 
     // AI: Raven points m_stream into the buffer of the caller. The field holds the buffer as a CharBuf, and an empty one is Raven's NULL.
@@ -151,6 +151,7 @@ final class CBlockStream {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:508
+    @discardableResult
     func Free() -> Int32 {
         //NOTENOTE: It is assumed that the user will free the passed memory block (m_stream) immediately after the run call
         //			That's why this doesn't free the memory, it only clears its internal pointer
@@ -170,6 +171,7 @@ final class CBlockStream {
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:525
     // Port-note: The body uses `m_fileHandle`, and `FILE *` has no table row, so the body waits for that row.
+    @discardableResult
     func Create(_ filename: String) -> Int32 {
         // TODO: Port CBlockStream::Create
         portMissing("CBlockStream::Create", source: "oracle/codemp/icarus/BlockStream.cpp:525")
@@ -183,10 +185,9 @@ final class CBlockStream {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:558
+    @discardableResult
     func Init() -> Int32 {
-        // Port-note: The store uses `m_fileHandle`, and `FILE *` has no table row.
-        // Raven wrote: m_fileHandle = NULL;
-        portMissing("CBlockStream::Init", source: "oracle/codemp/icarus/BlockStream.cpp:558")
+        self.m_fileHandle = nil
         self.m_fileName.zero()
 
         self.m_stream = CharBuf(0)
@@ -234,6 +235,7 @@ final class CBlockStream {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:619
+    @discardableResult
     func ReadBlock(_ get: CBlock?) -> Int32 {
         var bMember: CBlockMember
         var b_id: Int32
@@ -252,7 +254,7 @@ final class CBlockStream {
             return 0
         }
 
-        _ = get!.Create(b_id)
+        get!.Create(b_id)
         get!.SetFlags(Int32(flags))
 
         // Stream blocks are generally temporary as they
@@ -261,8 +263,8 @@ final class CBlockStream {
         while numMembers > 0 {
             numMembers -= 1
             bMember = CBlockMember()
-            _ = bMember.ReadMember(self.m_stream, &self.m_streamPos)
-            _ = get!.AddMember(bMember)
+            bMember.ReadMember(self.m_stream, &self.m_streamPos)
+            get!.AddMember(bMember)
         }
 
         return 1
@@ -280,7 +282,7 @@ final class CBlockStream {
         var id_header = CharBuf(strlen(IBI_HEADER_ID) + 1)
         var version: Float
 
-        _ = self.Init()
+        self.Init()
 
         self.m_fileSize = size
 
@@ -296,13 +298,13 @@ final class CBlockStream {
 
         //Check for valid header
         if strcmp(id_header, IBI_HEADER_ID) != 0 {
-            _ = self.Free()
+            self.Free()
             return 0
         }
 
         //Check for valid version
         if version != IBI_VERSION {
-            _ = self.Free()
+            self.Free()
             return 0
         }
 

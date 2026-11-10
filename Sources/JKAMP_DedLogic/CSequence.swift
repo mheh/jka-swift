@@ -225,6 +225,7 @@ final class CSequence {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:211
+    @discardableResult
     func PushCommand(_ block: CBlock?, _ type: Int32) -> Int32 {
         //Make sure everything is ok
 
@@ -341,6 +342,7 @@ final class CSequence {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:363
+    @discardableResult
     func Save() -> Int32 {
         return 0
     }
@@ -353,6 +355,7 @@ final class CSequence {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:414
+    @discardableResult
     func Load() -> Int32 {
         return 0
     }

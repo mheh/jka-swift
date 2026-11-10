@@ -53,8 +53,11 @@ let NODE_COLLECT_RADIUS_SQR = (NODE_COLLECT_RADIUS * NODE_COLLECT_RADIUS)
 let MAX_Z_DELTA = 18 as Int32
 
 /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1687
-// Raven wrote: static map<int,byte> CheckedNodes
-let CheckedNodes: Int32 = 0
+/// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
+var CheckedNodes: [Int32: JKAShared.byte] {
+    get { world.CheckedNodes }
+    set { world.CheckedNodes = newValue }
+}
 
 /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1721
 let CHECK_FAILED_EDGE_INTERVAL = 1000 as Int32

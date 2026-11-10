@@ -10,29 +10,65 @@ var iICARUS: ICARUS_Instance? {
     set { world.iICARUS = newValue }
 }
 
+/// Raven's cached script, the bytes of one IBI file and their count.
+/// Source: oracle/codemp/icarus/GameInterface.h:4
+// AI: Raven holds an ICARUS_Malloc block in `char *buffer`. The record holds the CharBuf of the file, the form of the CharBuf callers of FS_ReadFile.
+struct pscript_t {
+    var buffer = CharBuf(0)
+    var length: Int32 = 0
+}
+
+/// Source: oracle/codemp/icarus/GameInterface.h:10
+// AI: Raven declares a `map < string, int >`. The type is a Dictionary, by rule 17.
+typealias entlist_t = [String: Int32]
+
+/// Source: oracle/codemp/icarus/GameInterface.h:11
+// AI: Raven declares a `map < string, pscript_t* >`. The type is a Dictionary of the record, by rule 17.
+typealias bufferlist_t = [String: pscript_t]
+
 /// Source: oracle/codemp/icarus/GameInterface.cpp:17
-// TODO: Port global ICARUS_BufferList
-// Raven wrote: bufferlist_t ICARUS_BufferList
-// No view for `std::map<std::basic_string<char>, pscript_s *, std::less<std::basic_string<char> >, std::allocator<pscript_s *> >`, a struct Raven defines inside a .c file.
+/// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
+var ICARUS_BufferList: bufferlist_t {
+    get { world.ICARUS_BufferList }
+    set { world.ICARUS_BufferList = newValue }
+}
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:18
-// TODO: Port global ICARUS_EntList
-// Raven wrote: entlist_t ICARUS_EntList
-// No view for `std::map<std::basic_string<char>, int, std::less<std::basic_string<char> >, std::allocator<int> >`, a struct Raven defines inside a .c file.
+/// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
+var ICARUS_EntList: entlist_t {
+    get { world.ICARUS_EntList }
+    set { world.ICARUS_EntList = newValue }
+}
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:23
 // Raven wrote: int ICARUS_entFilter = -1
 let ICARUS_entFilter: Int32 = -1
 
-/// Source: oracle/codemp/icarus/GameInterface.cpp:592
-// TODO: Port global BSTable
-// Raven wrote: stringID_table_t BSTable[]
-// No view for `stringID_table_s` of `q_shared.h`.
-
 /// Source: oracle/codemp/icarus/GameInterface.cpp:33
 func ICARUS_GetScript(_ name: String, _ buf: inout JKAShared.TextCursor) -> Int32 {
-    // TODO: Port ICARUS_GetScript
-    portMissing("ICARUS_GetScript", source: "oracle/codemp/icarus/GameInterface.cpp:33")
+    //Make sure the caller is valid
+
+    //Attempt to retrieve a precached script
+    var ei = ICARUS_BufferList[name]
+
+    //Not found, check the disk
+    if ei == nil {
+        if ICARUS_RegisterScript(name) == false {
+            return 0
+        }
+
+        //Script is now inserted, retrieve it and pass through
+        ei = ICARUS_BufferList[name]
+
+        if ei == nil {
+            //NOTENOTE: This is an internal error in STL if this happens...
+            assert(false)
+            return 0
+        }
+    }
+
+    buf = TextCursor(ei!.buffer)
+    return ei!.length
 }
 
 /**
@@ -79,8 +115,37 @@ func ICARUS_Init() {
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:166
 func ICARUS_Shutdown() {
-    // TODO: Port ICARUS_Shutdown
-    portMissing("ICARUS_Shutdown", source: "oracle/codemp/icarus/GameInterface.cpp:166")
+    var ent = SV_GentityNum(0)
+
+    //Release all ICARUS resources from the entities
+    var i: Int32 = 0
+    while i < /*globals.num_entities*/MAX_GENTITIES {
+        ent = SV_GentityNum(i)
+
+        if gSequencers[i] != nil {
+            if ent!.s.number >= MAX_GENTITIES ||
+                ent!.s.number < 0 {
+                ent!.s.number = i
+                assert(false)
+            }
+            ICARUS_FreeEnt(ent!)
+        }
+        i += 1
+    }
+
+    //Clear out all precached scripts
+    // AI: Raven frees the ICARUS_Malloc block of each script and deletes the record. The records hold CharBufs, so the clear below frees them.
+
+    ICARUS_BufferList.removeAll()
+
+    //Clear the name map
+    ICARUS_EntList.removeAll()
+
+    //Free this instance
+    if iICARUS != nil {
+        iICARUS!.Delete()
+        iICARUS = nil
+    }
 }
 
 /**
@@ -98,8 +163,37 @@ FIXME: shouldn't ICARUS handle this internally?
 */
 /// Source: oracle/codemp/icarus/GameInterface.cpp:220
 func ICARUS_FreeEnt(_ ent: JKAMP.SharedEntity) {
-    // TODO: Port ICARUS_FreeEnt
-    portMissing("ICARUS_FreeEnt", source: "oracle/codemp/icarus/GameInterface.cpp:220")
+    assert(iICARUS != nil)
+
+    if ent.s.number >= MAX_GENTITIES ||
+        ent.s.number < 0 {
+        assert(false)
+        return
+    }
+
+    //Make sure the ent is valid
+    if gSequencers[ent.s.number] == nil {
+        return
+    }
+
+    //Remove them from the ICARUSE_EntList list so that when their g_entity index is reused, ICARUS doesn't try to affect the new (incorrect) ent.
+    if VALIDSTRING(ent.script_targetname) {
+        var temp = CharBuf(1024)
+
+        strncpy(&temp, ent.script_targetname!, 1023)
+        temp[1023] = 0
+
+        // AI: Raven's Q_strupr returns its argument, and the port's returns nothing. The key is the text of the CharBuf after the call.
+        Q_strupr(&temp)
+        ICARUS_EntList.removeValue(forKey: String(temp))
+    }
+
+    //Delete the sequencer and the task manager
+    iICARUS!.DeleteSequencer(gSequencers[ent.s.number])
+
+    //Clean up the pointers
+    gSequencers[ent.s.number] = nil
+    gTaskManagers[ent.s.number] = nil
 }
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:268
@@ -135,14 +229,72 @@ func ICARUS_ValidEnt(_ ent: JKAMP.SharedEntity) -> Bool {
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:307
 func ICARUS_AssociateEnt(_ ent: JKAMP.SharedEntity) {
-    // TODO: Port ICARUS_AssociateEnt
-    portMissing("ICARUS_AssociateEnt", source: "oracle/codemp/icarus/GameInterface.cpp:307")
+    var temp = CharBuf(1024)
+
+    if VALIDSTRING(ent.script_targetname) == false {
+        return
+    }
+
+    strncpy(&temp, ent.script_targetname!, 1023)
+    temp[1023] = 0
+
+    // AI: Raven's Q_strupr returns its argument, and the port's returns nothing. The key is the text of the CharBuf after the call.
+    Q_strupr(&temp)
+    ICARUS_EntList[String(temp)] = ent.s.number
 }
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:328
 func ICARUS_RegisterScript(_ name: String, _ bCalledDuringInterrogate: Bool = false) -> Bool {
-    // TODO: Port ICARUS_RegisterScript
-    portMissing("ICARUS_RegisterScript", source: "oracle/codemp/icarus/GameInterface.cpp:328")
+    var pscript: pscript_t
+    var newname = CharBuf(MAX_FILENAME_LENGTH)
+    var buffer = CharBuf(0)	// lose compiler warning about uninitialised vars
+    let length: Int32
+
+    //Make sure this isn't already cached
+    let ei = ICARUS_BufferList[name]
+
+    // note special return condition here, if doing interrogate and we already have this file then we MUST return
+    //	false (which stops the interrogator proceeding), this not only saves some time, but stops a potential
+    //	script recursion bug which could lock the program in an infinite loop...   Return TRUE for normal though!
+    //
+    if ei != nil {
+        return (bCalledDuringInterrogate) ? false : true
+    }
+
+    // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of newname.
+    Com_sprintf(&newname, MAX_FILENAME_LENGTH, "%s%s", name, IBI_EXT)
+
+
+    // small update here, if called during interrogate, don't let gi.FS_ReadFile() complain because it can't
+    //	find stuff like BS_RUN_AND_SHOOT as scriptname...   During FINALBUILD the message won't appear anyway, hence
+    //	the ifndef, this just cuts down on internal error reports while testing release mode...
+    //
+    let qbIgnoreFileRead = false
+    //
+    // NOTENOTE: For the moment I've taken this back out, to avoid doubling the number of fopen()'s per file.
+
+    length = qbIgnoreFileRead ? -1 : FS_ReadFile(String(newname), &buffer)
+
+    if length <= 0 {
+        // File not found, but keep quiet during interrogate stage, because of stuff like BS_RUN_AND_SHOOT as scriptname
+        //
+        if !bCalledDuringInterrogate {
+            Com_Printf(S_COLOR_RED + "Could not open file '%s'\n", newname)
+        }
+        return false
+    }
+
+    pscript = pscript_t()
+
+    // AI: Raven copies the file into an ICARUS_Malloc block. The record takes a copy of the CharBuf of the file.
+    pscript.buffer = buffer
+    pscript.length = length
+
+    FS_FreeFile(buffer)
+
+    ICARUS_BufferList[name] = pscript
+
+    return true
 }
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:400
@@ -160,8 +312,7 @@ func ICARUS_GetIDForString(_ string: String) -> Int32 {
 
     sharedMem.string = string
 
-    // AI: Raven returns the int of VM_Call. The port's VM_Call returns the pointer-wide word of vmMain, so the body takes its low 32 bits.
-    return Int32(truncatingIfNeeded: VM_Call(gvm!, GAME_ICARUS_GETSETIDFORSTRING))
+    return VM_Call(gvm!, GAME_ICARUS_GETSETIDFORSTRING)
 }
 
 // at this point the filename should have had the "scripts" (Q3_SCRIPT_DIR) added to it (but not the IBI extension)
@@ -174,8 +325,25 @@ func ICARUS_InterrogateScript(_ filename: String) {
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:617
 func ICARUS_PrecacheEnt(_ ent: JKAMP.SharedEntity) {
-    // TODO: Port ICARUS_PrecacheEnt
-    portMissing("ICARUS_PrecacheEnt", source: "oracle/codemp/icarus/GameInterface.cpp:617")
+    var newname = CharBuf(MAX_FILENAME_LENGTH)
+    var i: Int32
+
+    i = 0
+    while i < NUM_BSETS {
+        if ent.behaviorSet[i] == nil {
+            i += 1
+            continue
+        }
+
+        if GetIDForString(BSTable, ent.behaviorSet[i]!) == -1 {//not a behavior set
+            // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of newname.
+            Com_sprintf(&newname, MAX_FILENAME_LENGTH, "%s/%s", Q3_SCRIPT_DIR, ent.behaviorSet[i]!)
+
+            //Precache this, and all internally referenced scripts
+            ICARUS_InterrogateScript(String(newname))
+        }
+        i += 1
+    }
 }
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:646

@@ -82,7 +82,7 @@ final class CSequencer {
 
     /// Source: oracle/codemp/icarus/Sequencer.cpp:29
     deinit {
-        _ = self.Free()	//Safe even if already freed
+        self.Free()	//Safe even if already freed
     }
 
     /**
@@ -111,6 +111,7 @@ final class CSequencer {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:56
+    @discardableResult
     func Init(_ ownerID: Int32, _ ie: interface_export_t?, _ taskManager: CTaskManager?, _ iICARUS: ICARUS_Instance?) -> Int32 {
         // TODO: Port CSequencer::Init
         portMissing("CSequencer::Init", source: "oracle/codemp/icarus/Sequencer.cpp:56")
@@ -126,6 +127,7 @@ final class CSequencer {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:73
+    @discardableResult
     func Free() -> Int32 {
         //Flush the sequences
         for sli in self.m_sequences {
@@ -156,12 +158,13 @@ final class CSequencer {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:106
+    @discardableResult
     private func Flush(_ owner: CSequence?) -> Int32 {
         if owner == nil {
             return SEQ_FAILED
         }
 
-        _ = self.Recall()
+        self.Recall()
 
         //Flush the sequences
         var sli = 0
@@ -172,7 +175,7 @@ final class CSequencer {
             }
 
             //Delete it, and remove all references
-            _ = self.RemoveSequence(self.m_sequences[sli])
+            self.RemoveSequence(self.m_sequences[sli])
             self.m_owner!.DeleteSequence(self.m_sequences[sli])
 
             //Delete from the sequence list and move on
@@ -224,7 +227,7 @@ final class CSequencer {
             self.m_streamsCreated.remove(at: finder!)
         }
 
-        _ = bstream!.stream!.Free()
+        bstream!.stream!.Free()
     }
 
     /**
@@ -353,7 +356,7 @@ final class CSequencer {
         }
 
         //Save it
-        _ = self.PushCommand(command, PUSH_BACK)
+        self.PushCommand(command, PUSH_BACK)
     }
 
     /**
@@ -369,7 +372,7 @@ final class CSequencer {
     func Run(_ buffer: CharBuf, _ size: Int32) -> Int32 {
         var blockStream: bstream_t?
 
-        _ = self.Recall()
+        self.Recall()
 
         //Create a new stream
         blockStream = self.AddStream()
@@ -435,13 +438,13 @@ final class CSequencer {
         self.m_curSequence!.AddChild(sequence)
 
         //Add a unique conditional identifier to the block for reference later
-        _ = block!.Write(TK_FLOAT, Float(sequence!.GetID()))
+        block!.Write(TK_FLOAT, Float(sequence!.GetID()))
 
         //Push this onto the stack to mark the conditional entrance
-        _ = self.PushCommand(block, PUSH_FRONT)
+        self.PushCommand(block, PUSH_FRONT)
 
         //Recursively obtain the conditional body
-        _ = self.Route(sequence, bstream)
+        self.Route(sequence, bstream)
 
         self.m_elseValid = 2
         self.m_elseOwner = block
@@ -485,12 +488,12 @@ final class CSequencer {
             return SEQ_FAILED
         }
 
-        _ = self.m_elseOwner!.Write(TK_FLOAT, Float(sequence!.GetID()))
+        self.m_elseOwner!.Write(TK_FLOAT, Float(sequence!.GetID()))
 
         self.m_elseOwner!.SetFlag(BF_ELSE)
 
         //Recursively obtain the conditional body
-        _ = self.Route(sequence, bstream)
+        self.Route(sequence, bstream)
 
         self.m_elseValid = 0
         self.m_elseOwner = nil
@@ -594,6 +597,7 @@ final class CSequencer {
     //FIXME: Re-entering this code will produce unpredictable results if a script has already been routed and is running currently
     //FIXME: A sequencer cannot properly affect itself
     /// Source: oracle/codemp/icarus/Sequencer.cpp:787
+    @discardableResult
     private func Route(_ sequence: CSequence?, _ bstream: bstream_t?) -> Int32 {
         var stream: CBlockStream?
         var block: CBlock?
@@ -607,7 +611,7 @@ final class CSequencer {
         //Obtain all blocks
         while stream!.BlockAvailable() != 0 {
             block = CBlock()		//deleted in Free()
-            _ = stream!.ReadBlock(block)
+            stream!.ReadBlock(block)
 
             //TEMP: HACK!
             if self.m_elseValid != 0 {
@@ -619,7 +623,7 @@ final class CSequencer {
             case ID_BLOCK_END:
 
                 //Save this as a pre-process marker
-                _ = self.PushCommand(block, PUSH_FRONT)
+                self.PushCommand(block, PUSH_FRONT)
 
                 if self.m_curSequence!.HasFlag(SQ_RUN) != 0 || self.m_curSequence!.HasFlag(SQ_AFFECT) != 0 {
                     //Go back to the last stream
@@ -688,7 +692,7 @@ final class CSequencer {
             case ID_WAIT, ID_PRINT, ID_SOUND, ID_MOVE, ID_ROTATE, ID_SET, ID_USE, ID_REMOVE, ID_KILL, ID_FLUSH, ID_CAMERA, ID_DO, ID_DECLARE, ID_FREE, ID_SIGNAL, ID_WAITSIGNAL, ID_PLAY:
 
                 //Commands go directly into the sequence without pre-process
-                _ = self.PushCommand(block, PUSH_FRONT)
+                self.PushCommand(block, PUSH_FRONT)
 
             //Error
             default:
@@ -704,8 +708,8 @@ final class CSequencer {
         //Check for a run sequence, it must be marked
         if self.m_curSequence!.HasFlag(SQ_RUN) != 0 {
             block = CBlock()
-            _ = block!.Create(ID_BLOCK_END)
-            _ = self.PushCommand(block, PUSH_FRONT)	//mark the end of the run
+            block!.Create(ID_BLOCK_END)
+            self.PushCommand(block, PUSH_FRONT)	//mark the end of the run
 
             /*
             //Free the stream
@@ -719,7 +723,7 @@ final class CSequencer {
         //Check to start the communication
         if (bstream!.last == nil) && (self.m_numCommands > 0) {
             //Everything is routed, so get it all rolling
-            _ = self.Prime(self.m_taskManager, self.PopCommand(POP_BACK))
+            self.Prime(self.m_taskManager, self.PopCommand(POP_BACK))
         }
 
         self.m_curStream = bstream!.last
@@ -813,11 +817,11 @@ final class CSequencer {
 
         if block!.GetBlockID() == ID_FLUSH {
             //Flush the sequence
-            _ = self.Flush(self.m_curSequence)
+            self.Flush(self.m_curSequence)
 
             //Check to retain it
             if self.m_curSequence!.HasFlag(SQ_RETAIN) != 0 {
-                _ = self.PushCommand(block, PUSH_FRONT)
+                self.PushCommand(block, PUSH_FRONT)
             } else {
                 command = nil
             }
@@ -889,13 +893,14 @@ final class CSequencer {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:2006
+    @discardableResult
     private func Prime(_ taskManager: CTaskManager?, _ command: CBlock?) -> Int32 {
         var command = command
 
         self.Prep(&command)
 
         if command != nil {
-            _ = taskManager!.SetCommand(command, PUSH_BACK)
+            taskManager!.SetCommand(command, PUSH_BACK)
         }
 
         return SEQ_OK
@@ -922,7 +927,7 @@ final class CSequencer {
 
             //Check to retain the command
             if self.m_curSequence!.HasFlag(SQ_RETAIN) != 0 {	//This isn't true for affect sequences...?
-                _ = self.PushCommand(block, PUSH_FRONT)
+                self.PushCommand(block, PUSH_FRONT)
             }
 
             //Check for pending commands
@@ -938,7 +943,7 @@ final class CSequencer {
             self.Prep(&command)
 
             if command != nil {
-                _ = taskManager!.SetCommand(command, PUSH_FRONT)
+                taskManager!.SetCommand(command, PUSH_FRONT)
             }
 
             return SEQ_OK
@@ -960,6 +965,7 @@ final class CSequencer {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:2082
+    @discardableResult
     func Recall() -> Int32 {
         var block: CBlock? = nil
 
@@ -971,7 +977,7 @@ final class CSequencer {
         while let next = self.m_taskManager!.RecallTask() {
             block = next
             if self.m_curSequence != nil {
-                _ = self.PushCommand(block, PUSH_BACK)
+                self.PushCommand(block, PUSH_BACK)
             } else {
                 block = nil
             }
@@ -1000,17 +1006,17 @@ final class CSequencer {
         case TYPE_FLUSH:
 
             //Get rid of all old code
-            _ = self.Flush(sequence)
+            self.Flush(sequence)
 
             sequence!.RemoveFlag(SQ_PENDING, true)
 
             self.m_curSequence = sequence
 
-            _ = self.Prime(self.m_taskManager, self.PopCommand(POP_BACK))
+            self.Prime(self.m_taskManager, self.PopCommand(POP_BACK))
 
         case TYPE_INSERT:
 
-            _ = self.Recall()
+            self.Recall()
 
             sequence!.SetReturn(self.m_curSequence)
 
@@ -1018,7 +1024,7 @@ final class CSequencer {
 
             self.m_curSequence = sequence
 
-            _ = self.Prime(self.m_taskManager, self.PopCommand(POP_BACK))
+            self.Prime(self.m_taskManager, self.PopCommand(POP_BACK))
 
         default:
             // Port-note: The call goes through `m_ie`, and `interface_export_t` has no Swift form.
@@ -1039,13 +1045,14 @@ final class CSequencer {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:2170
+    @discardableResult
     private func PushCommand(_ command: CBlock?, _ flag: Int32) -> Int32 {
         //Make sure everything is ok
         if self.m_curSequence == nil {
             return SEQ_FAILED
         }
 
-        _ = self.m_curSequence!.PushCommand(command, flag)
+        self.m_curSequence!.PushCommand(command, flag)
         self.m_numCommands += 1
 
         //Invalid flag
@@ -1114,6 +1121,7 @@ final class CSequencer {
     */
     //NOTENOTE: This only removes references to the sequence, IT DOES NOT FREE THE ALLOCATED MEMORY!  You've be warned! =)
     /// Source: oracle/codemp/icarus/Sequencer.cpp:2240
+    @discardableResult
     private func RemoveSequence(_ sequence: CSequence?) -> Int32 {
         var temp: CSequence?
 
@@ -1144,6 +1152,7 @@ final class CSequencer {
     }
 
     /// Source: oracle/codemp/icarus/Sequencer.cpp:2268
+    @discardableResult
     private func DestroySequence(_ sequence: CSequence?) -> Int32 {
         if sequence == nil {
             return SEQ_FAILED
@@ -1168,7 +1177,7 @@ final class CSequencer {
             // Stop if we're about to go negative (invalid index!).
             if curChild > 0 {
                 curChild -= 1
-                _ = self.DestroySequence(sequence!.GetChildByIndex(curChild))
+                self.DestroySequence(sequence!.GetChildByIndex(curChild))
             } else {
                 break
             }
@@ -1213,6 +1222,7 @@ final class CSequencer {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:2343
+    @discardableResult
     func Save() -> Int32 {
         return 0
     }
@@ -1225,6 +1235,7 @@ final class CSequencer {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:2406
+    @discardableResult
     func Load() -> Int32 {
         return 0
     }

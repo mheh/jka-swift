@@ -71,6 +71,7 @@ final class CTaskGroup {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:115
+    @discardableResult
     func Add(_ task: CTask?) -> Int32 {
         self.m_completedTasks[task!.GetGUID()] = false
         return TASK_OK

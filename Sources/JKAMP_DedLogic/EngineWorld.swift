@@ -500,6 +500,36 @@ public final class EngineWorld {
     /// Source: oracle/codemp/icarus/GameInterface.cpp:16
     var iICARUS: ICARUS_Instance? = nil
 
+    /// Raven's `bufferlist_t ICARUS_BufferList` of `GameInterface.cpp`, the cached scripts by name.
+    /// Source: oracle/codemp/icarus/GameInterface.cpp:17
+    var ICARUS_BufferList: bufferlist_t = [:]
+
+    /// Raven's `entlist_t ICARUS_EntList` of `GameInterface.cpp`, the entity numbers by their uppercase script target name.
+    /// Source: oracle/codemp/icarus/GameInterface.cpp:18
+    var ICARUS_EntList: entlist_t = [:]
+
+    /// Raven's `varString_m varStrings` of `Q3_Registers.cpp`, the script string variables by name.
+    /// Source: oracle/codemp/icarus/Q3_Registers.cpp:9
+    // AI: Raven declares a `map < string, string >`. The type is a Dictionary, by rule 17.
+    var varStrings: [String: String] = [:]
+
+    /// Raven's `varFloat_m varFloats` of `Q3_Registers.cpp`, the script float variables by name.
+    /// Source: oracle/codemp/icarus/Q3_Registers.cpp:10
+    // AI: Raven declares a `map < string, float >`. The type is a Dictionary, by rule 17.
+    var varFloats: [String: Float] = [:]
+
+    /// Raven's `varString_m varVectors` of `Q3_Registers.cpp`, the script vector variables by name, each as its text.
+    /// Source: oracle/codemp/icarus/Q3_Registers.cpp:11
+    // AI: Raven declares a `map < string, string >`. The type is a Dictionary, by rule 17.
+    var varVectors: [String: String] = [:]
+
+    // MARK: - navigator.cpp
+
+    /// Raven's `static map<int,byte> CheckedNodes` of `navigator.cpp`, keyed by `wayPoint*MAX_GENTITIES+ent`.
+    /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1687
+    // AI: Raven declares a `map<int,byte>`. The type is a Dictionary, by rule 17.
+    var CheckedNodes: [Int32: JKAShared.byte] = [:]
+
     /// Raven's `interface_export_t interface_export` of `Q3_Interface.cpp`, the ICARUS game table that Interface_Init fills.
     /// Source: oracle/codemp/icarus/Q3_Interface.cpp:32
     let interface_export = interface_export_t()

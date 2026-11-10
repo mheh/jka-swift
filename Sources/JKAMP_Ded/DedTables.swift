@@ -1,4 +1,5 @@
 @preconcurrency internal import CJKAMP_Ded
+import JKAMP
 import JKAShared
 
 /// Raven's entity state field table, over the C storage of `Sources/CJKAMP_Ded/ded_tables.c`.
@@ -71,7 +72,36 @@ public nonisolated(unsafe) let weaponinfo_struct: Structdef = makeWeaponinfo_str
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:90
 public nonisolated(unsafe) let projectileinfo_struct: Structdef = makeProjectileinfo_struct()
 
+/// Raven's identity matrix of tr_ghoul2.cpp, over the C storage of `Sources/CJKAMP_Ded/ded_tables.c`.
+/// Source: oracle/codemp/renderer/tr_ghoul2.cpp:128
+public nonisolated(unsafe) let identityMatrix: JKAMP.MdxaBone = makeIdentityMatrix()
+
+/// Raven's static identity matrix of G2API_GetBoltMatrix, over the C storage of `Sources/CJKAMP_Ded/ded_tables.c`.
+/// Source: oracle/codemp/ghoul2/G2_API.cpp:1801
+// AI: Raven declares `identityMatrix` static in G2API_GetBoltMatrix. The record is C storage, and its name takes the function name as a suffix.
+public nonisolated(unsafe) let identityMatrix_G2API_GetBoltMatrix: JKAMP.MdxaBone = makeIdentityMatrix_G2API_GetBoltMatrix()
+
+/// Raven's static identity matrix `id` of G2_Set_Bone_Angles_Rag, over the C storage of `Sources/CJKAMP_Ded/ded_tables.c`.
+/// Source: oracle/codemp/ghoul2/G2_bones.cpp:1423
+// AI: Raven declares `id` static in G2_Set_Bone_Angles_Rag. The record is C storage, and its name takes the function name as a suffix.
+public nonisolated(unsafe) let id_G2_Set_Bone_Angles_Rag: JKAMP.MdxaBone = makeId_G2_Set_Bone_Angles_Rag()
+
+/// Raven's static identity matrix `id` of G2_Set_Bone_Angles_IK, over the C storage of `Sources/CJKAMP_Ded/ded_tables.c`.
+/// Source: oracle/codemp/ghoul2/G2_bones.cpp:4575
+// AI: Raven declares `id` static in G2_Set_Bone_Angles_IK. The record is C storage, and its name takes the function name as a suffix.
+public nonisolated(unsafe) let id_G2_Set_Bone_Angles_IK: JKAMP.MdxaBone = makeId_G2_Set_Bone_Angles_IK()
+
+/// Raven's behavior state name table of the ICARUS interface, over the C storage of `Sources/CJKAMP_Ded/ded_tables.c`.
+/// Source: oracle/codemp/icarus/GameInterface.cpp:592
+public nonisolated(unsafe) let BSTable: Slots<StringIDTable> = makeBSTable()
+
 // MARK: - The bind over each C array
+
+private func makeBSTable() -> Slots<StringIDTable> {
+    let base = withUnsafeMutablePointer(to: &CJKAMP_Ded.BSTable) { UnsafeMutableRawPointer($0) }
+    let count = MemoryLayout.size(ofValue: CJKAMP_Ded.BSTable) / StringIDTable.stride
+    return Slots(views: base, count: count, stride: StringIDTable.stride)
+}
 
 /// The compiler crashes if a global initializer takes the address inline, so each table binds in a function.
 private func makeEntityStateFields() -> Slots<NetField> {
@@ -158,4 +188,20 @@ private func makeWeaponinfo_struct() -> Structdef {
 
 private func makeProjectileinfo_struct() -> Structdef {
     Structdef(withUnsafeMutablePointer(to: &CJKAMP_Ded.projectileinfo_struct) { UnsafeMutableRawPointer($0) })
+}
+
+private func makeIdentityMatrix() -> JKAMP.MdxaBone {
+    JKAMP.MdxaBone(withUnsafeMutablePointer(to: &CJKAMP_Ded.identityMatrix) { UnsafeMutableRawPointer($0) })
+}
+
+private func makeIdentityMatrix_G2API_GetBoltMatrix() -> JKAMP.MdxaBone {
+    JKAMP.MdxaBone(withUnsafeMutablePointer(to: &CJKAMP_Ded.identityMatrix_G2API_GetBoltMatrix) { UnsafeMutableRawPointer($0) })
+}
+
+private func makeId_G2_Set_Bone_Angles_Rag() -> JKAMP.MdxaBone {
+    JKAMP.MdxaBone(withUnsafeMutablePointer(to: &CJKAMP_Ded.id_G2_Set_Bone_Angles_Rag) { UnsafeMutableRawPointer($0) })
+}
+
+private func makeId_G2_Set_Bone_Angles_IK() -> JKAMP.MdxaBone {
+    JKAMP.MdxaBone(withUnsafeMutablePointer(to: &CJKAMP_Ded.id_G2_Set_Bone_Angles_IK) { UnsafeMutableRawPointer($0) })
 }

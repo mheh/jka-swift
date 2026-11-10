@@ -203,6 +203,18 @@ struct SRagEffector
 // C++ names the tag without its keyword, and this typedef lets C do the same.
 typedef struct SRagEffector SRagEffector;
 
+// Source: oracle/codemp/ghoul2/G2_misc.cpp:780
+// AI: Raven's constructor sets `touch` to 0. The C copy drops it, because the zeroed storage of `GoreVerts` holds the same value.
+struct SVertexTemp
+{
+	int flags;
+	int touch;
+	int newindex;
+	float tex[2];
+};
+// C++ names the tag without its keyword, and this typedef lets C do the same.
+typedef struct SVertexTemp SVertexTemp;
+
 // Source: oracle/codemp/renderer/tr_image.cpp:2338
 typedef struct
 {

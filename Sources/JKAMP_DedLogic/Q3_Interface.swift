@@ -9,9 +9,8 @@ import JKAMP_Ded
 // No view for `interface_export_s` of `interface.h`.
 
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:45
-private func Q3_ReadScript(_ name: String, _ buf: inout OpaquePointer?) -> Int32 {
-    // TODO: Port Q3_ReadScript
-    portMissing("Q3_ReadScript", source: "oracle/codemp/icarus/Q3_Interface.cpp:45")
+private func Q3_ReadScript(_ name: String, _ buf: inout JKAShared.TextCursor) -> Int32 {
+    return ICARUS_GetScript(va("%s/%s", Q3_SCRIPT_DIR, name), &buf)	//get a (hopefully) cached file
 }
 
 /**
@@ -92,7 +91,7 @@ func Q3_TaskIDComplete(_ ent: JKAMP.SharedEntity, _ taskType: JKAMP.taskID_t) {
 
     if gTaskManagers[ent.s.number] != nil && Q3_TaskIDPending(ent, taskType) {
         //Complete it
-        _ = gTaskManagers[ent.s.number]!.Completed(ent.taskID[taskType])
+        gTaskManagers[ent.s.number]!.Completed(ent.taskID[taskType])
 
         //See if any other tasks have the name number and clear them so we don't complete more than once
         let clearTask = ent.taskID[taskType]
@@ -169,8 +168,27 @@ Returns the sequencer of the entity by the given name
 */
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:221
 private func Q3_GetEntityByName(_ name: String) -> JKAMP.SharedEntity? {
-    // TODO: Port Q3_GetEntityByName
-    portMissing("Q3_GetEntityByName", source: "oracle/codemp/icarus/Q3_Interface.cpp:221")
+    let ent: JKAMP.SharedEntity?
+    var temp = CharBuf(1024)
+
+    if name.isEmpty {
+        return nil
+    }
+
+    strncpy(&temp, name, Int32(temp.count))
+    temp[temp.count - 1] = 0
+
+    // AI: Raven's Q_strupr returns its argument, and the port's returns nothing. The key is the text of the CharBuf after the call.
+    Q_strupr(&temp)
+    let ei = ICARUS_EntList[String(temp)]
+
+    if ei == nil {
+        return nil
+    }
+
+    ent = SV_GentityNum(ei!)
+
+    return ent
 }
 
 /**
@@ -184,7 +202,8 @@ Get the current game time
 */
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:254
 private func Q3_GetTime() -> UInt32 {
-    return UInt32(truncatingIfNeeded: svs.time)
+    // C converts the `int` time to the `DWORD` return.
+    return UInt32(bitPattern: svs.time)
 }
 
 /**
@@ -205,8 +224,7 @@ private func Q3_PlaySound(_ taskID: Int32, _ entID: Int32, _ name: String, _ cha
     sharedMem.name = name
     sharedMem.channel = channel
 
-    // AI: Raven returns the int of VM_Call. The port's VM_Call returns the pointer-wide word of vmMain, so the body takes its low 32 bits.
-    return Int32(truncatingIfNeeded: VM_Call(gvm!, GAME_ICARUS_PLAYSOUND))
+    return VM_Call(gvm!, GAME_ICARUS_PLAYSOUND)
 }
 
 /**
@@ -251,7 +269,7 @@ private func Q3_Set(_ taskID: Int32, _ entID: Int32, _ type_name: String, _ data
     sharedMem.data = data
 
     if VM_Call(gvm!, GAME_ICARUS_SET) != 0 {
-        _ = gTaskManagers[entID]!.Completed(taskID)
+        gTaskManagers[entID]!.Completed(taskID)
     }
 }
 
@@ -572,6 +590,7 @@ func CGCam_Roll(_ dest: Float, _ duration: Float) {
 
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:762
 private func Q3_GetTimeScale() -> UInt32 {
+    // C converts the `float` time scale to the `DWORD` return.
     return UInt32(com_timescale!.value)
 }
 
@@ -645,8 +664,7 @@ private func Q3_GetTag(_ entID: Int32, _ name: String, _ lookup: Int32, _ info: 
     sharedMem.lookup = lookup
     sharedMem.info = info
 
-    // AI: Raven stores the int of VM_Call. The port's VM_Call returns the pointer-wide word of vmMain, so the body takes its low 32 bits.
-    r = Int32(truncatingIfNeeded: VM_Call(gvm!, GAME_ICARUS_GETTAG))
+    r = VM_Call(gvm!, GAME_ICARUS_GETTAG)
     info = sharedMem.info
     return r
 }
@@ -725,8 +743,7 @@ private func Q3_GetFloat(_ entID: Int32, _ type: Int32, _ name: String, _ value:
     sharedMem.name = name
     sharedMem.value = 0 //*value;
 
-    // AI: Raven stores the int of VM_Call. The port's VM_Call returns the pointer-wide word of vmMain, so the body takes its low 32 bits.
-    r = Int32(truncatingIfNeeded: VM_Call(gvm!, GAME_ICARUS_GETFLOAT))
+    r = VM_Call(gvm!, GAME_ICARUS_GETFLOAT)
     value = sharedMem.value
     return r
 }
@@ -741,8 +758,7 @@ private func Q3_GetVector(_ entID: Int32, _ type: Int32, _ name: String, _ value
     sharedMem.name = name
     sharedMem.value = value
 
-    // AI: Raven stores the int of VM_Call. The port's VM_Call returns the pointer-wide word of vmMain, so the body takes its low 32 bits.
-    r = Int32(truncatingIfNeeded: VM_Call(gvm!, GAME_ICARUS_GETVECTOR))
+    r = VM_Call(gvm!, GAME_ICARUS_GETVECTOR)
     value = sharedMem.value
     return r
 }
@@ -756,8 +772,7 @@ private func Q3_GetString(_ entID: Int32, _ type: Int32, _ name: String, _ value
     sharedMem.type = type
     sharedMem.name = name
 
-    // AI: Raven stores the int of VM_Call. The port's VM_Call returns the pointer-wide word of vmMain, so the body takes its low 32 bits.
-    r = Int32(truncatingIfNeeded: VM_Call(gvm!, GAME_ICARUS_GETSTRING))
+    r = VM_Call(gvm!, GAME_ICARUS_GETSTRING)
     //rww - careful with this, next time shared memory is altered this will get stomped
     value = sharedMem.value
     return r

@@ -49,4 +49,19 @@ extern structdef_t weaponinfo_struct;
 // Source: oracle/codemp/botlib/be_ai_weap.cpp:90
 extern structdef_t projectileinfo_struct;
 
+// The identity matrices of the Ghoul2 code, row R3. Raven declares each one `static`, and ded_tables.c defines them without the `static`.
+// A static local takes the function name as a suffix.
+// Source: oracle/codemp/renderer/tr_ghoul2.cpp:128
+extern mdxaBone_t identityMatrix;
+// Source: oracle/codemp/ghoul2/G2_API.cpp:1801
+extern mdxaBone_t identityMatrix_G2API_GetBoltMatrix;
+// Source: oracle/codemp/ghoul2/G2_bones.cpp:1423
+extern mdxaBone_t id_G2_Set_Bone_Angles_Rag;
+// Source: oracle/codemp/ghoul2/G2_bones.cpp:4575
+extern mdxaBone_t id_G2_Set_Bone_Angles_IK;
+
+// The behavior state names of ICARUS_PrecacheEnt, row 2 of the icarus round.
+// Source: oracle/codemp/icarus/GameInterface.cpp:592
+extern stringID_table_t BSTable[11];
+
 #endif

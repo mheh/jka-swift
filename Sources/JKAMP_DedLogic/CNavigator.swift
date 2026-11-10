@@ -149,9 +149,18 @@ final class CNavigator {
         }
 
         //read in the failed edges
-        // Port-note: The read needs the storage of failedEdges of navigator.h:245, and no storage exists.
-        // Raven wrote: FS_Read( &failedEdges, sizeof( failedEdges ), file ); for ( int j = 0; j < MAX_FAILED_EDGES; j++ ) { m_edgeLookupMap.insert(pair<int, int>(failedEdges[j].startID, j)); }
-        portMissing("CNavigator::Load", source: "oracle/codemp/server/NPCNav/navigator.cpp:602")
+        // AI: Raven reads `sizeof( failedEdges )` and counts to MAX_FAILED_EDGES of navigator.h, which no module of the host declares.
+        // The body reads the bytes of the 32 records, the form of ClearAllFailedEdges.
+        _ = FS_Read(self.failedEdges.bytes, Int32(JKAMP.FailedEdge.byteCount * 32), file)
+        var j: Int32 = 0
+        while j < 32 {
+            self.m_edgeLookupMap[self.failedEdges[j].startID, default: []].append(j)
+            j += 1
+        }
+
+        FS_FCloseFile(file)
+
+        return true
     }
 
     /**
@@ -163,10 +172,45 @@ final class CNavigator {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:665
     func Save(_ filename: String, _ checksum: Int32) -> Bool {
-        // Port-note: Raven writes an `unsigned long` header, 8 bytes on this build, and no CharBuf write gives an 8-byte word.
-        // Port-note: The body also writes failedEdges of navigator.h:245, and no storage exists.
-        // TODO: Port CNavigator::Save
-        portMissing("CNavigator::Save", source: "oracle/codemp/server/NPCNav/navigator.cpp:665")
+        var file: JKAShared.fileHandle_t = 0
+
+        //Attempt to load the file
+        _ = FS_FOpenFileByMode(va("maps/%s.nav", filename), &file, FS_WRITE)
+
+        if file == 0 {
+            return false
+        }
+
+        // AI: Raven writes each value through its address. The value goes into a CharBuf of its bytes, and the CharBuf is written.
+        var value = CharBuf(Int32.byteCount)
+
+        //Write out the header id
+        // AI: Raven writes an `unsigned long` of NAV_HEADER_ID of navigator.h, 4 bytes on WinDed. The body writes its value, 'JNV5'.
+        value.withMutableSlots { $0[int: 0] = 0x4A4E_5635 }
+        _ = FS_Write(value, Int32(UInt32.byteCount), file)
+
+        //Write out the checksum
+        value.withMutableSlots { $0[int: 0] = checksum }
+        _ = FS_Write(value, Int32(Int32.byteCount), file)
+
+        let numNodes = Int32(self.m_nodes.count)
+
+        //Write out the number of nodes to follow
+        value.withMutableSlots { $0[int: 0] = numNodes }
+        _ = FS_Write(value, Int32(Int32.byteCount), file)
+
+        //Write out all the nodes
+        for ni in self.m_nodes {
+            _ = ni!.Save(numNodes, file)
+        }
+
+        //write out failed edges
+        // AI: Raven writes `sizeof( failedEdges )`. The body writes the bytes of the 32 records, the form of ClearAllFailedEdges.
+        _ = FS_Write(self.failedEdges.bytes, Int32(JKAMP.FailedEdge.byteCount * 32), file)
+
+        FS_FCloseFile(file)
+
+        return true
     }
 
     /**
@@ -1762,23 +1806,33 @@ final class CNavigator {
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1688
     func ClearCheckedNodes() {
-        // Port-note: CheckedNodes of navigator.cpp:1687 is an Int32 in navigator.swift, and Raven's `map<int,byte>` needs a Dictionary.
-        // TODO: Port CNavigator::ClearCheckedNodes
-        portMissing("CNavigator::ClearCheckedNodes", source: "oracle/codemp/server/NPCNav/navigator.cpp:1688")
+        CheckedNodes.removeAll()
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1693
     func CheckedNode(_ wayPoint: Int32, _ ent: Int32) -> JKAShared.byte {
-        // Port-note: CheckedNodes of navigator.cpp:1687 is an Int32 in navigator.swift, and Raven's `map<int,byte>` needs a Dictionary.
-        // TODO: Port CNavigator::CheckedNode
-        portMissing("CNavigator::CheckedNode", source: "oracle/codemp/server/NPCNav/navigator.cpp:1693")
+        //assert(wayPoint>=0&&wayPoint<MAX_STORED_WAYPOINTS);
+        // AI: Raven compares with MAX_STORED_WAYPOINTS of g_nav.h, which no module of the host declares. The body reads its value, 512.
+        if wayPoint < 0 || wayPoint >= 512 {
+            return CHECKED_NO
+        }
+        assert(ent >= 0 && ent < MAX_GENTITIES)
+        if let f = CheckedNodes[wayPoint * MAX_GENTITIES + ent] {
+            return f
+        }
+        return CHECKED_NO
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1709
     func SetCheckedNode(_ wayPoint: Int32, _ ent: Int32, _ value: JKAShared.byte) {
-        // Port-note: CheckedNodes of navigator.cpp:1687 is an Int32 in navigator.swift, and Raven's `map<int,byte>` needs a Dictionary.
-        // TODO: Port CNavigator::SetCheckedNode
-        portMissing("CNavigator::SetCheckedNode", source: "oracle/codemp/server/NPCNav/navigator.cpp:1709")
+        //assert(wayPoint>=0&&wayPoint<MAX_STORED_WAYPOINTS);
+        // AI: Raven compares with MAX_STORED_WAYPOINTS of g_nav.h, which no module of the host declares. The body reads its value, 512.
+        if wayPoint < 0 || wayPoint >= 512 {
+            return
+        }
+        assert(ent >= 0 && ent < MAX_GENTITIES)
+        assert(value == CHECKED_FAILED || value == CHECKED_PASSED)
+        CheckedNodes[wayPoint * MAX_GENTITIES + ent] = value
     }
 
     /**
@@ -2025,10 +2079,13 @@ final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:557
-    private func GetLong(_ file: JKAShared.fileHandle_t) -> CLong {
-        // Port-note: Raven's `long` is 8 bytes on this build, and the Slots of bytes has no 8-byte read.
-        // TODO: Port CNavigator::GetLong
-        portMissing("CNavigator::GetLong", source: "oracle/codemp/server/NPCNav/navigator.cpp:557")
+    private func GetLong(_ file: JKAShared.fileHandle_t) -> Int32 {
+        // AI: Raven reads a `long` local through its address, 4 bytes on WinDed. The local is a CharBuf of the four bytes, and the read gives the `long` of them.
+        var value = CharBuf(Int32.byteCount)
+
+        _ = FS_Read(&value, Int32(Int32.byteCount), file)
+
+        return value.withSlots { $0[int: 0] }
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:757

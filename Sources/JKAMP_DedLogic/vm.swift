@@ -847,6 +847,15 @@ func VM_Call(_ vm: Vm, _ callnum: Int32, _ args: any JKAShared.FormatArg...) -> 
     return r
 }
 
+/// Raven's `VM_Call` where the caller reads the result as an `int`, the ICARUS calls of GameInterface.cpp and Q3_Interface.cpp.
+/// A call with no type context takes the pointer-wide form above.
+/// Source: oracle/codemp/qcommon/vm.cpp:787
+// AI: Raven's VM_Call returns an `int`. This form gives the low 32 bits of the word, so an `int` caller has no conversion in its body.
+@_disfavoredOverload
+func VM_Call(_ vm: Vm, _ callnum: Int32) -> Int32 {
+    Int32(truncatingIfNeeded: VM_Call(vm, callnum) as Int)
+}
+
 //=================================================================
 
 /// Source: oracle/codemp/qcommon/vm.cpp:833

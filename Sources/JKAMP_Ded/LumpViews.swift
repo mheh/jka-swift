@@ -34,6 +34,20 @@ extension MdxmSurfHierarchy {
     public static func byteCount(childIndexes n: some BinaryInteger) -> Int {
         MemoryLayout<mdxmSurfHierarchy_t>.offset(of: \mdxmSurfHierarchy_t.childIndexes)! + Int(n) * Int32.byteCount
     }
+
+    /// Raven's `psShaderName - pModelDiskImage` for `&surfInfo->shader[0]`, the distance in bytes from the base of the model image to the `shader` field.
+    /// Source: oracle/codemp/renderer/tr_model.cpp:87
+    // AI: Raven subtracts the base of the disk image from a pointer into it. The view gives the byte distance, the form of `ClipMap.leafbrushes(_:)`.
+    public func shader(_ image: Slots<byte>) -> Int32 {
+        Int32(image.base.distance(to: UnsafeMutableRawPointer(self.raw.pointer(to: \.shader)!)))
+    }
+
+    /// Raven's `piShaderIndexPoke - pModelDiskImage` for `&surfInfo->shaderIndex`, the distance in bytes from the base of the model image to the `shaderIndex` field.
+    /// Source: oracle/codemp/renderer/tr_model.cpp:88
+    // AI: Raven subtracts the base of the disk image from a pointer into it. The view gives the byte distance, the form of `ClipMap.leafbrushes(_:)`.
+    public func shaderIndex(_ image: Slots<byte>) -> Int32 {
+        Int32(image.base.distance(to: UnsafeMutableRawPointer(self.raw.pointer(to: \.shaderIndex)!)))
+    }
 }
 
 extension MdxaSkel {

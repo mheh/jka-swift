@@ -6,7 +6,6 @@ import JKAMP_Ded
 /// Raven's mini heap, one byte block that hands out space from its start and resets in one step.
 /// `G2VertSpaceServer` holds one for the transformed vertices of a Ghoul2 trace.
 /// Source: oracle/codemp/qcommon/MiniHeap.h:5
-// AI: Raven's destructor at MiniHeap.h:31 frees `mHeap`. The class drops it, because it only frees memory.
 final class CMiniHeap {
     private var mHeap: Slots<JKAShared.byte>? = nil
     private var mCurrentHeap: Slots<JKAShared.byte>? = nil
@@ -21,9 +20,19 @@ final class CMiniHeap {
 // initialise the heap
     /// Source: oracle/codemp/qcommon/MiniHeap.h:20
     init(_ size: Int32) {
-        // Port-note: Raven allocates `mHeap` with the C library `malloc`, and the logic target has no allocator of a byte block outside the zone.
-        // TODO: Port CMiniHeap::CMiniHeap
-        portMissing("CMiniHeap::CMiniHeap", source: "oracle/codemp/qcommon/MiniHeap.h:20")
+        self.mHeap = Slots<JKAShared.byte>.malloc(size)
+        self.mSize = size
+        if self.mHeap != nil {
+            self.ResetHeap()
+        }
+    }
+
+// free up the heap
+    /// Source: oracle/codemp/qcommon/MiniHeap.h:31
+    deinit {
+        if let mHeap = self.mHeap {
+            mHeap.free()
+        }
     }
 
 // give me some space from the heap please

@@ -94,6 +94,7 @@ final class CBlockMember {
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:102
     // Port-note: The body reads or writes `m_data`, which is `OpaquePointer?` and has no body form, so the body waits for that row.
+    @discardableResult
     func ReadMember(_ stream: CharBuf, _ streamPos: inout Int32) -> Int32 {
         // TODO: Port CBlockMember::ReadMember
         portMissing("CBlockMember::ReadMember", source: "oracle/codemp/icarus/BlockStream.cpp:102")

@@ -59,7 +59,6 @@ func G2_IsSurfaceLegal(_ mod: Model?, _ surfaceName: String, _ flags: inout Int3
 */
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:98
 private func G2_FindSurface(_ ghlInfo: CGhoul2Info?, _ slist: inout [surfaceInfo_t], _ surfaceName: String, _ surfIndex: inout Int32) -> MdxmSurface? {
-    // Port-note: Raven calls G2_FindSurface of G2_misc.cpp:1689, which has a signature marker, and walks the hierarchy at a byte offset from `mdxm`.
     // TODO: Port G2_FindSurface
     portMissing("G2_FindSurface", source: "oracle/codemp/ghoul2/G2_surfaces.cpp:98")
 }
@@ -67,14 +66,12 @@ private func G2_FindSurface(_ ghlInfo: CGhoul2Info?, _ slist: inout [surfaceInfo
 // set a named surface offFlags - if it doesn't find a surface with this name in the list then it will add one.
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:148
 func G2_SetSurfaceOnOff(_ ghlInfo: CGhoul2Info?, _ slist: inout [surfaceInfo_t], _ surfaceName: String, _ offFlags: Int32) -> Bool {
-    // Port-note: Raven passes the model to G2_IsSurfaceLegal, whose `OpaquePointer?` parameter a logic body cannot fill.
     // TODO: Port G2_SetSurfaceOnOff
     portMissing("G2_SetSurfaceOnOff", source: "oracle/codemp/ghoul2/G2_surfaces.cpp:148")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:201
 func G2_SetSurfaceOnOffFromSkin(_ ghlInfo: CGhoul2Info?, _ renderSkin: JKAShared.qhandle_t) {
-    // Port-note: Raven passes the model to G2_IsSurfaceLegal, whose `OpaquePointer?` parameter a logic body cannot fill.
     // TODO: Port G2_SetSurfaceOnOffFromSkin
     portMissing("G2_SetSurfaceOnOffFromSkin", source: "oracle/codemp/ghoul2/G2_surfaces.cpp:201")
 }
@@ -82,14 +79,12 @@ func G2_SetSurfaceOnOffFromSkin(_ ghlInfo: CGhoul2Info?, _ renderSkin: JKAShared
 // return a named surfaces off flags - should tell you if this surface is on or off.
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:229
 func G2_IsSurfaceOff(_ ghlInfo: CGhoul2Info?, _ slist: inout [surfaceInfo_t], _ surfaceName: String) -> Int32 {
-    // Port-note: Raven walks the `mdxmSurfHierarchy_t` records at a byte offset from `mdxm`, and a logic body has no form for a view at a byte offset past a record.
     // TODO: Port G2_IsSurfaceOff
     portMissing("G2_IsSurfaceOff", source: "oracle/codemp/ghoul2/G2_surfaces.cpp:229")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:266
 func G2_FindRecursiveSurface(_ currentModel: Model, _ surfaceNum: Int32, _ rootList: inout [surfaceInfo_t], _ activeSurfaces: Slots<Int32>) {
-    // Port-note: Raven calls G2_FindSurface of G2_misc.cpp:1689, which has a signature marker, and walks the hierarchy at a byte offset from `mdxm`.
     // TODO: Port G2_FindRecursiveSurface
     portMissing("G2_FindRecursiveSurface", source: "oracle/codemp/ghoul2/G2_surfaces.cpp:266")
 }
@@ -123,7 +118,6 @@ func G2_RemoveRedundantGeneratedSurfaces(_ slist: inout [surfaceInfo_t], _ activ
 
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:337
 func G2_SetRootSurface(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ surfaceName: String) -> Bool {
-    // Port-note: Raven passes the model to G2_IsSurfaceLegal, whose `OpaquePointer?` parameter a logic body cannot fill.
     // TODO: Port G2_SetRootSurface
     portMissing("G2_SetRootSurface", source: "oracle/codemp/ghoul2/G2_surfaces.cpp:337")
 }
@@ -201,21 +195,18 @@ func G2_RemoveSurface(_ slist: inout [surfaceInfo_t], _ index: Int32) -> Bool {
 
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:588
 func G2_GetParentSurface(_ ghlInfo: CGhoul2Info?, _ index: Int32) -> Int32 {
-    // Port-note: Raven calls G2_FindSurface of G2_misc.cpp:1689, which has a signature marker, and walks the hierarchy at a byte offset from `mdxm`.
     // TODO: Port G2_GetParentSurface
     portMissing("G2_GetParentSurface", source: "oracle/codemp/ghoul2/G2_surfaces.cpp:588")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:603
 func G2_GetSurfaceIndex(_ ghlInfo: CGhoul2Info?, _ surfaceName: String) -> Int32 {
-    // Port-note: Raven passes the model to G2_IsSurfaceLegal, whose `OpaquePointer?` parameter a logic body cannot fill.
     // TODO: Port G2_GetSurfaceIndex
     portMissing("G2_GetSurfaceIndex", source: "oracle/codemp/ghoul2/G2_surfaces.cpp:603")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:611
 func G2_IsSurfaceRendered(_ ghlInfo: CGhoul2Info?, _ surfaceName: String, _ slist: inout [surfaceInfo_t]) -> Int32 {
-    // Port-note: Raven passes the model to G2_IsSurfaceLegal, whose `OpaquePointer?` parameter a logic body cannot fill.
     // TODO: Port G2_IsSurfaceRendered
     portMissing("G2_IsSurfaceRendered", source: "oracle/codemp/ghoul2/G2_surfaces.cpp:611")
 }

@@ -335,9 +335,56 @@ final class CNode {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:385
     func Save(_ numNodes: Int32, _ file: JKAShared.fileHandle_t) -> Int32 {
-        // Port-note: Raven's `unsigned long` header is 8 bytes on this build, and no CharBuf read or write gives an 8-byte word.
-        // TODO: Port CNode::Save
-        portMissing("CNode::Save", source: "oracle/codemp/server/NPCNav/navigator.cpp:385")
+        // AI: Raven writes each value through its address. The value goes into a CharBuf of its bytes, and the CharBuf is written.
+        var value = CharBuf(Int32.byteCount)
+
+        //Write out the header
+        // AI: Raven writes an `unsigned long` of NODE_HEADER_ID of navigator.h, 4 bytes on WinDed. The body writes its value, 'NODE'.
+        value.withMutableSlots { $0[int: 0] = 0x4E4F_4445 }
+        _ = FS_Write(value, Int32(UInt32.byteCount), file)
+
+        //Write out the basic information
+        for i in 0..<3 {
+            value.withMutableSlots { $0[float: 0] = self.m_position[i] }
+            _ = FS_Write(value, Int32(Float.byteCount), file)
+        }
+
+        value.withMutableSlots { $0[int: 0] = self.m_flags }
+        _ = FS_Write(value, Int32(Int32.byteCount), file)
+        value.withMutableSlots { $0[int: 0] = self.m_ID }
+        _ = FS_Write(value, Int32(Int32.byteCount), file)
+        value.withMutableSlots { $0[int: 0] = self.m_radius }
+        _ = FS_Write(value, Int32(Int32.byteCount), file)
+
+        //Write out the edge information
+        value.withMutableSlots { $0[int: 0] = self.m_numEdges }
+        _ = FS_Write(value, Int32(Int32.byteCount), file)
+
+        // AI: Raven writes each `edge_t` whole, 12 bytes with ID at 0, cost at 4, and flags at 8. The body writes the same bytes.
+        // Port-note: Raven writes the three padding bytes of the record uninitialized. The body writes them as zero.
+        var record = CharBuf(12)
+        for ei in self.m_edges {
+            record.zero()
+            record.withMutableSlots {
+                $0[int: 0] = ei.ID
+                $0[int: 4] = ei.cost
+                $0[byte: 8] = ei.flags
+            }
+            _ = FS_Write(record, 12, file)
+        }
+
+        //Write out the node ranks
+        value.withMutableSlots { $0[int: 0] = numNodes }
+        _ = FS_Write(value, Int32(Int32.byteCount), file)
+
+        var i: Int32 = 0
+        while i < numNodes {
+            value.withMutableSlots { $0[int: 0] = self.m_ranks[i] }
+            _ = FS_Write(value, Int32(Int32.byteCount), file)
+            i += 1
+        }
+
+        return 1
     }
 
     /**
@@ -349,8 +396,66 @@ final class CNode {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:426
     func Load(_ numNodes: Int32, _ file: JKAShared.fileHandle_t) -> Int32 {
-        // Port-note: Raven's `unsigned long` header is 8 bytes on this build, and no CharBuf read or write gives an 8-byte word.
-        // TODO: Port CNode::Load
-        portMissing("CNode::Load", source: "oracle/codemp/server/NPCNav/navigator.cpp:426")
+        // AI: Raven reads each value through its address. The read fills a CharBuf of the value's bytes, and the body takes the value from it.
+        var value = CharBuf(Int32.byteCount)
+
+        // AI: Raven reads an `unsigned long` header, 4 bytes on WinDed.
+        _ = FS_Read(&value, Int32(UInt32.byteCount), file)
+
+        //Validate the header
+        // AI: Raven compares with NODE_HEADER_ID of navigator.h, which no module of the host declares. The body reads its value, 'NODE'.
+        if value.withSlots({ $0[int: 0] }) != 0x4E4F_4445 {
+            return 0
+        }
+
+        //Get the basic information
+        for i in 0..<3 {
+            _ = FS_Read(&value, Int32(Float.byteCount), file)
+            self.m_position[i] = value.withSlots { $0[float: 0] }
+        }
+
+        _ = FS_Read(&value, Int32(Int32.byteCount), file)
+        self.m_flags = value.withSlots { $0[int: 0] }
+        _ = FS_Read(&value, Int32(Int32.byteCount), file)
+        self.m_ID = value.withSlots { $0[int: 0] }
+        _ = FS_Read(&value, Int32(Int32.byteCount), file)
+        self.m_radius = value.withSlots { $0[int: 0] }
+
+        //Get the edge information
+        _ = FS_Read(&value, Int32(Int32.byteCount), file)
+        self.m_numEdges = value.withSlots { $0[int: 0] }
+
+        // AI: Raven reads each `edge_t` whole, 12 bytes with ID at 0, cost at 4, and flags at 8. The body takes the three fields from the bytes.
+        var record = CharBuf(12)
+        var i: Int32 = 0
+        while i < self.m_numEdges {
+            var edge = edge_t()
+
+            _ = FS_Read(&record, 12, file)
+            record.withSlots {
+                edge.ID = $0[int: 0]
+                edge.cost = $0[int: 4]
+                edge.flags = $0[byte: 8]
+            }
+
+            self.m_edges.append(edge)
+            i += 1
+        }
+
+        //Read the node ranks
+        _ = FS_Read(&value, Int32(Int32.byteCount), file)
+        let numRanks = value.withSlots { $0[int: 0] }
+
+        //Allocate the memory
+        self.InitRanks(numRanks)
+
+        i = 0
+        while i < numRanks {
+            _ = FS_Read(&value, Int32(Int32.byteCount), file)
+            self.m_ranks[i] = value.withSlots { $0[int: 0] }
+            i += 1
+        }
+
+        return 1
     }
 }

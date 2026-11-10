@@ -320,10 +320,36 @@ final class CROFFSystem {
         self.FixBadAngles(obj)
 
         if obj!.mNumNoteTracks != 0 {
-            // Port-note: Raven walks the note strings after the entries with strlen over the `unsigned char *` data.
-            // No strlen over a Slots of bytes exists.
-            // Raven wrote: ptr = start = (char *)&roff_data[i]; size = 0; for(i=0;i<obj->mNumNoteTracks;i++) { size += strlen(ptr) + 1; ptr += strlen(ptr) + 1; } obj->mNoteTrackIndexes = new char *[obj->mNumNoteTracks]; ptr = obj->mNoteTrackIndexes[0] = new char[size]; memcpy(obj->mNoteTrackIndexes[0], start, size); for(i=1;i<obj->mNumNoteTracks;i++) { ptr += strlen(ptr) + 1; obj->mNoteTrackIndexes[i] = ptr; }
-            portMissing("CROFFSystem::InitROFF2", source: "oracle/codemp/qcommon/RoffSystem.cpp:187")
+            var size: Int32
+            var ptr: Int32
+            let start = 20 + i * 32
+
+            // AI: Raven walks the note texts in the file bytes with strlen. The body copies the bytes after the entries into a CharBuf,
+            // the CharBuf overload of Com_Memcpy, and walks the CharBuf with strlen.
+            var notes = CharBuf(Int32(data.count) - start)
+            Com_Memcpy(&notes, data.suffix(from: start), Int32(data.count) - start)
+
+            ptr = 0
+            size = 0
+
+            i = 0
+            while i < obj!.mNumNoteTracks {
+                size += strlen(notes[ptr...]) + 1
+                ptr += strlen(notes[ptr...]) + 1
+                i += 1
+            }
+
+            // AI: Raven copies the `size` bytes of the texts into one block and points each index into it. Each index is the String of its text.
+            obj!.mNoteTrackIndexes = Array(repeating: "", count: Int(obj!.mNumNoteTracks))
+            ptr = 0
+            obj!.mNoteTrackIndexes[0] = String(notes[ptr...])
+
+            i = 1
+            while i < obj!.mNumNoteTracks {
+                ptr += strlen(notes[ptr...]) + 1
+                obj!.mNoteTrackIndexes[i] = String(notes[ptr...])
+                i += 1
+            }
         }
 
         return true
@@ -425,9 +451,12 @@ final class CROFFSystem {
         }
 
         if roff_ent.mROFFFrame >= roff!.mROFFEntries { // we are done roffing, so stop moving and flag this ent to be removed
-            // Port-note: SetLerp takes a `vec3_t` delta, and Raven passes NULL here.
-            // Raven wrote: SetLerp( originTrajectory, TR_STATIONARY, origin, NULL, svs.time, roff->mLerp ); SetLerp( angleTrajectory, TR_STATIONARY, angle, NULL, svs.time, roff->mLerp ); if (!roff_ent->mIsClient) { ent->r.mIsRoffing = qfalse; } return qfalse;
-            portMissing("CROFFSystem::ApplyROFF", source: "oracle/codemp/qcommon/RoffSystem.cpp:820")
+            self.SetLerp(originTrajectory, TR_STATIONARY, origin, nil, svs.time, roff!.mLerp)
+            self.SetLerp(angleTrajectory, TR_STATIONARY, angle, nil, svs.time, roff!.mLerp)
+            if !roff_ent.mIsClient {
+                ent!.r.mIsRoffing = false
+            }
+            return false
         }
 
         if roff_ent.mTranslated {
@@ -532,10 +561,18 @@ final class CROFFSystem {
     ```
     */
     /// Source: oracle/codemp/qcommon/RoffSystem.cpp:1024
-    private func SetLerp(_ tr: JKAShared.Trajectory?, _ type: JKAShared.trType_t, _ origin: JKAShared.vec3_t, _ delta: JKAShared.vec3_t, _ time: Int32, _ rate: Int32) {
-        // Port-note: Raven tests `delta` for NULL, and the parameter is a non-optional `vec3_t`, so the NULL arm has no Swift form.
-        // TODO: Port CROFFSystem::SetLerp
-        portMissing("CROFFSystem::SetLerp", source: "oracle/codemp/qcommon/RoffSystem.cpp:1024")
+    // AI: Raven's `vec3_t delta` is a pointer that a caller passes as NULL. The parameter is `vec3_t?`, the form of the mins and maxs of SV_Trace.
+    private func SetLerp(_ tr: JKAShared.Trajectory?, _ type: JKAShared.trType_t, _ origin: JKAShared.vec3_t, _ delta: JKAShared.vec3_t?, _ time: Int32, _ rate: Int32) {
+        tr!.trType = type
+        tr!.trTime = time
+        tr!.trBase = origin
+
+        // Check for a NULL delta
+        if delta != nil {
+            tr!.trDelta = delta! * Float(rate)
+        } else {
+            tr!.trDelta = vec3_t()
+        }
     }
 
     /**
@@ -554,9 +591,34 @@ final class CROFFSystem {
     */
     /// Source: oracle/codemp/qcommon/RoffSystem.cpp:973
     private func ClearLerp(_ roff_ent: SROFFEntity) -> Bool {
-        // Port-note: The body passes NULL as the delta of SetLerp, and the parameter is a non-optional `vec3_t`.
-        // TODO: Port CROFFSystem::ClearLerp
-        portMissing("CROFFSystem::ClearLerp", source: "oracle/codemp/qcommon/RoffSystem.cpp:973")
+        let ent: JKAMP.SharedEntity?
+        let originTrajectory: JKAShared.Trajectory
+        let angleTrajectory: JKAShared.Trajectory
+        let origin: JKAShared.vec3_t
+        let angle: JKAShared.vec3_t
+
+        if roff_ent.mIsClient {
+            // Port-note: The dedicated build drops Raven's client arm, so the trajectories stay uninitialized and SetLerp reads them.
+            portMissing("CROFFSystem::ClearLerp", source: "oracle/codemp/qcommon/RoffSystem.cpp:973")
+        } else {
+            // Find the entity to apply the roff to
+            ent = SV_GentityNum(roff_ent.mEntID)
+
+            if ent == nil {	// bad stuff
+                return false
+            }
+
+            originTrajectory = ent!.s.pos
+            angleTrajectory = ent!.s.apos
+            origin = ent!.r.currentOrigin
+            angle = ent!.r.currentAngles
+        }
+
+        // AI: Raven passes ROFF_SAMPLE_RATE of RoffSystem.h, which no module of the host declares. The body passes its value, 10.
+        self.SetLerp(originTrajectory, TR_STATIONARY, origin, nil, svs.time, 10)
+        self.SetLerp(angleTrajectory, TR_STATIONARY, angle, nil, svs.time, 10)
+
+        return true
     }
 
     /**
