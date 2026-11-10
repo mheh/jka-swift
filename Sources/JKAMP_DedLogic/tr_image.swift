@@ -70,9 +70,169 @@ func Lanczos3(_ t: Float) -> Float {
 
 /// Source: oracle/codemp/renderer/tr_image.cpp:2366
 func R_Resample(_ source: Slots<UInt8>, _ swidth: Int32, _ sheight: Int32, _ dest: Slots<UInt8>, _ dwidth: Int32, _ dheight: Int32, _ components: Int32) {
-    // Port-note: Row TR5. `contrib_t` and `contrib_list_t` are structs Raven defines inside tr_image.cpp, which have no hand header and no view.
-    // TODO: Port R_Resample
-    portMissing("R_Resample", source: "oracle/codemp/renderer/tr_image.cpp:2366")
+    var i: Int32
+    var j: Int32
+    var k: Int32
+    var l: Int32
+    var count: Int32
+    var left: Int32
+    var right: Int32
+    var num: Int32
+    var pixel: Int32
+    var raster: Slots<UInt8>
+    var center: Float
+    var weight: Float
+    var scale: Float
+    var width: Float
+    var height: Float
+    var contributors: Slots<ContribList>
+
+    //	MD_PushTag(TAG_RESAMPLE);
+
+    let work = Slots<UInt8>(scalars: Z_Malloc(dwidth * sheight * components, TAG_RESAMPLE), count: Int(dwidth * sheight * components))
+
+    // Pre calculate filter contributions for rows
+    contributors = Slots<ContribList>(Z_Malloc(Int32(ContribList.byteCount) * dwidth, TAG_RESAMPLE), count: dwidth)
+
+    let xscale = Float(dwidth) / Float(swidth)
+
+    if xscale < 1.0 {
+        width = ceilf(LANCZOS3 / xscale)
+        scale = xscale
+    } else {
+        width = LANCZOS3
+        scale = 1.0
+    }
+    num = (Int32(width) * 2) + 1
+
+    i = 0
+    while i < dwidth {
+        contributors[i].n = 0
+        contributors[i].p = Contrib(Z_Malloc(num * Int32(Contrib.byteCount), TAG_RESAMPLE))
+
+        center = Float(i) / xscale
+        left = Int32(ceilf(center - width))
+        right = Int32(floorf(center + width))
+
+        j = left
+        while j <= right {
+            weight = Lanczos3((center - Float(j)) * scale) * scale
+            if j < 0 {
+                pixel = -j
+            } else if j >= swidth {
+                pixel = (swidth - j) + swidth - 1
+            } else {
+                pixel = j
+            }
+            count = contributors[i].n
+            contributors[i].n += 1
+            contributors[i].pSlots[count].pixel = pixel
+            contributors[i].pSlots[count].weight = weight
+            j += 1
+        }
+        i += 1
+    }
+    // Apply filters to zoom horizontally from source to work
+    k = 0
+    while k < sheight {
+        raster = source.suffix(from: k * swidth * components)
+        i = 0
+        while i < dwidth {
+            l = 0
+            while l < components {
+                weight = 0.0
+                j = 0
+                while j < contributors[i].n {
+                    weight += Float(raster[(contributors[i].pSlots[j].pixel * components) + l]) * contributors[i].pSlots[j].weight
+                    j += 1
+                }
+                pixel = Int32(UInt8(Com_Clamp(0.0, 255.0, weight)))
+                work[byte: (k * dwidth * components) + (i * components) + l] = pixel
+                l += 1
+            }
+            i += 1
+        }
+        k += 1
+    }
+    // Clean up
+    i = 0
+    while i < dwidth {
+        Z_Free(contributors[i].p?.handle)
+        i += 1
+    }
+    Z_Free(contributors[0].handle)
+
+    // Columns
+    contributors = Slots<ContribList>(Z_Malloc(Int32(ContribList.byteCount) * dheight, TAG_RESAMPLE), count: dheight)
+
+    let yscale = Float(dheight) / Float(sheight)
+    if yscale < 1.0 {
+        height = ceilf(LANCZOS3 / yscale)
+        scale = yscale
+    } else {
+        height = LANCZOS3
+        scale = 1.0
+    }
+    num = (Int32(height) * 2) + 1
+
+    i = 0
+    while i < dheight {
+        contributors[i].n = 0
+        contributors[i].p = Contrib(Z_Malloc(num * Int32(Contrib.byteCount), TAG_RESAMPLE))
+
+        center = Float(i) / yscale
+        left = Int32(ceilf(center - height))
+        right = Int32(floorf(center + height))
+
+        j = left
+        while j <= right {
+            weight = Lanczos3((center - Float(j)) * scale) * scale
+            if j < 0 {
+                pixel = -j
+            } else if j >= sheight {
+                pixel = (sheight - j) + sheight - 1
+            } else {
+                pixel = j
+            }
+            count = contributors[i].n
+            contributors[i].n += 1
+            contributors[i].pSlots[count].pixel = pixel
+            contributors[i].pSlots[count].weight = weight
+            j += 1
+        }
+        i += 1
+    }
+    // Apply filter to columns
+    k = 0
+    while k < dwidth {
+        l = 0
+        while l < components {
+            i = 0
+            while i < dheight {
+                weight = 0.0
+                j = 0
+                while j < contributors[i].n {
+                    weight += Float(work[(contributors[i].pSlots[j].pixel * dwidth * components) + (k * components) + l]) * contributors[i].pSlots[j].weight
+                    j += 1
+                }
+                pixel = Int32(UInt8(Com_Clamp(0.0, 255.0, weight)))
+                dest[byte: (i * dwidth * components) + (k * components) + l] = pixel
+                i += 1
+            }
+            l += 1
+        }
+        k += 1
+    }
+    // Clean up
+    i = 0
+    while i < dheight {
+        Z_Free(contributors[i].p?.handle)
+        i += 1
+    }
+    Z_Free(contributors[0].handle)
+    Z_Free(OpaquePointer(work.base))
+
+    //	MD_PopTag();
 }
 
 /**
@@ -133,16 +293,143 @@ func RE_SplitSkins(_ INname: String, _ skinhead: inout JKAShared.CharBuf, _ skin
 // given a name, go get the skin we want and return
 /// Source: oracle/codemp/renderer/tr_image.cpp:3030
 func RE_RegisterIndividualSkin(_ name: String, _ hSkin: JKAShared.qhandle_t) -> JKAShared.qhandle_t {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
-    // TODO: Port RE_RegisterIndividualSkin
-    portMissing("RE_RegisterIndividualSkin", source: "oracle/codemp/renderer/tr_image.cpp:3030")
+    var skin: Skin
+    var surf: SkinSurface
+    var text = CharBuf(0)
+    var text_p: TextCursor
+    var token: String
+    var surfName = CharBuf(MAX_QPATH)
+
+    // load and parse the skin file
+    // The CharBuf form of FS_ReadFile leaves the buffer empty for a missing file, so Raven's NULL test of `text` reads the length.
+    if FS_ReadFile(name, &text) < 0 {
+        Com_Printf("WARNING: RE_RegisterSkin( '%s' ) failed to load!\n", name)
+        return 0
+    }
+
+    skin = tr.skins[hSkin]!
+
+    text_p = TextCursor(text)
+    while !text_p.isNull && text_p.byte != 0 {
+        // get surface name
+        token = CommaParse(&text_p)
+        Q_strncpyz(&surfName, token, Int32(surfName.count))
+
+        if token.isEmpty {
+            break
+        }
+        // lowercase the surface name so skin compares are faster
+        Q_strlwr(&surfName)
+
+        if text_p.byte == Int32(ascii: ",") {
+            text_p.advance()
+        }
+
+        if strncmp(token, "tag_", 4) == 0 { //these aren't in there, but just in case you load an id style one...
+            continue
+        }
+
+        // parse the shader name
+        token = CommaParse(&text_p)
+
+        // Port-note: Raven reads before the buffer when the surface name has fewer than four bytes. The slice traps there.
+        if strcmp(surfName[(strlen(surfName) - 4)...], "_off") == 0 {
+            if strcmp(token, "*off") == 0 {
+                continue //don't need these double offs
+            }
+            surfName[strlen(surfName) - 4] = 0 //remove the "_off"
+        }
+        if skin.surfaces.count <= skin.numSurfaces {
+            Com_Printf("WARNING: RE_RegisterSkin( '%s' ) more than %d surfaces!\n", name, skin.surfaces.count)
+            break
+        }
+        surf = SkinSurface(Hunk_Alloc(Int32(SkinSurface.byteCount), h_low))
+        skin.surfaces[skin.numSurfaces] = surf
+        Q_strncpyz(&surf.nameBuffer, String(surfName), Int32(surf.nameBuffer.count))
+
+        // Port-note: Row TR11. R_FindServerShader and R_FindShader take `styles` as a `Slots<UInt8>`, and `stylesDefault` is a Swift array, so the call has no form.
+        // Raven wrote: surf->shader = gServerSkinHack ? R_FindServerShader( token, lightmapsNone, stylesDefault, qtrue ) : R_FindShader( token, lightmapsNone, stylesDefault, qtrue )
+        portMissing("RE_RegisterIndividualSkin", source: "oracle/codemp/renderer/tr_image.cpp:3093")
+        skin.numSurfaces += 1
+    }
+
+    FS_FreeFile(text)
+
+    // never let a skin have 0 shaders
+    if skin.numSurfaces == 0 {
+        return 0 // use default skin
+    }
+
+    return hSkin
 }
 
 /// Source: oracle/codemp/renderer/tr_image.cpp:3113
 func RE_RegisterSkin(_ name: String) -> JKAShared.qhandle_t {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
-    // TODO: Port RE_RegisterSkin
-    portMissing("RE_RegisterSkin", source: "oracle/codemp/renderer/tr_image.cpp:3113")
+    var hSkin: qhandle_t
+    var skin: Skin
+
+    if name.isEmpty {
+        Com_Printf("Empty name passed to RE_RegisterSkin\n")
+        return 0
+    }
+
+    if strlen(name) >= MAX_QPATH {
+        Com_Printf("Skin name exceeds MAX_QPATH\n")
+        return 0
+    }
+
+    // see if the skin is already loaded
+    hSkin = 1
+    while hSkin < tr.numSkins {
+        skin = tr.skins[hSkin]!
+        if Q_stricmp(skin.name, name) == 0 {
+            if skin.numSurfaces == 0 {
+                return 0 // default skin
+            }
+            return hSkin
+        }
+        hSkin += 1
+    }
+
+    // allocate a new skin
+    if tr.numSkins == MAX_SKINS {
+        Com_Printf("WARNING: RE_RegisterSkin( '%s' ) MAX_SKINS hit\n", name)
+        return 0
+    }
+    tr.numSkins += 1
+    skin = Skin(Hunk_Alloc(Int32(Skin.byteCount), h_low))
+    tr.skins[hSkin] = skin
+    Q_strncpyz(&skin.nameBuffer, name, Int32(skin.nameBuffer.count))
+    skin.numSurfaces = 0
+
+    // make sure the render thread is stopped
+    R_SyncRenderThread()
+
+    // If not a .skin file, load as a single shader
+    // Port-note: Raven reads before the text when the name has fewer than five bytes. The slice traps there.
+    if strcmp(CharBuf(name)[(strlen(name) - 5)...], ".skin") != 0 {
+        /*		skin->numSurfaces = 1;
+        		skin->surfaces[0] = (skinSurface_t *)Hunk_Alloc( sizeof(skin->surfaces[0]), h_low );
+        		skin->surfaces[0]->shader = R_FindShader( name, lightmapsNone, stylesDefault, qtrue );
+        		return hSkin;
+        */
+    }
+
+    var skinhead = CharBuf(MAX_QPATH)
+    var skintorso = CharBuf(MAX_QPATH)
+    var skinlower = CharBuf(MAX_QPATH)
+    if RE_SplitSkins(name, &skinhead, &skintorso, &skinlower) { //three part
+        hSkin = RE_RegisterIndividualSkin(String(skinhead), hSkin)
+        if hSkin != 0 {
+            hSkin = RE_RegisterIndividualSkin(String(skintorso), hSkin)
+            if hSkin != 0 {
+                hSkin = RE_RegisterIndividualSkin(String(skinlower), hSkin)
+            }
+        }
+    } else { //single skin
+        hSkin = RE_RegisterIndividualSkin(name, hSkin)
+    }
+    return (hSkin)
 }
 
 /**
@@ -251,9 +538,20 @@ private func CommaParse(_ data_p: inout JKAShared.TextCursor) -> String {
 
 /// Source: oracle/codemp/renderer/tr_image.cpp:3301
 func RE_RegisterServerSkin(_ name: String) -> JKAShared.qhandle_t {
-    // Port-note: Row TR3. `gServerSkinHack` of tr_image.cpp:2967 is a `bool` with no table row, so the stem gives it no storage.
-    // TODO: Port RE_RegisterServerSkin
-    portMissing("RE_RegisterServerSkin", source: "oracle/codemp/renderer/tr_image.cpp:3301")
+    var r: qhandle_t
+
+    if com_cl_running != nil &&
+        com_cl_running!.integer != 0 &&
+        Com_TheHunkMarkHasBeenMade() &&
+        ShaderHashTableExists() { //If the client is running then we can go straight into the normal registerskin func
+        return RE_RegisterSkin(name)
+    }
+
+    gServerSkinHack = true
+    r = RE_RegisterSkin(name)
+    gServerSkinHack = false
+
+    return r
 }
 
 /**
@@ -265,9 +563,17 @@ R_InitSkins
 */
 /// Source: oracle/codemp/renderer/tr_image.cpp:3324
 func R_InitSkins() {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
-    // TODO: Port R_InitSkins
-    portMissing("R_InitSkins", source: "oracle/codemp/renderer/tr_image.cpp:3324")
+    var skin: Skin
+
+    tr.numSkins = 1
+
+    // make the default skin have all default shaders
+    skin = Skin(/*ri.*/Hunk_Alloc(Int32(Skin.byteCount), h_low))
+    tr.skins[0] = skin
+    Q_strncpyz(&skin.nameBuffer, "<default skin>", Int32(skin.nameBuffer.count))
+    skin.numSurfaces = 1
+    skin.surfaces[0] = SkinSurface(/*ri.*/Hunk_Alloc(Int32(SkinSurface.byteCount), h_low))
+    skin.surfaces[0]!.shader = tr.defaultShader
 }
 
 /**
@@ -279,6 +585,8 @@ R_GetSkinByHandle
 */
 /// Source: oracle/codemp/renderer/tr_image.cpp:3342
 func R_GetSkinByHandle(_ hSkin: JKAShared.qhandle_t) -> Skin? {
-    // TODO: Port R_GetSkinByHandle
-    portMissing("R_GetSkinByHandle", source: "oracle/codemp/renderer/tr_image.cpp:3342")
+    if hSkin < 1 || hSkin >= tr.numSkins {
+        return tr.skins[0]
+    }
+    return tr.skins[hSkin]
 }

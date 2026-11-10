@@ -779,8 +779,7 @@ var broadsword_dircap: JKAMP.Cvar? {
 
 /// Source: oracle/codemp/renderer/tr_init.cpp:481
 // Raven wrote: static const int s_numVidModes = ( sizeof( r_vidModes ) / sizeof( r_vidModes[0] ) )
-// Port-note: Row TR4. `r_vidModes` holds `vidmode_t`, a struct Raven defines inside tr_init.cpp, which has no hand header and no view.
-let s_numVidModes: Int32 = { () -> Int32 in portMissing("s_numVidModes", source: "oracle/codemp/renderer/tr_init.cpp:481") }()
+let s_numVidModes: Int32 = Int32(r_vidModes.count)
 
 /// Source: oracle/codemp/renderer/tr_init.cpp:300
 private func AssertCvarRange(_ cv: JKAMP.Cvar, _ minVal: Float, _ maxVal: Float, _ shouldBeIntegral: Bool) {
@@ -802,9 +801,27 @@ private func AssertCvarRange(_ cv: JKAMP.Cvar, _ minVal: Float, _ maxVal: Float,
 
 /// Source: oracle/codemp/renderer/tr_init.cpp:483
 func R_GetModeInfo(_ width: inout Int32, _ height: inout Int32, _ mode: Int32) -> Bool {
-    // Port-note: Row TR4. `r_vidModes` holds `vidmode_t`, a struct Raven defines inside tr_init.cpp, which has no hand header and no view.
-    // TODO: Port R_GetModeInfo
-    portMissing("R_GetModeInfo", source: "oracle/codemp/renderer/tr_init.cpp:483")
+    var vm: Vidmode
+
+    if mode < -1 {
+        return false
+    }
+    if mode >= s_numVidModes {
+        return false
+    }
+
+    if mode == -1 {
+        width = r_customwidth!.integer
+        height = r_customheight!.integer
+        return true
+    }
+
+    vm = r_vidModes[mode]
+
+    width = vm.width
+    height = vm.height
+
+    return true
 }
 
 /**
@@ -814,9 +831,15 @@ func R_GetModeInfo(_ width: inout Int32, _ height: inout Int32, _ mode: Int32) -
 */
 /// Source: oracle/codemp/renderer/tr_init.cpp:510
 private func R_ModeList_f() {
-    // Port-note: Row TR4. `r_vidModes` holds `vidmode_t`, a struct Raven defines inside tr_init.cpp, which has no hand header and no view.
-    // TODO: Port R_ModeList_f
-    portMissing("R_ModeList_f", source: "oracle/codemp/renderer/tr_init.cpp:510")
+    var i: Int32
+
+    Com_Printf("\n")
+    i = 0
+    while i < s_numVidModes {
+        Com_Printf("%s\n", r_vidModes[i].description ?? "(null)")
+        i += 1
+    }
+    Com_Printf("\n")
 }
 
 /**
@@ -1007,9 +1030,56 @@ func R_Register() {
 
 /// Source: oracle/codemp/renderer/tr_init.cpp:1214
 func R_Init() {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
-    // TODO: Port R_Init
-    portMissing("R_Init", source: "oracle/codemp/renderer/tr_init.cpp:1214")
+    var i: Int32
+
+    //	Com_Printf ("----- R_Init -----\n" );
+
+    // clear all our internal state
+    tr.clear()
+    backEnd.clear()
+
+    //	Swap_Init();
+
+    //
+    // init function tables
+    //
+    i = 0
+    while i < FUNCTABLE_SIZE {
+        tr.sinTable[i] = sin(DEG2RAD(i * 360.0 / (Float(FUNCTABLE_SIZE - 1))))
+        tr.squareTable[i] = (i < FUNCTABLE_SIZE / 2) ? 1.0 : -1.0
+        tr.sawToothTable[i] = Float(i) / FUNCTABLE_SIZE
+        tr.inverseSawToothTable[i] = 1.0 - tr.sawToothTable[i]
+
+        if i < FUNCTABLE_SIZE / 2 {
+            if i < FUNCTABLE_SIZE / 4 {
+                tr.triangleTable[i] = Float(i) / (FUNCTABLE_SIZE / 4)
+            } else {
+                tr.triangleTable[i] = 1.0 - tr.triangleTable[i - FUNCTABLE_SIZE / 4]
+            }
+        } else {
+            tr.triangleTable[i] = -tr.triangleTable[i - FUNCTABLE_SIZE / 2]
+        }
+        i += 1
+    }
+    R_Register()
+
+    max_polys = r_maxpolys!.integer
+    if max_polys < MAX_POLYS {
+        max_polys = MAX_POLYS
+    }
+
+    max_polyverts = r_maxpolyverts!.integer
+    if max_polyverts < MAX_POLYVERTS {
+        max_polyverts = MAX_POLYVERTS
+    }
+
+    let ptr = Hunk_Alloc(Int32(BackEndData.byteCount) + Int32(SrfPoly.byteCount) * max_polys + Int32(PolyVert.byteCount) * max_polyverts, h_low)
+    backEndData = BackEndData(ptr)
+    backEndData!.polys = SrfPoly(ptr + Int32(BackEndData.byteCount))
+    backEndData!.polyVerts = PolyVert(ptr + Int32(BackEndData.byteCount) + Int32(SrfPoly.byteCount) * max_polys)
+    R_ModelInit()
+    G2VertSpaceServer = CMiniHeap_singleton
+    //	Com_Printf ("----- finished R_Init -----\n" );
 }
 
 /**
@@ -1037,9 +1107,7 @@ func RE_Shutdown(_ destroyWindow: Bool) {
     Cmd_RemoveCommand("modelist")
     Cmd_RemoveCommand("modelcacheinfo")
 
-    // Port-note: Row TR1. `tr` is a `trGlobals_t` of tr_local.h, which has no C header and no view in the host target.
-    // Raven wrote: tr.registered = qfalse
-    portMissing("RE_Shutdown", source: "oracle/codemp/renderer/tr_init.cpp:1406")
+    tr.registered = false
 }
 
 /**

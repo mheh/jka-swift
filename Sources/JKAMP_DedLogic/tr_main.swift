@@ -38,9 +38,34 @@ func R_CullLocalPointAndRadius(_ pt: JKAShared.vec3_t, _ radius: Float) -> Int32
 */
 /// Source: oracle/codemp/renderer/tr_main.cpp:121
 func R_CullPointAndRadius(_ pt: JKAShared.vec3_t, _ radius: Float) -> Int32 {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
-    // TODO: Port R_CullPointAndRadius
-    portMissing("R_CullPointAndRadius", source: "oracle/codemp/renderer/tr_main.cpp:121")
+    var i: Int32
+    var dist: Float
+    var frust: Cplane
+    var mightBeClipped = false
+
+    if r_nocull!.integer == 1 {
+        return CULL_CLIP
+    }
+
+    // check against frustum planes
+    i = 0
+    while i < 4 {
+        frust = tr.viewParms.frustum[i]
+
+        dist = _DotProduct(pt, frust.normal) - frust.dist
+        if dist < -radius {
+            return CULL_OUT
+        } else if dist <= radius {
+            mightBeClipped = true
+        }
+        i += 1
+    }
+
+    if mightBeClipped {
+        return CULL_CLIP
+    }
+
+    return CULL_IN // completely inside frustum
 }
 
 /**
@@ -53,7 +78,7 @@ R_LocalPointToWorld
 */
 /// Source: oracle/codemp/renderer/tr_main.cpp:177
 func R_LocalPointToWorld(_ local: JKAShared.vec3_t, _ world: inout JKAShared.vec3_t) {
-    // Port-note: Row TR1. The renderer records of tr_local.h, `trGlobals_t` and the rest, have no C header and no view in the host target, so `tr` and the records the body reads have no Swift name.
-    // TODO: Port R_LocalPointToWorld
-    portMissing("R_LocalPointToWorld", source: "oracle/codemp/renderer/tr_main.cpp:177")
+    world[0] = local[0] * tr.ori.axis[0][0] + local[1] * tr.ori.axis[1][0] + local[2] * tr.ori.axis[2][0] + tr.ori.origin[0]
+    world[1] = local[0] * tr.ori.axis[0][1] + local[1] * tr.ori.axis[1][1] + local[2] * tr.ori.axis[2][1] + tr.ori.origin[1]
+    world[2] = local[0] * tr.ori.axis[0][2] + local[1] * tr.ori.axis[1][2] + local[2] * tr.ori.axis[2][2] + tr.ori.origin[2]
 }
