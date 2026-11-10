@@ -140,8 +140,7 @@ func AAS_AlternativeRouteGoals(_ start: JKAShared.vec3_t, _ startareanum: Int32,
         midrangeareas![i].valid = 1
         midrangeareas![i].starttime = starttime
         midrangeareas![i].goaltime = goaltime
-        var fmt = CharBuf("%d midrange area %d")
-        Log_Write(&fmt, nummidrangeareas, i)
+        Log_Write("%d midrange area %d", nummidrangeareas, i)
         nummidrangeareas += 1
         i += 1
     } //end for
@@ -212,11 +211,11 @@ func AAS_InitAlternativeRouting() {
     if midrangeareas != nil {
         FreeMemory(OpaquePointer(midrangeareas!.base))
     }
-    midrangeareas = Slots<Midrangearea>(GetMemory(UInt32(aasworld.numareas * Int32(Midrangearea.byteCount)))!, count: aasworld.numareas)
+    midrangeareas = Slots<Midrangearea>(GetMemory(aasworld.numareas * Int32(Midrangearea.byteCount))!, count: aasworld.numareas)
     if clusterareas != nil {
         FreeMemory(OpaquePointer(clusterareas!.base))
     }
-    clusterareas = Slots<Int32>(scalars: GetMemory(UInt32(aasworld.numareas * Int32(Int32.byteCount)))!, count: Int(aasworld.numareas))
+    clusterareas = Slots<Int32>(scalars: GetMemory(aasworld.numareas * Int32(Int32.byteCount))!, count: Int(aasworld.numareas))
 }
 
 //===========================================================================

@@ -7,7 +7,8 @@ import JKAMP_Ded
 /// `G2VertSpaceServer` holds one for the transformed vertices of a Ghoul2 trace.
 /// Source: oracle/codemp/qcommon/MiniHeap.h:5
 final class CMiniHeap {
-    private var mHeap: Slots<JKAShared.byte>? = nil
+    // AI: Raven keeps `mHeap` private. The trace functions read the base of the heap for the vertex offsets of `TransformedVertsArray`, so the getter is internal.
+    private(set) var mHeap: Slots<JKAShared.byte>? = nil
     private var mCurrentHeap: Slots<JKAShared.byte>? = nil
     private var mSize: Int32 = 0
 

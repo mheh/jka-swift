@@ -74,28 +74,30 @@ extension ClipMap {
     /// Raven's `indexes - cm.leafbrushes`, the distance in words from the base of the table to a hunk block of brush indexes.
     /// Source: oracle/codemp/qcommon/cm_load.cpp:154
     // AI: Raven subtracts two pointers into separate hunk blocks. The view gives the word distance, which can be negative, so the leaf keeps his number.
-    public func leafbrushes(_ indexes: Slots<Int32>) -> Int32 {
-        Int32(UnsafeMutableRawPointer(self.raw.pointee.leafbrushes!).distance(to: indexes.base) / MemoryLayout<Int32>.stride)
+    // AI: Raven's `cLeaf_t` holds the index as `int`, and OpenJK's holds it as `ptrdiff_t` at openjk/codemp/qcommon/cm_local.h:48 and :51. The view gives the `Int` of OpenJK, so a distance between two hunk blocks does not overflow on a 64-bit host.
+    public func leafbrushes(_ indexes: Slots<Int32>) -> Int {
+        UnsafeMutableRawPointer(self.raw.pointee.leafbrushes!).distance(to: indexes.base) / MemoryLayout<Int32>.stride
     }
 
     /// Raven's `indexes - cm.leafsurfaces`, the distance in words from the base of the table to a hunk block of surface indexes.
     /// Source: oracle/codemp/qcommon/cm_load.cpp:161
     // AI: Raven subtracts two pointers into separate hunk blocks. The view gives the word distance, which can be negative, so the leaf keeps his number.
-    public func leafsurfaces(_ indexes: Slots<Int32>) -> Int32 {
-        Int32(UnsafeMutableRawPointer(self.raw.pointee.leafsurfaces!).distance(to: indexes.base) / MemoryLayout<Int32>.stride)
+    // AI: Raven's `cLeaf_t` holds the index as `int`, and OpenJK's holds it as `ptrdiff_t` at openjk/codemp/qcommon/cm_local.h:48 and :51. The view gives the `Int` of OpenJK, so a distance between two hunk blocks does not overflow on a 64-bit host.
+    public func leafsurfaces(_ indexes: Slots<Int32>) -> Int {
+        UnsafeMutableRawPointer(self.raw.pointee.leafsurfaces!).distance(to: indexes.base) / MemoryLayout<Int32>.stride
     }
 
     /// Raven's `cm.leafbrushes[index]`, the word at the index with no bound, which can reach a hunk block outside the table.
     /// Source: oracle/codemp/qcommon/cm_test.cpp:92
     // AI: Raven reads the word past the table when the leaf points into another block. The accessor reads at the base plus the index, as C does.
-    public func leafbrush(at index: Int32) -> Int32 {
-        self.raw.pointee.leafbrushes![Int(index)]
+    public func leafbrush(at index: Int) -> Int32 {
+        self.raw.pointee.leafbrushes![index]
     }
 
     /// Raven's `cm.leafsurfaces[index]`, the word at the index with no bound, which can reach a hunk block outside the table.
     /// Source: oracle/codemp/qcommon/cm_trace.cpp:311
     // AI: Raven reads the word past the table when the leaf points into another block. The accessor reads at the base plus the index, as C does.
-    public func leafsurface(at index: Int32) -> Int32 {
-        self.raw.pointee.leafsurfaces![Int(index)]
+    public func leafsurface(at index: Int) -> Int32 {
+        self.raw.pointee.leafsurfaces![index]
     }
 }

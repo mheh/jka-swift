@@ -1,4 +1,5 @@
-/// This file holds the libc names Raven calls: `atoi`, `atof`, `strlen`, `strcpy`, `strncpy`, `strcat`, `strcmp`, `strchr`, `strstr`, `memset`, `memmove`, `tolower`, and `toupper`.
+/// This file holds the libc names Raven calls: `atoi`, `atof`, `strtoul`, `strlen`, `strcpy`, `strncpy`, `strcat`, `strncat`,
+/// and `strcmp`, `strncmp`, `strchr`, `strstr`, `memset`, `memmove`, `tolower`, and `toupper`.
 /// A ported body spells the call as Raven wrote it, over `CharBuf`, `String`, or `PooledString`.
 /// Each function works over raw bytes, with C semantics, and a `String` argument reaches its bytes through `CharBuf(_ string:)`.
 /// `atof` returns `Double` as C's does, and the rest narrow to `Int32` once inside.
@@ -301,6 +302,17 @@ public func strcat(_ dest: inout CharBuf, _ source: UnsafeMutableRawPointer, at 
     strcatBytes(&dest, rawBytes(source), from: Int(offset))
 }
 
+// MARK: - strncat
+
+/// This appends at most `n` bytes of a Swift string and then a NUL at the first NUL of `dest`, Raven's `strncat(dest, source, n)`.
+/// It traps when the result and its NUL do not fit in `dest`, C overruns there and that is the one divergence.
+/// Source: oracle/codemp/botlib/l_precomp.cpp:461
+public func strncat(_ dest: inout CharBuf, _ source: String, _ n: some BinaryInteger) {
+    let bytes = sourceBytes(CharBuf(source))
+    let limit = max(0, Int(n))
+    strcatBytes(&dest, Array(bytes.prefix(limit)), from: 0)
+}
+
 // MARK: - strncpy
 
 /// This copies at most `n` bytes from `source` and pads with NUL up to `n` when `source` is shorter.
@@ -347,6 +359,27 @@ public func strncpy(_ dest: inout CharBuf, _ source: String, _ n: some BinaryInt
             for i in copyCount..<limit {
                 destBytes[start + i] = 0
             }
+        }
+    }
+}
+
+/// This copies at most `n` bytes of a Swift string into raw memory, Raven's `strncpy((char *) p, source, n)`.
+/// It pads with NUL up to `n` when `source` is shorter.
+/// It writes no NUL when `source` is `n` bytes or longer.
+/// The caller owns the memory and answers for its size, as for the raw `strcpy`.
+/// Source: oracle/codemp/botlib/l_struct.cpp:207
+public func strncpy(_ dest: UnsafeMutableRawPointer, _ source: String, _ n: some BinaryInteger) {
+    let source = CharBuf(source)
+    let limit = Int(n)
+    let copyCount = min(limit, Int(strlen(source)))
+    source.withBytes { sourceBytes in
+        for i in 0..<copyCount {
+            dest.storeBytes(of: sourceBytes[i], toByteOffset: i, as: UInt8.self)
+        }
+    }
+    if copyCount < limit {
+        for i in copyCount..<limit {
+            dest.storeBytes(of: 0, toByteOffset: i, as: UInt8.self)
         }
     }
 }
@@ -481,6 +514,28 @@ public func strcmp(_ a: String, _ b: String) -> Int32 {
     strcmp(CharBuf(a), CharBuf(b))
 }
 
+// MARK: - strncmp
+
+/// This compares at most `n` bytes of a C array of bytes against a Swift string's text as unsigned char, Raven's `strncmp(script->script_p, p, len)`.
+/// The result is the sign of the first differing byte, or 0 when the first `n` bytes match or both texts end before them.
+/// Source: oracle/codemp/botlib/l_script.cpp:790
+// AI: Raven compares a cursor into the script buffer. The overload takes the Slots from that cursor, so the call site reads `suffix(from:)`.
+public func strncmp(_ s1: Slots<byte>, _ s2: String, _ n: some BinaryInteger) -> Int32 {
+    let s2 = CharBuf(s2)
+    return s2.withBytes { bBytes in
+        var i = 0
+        while i < Int(n) {
+            let aByte = s1[i]
+            let bByte = i < bBytes.count ? bBytes[i] : 0
+            if aByte != bByte || aByte == 0 {
+                return Int32(aByte) - Int32(bByte)
+            }
+            i += 1
+        }
+        return 0
+    }
+}
+
 // MARK: - strchr
 
 /// This finds the first byte equal to `c`, and returns its offset, or `nil` when there is no match.
@@ -580,4 +635,66 @@ public func toupper(_ c: Int32) -> Int32 {
 public func withCString<R>(_ string: String?, _ body: (UnsafePointer<CChar>?) -> R) -> R {
     guard let string else { return body(nil) }
     return CharBuf(string).withUnsafeRawPointer { body($0.assumingMemoryBound(to: CChar.self)) }
+}
+
+// MARK: - strtoul
+
+/// This reads an unsigned integer as C's `strtoul` does.
+/// It reads leading whitespace, an optional sign, an optional `0x` or `0` prefix where `base` allows it, and then digits.
+/// A minus sign negates the value in unsigned arithmetic, a value past `UInt32.max` gives `UInt32.max`, and `long` is 32 bits as in MSVC.
+/// `endptr` takes the byte offset of the first byte the read did not use, and the offset 0 when there is no number.
+/// Source: oracle/codemp/qcommon/cm_terrain.cpp:137
+// AI: Raven passes a `char **endptr`. The parameter is the byte offset into `nptr`, because a body holds no pointer into a text.
+public func strtoul(_ nptr: String, _ endptr: inout Int32, _ base: Int32) -> UInt32 {
+    let bytes = sourceBytes(CharBuf(nptr))
+    var i = 0
+    func at(_ index: Int) -> UInt8 { index < bytes.count ? bytes[index] : 0 }
+    func digit(_ byte: UInt8) -> Int? {
+        switch byte {
+        case UInt8(ascii: "0")...UInt8(ascii: "9"): return Int(byte - UInt8(ascii: "0"))
+        case UInt8(ascii: "a")...UInt8(ascii: "z"): return Int(byte - UInt8(ascii: "a")) + 10
+        case UInt8(ascii: "A")...UInt8(ascii: "Z"): return Int(byte - UInt8(ascii: "A")) + 10
+        default: return nil
+        }
+    }
+
+    while at(i) == UInt8(ascii: " ") || (at(i) >= 0x09 && at(i) <= 0x0d) {
+        i += 1
+    }
+    var negative = false
+    if at(i) == UInt8(ascii: "+") || at(i) == UInt8(ascii: "-") {
+        negative = at(i) == UInt8(ascii: "-")
+        i += 1
+    }
+    var radix = Int(base)
+    let hexPrefix = at(i) == UInt8(ascii: "0") && (at(i + 1) == UInt8(ascii: "x") || at(i + 1) == UInt8(ascii: "X"))
+    if (radix == 0 || radix == 16) && hexPrefix, let first = digit(at(i + 2)), first < 16 {
+        radix = 16
+        i += 2
+    } else if radix == 0 {
+        radix = at(i) == UInt8(ascii: "0") ? 8 : 10
+    }
+
+    var value: UInt64 = 0
+    var overflow = false
+    var sawDigit = false
+    while let d = digit(at(i)), d < radix {
+        sawDigit = true
+        value = value * UInt64(radix) + UInt64(d)
+        if value > UInt64(UInt32.max) {
+            overflow = true
+            value = UInt64(UInt32.max)
+        }
+        i += 1
+    }
+    guard sawDigit else {
+        endptr = 0
+        return 0
+    }
+    endptr = Int32(i)
+    if overflow {
+        return UInt32.max
+    }
+    let result = UInt32(value)
+    return negative ? 0 &- result : result
 }

@@ -76,7 +76,7 @@ func AAS_ShowPolygon(_ color: Int32, _ numpoints: Int32, _ points: Slots<JKAShar
     i = 0
     while i < MAX_DEBUGPOLYGONS {
         if debugpolygons[i] == 0 {
-            debugpolygons[i] = botimport.runDebugPolygonCreate(color, numpoints, OpaquePointer(points.base))
+            debugpolygons[i] = botimport.runDebugPolygonCreate(color, numpoints, points)
             break
         } //end if
         i += 1
@@ -323,8 +323,7 @@ func AAS_ShowFace(_ facenum: Int32) {
     color = LINECOLOR_YELLOW
     //check if face number is in range
     if facenum >= aasworld.numfaces {
-        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_debug.cpp:297")
+        botimport.runPrint(PRT_ERROR, "facenum %d out of range\n", facenum)
     } //end if
     face = aasworld.facesSlots[facenum]
     //walk through the edges of the face
@@ -334,8 +333,7 @@ func AAS_ShowFace(_ facenum: Int32) {
         edgenum = abs(aasworld.edgeindex![face.firstedge + i])
         //check if edge number is in range
         if edgenum >= aasworld.numedges {
-            // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-            portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_debug.cpp:308")
+            botimport.runPrint(PRT_ERROR, "edgenum %d out of range\n", edgenum)
         } //end if
         edge = aasworld.edgesSlots[edgenum]
         if color == LINECOLOR_RED { color = LINECOLOR_GREEN }
@@ -370,8 +368,7 @@ func AAS_ShowFacePolygon(_ facenum: Int32, _ color: Int32, _ flip: Int32) {
 
     //check if face number is in range
     if facenum >= aasworld.numfaces {
-        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_debug.cpp:342")
+        botimport.runPrint(PRT_ERROR, "facenum %d out of range\n", facenum)
     } //end if
     face = aasworld.facesSlots[facenum]
     //walk through the edges of the face
@@ -420,8 +417,7 @@ func AAS_ShowArea(_ areanum: Int32, _ groundfacesonly: Int32) {
     numareaedges = 0
     //
     if areanum < 0 || areanum >= aasworld.numareas {
-        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_debug.cpp:391")
+        botimport.runPrint(PRT_ERROR, "area %d out of range [0, %d]\n", areanum, aasworld.numareas)
         return
     } //end if
     //pointer to the convex area
@@ -432,8 +428,7 @@ func AAS_ShowArea(_ areanum: Int32, _ groundfacesonly: Int32) {
         facenum = abs(aasworld.faceindex![area.firstface + i])
         //check if face number is in range
         if facenum >= aasworld.numfaces {
-            // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-            portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_debug.cpp:404")
+            botimport.runPrint(PRT_ERROR, "facenum %d out of range\n", facenum)
         } //end if
         face = aasworld.facesSlots[facenum]
         //ground faces only
@@ -447,8 +442,7 @@ func AAS_ShowArea(_ areanum: Int32, _ groundfacesonly: Int32) {
             edgenum = abs(aasworld.edgeindex![face.firstedge + j])
             //check if edge number is in range
             if edgenum >= aasworld.numedges {
-                // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_debug.cpp:420")
+                botimport.runPrint(PRT_ERROR, "edgenum %d out of range\n", edgenum)
             } //end if
             //check if the edge is stored already
             n = 0
@@ -511,8 +505,7 @@ func AAS_ShowAreaPolygons(_ areanum: Int32, _ color: Int32, _ groundfacesonly: I
 
     //
     if areanum < 0 || areanum >= aasworld.numareas {
-        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_debug.cpp:478")
+        botimport.runPrint(PRT_ERROR, "area %d out of range [0, %d]\n", areanum, aasworld.numareas)
         return
     } //end if
     //pointer to the convex area
@@ -523,8 +516,7 @@ func AAS_ShowAreaPolygons(_ areanum: Int32, _ color: Int32, _ groundfacesonly: I
         facenum = abs(aasworld.faceindex![area.firstface + i])
         //check if face number is in range
         if facenum >= aasworld.numfaces {
-            // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-            portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_debug.cpp:491")
+            botimport.runPrint(PRT_ERROR, "facenum %d out of range\n", facenum)
         } //end if
         face = aasworld.facesSlots[facenum]
         //ground faces only
@@ -678,11 +670,54 @@ func AAS_ShowReachability(_ reach: AasReachability) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
+/// Source: oracle/codemp/botlib/be_aas_debug.cpp:670
+// AI: Raven declares `reach` static in AAS_ShowReachableAreas. The function uses one zeroed allocation on the storage class.
+var reach_AAS_ShowReachableAreas: AasReachability { world.storage.reach_AAS_ShowReachableAreas }
+
+/// Raven's `static int index` of `AAS_ShowReachableAreas`, a property of `EngineWorld`.
+/// Source: oracle/codemp/botlib/be_aas_debug.cpp:671
+var index: Int32 {
+    get { world.index }
+    set { world.index = newValue }
+}
+
+/// Raven's `static int lastareanum` of `AAS_ShowReachableAreas`, a property of `EngineWorld`.
+/// Source: oracle/codemp/botlib/be_aas_debug.cpp:671
+var lastareanum: Int32 {
+    get { world.lastareanum }
+    set { world.lastareanum = newValue }
+}
+
+/// Raven's `static float lasttime` of `AAS_ShowReachableAreas`, a property of `EngineWorld`.
+/// Source: oracle/codemp/botlib/be_aas_debug.cpp:672
+var lasttime_AAS_ShowReachableAreas: Float {
+    get { world.lasttime_AAS_ShowReachableAreas }
+    set { world.lasttime_AAS_ShowReachableAreas = newValue }
+}
+
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:667
 func AAS_ShowReachableAreas(_ areanum: Int32) {
-    // Port-note: Raven keeps `reach`, `index`, `lastareanum`, and `lasttime` as static locals, and the four have no storage forward in this file.
-    // TODO: Port AAS_ShowReachableAreas
-    portMissing("AAS_ShowReachableAreas", source: "oracle/codemp/botlib/be_aas_debug.cpp:667")
+    // Raven's static locals `reach` and `lasttime` take the function name as a suffix here.
+    let settings: AasAreasettings
+
+    if areanum != lastareanum {
+        index = 0
+        lastareanum = areanum
+    } //end if
+    settings = aasworld.areasettingsSlots[areanum]
+    //
+    if settings.numreachableareas == 0 { return }
+    //
+    if index >= settings.numreachableareas { index = 0 }
+    //
+    if Double(AAS_Time() - lasttime_AAS_ShowReachableAreas) > 1.5 {
+        reach_AAS_ShowReachableAreas.copy(from: aasworld.reachabilitySlots[settings.firstreachablearea + index])
+        index += 1
+        lasttime_AAS_ShowReachableAreas = AAS_Time()
+        AAS_PrintTravelType(reach_AAS_ShowReachableAreas.traveltype & TRAVELTYPE_MASK)
+        botimport.runPrint(PRT_MESSAGE, "\n")
+    } //end if
+    AAS_ShowReachability(reach_AAS_ShowReachableAreas)
 }
 
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:696
@@ -765,7 +800,7 @@ func AAS_FloodAreas(_ origin: JKAShared.vec3_t) {
     var areanum: Int32, cluster: Int32
     let done: Slots<Int32>
 
-    done = Slots<Int32>(scalars: GetClearedMemory(UInt32(aasworld.numareas * Int32(Int32.byteCount))), count: Int(aasworld.numareas))
+    done = Slots<Int32>(scalars: GetClearedMemory(aasworld.numareas * Int32(Int32.byteCount)), count: Int(aasworld.numareas))
     areanum = AAS_PointAreaNum(origin)
     cluster = AAS_AreaCluster(areanum)
     AAS_FloodAreas_r(areanum, cluster, done)

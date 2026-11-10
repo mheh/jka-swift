@@ -144,15 +144,11 @@ func BotAllocMoveState() -> Int32 {
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:130
 func BotFreeMoveState(_ handle: Int32) {
     if handle <= 0 || handle > MAX_CLIENTS {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "move state handle %d out of range\n", handle);
-        portMissing("BotFreeMoveState", source: "oracle/codemp/botlib/be_ai_move.cpp:130")
+        botimport.runPrint(PRT_FATAL, "move state handle %d out of range\n", handle)
         return
     }
     if botmovestates[handle] == nil {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "invalid move state %d\n", handle);
-        portMissing("BotFreeMoveState", source: "oracle/codemp/botlib/be_ai_move.cpp:130")
+        botimport.runPrint(PRT_FATAL, "invalid move state %d\n", handle)
         return
     }
     FreeMemory(botmovestates[handle]!.handle)
@@ -168,15 +164,11 @@ func BotFreeMoveState(_ handle: Int32) {
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:151
 func BotMoveStateFromHandle(_ handle: Int32) -> BotMovestate? {
     if handle <= 0 || handle > MAX_CLIENTS {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "move state handle %d out of range\n", handle);
-        portMissing("BotMoveStateFromHandle", source: "oracle/codemp/botlib/be_ai_move.cpp:151")
+        botimport.runPrint(PRT_FATAL, "move state handle %d out of range\n", handle)
         return nil
     }
     if botmovestates[handle] == nil {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "invalid move state %d\n", handle);
-        portMissing("BotMoveStateFromHandle", source: "oracle/codemp/botlib/be_ai_move.cpp:151")
+        botimport.runPrint(PRT_FATAL, "invalid move state %d\n", handle)
         return nil
     }
     return botmovestates[handle]
@@ -314,9 +306,7 @@ func BotReachabilityArea(_ origin: JKAShared.vec3_t, _ client: Int32) -> Int32 {
                 //check if the bot is standing on something
                 AAS_PresenceTypeBoundingBox(PRESENCE_CROUCH, &mins, &maxs)
                 _VectorMA(origin, -3, up, &end)
-                // Port-note: AAS_Trace returns a `bsp_trace_t` record with no signature, row P13 of the bot-ai round.
-                // Raven wrote: bsptrace = AAS_Trace(origin, mins, maxs, end, client, CONTENTS_SOLID|CONTENTS_PLAYERCLIP);
-                portMissing("BotReachabilityArea", source: "oracle/codemp/botlib/be_ai_move.cpp:284")
+                bsptrace.copy(from: AAS_Trace(origin, mins, maxs, end, client, CONTENTS_SOLID | CONTENTS_PLAYERCLIP))
                 if !bsptrace.startsolid && bsptrace.fraction < 1 && bsptrace.ent != ENTITYNUM_NONE {
                     //if standing on the world the bot should be in a valid area
                     if bsptrace.ent == ENTITYNUM_WORLD {
@@ -348,9 +338,7 @@ func BotReachabilityArea(_ origin: JKAShared.vec3_t, _ client: Int32) -> Int32 {
                     org = origin
                     end = org
                     end[2] -= 800
-                    // Port-note: AAS_TraceClientBBox returns an `aas_trace_t` record with no signature, row P13 of the bot-ai round.
-                    // Raven wrote: trace = AAS_TraceClientBBox(org, end, PRESENCE_CROUCH, -1);
-                    portMissing("BotReachabilityArea", source: "oracle/codemp/botlib/be_ai_move.cpp:284")
+                    trace.copy(from: AAS_TraceClientBBox(org, end, PRESENCE_CROUCH, -1))
                     if !trace.startsolid {
                         org = trace.endpos
                     }
@@ -459,14 +447,12 @@ func BotOnMover(_ origin: JKAShared.vec3_t, _ entnum: Int32, _ reach: AasReachab
         var i: Int32, modelnum: Int32
         modelnum = reach.facenum & 0x0000FFFF
         //get some bsp model info
-        // Port-note: AAS_BSPModelMinsMaxsOrigin writes `mins` and `maxs`, and its signature takes them by value, row P10 of the bot-ai round.
-        // Raven wrote: AAS_BSPModelMinsMaxsOrigin(modelnum, angles, mins, maxs, NULL);
-        portMissing("BotOnMover", source: "oracle/codemp/botlib/be_ai_move.cpp:425")
+        // Raven passes NULL for the `origin` output, and the scratch local takes the write.
+        var scratchOrigin = vec3_t()
+        AAS_BSPModelMinsMaxsOrigin(modelnum, angles, &mins, &maxs, &scratchOrigin)
         //
         if AAS_OriginOfMoverWithModelNum(modelnum, &modelorigin) == 0 {
-            // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-            // Raven wrote: botimport.Print(PRT_MESSAGE, "no entity with model %d\n", modelnum);
-            portMissing("BotOnMover", source: "oracle/codemp/botlib/be_ai_move.cpp:425")
+            botimport.runPrint(PRT_MESSAGE, "no entity with model %d\n", modelnum)
             return 0
         }
         //
@@ -482,9 +468,7 @@ func BotOnMover(_ origin: JKAShared.vec3_t, _ entnum: Int32, _ reach: AasReachab
         end = origin
         end[2] -= 48
         //
-        // Port-note: AAS_Trace returns a `bsp_trace_t` record with no signature, row P13 of the bot-ai round.
-        // Raven wrote: trace = AAS_Trace(org, boxmins, boxmaxs, end, entnum, CONTENTS_SOLID|CONTENTS_PLAYERCLIP);
-        portMissing("BotOnMover", source: "oracle/codemp/botlib/be_ai_move.cpp:425")
+        trace.copy(from: AAS_Trace(org, boxmins, boxmaxs, end, entnum, CONTENTS_SOLID | CONTENTS_PLAYERCLIP))
         if !trace.startsolid && !trace.allsolid {
             //NOTE: the reachability face number is the model number of the elevator
             if trace.ent != ENTITYNUM_NONE && AAS_EntityModelNum(trace.ent) == modelnum {
@@ -509,14 +493,10 @@ func MoverDown(_ reach: AasReachability) -> Int32 {
 
     modelnum = reach.facenum & 0x0000FFFF
     //get some bsp model info
-    // Port-note: AAS_BSPModelMinsMaxsOrigin writes `mins`, `maxs`, and `origin`, and its signature takes them by value, row P10 of the bot-ai round.
-    // Raven wrote: AAS_BSPModelMinsMaxsOrigin(modelnum, angles, mins, maxs, origin);
-    portMissing("MoverDown", source: "oracle/codemp/botlib/be_ai_move.cpp:471")
+    AAS_BSPModelMinsMaxsOrigin(modelnum, angles, &mins, &maxs, &origin)
     //
     if AAS_OriginOfMoverWithModelNum(modelnum, &origin) == 0 {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_MESSAGE, "no entity with model %d\n", modelnum);
-        portMissing("MoverDown", source: "oracle/codemp/botlib/be_ai_move.cpp:471")
+        botimport.runPrint(PRT_MESSAGE, "no entity with model %d\n", modelnum)
         return 0
     }
     //if the top of the plat is below the reachability start point
@@ -554,9 +534,7 @@ func BotSetBrushModelTypes() {
         }
 
         if modelnum < 0 || modelnum > MAX_MODELS {
-            // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-            // Raven wrote: botimport.Print(PRT_MESSAGE, "entity %s model number out of range\n", classname);
-            portMissing("BotSetBrushModelTypes", source: "oracle/codemp/botlib/be_ai_move.cpp:496")
+            botimport.runPrint(PRT_MESSAGE, "entity %s model number out of range\n", String(classname))
             ent = AAS_NextBSPEntity(ent)
             continue
         }
@@ -590,9 +568,7 @@ func BotOnTopOfEntity(_ ms: BotMovestate) -> Int32 {
     return BspTrace.scratch { trace -> Int32 in
         AAS_PresenceTypeBoundingBox(ms.presencetype, &mins, &maxs)
         _VectorMA(ms.origin, -3, up, &end)
-        // Port-note: AAS_Trace returns a `bsp_trace_t` record with no signature, row P13 of the bot-ai round.
-        // Raven wrote: trace = AAS_Trace(ms->origin, mins, maxs, end, ms->entitynum, CONTENTS_SOLID|CONTENTS_PLAYERCLIP);
-        portMissing("BotOnTopOfEntity", source: "oracle/codemp/botlib/be_ai_move.cpp:532")
+        trace.copy(from: AAS_Trace(ms.origin, mins, maxs, end, ms.entitynum, CONTENTS_SOLID | CONTENTS_PLAYERCLIP))
         if !trace.startsolid && (trace.ent != ENTITYNUM_WORLD && trace.ent != ENTITYNUM_NONE) {
             return trace.ent
         }
@@ -788,7 +764,7 @@ func BotAddAvoidSpot(_ movestate: Int32, _ origin: JKAShared.vec3_t, _ radius: F
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:727
-func BotGetReachabilityToGoal(_ origin: JKAShared.vec3_t, _ areanum: Int32, _ lastgoalareanum: Int32, _ lastareanum: Int32, _ avoidreach: Slots<Int32>, _ avoidreachtimes: Slots<Float>, _ avoidreachtries: Slots<Int32>, _ goal: BotGoal, _ travelflags: Int32, _ movetravelflags: Int32, _ avoidspots: BotAvoidspot?, _ numavoidspots: Int32, _ flags: UnsafeMutablePointer<Int32>?) -> Int32 {
+func BotGetReachabilityToGoal(_ origin: JKAShared.vec3_t, _ areanum: Int32, _ lastgoalareanum: Int32, _ lastareanum: Int32, _ avoidreach: Slots<Int32>, _ avoidreachtimes: Slots<Float>, _ avoidreachtries: Slots<Int32>, _ goal: BotGoal, _ travelflags: Int32, _ movetravelflags: Int32, _ avoidspots: Slots<BotAvoidspot>?, _ numavoidspots: Int32, _ flags: UnsafeMutablePointer<Int32>?) -> Int32 {
     // Raven assigns his own `travelflags` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var travelflags = travelflags
     // Raven assigns his own `movetravelflags` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
@@ -841,9 +817,13 @@ func BotGetReachabilityToGoal(_ origin: JKAShared.vec3_t, _ areanum: Int32, _ la
                 continue
             }
             //if the bot should not use this reachability to avoid bad spots
-            // Port-note: The `avoidspots` parameter is one `BotAvoidspot?`, and BotAvoidSpots takes a table, row P11 of the bot-ai round.
-            // Raven wrote: if (BotAvoidSpots(origin, &reach, avoidspots, numavoidspots)) { if (flags) { *flags |= MOVERESULT_BLOCKEDBYAVOIDSPOT; } continue; }
-            portMissing("BotGetReachabilityToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:727")
+            if BotAvoidSpots(origin, reach, avoidspots!, numavoidspots) != 0 {
+                if flags != nil {
+                    flags!.pointee |= MOVERESULT_BLOCKEDBYAVOIDSPOT
+                }
+                reachnum = AAS_NextAreaReachability(areanum, reachnum)
+                continue
+            }
             //add the travel time towards the area
             t += reach.traveltime// + AAS_AreaTravelTime(areanum, origin, reach.start);
             //if the travel time is better than the ones already found
@@ -937,9 +917,7 @@ func BotMovementViewTarget(_ movestate: Int32, _ goal: BotGoal, _ travelflags: I
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:881
 func BotVisible(_ ent: Int32, _ eye: JKAShared.vec3_t, _ target: JKAShared.vec3_t) -> Int32 {
     return BspTrace.scratch { trace -> Int32 in
-        // Port-note: AAS_Trace returns a `bsp_trace_t` record with no signature, row P13 of the bot-ai round.
-        // Raven wrote: trace = AAS_Trace(eye, NULL, NULL, target, ent, CONTENTS_SOLID|CONTENTS_PLAYERCLIP);
-        portMissing("BotVisible", source: "oracle/codemp/botlib/be_ai_move.cpp:881")
+        trace.copy(from: AAS_Trace(eye, nil, nil, target, ent, CONTENTS_SOLID | CONTENTS_PLAYERCLIP))
         if trace.fraction >= 1 { return 1 }
         return 0
     }
@@ -951,6 +929,18 @@ func BotVisible(_ ent: Int32, _ eye: JKAShared.vec3_t, _ target: JKAShared.vec3_
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:899
+// AI: Raven declares `avoidreach` on the stack of BotPredictVisiblePosition. The function uses one zeroed allocation on the storage class.
+var avoidreach_BotPredictVisiblePosition: Slots<Int32> { world.storage.avoidreach_BotPredictVisiblePosition }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:900
+// AI: Raven declares `avoidreachtimes` on the stack of BotPredictVisiblePosition. The function uses one zeroed allocation on the storage class.
+var avoidreachtimes_BotPredictVisiblePosition: Slots<Float> { world.storage.avoidreachtimes_BotPredictVisiblePosition }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:901
+// AI: Raven declares `avoidreachtries` on the stack of BotPredictVisiblePosition. The function uses one zeroed allocation on the storage class.
+var avoidreachtries_BotPredictVisiblePosition: Slots<Int32> { world.storage.avoidreachtries_BotPredictVisiblePosition }
+
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:895
 func BotPredictVisiblePosition(_ origin: JKAShared.vec3_t, _ areanum: Int32, _ goal: BotGoal, _ travelflags: Int32, _ target: inout JKAShared.vec3_t) -> Int32 {
     var end = vec3_t()
@@ -964,9 +954,7 @@ func BotPredictVisiblePosition(_ origin: JKAShared.vec3_t, _ areanum: Int32, _ g
         //if the goal areanum is not valid
         if goal.areanum == 0 { return 0 }
 
-        // Port-note: The local arrays `avoidreach`, `avoidreachtimes`, and `avoidreachtries` have no Slots storage, row P12 of the bot-ai round.
-        // Raven wrote: Com_Memset(avoidreach, 0, MAX_AVOIDREACH * sizeof(int));
-        portMissing("BotPredictVisiblePosition", source: "oracle/codemp/botlib/be_ai_move.cpp:895")
+        avoidreach_BotPredictVisiblePosition.zero()
         lastgoalareanum = goal.areanum
         lastareanum = areanum
         end = origin
@@ -974,9 +962,7 @@ func BotPredictVisiblePosition(_ origin: JKAShared.vec3_t, _ areanum: Int32, _ g
         i = 0
         while i < 20 && (areanum != goal.areanum) {
             //
-            // Port-note: The local arrays `avoidreach`, `avoidreachtimes`, and `avoidreachtries` have no Slots storage, row P12 of the bot-ai round.
-            // Raven wrote: reachnum = BotGetReachabilityToGoal(end, areanum, lastgoalareanum, lastareanum, avoidreach, avoidreachtimes, avoidreachtries, goal, travelflags, travelflags, NULL, 0, NULL);
-            portMissing("BotPredictVisiblePosition", source: "oracle/codemp/botlib/be_ai_move.cpp:895")
+            reachnum = BotGetReachabilityToGoal(end, areanum, lastgoalareanum, lastareanum, avoidreach_BotPredictVisiblePosition, avoidreachtimes_BotPredictVisiblePosition, avoidreachtries_BotPredictVisiblePosition, goal, travelflags, travelflags, nil, 0, nil)
             if reachnum == 0 { return 0 }
             AAS_ReachabilityFromNum(reachnum, reach)
             //
@@ -1020,14 +1006,10 @@ func MoverBottomCenter(_ reach: AasReachability, _ bottomcenter: inout JKAShared
 
     modelnum = reach.facenum & 0x0000FFFF
     //get some bsp model info
-    // Port-note: AAS_BSPModelMinsMaxsOrigin writes `mins`, `maxs`, and `origin`, and its signature takes them by value, row P10 of the bot-ai round.
-    // Raven wrote: AAS_BSPModelMinsMaxsOrigin(modelnum, angles, mins, maxs, origin);
-    portMissing("MoverBottomCenter", source: "oracle/codemp/botlib/be_ai_move.cpp:958")
+    AAS_BSPModelMinsMaxsOrigin(modelnum, angles, &mins, &maxs, &origin)
     //
     if AAS_OriginOfMoverWithModelNum(modelnum, &origin) == 0 {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_MESSAGE, "no entity with model %d\n", modelnum);
-        portMissing("MoverBottomCenter", source: "oracle/codemp/botlib/be_ai_move.cpp:958")
+        botimport.runPrint(PRT_MESSAGE, "no entity with model %d\n", modelnum)
     }
     //get a point just above the plat in the bottom position
     mids = mins + maxs
@@ -1056,9 +1038,7 @@ func BotGapDistance(_ origin: JKAShared.vec3_t, _ hordir: JKAShared.vec3_t, _ en
             start = origin
             end = origin
             end[2] -= 60
-            // Port-note: AAS_TraceClientBBox returns an `aas_trace_t` record with no signature, row P13 of the bot-ai round.
-            // Raven wrote: trace = AAS_TraceClientBBox(start, end, PRESENCE_CROUCH, entnum);
-            portMissing("BotGapDistance", source: "oracle/codemp/botlib/be_ai_move.cpp:983")
+            trace.copy(from: AAS_TraceClientBBox(start, end, PRESENCE_CROUCH, entnum))
             if trace.fraction >= 1 { return 1 }
             startz = trace.endpos[2] + 1
         }
@@ -1069,9 +1049,7 @@ func BotGapDistance(_ origin: JKAShared.vec3_t, _ hordir: JKAShared.vec3_t, _ en
             start[2] = startz + 24
             end = start
             end[2] -= 48 + sv_maxbarrier!.value
-            // Port-note: AAS_TraceClientBBox returns an `aas_trace_t` record with no signature, row P13 of the bot-ai round.
-            // Raven wrote: trace = AAS_TraceClientBBox(start, end, PRESENCE_CROUCH, entnum);
-            portMissing("BotGapDistance", source: "oracle/codemp/botlib/be_ai_move.cpp:983")
+            trace.copy(from: AAS_TraceClientBBox(start, end, PRESENCE_CROUCH, entnum))
             //if solid is found the bot can't walk any further and fall into a gap
             if !trace.startsolid {
                 //if it is a gap
@@ -1105,9 +1083,7 @@ func BotCheckBarrierJump(_ ms: BotMovestate, _ dir: JKAShared.vec3_t, _ speed: F
         end = ms.origin
         end[2] += sv_maxbarrier!.value
         //trace right up
-        // Port-note: AAS_TraceClientBBox returns an `aas_trace_t` record with no signature, row P13 of the bot-ai round.
-        // Raven wrote: trace = AAS_TraceClientBBox(ms->origin, end, PRESENCE_NORMAL, ms->entitynum);
-        portMissing("BotCheckBarrierJump", source: "oracle/codemp/botlib/be_ai_move.cpp:1032")
+        trace.copy(from: AAS_TraceClientBBox(ms.origin, end, PRESENCE_NORMAL, ms.entitynum))
         //this shouldn't happen... but we check anyway
         if trace.startsolid { return 0 }
         //if very low ceiling it isn't possible to jump up to a barrier
@@ -1123,9 +1099,7 @@ func BotCheckBarrierJump(_ ms: BotMovestate, _ dir: JKAShared.vec3_t, _ speed: F
         start = trace.endpos
         end[2] = trace.endpos[2]
         //trace from previous trace end pos horizontally in the move direction
-        // Port-note: AAS_TraceClientBBox returns an `aas_trace_t` record with no signature, row P13 of the bot-ai round.
-        // Raven wrote: trace = AAS_TraceClientBBox(start, end, PRESENCE_NORMAL, ms->entitynum);
-        portMissing("BotCheckBarrierJump", source: "oracle/codemp/botlib/be_ai_move.cpp:1032")
+        trace.copy(from: AAS_TraceClientBBox(start, end, PRESENCE_NORMAL, ms.entitynum))
         //again this shouldn't happen
         if trace.startsolid { return 0 }
         //
@@ -1133,9 +1107,7 @@ func BotCheckBarrierJump(_ ms: BotMovestate, _ dir: JKAShared.vec3_t, _ speed: F
         end = trace.endpos
         end[2] = ms.origin[2]
         //trace down from the previous trace end pos
-        // Port-note: AAS_TraceClientBBox returns an `aas_trace_t` record with no signature, row P13 of the bot-ai round.
-        // Raven wrote: trace = AAS_TraceClientBBox(start, end, PRESENCE_NORMAL, ms->entitynum);
-        portMissing("BotCheckBarrierJump", source: "oracle/codemp/botlib/be_ai_move.cpp:1032")
+        trace.copy(from: AAS_TraceClientBBox(start, end, PRESENCE_NORMAL, ms.entitynum))
         //if solid
         if trace.startsolid { return 0 }
         //if no obstacle at all
@@ -1343,9 +1315,7 @@ func BotCheckBlocked(_ ms: BotMovestate, _ dir: JKAShared.vec3_t, _ checkbottom:
             maxs[2] -= 10 //a little lower to avoid low ceiling
         }
         _VectorMA(ms.origin, 3, dir, &end)
-        // Port-note: AAS_Trace returns a `bsp_trace_t` record with no signature, row P13 of the bot-ai round.
-        // Raven wrote: trace = AAS_Trace(ms->origin, mins, maxs, end, ms->entitynum, CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_BODY);
-        portMissing("BotCheckBlocked", source: "oracle/codemp/botlib/be_ai_move.cpp:1265")
+        trace.copy(from: AAS_Trace(ms.origin, mins, maxs, end, ms.entitynum, CONTENTS_SOLID | CONTENTS_PLAYERCLIP | CONTENTS_BODY))
         //if not started in solid and not hitting the world entity
         if !trace.startsolid && (trace.ent != ENTITYNUM_WORLD && trace.ent != ENTITYNUM_NONE) {
             result.blocked = 1
@@ -1356,9 +1326,7 @@ func BotCheckBlocked(_ ms: BotMovestate, _ dir: JKAShared.vec3_t, _ checkbottom:
             //check if the bot is standing on something
             AAS_PresenceTypeBoundingBox(ms.presencetype, &mins, &maxs)
             _VectorMA(ms.origin, -3, up, &end)
-            // Port-note: AAS_Trace returns a `bsp_trace_t` record with no signature, row P13 of the bot-ai round.
-            // Raven wrote: trace = AAS_Trace(ms->origin, mins, maxs, end, ms->entitynum, CONTENTS_SOLID|CONTENTS_PLAYERCLIP);
-            portMissing("BotCheckBlocked", source: "oracle/codemp/botlib/be_ai_move.cpp:1265")
+            trace.copy(from: AAS_Trace(ms.origin, mins, maxs, end, ms.entitynum, CONTENTS_SOLID | CONTENTS_PLAYERCLIP))
             if !trace.startsolid && (trace.ent != ENTITYNUM_WORLD && trace.ent != ENTITYNUM_NONE) {
                 result.blocked = 1
                 result.blockentity = trace.ent
@@ -1391,12 +1359,59 @@ func BotClearMoveResult(_ moveresult: BotMoveresult) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1328
-// TODO: Port signature
-// Raven wrote: bot_moveresult_t BotTravel_Walk(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for the return `bot_moveresult_t`.
-func BotTravel_Walk() -> Never {
-    // TODO: Port BotTravel_Walk
-    portMissing("BotTravel_Walk", source: "oracle/codemp/botlib/be_ai_move.cpp:1328")
+// AI: Raven declares `result` on the stack of BotTravel_Walk. The function uses one zeroed allocation on the storage class.
+var result_BotTravel_Walk: BotMoveresult { world.storage.result_BotTravel_Walk }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:1328
+func BotTravel_Walk(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+    var dist: Float, speed: Float
+    var hordir = vec3_t()
+    let result = result_BotTravel_Walk
+
+    BotClearMoveResult(result)
+    //first walk straight to the reachability start
+    hordir[0] = reach.start[0] - ms.origin[0]
+    hordir[1] = reach.start[1] - ms.origin[1]
+    hordir[2] = 0
+    dist = VectorNormalize(&hordir)
+    //
+    BotCheckBlocked(ms, hordir, 1, result)
+    //
+    if dist < 10 {
+        //walk straight to the reachability end
+        hordir[0] = reach.end[0] - ms.origin[0]
+        hordir[1] = reach.end[1] - ms.origin[1]
+        hordir[2] = 0
+        dist = VectorNormalize(&hordir)
+    } //end if
+    //if going towards a crouch area
+    if (AAS_AreaPresenceType(reach.areanum) & PRESENCE_NORMAL) == 0 {
+        //if pretty close to the reachable area
+        if dist < 20 { EA_Crouch(ms.client) }
+    } //end if
+    //
+    dist = BotGapDistance(ms.origin, hordir, ms.entitynum)
+    //
+    if (ms.moveflags & MFL_WALK) != 0 {
+        if dist > 0 {
+            speed = 200 - (180 - 1 * dist)
+        } else {
+            speed = 200
+        }
+        EA_Walk(ms.client)
+    } //end if
+    else {
+        if dist > 0 {
+            speed = 400 - (360 - 2 * dist)
+        } else {
+            speed = 400
+        }
+    } //end else
+    //elemantary action move in direction
+    EA_Move(ms.client, hordir, speed)
+    result.movedir = hordir
+    //
+    return result
 }
 
 //===========================================================================
@@ -1406,12 +1421,31 @@ func BotTravel_Walk() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1383
-// TODO: Port signature
-// Raven wrote: bot_moveresult_t BotFinishTravel_Walk(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for the return `bot_moveresult_t`.
-func BotFinishTravel_Walk() -> Never {
-    // TODO: Port BotFinishTravel_Walk
-    portMissing("BotFinishTravel_Walk", source: "oracle/codemp/botlib/be_ai_move.cpp:1383")
+// AI: Raven declares `result` on the stack of BotFinishTravel_Walk. The function uses one zeroed allocation on the storage class.
+var result_BotFinishTravel_Walk: BotMoveresult { world.storage.result_BotFinishTravel_Walk }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:1383
+func BotFinishTravel_Walk(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+    var hordir = vec3_t()
+    var dist: Float, speed: Float
+    let result = result_BotFinishTravel_Walk
+
+    BotClearMoveResult(result)
+    //if not on the ground and changed areas... don't walk back!!
+    //(doesn't seem to help)
+    //go straight to the reachability end
+    hordir[0] = reach.end[0] - ms.origin[0]
+    hordir[1] = reach.end[1] - ms.origin[1]
+    hordir[2] = 0
+    dist = VectorNormalize(&hordir)
+    //
+    if dist > 100 { dist = 100 }
+    speed = 400 - (400 - 3 * dist)
+    //
+    EA_Move(ms.client, hordir, speed)
+    result.movedir = hordir
+    //
+    return result
 }
 
 //===========================================================================
@@ -1421,12 +1455,32 @@ func BotFinishTravel_Walk() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1421
-// TODO: Port signature
-// Raven wrote: bot_moveresult_t BotTravel_Crouch(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for the return `bot_moveresult_t`.
-func BotTravel_Crouch() -> Never {
-    // TODO: Port BotTravel_Crouch
-    portMissing("BotTravel_Crouch", source: "oracle/codemp/botlib/be_ai_move.cpp:1421")
+// AI: Raven declares `result` on the stack of BotTravel_Crouch. The function uses one zeroed allocation on the storage class.
+var result_BotTravel_Crouch: BotMoveresult { world.storage.result_BotTravel_Crouch }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:1421
+func BotTravel_Crouch(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+    let speed: Float
+    var hordir = vec3_t()
+    let result = result_BotTravel_Crouch
+
+    BotClearMoveResult(result)
+    //
+    speed = 400
+    //walk straight to reachability end
+    hordir[0] = reach.end[0] - ms.origin[0]
+    hordir[1] = reach.end[1] - ms.origin[1]
+    hordir[2] = 0
+    _ = VectorNormalize(&hordir)
+    //
+    BotCheckBlocked(ms, hordir, 1, result)
+    //elemantary actions
+    EA_Crouch(ms.client)
+    EA_Move(ms.client, hordir, speed)
+    //
+    result.movedir = hordir
+    //
+    return result
 }
 
 //===========================================================================
@@ -1436,12 +1490,35 @@ func BotTravel_Crouch() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1451
-// TODO: Port signature
-// Raven wrote: bot_moveresult_t BotTravel_BarrierJump(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for the return `bot_moveresult_t`.
-func BotTravel_BarrierJump() -> Never {
-    // TODO: Port BotTravel_BarrierJump
-    portMissing("BotTravel_BarrierJump", source: "oracle/codemp/botlib/be_ai_move.cpp:1451")
+// AI: Raven declares `result` on the stack of BotTravel_BarrierJump. The function uses one zeroed allocation on the storage class.
+var result_BotTravel_BarrierJump: BotMoveresult { world.storage.result_BotTravel_BarrierJump }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:1451
+func BotTravel_BarrierJump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+    var dist: Float, speed: Float
+    var hordir = vec3_t()
+    let result = result_BotTravel_BarrierJump
+
+    BotClearMoveResult(result)
+    //walk straight to reachability start
+    hordir[0] = reach.start[0] - ms.origin[0]
+    hordir[1] = reach.start[1] - ms.origin[1]
+    hordir[2] = 0
+    dist = VectorNormalize(&hordir)
+    //
+    BotCheckBlocked(ms, hordir, 1, result)
+    //if pretty close to the barrier
+    if dist < 9 {
+        EA_Jump(ms.client)
+    } //end if
+    else {
+        if dist > 60 { dist = 60 }
+        speed = 360 - (360 - 6 * dist)
+        EA_Move(ms.client, hordir, speed)
+    } //end else
+    result.movedir = hordir
+    //
+    return result
 }
 
 //===========================================================================
@@ -1451,12 +1528,29 @@ func BotTravel_BarrierJump() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1486
-// TODO: Port signature
-// Raven wrote: bot_moveresult_t BotFinishTravel_BarrierJump(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for the return `bot_moveresult_t`.
-func BotFinishTravel_BarrierJump() -> Never {
-    // TODO: Port BotFinishTravel_BarrierJump
-    portMissing("BotFinishTravel_BarrierJump", source: "oracle/codemp/botlib/be_ai_move.cpp:1486")
+// AI: Raven declares `result` on the stack of BotFinishTravel_BarrierJump. The function uses one zeroed allocation on the storage class.
+var result_BotFinishTravel_BarrierJump: BotMoveresult { world.storage.result_BotFinishTravel_BarrierJump }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:1486
+func BotFinishTravel_BarrierJump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+    var hordir = vec3_t()
+    let result = result_BotFinishTravel_BarrierJump
+
+    BotClearMoveResult(result)
+    //if near the top or going down
+    if ms.velocity[2] < 250 {
+        hordir[0] = reach.end[0] - ms.origin[0]
+        hordir[1] = reach.end[1] - ms.origin[1]
+        hordir[2] = 0
+        _ = VectorNormalize(&hordir)
+        //
+        BotCheckBlocked(ms, hordir, 1, result)
+        //
+        EA_Move(ms.client, hordir, 400)
+        result.movedir = hordir
+    } //end if
+    //
+    return result
 }
 
 //===========================================================================
@@ -1466,12 +1560,28 @@ func BotFinishTravel_BarrierJump() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1515
-// TODO: Port signature
-// Raven wrote: bot_moveresult_t BotTravel_Swim(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for the return `bot_moveresult_t`.
-func BotTravel_Swim() -> Never {
-    // TODO: Port BotTravel_Swim
-    portMissing("BotTravel_Swim", source: "oracle/codemp/botlib/be_ai_move.cpp:1515")
+// AI: Raven declares `result` on the stack of BotTravel_Swim. The function uses one zeroed allocation on the storage class.
+var result_BotTravel_Swim: BotMoveresult { world.storage.result_BotTravel_Swim }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:1515
+func BotTravel_Swim(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+    var dir = vec3_t()
+    let result = result_BotTravel_Swim
+
+    BotClearMoveResult(result)
+    //swim straight to reachability end
+    dir = reach.start - ms.origin
+    _ = VectorNormalize(&dir)
+    //
+    BotCheckBlocked(ms, dir, 1, result)
+    //elemantary actions
+    EA_Move(ms.client, dir, 400)
+    //
+    result.movedir = dir
+    vectoangles(dir, &result.ideal_viewangles)
+    result.flags |= MOVERESULT_SWIMVIEW
+    //
+    return result
 }
 
 //===========================================================================
@@ -1481,12 +1591,36 @@ func BotTravel_Swim() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1541
-// TODO: Port signature
-// Raven wrote: bot_moveresult_t BotTravel_WaterJump(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for the return `bot_moveresult_t`.
-func BotTravel_WaterJump() -> Never {
-    // TODO: Port BotTravel_WaterJump
-    portMissing("BotTravel_WaterJump", source: "oracle/codemp/botlib/be_ai_move.cpp:1541")
+// AI: Raven declares `result` on the stack of BotTravel_WaterJump. The function uses one zeroed allocation on the storage class.
+var result_BotTravel_WaterJump: BotMoveresult { world.storage.result_BotTravel_WaterJump }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:1541
+func BotTravel_WaterJump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+    var dir = vec3_t(), hordir = vec3_t()
+    let dist: Float
+    let result = result_BotTravel_WaterJump
+
+    BotClearMoveResult(result)
+    //swim straight to reachability end
+    dir = reach.end - ms.origin
+    hordir = dir
+    hordir[2] = 0
+    dir[2] = Float(Double(dir[2]) + 15 + crandom() * 40)
+    //botimport.Print(PRT_MESSAGE, "BotTravel_WaterJump: dir[2] = %f\n", dir[2]);
+    _ = VectorNormalize(&dir)
+    dist = VectorNormalize(&hordir)
+    //elemantary actions
+    //EA_Move(ms->client, dir, 400);
+    EA_MoveForward(ms.client)
+    //move up if close to the actual out of water jump spot
+    if dist < 40 { EA_MoveUp(ms.client) }
+    //set the ideal view angles
+    vectoangles(dir, &result.ideal_viewangles)
+    result.flags |= MOVERESULT_MOVEMENTVIEW
+    //
+    result.movedir = dir
+    //
+    return result
 }
 
 //===========================================================================
@@ -1496,12 +1630,38 @@ func BotTravel_WaterJump() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1575
-// TODO: Port signature
-// Raven wrote: bot_moveresult_t BotFinishTravel_WaterJump(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for the return `bot_moveresult_t`.
-func BotFinishTravel_WaterJump() -> Never {
-    // TODO: Port BotFinishTravel_WaterJump
-    portMissing("BotFinishTravel_WaterJump", source: "oracle/codemp/botlib/be_ai_move.cpp:1575")
+// AI: Raven declares `result` on the stack of BotFinishTravel_WaterJump. The function uses one zeroed allocation on the storage class.
+var result_BotFinishTravel_WaterJump: BotMoveresult { world.storage.result_BotFinishTravel_WaterJump }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:1575
+func BotFinishTravel_WaterJump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+    var dir = vec3_t(), pnt = vec3_t()
+    let result = result_BotFinishTravel_WaterJump
+
+    //botimport.Print(PRT_MESSAGE, "BotFinishTravel_WaterJump\n");
+    BotClearMoveResult(result)
+    //if waterjumping there's nothing to do
+    if (ms.moveflags & MFL_WATERJUMP) != 0 { return result }
+    //if not touching any water anymore don't do anything
+    //otherwise the bot sometimes keeps jumping?
+    pnt = ms.origin
+    pnt[2] -= 32	//extra for q2dm4 near red armor/mega health
+    if (AAS_PointContents(pnt) & (CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER)) == 0 { return result }
+    //swim straight to reachability end
+    dir = reach.end - ms.origin
+    dir[0] = Float(Double(dir[0]) + crandom() * 10)
+    dir[1] = Float(Double(dir[1]) + crandom() * 10)
+    dir[2] = Float(Double(dir[2]) + 70 + crandom() * 10)
+    _ = VectorNormalize(&dir)
+    //elemantary actions
+    EA_Move(ms.client, dir, 400)
+    //set the ideal view angles
+    vectoangles(dir, &result.ideal_viewangles)
+    result.flags |= MOVERESULT_MOVEMENTVIEW
+    //
+    result.movedir = dir
+    //
+    return result
 }
 
 //===========================================================================
@@ -1511,12 +1671,60 @@ func BotFinishTravel_WaterJump() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1612
-// TODO: Port signature
-// Raven wrote: bot_moveresult_t BotTravel_WalkOffLedge(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for the return `bot_moveresult_t`.
-func BotTravel_WalkOffLedge() -> Never {
-    // TODO: Port BotTravel_WalkOffLedge
-    portMissing("BotTravel_WalkOffLedge", source: "oracle/codemp/botlib/be_ai_move.cpp:1612")
+// AI: Raven declares `result` on the stack of BotTravel_WalkOffLedge. The function uses one zeroed allocation on the storage class.
+var result_BotTravel_WalkOffLedge: BotMoveresult { world.storage.result_BotTravel_WalkOffLedge }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:1612
+func BotTravel_WalkOffLedge(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+    var hordir = vec3_t(), dir = vec3_t()
+    var dist: Float, speed: Float = 0
+    let reachhordist: Float
+    let result = result_BotTravel_WalkOffLedge
+
+    BotClearMoveResult(result)
+    //check if the bot is blocked by anything
+    dir = reach.start - ms.origin
+    _ = VectorNormalize(&dir)
+    BotCheckBlocked(ms, dir, 1, result)
+    //if the reachability start and end are practially above each other
+    dir = reach.end - reach.start
+    dir[2] = 0
+    reachhordist = VectorLength(dir)
+    //walk straight to the reachability start
+    hordir[0] = reach.start[0] - ms.origin[0]
+    hordir[1] = reach.start[1] - ms.origin[1]
+    hordir[2] = 0
+    dist = VectorNormalize(&hordir)
+    //if pretty close to the start focus on the reachability end
+    if dist < 48 {
+        hordir[0] = reach.end[0] - ms.origin[0]
+        hordir[1] = reach.end[1] - ms.origin[1]
+        hordir[2] = 0
+        _ = VectorNormalize(&hordir)
+        //
+        if reachhordist < 20 {
+            speed = 100
+        } //end if
+        else if AAS_HorizontalVelocityForJump(0, reach.start, reach.end, &speed) == 0 {
+            speed = 400
+        } //end if
+    } //end if
+    else {
+        if reachhordist < 20 {
+            if dist > 64 { dist = 64 }
+            speed = 400 - (256 - 4 * dist)
+        } //end if
+        else {
+            speed = 400
+        } //end else
+    } //end else
+    //
+    BotCheckBlocked(ms, hordir, 1, result)
+    //elemantary action
+    EA_Move(ms.client, hordir, speed)
+    result.movedir = hordir
+    //
+    return result
 }
 
 //===========================================================================
@@ -1564,12 +1772,43 @@ func BotAirControl(_ origin: JKAShared.vec3_t, _ velocity: JKAShared.vec3_t, _ g
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1712
-// TODO: Port signature
-// Raven wrote: bot_moveresult_t BotFinishTravel_WalkOffLedge(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for the return `bot_moveresult_t`.
-func BotFinishTravel_WalkOffLedge() -> Never {
-    // TODO: Port BotFinishTravel_WalkOffLedge
-    portMissing("BotFinishTravel_WalkOffLedge", source: "oracle/codemp/botlib/be_ai_move.cpp:1712")
+// AI: Raven declares `result` on the stack of BotFinishTravel_WalkOffLedge. The function uses one zeroed allocation on the storage class.
+var result_BotFinishTravel_WalkOffLedge: BotMoveresult { world.storage.result_BotFinishTravel_WalkOffLedge }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:1712
+func BotFinishTravel_WalkOffLedge(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+    var dir = vec3_t(), hordir = vec3_t(), end = vec3_t(), v = vec3_t()
+    let dist: Float
+    var speed: Float = 0
+    let result = result_BotFinishTravel_WalkOffLedge
+
+    BotClearMoveResult(result)
+    //
+    dir = reach.end - ms.origin
+    BotCheckBlocked(ms, dir, 1, result)
+    //
+    v = reach.end - ms.origin
+    v[2] = 0
+    dist = VectorNormalize(&v)
+    if dist > 16 {
+        _VectorMA(reach.end, 16, v, &end)
+    } else {
+        end = reach.end
+    }
+    //
+    if BotAirControl(ms.origin, ms.velocity, end, &hordir, &speed) == 0 {
+        //go straight to the reachability end
+        hordir = dir
+        hordir[2] = 0
+        //
+        _ = VectorNormalize(&hordir)
+        speed = 400
+    } //end if
+    //
+    EA_Move(ms.client, hordir, speed)
+    result.movedir = hordir
+    //
+    return result
 }
 
 //===========================================================================
@@ -1707,12 +1946,75 @@ bot_moveresult_t BotTravel_Jump(bot_movestate_t *ms, aas_reachability_t *reach)
 */
 //*
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1872
-// TODO: Port signature
-// Raven wrote: bot_moveresult_t BotTravel_Jump(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for the return `bot_moveresult_t`.
-func BotTravel_Jump() -> Never {
-    // TODO: Port BotTravel_Jump
-    portMissing("BotTravel_Jump", source: "oracle/codemp/botlib/be_ai_move.cpp:1872")
+// AI: Raven declares `result` on the stack of BotTravel_Jump. The function uses one zeroed allocation on the storage class.
+var result_BotTravel_Jump: BotMoveresult { world.storage.result_BotTravel_Jump }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:1872
+func BotTravel_Jump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+    var hordir = vec3_t(), dir1 = vec3_t(), dir2 = vec3_t(), start = vec3_t(), end = vec3_t(), runstart = vec3_t()
+    //	vec3_t runstart, dir1, dir2, hordir;
+    var dist1: Float, dist2: Float, speed: Float
+    let result = result_BotTravel_Jump
+
+    BotClearMoveResult(result)
+    //
+    AAS_JumpReachRunStart(reach, &runstart)
+    //*
+    hordir[0] = runstart[0] - reach.start[0]
+    hordir[1] = runstart[1] - reach.start[1]
+    hordir[2] = 0
+    _ = VectorNormalize(&hordir)
+    //
+    start = reach.start
+    start[2] += 1
+    _VectorMA(reach.start, 80, hordir, &runstart)
+    //check for a gap
+    dist1 = 0
+    while dist1 < 80 {
+        _VectorMA(start, dist1 + 10, hordir, &end)
+        end[2] += 1
+        if AAS_PointAreaNum(end) != ms.reachareanum { break }
+        dist1 += 10
+    } //end for
+    if dist1 < 80 { _VectorMA(reach.start, dist1, hordir, &runstart) }
+    //
+    dir1 = ms.origin - reach.start
+    dir1[2] = 0
+    dist1 = VectorNormalize(&dir1)
+    dir2 = ms.origin - runstart
+    dir2[2] = 0
+    dist2 = VectorNormalize(&dir2)
+    //if just before the reachability start
+    if Double(_DotProduct(dir1, dir2)) < -0.8 || dist2 < 5 {
+        //		botimport.Print(PRT_MESSAGE, "between jump start and run start point\n");
+        hordir[0] = reach.end[0] - ms.origin[0]
+        hordir[1] = reach.end[1] - ms.origin[1]
+        hordir[2] = 0
+        _ = VectorNormalize(&hordir)
+        //elemantary action jump
+        if dist1 < 24 {
+            EA_Jump(ms.client)
+        } else if dist1 < 32 {
+            EA_DelayedJump(ms.client)
+        }
+        EA_Move(ms.client, hordir, 600)
+        //
+        ms.jumpreach = ms.lastreachnum
+    } //end if
+    else {
+        //		botimport.Print(PRT_MESSAGE, "going towards run start point\n");
+        hordir[0] = runstart[0] - ms.origin[0]
+        hordir[1] = runstart[1] - ms.origin[1]
+        hordir[2] = 0
+        _ = VectorNormalize(&hordir)
+        //
+        if dist2 > 80 { dist2 = 80 }
+        speed = 400 - (400 - 5 * dist2)
+        EA_Move(ms.client, hordir, speed)
+    } //end else
+    result.movedir = hordir
+    //
+    return result
 }
 
 /**
@@ -1781,12 +2083,37 @@ func BotTravel_Jump() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1943
-// TODO: Port signature
-// Raven wrote: bot_moveresult_t BotFinishTravel_Jump(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for the return `bot_moveresult_t`.
-func BotFinishTravel_Jump() -> Never {
-    // TODO: Port BotFinishTravel_Jump
-    portMissing("BotFinishTravel_Jump", source: "oracle/codemp/botlib/be_ai_move.cpp:1943")
+// AI: Raven declares `result` on the stack of BotFinishTravel_Jump. The function uses one zeroed allocation on the storage class.
+var result_BotFinishTravel_Jump: BotMoveresult { world.storage.result_BotFinishTravel_Jump }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:1943
+func BotFinishTravel_Jump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+    var hordir = vec3_t(), hordir2 = vec3_t()
+    let speed: Float, dist: Float
+    let result = result_BotFinishTravel_Jump
+
+    BotClearMoveResult(result)
+    //if not jumped yet
+    if ms.jumpreach == 0 { return result }
+    //go straight to the reachability end
+    hordir[0] = reach.end[0] - ms.origin[0]
+    hordir[1] = reach.end[1] - ms.origin[1]
+    hordir[2] = 0
+    dist = VectorNormalize(&hordir)
+    //
+    hordir2[0] = reach.end[0] - reach.start[0]
+    hordir2[1] = reach.end[1] - reach.start[1]
+    hordir2[2] = 0
+    _ = VectorNormalize(&hordir2)
+    //
+    if Double(_DotProduct(hordir, hordir2)) < -0.5 && dist < 24 { return result }
+    //always use max speed when traveling through the air
+    speed = 800
+    //
+    EA_Move(ms.client, hordir, speed)
+    result.movedir = hordir
+    //
+    return result
 }
 
 //===========================================================================
@@ -1796,12 +2123,41 @@ func BotFinishTravel_Jump() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1978
-// TODO: Port signature
-// Raven wrote: bot_moveresult_t BotTravel_Ladder(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for the return `bot_moveresult_t`.
-func BotTravel_Ladder() -> Never {
-    // TODO: Port BotTravel_Ladder
-    portMissing("BotTravel_Ladder", source: "oracle/codemp/botlib/be_ai_move.cpp:1978")
+// AI: Raven declares `result` on the stack of BotTravel_Ladder. The function uses one zeroed allocation on the storage class.
+var result_BotTravel_Ladder: BotMoveresult { world.storage.result_BotTravel_Ladder }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:1978
+func BotTravel_Ladder(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+    //float dist, speed;
+    var dir = vec3_t(), viewdir = vec3_t() //, hordir;
+    let origin = vec3_t(0, 0, 0)
+    //	vec3_t up = {0, 0, 1};
+    let result = result_BotTravel_Ladder
+
+    BotClearMoveResult(result)
+    //
+    //	if ((ms->moveflags & MFL_AGAINSTLADDER))
+    //NOTE: not a good idea for ladders starting in water
+    // || !(ms->moveflags & MFL_ONGROUND))
+    do {
+        //botimport.Print(PRT_MESSAGE, "against ladder or not on ground\n");
+        dir = reach.end - ms.origin
+        _ = VectorNormalize(&dir)
+        //set the ideal view angles, facing the ladder up or down
+        viewdir[0] = dir[0]
+        viewdir[1] = dir[1]
+        viewdir[2] = 3 * dir[2]
+        vectoangles(viewdir, &result.ideal_viewangles)
+        //elemantary action
+        EA_Move(ms.client, origin, 0)
+        EA_MoveForward(ms.client)
+        //set movement view flag so the AI can see the view is focussed
+        result.flags |= MOVERESULT_MOVEMENTVIEW
+    } //end if
+    //save the movement direction
+    result.movedir = dir
+    //
+    return result
 }
 
 //===========================================================================
@@ -1811,12 +2167,36 @@ func BotTravel_Ladder() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2034
-// TODO: Port signature
-// Raven wrote: bot_moveresult_t BotTravel_Teleport(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for the return `bot_moveresult_t`.
-func BotTravel_Teleport() -> Never {
-    // TODO: Port BotTravel_Teleport
-    portMissing("BotTravel_Teleport", source: "oracle/codemp/botlib/be_ai_move.cpp:2034")
+// AI: Raven declares `result` on the stack of BotTravel_Teleport. The function uses one zeroed allocation on the storage class.
+var result_BotTravel_Teleport: BotMoveresult { world.storage.result_BotTravel_Teleport }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:2034
+func BotTravel_Teleport(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+    var hordir = vec3_t()
+    let dist: Float
+    let result = result_BotTravel_Teleport
+
+    BotClearMoveResult(result)
+    //if the bot is being teleported
+    if (ms.moveflags & MFL_TELEPORTED) != 0 { return result }
+
+    //walk straight to center of the teleporter
+    hordir = reach.start - ms.origin
+    if (ms.moveflags & MFL_SWIMMING) == 0 { hordir[2] = 0 }
+    dist = VectorNormalize(&hordir)
+    //
+    BotCheckBlocked(ms, hordir, 1, result)
+
+    if dist < 30 {
+        EA_Move(ms.client, hordir, 200)
+    } else {
+        EA_Move(ms.client, hordir, 400)
+    }
+
+    if (ms.moveflags & MFL_SWIMMING) != 0 { result.flags |= MOVERESULT_SWIMVIEW }
+
+    result.movedir = hordir
+    return result
 }
 
 //===========================================================================
@@ -1826,12 +2206,120 @@ func BotTravel_Teleport() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2065
-// TODO: Port signature
-// Raven wrote: bot_moveresult_t BotTravel_Elevator(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for the return `bot_moveresult_t`.
-func BotTravel_Elevator() -> Never {
-    // TODO: Port BotTravel_Elevator
-    portMissing("BotTravel_Elevator", source: "oracle/codemp/botlib/be_ai_move.cpp:2065")
+// AI: Raven declares `result` on the stack of BotTravel_Elevator. The function uses one zeroed allocation on the storage class.
+var result_BotTravel_Elevator: BotMoveresult { world.storage.result_BotTravel_Elevator }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:2065
+func BotTravel_Elevator(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+    var dir = vec3_t(), dir1 = vec3_t(), dir2 = vec3_t(), hordir = vec3_t(), bottomcenter = vec3_t()
+    var dist: Float, dist1: Float, dist2: Float, speed: Float
+    let result = result_BotTravel_Elevator
+
+    BotClearMoveResult(result)
+    //if standing on the plat
+    if BotOnMover(ms.origin, ms.entitynum, reach) != 0 {
+        //if vertically not too far from the end point
+        // The C++ build of be_ai_move.cpp takes the `float` overload of abs, which keeps the fraction.
+        if abs(ms.origin[2] - reach.end[2]) < sv_maxbarrier!.value {
+            //move to the end point
+            hordir = reach.end - ms.origin
+            hordir[2] = 0
+            _ = VectorNormalize(&hordir)
+            if BotCheckBarrierJump(ms, hordir, 100) == 0 {
+                EA_Move(ms.client, hordir, 400)
+            } //end if
+            result.movedir = hordir
+        } //end else
+        //if not really close to the center of the elevator
+        else {
+            MoverBottomCenter(reach, &bottomcenter)
+            hordir = bottomcenter - ms.origin
+            hordir[2] = 0
+            dist = VectorNormalize(&hordir)
+            //
+            if dist > 10 {
+                //move to the center of the plat
+                if dist > 100 { dist = 100 }
+                speed = 400 - (400 - 4 * dist)
+                //
+                EA_Move(ms.client, hordir, speed)
+                result.movedir = hordir
+            } //end if
+        } //end else
+    } //end if
+    else {
+        //if very near the reachability end
+        dir = reach.end - ms.origin
+        dist = VectorLength(dir)
+        if dist < 64 {
+            if dist > 60 { dist = 60 }
+            speed = 360 - (360 - 6 * dist)
+            //
+            if (ms.moveflags & MFL_SWIMMING) != 0 || BotCheckBarrierJump(ms, dir, 50) == 0 {
+                if speed > 5 { EA_Move(ms.client, dir, speed) }
+            } //end if
+            result.movedir = dir
+            //
+            if (ms.moveflags & MFL_SWIMMING) != 0 { result.flags |= MOVERESULT_SWIMVIEW }
+            //stop using this reachability
+            ms.reachability_time = 0
+            return result
+        } //end if
+        //get direction and distance to reachability start
+        dir1 = reach.start - ms.origin
+        if (ms.moveflags & MFL_SWIMMING) == 0 { dir1[2] = 0 }
+        dist1 = VectorNormalize(&dir1)
+        //if the elevator isn't down
+        if MoverDown(reach) == 0 {
+            dist = dist1
+            dir = dir1
+            //
+            BotCheckBlocked(ms, dir, 0, result)
+            //
+            if dist > 60 { dist = 60 }
+            speed = 360 - (360 - 6 * dist)
+            //
+            if (ms.moveflags & MFL_SWIMMING) == 0 && BotCheckBarrierJump(ms, dir, 50) == 0 {
+                if speed > 5 { EA_Move(ms.client, dir, speed) }
+            } //end if
+            result.movedir = dir
+            //
+            if (ms.moveflags & MFL_SWIMMING) != 0 { result.flags |= MOVERESULT_SWIMVIEW }
+            //this isn't a failure... just wait till the elevator comes down
+            result.type = RESULTTYPE_ELEVATORUP
+            result.flags |= MOVERESULT_WAITING
+            return result
+        } //end if
+        //get direction and distance to elevator bottom center
+        MoverBottomCenter(reach, &bottomcenter)
+        dir2 = bottomcenter - ms.origin
+        if (ms.moveflags & MFL_SWIMMING) == 0 { dir2[2] = 0 }
+        dist2 = VectorNormalize(&dir2)
+        //if very close to the reachability start or
+        //closer to the elevator center or
+        //between reachability start and elevator center
+        if dist1 < 20 || dist2 < dist1 || _DotProduct(dir1, dir2) < 0 {
+            dist = dist2
+            dir = dir2
+        } //end if
+        else { //closer to the reachability start
+            dist = dist1
+            dir = dir1
+        } //end else
+        //
+        BotCheckBlocked(ms, dir, 0, result)
+        //
+        if dist > 60 { dist = 60 }
+        speed = 400 - (400 - 6 * dist)
+        //
+        if (ms.moveflags & MFL_SWIMMING) == 0 && BotCheckBarrierJump(ms, dir, 50) == 0 {
+            EA_Move(ms.client, dir, speed)
+        } //end if
+        result.movedir = dir
+        //
+        if (ms.moveflags & MFL_SWIMMING) != 0 { result.flags |= MOVERESULT_SWIMVIEW }
+    } //end else
+    return result
 }
 
 //===========================================================================
@@ -1841,12 +2329,30 @@ func BotTravel_Elevator() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2216
-// TODO: Port signature
-// Raven wrote: bot_moveresult_t BotFinishTravel_Elevator(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for the return `bot_moveresult_t`.
-func BotFinishTravel_Elevator() -> Never {
-    // TODO: Port BotFinishTravel_Elevator
-    portMissing("BotFinishTravel_Elevator", source: "oracle/codemp/botlib/be_ai_move.cpp:2216")
+// AI: Raven declares `result` on the stack of BotFinishTravel_Elevator. The function uses one zeroed allocation on the storage class.
+var result_BotFinishTravel_Elevator: BotMoveresult { world.storage.result_BotFinishTravel_Elevator }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:2216
+func BotFinishTravel_Elevator(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+    var bottomcenter = vec3_t(), bottomdir = vec3_t(), topdir = vec3_t()
+    let result = result_BotFinishTravel_Elevator
+
+    BotClearMoveResult(result)
+    //
+    MoverBottomCenter(reach, &bottomcenter)
+    bottomdir = bottomcenter - ms.origin
+    //
+    topdir = reach.end - ms.origin
+    //
+    if abs(bottomdir[2]) < abs(topdir[2]) {
+        _ = VectorNormalize(&bottomdir)
+        EA_Move(ms.client, bottomdir, 300)
+    } //end if
+    else {
+        _ = VectorNormalize(&topdir)
+        EA_Move(ms.client, topdir, 300)
+    } //end else
+    return result
 }
 
 //===========================================================================
@@ -1864,16 +2370,14 @@ func BotFuncBobStartEnd(_ reach: AasReachability, _ start: inout JKAShared.vec3_
 
     modelnum = reach.facenum & 0x0000FFFF
     if AAS_OriginOfMoverWithModelNum(modelnum, &origin) == 0 {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_MESSAGE, "BotFuncBobStartEnd: no entity with model %d\n", modelnum);
-        portMissing("BotFuncBobStartEnd", source: "oracle/codemp/botlib/be_ai_move.cpp:2246")
+        botimport.runPrint(PRT_MESSAGE, "BotFuncBobStartEnd: no entity with model %d\n", modelnum)
         start = vec3_t(0, 0, 0)
         end = vec3_t(0, 0, 0)
         return
     }
-    // Port-note: AAS_BSPModelMinsMaxsOrigin writes `mins` and `maxs`, and its signature takes them by value, row P10 of the bot-ai round.
-    // Raven wrote: AAS_BSPModelMinsMaxsOrigin(modelnum, angles, mins, maxs, NULL);
-    portMissing("BotFuncBobStartEnd", source: "oracle/codemp/botlib/be_ai_move.cpp:2246")
+    // Raven passes NULL for the `origin` output, and the scratch local takes the write.
+    var scratchOrigin = vec3_t()
+    AAS_BSPModelMinsMaxsOrigin(modelnum, angles, &mins, &maxs, &scratchOrigin)
     mid = mins + maxs
     mid[0] = Float(Double(mid[0]) * 0.5)
     mid[1] = Float(Double(mid[1]) * 0.5)
@@ -1918,12 +2422,123 @@ func BotFuncBobStartEnd(_ reach: AasReachability, _ start: inout JKAShared.vec3_
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2304
-// TODO: Port signature
-// Raven wrote: bot_moveresult_t BotTravel_FuncBobbing(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for the return `bot_moveresult_t`.
-func BotTravel_FuncBobbing() -> Never {
-    // TODO: Port BotTravel_FuncBobbing
-    portMissing("BotTravel_FuncBobbing", source: "oracle/codemp/botlib/be_ai_move.cpp:2304")
+// AI: Raven declares `result` on the stack of BotTravel_FuncBobbing. The function uses one zeroed allocation on the storage class.
+var result_BotTravel_FuncBobbing: BotMoveresult { world.storage.result_BotTravel_FuncBobbing }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:2304
+func BotTravel_FuncBobbing(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+    var dir = vec3_t(), dir1 = vec3_t(), dir2 = vec3_t(), hordir = vec3_t(), bottomcenter = vec3_t(), bob_start = vec3_t(), bob_end = vec3_t(), bob_origin = vec3_t()
+    var dist: Float, dist1: Float, dist2: Float, speed: Float
+    let result = result_BotTravel_FuncBobbing
+
+    BotClearMoveResult(result)
+    //
+    BotFuncBobStartEnd(reach, &bob_start, &bob_end, &bob_origin)
+    //if standing ontop of the func_bobbing
+    if BotOnMover(ms.origin, ms.entitynum, reach) != 0 {
+        //if near end point of reachability
+        dir = bob_origin - bob_end
+        if VectorLength(dir) < 24 {
+            //move to the end point
+            hordir = reach.end - ms.origin
+            hordir[2] = 0
+            _ = VectorNormalize(&hordir)
+            if BotCheckBarrierJump(ms, hordir, 100) == 0 {
+                EA_Move(ms.client, hordir, 400)
+            } //end if
+            result.movedir = hordir
+        } //end else
+        //if not really close to the center of the elevator
+        else {
+            MoverBottomCenter(reach, &bottomcenter)
+            hordir = bottomcenter - ms.origin
+            hordir[2] = 0
+            dist = VectorNormalize(&hordir)
+            //
+            if dist > 10 {
+                //move to the center of the plat
+                if dist > 100 { dist = 100 }
+                speed = 400 - (400 - 4 * dist)
+                //
+                EA_Move(ms.client, hordir, speed)
+                result.movedir = hordir
+            } //end if
+        } //end else
+    } //end if
+    else {
+        //if very near the reachability end
+        dir = reach.end - ms.origin
+        dist = VectorLength(dir)
+        if dist < 64 {
+            if dist > 60 { dist = 60 }
+            speed = 360 - (360 - 6 * dist)
+            //if swimming or no barrier jump
+            if (ms.moveflags & MFL_SWIMMING) != 0 || BotCheckBarrierJump(ms, dir, 50) == 0 {
+                if speed > 5 { EA_Move(ms.client, dir, speed) }
+            } //end if
+            result.movedir = dir
+            //
+            if (ms.moveflags & MFL_SWIMMING) != 0 { result.flags |= MOVERESULT_SWIMVIEW }
+            //stop using this reachability
+            ms.reachability_time = 0
+            return result
+        } //end if
+        //get direction and distance to reachability start
+        dir1 = reach.start - ms.origin
+        if (ms.moveflags & MFL_SWIMMING) == 0 { dir1[2] = 0 }
+        dist1 = VectorNormalize(&dir1)
+        //if func_bobbing is Not it's start position
+        dir = bob_origin - bob_start
+        if VectorLength(dir) > 16 {
+            dist = dist1
+            dir = dir1
+            //
+            BotCheckBlocked(ms, dir, 0, result)
+            //
+            if dist > 60 { dist = 60 }
+            speed = 360 - (360 - 6 * dist)
+            //
+            if (ms.moveflags & MFL_SWIMMING) == 0 && BotCheckBarrierJump(ms, dir, 50) == 0 {
+                if speed > 5 { EA_Move(ms.client, dir, speed) }
+            } //end if
+            result.movedir = dir
+            //
+            if (ms.moveflags & MFL_SWIMMING) != 0 { result.flags |= MOVERESULT_SWIMVIEW }
+            //this isn't a failure... just wait till the func_bobbing arrives
+            result.type = RESULTTYPE_WAITFORFUNCBOBBING
+            result.flags |= MOVERESULT_WAITING
+            return result
+        } //end if
+        //get direction and distance to func_bob bottom center
+        MoverBottomCenter(reach, &bottomcenter)
+        dir2 = bottomcenter - ms.origin
+        if (ms.moveflags & MFL_SWIMMING) == 0 { dir2[2] = 0 }
+        dist2 = VectorNormalize(&dir2)
+        //if very close to the reachability start or
+        //closer to the elevator center or
+        //between reachability start and func_bobbing center
+        if dist1 < 20 || dist2 < dist1 || _DotProduct(dir1, dir2) < 0 {
+            dist = dist2
+            dir = dir2
+        } //end if
+        else { //closer to the reachability start
+            dist = dist1
+            dir = dir1
+        } //end else
+        //
+        BotCheckBlocked(ms, dir, 0, result)
+        //
+        if dist > 60 { dist = 60 }
+        speed = 400 - (400 - 6 * dist)
+        //
+        if (ms.moveflags & MFL_SWIMMING) == 0 && BotCheckBarrierJump(ms, dir, 50) == 0 {
+            EA_Move(ms.client, dir, speed)
+        } //end if
+        result.movedir = dir
+        //
+        if (ms.moveflags & MFL_SWIMMING) != 0 { result.flags |= MOVERESULT_SWIMVIEW }
+    } //end else
+    return result
 }
 
 //===========================================================================
@@ -1933,12 +2548,51 @@ func BotTravel_FuncBobbing() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2462
-// TODO: Port signature
-// Raven wrote: bot_moveresult_t BotFinishTravel_FuncBobbing(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for the return `bot_moveresult_t`.
-func BotFinishTravel_FuncBobbing() -> Never {
-    // TODO: Port BotFinishTravel_FuncBobbing
-    portMissing("BotFinishTravel_FuncBobbing", source: "oracle/codemp/botlib/be_ai_move.cpp:2462")
+// AI: Raven declares `result` on the stack of BotFinishTravel_FuncBobbing. The function uses one zeroed allocation on the storage class.
+var result_BotFinishTravel_FuncBobbing: BotMoveresult { world.storage.result_BotFinishTravel_FuncBobbing }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:2462
+func BotFinishTravel_FuncBobbing(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+    var bob_origin = vec3_t(), bob_start = vec3_t(), bob_end = vec3_t(), dir = vec3_t(), hordir = vec3_t(), bottomcenter = vec3_t()
+    let result = result_BotFinishTravel_FuncBobbing
+    var dist: Float, speed: Float
+
+    BotClearMoveResult(result)
+    //
+    BotFuncBobStartEnd(reach, &bob_start, &bob_end, &bob_origin)
+    //
+    dir = bob_origin - bob_end
+    dist = VectorLength(dir)
+    //if the func_bobbing is near the end
+    if dist < 16 {
+        hordir = reach.end - ms.origin
+        if (ms.moveflags & MFL_SWIMMING) == 0 { hordir[2] = 0 }
+        dist = VectorNormalize(&hordir)
+        //
+        if dist > 60 { dist = 60 }
+        speed = 360 - (360 - 6 * dist)
+        //
+        if speed > 5 { EA_Move(ms.client, dir, speed) }
+        result.movedir = dir
+        //
+        if (ms.moveflags & MFL_SWIMMING) != 0 { result.flags |= MOVERESULT_SWIMVIEW }
+    } //end if
+    else {
+        MoverBottomCenter(reach, &bottomcenter)
+        hordir = bottomcenter - ms.origin
+        if (ms.moveflags & MFL_SWIMMING) == 0 { hordir[2] = 0 }
+        dist = VectorNormalize(&hordir)
+        //
+        if dist > 5 {
+            //move to the center of the plat
+            if dist > 100 { dist = 100 }
+            speed = 400 - (400 - 4 * dist)
+            //
+            EA_Move(ms.client, hordir, speed)
+            result.movedir = hordir
+        } //end if
+    } //end else
+    return result
 }
 
 //===========================================================================
@@ -2007,12 +2661,133 @@ func BotResetGrapple(_ ms: BotMovestate) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2573
-// TODO: Port signature
-// Raven wrote: bot_moveresult_t BotTravel_Grapple(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for the return `bot_moveresult_t`.
-func BotTravel_Grapple() -> Never {
-    // TODO: Port BotTravel_Grapple
-    portMissing("BotTravel_Grapple", source: "oracle/codemp/botlib/be_ai_move.cpp:2573")
+// AI: Raven declares `result` on the stack of BotTravel_Grapple. The function uses one zeroed allocation on the storage class.
+var result_BotTravel_Grapple: BotMoveresult { world.storage.result_BotTravel_Grapple }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:2573
+func BotTravel_Grapple(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+    let result = result_BotTravel_Grapple
+    var dist: Float, speed: Float
+    var dir = vec3_t(), viewdir = vec3_t(), org = vec3_t()
+    var state: Int32, areanum: Int32
+
+    BotClearMoveResult(result)
+    //
+    if (ms.moveflags & MFL_GRAPPLERESET) != 0 {
+        if offhandgrapple!.value != 0 {
+            var command = CharBuf(cmd_grappleoff!.string!)
+            EA_Command(ms.client, &command)
+        }
+        ms.moveflags &= ~MFL_ACTIVEGRAPPLE
+        return result
+    } //end if
+    //
+    if Int32(offhandgrapple!.value) == 0 {
+        result.weapon = Int32(weapindex_grapple!.value)
+        result.flags |= MOVERESULT_MOVEMENTWEAPON
+    } //end if
+    //
+    if (ms.moveflags & MFL_ACTIVEGRAPPLE) != 0 {
+        //
+        state = GrappleState(ms, reach)
+        //
+        dir = reach.end - ms.origin
+        dir[2] = 0
+        dist = VectorLength(dir)
+        //if very close to the grapple end or the grappled is hooked and
+        //the bot doesn't get any closer
+        if state != 0 && dist < 48 {
+            if ms.lastgrappledist - dist < 1 {
+                if offhandgrapple!.value != 0 {
+                    var command = CharBuf(cmd_grappleoff!.string!)
+                    EA_Command(ms.client, &command)
+                }
+                ms.moveflags &= ~MFL_ACTIVEGRAPPLE
+                ms.moveflags |= MFL_GRAPPLERESET
+                ms.reachability_time = 0	//end the reachability
+                return result
+            } //end if
+        } //end if
+        //if no valid grapple at all, or the grapple hooked and the bot
+        //isn't moving anymore
+        else if state == 0 || (state == 2 && dist > ms.lastgrappledist - 2) {
+            if Double(ms.grapplevisible_time) < Double(AAS_Time()) - 0.4 {
+                if offhandgrapple!.value != 0 {
+                    var command = CharBuf(cmd_grappleoff!.string!)
+                    EA_Command(ms.client, &command)
+                }
+                ms.moveflags &= ~MFL_ACTIVEGRAPPLE
+                ms.moveflags |= MFL_GRAPPLERESET
+                ms.reachability_time = 0	//end the reachability
+                return result
+            } //end if
+        } //end if
+        else {
+            ms.grapplevisible_time = AAS_Time()
+        } //end else
+        //
+        if Int32(offhandgrapple!.value) == 0 {
+            EA_Attack(ms.client)
+        } //end if
+        //remember the current grapple distance
+        ms.lastgrappledist = dist
+    } //end if
+    else {
+        //
+        ms.grapplevisible_time = AAS_Time()
+        //
+        dir = reach.start - ms.origin
+        if (ms.moveflags & MFL_SWIMMING) == 0 { dir[2] = 0 }
+        org = ms.origin + ms.viewoffset
+        viewdir = reach.end - org
+        //
+        dist = VectorNormalize(&dir)
+        vectoangles(viewdir, &result.ideal_viewangles)
+        result.flags |= MOVERESULT_MOVEMENTVIEW
+        //
+        if dist < 5 &&
+            abs(AngleDiff(result.ideal_viewangles[0], ms.viewangles[0])) < 2 &&
+            abs(AngleDiff(result.ideal_viewangles[1], ms.viewangles[1])) < 2 {
+            //check if the grapple missile path is clear
+            org = ms.origin + ms.viewoffset
+            // Raven's record `trace` serves only this arm, so the scratch covers the arm.
+            let blocked = BspTrace.scratch { trace -> Bool in
+                trace.copy(from: AAS_Trace(org, nil, nil, reach.end, ms.entitynum, CONTENTS_SOLID))
+                dir = reach.end - trace.endpos
+                return VectorLength(dir) > 16
+            }
+            if blocked {
+                result.failure = 1
+                return result
+            } //end if
+            //activate the grapple
+            if offhandgrapple!.value != 0 {
+                var command = CharBuf(cmd_grappleon!.string!)
+                EA_Command(ms.client, &command)
+            } //end if
+            else {
+                EA_Attack(ms.client)
+            } //end else
+            ms.moveflags |= MFL_ACTIVEGRAPPLE
+            ms.lastgrappledist = 999999
+        } //end if
+        else {
+            if dist < 70 {
+                speed = 300 - (300 - 4 * dist)
+            } else {
+                speed = 400
+            }
+            //
+            BotCheckBlocked(ms, dir, 1, result)
+            //elemantary action move in direction
+            EA_Move(ms.client, dir, speed)
+            result.movedir = dir
+        } //end else
+        //if in another area before actually grappling
+        areanum = AAS_PointAreaNum(ms.origin)
+        if areanum != 0 && areanum != ms.reachareanum { ms.reachability_time = 0 }
+    } //end else
+    return result
 }
 
 //===========================================================================
@@ -2022,12 +2797,65 @@ func BotTravel_Grapple() -> Never {
 // Changes Globals:			-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2727
-// TODO: Port signature
-// Raven wrote: bot_moveresult_t BotTravel_RocketJump(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for the return `bot_moveresult_t`.
-func BotTravel_RocketJump() -> Never {
-    // TODO: Port BotTravel_RocketJump
-    portMissing("BotTravel_RocketJump", source: "oracle/codemp/botlib/be_ai_move.cpp:2727")
+// AI: Raven declares `result` on the stack of BotTravel_RocketJump. The function uses one zeroed allocation on the storage class.
+var result_BotTravel_RocketJump: BotMoveresult { world.storage.result_BotTravel_RocketJump }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:2727
+func BotTravel_RocketJump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+    var hordir = vec3_t()
+    var dist: Float, speed: Float
+    let result = result_BotTravel_RocketJump
+
+    //botimport.Print(PRT_MESSAGE, "BotTravel_RocketJump: bah\n");
+    BotClearMoveResult(result)
+    //
+    hordir[0] = reach.start[0] - ms.origin[0]
+    hordir[1] = reach.start[1] - ms.origin[1]
+    hordir[2] = 0
+    //
+    dist = VectorNormalize(&hordir)
+    //look in the movement direction
+    vectoangles(hordir, &result.ideal_viewangles)
+    //look straight down
+    result.ideal_viewangles[PITCH] = 90
+    //
+    if dist < 5 &&
+        abs(AngleDiff(result.ideal_viewangles[0], ms.viewangles[0])) < 5 &&
+        abs(AngleDiff(result.ideal_viewangles[1], ms.viewangles[1])) < 5 {
+        //botimport.Print(PRT_MESSAGE, "between jump start and run start point\n");
+        hordir[0] = reach.end[0] - ms.origin[0]
+        hordir[1] = reach.end[1] - ms.origin[1]
+        hordir[2] = 0
+        _ = VectorNormalize(&hordir)
+        //elemantary action jump
+        EA_Jump(ms.client)
+        EA_Attack(ms.client)
+        EA_Move(ms.client, hordir, 800)
+        //
+        ms.jumpreach = ms.lastreachnum
+    } //end if
+    else {
+        if dist > 80 { dist = 80 }
+        speed = 400 - (400 - 5 * dist)
+        EA_Move(ms.client, hordir, speed)
+    } //end else
+    //look in the movement direction
+    vectoangles(hordir, &result.ideal_viewangles)
+    //look straight down
+    result.ideal_viewangles[PITCH] = 90
+    //set the view angles directly
+    EA_View(ms.client, result.ideal_viewangles)
+    //view is important for the movment
+    result.flags |= MOVERESULT_MOVEMENTVIEWSET
+    //select the rocket launcher
+    EA_SelectWeapon(ms.client, Int32(weapindex_rocketlauncher!.value))
+    //weapon is used for movement
+    result.weapon = Int32(weapindex_rocketlauncher!.value)
+    result.flags |= MOVERESULT_MOVEMENTWEAPON
+    //
+    result.movedir = hordir
+    //
+    return result
 }
 
 //===========================================================================
@@ -2037,12 +2865,61 @@ func BotTravel_RocketJump() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2792
-// TODO: Port signature
-// Raven wrote: bot_moveresult_t BotTravel_BFGJump(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for the return `bot_moveresult_t`.
-func BotTravel_BFGJump() -> Never {
-    // TODO: Port BotTravel_BFGJump
-    portMissing("BotTravel_BFGJump", source: "oracle/codemp/botlib/be_ai_move.cpp:2792")
+// AI: Raven declares `result` on the stack of BotTravel_BFGJump. The function uses one zeroed allocation on the storage class.
+var result_BotTravel_BFGJump: BotMoveresult { world.storage.result_BotTravel_BFGJump }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:2792
+func BotTravel_BFGJump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+    var hordir = vec3_t()
+    var dist: Float, speed: Float
+    let result = result_BotTravel_BFGJump
+
+    //botimport.Print(PRT_MESSAGE, "BotTravel_BFGJump: bah\n");
+    BotClearMoveResult(result)
+    //
+    hordir[0] = reach.start[0] - ms.origin[0]
+    hordir[1] = reach.start[1] - ms.origin[1]
+    hordir[2] = 0
+    //
+    dist = VectorNormalize(&hordir)
+    //
+    if dist < 5 &&
+        abs(AngleDiff(result.ideal_viewangles[0], ms.viewangles[0])) < 5 &&
+        abs(AngleDiff(result.ideal_viewangles[1], ms.viewangles[1])) < 5 {
+        //botimport.Print(PRT_MESSAGE, "between jump start and run start point\n");
+        hordir[0] = reach.end[0] - ms.origin[0]
+        hordir[1] = reach.end[1] - ms.origin[1]
+        hordir[2] = 0
+        _ = VectorNormalize(&hordir)
+        //elemantary action jump
+        EA_Jump(ms.client)
+        EA_Attack(ms.client)
+        EA_Move(ms.client, hordir, 800)
+        //
+        ms.jumpreach = ms.lastreachnum
+    } //end if
+    else {
+        if dist > 80 { dist = 80 }
+        speed = 400 - (400 - 5 * dist)
+        EA_Move(ms.client, hordir, speed)
+    } //end else
+    //look in the movement direction
+    vectoangles(hordir, &result.ideal_viewangles)
+    //look straight down
+    result.ideal_viewangles[PITCH] = 90
+    //set the view angles directly
+    EA_View(ms.client, result.ideal_viewangles)
+    //view is important for the movment
+    result.flags |= MOVERESULT_MOVEMENTVIEWSET
+    //select the rocket launcher
+    EA_SelectWeapon(ms.client, Int32(weapindex_bfg10k!.value))
+    //weapon is used for movement
+    result.weapon = Int32(weapindex_bfg10k!.value)
+    result.flags |= MOVERESULT_MOVEMENTWEAPON
+    //
+    result.movedir = hordir
+    //
+    return result
 }
 
 //===========================================================================
@@ -2052,12 +2929,31 @@ func BotTravel_BFGJump() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2853
-// TODO: Port signature
-// Raven wrote: bot_moveresult_t BotFinishTravel_WeaponJump(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for the return `bot_moveresult_t`.
-func BotFinishTravel_WeaponJump() -> Never {
-    // TODO: Port BotFinishTravel_WeaponJump
-    portMissing("BotFinishTravel_WeaponJump", source: "oracle/codemp/botlib/be_ai_move.cpp:2853")
+// AI: Raven declares `result` on the stack of BotFinishTravel_WeaponJump. The function uses one zeroed allocation on the storage class.
+var result_BotFinishTravel_WeaponJump: BotMoveresult { world.storage.result_BotFinishTravel_WeaponJump }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:2853
+func BotFinishTravel_WeaponJump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+    var hordir = vec3_t()
+    var speed: Float = 0
+    let result = result_BotFinishTravel_WeaponJump
+
+    BotClearMoveResult(result)
+    //if not jumped yet
+    if ms.jumpreach == 0 { return result }
+    //
+    if BotAirControl(ms.origin, ms.velocity, reach.end, &hordir, &speed) == 0 {
+        //go straight to the reachability end
+        hordir = reach.end - ms.origin
+        hordir[2] = 0
+        _ = VectorNormalize(&hordir)
+        speed = 400
+    } //end if
+    //
+    EA_Move(ms.client, hordir, speed)
+    result.movedir = hordir
+    //
+    return result
 }
 
 //===========================================================================
@@ -2067,12 +2963,29 @@ func BotFinishTravel_WeaponJump() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2893
-// TODO: Port signature
-// Raven wrote: bot_moveresult_t BotTravel_JumpPad(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for the return `bot_moveresult_t`.
-func BotTravel_JumpPad() -> Never {
-    // TODO: Port BotTravel_JumpPad
-    portMissing("BotTravel_JumpPad", source: "oracle/codemp/botlib/be_ai_move.cpp:2893")
+// AI: Raven declares `result` on the stack of BotTravel_JumpPad. The function uses one zeroed allocation on the storage class.
+var result_BotTravel_JumpPad: BotMoveresult { world.storage.result_BotTravel_JumpPad }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:2893
+func BotTravel_JumpPad(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+    let speed: Float
+    var hordir = vec3_t()
+    let result = result_BotTravel_JumpPad
+
+    BotClearMoveResult(result)
+    //first walk straight to the reachability start
+    hordir[0] = reach.start[0] - ms.origin[0]
+    hordir[1] = reach.start[1] - ms.origin[1]
+    hordir[2] = 0
+    _ = VectorNormalize(&hordir)
+    //
+    BotCheckBlocked(ms, hordir, 1, result)
+    speed = 400
+    //elemantary action move in direction
+    EA_Move(ms.client, hordir, speed)
+    result.movedir = hordir
+    //
+    return result
 }
 
 //===========================================================================
@@ -2082,12 +2995,29 @@ func BotTravel_JumpPad() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2920
-// TODO: Port signature
-// Raven wrote: bot_moveresult_t BotFinishTravel_JumpPad(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for the return `bot_moveresult_t`.
-func BotFinishTravel_JumpPad() -> Never {
-    // TODO: Port BotFinishTravel_JumpPad
-    portMissing("BotFinishTravel_JumpPad", source: "oracle/codemp/botlib/be_ai_move.cpp:2920")
+// AI: Raven declares `result` on the stack of BotFinishTravel_JumpPad. The function uses one zeroed allocation on the storage class.
+var result_BotFinishTravel_JumpPad: BotMoveresult { world.storage.result_BotFinishTravel_JumpPad }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:2920
+func BotFinishTravel_JumpPad(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+    var speed: Float = 0
+    var hordir = vec3_t()
+    let result = result_BotFinishTravel_JumpPad
+
+    BotClearMoveResult(result)
+    if BotAirControl(ms.origin, ms.velocity, reach.end, &hordir, &speed) == 0 {
+        hordir[0] = reach.end[0] - ms.origin[0]
+        hordir[1] = reach.end[1] - ms.origin[1]
+        hordir[2] = 0
+        _ = VectorNormalize(&hordir)
+        speed = 400
+    } //end if
+    BotCheckBlocked(ms, hordir, 1, result)
+    //elemantary action move in direction
+    EA_Move(ms.client, hordir, speed)
+    result.movedir = hordir
+    //
+    return result
 }
 
 //===========================================================================
@@ -2116,9 +3046,7 @@ func BotReachabilityTime(_ reach: AasReachability) -> Int32 {
     case TRAVEL_JUMPPAD: return 10
     case TRAVEL_FUNCBOB: return 10
     default:
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_ERROR, "travel type %d not implemented yet\n", reach->traveltype);
-        portMissing("BotReachabilityTime", source: "oracle/codemp/botlib/be_ai_move.cpp:2949")
+        botimport.runPrint(PRT_ERROR, "travel type %d not implemented yet\n", reach.traveltype)
         return 8
     }
 }
@@ -2130,12 +3058,51 @@ func BotReachabilityTime(_ reach: AasReachability) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2981
-// TODO: Port signature
-// Raven wrote: bot_moveresult_t BotMoveInGoalArea(bot_movestate_t *ms, bot_goal_t *goal)
-// No table row for the return `bot_moveresult_t`.
-func BotMoveInGoalArea() -> Never {
-    // TODO: Port BotMoveInGoalArea
-    portMissing("BotMoveInGoalArea", source: "oracle/codemp/botlib/be_ai_move.cpp:2981")
+// AI: Raven declares `result` on the stack of BotMoveInGoalArea. The function uses one zeroed allocation on the storage class.
+var result_BotMoveInGoalArea: BotMoveresult { world.storage.result_BotMoveInGoalArea }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:2981
+func BotMoveInGoalArea(_ ms: BotMovestate, _ goal: BotGoal) -> BotMoveresult {
+    let result = result_BotMoveInGoalArea
+    var dir = vec3_t()
+    var dist: Float, speed: Float
+
+    BotClearMoveResult(result)
+    //walk straight to the goal origin
+    dir[0] = goal.origin[0] - ms.origin[0]
+    dir[1] = goal.origin[1] - ms.origin[1]
+    if (ms.moveflags & MFL_SWIMMING) != 0 {
+        dir[2] = goal.origin[2] - ms.origin[2]
+        result.traveltype = TRAVEL_SWIM
+    } //end if
+    else {
+        dir[2] = 0
+        result.traveltype = TRAVEL_WALK
+    } //endif
+    //
+    dist = VectorNormalize(&dir)
+    if dist > 100 { dist = 100 }
+    speed = 400 - (400 - 4 * dist)
+    if speed < 10 { speed = 0 }
+    //
+    BotCheckBlocked(ms, dir, 1, result)
+    //elemantary action move in direction
+    EA_Move(ms.client, dir, speed)
+    result.movedir = dir
+    //
+    if (ms.moveflags & MFL_SWIMMING) != 0 {
+        vectoangles(dir, &result.ideal_viewangles)
+        result.flags |= MOVERESULT_SWIMVIEW
+    } //end if
+    //if (!debugline) debugline = botimport.DebugLineCreate();
+    //botimport.DebugLineShow(debugline, ms->origin, goal->origin, LINECOLOR_BLUE);
+    //
+    ms.lastreachnum = 0
+    ms.lastareanum = 0
+    ms.lastgoalareanum = goal.areanum
+    ms.lastorigin = ms.origin
+    //
+    return result
 }
 
 //===========================================================================
@@ -2192,9 +3159,7 @@ func BotMoveToGoal(_ result: BotMoveresult, _ movestate: Int32, _ goal: BotGoal,
                                     ms.reachability_time = AAS_Time() + BotReachabilityTime(reach)
                                 } else {
                                     if bot_developer != 0 {
-                                        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-                                        // Raven wrote: botimport.Print(PRT_MESSAGE, "client %d: on func_plat without reachability\n", ms->client);
-                                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                                        botimport.runPrint(PRT_MESSAGE, "client %d: on func_plat without reachability\n", ms.client)
                                     }
                                     result.blocked = 1
                                     result.blockentity = ent
@@ -2217,9 +3182,7 @@ func BotMoveToGoal(_ result: BotMoveresult, _ movestate: Int32, _ goal: BotGoal,
                                     ms.reachability_time = AAS_Time() + BotReachabilityTime(reach)
                                 } else {
                                     if bot_developer != 0 {
-                                        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-                                        // Raven wrote: botimport.Print(PRT_MESSAGE, "client %d: on func_bobbing without reachability\n", ms->client);
-                                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                                        botimport.runPrint(PRT_MESSAGE, "client %d: on func_bobbing without reachability\n", ms.client)
                                     }
                                     result.blocked = 1
                                     result.blockentity = ent
@@ -2269,9 +3232,7 @@ func BotMoveToGoal(_ result: BotMoveresult, _ movestate: Int32, _ goal: BotGoal,
                 }
                 //if the bot is in the goal area
                 if ms.areanum == goal.areanum {
-                    // Port-note: BotMoveInGoalArea returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                    // Raven wrote: *result = BotMoveInGoalArea(ms, goal);
-                    portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                    result.copy(from: BotMoveInGoalArea(ms, goal))
                     return
                 }
                 //assume we can use the reachability from the last frame
@@ -2321,9 +3282,7 @@ func BotMoveToGoal(_ result: BotMoveresult, _ movestate: Int32, _ goal: BotGoal,
                     if AAS_AreaReachability(ms.areanum) == 0 {
                     }
                     //get a new reachability leading towards the goal
-                    // Port-note: Raven hands the table `ms->avoidspots` to one `BotAvoidspot?`, row P11 of the bot-ai round.
-                    // Raven wrote: reachnum = BotGetReachabilityToGoal(ms->origin, ms->areanum, ms->lastgoalareanum, ms->lastareanum, ms->avoidreach, ms->avoidreachtimes, ms->avoidreachtries, goal, travelflags, travelflags, ms->avoidspots, ms->numavoidspots, &resultflags);
-                    portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                    reachnum = BotGetReachabilityToGoal(ms.origin, ms.areanum, ms.lastgoalareanum, ms.lastareanum, ms.avoidreach, ms.avoidreachtimes, ms.avoidreachtries, goal, travelflags, travelflags, ms.avoidspots, ms.numavoidspots, &resultflags)
                     //the area number the reachability starts in
                     ms.reachareanum = ms.areanum
                     //reset some state variables
@@ -2352,69 +3311,37 @@ func BotMoveToGoal(_ result: BotMoveresult, _ movestate: Int32, _ goal: BotGoal,
                     //
                     switch reach.traveltype & TRAVELTYPE_MASK {
                     case TRAVEL_WALK:
-                        // Port-note: BotTravel_Walk returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotTravel_Walk(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotTravel_Walk(ms, reach))
                     case TRAVEL_CROUCH:
-                        // Port-note: BotTravel_Crouch returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotTravel_Crouch(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotTravel_Crouch(ms, reach))
                     case TRAVEL_BARRIERJUMP:
-                        // Port-note: BotTravel_BarrierJump returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotTravel_BarrierJump(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotTravel_BarrierJump(ms, reach))
                     case TRAVEL_LADDER:
-                        // Port-note: BotTravel_Ladder returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotTravel_Ladder(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotTravel_Ladder(ms, reach))
                     case TRAVEL_WALKOFFLEDGE:
-                        // Port-note: BotTravel_WalkOffLedge returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotTravel_WalkOffLedge(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotTravel_WalkOffLedge(ms, reach))
                     case TRAVEL_JUMP:
-                        // Port-note: BotTravel_Jump returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotTravel_Jump(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotTravel_Jump(ms, reach))
                     case TRAVEL_SWIM:
-                        // Port-note: BotTravel_Swim returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotTravel_Swim(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotTravel_Swim(ms, reach))
                     case TRAVEL_WATERJUMP:
-                        // Port-note: BotTravel_WaterJump returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotTravel_WaterJump(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotTravel_WaterJump(ms, reach))
                     case TRAVEL_TELEPORT:
-                        // Port-note: BotTravel_Teleport returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotTravel_Teleport(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotTravel_Teleport(ms, reach))
                     case TRAVEL_ELEVATOR:
-                        // Port-note: BotTravel_Elevator returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotTravel_Elevator(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotTravel_Elevator(ms, reach))
                     case TRAVEL_GRAPPLEHOOK:
-                        // Port-note: BotTravel_Grapple returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotTravel_Grapple(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotTravel_Grapple(ms, reach))
                     case TRAVEL_ROCKETJUMP:
-                        // Port-note: BotTravel_RocketJump returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotTravel_RocketJump(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotTravel_RocketJump(ms, reach))
                     case TRAVEL_BFGJUMP:
-                        // Port-note: BotTravel_BFGJump returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotTravel_BFGJump(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotTravel_BFGJump(ms, reach))
                     case TRAVEL_JUMPPAD:
-                        // Port-note: BotTravel_JumpPad returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotTravel_JumpPad(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotTravel_JumpPad(ms, reach))
                     case TRAVEL_FUNCBOB:
-                        // Port-note: BotTravel_FuncBobbing returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotTravel_FuncBobbing(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotTravel_FuncBobbing(ms, reach))
                     default:
-                        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-                        // Raven wrote: botimport.Print(PRT_FATAL, "travel type %d not implemented yet\n", (reach.traveltype & TRAVELTYPE_MASK));
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        botimport.runPrint(PRT_FATAL, "travel type %d not implemented yet\n", reach.traveltype & TRAVELTYPE_MASK)
                     }
                     result.traveltype = reach.traveltype
                     result.flags |= resultflags
@@ -2436,9 +3363,7 @@ func BotMoveToGoal(_ result: BotMoveresult, _ movestate: Int32, _ goal: BotGoal,
                     if AAS_AreaJumpPad(areas_BotMoveToGoal[i]) != 0 {
                         //botimport.Print(PRT_MESSAGE, "client %d used a jumppad without knowing, area %d\n", ms->client, areas[i]);
                         foundjumppad = 1
-                        // Port-note: Raven hands the table `ms->avoidspots` to one `BotAvoidspot?`, row P11 of the bot-ai round.
-                        // Raven wrote: lastreachnum = BotGetReachabilityToGoal(end, areas[i], ms->lastgoalareanum, ms->lastareanum, ms->avoidreach, ms->avoidreachtimes, ms->avoidreachtries, goal, travelflags, TFL_JUMPPAD, ms->avoidspots, ms->numavoidspots, NULL);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        lastreachnum = BotGetReachabilityToGoal(end, areas_BotMoveToGoal[i], ms.lastgoalareanum, ms.lastareanum, ms.avoidreach, ms.avoidreachtimes, ms.avoidreachtries, goal, travelflags, TFL_JUMPPAD, ms.avoidspots, ms.numavoidspots, nil)
                         if lastreachnum != 0 {
                             ms.lastreachnum = lastreachnum
                             ms.lastareanum = areas_BotMoveToGoal[i]
@@ -2465,9 +3390,7 @@ func BotMoveToGoal(_ result: BotMoveresult, _ movestate: Int32, _ goal: BotGoal,
                 if bot_developer != 0 {
                     //if a jumppad is found with the trace but no reachability is found
                     if foundjumppad != 0 && ms.lastreachnum == 0 {
-                        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-                        // Raven wrote: botimport.Print(PRT_MESSAGE, "client %d didn't find jumppad reachability\n", ms->client);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        botimport.runPrint(PRT_MESSAGE, "client %d didn't find jumppad reachability\n", ms.client)
                     }
                 }
                 //
@@ -2478,61 +3401,35 @@ func BotMoveToGoal(_ result: BotMoveresult, _ movestate: Int32, _ goal: BotGoal,
                     //
                     switch reach.traveltype & TRAVELTYPE_MASK {
                     case TRAVEL_WALK:
-                        // Port-note: BotTravel_Walk returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotTravel_Walk(ms, &reach); break;//BotFinishTravel_Walk(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotTravel_Walk(ms, reach)) //BotFinishTravel_Walk(ms, &reach);
                     case TRAVEL_CROUCH: /*do nothing*/ break
                     case TRAVEL_BARRIERJUMP:
-                        // Port-note: BotFinishTravel_BarrierJump returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotFinishTravel_BarrierJump(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotFinishTravel_BarrierJump(ms, reach))
                     case TRAVEL_LADDER:
-                        // Port-note: BotTravel_Ladder returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotTravel_Ladder(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotTravel_Ladder(ms, reach))
                     case TRAVEL_WALKOFFLEDGE:
-                        // Port-note: BotFinishTravel_WalkOffLedge returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotFinishTravel_WalkOffLedge(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotFinishTravel_WalkOffLedge(ms, reach))
                     case TRAVEL_JUMP:
-                        // Port-note: BotFinishTravel_Jump returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotFinishTravel_Jump(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotFinishTravel_Jump(ms, reach))
                     case TRAVEL_SWIM:
-                        // Port-note: BotTravel_Swim returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotTravel_Swim(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotTravel_Swim(ms, reach))
                     case TRAVEL_WATERJUMP:
-                        // Port-note: BotFinishTravel_WaterJump returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotFinishTravel_WaterJump(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotFinishTravel_WaterJump(ms, reach))
                     case TRAVEL_TELEPORT: /*do nothing*/ break
                     case TRAVEL_ELEVATOR:
-                        // Port-note: BotFinishTravel_Elevator returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotFinishTravel_Elevator(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotFinishTravel_Elevator(ms, reach))
                     case TRAVEL_GRAPPLEHOOK:
-                        // Port-note: BotTravel_Grapple returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotTravel_Grapple(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotTravel_Grapple(ms, reach))
                     case TRAVEL_ROCKETJUMP:
                         fallthrough
                     case TRAVEL_BFGJUMP:
-                        // Port-note: BotFinishTravel_WeaponJump returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotFinishTravel_WeaponJump(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotFinishTravel_WeaponJump(ms, reach))
                     case TRAVEL_JUMPPAD:
-                        // Port-note: BotFinishTravel_JumpPad returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotFinishTravel_JumpPad(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotFinishTravel_JumpPad(ms, reach))
                     case TRAVEL_FUNCBOB:
-                        // Port-note: BotFinishTravel_FuncBobbing returns a `bot_moveresult_t` record with no signature, row P13 of the bot-ai round.
-                        // Raven wrote: *result = BotFinishTravel_FuncBobbing(ms, &reach);
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        result.copy(from: BotFinishTravel_FuncBobbing(ms, reach))
                     default:
-                        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-                        // Raven wrote: botimport.Print(PRT_FATAL, "(last) travel type %d not implemented yet\n", (reach.traveltype & TRAVELTYPE_MASK));
-                        portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
+                        botimport.runPrint(PRT_FATAL, "(last) travel type %d not implemented yet\n", reach.traveltype & TRAVELTYPE_MASK)
                     }
                     result.traveltype = reach.traveltype
                 }

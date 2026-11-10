@@ -36,8 +36,7 @@ func AAS_PresenceTypeBoundingBox(_ presencetype: Int32, _ mins: inout JKAShared.
     } else if presencetype == PRESENCE_CROUCH {
         index = 2
     } else {
-        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_sample.cpp:67")
+        botimport.runPrint(PRT_FATAL, "AAS_PresenceTypeBoundingBox: unknown presence type\n")
         index = 2
     } //end if
     mins = boxmins[index]
@@ -63,7 +62,7 @@ func AAS_InitAASLinkHeap() {
             max_aaslinks = 0
         }
         aasworld.linkheapsize = max_aaslinks
-        aasworld.linkheap = AasLink(GetHunkMemory(UInt32(max_aaslinks * Int32(AasLink.byteCount)))!)
+        aasworld.linkheap = AasLink(GetHunkMemory(max_aaslinks * Int32(AasLink.byteCount))!)
     } //end if
     //link the links on the heap
     aasworld.linkheapSlots[0].prev_ent = nil
@@ -110,8 +109,7 @@ func AAS_AllocAASLink() -> AasLink? {
     link = aasworld.freelinks
     if link == nil {
         if bot_developer != 0 {
-            // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-            portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_sample.cpp:140")
+            botimport.runPrint(PRT_FATAL, "empty aas link heap\n")
         } //end if
         return nil
     } //end if
@@ -159,7 +157,7 @@ func AAS_InitAASLinkedEntities() {
         FreeMemory(OpaquePointer(aasworld.arealinkedentities!.base))
     }
     // The block holds one record pointer per area, and `UInt.byteCount` is the size of one pointer.
-    aasworld.arealinkedentities = Slots(pointers: GetClearedHunkMemory(UInt32(aasworld.numareas * Int32(UInt.byteCount))), count: Int(aasworld.numareas))
+    aasworld.arealinkedentities = Slots(pointers: GetClearedHunkMemory(aasworld.numareas * Int32(UInt.byteCount)), count: Int(aasworld.numareas))
 }
 
 //===========================================================================
@@ -191,8 +189,7 @@ func AAS_PointAreaNum(_ point: JKAShared.vec3_t) -> Int32 {
     var plane: AasPlane
 
     if aasworld.loaded == 0 {
-        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_sample.cpp:205")
+        botimport.runPrint(PRT_ERROR, "AAS_PointAreaNum: aas not loaded\n")
         return 0
     } //end if
 
@@ -264,8 +261,7 @@ func AAS_PointReachabilityAreaIndex(_ origin: JKAShared.vec3_t) -> Int32 {
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:291
 func AAS_AreaCluster(_ areanum: Int32) -> Int32 {
     if areanum <= 0 || areanum >= aasworld.numareas {
-        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_sample.cpp:295")
+        botimport.runPrint(PRT_ERROR, "AAS_AreaCluster: invalid area number\n")
         return 0
     } //end if
     return aasworld.areasettingsSlots[areanum].cluster
@@ -284,8 +280,7 @@ func AAS_AreaPresenceType(_ areanum: Int32) -> Int32 {
         return 0
     }
     if areanum <= 0 || areanum >= aasworld.numareas {
-        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_sample.cpp:312")
+        botimport.runPrint(PRT_ERROR, "AAS_AreaPresenceType: invalid area number\n")
         return 0
     } //end if
     return aasworld.areasettingsSlots[areanum].presencetype
@@ -387,13 +382,224 @@ func AAS_AreaEntityCollision(_ areanum: Int32, _ start: JKAShared.vec3_t, _ end:
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
+/// Source: oracle/codemp/botlib/be_aas_sample.cpp:442
+// AI: Raven declares `trace` on the stack of AAS_TraceClientBBox. The function uses one zeroed allocation on the storage class.
+var trace_AAS_TraceClientBBox: AasTrace { world.storage.trace_AAS_TraceClientBBox }
+
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:432
-// TODO: Port signature
-// Raven wrote: aas_trace_t AAS_TraceClientBBox(vec3_t start, vec3_t end, int presencetype, int passent)
-// No table row for the return `aas_trace_t`.
-func AAS_TraceClientBBox() -> Never {
-    // TODO: Port AAS_TraceClientBBox
-    portMissing("AAS_TraceClientBBox", source: "oracle/codemp/botlib/be_aas_sample.cpp:432")
+func AAS_TraceClientBBox(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ presencetype: Int32, _ passent: Int32) -> AasTrace {
+    let trace = trace_AAS_TraceClientBBox
+
+    //clear the trace structure
+    trace.clear()
+
+    if aasworld.loaded == 0 { return trace }
+
+    return AasTracestack.scratch(count: 127) { tracestack -> AasTrace in
+        var side: Int32, nodenum: Int32, tmpplanenum: Int32
+        var front: Float, back: Float, frac: Float
+        var cur_start: vec3_t, cur_end: vec3_t
+        var cur_mid = vec3_t(), v1 = vec3_t(), v2 = vec3_t()
+        var tstack_pIndex: Int32
+        var aasnode: AasNode
+        var plane: AasPlane
+
+        tstack_pIndex = 0
+        //we start with the whole line on the stack
+        tracestack[tstack_pIndex].start = start
+        tracestack[tstack_pIndex].end = end
+        tracestack[tstack_pIndex].planenum = 0
+        //start with node 1 because node zero is a dummy for a solid leaf
+        tracestack[tstack_pIndex].nodenum = 1 //starting at the root of the tree
+        tstack_pIndex += 1
+
+        while true {
+            //pop up the stack
+            tstack_pIndex -= 1
+            //if the trace stack is empty (ended up with a piece of the
+            //line to be traced in an area)
+            if tstack_pIndex < 0 {
+                tstack_pIndex += 1
+                //nothing was hit
+                trace.startsolid = false
+                trace.fraction = 1.0
+                //endpos is the end of the line
+                trace.endpos = end
+                //nothing hit
+                trace.ent = 0
+                trace.area = 0
+                trace.planenum = 0
+                return trace
+            } //end if
+            //number of the current node to test the line against
+            nodenum = tracestack[tstack_pIndex].nodenum
+            //if it is an area
+            if nodenum < 0 {
+                //botimport.Print(PRT_MESSAGE, "areanum = %d, must be %d\n", -nodenum, AAS_PointAreaNum(start));
+                //if can't enter the area because it hasn't got the right presence type
+                if (aasworld.areasettingsSlots[-nodenum].presencetype & presencetype) == 0 {
+                    //if the start point is still the initial start point
+                    //NOTE: no need for epsilons because the points will be
+                    //exactly the same when they're both the start point
+                    if tracestack[tstack_pIndex].start[0] == start[0] &&
+                        tracestack[tstack_pIndex].start[1] == start[1] &&
+                        tracestack[tstack_pIndex].start[2] == start[2] {
+                        trace.startsolid = true
+                        trace.fraction = 0.0
+                        v1 = vec3_t()
+                    } //end if
+                    else {
+                        trace.startsolid = false
+                        v1 = end - start
+                        v2 = tracestack[tstack_pIndex].start - start
+                        trace.fraction = VectorLength(v2) / VectorNormalize(&v1)
+                        _VectorMA(tracestack[tstack_pIndex].start, -0.125, v1, &tracestack[tstack_pIndex].start)
+                    } //end else
+                    trace.endpos = tracestack[tstack_pIndex].start
+                    trace.ent = 0
+                    trace.area = -nodenum
+                    //				VectorSubtract(end, start, v1);
+                    trace.planenum = tracestack[tstack_pIndex].planenum
+                    //always take the plane with normal facing towards the trace start
+                    plane = aasworld.planesSlots[trace.planenum]
+                    if _DotProduct(v1, plane.normal) > 0 { trace.planenum ^= 1 }
+                    return trace
+                } //end if
+                else {
+                    if passent >= 0 {
+                        if AAS_AreaEntityCollision(-nodenum, tracestack[tstack_pIndex].start, tracestack[tstack_pIndex].end, presencetype, passent, trace) {
+                            if !trace.startsolid {
+                                v1 = end - start
+                                v2 = trace.endpos - start
+                                trace.fraction = VectorLength(v2) / VectorLength(v1)
+                            } //end if
+                            return trace
+                        } //end if
+                    } //end if
+                } //end else
+                trace.lastarea = -nodenum
+                continue
+            } //end if
+            //if it is a solid leaf
+            if nodenum == 0 {
+                //if the start point is still the initial start point
+                //NOTE: no need for epsilons because the points will be
+                //exactly the same when they're both the start point
+                if tracestack[tstack_pIndex].start[0] == start[0] &&
+                    tracestack[tstack_pIndex].start[1] == start[1] &&
+                    tracestack[tstack_pIndex].start[2] == start[2] {
+                    trace.startsolid = true
+                    trace.fraction = 0.0
+                    v1 = vec3_t()
+                } //end if
+                else {
+                    trace.startsolid = false
+                    v1 = end - start
+                    v2 = tracestack[tstack_pIndex].start - start
+                    trace.fraction = VectorLength(v2) / VectorNormalize(&v1)
+                    _VectorMA(tracestack[tstack_pIndex].start, -0.125, v1, &tracestack[tstack_pIndex].start)
+                } //end else
+                trace.endpos = tracestack[tstack_pIndex].start
+                trace.ent = 0
+                trace.area = 0	//hit solid leaf
+                //			VectorSubtract(end, start, v1);
+                trace.planenum = tracestack[tstack_pIndex].planenum
+                //always take the plane with normal facing towards the trace start
+                plane = aasworld.planesSlots[trace.planenum]
+                if _DotProduct(v1, plane.normal) > 0 { trace.planenum ^= 1 }
+                return trace
+            } //end if
+            //the node to test against
+            aasnode = aasworld.nodesSlots[nodenum]
+            //start point of current line to test against node
+            cur_start = tracestack[tstack_pIndex].start
+            //end point of the current line to test against node
+            cur_end = tracestack[tstack_pIndex].end
+            //the current node plane
+            plane = aasworld.planesSlots[aasnode.planenum]
+
+            //		switch(plane->type)
+            //			default: //gee it's not an axial plane
+            front = _DotProduct(cur_start, plane.normal) - plane.dist
+            back = _DotProduct(cur_end, plane.normal) - plane.dist
+            // bk010221 - old location of FPE hack and divide by zero expression
+            //if the whole to be traced line is totally at the front of this node
+            //only go down the tree with the front child
+            if front >= -ON_EPSILON && back >= -ON_EPSILON {
+                //keep the current start and end point on the stack
+                //and go down the tree with the front child
+                tracestack[tstack_pIndex].nodenum = aasnode.children[0]
+                tstack_pIndex += 1
+                if tstack_pIndex >= 127 {
+                    botimport.runPrint(PRT_ERROR, "AAS_TraceBoundingBox: stack overflow\n")
+                    return trace
+                } //end if
+            } //end if
+            //if the whole to be traced line is totally at the back of this node
+            //only go down the tree with the back child
+            else if front < ON_EPSILON && back < ON_EPSILON {
+                //keep the current start and end point on the stack
+                //and go down the tree with the back child
+                tracestack[tstack_pIndex].nodenum = aasnode.children[1]
+                tstack_pIndex += 1
+                if tstack_pIndex >= 127 {
+                    botimport.runPrint(PRT_ERROR, "AAS_TraceBoundingBox: stack overflow\n")
+                    return trace
+                } //end if
+            } //end if
+            //go down the tree both at the front and back of the node
+            else {
+                tmpplanenum = tracestack[tstack_pIndex].planenum
+                // bk010221 - new location of divide by zero (see above)
+                if front == back { front -= 0.001 } // bk0101022 - hack/FPE
+                //calculate the hitpoint with the node (split point of the line)
+                //put the crosspoint TRACEPLANE_EPSILON pixels on the near side
+                if front < 0 {
+                    frac = Float((Double(front) + TRACEPLANE_EPSILON) / Double(front - back))
+                } else {
+                    frac = Float((Double(front) - TRACEPLANE_EPSILON) / Double(front - back)) // bk010221
+                }
+                //
+                if frac < 0 {
+                    frac = 0.001 //0
+                } else if frac > 1 {
+                    frac = 0.999 //1
+                }
+                //frac = front / (front-back);
+                //
+                cur_mid[0] = cur_start[0] + (cur_end[0] - cur_start[0]) * frac
+                cur_mid[1] = cur_start[1] + (cur_end[1] - cur_start[1]) * frac
+                cur_mid[2] = cur_start[2] + (cur_end[2] - cur_start[2]) * frac
+
+                //			AAS_DrawPlaneCross(cur_mid, plane->normal, plane->dist, plane->type, LINECOLOR_RED);
+                //side the front part of the line is on
+                side = front < 0 ? 1 : 0
+                //first put the end part of the line on the stack (back side)
+                tracestack[tstack_pIndex].start = cur_mid
+                //not necesary to store because still on stack
+                //VectorCopy(cur_end, tstack_p->end);
+                tracestack[tstack_pIndex].planenum = aasnode.planenum
+                tracestack[tstack_pIndex].nodenum = aasnode.children[side == 0 ? 1 : 0]
+                tstack_pIndex += 1
+                if tstack_pIndex >= 127 {
+                    botimport.runPrint(PRT_ERROR, "AAS_TraceBoundingBox: stack overflow\n")
+                    return trace
+                } //end if
+                //now put the part near the start of the line on the stack so we will
+                //continue with thats part first. This way we'll find the first
+                //hit of the bbox
+                tracestack[tstack_pIndex].start = cur_start
+                tracestack[tstack_pIndex].end = cur_mid
+                tracestack[tstack_pIndex].planenum = tmpplanenum
+                tracestack[tstack_pIndex].nodenum = aasnode.children[side]
+                tstack_pIndex += 1
+                if tstack_pIndex >= 127 {
+                    botimport.runPrint(PRT_ERROR, "AAS_TraceBoundingBox: stack overflow\n")
+                    return trace
+                } //end if
+            } //end else
+        } //end while
+    }
 }
 
 //===========================================================================
@@ -485,8 +691,7 @@ func AAS_TraceAreas(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ areas:
                 tracestack[tstack_pIndex].nodenum = aasnode.children[0]
                 tstack_pIndex += 1
                 if tstack_pIndex >= 127 {
-                    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_sample.cpp:822")
+                    botimport.runPrint(PRT_ERROR, "AAS_TraceAreas: stack overflow\n")
                     return numareas
                 } //end if
             } //end if
@@ -498,8 +703,7 @@ func AAS_TraceAreas(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ areas:
                 tracestack[tstack_pIndex].nodenum = aasnode.children[1]
                 tstack_pIndex += 1
                 if tstack_pIndex >= 127 {
-                    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_sample.cpp:836")
+                    botimport.runPrint(PRT_ERROR, "AAS_TraceAreas: stack overflow\n")
                     return numareas
                 } //end if
             } //end if
@@ -535,8 +739,7 @@ func AAS_TraceAreas(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ areas:
                 tracestack[tstack_pIndex].nodenum = aasnode.children[side == 0 ? 1 : 0]
                 tstack_pIndex += 1
                 if tstack_pIndex >= 127 {
-                    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_sample.cpp:868")
+                    botimport.runPrint(PRT_ERROR, "AAS_TraceAreas: stack overflow\n")
                     return numareas
                 } //end if
                 //now put the part near the start of the line on the stack so we will
@@ -548,8 +751,7 @@ func AAS_TraceAreas(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ areas:
                 tracestack[tstack_pIndex].nodenum = aasnode.children[side]
                 tstack_pIndex += 1
                 if tstack_pIndex >= 127 {
-                    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_sample.cpp:881")
+                    botimport.runPrint(PRT_ERROR, "AAS_TraceAreas: stack overflow\n")
                     return numareas
                 } //end if
             } //end else
@@ -767,7 +969,7 @@ func AAS_BoxOnPlaneSide2(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1175
-func AAS_UnlinkFromAreas(_ areas: AasLink) {
+func AAS_UnlinkFromAreas(_ areas: AasLink?) {
     var link: AasLink?
     var nextlink: AasLink?
 
@@ -793,8 +995,7 @@ func AAS_UnlinkFromAreas(_ areas: AasLink) {
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1206
 func AAS_AASLinkEntity(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _ entnum: Int32) -> AasLink? {
     if aasworld.loaded == 0 {
-        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_sample.cpp:1217")
+        botimport.runPrint(PRT_ERROR, "AAS_LinkEntity: aas not loaded\n")
         return nil
     } //end if
 
@@ -879,8 +1080,7 @@ func AAS_AASLinkEntity(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t,
                 lstack_pIndex += 1
             } //end if
             if lstack_pIndex >= 127 {
-                // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_sample.cpp:1283")
+                botimport.runPrint(PRT_ERROR, "AAS_LinkEntity: stack overflow\n")
                 break
             } //end if
             //if on the back side of the node
@@ -889,8 +1089,7 @@ func AAS_AASLinkEntity(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t,
                 lstack_pIndex += 1
             } //end if
             if lstack_pIndex >= 127 {
-                // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-                portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_sample.cpp:1294")
+                botimport.runPrint(PRT_ERROR, "AAS_LinkEntity: stack overflow\n")
                 break
             } //end if
         } //end while
@@ -941,8 +1140,7 @@ func AAS_BBoxAreas(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _ a
         }
         link = link!.next_area
     } //end for
-    // Port-note: AAS_UnlinkFromAreas takes a value, and Raven passes `linkedareas`, which can be NULL here, row of the NULL sweep.
-    portMissing("AAS_UnlinkFromAreas", source: "oracle/codemp/botlib/be_aas_sample.cpp:1337")
+    AAS_UnlinkFromAreas(linkedareas)
     return num
 }
 
@@ -956,8 +1154,7 @@ func AAS_BBoxAreas(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _ a
 func AAS_AreaInfo(_ areanum: Int32, _ info: AasAreainfo) -> Int32 {
     let settings: AasAreasettings
     if areanum <= 0 || areanum >= aasworld.numareas {
-        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_sample.cpp:1353")
+        botimport.runPrint(PRT_ERROR, "AAS_AreaInfo: areanum %d out of range\n", areanum)
         return 0
     } //end if
     settings = aasworld.areasettingsSlots[areanum]

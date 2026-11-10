@@ -3,10 +3,6 @@ import JKAMP
 import JKAShared
 import JKAMP_Ded
 
-// The copy of botlib.h in ded_types.h starts at :18, so the host has no C form of this macro.
-/// Source: oracle/codemp/game/botlib.h:16
-let BOTLIB_API_VERSION: Int32 = 2
-
 /// Source: oracle/codemp/botlib/be_interface.cpp:39
 var botlibglobals: BotlibGlobals { world.storage.botlibglobals }
 
@@ -36,9 +32,8 @@ var botlibsetup: Int32 {
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_interface.cpp:60
 func Sys_MilliSeconds() -> Int32 {
-    // Port-note: The host has no backend for the C library `clock()` and `CLOCKS_PER_SEC`, row BL4.
-    // TODO: Port Sys_MilliSeconds
-    portMissing("Sys_MilliSeconds", source: "oracle/codemp/botlib/be_interface.cpp:60")
+    // AI: Raven returns the 32-bit `long` quotient as his `int`. The host quotient is 64 bits, and the return keeps its low 32 bits.
+    return Int32(truncatingIfNeeded: SysBackend.clock() * 1000 / SysBackend.CLOCKS_PER_SEC)
 }
 
 //===========================================================================
@@ -51,9 +46,7 @@ func Sys_MilliSeconds() -> Int32 {
 func ValidClientNumber(_ num: Int32, _ str: inout JKAShared.CharBuf) -> Bool {
     if num < 0 || num > botlibglobals.maxclients {
         //weird: the disabled stuff results in a crash
-        // Port-note: botimport.Print takes Raven's format as an OpaquePointer and has no arguments, so no call can pass his text, row BL1.
-        // Raven wrote: botimport.Print(PRT_ERROR, "%s: invalid client number %d, [0, %d]\n", str, num, botlibglobals.maxclients)
-        portMissing("ValidClientNumber", source: "oracle/codemp/botlib/be_interface.cpp:68")
+        botimport.runPrint(PRT_ERROR, "%s: invalid client number %d, [0, %d]\n", str, num, botlibglobals.maxclients)
         return false
     } //end if
     return true
@@ -68,9 +61,7 @@ func ValidClientNumber(_ num: Int32, _ str: inout JKAShared.CharBuf) -> Bool {
 /// Source: oracle/codemp/botlib/be_interface.cpp:87
 func ValidEntityNumber(_ num: Int32, _ str: inout JKAShared.CharBuf) -> Bool {
     if num < 0 || num > botlibglobals.maxentities {
-        // Port-note: botimport.Print takes Raven's format as an OpaquePointer and has no arguments, so no call can pass his text, row BL1.
-        // Raven wrote: botimport.Print(PRT_ERROR, "%s: invalid entity number %d, [0, %d]\n", str, num, botlibglobals.maxentities)
-        portMissing("ValidEntityNumber", source: "oracle/codemp/botlib/be_interface.cpp:85")
+        botimport.runPrint(PRT_ERROR, "%s: invalid entity number %d, [0, %d]\n", str, num, botlibglobals.maxentities)
         return false
     } //end if
     return true
@@ -85,9 +76,7 @@ func ValidEntityNumber(_ num: Int32, _ str: inout JKAShared.CharBuf) -> Bool {
 /// Source: oracle/codemp/botlib/be_interface.cpp:103
 func BotLibSetup(_ str: inout JKAShared.CharBuf) -> Bool {
     if botlibglobals.botlibsetup == 0 {
-        // Port-note: botimport.Print takes Raven's format as an OpaquePointer and has no arguments, so no call can pass his text, row BL1.
-        // Raven wrote: botimport.Print(PRT_ERROR, "%s: bot library used before being setup\n", str)
-        portMissing("BotLibSetup", source: "oracle/codemp/botlib/be_interface.cpp:101")
+        botimport.runPrint(PRT_ERROR, "%s: bot library used before being setup\n", str)
         return false
     } //end if
     return true
@@ -229,9 +218,7 @@ func Export_BotLibLoadMap(_ mapname: String) -> Int32 {
     var str = CharBuf("BotLoadMap")
     if !BotLibSetup(&str) { return BLERR_LIBRARYNOTSETUP }
     //
-    // Port-note: botimport.Print takes Raven's format as an OpaquePointer and has no arguments, so no call can pass his text, row BL1.
-    // Raven wrote: botimport.Print(PRT_MESSAGE, "------------ Map Loading ------------\n")
-    portMissing("Export_BotLibLoadMap", source: "oracle/codemp/botlib/be_interface.cpp:239")
+    botimport.runPrint(PRT_MESSAGE, "------------ Map Loading ------------\n")
     //startup AAS for the current map, model and sound index
     errnum = AAS_LoadMap(mapname)
     if errnum != BLERR_NOERROR { return errnum }
@@ -239,9 +226,7 @@ func Export_BotLibLoadMap(_ mapname: String) -> Int32 {
     BotInitLevelItems()		//be_ai_goal.h
     BotSetBrushModelTypes()	//be_ai_move.h
     //
-    // Port-note: botimport.Print takes Raven's format as an OpaquePointer and has no arguments, so no call can pass his text, row BL1.
-    // Raven wrote: botimport.Print(PRT_MESSAGE, "-------------------------------------\n")
-    portMissing("Export_BotLibLoadMap", source: "oracle/codemp/botlib/be_interface.cpp:239")
+    botimport.runPrint(PRT_MESSAGE, "-------------------------------------\n")
     //
     return BLERR_NOERROR
 }
@@ -486,9 +471,8 @@ func GetBotLibAPI(_ apiVersion: Int32, _ `import`: BotlibImport) -> BotlibExport
     be_botlib_export.clear()
 
     if apiVersion != BOTLIB_API_VERSION {
-        // Port-note: The `Print` field of the import table is a C function with a variadic tail, and the typealias `BotlibImportPrint` drops the tail.
-        // Raven wrote: botimport.Print( PRT_ERROR, "Mismatched BOTLIB_API_VERSION: expected %i, got %i\n", BOTLIB_API_VERSION, apiVersion );
-        portMissing("GetBotLibAPI", source: "oracle/codemp/botlib/be_interface.cpp:834")
+        botimport.runPrint(PRT_ERROR, "Mismatched BOTLIB_API_VERSION: expected %i, got %i\n", BOTLIB_API_VERSION, apiVersion)
+        return nil
     }
 
     Init_AAS_Export(be_botlib_export.aas)
@@ -520,8 +504,7 @@ func GetBotLibAPI(_ apiVersion: Int32, _ `import`: BotlibImport) -> BotlibExport
 /// The thunks stand in this file, because the functions they call are private to it.
 private enum Aas_exportThunks {
     /// Source: oracle/codemp/botlib/be_aas_routealt.cpp:82
-    // TODO: Port signature
-    static let AAS_AlternativeRouteGoals: Aas_exportAAS_AlternativeRouteGoals = { _, _, _, _, _, _, _, _ in portMissing("AAS_AlternativeRouteGoals", source: "oracle/codemp/botlib/be_aas_routealt.cpp:82") }
+    static let AAS_AlternativeRouteGoals: Aas_exportAAS_AlternativeRouteGoals = { JKAMP_DedLogic.AAS_AlternativeRouteGoals(vector(at: $0!), $1, vector(at: $2!), $3, $4, AasAltroutegoal(handle: $5!), $6, $7) }
 
     /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1346
     static let AAS_AreaInfo: Aas_exportAAS_AreaInfo = { JKAMP_DedLogic.AAS_AreaInfo($0, AasAreainfo(handle: $1!)) }
@@ -530,12 +513,10 @@ private enum Aas_exportThunks {
     static let AAS_AreaReachability: Aas_exportAAS_AreaReachability = { JKAMP_DedLogic.AAS_AreaReachability($0) }
 
     /// Source: oracle/codemp/botlib/be_aas_route.cpp:1750
-    // TODO: Port signature
-    static let AAS_AreaTravelTimeToGoalArea: Aas_exportAAS_AreaTravelTimeToGoalArea = { _, _, _, _ in portMissing("AAS_AreaTravelTimeToGoalArea", source: "oracle/codemp/botlib/be_aas_route.cpp:1750") }
+    static let AAS_AreaTravelTimeToGoalArea: Aas_exportAAS_AreaTravelTimeToGoalArea = { JKAMP_DedLogic.AAS_AreaTravelTimeToGoalArea($0, $1.map { vector(at: $0) }, $2, $3) }
 
     /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1323
-    // TODO: Port signature
-    static let AAS_BBoxAreas: Aas_exportAAS_BBoxAreas = { _, _, _, _ in portMissing("AAS_BBoxAreas", source: "oracle/codemp/botlib/be_aas_sample.cpp:1323") }
+    static let AAS_BBoxAreas: Aas_exportAAS_BBoxAreas = { JKAMP_DedLogic.AAS_BBoxAreas(vector(at: $0!), vector(at: $1!), Slots<Int32>(scalars: $2!, count: Int($3)), $3) }
 
     /// Source: oracle/codemp/botlib/be_aas_route.cpp:291
     static let AAS_EnableRoutingArea: Aas_exportAAS_EnableRoutingArea = { JKAMP_DedLogic.AAS_EnableRoutingArea($0, $1) }
@@ -544,69 +525,97 @@ private enum Aas_exportThunks {
     static let AAS_EntityInfo: Aas_exportAAS_EntityInfo = { JKAMP_DedLogic.AAS_EntityInfo($0, AasEntityinfo(handle: $1!)) }
 
     /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:306
-    // TODO: Port signature
-    static let AAS_FloatForBSPEpairKey: Aas_exportAAS_FloatForBSPEpairKey = { _, _, _ in portMissing("AAS_FloatForBSPEpairKey", source: "oracle/codemp/botlib/be_aas_bspq3.cpp:306") }
+    static let AAS_FloatForBSPEpairKey: Aas_exportAAS_FloatForBSPEpairKey = { ent, key, value in
+        let slots = Slots<Float>(scalars: value!, count: 1)
+        var number = slots[0]
+        let found = JKAMP_DedLogic.AAS_FloatForBSPEpairKey(ent, text(at: key!), &number)
+        slots[0] = number
+        return found
+    }
 
     /// Source: oracle/codemp/botlib/be_aas_main.cpp:156
     static let AAS_Initialized: Aas_exportAAS_Initialized = { JKAMP_DedLogic.AAS_Initialized() }
 
     /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:321
-    // TODO: Port signature
-    static let AAS_IntForBSPEpairKey: Aas_exportAAS_IntForBSPEpairKey = { _, _, _ in portMissing("AAS_IntForBSPEpairKey", source: "oracle/codemp/botlib/be_aas_bspq3.cpp:321") }
+    static let AAS_IntForBSPEpairKey: Aas_exportAAS_IntForBSPEpairKey = { ent, key, value in
+        let slots = Slots<Int32>(scalars: value!, count: 1)
+        var number = slots[0]
+        let found = JKAMP_DedLogic.AAS_IntForBSPEpairKey(ent, text(at: key!), &number)
+        slots[0] = number
+        return found
+    }
 
     /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:235
     static let AAS_NextBSPEntity: Aas_exportAAS_NextBSPEntity = { JKAMP_DedLogic.AAS_NextBSPEntity($0) }
 
     /// Source: oracle/codemp/botlib/be_aas_sample.cpp:196
-    // TODO: Port signature
-    static let AAS_PointAreaNum: Aas_exportAAS_PointAreaNum = { _ in portMissing("AAS_PointAreaNum", source: "oracle/codemp/botlib/be_aas_sample.cpp:196") }
+    static let AAS_PointAreaNum: Aas_exportAAS_PointAreaNum = { JKAMP_DedLogic.AAS_PointAreaNum(vector(at: $0!)) }
 
     /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:143
-    // TODO: Port signature
-    static let AAS_PointContents: Aas_exportAAS_PointContents = { _ in portMissing("AAS_PointContents", source: "oracle/codemp/botlib/be_aas_bspq3.cpp:143") }
+    static let AAS_PointContents: Aas_exportAAS_PointContents = { JKAMP_DedLogic.AAS_PointContents(vector(at: $0!)) }
 
     /// Source: oracle/codemp/botlib/be_aas_sample.cpp:249
-    // TODO: Port signature
-    static let AAS_PointReachabilityAreaIndex: Aas_exportAAS_PointReachabilityAreaIndex = { _ in portMissing("AAS_PointReachabilityAreaIndex", source: "oracle/codemp/botlib/be_aas_sample.cpp:249") }
+    static let AAS_PointReachabilityAreaIndex: Aas_exportAAS_PointReachabilityAreaIndex = { JKAMP_DedLogic.AAS_PointReachabilityAreaIndex(vector(at: $0!)) }
 
     /// Source: oracle/codemp/botlib/be_aas_move.cpp:977
-    // TODO: Port signature
-    static let AAS_PredictClientMovement: Aas_exportAAS_PredictClientMovement = { _, _, _, _, _, _, _, _, _, _, _, _, _ in portMissing("AAS_PredictClientMovement", source: "oracle/codemp/botlib/be_aas_move.cpp:977") }
+    static let AAS_PredictClientMovement: Aas_exportAAS_PredictClientMovement = { JKAMP_DedLogic.AAS_PredictClientMovement(AasClientmove(handle: $0!), $1, vector(at: $2!), $3, $4, vector(at: $5!), vector(at: $6!), $7, $8, $9, $10, $11, $12) }
 
     /// Source: oracle/codemp/botlib/be_aas_route.cpp:1783
-    // TODO: Port signature
-    static let AAS_PredictRoute: Aas_exportAAS_PredictRoute = { _, _, _, _, _, _, _, _, _, _, _ in portMissing("AAS_PredictRoute", source: "oracle/codemp/botlib/be_aas_route.cpp:1783") }
+    static let AAS_PredictRoute: Aas_exportAAS_PredictRoute = { JKAMP_DedLogic.AAS_PredictRoute(AasPredictroute(handle: $0!), $1, vector(at: $2!), $3, $4, $5, $6, $7, $8, $9, $10) }
 
     /// Source: oracle/codemp/botlib/be_aas_sample.cpp:56
-    // TODO: Port signature
-    static let AAS_PresenceTypeBoundingBox: Aas_exportAAS_PresenceTypeBoundingBox = { _, _, _ in portMissing("AAS_PresenceTypeBoundingBox", source: "oracle/codemp/botlib/be_aas_sample.cpp:56") }
+    static let AAS_PresenceTypeBoundingBox: Aas_exportAAS_PresenceTypeBoundingBox = { presencetype, mins, maxs in
+        var minsValue = vector(at: mins!)
+        var maxsValue = vector(at: maxs!)
+        JKAMP_DedLogic.AAS_PresenceTypeBoundingBox(presencetype, &minsValue, &maxsValue)
+        let minsSlots = Slots<Float>(scalars: mins!, count: 3)
+        minsSlots[0] = minsValue[0]
+        minsSlots[1] = minsValue[1]
+        minsSlots[2] = minsValue[2]
+        let maxsSlots = Slots<Float>(scalars: maxs!, count: 3)
+        maxsSlots[0] = maxsValue[0]
+        maxsSlots[1] = maxsValue[1]
+        maxsSlots[2] = maxsValue[2]
+    }
 
     /// Source: oracle/codemp/botlib/be_aas_move.cpp:198
-    // TODO: Port signature
-    static let AAS_Swimming: Aas_exportAAS_Swimming = { _ in portMissing("AAS_Swimming", source: "oracle/codemp/botlib/be_aas_move.cpp:198") }
+    static let AAS_Swimming: Aas_exportAAS_Swimming = { JKAMP_DedLogic.AAS_Swimming(vector(at: $0!)) }
 
     /// Source: oracle/codemp/botlib/be_aas_main.cpp:267
     static let AAS_Time: Aas_exportAAS_Time = { JKAMP_DedLogic.AAS_Time() }
 
     /// Source: oracle/codemp/botlib/be_aas_sample.cpp:709
-    // TODO: Port signature
-    static let AAS_TraceAreas: Aas_exportAAS_TraceAreas = { _, _, _, _, _ in portMissing("AAS_TraceAreas", source: "oracle/codemp/botlib/be_aas_sample.cpp:709") }
+    static let AAS_TraceAreas: Aas_exportAAS_TraceAreas = { start, end, areas, points, maxareas in
+        JKAMP_DedLogic.AAS_TraceAreas(
+            vector(at: start!),
+            vector(at: end!),
+            Slots<Int32>(scalars: areas!, count: Int(maxareas)),
+            points.map { Slots<vec3_t>(vectors: $0, count: Int(maxareas)) },
+            maxareas
+        )
+    }
 
     /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:262
-    // TODO: Port signature
+    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
     static let AAS_ValueForBSPEpairKey: Aas_exportAAS_ValueForBSPEpairKey = { _, _, _, _ in portMissing("AAS_ValueForBSPEpairKey", source: "oracle/codemp/botlib/be_aas_bspq3.cpp:262") }
 
     /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:285
-    // TODO: Port signature
-    static let AAS_VectorForBSPEpairKey: Aas_exportAAS_VectorForBSPEpairKey = { _, _, _ in portMissing("AAS_VectorForBSPEpairKey", source: "oracle/codemp/botlib/be_aas_bspq3.cpp:285") }
+    static let AAS_VectorForBSPEpairKey: Aas_exportAAS_VectorForBSPEpairKey = { ent, key, v in
+        var value = vector(at: v!)
+        let found = JKAMP_DedLogic.AAS_VectorForBSPEpairKey(ent, text(at: key!), &value)
+        let vSlots = Slots<Float>(scalars: v!, count: 3)
+        vSlots[0] = value[0]
+        vSlots[1] = value[1]
+        vSlots[2] = value[2]
+        return found
+    }
 }
 
 /// One static per function this file stores in a `Ai_export` callback field, so each has one address for the life of the module.
 /// The thunks stand in this file, because the functions they call are private to it.
 private enum Ai_exportThunks {
     /// Source: oracle/codemp/botlib/be_ai_move.cpp:702
-    // TODO: Port signature
-    static let BotAddAvoidSpot: Ai_exportBotAddAvoidSpot = { _, _, _, _ in portMissing("BotAddAvoidSpot", source: "oracle/codemp/botlib/be_ai_move.cpp:702") }
+    static let BotAddAvoidSpot: Ai_exportBotAddAvoidSpot = { JKAMP_DedLogic.BotAddAvoidSpot($0, vector(at: $1!), $2, $3) }
 
     /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2878
     static let BotAllocChatState: Ai_exportBotAllocChatState = { JKAMP_DedLogic.BotAllocChatState() }
@@ -627,15 +636,15 @@ private enum Ai_exportThunks {
     static let BotChatLength: Ai_exportBotChatLength = { JKAMP_DedLogic.BotChatLength($0) }
 
     /// Source: oracle/codemp/botlib/be_ai_weap.cpp:387
-    // TODO: Port signature
+    // Port-note: Row X2. The `int *inventory` has no count beside it, so the thunk has no count for a Slots of the list.
     static let BotChooseBestFightWeapon: Ai_exportBotChooseBestFightWeapon = { _, _ in portMissing("BotChooseBestFightWeapon", source: "oracle/codemp/botlib/be_ai_weap.cpp:387") }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1268
-    // TODO: Port signature
+    // Port-note: Row X2. The `int *inventory` has no count beside it, so the thunk has no count for a Slots of the list.
     static let BotChooseLTGItem: Ai_exportBotChooseLTGItem = { _, _, _, _ in portMissing("BotChooseLTGItem", source: "oracle/codemp/botlib/be_ai_goal.cpp:1268") }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1435
-    // TODO: Port signature
+    // Port-note: Row X2. The `int *inventory` has no count beside it, so the thunk has no count for a Slots of the list.
     static let BotChooseNBGItem: Ai_exportBotChooseNBGItem = { _, _, _, _, _, _ in portMissing("BotChooseNBGItem", source: "oracle/codemp/botlib/be_ai_goal.cpp:1435") }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:702
@@ -651,8 +660,7 @@ private enum Ai_exportThunks {
     static let BotEnterChat: Ai_exportBotEnterChat = { JKAMP_DedLogic.BotEnterChat($0, $1, $2) }
 
     /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1417
-    // TODO: Port signature
-    static let BotFindMatch: Ai_exportBotFindMatch = { _, _, _ in portMissing("BotFindMatch", source: "oracle/codemp/botlib/be_ai_chat.cpp:1417") }
+    static let BotFindMatch: Ai_exportBotFindMatch = { JKAMP_DedLogic.BotFindMatch(text(at: $0!), BotMatch(handle: $1!), $2) }
 
     /// Source: oracle/codemp/botlib/be_ai_char.cpp:152
     static let BotFreeCharacter: Ai_exportBotFreeCharacter = { JKAMP_DedLogic.BotFreeCharacter($0) }
@@ -673,16 +681,14 @@ private enum Ai_exportThunks {
     static let BotFreeWeaponState: Ai_exportBotFreeWeaponState = { JKAMP_DedLogic.BotFreeWeaponState($0) }
 
     /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2804
-    // TODO: Port signature
+    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
     static let BotGetChatMessage: Ai_exportBotGetChatMessage = { _, _, _ in portMissing("BotGetChatMessage", source: "oracle/codemp/botlib/be_ai_chat.cpp:2804") }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:843
-    // TODO: Port signature
-    static let BotGetLevelItemGoal: Ai_exportBotGetLevelItemGoal = { _, _, _ in portMissing("BotGetLevelItemGoal", source: "oracle/codemp/botlib/be_ai_goal.cpp:843") }
+    static let BotGetLevelItemGoal: Ai_exportBotGetLevelItemGoal = { JKAMP_DedLogic.BotGetLevelItemGoal($0, text(at: $1!), BotGoal(handle: $2!)) }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:896
-    // TODO: Port signature
-    static let BotGetMapLocationGoal: Ai_exportBotGetMapLocationGoal = { _, _ in portMissing("BotGetMapLocationGoal", source: "oracle/codemp/botlib/be_ai_goal.cpp:896") }
+    static let BotGetMapLocationGoal: Ai_exportBotGetMapLocationGoal = { JKAMP_DedLogic.BotGetMapLocationGoal(text(at: $0!), BotGoal(handle: $1!)) }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:921
     static let BotGetNextCampSpotGoal: Ai_exportBotGetNextCampSpotGoal = { JKAMP_DedLogic.BotGetNextCampSpotGoal($0, BotGoal(handle: $1!)) }
@@ -697,7 +703,7 @@ private enum Ai_exportThunks {
     static let BotGetWeaponInfo: Ai_exportBotGetWeaponInfo = { JKAMP_DedLogic.BotGetWeaponInfo($0, $1, Weaponinfo(handle: $2!)) }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:663
-    // TODO: Port signature
+    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
     static let BotGoalName: Ai_exportBotGoalName = { _, _, _ in portMissing("BotGoalName", source: "oracle/codemp/botlib/be_ai_goal.cpp:663") }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:521
@@ -707,46 +713,50 @@ private enum Ai_exportThunks {
     static let BotInitMoveState: Ai_exportBotInitMoveState = { JKAMP_DedLogic.BotInitMoveState($0, BotInitmove(handle: $1!)) }
 
     /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2475
-    // TODO: Port signature
-    static let BotInitialChat: Ai_exportBotInitialChat = { _, _, _, _, _, _, _, _, _, _, _ in portMissing("BotInitialChat", source: "oracle/codemp/botlib/be_ai_chat.cpp:2475") }
+    static let BotInitialChat: Ai_exportBotInitialChat = { JKAMP_DedLogic.BotInitialChat($0, text(at: $1!), $2, $3.map(text(at:)), $4.map(text(at:)), $5.map(text(at:)), $6.map(text(at:)), $7.map(text(at:)), $8.map(text(at:)), $9.map(text(at:)), $10.map(text(at:))) }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:206
     static let BotInterbreedGoalFuzzyLogic: Ai_exportBotInterbreedGoalFuzzyLogic = { JKAMP_DedLogic.BotInterbreedGoalFuzzyLogic($0, $1, $2) }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1621
-    // TODO: Port signature
-    static let BotItemGoalInVisButNotVisible: Ai_exportBotItemGoalInVisButNotVisible = { _, _, _, _ in portMissing("BotItemGoalInVisButNotVisible", source: "oracle/codemp/botlib/be_ai_goal.cpp:1621") }
+    static let BotItemGoalInVisButNotVisible: Ai_exportBotItemGoalInVisButNotVisible = { JKAMP_DedLogic.BotItemGoalInVisButNotVisible($0, vector(at: $1!), vector(at: $2!), BotGoal(handle: $3!)) }
 
     /// Source: oracle/codemp/botlib/be_ai_char.cpp:551
-    // TODO: Port signature
+    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
     static let BotLoadCharacter: Ai_exportBotLoadCharacter = { _, _ in portMissing("BotLoadCharacter", source: "oracle/codemp/botlib/be_ai_char.cpp:551") }
 
     /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2183
-    // TODO: Port signature
+    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
     static let BotLoadChatFile: Ai_exportBotLoadChatFile = { _, _, _ in portMissing("BotLoadChatFile", source: "oracle/codemp/botlib/be_ai_chat.cpp:2183") }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1674
-    // TODO: Port signature
+    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
     static let BotLoadItemWeights: Ai_exportBotLoadItemWeights = { _, _ in portMissing("BotLoadItemWeights", source: "oracle/codemp/botlib/be_ai_goal.cpp:1674") }
 
     /// Source: oracle/codemp/botlib/be_ai_weap.cpp:347
-    // TODO: Port signature
+    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
     static let BotLoadWeaponWeights: Ai_exportBotLoadWeaponWeights = { _, _ in portMissing("BotLoadWeaponWeights", source: "oracle/codemp/botlib/be_ai_weap.cpp:347") }
 
     /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1451
-    // TODO: Port signature
+    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
     static let BotMatchVariable: Ai_exportBotMatchVariable = { _, _, _, _ in portMissing("BotMatchVariable", source: "oracle/codemp/botlib/be_ai_chat.cpp:1451") }
 
     /// Source: oracle/codemp/botlib/be_ai_move.cpp:1214
-    // TODO: Port signature
-    static let BotMoveInDirection: Ai_exportBotMoveInDirection = { _, _, _, _ in portMissing("BotMoveInDirection", source: "oracle/codemp/botlib/be_ai_move.cpp:1214") }
+    static let BotMoveInDirection: Ai_exportBotMoveInDirection = { JKAMP_DedLogic.BotMoveInDirection($0, vector(at: $1!), $2, $3) }
 
     /// Source: oracle/codemp/botlib/be_ai_move.cpp:3038
     static let BotMoveToGoal: Ai_exportBotMoveToGoal = { JKAMP_DedLogic.BotMoveToGoal(BotMoveresult(handle: $0!), $1, BotGoal(handle: $2!), $3) }
 
     /// Source: oracle/codemp/botlib/be_ai_move.cpp:826
-    // TODO: Port signature
-    static let BotMovementViewTarget: Ai_exportBotMovementViewTarget = { _, _, _, _, _ in portMissing("BotMovementViewTarget", source: "oracle/codemp/botlib/be_ai_move.cpp:826") }
+    static let BotMovementViewTarget: Ai_exportBotMovementViewTarget = { movestate, goal, travelflags, lookahead, target in
+        var value = vector(at: target!)
+        let found = JKAMP_DedLogic.BotMovementViewTarget(movestate, BotGoal(handle: goal!), travelflags, lookahead, &value)
+        let targetSlots = Slots<Float>(scalars: target!, count: 3)
+        targetSlots[0] = value[0]
+        targetSlots[1] = value[1]
+        targetSlots[2] = value[2]
+        return found
+    }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:237
     static let BotMutateGoalFuzzyLogic: Ai_exportBotMutateGoalFuzzyLogic = { JKAMP_DedLogic.BotMutateGoalFuzzyLogic($0, $1) }
@@ -758,26 +768,31 @@ private enum Ai_exportThunks {
     static let BotNumConsoleMessages: Ai_exportBotNumConsoleMessages = { JKAMP_DedLogic.BotNumConsoleMessages($0) }
 
     /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2448
-    // TODO: Port signature
+    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
     static let BotNumInitialChats: Ai_exportBotNumInitialChats = { _, _ in portMissing("BotNumInitialChats", source: "oracle/codemp/botlib/be_ai_chat.cpp:2448") }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1207
     static let BotPopGoal: Ai_exportBotPopGoal = { JKAMP_DedLogic.BotPopGoal($0) }
 
     /// Source: oracle/codemp/botlib/be_ai_move.cpp:895
-    // TODO: Port signature
-    static let BotPredictVisiblePosition: Ai_exportBotPredictVisiblePosition = { _, _, _, _, _ in portMissing("BotPredictVisiblePosition", source: "oracle/codemp/botlib/be_ai_move.cpp:895") }
+    static let BotPredictVisiblePosition: Ai_exportBotPredictVisiblePosition = { origin, areanum, goal, travelflags, target in
+        var value = vector(at: target!)
+        let found = JKAMP_DedLogic.BotPredictVisiblePosition(vector(at: origin!), areanum, BotGoal(handle: goal!), travelflags, &value)
+        let targetSlots = Slots<Float>(scalars: target!, count: 3)
+        targetSlots[0] = value[0]
+        targetSlots[1] = value[1]
+        targetSlots[2] = value[2]
+        return found
+    }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1186
     static let BotPushGoal: Ai_exportBotPushGoal = { JKAMP_DedLogic.BotPushGoal($0, BotGoal(handle: $1!)) }
 
     /// Source: oracle/codemp/botlib/be_ai_chat.cpp:309
-    // TODO: Port signature
-    static let BotQueueConsoleMessage: Ai_exportBotQueueConsoleMessage = { _, _, _ in portMissing("BotQueueConsoleMessage", source: "oracle/codemp/botlib/be_ai_chat.cpp:309") }
+    static let BotQueueConsoleMessage: Ai_exportBotQueueConsoleMessage = { JKAMP_DedLogic.BotQueueConsoleMessage($0, $1, text(at: $2!)) }
 
     /// Source: oracle/codemp/botlib/be_ai_move.cpp:284
-    // TODO: Port signature
-    static let BotReachabilityArea: Ai_exportBotReachabilityArea = { _, _ in portMissing("BotReachabilityArea", source: "oracle/codemp/botlib/be_ai_move.cpp:284") }
+    static let BotReachabilityArea: Ai_exportBotReachabilityArea = { JKAMP_DedLogic.BotReachabilityArea(vector(at: $0!), $1) }
 
     /// Source: oracle/codemp/botlib/be_ai_chat.cpp:279
     static let BotRemoveConsoleMessage: Ai_exportBotRemoveConsoleMessage = { JKAMP_DedLogic.BotRemoveConsoleMessage($0, $1) }
@@ -786,11 +801,11 @@ private enum Ai_exportThunks {
     static let BotRemoveFromAvoidGoals: Ai_exportBotRemoveFromAvoidGoals = { JKAMP_DedLogic.BotRemoveFromAvoidGoals($0, $1) }
 
     /// Source: oracle/codemp/botlib/be_ai_chat.cpp:744
-    // TODO: Port signature
+    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
     static let BotReplaceSynonyms: Ai_exportBotReplaceSynonyms = { _, _ in portMissing("BotReplaceSynonyms", source: "oracle/codemp/botlib/be_ai_chat.cpp:744") }
 
     /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2597
-    // TODO: Port signature
+    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
     static let BotReplyChat: Ai_exportBotReplyChat = { _, _, _, _, _, _, _, _, _, _, _, _ in portMissing("BotReplyChat", source: "oracle/codemp/botlib/be_ai_chat.cpp:2597") }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:687
@@ -812,8 +827,7 @@ private enum Ai_exportThunks {
     static let BotResetWeaponState: Ai_exportBotResetWeaponState = { JKAMP_DedLogic.BotResetWeaponState($0) }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:223
-    // TODO: Port signature
-    static let BotSaveGoalFuzzyLogic: Ai_exportBotSaveGoalFuzzyLogic = { _, _ in portMissing("BotSaveGoalFuzzyLogic", source: "oracle/codemp/botlib/be_ai_goal.cpp:223") }
+    static let BotSaveGoalFuzzyLogic: Ai_exportBotSaveGoalFuzzyLogic = { JKAMP_DedLogic.BotSaveGoalFuzzyLogic($0, text(at: $1!)) }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:804
     static let BotSetAvoidGoalTime: Ai_exportBotSetAvoidGoalTime = { JKAMP_DedLogic.BotSetAvoidGoalTime($0, $1, $2) }
@@ -822,12 +836,10 @@ private enum Ai_exportThunks {
     static let BotSetChatGender: Ai_exportBotSetChatGender = { JKAMP_DedLogic.BotSetChatGender($0, $1) }
 
     /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2842
-    // TODO: Port signature
-    static let BotSetChatName: Ai_exportBotSetChatName = { _, _, _ in portMissing("BotSetChatName", source: "oracle/codemp/botlib/be_ai_chat.cpp:2842") }
+    static let BotSetChatName: Ai_exportBotSetChatName = { JKAMP_DedLogic.BotSetChatName($0, text(at: $1!), $2) }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1592
-    // TODO: Port signature
-    static let BotTouchingGoal: Ai_exportBotTouchingGoal = { _, _ in portMissing("BotTouchingGoal", source: "oracle/codemp/botlib/be_ai_goal.cpp:1592") }
+    static let BotTouchingGoal: Ai_exportBotTouchingGoal = { JKAMP_DedLogic.BotTouchingGoal(vector(at: $0!), BotGoal(handle: $1!)) }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:993
     static let BotUpdateEntityItems: Ai_exportBotUpdateEntityItems = { JKAMP_DedLogic.BotUpdateEntityItems() }
@@ -845,19 +857,30 @@ private enum Ai_exportThunks {
     static let Characteristic_Integer: Ai_exportCharacteristic_Integer = { JKAMP_DedLogic.Characteristic_Integer($0, $1) }
 
     /// Source: oracle/codemp/botlib/be_ai_char.cpp:733
-    // TODO: Port signature
+    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
     static let Characteristic_String: Ai_exportCharacteristic_String = { _, _, _, _ in portMissing("Characteristic_String", source: "oracle/codemp/botlib/be_ai_char.cpp:733") }
 
     /// Source: oracle/codemp/botlib/be_ai_gen.cpp:73
-    // TODO: Port signature
-    static let GeneticParentsAndChildSelection: Ai_exportGeneticParentsAndChildSelection = { _, _, _, _, _ in portMissing("GeneticParentsAndChildSelection", source: "oracle/codemp/botlib/be_ai_gen.cpp:73") }
+    static let GeneticParentsAndChildSelection: Ai_exportGeneticParentsAndChildSelection = { numranks, ranks, parent1, parent2, child in
+        let parent1Slots = Slots<Int32>(scalars: parent1!, count: 1)
+        let parent2Slots = Slots<Int32>(scalars: parent2!, count: 1)
+        let childSlots = Slots<Int32>(scalars: child!, count: 1)
+        var parent1Value = parent1Slots[0]
+        var parent2Value = parent2Slots[0]
+        var childValue = childSlots[0]
+        let found = JKAMP_DedLogic.GeneticParentsAndChildSelection(numranks, Slots<Float>(scalars: ranks!, count: Int(numranks)), &parent1Value, &parent2Value, &childValue)
+        parent1Slots[0] = parent1Value
+        parent2Slots[0] = parent2Value
+        childSlots[0] = childValue
+        return found
+    }
 
     /// Source: oracle/codemp/botlib/be_ai_chat.cpp:447
-    // TODO: Port signature
+    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
     static let StringContains: Ai_exportStringContains = { _, _, _ in portMissing("StringContains", source: "oracle/codemp/botlib/be_ai_chat.cpp:447") }
 
     /// Source: oracle/codemp/botlib/be_ai_chat.cpp:423
-    // TODO: Port signature
+    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
     static let UnifyWhiteSpaces: Ai_exportUnifyWhiteSpaces = { _ in portMissing("UnifyWhiteSpaces", source: "oracle/codemp/botlib/be_ai_chat.cpp:423") }
 }
 
@@ -865,12 +888,10 @@ private enum Ai_exportThunks {
 /// The thunks stand in this file, because the functions they call are private to it.
 private enum BotlibExportThunks {
     /// Source: oracle/codemp/botlib/be_interface.cpp:302
-    // TODO: Port signature
-    static let BotExportTest: BotlibExportTest = { _, _, _, _ in portMissing("BotExportTest", source: "oracle/codemp/botlib/be_interface.cpp:302") }
+    static let BotExportTest: BotlibExportTest = { JKAMP_DedLogic.BotExportTest($0, text(at: $1!), vector(at: $2!), vector(at: $3!)) }
 
     /// Source: oracle/codemp/botlib/be_interface.cpp:239
-    // TODO: Port signature
-    static let Export_BotLibLoadMap: BotlibExportBotLibLoadMap = { _ in portMissing("Export_BotLibLoadMap", source: "oracle/codemp/botlib/be_interface.cpp:239") }
+    static let Export_BotLibLoadMap: BotlibExportBotLibLoadMap = { JKAMP_DedLogic.Export_BotLibLoadMap(text(at: $0!)) }
 
     /// Source: oracle/codemp/botlib/be_interface.cpp:119
     static let Export_BotLibSetup: BotlibExportBotLibSetup = { JKAMP_DedLogic.Export_BotLibSetup() }
@@ -885,27 +906,23 @@ private enum BotlibExportThunks {
     static let Export_BotLibUpdateEntity: BotlibExportBotLibUpdateEntity = { JKAMP_DedLogic.Export_BotLibUpdateEntity($0, BotEntitystate(handle: $1!)) }
 
     /// Source: oracle/codemp/botlib/be_interface.cpp:213
-    // TODO: Port signature
+    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
     static let Export_BotLibVarGet: BotlibExportBotLibVarGet = { _, _, _ in portMissing("Export_BotLibVarGet", source: "oracle/codemp/botlib/be_interface.cpp:213") }
 
     /// Source: oracle/codemp/botlib/be_interface.cpp:202
-    // TODO: Port signature
-    static let Export_BotLibVarSet: BotlibExportBotLibVarSet = { _, _ in portMissing("Export_BotLibVarSet", source: "oracle/codemp/botlib/be_interface.cpp:202") }
+    static let Export_BotLibVarSet: BotlibExportBotLibVarSet = { JKAMP_DedLogic.Export_BotLibVarSet(text(at: $0!), text(at: $1!)) }
 
     /// Source: oracle/codemp/botlib/l_precomp.cpp:1407
-    // TODO: Port signature
-    static let PC_AddGlobalDefine: BotlibExportPC_AddGlobalDefine = { _ in portMissing("PC_AddGlobalDefine", source: "oracle/codemp/botlib/l_precomp.cpp:1407") }
+    static let PC_AddGlobalDefine: BotlibExportPC_AddGlobalDefine = { JKAMP_DedLogic.PC_AddGlobalDefine(text(at: $0!)) }
 
     /// Source: oracle/codemp/botlib/l_precomp.cpp:3214
     static let PC_FreeSourceHandle: BotlibExportPC_FreeSourceHandle = { JKAMP_DedLogic.PC_FreeSourceHandle($0) }
 
     /// Source: oracle/codemp/botlib/l_precomp.cpp:3226
-    // TODO: Port signature
-    static let PC_LoadGlobalDefines: BotlibExportPC_LoadGlobalDefines = { _ in portMissing("PC_LoadGlobalDefines", source: "oracle/codemp/botlib/l_precomp.cpp:3226") }
+    static let PC_LoadGlobalDefines: BotlibExportPC_LoadGlobalDefines = { JKAMP_DedLogic.PC_LoadGlobalDefines(text(at: $0!)) }
 
     /// Source: oracle/codemp/botlib/l_precomp.cpp:3189
-    // TODO: Port signature
-    static let PC_LoadSourceHandle: BotlibExportPC_LoadSourceHandle = { _ in portMissing("PC_LoadSourceHandle", source: "oracle/codemp/botlib/l_precomp.cpp:3189") }
+    static let PC_LoadSourceHandle: BotlibExportPC_LoadSourceHandle = { JKAMP_DedLogic.PC_LoadSourceHandle(text(at: $0!)) }
 
     /// Source: oracle/codemp/botlib/l_precomp.cpp:3253
     static let PC_ReadTokenHandle: BotlibExportPC_ReadTokenHandle = { JKAMP_DedLogic.PC_ReadTokenHandle($0, JKAMP.PcToken(handle: $1!)) }
@@ -914,7 +931,7 @@ private enum BotlibExportThunks {
     static let PC_RemoveAllGlobalDefines: BotlibExportPC_RemoveAllGlobalDefines = { JKAMP_DedLogic.PC_RemoveAllGlobalDefines() }
 
     /// Source: oracle/codemp/botlib/l_precomp.cpp:3280
-    // TODO: Port signature
+    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
     static let PC_SourceFileAndLine: BotlibExportPC_SourceFileAndLine = { _, _, _ in portMissing("PC_SourceFileAndLine", source: "oracle/codemp/botlib/l_precomp.cpp:3280") }
 }
 
@@ -931,7 +948,7 @@ private enum Ea_exportThunks {
     static let EA_Attack: Ea_exportEA_Attack = { JKAMP_DedLogic.EA_Attack($0) }
 
     /// Source: oracle/codemp/botlib/be_ea.cpp:119
-    // TODO: Port signature
+    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
     static let EA_Command: Ea_exportEA_Command = { _, _ in portMissing("EA_Command", source: "oracle/codemp/botlib/be_ea.cpp:119") }
 
     /// Source: oracle/codemp/botlib/be_ea.cpp:269
@@ -956,8 +973,7 @@ private enum Ea_exportThunks {
     static let EA_Jump: Ea_exportEA_Jump = { JKAMP_DedLogic.EA_Jump($0) }
 
     /// Source: oracle/codemp/botlib/be_ea.cpp:395
-    // TODO: Port signature
-    static let EA_Move: Ea_exportEA_Move = { _, _, _ in portMissing("EA_Move", source: "oracle/codemp/botlib/be_ea.cpp:395") }
+    static let EA_Move: Ea_exportEA_Move = { JKAMP_DedLogic.EA_Move($0, vector(at: $1!), $2) }
 
     /// Source: oracle/codemp/botlib/be_ea.cpp:353
     static let EA_MoveBack: Ea_exportEA_MoveBack = { JKAMP_DedLogic.EA_MoveBack($0) }
@@ -984,12 +1000,10 @@ private enum Ea_exportThunks {
     static let EA_Respawn: Ea_exportEA_Respawn = { JKAMP_DedLogic.EA_Respawn($0) }
 
     /// Source: oracle/codemp/botlib/be_ea.cpp:35
-    // TODO: Port signature
-    static let EA_Say: Ea_exportEA_Say = { _, _ in portMissing("EA_Say", source: "oracle/codemp/botlib/be_ea.cpp:35") }
+    static let EA_Say: Ea_exportEA_Say = { JKAMP_DedLogic.EA_Say($0, text(at: $1!)) }
 
     /// Source: oracle/codemp/botlib/be_ea.cpp:45
-    // TODO: Port signature
-    static let EA_SayTeam: Ea_exportEA_SayTeam = { _, _ in portMissing("EA_SayTeam", source: "oracle/codemp/botlib/be_ea.cpp:45") }
+    static let EA_SayTeam: Ea_exportEA_SayTeam = { JKAMP_DedLogic.EA_SayTeam($0, text(at: $1!)) }
 
     /// Source: oracle/codemp/botlib/be_ea.cpp:129
     static let EA_SelectWeapon: Ea_exportEA_SelectWeapon = { JKAMP_DedLogic.EA_SelectWeapon($0, $1) }
@@ -1001,6 +1015,5 @@ private enum Ea_exportThunks {
     static let EA_Use: Ea_exportEA_Use = { JKAMP_DedLogic.EA_Use($0) }
 
     /// Source: oracle/codemp/botlib/be_ea.cpp:413
-    // TODO: Port signature
-    static let EA_View: Ea_exportEA_View = { _, _ in portMissing("EA_View", source: "oracle/codemp/botlib/be_ea.cpp:413") }
+    static let EA_View: Ea_exportEA_View = { JKAMP_DedLogic.EA_View($0, vector(at: $1!)) }
 }

@@ -323,10 +323,133 @@ func G2_DecideTraceLod(_ ghoul2: CGhoul2Info, _ useLod: Int32) -> Int32 {
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:404
 func R_TransformEachSurface(_ surface: MdxmSurface, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ TransformedVertsArray: Slots<Int32>, _ boneCache: CBoneCache?) {
-    // Port-note: Raven stores the MiniHeapAlloc pointer as an `int` in `TransformedVertsArray`, which a 64-bit address does not fit.
-    // The body also calls G2_GetVertWeights, G2_GetVertBoneIndex, and G2_GetVertBoneWeight of mdx_format.h:290 to :322, which have no Swift home.
-    // TODO: Port R_TransformEachSurface
-    portMissing("R_TransformEachSurface", source: "oracle/codemp/ghoul2/G2_misc.cpp:404")
+    var j: Int32
+    var k: Int32
+    var v: MdxmVertex
+    let TransformedVerts: Slots<Float>?
+
+    //
+    // deform the vertexes by the lerped bones
+    //
+    let piBoneReferences = surface.boneReferences
+
+    // alloc some space for the transformed verts to get put in
+    let heapBlock = G2VertSpace!.MiniHeapAlloc(surface.numVerts * 5 * 4)
+    TransformedVerts = heapBlock?.floats(at: 0)
+    // AI: Raven stores the float pointer as an `int`. The slot holds the byte offset of the block in the heap, row X8 of docket 10.
+    TransformedVertsArray[surface.thisSurfaceIndex] = heapBlock == nil ? 0 : G2VertSpace!.mHeap!.offset(of: heapBlock!)
+    if TransformedVerts == nil {
+        Com_Error(ERR_DROP, "Ran out of transform space for Ghoul2 Models. Adjust MiniHeapSize in SV_SpawnServer.\n")
+    }
+
+    // whip through and actually transform each vertex
+    let numVerts: Int32 = surface.numVerts
+    v = MdxmVertex(surface, byteOffset: surface.ofsVerts)
+    // AI: Raven takes the address of vertex `numVerts` and casts it to a texture coordinate pointer. The view is the record at that byte offset.
+    let pTexCoords = MdxmVertexTexCoord(v, byteOffset: numVerts * Int32(MdxmVertex.byteCount))
+
+    // AI: Raven hands each row of four floats of a bone to DotProduct. Each call below reads the vector accessor of the row.
+    // Raven steps `v` and indexes `pTexCoords` as pointers. Each view steps by the record size.
+
+    // optimisation issue
+    if (scale[0] != 1.0) || (scale[1] != 1.0) || (scale[2] != 1.0) {
+        j = 0
+        while j < numVerts {
+            var tempVert: vec3_t
+            var tempNormal: vec3_t
+//			mdxmWeight_t	*w;
+
+            tempVert = vec3_t()
+            tempNormal = vec3_t()
+//			w = v->weights;
+
+            let iNumWeights: Int32 = G2_GetVertWeights(v)
+
+            var fTotalWeight: Float = 0.0
+            k = 0
+            while k < iNumWeights {
+                let iBoneIndex: Int32 = G2_GetVertBoneIndex(v, k)
+                let fBoneWeight: Float = G2_GetVertBoneWeight(v, k, &fTotalWeight, iNumWeights)
+
+                let bone = EvalBoneCache(piBoneReferences[iBoneIndex], boneCache)
+
+                tempVert[0] += fBoneWeight * (_DotProduct(bone.matrix[0].vector, v.vertCoords) + bone.matrix[0][3])
+                tempVert[1] += fBoneWeight * (_DotProduct(bone.matrix[1].vector, v.vertCoords) + bone.matrix[1][3])
+                tempVert[2] += fBoneWeight * (_DotProduct(bone.matrix[2].vector, v.vertCoords) + bone.matrix[2][3])
+
+                tempNormal[0] += fBoneWeight * _DotProduct(bone.matrix[0].vector, v.normal)
+                tempNormal[1] += fBoneWeight * _DotProduct(bone.matrix[1].vector, v.normal)
+                tempNormal[2] += fBoneWeight * _DotProduct(bone.matrix[2].vector, v.normal)
+                k += 1
+            }
+            var pos: Int32 = j * 5
+
+            let texCoord = MdxmVertexTexCoord(pTexCoords, byteOffset: j * Int32(MdxmVertexTexCoord.byteCount))
+            // copy tranformed verts into temp space
+            TransformedVerts![pos] = tempVert[0] * scale[0]
+            pos += 1
+            TransformedVerts![pos] = tempVert[1] * scale[1]
+            pos += 1
+            TransformedVerts![pos] = tempVert[2] * scale[2]
+            pos += 1
+            // we will need the S & T coors too for hitlocation and hitmaterial stuff
+            TransformedVerts![pos] = texCoord.texCoords[0]
+            pos += 1
+            TransformedVerts![pos] = texCoord.texCoords[1]
+
+            v = MdxmVertex(v, byteOffset: MdxmVertex.byteCount)// = (mdxmVertex_t *)&v->weights[/*v->numWeights*/surface->maxVertBoneWeights];
+            j += 1
+        }
+    } else {
+        var pos: Int32 = 0
+        j = 0
+        while j < numVerts {
+            var tempVert: vec3_t
+            var tempNormal: vec3_t
+//			const mdxmWeight_t	*w;
+
+            tempVert = vec3_t()
+            tempNormal = vec3_t()
+//			w = v->weights;
+
+            let iNumWeights: Int32 = G2_GetVertWeights(v)
+
+            var fTotalWeight: Float = 0.0
+            k = 0
+            while k < iNumWeights {
+                let iBoneIndex: Int32 = G2_GetVertBoneIndex(v, k)
+                let fBoneWeight: Float = G2_GetVertBoneWeight(v, k, &fTotalWeight, iNumWeights)
+
+                let bone = EvalBoneCache(piBoneReferences[iBoneIndex], boneCache)
+
+                tempVert[0] += fBoneWeight * (_DotProduct(bone.matrix[0].vector, v.vertCoords) + bone.matrix[0][3])
+                tempVert[1] += fBoneWeight * (_DotProduct(bone.matrix[1].vector, v.vertCoords) + bone.matrix[1][3])
+                tempVert[2] += fBoneWeight * (_DotProduct(bone.matrix[2].vector, v.vertCoords) + bone.matrix[2][3])
+
+                tempNormal[0] += fBoneWeight * _DotProduct(bone.matrix[0].vector, v.normal)
+                tempNormal[1] += fBoneWeight * _DotProduct(bone.matrix[1].vector, v.normal)
+                tempNormal[2] += fBoneWeight * _DotProduct(bone.matrix[2].vector, v.normal)
+                k += 1
+            }
+
+            let texCoord = MdxmVertexTexCoord(pTexCoords, byteOffset: j * Int32(MdxmVertexTexCoord.byteCount))
+            // copy tranformed verts into temp space
+            TransformedVerts![pos] = tempVert[0]
+            pos += 1
+            TransformedVerts![pos] = tempVert[1]
+            pos += 1
+            TransformedVerts![pos] = tempVert[2]
+            pos += 1
+            // we will need the S & T coors too for hitlocation and hitmaterial stuff
+            TransformedVerts![pos] = texCoord.texCoords[0]
+            pos += 1
+            TransformedVerts![pos] = texCoord.texCoords[1]
+            pos += 1
+
+            v = MdxmVertex(v, byteOffset: MdxmVertex.byteCount)// = (mdxmVertex_t *)&v->weights[/*v->numWeights*/surface->maxVertBoneWeights];
+            j += 1
+        }
+    }
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:517
@@ -563,7 +686,8 @@ func G2_SegmentTriangleTest(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, 
 // now we at poly level, check each model space transformed poly against the model world transfomed ray
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:804
 func G2_GorePolys(_ surface: MdxmSurface, _ TS: CTraceSurface, _ surfInfo: MdxmSurfHierarchy) {
-    // Port-note: Raven casts the `int` of `TS.TransformedVertsArray` back to a `float *`.
+    // Raven's one call is in G2_TraceSurfaces for a trace with no collision records, which only G2API_AddSkinGore starts.
+    // No file of the server calls G2API_AddSkinGore, so the function is dead in the dedicated build.
     // TODO: Port G2_GorePolys
     portMissing("G2_GorePolys", source: "oracle/codemp/ghoul2/G2_misc.cpp:804")
 }
@@ -571,18 +695,282 @@ func G2_GorePolys(_ surface: MdxmSurface, _ TS: CTraceSurface, _ surfInfo: MdxmS
 // now we're at poly level, check each model space transformed poly against the model world transfomed ray
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1092
 private func G2_TracePolys(_ surface: MdxmSurface, _ surfInfo: MdxmSurfHierarchy, _ TS: CTraceSurface) -> Bool {
-    // Port-note: Raven casts the `int` of `TS.TransformedVertsArray` back to a `float *`.
-    // `TS.collRecMap` holds one record, and the body indexes a table.
-    // TODO: Port G2_TracePolys
-    portMissing("G2_TracePolys", source: "oracle/codemp/ghoul2/G2_misc.cpp:1092")
+    var j: Int32
+    let numTris: Int32
+
+    // whip through and actually transform each vertex
+    // AI: Raven casts the surface address plus `ofsTriangles` to a triangle pointer and indexes it. Each triangle is the view at that offset plus `j` times the record size.
+    // AI: Raven casts the `int` slot back to a float pointer.
+    // The reader gives the floats at that byte offset of the heap of `G2VertSpaceServer`, the one heap that the server hands to the transform, row X8 of docket 10.
+    let verts = G2VertSpaceServer!.mHeap!.floats(at: TS.TransformedVertsArray![surface.thisSurfaceIndex])
+    numTris = surface.numTriangles
+    j = 0
+    while j < numTris {
+        let tri = MdxmTriangle(surface, byteOffset: surface.ofsTriangles + j * Int32(MdxmTriangle.byteCount))
+        var face: Float = 0
+        var hitPoint = vec3_t()
+        var normal = vec3_t()
+        // determine actual coords for this triangle
+        let point1 = verts.suffix(from: tri.indexes[0] * 5)
+        let point2 = verts.suffix(from: tri.indexes[1] * 5)
+        let point3 = verts.suffix(from: tri.indexes[2] * 5)
+        // did we hit it?
+        var i: Int32
+        // AI: Raven hands each point as a float pointer to a vector parameter. Each call reads the vector accessor of the first three floats.
+        if G2_SegmentTriangleTest(TS.rayStart, TS.rayEnd, point1.vector, point2.vector, point3.vector, true, true, &hitPoint, &normal, &face) {	// find space in the collision records for this record
+            i = 0
+            while i < MAX_G2_COLLISIONS {
+                if TS.collRecMap![i].mEntityNum == -1 {
+                    let newCol = TS.collRecMap![i]
+                    var distVect = vec3_t()
+                    var x_pos: Float = 0
+                    var y_pos: Float = 0
+
+                    newCol.mPolyIndex = j
+                    newCol.mEntityNum = TS.entNum
+                    newCol.mSurfaceIndex = surface.thisSurfaceIndex
+                    newCol.mModelIndex = TS.modelIndex
+                    if face > 0 {
+                        newCol.mFlags = G2_FRONTFACE
+                    } else {
+                        newCol.mFlags = G2_BACKFACE
+                    }
+
+                    _VectorSubtract(hitPoint, TS.rayStart, &distVect)
+                    newCol.mDistance = VectorLength(distVect)
+
+                    // put the hit point back into world space
+                    TransformAndTranslatePoint(hitPoint, &newCol.mCollisionPosition, worldMatrix)
+
+                    // transform normal (but don't translate) into world angles
+                    TransformPoint(normal, &newCol.mCollisionNormal, worldMatrix)
+                    _ = VectorNormalize(&newCol.mCollisionNormal)
+
+                    newCol.mLocation = 0
+                    newCol.mMaterial = newCol.mLocation
+
+                    // Determine our location within the texture, and barycentric coordinates
+                    G2_BuildHitPointST(point1.vector, point1[3], point1[4],
+                                       point2.vector, point2[3], point2[4],
+                                       point3.vector, point3[3], point3[4],
+                                       hitPoint, &x_pos, &y_pos, &newCol.mBarycentricI, &newCol.mBarycentricJ)
+
+                    // Raven's block that reads the hit location and the hit material of the shader stands in a comment at G2_misc.cpp:1149.
+
+                    // exit now if we should
+                    if TS.traceFlags == G2_RETURNONHIT {
+                        TS.hitOne = true
+                        return true
+                    }
+
+                    break
+                }
+                i += 1
+            }
+            if i == MAX_G2_COLLISIONS {
+                //assert(i!=MAX_G2_COLLISIONS);		// run out of collision record space - will probalbly never happen
+                //It happens. And the assert is bugging me.
+                TS.hitOne = true	//force stop recursion
+                return true	// return true to avoid wasting further time, but no hit will result without a record
+            }
+        }
+        j += 1
+    }
+    return false
 }
 
 // now we're at poly level, check each model space transformed poly against the model world transfomed ray
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1222
 private func G2_RadiusTracePolys(_ surface: MdxmSurface, _ TS: CTraceSurface) -> Bool {
-    // Port-note: Raven casts the `int` of `TS.TransformedVertsArray` back to a `float *`.
-    // TODO: Port G2_RadiusTracePolys
-    portMissing("G2_RadiusTracePolys", source: "oracle/codemp/ghoul2/G2_misc.cpp:1222")
+    var j: Int32
+    var basis1 = vec3_t()
+    var basis2 = vec3_t()
+    var taxis = vec3_t()
+    var saxis = vec3_t()
+
+    basis2[0] = 0.0
+    basis2[1] = 0.0
+    basis2[2] = 1.0
+
+    var v3RayDir = vec3_t()
+    _VectorSubtract(TS.rayEnd, TS.rayStart, &v3RayDir)
+
+    CrossProduct(v3RayDir, basis2, &basis1)
+
+    if _DotProduct(basis1, basis1) < 0.1 {
+        basis2[0] = 0.0
+        basis2[1] = 1.0
+        basis2[2] = 0.0
+        CrossProduct(v3RayDir, basis2, &basis1)
+    }
+
+    CrossProduct(v3RayDir, basis1, &basis2)
+    // Give me a shot direction not a bunch of zeros :) -Gil
+//	assert(DotProduct(basis1,basis1)>.0001f);
+//	assert(DotProduct(basis2,basis2)>.0001f);
+
+    _ = VectorNormalize(&basis1)
+    _ = VectorNormalize(&basis2)
+
+    let c: Float = cos(0.0)//theta
+    let s: Float = sin(0.0)//theta
+
+    _VectorScale(basis1, 0.5 * c / TS.m_fRadius, &taxis)
+    _VectorMA(taxis, 0.5 * s / TS.m_fRadius, basis2, &taxis)
+
+    _VectorScale(basis1, -0.5 * s / TS.m_fRadius, &saxis)
+    _VectorMA(saxis, 0.5 * c / TS.m_fRadius, basis2, &saxis)
+
+    // AI: Raven casts the `int` slot back to a float pointer.
+    // The reader gives the floats at that byte offset of the heap of `G2VertSpaceServer`, the one heap that the server hands to the transform, row X8 of docket 10.
+    let verts = G2VertSpaceServer!.mHeap!.floats(at: TS.TransformedVertsArray![surface.thisSurfaceIndex])
+    let numVerts: Int32 = surface.numVerts
+
+    var flags: Int32 = 63
+    //rayDir/=lengthSquared(raydir);
+    let f: Float = VectorLengthSquared(v3RayDir)
+    v3RayDir[0] /= f
+    v3RayDir[1] /= f
+    v3RayDir[2] /= f
+
+    j = 0
+    while j < numVerts {
+        let pos: Int32 = j * 5
+        var delta = vec3_t()
+        delta[0] = verts[pos + 0] - TS.rayStart[0]
+        delta[1] = verts[pos + 1] - TS.rayStart[1]
+        delta[2] = verts[pos + 2] - TS.rayStart[2]
+        let s: Float = _DotProduct(delta, saxis) + 0.5
+        let t: Float = _DotProduct(delta, taxis) + 0.5
+        let u: Float = _DotProduct(delta, v3RayDir)
+        var vflags: Int32 = 0
+
+        if s > 0 {
+            vflags |= 1
+        }
+        if s < 1 {
+            vflags |= 2
+        }
+        if t > 0 {
+            vflags |= 4
+        }
+        if t < 1 {
+            vflags |= 8
+        }
+        if u > 0 {
+            vflags |= 16
+        }
+        if u < 1 {
+            vflags |= 32
+        }
+
+        vflags = (~vflags)
+        flags &= vflags
+        GoreVerts[j].flags = vflags
+        j += 1
+    }
+
+    if flags != 0 {
+        return false // completely off the gore splotch  (so presumably hit nothing? -Ste)
+    }
+    let numTris: Int32 = surface.numTriangles
+    // AI: Raven casts the surface address plus `ofsTriangles` to a triangle pointer and indexes it. Each triangle is the view at that offset plus `j` times the record size.
+
+    j = 0
+    while j < numTris {
+        let tri = MdxmTriangle(surface, byteOffset: surface.ofsTriangles + j * Int32(MdxmTriangle.byteCount))
+        assert(tri.indexes[0] >= 0 && tri.indexes[0] < numVerts)
+        assert(tri.indexes[1] >= 0 && tri.indexes[1] < numVerts)
+        assert(tri.indexes[2] >= 0 && tri.indexes[2] < numVerts)
+        flags = 63 &
+            GoreVerts[tri.indexes[0]].flags &
+            GoreVerts[tri.indexes[1]].flags &
+            GoreVerts[tri.indexes[2]].flags
+        var i: Int32
+        if flags != 0 {
+            j += 1
+            continue
+        } else {
+            // we hit a triangle, so init a collision record...
+            //
+            i = 0
+            while i < MAX_G2_COLLISIONS {
+                if TS.collRecMap![i].mEntityNum == -1 {
+                    let newCol = TS.collRecMap![i]
+
+                    newCol.mPolyIndex = j
+                    newCol.mEntityNum = TS.entNum
+                    newCol.mSurfaceIndex = surface.thisSurfaceIndex
+                    newCol.mModelIndex = TS.modelIndex
+//					if (face>0)
+//					{
+                    newCol.mFlags = G2_FRONTFACE
+//					}
+//					else
+//					{
+//						newCol.mFlags = G2_BACKFACE;
+//					}
+
+                    //get normal from triangle
+                    let A = verts.suffix(from: tri.indexes[0] * 5)
+                    let B = verts.suffix(from: tri.indexes[1] * 5)
+                    let C = verts.suffix(from: tri.indexes[2] * 5)
+                    var normal = vec3_t()
+                    var edgeAC = vec3_t()
+                    var edgeBA = vec3_t()
+
+                    // AI: Raven hands each point as a float pointer to a vector parameter. Each call reads the vector accessor of the first three floats.
+                    _VectorSubtract(C.vector, A.vector, &edgeAC)
+                    _VectorSubtract(B.vector, A.vector, &edgeBA)
+                    CrossProduct(edgeBA, edgeAC, &normal)
+
+                    // transform normal (but don't translate) into world angles
+                    TransformPoint(normal, &newCol.mCollisionNormal, worldMatrix)
+                    _ = VectorNormalize(&newCol.mCollisionNormal)
+
+                    newCol.mLocation = 0
+                    newCol.mMaterial = newCol.mLocation
+                    // exit now if we should
+                    if TS.traceFlags == G2_RETURNONHIT {
+                        TS.hitOne = true
+                        return true
+                    }
+
+                    var distVect = vec3_t()
+                    //yeah, I want the collision point. Let's work out the impact point on the triangle. -rww
+                    var hitPoint = vec3_t()
+                    let side: Float
+                    let side2: Float
+                    let dist: Float
+                    let third: Float = -(A[0] * (B[1] * C[2] - C[1] * B[2]) + B[0] * (C[1] * A[2] - A[1] * C[2]) + C[0] * (A[1] * B[2] - B[1] * A[2]))
+
+                    _VectorSubtract(TS.rayEnd, TS.rayStart, &distVect)
+                    side = normal[0] * TS.rayStart[0] + normal[1] * TS.rayStart[1] + normal[2] * TS.rayStart[2] + third
+                    side2 = normal[0] * distVect[0] + normal[1] * distVect[1] + normal[2] * distVect[2]
+                    dist = side / side2
+                    _VectorMA(TS.rayStart, -dist, distVect, &hitPoint)
+
+                    _VectorSubtract(hitPoint, TS.rayStart, &distVect)
+                    newCol.mDistance = VectorLength(distVect)
+
+                    // put the hit point back into world space
+                    TransformAndTranslatePoint(hitPoint, &newCol.mCollisionPosition, worldMatrix)
+                    newCol.mBarycentricJ = 0.0
+                    newCol.mBarycentricI = newCol.mBarycentricJ
+                    break
+                }
+                i += 1
+            }
+            if i == MAX_G2_COLLISIONS {
+                //assert(i!=MAX_G2_COLLISIONS);		// run out of collision record space - happens OFTEN
+                TS.hitOne = true	//force stop recursion
+                return true	// return true to avoid wasting further time, but no hit will result without a record
+            }
+        }
+        j += 1
+    }
+
+    return false
 }
 
 // look at a surface and then do the trace on each poly
@@ -658,10 +1046,103 @@ private func G2_TraceSurfaces(_ TS: CTraceSurface) {
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1514
 func G2_TraceModels(_ ghoul2: CGhoul2Info_v, _ rayStart: JKAShared.vec3_t, _ rayEnd: JKAShared.vec3_t, _ collRecMap: Slots<CollisionRecord>?, _ entNum: Int32, _ eG2TraceType: Int32, _ useLod: Int32, _ fRadius: Float, _ ssize: Float, _ tsize: Float, _ theta: Float, _ shader: Int32, _ gore: SkinGoreData?, _ skipIfLODNotMatch: Bool) {
-    // Port-note: The CTraceSurface initializer takes `collRecMap` as one `CollisionRecord?`.
-    // This function holds the table as `Slots<CollisionRecord>?`.
-    // TODO: Port G2_TraceModels
-    portMissing("G2_TraceModels", source: "oracle/codemp/ghoul2/G2_misc.cpp:1514")
+    var i: Int32
+    var lod: Int32
+    var skin: Skin?
+    var cust_shader: Shader?
+    var firstModelOnly = false
+
+    if cg_g2MarksAllModels == nil {
+        cg_g2MarksAllModels = Cvar_Get("cg_g2MarksAllModels", "0", 0)
+    }
+
+    if cg_g2MarksAllModels == nil
+        || cg_g2MarksAllModels!.integer == 0
+    {
+        firstModelOnly = true
+    }
+
+    // walk each possible model for this entity and try tracing against it
+    i = 0
+    while i < ghoul2.size() {
+        goreModelIndex = i
+        // don't bother with models that we don't care about.
+        if ghoul2[i].mModelindex == -1 {
+            i += 1
+            continue
+        }
+
+        // don't bother with models that we don't care about.
+        if !ghoul2[i].mValid {
+            i += 1
+            continue
+        }
+//		assert(G2_MODEL_OK(&ghoul2[i]));
+        // do we really want to collide with this object?
+        if (ghoul2[i].mFlags & GHOUL2_NOCOLLIDE) != 0 {
+            i += 1
+            continue
+        }
+
+        if ghoul2[i].mCustomShader != 0 && ghoul2[i].mCustomShader != -20 { //rww - -20 is a server instance (hack)
+            cust_shader = R_GetShaderByHandle(ghoul2[i].mCustomShader)
+        } else {
+            cust_shader = nil
+        }
+
+        // figure out the custom skin thing
+        if ghoul2[i].mSkin > 0 && ghoul2[i].mSkin < tr.numSkins {
+            skin = R_GetSkinByHandle(ghoul2[i].mSkin)
+        } else {
+            skin = nil
+        }
+
+        lod = G2_DecideTraceLod(ghoul2[i], useLod)
+        if skipIfLODNotMatch {//we only want to hit this SPECIFIC LOD...
+            if lod != useLod {//doesn't match, skip this model
+                i += 1
+                continue
+            }
+        }
+
+        //reset the quick surface override lookup
+        _ = G2_FindOverrideSurface(-1, &ghoul2[i].mSlist)
+
+        let TS = CTraceSurface(
+            ghoul2[i].mSurfaceRoot,
+            ghoul2[i].mSlist,
+            ghoul2[i].currentModel,
+            lod,
+            rayStart,
+            rayEnd,
+            collRecMap,
+            entNum,
+            i,
+            skin,
+            cust_shader,
+            ghoul2[i].mTransformedVertsArray,
+            eG2TraceType,
+            fRadius,
+            ssize,
+            tsize,
+            theta,
+            shader,
+            ghoul2[i],
+            gore
+        )
+        // start the surface recursion loop
+        G2_TraceSurfaces(TS)
+
+        // if we've hit one surface on one model, don't bother doing the rest
+        if TS.hitOne {
+            break
+        }
+        if collRecMap == nil && firstModelOnly {
+            // we don't really need to do multiple models for gore.
+            break
+        }
+        i += 1
+    }
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1613

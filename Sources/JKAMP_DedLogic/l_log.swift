@@ -19,28 +19,20 @@ private var logfile: Logfile { world.storage.l_log_logfile }
 func Log_Open(_ filename: inout JKAShared.CharBuf) {
     if LibVarValue("log", "0") == 0 { return }
     if strlen(filename) == 0 {
-        // Port-note: botimport.Print takes Raven's format as an OpaquePointer and has no arguments, so no call can pass his text, row BL1.
-        // Raven wrote: botimport.Print(PRT_MESSAGE, "openlog <filename>\n")
-        portMissing("Log_Open", source: "oracle/codemp/botlib/l_log.cpp:41")
+        botimport.runPrint(PRT_MESSAGE, "openlog <filename>\n")
         return
     } //end if
     if logfile.fp != nil {
-        // Port-note: botimport.Print takes Raven's format as an OpaquePointer and has no arguments, so no call can pass his text, row BL1.
-        // Raven wrote: botimport.Print(PRT_ERROR, "log file %s is already opened\n", logfile.filename)
-        portMissing("Log_Open", source: "oracle/codemp/botlib/l_log.cpp:41")
+        botimport.runPrint(PRT_ERROR, "log file %s is already opened\n", logfile.filename)
         return
     } //end if
     logfile.fp = FileBackend.fopen(String(filename), "wb")
     if logfile.fp == nil {
-        // Port-note: botimport.Print takes Raven's format as an OpaquePointer and has no arguments, so no call can pass his text, row BL1.
-        // Raven wrote: botimport.Print(PRT_ERROR, "can't open the log file %s\n", filename)
-        portMissing("Log_Open", source: "oracle/codemp/botlib/l_log.cpp:41")
+        botimport.runPrint(PRT_ERROR, "can't open the log file %s\n", String(filename))
         return
     } //end if
     strncpy(&logfile.filenameBuffer, String(filename), MAX_LOGFILENAMESIZE)
-    // Port-note: botimport.Print takes Raven's format as an OpaquePointer and has no arguments, so no call can pass his text, row BL1.
-    // Raven wrote: botimport.Print(PRT_MESSAGE, "Opened log %s\n", logfile.filename)
-    portMissing("Log_Open", source: "oracle/codemp/botlib/l_log.cpp:41")
+    botimport.runPrint(PRT_MESSAGE, "Opened log %s\n", logfile.filename)
 }
 
 //===========================================================================
@@ -53,15 +45,11 @@ func Log_Open(_ filename: inout JKAShared.CharBuf) {
 func Log_Close() {
     if logfile.fp == nil { return }
     if FileBackend.fclose(logfile.fp) != 0 {
-        // Port-note: botimport.Print takes Raven's format as an OpaquePointer and has no arguments, so no call can pass his text, row BL1.
-        // Raven wrote: botimport.Print(PRT_ERROR, "can't close log file %s\n", logfile.filename)
-        portMissing("Log_Close", source: "oracle/codemp/botlib/l_log.cpp:69")
+        botimport.runPrint(PRT_ERROR, "can't close log file %s\n", logfile.filename)
         return
     } //end if
     logfile.fp = nil
-    // Port-note: botimport.Print takes Raven's format as an OpaquePointer and has no arguments, so no call can pass his text, row BL1.
-    // Raven wrote: botimport.Print(PRT_MESSAGE, "Closed log %s\n", logfile.filename)
-    portMissing("Log_Close", source: "oracle/codemp/botlib/l_log.cpp:69")
+    botimport.runPrint(PRT_MESSAGE, "Closed log %s\n", logfile.filename)
 }
 
 //===========================================================================
@@ -82,11 +70,11 @@ func Log_Shutdown() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_log.cpp:96
-func Log_Write(_ fmt: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg...) {
+func Log_Write(_ fmt: String, _ args: any JKAShared.FormatArg...) {
     if logfile.fp == nil { return }
-    // Port-note: FileBackend has no vfprintf, so no call writes the formatted text to the stream, row BL2.
-    // Raven wrote: vfprintf(logfile.fp, fmt, ap)
-    portMissing("Log_Write", source: "oracle/codemp/botlib/l_log.cpp:96")
+    // AI: Raven prints with vfprintf to the stream. The text formats with JKAShared.format, and FileBackend.fwrite writes its bytes.
+    let text = CharBuf(JKAShared.format(fmt, args))
+    _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), logfile.fp)
     //fprintf(logfile.fp, "\r\n");
     FileBackend.fflush(logfile.fp)
 }
@@ -98,13 +86,14 @@ func Log_Write(_ fmt: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg..
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_log.cpp:113
-func Log_WriteTimeStamped(_ fmt: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg...) {
+func Log_WriteTimeStamped(_ fmt: String, _ args: any JKAShared.FormatArg...) {
     if logfile.fp == nil { return }
-    // Port-note: FileBackend has no fprintf or vfprintf, so no call writes the formatted text to the stream, row BL2.
+    // Port-note: JKAShared.format has no `0` flag, so `%02d` pads with spaces where Raven's fprintf pads with zeros.
     // Raven wrote: fprintf(logfile.fp, "%d   %02d:%02d:%02d:%02d   ", logfile.numwrites, (int) (botlibglobals.time / 60 / 60), (int) (botlibglobals.time / 60), (int) (botlibglobals.time), (int) ((int) (botlibglobals.time * 100)) - ((int) botlibglobals.time) * 100)
-    // Raven wrote: vfprintf(logfile.fp, fmt, ap)
-    // Raven wrote: fprintf(logfile.fp, "\r\n")
     portMissing("Log_WriteTimeStamped", source: "oracle/codemp/botlib/l_log.cpp:113")
+    // AI: Raven prints with vfprintf and fprintf to the stream. The text formats with JKAShared.format, and FileBackend.fwrite writes its bytes.
+    let text = CharBuf(JKAShared.format(fmt, args) + "\r\n")
+    _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), logfile.fp)
     logfile.numwrites += 1
     FileBackend.fflush(logfile.fp)
 }

@@ -70,9 +70,7 @@ func SourceError(_ source: Source, _ str: String, _ args: any JKAShared.FormatAr
     var text = CharBuf(1024)
 
     strcpy(&text, JKAShared.format(str, args))
-    // Port-note: botimport.Print takes Raven's format as an OpaquePointer and has no arguments, so no call can pass his text, row BL1.
-    // Raven wrote: botimport.Print(PRT_ERROR, "file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text);
-    portMissing("SourceError", source: "oracle/codemp/botlib/l_precomp.cpp:117")
+    botimport.runPrint(PRT_ERROR, "file %s, line %d: %s\n", source.scriptstack!.filename, source.scriptstack!.line, String(text))
 } //end of the function SourceError
 
 //===========================================================================
@@ -86,9 +84,7 @@ func SourceWarning(_ source: Source, _ str: String, _ args: any JKAShared.Format
     var text = CharBuf(1024)
 
     strcpy(&text, JKAShared.format(str, args))
-    // Port-note: botimport.Print takes Raven's format as an OpaquePointer and has no arguments, so no call can pass his text, row BL1.
-    // Raven wrote: botimport.Print(PRT_WARNING, "file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text);
-    portMissing("SourceWarning", source: "oracle/codemp/botlib/l_precomp.cpp:141")
+    botimport.runPrint(PRT_WARNING, "file %s, line %d: %s\n", source.scriptstack!.filename, source.scriptstack!.line, String(text))
 } //end of the function ScriptWarning
 
 //============================================================================
@@ -282,10 +278,95 @@ func PC_UnreadSourceToken(_ source: Source, _ token: Token) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:351
-func PC_ReadDefineParms(_ source: Source, _ define: Define, _ parms: inout Token?, _ maxparms: Int32) -> Int32 {
-    // Port-note: The signature takes `parms` as one `inout Token?`, and Raven fills the array `token_t **parms` by index, row BL8.
-    // TODO: Port PC_ReadDefineParms
-    portMissing("PC_ReadDefineParms", source: "oracle/codemp/botlib/l_precomp.cpp:351")
+func PC_ReadDefineParms(_ source: Source, _ define: Define, _ parms: inout [Token?], _ maxparms: Int32) -> Int32 {
+    Token.scratch { token -> Int32 in
+        var t: Token?, last: Token?
+        var i: Int32, done: Int32, lastcomma: Int32, numparms: Int32, indent: Int32
+
+        if PC_ReadSourceToken(source, token) == 0 {
+            SourceError(source, "define %s missing parms", define.name)
+            return 0
+        } //end if
+        //
+        if define.numparms > maxparms {
+            SourceError(source, "define with more than %d parameters", maxparms)
+            return 0
+        } //end if
+        //
+        i = 0
+        while i < define.numparms {
+            parms[i] = nil
+            i += 1
+        }
+        //if no leading "("
+        if strcmp(token.string, "(") != 0 {
+            PC_UnreadSourceToken(source, token)
+            SourceError(source, "define %s missing parms", define.name)
+            return 0
+        } //end if
+        //read the define parameters
+        done = 0
+        numparms = 0
+        indent = 0
+        while done == 0 {
+            if numparms >= maxparms {
+                SourceError(source, "define %s with too many parms", define.name)
+                return 0
+            } //end if
+            if numparms >= define.numparms {
+                SourceWarning(source, "define %s has too many parms", define.name)
+                return 0
+            } //end if
+            parms[numparms] = nil
+            lastcomma = 1
+            last = nil
+            while done == 0 {
+                //
+                if PC_ReadSourceToken(source, token) == 0 {
+                    SourceError(source, "define %s incomplete", define.name)
+                    return 0
+                } //end if
+                //
+                if strcmp(token.string, ",") == 0 {
+                    if indent <= 0 {
+                        if lastcomma != 0 { SourceWarning(source, "too many comma's") }
+                        lastcomma = 1
+                        break
+                    } //end if
+                } //end if
+                lastcomma = 0
+                //
+                if strcmp(token.string, "(") == 0 {
+                    indent += 1
+                    continue
+                } //end if
+                else if strcmp(token.string, ")") == 0 {
+                    indent -= 1
+                    if indent <= 0 {
+                        if parms[define.numparms - 1] == nil {
+                            SourceWarning(source, "too few define parms")
+                        } //end if
+                        done = 1
+                        break
+                    } //end if
+                } //end if
+                //
+                if numparms < define.numparms {
+                    //
+                    t = PC_CopyToken(token)
+                    t!.next = nil
+                    if last != nil {
+                        last!.next = t
+                    } else {
+                        parms[numparms] = t
+                    }
+                    last = t
+                } //end if
+            } //end while
+            numparms += 1
+        } //end for
+        return 1
+    }
 }
 
 //============================================================================
@@ -295,7 +376,7 @@ func PC_ReadDefineParms(_ source: Source, _ define: Define, _ parms: inout Token
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:450
-func PC_StringizeTokens(_ tokens: Token, _ token: Token) -> Int32 {
+func PC_StringizeTokens(_ tokens: Token?, _ token: Token) -> Int32 {
     var t: Token?
 
     token.type = TT_STRING
@@ -306,14 +387,10 @@ func PC_StringizeTokens(_ tokens: Token, _ token: Token) -> Int32 {
     strcat(&token.stringBuffer, "\"")
     t = tokens
     while t != nil {
-        // Port-note: Raven's strncat writes its NUL one byte past `string` when the text fills the field, rule 19.
-        // Q_strcat stops one byte short of the end, and every other case gives the same text.
-        Q_strcat(&token.stringBuffer, MAX_TOKEN, t!.string)
+        strncat(&token.stringBuffer, t!.string, MAX_TOKEN - strlen(token.string))
         t = t!.next
     } //end for
-    // Port-note: Raven's strncat writes its NUL one byte past `string` when the text fills the field, rule 19.
-    // Q_strcat stops one byte short of the end, and every other case gives the same text.
-    Q_strcat(&token.stringBuffer, MAX_TOKEN, "\"")
+    strncat(&token.stringBuffer, "\"", MAX_TOKEN - strlen(token.string))
     return 1
 } //end of the function PC_StringizeTokens
 
@@ -349,7 +426,7 @@ func PC_MergeTokens(_ t1: Token, _ t2: Token) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:516
-func PC_PrintDefineHashTable(_ definehash: inout Define?) {
+func PC_PrintDefineHashTable(_ definehash: Slots<Define?>) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     // TODO: Port PC_PrintDefineHashTable
     portMissing("PC_PrintDefineHashTable", source: "oracle/codemp/botlib/l_precomp.cpp:516")
@@ -379,10 +456,24 @@ func PC_NameHash(_ name: String) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:559
-func PC_AddDefineToHash(_ define: Define, _ definehash: inout Define?) {
-    // Port-note: The signature takes `definehash` as one `inout Define?`, and Raven sets it to `globaldefines` and indexes the table by the hash, row BL6.
-    // TODO: Port PC_AddDefineToHash
-    portMissing("PC_AddDefineToHash", source: "oracle/codemp/botlib/l_precomp.cpp:559")
+func PC_AddDefineToHash(_ define: Define, _ definehash: Slots<Define?>) {
+    var hash: Int32
+    // Raven writes his own `definehash` parameter, so the body writes a local of the same name.
+    var definehash = definehash
+
+
+    if addGlobalDefine {
+        definehash = globaldefines!
+        define.flags |= DEFINE_GLOBAL
+    }
+
+    hash = PC_NameHash(define.name)
+    define.hashnext = definehash[hash]
+    definehash[hash] = define
+
+    if addGlobalDefine {
+        define.globalnext = define.hashnext
+    }
 }
 
 //============================================================================
@@ -392,10 +483,17 @@ func PC_AddDefineToHash(_ define: Define, _ definehash: inout Define?) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:585
-func PC_FindHashedDefine(_ definehash: inout Define?, _ name: String) -> Define? {
-    // Port-note: The signature takes `definehash` as one `inout Define?`, and Raven indexes the table by the hash, row BL6.
-    // TODO: Port PC_FindHashedDefine
-    portMissing("PC_FindHashedDefine", source: "oracle/codemp/botlib/l_precomp.cpp:585")
+func PC_FindHashedDefine(_ definehash: Slots<Define?>, _ name: String) -> Define? {
+    var d: Define?
+    var hash: Int32
+
+    hash = PC_NameHash(name)
+    d = definehash[hash]
+    while d != nil {
+        if strcmp(d!.name, name) == 0 { return d }
+        d = d!.hashnext
+    } //end for
+    return nil
 }
 
 //============================================================================
@@ -483,6 +581,8 @@ func PC_AddBuiltinDefines(_ source: Source) {
 /// Source: oracle/codemp/botlib/l_precomp.cpp:705
 func PC_ExpandBuiltinDefine(_ source: Source, _ deftoken: Token, _ define: Define, _ firsttoken: inout Token?, _ lasttoken: inout Token?) -> Int32 {
     let token: Token
+    var t: UInt32 //	time_t t; //to prevent LCC warning
+    var curtime: CharBuf
 
     token = PC_CopyToken(deftoken)!
     switch define.builtin {
@@ -504,14 +604,30 @@ func PC_ExpandBuiltinDefine(_ source: Source, _ deftoken: Token, _ define: Defin
         lasttoken = token
 
     case BUILTIN_DATE:
-        // Port-note: The C library `time` and `ctime` have no port, and ctime returns a `char *` that a logic body cannot hold under rule 11, row BL14.
-        // Raven wrote: t = time(NULL); curtime = ctime((const long *)&t); strcpy(token->string, "\""); strncat(token->string, curtime+4, 7); strncat(token->string+7, curtime+20, 4); strcat(token->string, "\""); free(curtime); token->type = TT_NAME; token->subtype = strlen(token->string); *firsttoken = token; *lasttoken = token;
-        portMissing("PC_ExpandBuiltinDefine", source: "oracle/codemp/botlib/l_precomp.cpp:705")
+        t = SysBackend.time()
+        curtime = CharBuf(SysBackend.ctime(t))
+        strcpy(&token.stringBuffer, "\"")
+        strncat(&token.stringBuffer, String(curtime[4...]), 7)
+        // AI: Raven appends from `token->string+7`. The text holds no NUL before that offset, so the append from the start writes the same bytes.
+        strncat(&token.stringBuffer, String(curtime[20...]), 4)
+        strcat(&token.stringBuffer, "\"")
+        // AI: Raven frees the static buffer of ctime, which C leaves undefined, rule 19. The free drops, because the text is a Swift value.
+        token.type = TT_NAME
+        token.subtype = strlen(token.string)
+        firsttoken = token
+        lasttoken = token
 
     case BUILTIN_TIME:
-        // Port-note: The C library `time` and `ctime` have no port, and ctime returns a `char *` that a logic body cannot hold under rule 11, row BL14.
-        // Raven wrote: t = time(NULL); curtime = ctime((const long *)&t); strcpy(token->string, "\""); strncat(token->string, curtime+11, 8); strcat(token->string, "\""); free(curtime); token->type = TT_NAME; token->subtype = strlen(token->string); *firsttoken = token; *lasttoken = token;
-        portMissing("PC_ExpandBuiltinDefine", source: "oracle/codemp/botlib/l_precomp.cpp:705")
+        t = SysBackend.time()
+        curtime = CharBuf(SysBackend.ctime(t))
+        strcpy(&token.stringBuffer, "\"")
+        strncat(&token.stringBuffer, String(curtime[11...]), 8)
+        strcat(&token.stringBuffer, "\"")
+        // AI: Raven frees the static buffer of ctime, which C leaves undefined, rule 19. The free drops, because the text is a Swift value.
+        token.type = TT_NAME
+        token.subtype = strlen(token.string)
+        firsttoken = token
+        lasttoken = token
 
     default:
         firsttoken = nil
@@ -528,7 +644,7 @@ func PC_ExpandBuiltinDefine(_ source: Source, _ deftoken: Token, _ define: Defin
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:782
 func PC_ExpandDefine(_ source: Source, _ deftoken: Token, _ define: Define, _ firsttoken: inout Token?, _ lasttoken: inout Token?) -> Int32 {
-    let parms = [Token?](repeating: nil, count: Int(MAX_DEFINEPARMS))
+    var parms = [Token?](repeating: nil, count: Int(MAX_DEFINEPARMS))
     var dt: Token?, pt: Token?, t: Token?
     var t1: Token?, t2: Token?, first: Token?, last: Token?, nextpt: Token?
     var parmnum: Int32, i: Int32
@@ -539,9 +655,7 @@ func PC_ExpandDefine(_ source: Source, _ deftoken: Token, _ define: Define, _ fi
     } //end if
     //if the define has parameters
     if define.numparms != 0 {
-        // Port-note: PC_ReadDefineParms takes `parms` as one `inout Token?`, and Raven passes the array `token_t *parms[MAX_DEFINEPARMS]`, row BL8.
-        // Raven wrote: if (!PC_ReadDefineParms(source, define, parms, MAX_DEFINEPARMS)) return qfalse;
-        portMissing("PC_ExpandDefine", source: "oracle/codemp/botlib/l_precomp.cpp:782")
+        if PC_ReadDefineParms(source, define, &parms, MAX_DEFINEPARMS) == 0 { return 0 }
     } //end if
     //empty list at first
     first = nil
@@ -576,9 +690,16 @@ func PC_ExpandDefine(_ source: Source, _ deftoken: Token, _ define: Define, _ fi
                     //step over the stringizing operator
                     dt = dt!.next
                     //stringize the define parameter tokens
-                    // Port-note: Raven passes a NULL list for a parameter with no tokens, and PC_StringizeTokens takes a view that is never nil, row BL13.
-                    // Raven wrote: if (!PC_StringizeTokens(parms[parmnum], &token)) { SourceError(source, "can't stringize tokens"); return qfalse; } t = PC_CopyToken(&token);
-                    portMissing("PC_ExpandDefine", source: "oracle/codemp/botlib/l_precomp.cpp:782")
+                    // Raven's record `token` serves only this arm, so the scratch covers the arm.
+                    let stringized = Token.scratch { token -> Bool in
+                        if PC_StringizeTokens(parms[parmnum], token) == 0 {
+                            SourceError(source, "can't stringize tokens")
+                            return false
+                        } //end if
+                        t = PC_CopyToken(token)
+                        return true
+                    }
+                    if !stringized { return 0 }
                 } //end if
                 else {
                     SourceWarning(source, "stringizing operator without define parameter")
@@ -729,9 +850,7 @@ func PC_Directive_include(_ source: Source) -> Int32 {
                     break
                 } //end if
                 if token.type == TT_PUNCTUATION && token.stringBuffer[0] == Int32(ascii: ">") { break }
-                // Port-note: Raven's strncat writes past `path` when the text passes MAX_PATH, rule 19.
-                // Q_strcat stops at the end of the buffer, and every other case gives the same text.
-                Q_strcat(&path, MAX_PATH, token.string)
+                strncat(&path, token.string, MAX_PATH)
             } //end while
             if token.stringBuffer[0] != Int32(ascii: ">") {
                 SourceWarning(source, "#include missing trailing >")
@@ -878,9 +997,7 @@ func PC_Directive_define(_ source: Source) -> Int32 {
             return 0
         } //end if
         //check if the define already exists
-        // Port-note: PC_FindHashedDefine takes `definehash` as one `inout Define?`, and Raven passes the table `source->definehash`, row BL6.
-        // Raven wrote: define = PC_FindHashedDefine(source->definehash, token.string);
-        portMissing("PC_Directive_define", source: "oracle/codemp/botlib/l_precomp.cpp:1180")
+        define = PC_FindHashedDefine(source.definehash!, token.string)
         if define != nil {
             if (define!.flags & DEFINE_FIXED) != 0 {
                 SourceError(source, "can't redefine %s", token.string)
@@ -891,9 +1008,7 @@ func PC_Directive_define(_ source: Source) -> Int32 {
             PC_UnreadSourceToken(source, token)
             if PC_Directive_undef(source) == 0 { return 0 }
             //if the define was not removed (define->flags & DEFINE_FIXED)
-            // Port-note: PC_FindHashedDefine takes `definehash` as one `inout Define?`, and Raven passes the table `source->definehash`, row BL6.
-            // Raven wrote: define = PC_FindHashedDefine(source->definehash, token.string);
-            portMissing("PC_Directive_define", source: "oracle/codemp/botlib/l_precomp.cpp:1180")
+            define = PC_FindHashedDefine(source.definehash!, token.string)
         } //end if
         //allocate define
         // AI: Raven points the name at the bytes after the record. The setter keeps the text in the string pool, so those bytes stay unused.
@@ -901,9 +1016,7 @@ func PC_Directive_define(_ source: Source) -> Int32 {
         define!.clear()
         define!.name = token.string
         //add the define to the source
-        // Port-note: PC_AddDefineToHash takes `definehash` as one `inout Define?`, and Raven passes the table `source->definehash`, row BL6.
-        // Raven wrote: PC_AddDefineToHash(define, source->definehash);
-        portMissing("PC_Directive_define", source: "oracle/codemp/botlib/l_precomp.cpp:1180")
+        PC_AddDefineToHash(define!, source.definehash!)
         //if nothing is defined, just return
         if PC_ReadLine(source, token) == 0 { return 1 }
         //if it is a define with parameters
@@ -1081,9 +1194,7 @@ func PC_AddGlobalDefinesToSource(_ source: Source) {
         define = globaldefines![i]
         while define != nil {
             define!.hashnext = nil
-            // Port-note: PC_AddDefineToHash takes `definehash` as one `inout Define?`, and Raven passes the table `source->definehash`, row BL6.
-            // Raven wrote: PC_AddDefineToHash(define, source->definehash);
-            portMissing("PC_AddGlobalDefinesToSource", source: "oracle/codemp/botlib/l_precomp.cpp:1522")
+            PC_AddDefineToHash(define!, source.definehash!)
 
             define = define!.globalnext
         }
@@ -1112,9 +1223,7 @@ func PC_Directive_if_def(_ source: Source, _ type: Int32) -> Int32 {
             SourceError(source, "expected name after #ifdef, found %s", token.string)
             return 0
         } //end if
-        // Port-note: PC_FindHashedDefine takes `definehash` as one `inout Define?`, and Raven passes the table `source->definehash`, row BL6.
-        // Raven wrote: d = PC_FindHashedDefine(source->definehash, token.string);
-        portMissing("PC_Directive_if_def", source: "oracle/codemp/botlib/l_precomp.cpp:1558")
+        d = PC_FindHashedDefine(source.definehash!, token.string)
         skip = ((type == INDENT_IFDEF) == (d == nil)) ? 1 : 0
         PC_PushIndent(source, type, skip)
         return 1
@@ -1220,12 +1329,372 @@ func PC_OperatorPriority(_ op: Int32) -> Int32 {
 } //end of the function PC_OperatorPriority
 
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1730
-// TODO: Port signature
-// Raven wrote: int PC_EvaluateTokens(source_t *source, token_t *tokens, signed long int *intvalue, double *floatvalue, int integer)
-// No table row for `double * floatvalue`.
-func PC_EvaluateTokens() -> Never {
-    // TODO: Port PC_EvaluateTokens
-    portMissing("PC_EvaluateTokens", source: "oracle/codemp/botlib/l_precomp.cpp:1730")
+func PC_EvaluateTokens(_ source: Source, _ tokens: Token, _ intvalue: UnsafeMutablePointer<Int32>?, _ floatvalue: UnsafeMutablePointer<Double>?, _ integer: Int32) -> Int32 {
+    // Raven's `operator_heap` and `value_heap` live to the end of the function, so the blocks are the closures.
+    return Operator.scratch(count: Int(MAX_OPERATORS)) { operator_heap -> Int32 in
+        Value.scratch(count: Int(MAX_VALUES)) { value_heap -> Int32 in
+            var o: Operator?, firstoperator: Operator?, lastoperator: Operator?
+            var v: Value?, firstvalue: Value?, lastvalue: Value?, v1: Value, v2: Value?
+            var t: Token?
+            var brace: Bool = false
+            var parentheses: Int32 = 0
+            var error: Int32 = 0
+            var lastwasvalue: Int32 = 0
+            var negativevalue: Int32 = 0
+            var questmarkintvalue: Int32 = 0
+            var questmarkfloatvalue: Double = 0
+            var gotquestmarkvalue: Bool = false
+            //
+            var numoperators: Int32 = 0
+            var numvalues: Int32 = 0
+
+            lastoperator = nil
+            firstoperator = lastoperator
+            lastvalue = nil
+            firstvalue = lastvalue
+            if intvalue != nil { intvalue!.pointee = 0 }
+            if floatvalue != nil { floatvalue!.pointee = 0 }
+            t = tokens
+            while t != nil {
+                switch t!.type {
+                case TT_NAME:
+                    if lastwasvalue != 0 || negativevalue != 0 {
+                        SourceError(source, "syntax error in #if/#elif")
+                        error = 1
+                        break
+                    } //end if
+                    if strcmp(t!.string, "defined") != 0 {
+                        SourceError(source, "undefined name %s in #if/#elif", t!.string)
+                        error = 1
+                        break
+                    } //end if
+                    t = t!.next
+                    if strcmp(t!.string, "(") == 0 {
+                        brace = true
+                        t = t!.next
+                    } //end if
+                    if t == nil || t!.type != TT_NAME {
+                        SourceError(source, "defined without name in #if/#elif")
+                        error = 1
+                        break
+                    } //end if
+                    //v = (value_t *) GetClearedMemory(sizeof(value_t));
+                    // AllocValue(v) of l_precomp.cpp:1710 expands here.
+                    if numvalues >= MAX_VALUES {
+                        SourceError(source, "out of value space\n")
+                        error = 1
+                        break
+                    } else {
+                        v = value_heap[numvalues]
+                        numvalues += 1
+                    }
+                    if PC_FindHashedDefine(source.definehash!, t!.string) != nil {
+                        v!.intvalue = 1
+                        v!.floatvalue = 1
+                    } //end if
+                    else {
+                        v!.intvalue = 0
+                        v!.floatvalue = 0
+                    } //end else
+                    v!.parentheses = parentheses
+                    v!.next = nil
+                    v!.prev = lastvalue
+                    if lastvalue != nil { lastvalue!.next = v } else { firstvalue = v }
+                    lastvalue = v
+                    if brace {
+                        t = t!.next
+                        if t == nil || strcmp(t!.string, ")") != 0 {
+                            SourceError(source, "defined without ) in #if/#elif")
+                            error = 1
+                            break
+                        } //end if
+                    } //end if
+                    brace = false
+                    // defined() creates a value
+                    lastwasvalue = 1
+
+                case TT_NUMBER:
+                    if lastwasvalue != 0 {
+                        SourceError(source, "syntax error in #if/#elif")
+                        error = 1
+                        break
+                    } //end if
+                    //v = (value_t *) GetClearedMemory(sizeof(value_t));
+                    // AllocValue(v) of l_precomp.cpp:1710 expands here.
+                    if numvalues >= MAX_VALUES {
+                        SourceError(source, "out of value space\n")
+                        error = 1
+                        break
+                    } else {
+                        v = value_heap[numvalues]
+                        numvalues += 1
+                    }
+                    if negativevalue != 0 {
+                        v!.intvalue = -Int32(bitPattern: t!.intvalue)
+                        v!.floatvalue = -t!.floatvalue
+                    } //end if
+                    else {
+                        // C converts the `unsigned long` to the `signed long` at the store, with the same bits.
+                        v!.intvalue = Int32(bitPattern: t!.intvalue)
+                        v!.floatvalue = t!.floatvalue
+                    } //end else
+                    v!.parentheses = parentheses
+                    v!.next = nil
+                    v!.prev = lastvalue
+                    if lastvalue != nil { lastvalue!.next = v } else { firstvalue = v }
+                    lastvalue = v
+                    //last token was a value
+                    lastwasvalue = 1
+                    //
+                    negativevalue = 0
+
+                case TT_PUNCTUATION:
+                    if negativevalue != 0 {
+                        SourceError(source, "misplaced minus sign in #if/#elif")
+                        error = 1
+                        break
+                    } //end if
+                    if t!.subtype == P_PARENTHESESOPEN {
+                        parentheses += 1
+                        break
+                    } //end if
+                    else if t!.subtype == P_PARENTHESESCLOSE {
+                        parentheses -= 1
+                        if parentheses < 0 {
+                            SourceError(source, "too many ) in #if/#elsif")
+                            error = 1
+                        } //end if
+                        break
+                    } //end else if
+                    //check for invalid operators on floating point values
+                    if integer == 0 {
+                        if t!.subtype == P_BIN_NOT || t!.subtype == P_MOD ||
+                            t!.subtype == P_RSHIFT || t!.subtype == P_LSHIFT ||
+                            t!.subtype == P_BIN_AND || t!.subtype == P_BIN_OR ||
+                            t!.subtype == P_BIN_XOR {
+                            SourceError(source, "illigal operator %s on floating point operands\n", t!.string)
+                            error = 1
+                            break
+                        } //end if
+                    } //end if
+                    switch t!.subtype {
+                    case P_LOGIC_NOT, P_BIN_NOT:
+                        if lastwasvalue != 0 {
+                            SourceError(source, "! or ~ after value in #if/#elif")
+                            error = 1
+                            break
+                        } //end if
+
+                    case P_INC, P_DEC:
+                        SourceError(source, "++ or -- used in #if/#elif")
+
+                    case P_SUB:
+                        if lastwasvalue == 0 {
+                            negativevalue = 1
+                            break
+                        } //end if
+                        fallthrough
+
+                    case P_MUL, P_DIV, P_MOD, P_ADD,
+                         P_LOGIC_AND, P_LOGIC_OR, P_LOGIC_GEQ, P_LOGIC_LEQ, P_LOGIC_EQ, P_LOGIC_UNEQ,
+                         P_LOGIC_GREATER, P_LOGIC_LESS,
+                         P_RSHIFT, P_LSHIFT,
+                         P_BIN_AND, P_BIN_OR, P_BIN_XOR,
+                         P_COLON, P_QUESTIONMARK:
+                        if lastwasvalue == 0 {
+                            SourceError(source, "operator %s after operator in #if/#elif", t!.string)
+                            error = 1
+                            break
+                        } //end if
+
+                    default:
+                        SourceError(source, "invalid operator %s in #if/#elif", t!.string)
+                        error = 1
+                    } //end switch
+                    if error == 0 && negativevalue == 0 {
+                        //o = (operator_t *) GetClearedMemory(sizeof(operator_t));
+                        // AllocOperator(o) of l_precomp.cpp:1720 expands here.
+                        if numoperators >= MAX_OPERATORS {
+                            SourceError(source, "out of operator space\n")
+                            error = 1
+                            break
+                        } else {
+                            o = operator_heap[numoperators]
+                            numoperators += 1
+                        }
+                        o!.mOperator = t!.subtype
+                        o!.priority = PC_OperatorPriority(t!.subtype)
+                        o!.parentheses = parentheses
+                        o!.next = nil
+                        o!.prev = lastoperator
+                        if lastoperator != nil { lastoperator!.next = o } else { firstoperator = o }
+                        lastoperator = o
+                        lastwasvalue = 0
+                    } //end if
+
+                default:
+                    SourceError(source, "unknown %s in #if/#elif", t!.string)
+                    error = 1
+                } //end switch
+                if error != 0 { break }
+                t = t!.next
+            } //end for
+            if error == 0 {
+                if lastwasvalue == 0 {
+                    SourceError(source, "trailing operator in #if/#elif")
+                    error = 1
+                } //end if
+                else if parentheses != 0 {
+                    SourceError(source, "too many ( in #if/#elif")
+                    error = 1
+                } //end else if
+            } //end if
+            //
+            gotquestmarkvalue = false
+            questmarkintvalue = 0
+            questmarkfloatvalue = 0
+            //while there are operators
+            while error == 0 && firstoperator != nil {
+                v = firstvalue
+                o = firstoperator
+                while o!.next != nil {
+                    //if the current operator is nested deeper in parentheses
+                    //than the next operator
+                    if o!.parentheses > o!.next!.parentheses { break }
+                    //if the current and next operator are nested equally deep in parentheses
+                    if o!.parentheses == o!.next!.parentheses {
+                        //if the priority of the current operator is equal or higher
+                        //than the priority of the next operator
+                        if o!.priority >= o!.next!.priority { break }
+                    } //end if
+                    //if the arity of the operator isn't equal to 1
+                    if o!.mOperator != P_LOGIC_NOT && o!.mOperator != P_BIN_NOT { v = v!.next }
+                    //if there's no value or no next value
+                    if v == nil {
+                        SourceError(source, "mising values in #if/#elif")
+                        error = 1
+                        break
+                    } //end if
+                    o = o!.next
+                } //end for
+                if error != 0 { break }
+                v1 = v!
+                v2 = v!.next
+                switch o!.mOperator {
+                case P_LOGIC_NOT:
+                    v1.intvalue = v1.intvalue == 0 ? 1 : 0
+                    v1.floatvalue = v1.floatvalue == 0 ? 1 : 0
+                case P_BIN_NOT:
+                    v1.intvalue = ~v1.intvalue
+                case P_MUL:
+                    v1.intvalue *= v2!.intvalue
+                    v1.floatvalue *= v2!.floatvalue
+                case P_DIV:
+                    if v2!.intvalue == 0 || v2!.floatvalue == 0 {
+                        SourceError(source, "divide by zero in #if/#elif\n")
+                        error = 1
+                        break
+                    }
+                    v1.intvalue /= v2!.intvalue
+                    v1.floatvalue /= v2!.floatvalue
+                case P_MOD:
+                    if v2!.intvalue == 0 {
+                        SourceError(source, "divide by zero in #if/#elif\n")
+                        error = 1
+                        break
+                    }
+                    v1.intvalue %= v2!.intvalue
+                case P_ADD:
+                    v1.intvalue += v2!.intvalue
+                    v1.floatvalue += v2!.floatvalue
+                case P_SUB:
+                    v1.intvalue -= v2!.intvalue
+                    v1.floatvalue -= v2!.floatvalue
+                case P_LOGIC_AND:
+                    v1.intvalue = (v1.intvalue != 0 && v2!.intvalue != 0) ? 1 : 0
+                    v1.floatvalue = (v1.floatvalue != 0 && v2!.floatvalue != 0) ? 1 : 0
+                case P_LOGIC_OR:
+                    v1.intvalue = (v1.intvalue != 0 || v2!.intvalue != 0) ? 1 : 0
+                    v1.floatvalue = (v1.floatvalue != 0 || v2!.floatvalue != 0) ? 1 : 0
+                case P_LOGIC_GEQ:
+                    v1.intvalue = v1.intvalue >= v2!.intvalue ? 1 : 0
+                    v1.floatvalue = v1.floatvalue >= v2!.floatvalue ? 1 : 0
+                case P_LOGIC_LEQ:
+                    v1.intvalue = v1.intvalue <= v2!.intvalue ? 1 : 0
+                    v1.floatvalue = v1.floatvalue <= v2!.floatvalue ? 1 : 0
+                case P_LOGIC_EQ:
+                    v1.intvalue = v1.intvalue == v2!.intvalue ? 1 : 0
+                    v1.floatvalue = v1.floatvalue == v2!.floatvalue ? 1 : 0
+                case P_LOGIC_UNEQ:
+                    v1.intvalue = v1.intvalue != v2!.intvalue ? 1 : 0
+                    v1.floatvalue = v1.floatvalue != v2!.floatvalue ? 1 : 0
+                case P_LOGIC_GREATER:
+                    v1.intvalue = v1.intvalue > v2!.intvalue ? 1 : 0
+                    v1.floatvalue = v1.floatvalue > v2!.floatvalue ? 1 : 0
+                case P_LOGIC_LESS:
+                    v1.intvalue = v1.intvalue < v2!.intvalue ? 1 : 0
+                    v1.floatvalue = v1.floatvalue < v2!.floatvalue ? 1 : 0
+                case P_RSHIFT:
+                    v1.intvalue >>= v2!.intvalue
+                case P_LSHIFT:
+                    v1.intvalue <<= v2!.intvalue
+                case P_BIN_AND:
+                    v1.intvalue &= v2!.intvalue
+                case P_BIN_OR:
+                    v1.intvalue |= v2!.intvalue
+                case P_BIN_XOR:
+                    v1.intvalue ^= v2!.intvalue
+                case P_COLON:
+                    if !gotquestmarkvalue {
+                        SourceError(source, ": without ? in #if/#elif")
+                        error = 1
+                        break
+                    } //end if
+                    if integer != 0 {
+                        if questmarkintvalue == 0 { v1.intvalue = v2!.intvalue }
+                    } //end if
+                    else {
+                        if questmarkfloatvalue == 0 { v1.floatvalue = v2!.floatvalue }
+                    } //end else
+                    gotquestmarkvalue = false
+                case P_QUESTIONMARK:
+                    if gotquestmarkvalue {
+                        SourceError(source, "? after ? in #if/#elif")
+                        error = 1
+                        break
+                    } //end if
+                    questmarkintvalue = v1.intvalue
+                    questmarkfloatvalue = v1.floatvalue
+                    gotquestmarkvalue = true
+                default:
+                    break
+                } //end switch
+                if error != 0 { break }
+                //if not an operator with arity 1
+                if o!.mOperator != P_LOGIC_NOT && o!.mOperator != P_BIN_NOT {
+                    //remove the second value if not question mark operator
+                    if o!.mOperator != P_QUESTIONMARK { v = v!.next }
+                    //
+                    if v!.prev != nil { v!.prev!.next = v!.next } else { firstvalue = v!.next }
+                    if v!.next != nil { v!.next!.prev = v!.prev } else { lastvalue = v!.prev }
+                    //FreeMemory(v);
+                } //end if
+                //remove the operator
+                if o!.prev != nil { o!.prev!.next = o!.next } else { firstoperator = o!.next }
+                if o!.next != nil { o!.next!.prev = o!.prev } else { lastoperator = o!.prev }
+                //FreeMemory(o);
+            } //end while
+            if firstvalue != nil {
+                if intvalue != nil { intvalue!.pointee = firstvalue!.intvalue }
+                if floatvalue != nil { floatvalue!.pointee = firstvalue!.floatvalue }
+            } //end if
+            // Raven's FreeOperator and FreeValue expand to nothing, so his two free walks have no line.
+            if error == 0 { return 1 }
+            if intvalue != nil { intvalue!.pointee = 0 }
+            if floatvalue != nil { floatvalue!.pointee = 0 }
+            return 0
+        }
+    }
 }
 
 //============================================================================
@@ -1235,12 +1704,74 @@ func PC_EvaluateTokens() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2184
-// TODO: Port signature
-// Raven wrote: int PC_Evaluate(source_t *source, signed long int *intvalue, double *floatvalue, int integer)
-// No table row for `double * floatvalue`.
-func PC_Evaluate() -> Never {
-    // TODO: Port PC_Evaluate
-    portMissing("PC_Evaluate", source: "oracle/codemp/botlib/l_precomp.cpp:2184")
+func PC_Evaluate(_ source: Source, _ intvalue: UnsafeMutablePointer<Int32>?, _ floatvalue: UnsafeMutablePointer<Double>?, _ integer: Int32) -> Int32 {
+    var defined: Bool = false
+
+    if intvalue != nil { intvalue!.pointee = 0 }
+    if floatvalue != nil { floatvalue!.pointee = 0 }
+    //
+    return Token.scratch { token -> Int32 in
+        var firsttoken: Token?, lasttoken: Token?
+        var t: Token?, nexttoken: Token?
+        var define: Define?
+
+        if PC_ReadLine(source, token) == 0 {
+            SourceError(source, "no value after #if/#elif")
+            return 0
+        } //end if
+        firsttoken = nil
+        lasttoken = nil
+        repeat {
+            //if the token is a name
+            if token.type == TT_NAME {
+                if defined {
+                    defined = false
+                    t = PC_CopyToken(token)
+                    t!.next = nil
+                    if lasttoken != nil { lasttoken!.next = t } else { firsttoken = t }
+                    lasttoken = t
+                } //end if
+                else if strcmp(token.string, "defined") == 0 {
+                    defined = true
+                    t = PC_CopyToken(token)
+                    t!.next = nil
+                    if lasttoken != nil { lasttoken!.next = t } else { firsttoken = t }
+                    lasttoken = t
+                } //end if
+                else {
+                    //then it must be a define
+                    define = PC_FindHashedDefine(source.definehash!, token.string)
+                    if define == nil {
+                        SourceError(source, "can't evaluate %s, not defined", token.string)
+                        return 0
+                    } //end if
+                    if PC_ExpandDefineIntoSource(source, token, define!) == 0 { return 0 }
+                } //end else
+            } //end if
+            //if the token is a number or a punctuation
+            else if token.type == TT_NUMBER || token.type == TT_PUNCTUATION {
+                t = PC_CopyToken(token)
+                t!.next = nil
+                if lasttoken != nil { lasttoken!.next = t } else { firsttoken = t }
+                lasttoken = t
+            } //end else
+            else { //can't evaluate the token
+                SourceError(source, "can't evaluate %s", token.string)
+                return 0
+            } //end else
+        } while PC_ReadLine(source, token) != 0
+        //
+        if PC_EvaluateTokens(source, firsttoken!, intvalue, floatvalue, integer) == 0 { return 0 }
+        //
+        t = firsttoken
+        while t != nil {
+            nexttoken = t!.next
+            PC_FreeToken(t!)
+            t = nexttoken
+        } //end for
+        //
+        return 1
+    }
 }
 
 //============================================================================
@@ -1250,12 +1781,86 @@ func PC_Evaluate() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2283
-// TODO: Port signature
-// Raven wrote: int PC_DollarEvaluate(source_t *source, signed long int *intvalue, double *floatvalue, int integer)
-// No table row for `double * floatvalue`.
-func PC_DollarEvaluate() -> Never {
-    // TODO: Port PC_DollarEvaluate
-    portMissing("PC_DollarEvaluate", source: "oracle/codemp/botlib/l_precomp.cpp:2283")
+func PC_DollarEvaluate(_ source: Source, _ intvalue: UnsafeMutablePointer<Int32>?, _ floatvalue: UnsafeMutablePointer<Double>?, _ integer: Int32) -> Int32 {
+    var defined: Bool = false
+
+    if intvalue != nil { intvalue!.pointee = 0 }
+    if floatvalue != nil { floatvalue!.pointee = 0 }
+    //
+    return Token.scratch { token -> Int32 in
+        var indent: Int32
+        var firsttoken: Token?, lasttoken: Token?
+        var t: Token?, nexttoken: Token?
+        var define: Define?
+
+        if PC_ReadSourceToken(source, token) == 0 {
+            SourceError(source, "no leading ( after $evalint/$evalfloat")
+            return 0
+        } //end if
+        if PC_ReadSourceToken(source, token) == 0 {
+            SourceError(source, "nothing to evaluate")
+            return 0
+        } //end if
+        indent = 1
+        firsttoken = nil
+        lasttoken = nil
+        repeat {
+            //if the token is a name
+            if token.type == TT_NAME {
+                if defined {
+                    defined = false
+                    t = PC_CopyToken(token)
+                    t!.next = nil
+                    if lasttoken != nil { lasttoken!.next = t } else { firsttoken = t }
+                    lasttoken = t
+                } //end if
+                else if strcmp(token.string, "defined") == 0 {
+                    defined = true
+                    t = PC_CopyToken(token)
+                    t!.next = nil
+                    if lasttoken != nil { lasttoken!.next = t } else { firsttoken = t }
+                    lasttoken = t
+                } //end if
+                else {
+                    //then it must be a define
+                    define = PC_FindHashedDefine(source.definehash!, token.string)
+                    if define == nil {
+                        SourceError(source, "can't evaluate %s, not defined", token.string)
+                        return 0
+                    } //end if
+                    if PC_ExpandDefineIntoSource(source, token, define!) == 0 { return 0 }
+                } //end else
+            } //end if
+            //if the token is a number or a punctuation
+            else if token.type == TT_NUMBER || token.type == TT_PUNCTUATION {
+                if token.stringBuffer[0] == Int32(ascii: "(") {
+                    indent += 1
+                } else if token.stringBuffer[0] == Int32(ascii: ")") {
+                    indent -= 1
+                }
+                if indent <= 0 { break }
+                t = PC_CopyToken(token)
+                t!.next = nil
+                if lasttoken != nil { lasttoken!.next = t } else { firsttoken = t }
+                lasttoken = t
+            } //end else
+            else { //can't evaluate the token
+                SourceError(source, "can't evaluate %s", token.string)
+                return 0
+            } //end else
+        } while PC_ReadSourceToken(source, token) != 0
+        //
+        if PC_EvaluateTokens(source, firsttoken!, intvalue, floatvalue, integer) == 0 { return 0 }
+        //
+        t = firsttoken
+        while t != nil {
+            nexttoken = t!.next
+            PC_FreeToken(t!)
+            t = nexttoken
+        } //end for
+        //
+        return 1
+    }
 }
 
 //============================================================================
@@ -1274,9 +1879,7 @@ func PC_Directive_elif(_ source: Source) -> Int32 {
         SourceError(source, "misplaced #elif")
         return 0
     } //end if
-    // Port-note: PC_Evaluate has no signature yet, so no call can pass `&value`, row BL7.
-    // Raven wrote: if (!PC_Evaluate(source, &value, NULL, qtrue)) return qfalse;
-    portMissing("PC_Directive_elif", source: "oracle/codemp/botlib/l_precomp.cpp:2391")
+    if PC_Evaluate(source, &value, nil, 1) == 0 { return 0 }
     skip = (value == 0) ? 1 : 0
     PC_PushIndent(source, INDENT_ELIF, skip)
     return 1
@@ -1293,9 +1896,7 @@ func PC_Directive_if(_ source: Source) -> Int32 {
     var value: Int32 = 0
     var skip: Int32
 
-    // Port-note: PC_Evaluate has no signature yet, so no call can pass `&value`, row BL7.
-    // Raven wrote: if (!PC_Evaluate(source, &value, NULL, qtrue)) return qfalse;
-    portMissing("PC_Directive_if", source: "oracle/codemp/botlib/l_precomp.cpp:2413")
+    if PC_Evaluate(source, &value, nil, 1) == 0 { return 0 }
     skip = (value == 0) ? 1 : 0
     PC_PushIndent(source, INDENT_IF, skip)
     return 1
@@ -1375,9 +1976,7 @@ func PC_Directive_eval(_ source: Source) -> Int32 {
     var value: Int32 = 0
 
     return Token.scratch { token -> Int32 in
-        // Port-note: PC_Evaluate has no signature yet, so no call can pass `&value`, row BL7.
-        // Raven wrote: if (!PC_Evaluate(source, &value, NULL, qtrue)) return qfalse;
-        portMissing("PC_Directive_eval", source: "oracle/codemp/botlib/l_precomp.cpp:2488")
+        if PC_Evaluate(source, &value, nil, 1) == 0 { return 0 }
         //
         token.line = source.scriptstack!.line
         token.whitespace_p = source.scriptstack!.script_p
@@ -1403,9 +2002,7 @@ func PC_Directive_evalfloat(_ source: Source) -> Int32 {
     var value: Double = 0
 
     return Token.scratch { token -> Int32 in
-        // Port-note: PC_Evaluate has no signature yet, so no call can pass `&value`, row BL7.
-        // Raven wrote: if (!PC_Evaluate(source, NULL, &value, qfalse)) return qfalse;
-        portMissing("PC_Directive_evalfloat", source: "oracle/codemp/botlib/l_precomp.cpp:2512")
+        if PC_Evaluate(source, nil, &value, 0) == 0 { return 0 }
         token.line = source.scriptstack!.line
         token.whitespace_p = source.scriptstack!.script_p
         token.endwhitespace_p = source.scriptstack!.script_p
@@ -1462,9 +2059,7 @@ func PC_DollarDirective_evalint(_ source: Source) -> Int32 {
     var value: Int32 = 0
 
     return Token.scratch { token -> Int32 in
-        // Port-note: PC_DollarEvaluate has no signature yet, so no call can pass `&value`, row BL7.
-        // Raven wrote: if (!PC_DollarEvaluate(source, &value, NULL, qtrue)) return qfalse;
-        portMissing("PC_DollarDirective_evalint", source: "oracle/codemp/botlib/l_precomp.cpp:2593")
+        if PC_DollarEvaluate(source, &value, nil, 1) == 0 { return 0 }
         //
         token.line = source.scriptstack!.line
         token.whitespace_p = source.scriptstack!.script_p
@@ -1493,9 +2088,7 @@ func PC_DollarDirective_evalfloat(_ source: Source) -> Int32 {
     var value: Double = 0
 
     return Token.scratch { token -> Int32 in
-        // Port-note: PC_DollarEvaluate has no signature yet, so no call can pass `&value`, row BL7.
-        // Raven wrote: if (!PC_DollarEvaluate(source, NULL, &value, qfalse)) return qfalse;
-        portMissing("PC_DollarDirective_evalfloat", source: "oracle/codemp/botlib/l_precomp.cpp:2621")
+        if PC_DollarEvaluate(source, nil, &value, 0) == 0 { return 0 }
         token.line = source.scriptstack!.line
         token.whitespace_p = source.scriptstack!.script_p
         token.endwhitespace_p = source.scriptstack!.script_p
@@ -1606,9 +2199,7 @@ func PC_ReadToken(_ source: Source, _ token: Token) -> Int32 {
         //if the token is a name
         if token.type == TT_NAME {
             //check if the name is a define macro
-            // Port-note: PC_FindHashedDefine takes `definehash` as one `inout Define?`, and Raven passes the table `source->definehash`, row BL6.
-            // Raven wrote: define = PC_FindHashedDefine(source->definehash, token->string);
-            portMissing("PC_ReadToken", source: "oracle/codemp/botlib/l_precomp.cpp:2749")
+            define = PC_FindHashedDefine(source.definehash!, token.string)
             //if it is a define macro
             if define != nil {
                 //expand the defined macro
@@ -2058,9 +2649,7 @@ func PC_CheckOpenSourceHandles() {
     i = 1
     while i < MAX_SOURCEFILES {
         if sourceFiles[i] != nil {
-            // Port-note: botimport.Print takes Raven's format as an OpaquePointer and has no arguments, so no call can pass his text, row BL1.
-            // Raven wrote: botimport.Print(PRT_ERROR, "file %s still open in precompiler\n", sourceFiles[i]->scriptstack->filename);
-            portMissing("PC_CheckOpenSourceHandles", source: "oracle/codemp/botlib/l_precomp.cpp:3310")
+            botimport.runPrint(PRT_ERROR, "file %s still open in precompiler\n", sourceFiles[i]!.scriptstack!.filename)
         } //end if
         i += 1
     } //end for

@@ -178,6 +178,34 @@ public enum SysBackend {
         return Int32(truncatingIfNeeded: milliseconds)
     }
 
+    /// Raven's `CLOCKS_PER_SEC` of `time.h`, the ticks of `clock` in one second.
+    /// Source: oracle/codemp/botlib/be_interface.cpp:62
+    // AI: Raven read the MSVC value 1000. The backend gives the tick rate of the host C library, so `clock() * 1000 / CLOCKS_PER_SEC` still gives milliseconds.
+    public static let CLOCKS_PER_SEC = c_clocksPerSec()
+
+    /// Raven's `clock` of `time.h`, the processor time of the process in ticks of `CLOCKS_PER_SEC`.
+    /// Source: oracle/codemp/botlib/be_interface.cpp:62
+    // AI: Raven read the 32-bit MSVC `clock_t`. The backend gives the host ticks as a 64-bit `Int`, so `clock() * 1000` cannot overflow.
+    public static func clock() -> Int {
+        Int(truncatingIfNeeded: c_clock())
+    }
+
+    /// Raven's `time(NULL)` of `time.h`, the seconds since 1970 in the 32-bit `unsigned long` that Raven declares.
+    /// Source: oracle/codemp/botlib/l_precomp.cpp:739
+    // AI: Raven stored the MSVC `time_t` in an `unsigned long` of 32 bits. The backend keeps the low 32 bits of the host `time_t`.
+    public static func time() -> UInt32 {
+        UInt32(truncatingIfNeeded: c_time())
+    }
+
+    /// Raven's `ctime(&t)` of `time.h`, the local date and time as `Wed Jun 30 21:49:08 1993` and a newline.
+    /// Source: oracle/codemp/botlib/l_precomp.cpp:740
+    // AI: Raven passed the address of his `unsigned long`. The backend widens the value to the host `time_t` and returns the text of the C library.
+    public static func ctime(_ t: UInt32) -> String {
+        var value = time_t(t)
+        guard let text = c_ctime(&value) else { return "" }
+        return cText(text)
+    }
+
     /// Raven's `kbhit` of `conio.h`, true when a key waits on the console.
     /// On the first call with a terminal on standard input, it turns off the line mode and the echo, as the Win32 console gives keys one by one.
     /// Source: oracle/codemp/null/win_main.cpp:207
@@ -724,6 +752,22 @@ public enum SysBackend {
 
 private func c_strerror(_ code: Int32) -> UnsafeMutablePointer<CChar>? {
     strerror(code)
+}
+
+private func c_clocksPerSec() -> Int {
+    Int(CLOCKS_PER_SEC)
+}
+
+private func c_clock() -> clock_t {
+    clock()
+}
+
+private func c_time() -> time_t {
+    time(nil)
+}
+
+private func c_ctime(_ t: UnsafePointer<time_t>) -> UnsafeMutablePointer<CChar>? {
+    ctime(t)
 }
 
 private func c_bind(_ s: Int32, _ address: UnsafePointer<sockaddr>, _ length: socklen_t) -> Int32 {

@@ -1317,9 +1317,8 @@ func CM_GeneratePatchCollide(_ width: Int32, _ height: Int32, _ points: [JKAShar
         var j: Int32
 
         if width <= 2 || height <= 2 {
-            // Port-note: The format prints `points` with `%p`, which the format subset does not read, and the port holds no address for `points`.
-            // Raven wrote: Com_Error( ERR_DROP, "CM_GeneratePatchFacets: bad parameters: (%i, %i, %p)", width, height, points );
-            portMissing("CM_GeneratePatchCollide", source: "oracle/codemp/qcommon/cm_patch.cpp:1163")
+            // AI: Raven prints the address of `points` with `%p`. The port holds no address for the array, so the text prints 0 with `%d`.
+            Com_Error(ERR_DROP, "CM_GeneratePatchFacets: bad parameters: (%i, %i, %d)", width, height, 0)
         }
 
         if (width & 1) == 0 || (height & 1) == 0 {

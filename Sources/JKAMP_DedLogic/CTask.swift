@@ -8,7 +8,7 @@ import JKAMP_Ded
 // AI: Raven's destructor has an empty body. ARC frees the class, so the destructor drops.
 final class CTask {
     private var m_id: Int32 = 0
-    private var m_timeStamp: Int32 = 0
+    private var m_timeStamp: UInt32 = 0
     private var m_block: CBlock? = nil
 
     /**
@@ -53,7 +53,7 @@ final class CTask {
     }
 
     /// Source: oracle/codemp/icarus/taskmanager.h:44
-    func GetTimeStamp() -> Int32 {
+    func GetTimeStamp() -> UInt32 {
         self.m_timeStamp
     }
 
@@ -73,7 +73,7 @@ final class CTask {
     }
 
     /// Source: oracle/codemp/icarus/taskmanager.h:49
-    func SetTimeStamp(_ timeStamp: Int32) {
+    func SetTimeStamp(_ timeStamp: UInt32) {
         self.m_timeStamp = timeStamp
     }
 

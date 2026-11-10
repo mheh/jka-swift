@@ -670,21 +670,8 @@ func CM_LumpChecksum(_ lump: JKAMP.Lump) -> UInt32 {
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:544
 func CM_Checksum(_ header: Dheader) -> UInt32 {
-    var checksums: [UInt32] = [UInt32](repeating: 0, count: 16)
-    checksums[0] = CM_LumpChecksum(header.lumps[LUMP_SHADERS])
-    checksums[1] = CM_LumpChecksum(header.lumps[LUMP_LEAFS])
-    checksums[2] = CM_LumpChecksum(header.lumps[LUMP_LEAFBRUSHES])
-    checksums[3] = CM_LumpChecksum(header.lumps[LUMP_LEAFSURFACES])
-    checksums[4] = CM_LumpChecksum(header.lumps[LUMP_PLANES])
-    checksums[5] = CM_LumpChecksum(header.lumps[LUMP_BRUSHSIDES])
-    checksums[6] = CM_LumpChecksum(header.lumps[LUMP_BRUSHES])
-    checksums[7] = CM_LumpChecksum(header.lumps[LUMP_MODELS])
-    checksums[8] = CM_LumpChecksum(header.lumps[LUMP_NODES])
-    checksums[9] = CM_LumpChecksum(header.lumps[LUMP_SURFACES])
-    checksums[10] = CM_LumpChecksum(header.lumps[LUMP_DRAWVERTS])
-
-    // Port-note: Com_BlockChecksum takes a Slots of bytes, and the local `unsigned checksums[16]` is a Swift Array with no Slots form. The function has no caller, rule 20.
-    // Raven wrote: return LittleLong(Com_BlockChecksum(checksums, 11 * 4))
+    // Raven calls this function from no file of either tree, so it is dead.
+    // TODO: Port CM_Checksum
     portMissing("CM_Checksum", source: "oracle/codemp/qcommon/cm_load.cpp:544")
 }
 
@@ -1135,12 +1122,25 @@ func CM_ModelBounds(_ model: JKAShared.clipHandle_t, _ mins: inout JKAShared.vec
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:1036
-// TODO: Port signature
-// Raven wrote: CCMLandScape *CM_RegisterTerrain(const char *config, bool server)
-// No table row for the return `CCMLandScape *`.
-func CM_RegisterTerrain() -> Never {
-    // TODO: Port CM_RegisterTerrain
-    portMissing("CM_RegisterTerrain", source: "oracle/codemp/qcommon/cm_load.cpp:1036")
+func CM_RegisterTerrain(_ config: String, _ server: Bool) -> CCMLandScape? {
+    var ls: CCMLandScape?
+
+    // AI: Raven reads the class pointer `cmg.landScape` of the C record. The world holds the Swift class as `landScape_cmg`, the C field stays unused.
+    if landScape_cmg != nil {
+        // Already spawned so just return
+        ls = landScape_cmg
+        ls!.IncreaseRefCount()
+        return (ls)
+    }
+    // Doesn't exist so create and link in
+    ls = CM_InitTerrain(config, 0, server)
+
+    // Increment for the next instance
+    if landScape_cmg != nil {
+        Com_Error(ERR_DROP, "You cannot have more than one terrain brush.\n")
+    }
+    landScape_cmg = ls
+    return (ls)
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:1065

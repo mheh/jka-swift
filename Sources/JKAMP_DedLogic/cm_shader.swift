@@ -17,8 +17,8 @@ var shaderTextTable: [String: Int32] {
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:30
-// AI: Raven wrote `CHash<CCMShader> cmShaderTable`. The forward reaches the `Dictionary` of `EngineWorld`, the name to the offset of the record.
-var cmShaderTable: [String: Int32] {
+// AI: Raven wrote `CHash<CCMShader> cmShaderTable`. The forward reaches the `Dictionary` of `EngineWorld`, the name to the view of the record.
+var cmShaderTable: [String: CmShader] {
     get { world.cmShaderTable }
     set { world.cmShaderTable = newValue }
 }
@@ -395,8 +395,8 @@ func CM_SetupShaderProperties() {
     // Add all basic shaders to the cmShaderTable
     i = 0
     while i < cmg.numShaders {
-        // AI: Raven inserts the `CCMShader *` of slot `i` into the `CHash`. The table stores the offset of the record in `cmg.shaders` under its name.
-        cmShaderTable[CM_GetShaderInfo(i)!.shader] = i
+        // AI: Raven inserts the `CCMShader *` into the `CHash`, which keys it by its name. The table stores the view under its name.
+        cmShaderTable[CM_GetShaderInfo(i)!.shader] = CM_GetShaderInfo(i)!
         i += 1
     }
     // Go through and parse evaluate shader names to shadernums
@@ -425,11 +425,9 @@ func CM_GetShaderInfo(_ name: String) -> CmShader? {
     var out: CmShader?
     var def: String?
 
-    // AI: Raven finds the `CCMShader *` in the `CHash`. The table gives the offset of the record in `cmg.shaders`.
-    let offset = cmShaderTable[name]
-    if offset != nil {
-        out = cmg.shadersSlots[offset!]
-        return out
+    out = cmShaderTable[name]
+    if out != nil {
+        return (out)
     }
 
     // Create a new CCMShader class
@@ -445,10 +443,9 @@ func CM_GetShaderInfo(_ name: String) -> CmShader? {
         CM_ParseShader(out!, &p)
     }
 
-    // Port-note: The record of Hunk_Alloc is not a slot of `cmg.shaders`, so the offset form of `cmShaderTable` has no value for it.
-    // Raven wrote: cmShaderTable.insert(out);
-    portMissing("CM_GetShaderInfo", source: "oracle/codemp/qcommon/cm_shader.cpp:498")
-    return out
+    // AI: Raven inserts the `CCMShader *` into the `CHash`, which keys it by its name. The table stores the view under its name.
+    cmShaderTable[out!.shader] = out
+    return (out)
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:526

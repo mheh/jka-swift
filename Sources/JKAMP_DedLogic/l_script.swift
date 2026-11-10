@@ -93,9 +93,7 @@ func ScriptError(_ script: Script, _ str: String, _ args: any JKAShared.FormatAr
     if (script.flags & SCFL_NOERRORS) != 0 { return }
 
     strcpy(&text, JKAShared.format(str, args))
-    // Port-note: botimport.Print takes Raven's format as an OpaquePointer and has no arguments, so no call can pass his text, row BL1.
-    // Raven wrote: botimport.Print(PRT_ERROR, "file %s, line %d: %s\n", script->filename, script->line, text)
-    portMissing("ScriptError", source: "oracle/codemp/botlib/l_script.cpp:216")
+    botimport.runPrint(PRT_ERROR, "file %s, line %d: %s\n", script.filename, script.line, String(text))
 }
 
 //===========================================================================
@@ -111,9 +109,7 @@ func ScriptWarning(_ script: Script, _ str: String, _ args: any JKAShared.Format
     if (script.flags & SCFL_NOWARNINGS) != 0 { return }
 
     strcpy(&text, JKAShared.format(str, args))
-    // Port-note: botimport.Print takes Raven's format as an OpaquePointer and has no arguments, so no call can pass his text, row BL1.
-    // Raven wrote: botimport.Print(PRT_WARNING, "file %s, line %d: %s\n", script->filename, script->line, text)
-    portMissing("ScriptWarning", source: "oracle/codemp/botlib/l_script.cpp:242")
+    botimport.runPrint(PRT_WARNING, "file %s, line %d: %s\n", script.filename, script.line, String(text))
 }
 
 //===========================================================================
@@ -196,7 +192,7 @@ func PS_ReadWhiteSpace(_ script: Script) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:344
-func PS_ReadEscapeCharacter(_ script: Script, _ ch: inout JKAShared.CharBuf) -> Int32 {
+func PS_ReadEscapeCharacter(_ script: Script, _ ch: inout CChar) -> Int32 {
     var c: Int32
     var val: Int32
     var i: Int32
@@ -270,7 +266,7 @@ func PS_ReadEscapeCharacter(_ script: Script, _ ch: inout JKAShared.CharBuf) -> 
     //step over the escape character or the last digit of the number
     script.script_p += 1
     //store the escape character
-    ch[0] = c
+    ch = CChar(truncatingIfNeeded: c)
     //succesfully read escape character
     return 1
 }
@@ -312,9 +308,10 @@ func PS_ReadString(_ script: Script, _ token: Token, _ quote: Int32) -> Int32 {
         //if there is an escape character and
         //if escape characters inside a string are allowed
         if (script.buffer![byte: script.script_p] as Int32) == Int32(ascii: "\\") && (script.flags & SCFL_NOSTRINGESCAPECHARS) == 0 {
-            // Port-note: PS_ReadEscapeCharacter takes `ch` as an inout CharBuf, so no call can pass the address of `token->string[len]`, row BL10.
-            // Raven wrote: if (!PS_ReadEscapeCharacter(script, &token->string[len])) { token->string[len] = 0; return 0; }
-            portMissing("PS_ReadString", source: "oracle/codemp/botlib/l_script.cpp:422")
+            if PS_ReadEscapeCharacter(script, &token.stringBuffer[len]) == 0 {
+                token.stringBuffer[len] = 0
+                return 0
+            } //end if
             len += 1
         } //end if
         //if a trailing quote
@@ -629,15 +626,14 @@ func PS_ReadPunctuation(_ script: Script, _ token: Token) -> Int32 {
         //if the script contains at least as much characters as the punctuation
         if script.script_p + len <= script.end_p {
             //if the script contains the punctuation
-            // Port-note: No strncmp form compares the bytes of a Slots of bytes at an offset with a text, so the test of `script_p` has no call, row BL9.
-            // Raven wrote: if (!strncmp(script->script_p, p, len))
-            portMissing("PS_ReadPunctuation", source: "oracle/codemp/botlib/l_script.cpp:768")
-            strncpy(&token.stringBuffer, p, MAX_TOKEN)
-            script.script_p += len
-            token.type = TT_PUNCTUATION
-            //sub type is the number of the punctuation
-            token.subtype = punc!.n
-            return 1
+            if strncmp(script.buffer!.suffix(from: script.script_p), p, len) == 0 {
+                strncpy(&token.stringBuffer, p, MAX_TOKEN)
+                script.script_p += len
+                token.type = TT_PUNCTUATION
+                //sub type is the number of the punctuation
+                token.subtype = punc!.n
+                return 1
+            } //end if
         } //end if
         punc = punc!.next
     } //end for
@@ -1053,7 +1049,7 @@ func ScriptSkipTo(_ script: Script, _ value: String) -> Int32 {
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1293
 func LoadScriptFile(_ filename: String) -> Script? {
-    var fp: fileHandle_t
+    var fp: fileHandle_t = 0
     var pathname = CharBuf(MAX_QPATH)
     var length: Int32
 
@@ -1062,9 +1058,7 @@ func LoadScriptFile(_ filename: String) -> Script? {
     } else {
         Com_sprintf(&pathname, Int32(pathname.count), "%s", filename)
     }
-    // Port-note: botimport.FS_FOpenFile takes the handle out-parameter as an OpaquePointer, so no call can pass the address of `fp`, row BL1.
-    // Raven wrote: length = botimport.FS_FOpenFile( pathname, &fp, FS_READ );
-    portMissing("LoadScriptFile", source: "oracle/codemp/botlib/l_script.cpp:1293")
+    length = botimport.runFS_FOpenFile(String(pathname), &fp, FS_READ)
     if fp == 0 { return nil }
 
     let buffer = GetClearedMemory(Int32(Script.byteCount) + length + 1)
@@ -1089,14 +1083,14 @@ func LoadScriptFile(_ filename: String) -> Script? {
     //
     SetScriptPunctuations(script, nil)
     //
-    // Port-note: botimport.FS_Read takes the buffer as an OpaquePointer, so no call can pass the bytes of `script->buffer`, row BL1.
-    // Raven wrote: botimport.FS_Read(script->buffer, length, fp);
-    portMissing("LoadScriptFile", source: "oracle/codemp/botlib/l_script.cpp:1293")
+    botimport.runFS_Read(script.buffer!, length, fp)
     botimport.runFS_FCloseFile(fp)
     //
-    // Port-note: COM_Compress takes an inout CharBuf, so no call can pass the Slots of bytes of `script->buffer`, row BL11.
-    // Raven wrote: script->length = COM_Compress(script->buffer);
-    portMissing("LoadScriptFile", source: "oracle/codemp/botlib/l_script.cpp:1293")
+    // AI: Raven compresses `script->buffer` in place. The call compresses a CharBuf copy, and its bytes and NUL go back.
+    var compressed = CharBuf(length + 1)
+    Com_Memcpy(&compressed, script.buffer!, length + 1)
+    script.length = COM_Compress(&compressed)
+    Com_Memcpy(script.buffer!, compressed, script.length + 1)
 
     return script
 }

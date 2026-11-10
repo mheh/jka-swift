@@ -1083,10 +1083,97 @@ R_LoadMD3
 */
 /// Source: oracle/codemp/renderer/tr_model.cpp:1427
 private func R_LoadMD3(_ mod: Model, _ lod: Int32, _ buffer: Slots<JKAShared.byte>, _ mod_name: String, _ bAlreadyCached: inout Bool) -> Bool {
-    // RE_RegisterModel_Actual calls it at tr_model.cpp:1333 only for a name that RE_RegisterServerModel did not load first, and no dedicated path gives such a name.
-    // Port-note: The body walks `md3Surface_t` of qfiles.h, which has no view in the host target.
-    // TODO: Port R_LoadMD3
-    portMissing("R_LoadMD3", source: "oracle/codemp/renderer/tr_model.cpp:1427")
+    var i: Int32
+    var j: Int32
+    let pinmodel: Md3Header
+    var surf: Md3Surface
+    let version: Int32
+    let size: Int32
+
+    pinmodel = Md3Header(buffer.base)
+    //
+    // read some fields from the binary, but only LittleLong() them when we know this wasn't an already-cached model...
+    //
+    version = pinmodel.version
+    size = pinmodel.ofsEnd
+
+    // Raven's two LittleLong calls under `if (!bAlreadyCached)` have no line, because LittleLong of the WinDed arm is its argument.
+
+    if version != MD3_VERSION {
+        Com_Printf(S_COLOR_YELLOW + "R_LoadMD3: %s has wrong version (%i should be %i)\n",
+                   mod_name, version, MD3_VERSION)
+        return false
+    }
+
+    mod.type = MOD_MESH
+    mod.dataSize += size
+
+    var bAlreadyFound = false
+    mod.md3[lod] = Md3Header(/*Hunk_Alloc( size );*/ RE_RegisterModels_Malloc(size, buffer, mod_name, &bAlreadyFound, TAG_MODEL_MD3).base)
+
+    assert(bAlreadyCached == bAlreadyFound)	// I should probably eliminate 'bAlreadyFound', but wtf?
+
+    if !bAlreadyFound {
+        // horrible new hackery, if !bAlreadyFound then we've just done a tag-morph, so we need to set the
+        //	bool reference passed into this function to true, to tell the caller NOT to do an FS_Freefile since
+        //	we've hijacked that memory block...
+        //
+        // Aaaargh. Kill me now...
+        //
+        bAlreadyCached = true
+        assert(mod.md3[lod] == Md3Header(buffer.base))
+//		memcpy( mod->md3[lod], buffer, size );	// and don't do this now, since it's the same thing
+
+        // Raven's nine LL calls have no line, because LittleLong of the WinDed arm is its argument.
+    }
+
+    if mod.md3[lod]!.numFrames < 1 {
+        Com_Printf(S_COLOR_YELLOW + "R_LoadMD3: %s has no frames\n", mod_name)
+        return false
+    }
+
+    if bAlreadyFound {
+        return true	// All done. Stop, go no further, do not pass Go...
+    }
+
+    // Raven's swaps of the frames and the tags stand under `#ifndef _M_IX86`, so the WinDed build has none.
+
+    // swap all the surfaces
+    surf = Md3Surface(mod.md3[lod]!, byteOffset: mod.md3[lod]!.ofsSurfaces)
+    i = 0
+    while i < mod.md3[lod]!.numSurfaces {
+        // Raven's LL calls of the counts and offsets have no line, because LittleLong of the WinDed arm is its argument.
+
+        if surf.numVerts > SHADER_MAX_VERTEXES {
+            Com_Error(ERR_DROP, "R_LoadMD3: %s has more than %i verts on a surface (%i)",
+                      mod_name, SHADER_MAX_VERTEXES, surf.numVerts)
+        }
+        if surf.numTriangles * 3 > SHADER_MAX_INDEXES {
+            Com_Error(ERR_DROP, "R_LoadMD3: %s has more than %i triangles on a surface (%i)",
+                      mod_name, SHADER_MAX_INDEXES / 3, surf.numTriangles)
+        }
+
+        // change to surface identifier
+        surf.ident = SF_MD3
+
+        // lowercase the surface name so skin compares are faster
+        Q_strlwr(&surf.nameBuffer)
+
+        // strip off a trailing _1 or _2
+        // this is a crutch for q3data being a mess
+        j = strlen(surf.name)
+        if j > 2 && surf.nameBuffer[j - 2] == Int32(ascii: "_") {
+            surf.nameBuffer[j - 2] = 0
+        }
+
+        // Raven's shader registration stands under `#ifndef DEDICATED`, and his swaps of the triangles, the ST, and the normals under `#ifndef _M_IX86`.
+
+        // find the next surface
+        surf = Md3Surface(surf, byteOffset: surf.ofsEnd)
+        i += 1
+    }
+
+    return true
 }
 
 /// Source: oracle/codemp/renderer/tr_model.cpp:1655

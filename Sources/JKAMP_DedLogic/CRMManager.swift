@@ -3,22 +3,23 @@ import JKAMP
 import JKAShared
 import JKAMP_Ded
 
+/// Source: oracle/codemp/client/client.h:151
+let MAX_AUTOMAP_SYMBOLS = 512 as Int32
+
 /// Raven's random mission manager, the mission, its landscape and terrain, and the automap symbols of a random map.
 /// One instance exists, `TheRandomMissionManager`, which the G_RMG_INIT arm of SV_GameSystemCalls makes.
 /// Source: oracle/codemp/RMG/RM_Manager.h:9
 // AI: Raven's static member `mCurObjective` of RM_Manager.h:57 is the forward of RM_Manager.swift over `EngineWorld`, the HAND_VARS form.
 final class CRMManager {
-    // TODO: Port mMission
-    // Raven wrote: CRMMission*				mMission;
+    private var mMission: CRMMission? = nil
     private var mLandScape: CCMLandScape? = nil
-    // TODO: Port mTerrain
-    // Raven wrote: CRandomTerrain*			mTerrain;
+    private var mTerrain: CRandomTerrain? = nil
     private var mPreviewTimer: Int32 = 0
     private var mCurPriority: Int32 = 0
     private var mUseTimeLimit: Bool = false
 
-    // TODO: Port mAutomapSymbols
-    // Raven wrote: rmAutomapSymbol_t		mAutomapSymbols[MAX_AUTOMAP_SYMBOLS];
+    // AI: Raven holds MAX_AUTOMAP_SYMBOLS records by value. The field is the Slots over the records of the C++ `new`, the form of `svs.snapshotEntities`.
+    private var mAutomapSymbols: Slots<RmAutomapSymbol> = Slots<RmAutomapSymbol>.new(count: MAX_AUTOMAP_SYMBOLS)
     private var mAutomapSymbolCount: Int32 = 0
 
     /**
@@ -114,12 +115,8 @@ final class CRMManager {
     /// Source: oracle/codemp/RMG/RM_Manager.cpp:34
     init() {
         self.mLandScape = nil
-        // Port-note: The class holds no `mTerrain`, because `CRandomTerrain` has no Swift class.
-        // Raven wrote: mTerrain   = NULL;
-        portMissing("CRMManager::CRMManager", source: "oracle/codemp/RMG/RM_Manager.cpp:34")
-        // Port-note: The class holds no `mMission`, because `CRMMission` has no Swift class.
-        // Raven wrote: mMission = NULL;
-        portMissing("CRMManager::CRMManager", source: "oracle/codemp/RMG/RM_Manager.cpp:34")
+        self.mTerrain = nil
+        self.mMission = nil
         self.mCurPriority = 1
         self.mUseTimeLimit = false
         self.mAutomapSymbolCount = 0
@@ -141,9 +138,12 @@ final class CRMManager {
     /// Source: oracle/codemp/RMG/RM_Manager.cpp:53
     deinit {
         Com_Printf("... Shutting down TheRandomMissionManager\n")
-        // Port-note: The class holds no `mMission`, because `CRMMission` has no Swift class.
-        // Raven wrote: if (mMission) { delete mMission; mMission = NULL; }
-        portMissing("CRMManager::~CRMManager", source: "oracle/codemp/RMG/RM_Manager.cpp:53")
+        if self.mMission != nil {
+            // AI: Raven deletes the mission and then clears `mMission`. The store of nil releases the class, and its deinit runs Raven's destructor.
+            self.mMission = nil
+        }
+        // AI: Raven's array of records goes with the class. The records of the C++ `new` need their `delete`.
+        self.mAutomapSymbols.delete()
     }
 
     /**
@@ -172,9 +172,9 @@ final class CRMManager {
         Com_Printf("--------- Random Mission Manager ---------\n\n")
         Com_Printf("RMG version : 1.01\n\n")
 
-        // Port-note: The class holds no `mTerrain`, because `CRandomTerrain` has no Swift class.
-        // Raven wrote: if (!mTerrain) { return false; }
-        portMissing("CRMManager::LoadMission", source: "oracle/codemp/RMG/RM_Manager.cpp:96")
+        if self.mTerrain == nil {
+            return false
+        }
 
         // Grab the arioche variables
         Cvar_VariableStringBuffer("rmg_usetimelimit", &temp, MAX_QPATH)
@@ -189,20 +189,19 @@ final class CRMManager {
         Cvar_VariableStringBuffer("rmg_course", &course, MAX_QPATH)
 
         // dump existing mission, if any
-        // Port-note: The class holds no `mMission`, because `CRMMission` has no Swift class.
-        // Raven wrote: if (mMission) { delete mMission; mMission = NULL; }
-        portMissing("CRMManager::LoadMission", source: "oracle/codemp/RMG/RM_Manager.cpp:96")
+        if self.mMission != nil {
+            // AI: Raven deletes the mission and then clears `mMission`. The store of nil releases the class, and its deinit runs Raven's destructor.
+            self.mMission = nil
+        }
 
         // Create a new mission file
-        // Port-note: The class holds no `mMission`, because `CRMMission` has no Swift class.
-        // Raven wrote: mMission = new CRMMission ( mTerrain );
-        portMissing("CRMManager::LoadMission", source: "oracle/codemp/RMG/RM_Manager.cpp:96")
+        self.mMission = CRMMission(self.mTerrain)
 
         if IsServer {
             // Load the mission using the arioche variables
-            // Port-note: The class holds no `mMission`, because `CRMMission` has no Swift class.
-            // Raven wrote: if ( !mMission->Load ( mission, instances, course ) ) { return false; }
-            portMissing("CRMManager::LoadMission", source: "oracle/codemp/RMG/RM_Manager.cpp:96")
+            if !self.mMission!.Load(String(mission), String(instances), String(course)) {
+                return false
+            }
 
             // set the names of the teams
             let parser = CGenericParser2()
@@ -250,9 +249,7 @@ final class CRMManager {
     /// Source: oracle/codemp/RMG/RM_Manager.cpp:391
     func SpawnMission(_ IsServer: Bool) -> Bool {
         // Spawn the mission
-        // Port-note: The class holds no `mMission`, because `CRMMission` has no Swift class.
-        // Raven wrote: mMission->Spawn ( mTerrain, IsServer );
-        portMissing("CRMManager::SpawnMission", source: "oracle/codemp/RMG/RM_Manager.cpp:391")
+        self.mMission!.Spawn(self.mTerrain, IsServer)
 
         return true
     }
@@ -276,9 +273,7 @@ final class CRMManager {
     /// Source: oracle/codemp/RMG/RM_Manager.cpp:79
     func SetLandScape(_ landscape: CCMLandScape?) {
         self.mLandScape = landscape
-        // Port-note: The class holds no `mTerrain`, because `CRandomTerrain` has no Swift class.
-        // Raven wrote: mTerrain = landscape->GetRandomTerrain();
-        portMissing("CRMManager::SetLandScape", source: "oracle/codemp/RMG/RM_Manager.cpp:79")
+        self.mTerrain = landscape!.GetRandomTerrain()
     }
 
     /// Source: oracle/codemp/RMG/RM_Manager.h:36
@@ -287,12 +282,8 @@ final class CRMManager {
     }
 
     /// Source: oracle/codemp/RMG/RM_Manager.h:38
-    // TODO: Port signature
-    // Raven wrote: CRandomTerrain*	GetTerrain		(void)	{ return mTerrain; }
-    // No table row for the return `CRandomTerrain *`.
-    func GetTerrain() -> Never {
-        // TODO: Port CRMManager::GetTerrain
-        portMissing("CRMManager::GetTerrain", source: "oracle/codemp/RMG/RM_Manager.h:38")
+    func GetTerrain() -> CRandomTerrain? {
+        self.mTerrain
     }
 
     /// Source: oracle/codemp/RMG/RM_Manager.h:39
@@ -301,12 +292,8 @@ final class CRMManager {
     }
 
     /// Source: oracle/codemp/RMG/RM_Manager.h:40
-    // TODO: Port signature
-    // Raven wrote: CRMMission*		GetMission		(void)  { return mMission; }
-    // No table row for the return `CRMMission *`.
-    func GetMission() -> Never {
-        // TODO: Port CRMManager::GetMission
-        portMissing("CRMManager::GetMission", source: "oracle/codemp/RMG/RM_Manager.h:40")
+    func GetMission() -> CRMMission? {
+        self.mMission
     }
 
     /// Source: oracle/codemp/RMG/RM_Manager.h:41
@@ -320,9 +307,9 @@ final class CRMManager {
             return
         }
 
-        // Port-note: The class holds no `mAutomapSymbols`, because `rmAutomapSymbol_t` has no Swift type.
-        // Raven wrote: mAutomapSymbols[mAutomapSymbolCount].mType = type; mAutomapSymbols[mAutomapSymbolCount].mSide = side; VectorCopy ( origin, mAutomapSymbols[mAutomapSymbolCount].mOrigin );
-        portMissing("CRMManager::AddAutomapSymbol", source: "oracle/codemp/RMG/RM_Manager.cpp:400")
+        self.mAutomapSymbols[self.mAutomapSymbolCount].mType = type
+        self.mAutomapSymbols[self.mAutomapSymbolCount].mSide = side
+        self.mAutomapSymbols[self.mAutomapSymbolCount].mOrigin = origin
         self.mAutomapSymbolCount += 1
     }
 
@@ -332,12 +319,8 @@ final class CRMManager {
     }
 
     /// Source: oracle/codemp/RMG/RM_Manager.cpp:418
-    // TODO: Port signature
-    // Raven wrote: rmAutomapSymbol_t* CRMManager::GetAutomapSymbol ( int index )
-    // No table row for the return `rmAutomapSymbol_t *`.
-    func GetAutomapSymbol() -> Never {
-        // TODO: Port CRMManager::GetAutomapSymbol
-        portMissing("CRMManager::GetAutomapSymbol", source: "oracle/codemp/RMG/RM_Manager.cpp:418")
+    func GetAutomapSymbol(_ index: Int32) -> RmAutomapSymbol? {
+        return self.mAutomapSymbols[index]
     }
 
     /**
@@ -419,9 +402,9 @@ final class CRMManager {
     */
     /// Source: oracle/codemp/RMG/RM_Manager.cpp:192
     func IsMissionComplete() -> Bool {
-        // Port-note: The class holds no `mMission`, because `CRMMission` has no Swift class.
-        // Raven wrote: if ( NULL == mMission->GetCurrentObjective ( ) ) { return true; }
-        portMissing("CRMManager::IsMissionComplete", source: "oracle/codemp/RMG/RM_Manager.cpp:192")
+        if nil == self.mMission!.GetCurrentObjective() {
+            return true
+        }
 
         return false
     }
@@ -479,9 +462,7 @@ final class CRMManager {
     func CompleteObjective(_ obj: CRMObjective?) {
         assert(obj != nil)
 
-        // Port-note: The class holds no `mMission`, because `CRMMission` has no Swift class.
-        // Raven wrote: mMission->CompleteObjective ( obj );
-        portMissing("CRMManager::CompleteObjective", source: "oracle/codemp/RMG/RM_Manager.cpp:347")
+        self.mMission!.CompleteObjective(obj)
     }
 
     /**
@@ -501,9 +482,7 @@ final class CRMManager {
     func CompleteMission() {
         self.UpdateStatisticCvars()
 
-        // Port-note: The class holds no `mMission`, because `CRMMission` has no Swift class.
-        // Raven wrote: mMission->CompleteMission();
-        portMissing("CRMManager::CompleteMission", source: "oracle/codemp/RMG/RM_Manager.cpp:313")
+        self.mMission!.CompleteMission()
     }
 
     /**
@@ -523,8 +502,6 @@ final class CRMManager {
     func FailedMission(_ TimeExpired: Bool) {
         self.UpdateStatisticCvars()
 
-        // Port-note: The class holds no `mMission`, because `CRMMission` has no Swift class.
-        // Raven wrote: mMission->FailedMission(TimeExpired);
-        portMissing("CRMManager::FailedMission", source: "oracle/codemp/RMG/RM_Manager.cpp:329")
+        self.mMission!.FailedMission(TimeExpired)
     }
 }

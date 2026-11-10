@@ -26,9 +26,7 @@ var botinputs: Slots<BotInput>? {
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:35
 func EA_Say(_ client: Int32, _ str: String) {
-    // Port-note: botimport.BotClientCommand takes the command as an OpaquePointer, so no call can pass the text, row BL1.
-    // Raven wrote: botimport.BotClientCommand(client, va("say %s", str))
-    portMissing("EA_Say", source: "oracle/codemp/botlib/be_ea.cpp:35")
+    botimport.runBotClientCommand(client, va("say %s", str))
 }
 
 //===========================================================================
@@ -39,9 +37,7 @@ func EA_Say(_ client: Int32, _ str: String) {
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:45
 func EA_SayTeam(_ client: Int32, _ str: String) {
-    // Port-note: botimport.BotClientCommand takes the command as an OpaquePointer, so no call can pass the text, row BL1.
-    // Raven wrote: botimport.BotClientCommand(client, va("say_team %s", str))
-    portMissing("EA_SayTeam", source: "oracle/codemp/botlib/be_ea.cpp:45")
+    botimport.runBotClientCommand(client, va("say_team %s", str))
 }
 
 //===========================================================================
@@ -131,9 +127,8 @@ func EA_Gesture(_ client: Int32) {
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:119
 func EA_Command(_ client: Int32, _ command: inout JKAShared.CharBuf) {
-    // Port-note: botimport.BotClientCommand takes the command as an OpaquePointer, so no call can pass the text, row BL1.
-    // Raven wrote: botimport.BotClientCommand(client, command)
-    portMissing("EA_Command", source: "oracle/codemp/botlib/be_ea.cpp:119")
+    // AI: Raven hands his `char *` buffer to the import. The run method takes a String, so the call hands the text of the CharBuf.
+    botimport.runBotClientCommand(client, String(command))
 }
 
 //===========================================================================

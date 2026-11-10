@@ -14,7 +14,7 @@ final class CTraceSurface {
     var lod: Int32 = 0
     var rayStart = JKAShared.vec3_t()
     var rayEnd = JKAShared.vec3_t()
-    var collRecMap: CollisionRecord? = nil
+    var collRecMap: Slots<CollisionRecord>? = nil
     var entNum: Int32 = 0
     var modelIndex: Int32 = 0
     var skin: Skin? = nil
@@ -42,7 +42,7 @@ final class CTraceSurface {
         _ initlod: Int32,
         _ initrayStart: JKAShared.vec3_t,
         _ initrayEnd: JKAShared.vec3_t,
-        _ initcollRecMap: CollisionRecord?,
+        _ initcollRecMap: Slots<CollisionRecord>?,
         _ initentNum: Int32,
         _ initmodelIndex: Int32,
         _ initskin: Skin?,

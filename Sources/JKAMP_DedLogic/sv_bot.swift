@@ -243,62 +243,9 @@ BotDrawDebugPolygons
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:227
 func BotDrawDebugPolygons(_ drawPoly: ((Int32, Int32, inout Float) -> Void)?, _ value: Int32) {
-    // Raven's `static cvar_t *bot_debug, *bot_groundonly, *bot_reachability, *bot_highlightarea` are the forwards above the function.
-    var poly: BotDebugpoly
-    var i: Int32
-    var parm0: Int32
-
-    if debugpolygons == nil {
-        return
-    }
-    //bot debugging
-    if bot_debug == nil {
-        bot_debug = Cvar_Get("bot_debug", "0", 0)
-    }
-    //
-    if bot_enable != 0 && bot_debug!.integer != 0 {
-        //show reachabilities
-        if bot_reachability == nil {
-            bot_reachability = Cvar_Get("bot_reachability", "0", 0)
-        }
-        //show ground faces only
-        if bot_groundonly == nil {
-            bot_groundonly = Cvar_Get("bot_groundonly", "1", 0)
-        }
-        //get the hightlight area
-        if bot_highlightarea == nil {
-            bot_highlightarea = Cvar_Get("bot_highlightarea", "0", 0)
-        }
-        //
-        parm0 = 0
-        if (svs.clientsSlots[0].lastUsercmd.buttons & BUTTON_ATTACK) != 0 {
-            parm0 |= 1
-        }
-        if bot_reachability!.integer != 0 {
-            parm0 |= 2
-        }
-        if bot_groundonly!.integer != 0 {
-            parm0 |= 4
-        }
-        // Port-note: Row B5. `runBotLibVarSet` of BotlibExport takes the two `char *` texts as untyped OpaquePointer values, so the call has no form.
-        // Raven wrote: botlib_export->BotLibVarSet("bot_highlightarea", bot_highlightarea->string);
-        portMissing("BotDrawDebugPolygons", source: "oracle/codemp/server/sv_bot.cpp:227")
-        botlib_export!.runTest(parm0, nil, &svs.clientsSlots[0].gentity!.r.currentOrigin, &svs.clientsSlots[0].gentity!.r.currentAngles)
-    } //end if
-    //draw all debug polys
-    i = 0
-    while i < bot_maxdebugpolys {
-        poly = debugpolygons![i]
-        if poly.inuse == 0 {
-            i += 1
-            continue
-        }
-        // Port-note: Row B6. The third parameter of `drawPoly` is one `inout Float`, and Raven hands the `float *` over all the points of `poly->points`.
-        // Raven wrote: drawPoly(poly->color, poly->numPoints, (float *) poly->points);
-        portMissing("BotDrawDebugPolygons", source: "oracle/codemp/server/sv_bot.cpp:227")
-        //Com_Printf("poly %i, numpoints = %d\n", i, poly->numPoints);
-        i += 1
-    }
+    // CM_DrawDebugSurface is the one caller, and the dedicated build never draws, so it is dead.
+    // TODO: Port BotDrawDebugPolygons
+    portMissing("BotDrawDebugPolygons", source: "oracle/codemp/server/sv_bot.cpp:227")
 }
 
 /**
@@ -595,6 +542,10 @@ func BotImport_DebugPolygonDelete(_ id: Int32) {
     debugpolygons![id].inuse = 0
 }
 
+/// Source: oracle/codemp/server/sv_bot.cpp:526
+// AI: Raven declares `points` on the stack of BotImport_DebugLineCreate. The function uses one zeroed allocation on the storage class.
+var points_BotImport_DebugLineCreate: Slots<JKAShared.vec3_t> { world.storage.points_BotImport_DebugLineCreate }
+
 /**
 ```
 ==================
@@ -604,10 +555,8 @@ BotImport_DebugLineCreate
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:525
 func BotImport_DebugLineCreate() -> Int32 {
-    var points = [vec3_t](repeating: vec3_t(), count: 1)
-    // Port-note: Row B4. The parameter `points` is a `Slots<vec3_t>`, and the local `vec3_t` array of Raven has no Slots form.
-    // Raven wrote: return BotImport_DebugPolygonCreate(0, 0, points);
-    portMissing("BotImport_DebugLineCreate", source: "oracle/codemp/server/sv_bot.cpp:525")
+    // AI: Raven declares `vec3_t points[1]` on his stack. The body uses the zeroed allocation of the storage class through the `points_BotImport_DebugLineCreate` forward.
+    return BotImport_DebugPolygonCreate(0, 0, points_BotImport_DebugLineCreate)
 }
 
 /**
@@ -622,6 +571,10 @@ func BotImport_DebugLineDelete(_ line: Int32) {
     BotImport_DebugPolygonDelete(line)
 }
 
+/// Source: oracle/codemp/server/sv_bot.cpp:545
+// AI: Raven declares `points` on the stack of BotImport_DebugLineShow. The function uses one zeroed allocation on the storage class.
+var points_BotImport_DebugLineShow: Slots<JKAShared.vec3_t> { world.storage.points_BotImport_DebugLineShow }
+
 /**
 ```
 ==================
@@ -631,18 +584,18 @@ BotImport_DebugLineShow
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:544
 func BotImport_DebugLineShow(_ line: Int32, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ color: Int32) {
-    var points = [vec3_t](repeating: vec3_t(), count: 4)
+    // AI: Raven declares `vec3_t points[4]` on his stack. The body uses the zeroed allocation of the storage class through the `points_BotImport_DebugLineShow` forward.
     var dir = vec3_t()
     var cross = vec3_t()
     var up = vec3_t(0, 0, 1)
     let dot: Float
 
-    points[0] = start
-    points[1] = start
+    points_BotImport_DebugLineShow[0] = start
+    points_BotImport_DebugLineShow[1] = start
     //points[1][2] -= 2;
-    points[2] = end
+    points_BotImport_DebugLineShow[2] = end
     //points[2][2] -= 2;
-    points[3] = end
+    points_BotImport_DebugLineShow[3] = end
 
 
     dir = end - start
@@ -656,14 +609,12 @@ func BotImport_DebugLineShow(_ line: Int32, _ start: JKAShared.vec3_t, _ end: JK
 
     VectorNormalize(&cross)
 
-    _VectorMA(points[0], 2, cross, &points[0])
-    _VectorMA(points[1], -2, cross, &points[1])
-    _VectorMA(points[2], -2, cross, &points[2])
-    _VectorMA(points[3], 2, cross, &points[3])
+    _VectorMA(points_BotImport_DebugLineShow[0], 2, cross, &points_BotImport_DebugLineShow[0])
+    _VectorMA(points_BotImport_DebugLineShow[1], -2, cross, &points_BotImport_DebugLineShow[1])
+    _VectorMA(points_BotImport_DebugLineShow[2], -2, cross, &points_BotImport_DebugLineShow[2])
+    _VectorMA(points_BotImport_DebugLineShow[3], 2, cross, &points_BotImport_DebugLineShow[3])
 
-    // Port-note: Row B4. The parameter `points` is a `Slots<vec3_t>`, and the local `vec3_t` array of Raven has no Slots form.
-    // Raven wrote: BotImport_DebugPolygonShow(line, color, 4, points);
-    portMissing("BotImport_DebugLineShow", source: "oracle/codemp/server/sv_bot.cpp:544")
+    BotImport_DebugPolygonShow(line, color, 4, points_BotImport_DebugLineShow)
 }
 
 /**
@@ -820,21 +771,11 @@ func SV_BotInitBotLib() {
         botlib_import.HunkAlloc = BotlibImportThunks.BotImport_HunkAlloc
 
         // file system access
-        // Port-note: Row W3P1. The generated BotlibImportThunks holds no thunk for `FS_FOpenFileByMode` of files_pc.cpp, so the `FS_FOpenFile` field has no value to store.
-        // Raven wrote: botlib_import.FS_FOpenFile = FS_FOpenFileByMode
-        portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-        // Port-note: Row W3P1. The generated BotlibImportThunks holds no thunk for `FS_Read2` of files_pc.cpp, so the `FS_Read` field has no value to store.
-        // Raven wrote: botlib_import.FS_Read = FS_Read2
-        portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-        // Port-note: Row W3P1. The generated BotlibImportThunks holds no thunk for `FS_Write` of files_pc.cpp, so the `FS_Write` field has no value to store.
-        // Raven wrote: botlib_import.FS_Write = FS_Write
-        portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-        // Port-note: Row W3P1. The generated BotlibImportThunks holds no thunk for `FS_FCloseFile` of files_pc.cpp, so the `FS_FCloseFile` field has no value to store.
-        // Raven wrote: botlib_import.FS_FCloseFile = FS_FCloseFile
-        portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-        // Port-note: Row W3P1. The generated BotlibImportThunks holds no thunk for `FS_Seek` of files_pc.cpp, so the `FS_Seek` field has no value to store.
-        // Raven wrote: botlib_import.FS_Seek = FS_Seek
-        portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
+        botlib_import.FS_FOpenFile = BotlibImportThunks.FS_FOpenFileByMode
+        botlib_import.FS_Read = BotlibImportThunks.FS_Read2
+        botlib_import.FS_Write = BotlibImportThunks.FS_Write
+        botlib_import.FS_FCloseFile = BotlibImportThunks.FS_FCloseFile
+        botlib_import.FS_Seek = BotlibImportThunks.FS_Seek
 
         //debug lines
         botlib_import.DebugLineCreate = BotlibImportThunks.BotImport_DebugLineCreate
@@ -904,17 +845,37 @@ func SV_BotGetSnapshotEntity(_ client: Int32, _ sequence: Int32) -> Int32 {
 /// The thunks stand in this file, because the functions they call are private to it.
 private enum BotlibImportThunks {
     /// Source: oracle/codemp/server/sv_bot.cpp:577
-    // TODO: Port signature
-    static let BotClientCommand: BotlibImportBotClientCommand = { _, _ in portMissing("BotClientCommand", source: "oracle/codemp/server/sv_bot.cpp:577") }
+    static let BotClientCommand: BotlibImportBotClientCommand = { JKAMP_DedLogic.BotClientCommand($0, text(at: $1!)) }
 
     /// Source: oracle/codemp/server/sv_bot.cpp:378
-    // Port-note: Row W3P2. The thunk must hand the C caller a `char *` or a `void *`, and the logic target holds no Unsafe type, rule 11.
-    // TODO: Port signature
-    static let BotImport_BSPEntityData: BotlibImportBSPEntityData = { portMissing("BotImport_BSPEntityData", source: "oracle/codemp/server/sv_bot.cpp:378") }
+    static let BotImport_BSPEntityData: BotlibImportBSPEntityData = { ringText(JKAMP_DedLogic.BotImport_BSPEntityData()) }
 
     /// Source: oracle/codemp/server/sv_bot.cpp:387
-    // TODO: Port signature
-    static let BotImport_BSPModelMinsMaxsOrigin: BotlibImportBSPModelMinsMaxsOrigin = { _, _, _, _, _ in portMissing("BotImport_BSPModelMinsMaxsOrigin", source: "oracle/codemp/server/sv_bot.cpp:387") }
+    static let BotImport_BSPModelMinsMaxsOrigin: BotlibImportBSPModelMinsMaxsOrigin = { modelnum, angles, outmins, outmaxs, origin in
+        var mins = vec3_t()
+        var maxs = vec3_t()
+        var org = vec3_t()
+        JKAMP_DedLogic.BotImport_BSPModelMinsMaxsOrigin(modelnum, vector(at: angles!), &mins, &maxs, &org)
+        // Raven tests each output for NULL, so the thunk writes back only to a word that is not nil.
+        if outmins != nil {
+            let slots = Slots<Float>(scalars: outmins!, count: 3)
+            slots[0] = mins[0]
+            slots[1] = mins[1]
+            slots[2] = mins[2]
+        }
+        if outmaxs != nil {
+            let slots = Slots<Float>(scalars: outmaxs!, count: 3)
+            slots[0] = maxs[0]
+            slots[1] = maxs[1]
+            slots[2] = maxs[2]
+        }
+        if origin != nil {
+            let slots = Slots<Float>(scalars: origin!, count: 3)
+            slots[0] = org[0]
+            slots[1] = org[1]
+            slots[2] = org[2]
+        }
+    }
 
     /// Source: oracle/codemp/server/sv_bot.cpp:525
     static let BotImport_DebugLineCreate: BotlibImportDebugLineCreate = { JKAMP_DedLogic.BotImport_DebugLineCreate() }
@@ -923,48 +884,61 @@ private enum BotlibImportThunks {
     static let BotImport_DebugLineDelete: BotlibImportDebugLineDelete = { JKAMP_DedLogic.BotImport_DebugLineDelete($0) }
 
     /// Source: oracle/codemp/server/sv_bot.cpp:544
-    // TODO: Port signature
-    static let BotImport_DebugLineShow: BotlibImportDebugLineShow = { _, _, _, _ in portMissing("BotImport_DebugLineShow", source: "oracle/codemp/server/sv_bot.cpp:544") }
+    static let BotImport_DebugLineShow: BotlibImportDebugLineShow = { JKAMP_DedLogic.BotImport_DebugLineShow($0, vector(at: $1!), vector(at: $2!), $3) }
 
     /// Source: oracle/codemp/server/sv_bot.cpp:471
-    // TODO: Port signature
-    static let BotImport_DebugPolygonCreate: BotlibImportDebugPolygonCreate = { _, _, _ in portMissing("BotImport_DebugPolygonCreate", source: "oracle/codemp/server/sv_bot.cpp:471") }
+    static let BotImport_DebugPolygonCreate: BotlibImportDebugPolygonCreate = { color, numPoints, points in
+        JKAMP_DedLogic.BotImport_DebugPolygonCreate(color, numPoints, Slots<vec3_t>(vectors: points!, count: Int(numPoints)))
+    }
 
     /// Source: oracle/codemp/server/sv_bot.cpp:514
     static let BotImport_DebugPolygonDelete: BotlibImportDebugPolygonDelete = { JKAMP_DedLogic.BotImport_DebugPolygonDelete($0) }
 
     /// Source: oracle/codemp/server/sv_bot.cpp:334
-    // TODO: Port signature
-    static let BotImport_EntityTrace: BotlibImportEntityTrace = { _, _, _, _, _, _, _ in portMissing("BotImport_EntityTrace", source: "oracle/codemp/server/sv_bot.cpp:334") }
+    static let BotImport_EntityTrace: BotlibImportEntityTrace = { JKAMP_DedLogic.BotImport_EntityTrace(BspTrace(handle: $0!), vector(at: $1!), vector(at: $2!), vector(at: $3!), vector(at: $4!), $5, $6) }
 
     /// Source: oracle/codemp/server/sv_bot.cpp:450
     static let BotImport_FreeMemory: BotlibImportFreeMemory = { JKAMP_DedLogic.BotImport_FreeMemory($0) }
 
     /// Source: oracle/codemp/server/sv_bot.cpp:438
-    // Port-note: Row W3P2. The thunk must hand the C caller a `char *` or a `void *`, and the logic target holds no Unsafe type, rule 11.
-    // TODO: Port signature
-    static let BotImport_GetMemory: BotlibImportGetMemory = { _ in portMissing("BotImport_GetMemory", source: "oracle/codemp/server/sv_bot.cpp:438") }
+    static let BotImport_GetMemory: BotlibImportGetMemory = { OpaquePointer(JKAMP_DedLogic.BotImport_GetMemory($0)) }
 
     /// Source: oracle/codemp/server/sv_bot.cpp:459
-    // Port-note: Row W3P2. The thunk must hand the C caller a `char *` or a `void *`, and the logic target holds no Unsafe type, rule 11.
-    // TODO: Port signature
-    static let BotImport_HunkAlloc: BotlibImportHunkAlloc = { _ in portMissing("BotImport_HunkAlloc", source: "oracle/codemp/server/sv_bot.cpp:459") }
+    static let BotImport_HunkAlloc: BotlibImportHunkAlloc = { OpaquePointer(JKAMP_DedLogic.BotImport_HunkAlloc($0)) }
 
     /// Source: oracle/codemp/server/sv_bot.cpp:360
-    // TODO: Port signature
-    static let BotImport_PointContents: BotlibImportPointContents = { _ in portMissing("BotImport_PointContents", source: "oracle/codemp/server/sv_bot.cpp:360") }
+    static let BotImport_PointContents: BotlibImportPointContents = { JKAMP_DedLogic.BotImport_PointContents(vector(at: $0!)) }
 
     /// Source: oracle/codemp/server/sv_bot.cpp:267
-    // TODO: Port signature
-    static let BotImport_Print: BotlibImportPrint = { _, _ in portMissing("BotImport_Print", source: "oracle/codemp/server/sv_bot.cpp:267") }
+    // AI: Raven's botlib passes the format and its arguments. The run method formats them, so the word holds the text, and the thunk passes it as the argument of "%s".
+    static let BotImport_Print: BotlibImportPrint = { JKAMP_DedLogic.BotImport_Print($0, "%s", text(at: $1!)) }
 
     /// Source: oracle/codemp/server/sv_bot.cpp:309
-    // TODO: Port signature
-    static let BotImport_Trace: BotlibImportTrace = { _, _, _, _, _, _, _ in portMissing("BotImport_Trace", source: "oracle/codemp/server/sv_bot.cpp:309") }
+    static let BotImport_Trace: BotlibImportTrace = { JKAMP_DedLogic.BotImport_Trace(BspTrace(handle: $0!), vector(at: $1!), vector(at: $2!), vector(at: $3!), vector(at: $4!), $5, $6) }
 
     /// Source: oracle/codemp/server/sv_bot.cpp:369
-    // TODO: Port signature
-    static let BotImport_inPVS: BotlibImportInPVS = { _, _ in portMissing("BotImport_inPVS", source: "oracle/codemp/server/sv_bot.cpp:369") }
+    static let BotImport_inPVS: BotlibImportInPVS = { JKAMP_DedLogic.BotImport_inPVS(vector(at: $0!), vector(at: $1!)) }
+
+    /// Source: oracle/codemp/qcommon/files_pc.cpp:461
+    static let FS_FCloseFile: BotlibImportFS_FCloseFile = { JKAMP_DedLogic.FS_FCloseFile($0) }
+
+    /// Source: oracle/codemp/qcommon/files_pc.cpp:3064
+    static let FS_FOpenFileByMode: BotlibImportFS_FOpenFile = { qpath, f, mode in
+        let slots = Slots<Int32>(scalars: f!, count: 1)
+        var value = slots[0]
+        let length = JKAMP_DedLogic.FS_FOpenFileByMode(text(at: qpath!), &value, mode)
+        slots[0] = value
+        return length
+    }
+
+    /// Source: oracle/codemp/qcommon/files_pc.cpp:1007
+    static let FS_Read2: BotlibImportFS_Read = { JKAMP_DedLogic.FS_Read2(Slots<JKAShared.byte>(scalars: $0!, count: Int($1)), $1, $2) }
+
+    /// Source: oracle/codemp/qcommon/files_pc.cpp:1131
+    static let FS_Seek: BotlibImportFS_Seek = { JKAMP_DedLogic.FS_Seek($0, $1, $2) }
+
+    /// Source: oracle/codemp/qcommon/files_pc.cpp:1079
+    static let FS_Write: BotlibImportFS_Write = { JKAMP_DedLogic.FS_Write(Slots<JKAShared.byte>(scalars: $0!, count: Int($1)), $1, $2) }
 
     /// Source: oracle/codemp/server/sv_bot.cpp:673
     static let bot_Z_AvailableMemory: BotlibImportAvailableMemory = { JKAMP_DedLogic.bot_Z_AvailableMemory() }

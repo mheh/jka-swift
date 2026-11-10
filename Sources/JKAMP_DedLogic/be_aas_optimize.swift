@@ -181,22 +181,22 @@ func AAS_OptimizeArea(_ optimized: Optimized, _ areanum: Int32) {
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_optimize.cpp:201
 func AAS_OptimizeAlloc(_ optimized: Optimized) {
-    optimized.vertexes = Slots(vectors: GetClearedMemory(UInt32(aasworld.numvertexes * Int32(vec3_t.byteCount))), count: Int(aasworld.numvertexes))
+    optimized.vertexes = Slots(vectors: GetClearedMemory(aasworld.numvertexes * Int32(vec3_t.byteCount)), count: Int(aasworld.numvertexes))
     optimized.numvertexes = 0
-    optimized.edges = AasEdge(GetClearedMemory(UInt32(aasworld.numedges * Int32(AasEdge.byteCount))))
+    optimized.edges = AasEdge(GetClearedMemory(aasworld.numedges * Int32(AasEdge.byteCount)))
     optimized.numedges = 1 //edge zero is a dummy
-    optimized.edgeindex = Slots<Int32>(scalars: GetClearedMemory(UInt32(aasworld.edgeindexsize * Int32(Int32.byteCount))), count: Int(aasworld.edgeindexsize))
+    optimized.edgeindex = Slots<Int32>(scalars: GetClearedMemory(aasworld.edgeindexsize * Int32(Int32.byteCount)), count: Int(aasworld.edgeindexsize))
     optimized.edgeindexsize = 0
-    optimized.faces = AasFace(GetClearedMemory(UInt32(aasworld.numfaces * Int32(AasFace.byteCount))))
+    optimized.faces = AasFace(GetClearedMemory(aasworld.numfaces * Int32(AasFace.byteCount)))
     optimized.numfaces = 1 //face zero is a dummy
-    optimized.faceindex = Slots<Int32>(scalars: GetClearedMemory(UInt32(aasworld.faceindexsize * Int32(Int32.byteCount))), count: Int(aasworld.faceindexsize))
+    optimized.faceindex = Slots<Int32>(scalars: GetClearedMemory(aasworld.faceindexsize * Int32(Int32.byteCount)), count: Int(aasworld.faceindexsize))
     optimized.faceindexsize = 0
-    optimized.areas = AasArea(GetClearedMemory(UInt32(aasworld.numareas * Int32(AasArea.byteCount))))
+    optimized.areas = AasArea(GetClearedMemory(aasworld.numareas * Int32(AasArea.byteCount)))
     optimized.numareas = aasworld.numareas
     //
-    optimized.vertexoptimizeindex = Slots<Int32>(scalars: GetClearedMemory(UInt32(aasworld.numvertexes * Int32(Int32.byteCount))), count: Int(aasworld.numvertexes))
-    optimized.edgeoptimizeindex = Slots<Int32>(scalars: GetClearedMemory(UInt32(aasworld.numedges * Int32(Int32.byteCount))), count: Int(aasworld.numedges))
-    optimized.faceoptimizeindex = Slots<Int32>(scalars: GetClearedMemory(UInt32(aasworld.numfaces * Int32(Int32.byteCount))), count: Int(aasworld.numfaces))
+    optimized.vertexoptimizeindex = Slots<Int32>(scalars: GetClearedMemory(aasworld.numvertexes * Int32(Int32.byteCount)), count: Int(aasworld.numvertexes))
+    optimized.edgeoptimizeindex = Slots<Int32>(scalars: GetClearedMemory(aasworld.numedges * Int32(Int32.byteCount)), count: Int(aasworld.numedges))
+    optimized.faceoptimizeindex = Slots<Int32>(scalars: GetClearedMemory(aasworld.numfaces * Int32(Int32.byteCount)), count: Int(aasworld.numfaces))
 }
 
 //===========================================================================
@@ -303,6 +303,5 @@ func AAS_Optimize() {
         AAS_OptimizeStore(optimized)
     }
     //print some nice stuff :)
-    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_optimize.cpp:294")
+    botimport.runPrint(PRT_MESSAGE, "AAS data optimized.\n")
 }

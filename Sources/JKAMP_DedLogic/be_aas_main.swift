@@ -34,8 +34,7 @@ func AAS_Error(_ fmt: String, _ args: any JKAShared.FormatArg...) {
     var str = CharBuf(1024)
 
     strcpy(&str, JKAShared.format(fmt, args))
-    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_main.cpp:48")
+    botimport.runPrint(PRT_FATAL, String(str))
 }
 
 //===========================================================================
@@ -134,8 +133,7 @@ func AAS_Initialized() -> Int32 {
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:166
 func AAS_SetInitialized() {
     aasworld.initialized = 1
-    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_main.cpp:169")
+    botimport.runPrint(PRT_MESSAGE, "AAS initialized.\n")
 }
 
 //===========================================================================
@@ -161,12 +159,10 @@ func AAS_ContinueInit(_ time: Float) {
         if (Int32(LibVarValue("aasoptimize", "0"))) != 0 { AAS_Optimize() }
         //save the AAS file
         if AAS_WriteAASFile(&aasworld.filenameBuffer) {
-            // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-            portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_main.cpp:202")
+            botimport.runPrint(PRT_MESSAGE, "%s written succesfully\n", aasworld.filename)
         } //end if
         else {
-            // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-            portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_main.cpp:206")
+            botimport.runPrint(PRT_ERROR, "couldn't write %s\n", aasworld.filename)
         } //end else
     } //end if
     //initialize the routing
@@ -273,8 +269,7 @@ func AAS_LoadFiles(_ mapname: String) -> Int32 {
         return errnum
     }
 
-    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_main.cpp:313")
+    botimport.runPrint(PRT_MESSAGE, "loaded %s\n", String(aasfile))
     strncpy(&aasworld.filenameBuffer, aasfile, MAX_PATH)
     return BLERR_NOERROR
 }
@@ -332,7 +327,7 @@ func AAS_Setup() -> Int32 {
     saveroutingcache = LibVar("saveroutingcache", "0")
     //allocate memory for the entities
     if aasworld.entities != nil { FreeMemory(aasworld.entities!.handle) }
-    aasworld.entities = AasEntity(GetClearedHunkMemory(UInt32(aasworld.maxentities * Int32(AasEntity.byteCount))))
+    aasworld.entities = AasEntity(GetClearedHunkMemory(aasworld.maxentities * Int32(AasEntity.byteCount)))
     //invalidate all the entities
     AAS_InvalidateEntities()
     //force some recalculations

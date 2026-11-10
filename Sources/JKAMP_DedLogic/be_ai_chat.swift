@@ -93,15 +93,11 @@ var replychats: BotReplychat? {
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:202
 func BotChatStateFromHandle(_ handle: Int32) -> BotChatstate? {
     if handle <= 0 || handle > MAX_CLIENTS {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "chat state handle %d out of range\n", handle);
-        portMissing("BotChatStateFromHandle", source: "oracle/codemp/botlib/be_ai_chat.cpp:202")
+        botimport.runPrint(PRT_FATAL, "chat state handle %d out of range\n", handle)
         return nil
     }
     if botchatstates[handle] == nil {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "invalid chat state %d\n", handle);
-        portMissing("BotChatStateFromHandle", source: "oracle/codemp/botlib/be_ai_chat.cpp:202")
+        botimport.runPrint(PRT_FATAL, "invalid chat state %d\n", handle)
         return nil
     }
     return botchatstates[handle]
@@ -202,9 +198,7 @@ func BotQueueConsoleMessage(_ chatstate: Int32, _ type: Int32, _ message: String
     guard let cs = BotChatStateFromHandle(chatstate) else { return }
 
     guard let m = AllocConsoleMessage() else {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_ERROR, "empty console message heap\n");
-        portMissing("BotQueueConsoleMessage", source: "oracle/codemp/botlib/be_ai_chat.cpp:309")
+        botimport.runPrint(PRT_ERROR, "empty console message heap\n")
         return
     }
     // Port-note: The `handle` fields of `bot_chatstate_t` and `bot_consolemessage_t` have no accessor in their views, row P2 of the bot-ai round.
@@ -377,7 +371,7 @@ func StringContains(_ str1: inout JKAShared.CharBuf, _ str2: String, _ casesensi
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:478
-func StringContainsWord(_ str1: inout JKAShared.CharBuf, _ str2: String, _ casesensitive: Int32) -> String? {
+func StringContainsWord(_ str1: inout JKAShared.CharBuf, _ str2: String, _ casesensitive: Int32) -> Int32? {
     var len: Int32
     var i: Int32
     var j: Int32
@@ -410,7 +404,7 @@ func StringContainsWord(_ str1: inout JKAShared.CharBuf, _ str2: String, _ cases
         //if there was a word match
         if str2[j] == 0 {
             //if the first string has an end of word
-            if str1[str1Index + j] == 0 || str1[str1Index + j] == Int32(ascii: " ") || str1[str1Index + j] == Int32(ascii: ".") || str1[str1Index + j] == Int32(ascii: ",") || str1[str1Index + j] == Int32(ascii: "!") { return String(str1[str1Index...]) }
+            if str1[str1Index + j] == 0 || str1[str1Index + j] == Int32(ascii: " ") || str1[str1Index + j] == Int32(ascii: ".") || str1[str1Index + j] == Int32(ascii: ",") || str1[str1Index + j] == Int32(ascii: "!") { return str1Index }
         }
         i += 1
         str1Index += 1
@@ -425,10 +419,36 @@ func StringContainsWord(_ str1: inout JKAShared.CharBuf, _ str2: String, _ cases
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:520
-// Port-note: StringContainsWord returns the text at its pointer as a `String?`, and this body compares and steps that pointer inside `string`, row P15 of the bot-ai round.
 func StringReplaceWords(_ string: inout JKAShared.CharBuf, _ synonym: String, _ replacement: String) {
-    // TODO: Port StringReplaceWords
-    portMissing("StringReplaceWords", source: "oracle/codemp/botlib/be_ai_chat.cpp:520")
+    var str: Int32?, str2: Int32?
+
+    //find the synonym in the string
+    str = StringContainsWord(&string, synonym, qfalse)
+    //if the synonym occured in the string
+    while str != nil {
+        //if the synonym isn't part of the replacement which is already in the string
+        //usefull for abreviations
+        str2 = StringContainsWord(&string, replacement, qfalse)
+        while str2 != nil {
+            if str2! <= str! && str! < str2! + strlen(replacement) { break }
+            // AI: Raven hands a pointer into `string`. The call takes a copy of the tail, so its offset adds the tail start.
+            let tailStart = str2! + 1
+            var tail = string[tailStart...]
+            str2 = StringContainsWord(&tail, replacement, qfalse)
+            if str2 != nil { str2! += tailStart }
+        } //end while
+        if str2 == nil {
+            memmove(&string, str! + strlen(synonym), strlen(string[(str! + strlen(synonym))...]) + 1, at: str! + strlen(replacement))
+            //append the synonum replacement
+            strncpy(&string, replacement, strlen(replacement), at: str!)
+        } //end if
+        //find the next synonym in the string
+        // AI: Raven hands a pointer into `string`. The call takes a copy of the tail, so its offset adds the tail start.
+        let tailStart = str! + strlen(replacement)
+        var tail = string[tailStart...]
+        str = StringContainsWord(&tail, synonym, qfalse)
+        if str != nil { str! += tailStart }
+    } //end if
 }
 
 //===========================================================================
@@ -451,10 +471,150 @@ func BotDumpSynonymList(_ synlist: BotSynonymlist) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:578
-// Port-note: Raven cuts one GetClearedHunkMemory block into the synonym lists, the synonyms, and their texts (D12 shape 11), and no form exists, row P3 of the bot-ai round.
 func BotLoadSynonyms(_ filename: inout JKAShared.CharBuf) -> BotSynonymlist? {
-    // TODO: Port BotLoadSynonyms
-    portMissing("BotLoadSynonyms", source: "oracle/codemp/botlib/be_ai_chat.cpp:578")
+    Token.scratch { token -> BotSynonymlist? in
+        var pass: Int32, size: Int32, contextlevel: Int32, numsynonyms: Int32
+        var context: UInt32
+        var contextstack = [UInt32](repeating: 0, count: 32)
+        var synlist: BotSynonymlist?, lastsyn: BotSynonymlist?, syn: BotSynonymlist?
+        var synonym: BotSynonym?, lastsynonym: BotSynonym?
+
+        size = 0
+        synlist = nil //make compiler happy
+        syn = nil //make compiler happy
+        synonym = nil //make compiler happy
+        //the synonyms are parsed in two phases
+        pass = 0
+        while pass < 2 {
+            //
+            // The block holds the records at their offsets, and the walk binds each record where Raven casts `ptr`, the N8 form.
+            var ptr = pass != 0 && size != 0 ? GetClearedHunkMemory(size) : nil
+            //
+            PC_SetBaseFolder(BOTFILESBASEFOLDER)
+            guard let source = LoadSourceFile(String(filename)) else {
+                botimport.runPrint(PRT_ERROR, "counldn't load %s\n", String(filename))
+                return nil
+            }
+            //
+            context = 0
+            contextlevel = 0
+            synlist = nil //list synonyms
+            lastsyn = nil //last synonym in the list
+            //
+            while PC_ReadToken(source, token) != 0 {
+                if token.type == TT_NUMBER {
+                    context |= token.intvalue
+                    contextstack[contextlevel] = token.intvalue
+                    contextlevel += 1
+                    if contextlevel >= 32 {
+                        SourceError(source, "more than 32 context levels")
+                        FreeSource(source)
+                        return nil
+                    } //end if
+                    if PC_ExpectTokenString(source, "{") == 0 {
+                        FreeSource(source)
+                        return nil
+                    } //end if
+                } //end if
+                else if token.type == TT_PUNCTUATION {
+                    if strcmp(token.string, "}") == 0 {
+                        contextlevel -= 1
+                        if contextlevel < 0 {
+                            SourceError(source, "too many }")
+                            FreeSource(source)
+                            return nil
+                        } //end if
+                        context &= ~contextstack[contextlevel]
+                    } //end if
+                    else if strcmp(token.string, "[") == 0 {
+                        size += Int32(BotSynonymlist.byteCount)
+                        if pass != 0 {
+                            syn = BotSynonymlist(ptr!)
+                            ptr = ptr! + BotSynonymlist.byteCount
+                            syn!.context = context
+                            syn!.firstsynonym = nil
+                            syn!.next = nil
+                            if lastsyn != nil {
+                                lastsyn!.next = syn
+                            } else {
+                                synlist = syn
+                            }
+                            lastsyn = syn
+                        } //end if
+                        numsynonyms = 0
+                        lastsynonym = nil
+                        while true {
+                            if PC_ExpectTokenString(source, "(") == 0 ||
+                                PC_ExpectTokenType(source, TT_STRING, 0, token) == 0 {
+                                FreeSource(source)
+                                return nil
+                            } //end if
+                            StripDoubleQuotes(&token.stringBuffer)
+                            if strlen(token.string) <= 0 {
+                                SourceError(source, "empty string", token.string)
+                                FreeSource(source)
+                                return nil
+                            } //end if
+                            size += Int32(BotSynonym.byteCount) + strlen(token.string) + 1
+                            if pass != 0 {
+                                synonym = BotSynonym(ptr!)
+                                ptr = ptr! + BotSynonym.byteCount
+                                // AI: Raven copies the text after the record. The view setter pools the text, so those bytes stay unused.
+                                synonym!.string = token.string
+                                ptr = ptr! + strlen(token.string) + 1
+                                //
+                                if lastsynonym != nil {
+                                    lastsynonym!.next = synonym
+                                } else {
+                                    syn!.firstsynonym = synonym
+                                }
+                                lastsynonym = synonym
+                            } //end if
+                            numsynonyms += 1
+                            if PC_ExpectTokenString(source, ",") == 0 ||
+                                PC_ExpectTokenType(source, TT_NUMBER, 0, token) == 0 ||
+                                PC_ExpectTokenString(source, ")") == 0 {
+                                FreeSource(source)
+                                return nil
+                            } //end if
+                            if pass != 0 {
+                                synonym!.weight = Float(token.floatvalue)
+                                syn!.totalweight += synonym!.weight
+                            } //end if
+                            if PC_CheckTokenString(source, "]") != 0 { break }
+                            if PC_ExpectTokenString(source, ",") == 0 {
+                                FreeSource(source)
+                                return nil
+                            } //end if
+                        } //end while
+                        if numsynonyms < 2 {
+                            SourceError(source, "synonym must have at least two entries\n")
+                            FreeSource(source)
+                            return nil
+                        } //end if
+                    } //end else
+                    else {
+                        SourceError(source, "unexpected %s", token.string)
+                        FreeSource(source)
+                        return nil
+                    } //end if
+                } //end else if
+            } //end while
+            //
+            FreeSource(source)
+            //
+            if contextlevel > 0 {
+                SourceError(source, "missing }")
+                return nil
+            } //end if
+            pass += 1
+        } //end for
+        botimport.runPrint(PRT_MESSAGE, "loaded %s\n", String(filename))
+        //
+        //BotDumpSynonymList(synlist);
+        //
+        return synlist
+    }
 }
 
 //===========================================================================
@@ -542,10 +702,60 @@ func BotReplaceWeightedSynonyms(_ string: inout JKAShared.CharBuf, _ context: UI
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:797
-// Port-note: StringContainsWord returns the text at its pointer as a `String?`, and this body compares that pointer with `str1`, row P15 of the bot-ai round.
 func BotReplaceReplySynonyms(_ string: inout JKAShared.CharBuf, _ context: UInt32) {
-    // TODO: Port BotReplaceReplySynonyms
-    portMissing("BotReplaceReplySynonyms", source: "oracle/codemp/botlib/be_ai_chat.cpp:797")
+    var str1: Int32, str2: Int32?
+    var replacement: String
+    var syn: BotSynonymlist?
+    var synonym: BotSynonym?
+
+    str1 = 0
+    while string[str1] != 0 {
+        //go to the start of the next word
+        while string[str1] != 0 && string[str1] <= Int32(ascii: " ") { str1 += 1 }
+        if string[str1] == 0 { break }
+        //
+        syn = synonyms
+        while syn != nil {
+            if (syn!.context & context) == 0 {
+                syn = syn!.next
+                continue
+            }
+            synonym = syn!.firstsynonym!.next
+            while synonym != nil {
+                //if the synonym is not at the front of the string continue
+                // AI: Raven hands a pointer into `string`. The call takes a copy of the tail, so its offset adds the tail start.
+                var tail = string[str1...]
+                str2 = StringContainsWord(&tail, synonym!.string!, qfalse)
+                if str2 != nil { str2! += str1 }
+                if str2 == nil || str2 != str1 {
+                    synonym = synonym!.next
+                    continue
+                }
+                //
+                replacement = syn!.firstsynonym!.string!
+                //if the replacement IS in front of the string continue
+                tail = string[str1...]
+                str2 = StringContainsWord(&tail, replacement, qfalse)
+                if str2 != nil { str2! += str1 }
+                if str2 != nil && str2 == str1 {
+                    synonym = synonym!.next
+                    continue
+                }
+                //
+                memmove(&string, str1 + strlen(synonym!.string!), strlen(string[(str1 + strlen(synonym!.string!))...]) + 1, at: str1 + strlen(replacement))
+                //append the synonum replacement
+                strncpy(&string, replacement, strlen(replacement), at: str1)
+                //
+                break
+            } //end for
+            //if a synonym has been replaced
+            if synonym != nil { break }
+            syn = syn!.next
+        } //end for
+        //skip over this word
+        while string[str1] != 0 && string[str1] > Int32(ascii: " ") { str1 += 1 }
+        if string[str1] == 0 { break }
+    } //end while
 }
 
 //===========================================================================
@@ -579,9 +789,7 @@ func BotLoadChatMessage(_ source: Source, _ chatmessagestring: inout JKAShared.C
                     SourceError(source, "chat message too long\n")
                     return 0
                 }
-                // Port-note: The `%ld` of this format is outside the format subset of Format.swift, row P16 of the bot-ai round.
-                // Raven wrote: sprintf(&ptr[strlen(ptr)], "%cv%ld%c", ESCAPE_CHAR, token.intvalue, ESCAPE_CHAR);
-                portMissing("BotLoadChatMessage", source: "oracle/codemp/botlib/be_ai_chat.cpp:845")
+                strcpy(&chatmessagestring, va("%cv%ld%c", ESCAPE_CHAR, token.intvalue, ESCAPE_CHAR), at: ptr + strlen(chatmessagestring[ptr...]))
             }
             //random string
             else if token.type == TT_NAME {
@@ -622,10 +830,87 @@ func BotDumpRandomStringList(_ randomlist: BotRandomlist) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:929
-// Port-note: Raven cuts one GetClearedHunkMemory block into the random lists, the random strings, and their texts (D12 shape 11), and no form exists, row P3 of the bot-ai round.
 func BotLoadRandomStrings(_ filename: inout JKAShared.CharBuf) -> BotRandomlist? {
-    // TODO: Port BotLoadRandomStrings
-    portMissing("BotLoadRandomStrings", source: "oracle/codemp/botlib/be_ai_chat.cpp:929")
+    Token.scratch { token -> BotRandomlist? in
+        var pass: Int32, size: Int32
+        var chatmessagestring = CharBuf(MAX_MESSAGE_SIZE)
+        var randomlist: BotRandomlist?, lastrandom: BotRandomlist?, random: BotRandomlist?
+        var randomstring: BotRandomstring
+
+        size = 0
+        randomlist = nil
+        random = nil
+        //the synonyms are parsed in two phases
+        pass = 0
+        while pass < 2 {
+            //
+            // The block holds the records at their offsets, and the walk binds each record where Raven casts `ptr`, the N8 form.
+            var ptr = pass != 0 && size != 0 ? GetClearedHunkMemory(size) : nil
+            //
+            PC_SetBaseFolder(BOTFILESBASEFOLDER)
+            guard let source = LoadSourceFile(String(filename)) else {
+                botimport.runPrint(PRT_ERROR, "counldn't load %s\n", String(filename))
+                return nil
+            }
+            //
+            randomlist = nil //list
+            lastrandom = nil //last
+            //
+            while PC_ReadToken(source, token) != 0 {
+                if token.type != TT_NAME {
+                    SourceError(source, "unknown random %s", token.string)
+                    FreeSource(source)
+                    return nil
+                } //end if
+                size += Int32(BotRandomlist.byteCount) + strlen(token.string) + 1
+                if pass != 0 {
+                    random = BotRandomlist(ptr!)
+                    ptr = ptr! + BotRandomlist.byteCount
+                    // AI: Raven copies the text after the record. The view setter pools the text, so those bytes stay unused.
+                    random!.string = token.string
+                    ptr = ptr! + strlen(token.string) + 1
+                    random!.firstrandomstring = nil
+                    random!.numstrings = 0
+                    //
+                    if lastrandom != nil {
+                        lastrandom!.next = random
+                    } else {
+                        randomlist = random
+                    }
+                    lastrandom = random
+                } //end if
+                if PC_ExpectTokenString(source, "=") == 0 ||
+                    PC_ExpectTokenString(source, "{") == 0 {
+                    FreeSource(source)
+                    return nil
+                } //end if
+                while PC_CheckTokenString(source, "}") == 0 {
+                    if BotLoadChatMessage(source, &chatmessagestring) == 0 {
+                        FreeSource(source)
+                        return nil
+                    } //end if
+                    size += Int32(BotRandomstring.byteCount) + strlen(chatmessagestring) + 1
+                    if pass != 0 {
+                        randomstring = BotRandomstring(ptr!)
+                        ptr = ptr! + BotRandomstring.byteCount
+                        // AI: Raven copies the text after the record. The view setter pools the text, so those bytes stay unused.
+                        randomstring.string = String(chatmessagestring)
+                        ptr = ptr! + strlen(chatmessagestring) + 1
+                        //
+                        random!.numstrings += 1
+                        randomstring.next = random!.firstrandomstring
+                        random!.firstrandomstring = randomstring
+                    } //end if
+                } //end while
+            } //end while
+            //free the source after one pass
+            FreeSource(source)
+            pass += 1
+        } //end for
+        botimport.runPrint(PRT_MESSAGE, "loaded %s\n", String(filename))
+        //
+        return randomlist
+    }
 }
 
 //===========================================================================
@@ -680,7 +965,7 @@ func BotDumpMatchTemplates(_ matches: BotMatchtemplate) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1097
-func BotFreeMatchPieces(_ matchpieces: BotMatchpiece) {
+func BotFreeMatchPieces(_ matchpieces: BotMatchpiece?) {
     var mp: BotMatchpiece?
     var nextmp: BotMatchpiece?
     var ms: BotMatchstring?
@@ -726,25 +1011,24 @@ func BotLoadMatchPieces(_ source: Source, _ endtoken: String) -> BotMatchpiece? 
         //
         while PC_ReadToken(source, token) != 0 {
             if token.type == TT_NUMBER && (token.subtype & TT_INTEGER) != 0 {
-                if token.intvalue < 0 || token.intvalue >= MAX_MATCHVARIABLES {
+                // C converts the int to an unsigned long at the compare.
+                if token.intvalue < 0 || token.intvalue >= UInt32(bitPattern: MAX_MATCHVARIABLES) {
                     SourceError(source, "can't have more than %d match variables\n", MAX_MATCHVARIABLES)
                     FreeSource(source)
-                    // Port-note: Raven passes a NULL `firstpiece` here, and the parameter of BotFreeMatchPieces is a non-optional view, row P14 of the bot-ai round.
-                    // Raven wrote: BotFreeMatchPieces(firstpiece);
-                    portMissing("BotLoadMatchPieces", source: "oracle/codemp/botlib/be_ai_chat.cpp:1122")
+                    BotFreeMatchPieces(firstpiece)
                     return nil
                 }
                 if lastwasvariable != 0 {
                     SourceError(source, "not allowed to have adjacent variables\n")
                     FreeSource(source)
-                    BotFreeMatchPieces(firstpiece!)
+                    BotFreeMatchPieces(firstpiece)
                     return nil
                 }
                 lastwasvariable = 1
                 //
                 matchpiece = BotMatchpiece(GetClearedHunkMemory(UInt32(BotMatchpiece.byteCount)))
                 matchpiece!.type = MT_VARIABLE
-                // AI: Raven stores the `unsigned long` value into an `int`, and C converts it. The store converts with the bit pattern.
+                // C converts the unsigned long to an int.
                 matchpiece!.variable = Int32(bitPattern: token.intvalue)
                 matchpiece!.next = nil
                 if lastpiece != nil {
@@ -774,14 +1058,14 @@ func BotLoadMatchPieces(_ source: Source, _ endtoken: String) -> BotMatchpiece? 
                     if matchpiece!.firststring != nil {
                         if PC_ExpectTokenType(source, TT_STRING, 0, token) == 0 {
                             FreeSource(source)
-                            BotFreeMatchPieces(firstpiece!)
+                            BotFreeMatchPieces(firstpiece)
                             return nil
                         }
                     }
                     StripDoubleQuotes(&token.stringBuffer)
-                    // Port-note: Raven puts the match string record and its text in one block (D12 shape 8), and no form exists in a logic body, row P3 of the bot-ai round.
-                    // Raven wrote: matchstring = (bot_matchstring_t *) GetClearedHunkMemory(sizeof(bot_matchstring_t) + strlen(token.string) + 1); matchstring->string = (char *) matchstring + sizeof(bot_matchstring_t); strcpy(matchstring->string, token.string);
-                    portMissing("BotLoadMatchPieces", source: "oracle/codemp/botlib/be_ai_chat.cpp:1122")
+                    // AI: Raven copies the text after the record. The view setter pools the text, so those bytes stay unused.
+                    matchstring = BotMatchstring(GetClearedHunkMemory(Int32(BotMatchstring.byteCount) + strlen(token.string) + 1))
+                    matchstring!.string = token.string
                     if strlen(token.string) == 0 { emptystring = 1 }
                     matchstring!.next = nil
                     if lastmatchstring != nil {
@@ -796,15 +1080,13 @@ func BotLoadMatchPieces(_ source: Source, _ endtoken: String) -> BotMatchpiece? 
             } else {
                 SourceError(source, "invalid token %s\n", token.string)
                 FreeSource(source)
-                // Port-note: Raven passes a NULL `firstpiece` here, and the parameter of BotFreeMatchPieces is a non-optional view, row P14 of the bot-ai round.
-                // Raven wrote: BotFreeMatchPieces(firstpiece);
-                portMissing("BotLoadMatchPieces", source: "oracle/codemp/botlib/be_ai_chat.cpp:1122")
+                BotFreeMatchPieces(firstpiece)
                 return nil
             }
             if PC_CheckTokenString(source, endtoken) != 0 { break }
             if PC_ExpectTokenString(source, ",") == 0 {
                 FreeSource(source)
-                BotFreeMatchPieces(firstpiece!)
+                BotFreeMatchPieces(firstpiece)
                 return nil
             }
         }
@@ -819,14 +1101,14 @@ func BotLoadMatchPieces(_ source: Source, _ endtoken: String) -> BotMatchpiece? 
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1224
-func BotFreeMatchTemplates(_ mt: BotMatchtemplate) {
+func BotFreeMatchTemplates(_ mt: BotMatchtemplate?) {
     var nextmt: BotMatchtemplate?
     // Raven steps his own `mt` parameter, so the body walks a local of the same name.
     var mt: BotMatchtemplate? = mt
 
     while mt != nil {
         nextmt = mt!.next
-        BotFreeMatchPieces(mt!.first!)
+        BotFreeMatchPieces(mt!.first)
         FreeMemory(mt!.handle)
         mt = nextmt
     }
@@ -848,9 +1130,7 @@ func BotLoadMatchTemplates(_ matchfile: inout JKAShared.CharBuf) -> BotMatchtemp
 
         PC_SetBaseFolder(BOTFILESBASEFOLDER)
         guard let source = LoadSourceFile(String(matchfile)) else {
-            // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-            // Raven wrote: botimport.Print(PRT_ERROR, "counldn't load %s\n", matchfile);
-            portMissing("BotLoadMatchTemplates", source: "oracle/codemp/botlib/be_ai_chat.cpp:1241")
+            botimport.runPrint(PRT_ERROR, "counldn't load %s\n", String(matchfile))
             return nil
         }
         //
@@ -860,9 +1140,7 @@ func BotLoadMatchTemplates(_ matchfile: inout JKAShared.CharBuf) -> BotMatchtemp
         while PC_ReadToken(source, token) != 0 {
             if token.type != TT_NUMBER || (token.subtype & TT_INTEGER) == 0 {
                 SourceError(source, "expected integer, found %s\n", token.string)
-                // Port-note: Raven passes a NULL `matches` here, and the parameter of BotFreeMatchTemplates is a non-optional view, row P14 of the bot-ai round.
-                // Raven wrote: BotFreeMatchTemplates(matches);
-                portMissing("BotLoadMatchTemplates", source: "oracle/codemp/botlib/be_ai_chat.cpp:1241")
+                BotFreeMatchTemplates(matches)
                 FreeSource(source)
                 return nil
             }
@@ -870,9 +1148,7 @@ func BotLoadMatchTemplates(_ matchfile: inout JKAShared.CharBuf) -> BotMatchtemp
             context = token.intvalue
             //
             if PC_ExpectTokenString(source, "{") == 0 {
-                // Port-note: Raven passes a NULL `matches` here, and the parameter of BotFreeMatchTemplates is a non-optional view, row P14 of the bot-ai round.
-                // Raven wrote: BotFreeMatchTemplates(matches);
-                portMissing("BotLoadMatchTemplates", source: "oracle/codemp/botlib/be_ai_chat.cpp:1241")
+                BotFreeMatchTemplates(matches)
                 FreeSource(source)
                 return nil
             }
@@ -895,28 +1171,28 @@ func BotLoadMatchTemplates(_ matchfile: inout JKAShared.CharBuf) -> BotMatchtemp
                 //load the match template
                 matchtemplate!.first = BotLoadMatchPieces(source, "=")
                 if matchtemplate!.first == nil {
-                    BotFreeMatchTemplates(matches!)
+                    BotFreeMatchTemplates(matches)
                     return nil
                 }
                 //read the match type
                 if PC_ExpectTokenString(source, "(") == 0 || PC_ExpectTokenType(source, TT_NUMBER, TT_INTEGER, token) == 0 {
-                    BotFreeMatchTemplates(matches!)
+                    BotFreeMatchTemplates(matches)
                     FreeSource(source)
                     return nil
                 }
-                // AI: Raven stores the `unsigned long` value into an `int`, and C converts it. The store converts with the bit pattern.
+                // C converts the unsigned long to an int.
                 matchtemplate!.type = Int32(bitPattern: token.intvalue)
                 //read the match subtype
                 if PC_ExpectTokenString(source, ",") == 0 || PC_ExpectTokenType(source, TT_NUMBER, TT_INTEGER, token) == 0 {
-                    BotFreeMatchTemplates(matches!)
+                    BotFreeMatchTemplates(matches)
                     FreeSource(source)
                     return nil
                 }
-                // AI: Raven stores the `unsigned long` value into an `int`, and C converts it. The store converts with the bit pattern.
+                // C converts the unsigned long to an int.
                 matchtemplate!.subtype = Int32(bitPattern: token.intvalue)
                 //read trailing punctuations
                 if PC_ExpectTokenString(source, ")") == 0 || PC_ExpectTokenString(source, ";") == 0 {
-                    BotFreeMatchTemplates(matches!)
+                    BotFreeMatchTemplates(matches)
                     FreeSource(source)
                     return nil
                 }
@@ -924,9 +1200,7 @@ func BotLoadMatchTemplates(_ matchfile: inout JKAShared.CharBuf) -> BotMatchtemp
         }
         //free the source
         FreeSource(source)
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_MESSAGE, "loaded %s\n", matchfile);
-        portMissing("BotLoadMatchTemplates", source: "oracle/codemp/botlib/be_ai_chat.cpp:1241")
+        botimport.runPrint(PRT_MESSAGE, "loaded %s\n", String(matchfile))
         //
         //BotDumpMatchTemplates(matches);
         //
@@ -1059,9 +1333,7 @@ func BotMatchVariable(_ match: BotMatch, _ variable: Int32, _ buf: inout JKAShar
     var size = size
 
     if variable < 0 || variable >= MAX_MATCHVARIABLES {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "BotMatchVariable: variable out of range\n");
-        portMissing("BotMatchVariable", source: "oracle/codemp/botlib/be_ai_chat.cpp:1451")
+        botimport.runPrint(PRT_FATAL, "BotMatchVariable: variable out of range\n")
         strcpy(&buf, "")
         return
     }
@@ -1086,7 +1358,7 @@ func BotMatchVariable(_ match: BotMatch, _ variable: Int32, _ buf: inout JKAShar
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1480
-func BotFindStringInList(_ list: BotStringlist, _ string: String) -> BotStringlist? {
+func BotFindStringInList(_ list: BotStringlist?, _ string: String) -> BotStringlist? {
     var s: BotStringlist?
 
     s = list
@@ -1104,11 +1376,60 @@ func BotFindStringInList(_ list: BotStringlist, _ string: String) -> BotStringli
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1496
-// Port-note: Raven passes a NULL `stringlist`, and the parameter is a non-optional view, row P14 of the bot-ai round.
-// Port-note: Raven puts the string list record and its text in one block (D12 shape 8), and no form exists in a logic body, row P3 of the bot-ai round.
-func BotCheckChatMessageIntegrety(_ message: inout JKAShared.CharBuf, _ stringlist: BotStringlist) -> BotStringlist? {
-    // TODO: Port BotCheckChatMessageIntegrety
-    portMissing("BotCheckChatMessageIntegrety", source: "oracle/codemp/botlib/be_ai_chat.cpp:1496")
+func BotCheckChatMessageIntegrety(_ message: inout JKAShared.CharBuf, _ stringlist: BotStringlist?) -> BotStringlist? {
+    var i: Int32
+    var msgptr: Int32
+    var temp = CharBuf(MAX_MESSAGE_SIZE)
+    var s: BotStringlist
+    // Raven writes his own `stringlist` parameter, so the body writes a local of the same name.
+    var stringlist = stringlist
+
+    msgptr = 0
+    //
+    while message[msgptr] != 0 {
+        if message[msgptr] == ESCAPE_CHAR {
+            msgptr += 1
+            switch message[msgptr] as Int32 {
+            case Int32(ascii: "v"): //variable
+                //step over the 'v'
+                msgptr += 1
+                while message[msgptr] != 0 && message[msgptr] != ESCAPE_CHAR { msgptr += 1 }
+                //step over the trailing escape char
+                if message[msgptr] != 0 { msgptr += 1 }
+
+            case Int32(ascii: "r"): //random
+                //step over the 'r'
+                msgptr += 1
+                i = 0
+                while message[msgptr] != 0 && message[msgptr] != ESCAPE_CHAR {
+                    temp[i] = message[msgptr]
+                    msgptr += 1
+                    i += 1
+                } //end while
+                temp[i] = 0
+                //step over the trailing escape char
+                if message[msgptr] != 0 { msgptr += 1 }
+                //find the random keyword
+                if RandomString(String(temp)) == nil {
+                    if BotFindStringInList(stringlist, String(temp)) == nil {
+                        Log_Write("%s = {\"%s\"} //MISSING RANDOM\r\n", String(temp), String(temp))
+                        // AI: Raven copies the text after the record. The view setter pools the text, so those bytes stay unused.
+                        s = BotStringlist(GetClearedMemory(Int32(BotStringlist.byteCount) + strlen(temp) + 1))
+                        s.string = String(temp)
+                        s.next = stringlist
+                        stringlist = s
+                    } //end if
+                } //end if
+
+            default:
+                botimport.runPrint(PRT_FATAL, "BotCheckChatMessageIntegrety: message \"%s\" invalid escape char\n", String(message))
+            } //end switch
+        } //end if
+        else {
+            msgptr += 1
+        } //end else
+    } //end while
+    return stringlist
 }
 
 //===========================================================================
@@ -1118,10 +1439,28 @@ func BotCheckChatMessageIntegrety(_ message: inout JKAShared.CharBuf, _ stringli
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1567
-// Port-note: Raven passes the NULL `stringlist` to BotCheckChatMessageIntegrety, whose parameter is a non-optional view, row P14 of the bot-ai round.
 func BotCheckInitialChatIntegrety(_ chat: BotChat) {
-    // TODO: Port BotCheckInitialChatIntegrety
-    portMissing("BotCheckInitialChatIntegrety", source: "oracle/codemp/botlib/be_ai_chat.cpp:1567")
+    var t: BotChattype?
+    var cm: BotChatmessage?
+    var stringlist: BotStringlist?, s: BotStringlist?, nexts: BotStringlist?
+
+    stringlist = nil
+    t = chat.types
+    while t != nil {
+        cm = t!.firstchatmessage
+        while cm != nil {
+            var chatmessage = CharBuf(cm!.chatmessage!)
+            stringlist = BotCheckChatMessageIntegrety(&chatmessage, stringlist)
+            cm = cm!.next
+        } //end for
+        t = t!.next
+    } //end for
+    s = stringlist
+    while s != nil {
+        nexts = s!.next
+        FreeMemory(s!.handle)
+        s = nexts
+    } //end for
 }
 
 //===========================================================================
@@ -1131,10 +1470,28 @@ func BotCheckInitialChatIntegrety(_ chat: BotChat) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1593
-// Port-note: Raven passes the NULL `stringlist` to BotCheckChatMessageIntegrety, whose parameter is a non-optional view, row P14 of the bot-ai round.
-func BotCheckReplyChatIntegrety(_ replychat: BotReplychat) {
-    // TODO: Port BotCheckReplyChatIntegrety
-    portMissing("BotCheckReplyChatIntegrety", source: "oracle/codemp/botlib/be_ai_chat.cpp:1593")
+func BotCheckReplyChatIntegrety(_ replychat: BotReplychat?) {
+    var rp: BotReplychat?
+    var cm: BotChatmessage?
+    var stringlist: BotStringlist?, s: BotStringlist?, nexts: BotStringlist?
+
+    stringlist = nil
+    rp = replychat
+    while rp != nil {
+        cm = rp!.firstchatmessage
+        while cm != nil {
+            var chatmessage = CharBuf(cm!.chatmessage!)
+            stringlist = BotCheckChatMessageIntegrety(&chatmessage, stringlist)
+            cm = cm!.next
+        } //end for
+        rp = rp!.next
+    } //end for
+    s = stringlist
+    while s != nil {
+        nexts = s!.next
+        FreeMemory(s!.handle)
+        s = nexts
+    } //end for
 }
 
 //===========================================================================
@@ -1157,7 +1514,7 @@ func BotDumpReplyChat(_ replychat: BotReplychat) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1674
-func BotFreeReplyChat(_ replychat: BotReplychat) {
+func BotFreeReplyChat(_ replychat: BotReplychat?) {
     var rp: BotReplychat?
     var nextrp: BotReplychat?
     var key: BotReplychatkey?
@@ -1171,7 +1528,7 @@ func BotFreeReplyChat(_ replychat: BotReplychat) {
         key = rp!.keys
         while key != nil {
             nextkey = key!.next
-            if key!.match != nil { BotFreeMatchPieces(key!.match!) }
+            if key!.match != nil { BotFreeMatchPieces(key!.match) }
             // AI: Raven frees the GetMemory block of the text. The field holds a pooled text, so the free drops.
             FreeMemory(key!.handle)
             key = nextkey
@@ -1317,9 +1674,7 @@ func BotLoadReplyChat(_ filename: inout JKAShared.CharBuf) -> BotReplychat? {
 
         PC_SetBaseFolder(BOTFILESBASEFOLDER)
         guard let source = LoadSourceFile(String(filename)) else {
-            // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-            // Raven wrote: botimport.Print(PRT_ERROR, "counldn't load %s\n", filename);
-            portMissing("BotLoadReplyChat", source: "oracle/codemp/botlib/be_ai_chat.cpp:1811")
+            botimport.runPrint(PRT_ERROR, "counldn't load %s\n", String(filename))
             return nil
         }
         //
@@ -1328,9 +1683,7 @@ func BotLoadReplyChat(_ filename: inout JKAShared.CharBuf) -> BotReplychat? {
         while PC_ReadToken(source, token) != 0 {
             if strcmp(token.string, "[") != 0 {
                 SourceError(source, "expected [, found %s", token.string)
-                // Port-note: Raven passes a NULL `replychatlist` here, and the parameter of BotFreeReplyChat is a non-optional view, row P14 of the bot-ai round.
-                // Raven wrote: BotFreeReplyChat(replychatlist);
-                portMissing("BotLoadReplyChat", source: "oracle/codemp/botlib/be_ai_chat.cpp:1811")
+                BotFreeReplyChat(replychatlist)
                 FreeSource(source)
                 return nil
             }
@@ -1367,7 +1720,7 @@ func BotLoadReplyChat(_ filename: inout JKAShared.CharBuf) -> BotReplychat? {
                     key!.flags |= RCKFL_VARIABLES
                     key!.match = BotLoadMatchPieces(source, ")")
                     if key!.match == nil {
-                        BotFreeReplyChat(replychatlist!)
+                        BotFreeReplyChat(replychatlist)
                         return nil
                     }
                 } else if PC_CheckTokenString(source, "<") != 0 { //bot names
@@ -1375,7 +1728,7 @@ func BotLoadReplyChat(_ filename: inout JKAShared.CharBuf) -> BotReplychat? {
                     strcpy(&namebuffer, "")
                     repeat {
                         if PC_ExpectTokenType(source, TT_STRING, 0, token) == 0 {
-                            BotFreeReplyChat(replychatlist!)
+                            BotFreeReplyChat(replychatlist)
                             FreeSource(source)
                             return nil
                         }
@@ -1384,7 +1737,7 @@ func BotLoadReplyChat(_ filename: inout JKAShared.CharBuf) -> BotReplychat? {
                         strcat(&namebuffer, token.string)
                     } while PC_CheckTokenString(source, ",") != 0
                     if PC_ExpectTokenString(source, ">") == 0 {
-                        BotFreeReplyChat(replychatlist!)
+                        BotFreeReplyChat(replychatlist)
                         FreeSource(source)
                         return nil
                     }
@@ -1394,7 +1747,7 @@ func BotLoadReplyChat(_ filename: inout JKAShared.CharBuf) -> BotReplychat? {
                 } else { //normal string key
                     key!.flags |= RCKFL_STRING
                     if PC_ExpectTokenType(source, TT_STRING, 0, token) == 0 {
-                        BotFreeReplyChat(replychatlist!)
+                        BotFreeReplyChat(replychatlist)
                         FreeSource(source)
                         return nil
                     }
@@ -1410,14 +1763,14 @@ func BotLoadReplyChat(_ filename: inout JKAShared.CharBuf) -> BotReplychat? {
             BotCheckValidReplyChatKeySet(source, replychat!.keys!)
             //read the = sign and the priority
             if PC_ExpectTokenString(source, "=") == 0 || PC_ExpectTokenType(source, TT_NUMBER, 0, token) == 0 {
-                BotFreeReplyChat(replychatlist!)
+                BotFreeReplyChat(replychatlist)
                 FreeSource(source)
                 return nil
             }
             replychat!.priority = Float(token.floatvalue)
             //read the leading {
             if PC_ExpectTokenString(source, "{") == 0 {
-                BotFreeReplyChat(replychatlist!)
+                BotFreeReplyChat(replychatlist)
                 FreeSource(source)
                 return nil
             }
@@ -1425,13 +1778,13 @@ func BotLoadReplyChat(_ filename: inout JKAShared.CharBuf) -> BotReplychat? {
             //while the trailing } is not found
             while PC_CheckTokenString(source, "}") == 0 {
                 if BotLoadChatMessage(source, &chatmessagestring) == 0 {
-                    BotFreeReplyChat(replychatlist!)
+                    BotFreeReplyChat(replychatlist)
                     FreeSource(source)
                     return nil
                 }
-                // Port-note: Raven puts the chat message record and its text in one block (D12 shape 8), and no form exists in a logic body, row P3 of the bot-ai round.
-                // Raven wrote: chatmessage = (bot_chatmessage_t *) GetClearedHunkMemory(sizeof(bot_chatmessage_t) + strlen(chatmessagestring) + 1); chatmessage->chatmessage = (char *) chatmessage + sizeof(bot_chatmessage_t); strcpy(chatmessage->chatmessage, chatmessagestring);
-                portMissing("BotLoadReplyChat", source: "oracle/codemp/botlib/be_ai_chat.cpp:1811")
+                // AI: Raven copies the text after the record. The view setter pools the text, so those bytes stay unused.
+                chatmessage = BotChatmessage(GetClearedHunkMemory(Int32(BotChatmessage.byteCount) + strlen(chatmessagestring) + 1))
+                chatmessage!.chatmessage = String(chatmessagestring)
                 chatmessage!.time = Float(-2 * CHATMESSAGE_RECENTTIME)
                 chatmessage!.next = replychat!.firstchatmessage
                 //add the chat message to the reply chat
@@ -1440,21 +1793,15 @@ func BotLoadReplyChat(_ filename: inout JKAShared.CharBuf) -> BotReplychat? {
             }
         }
         FreeSource(source)
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_MESSAGE, "loaded %s\n", filename);
-        portMissing("BotLoadReplyChat", source: "oracle/codemp/botlib/be_ai_chat.cpp:1811")
+        botimport.runPrint(PRT_MESSAGE, "loaded %s\n", String(filename))
         //
         //BotDumpReplyChat(replychatlist);
         if bot_developer != 0 {
-            // Port-note: Raven passes a NULL `replychatlist` here when the file holds no reply chat, and the parameter of BotCheckReplyChatIntegrety is a non-optional view, row P14 of the bot-ai round.
-            // Raven wrote: BotCheckReplyChatIntegrety(replychatlist);
-            portMissing("BotLoadReplyChat", source: "oracle/codemp/botlib/be_ai_chat.cpp:1811")
+            BotCheckReplyChatIntegrety(replychatlist)
         }
         //
         if replychatlist == nil {
-            // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-            // Raven wrote: botimport.Print(PRT_MESSAGE, "no rchats\n");
-            portMissing("BotLoadReplyChat", source: "oracle/codemp/botlib/be_ai_chat.cpp:1811")
+            botimport.runPrint(PRT_MESSAGE, "no rchats\n")
         }
         //
         return replychatlist
@@ -1481,10 +1828,145 @@ func BotDumpInitialChat(_ chat: BotChat) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1996
-// Port-note: Raven cuts one GetClearedMemory block into the chat, the chat types, the chat messages, and their texts (D12 shape 11), and no form exists, row P3 of the bot-ai round.
 func BotLoadInitialChat(_ chatfile: inout JKAShared.CharBuf, _ chatname: inout JKAShared.CharBuf) -> BotChat? {
-    // TODO: Port BotLoadInitialChat
-    portMissing("BotLoadInitialChat", source: "oracle/codemp/botlib/be_ai_chat.cpp:1996")
+    Token.scratch { token -> BotChat? in
+        var pass: Int32, foundchat: Bool, indent: Int32, size: Int32
+        var chatmessagestring = CharBuf(MAX_MESSAGE_SIZE)
+        var chat: BotChat? = nil
+        var chattype: BotChattype? = nil
+        var chatmessage: BotChatmessage? = nil
+
+        //
+        size = 0
+        foundchat = false
+        //a bot chat is parsed in two phases
+        pass = 0
+        while pass < 2 {
+            //allocate memory
+            // The block holds the records at their offsets, and the walk binds each record where Raven casts `ptr`, the N8 form.
+            var ptr = pass != 0 && size != 0 ? GetClearedMemory(size) : nil
+            //load the source file
+            PC_SetBaseFolder(BOTFILESBASEFOLDER)
+            guard let source = LoadSourceFile(String(chatfile)) else {
+                botimport.runPrint(PRT_ERROR, "counldn't load %s\n", String(chatfile))
+                return nil
+            }
+            //chat structure
+            if pass != 0 {
+                chat = BotChat(ptr!)
+                ptr = ptr! + BotChat.byteCount
+            } //end if
+            size = Int32(BotChat.byteCount)
+            //
+            while PC_ReadToken(source, token) != 0 {
+                if strcmp(token.string, "chat") == 0 {
+                    if PC_ExpectTokenType(source, TT_STRING, 0, token) == 0 {
+                        FreeSource(source)
+                        return nil
+                    } //end if
+                    StripDoubleQuotes(&token.stringBuffer)
+                    //after the chat name we expect a opening brace
+                    if PC_ExpectTokenString(source, "{") == 0 {
+                        FreeSource(source)
+                        return nil
+                    } //end if
+                    //if the chat name is found
+                    if Q_stricmp(token.string, String(chatname)) == 0 {
+                        foundchat = true
+                        //read the chat types
+                        while true {
+                            if PC_ExpectAnyToken(source, token) == 0 {
+                                FreeSource(source)
+                                return nil
+                            } //end if
+                            if strcmp(token.string, "}") == 0 { break }
+                            if strcmp(token.string, "type") != 0 {
+                                SourceError(source, "expected type found %s\n", token.string)
+                                FreeSource(source)
+                                return nil
+                            } //end if
+                            //expect the chat type name
+                            if PC_ExpectTokenType(source, TT_STRING, 0, token) == 0 ||
+                                PC_ExpectTokenString(source, "{") == 0 {
+                                FreeSource(source)
+                                return nil
+                            } //end if
+                            StripDoubleQuotes(&token.stringBuffer)
+                            if pass != 0 {
+                                chattype = BotChattype(ptr!)
+                                strncpy(&chattype!.nameBuffer, token.string, MAX_CHATTYPE_NAME)
+                                chattype!.firstchatmessage = nil
+                                //add the chat type to the chat
+                                chattype!.next = chat!.types
+                                chat!.types = chattype
+                                //
+                                ptr = ptr! + BotChattype.byteCount
+                            } //end if
+                            size += Int32(BotChattype.byteCount)
+                            //read the chat messages
+                            while PC_CheckTokenString(source, "}") == 0 {
+                                if BotLoadChatMessage(source, &chatmessagestring) == 0 {
+                                    FreeSource(source)
+                                    return nil
+                                } //end if
+                                if pass != 0 {
+                                    chatmessage = BotChatmessage(ptr!)
+                                    chatmessage!.time = Float(-2 * CHATMESSAGE_RECENTTIME)
+                                    //put the chat message in the list
+                                    chatmessage!.next = chattype!.firstchatmessage
+                                    chattype!.firstchatmessage = chatmessage
+                                    //store the chat message
+                                    ptr = ptr! + BotChatmessage.byteCount
+                                    // AI: Raven copies the text after the record. The view setter pools the text, so those bytes stay unused.
+                                    chatmessage!.chatmessage = String(chatmessagestring)
+                                    ptr = ptr! + strlen(chatmessagestring) + 1
+                                    //the number of chat messages increased
+                                    chattype!.numchatmessages += 1
+                                } //end if
+                                size += Int32(BotChatmessage.byteCount) + strlen(chatmessagestring) + 1
+                            } //end if
+                        } //end while
+                    } //end if
+                    else { //skip the bot chat
+                        indent = 1
+                        while indent != 0 {
+                            if PC_ExpectAnyToken(source, token) == 0 {
+                                FreeSource(source)
+                                return nil
+                            } //end if
+                            if strcmp(token.string, "{") == 0 {
+                                indent += 1
+                            } else if strcmp(token.string, "}") == 0 {
+                                indent -= 1
+                            }
+                        } //end while
+                    } //end else
+                } //end if
+                else {
+                    SourceError(source, "unknown definition %s\n", token.string)
+                    FreeSource(source)
+                    return nil
+                } //end else
+            } //end while
+            //free the source
+            FreeSource(source)
+            //if the requested character is not found
+            if !foundchat {
+                botimport.runPrint(PRT_ERROR, "couldn't find chat %s in %s\n", String(chatname), String(chatfile))
+                return nil
+            } //end if
+            pass += 1
+        } //end for
+        //
+        botimport.runPrint(PRT_MESSAGE, "loaded %s from %s\n", String(chatname), String(chatfile))
+        //
+        //BotDumpInitialChat(chat);
+        if bot_developer != 0 {
+            BotCheckInitialChatIntegrety(chat!)
+        } //end if
+        //character was read succesfully
+        return chat
+    }
 }
 
 //===========================================================================
@@ -1539,18 +2021,14 @@ func BotLoadChatFile(_ chatstate: Int32, _ chatfile: inout JKAShared.CharBuf, _ 
         }
 
         if avail == -1 {
-            // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-            // Raven wrote: botimport.Print(PRT_FATAL, "ichatdata table full; couldn't load chat %s from %s\n", chatname, chatfile);
-            portMissing("BotLoadChatFile", source: "oracle/codemp/botlib/be_ai_chat.cpp:2183")
+            botimport.runPrint(PRT_FATAL, "ichatdata table full; couldn't load chat %s from %s\n", String(chatname), String(chatfile))
             return BLERR_CANNOTLOADICHAT
         }
     }
 
     cs.chat = BotLoadInitialChat(&chatfile, &chatname)
     if cs.chat == nil {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "couldn't load chat %s from %s\n", chatname, chatfile);
-        portMissing("BotLoadChatFile", source: "oracle/codemp/botlib/be_ai_chat.cpp:2183")
+        botimport.runPrint(PRT_FATAL, "couldn't load chat %s from %s\n", String(chatname), String(chatfile))
         return BLERR_CANNOTLOADICHAT
     }
     if LibVarGetValue("bot_reloadcharacters") == 0 {
@@ -1597,9 +2075,7 @@ func BotExpandChatMessage(_ outmessage: inout JKAShared.CharBuf, _ message: inou
                 //step over the trailing escape char
                 if message[msgptr] != 0 { msgptr += 1 }
                 if num > MAX_MATCHVARIABLES {
-                    // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-                    // Raven wrote: botimport.Print(PRT_ERROR, "BotConstructChat: message %s variable %d out of range\n", message, num);
-                    portMissing("BotExpandChatMessage", source: "oracle/codemp/botlib/be_ai_chat.cpp:2241")
+                    botimport.runPrint(PRT_ERROR, "BotConstructChat: message %s variable %d out of range\n", String(message), num)
                     return 0
                 }
                 // Port-note: Raven's test lets `num` reach MAX_MATCHVARIABLES, and he reads `variables[8]` past the array there.
@@ -1623,9 +2099,7 @@ func BotExpandChatMessage(_ outmessage: inout JKAShared.CharBuf, _ message: inou
                     }
                     //
                     if len + strlen(temp) >= MAX_MESSAGE_SIZE {
-                        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-                        // Raven wrote: botimport.Print(PRT_ERROR, "BotConstructChat: message %s too long\n", message);
-                        portMissing("BotExpandChatMessage", source: "oracle/codemp/botlib/be_ai_chat.cpp:2241")
+                        botimport.runPrint(PRT_ERROR, "BotConstructChat: message %s too long\n", String(message))
                         return 0
                     }
                     strcpy(&outmessage, temp, at: len)
@@ -1645,33 +2119,25 @@ func BotExpandChatMessage(_ outmessage: inout JKAShared.CharBuf, _ message: inou
                 //find the random keyword
                 let ptr = RandomString(String(temp))
                 if ptr == nil {
-                    // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-                    // Raven wrote: botimport.Print(PRT_ERROR, "BotConstructChat: unknown random string %s\n", temp);
-                    portMissing("BotExpandChatMessage", source: "oracle/codemp/botlib/be_ai_chat.cpp:2241")
+                    botimport.runPrint(PRT_ERROR, "BotConstructChat: unknown random string %s\n", String(temp))
                     return 0
                 }
                 if len + strlen(ptr!) >= MAX_MESSAGE_SIZE {
-                    // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-                    // Raven wrote: botimport.Print(PRT_ERROR, "BotConstructChat: message \"%s\" too long\n", message);
-                    portMissing("BotExpandChatMessage", source: "oracle/codemp/botlib/be_ai_chat.cpp:2241")
+                    botimport.runPrint(PRT_ERROR, "BotConstructChat: message \"%s\" too long\n", String(message))
                     return 0
                 }
                 strcpy(&outmessage, ptr!, at: len)
                 len += strlen(ptr!)
                 expansion = 1
             default:
-                // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-                // Raven wrote: botimport.Print(PRT_FATAL, "BotConstructChat: message \"%s\" invalid escape char\n", message);
-                portMissing("BotExpandChatMessage", source: "oracle/codemp/botlib/be_ai_chat.cpp:2241")
+                botimport.runPrint(PRT_FATAL, "BotConstructChat: message \"%s\" invalid escape char\n", String(message))
             }
         } else {
             outmessage[len] = message[msgptr]
             len += 1
             msgptr += 1
             if len >= MAX_MESSAGE_SIZE {
-                // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-                // Raven wrote: botimport.Print(PRT_ERROR, "BotConstructChat: message \"%s\" too long\n", message);
-                portMissing("BotExpandChatMessage", source: "oracle/codemp/botlib/be_ai_chat.cpp:2241")
+                botimport.runPrint(PRT_ERROR, "BotConstructChat: message \"%s\" too long\n", String(message))
                 break
             }
         }
@@ -1704,10 +2170,15 @@ func BotConstructChatMessage(_ chatstate: BotChatstate, _ message: String, _ mco
         i += 1
     }
     if i >= 10 {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_WARNING, "too many expansions in chat message\n"); botimport.Print(PRT_WARNING, "%s\n", chatstate->chatmessage);
-        portMissing("BotConstructChatMessage", source: "oracle/codemp/botlib/be_ai_chat.cpp:2362")
+        botimport.runPrint(PRT_WARNING, "too many expansions in chat message\n")
+        botimport.runPrint(PRT_WARNING, "%s\n", chatstate.chatmessage)
     }
+}
+
+/// Source: oracle/codemp/botlib/be_ai_chat.cpp:2362
+/// This overload is the guide's form for an `int` argument to an `unsigned long` parameter, and it converts the value once.
+func BotConstructChatMessage(_ chatstate: BotChatstate, _ message: String, _ mcontext: Int32, _ match: BotMatch, _ vcontext: Int32, _ reply: Int32) {
+    BotConstructChatMessage(chatstate, message, UInt32(bitPattern: mcontext), match, UInt32(bitPattern: vcontext), reply)
 }
 
 //===========================================================================
@@ -1793,9 +2264,8 @@ func BotNumInitialChats(_ chatstate: Int32, _ type: inout JKAShared.CharBuf) -> 
     while t != nil {
         if Q_stricmp(t!.name, String(type)) == 0 {
             if LibVarGetValue("bot_testichat") != 0 {
-                // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-                // Raven wrote: botimport.Print(PRT_MESSAGE, "%s has %d chat lines\n", type, t->numchatmessages); botimport.Print(PRT_MESSAGE, "-------------------\n");
-                portMissing("BotNumInitialChats", source: "oracle/codemp/botlib/be_ai_chat.cpp:2448")
+                botimport.runPrint(PRT_MESSAGE, "%s has %d chat lines\n", String(type), t!.numchatmessages)
+                botimport.runPrint(PRT_MESSAGE, "-------------------\n")
             }
             return t!.numchatmessages
         }
@@ -1811,7 +2281,7 @@ func BotNumInitialChats(_ chatstate: Int32, _ type: inout JKAShared.CharBuf) -> 
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2475
-func BotInitialChat(_ chatstate: Int32, _ type: String, _ mcontext: Int32, _ var0: String, _ var1: String, _ var2: String, _ var3: String, _ var4: String, _ var5: String, _ var6: String, _ var7: String) {
+func BotInitialChat(_ chatstate: Int32, _ type: String, _ mcontext: Int32, _ var0: String?, _ var1: String?, _ var2: String?, _ var3: String?, _ var4: String?, _ var5: String?, _ var6: String?, _ var7: String?) {
     var message: String?
 
     guard let cs = BotChatStateFromHandle(chatstate) else { return }
@@ -1828,41 +2298,56 @@ func BotInitialChat(_ chatstate: Int32, _ type: String, _ mcontext: Int32, _ var
         var index: Int32
 
         index = 0
-        strcat(&match.stringBuffer, var0)
-        match.variables[0].offset = Int8(truncatingIfNeeded: index)
-        match.variables[0].length = strlen(var0)
-        index += strlen(var0)
-        strcat(&match.stringBuffer, var1)
-        match.variables[1].offset = Int8(truncatingIfNeeded: index)
-        match.variables[1].length = strlen(var1)
-        index += strlen(var1)
-        strcat(&match.stringBuffer, var2)
-        match.variables[2].offset = Int8(truncatingIfNeeded: index)
-        match.variables[2].length = strlen(var2)
-        index += strlen(var2)
-        strcat(&match.stringBuffer, var3)
-        match.variables[3].offset = Int8(truncatingIfNeeded: index)
-        match.variables[3].length = strlen(var3)
-        index += strlen(var3)
-        strcat(&match.stringBuffer, var4)
-        match.variables[4].offset = Int8(truncatingIfNeeded: index)
-        match.variables[4].length = strlen(var4)
-        index += strlen(var4)
-        strcat(&match.stringBuffer, var5)
-        match.variables[5].offset = Int8(truncatingIfNeeded: index)
-        match.variables[5].length = strlen(var5)
-        index += strlen(var5)
-        strcat(&match.stringBuffer, var6)
-        match.variables[6].offset = Int8(truncatingIfNeeded: index)
-        match.variables[6].length = strlen(var6)
-        index += strlen(var6)
-        strcat(&match.stringBuffer, var7)
-        match.variables[7].offset = Int8(truncatingIfNeeded: index)
-        match.variables[7].length = strlen(var7)
-        index += strlen(var7)
+        if var0 != nil {
+            strcat(&match.stringBuffer, var0!)
+            match.variables[0].offset = Int8(truncatingIfNeeded: index)
+            match.variables[0].length = strlen(var0!)
+            index += strlen(var0!)
+        }
+        if var1 != nil {
+            strcat(&match.stringBuffer, var1!)
+            match.variables[1].offset = Int8(truncatingIfNeeded: index)
+            match.variables[1].length = strlen(var1!)
+            index += strlen(var1!)
+        }
+        if var2 != nil {
+            strcat(&match.stringBuffer, var2!)
+            match.variables[2].offset = Int8(truncatingIfNeeded: index)
+            match.variables[2].length = strlen(var2!)
+            index += strlen(var2!)
+        }
+        if var3 != nil {
+            strcat(&match.stringBuffer, var3!)
+            match.variables[3].offset = Int8(truncatingIfNeeded: index)
+            match.variables[3].length = strlen(var3!)
+            index += strlen(var3!)
+        }
+        if var4 != nil {
+            strcat(&match.stringBuffer, var4!)
+            match.variables[4].offset = Int8(truncatingIfNeeded: index)
+            match.variables[4].length = strlen(var4!)
+            index += strlen(var4!)
+        }
+        if var5 != nil {
+            strcat(&match.stringBuffer, var5!)
+            match.variables[5].offset = Int8(truncatingIfNeeded: index)
+            match.variables[5].length = strlen(var5!)
+            index += strlen(var5!)
+        }
+        if var6 != nil {
+            strcat(&match.stringBuffer, var6!)
+            match.variables[6].offset = Int8(truncatingIfNeeded: index)
+            match.variables[6].length = strlen(var6!)
+            index += strlen(var6!)
+        }
+        if var7 != nil {
+            strcat(&match.stringBuffer, var7!)
+            match.variables[7].offset = Int8(truncatingIfNeeded: index)
+            match.variables[7].length = strlen(var7!)
+            index += strlen(var7!)
+        }
         //
-        // AI: Raven passes the `int` mcontext to an `unsigned long` parameter, and C converts it. The call converts with the bit pattern.
-        BotConstructChatMessage(cs, message!, UInt32(bitPattern: mcontext), match, 0, 0)
+        BotConstructChatMessage(cs, message!, mcontext, match, 0, 0)
     }
 }
 
@@ -1886,7 +2371,7 @@ func BotPrintReplyChatKeys(_ replychat: BotReplychat) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2597
-func BotReplyChat(_ chatstate: Int32, _ message: inout JKAShared.CharBuf, _ mcontext: Int32, _ vcontext: Int32, _ var0: String, _ var1: String, _ var2: String, _ var3: String, _ var4: String, _ var5: String, _ var6: String, _ var7: String) -> Int32 {
+func BotReplyChat(_ chatstate: Int32, _ message: inout JKAShared.CharBuf, _ mcontext: Int32, _ vcontext: Int32, _ var0: String?, _ var1: String?, _ var2: String?, _ var3: String?, _ var4: String?, _ var5: String?, _ var6: String?, _ var7: String?) -> Int32 {
     guard let cs = BotChatStateFromHandle(chatstate) else { return 0 }
     return BotMatch.scratch { match -> Int32 in
         BotMatch.scratch { bestmatch -> Int32 in
@@ -1985,53 +2470,65 @@ func BotReplyChat(_ chatstate: Int32, _ message: inout JKAShared.CharBuf, _ mcon
             }
             if bestchatmessage != nil {
                 index = strlen(bestmatch.string)
-                strcat(&bestmatch.stringBuffer, var0)
-                bestmatch.variables[0].offset = Int8(truncatingIfNeeded: index)
-                bestmatch.variables[0].length = strlen(var0)
-                index += strlen(var0)
-                strcat(&bestmatch.stringBuffer, var1)
-                bestmatch.variables[1].offset = Int8(truncatingIfNeeded: index)
-                bestmatch.variables[1].length = strlen(var1)
-                index += strlen(var1)
-                strcat(&bestmatch.stringBuffer, var2)
-                bestmatch.variables[2].offset = Int8(truncatingIfNeeded: index)
-                bestmatch.variables[2].length = strlen(var2)
-                index += strlen(var2)
-                strcat(&bestmatch.stringBuffer, var3)
-                bestmatch.variables[3].offset = Int8(truncatingIfNeeded: index)
-                bestmatch.variables[3].length = strlen(var3)
-                index += strlen(var3)
-                strcat(&bestmatch.stringBuffer, var4)
-                bestmatch.variables[4].offset = Int8(truncatingIfNeeded: index)
-                bestmatch.variables[4].length = strlen(var4)
-                index += strlen(var4)
-                strcat(&bestmatch.stringBuffer, var5)
-                bestmatch.variables[5].offset = Int8(truncatingIfNeeded: index)
-                bestmatch.variables[5].length = strlen(var5)
-                index += strlen(var5)
-                strcat(&bestmatch.stringBuffer, var6)
-                bestmatch.variables[6].offset = Int8(truncatingIfNeeded: index)
-                bestmatch.variables[6].length = strlen(var6)
-                index += strlen(var6)
-                strcat(&bestmatch.stringBuffer, var7)
-                bestmatch.variables[7].offset = Int8(truncatingIfNeeded: index)
-                bestmatch.variables[7].length = strlen(var7)
-                index += strlen(var7)
+                if var0 != nil {
+                    strcat(&bestmatch.stringBuffer, var0!)
+                    bestmatch.variables[0].offset = Int8(truncatingIfNeeded: index)
+                    bestmatch.variables[0].length = strlen(var0!)
+                    index += strlen(var0!)
+                }
+                if var1 != nil {
+                    strcat(&bestmatch.stringBuffer, var1!)
+                    bestmatch.variables[1].offset = Int8(truncatingIfNeeded: index)
+                    bestmatch.variables[1].length = strlen(var1!)
+                    index += strlen(var1!)
+                }
+                if var2 != nil {
+                    strcat(&bestmatch.stringBuffer, var2!)
+                    bestmatch.variables[2].offset = Int8(truncatingIfNeeded: index)
+                    bestmatch.variables[2].length = strlen(var2!)
+                    index += strlen(var2!)
+                }
+                if var3 != nil {
+                    strcat(&bestmatch.stringBuffer, var3!)
+                    bestmatch.variables[3].offset = Int8(truncatingIfNeeded: index)
+                    bestmatch.variables[3].length = strlen(var3!)
+                    index += strlen(var3!)
+                }
+                if var4 != nil {
+                    strcat(&bestmatch.stringBuffer, var4!)
+                    bestmatch.variables[4].offset = Int8(truncatingIfNeeded: index)
+                    bestmatch.variables[4].length = strlen(var4!)
+                    index += strlen(var4!)
+                }
+                if var5 != nil {
+                    strcat(&bestmatch.stringBuffer, var5!)
+                    bestmatch.variables[5].offset = Int8(truncatingIfNeeded: index)
+                    bestmatch.variables[5].length = strlen(var5!)
+                    index += strlen(var5!)
+                }
+                if var6 != nil {
+                    strcat(&bestmatch.stringBuffer, var6!)
+                    bestmatch.variables[6].offset = Int8(truncatingIfNeeded: index)
+                    bestmatch.variables[6].length = strlen(var6!)
+                    index += strlen(var6!)
+                }
+                if var7 != nil {
+                    strcat(&bestmatch.stringBuffer, var7!)
+                    bestmatch.variables[7].offset = Int8(truncatingIfNeeded: index)
+                    bestmatch.variables[7].length = strlen(var7!)
+                    index += strlen(var7!)
+                }
                 if LibVarGetValue("bot_testrchat") != 0 {
                     m = bestrchat!.firstchatmessage
                     while m != nil {
-                        // AI: Raven passes the `int` contexts to `unsigned long` parameters, and C converts them. The call converts with the bit pattern.
-                        BotConstructChatMessage(cs, m!.chatmessage!, UInt32(bitPattern: mcontext), bestmatch, UInt32(bitPattern: vcontext), 1)
+                        BotConstructChatMessage(cs, m!.chatmessage!, mcontext, bestmatch, vcontext, 1)
                         BotRemoveTildes(&cs.chatmessageBuffer)
-                        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-                        // Raven wrote: botimport.Print(PRT_MESSAGE, "%s\n", cs->chatmessage);
-                        portMissing("BotReplyChat", source: "oracle/codemp/botlib/be_ai_chat.cpp:2597")
+                        botimport.runPrint(PRT_MESSAGE, "%s\n", cs.chatmessage)
                         m = m!.next
                     }
                 } else {
                     bestchatmessage!.time = AAS_Time() + CHATMESSAGE_RECENTTIME
-                    // AI: Raven passes the `int` contexts to `unsigned long` parameters, and C converts them. The call converts with the bit pattern.
-                    BotConstructChatMessage(cs, bestchatmessage!.chatmessage!, UInt32(bitPattern: mcontext), bestmatch, UInt32(bitPattern: vcontext), 1)
+                    BotConstructChatMessage(cs, bestchatmessage!.chatmessage!, mcontext, bestmatch, vcontext, 1)
                 }
                 return 1
             }
@@ -2065,9 +2562,7 @@ func BotEnterChat(_ chatstate: Int32, _ clientto: Int32, _ sendto: Int32) {
     if strlen(cs.chatmessage) != 0 {
         BotRemoveTildes(&cs.chatmessageBuffer)
         if LibVarGetValue("bot_testichat") != 0 {
-            // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-            // Raven wrote: botimport.Print(PRT_MESSAGE, "%s\n", cs->chatmessage);
-            portMissing("BotEnterChat", source: "oracle/codemp/botlib/be_ai_chat.cpp:2768")
+            botimport.runPrint(PRT_MESSAGE, "%s\n", cs.chatmessage)
         } else {
             switch sendto {
             case CHAT_TEAM:
@@ -2186,15 +2681,11 @@ func BotAllocChatState() -> Int32 {
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2898
 func BotFreeChatState(_ handle: Int32) {
     if handle <= 0 || handle > MAX_CLIENTS {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "chat state handle %d out of range\n", handle);
-        portMissing("BotFreeChatState", source: "oracle/codemp/botlib/be_ai_chat.cpp:2898")
+        botimport.runPrint(PRT_FATAL, "chat state handle %d out of range\n", handle)
         return
     }
     if botchatstates[handle] == nil {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "invalid chat state %d\n", handle);
-        portMissing("BotFreeChatState", source: "oracle/codemp/botlib/be_ai_chat.cpp:2898")
+        botimport.runPrint(PRT_FATAL, "invalid chat state %d\n", handle)
         return
     }
     if LibVarGetValue("bot_reloadcharacters") != 0 {

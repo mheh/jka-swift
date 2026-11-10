@@ -1036,6 +1036,19 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
     case BOTLIB_SHUTDOWN:
         return Int(SV_BotLibShutdown())
 
+    case BOTLIB_LIBVAR_SET:
+        return Int(botlib_export!.runBotLibVarSet(args.VMA(1), args.VMA(2)))
+
+    case BOTLIB_LIBVAR_GET:
+        // AI: Raven's callee writes into the module's buffer. The callee fills a CharBuf, and the arm copies the text into the module's bytes.
+        var value = CharBuf(args[3])
+        let r = botlib_export!.runBotLibVarGet(args.VMA(1), &value, args[3])
+        Com_Memcpy(args.VMA(2), value, strlen(value) + 1)
+        return Int(r)
+
+    case BOTLIB_PC_ADD_GLOBAL_DEFINE:
+        return Int(botlib_export!.runPC_AddGlobalDefine(args.VMA(1)))
+
     case BOTLIB_PC_LOAD_SOURCE:
         return Int(botlib_export!.runPC_LoadSourceHandle(args.VMA(1)))
 
@@ -1044,6 +1057,9 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
 
     case BOTLIB_PC_READ_TOKEN:
         return Int(botlib_export!.runPC_ReadTokenHandle(args[1], args.VMA(2)))
+
+    case BOTLIB_PC_SOURCE_FILE_AND_LINE:
+        return Int(botlib_export!.runPC_SourceFileAndLine(args[1], args.VMA(2), args.VMA(3)))
 
     case BOTLIB_START_FRAME:
         return Int(botlib_export!.runBotLibStartFrame(args.VMF(1)))
@@ -1054,10 +1070,11 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
     case BOTLIB_UPDATENTITY:
         return Int(botlib_export!.runBotLibUpdateEntity(args[1], args.VMA(2)))
 
-    case BOTLIB_LIBVAR_SET, BOTLIB_LIBVAR_GET, BOTLIB_PC_ADD_GLOBAL_DEFINE, BOTLIB_PC_SOURCE_FILE_AND_LINE, BOTLIB_TEST:
-        // Port-note: Row B5. The run methods of these 5 arms take a `char *` or an `int *` of the module as an untyped OpaquePointer, so the arms are one hole.
-        // Raven wrote: the botlib_export calls of sv_game.cpp:948, :950, :953, :961, and :971.
-        portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
+    case BOTLIB_TEST:
+        // AI: Raven hands the module's vectors to the callee by address. The arm hands the slot of the Slots at each word.
+        let parm2: Slots<vec3_t> = args.VMA(3)
+        let parm3: Slots<vec3_t> = args.VMA(4)
+        return Int(botlib_export!.runTest(args[1], args.VMA(2), &parm2[0], &parm3[0]))
 
     case BOTLIB_GET_SNAPSHOT_ENTITY:
         return Int(SV_BotGetSnapshotEntity(args[1], args[2]))
@@ -1072,6 +1089,12 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
     case BOTLIB_USER_COMMAND:
         SV_ClientThink(svs.clientsSlots[args[1]], args.VMA(2)!)
         return 0
+
+    case BOTLIB_AAS_BBOX_AREAS:
+        // AI: Raven hands the module's vectors to the callee by address. The arm hands the slot of the Slots at each word.
+        let absmins: Slots<vec3_t> = args.VMA(1)
+        let absmaxs: Slots<vec3_t> = args.VMA(2)
+        return Int(botlib_export!.aas.runAAS_BBoxAreas(&absmins[0], &absmaxs[0], args.VMA(3), args[4]))
 
     case BOTLIB_AAS_AREA_INFO:
         return Int(botlib_export!.aas.runAAS_AreaInfo(args[1], args.VMA(2)))
@@ -1109,6 +1132,12 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
         let point: Slots<vec3_t> = args.VMA(1)
         return Int(botlib_export!.aas.runAAS_PointReachabilityAreaIndex(&point[0]))
 
+    case BOTLIB_AAS_TRACE_AREAS:
+        // AI: Raven hands the module's vectors to the callee by address. The arm hands the slot of the Slots at each word.
+        let start: Slots<vec3_t> = args.VMA(1)
+        let end: Slots<vec3_t> = args.VMA(2)
+        return Int(botlib_export!.aas.runAAS_TraceAreas(&start[0], &end[0], args.VMA(3), args.VMA(4), args[5]))
+
     case BOTLIB_AAS_POINT_CONTENTS:
         // AI: Raven hands the module's vector to the callee by address. The arm hands the slot of the Slots at the word.
         let point: Slots<vec3_t> = args.VMA(1)
@@ -1116,6 +1145,26 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
 
     case BOTLIB_AAS_NEXT_BSP_ENTITY:
         return Int(botlib_export!.aas.runAAS_NextBSPEntity(args[1]))
+
+    case BOTLIB_AAS_VALUE_FOR_BSP_EPAIR_KEY:
+        // AI: Raven's callee writes into the module's buffer. The callee fills a CharBuf, and the arm copies the text into the module's bytes.
+        var value = CharBuf(args[4])
+        let r = botlib_export!.aas.runAAS_ValueForBSPEpairKey(args[1], args.VMA(2), &value, args[4])
+        Com_Memcpy(args.VMA(3), value, strlen(value) + 1)
+        return Int(r)
+
+    case BOTLIB_AAS_VECTOR_FOR_BSP_EPAIR_KEY:
+        // AI: Raven hands the module's vector to the callee by address. The arm hands the slot of the Slots at the word.
+        let v: Slots<vec3_t> = args.VMA(3)
+        return Int(botlib_export!.aas.runAAS_VectorForBSPEpairKey(args[1], args.VMA(2), &v[0]))
+
+    case BOTLIB_AAS_FLOAT_FOR_BSP_EPAIR_KEY:
+        // Port-note: Row X2. The run method takes the module's `float *` as one `inout vec3_t`, and Raven passes one float or a list of floats, so a copy of three floats is wrong.
+        // Raven wrote: return botlib_export->aas.AAS_FloatForBSPEpairKey( args[1], (char *)VMA(2), (float *)VMA(3) );
+        portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
+
+    case BOTLIB_AAS_INT_FOR_BSP_EPAIR_KEY:
+        return Int(botlib_export!.aas.runAAS_IntForBSPEpairKey(args[1], args.VMA(2), args.VMA(3)))
 
     case BOTLIB_AAS_AREA_REACHABILITY:
         return Int(botlib_export!.aas.runAAS_AreaReachability(args[1]))
@@ -1144,6 +1193,18 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
         let velocity: Slots<vec3_t> = args.VMA(6)
         let cmdmove: Slots<vec3_t> = args.VMA(7)
         return Int(botlib_export!.aas.runAAS_PredictClientMovement(args.VMA(1), args[2], &origin[0], args[4], args[5], &velocity[0], &cmdmove[0], args[8], args[9], args.VMF(10), args[11], args[12], args[13]))
+
+    case BOTLIB_EA_SAY:
+        botlib_export!.ea.runEA_Say(args[1], args.VMA(2))
+        return 0
+
+    case BOTLIB_EA_SAY_TEAM:
+        botlib_export!.ea.runEA_SayTeam(args[1], args.VMA(2))
+        return 0
+
+    case BOTLIB_EA_COMMAND:
+        botlib_export!.ea.runEA_Command(args[1], args.VMA(2))
+        return 0
 
     case BOTLIB_EA_ACTION:
         botlib_export!.ea.runEA_Action(args[1], args[2])
@@ -1241,6 +1302,9 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
         botlib_export!.ea.runEA_ResetInput(args[1])
         return 0
 
+    case BOTLIB_AI_LOAD_CHARACTER:
+        return Int(botlib_export!.ai.runBotLoadCharacter(args.VMA(1), args.VMF(2)))
+
     case BOTLIB_AI_FREE_CHARACTER:
         botlib_export!.ai.runBotFreeCharacter(args[1])
         return 0
@@ -1271,6 +1335,10 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
         botlib_export!.ai.runBotFreeChatState(args[1])
         return 0
 
+    case BOTLIB_AI_QUEUE_CONSOLE_MESSAGE:
+        botlib_export!.ai.runBotQueueConsoleMessage(args[1], args[2], args.VMA(3))
+        return 0
+
     case BOTLIB_AI_REMOVE_CONSOLE_MESSAGE:
         botlib_export!.ai.runBotRemoveConsoleMessage(args[1], args[2])
         return 0
@@ -1280,6 +1348,16 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
 
     case BOTLIB_AI_NUM_CONSOLE_MESSAGE:
         return Int(botlib_export!.ai.runBotNumConsoleMessages(args[1]))
+
+    case BOTLIB_AI_INITIAL_CHAT:
+        botlib_export!.ai.runBotInitialChat(args[1], args.VMA(2), args[3], args.VMA(4), args.VMA(5), args.VMA(6), args.VMA(7), args.VMA(8), args.VMA(9), args.VMA(10), args.VMA(11))
+        return 0
+
+    case BOTLIB_AI_NUM_INITIAL_CHATS:
+        return Int(botlib_export!.ai.runBotNumInitialChats(args[1], args.VMA(2)))
+
+    case BOTLIB_AI_REPLY_CHAT:
+        return Int(botlib_export!.ai.runBotReplyChat(args[1], args.VMA(2), args[3], args[4], args.VMA(5), args.VMA(6), args.VMA(7), args.VMA(8), args.VMA(9), args.VMA(10), args.VMA(11), args.VMA(12)))
 
     case BOTLIB_AI_CHAT_LENGTH:
         return Int(botlib_export!.ai.runBotChatLength(args[1]))
@@ -1295,6 +1373,13 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
         Com_Memcpy(args.VMA(2), buf, strlen(buf) + 1)
         return 0
 
+    case BOTLIB_AI_STRING_CONTAINS:
+        return Int(botlib_export!.ai.runStringContains(args.VMA(1), args.VMA(2), args[3]))
+
+    case BOTLIB_AI_FIND_MATCH:
+        // AI: Raven passes the int context to the unsigned long parameter, and C converts it. The arm writes the conversion.
+        return Int(botlib_export!.ai.runBotFindMatch(args.VMA(1), args.VMA(2), CUnsignedLong(args[3])))
+
     case BOTLIB_AI_MATCH_VARIABLE:
         // AI: Raven's callee writes into the module's buffer. The callee fills a CharBuf, and the arm copies the text into the module's bytes.
         var buf = CharBuf(args[4])
@@ -1302,8 +1387,24 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
         Com_Memcpy(args.VMA(3), buf, strlen(buf) + 1)
         return 0
 
+    case BOTLIB_AI_UNIFY_WHITE_SPACES:
+        botlib_export!.ai.runUnifyWhiteSpaces(args.VMA(1))
+        return 0
+
+    case BOTLIB_AI_REPLACE_SYNONYMS:
+        // AI: Raven passes the int context to the unsigned long parameter, and C converts it. The arm writes the conversion.
+        botlib_export!.ai.runBotReplaceSynonyms(args.VMA(1), CUnsignedLong(args[2]))
+        return 0
+
+    case BOTLIB_AI_LOAD_CHAT_FILE:
+        return Int(botlib_export!.ai.runBotLoadChatFile(args[1], args.VMA(2), args.VMA(3)))
+
     case BOTLIB_AI_SET_CHAT_GENDER:
         botlib_export!.ai.runBotSetChatGender(args[1], args[2])
+        return 0
+
+    case BOTLIB_AI_SET_CHAT_NAME:
+        botlib_export!.ai.runBotSetChatName(args[1], args.VMA(2), args[3])
         return 0
 
     case BOTLIB_AI_RESET_GOAL_STATE:
@@ -1351,6 +1452,16 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
     case BOTLIB_AI_GET_SECOND_GOAL:
         return Int(botlib_export!.ai.runBotGetSecondGoal(args[1], args.VMA(2)))
 
+    case BOTLIB_AI_CHOOSE_LTG_ITEM:
+        // AI: Raven hands the module's vector to the callee by address. The arm hands the slot of the Slots at the word.
+        let origin: Slots<vec3_t> = args.VMA(2)
+        return Int(botlib_export!.ai.runBotChooseLTGItem(args[1], &origin[0], args.VMA(3), args[4]))
+
+    case BOTLIB_AI_CHOOSE_NBG_ITEM:
+        // AI: Raven hands the module's vector to the callee by address. The arm hands the slot of the Slots at the word.
+        let origin: Slots<vec3_t> = args.VMA(2)
+        return Int(botlib_export!.ai.runBotChooseNBGItem(args[1], &origin[0], args.VMA(3), args[4], args.VMA(5), args.VMF(6)))
+
     case BOTLIB_AI_TOUCHING_GOAL:
         // AI: Raven hands the module's vector to the callee by address. The arm hands the slot of the Slots at the word.
         let origin: Slots<vec3_t> = args.VMA(1)
@@ -1362,8 +1473,14 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
         let viewangles: Slots<vec3_t> = args.VMA(3)
         return Int(botlib_export!.ai.runBotItemGoalInVisButNotVisible(args[1], &eye[0], &viewangles[0], args.VMA(4)))
 
+    case BOTLIB_AI_GET_LEVEL_ITEM_GOAL:
+        return Int(botlib_export!.ai.runBotGetLevelItemGoal(args[1], args.VMA(2), args.VMA(3)))
+
     case BOTLIB_AI_GET_NEXT_CAMP_SPOT_GOAL:
         return Int(botlib_export!.ai.runBotGetNextCampSpotGoal(args[1], args.VMA(2)))
+
+    case BOTLIB_AI_GET_MAP_LOCATION_GOAL:
+        return Int(botlib_export!.ai.runBotGetMapLocationGoal(args.VMA(1), args.VMA(2)))
 
     case BOTLIB_AI_AVOID_GOAL_TIME:
         return Int(FloatAsInt(botlib_export!.ai.runBotAvoidGoalTime(args[1], args[2])))
@@ -1380,12 +1497,19 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
         botlib_export!.ai.runBotUpdateEntityItems()
         return 0
 
+    case BOTLIB_AI_LOAD_ITEM_WEIGHTS:
+        return Int(botlib_export!.ai.runBotLoadItemWeights(args[1], args.VMA(2)))
+
     case BOTLIB_AI_FREE_ITEM_WEIGHTS:
         botlib_export!.ai.runBotFreeItemWeights(args[1])
         return 0
 
     case BOTLIB_AI_INTERBREED_GOAL_FUZZY_LOGIC:
         botlib_export!.ai.runBotInterbreedGoalFuzzyLogic(args[1], args[2], args[3])
+        return 0
+
+    case BOTLIB_AI_SAVE_GOAL_FUZZY_LOGIC:
+        botlib_export!.ai.runBotSaveGoalFuzzyLogic(args[1], args.VMA(2))
         return 0
 
     case BOTLIB_AI_MUTATE_GOAL_FUZZY_LOGIC:
@@ -1453,9 +1577,15 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
         botlib_export!.ai.runBotInitMoveState(args[1], args.VMA(2))
         return 0
 
+    case BOTLIB_AI_CHOOSE_BEST_FIGHT_WEAPON:
+        return Int(botlib_export!.ai.runBotChooseBestFightWeapon(args[1], args.VMA(2)))
+
     case BOTLIB_AI_GET_WEAPON_INFO:
         botlib_export!.ai.runBotGetWeaponInfo(args[1], args[2], args.VMA(3))
         return 0
+
+    case BOTLIB_AI_LOAD_WEAPON_WEIGHTS:
+        return Int(botlib_export!.ai.runBotLoadWeaponWeights(args[1], args.VMA(2)))
 
     case BOTLIB_AI_ALLOC_WEAPON_STATE:
         return Int(botlib_export!.ai.runBotAllocWeaponState())
@@ -1468,18 +1598,9 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
         botlib_export!.ai.runBotResetWeaponState(args[1])
         return 0
 
-    case BOTLIB_AAS_BBOX_AREAS, BOTLIB_AAS_TRACE_AREAS, BOTLIB_AAS_VALUE_FOR_BSP_EPAIR_KEY, BOTLIB_AAS_VECTOR_FOR_BSP_EPAIR_KEY,
-         BOTLIB_AAS_FLOAT_FOR_BSP_EPAIR_KEY, BOTLIB_AAS_INT_FOR_BSP_EPAIR_KEY,
-         BOTLIB_EA_SAY, BOTLIB_EA_SAY_TEAM, BOTLIB_EA_COMMAND,
-         BOTLIB_AI_LOAD_CHARACTER, BOTLIB_AI_QUEUE_CONSOLE_MESSAGE, BOTLIB_AI_INITIAL_CHAT, BOTLIB_AI_NUM_INITIAL_CHATS,
-         BOTLIB_AI_REPLY_CHAT, BOTLIB_AI_STRING_CONTAINS, BOTLIB_AI_FIND_MATCH, BOTLIB_AI_UNIFY_WHITE_SPACES,
-         BOTLIB_AI_REPLACE_SYNONYMS, BOTLIB_AI_LOAD_CHAT_FILE, BOTLIB_AI_SET_CHAT_NAME,
-         BOTLIB_AI_CHOOSE_LTG_ITEM, BOTLIB_AI_CHOOSE_NBG_ITEM, BOTLIB_AI_GET_LEVEL_ITEM_GOAL, BOTLIB_AI_GET_MAP_LOCATION_GOAL,
-         BOTLIB_AI_LOAD_ITEM_WEIGHTS, BOTLIB_AI_SAVE_GOAL_FUZZY_LOGIC,
-         BOTLIB_AI_CHOOSE_BEST_FIGHT_WEAPON, BOTLIB_AI_LOAD_WEAPON_WEIGHTS,
-         BOTLIB_AI_GENETIC_PARENTS_AND_CHILD_SELECTION:
-        // Port-note: Row B5. The run methods of these 29 arms take a `char *`, an `int *`, or a `float (*)[3]` of the module as an untyped OpaquePointer, so the arms are one hole.
-        // Raven wrote: the botlib_export calls of these arms in sv_game.cpp:981 to :1311.
+    case BOTLIB_AI_GENETIC_PARENTS_AND_CHILD_SELECTION:
+        // Port-note: Row X2. The run method takes the module's `float *` as one `inout vec3_t`, and Raven passes one float or a list of floats, so a copy of three floats is wrong.
+        // Raven wrote: return botlib_export->ai.GeneticParentsAndChildSelection(args[1], (float *)VMA(2), (int *)VMA(3), (int *)VMA(4), (int *)VMA(5));
         portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
 
     case G_R_REGISTERSKIN:
@@ -1493,20 +1614,300 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
         G2API_CleanEntAttachments()
         return 0
 
-    case G_G2_LISTBONES, G_G2_LISTSURFACES, G_G2_HAVEWEGHOULMODELS, G_G2_SETMODELS, G_G2_GETBOLT, G_G2_GETBOLT_NOREC,
-         G_G2_GETBOLT_NOREC_NOROT, G_G2_INITGHOUL2MODEL, G_G2_SETSKIN, G_G2_SIZE, G_G2_ADDBOLT, G_G2_SETBOLTINFO,
-         G_G2_ANGLEOVERRIDE, G_G2_PLAYANIM, G_G2_GETBONEANIM, G_G2_GETGLANAME, G_G2_COPYGHOUL2INSTANCE,
-         G_G2_COPYSPECIFICGHOUL2MODEL, G_G2_DUPLICATEGHOUL2INSTANCE, G_G2_HASGHOUL2MODELONINDEX, G_G2_REMOVEGHOUL2MODEL,
-         G_G2_REMOVEGHOUL2MODELS, G_G2_CLEANMODELS, G_G2_COLLISIONDETECT, G_G2_COLLISIONDETECTCACHE,
-         G_G2_SETROOTSURFACE, G_G2_SETSURFACEONOFF, G_G2_SETNEWORIGIN, G_G2_DOESBONEEXIST, G_G2_GETSURFACERENDERSTATUS,
-         G_G2_ABSURDSMOOTHING, G_G2_SETRAGDOLL, G_G2_ANIMATEG2MODELS, G_G2_RAGPCJCONSTRAINT, G_G2_RAGPCJGRADIENTSPEED,
-         G_G2_RAGEFFECTORGOAL, G_G2_GETRAGBONEPOS, G_G2_RAGEFFECTORKICK, G_G2_RAGFORCESOLVE, G_G2_SETBONEIKSTATE,
-         G_G2_IKMOVE, G_G2_REMOVEBONE, G_G2_ATTACHINSTANCETOENTNUM,
-         G_G2_OVERRIDESERVER, G_G2_GETSURFACENAME:
-        // Port-note: Row Z6. Each arm reads a word of the module as the address of a `CGhoul2Info` or a `CGhoul2Info_v`, and the Swift classes have no form from a word.
-        // Port-note: Row Z6. These 45 arms are one hole.
-        // Raven wrote: the G2API_ calls of sv_game.cpp:1316 to :1617.
-        portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
+    case G_G2_OVERRIDESERVER:
+        let g2 = ghoul2Instances.instance(word: args.VMA(1))!
+        return (G2API_OverrideServerWithClientData(g2[0]) ? 1 : 0)
+
+    case G_G2_GETSURFACENAME:
+        do { //Since returning a pointer in such a way to a VM seems to cause MASSIVE FAILURE<tm>, we will shove data into the pointer the vm passes instead
+            let modelindex = args[3]
+
+            let g2 = ghoul2Instances.instance(word: args.VMA(1))!
+
+            let local = G2API_GetSurfaceName(g2[modelindex], args[2])
+            // Raven tests `local` for NULL. The Swift function returns a String, so the copy always runs.
+            // AI: Raven copies the text into the module's buffer with strcpy. The arm copies the bytes of the text and its NUL into the module's bytes.
+            Com_Memcpy(args.VMA(4), CharBuf(local), strlen(local) + 1)
+        }
+
+
+        return 0
+
+    // AI: Raven reads `args[x]` of the Ghoul2 arms below as the address of a `CGhoul2Info_v`.
+    // Each arm takes the instance that the whole word names in `ghoul2Instances`, and a `CGhoul2Info_v **` arm writes the word of the result back, row Z6 of docket 10.
+    case G_G2_LISTBONES:
+        // Port-note: Row Z6. Raven reads the module's word as the address of one `CGhoul2Info`, and the word names a `CGhoul2Info_v`.
+        // No game file calls the trap.
+        // Raven wrote: G2API_ListBones( (CGhoul2Info *) VMA(1), args[2]);
+        portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:1316")
+
+    case G_G2_LISTSURFACES:
+        // Port-note: Row Z6. Raven reads the module's word as the address of one `CGhoul2Info`, and the word names a `CGhoul2Info_v`.
+        // No game file calls the trap.
+        // Raven wrote: G2API_ListSurfaces( (CGhoul2Info *) args[1] );
+        portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:1320")
+
+    case G_G2_HAVEWEGHOULMODELS:
+        return (G2API_HaveWeGhoul2Models(ghoul2Instances.instance(word: args.VMA(1))!) ? 1 : 0)
+
+    case G_G2_SETMODELS:
+        G2API_SetGhoul2ModelIndexes(ghoul2Instances.instance(word: args.VMA(1))!, args.VMA(2), args.VMA(3))
+        return 0
+
+    case G_G2_GETBOLT:
+        let matrix: MdxaBone? = args.VMA(4)
+        return (G2API_GetBoltMatrix(ghoul2Instances.instance(word: args.VMA(1))!, args[2], args[3], matrix!, args.VMA(5), args.VMA(6), args[7], args.VMA(8), args.VMA(9)) ? 1 : 0)
+
+    case G_G2_GETBOLT_NOREC:
+        gG2_GBMNoReconstruct = true
+        let matrix: MdxaBone? = args.VMA(4)
+        return (G2API_GetBoltMatrix(ghoul2Instances.instance(word: args.VMA(1))!, args[2], args[3], matrix!, args.VMA(5), args.VMA(6), args[7], args.VMA(8), args.VMA(9)) ? 1 : 0)
+
+    case G_G2_GETBOLT_NOREC_NOROT:
+        gG2_GBMNoReconstruct = true
+        gG2_GBMUseSPMethod = true
+        let matrix: MdxaBone? = args.VMA(4)
+        return (G2API_GetBoltMatrix(ghoul2Instances.instance(word: args.VMA(1))!, args[2], args[3], matrix!, args.VMA(5), args.VMA(6), args[7], args.VMA(8), args.VMA(9)) ? 1 : 0)
+
+    case G_G2_INITGHOUL2MODEL:
+        let ghoul2Ptr: Slots<OpaquePointer?> = args.VMA(1)
+        var ghoul2: CGhoul2Info_v? = ghoul2Instances.instance(word: ghoul2Ptr[0])
+        let r = G2API_InitGhoul2Model(&ghoul2, args.VMA(2), args[3], args[4],
+                                      args[5], args[6], args[7])
+        ghoul2Ptr[0] = ghoul2Instances.word(of: ghoul2)
+        return Int(r)
+
+    case G_G2_SETSKIN:
+        let g2 = ghoul2Instances.instance(word: args.VMA(1))!
+        let modelIndex = args[2]
+
+        return (G2API_SetSkin(g2[modelIndex], args[3], args[4]) ? 1 : 0)
+
+    case G_G2_SIZE:
+        return Int(G2API_Ghoul2Size(ghoul2Instances.instance(word: args.VMA(1))!))
+
+    case G_G2_ADDBOLT:
+        return Int(G2API_AddBolt(ghoul2Instances.instance(word: args.VMA(1))!, args[2], args.VMA(3)))
+
+    case G_G2_SETBOLTINFO:
+        G2API_SetBoltInfo(ghoul2Instances.instance(word: args.VMA(1))!, args[2], args[3])
+        return 0
+
+    case G_G2_ANGLEOVERRIDE:
+        return (G2API_SetBoneAngles(ghoul2Instances.instance(word: args.VMA(1))!, args[2], args.VMA(3), args.VMA(4), args[5],
+                                    args[6], args[7], args[8],
+                                    args.VMA(9), args[10], args[11]) ? 1 : 0)
+
+    case G_G2_PLAYANIM:
+        return (G2API_SetBoneAnim(ghoul2Instances.instance(word: args.VMA(1))!, args[2], args.VMA(3), args[4], args[5],
+                                  args[6], args.VMF(7), args[8], args.VMF(9), args[10]) ? 1 : 0)
+
+    case G_G2_GETBONEANIM:
+        let g2 = ghoul2Instances.instance(word: args.VMA(1))!
+        let modelIndex = args[10]
+        // AI: Raven hands the module's float and ints to the callee by address. The arm hands the slot of the Slots at each word.
+        let currentFrame: Slots<Float> = args.VMA(4)
+        let startFrame: Slots<Int32> = args.VMA(5)
+        let endFrame: Slots<Int32> = args.VMA(6)
+        let flags: Slots<Int32> = args.VMA(7)
+        let animSpeed: Slots<Float> = args.VMA(8)
+
+        return (G2API_GetBoneAnim(g2[modelIndex], args.VMA(2), args[3], &currentFrame[0], &startFrame[0],
+                                  &endFrame[0], &flags[0], &animSpeed[0], args.VMA(9)) ? 1 : 0)
+
+    case G_G2_GETGLANAME:
+        //return (int)G2API_GetGLAName(*((CGhoul2Info_v *)args[1]), args[2]);
+        do { //Since returning a pointer in such a way to a VM seems to cause MASSIVE FAILURE<tm>, we will shove data into the pointer the vm passes instead
+            let local = G2API_GetGLAName(ghoul2Instances.instance(word: args.VMA(1))!, args[2])
+            if local != nil {
+                // AI: Raven copies the text into the module's buffer with strcpy. The arm copies the bytes of the text and its NUL into the module's bytes.
+                Com_Memcpy(args.VMA(3), CharBuf(local!), strlen(local!) + 1)
+            }
+        }
+
+        return 0
+
+    case G_G2_COPYGHOUL2INSTANCE:
+        return Int(G2API_CopyGhoul2Instance(ghoul2Instances.instance(word: args.VMA(1))!, ghoul2Instances.instance(word: args.VMA(2))!, args[3]))
+
+    case G_G2_COPYSPECIFICGHOUL2MODEL:
+        G2API_CopySpecificG2Model(ghoul2Instances.instance(word: args.VMA(1))!, args[2], ghoul2Instances.instance(word: args.VMA(3))!, args[4])
+        return 0
+
+    case G_G2_DUPLICATEGHOUL2INSTANCE:
+        let g2To: Slots<OpaquePointer?> = args.VMA(2)
+        var to: CGhoul2Info_v? = ghoul2Instances.instance(word: g2To[0])
+        G2API_DuplicateGhoul2Instance(ghoul2Instances.instance(word: args.VMA(1))!, &to)
+        g2To[0] = ghoul2Instances.word(of: to)
+        return 0
+
+    case G_G2_HASGHOUL2MODELONINDEX:
+        //return (int)G2API_HasGhoul2ModelOnIndex((CGhoul2Info_v **)args[1], args[2]);
+        let ghlRemove: Slots<OpaquePointer?> = args.VMA(1)
+        var ghoul2: CGhoul2Info_v? = ghoul2Instances.instance(word: ghlRemove[0])
+        let r = G2API_HasGhoul2ModelOnIndex(&ghoul2, args[2])
+        ghlRemove[0] = ghoul2Instances.word(of: ghoul2)
+        return (r ? 1 : 0)
+
+    case G_G2_REMOVEGHOUL2MODEL:
+        //return (int)G2API_RemoveGhoul2Model((CGhoul2Info_v **)args[1], args[2]);
+        let ghlRemove: Slots<OpaquePointer?> = args.VMA(1)
+        var ghoul2: CGhoul2Info_v? = ghoul2Instances.instance(word: ghlRemove[0])
+        let r = G2API_RemoveGhoul2Model(&ghoul2, args[2])
+        ghlRemove[0] = ghoul2Instances.word(of: ghoul2)
+        return (r ? 1 : 0)
+
+    case G_G2_REMOVEGHOUL2MODELS:
+        //return (int)G2API_RemoveGhoul2Models((CGhoul2Info_v **)args[1]);
+        let ghlRemove: Slots<OpaquePointer?> = args.VMA(1)
+        var ghoul2: CGhoul2Info_v? = ghoul2Instances.instance(word: ghlRemove[0])
+        let r = G2API_RemoveGhoul2Models(&ghoul2)
+        ghlRemove[0] = ghoul2Instances.word(of: ghoul2)
+        return (r ? 1 : 0)
+
+    case G_G2_CLEANMODELS:
+        let ghoul2Ptr: Slots<OpaquePointer?> = args.VMA(1)
+        var ghoul2: CGhoul2Info_v? = ghoul2Instances.instance(word: ghoul2Ptr[0])
+        G2API_CleanGhoul2Models(&ghoul2)
+        ghoul2Ptr[0] = ghoul2Instances.word(of: ghoul2)
+    //	G2API_CleanGhoul2Models((CGhoul2Info_v **)args[1]);
+        return 0
+
+    case G_G2_COLLISIONDETECT:
+        G2API_CollisionDetect(args.VMA(1), ghoul2Instances.instance(word: args.VMA(2))!,
+                              args.VMA(3),
+                              args.VMA(4),
+                              args[5],
+                              args[6],
+                              args.VMA(7),
+                              args.VMA(8),
+                              args.VMA(9),
+                              G2VertSpaceServer,
+                              args[10],
+                              args[11],
+                              args.VMF(12))
+        return 0
+
+    case G_G2_COLLISIONDETECTCACHE:
+        G2API_CollisionDetectCache(args.VMA(1), ghoul2Instances.instance(word: args.VMA(2))!,
+                                   args.VMA(3),
+                                   args.VMA(4),
+                                   args[5],
+                                   args[6],
+                                   args.VMA(7),
+                                   args.VMA(8),
+                                   args.VMA(9),
+                                   G2VertSpaceServer,
+                                   args[10],
+                                   args[11],
+                                   args.VMF(12))
+        return 0
+
+    case G_G2_SETROOTSURFACE:
+        return (G2API_SetRootSurface(ghoul2Instances.instance(word: args.VMA(1))!, args[2], args.VMA(3)) ? 1 : 0)
+
+    case G_G2_SETSURFACEONOFF:
+        return (G2API_SetSurfaceOnOff(ghoul2Instances.instance(word: args.VMA(1))!, args.VMA(2), /*(const int)VMA(3)*/args[3]) ? 1 : 0)
+
+    case G_G2_SETNEWORIGIN:
+        return (G2API_SetNewOrigin(ghoul2Instances.instance(word: args.VMA(1))!, /*(const int)VMA(2)*/args[2]) ? 1 : 0)
+
+    case G_G2_DOESBONEEXIST:
+        let g2 = ghoul2Instances.instance(word: args.VMA(1))!
+        return (G2API_DoesBoneExist(g2[args[2]], args.VMA(3)) ? 1 : 0)
+
+    case G_G2_GETSURFACERENDERSTATUS:
+        let g2 = ghoul2Instances.instance(word: args.VMA(1))!
+
+        return Int(G2API_GetSurfaceRenderStatus(g2[args[2]], args.VMA(3)))
+
+    case G_G2_ABSURDSMOOTHING:
+        let g2 = ghoul2Instances.instance(word: args.VMA(1))!
+
+        G2API_AbsurdSmoothing(g2, args[2] != 0)
+        return 0
+
+    case G_G2_SETRAGDOLL:
+        //Convert the info in the shared structure over to the class-based version.
+        let rdParamst: SharedRagDollParams? = args.VMA(2)
+        let rdParams = CRagDollParams()
+
+        if rdParamst == nil {
+            G2API_ResetRagDoll(ghoul2Instances.instance(word: args.VMA(1))!)
+            return 0
+        }
+
+        rdParams.angles = rdParamst!.angles
+        rdParams.position = rdParamst!.position
+        rdParams.scale = rdParamst!.scale
+        rdParams.pelvisAnglesOffset = rdParamst!.pelvisAnglesOffset
+        rdParams.pelvisPositionOffset = rdParamst!.pelvisPositionOffset
+
+        rdParams.fImpactStrength = rdParamst!.fImpactStrength
+        rdParams.fShotStrength = rdParamst!.fShotStrength
+        rdParams.me = rdParamst!.me
+
+        rdParams.startFrame = rdParamst!.startFrame
+        rdParams.endFrame = rdParamst!.endFrame
+
+        rdParams.collisionType = rdParamst!.collisionType
+        rdParams.CallRagDollBegin = rdParamst!.CallRagDollBegin
+
+        rdParams.RagPhase = rdParamst!.RagPhase
+        rdParams.effectorsToTurnOff = rdParamst!.effectorsToTurnOff
+
+        G2API_SetRagDoll(ghoul2Instances.instance(word: args.VMA(1))!, rdParams)
+        return 0
+
+    case G_G2_ANIMATEG2MODELS:
+        let rduParamst: SharedRagDollUpdateParams? = args.VMA(3)
+        let rduParams = CRagDollUpdateParams()
+
+        if rduParamst == nil {
+            return 0
+        }
+
+        rduParams.angles = rduParamst!.angles
+        rduParams.position = rduParamst!.position
+        rduParams.scale = rduParamst!.scale
+        rduParams.velocity = rduParamst!.velocity
+
+        rduParams.me = rduParamst!.me
+        rduParams.settleFrame = rduParamst!.settleFrame
+
+        G2API_AnimateG2Models(ghoul2Instances.instance(word: args.VMA(1))!, args[2], rduParams)
+        return 0
+
+    //additional ragdoll options -rww
+    case G_G2_RAGPCJCONSTRAINT:
+        return (G2API_RagPCJConstraint(ghoul2Instances.instance(word: args.VMA(1))!, args.VMA(2), args.VMA(3), args.VMA(4)) ? 1 : 0)
+    case G_G2_RAGPCJGRADIENTSPEED:
+        return (G2API_RagPCJGradientSpeed(ghoul2Instances.instance(word: args.VMA(1))!, args.VMA(2), args.VMF(3)) ? 1 : 0)
+    case G_G2_RAGEFFECTORGOAL:
+        return (G2API_RagEffectorGoal(ghoul2Instances.instance(word: args.VMA(1))!, args.VMA(2), args.VMA(3)) ? 1 : 0)
+    case G_G2_GETRAGBONEPOS:
+        return (G2API_GetRagBonePos(ghoul2Instances.instance(word: args.VMA(1))!, args.VMA(2), args.VMA(3), args.VMA(4), args.VMA(5), args.VMA(6)) ? 1 : 0)
+    case G_G2_RAGEFFECTORKICK:
+        return (G2API_RagEffectorKick(ghoul2Instances.instance(word: args.VMA(1))!, args.VMA(2), args.VMA(3)) ? 1 : 0)
+    case G_G2_RAGFORCESOLVE:
+        return (G2API_RagForceSolve(ghoul2Instances.instance(word: args.VMA(1))!, args[2] != 0) ? 1 : 0)
+
+    case G_G2_SETBONEIKSTATE:
+        // AI: Raven hands the bone name as a `const char *` that the module can pass as NULL. The arm reads the text only for a word that is not NULL.
+        let boneName: String? = (args.VMA(3) as OpaquePointer?) == nil ? nil : (args.VMA(3) as String)
+        return (G2API_SetBoneIKState(ghoul2Instances.instance(word: args.VMA(1))!, args[2], boneName, args[4], args.VMA(5)) ? 1 : 0)
+    case G_G2_IKMOVE:
+        let params: SharedIKMoveParams? = args.VMA(3)
+        return (G2API_IKMove(ghoul2Instances.instance(word: args.VMA(1))!, args[2], params!) ? 1 : 0)
+
+    case G_G2_REMOVEBONE:
+        let g2 = ghoul2Instances.instance(word: args.VMA(1))!
+
+        return (G2API_RemoveBone(g2[args[3]], args.VMA(2)) ? 1 : 0)
+
+    case G_G2_ATTACHINSTANCETOENTNUM:
+        G2API_AttachInstanceToEntNum(ghoul2Instances.instance(word: args.VMA(1))!, args[2], args[3] != 0)
+        return 0
 
     case G_SET_ACTIVE_SUBBSP:
         SV_SetActiveSubBSP(args[1])
@@ -1527,9 +1928,7 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
         return 0
 
     case G_CM_REGISTER_TERRAIN:
-        // Port-note: Row C. CM_RegisterTerrain of cm_load.swift carries a signature marker, so the arm has no callee to call.
-        // Raven wrote: return CM_RegisterTerrain((const char *)VMA(1), true)->GetTerrainId();
-        portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
+        return Int(CM_RegisterTerrain(args.VMA(1), true)!.GetTerrainId())
 
     case G_BOT_UPDATEWAYPOINTS:
         SV_BotWaypointReception(args[1], args.VMA(2))

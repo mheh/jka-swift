@@ -444,9 +444,37 @@ func ICARUS_InterrogateScript(_ filename: String) {
                 setID = ICARUS_GetIDForString(String(sVal1))
 
                 //Check against valid types
-                // Port-note: The switch on setID needs the SET_ names of icarus/Q3_Interface.h:6 to :255, and only JKAMP_Game exports them.
-                // Raven's arms call ICARUS_InterrogateScript( sVal2 ) for the 16 script sets and ICARUS_SoundPrecache( sVal2 ) for SET_LOOPSOUND.
-                portMissing("ICARUS_InterrogateScript", source: "oracle/codemp/icarus/GameInterface.cpp:426")
+                switch setID {
+                case SET_SPAWNSCRIPT,
+                     SET_USESCRIPT,
+                     SET_AWAKESCRIPT,
+                     SET_ANGERSCRIPT,
+                     SET_ATTACKSCRIPT,
+                     SET_VICTORYSCRIPT,
+                     SET_LOSTENEMYSCRIPT,
+                     SET_PAINSCRIPT,
+                     SET_FLEESCRIPT,
+                     SET_DEATHSCRIPT,
+                     SET_DELAYEDSCRIPT,
+                     SET_BLOCKEDSCRIPT,
+                     SET_FFIRESCRIPT,
+                     SET_FFDEATHSCRIPT,
+                     SET_MINDTRICKSCRIPT,
+                     SET_CINEMATIC_SKIPSCRIPT:
+                    //Recursively obtain all embedded scripts
+                    ICARUS_InterrogateScript(String(sVal2))
+                case SET_LOOPSOUND:		//like ID_SOUND, but set's looping
+                    ICARUS_SoundPrecache(String(sVal2))
+                case SET_VIDEO_PLAY:	//in game cinematic
+                    //do nothing for MP.
+                    break
+                case SET_ADDRHANDBOLT_MODEL,
+                     SET_ADDLHANDBOLT_MODEL:
+                    //do nothing for MP
+                    break
+                default:
+                    break
+                }
             }
 
         default:

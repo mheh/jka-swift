@@ -715,7 +715,7 @@ func CM_TraceThroughTerrain(_ tw: TraceWork, _ trace: JKAMP.Trace, _ brush: Cbru
     tDistance = tEnd - tBegin
 
     // Calculate number of iterations to process
-    count = Int32(ceilf(Float(Double(VectorLength(tDistance)) / (Double(landscape!.GetPatchScalarSize()) * TERRAIN_STEP_MAGIC))))
+    count = Int32(ceilf(VectorLength(tDistance) / (landscape!.GetPatchScalarSize() * TERRAIN_STEP_MAGIC)))
     count = 1
     fraction = trace.fraction
     _VectorScale(tDistance, 1.0 / count, &tStep)
@@ -775,12 +775,41 @@ func CM_TraceThroughTerrain(_ tw: TraceWork, _ trace: JKAMP.Trace, _ brush: Cbru
 }
 
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:914
-// TODO: Port signature
-// Raven wrote: void CM_HandlePatchCollision(struct traceWork_s *tw, trace_t &trace, const vec3_t tStart, const vec3_t tEnd, CCMPatch *patch, int checkcount)
-// No table row for `CCMPatch * patch`.
-func CM_HandlePatchCollision() -> Never {
-    // TODO: Port CM_HandlePatchCollision
-    portMissing("CM_HandlePatchCollision", source: "oracle/codemp/qcommon/cm_trace.cpp:914")
+func CM_HandlePatchCollision(_ tw: TraceWork, _ trace: JKAMP.Trace, _ tStart: JKAShared.vec3_t, _ tEnd: JKAShared.vec3_t, _ patch: CCMPatch?, _ checkcount: Int32) {
+    var numBrushes: Int32
+    var i: Int32
+    var brush: Slots<Cbrush>?
+    // AI: Raven walks the brushes with the pointer `brush`. The walk is the index `brushIndex` into the Slots.
+    var brushIndex: Int32
+
+    // Get the collision data
+    brush = patch!.GetCollisionData()
+    numBrushes = patch!.GetNumBrushes()
+
+    i = 0
+    brushIndex = 0
+    while i < numBrushes {
+        if brush![brushIndex].checkcount == checkcount {
+            return
+        }
+
+        // Generic collision of terxel bounds to line segment bounds
+        // AI: Raven passes the `vec3pair_t` field of the brush. The field is a Slots of two vectors, and the parameter takes an Array, so the call copies the two vectors.
+        if !CM_GenericBoxCollide(Array(brush![brushIndex].bounds), tw.localBounds) {
+            i += 1
+            brushIndex += 1
+            continue
+        }
+
+        brush![brushIndex].checkcount = checkcount
+
+        CM_TraceThroughBrush(tw, trace, brush![brushIndex], false)
+        if Double(trace.fraction) <= 0.0 {
+            break
+        }
+        i += 1
+        brushIndex += 1
+    }
 }
 
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:952

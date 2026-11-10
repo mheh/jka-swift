@@ -37,9 +37,7 @@ var weaponconfig: Weaponconfig? {
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:120
 func BotValidWeaponNumber(_ weaponnum: Int32) -> Int32 {
     if weaponnum <= 0 || weaponnum > weaponconfig!.numweapons {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_ERROR, "weapon number out of range\n");
-        portMissing("BotValidWeaponNumber", source: "oracle/codemp/botlib/be_ai_weap.cpp:120")
+        botimport.runPrint(PRT_ERROR, "weapon number out of range\n")
         return 0
     }
     return 1
@@ -54,15 +52,11 @@ func BotValidWeaponNumber(_ weaponnum: Int32) -> Int32 {
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:135
 func BotWeaponStateFromHandle(_ handle: Int32) -> BotWeaponstate? {
     if handle <= 0 || handle > MAX_CLIENTS {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "move state handle %d out of range\n", handle);
-        portMissing("BotWeaponStateFromHandle", source: "oracle/codemp/botlib/be_ai_weap.cpp:135")
+        botimport.runPrint(PRT_FATAL, "move state handle %d out of range\n", handle)
         return nil
     }
     if botweaponstates[handle] == nil {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "invalid move state %d\n", handle);
-        portMissing("BotWeaponStateFromHandle", source: "oracle/codemp/botlib/be_ai_weap.cpp:135")
+        botimport.runPrint(PRT_FATAL, "invalid move state %d\n", handle)
         return nil
     }
     return botweaponstates[handle]
@@ -83,26 +77,20 @@ func LoadWeaponConfig(_ filename: String) -> Weaponconfig? {
 
     max_weaponinfo = Int32(LibVarValue("max_weaponinfo", "32"))
     if max_weaponinfo < 0 {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_ERROR, "max_weaponinfo = %d\n", max_weaponinfo);
-        portMissing("LoadWeaponConfig", source: "oracle/codemp/botlib/be_ai_weap.cpp:181")
+        botimport.runPrint(PRT_ERROR, "max_weaponinfo = %d\n", max_weaponinfo)
         max_weaponinfo = 32
         LibVarSet("max_weaponinfo", "32")
     }
     max_projectileinfo = Int32(LibVarValue("max_projectileinfo", "32"))
     if max_projectileinfo < 0 {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_ERROR, "max_projectileinfo = %d\n", max_projectileinfo);
-        portMissing("LoadWeaponConfig", source: "oracle/codemp/botlib/be_ai_weap.cpp:181")
+        botimport.runPrint(PRT_ERROR, "max_projectileinfo = %d\n", max_projectileinfo)
         max_projectileinfo = 32
         LibVarSet("max_projectileinfo", "32")
     }
     strncpy(&path, filename, MAX_PATH)
     PC_SetBaseFolder(BOTFILESBASEFOLDER)
     guard let source = LoadSourceFile(String(path)) else {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_ERROR, "counldn't load %s\n", path);
-        portMissing("LoadWeaponConfig", source: "oracle/codemp/botlib/be_ai_weap.cpp:181")
+        botimport.runPrint(PRT_ERROR, "counldn't load %s\n", String(path))
         return nil
     }
     //initialize weapon config
@@ -126,9 +114,7 @@ func LoadWeaponConfig(_ filename: String) -> Weaponconfig? {
                         return false
                     }
                     if weaponinfo.number < 0 || weaponinfo.number >= max_weaponinfo {
-                        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-                        // Raven wrote: botimport.Print(PRT_ERROR, "weapon info number %d out of range in %s\n", weaponinfo.number, path);
-                        portMissing("LoadWeaponConfig", source: "oracle/codemp/botlib/be_ai_weap.cpp:181")
+                        botimport.runPrint(PRT_ERROR, "weapon info number %d out of range in %s\n", weaponinfo.number, String(path))
                         FreeMemory(wc.handle)
                         FreeSource(source)
                         return false
@@ -137,9 +123,7 @@ func LoadWeaponConfig(_ filename: String) -> Weaponconfig? {
                     wc.weaponinfoSlots[weaponinfo.number].valid = 1
                 } else if strcmp(token.string, "projectileinfo") == 0 {
                     if wc.numprojectiles >= max_projectileinfo {
-                        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-                        // Raven wrote: botimport.Print(PRT_ERROR, "more than %d projectiles defined in %s\n", max_projectileinfo, path);
-                        portMissing("LoadWeaponConfig", source: "oracle/codemp/botlib/be_ai_weap.cpp:181")
+                        botimport.runPrint(PRT_ERROR, "more than %d projectiles defined in %s\n", max_projectileinfo, String(path))
                         FreeMemory(wc.handle)
                         FreeSource(source)
                         return false
@@ -153,9 +137,7 @@ func LoadWeaponConfig(_ filename: String) -> Weaponconfig? {
                     }
                     wc.numprojectiles += 1
                 } else {
-                    // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-                    // Raven wrote: botimport.Print(PRT_ERROR, "unknown definition %s in %s\n", token.string, path);
-                    portMissing("LoadWeaponConfig", source: "oracle/codemp/botlib/be_ai_weap.cpp:181")
+                    botimport.runPrint(PRT_ERROR, "unknown definition %s in %s\n", token.string, String(path))
                     FreeMemory(wc.handle)
                     FreeSource(source)
                     return false
@@ -174,16 +156,12 @@ func LoadWeaponConfig(_ filename: String) -> Weaponconfig? {
             continue
         }
         if wc.weaponinfoSlots[i].name.isEmpty {
-            // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-            // Raven wrote: botimport.Print(PRT_ERROR, "weapon %d has no name in %s\n", i, path);
-            portMissing("LoadWeaponConfig", source: "oracle/codemp/botlib/be_ai_weap.cpp:181")
+            botimport.runPrint(PRT_ERROR, "weapon %d has no name in %s\n", i, String(path))
             FreeMemory(wc.handle)
             return nil
         }
         if wc.weaponinfoSlots[i].projectile.isEmpty {
-            // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-            // Raven wrote: botimport.Print(PRT_ERROR, "weapon %s has no projectile in %s\n", wc->weaponinfo[i].name, path);
-            portMissing("LoadWeaponConfig", source: "oracle/codemp/botlib/be_ai_weap.cpp:181")
+            botimport.runPrint(PRT_ERROR, "weapon %s has no projectile in %s\n", wc.weaponinfoSlots[i].name, String(path))
             FreeMemory(wc.handle)
             return nil
         }
@@ -197,22 +175,16 @@ func LoadWeaponConfig(_ filename: String) -> Weaponconfig? {
             j += 1
         }
         if j == wc.numprojectiles {
-            // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-            // Raven wrote: botimport.Print(PRT_ERROR, "weapon %s uses undefined projectile in %s\n", wc->weaponinfo[i].name, path);
-            portMissing("LoadWeaponConfig", source: "oracle/codemp/botlib/be_ai_weap.cpp:181")
+            botimport.runPrint(PRT_ERROR, "weapon %s uses undefined projectile in %s\n", wc.weaponinfoSlots[i].name, String(path))
             FreeMemory(wc.handle)
             return nil
         }
         i += 1
     }
     if wc.numweapons == 0 {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_WARNING, "no weapon info loaded\n");
-        portMissing("LoadWeaponConfig", source: "oracle/codemp/botlib/be_ai_weap.cpp:181")
+        botimport.runPrint(PRT_WARNING, "no weapon info loaded\n")
     }
-    // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-    // Raven wrote: botimport.Print(PRT_MESSAGE, "loaded %s\n", path);
-    portMissing("LoadWeaponConfig", source: "oracle/codemp/botlib/be_ai_weap.cpp:181")
+    botimport.runPrint(PRT_MESSAGE, "loaded %s\n", String(path))
     return wc
 }
 
@@ -223,12 +195,18 @@ func LoadWeaponConfig(_ filename: String) -> Weaponconfig? {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:313
-// TODO: Port signature
-// Raven wrote: int *WeaponWeightIndex(weightconfig_t *wwc, weaponconfig_t *wc)
-// No table row for the return `int *`.
-func WeaponWeightIndex() -> Never {
-    // TODO: Port WeaponWeightIndex
-    portMissing("WeaponWeightIndex", source: "oracle/codemp/botlib/be_ai_weap.cpp:313")
+func WeaponWeightIndex(_ wwc: Weightconfig, _ wc: Weaponconfig) -> Slots<Int32> {
+    var index: Slots<Int32>, i: Int32
+
+    //initialize item weight index
+    index = Slots<Int32>(scalars: GetClearedMemory(Int32(Int32.byteCount) * wc.numweapons), count: Int(wc.numweapons))
+
+    i = 0
+    while i < wc.numweapons {
+        index[i] = FindFuzzyWeight(wwc, wc.weaponinfoSlots[i].name)
+        i += 1
+    }
+    return index
 }
 
 //===========================================================================
@@ -241,7 +219,7 @@ func WeaponWeightIndex() -> Never {
 func BotFreeWeaponWeights(_ weaponstate: Int32) {
     guard let ws = BotWeaponStateFromHandle(weaponstate) else { return }
     if ws.weaponweightconfig != nil { FreeWeightConfig(ws.weaponweightconfig!) }
-    if ws.weaponweightindex != nil { FreeMemory(ws.weaponweightindex) }
+    if ws.weaponweightindex != nil { FreeMemory(OpaquePointer(ws.weaponweightindex!.base)) }
 }
 
 //===========================================================================
@@ -257,15 +235,11 @@ func BotLoadWeaponWeights(_ weaponstate: Int32, _ filename: inout JKAShared.Char
     //
     ws.weaponweightconfig = ReadWeightConfig(&filename)
     if ws.weaponweightconfig == nil {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "couldn't load weapon config %s\n", filename);
-        portMissing("BotLoadWeaponWeights", source: "oracle/codemp/botlib/be_ai_weap.cpp:347")
+        botimport.runPrint(PRT_FATAL, "couldn't load weapon config %s\n", String(filename))
         return BLERR_CANNOTLOADWEAPONWEIGHTS
     }
     if weaponconfig == nil { return BLERR_CANNOTLOADWEAPONCONFIG }
-    // Port-note: WeaponWeightIndex returns an `int *` with no table row, and `weaponweightindex` is an opaque field, row P8 of the bot-ai round.
-    // Raven wrote: ws->weaponweightindex = WeaponWeightIndex(ws->weaponweightconfig, weaponconfig);
-    portMissing("BotLoadWeaponWeights", source: "oracle/codemp/botlib/be_ai_weap.cpp:347")
+    ws.weaponweightindex = WeaponWeightIndex(ws.weaponweightconfig!, weaponconfig!)
     return BLERR_NOERROR
 }
 
@@ -290,10 +264,39 @@ func BotGetWeaponInfo(_ weaponstate: Int32, _ weapon: Int32, _ weaponinfo: Weapo
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:387
-// Port-note: The body reads `ws->weaponweightindex[i]`, an opaque field, row P8, and hands its `Slots<Int32>` inventory to FuzzyWeight, which takes one `inout Int32`, row P4 of the bot-ai round.
 func BotChooseBestFightWeapon(_ weaponstate: Int32, _ inventory: Slots<Int32>) -> Int32 {
-    // TODO: Port BotChooseBestFightWeapon
-    portMissing("BotChooseBestFightWeapon", source: "oracle/codemp/botlib/be_ai_weap.cpp:387")
+    var i: Int32, index: Int32, bestweapon: Int32
+    var weight: Float, bestweight: Float
+    let wc: Weaponconfig?
+
+    guard let ws = BotWeaponStateFromHandle(weaponstate) else { return 0 }
+    wc = weaponconfig
+    if weaponconfig == nil { return 0 }
+
+    //if the bot has no weapon weight configuration
+    if ws.weaponweightconfig == nil { return 0 }
+
+    bestweight = 0
+    bestweapon = 0
+    i = 0
+    while i < wc!.numweapons {
+        if wc!.weaponinfoSlots[i].valid == 0 {
+            i += 1
+            continue
+        }
+        index = ws.weaponweightindex![i]
+        if index < 0 {
+            i += 1
+            continue
+        }
+        weight = FuzzyWeight(inventory, ws.weaponweightconfig!, index)
+        if weight > bestweight {
+            bestweight = weight
+            bestweapon = i
+        }
+        i += 1
+    }
+    return bestweapon
 }
 
 //===========================================================================
@@ -305,7 +308,7 @@ func BotChooseBestFightWeapon(_ weaponstate: Int32, _ inventory: Slots<Int32>) -
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:424
 func BotResetWeaponState(_ weaponstate: Int32) {
     let weaponweightconfig: Weightconfig?
-    let weaponweightindex: OpaquePointer?
+    let weaponweightindex: Slots<Int32>?
 
     guard let ws = BotWeaponStateFromHandle(weaponstate) else { return }
     weaponweightconfig = ws.weaponweightconfig
@@ -346,15 +349,11 @@ func BotAllocWeaponState() -> Int32 {
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:465
 func BotFreeWeaponState(_ handle: Int32) {
     if handle <= 0 || handle > MAX_CLIENTS {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "move state handle %d out of range\n", handle);
-        portMissing("BotFreeWeaponState", source: "oracle/codemp/botlib/be_ai_weap.cpp:465")
+        botimport.runPrint(PRT_FATAL, "move state handle %d out of range\n", handle)
         return
     }
     if botweaponstates[handle] == nil {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "invalid move state %d\n", handle);
-        portMissing("BotFreeWeaponState", source: "oracle/codemp/botlib/be_ai_weap.cpp:465")
+        botimport.runPrint(PRT_FATAL, "invalid move state %d\n", handle)
         return
     }
     BotFreeWeaponWeights(handle)
@@ -375,9 +374,7 @@ func BotSetupWeaponAI() -> Int32 {
     file = LibVarString("weaponconfig", "weapons.c")
     weaponconfig = LoadWeaponConfig(file)
     if weaponconfig == nil {
-        // Port-note: The `char *fmt, ...` of `botlib_import_t.Print` has no text form in its view, row P1 of the bot-ai round.
-        // Raven wrote: botimport.Print(PRT_FATAL, "couldn't load the weapon config\n");
-        portMissing("BotSetupWeaponAI", source: "oracle/codemp/botlib/be_ai_weap.cpp:487")
+        botimport.runPrint(PRT_FATAL, "couldn't load the weapon config\n")
         return BLERR_CANNOTLOADWEAPONCONFIG
     }
 

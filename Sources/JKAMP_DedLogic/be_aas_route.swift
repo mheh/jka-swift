@@ -57,12 +57,9 @@ private var areas_AAS_InitReachabilityAreas: Slots<Int32> { world.storage.be_aas
 
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:77
 func AAS_RoutingInfo() {
-    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_route.cpp:79")
-    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_route.cpp:80")
-    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_route.cpp:81")
+    botimport.runPrint(PRT_MESSAGE, "%d area cache updates\n", numareacacheupdates)
+    botimport.runPrint(PRT_MESSAGE, "%d portal cache updates\n", numportalcacheupdates)
+    botimport.runPrint(PRT_MESSAGE, "%d bytes routing cache\n", routingcachesize)
 }
 
 //===========================================================================
@@ -306,8 +303,7 @@ func AAS_EnableRoutingArea(_ areanum: Int32, _ enable: Int32) -> Int32 {
 
     if areanum <= 0 || areanum >= aasworld.numareas {
         if bot_developer != 0 {
-            // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-            portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_route.cpp:299")
+            botimport.runPrint(PRT_ERROR, "AAS_EnableRoutingArea: areanum %d out of range\n", areanum)
         } //end if
         return 0
     } //end if
@@ -412,7 +408,7 @@ func AAS_InitAreaContentsTravelFlags() {
     if aasworld.areacontentstravelflags != nil {
         FreeMemory(OpaquePointer(aasworld.areacontentstravelflags!.base))
     }
-    aasworld.areacontentstravelflags = Slots<Int32>(scalars: GetClearedMemory(UInt32(aasworld.numareas * Int32(Int32.byteCount))), count: Int(aasworld.numareas))
+    aasworld.areacontentstravelflags = Slots<Int32>(scalars: GetClearedMemory(aasworld.numareas * Int32(Int32.byteCount)), count: Int(aasworld.numareas))
     //
     i = 0
     while i < aasworld.numareas {
@@ -440,8 +436,8 @@ func AAS_CreateReversedReachability() {
         FreeMemory(aasworld.reversedreachability?.handle)
     }
     //allocate memory for the reversed reachability links
-    var ptr = GetClearedMemory(UInt32(aasworld.numareas * Int32(AasReversedreachability.byteCount) +
-                            aasworld.reachabilitysize * Int32(AasReversedlink.byteCount)))
+    var ptr = GetClearedMemory(aasworld.numareas * Int32(AasReversedreachability.byteCount) +
+                            aasworld.reachabilitysize * Int32(AasReversedlink.byteCount))
     //
     aasworld.reversedreachability = AasReversedreachability(ptr)
     //pointer to the memory for the reversed links
@@ -453,8 +449,7 @@ func AAS_CreateReversedReachability() {
         settings = aasworld.areasettingsSlots[i]
         //
         if settings.numreachableareas >= 128 {
-            // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-            portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_route.cpp:430")
+            botimport.runPrint(PRT_WARNING, "area %d has more than 128 reachabilities\n", i)
         }
         //create reversed links for the reachabilities
         n = 0
@@ -508,7 +503,7 @@ func AAS_AreaTravelTime(_ areanum: Int32, _ start: JKAShared.vec3_t?, _ end: JKA
     if intdist <= 0 {
         intdist = 1
     }
-    return intdist
+    return Int32(UInt16(truncatingIfNeeded: intdist))
 }
 
 //===========================================================================
@@ -549,7 +544,7 @@ func AAS_CalculateAreaTravelTimes() {
         i += 1
     } //end for
     //allocate memory for the area travel times
-    var ptr = GetClearedMemory(UInt32(size))
+    var ptr = GetClearedMemory(size)
     aasworld.areatraveltimes = OpaquePointer(ptr)
     ptr = ptr + aasworld.numareas * Int32(OpaquePointer.byteCount)
     //calcluate the travel times for all the areas
@@ -644,7 +639,7 @@ func AAS_InitPortalMaxTravelTimes() {
         FreeMemory(OpaquePointer(aasworld.portalmaxtraveltimes!.base))
     }
 
-    aasworld.portalmaxtraveltimes = Slots<Int32>(scalars: GetClearedMemory(UInt32(aasworld.numportals * Int32(Int32.byteCount))), count: Int(aasworld.numportals))
+    aasworld.portalmaxtraveltimes = Slots<Int32>(scalars: GetClearedMemory(aasworld.numportals * Int32(Int32.byteCount)), count: Int(aasworld.numportals))
 
     i = 0
     while i < aasworld.numportals {
@@ -801,7 +796,7 @@ func AAS_AllocRoutingCache(_ numtraveltimes: Int32) -> AasRoutingcache? {
     //
     routingcachesize += size
     //
-    let block = GetClearedMemory(UInt32(size))
+    let block = GetClearedMemory(size)
     cache = AasRoutingcache(block)
     cache.reachabilities = Slots(scalars: block + Int32(AasRoutingcache.byteCount)
                                 + numtraveltimes * Int32(UInt16.byteCount), count: Int(numtraveltimes))
@@ -871,9 +866,9 @@ func AAS_InitClusterAreaCache() {
     } //end for
     //two dimensional array with pointers for every cluster to routing cache
     //for every area in that cluster
-    var ptr = GetClearedMemory(UInt32(
+    var ptr = GetClearedMemory(
                 aasworld.numclusters * Int32(OpaquePointer.byteCount) +
-                size * Int32(OpaquePointer.byteCount)))
+                size * Int32(OpaquePointer.byteCount))
     aasworld.clusterareacache = OpaquePointer(ptr)
     ptr = ptr + aasworld.numclusters * Int32(OpaquePointer.byteCount)
     i = 0
@@ -926,8 +921,8 @@ func AAS_FreeAllPortalCache() {
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:828
 func AAS_InitPortalCache() {
     //
-    aasworld.portalcache = Slots(pointers: GetClearedMemory(UInt32(
-                                aasworld.numareas * Int32(OpaquePointer.byteCount))), count: Int(aasworld.numareas))
+    aasworld.portalcache = Slots(pointers: GetClearedMemory(
+                                aasworld.numareas * Int32(OpaquePointer.byteCount)), count: Int(aasworld.numareas))
 }
 
 //===========================================================================
@@ -955,15 +950,15 @@ func AAS_InitRoutingUpdate() {
         i += 1
     } //end for
     //allocate memory for the routing update fields
-    aasworld.areaupdate = AasRoutingupdate(GetClearedMemory(UInt32(
-                                    maxreachabilityareas * Int32(AasRoutingupdate.byteCount))))
+    aasworld.areaupdate = AasRoutingupdate(GetClearedMemory(
+                                    maxreachabilityareas * Int32(AasRoutingupdate.byteCount)))
     //
     if aasworld.portalupdate != nil {
         FreeMemory(aasworld.portalupdate?.handle)
     }
     //allocate memory for the portal update fields
-    aasworld.portalupdate = AasRoutingupdate(GetClearedMemory(UInt32(
-                                    (aasworld.numportals + 1) * Int32(AasRoutingupdate.byteCount))))
+    aasworld.portalupdate = AasRoutingupdate(GetClearedMemory(
+                                    (aasworld.numportals + 1) * Int32(AasRoutingupdate.byteCount)))
 }
 
 //===========================================================================
@@ -988,7 +983,7 @@ func AAS_WriteRouteCache() {
     var totalsize: Int32
     var cache: AasRoutingcache?
     var cluster: AasCluster
-    let fp: fileHandle_t = 0
+    var fp: fileHandle_t = 0
     var filename = CharBuf(MAX_QPATH)
 
     numportalcache = 0
@@ -1019,8 +1014,7 @@ func AAS_WriteRouteCache() {
     } //end for
     // open the file for writing
     Com_sprintf(&filename, MAX_QPATH, "maps/%s.rcd", aasworld.mapname)
-    // Port-note: botimport.FS_FOpenFile has no handle form in the view, which takes the fileHandle_t * as an OpaquePointer.
-    portMissing("botimport.FS_FOpenFile", source: "oracle/codemp/botlib/be_aas_route.cpp:948")
+    botimport.runFS_FOpenFile(String(filename), &fp, FS_WRITE)
     if fp == 0 {
         AAS_Error("Unable to open file: %s\n", String(filename))
         return
@@ -1031,15 +1025,12 @@ func AAS_WriteRouteCache() {
         routecacheheader.version = RCVERSION
         routecacheheader.numareas = aasworld.numareas
         routecacheheader.numclusters = aasworld.numclusters
-        // Port-note: the areas Slots has no bound, so no form gives CRC_ProcessString the bytes of the first numareas records.
-        portMissing("CRC_ProcessString", source: "oracle/codemp/botlib/be_aas_route.cpp:959")
-        // Port-note: the clusters Slots has no bound, so no form gives CRC_ProcessString the bytes of the first numclusters records.
-        portMissing("CRC_ProcessString", source: "oracle/codemp/botlib/be_aas_route.cpp:960")
+        routecacheheader.areacrc = CRC_ProcessString(Slots<byte>(scalars: aasworld.areasSlots.base, count: Int(Int32(AasArea.byteCount) * aasworld.numareas)), Int32(AasArea.byteCount) * aasworld.numareas)
+        routecacheheader.clustercrc = CRC_ProcessString(Slots<byte>(scalars: aasworld.clustersSlots.base, count: Int(Int32(AasCluster.byteCount) * aasworld.numclusters)), Int32(AasCluster.byteCount) * aasworld.numclusters)
         routecacheheader.numportalcache = numportalcache
         routecacheheader.numareacache = numareacache
         //write the header
-        // Port-note: botimport.FS_Write has no buffer form in the view, which takes the buffer as an OpaquePointer.
-        portMissing("botimport.FS_Write", source: "oracle/codemp/botlib/be_aas_route.cpp:964")
+        botimport.runFS_Write(Slots(record: routecacheheader).bytes, Int32(Routecacheheader.byteCount), fp)
     }
     //
     totalsize = 0
@@ -1048,8 +1039,7 @@ func AAS_WriteRouteCache() {
     while i < aasworld.numareas {
         cache = aasworld.portalcache![i]
         while cache != nil {
-            // Port-note: botimport.FS_Write has no buffer form in the view, which takes the buffer as an OpaquePointer.
-            portMissing("botimport.FS_Write", source: "oracle/codemp/botlib/be_aas_route.cpp:972")
+            botimport.runFS_Write(Slots(record: cache!).bytes, cache!.size, fp)
             totalsize += cache!.size
             cache = cache!.next
         } //end for
@@ -1063,8 +1053,7 @@ func AAS_WriteRouteCache() {
             // AI: Raven indexes the two-level pointer table of the cluster caches. The hand accessor of the view target steps the pointer level.
             cache = aasworld.clusterareacache(i, j)
             while cache != nil {
-                // Port-note: botimport.FS_Write has no buffer form in the view, which takes the buffer as an OpaquePointer.
-                portMissing("botimport.FS_Write", source: "oracle/codemp/botlib/be_aas_route.cpp:983")
+                botimport.runFS_Write(Slots(record: cache!).bytes, cache!.size, fp)
                 totalsize += cache!.size
                 cache = cache!.next
             } //end for
@@ -1089,10 +1078,8 @@ func AAS_WriteRouteCache() {
     */
     //
     botimport.runFS_FCloseFile(fp)
-    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_route.cpp:1005")
-    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_route.cpp:1006")
+    botimport.runPrint(PRT_MESSAGE, "\nroute cache written to %s\n", String(filename))
+    botimport.runPrint(PRT_MESSAGE, "written %d bytes of routing cache\n", totalsize)
 }
 
 //===========================================================================
@@ -1106,13 +1093,13 @@ func AAS_ReadCache(_ fp: JKAShared.fileHandle_t) -> AasRoutingcache? {
     let size: Int32 = 0
     var cache: AasRoutingcache
 
-    // Port-note: botimport.FS_Read has no buffer form in the view, which takes the buffer as an OpaquePointer.
+    // Port-note: runFS_Read takes a Slots of bytes, and no form gives the bytes of the scalar `size` without a new helper.
+    // Raven wrote: botimport.FS_Read(&size, sizeof(size), fp);
     portMissing("botimport.FS_Read", source: "oracle/codemp/botlib/be_aas_route.cpp:1019")
-    let block = GetMemory(UInt32(size))!
+    let block = GetMemory(size)!
     cache = AasRoutingcache(block)
     cache.size = size
-    // Port-note: botimport.FS_Read has no buffer form in the view, which takes the buffer as an OpaquePointer.
-    portMissing("botimport.FS_Read", source: "oracle/codemp/botlib/be_aas_route.cpp:1022")
+    botimport.runFS_Read(Slots<byte>(scalars: block, count: Int(size)).suffix(from: Int32.byteCount), size - Int32(Int32.byteCount), fp)
     cache.reachabilities = Slots(scalars: block + Int32(AasRoutingcache.byteCount) - Int32(UInt16.byteCount) +
         (size - Int32(AasRoutingcache.byteCount) + Int32(UInt16.byteCount)) / 3 * 2,
         count: Int((size - Int32(AasRoutingcache.byteCount) + Int32(UInt16.byteCount)) / 3))
@@ -1130,19 +1117,17 @@ func AAS_ReadCache(_ fp: JKAShared.fileHandle_t) -> AasRoutingcache? {
 func AAS_ReadRouteCache() -> Int32 {
     var i: Int32
     var clusterareanum: Int32 //, size;
-    let fp: fileHandle_t = 0
+    var fp: fileHandle_t = 0
     var filename = CharBuf(MAX_QPATH)
     var cache: AasRoutingcache?
 
     Com_sprintf(&filename, MAX_QPATH, "maps/%s.rcd", aasworld.mapname)
-    // Port-note: botimport.FS_FOpenFile has no handle form in the view, which takes the fileHandle_t * as an OpaquePointer.
-    portMissing("botimport.FS_FOpenFile", source: "oracle/codemp/botlib/be_aas_route.cpp:1042")
+    botimport.runFS_FOpenFile(String(filename), &fp, FS_READ)
     if fp == 0 {
         return 0
     } //end if
     let valid = Routecacheheader.scratch { routecacheheader -> Bool in
-        // Port-note: botimport.FS_Read has no buffer form in the view, which takes the buffer as an OpaquePointer.
-        portMissing("botimport.FS_Read", source: "oracle/codemp/botlib/be_aas_route.cpp:1047")
+        botimport.runFS_Read(Slots(record: routecacheheader).bytes, Int32(Routecacheheader.byteCount), fp)
         if routecacheheader.ident != RCID {
             // Port-note: Raven passes no argument for the %s, so his vsprintf reads a word past the arguments.
             // The port passes the file name, rule 19.
@@ -1161,10 +1146,16 @@ func AAS_ReadRouteCache() -> Int32 {
             //AAS_Error("route cache dump has wrong number of clusters\n");
             return false
         } //end if
-        // Port-note: the areas Slots has no bound, so no form gives CRC_ProcessString the bytes of the first numareas records.
-        portMissing("CRC_ProcessString", source: "oracle/codemp/botlib/be_aas_route.cpp:1069")
-        // Port-note: the clusters Slots has no bound, so no form gives CRC_ProcessString the bytes of the first numclusters records.
-        portMissing("CRC_ProcessString", source: "oracle/codemp/botlib/be_aas_route.cpp:1075")
+        if routecacheheader.areacrc !=
+            CRC_ProcessString(Slots<byte>(scalars: aasworld.areasSlots.base, count: Int(Int32(AasArea.byteCount) * aasworld.numareas)), Int32(AasArea.byteCount) * aasworld.numareas) {
+            //AAS_Error("route cache dump area CRC incorrect\n");
+            return false
+        } //end if
+        if routecacheheader.clustercrc !=
+            CRC_ProcessString(Slots<byte>(scalars: aasworld.clustersSlots.base, count: Int(Int32(AasCluster.byteCount) * aasworld.numclusters)), Int32(AasCluster.byteCount) * aasworld.numclusters) {
+            //AAS_Error("route cache dump cluster CRC incorrect\n");
+            return false
+        } //end if
         //read all the portal cache
         i = 0
         while i < routecacheheader.numportalcache {
@@ -1235,9 +1226,9 @@ func AAS_InitReachabilityAreas() {
     }
 
     aasworld.reachabilityareas = AasReachabilityareas(
-                GetClearedMemory(UInt32(aasworld.reachabilitysize * Int32(AasReachabilityareas.byteCount))))
+                GetClearedMemory(aasworld.reachabilitysize * Int32(AasReachabilityareas.byteCount)))
     aasworld.reachabilityareaindex = Slots<Int32>(scalars:
-                GetClearedMemory(UInt32(aasworld.reachabilitysize * MAX_REACHABILITYPASSAREAS * Int32(Int32.byteCount))),
+                GetClearedMemory(aasworld.reachabilitysize * MAX_REACHABILITYPASSAREAS * Int32(Int32.byteCount)),
                 count: Int(aasworld.reachabilitysize * MAX_REACHABILITYPASSAREAS))
     numreachareas = 0
     i = 0
@@ -1383,6 +1374,10 @@ func AAS_FreeRoutingCaches() {
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
+/// Source: oracle/codemp/botlib/be_aas_route.cpp:1275
+// AI: Raven declares `startareatraveltimes` on the stack of AAS_UpdateAreaRoutingCache. The function uses one zeroed allocation on the storage class.
+var startareatraveltimes_AAS_UpdateAreaRoutingCache: Slots<UInt16> { world.storage.startareatraveltimes_AAS_UpdateAreaRoutingCache }
+
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1271
 func AAS_UpdateAreaRoutingCache(_ areacache: AasRoutingcache) {
     var i: Int32
@@ -1416,14 +1411,12 @@ func AAS_UpdateAreaRoutingCache(_ areacache: AasRoutingcache) {
         return
     }
     //
-    // Port-note: the local `unsigned short startareatraveltimes[128]`, whose address goes into `curupdate->areatraveltimes`, has no storage row.
-    portMissing("startareatraveltimes", source: "oracle/codemp/botlib/be_aas_route.cpp:1296")
+    startareatraveltimes_AAS_UpdateAreaRoutingCache.zero()
     //
     curupdate = aasworld.areaupdateSlots[clusterareanum]
     curupdate.areanum = areacache.areanum
     //VectorCopy(areacache->origin, curupdate->start);
-    // Port-note: the local `unsigned short startareatraveltimes[128]`, whose address goes into `curupdate->areatraveltimes`, has no storage row.
-    portMissing("startareatraveltimes", source: "oracle/codemp/botlib/be_aas_route.cpp:1301")
+    curupdate.areatraveltimes = startareatraveltimes_AAS_UpdateAreaRoutingCache
     curupdate.tmptraveltime = Int32(areacache.starttraveltime)
     //
     areacache.traveltimes[clusterareanum] = UInt16(areacache.starttraveltime)
@@ -1774,15 +1767,13 @@ func AAS_AreaRouteToGoalArea(_ areanum: Int32, _ origin: JKAShared.vec3_t?, _ go
     //
     if areanum <= 0 || areanum >= aasworld.numareas {
         if bot_developer != 0 {
-            // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-            portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_route.cpp:1590")
+            botimport.runPrint(PRT_ERROR, "AAS_AreaTravelTimeToGoalArea: areanum %d out of range\n", areanum)
         } //end if
         return 0
     } //end if
     if goalareanum <= 0 || goalareanum >= aasworld.numareas {
         if bot_developer != 0 {
-            // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-            portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_route.cpp:1598")
+            botimport.runPrint(PRT_ERROR, "AAS_AreaTravelTimeToGoalArea: goalareanum %d out of range\n", goalareanum)
         } //end if
         return 0
     } //end if
@@ -2125,8 +2116,7 @@ func AAS_NextAreaReachability(_ areanum: Int32, _ reachnum: Int32) -> Int32 {
     }
 
     if areanum <= 0 || areanum >= aasworld.numareas {
-        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_route.cpp:1930")
+        botimport.runPrint(PRT_ERROR, "AAS_NextAreaReachability: areanum %d out of range\n", areanum)
         return 0
     } //end if
 
@@ -2135,8 +2125,7 @@ func AAS_NextAreaReachability(_ areanum: Int32, _ reachnum: Int32) -> Int32 {
         return settings.firstreachablearea
     } //end if
     if reachnum < settings.firstreachablearea {
-        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_route.cpp:1941")
+        botimport.runPrint(PRT_FATAL, "AAS_NextAreaReachability: reachnum < settings->firstreachableara")
         return 0
     } //end if
     reachnum += 1
@@ -2223,14 +2212,12 @@ func AAS_RandomGoalArea(_ areanum: Int32, _ travelflags: Int32, _ goalareanum: i
                 } //end if
                 start = aasworld.areasSlots[n].center
                 if AAS_PointAreaNum(start) == 0 {
-                    var fmt = CharBuf("area %d center %f %f %f in solid?")
-                    Log_Write(&fmt, n, start[0], start[1], start[2])
+                    Log_Write("area %d center %f %f %f in solid?", n, start[0], start[1], start[2])
                 }
                 end = start
                 end[2] -= 300
                 let found = AasTrace.scratch { trace -> Bool in
-                    // Port-note: AAS_TraceClientBBox has no signature yet, because the table has no row for its aas_trace_t return.
-                    portMissing("AAS_TraceClientBBox", source: "oracle/codemp/botlib/be_aas_route.cpp:2016")
+                    trace.copy(from: AAS_TraceClientBBox(start, end, PRESENCE_CROUCH, -1))
                     if !trace.startsolid && trace.fraction < 1 && AAS_PointAreaNum(trace.endpos) == n {
                         if AAS_AreaGroundFaceArea(n) > 300 {
                             goalareanum = n

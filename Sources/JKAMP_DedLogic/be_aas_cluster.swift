@@ -123,8 +123,7 @@ func AAS_UpdatePortal(_ areanum: Int32, _ clusternum: Int32) -> Int32 {
     else {
         //remove the cluster portal flag contents
         aasworld.areasettingsSlots[areanum].contents &= ~AREACONTENTS_CLUSTERPORTAL
-        var fmt = CharBuf("portal area %d is seperating more than two clusters\r\n")
-        Log_Write(&fmt, areanum)
+        Log_Write("portal area %d is seperating more than two clusters\r\n", areanum)
         return 0
     } //end else
     if aasworld.portalindexsize >= AAS_MAX_PORTALINDEXSIZE {
@@ -1034,8 +1033,7 @@ func AAS_CheckAreaForPossiblePortals(_ areanum: Int32) -> Int32 {
         aasworld.areasettingsSlots[areanums_AAS_CheckAreaForPossiblePortals[i]].contents |= AREACONTENTS_CLUSTERPORTAL
         //this area can be used as a route portal
         aasworld.areasettingsSlots[areanums_AAS_CheckAreaForPossiblePortals[i]].contents |= AREACONTENTS_ROUTEPORTAL
-        var fmt = CharBuf("possible portal: %d\r\n")
-        Log_Write(&fmt, areanums_AAS_CheckAreaForPossiblePortals[i])
+        Log_Write("possible portal: %d\r\n", areanums_AAS_CheckAreaForPossiblePortals[i])
         i += 1
     } //end for
     //
@@ -1059,8 +1057,7 @@ func AAS_FindPossiblePortals() {
         numpossibleportals += AAS_CheckAreaForPossiblePortals(i)
         i += 1
     } //end for
-    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_cluster.cpp:912")
+    botimport.runPrint(PRT_MESSAGE, "\r%6d possible portal areas\n", numpossibleportals)
 }
 
 //===========================================================================
@@ -1092,14 +1089,12 @@ func AAS_TestPortals() -> Int32 {
         portal = aasworld.portalsSlots[i]
         if portal.frontcluster == 0 {
             aasworld.areasettingsSlots[portal.areanum].contents &= ~AREACONTENTS_CLUSTERPORTAL
-            var fmt = CharBuf("portal area %d has no front cluster\r\n")
-            Log_Write(&fmt, portal.areanum)
+            Log_Write("portal area %d has no front cluster\r\n", portal.areanum)
             return 0
         } //end if
         if portal.backcluster == 0 {
             aasworld.areasettingsSlots[portal.areanum].contents &= ~AREACONTENTS_CLUSTERPORTAL
-            var fmt = CharBuf("portal area %d has no back cluster\r\n")
-            Log_Write(&fmt, portal.areanum)
+            Log_Write("portal area %d has no back cluster\r\n", portal.areanum)
             return 0
         } //end if
         i += 1
@@ -1122,14 +1117,12 @@ func AAS_CountForcedClusterPortals() {
     i = 1
     while i < aasworld.numareas {
         if (aasworld.areasettingsSlots[i].contents & AREACONTENTS_CLUSTERPORTAL) != 0 {
-            var fmt = CharBuf("area %d is a forced portal area\r\n")
-            Log_Write(&fmt, i)
+            Log_Write("area %d is a forced portal area\r\n", i)
             num += 1
         } //end if
         i += 1
     } //end for
-    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_cluster.cpp:1397")
+    botimport.runPrint(PRT_MESSAGE, "%6d forced portal areas\n", num)
 }
 
 //===========================================================================
@@ -1210,24 +1203,22 @@ func AAS_InitClustering() {
     if aasworld.portals != nil {
         FreeMemory(aasworld.portals?.handle)
     }
-    aasworld.portals = AasPortal(GetClearedMemory(UInt32(AAS_MAX_PORTALS * Int32(AasPortal.byteCount))))
+    aasworld.portals = AasPortal(GetClearedMemory(AAS_MAX_PORTALS * Int32(AasPortal.byteCount)))
     //initialize portal index memory
     if aasworld.portalindex != nil {
         FreeMemory(OpaquePointer(aasworld.portalindex!.base))
     }
-    aasworld.portalindex = Slots<Int32>(scalars: GetClearedMemory(UInt32(AAS_MAX_PORTALINDEXSIZE * Int32(Int32.byteCount))), count: Int(AAS_MAX_PORTALINDEXSIZE))
+    aasworld.portalindex = Slots<Int32>(scalars: GetClearedMemory(AAS_MAX_PORTALINDEXSIZE * Int32(Int32.byteCount)), count: Int(AAS_MAX_PORTALINDEXSIZE))
     //initialize cluster memory
     if aasworld.clusters != nil {
         FreeMemory(aasworld.clusters?.handle)
     }
-    aasworld.clusters = AasCluster(GetClearedMemory(UInt32(AAS_MAX_CLUSTERS * Int32(AasCluster.byteCount))))
+    aasworld.clusters = AasCluster(GetClearedMemory(AAS_MAX_CLUSTERS * Int32(AasCluster.byteCount)))
     //
     removedPortalAreas = 0
-    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_cluster.cpp:1479")
+    botimport.runPrint(PRT_MESSAGE, "\r%6d removed portal areas", removedPortalAreas)
     while true {
-        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_cluster.cpp:1482")
+        botimport.runPrint(PRT_MESSAGE, "\r%6d", removedPortalAreas)
         //initialize the number of portals and clusters
         aasworld.numportals = 1 //portal 0 is a dummy
         aasworld.portalindexsize = 0
@@ -1247,26 +1238,21 @@ func AAS_InitClustering() {
         //
         break
     } //end while
-    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_cluster.cpp:1500")
+    botimport.runPrint(PRT_MESSAGE, "\n")
     //the AAS file should be saved
     aasworld.savefile = 1
     //write the portal areas to the log file
     i = 1
     while i < aasworld.numportals {
-        var fmt = CharBuf("portal %d: area %d\r\n")
-        Log_Write(&fmt, i, aasworld.portalsSlots[i].areanum)
+        Log_Write("portal %d: area %d\r\n", i, aasworld.portalsSlots[i].areanum)
         i += 1
     } //end for
     // report cluster info
-    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_cluster.cpp:1509")
-    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_cluster.cpp:1510")
+    botimport.runPrint(PRT_MESSAGE, "%6d portals created\n", aasworld.numportals)
+    botimport.runPrint(PRT_MESSAGE, "%6d clusters created\n", aasworld.numclusters)
     i = 1
     while i < aasworld.numclusters {
-        // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-        portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_cluster.cpp:1513")
+        botimport.runPrint(PRT_MESSAGE, "cluster %d has %d reachability areas\n", i, aasworld.clustersSlots[i].numreachabilityareas)
         i += 1
     } //end for
     // report AAS file efficiency
@@ -1281,8 +1267,6 @@ func AAS_InitClustering() {
     }
     total += numreachabilityareas * aasworld.numportals
     //
-    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_cluster.cpp:1526")
-    // Port-note: botimport.Print has no text form in the view, which takes the format as an OpaquePointer.
-    portMissing("botimport.Print", source: "oracle/codemp/botlib/be_aas_cluster.cpp:1527")
+    botimport.runPrint(PRT_MESSAGE, "%6i total reachability areas\n", numreachabilityareas)
+    botimport.runPrint(PRT_MESSAGE, "%6i AAS memory/CPU usage (the lower the better)\n", total * 3)
 }

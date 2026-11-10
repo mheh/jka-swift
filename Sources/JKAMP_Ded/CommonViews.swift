@@ -155,6 +155,23 @@ public func qsort<T>(_ a: inout [T], _ n: Int32, _ cmp: (T, T) -> Int32) {
     qsortSpan(&a, 0, Int(n), cmp)
 }
 
+/// Raven's `qsort(base, num, width, compare)` over the first `n` records of a table in C memory, `collRecMap` of G2API_CollisionDetect.
+/// This copies the records out, sorts views of the copies with the same algorithm, and copies the records back in the sorted order.
+/// The permutation is the one the C body gives, because the algorithm observes only comparisons and whole-element swaps.
+/// Source: oracle/codemp/ghoul2/G2_API.cpp:2117
+// AI: Raven sorts the records in place with `width`. The overload is the record twin of the `Slots<Int32>` overload of bg_lib.swift.
+public func qsort<V: HandleView>(_ a: Slots<V>, _ n: Int32, _ cmp: (V?, V?) -> Int32) {
+    let count = Int(n)
+    let copies = UnsafeMutableRawPointer.allocate(byteCount: max(count, 1) * a.stride, alignment: 16)
+    defer { copies.deallocate() }
+    copies.copyMemory(from: a.base, byteCount: count * a.stride)
+    var values: [V?] = (0 ..< count).map { V(handle: OpaquePointer(copies + $0 * a.stride)) }
+    qsortSpan(&values, 0, count, cmp)
+    for i in 0 ..< count {
+        (a.base + i * a.stride).copyMemory(from: UnsafeRawPointer(values[i]!.handle), byteCount: V.byteCount)
+    }
+}
+
 /// Raven reaches its tail iteration with `goto loop` over the same locals, and this holds the span in two parameters.
 /// Source: oracle/codemp/game/bg_lib.c:110
 private func qsortSpan<T>(_ a: inout [T], _ lo: Int, _ n: Int, _ cmp: (T, T) -> Int32) {
