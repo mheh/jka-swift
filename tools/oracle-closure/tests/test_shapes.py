@@ -74,6 +74,11 @@ class Shapes(unittest.TestCase):
         self.assertIn("(c)[Int(i)] = f", self.draft("COM_ParseVec4"))
         self.assertIn("let cc: CChar = CChar(truncatingIfNeeded: c)", self.draft("Q_strrchr"))
 
+        # and ClientCleanName's `ch = *in++` truncates the byte into the narrow local, then steps the cursor
+        lines = self.draft("ClientCleanName")
+        self.assertIn("ch = CChar(truncatingIfNeeded: `in`.byte)", lines)
+        self.assertIn("`in`.advance()", lines)
+
     def test_an_element_of_a_char_array_local_stays_a_char_buf_element(self) -> None:
         # given BG_SiegeGetValueGroup, which stores into and reads the elements of its `char checkGroup[4096]` local
         lines = self.draft("BG_SiegeGetValueGroup")

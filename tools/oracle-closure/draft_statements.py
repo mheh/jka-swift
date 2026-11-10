@@ -825,8 +825,12 @@ class Statements:
                         raise Hole(f"Raven writes through `{chosen}` with `{op}`, and the inout parameter has no such step.")
                     return [f"{pad}{chosen} = {self.expr(right)}" + self.trailing(cur)]
                 walked = self.cursor_post_step(right) if op == "=" else None
-                if walked is not None and self.swift_type_of(left) == "Int32" and not (
-                        self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.narrow_locals):
+                if walked is not None and self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.narrow_locals:
+                    # Raven's `ch = *in++` into a narrow local truncates the byte at the store, and then steps the cursor.
+                    narrow = self.narrow_locals[self.unwrap(left).spelling]
+                    name = swift_name(self.unwrap(left).spelling)
+                    return [f"{pad}{name} = {narrow}(truncatingIfNeeded: {walked}.byte)" + self.trailing(cur), f"{pad}{walked}.advance()"]
+                if walked is not None and self.swift_type_of(left) == "Int32":
                     # Raven's `c = *p++` reads the byte under the cursor and then steps the cursor, two Swift statements in his order.
                     return [f"{pad}{self.expr(left)} = {walked}.byte" + self.trailing(cur), f"{pad}{walked}.advance()"]
                 if self.unwrap(left).kind == CursorKind.DECL_REF_EXPR and self.unwrap(left).spelling in self.cursor_locals:
