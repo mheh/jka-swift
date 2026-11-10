@@ -64,3 +64,29 @@ The replay of `corpus-ffa1.rec` (shasum `9c08017178ab1cd2f720242c457fbc566d584f6
 The stop: `Swift runtime failure: Unexpectedly found nil while unwrapping an Optional value`. The stack is `Ref_SpawnFake` (client 0, Desann) to `VM_Call` of `GAME_CLIENT_BEGIN`, then `ClientBegin` (`g_client.swift:2353`), `SetupGameGhoul2Model` (`g_client.swift:1779`), and `trap_G2API_SetBoneAngles` with `modelList` nil, into `SV_GameSystemCalls_Real` at the `G_G2_ANGLEOVERRIDE` arm, `sv_game.swift:1699:42`, `args.VMA(9)`. The parameter is `Slots<qhandle_t>?`, and no optional `Slots<Int32>` form of `VMA` exists, so the call takes the form at `Sources/JKAMP_Ded/GameViews.swift:95-97`, which unwraps the word with `!`. Raven passes the NULL word on as `(qhandle_t *)VMA(9)`, `oracle/codemp/server/sv_game.cpp:1370-1372`. The fault is in the host's syscall arm, not in the referee, and it is on the path of every client that enters the game.
 
 The same 2400 frames with no client and `sv_refSeed 42` (`/tmp/referee-run/noclient/`) match on every line: equal `REF READY`, 2400 equal `REF STEP` lines on each side. The fork took 2 s and the Swift host 20 s.
+
+## The replay loop
+
+One cause stopped the host, and one commit fixes it.
+
+1. `4b26d54`. The `G_G2_ANGLEOVERRIDE` arm (`sv_game.swift:1699`) passed the module's NULL `modelList` through the `VMA` form that unwraps the word (`GameViews.swift:95-97`). The new optional form `VMA(_:) -> Slots<Int32>?` gives nil for Raven's NULL, in the shape of the optional `vec3_t` form at `GameViews.swift:64-69`. Swift picks it for each `Slots<qhandle_t>?` parameter, so it also covers the `SETMODELS` (words 2 and 3), the three `GETBOLT` arms (word 8), and `GETBONEANIM` (word 9). `sv_game.swift` has no change. Raven passes these words on at `oracle/codemp/server/sv_game.cpp:1370-1372`.
+
+After the fix, the Swift host replays all 2400 frames and prints `REF REPLAY END` in 21 s. The fork takes 3 s.
+
+### The first mismatch: frame 1
+
+`REF STEP n=1 t=425 ck=3cfa876c` on the fork, `ck=3a3c018c` on the Swift host. So 0 frames match. `ref_dump` after frame 1 differs in one byte of each of the four clients: `playerState_t` offset 1212, `ps.fd.forceRank` (`fd` at 804, `forceRank` at 408 of `forcedata_t`), 7 on the fork and 6 on the Swift host. The serverinfo shows the cause: `g_maxForceRank\7` on the fork, `g_maxForceRank\6` on the Swift host. The fork's `SV_Init` registers the cvar with the default 7 (`openjk/codemp/server/sv_init.cpp:943`). Raven's default is 6 (`oracle/codemp/server/sv_init.cpp:816`), and the Swift port keeps it (`sv_init.swift:757`). This is an OpenJK change, so under H9 it is a row of its own. Candidate forms: set `g_maxForceRank 7` on the proof line of both hosts, as H8 does for the other defaults, or keep Raven's 6 and set `g_maxForceRank 6` on the fork's line.
+
+### The second mismatch: frame 27, with `g_maxForceRank 7` on the Swift line
+
+With `+set g_maxForceRank 7` on the Swift line only, frames 1 to 26 match, and frame 27 differs: `ck=bb77844f` on the fork, `ck=f283977f` on the Swift host. `ref_dump` differs in one field of client 1 (Alora): `origin[1]`, in `ps.origin` (offset 24) and `s.origin` (offset 100), 548.10541 (`bf060944`) on the fork and 548.10559 (`c2060944`) on the Swift host, 3 ULP. The velocity is equal. The `ref_trace` of the frame has 287 boundary calls on each side, with the same commands, the same integer arguments, and the same returns.
+
+The candidate cause is the float contraction of the fork's C build. The fork's `CM_Trace` computes `trace->endpos[i] = start[i] + trace->fraction * (end[i] - start[i])` (`openjk/codemp/qcommon/cm_trace.cpp:1447`), and the disassembly of `openjkded.arm64` shows three `fmadd` instructions in `CM_Trace`. Clang contracts the multiply and the add on arm64 by default, and the CMake cache sets no `-ffp-contract`. The Swift line `cm_trace.swift:1659` rounds the product and then the sum, as Raven's line reads (`oracle/codemp/qcommon/cm_trace.cpp:1819`), and the MSVC x87 build of Raven did not fuse it. The binary holds 861 `fmadd` or `fmsub` instructions in all, so more such frames can follow. This is a difference of the C host's build, not of Raven's source. Candidate forms: rebuild the fork host with `-ffp-contract=off` (it moves the H14 binary), or accept a row under H9 that names the contraction. The mismatch is not fixed.
+
+### Host output
+
+The Swift host prints each `Com_Printf` call of `ref_dump` on its own line, so `REF E <n> ` and each hex chunk are separate lines. The fork prints one line per record. The dump compare joins the lines (`/tmp/referee-out/dumpdiff.py`).
+
+### The gate
+
+`swift test --no-parallel -j 2` passes with 156 tests.
