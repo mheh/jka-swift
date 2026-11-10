@@ -37,8 +37,27 @@ final class CRMObjective {
     */
     /// Source: oracle/codemp/RMG/RM_Objective.cpp:26
     init(_ group: CGPGroup?) {
-        // TODO: Port CRMObjective::CRMObjective
-        portMissing("CRMObjective::CRMObjective", source: "oracle/codemp/RMG/RM_Objective.cpp:26")
+        self.SetPriority(atoi(group!.FindPairValue("priority", "0")!))
+        self.SetMessage(group!.FindPairValue("message", va("Objective %i Completed", self.GetPriority()))!)
+        self.SetDescription(group!.FindPairValue("description", va("Objective %i", self.GetPriority()))!)
+        self.SetInfo(group!.FindPairValue("info", va("Info %i", self.GetPriority()))!)
+        self.SetTrigger(group!.FindPairValue("trigger", "")!)
+        self.SetName(group!.GetName())
+
+        /*	const char * soundPath = group->FindPairValue("completed_sound", "" );
+        	if (soundPath)
+        		mCompleteSoundID = G_SoundIndex(soundPath);
+        */
+
+        self.mCompleted = false
+        self.mOrderIndex = -1
+
+        // If no priority was specified for this objective then its active by default.
+        if self.GetPriority() != 0 {
+            self.mActive = false
+        } else {
+            self.mActive = true
+        }
     }
 
     /**
@@ -60,8 +79,16 @@ final class CRMObjective {
     */
     /// Source: oracle/codemp/RMG/RM_Objective.cpp:122
     func Link() -> Bool {
-        // TODO: Port CRMObjective::Link
-        portMissing("CRMObjective::Link", source: "oracle/codemp/RMG/RM_Objective.cpp:122")
+        /*	CTriggerAriocheObjective* trigger;
+
+        	// Look for a random trigger to associate this objective to.
+        	trigger = FindRandomTrigger ( );
+        	if ( NULL != trigger )
+        	{
+        		trigger->SetObjective ( this );
+        	}
+        */
+        return true
     }
 
     /// Source: oracle/codemp/RMG/RM_Objective.h:31

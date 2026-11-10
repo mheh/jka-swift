@@ -633,8 +633,20 @@ private func CM_PointOnPlaneSide(_ p: JKAShared.vec3_t, _ planeNum: Int32) -> In
 
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:592
 private func CM_GridPlane(_ gridPlanes: [[[Int32]]], _ i: Int32, _ j: Int32, _ tri: Int32) -> Int32 {
-    // TODO: Port CM_GridPlane
-    portMissing("CM_GridPlane", source: "oracle/codemp/qcommon/cm_patch.cpp:592")
+    var p: Int32
+
+    p = gridPlanes[i][j][tri]
+    if p != -1 {
+        return p
+    }
+    p = gridPlanes[i][j][tri == 0 ? 1 : 0]
+    if p != -1 {
+        return p
+    }
+
+    // should never happen
+    Com_Printf("WARNING: CM_GridPlane unresolvable\n")
+    return -1
 }
 
 /**
@@ -646,8 +658,59 @@ CM_EdgePlaneNum
 */
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:615
 private func CM_EdgePlaneNum(_ grid: CGrid, _ gridPlanes: [[[Int32]]], _ i: Int32, _ j: Int32, _ k: Int32) -> Int32 {
-    // TODO: Port CM_EdgePlaneNum
-    portMissing("CM_EdgePlaneNum", source: "oracle/codemp/qcommon/cm_patch.cpp:615")
+    var p1: JKAShared.vec3_t
+    var p2: JKAShared.vec3_t
+    var up = vec3_t()
+    var p: Int32
+
+    switch k {
+    case 0: // top border
+        p1 = grid.points[i][j]
+        p2 = grid.points[i + 1][j]
+        p = CM_GridPlane(gridPlanes, i, j, 0)
+        _VectorMA(p1, 4, planes[p].plane.vector, &up)
+        return CM_FindPlane(p1, p2, up)
+
+    case 2: // bottom border
+        p1 = grid.points[i][j + 1]
+        p2 = grid.points[i + 1][j + 1]
+        p = CM_GridPlane(gridPlanes, i, j, 1)
+        _VectorMA(p1, 4, planes[p].plane.vector, &up)
+        return CM_FindPlane(p2, p1, up)
+
+    case 3: // left border
+        p1 = grid.points[i][j]
+        p2 = grid.points[i][j + 1]
+        p = CM_GridPlane(gridPlanes, i, j, 1)
+        _VectorMA(p1, 4, planes[p].plane.vector, &up)
+        return CM_FindPlane(p2, p1, up)
+
+    case 1: // right border
+        p1 = grid.points[i + 1][j]
+        p2 = grid.points[i + 1][j + 1]
+        p = CM_GridPlane(gridPlanes, i, j, 0)
+        _VectorMA(p1, 4, planes[p].plane.vector, &up)
+        return CM_FindPlane(p1, p2, up)
+
+    case 4: // diagonal out of triangle 0
+        p1 = grid.points[i + 1][j + 1]
+        p2 = grid.points[i][j]
+        p = CM_GridPlane(gridPlanes, i, j, 0)
+        _VectorMA(p1, 4, planes[p].plane.vector, &up)
+        return CM_FindPlane(p1, p2, up)
+
+    case 5: // diagonal out of triangle 1
+        p1 = grid.points[i][j]
+        p2 = grid.points[i + 1][j + 1]
+        p = CM_GridPlane(gridPlanes, i, j, 1)
+        _VectorMA(p1, 4, planes[p].plane.vector, &up)
+        return CM_FindPlane(p1, p2, up)
+
+    default:
+        break
+    }
+
+    Com_Error(ERR_DROP, "CM_EdgePlaneNum: bad k")
 }
 
 /**
@@ -659,8 +722,75 @@ CM_SetBorderInward
 */
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:675
 private func CM_SetBorderInward(_ facet: Facet, _ grid: CGrid, _ gridPlanes: [[[Int32]]], _ i: Int32, _ j: Int32, _ which: Int32) {
-    // TODO: Port CM_SetBorderInward
-    portMissing("CM_SetBorderInward", source: "oracle/codemp/qcommon/cm_patch.cpp:675")
+    var k: Int32
+    var l: Int32
+    var points = [JKAShared.vec3_t](repeating: vec3_t(), count: 4)
+    var numPoints: Int32
+
+    switch which {
+    case -1:
+        points[0] = grid.points[i][j]
+        points[1] = grid.points[i + 1][j]
+        points[2] = grid.points[i + 1][j + 1]
+        points[3] = grid.points[i][j + 1]
+        numPoints = 4
+    case 0:
+        points[0] = grid.points[i][j]
+        points[1] = grid.points[i + 1][j]
+        points[2] = grid.points[i + 1][j + 1]
+        numPoints = 3
+    case 1:
+        points[0] = grid.points[i + 1][j + 1]
+        points[1] = grid.points[i][j + 1]
+        points[2] = grid.points[i][j]
+        numPoints = 3
+    default:
+        Com_Error(ERR_FATAL, "CM_SetBorderInward: bad parameter")
+    }
+
+    k = 0
+    while k < facet.numBorders {
+        var front: Int32
+        var back: Int32
+
+        front = 0
+        back = 0
+
+        l = 0
+        while l < numPoints {
+            var side: Int32
+
+            side = CM_PointOnPlaneSide(points[l], facet.borderPlanes[k])
+            if side == SIDE_FRONT {
+                front += 1
+            }
+            if side == SIDE_BACK {
+                back += 1
+            }
+            l += 1
+        }
+
+        if front != 0 && back == 0 {
+            facet.borderInward[k] = 1
+        } else if back != 0 && front == 0 {
+            facet.borderInward[k] = 0
+        } else if front == 0 && back == 0 {
+            // flat side border
+            facet.borderPlanes[k] = -1
+        } else {
+            // bisecting side border
+            Com_DPrintf("WARNING: CM_SetBorderInward: mixed plane sides\n")
+            facet.borderInward[k] = 0
+            if !debugBlock {
+                debugBlock = true
+                debugBlockPoints[0] = grid.points[i][j]
+                debugBlockPoints[1] = grid.points[i + 1][j]
+                debugBlockPoints[2] = grid.points[i + 1][j + 1]
+                debugBlockPoints[3] = grid.points[i][j + 1]
+            }
+        }
+        k += 1
+    }
 }
 
 /**
@@ -1344,12 +1474,14 @@ private func CM_TracePointThroughPatchCollide(_ tw: TraceWork, _ trace: JKAMP.Tr
         }
         if j == facet.numBorders {
             // we hit this facet
-            // Port-note: The static local `cv` has no storage.
-            // Raven wrote: if (!cv) { cv = Cvar_Get( "r_debugSurfaceUpdate", "1", 0 ); }
-            portMissing("CM_TracePointThroughPatchCollide", source: "oracle/codemp/qcommon/cm_patch.cpp:1246")
-            // Port-note: The static local `cv` has no storage.
-            // Raven wrote: if (cv->integer) { debugPatchCollide = pc; debugFacet = facet; }
-            portMissing("CM_TracePointThroughPatchCollide", source: "oracle/codemp/qcommon/cm_patch.cpp:1246")
+            // Raven's static local `cv` is `cv_CM_TracePointThroughPatchCollide`, a property of `EngineWorld`.
+            if cv_CM_TracePointThroughPatchCollide == nil {
+                cv_CM_TracePointThroughPatchCollide = Cvar_Get("r_debugSurfaceUpdate", "1", 0)
+            }
+            if cv_CM_TracePointThroughPatchCollide!.integer != 0 {
+                debugPatchCollide = pc
+                debugFacet = facet
+            }
             planes = pc.planesSlots[facet.surfacePlane]
 
             // calculate intersection with a slight pushoff
@@ -1568,12 +1700,14 @@ func CM_TraceThroughPatchCollide(_ tw: TraceWork, _ trace: JKAMP.Trace, _ pc: Pa
                 if enterFrac < 0 {
                     enterFrac = 0
                 }
-                // Port-note: The static local `cv` has no storage.
-                // Raven wrote: if (!cv) { cv = Cvar_Get( "r_debugSurfaceUpdate", "1", 0 ); }
-                portMissing("CM_TraceThroughPatchCollide", source: "oracle/codemp/qcommon/cm_patch.cpp:1392")
-                // Port-note: The static local `cv` has no storage.
-                // Raven wrote: if (cv && cv->integer) { debugPatchCollide = pc; debugFacet = facet; }
-                portMissing("CM_TraceThroughPatchCollide", source: "oracle/codemp/qcommon/cm_patch.cpp:1392")
+                // Raven's static local `cv` is `cv_CM_TraceThroughPatchCollide`, a property of `EngineWorld`.
+                if cv_CM_TraceThroughPatchCollide == nil {
+                    cv_CM_TraceThroughPatchCollide = Cvar_Get("r_debugSurfaceUpdate", "1", 0)
+                }
+                if cv_CM_TraceThroughPatchCollide != nil && cv_CM_TraceThroughPatchCollide!.integer != 0 {
+                    debugPatchCollide = pc
+                    debugFacet = facet
+                }
 
                 trace.fraction = enterFrac
                 trace.plane.normal = vec3_t(bestplane[0], bestplane[1], bestplane[2])

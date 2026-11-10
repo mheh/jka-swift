@@ -715,9 +715,7 @@ func CM_TraceThroughTerrain(_ tw: TraceWork, _ trace: JKAMP.Trace, _ brush: Cbru
     tDistance = tEnd - tBegin
 
     // Calculate number of iterations to process
-    // Port-note: The methods of CCMLandScape have no Swift name, row CM6 of the cm_load round.
-    // Raven wrote: count = ceilf(VectorLength(tDistance) / (landscape->GetPatchScalarSize() * TERRAIN_STEP_MAGIC));
-    portMissing("CM_TraceThroughTerrain", source: "oracle/codemp/qcommon/cm_trace.cpp:703")
+    count = Int32(ceilf(Float(Double(VectorLength(tDistance)) / (Double(landscape!.GetPatchScalarSize()) * TERRAIN_STEP_MAGIC))))
     count = 1
     fraction = trace.fraction
     _VectorScale(tDistance, 1.0 / count, &tStep)
@@ -737,13 +735,9 @@ func CM_TraceThroughTerrain(_ tw: TraceWork, _ trace: JKAMP.Trace, _ brush: Cbru
         // Add the step to the end
         tw.end = tw.end + tStep
 
-        // Port-note: The view gives `tw->localBounds` as a Slots of rows, and CM_CalcExtents takes `inout [vec3_t]`.
-        // Raven wrote: CM_CalcExtents(tBegin, tw->end, tw, tw->localBounds);
-        portMissing("CM_TraceThroughTerrain", source: "oracle/codemp/qcommon/cm_trace.cpp:703")
+        CM_CalcExtents(tBegin, tw.end, tw, &tw.localBounds)
 
-        // Port-note: The methods of CCMLandScape have no Swift name, row CM6 of the cm_load round.
-        // Raven wrote: landscape->PatchCollide(tw, trace, tw->start, tw->end, brush->checkcount);
-        portMissing("CM_TraceThroughTerrain", source: "oracle/codemp/qcommon/cm_trace.cpp:703")
+        landscape!.PatchCollide(tw, trace, tw.start, tw.end, brush.checkcount)
 
         // If collision with something closer than water then just stop here
         if trace.fraction < fraction {
@@ -770,18 +764,12 @@ func CM_TraceThroughTerrain(_ tw: TraceWork, _ trace: JKAMP.Trace, _ brush: Cbru
 
     // Collide with any water
     if (tw.contents & CONTENTS_WATER) != 0 {
-        // Port-note: The methods of CCMLandScape have no Swift name, row CM6 of the cm_load round.
-        // Raven wrote: fraction = landscape->WaterCollide(tw->start, tw->end, trace.fraction);
-        portMissing("CM_TraceThroughTerrain", source: "oracle/codemp/qcommon/cm_trace.cpp:703")
+        fraction = landscape!.WaterCollide(tw.start, tw.end, trace.fraction)
         if fraction < trace.fraction {
             trace.plane.normal = vec3_t(0.0, 0.0, 1.0)
-            // Port-note: The methods of CCMLandScape have no Swift name, row CM6 of the cm_load round.
-            // Raven wrote: trace.contents = landscape->GetWaterContents();
-            portMissing("CM_TraceThroughTerrain", source: "oracle/codemp/qcommon/cm_trace.cpp:703")
+            trace.contents = landscape!.GetWaterContents()
             trace.fraction = fraction
-            // Port-note: The methods of CCMLandScape have no Swift name, row CM6 of the cm_load round.
-            // Raven wrote: trace.surfaceFlags = landscape->GetWaterSurfaceFlags();
-            portMissing("CM_TraceThroughTerrain", source: "oracle/codemp/qcommon/cm_trace.cpp:703")
+            trace.surfaceFlags = landscape!.GetWaterSurfaceFlags()
         }
     }
 }
