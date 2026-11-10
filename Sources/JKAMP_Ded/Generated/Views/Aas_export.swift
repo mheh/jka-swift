@@ -271,7 +271,7 @@ public struct Aas_export: Hashable, HandleView {
     /// Calls the stored `AAS_FloatForBSPEpairKey` function through the C pointer, with the caller's arguments, as Raven's `pm->AAS_FloatForBSPEpairKey(...)` did.
     /// A NULL `AAS_FloatForBSPEpairKey` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runAAS_FloatForBSPEpairKey(_ ent: Int32, _ key: OpaquePointer?, _ value: inout JKAShared.vec3_t) -> Int32 {
+    public func runAAS_FloatForBSPEpairKey(_ ent: Int32, _ key: OpaquePointer?, _ value: inout Float) -> Int32 {
         precondition(self.raw.pointee.AAS_FloatForBSPEpairKey != nil, "AAS_FloatForBSPEpairKey is NULL")
         return withUnsafeMutablePointer(to: &value) { value in
             self.AAS_FloatForBSPEpairKey!(ent, key, OpaquePointer(value))

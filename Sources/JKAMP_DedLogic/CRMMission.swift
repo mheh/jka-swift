@@ -44,8 +44,7 @@ final class CRMMission {
     private var mTimeExpiredScreen: String = ""
 
     // symmetric landscape style
-    // TODO: Port mSymmetric
-    // Raven wrote: symmetry_t				mSymmetric;
+    private var mSymmetric: symmetry_t = 0
 
     // if set to 1 in the mission file, adds an extra connecting path in symmetric maps
     // to ensure both sides actually do connect
@@ -53,11 +52,9 @@ final class CRMMission {
 
     private var mDefaultPadding: Int32 = 0
 
-    // TODO: Port mAreaManager
-    // Raven wrote: CRMAreaManager*			mAreaManager;
+    private var mAreaManager: CRMAreaManager? = nil
 
-    // TODO: Port mPathManager
-    // Raven wrote: CRMPathManager*			mPathManager;
+    private var mPathManager: CRMPathManager? = nil
 
     private var mLandScape: CRandomTerrain? = nil
 
@@ -82,9 +79,7 @@ final class CRMMission {
         self.mPickupEquipment = 1.0
 
         self.mDefaultPadding = 0
-        // Port-note: The class holds no `mSymmetric`, because `symmetry_t` of RM_Headers.h:29 has no Swift type.
-        // Raven wrote: mSymmetric = SYMMETRY_NONE;
-        portMissing("CRMMission::CRMMission", source: "oracle/codemp/RMG/RM_Mission.cpp:28")
+        self.mSymmetric = SYMMETRY_NONE
 
         //	mCheckedEnts.clear();
 
@@ -103,14 +98,10 @@ final class CRMMission {
         land_max[2] = self.mLandScape!.GetBounds()[1][2] - (self.mLandScape!.GetBounds()[1][2] - self.mLandScape!.GetBounds()[0][2]) * 0.1
 
         // Create a new area manager for the landscape
-        // Port-note: The class holds no `mAreaManager`, because `CRMAreaManager` has no Swift class.
-        // Raven wrote: mAreaManager = new CRMAreaManager ( land_min, land_max );
-        portMissing("CRMMission::CRMMission", source: "oracle/codemp/RMG/RM_Mission.cpp:28")
+        self.mAreaManager = CRMAreaManager(land_min, land_max)
 
         // Create a new path manager
-        // Port-note: The class holds no `mPathManager`, because `CRMPathManager` has no Swift class.
-        // Raven wrote: mPathManager = new CRMPathManager ( mLandScape );
-        portMissing("CRMMission::CRMMission", source: "oracle/codemp/RMG/RM_Mission.cpp:28")
+        self.mPathManager = CRMPathManager(self.mLandScape)
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:85
@@ -122,9 +113,13 @@ final class CRMMission {
         self.mObjectives.removeAll()
 
         // Cleanup the instances
-        // Port-note: The class holds no `mInstances`, `mPathManager`, or `mAreaManager`, because their classes have no Swift class.
-        // Raven wrote: for (iit = mInstances.begin(); iit != mInstances.end(); iit++) { delete (*iit); } if (mPathManager) { delete mPathManager; mPathManager = 0; } if (mAreaManager) { delete mAreaManager; mAreaManager = 0; }
+        // Port-note: The class holds no `mInstances`, because CRMInstance has no Swift class, because the repo has no form for its virtual hierarchy.
+        // Raven wrote: for (iit = mInstances.begin(); iit != mInstances.end(); iit++) { delete (*iit); }
         portMissing("CRMMission::~CRMMission", source: "oracle/codemp/RMG/RM_Mission.cpp:85")
+
+        // AI: Raven deletes the path manager and the area manager. Setting each field to nil frees it.
+        self.mPathManager = nil
+        self.mAreaManager = nil
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:1362
@@ -258,10 +253,7 @@ final class CRMMission {
 
     /// Source: oracle/codemp/RMG/RM_Mission.h:82
     func GetSymmetric() -> Int32 {
-        // Port-note: The class holds no `mSymmetric`, because `symmetry_t` of RM_Headers.h:29 has no Swift type.
-        // Raven wrote: int GetSymmetric (void) { return mSymmetric; }
-        // TODO: Port CRMMission::GetSymmetric
-        portMissing("CRMMission::GetSymmetric", source: "oracle/codemp/RMG/RM_Mission.h:82")
+        self.mSymmetric
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.h:83

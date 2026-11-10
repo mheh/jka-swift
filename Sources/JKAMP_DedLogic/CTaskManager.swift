@@ -983,10 +983,12 @@ final class CTaskManager {
                     dwtime = (self.m_owner!.GetInterface())!.I_Random!(min, max)
 
                     //store the result in the first member
-                    // Port-note: Raven hands the address of the local `dwtime` to SetData, which takes a Slots of bytes.
-                    // The BYTE_STORAGE_LOCALS row of `dwtime` gives no storage, because the skeleton reads no method of a C++ class.
-                    // Raven wrote: bm->SetData( &dwtime, sizeof( dwtime ) );
-                    portMissing("CTaskManager::Wait", source: "oracle/codemp/icarus/TaskManager.cpp:1111")
+                    // AI: Raven hands the address of the float local to SetData. The value goes into a CharBuf of its bytes, and SetData copies them.
+                    var bytes = CharBuf(Float.byteCount)
+                    bytes.withMutableSlots {
+                        $0[float: 0] = dwtime
+                        bm!.SetData($0, Int32(Float.byteCount))
+                    }
                 }
             } else {
                 // ICARUS_VALIDATE
@@ -998,10 +1000,21 @@ final class CTaskManager {
                 (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d wait( %d ); [%d]", self.m_ownerID, Int32(dwtime), task!.GetTimeStamp())
             }
 
-            // Port-note: Raven adds the `DWORD` time stamp to a float and compares the sum with the `DWORD` of I_GetTime.
-            // Promotion.swift has no operator between `UInt32` and `Float`, so the sum needs a conversion Raven did not write.
-            // Raven wrote: if ( (task->GetTimeStamp() + dwtime) < ((m_owner->GetInterface())->I_GetTime()) )
-            portMissing("CTaskManager::Wait", source: "oracle/codemp/icarus/TaskManager.cpp:1122")
+            // C converts the DWORD time stamp and the DWORD time to float.
+            if (Float(task!.GetTimeStamp()) + dwtime) < Float((self.m_owner!.GetInterface())!.I_GetTime!()) {
+                completed = true
+                memberNum = 0
+                if self.Check(ID_RANDOM, block, memberNum) {//set the data back to 0 so it will be re-randomized next time
+                    // C converts the int Q3_INFINITE to the float local.
+                    dwtime = Float(Q3_INFINITE)
+                    // AI: Raven hands the address of the float local to SetData. The value goes into a CharBuf of its bytes, and SetData copies them.
+                    var bytes = CharBuf(Float.byteCount)
+                    bytes.withMutableSlots {
+                        $0[float: 0] = dwtime
+                        bm!.SetData($0, Int32(Float.byteCount))
+                    }
+                }
+            }
         }
 
         return TASK_OK
