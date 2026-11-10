@@ -3,6 +3,19 @@ import JKAMP
 import JKAShared
 import JKAMP_Ded
 
+// maximum random choices
+/// Source: oracle/codemp/RMG/RM_Mission.h:10
+let MAX_RANDOM_CHOICES = 100 as Int32
+
+/// Source: oracle/codemp/qcommon/cm_terrainmap.h:63
+let SIDE_NONE = 0 as Int32
+
+/// Source: oracle/codemp/qcommon/cm_terrainmap.h:64
+let SIDE_BLUE = 1 as Int32
+
+/// Source: oracle/codemp/qcommon/cm_terrainmap.h:65
+let SIDE_RED = 2 as Int32
+
 /// Raven's random mission, its objectives, its instances, and the pickup odds of a random map.
 /// CRMManager.LoadMission makes one only when the landscape holds a random terrain, and the dedicated build never makes that terrain.
 /// Source: oracle/codemp/RMG/RM_Mission.h:15
@@ -309,30 +322,116 @@ final class CRMMission {
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:163
-    // TODO: Port signature
-    // Raven wrote: bool CRMMission::ParseOrigin ( CGPGroup* originGroup, vec3_t origin, vec3_t lookat, int* flattenHeight )
-    // No table row for `int* flattenHeight`.
-    private func ParseOrigin() -> Never {
+    private func ParseOrigin(_ originGroup: CGPGroup?, _ origin: inout JKAShared.vec3_t, _ lookat: inout JKAShared.vec3_t, _ flattenHeight: inout Int32) -> Bool {
         // TODO: Port CRMMission::ParseOrigin
         portMissing("CRMMission::ParseOrigin", source: "oracle/codemp/RMG/RM_Mission.cpp:163")
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:248
     private func ParseNodes(_ group: CGPGroup?) -> Bool {
-        // TODO: Port CRMMission::ParseNodes
-        portMissing("CRMMission::ParseNodes", source: "oracle/codemp/RMG/RM_Mission.cpp:248")
+        // If NULL that means this particular difficulty level has no named nodes
+        if nil == group || self.mValidNodes {
+            return true
+        }
+
+        // Raven assigns his own `group` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
+        var group = group
+
+        // how many nodes spaced over map?
+        let x_cells: Int32
+        let y_cells: Int32
+
+        x_cells = atoi(group!.FindPairValue("x_cells", "3")!)
+        y_cells = atoi(group!.FindPairValue("y_cells", "3")!)
+
+        self.mPathManager!.CreateArray(x_cells, y_cells)
+
+        // Loop through all the nodes and generate each as specified
+        group = group!.GetSubGroups()
+        while group != nil {
+            // C converts each `double` result to the `int` local at the store.
+            let min_depth = Int32(atof(group!.FindPairValue("min_depth", "0")!))
+            let max_depth = Int32(atof(group!.FindPairValue("max_depth", "5")!))
+            let min_paths = atoi(group!.FindPairValue("min_paths", "1")!)
+            let max_paths = atoi(group!.FindPairValue("max_paths", "1")!)
+
+            self.mPathManager!.CreateLocation(group!.GetName(), min_depth, max_depth, min_paths, max_paths)
+            group = group!.GetNext()
+        }
+
+        self.mValidNodes = true
+        return true
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:294
     private func ParsePaths(_ group: CGPGroup?) -> Bool {
-        // TODO: Port CRMMission::ParsePaths
-        portMissing("CRMMission::ParsePaths", source: "oracle/codemp/RMG/RM_Mission.cpp:294")
+        // If NULL that means this particular difficulty level has no paths
+        if nil == group || self.mValidPaths {
+            return true
+        }
+
+        // path style info
+        let depth: Float
+        let deviation: Float
+        let breadth: Float
+        let minwidth: Float
+        let maxwidth: Float
+        let points: Int32
+
+        points = atoi(group!.FindPairValue("points", "10")!)
+        depth = Float(atof(group!.FindPairValue("depth", ".31")!))
+        deviation = Float(atof(group!.FindPairValue("deviation", ".025")!))
+        breadth = Float(atof(group!.FindPairValue("breadth", "5")!))
+        minwidth = Float(atof(group!.FindPairValue("minwidth", ".03")!))
+        maxwidth = Float(atof(group!.FindPairValue("maxwidth", ".05")!))
+
+        self.mPathManager!.SetPathStyle(points, minwidth, maxwidth, depth, deviation, breadth)
+
+        if !self.mValidPaths {
+            // we must create paths
+            self.mPathManager!.GeneratePaths(self.mSymmetric)
+            self.mValidPaths = true
+        }
+
+        return true
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:340
     private func ParseRivers(_ group: CGPGroup?) -> Bool {
-        // TODO: Port CRMMission::ParseRivers
-        portMissing("CRMMission::ParseRivers", source: "oracle/codemp/RMG/RM_Mission.cpp:340")
+        // If NULL that means this particular difficulty level has no rivers
+        if nil == group || self.mValidRivers {
+            return true
+        }
+
+        // river style info
+        let maxdepth: Int32
+        let beddepth: Float
+        let deviation: Float
+        let breadth: Float
+        let minwidth: Float
+        let maxwidth: Float
+        let points: Int32
+        let bridge_name: String
+
+        maxdepth = atoi(group!.FindPairValue("maxpathdepth", "5")!)
+        points = atoi(group!.FindPairValue("points", "10")!)
+        beddepth = Float(atof(group!.FindPairValue("depth", "1")!))
+        deviation = Float(atof(group!.FindPairValue("deviation", ".03")!))
+        breadth = Float(atof(group!.FindPairValue("breadth", "7")!))
+        minwidth = Float(atof(group!.FindPairValue("minwidth", ".01")!))
+        maxwidth = Float(atof(group!.FindPairValue("maxwidth", ".03")!))
+        bridge_name = group!.FindPairValue("bridge", "")!
+
+        self.mPathManager!.SetRiverStyle(maxdepth, points, minwidth, maxwidth, beddepth, deviation, breadth, bridge_name)
+
+        if !self.mValidRivers &&
+            beddepth < 1 {						// use a depth of 1 if we don't want any rivers
+            // we must create rivers
+            self.mPathManager!.GenerateRivers()
+            self.mValidRivers = true
+        }
+
+        return true
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:379
@@ -352,35 +451,250 @@ final class CRMMission {
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:1236
     private func ParseDifficulty(_ difficulty: CGPGroup?) -> Bool {
-        // TODO: Port CRMMission::ParseDifficulty
-        portMissing("CRMMission::ParseDifficulty", source: "oracle/codemp/RMG/RM_Mission.cpp:1236")
+        // If a null difficulty then stop the recursion.  Make sure to
+        // return true here so the parsing doesnt fail
+        if nil == difficulty {
+            return true
+        }
+        // is map supposed to be symmetric?
+        self.mSymmetric = atoi(difficulty!.GetParent()!.FindPairValue("symmetric", "0")!)
+        self.mBackUpPath = atoi(difficulty!.GetParent()!.FindPairValue("backuppath", "0")!)
+        if self.mSymmetric != 0 {
+            // pick between the 2 starting corners -- yes this is a hack
+            self.mSymmetric = SYMMETRY_TOPLEFT
+            if TheRandomMissionManager!.GetLandScape()!.irand(0, 1) != 0 {
+                self.mSymmetric = SYMMETRY_BOTTOMRIGHT
+            }
+        }
+
+        self.mDefaultPadding = atoi(difficulty!.GetParent()!.FindPairValue("padding", "0")!)
+
+        // Parse the nodes
+        if !self.ParseNodes(self.ParseRandom(difficulty!.FindSubGroup("nodes"))) {
+            return false
+        }
+
+        // Parse the paths
+        if !self.ParsePaths(self.ParseRandom(difficulty!.FindSubGroup("paths"))) {
+            return false
+        }
+
+        // Parse the rivers
+        if !self.ParseRivers(self.ParseRandom(difficulty!.FindSubGroup("rivers"))) {
+            return false
+        }
+
+        // Handle inherited properties
+        if !self.ParseDifficulty(difficulty!.GetParent()!.FindSubGroup(difficulty!.FindPairValue("inherit", "")!)) {
+            return false
+        }
+
+        /*
+        	// parse the player's outfit (weapons and ammo)
+        	if ( !ParseOutfit( ParseRandom ( difficulty->FindSubGroup ( "outfit" ) ) ) )
+        	{
+        		// Its ok to fail parsing weapons as long as weapons have
+        		// already been parsed at some point
+        		if ( !ParseWeapons ( ParseRandom ( difficulty->FindSubGroup ( "weapons" ) ) ) )
+        		{
+        			if ( !mValidWeapons )
+        			{
+        				return false;
+        			}
+        		}
+
+        		// Its ok to fail parsing ammo as long as ammo have
+        		// already been parsed at some point
+        		if ( !ParseAmmo ( ParseRandom ( difficulty->FindSubGroup ( "ammo" ) ) ) )
+        		{
+        			if ( !mValidAmmo)
+        			{
+        				return false;
+        			}
+        		}
+        	}
+
+        	// Its ok to fail parsing objectives as long as objectives have
+        	// already been parsed at some point
+        	if ( !ParseObjectives ( ParseRandom ( difficulty->FindSubGroup ( "objectives" ) ) ) )
+        	{
+        		if ( !mValidObjectives )
+        		{
+        			return false;
+        		}
+        	}
+        */
+
+        // Set the cvars with the available values
+        Cvar_Set("mi_health", difficulty!.FindPairValue("health", "100")!)
+        Cvar_Set("mi_armor", difficulty!.FindPairValue("armor", "0")!)
+
+        // Parse out the timelimit
+        self.mTimeLimit = atoi(difficulty!.FindPairValue("timelimit", "0")!)
+
+        // NPC multipliers
+        self.mAccuracyMultiplier = Float(atof(difficulty!.FindPairValue("npcaccuracy", "1")!))
+        self.mHealthMultiplier = Float(atof(difficulty!.FindPairValue("npchealth", "1")!))
+
+        // keep only some of RMG pickups 1 = 100%
+        self.mPickupHealth = Float(atof(difficulty!.FindPairValue("pickup_health", "1")!))
+        self.mPickupArmor = Float(atof(difficulty!.FindPairValue("pickup_armor", "1")!))
+        self.mPickupAmmo = Float(atof(difficulty!.FindPairValue("pickup_ammo", "1")!))
+        self.mPickupWeapon = Float(atof(difficulty!.FindPairValue("pickup_weapon", "1")!))
+        self.mPickupEquipment = Float(atof(difficulty!.FindPairValue("pickup_equipment", "1")!))
+
+        // Its ok to fail parsing instances as long as instances have
+        // already been parsed at some point
+        if !self.ParseInstances(self.ParseRandom(difficulty!.FindSubGroup("instances"))) {
+            if !self.mValidInstances {
+                return false
+            }
+        }
+
+        return true
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:1090
     private func ParseWeapons(_ weapons: CGPGroup?) -> Bool {
-        // TODO: Port CRMMission::ParseWeapons
-        portMissing("CRMMission::ParseWeapons", source: "oracle/codemp/RMG/RM_Mission.cpp:1090")
+        /*	CGPValue*	weapon;
+        	WpnID		id;
+
+        	// No weapons, no success
+        	if ( NULL == weapons )
+        	{
+        		return false;
+        	}
+
+        	if (0 == gi.Cvar_VariableIntegerValue("ar_wpnselect"))
+        	{
+        		// Make sure the weapon cvars are all reset so weapons from the last map or
+        		// another difficulty level wont carry over
+        		CWeaponSystem::ClearWpnCvars (TheWpnSysHelper());
+
+        		id     = NULL_WpnID;
+        		weapon = weapons->GetPairs ( );
+
+        		// Loop through the weapons listed and grant them to the player
+        		while ( weapon )
+        		{
+        			// Grab the weapons ID
+        			id = CWeaponSystem::GetWpnID ( weapon->GetName ( ) );
+
+        			// Now set the weapon cvar with the given data
+        			TheWpnSysHelper().CvarSet ( CWeaponSystem::GetWpnCvar ( id ), weapon->GetTopValue ( ) );
+
+        			// Move on to the next weapon
+        			weapon = (CGPValue*)weapon->GetNext();
+        		}
+
+        		// If we found at least one weapon then ready the last one in the list
+        		if ( NULL_WpnID != id )
+        		{
+        			TheWpnSysHelper().CvarSet("wp_righthand", va("%i/%i/0/0",id,CWeaponSystem::GetClipSize ( id )), CVAR_MISC );
+        		}
+        	}
+        */
+        self.mValidWeapons = true
+
+        return true
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:1040
     private func ParseAmmo(_ ammos: CGPGroup?) -> Bool {
-        // TODO: Port CRMMission::ParseAmmo
-        portMissing("CRMMission::ParseAmmo", source: "oracle/codemp/RMG/RM_Mission.cpp:1040")
+        /*	CGPValue* ammo;
+
+        	// No weapons, no success
+        	if ( NULL == ammos )
+        	{
+        		return false;
+        	}
+
+        	if (0 == gi.Cvar_VariableIntegerValue("ar_wpnselect"))
+        	{
+        		// Make sure the ammo cvars are all reset so ammo from the last map or
+        		// another difficulty level wont carry over
+        		CWeaponSystem::ClearAmmoCvars (TheWpnSysHelper());
+
+        		ammo = ammos->GetPairs ( );
+
+        		// Loop through the weapons listed and grant them to the player
+        		while ( ammo )
+        		{
+        			// Grab the weapons ID
+        			AmmoID id = CWeaponSystem::GetAmmoID ( ammo->GetName ( ) );
+
+        			// Now set the weapon cvar with the given data
+        			TheWpnSysHelper().CvarSet ( CWeaponSystem::GetAmmoCvar ( id ), ammo->GetTopValue ( ), CVAR_AMMO );
+
+        			// Move on to the next weapon
+        			ammo = (CGPValue*)ammo->GetNext();
+        		}
+        	}
+        */
+        self.mValidAmmo = true
+
+        return true
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:1147
     private func ParseOutfit(_ outfit: CGPGroup?) -> Bool {
-        // TODO: Port CRMMission::ParseOutfit
-        portMissing("CRMMission::ParseOutfit", source: "oracle/codemp/RMG/RM_Mission.cpp:1147")
+        if nil == outfit {
+            return false
+        }
+
+        /*	// Its ok to fail parsing weapons as long as weapons have
+        	// already been parsed at some point
+        	if ( !ParseWeapons ( ParseRandom ( outfit->FindSubGroup ( "weapons" ) ) ) )
+        	{
+        		if ( !mValidWeapons )
+        		{
+        			return false;
+        		}
+        	}
+
+        	// Its ok to fail parsing ammo as long as ammo have
+        	// already been parsed at some point
+        	if ( !ParseAmmo ( ParseRandom ( outfit->FindSubGroup ( "ammo" ) ) ) )
+        	{
+        		if ( !mValidAmmo)
+        		{
+        			return false;
+        		}
+        	}
+        */
+        return true
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:1000
     private func ParseObjectives(_ group: CGPGroup?) -> Bool {
-        // TODO: Port CRMMission::ParseObjectives
-        portMissing("CRMMission::ParseObjectives", source: "oracle/codemp/RMG/RM_Mission.cpp:1000")
+        // If NULL that means this particular difficulty level has no objectives
+        if nil == group {
+            return true
+        }
+
+        // Raven assigns his own `group` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
+        var group = group
+
+        // Loop through all the objectives in the mission and add each
+        // to the master list of objectives
+        group = group!.GetSubGroups()
+        while group != nil {
+            let objective: CRMObjective?
+
+            // Create the new objective
+            objective = CRMObjective(group)
+
+            self.mObjectives.append(objective)
+            group = group!.GetNext()
+        }
+
+        self.mValidObjectives = true
+
+        return true
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:886
+    @discardableResult
     private func ParseInstance(_ group: CGPGroup?) -> Bool {
         // TODO: Port CRMMission::ParseInstance
         portMissing("CRMMission::ParseInstance", source: "oracle/codemp/RMG/RM_Mission.cpp:886")
@@ -388,8 +702,23 @@ final class CRMMission {
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:966
     private func ParseInstances(_ group: CGPGroup?) -> Bool {
-        // TODO: Port CRMMission::ParseInstances
-        portMissing("CRMMission::ParseInstances", source: "oracle/codemp/RMG/RM_Mission.cpp:966")
+        // If NULL that means this particular difficulty level has no instances
+        if nil == group {
+            return true
+        }
+
+        // Raven assigns his own `group` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
+        var group = group
+
+        // Loop through all the instances in the mission and add each
+        // to the master list of instances
+        group = group!.GetSubGroups()
+        while group != nil {
+            self.ParseInstance(group)
+            group = group!.GetNext()
+        }
+
+        return true
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:737

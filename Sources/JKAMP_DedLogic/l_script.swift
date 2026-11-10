@@ -603,8 +603,42 @@ func PS_ReadNumber(_ script: Script, _ token: Token) -> Int32 {
 /// Source: oracle/codemp/botlib/l_script.cpp:721
 func PS_ReadLiteral(_ script: Script, _ token: Token) -> Int32 {
     // Port-note: Raven's one call, at l_script.cpp:870, is a comment, so the function is dead.
-    // TODO: Port PS_ReadLiteral
-    portMissing("PS_ReadLiteral", source: "oracle/codemp/botlib/l_script.cpp:721")
+    token.type = TT_LITERAL
+    //first quote
+    token.stringBuffer[0] = (script.buffer![byte: script.script_p] as Int8)
+    script.script_p += 1
+    //check for end of file
+    if (script.buffer![byte: script.script_p] as Int32) == 0 {
+        ScriptError(script, "end of file before trailing \'")
+        return 0
+    } //end if
+    //if it is an escape character
+    if (script.buffer![byte: script.script_p] as Int32) == Int32(ascii: "\\") {
+        if PS_ReadEscapeCharacter(script, &token.stringBuffer[1]) == 0 { return 0 }
+    } //end if
+    else {
+        token.stringBuffer[1] = (script.buffer![byte: script.script_p] as Int8)
+        script.script_p += 1
+    } //end else
+    //check for trailing quote
+    if (script.buffer![byte: script.script_p] as Int32) != Int32(ascii: "'") {
+        ScriptWarning(script, "too many characters in literal, ignored")
+        while (script.buffer![byte: script.script_p] as Int32) != 0 &&
+            (script.buffer![byte: script.script_p] as Int32) != Int32(ascii: "'") &&
+            (script.buffer![byte: script.script_p] as Int32) != Int32(ascii: "\n") {
+            script.script_p += 1
+        } //end while
+        if (script.buffer![byte: script.script_p] as Int32) == Int32(ascii: "'") { script.script_p += 1 }
+    } //end if
+    //store the trailing quote
+    token.stringBuffer[2] = (script.buffer![byte: script.script_p] as Int8)
+    script.script_p += 1
+    //store trailing zero to end the string
+    token.stringBuffer[3] = 0
+    //the sub type is the integer literal value
+    token.subtype = token.stringBuffer[1]
+    //
+    return 1
 }
 
 //============================================================================
@@ -746,8 +780,18 @@ func PS_ReadToken(_ script: Script, _ token: Token) -> Int32 {
 /// Source: oracle/codemp/botlib/l_script.cpp:909
 func PS_ExpectTokenString(_ script: Script, _ string: String) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port PS_ExpectTokenString
-    portMissing("PS_ExpectTokenString", source: "oracle/codemp/botlib/l_script.cpp:909")
+    return Token.scratch { token -> Int32 in
+        if PS_ReadToken(script, token) == 0 {
+            ScriptError(script, "couldn't find expected %s", string)
+            return 0
+        } //end if
+
+        if strcmp(token.string, string) != 0 {
+            ScriptError(script, "expected %s, found %s", string, token.string)
+            return 0
+        } //end if
+        return 1
+    }
 }
 
 //============================================================================
@@ -830,8 +874,14 @@ func PS_ExpectAnyToken(_ script: Script, _ token: Token) -> Int32 {
 /// Source: oracle/codemp/botlib/l_script.cpp:1008
 func PS_CheckTokenString(_ script: Script, _ string: String) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port PS_CheckTokenString
-    portMissing("PS_CheckTokenString", source: "oracle/codemp/botlib/l_script.cpp:1008")
+    return Token.scratch { tok -> Int32 in
+        if PS_ReadToken(script, tok) == 0 { return 0 }
+        //if the token is available
+        if strcmp(tok.string, string) == 0 { return 1 }
+        //token not available
+        script.script_p = script.lastscript_p
+        return 0
+    }
 }
 
 //============================================================================
@@ -843,8 +893,18 @@ func PS_CheckTokenString(_ script: Script, _ string: String) -> Int32 {
 /// Source: oracle/codemp/botlib/l_script.cpp:1025
 func PS_CheckTokenType(_ script: Script, _ type: Int32, _ subtype: Int32, _ token: Token) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port PS_CheckTokenType
-    portMissing("PS_CheckTokenType", source: "oracle/codemp/botlib/l_script.cpp:1025")
+    return Token.scratch { tok -> Int32 in
+        if PS_ReadToken(script, tok) == 0 { return 0 }
+        //if the type matches
+        if tok.type == type &&
+            (tok.subtype & subtype) == subtype {
+            token.copy(from: tok)
+            return 1
+        } //end if
+        //token is not available
+        script.script_p = script.lastscript_p
+        return 0
+    }
 }
 
 //============================================================================
@@ -856,8 +916,12 @@ func PS_CheckTokenType(_ script: Script, _ type: Int32, _ subtype: Int32, _ toke
 /// Source: oracle/codemp/botlib/l_script.cpp:1047
 func PS_SkipUntilString(_ script: Script, _ string: String) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port PS_SkipUntilString
-    portMissing("PS_SkipUntilString", source: "oracle/codemp/botlib/l_script.cpp:1047")
+    return Token.scratch { token -> Int32 in
+        while PS_ReadToken(script, token) != 0 {
+            if strcmp(token.string, string) == 0 { return 1 }
+        } //end while
+        return 0
+    }
 }
 
 //============================================================================
@@ -869,8 +933,7 @@ func PS_SkipUntilString(_ script: Script, _ string: String) -> Int32 {
 /// Source: oracle/codemp/botlib/l_script.cpp:1063
 func PS_UnreadLastToken(_ script: Script) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port PS_UnreadLastToken
-    portMissing("PS_UnreadLastToken", source: "oracle/codemp/botlib/l_script.cpp:1063")
+    script.tokenavailable = 1
 }
 
 //============================================================================
@@ -882,8 +945,8 @@ func PS_UnreadLastToken(_ script: Script) {
 /// Source: oracle/codemp/botlib/l_script.cpp:1073
 func PS_UnreadToken(_ script: Script, _ token: Token) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port PS_UnreadToken
-    portMissing("PS_UnreadToken", source: "oracle/codemp/botlib/l_script.cpp:1073")
+    script.token.copy(from: token)
+    script.tokenavailable = 1
 }
 
 //============================================================================
@@ -896,8 +959,13 @@ func PS_UnreadToken(_ script: Script, _ token: Token) {
 /// Source: oracle/codemp/botlib/l_script.cpp:1085
 func PS_NextWhiteSpaceChar(_ script: Script) -> CChar {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port PS_NextWhiteSpaceChar
-    portMissing("PS_NextWhiteSpaceChar", source: "oracle/codemp/botlib/l_script.cpp:1085")
+    if script.whitespace_p != script.endwhitespace_p {
+        defer { script.whitespace_p += 1 }
+        return script.buffer![byte: script.whitespace_p]
+    } //end if
+    else {
+        return 0
+    } //end else
 }
 
 //============================================================================
@@ -949,8 +1017,19 @@ func StripSingleQuotes(_ string: inout JKAShared.CharBuf) {
 /// Source: oracle/codemp/botlib/l_script.cpp:1136
 func ReadSignedFloat(_ script: Script) -> Double {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port ReadSignedFloat
-    portMissing("ReadSignedFloat", source: "oracle/codemp/botlib/l_script.cpp:1136")
+    return Token.scratch { token -> Double in
+        var sign: Double = 1
+
+        PS_ExpectAnyToken(script, token)
+        if strcmp(token.string, "-") == 0 {
+            sign = -1
+            PS_ExpectTokenType(script, TT_NUMBER, 0, token)
+        } //end if
+        else if token.type != TT_NUMBER {
+            ScriptError(script, "expected float value, found %s\n", token.string)
+        } //end else if
+        return sign * token.floatvalue
+    }
 }
 
 //============================================================================
@@ -962,8 +1041,20 @@ func ReadSignedFloat(_ script: Script) -> Double {
 /// Source: oracle/codemp/botlib/l_script.cpp:1159
 func ReadSignedInt(_ script: Script) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port ReadSignedInt
-    portMissing("ReadSignedInt", source: "oracle/codemp/botlib/l_script.cpp:1159")
+    return Token.scratch { token -> Int32 in
+        var sign: Int32 = 1
+
+        PS_ExpectAnyToken(script, token)
+        if strcmp(token.string, "-") == 0 {
+            sign = -1
+            PS_ExpectTokenType(script, TT_NUMBER, TT_INTEGER, token)
+        } //end if
+        else if token.type != TT_NUMBER || token.subtype == TT_FLOAT {
+            ScriptError(script, "expected integer value, found %s\n", token.string)
+        } //end else if
+        // C multiplies in `unsigned long` with a wrap, and the product goes to the `long` return with the same bits.
+        return sign &* Int32(bitPattern: token.intvalue)
+    }
 }
 
 //============================================================================
@@ -986,8 +1077,7 @@ func SetScriptFlags(_ script: Script, _ flags: Int32) {
 /// Source: oracle/codemp/botlib/l_script.cpp:1192
 func GetScriptFlags(_ script: Script) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port GetScriptFlags
-    portMissing("GetScriptFlags", source: "oracle/codemp/botlib/l_script.cpp:1192")
+    return script.flags
 }
 
 //============================================================================
@@ -999,8 +1089,22 @@ func GetScriptFlags(_ script: Script) -> Int32 {
 /// Source: oracle/codemp/botlib/l_script.cpp:1202
 func ResetScript(_ script: Script) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port ResetScript
-    portMissing("ResetScript", source: "oracle/codemp/botlib/l_script.cpp:1202")
+    //pointer in script buffer
+    script.script_p = 0
+    //pointer in script buffer before reading token
+    script.lastscript_p = 0
+    // AI: Raven stores NULL in the two pointers. The fields hold a byte offset, and the offset 0 is the bits of NULL.
+    //begin of white space
+    script.whitespace_p = 0
+    //end of white space
+    script.endwhitespace_p = 0
+    //set if there's a token available in script->token
+    script.tokenavailable = 0
+    //
+    script.line = 1
+    script.lastline = 1
+    //clear the saved token
+    script.token.clear()
 }
 
 //============================================================================
@@ -1024,8 +1128,7 @@ func EndOfScript(_ script: Script) -> Int32 {
 /// Source: oracle/codemp/botlib/l_script.cpp:1237
 func NumLinesCrossed(_ script: Script) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port NumLinesCrossed
-    portMissing("NumLinesCrossed", source: "oracle/codemp/botlib/l_script.cpp:1237")
+    return script.line - script.lastline
 }
 
 //============================================================================
@@ -1037,8 +1140,20 @@ func NumLinesCrossed(_ script: Script) -> Int32 {
 /// Source: oracle/codemp/botlib/l_script.cpp:1247
 func ScriptSkipTo(_ script: Script, _ value: String) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port ScriptSkipTo
-    portMissing("ScriptSkipTo", source: "oracle/codemp/botlib/l_script.cpp:1247")
+    var len: Int32
+    var firstchar: CChar
+
+    firstchar = CharBuf(value)[0]
+    len = strlen(value)
+    repeat {
+        if PS_ReadWhiteSpace(script) == 0 { return 0 }
+        if (script.buffer![byte: script.script_p] as Int8) == firstchar {
+            if strncmp(script.buffer!.suffix(from: script.script_p), value, len) == 0 {
+                return 1
+            } //end if
+        } //end if
+        script.script_p += 1
+    } while true
 }
 
 //============================================================================

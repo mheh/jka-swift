@@ -23,6 +23,15 @@ public let PATH_SEP = Int32(UInt8(ascii: "\\"))
 public let PATH_SEP = Int32(UInt8(ascii: "/"))
 #endif
 
+/// Raven's `PATHSEPERATOR_STR` of l_precomp.h, the separator text that PC_SetIncludePath appends to an include path.
+/// Source: oracle/codemp/botlib/l_precomp.h:20
+// AI: Raven picks `PATHSEPERATOR_STR` by a platform `#if`. The constant takes the branch of the platform that builds, the form of `PATH_SEP`.
+#if os(Windows)
+public let PATHSEPERATOR_STR = "\\"
+#else
+public let PATHSEPERATOR_STR = "/"
+#endif
+
 // MARK: - The C library streams
 
 /// The C library stream calls under Raven's file system.

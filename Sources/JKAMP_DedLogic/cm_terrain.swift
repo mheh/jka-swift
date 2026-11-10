@@ -18,6 +18,10 @@ var height2_FlattenArea: Slots<Int32> { world.storage.height2_FlattenArea }
 // AI: Raven declares `info` on the stack of FlattenArea. The function uses one zeroed allocation on the storage class.
 var info_FlattenArea: Slots<Int32> { world.storage.info_FlattenArea }
 
+/// Source: oracle/codemp/qcommon/cm_terrain.cpp:1382
+// AI: Raven declares `info` on the stack of FractionBelowLevel. The function uses one zeroed allocation on the storage class.
+var info_FractionBelowLevel: Slots<Int32> { world.storage.info_FractionBelowLevel }
+
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1067
 func CM_CircularIterate(_ data: Slots<UInt8>, _ width: Int32, _ height: Int32, _ xo: Int32, _ yo: Int32, _ insideRadius: Int32, _ outsideRadius: Int32, _ user: Slots<Int32>, _ callback: ((Slots<UInt8>, Float, Slots<Int32>) -> Void)?) {
     var x: Int32
@@ -60,8 +64,9 @@ func CM_GetAverage(_ work: Slots<UInt8>, _ lerp: Float, _ user: Slots<Int32>) {
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1106
 func CM_Smooth(_ work: Slots<UInt8>, _ lerp: Float, _ user: Slots<Int32>) {
-    // Foundation's M_PI is the double literal of Raven's macro, and the qualifier breaks the tie with the float constant of JKAShared.
-    let smooth: Float = Float(sin(Foundation.M_PI / 2 * 3 + Double(1.0 - lerp) * (Foundation.M_PI / 2)) + 1.0)
+    // JKAShared's M_PI is the float of Raven's macro at q_shared.h:548, and the qualifier breaks the tie with the double of Foundation.
+    // C++ takes the float overload of sin, so the whole expression runs in float.
+    let smooth: Float = sin(JKAShared.M_PI / 2 * 3 + (1.0 - lerp) * (JKAShared.M_PI / 2)) + 1.0
     //	float smooth = (1.0f - lerp);
 
     // C widens the unsigned byte to `int`, and the store into the byte truncates.
@@ -122,8 +127,7 @@ func CM_FlattenArea(_ landscape: CCMLandScape?, _ area: CArea?, _ height: Int32,
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1643
-// AI: Raven reads `numCtls` vectors through `vec3_t *ctls`. The parameter is the caller's array, the PARAMS kind `vec3_array` of the method.
-func CM_CarveBezierCurve(_ landscape: CCMLandScape?, _ numCtls: Int32, _ ctls: [JKAShared.vec3_t], _ steps: Int32, _ depth: Int32, _ size: Int32) {
+func CM_CarveBezierCurve(_ landscape: CCMLandScape?, _ numCtls: Int32, _ ctls: Slots<JKAShared.vec3_t>, _ steps: Int32, _ depth: Int32, _ size: Int32) {
     landscape!.CarveBezierCurve(numCtls, ctls, steps, depth, size)
 }
 

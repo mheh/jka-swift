@@ -688,8 +688,271 @@ func G2_SegmentTriangleTest(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, 
 func G2_GorePolys(_ surface: MdxmSurface, _ TS: CTraceSurface, _ surfInfo: MdxmSurfHierarchy) {
     // Raven's one call is in G2_TraceSurfaces for a trace with no collision records, which only G2API_AddSkinGore starts.
     // No file of the server calls G2API_AddSkinGore, so the function is dead in the dedicated build.
-    // TODO: Port G2_GorePolys
-    portMissing("G2_GorePolys", source: "oracle/codemp/ghoul2/G2_misc.cpp:804")
+    var j: Int32
+    var basis1 = vec3_t()
+    var basis2 = vec3_t()
+    var taxis = vec3_t()
+    var saxis = vec3_t()
+
+    basis2[0] = 0.0
+    basis2[1] = 0.0
+    basis2[2] = 1.0
+
+    CrossProduct(TS.rayEnd, basis2, &basis1)
+
+    if _DotProduct(basis1, basis1) < 0.1 {
+        basis2[0] = 0.0
+        basis2[1] = 1.0
+        basis2[2] = 0.0
+        CrossProduct(TS.rayEnd, basis2, &basis1)
+    }
+
+    CrossProduct(TS.rayEnd, basis1, &basis2)
+    // Give me a shot direction not a bunch of zeros :) -Gil
+    assert(_DotProduct(basis1, basis1) > 0.0001)
+    assert(_DotProduct(basis2, basis2) > 0.0001)
+
+    _ = VectorNormalize(&basis1)
+    _ = VectorNormalize(&basis2)
+
+    let c: Float = cos(TS.theta)
+    let s: Float = sin(TS.theta)
+
+    _VectorScale(basis1, 0.5 * c / TS.tsize, &taxis)
+    _VectorMA(taxis, 0.5 * s / TS.tsize, basis2, &taxis)
+
+    _VectorScale(basis1, -0.5 * s / TS.ssize, &saxis)
+    _VectorMA(saxis, 0.5 * c / TS.ssize, basis2, &saxis)
+
+    // AI: Raven casts the `int` slot back to a float pointer.
+    // The reader gives the floats at that byte offset of the heap of `G2VertSpaceServer`, the one heap that the server hands to the transform, row X8 of docket 10.
+    var verts = G2VertSpaceServer!.mHeap!.floats(at: TS.TransformedVertsArray![surface.thisSurfaceIndex])
+    let numVerts: Int32 = surface.numVerts
+    var flags: Int32 = 15
+    assert(numVerts < MAX_GORE_VERTS)
+    j = 0
+    while j < numVerts {
+        let pos: Int32 = j * 5
+        var delta = vec3_t()
+        delta[0] = verts[pos + 0] - TS.rayStart[0]
+        delta[1] = verts[pos + 1] - TS.rayStart[1]
+        delta[2] = verts[pos + 2] - TS.rayStart[2]
+        let s: Float = _DotProduct(delta, saxis) + 0.5
+        let t: Float = _DotProduct(delta, taxis) + 0.5
+        var vflags: Int32 = 0
+        if s > GORE_MARGIN {
+            vflags |= 1
+        }
+        if s < 1.0 - GORE_MARGIN {
+            vflags |= 2
+        }
+        if t > GORE_MARGIN {
+            vflags |= 4
+        }
+        if t < 1.0 - GORE_MARGIN {
+            vflags |= 8
+        }
+        vflags = (~vflags)
+        flags &= vflags
+        GoreVerts[j].flags = vflags
+        GoreVerts[j].tex[0] = s
+        GoreVerts[j].tex[1] = t
+        j += 1
+    }
+    if flags != 0 {
+        return // completely off the gore splotch.
+    }
+    var numTris: Int32
+    var newNumTris: Int32
+    var newNumVerts: Int32
+    numTris = surface.numTriangles
+    // AI: Raven casts the surface address plus `ofsTriangles` to a triangle pointer and indexes it. Each triangle is the view at that offset plus `j` times the record size.
+    // AI: Raven casts the `int` slot back to a float pointer. The reader is the same as at the first read of `verts`.
+    verts = G2VertSpaceServer!.mHeap!.floats(at: TS.TransformedVertsArray![surface.thisSurfaceIndex])
+    newNumTris = 0
+    newNumVerts = 0
+    GoreTouch += 1
+    if TS.gore == nil {
+        return
+    }
+    j = 0
+    while j < numTris {
+        let tri = MdxmTriangle(surface, byteOffset: surface.ofsTriangles + j * Int32(MdxmTriangle.byteCount))
+        assert(tri.indexes[0] >= 0 && tri.indexes[0] < numVerts)
+        assert(tri.indexes[1] >= 0 && tri.indexes[1] < numVerts)
+        assert(tri.indexes[2] >= 0 && tri.indexes[2] < numVerts)
+        flags = 15 &
+            GoreVerts[tri.indexes[0]].flags &
+            GoreVerts[tri.indexes[1]].flags &
+            GoreVerts[tri.indexes[2]].flags
+        if flags != 0 {
+            j += 1
+            continue
+        }
+        if !TS.gore!.frontFaces || !TS.gore!.backFaces {
+            // we need to back/front face cull
+            var e1 = vec3_t()
+            var e2 = vec3_t()
+            var n = vec3_t()
+
+            // AI: Raven hands each point as a float pointer to a vector parameter. Each call reads the vector accessor of the first three floats.
+            e1 = verts.suffix(from: tri.indexes[1] * 5).vector - verts.suffix(from: tri.indexes[0] * 5).vector
+            e2 = verts.suffix(from: tri.indexes[2] * 5).vector - verts.suffix(from: tri.indexes[0] * 5).vector
+            CrossProduct(e1, e2, &n)
+            if _DotProduct(TS.rayEnd, n) > 0.0 {
+                if !TS.gore!.frontFaces {
+                    j += 1
+                    continue
+                }
+            } else {
+                if !TS.gore!.backFaces {
+                    j += 1
+                    continue
+                }
+            }
+
+        }
+
+        var k: Int32
+
+        assert(newNumTris * 3 + 3 < MAX_GORE_INDECIES)
+        k = 0
+        while k < 3 {
+            if GoreVerts[tri.indexes[k]].touch == GoreTouch {
+                GoreIndecies[newNumTris * 3 + k] = GoreVerts[tri.indexes[k]].newindex
+            } else {
+                GoreVerts[tri.indexes[k]].touch = GoreTouch
+                GoreVerts[tri.indexes[k]].newindex = newNumVerts
+                GoreIndecies[newNumTris * 3 + k] = newNumVerts
+                GoreIndexCopy[newNumVerts] = tri.indexes[k]
+                newNumVerts += 1
+            }
+            k += 1
+        }
+        newNumTris += 1
+        j += 1
+    }
+    if newNumVerts == 0 {
+        return
+    }
+
+    var newTag: Int32
+    let f = GoreTagsTemp[[goreModelIndex, TS.surfaceNum]]
+    if f == nil { // need to generate a record
+        newTag = AllocGoreRecord()
+        var goreSet: CGoreSet? = nil
+        if TS.ghoul2info!.mGoreSetTag != 0 {
+            goreSet = FindGoreSet(TS.ghoul2info!.mGoreSetTag)
+        }
+        if goreSet == nil {
+            goreSet = NewGoreSet()
+            TS.ghoul2info!.mGoreSetTag = goreSet!.mMyGoreSetTag
+        }
+        assert(goreSet != nil)
+        var add = SGoreSurface()
+        add.shader = TS.goreShader
+        add.mDeleteTime = 0
+        if TS.gore!.lifeTime != 0 {
+            add.mDeleteTime = G2API_GetTime(0) + TS.gore!.lifeTime
+        }
+        add.mFadeTime = TS.gore!.fadeOutTime
+        add.mFadeRGB = TS.gore!.fadeRGB
+        add.mGoreTag = newTag
+
+        add.mGoreGrowStartTime = G2API_GetTime(0)
+        if TS.gore!.growDuration == -1 {
+            add.mGoreGrowEndTime = -1    // set this to -1 to disable growing
+        } else {
+            add.mGoreGrowEndTime = G2API_GetTime(0) + TS.gore!.growDuration
+        }
+
+        assert(TS.gore!.growDuration != 0)
+        add.mGoreGrowFactor = (1.0 - TS.gore!.goreScaleStartFraction) / Float(TS.gore!.growDuration)	//curscale = (curtime-mGoreGrowStartTime)*mGoreGrowFactor;
+        add.mGoreGrowOffset = TS.gore!.goreScaleStartFraction
+
+        goreSet!.mGoreRecords[TS.surfaceNum, default: []].append(add)
+        GoreTagsTemp[[goreModelIndex, TS.surfaceNum]] = newTag
+    } else {
+        newTag = f!
+    }
+    let gore = FindGoreRecord(newTag)
+    if gore != nil {
+        assert(Float.byteCount == Int32.byteCount)
+        // data block format:
+        let size: UInt32 = UInt32(
+            Int32.byteCount + // num verts
+            Int32.byteCount + // num tris
+            Int32.byteCount * Int(newNumVerts) + // which verts to copy from original surface
+            Float.byteCount * 4 * Int(newNumVerts) + // storgage for deformed verts
+            Float.byteCount * 4 * Int(newNumVerts) + // storgage for deformed normal
+            Float.byteCount * 2 * Int(newNumVerts) + // texture coordinates
+            Int32.byteCount * Int(newNumTris) * 3  // new indecies
+        )
+
+        // AI: Raven walks the block with an `int` pointer and a `float` pointer. Each pointer is an index local into its Slots over the block.
+        let data = Slots<Int32>(scalars: Z_Malloc(Int32(UInt32(Int32.byteCount) * size), TAG_GHOUL2_GORE, true), count: Int(size))
+        var dataIndex: Int32 = 0
+        var i: Int32
+
+        if gore!.tex[TS.lod] != nil {
+            Z_Free(OpaquePointer(gore!.tex[TS.lod]!.base))
+        }
+
+        gore!.tex[TS.lod] = Slots<Float>(scalars: data.base, count: data.count)
+        data[dataIndex] = newNumVerts
+        dataIndex += 1
+        data[dataIndex] = newNumTris
+        dataIndex += 1
+
+        // AI: Raven copies the ints with `memcpy`. `GoreIndexCopy` is a Swift array of the world, so a loop copies each int.
+        i = 0
+        while i < newNumVerts {
+            data[dataIndex + i] = GoreIndexCopy[i]
+            i += 1
+        }
+        dataIndex += newNumVerts * 9 // skip verts and normals
+        let fdata = gore!.tex[TS.lod]!
+        var fdataIndex: Int32 = dataIndex
+
+        j = 0
+        while j < newNumVerts {
+            fdata[fdataIndex] = GoreVerts[GoreIndexCopy[j]].tex[0]
+            fdataIndex += 1
+            fdata[fdataIndex] = GoreVerts[GoreIndexCopy[j]].tex[1]
+            fdataIndex += 1
+            j += 1
+        }
+        dataIndex = fdataIndex
+        // AI: Raven copies the ints with `memcpy`. `GoreIndecies` is a Swift array of the world, so a loop copies each int.
+        i = 0
+        while i < newNumTris * 3 {
+            data[dataIndex + i] = GoreIndecies[i]
+            i += 1
+        }
+        dataIndex += newNumTris * 3
+        assert(UInt32(dataIndex) * UInt32(Int32.byteCount) == size)
+        fdataIndex = dataIndex
+        // build the entity to gore matrix
+        fdata.suffix(from: fdataIndex + 0).vector = saxis
+        fdata.suffix(from: fdataIndex + 4).vector = taxis
+        fdata.suffix(from: fdataIndex + 8).vector = TS.rayEnd
+        _ = VectorNormalize(&fdata.suffix(from: fdataIndex + 0).vector)
+        _ = VectorNormalize(&fdata.suffix(from: fdataIndex + 4).vector)
+        _ = VectorNormalize(&fdata.suffix(from: fdataIndex + 8).vector)
+        fdata[fdataIndex + 3] = -0.5 // subtract texture center
+        fdata[fdataIndex + 7] = -0.5
+        fdata[fdataIndex + 11] = 0.0
+        var shotOriginInCurrentSpace = vec3_t() // unknown space
+        TransformPoint(TS.rayStart, &shotOriginInCurrentSpace, MdxaBone(fdata.suffix(from: fdataIndex).base)) // dest middle arg
+        // this will insure the shot origin in our unknown space is now the shot origin, making it a known space
+        fdata[fdataIndex + 3] -= shotOriginInCurrentSpace[0]
+        fdata[fdataIndex + 7] -= shotOriginInCurrentSpace[1]
+        fdata[fdataIndex + 11] -= shotOriginInCurrentSpace[2]
+        Inverse_Matrix(MdxaBone(fdata.suffix(from: fdataIndex).base), MdxaBone(fdata.suffix(from: fdataIndex + 12).base))  // dest 2nd arg
+        dataIndex += 24
+
+//		assert((data - (int *)gore->tex[TS.lod]) * sizeof(int) == size);
+    }
 }
 
 // now we're at poly level, check each model space transformed poly against the model world transfomed ray
@@ -1296,6 +1559,39 @@ func G2_LoadGhoul2Model(_ ghoul2: CGhoul2Info_v, _ buffer: inout JKAShared.CharB
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1912
 func G2_LerpAngles(_ ghoul2: CGhoul2Info_v, _ nextGhoul2: CGhoul2Info_v, _ interpolation: Float) {
     // Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port G2_LerpAngles
-    portMissing("G2_LerpAngles", source: "oracle/codemp/ghoul2/G2_misc.cpp:1912")
+    // loop each model
+    var i: Int32 = 0
+    while i < ghoul2.size() {
+        if ghoul2[i].mModelindex != -1 {
+            // now walk the bone list
+            var x: Int32 = 0
+            while x < ghoul2[i].mBlist.count {
+                let bone = ghoul2[i].mBlist[x]
+                // sure we have one to lerp to?
+                if (nextGhoul2.size() > i) &&
+                    (nextGhoul2[i].mModelindex != -1) &&
+                    (nextGhoul2[i].mBlist.count > x) &&
+                    (nextGhoul2[i].mBlist[x].boneNumber != -1)
+                {
+                    let nextBone = nextGhoul2[i].mBlist[x]
+                    // does this bone override actually have anything in it, and if it does, is it a bone angles override?
+                    if (bone.boneNumber != -1) && ((bone.flags) & (BONE_ANGLES_TOTAL)) != 0 {
+                        let nowMatrix = bone.matrix.matrix
+                        let nextMatrix = nextBone.matrix.matrix
+                        let newMatrix = bone.newMatrix.matrix
+                        // now interpolate the matrix
+                        var z: Int32 = 0
+                        while z < 12 {
+                            newMatrix[z / 4][z % 4] = nowMatrix[z / 4][z % 4] + interpolation * (nextMatrix[z / 4][z % 4] - nowMatrix[z / 4][z % 4])
+                            z += 1
+                        }
+                    }
+                } else {
+                    ghoul2[i].mBlist[x].newMatrix.copy(from: ghoul2[i].mBlist[x].matrix)
+                }
+                x += 1
+            }
+        }
+        i += 1
+    }
 }

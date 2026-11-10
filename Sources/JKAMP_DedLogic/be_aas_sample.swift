@@ -326,8 +326,45 @@ func AAS_PointPresenceType(_ point: JKAShared.vec3_t) -> Int32 {
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:349
 func AAS_BoxOriginDistanceFromPlane(_ normal: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ side: Int32) -> Float {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port AAS_BoxOriginDistanceFromPlane
-    portMissing("AAS_BoxOriginDistanceFromPlane", source: "oracle/codemp/botlib/be_aas_sample.cpp:349")
+    var v1 = vec3_t(), v2 = vec3_t()
+    var i: Int32
+
+    //swap maxs and mins when on the other side of the plane
+    if side != 0 {
+        //get a point of the box that would be one of the first
+        //to collide with the plane
+        i = 0
+        while i < 3 {
+            if Double(normal[i]) > BBOX_NORMAL_EPSILON {
+                v1[i] = maxs[i]
+            } else if Double(normal[i]) < -BBOX_NORMAL_EPSILON {
+                v1[i] = mins[i]
+            } else {
+                v1[i] = 0
+            }
+            i += 1
+        } //end for
+    } //end if
+    else {
+        //get a point of the box that would be one of the first
+        //to collide with the plane
+        i = 0
+        while i < 3 {
+            if Double(normal[i]) > BBOX_NORMAL_EPSILON {
+                v1[i] = mins[i]
+            } else if Double(normal[i]) < -BBOX_NORMAL_EPSILON {
+                v1[i] = maxs[i]
+            } else {
+                v1[i] = 0
+            }
+            i += 1
+        } //end for
+    } //end else
+    //
+    v2 = normal
+    VectorInverse(&v2)
+//	VectorNegate(normal, v2);
+    return _DotProduct(v1, v2)
 }
 
 //===========================================================================
@@ -890,8 +927,38 @@ func AAS_PointInsideFace(_ facenum: Int32, _ point: JKAShared.vec3_t, _ epsilon:
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1001
 func AAS_AreaGroundFace(_ areanum: Int32, _ point: JKAShared.vec3_t) -> AasFace? {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port AAS_AreaGroundFace
-    portMissing("AAS_AreaGroundFace", source: "oracle/codemp/botlib/be_aas_sample.cpp:1001")
+    var i: Int32
+    var facenum: Int32
+    let up = vec3_t(0, 0, 1)
+    var normal = vec3_t()
+    var area: AasArea
+    var face: AasFace
+
+    if aasworld.loaded == 0 {
+        return nil
+    }
+
+    area = aasworld.areasSlots[areanum]
+    i = 0
+    while i < area.numfaces {
+        facenum = aasworld.faceindex![area.firstface + i]
+        face = aasworld.facesSlots[abs(facenum)]
+        //if this is a ground face
+        if (face.faceflags & FACE_GROUND) != 0 {
+            //get the up or down normal
+            if aasworld.planesSlots[face.planenum].normal[2] < 0 {
+                normal = -up
+            } else {
+                normal = up
+            }
+            //check if the point is in the face
+            if AAS_InsideFace(face, normal, point, 0.01) {
+                return face
+            }
+        } //end if
+        i += 1
+    } //end for
+    return nil
 }
 
 //===========================================================================
@@ -904,8 +971,11 @@ func AAS_AreaGroundFace(_ areanum: Int32, _ point: JKAShared.vec3_t) -> AasFace?
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1035
 func AAS_FacePlane(_ facenum: Int32, _ normal: inout JKAShared.vec3_t, _ dist: inout Float) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port AAS_FacePlane
-    portMissing("AAS_FacePlane", source: "oracle/codemp/botlib/be_aas_sample.cpp:1035")
+    var plane: AasPlane
+
+    plane = aasworld.planesSlots[aasworld.facesSlots[facenum].planenum]
+    normal = plane.normal
+    dist = plane.dist
 }
 
 //===========================================================================
@@ -918,8 +988,65 @@ func AAS_FacePlane(_ facenum: Int32, _ normal: inout JKAShared.vec3_t, _ dist: i
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1050
 func AAS_TraceEndFace(_ trace: AasTrace) -> AasFace? {
     // Port-note: Raven calls this function only from BotExportTest under `#ifdef DEBUG`, which the release build leaves out, so it is dead.
-    // TODO: Port AAS_TraceEndFace
-    portMissing("AAS_TraceEndFace", source: "oracle/codemp/botlib/be_aas_sample.cpp:1050")
+    var i: Int32
+    var facenum: Int32
+    var area: AasArea
+    var face: AasFace
+    let firstface: AasFace? = nil
+
+    if aasworld.loaded == 0 {
+        return nil
+    }
+
+    //if started in solid no face was hit
+    if trace.startsolid {
+        return nil
+    }
+    //trace->lastarea is the last area the trace was in
+    area = aasworld.areasSlots[trace.lastarea]
+    //check which face the trace.endpos was in
+    i = 0
+    while i < area.numfaces {
+        facenum = aasworld.faceindex![area.firstface + i]
+        face = aasworld.facesSlots[abs(facenum)]
+        //if the face is in the same plane as the trace end point
+        if (face.planenum & ~1) == (trace.planenum & ~1) {
+            //firstface is used for optimization, if theres only one
+            //face in the plane then it has to be the good one
+            //if there are more faces in the same plane then always
+            //check the one with the fewest edges first
+/*			if (firstface)
+            {
+                if (firstface->numedges < face->numedges)
+                {
+                    if (AAS_InsideFace(firstface,
+                        aasworld.planes[face->planenum].normal, trace->endpos))
+                    {
+                        return firstface;
+                    } //end if
+                    firstface = face;
+                } //end if
+                else
+                {
+                    if (AAS_InsideFace(face,
+                        aasworld.planes[face->planenum].normal, trace->endpos))
+                    {
+                        return face;
+                    } //end if
+                } //end else
+            } //end if
+            else
+            {
+                firstface = face;
+            } //end else*/
+            if AAS_InsideFace(face,
+                        aasworld.planesSlots[face.planenum].normal, trace.endpos, 0.01) {
+                return face
+            }
+        } //end if
+        i += 1
+    } //end for
+    return firstface
 }
 
 //===========================================================================

@@ -2267,4 +2267,28 @@ typedef enum
 
 } symmetry_t;
 
+// The header of a `.tga` file, which LoadTGA of tr_image.cpp:1447 reads at the base of the file, row G16 of docket 13.
+// Source: oracle/codemp/renderer/tr_image.cpp:1392
+#pragma pack(push,1)
+// Source: oracle/codemp/renderer/tr_image.cpp:1393
+typedef struct
+{
+	byte	byIDFieldLength;	// must be 0
+	byte	byColourmapType;	// 0 = truecolour, 1 = paletted, else bad
+	byte	byImageType;		// 1 = colour mapped (palette), uncompressed, 2 = truecolour, uncompressed, else bad
+	word	w1stColourMapEntry;	// must be 0
+	word	wColourMapLength;	// 256 for 8-bit palettes, else 0 for true-colour
+	byte	byColourMapEntrySize; // 24 for 8-bit palettes, else 0 for true-colour
+	word	wImageXOrigin;		// ignored
+	word	wImageYOrigin;		// ignored
+	word	wImageWidth;		// in pixels
+	word	wImageHeight;		// in pixels
+	byte	byImagePlanes;		// bits per pixel	(8 for paletted, else 24 for true-colour)
+	byte	byScanLineOrder;	// Image descriptor bytes
+								// bits 0-3 = # attr bits (alpha chan)
+								// bits 4-5 = pixel order/dir
+								// bits 6-7 scan line interleave (00b=none,01b=2way interleave,10b=4way)
+} TGAHeader_t;
+#pragma pack(pop)
+
 #endif

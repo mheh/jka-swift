@@ -77,8 +77,9 @@ func AAS_EntityCollision(_ entnum: Int32, _ start: JKAShared.vec3_t, _ boxmins: 
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:174
 func AAS_inPVS(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port AAS_inPVS
-    portMissing("AAS_inPVS", source: "oracle/codemp/botlib/be_aas_bspq3.cpp:174")
+    // The engine only reads the two points, at sv_bot.cpp:370, so the copies are behavior-equal.
+    var p1 = p1, p2 = p2
+    return botimport.runInPVS(&p1, &p2) != 0
 }
 
 //===========================================================================
@@ -91,8 +92,7 @@ func AAS_inPVS(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool {
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:185
 func AAS_inPHS(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port AAS_inPHS
-    portMissing("AAS_inPHS", source: "oracle/codemp/botlib/be_aas_bspq3.cpp:185")
+    return true
 }
 
 //===========================================================================
@@ -139,8 +139,7 @@ func AAS_BSPLinkEntity(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t,
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:225
 func AAS_BoxEntities(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _ list: Slots<Int32>, _ maxcount: Int32) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port AAS_BoxEntities
-    portMissing("AAS_BoxEntities", source: "oracle/codemp/botlib/be_aas_bspq3.cpp:225")
+    return 0
 }
 
 //===========================================================================
@@ -358,8 +357,7 @@ func AAS_ParseBSPEntities() {
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:433
 func AAS_BSPTraceLight(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ endpos: JKAShared.vec3_t, _ red: inout Int32, _ green: inout Int32, _ blue: inout Int32) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port AAS_BSPTraceLight
-    portMissing("AAS_BSPTraceLight", source: "oracle/codemp/botlib/be_aas_bspq3.cpp:433")
+    return 0
 }
 
 //===========================================================================

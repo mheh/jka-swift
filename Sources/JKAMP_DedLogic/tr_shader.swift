@@ -418,7 +418,7 @@ ParseVector
 ```
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:323
-func ParseVector(_ text: inout JKAShared.TextCursor, _ count: Int32, _ v: Slots<Float>) -> Bool {
+func ParseVector(_ text: inout JKAShared.TextCursor, _ count: Int32, _ v: inout JKAShared.vec3_t) -> Bool {
     var token: String
     var i: Int32
 
@@ -625,8 +625,197 @@ ParseTexMod
 /// Source: oracle/codemp/renderer/tr_shader.cpp:572
 private func ParseTexMod(_ _text: String, _ stage: ShaderStage) {
     // Raven's one call is in ParseStage at tr_shader.cpp:1799, which is dead in the dedicated build, so the function is dead too.
-    // TODO: Port ParseTexMod
-    portMissing("ParseTexMod", source: "oracle/codemp/renderer/tr_shader.cpp:572")
+    var token: String
+    // Raven's `text` points at his own `_text` parameter, so the body walks a TextCursor over a copy of its bytes.
+    var text = TextCursor(CharBuf(_text))
+    let tmi: TexModInfo
+
+    if stage.bundle[0].numTexMods == TR_MAX_TEXMODS {
+        Com_Error(ERR_DROP, "ERROR: too many tcMod stages in shader '%s'\n", shader.name)
+    }
+
+    tmi = stage.bundle[0].texModsSlots[stage.bundle[0].numTexMods]
+    stage.bundle[0].numTexMods += 1
+
+    token = COM_ParseExt(&text, false)
+
+    //
+    // turb
+    //
+    if Q_stricmp(token, "turb") == 0 {
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing tcMod turb parms in shader '%s'\n", shader.name)
+            return
+        }
+        tmi.wave.base = Float(atof(token))
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing tcMod turb in shader '%s'\n", shader.name)
+            return
+        }
+        tmi.wave.amplitude = Float(atof(token))
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing tcMod turb in shader '%s'\n", shader.name)
+            return
+        }
+        tmi.wave.phase = Float(atof(token))
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing tcMod turb in shader '%s'\n", shader.name)
+            return
+        }
+        tmi.wave.frequency = Float(atof(token))
+
+        tmi.type = TMOD_TURBULENT
+    }
+    //
+    // scale
+    //
+    else if Q_stricmp(token, "scale") == 0 {
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing scale parms in shader '%s'\n", shader.name)
+            return
+        }
+        tmi.translate[0] = Float(atof(token)) //scale unioned
+
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing scale parms in shader '%s'\n", shader.name)
+            return
+        }
+        tmi.translate[1] = Float(atof(token)) //scale unioned
+        tmi.type = TMOD_SCALE
+    }
+    //
+    // scroll
+    //
+    else if Q_stricmp(token, "scroll") == 0 {
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing scale scroll parms in shader '%s'\n", shader.name)
+            return
+        }
+        tmi.translate[0] = Float(atof(token)) //scroll unioned
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing scale scroll parms in shader '%s'\n", shader.name)
+            return
+        }
+        tmi.translate[1] = Float(atof(token)) //scroll unioned
+        tmi.type = TMOD_SCROLL
+    }
+    //
+    // stretch
+    //
+    else if Q_stricmp(token, "stretch") == 0 {
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing stretch parms in shader '%s'\n", shader.name)
+            return
+        }
+        tmi.wave.`func` = NameToGenFunc(token)
+
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing stretch parms in shader '%s'\n", shader.name)
+            return
+        }
+        tmi.wave.base = Float(atof(token))
+
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing stretch parms in shader '%s'\n", shader.name)
+            return
+        }
+        tmi.wave.amplitude = Float(atof(token))
+
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing stretch parms in shader '%s'\n", shader.name)
+            return
+        }
+        tmi.wave.phase = Float(atof(token))
+
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing stretch parms in shader '%s'\n", shader.name)
+            return
+        }
+        tmi.wave.frequency = Float(atof(token))
+
+        tmi.type = TMOD_STRETCH
+    }
+    //
+    // transform
+    //
+    else if Q_stricmp(token, "transform") == 0 {
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing transform parms in shader '%s'\n", shader.name)
+            return
+        }
+        tmi.matrix[0][0] = Float(atof(token))
+
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing transform parms in shader '%s'\n", shader.name)
+            return
+        }
+        tmi.matrix[0][1] = Float(atof(token))
+
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing transform parms in shader '%s'\n", shader.name)
+            return
+        }
+        tmi.matrix[1][0] = Float(atof(token))
+
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing transform parms in shader '%s'\n", shader.name)
+            return
+        }
+        tmi.matrix[1][1] = Float(atof(token))
+
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing transform parms in shader '%s'\n", shader.name)
+            return
+        }
+        tmi.translate[0] = Float(atof(token))
+
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing transform parms in shader '%s'\n", shader.name)
+            return
+        }
+        tmi.translate[1] = Float(atof(token))
+
+        tmi.type = TMOD_TRANSFORM
+    }
+    //
+    // rotate
+    //
+    else if Q_stricmp(token, "rotate") == 0 {
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing tcMod rotate parms in shader '%s'\n", shader.name)
+            return
+        }
+        tmi.translate[0] = Float(atof(token)) //rotateSpeed unioned
+        tmi.type = TMOD_ROTATE
+    }
+    //
+    // entityTranslate
+    //
+    else if Q_stricmp(token, "entityTranslate") == 0 {
+        tmi.type = TMOD_ENTITY_TRANSLATE
+    } else {
+        Com_Printf(S_COLOR_YELLOW + "WARNING: unknown tcMod '%s' in shader '%s'\n", token, shader.name)
+    }
 }
 
 /**
@@ -644,8 +833,123 @@ ParseSurfaceSprites
 /// Source: oracle/codemp/renderer/tr_shader.cpp:808
 private func ParseSurfaceSprites(_ _text: String, _ stage: ShaderStage) {
     // Raven's one call is in ParseStage at tr_shader.cpp:1836, which is dead in the dedicated build, so the function is dead too.
-    // TODO: Port ParseSurfaceSprites
-    portMissing("ParseSurfaceSprites", source: "oracle/codemp/renderer/tr_shader.cpp:808")
+    var token: String
+    // Raven's `text` points at his own `_text` parameter, so the body walks a TextCursor over a copy of its bytes.
+    var text = TextCursor(CharBuf(_text))
+    let width: Float
+    let height: Float
+    let density: Float
+    let fadedist: Float
+    var sstype: Int32 = SURFSPRITE_NONE
+
+    //
+    // spritetype
+    //
+    token = COM_ParseExt(&text, false)
+
+    if token.isEmpty {
+        Com_Printf(S_COLOR_YELLOW + "WARNING: missing surfaceSprites params in shader '%s'\n", shader.name)
+        return
+    }
+
+    if Q_stricmp(token, "vertical") == 0 {
+        sstype = SURFSPRITE_VERTICAL
+    } else if Q_stricmp(token, "oriented") == 0 {
+        sstype = SURFSPRITE_ORIENTED
+    } else if Q_stricmp(token, "effect") == 0 {
+        sstype = SURFSPRITE_EFFECT
+    } else {
+        Com_Printf(S_COLOR_YELLOW + "WARNING: invalid type in shader '%s'\n", shader.name)
+        return
+    }
+
+    //
+    // width
+    //
+    token = COM_ParseExt(&text, false)
+    if token.isEmpty {
+        Com_Printf(S_COLOR_YELLOW + "WARNING: missing surfaceSprites params in shader '%s'\n", shader.name)
+        return
+    }
+    width = Float(atof(token))
+    if width <= 0 {
+        Com_Printf(S_COLOR_YELLOW + "WARNING: invalid width in shader '%s'\n", shader.name)
+        return
+    }
+
+    //
+    // height
+    //
+    token = COM_ParseExt(&text, false)
+    if token.isEmpty {
+        Com_Printf(S_COLOR_YELLOW + "WARNING: missing surfaceSprites params in shader '%s'\n", shader.name)
+        return
+    }
+    height = Float(atof(token))
+    if height <= 0 {
+        Com_Printf(S_COLOR_YELLOW + "WARNING: invalid height in shader '%s'\n", shader.name)
+        return
+    }
+
+    //
+    // density
+    //
+    token = COM_ParseExt(&text, false)
+    if token.isEmpty {
+        Com_Printf(S_COLOR_YELLOW + "WARNING: missing surfaceSprites params in shader '%s'\n", shader.name)
+        return
+    }
+    density = Float(atof(token))
+    if density <= 0 {
+        Com_Printf(S_COLOR_YELLOW + "WARNING: invalid density in shader '%s'\n", shader.name)
+        return
+    }
+
+    //
+    // fadedist
+    //
+    token = COM_ParseExt(&text, false)
+    if token.isEmpty {
+        Com_Printf(S_COLOR_YELLOW + "WARNING: missing surfaceSprites params in shader '%s'\n", shader.name)
+        return
+    }
+    fadedist = Float(atof(token))
+    if fadedist < 32 {
+        Com_Printf(S_COLOR_YELLOW + "WARNING: invalid fadedist (%f < 32) in shader '%s'\n", fadedist, shader.name)
+        return
+    }
+
+    if stage.ss == nil {
+        stage.ss = SurfaceSprite(Hunk_Alloc(Int32(SurfaceSprite.byteCount), h_low))
+    }
+    let ss = stage.ss!
+
+    // These are all set by the command lines.
+    ss.surfaceSpriteType = sstype
+    ss.width = width
+    ss.height = height
+    ss.density = density
+    ss.fadeDist = fadedist
+
+    // These are defaults that can be overwritten.
+    // C multiplies in `double`, because `1.33` is a double, and converts the product to `float` at the store.
+    ss.fadeMax = Float(Double(fadedist) * 1.33)
+    ss.fadeScale = 0.0
+    ss.wind = 0.0
+    ss.windIdle = 0.0
+    ss.variance[0] = 0.0
+    ss.variance[1] = 0.0
+    ss.facing = SURFSPRITE_FACING_NORMAL
+
+    // A vertical parameter that needs a default regardless
+    _ = ss.vertSkew
+
+    // These are effect parameters that need defaults nonetheless.
+    ss.fxDuration = 1000 // 1 second
+    ss.fxGrow[0] = 0.0
+    ss.fxGrow[1] = 0.0
+    ss.fxAlphaStart = 1.0
+    ss.fxAlphaEnd = 0.0
 }
 
 /**
@@ -676,8 +980,265 @@ ParseSurfaceSpritesOptional
 /// Source: oracle/codemp/renderer/tr_shader.cpp:970
 private func ParseSurfaceSpritesOptional(_ param: String, _ _text: String, _ stage: ShaderStage) {
     // Raven's one call is in ParseStage at tr_shader.cpp:1868, which is dead in the dedicated build, so the function is dead too.
-    // TODO: Port ParseSurfaceSpritesOptional
-    portMissing("ParseSurfaceSpritesOptional", source: "oracle/codemp/renderer/tr_shader.cpp:970")
+    var token: String
+    // Raven's `text` points at his own `_text` parameter, so the body walks a TextCursor over a copy of its bytes.
+    var text = TextCursor(CharBuf(_text))
+    var value: Float
+
+    if stage.ss == nil {
+        stage.ss = SurfaceSprite(Hunk_Alloc(Int32(SurfaceSprite.byteCount), h_low))
+    }
+    let ss = stage.ss!
+    //
+    // fademax
+    //
+    if Q_stricmp(param, "ssFademax") == 0 {
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing surfacesprite fademax in shader '%s'\n", shader.name)
+            return
+        }
+        value = Float(atof(token))
+        if value <= ss.fadeDist {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: invalid surfacesprite fademax (%.2f <= fadeDist(%.2f)) in shader '%s'\n", value, ss.fadeDist, shader.name)
+            return
+        }
+        ss.fadeMax = value
+        return
+    }
+
+    //
+    // fadescale
+    //
+    if Q_stricmp(param, "ssFadescale") == 0 {
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing surfacesprite fadescale in shader '%s'\n", shader.name)
+            return
+        }
+        value = Float(atof(token))
+        ss.fadeScale = value
+        return
+    }
+
+    //
+    // variance
+    //
+    if Q_stricmp(param, "ssVariance") == 0 {
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing surfacesprite variance width in shader '%s'\n", shader.name)
+            return
+        }
+        value = Float(atof(token))
+        if value < 0 {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: invalid surfacesprite variance width in shader '%s'\n", shader.name)
+            return
+        }
+        ss.variance[0] = value
+
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing surfacesprite variance height in shader '%s'\n", shader.name)
+            return
+        }
+        value = Float(atof(token))
+        if value < 0 {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: invalid surfacesprite variance height in shader '%s'\n", shader.name)
+            return
+        }
+        ss.variance[1] = value
+        return
+    }
+
+    //
+    // hangdown
+    //
+    if Q_stricmp(param, "ssHangdown") == 0 {
+        if ss.facing != SURFSPRITE_FACING_NORMAL {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: Hangdown facing overrides previous facing in shader '%s'\n", shader.name)
+            return
+        }
+        ss.facing = SURFSPRITE_FACING_DOWN
+        return
+    }
+
+    //
+    // anyangle
+    //
+    if Q_stricmp(param, "ssAnyangle") == 0 {
+        if ss.facing != SURFSPRITE_FACING_NORMAL {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: Anyangle facing overrides previous facing in shader '%s'\n", shader.name)
+            return
+        }
+        ss.facing = SURFSPRITE_FACING_ANY
+        return
+    }
+
+    //
+    // faceup
+    //
+    if Q_stricmp(param, "ssFaceup") == 0 {
+        if ss.facing != SURFSPRITE_FACING_NORMAL {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: Faceup facing overrides previous facing in shader '%s'\n", shader.name)
+            return
+        }
+        ss.facing = SURFSPRITE_FACING_UP
+        return
+    }
+
+    //
+    // wind
+    //
+    if Q_stricmp(param, "ssWind") == 0 {
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing surfacesprite wind in shader '%s'\n", shader.name)
+            return
+        }
+        value = Float(atof(token))
+        if value < 0.0 {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: invalid surfacesprite wind in shader '%s'\n", shader.name)
+            return
+        }
+        ss.wind = value
+        if ss.windIdle <= 0 { // Also override the windidle, it usually is the same as wind
+            ss.windIdle = value
+        }
+        return
+    }
+
+    //
+    // windidle
+    //
+    if Q_stricmp(param, "ssWindidle") == 0 {
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing surfacesprite windidle in shader '%s'\n", shader.name)
+            return
+        }
+        value = Float(atof(token))
+        if value < 0.0 {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: invalid surfacesprite windidle in shader '%s'\n", shader.name)
+            return
+        }
+        ss.windIdle = value
+        return
+    }
+
+    //
+    // vertskew
+    //
+    if Q_stricmp(param, "ssVertskew") == 0 {
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing surfacesprite vertskew in shader '%s'\n", shader.name)
+            return
+        }
+        value = Float(atof(token))
+        if value < 0.0 {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: invalid surfacesprite vertskew in shader '%s'\n", shader.name)
+            return
+        }
+        ss.vertSkew = value
+        return
+    }
+
+    //
+    // fxduration
+    //
+    if Q_stricmp(param, "ssFXDuration") == 0 {
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing surfacesprite duration in shader '%s'\n", shader.name)
+            return
+        }
+        value = Float(atof(token))
+        if value <= 0 {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: invalid surfacesprite duration in shader '%s'\n", shader.name)
+            return
+        }
+        ss.fxDuration = value
+        return
+    }
+
+    //
+    // fxgrow
+    //
+    if Q_stricmp(param, "ssFXGrow") == 0 {
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing surfacesprite grow width in shader '%s'\n", shader.name)
+            return
+        }
+        value = Float(atof(token))
+        if value < 0 {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: invalid surfacesprite grow width in shader '%s'\n", shader.name)
+            return
+        }
+        ss.fxGrow[0] = value
+
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing surfacesprite grow height in shader '%s'\n", shader.name)
+            return
+        }
+        value = Float(atof(token))
+        if value < 0 {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: invalid surfacesprite grow height in shader '%s'\n", shader.name)
+            return
+        }
+        ss.fxGrow[1] = value
+        return
+    }
+
+    //
+    // fxalpharange
+    //
+    if Q_stricmp(param, "ssFXAlphaRange") == 0 {
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing surfacesprite fxalpha start in shader '%s'\n", shader.name)
+            return
+        }
+        value = Float(atof(token))
+        if value < 0 || value > 1.0 {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: invalid surfacesprite fxalpha start in shader '%s'\n", shader.name)
+            return
+        }
+        ss.fxAlphaStart = value
+
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing surfacesprite fxalpha end in shader '%s'\n", shader.name)
+            return
+        }
+        value = Float(atof(token))
+        if value < 0 || value > 1.0 {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: invalid surfacesprite fxalpha end in shader '%s'\n", shader.name)
+            return
+        }
+        ss.fxAlphaEnd = value
+        return
+    }
+
+    //
+    // fxweather
+    //
+    if Q_stricmp(param, "ssFXWeather") == 0 {
+        if ss.surfaceSpriteType != SURFSPRITE_EFFECT {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: weather applied to non-effect surfacesprite in shader '%s'\n", shader.name)
+            return
+        }
+        ss.surfaceSpriteType = SURFSPRITE_WEATHERFX
+        return
+    }
+
+    //
+    // invalid ss command.
+    //
+    Com_Printf(S_COLOR_YELLOW + "WARNING: invalid optional surfacesprite param '%s' in shader '%s'\n", param, shader.name)
+    return
 }
 
 /**
@@ -713,8 +1274,136 @@ deformVertexes text[0-7]
 /// Source: oracle/codemp/renderer/tr_shader.cpp:1936
 private func ParseDeform(_ text: inout JKAShared.TextCursor) {
     // Raven's one call is in ParseShader at tr_shader.cpp:2408, which is dead in the dedicated build, so the function is dead too.
-    // TODO: Port ParseDeform
-    portMissing("ParseDeform", source: "oracle/codemp/renderer/tr_shader.cpp:1936")
+    var token: String
+    let ds: DeformStage
+
+    token = COM_ParseExt(&text, false)
+    if token.isEmpty {
+        Com_Printf(S_COLOR_YELLOW + "WARNING: missing deform parm in shader '%s'\n", shader.name)
+        return
+    }
+
+    if shader.numDeforms == MAX_SHADER_DEFORMS {
+        Com_Printf(S_COLOR_YELLOW + "WARNING: MAX_SHADER_DEFORMS in '%s'\n", shader.name)
+        return
+    }
+
+    shader.deforms[shader.numDeforms] = DeformStage(Hunk_Alloc(Int32(DeformStage.byteCount), h_low))
+
+    ds = shader.deforms[shader.numDeforms]!
+    shader.numDeforms += 1
+
+    if Q_stricmp(token, "projectionShadow") == 0 {
+        ds.deformation = DEFORM_PROJECTION_SHADOW
+        return
+    }
+
+    if Q_stricmp(token, "autosprite") == 0 {
+        ds.deformation = DEFORM_AUTOSPRITE
+        return
+    }
+
+    if Q_stricmp(token, "autosprite2") == 0 {
+        ds.deformation = DEFORM_AUTOSPRITE2
+        return
+    }
+
+    if Q_stricmpn(token, "text", 4) == 0 {
+        var n: Int32
+
+        n = CharBuf(token)[4] - Int32(ascii: "0")
+        if n < 0 || n > 7 {
+            n = 0
+        }
+        ds.deformation = DEFORM_TEXT0 + n
+        return
+    }
+
+    if Q_stricmp(token, "bulge") == 0 {
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing deformVertexes bulge parm in shader '%s'\n", shader.name)
+            return
+        }
+        ds.bulgeWidth = Float(atof(token))
+
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing deformVertexes bulge parm in shader '%s'\n", shader.name)
+            return
+        }
+        ds.bulgeHeight = Float(atof(token))
+
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing deformVertexes bulge parm in shader '%s'\n", shader.name)
+            return
+        }
+        ds.bulgeSpeed = Float(atof(token))
+
+        ds.deformation = DEFORM_BULGE
+        return
+    }
+
+    if Q_stricmp(token, "wave") == 0 {
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing deformVertexes parm in shader '%s'\n", shader.name)
+            return
+        }
+
+        if atof(token) != 0 {
+            // C divides in `double`, because `atof` returns a double, and converts the quotient to `float` at the store.
+            ds.deformationSpread = Float(1.0 / atof(token))
+        } else {
+            ds.deformationSpread = 100.0
+            Com_Printf(S_COLOR_YELLOW + "WARNING: illegal div value of 0 in deformVertexes command for shader '%s'\n", shader.name)
+        }
+
+        ParseWaveForm(&text, ds.deformationWave)
+        ds.deformation = DEFORM_WAVE
+        return
+    }
+
+    if Q_stricmp(token, "normal") == 0 {
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing deformVertexes parm in shader '%s'\n", shader.name)
+            return
+        }
+        ds.deformationWave.amplitude = Float(atof(token))
+
+        token = COM_ParseExt(&text, false)
+        if token.isEmpty {
+            Com_Printf(S_COLOR_YELLOW + "WARNING: missing deformVertexes parm in shader '%s'\n", shader.name)
+            return
+        }
+        ds.deformationWave.frequency = Float(atof(token))
+
+        ds.deformation = DEFORM_NORMALS
+        return
+    }
+
+    if Q_stricmp(token, "move") == 0 {
+        var i: Int32
+
+        i = 0
+        while i < 3 {
+            token = COM_ParseExt(&text, false)
+            if token.isEmpty {
+                Com_Printf(S_COLOR_YELLOW + "WARNING: missing deformVertexes parm in shader '%s'\n", shader.name)
+                return
+            }
+            ds.moveVector[i] = Float(atof(token))
+            i += 1
+        }
+
+        ParseWaveForm(&text, ds.deformationWave)
+        ds.deformation = DEFORM_MOVE
+        return
+    }
+
+    Com_Printf(S_COLOR_YELLOW + "WARNING: unknown deformVertexes subtype '%s' found in shader '%s'\n", token, shader.name)
 }
 
 /**
@@ -1609,8 +2298,101 @@ func R_FindServerShader(_ name: String, _ lightmapIndex: [Int32]?, _ styles: [JK
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3598
 func RE_RegisterShaderFromImage(_ name: String, _ lightmapIndex: [Int32]?, _ styles: [JKAShared.byte], _ image: Image, _ mipRawImage: Bool) -> JKAShared.qhandle_t {
     // No file of the oracle calls it, and tr_local.h:1775 only declares it, so the function is dead.
-    // TODO: Port RE_RegisterShaderFromImage
-    portMissing("RE_RegisterShaderFromImage", source: "oracle/codemp/renderer/tr_shader.cpp:3598")
+    var i: Int32
+    let hash: Int32
+    var sh: Shader?
+
+    hash = Int32(generateHashValue(name, FILE_HASH_SIZE))
+
+    //
+    // see if the shader is already loaded
+    //
+    sh = hashTable[hash]
+    while let s = sh {
+        // NOTE: if there was no shader or image available with the name strippedName
+        // then a default shader is created with lightmapIndex == LIGHTMAP_NONE, so we
+        // have to check all default shaders otherwise for every call to R_FindShader
+        // with that same strippedName a new default shader is created.
+        if IsShader(s, name, lightmapIndex, styles) {
+            return s.index
+        }
+        sh = s.next
+    }
+
+    // clear the global shader
+    shader.clear()
+    stages.zero()
+    Q_strncpyz(&shader.nameBuffer, name, Int32(shader.nameBuffer.count))
+    // AI: Raven copies the table with memcpy. The table is a Swift array, so the loop copies each index into the record.
+    for i in 0..<shader.lightmapIndex.count {
+        shader.lightmapIndex[i] = lightmapIndex![i]
+    }
+    // AI: Raven copies the styles with memcpy. The list is a Swift array, so the loop copies each index into the record.
+    for i in 0..<shader.styles.count {
+        shader.styles[i] = styles[i]
+    }
+
+    i = 0
+    while i < MAX_SHADER_STAGES {
+        // Raven's row `texMods[i]` of the two-dimensional table starts at record `i * TR_MAX_TEXMODS` of the flat storage.
+        stages[i].bundle[0].texModsSlots = texMods.suffix(from: i * TR_MAX_TEXMODS)
+        i += 1
+    }
+
+    //
+    // create the default shading commands
+    //
+    // C converts the `int` masks to the `unsigned` field at each store.
+    if shader.lightmapIndex[0] == LIGHTMAP_NONE {
+        // dynamic colors at vertexes
+        stages[0].bundle[0].image = image
+        stages[0].active = true
+        stages[0].rgbGen = CGEN_LIGHTING_DIFFUSE
+        stages[0].stateBits = UInt32(bitPattern: GLS_DEFAULT)
+    } else if shader.lightmapIndex[0] == LIGHTMAP_BY_VERTEX {
+        // explicit colors at vertexes
+        stages[0].bundle[0].image = image
+        stages[0].active = true
+        stages[0].rgbGen = CGEN_EXACT_VERTEX
+        stages[0].alphaGen = AGEN_SKIP
+        stages[0].stateBits = UInt32(bitPattern: GLS_DEFAULT)
+    } else if shader.lightmapIndex[0] == LIGHTMAP_2D {
+        // GUI elements
+        stages[0].bundle[0].image = image
+        stages[0].active = true
+        stages[0].rgbGen = CGEN_VERTEX
+        stages[0].alphaGen = AGEN_VERTEX
+        stages[0].stateBits = UInt32(bitPattern: GLS_DEPTHTEST_DISABLE |
+            GLS_SRCBLEND_SRC_ALPHA |
+            GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA)
+    } else if shader.lightmapIndex[0] == LIGHTMAP_WHITEIMAGE {
+        // fullbright level
+        stages[0].bundle[0].image = tr.whiteImage
+        stages[0].active = true
+        stages[0].rgbGen = CGEN_IDENTITY_LIGHTING
+        stages[0].stateBits = UInt32(bitPattern: GLS_DEFAULT)
+
+        stages[1].bundle[0].image = image
+        stages[1].active = true
+        stages[1].rgbGen = CGEN_IDENTITY
+        stages[1].stateBits |= UInt32(bitPattern: GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO)
+    } else {
+        // two pass lightmap
+        stages[0].bundle[0].image = tr.lightmaps[shader.lightmapIndex[0]]
+        stages[0].bundle[0].isLightmap = true
+        stages[0].active = true
+        stages[0].rgbGen = CGEN_IDENTITY // lightmaps are scaled on creation
+        // for identitylight
+        stages[0].stateBits = UInt32(bitPattern: GLS_DEFAULT)
+
+        stages[1].bundle[0].image = image
+        stages[1].active = true
+        stages[1].rgbGen = CGEN_IDENTITY
+        stages[1].stateBits |= UInt32(bitPattern: GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO)
+    }
+
+    sh = FinishShader()
+    return sh!.index
 }
 
 /**

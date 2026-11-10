@@ -970,8 +970,35 @@ func AAS_InitRoutingUpdate() {
 // Port-note: Raven calls this function from no file of either tree, so it is dead.
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:870
 func AAS_CreateAllRoutingCache() {
-    // TODO: Port AAS_CreateAllRoutingCache
-    portMissing("AAS_CreateAllRoutingCache", source: "oracle/codemp/botlib/be_aas_route.cpp:870")
+    var i: Int32
+    var j: Int32
+    var t: Int32
+
+    aasworld.initialized = 1
+    botimport.runPrint(PRT_MESSAGE, "AAS_CreateAllRoutingCache\n")
+    i = 1
+    while i < aasworld.numareas {
+        if AAS_AreaReachability(i) == 0 {
+            i += 1
+            continue
+        }
+        j = 1
+        while j < aasworld.numareas {
+            if i == j {
+                j += 1
+                continue
+            }
+            if AAS_AreaReachability(j) == 0 {
+                j += 1
+                continue
+            }
+            t = AAS_AreaTravelTimeToGoalArea(i, aasworld.areasSlots[i].center, j, TFL_DEFAULT)
+            //Log_Write("traveltime from %d to %d is %d", i, j, t);
+            j += 1
+        } //end for
+        i += 1
+    } //end for
+    aasworld.initialized = 0
 }
 
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:917
@@ -2077,8 +2104,7 @@ func AAS_PredictRoute(_ route: AasPredictroute, _ areanum: Int32, _ origin: JKAS
 // Port-note: Raven calls this function from no file of either tree, so it is dead.
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1892
 func AAS_BridgeWalkable(_ areanum: Int32) -> Int32 {
-    // TODO: Port AAS_BridgeWalkable
-    portMissing("AAS_BridgeWalkable", source: "oracle/codemp/botlib/be_aas_route.cpp:1892")
+    return 0
 }
 
 //===========================================================================
@@ -2260,8 +2286,18 @@ func AAS_AreaVisible(_ srcarea: Int32, _ destarea: Int32) -> Int32 {
 // Port-note: Raven calls this function from no file of either tree, so it is dead.
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:2049
 func DistancePointToLine(_ v1: JKAShared.vec3_t, _ v2: JKAShared.vec3_t, _ point: JKAShared.vec3_t) -> Float {
-    // TODO: Port DistancePointToLine
-    portMissing("DistancePointToLine", source: "oracle/codemp/botlib/be_aas_route.cpp:2049")
+    var vec = vec3_t(), p2 = vec3_t()
+
+    AAS_ProjectPointOntoVector(point, v1, v2, &p2)
+    vec = point - p2
+    return VectorLength(vec)
+}
+
+/// Raven's `static unsigned short int *hidetraveltimes` of `AAS_NearestHideArea`, a property of `EngineWorld`.
+/// Source: oracle/codemp/botlib/be_aas_route.cpp:2067
+var hidetraveltimes: Slots<UInt16>? {
+    get { world.hidetraveltimes }
+    set { world.hidetraveltimes = newValue }
 }
 
 //===========================================================================
@@ -2273,6 +2309,170 @@ func DistancePointToLine(_ v1: JKAShared.vec3_t, _ v2: JKAShared.vec3_t, _ point
 // Port-note: Raven calls this function from no file of either tree, so it is dead.
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:2063
 func AAS_NearestHideArea(_ srcnum: Int32, _ origin: JKAShared.vec3_t, _ areanum: Int32, _ enemynum: Int32, _ enemyorigin: JKAShared.vec3_t, _ enemyareanum: Int32, _ travelflags: Int32) -> Int32 {
-    // TODO: Port AAS_NearestHideArea
-    portMissing("AAS_NearestHideArea", source: "oracle/codemp/botlib/be_aas_route.cpp:2063")
+    var i: Int32
+    var j: Int32
+    var nextareanum: Int32
+    var badtravelflags: Int32
+    var numreach: Int32
+    var bestarea: Int32
+    var t: UInt16
+    var besttraveltime: UInt16
+    var updateliststart: AasRoutingupdate?
+    var updatelistend: AasRoutingupdate?
+    var curupdate: AasRoutingupdate
+    var nextupdate: AasRoutingupdate
+    var reachIndex: Int32
+    var dist1: Float
+    var dist2: Float
+    var v1 = vec3_t(), v2 = vec3_t(), p = vec3_t()
+    var startVisible: Bool
+
+    //
+    if hidetraveltimes == nil {
+        hidetraveltimes = Slots<UInt16>(scalars: GetClearedMemory(aasworld.numareas * Int32(UInt16.byteCount)), count: Int(aasworld.numareas))
+    } //end if
+    else {
+        // Port-note: Rule 19. Raven zeroes `aasworld.numareas` entries of the allocation of the first call, and a larger count writes past its end.
+        // The Slots holds the count of the first call, so the body zeroes that count.
+        // With a smaller count on a later map, the entries past `aasworld.numareas` are never read.
+        // With a larger count, the Slots subscript traps at `hidetraveltimes![nextareanum]` for an area past the first count.
+        hidetraveltimes!.zero()
+    } //end else
+    besttraveltime = 0
+    bestarea = 0
+    //assume visible
+    startVisible = true
+    //
+    badtravelflags = ~travelflags
+    //
+    curupdate = aasworld.areaupdateSlots[areanum]
+    curupdate.areanum = areanum
+    curupdate.start = origin
+    curupdate.areatraveltimes = aasworld.areatraveltimes(areanum, 0)
+    curupdate.tmptraveltime = 0
+    //put the area to start with in the current read list
+    curupdate.next = nil
+    curupdate.prev = nil
+    updateliststart = curupdate
+    updatelistend = curupdate
+    //while there are updates in the list
+    while updateliststart != nil {
+        curupdate = updateliststart!
+        //
+        if curupdate.next != nil {
+            curupdate.next!.prev = nil
+        } else {
+            updatelistend = nil
+        }
+        updateliststart = curupdate.next
+        //
+        curupdate.inlist = false
+        //check all reversed reachability links
+        numreach = aasworld.areasettingsSlots[curupdate.areanum].numreachableareas
+        reachIndex = aasworld.areasettingsSlots[curupdate.areanum].firstreachablearea
+        //
+        i = 0
+        while i < numreach {
+            //if an undesired travel type is used
+            if (AAS_TravelFlagForType_inline(aasworld.reachabilitySlots[reachIndex].traveltype) & badtravelflags) != 0 {
+                i += 1
+                reachIndex += 1
+                continue
+            }
+            //
+            if (AAS_AreaContentsTravelFlags_inline(aasworld.reachabilitySlots[reachIndex].areanum) & badtravelflags) != 0 {
+                i += 1
+                reachIndex += 1
+                continue
+            }
+            //number of the area the reachability leads to
+            nextareanum = aasworld.reachabilitySlots[reachIndex].areanum
+            // if this moves us into the enemies area, skip it
+            if nextareanum == enemyareanum {
+                i += 1
+                reachIndex += 1
+                continue
+            }
+            //time already travelled plus the traveltime through
+            //the current area plus the travel time from the reachability
+            t = UInt16(truncatingIfNeeded: curupdate.tmptraveltime +
+                        AAS_AreaTravelTime(curupdate.areanum, curupdate.start, aasworld.reachabilitySlots[reachIndex].start) +
+                            aasworld.reachabilitySlots[reachIndex].traveltime)
+
+            //avoid going near the enemy
+            AAS_ProjectPointOntoVector(enemyorigin, curupdate.start, aasworld.reachabilitySlots[reachIndex].end, &p)
+            j = 0
+            while j < 3 {
+                if (p[j] > curupdate.start[j] && p[j] > aasworld.reachabilitySlots[reachIndex].end[j]) ||
+                    (p[j] < curupdate.start[j] && p[j] < aasworld.reachabilitySlots[reachIndex].end[j]) {
+                    break
+                }
+                j += 1
+            }
+            if j < 3 {
+                v2 = enemyorigin - aasworld.reachabilitySlots[reachIndex].end
+            } //end if
+            else {
+                v2 = enemyorigin - p
+            } //end else
+            dist2 = VectorLength(v2)
+            //never go through the enemy
+            if dist2 < 40 {
+                i += 1
+                reachIndex += 1
+                continue
+            }
+            //
+            v1 = enemyorigin - curupdate.start
+            dist1 = VectorLength(v1)
+            //
+            if dist2 < dist1 {
+                // C converts the float sum to the unsigned short through an int.
+                t = UInt16(truncatingIfNeeded: Int32(Int32(t) + (dist1 - dist2) * 10))
+            }
+            // if we weren't visible when starting, make sure we don't move into their view
+            if !startVisible && AAS_AreaVisible(enemyareanum, nextareanum) != 0 {
+                i += 1
+                reachIndex += 1
+                continue
+            }
+            //
+            if besttraveltime != 0 && t >= besttraveltime {
+                i += 1
+                reachIndex += 1
+                continue
+            }
+            //
+            if hidetraveltimes![nextareanum] == 0 ||
+                    hidetraveltimes![nextareanum] > t {
+                //if the nextarea is not visible from the enemy area
+                if AAS_AreaVisible(enemyareanum, nextareanum) == 0 {
+                    besttraveltime = t
+                    bestarea = nextareanum
+                } //end if
+                hidetraveltimes![nextareanum] = t
+                nextupdate = aasworld.areaupdateSlots[nextareanum]
+                nextupdate.areanum = nextareanum
+                nextupdate.tmptraveltime = Int32(t)
+                //remember where we entered this area
+                nextupdate.start = aasworld.reachabilitySlots[reachIndex].end
+                //if this update is not in the list yet
+                if !nextupdate.inlist {
+                    //add the new update to the end of the list
+                    nextupdate.next = nil
+                    nextupdate.prev = updatelistend
+                    if updatelistend != nil {
+                        updatelistend!.next = nextupdate
+                    } else {
+                        updateliststart = nextupdate
+                    }
+                    updatelistend = nextupdate
+                    nextupdate.inlist = true
+                } //end if
+            } //end if
+            i += 1
+            reachIndex += 1
+        } //end for
+    } //end while
+    return bestarea
 }

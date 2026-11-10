@@ -463,8 +463,32 @@ func StringReplaceWords(_ string: inout JKAShared.CharBuf, _ synonym: String, _ 
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:553
 // Port-note: Only a comment at be_ai_chat.cpp:733 calls this function, so it is dead, rule 20.
 func BotDumpSynonymList(_ synlist: BotSynonymlist) {
-    // TODO: Port BotDumpSynonymList
-    portMissing("BotDumpSynonymList", source: "oracle/codemp/botlib/be_ai_chat.cpp:553")
+    var fp: OpaquePointer?
+    var syn: BotSynonymlist?
+    var synonym: BotSynonym?
+    var text: CharBuf
+
+    fp = Log_FilePointer()
+    if fp == nil { return }
+    // AI: Raven prints with fprintf to the stream. Each text formats with JKAShared.format, and FileBackend.fwrite writes its bytes.
+    syn = synlist
+    while syn != nil {
+        text = CharBuf(JKAShared.format("%ld : [", [syn!.context]))
+        _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+        synonym = syn!.firstsynonym
+        while synonym != nil {
+            text = CharBuf(JKAShared.format("(\"%s\", %1.2f)", [synonym!.string!, synonym!.weight]))
+            _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+            if synonym!.next != nil {
+                text = CharBuf(JKAShared.format(", ", []))
+                _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+            }
+            synonym = synonym!.next
+        } //end for
+        text = CharBuf(JKAShared.format("]\n", []))
+        _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+        syn = syn!.next
+    } //end for
 }
 
 //===========================================================================
@@ -822,8 +846,33 @@ func BotLoadChatMessage(_ source: Source, _ chatmessagestring: inout JKAShared.C
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:904
 // Port-note: Only a comment at be_ai_chat.cpp:1020 calls this function, so it is dead, rule 20.
 func BotDumpRandomStringList(_ randomlist: BotRandomlist) {
-    // TODO: Port BotDumpRandomStringList
-    portMissing("BotDumpRandomStringList", source: "oracle/codemp/botlib/be_ai_chat.cpp:904")
+    var fp: OpaquePointer?
+    var random: BotRandomlist?
+    var rs: BotRandomstring?
+    var text: CharBuf
+
+    fp = Log_FilePointer()
+    if fp == nil { return }
+    // AI: Raven prints with fprintf to the stream. Each text formats with JKAShared.format, and FileBackend.fwrite writes its bytes.
+    random = randomlist
+    while random != nil {
+        text = CharBuf(JKAShared.format("%s = {", [random!.string!]))
+        _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+        rs = random!.firstrandomstring
+        while rs != nil {
+            text = CharBuf(JKAShared.format("\"%s\"", [rs!.string!]))
+            _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+            if rs!.next != nil {
+                text = CharBuf(JKAShared.format(", ", []))
+                _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+            } else {
+                text = CharBuf(JKAShared.format("}\n", []))
+                _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+            }
+            rs = rs!.next
+        } //end for
+        random = random!.next
+    } //end for
 }
 
 //===========================================================================
@@ -957,8 +1006,47 @@ func RandomString(_ name: String) -> String? {
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1060
 // Port-note: Only a comment at be_ai_chat.cpp:1330 calls this function, so it is dead, rule 20.
 func BotDumpMatchTemplates(_ matches: BotMatchtemplate) {
-    // TODO: Port BotDumpMatchTemplates
-    portMissing("BotDumpMatchTemplates", source: "oracle/codemp/botlib/be_ai_chat.cpp:1060")
+    var fp: OpaquePointer?
+    var mt: BotMatchtemplate?
+    var mp: BotMatchpiece?
+    var ms: BotMatchstring?
+    var text: CharBuf
+
+    fp = Log_FilePointer()
+    if fp == nil { return }
+    // AI: Raven prints with fprintf to the stream. Each text formats with JKAShared.format, and FileBackend.fwrite writes its bytes.
+    mt = matches
+    while mt != nil {
+        text = CharBuf(JKAShared.format("{ ", []))
+        _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+        mp = mt!.first
+        while mp != nil {
+            if mp!.type == MT_STRING {
+                ms = mp!.firststring
+                while ms != nil {
+                    text = CharBuf(JKAShared.format("\"%s\"", [ms!.string!]))
+                    _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+                    if ms!.next != nil {
+                        text = CharBuf(JKAShared.format("|", []))
+                        _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+                    }
+                    ms = ms!.next
+                } //end for
+            } //end if
+            else if mp!.type == MT_VARIABLE {
+                text = CharBuf(JKAShared.format("%d", [mp!.variable]))
+                _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+            } //end else if
+            if mp!.next != nil {
+                text = CharBuf(JKAShared.format(", ", []))
+                _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+            }
+            mp = mp!.next
+        } //end for
+        text = CharBuf(JKAShared.format(" = (%d, %d);}\n", [mt!.type, mt!.subtype]))
+        _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+        mt = mt!.next
+    } //end for
 }
 
 //===========================================================================
@@ -1505,8 +1593,90 @@ func BotCheckReplyChatIntegrety(_ replychat: BotReplychat?) {
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1619
 // Port-note: Only a comment at be_ai_chat.cpp:1955 calls this function, so it is dead, rule 20.
 func BotDumpReplyChat(_ replychat: BotReplychat) {
-    // TODO: Port BotDumpReplyChat
-    portMissing("BotDumpReplyChat", source: "oracle/codemp/botlib/be_ai_chat.cpp:1619")
+    var fp: OpaquePointer?
+    var rp: BotReplychat?
+    var key: BotReplychatkey?
+    var cm: BotChatmessage?
+    var mp: BotMatchpiece?
+    var text: CharBuf
+
+    fp = Log_FilePointer()
+    if fp == nil { return }
+    // AI: Raven prints with fprintf to the stream. Each text formats with JKAShared.format, and FileBackend.fwrite writes its bytes.
+    text = CharBuf(JKAShared.format("BotDumpReplyChat:\n", []))
+    _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+    rp = replychat
+    while rp != nil {
+        text = CharBuf(JKAShared.format("[", []))
+        _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+        key = rp!.keys
+        while key != nil {
+            if (key!.flags & RCKFL_AND) != 0 {
+                text = CharBuf(JKAShared.format("&", []))
+                _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+            } else if (key!.flags & RCKFL_NOT) != 0 {
+                text = CharBuf(JKAShared.format("!", []))
+                _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+            }
+            //
+            if (key!.flags & RCKFL_NAME) != 0 {
+                text = CharBuf(JKAShared.format("name", []))
+                _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+            } else if (key!.flags & RCKFL_GENDERFEMALE) != 0 {
+                text = CharBuf(JKAShared.format("female", []))
+                _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+            } else if (key!.flags & RCKFL_GENDERMALE) != 0 {
+                text = CharBuf(JKAShared.format("male", []))
+                _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+            } else if (key!.flags & RCKFL_GENDERLESS) != 0 {
+                text = CharBuf(JKAShared.format("it", []))
+                _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+            } else if (key!.flags & RCKFL_VARIABLES) != 0 {
+                text = CharBuf(JKAShared.format("(", []))
+                _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+                mp = key!.match
+                while mp != nil {
+                    if mp!.type == MT_STRING {
+                        text = CharBuf(JKAShared.format("\"%s\"", [mp!.firststring!.string!]))
+                        _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+                    } else {
+                        text = CharBuf(JKAShared.format("%d", [mp!.variable]))
+                        _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+                    }
+                    if mp!.next != nil {
+                        text = CharBuf(JKAShared.format(", ", []))
+                        _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+                    }
+                    mp = mp!.next
+                } //end for
+                text = CharBuf(JKAShared.format(")", []))
+                _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+            } //end if
+            else if (key!.flags & RCKFL_STRING) != 0 {
+                text = CharBuf(JKAShared.format("\"%s\"", [key!.string!]))
+                _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+            } //end if
+            if key!.next != nil {
+                text = CharBuf(JKAShared.format(", ", []))
+                _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+            } else {
+                text = CharBuf(JKAShared.format("] = %1.0f\n", [rp!.priority]))
+                _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+            }
+            key = key!.next
+        } //end for
+        text = CharBuf(JKAShared.format("{\n", []))
+        _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+        cm = rp!.firstchatmessage
+        while cm != nil {
+            text = CharBuf(JKAShared.format("\t\"%s\";\n", [cm!.chatmessage!]))
+            _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+            cm = cm!.next
+        } //end for
+        text = CharBuf(JKAShared.format("}\n", []))
+        _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), fp)
+        rp = rp!.next
+    } //end for
 }
 
 //===========================================================================
@@ -1819,8 +1989,24 @@ func BotLoadReplyChat(_ filename: inout JKAShared.CharBuf) -> BotReplychat? {
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1971
 // Port-note: Only a comment at be_ai_chat.cpp:2151 calls this function, so it is dead, rule 20.
 func BotDumpInitialChat(_ chat: BotChat) {
-    // TODO: Port BotDumpInitialChat
-    portMissing("BotDumpInitialChat", source: "oracle/codemp/botlib/be_ai_chat.cpp:1971")
+    var t: BotChattype?
+    var m: BotChatmessage?
+
+    Log_Write("{")
+    t = chat.types
+    while t != nil {
+        Log_Write(" type \"%s\"", t!.name)
+        Log_Write(" {")
+        Log_Write("  numchatmessages = %d", t!.numchatmessages)
+        m = t!.firstchatmessage
+        while m != nil {
+            Log_Write("  \"%s\"", m!.chatmessage!)
+            m = m!.next
+        } //end for
+        Log_Write(" }")
+        t = t!.next
+    } //end for
+    Log_Write("}")
 }
 
 //===========================================================================
@@ -2362,8 +2548,51 @@ func BotInitialChat(_ chatstate: Int32, _ type: String, _ mcontext: Int32, _ var
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2556
 // Port-note: No code calls this function, so it is dead, rule 20.
 func BotPrintReplyChatKeys(_ replychat: BotReplychat) {
-    // TODO: Port BotPrintReplyChatKeys
-    portMissing("BotPrintReplyChatKeys", source: "oracle/codemp/botlib/be_ai_chat.cpp:2556")
+    var key: BotReplychatkey?
+    var mp: BotMatchpiece?
+
+    botimport.runPrint(PRT_MESSAGE, "[")
+    key = replychat.keys
+    while key != nil {
+        if (key!.flags & RCKFL_AND) != 0 {
+            botimport.runPrint(PRT_MESSAGE, "&")
+        } else if (key!.flags & RCKFL_NOT) != 0 {
+            botimport.runPrint(PRT_MESSAGE, "!")
+        }
+        //
+        if (key!.flags & RCKFL_NAME) != 0 {
+            botimport.runPrint(PRT_MESSAGE, "name")
+        } else if (key!.flags & RCKFL_GENDERFEMALE) != 0 {
+            botimport.runPrint(PRT_MESSAGE, "female")
+        } else if (key!.flags & RCKFL_GENDERMALE) != 0 {
+            botimport.runPrint(PRT_MESSAGE, "male")
+        } else if (key!.flags & RCKFL_GENDERLESS) != 0 {
+            botimport.runPrint(PRT_MESSAGE, "it")
+        } else if (key!.flags & RCKFL_VARIABLES) != 0 {
+            botimport.runPrint(PRT_MESSAGE, "(")
+            mp = key!.match
+            while mp != nil {
+                if mp!.type == MT_STRING {
+                    botimport.runPrint(PRT_MESSAGE, "\"%s\"", mp!.firststring!.string!)
+                } else {
+                    botimport.runPrint(PRT_MESSAGE, "%d", mp!.variable)
+                }
+                if mp!.next != nil { botimport.runPrint(PRT_MESSAGE, ", ") }
+                mp = mp!.next
+            } //end for
+            botimport.runPrint(PRT_MESSAGE, ")")
+        } //end if
+        else if (key!.flags & RCKFL_STRING) != 0 {
+            botimport.runPrint(PRT_MESSAGE, "\"%s\"", key!.string!)
+        } //end if
+        if key!.next != nil {
+            botimport.runPrint(PRT_MESSAGE, ", ")
+        } else {
+            botimport.runPrint(PRT_MESSAGE, "] = %1.0f\n", replychat.priority)
+        }
+        key = key!.next
+    } //end for
+    botimport.runPrint(PRT_MESSAGE, "{\n")
 }
 
 //===========================================================================

@@ -327,6 +327,96 @@ public typealias Ea_exportEA_View = @convention(c) (Int32, OpaquePointer?) -> Vo
 
 public typealias LeafListStoreLeafs = @convention(c) (OpaquePointer?, Int32) -> Void
 
+public typealias RefexportAddAdditiveLightToScene = @convention(c) (OpaquePointer?, Float, Float, Float, Float) -> Void
+
+public typealias RefexportAddDecalToScene = @convention(c) (Int32, OpaquePointer?, OpaquePointer?, Float, Float, Float, Float, Float, Int32, Float, Int32) -> Void
+
+public typealias RefexportAddLightToScene = @convention(c) (OpaquePointer?, Float, Float, Float, Float) -> Void
+
+public typealias RefexportAddMiniRefEntityToScene = @convention(c) (OpaquePointer?) -> Void
+
+public typealias RefexportAddPolyToScene = @convention(c) (Int32, Int32, OpaquePointer?, Int32) -> Void
+
+public typealias RefexportAddRefEntityToScene = @convention(c) (OpaquePointer?) -> Void
+
+public typealias RefexportAnyLanguage_ReadCharFromString = @convention(c) (OpaquePointer?, OpaquePointer?, OpaquePointer?) -> UInt32
+
+public typealias RefexportBeginFrame = @convention(c) (Int32) -> Void
+
+public typealias RefexportBeginRegistration = @convention(c) (OpaquePointer?) -> Void
+
+public typealias RefexportClearDecals = @convention(c) () -> Void
+
+public typealias RefexportClearScene = @convention(c) () -> Void
+
+public typealias RefexportDrawRotatePic = @convention(c) (Float, Float, Float, Float, Float, Float, Float, Float, Float, Int32) -> Void
+
+public typealias RefexportDrawRotatePic2 = @convention(c) (Float, Float, Float, Float, Float, Float, Float, Float, Float, Int32) -> Void
+
+public typealias RefexportDrawStretchPic = @convention(c) (Float, Float, Float, Float, Float, Float, Float, Float, Int32) -> Void
+
+public typealias RefexportDrawStretchRaw = @convention(c) (Int32, Int32, Int32, Int32, Int32, Int32, OpaquePointer?, Int32, Int32) -> Void
+
+public typealias RefexportEndFrame = @convention(c) (OpaquePointer?, OpaquePointer?) -> Void
+
+public typealias RefexportEndRegistration = @convention(c) () -> Void
+
+public typealias RefexportFont_DrawString = @convention(c) (Int32, Int32, OpaquePointer?, OpaquePointer?, Int32, Int32, Float) -> Void
+
+public typealias RefexportFont_HeightPixels = @convention(c) (Int32, Float) -> Int32
+
+public typealias RefexportFont_StrLenChars = @convention(c) (OpaquePointer?) -> Int32
+
+public typealias RefexportFont_StrLenPixels = @convention(c) (OpaquePointer?, Int32, Float) -> Int32
+
+public typealias RefexportGetBModelVerts = @convention(c) (Int32, OpaquePointer?, OpaquePointer?) -> Void
+
+public typealias RefexportGetEntityToken = @convention(c) (OpaquePointer?, Int32) -> Int32
+
+public typealias RefexportGetLightStyle = @convention(c) (Int32, OpaquePointer?) -> Void
+
+public typealias RefexportInPVS = @convention(c) (OpaquePointer?, OpaquePointer?, OpaquePointer?) -> Int32
+
+public typealias RefexportLanguage_IsAsian = @convention(c) () -> Int32
+
+public typealias RefexportLanguage_UsesSpaces = @convention(c) () -> Int32
+
+public typealias RefexportLerpTag = @convention(c) (OpaquePointer?, Int32, Int32, Int32, Float, OpaquePointer?) -> Int32
+
+public typealias RefexportLightForPoint = @convention(c) (OpaquePointer?, OpaquePointer?, OpaquePointer?, OpaquePointer?) -> Int32
+
+public typealias RefexportLoadWorld = @convention(c) (OpaquePointer?) -> Void
+
+public typealias RefexportMarkFragments = @convention(c) (Int32, OpaquePointer?, OpaquePointer?, Int32, OpaquePointer?, Int32, OpaquePointer?) -> Int32
+
+public typealias RefexportModelBounds = @convention(c) (Int32, OpaquePointer?, OpaquePointer?) -> Void
+
+public typealias RefexportRegisterFont = @convention(c) (OpaquePointer?) -> Int32
+
+public typealias RefexportRegisterModel = @convention(c) (OpaquePointer?) -> Int32
+
+public typealias RefexportRegisterShader = @convention(c) (OpaquePointer?) -> Int32
+
+public typealias RefexportRegisterShaderNoMip = @convention(c) (OpaquePointer?) -> Int32
+
+public typealias RefexportRegisterSkin = @convention(c) (OpaquePointer?) -> Int32
+
+public typealias RefexportRemapShader = @convention(c) (OpaquePointer?, OpaquePointer?, OpaquePointer?) -> Void
+
+public typealias RefexportRenderScene = @convention(c) (OpaquePointer?) -> Void
+
+public typealias RefexportSetColor = @convention(c) (OpaquePointer?) -> Void
+
+public typealias RefexportSetLightStyle = @convention(c) (Int32, Int32) -> Void
+
+public typealias RefexportSetWorldVisData = @convention(c) (OpaquePointer?) -> Void
+
+public typealias RefexportShaderNameFromIndex = @convention(c) (Int32) -> OpaquePointer?
+
+public typealias RefexportShutdown = @convention(c) (Int32) -> Void
+
+public typealias RefexportUploadCinematic = @convention(c) (Int32, Int32, OpaquePointer?, Int32, Int32) -> Void
+
 public typealias VmEntryPoint = @convention(c) (Int32) -> Int32
 
 public typealias VmSystemCall = @convention(c) (OpaquePointer?) -> Int32
@@ -940,5 +1030,173 @@ public func == (lhs: Ea_exportEA_Move?, rhs: Ea_exportEA_Move?) -> Bool {
 }
 
 public func != (lhs: Ea_exportEA_Move?, rhs: Ea_exportEA_Move?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct RefexportAddAdditiveLightToSceneBits { var function: RefexportAddAdditiveLightToScene? }
+
+public func == (lhs: RefexportAddAdditiveLightToScene?, rhs: RefexportAddAdditiveLightToScene?) -> Bool {
+    precondition(MemoryLayout<RefexportAddAdditiveLightToSceneBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: RefexportAddAdditiveLightToSceneBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: RefexportAddAdditiveLightToSceneBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: RefexportAddAdditiveLightToScene?, rhs: RefexportAddAdditiveLightToScene?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct RefexportAddDecalToSceneBits { var function: RefexportAddDecalToScene? }
+
+public func == (lhs: RefexportAddDecalToScene?, rhs: RefexportAddDecalToScene?) -> Bool {
+    precondition(MemoryLayout<RefexportAddDecalToSceneBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: RefexportAddDecalToSceneBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: RefexportAddDecalToSceneBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: RefexportAddDecalToScene?, rhs: RefexportAddDecalToScene?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct RefexportAnyLanguage_ReadCharFromStringBits { var function: RefexportAnyLanguage_ReadCharFromString? }
+
+public func == (lhs: RefexportAnyLanguage_ReadCharFromString?, rhs: RefexportAnyLanguage_ReadCharFromString?) -> Bool {
+    precondition(MemoryLayout<RefexportAnyLanguage_ReadCharFromStringBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: RefexportAnyLanguage_ReadCharFromStringBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: RefexportAnyLanguage_ReadCharFromStringBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: RefexportAnyLanguage_ReadCharFromString?, rhs: RefexportAnyLanguage_ReadCharFromString?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct RefexportDrawRotatePicBits { var function: RefexportDrawRotatePic? }
+
+public func == (lhs: RefexportDrawRotatePic?, rhs: RefexportDrawRotatePic?) -> Bool {
+    precondition(MemoryLayout<RefexportDrawRotatePicBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: RefexportDrawRotatePicBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: RefexportDrawRotatePicBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: RefexportDrawRotatePic?, rhs: RefexportDrawRotatePic?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct RefexportDrawStretchPicBits { var function: RefexportDrawStretchPic? }
+
+public func == (lhs: RefexportDrawStretchPic?, rhs: RefexportDrawStretchPic?) -> Bool {
+    precondition(MemoryLayout<RefexportDrawStretchPicBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: RefexportDrawStretchPicBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: RefexportDrawStretchPicBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: RefexportDrawStretchPic?, rhs: RefexportDrawStretchPic?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct RefexportDrawStretchRawBits { var function: RefexportDrawStretchRaw? }
+
+public func == (lhs: RefexportDrawStretchRaw?, rhs: RefexportDrawStretchRaw?) -> Bool {
+    precondition(MemoryLayout<RefexportDrawStretchRawBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: RefexportDrawStretchRawBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: RefexportDrawStretchRawBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: RefexportDrawStretchRaw?, rhs: RefexportDrawStretchRaw?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct RefexportFont_DrawStringBits { var function: RefexportFont_DrawString? }
+
+public func == (lhs: RefexportFont_DrawString?, rhs: RefexportFont_DrawString?) -> Bool {
+    precondition(MemoryLayout<RefexportFont_DrawStringBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: RefexportFont_DrawStringBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: RefexportFont_DrawStringBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: RefexportFont_DrawString?, rhs: RefexportFont_DrawString?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct RefexportFont_HeightPixelsBits { var function: RefexportFont_HeightPixels? }
+
+public func == (lhs: RefexportFont_HeightPixels?, rhs: RefexportFont_HeightPixels?) -> Bool {
+    precondition(MemoryLayout<RefexportFont_HeightPixelsBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: RefexportFont_HeightPixelsBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: RefexportFont_HeightPixelsBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: RefexportFont_HeightPixels?, rhs: RefexportFont_HeightPixels?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct RefexportFont_StrLenPixelsBits { var function: RefexportFont_StrLenPixels? }
+
+public func == (lhs: RefexportFont_StrLenPixels?, rhs: RefexportFont_StrLenPixels?) -> Bool {
+    precondition(MemoryLayout<RefexportFont_StrLenPixelsBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: RefexportFont_StrLenPixelsBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: RefexportFont_StrLenPixelsBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: RefexportFont_StrLenPixels?, rhs: RefexportFont_StrLenPixels?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct RefexportLerpTagBits { var function: RefexportLerpTag? }
+
+public func == (lhs: RefexportLerpTag?, rhs: RefexportLerpTag?) -> Bool {
+    precondition(MemoryLayout<RefexportLerpTagBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: RefexportLerpTagBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: RefexportLerpTagBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: RefexportLerpTag?, rhs: RefexportLerpTag?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct RefexportLightForPointBits { var function: RefexportLightForPoint? }
+
+public func == (lhs: RefexportLightForPoint?, rhs: RefexportLightForPoint?) -> Bool {
+    precondition(MemoryLayout<RefexportLightForPointBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: RefexportLightForPointBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: RefexportLightForPointBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: RefexportLightForPoint?, rhs: RefexportLightForPoint?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct RefexportMarkFragmentsBits { var function: RefexportMarkFragments? }
+
+public func == (lhs: RefexportMarkFragments?, rhs: RefexportMarkFragments?) -> Bool {
+    precondition(MemoryLayout<RefexportMarkFragmentsBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: RefexportMarkFragmentsBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: RefexportMarkFragmentsBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: RefexportMarkFragments?, rhs: RefexportMarkFragments?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct RefexportRemapShaderBits { var function: RefexportRemapShader? }
+
+public func == (lhs: RefexportRemapShader?, rhs: RefexportRemapShader?) -> Bool {
+    precondition(MemoryLayout<RefexportRemapShaderBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: RefexportRemapShaderBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: RefexportRemapShaderBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: RefexportRemapShader?, rhs: RefexportRemapShader?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct RefexportUploadCinematicBits { var function: RefexportUploadCinematic? }
+
+public func == (lhs: RefexportUploadCinematic?, rhs: RefexportUploadCinematic?) -> Bool {
+    precondition(MemoryLayout<RefexportUploadCinematicBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: RefexportUploadCinematicBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: RefexportUploadCinematicBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: RefexportUploadCinematic?, rhs: RefexportUploadCinematic?) -> Bool {
     return !(lhs == rhs)
 }

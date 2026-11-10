@@ -733,8 +733,7 @@ final class CCMLandScape {
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1245
-    // AI: Raven reads `numCtlPoints` vectors through `vec3_t *ctlPoints`. The parameter is the caller's array, the PARAMS kind `vec3_array`.
-    func CarveBezierCurve(_ numCtlPoints: Int32, _ ctlPoints: [JKAShared.vec3_t], _ steps: Int32, _ depth: Int32, _ size: Int32) {
+    func CarveBezierCurve(_ numCtlPoints: Int32, _ ctlPoints: Slots<JKAShared.vec3_t>, _ steps: Int32, _ depth: Int32, _ size: Int32) {
         // Raven calls this method only from CM_CarveBezierCurve, and no file of either tree calls that function, so the method is dead.
         // TODO: Port CCMLandScape::CarveBezierCurve
         portMissing("CCMLandScape::CarveBezierCurve", source: "oracle/codemp/qcommon/cm_terrain.cpp:1245")

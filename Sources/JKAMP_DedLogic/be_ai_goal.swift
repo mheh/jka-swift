@@ -893,8 +893,44 @@ func BotGetNextCampSpotGoal(_ num: Int32, _ goal: BotGoal) -> Int32 {
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:949
 // Port-note: Dead under rule 20. The one call, at be_ai_goal.cpp:1156, is inside a comment block of BotUpdateEntityItems.
 func BotFindEntityForLevelItem(_ li: Levelitem) {
-    // TODO: Port BotFindEntityForLevelItem
-    portMissing("BotFindEntityForLevelItem", source: "oracle/codemp/botlib/be_ai_goal.cpp:949")
+    // Raven's record lives to the end of his block, so the block is the closure.
+    AasEntityinfo.scratch { entinfo in
+        var ent: Int32, modelindex: Int32
+        var ic: Itemconfig?
+        var dir = vec3_t()
+
+        ic = itemconfig
+        if itemconfig == nil { return }
+        ent = AAS_NextEntity(0)
+        while ent != 0 {
+            //get the model index of the entity
+            modelindex = AAS_EntityModelindex(ent)
+            //
+            if modelindex == 0 {
+                ent = AAS_NextEntity(ent)
+                continue
+            }
+            //get info about the entity
+            AAS_EntityInfo(ent, entinfo)
+            //if the entity is still moving
+            if entinfo.origin[0] != entinfo.lastvisorigin[0] ||
+                    entinfo.origin[1] != entinfo.lastvisorigin[1] ||
+                    entinfo.origin[2] != entinfo.lastvisorigin[2] {
+                ent = AAS_NextEntity(ent)
+                continue
+            }
+            //
+            if ic!.iteminfoSlots[li.iteminfo].modelindex == modelindex {
+                //check if the entity is very close
+                dir = li.origin - entinfo.origin
+                if VectorLength(dir) < 30 {
+                    //found an entity for this level item
+                    li.entitynum = ent
+                } //end if
+            } //end if
+            ent = AAS_NextEntity(ent)
+        } //end for
+    }
 }
 
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:993

@@ -14,11 +14,12 @@ The authority "auto ruled by proof" means the row follows the proof and the prec
 | R4, the ROFF note arm | `withTextWord` in `VmEntry.swift`, the text twin of `withVectorWords`, and the arm calls VM_Call inside it | auto ruled by proof B2: Raven passes the address of `temp` (`qcommon/RoffSystem.cpp:929`, `:957`), precedent row SV3 at `VmEntry.swift:75` | landed, `8549891` |
 | R5, CleanTextPool | The not-ported form, `// Not ported: row C3 makes the text pool a String ...` | auto ruled by proof B3: ruling C3 makes the text pool a String, and `CGenericParser2::Clean` drops the call (`qcommon/GenericParser2.cpp:212`, `:907`), precedent `Cvar_FreeString` at `cvar.swift:56` and the form of `skeleton.py:1440` | landed, `27d0a51` |
 | R6, the `0` flag on `%d` and `%i` | The `i` and `d` case passes `zeroPad`, the X38 form | auto ruled by proof E2: C pads with zeros after the sign, precedent the `%x` case of `Format.swift` | landed, `f77a924` |
-| R7, the float `M_PI` | The 43 sites compute what Raven's line computes with the float `M_PI` | auto ruled by proof E3: `docs/transcription.md:635` rules the float `M_PI` of `game/q_shared.h:548` | open. The change is on the branch `dedicated-rulings-13` at `652c2e1` and is not merged. It also replaces `golden/qmath.txt`, which is an unchanged copy from jka-rust by rule 18, so it waits for the user's ruling on the golden |
+| R7, the float `M_PI` | The 43 sites compute what Raven's line computes with the float `M_PI` | auto ruled under the user's word "autorule", 2026-11-10: `docs/transcription.md:635` rules the float `M_PI` of `game/q_shared.h:548`, and rule 18 (`docs/porting-rules.md:43`) names the exception by its reason: every golden comes from the same dumpers with `M_PI` left to Raven's define. The coordinator widened the exception to every golden that reads `M_PI` under the same word | landed on the branch `dedicated-mpi-sweep`: the sweep `e3dd988` (the cherry-pick of `652c2e1`), the patch of all six dumper scripts with the `pmove` and `bgmisc` goldens `25e2d57`, the trajectory parity test `0f7feb5`, the README `75bcd82`, and rule 18 `0a7cacd`. The cost: three goldens no longer come from jka-rust unchanged, `qmath` at 17 lines, `pmove` at 18 records, and `bgmisc` at 8 records. Open: the goldens with no parity test, listed under R7 |
 | R8, a function with no caller | It gets its real body like any other function, with a one-line note that it has no caller and why | the user's typed word, 2026-11-10 | landed for the docs, `52e3b4f`, and open for the bodies until the dead-function body wave |
 | R9, the reference host of the referee | The fork at `35e4184f`, built with `-ffp-contract=off` | the user's typed word, 2026-11-10 | landed, `0bacadf` and `4ad3a46` |
 | R10, the dead stubs of the game and cgame targets | Rule 20 is one rule for all units, so `CG_ParticleExplosion` gets its body | the user's typed word, 2026-11-10 | open until the dead-function body wave |
 | R11, the `CRMInstance` hierarchy | The enum form of rule 17 in the shape below | the user's typed word, 2026-11-10 | open until the body wave writes the classes |
+| R12, the heading of rule 20 | "Preserve emergent per-mode quirks and port dead surface.", so the heading agrees with the body of R8 | auto ruled under the user's word "autorule", 2026-11-10 | landed, `842097e` |
 | The first-frame hitch | No change | auto ruled by proof E1: the port follows the Windows dedicated link set, `null/win_main.cpp:1222` | closed |
 | The `ref_dump` line form | No change | auto ruled by proof E5: Raven's WinDed ends a line on every print, `null/win_main.cpp:38` | closed |
 | `g_maxForceRank 7` on both proof lines | The H8 form, the cvar on the line of each host | auto ruled by the form of row H8: the fork registers 7 (`openjk/codemp/server/sv_init.cpp:943`), and Raven registers 6 (`server/sv_init.cpp:816`) | landed earlier, `81ebedf` |
@@ -78,9 +79,49 @@ The proof held at all 43 sites, and no site stayed as it was. The 13 sites that 
 
 The commit also changes the golden `Sources/JKATestSupport/Oracle/golden/qmath.txt`. The old golden came from the jka-rust qmath dumper built on the host, where `<math.h>` defines the double `M_PI` before the `#ifndef M_PI` of `q_shared.h`. So 17 lines held the double form, and `QMathParityTests` failed after the sweep. The same dumper with `#undef M_PI` after `<math.h>` gives the Swift output byte for byte, and without the `#undef` it gives the old golden byte for byte. The new golden is the output with the `#undef`, and the README of the goldens names this one difference from the jka-rust copy. No file of jka-rust changed.
 
+An independent rebuild proves the golden. The harness `jka-rust/tools/jampgame-oracle` at jka-rust `1cb6c525` was copied to `/tmp/mpi-out/oracle/`, with the oracle source at `4bebb8ec` and the jka-rust fixtures. Without the change, the qmath dumper gives 4645 lines, equal byte for byte to `golden/qmath.txt` of master. With the one line `#undef M_PI` after `#include <math.h>` in the shim of `run.sh`, it gives 4645 lines, equal byte for byte to the golden of `e3dd988`. The 17 changed lines are these records:
+
+- `va`, 4 lines: `vectoangles`.
+- `rad`, 5 lines: `RotateAroundDirection`, on the axis of `AnglesToAxis`.
+- `av`, 2 lines: `AngleVectors`.
+- `a2a`, 2 lines: `AnglesToAxis`.
+- `rot`, 2 lines: `RotatePointAroundVector`.
+- `acopy`, 1 line: `AxisCopy`, on the axis of `AnglesToAxis`.
+- `gclose`, 1 line: `G_FindClosestPointOnLineSegment`.
+
+The exception covers every golden whose records read `M_PI`. `Sources/JKATestSupport/Oracle/float-mpi.patch` adds the `#undef M_PI` to the shim of all six scripts of `jampgame-oracle`, and the README of the goldens tells how to resync with it. The huff dumper has no math shim, so `golden/huff` stays as it is. A rebuild of all ten goldens, each script with `--regen` into its own copy of the data folder, gives these results:
+
+| Golden | Lines | Without the patch | With the patch |
+| --- | --- | --- | --- |
+| `qmath` | 4645 | equal to master | 17 lines change |
+| `pmove` | 244 | equal to master | 18 records change, in the `org` and `xy` fields |
+| `bgmisc` | 2547 | equal to master | 8 records change, the `et` and `ed` fields of the `trajectory` section |
+| `bglib` | 54 | equal to master | no change |
+| `gcombat` | 44 | equal to master | no change |
+| `pmove_saber` | 180 | equal to master | no change |
+| `pmove_trace` | 19 | equal to master | no change |
+| `qshared` | 1386 | equal to master | no change |
+| `saberload` | 534 | equal to master | no change |
+| `wsaber` | 1013 | equal to master | no change |
+
+The branch takes the patched `pmove` and `bgmisc` goldens. The new test `Tests/JKAMPTests/BGMiscTrajectoryParityTests.swift` rebuilds the `trajectory` section of `bgmisc` from the ported `BG_EvaluateTrajectory` and `BG_EvaluateTrajectoryDelta`. All 84 records match the patched golden, and the test fails at record 31 against the old golden. So the test proves the sweep of `bg_misc.swift` at these two functions.
+
+Open work under rule 18: a Swift parity test reproduces only `qmath` (`Tests/JKASharedTests/QMathParityTests.swift`), `bglib` (`Tests/JKAMPTests/BGLibParityTests.swift`), `huff` (`Tests/JKAMP_DedLogicTests/HuffParityTests.swift`), and the `trajectory` section of `bgmisc`. `Tests/JKASharedTests/OracleDataTests.swift` only loads the other goldens and checks their first line. Each of these needs a parity test:
+
+- `bgmisc`, the sections after `trajectory`: `bg_itemlist`, the `BG_FindItem` family, `weaponData` and `ammoData`, `BG_CanItemBeGrabbed`, and `BG_PlayerStateToEntityState` and its `ExtraPolate` form (`main_bgmisc.c`).
+- `pmove`: `Pmove` over six on-foot scenarios, with the stub world of `pmworld.h` and a synthetic `animation.cfg` (`main_pmove.c`).
+- `pmove_saber`: `Pmove` with `WP_SABER`, through `PM_WeaponLightsaber` (`main_pmove_saber.c`).
+- `pmove_trace`: the axial-brush trace stub of `pmworld.h` alone, which the two pmove tests need first (`main_trace.c`).
+- `gcombat`: `RaySphereIntersections`, `G_GetHitLocation`, and `CheckArmor` (`main_gcombat.c`).
+- `qshared`: the `q_shared.c` parser and string helpers, `COM_` tokens, `Info_` strings, `va`, and `Com_sprintf` (`main_qshared.c`).
+- `saberload`: `WP_SaberLoadParms` and `WP_SaberParseParms` over the `.sab` fixtures, with every `saberInfo_t` field (`main_saberload.c`).
+- `wsaber`: `G_SaberLockAnim` and `G_KnockawayForParry` (`main_wsaber.c`).
+
+The gate of the branch `dedicated-mpi-sweep`: `swift build -j 2` exit 0, `swift test --no-parallel -j 2` 162 tests pass with the trajectory test, and `swift build -c release -j 2 --product jampded` exit 0. The referee ran before the goldens and the test changed, and those changes touch no source file. The referee ran with the reference host of `/tmp/jka-rulings-13/.build/openjk-nocontract/openjkded.arm64` as host A: `SCRATCH=/tmp/referee-scratch-mpi FRAMES=2400 tools/host-referee.sh corpus-ffa1.rec <host A> .build/release/jampded`. The run is green: 2400 equal `REF STEP` lines, from `n=1 t=425 ck=3cfa876c` to `n=2400 t=60400 ck=c7559f41`. The fork engine keeps the double `M_PI`, and no engine site differs in this corpus.
+
 ### R8
 
-The last sentence of rule 20 (`docs/porting-rules.md:45`) now reads that a function with zero callers gets its real body like any other function, and that it carries a one-line note that says it has no caller and why. `docs/transcription.md` and `docs/oracle-closure.md` hold no sentence of the old form. The rule keeps its heading "drop dead surface", which reads against the new sentence, so the heading is open for the user.
+The last sentence of rule 20 (`docs/porting-rules.md:45`) now reads that a function with zero callers gets its real body like any other function, and that it carries a one-line note that says it has no caller and why. `docs/transcription.md` and `docs/oracle-closure.md` hold no sentence of the old form. Row R12 changes the heading "drop dead surface" to "port dead surface", so the heading agrees with the new sentence.
 
 ### R9
 

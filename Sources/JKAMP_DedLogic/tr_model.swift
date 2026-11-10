@@ -1297,10 +1297,7 @@ R_LerpTag
 ```
 */
 /// Source: oracle/codemp/renderer/tr_model.cpp:1768
-// TODO: Port signature
-// Raven wrote: int R_LerpTag( orientation_t *tag, qhandle_t handle, int startFrame, int endFrame, float frac, const char *tagName )
-// No table row for `orientation_t * tag`.
-func R_LerpTag() -> Never {
+func R_LerpTag(_ tag: JKAShared.Orientation, _ handle: JKAShared.qhandle_t, _ startFrame: Int32, _ endFrame: Int32, _ frac: Float, _ tagName: String) -> Int32 {
     // GetRefAPI is the one function that stores it, and the dedicated host does not link the client that calls GetRefAPI, so it is dead.
     // TODO: Port R_LerpTag
     portMissing("R_LerpTag", source: "oracle/codemp/renderer/tr_model.cpp:1768")

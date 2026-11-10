@@ -681,35 +681,29 @@ final class CGenericParser2 {
 //
 // CGenericParser2 (void *) routines
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:928
-// TODO: Port signature
-// Raven wrote: TGenericParser2 GP_Parse(char **dataPtr, bool cleanFirst, bool writeable)
-// No table row for the return `TGenericParser2`.
 // Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GP_Parse() -> Never {
+func GP_Parse(_ dataPtr: inout JKAShared.TextCursor, _ cleanFirst: Bool, _ writeable: Bool) -> CGenericParser2? {
     // TODO: Port GP_Parse
     portMissing("GP_Parse", source: "oracle/codemp/qcommon/GenericParser2.cpp:928")
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:942
 // Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GP_Clean(_ GP2: OpaquePointer?) {
+func GP_Clean(_ GP2: CGenericParser2?) {
     // TODO: Port GP_Clean
     portMissing("GP_Clean", source: "oracle/codemp/qcommon/GenericParser2.cpp:942")
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:952
 // Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GP_Delete(_ GP2: inout OpaquePointer?) {
+func GP_Delete(_ GP2: inout CGenericParser2?) {
     // TODO: Port GP_Delete
     portMissing("GP_Delete", source: "oracle/codemp/qcommon/GenericParser2.cpp:952")
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:963
-// TODO: Port signature
-// Raven wrote: TGPGroup GP_GetBaseParseGroup(TGenericParser2 GP2)
-// No table row for the return `TGPGroup`.
 // Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GP_GetBaseParseGroup() -> Never {
+func GP_GetBaseParseGroup(_ GP2: CGenericParser2?) -> CGPGroup? {
     // TODO: Port GP_GetBaseParseGroup
     portMissing("GP_GetBaseParseGroup", source: "oracle/codemp/qcommon/GenericParser2.cpp:963")
 }
@@ -717,44 +711,35 @@ func GP_GetBaseParseGroup() -> Never {
 // CGPGroup (void *) routines
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:977
 // Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GPG_GetName(_ GPG: OpaquePointer?) -> String {
+func GPG_GetName(_ GPG: CGPGroup?) -> String {
     // TODO: Port GPG_GetName
     portMissing("GPG_GetName", source: "oracle/codemp/qcommon/GenericParser2.cpp:977")
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:987
 // Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GPG_GetName(_ GPG: OpaquePointer?, _ Value: inout JKAShared.CharBuf) -> Bool {
+func GPG_GetName(_ GPG: CGPGroup?, _ Value: inout JKAShared.CharBuf) -> Bool {
     // TODO: Port GPG_GetName
     portMissing("GPG_GetName", source: "oracle/codemp/qcommon/GenericParser2.cpp:987")
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:999
-// TODO: Port signature
-// Raven wrote: TGPGroup GPG_GetNext(TGPGroup GPG)
-// No table row for the return `TGPGroup`.
 // Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GPG_GetNext() -> Never {
+func GPG_GetNext(_ GPG: CGPGroup?) -> CGPGroup? {
     // TODO: Port GPG_GetNext
     portMissing("GPG_GetNext", source: "oracle/codemp/qcommon/GenericParser2.cpp:999")
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1009
-// TODO: Port signature
-// Raven wrote: TGPGroup GPG_GetInOrderNext(TGPGroup GPG)
-// No table row for the return `TGPGroup`.
 // Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GPG_GetInOrderNext() -> Never {
+func GPG_GetInOrderNext(_ GPG: CGPGroup?) -> CGPGroup? {
     // TODO: Port GPG_GetInOrderNext
     portMissing("GPG_GetInOrderNext", source: "oracle/codemp/qcommon/GenericParser2.cpp:1009")
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1019
-// TODO: Port signature
-// Raven wrote: TGPGroup GPG_GetInOrderPrevious(TGPGroup GPG)
-// No table row for the return `TGPGroup`.
 // Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GPG_GetInOrderPrevious() -> Never {
+func GPG_GetInOrderPrevious(_ GPG: CGPGroup?) -> CGPGroup? {
     // TODO: Port GPG_GetInOrderPrevious
     portMissing("GPG_GetInOrderPrevious", source: "oracle/codemp/qcommon/GenericParser2.cpp:1019")
 }
@@ -780,55 +765,43 @@ func GPG_GetInOrderPairs() -> Never {
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1049
-// TODO: Port signature
-// Raven wrote: TGPGroup GPG_GetSubGroups(TGPGroup GPG)
-// No table row for the return `TGPGroup`.
 // Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GPG_GetSubGroups() -> Never {
+func GPG_GetSubGroups(_ GPG: CGPGroup?) -> CGPGroup? {
     // TODO: Port GPG_GetSubGroups
     portMissing("GPG_GetSubGroups", source: "oracle/codemp/qcommon/GenericParser2.cpp:1049")
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1059
-// TODO: Port signature
-// Raven wrote: TGPGroup GPG_GetInOrderSubGroups(TGPGroup GPG)
-// No table row for the return `TGPGroup`.
 // Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GPG_GetInOrderSubGroups() -> Never {
+func GPG_GetInOrderSubGroups(_ GPG: CGPGroup?) -> CGPGroup? {
     // TODO: Port GPG_GetInOrderSubGroups
     portMissing("GPG_GetInOrderSubGroups", source: "oracle/codemp/qcommon/GenericParser2.cpp:1059")
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1069
-// TODO: Port signature
-// Raven wrote: TGPGroup GPG_FindSubGroup(TGPGroup GPG, const char *name)
-// No table row for the return `TGPGroup`.
 // Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GPG_FindSubGroup() -> Never {
+func GPG_FindSubGroup(_ GPG: CGPGroup?, _ name: String) -> CGPGroup? {
     // TODO: Port GPG_FindSubGroup
     portMissing("GPG_FindSubGroup", source: "oracle/codemp/qcommon/GenericParser2.cpp:1069")
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1079
-// TODO: Port signature
-// Raven wrote: TGPValue GPG_FindPair(TGPGroup GPG, const char *key)
-// No table row for the return `TGPValue`.
 // Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GPG_FindPair() -> Never {
+func GPG_FindPair(_ GPG: CGPGroup?, _ key: String) -> CGPValue? {
     // TODO: Port GPG_FindPair
     portMissing("GPG_FindPair", source: "oracle/codemp/qcommon/GenericParser2.cpp:1079")
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1089
 // Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GPG_FindPairValue(_ GPG: OpaquePointer?, _ key: String, _ defaultVal: String) -> String {
+func GPG_FindPairValue(_ GPG: CGPGroup?, _ key: String, _ defaultVal: String) -> String? {
     // TODO: Port GPG_FindPairValue
     portMissing("GPG_FindPairValue", source: "oracle/codemp/qcommon/GenericParser2.cpp:1089")
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1099
 // Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GPG_FindPairValue(_ GPG: OpaquePointer?, _ key: String, _ defaultVal: String, _ Value: inout JKAShared.CharBuf) -> Bool {
+func GPG_FindPairValue(_ GPG: CGPGroup?, _ key: String, _ defaultVal: String, _ Value: inout JKAShared.CharBuf) -> Bool {
     // TODO: Port GPG_FindPairValue
     portMissing("GPG_FindPairValue", source: "oracle/codemp/qcommon/GenericParser2.cpp:1099")
 }
@@ -836,14 +809,14 @@ func GPG_FindPairValue(_ GPG: OpaquePointer?, _ key: String, _ defaultVal: Strin
 // CGPValue (void *) routines
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1110
 // Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GPV_GetName(_ GPV: OpaquePointer?) -> String {
+func GPV_GetName(_ GPV: CGPValue?) -> String {
     // TODO: Port GPV_GetName
     portMissing("GPV_GetName", source: "oracle/codemp/qcommon/GenericParser2.cpp:1110")
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1120
 // Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GPV_GetName(_ GPV: OpaquePointer?, _ Value: inout JKAShared.CharBuf) -> Bool {
+func GPV_GetName(_ GPV: CGPValue?, _ Value: inout JKAShared.CharBuf) -> Bool {
     // TODO: Port GPV_GetName
     portMissing("GPV_GetName", source: "oracle/codemp/qcommon/GenericParser2.cpp:1120")
 }
@@ -880,21 +853,21 @@ func GPV_GetInOrderPrevious() -> Never {
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1162
 // Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GPV_IsList(_ GPV: OpaquePointer?) -> Bool {
+func GPV_IsList(_ GPV: CGPValue?) -> Bool {
     // TODO: Port GPV_IsList
     portMissing("GPV_IsList", source: "oracle/codemp/qcommon/GenericParser2.cpp:1162")
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1172
 // Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GPV_GetTopValue(_ GPV: OpaquePointer?) -> String {
+func GPV_GetTopValue(_ GPV: CGPValue?) -> String? {
     // TODO: Port GPV_GetTopValue
     portMissing("GPV_GetTopValue", source: "oracle/codemp/qcommon/GenericParser2.cpp:1172")
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1182
 // Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
-func GPV_GetTopValue(_ GPV: OpaquePointer?, _ Value: inout JKAShared.CharBuf) -> Bool {
+func GPV_GetTopValue(_ GPV: CGPValue?, _ Value: inout JKAShared.CharBuf) -> Bool {
     // TODO: Port GPV_GetTopValue
     portMissing("GPV_GetTopValue", source: "oracle/codemp/qcommon/GenericParser2.cpp:1182")
 }

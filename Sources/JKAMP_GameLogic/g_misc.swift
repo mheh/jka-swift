@@ -1085,7 +1085,7 @@ func InitShooter(_ ent: Entity, _ weapon: Int32) {
     if ent.random == 0 {
         ent.random = 1.0
     }
-    ent.random = Float(sin(M_PI * Double(ent.random) / 180))
+    ent.random = Float(sin(Double(JKAShared.M_PI * ent.random / 180)))
     // target might be a moving object, so we can't set movedir for it
     if ent.target != nil {
         ent.think = Think.InitShooter_Finish

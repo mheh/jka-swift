@@ -56,8 +56,8 @@ final class interface_export_t {
 
     //Save / Load functions
 
-    var I_WriteSaveData: ((CUnsignedLong, OpaquePointer?, Int32) -> Int32)? = nil
+    var I_WriteSaveData: ((CUnsignedLong, Slots<JKAShared.byte>, Int32) -> Int32)? = nil
     // Below changed by BTO (VV). Visual C++ 7.1 compiler no longer allows default args on function pointers. Ack.
-    var I_ReadSaveData: ((CUnsignedLong, OpaquePointer?, Int32) -> Int32)? = nil
+    var I_ReadSaveData: ((CUnsignedLong, Slots<JKAShared.byte>, Int32) -> Int32)? = nil
     var I_LinkEntity: ((Int32, CSequencer?, CTaskManager?) -> Int32)? = nil
 }
