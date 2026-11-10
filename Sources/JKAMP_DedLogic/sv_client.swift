@@ -3,6 +3,14 @@ import JKAMP
 import JKAShared
 import JKAMP_Ded
 
+/// Source: oracle/codemp/server/sv_client.cpp:701
+// AI: Raven declares `msgBuffer` on the stack of SV_SendClientGameState. The function uses one zeroed allocation on the storage class.
+var msgBuffer_SV_SendClientGameState: Slots<JKAShared.byte> { world.storage.msgBuffer_SV_SendClientGameState }
+
+/// Source: oracle/codemp/server/sv_client.cpp:823
+// AI: Raven declares `msgBuffer` on the stack of SV_SendClientMapChange. The function uses one zeroed allocation on the storage class.
+var msgBuffer_SV_SendClientMapChange: Slots<JKAShared.byte> { world.storage.msgBuffer_SV_SendClientMapChange }
+
 /// Source: oracle/codemp/server/sv_client.cpp:1502
 let INFO_CHANGE_MIN_INTERVAL = 6000 as Int32
 
@@ -89,9 +97,7 @@ func SV_GetChallenge(_ from: Netadr) {
         // this is the first time this client has asked for a challenge
         challenge = svs.challenges.slot(at: oldest)
 
-        // Port-note: Row S2. The host has no `rand` of the C library, and Swift makes the C `rand` unavailable on Apple platforms.
-        // Raven wrote: challenge->challenge = ( (rand() << 16) ^ rand() ) ^ svs.time
-        portMissing("SV_GetChallenge", source: "oracle/codemp/server/sv_client.cpp:31")
+        challenge[0].challenge = ((rand() << 16) ^ rand()) ^ svs.time
         challenge[0].adr = from
         challenge[0].firstTime = svs.time
         challenge[0].time = svs.time
@@ -409,12 +415,15 @@ func SV_DirectConnect(_ from: Netadr) {
         Q_strncpyz(&newcl!.userinfoBuffer, String(userinfo), Int32(newcl!.userinfoBuffer.count))
 
         // get the game a chance to reject this connection or modify the userinfo
-        // Port-note: Row S3. VM_ExplicitArgPtr carries a signature marker, so the text that GAME_CLIENT_CONNECT returns has no form.
-        // Raven wrote: denied = (char *)VM_Call( gvm, GAME_CLIENT_CONNECT, clientNum, qtrue, qfalse ); // firstTime = qtrue ... denied = (char *)VM_ExplicitArgPtr( gvm, (int)denied );
-        portMissing("SV_DirectConnect", source: "oracle/codemp/server/sv_client.cpp:221")
-        if denied != nil {
-            NET_OutOfBandPrint(NS_SERVER, from, "print\n%s\n", denied!)
-            Com_DPrintf("Game rejected a connection: %s.\n", denied!)
+        // AI: Raven stores the word of VM_Call in the `char *` local `denied` and tests it.
+        // The body tests the word in `deniedWord`, and `denied` holds the text that VM_ExplicitArgPtr gives.
+        let deniedWord = VM_Call(gvm!, GAME_CLIENT_CONNECT, clientNum, true, false) // firstTime = qtrue
+        if deniedWord != 0 {
+            // we can't just use VM_ArgPtr, because that is only valid inside a VM_Call
+            denied = VM_ExplicitArgPtr(gvm!, deniedWord)
+
+            NET_OutOfBandPrint(NS_SERVER, from, "print\n%s\n", denied ?? "(null)")
+            Com_DPrintf("Game rejected a connection: %s.\n", denied ?? "(null)")
             return
         }
 
@@ -542,7 +551,7 @@ func SV_DropClient(_ drop: Client, _ reason: String) {
 
 /// Source: oracle/codemp/server/sv_client.cpp:668
 func SV_WriteRMGAutomapSymbols(_ msg: Msg) {
-    // Port-note: Row E5. The random mission manager of the RMG waits for its own stage.
+    // Port-note: Row C. TheRandomMissionManager is an instance of the C++ class CRMManager, which has no port.
     // Raven wrote: int count = TheRandomMissionManager->GetAutomapSymbolCount ( ); ... MSG_WriteShort ( msg, count ); for ( i = 0; i < count; i ++ ) { ... }
     portMissing("SV_WriteRMGAutomapSymbols", source: "oracle/codemp/server/sv_client.cpp:668")
 }
@@ -588,9 +597,7 @@ func SV_SendClientGameState(_ client: Client) {
         // gamestate message was not just sent, forcing a retransmit
         client.gamestateMessageNum = client.netchan.outgoingSequence
 
-        // Port-note: Row G12. Raven's `byte msgBuffer[MAX_MSGLEN]` has no BYTE_STORAGE_LOCALS row, so MSG_Init has no Slots to take.
-        // Raven wrote: byte msgBuffer[MAX_MSGLEN]; MSG_Init( &msg, msgBuffer, sizeof( msgBuffer ) )
-        portMissing("SV_SendClientGameState", source: "oracle/codemp/server/sv_client.cpp:697")
+        MSG_Init(msg, msgBuffer_SV_SendClientGameState, Int32(msgBuffer_SV_SendClientGameState.count))
 
         // NOTE, MRE: all server->client messages now acknowledge
         // let the client know which reliable clientCommands we have received
@@ -639,7 +646,7 @@ func SV_SendClientGameState(_ client: Client) {
         MSG_WriteLong(msg, sv.checksumFeed)
 
         //rwwRMG - send info for the terrain
-        // Port-note: Row E5. The random mission manager of the RMG waits for its own stage, so Raven's test of it has no form.
+        // Port-note: Row C. TheRandomMissionManager is an instance of the C++ class CRMManager, which has no port, so Raven's test of it has no form.
         // Raven wrote: if ( TheRandomMissionManager ) { z_stream zdata; // Send the height map memset(&zdata, 0, sizeof(z_stream)); deflateInit ( &zdata, Z_MAX_COMPRESSION ); unsigned char heightmap[15000]; zdata.next_out = (unsigned char*)heightmap; zdata.avail_out = 15000; zdata.next_in = TheRandomMissionManager->GetLandScape()->GetHeightMap(); zdata.avail_in = TheRandomMissionManager->GetLandScape()->GetRealArea(); deflate(&zdata, Z_SYNC_FLUSH); MSG_WriteShort ( &msg, (unsigned short)zdata.total_out ); MSG_WriteBits ( &msg, 1, 1 ); MSG_WriteData ( &msg, heightmap, zdata.total_out); deflateEnd(&zdata); // Send the flatten map memset(&zdata, 0, sizeof(z_stream)); deflateInit ( &zdata, Z_MAX_COMPRESSION ); zdata.next_out = (unsigned char*)heightmap; zdata.avail_out = 15000; zdata.next_in = TheRandomMissionManager->GetLandScape()->GetFlattenMap(); zdata.avail_in = TheRandomMissionManager->GetLandScape()->GetRealArea(); deflate(&zdata, Z_SYNC_FLUSH); MSG_WriteShort ( &msg, (unsigned short)zdata.total_out ); MSG_WriteBits ( &msg, 1, 1 ); MSG_WriteData ( &msg, heightmap, zdata.total_out); deflateEnd(&zdata); // Seed is needed for misc ents and noise MSG_WriteLong ( &msg, TheRandomMissionManager->GetLandScape()->get_rand_seed ( ) ); SV_WriteRMGAutomapSymbols ( &msg ); } else { MSG_WriteShort ( &msg, 0 ); }
         portMissing("SV_SendClientGameState", source: "oracle/codemp/server/sv_client.cpp:697")
 
@@ -653,9 +660,7 @@ func SV_SendClientGameState(_ client: Client) {
 func SV_SendClientMapChange(_ client: Client) {
     // Raven's record lives to the end of his block, so the block is the closure.
     Msg.scratch { msg in
-        // Port-note: Row G12. Raven's `byte msgBuffer[MAX_MSGLEN]` has no BYTE_STORAGE_LOCALS row, so MSG_Init has no Slots to take.
-        // Raven wrote: byte msgBuffer[MAX_MSGLEN]; MSG_Init( &msg, msgBuffer, sizeof( msgBuffer ) )
-        portMissing("SV_SendClientMapChange", source: "oracle/codemp/server/sv_client.cpp:820")
+        MSG_Init(msg, msgBuffer_SV_SendClientMapChange, Int32(msgBuffer_SV_SendClientMapChange.count))
 
         // NOTE, MRE: all server->client messages now acknowledge
         // let the client know which reliable clientCommands we have received
@@ -724,7 +729,7 @@ private func SV_CloseDownload(_ cl: Client) {
     i = 0
     while i < MAX_DOWNLOAD_WINDOW {
         if cl.downloadBlocks[i] != nil {
-            Z_Free(cl.downloadBlocks[i])
+            Z_Free(OpaquePointer(cl.downloadBlocks[i]!.base))
             cl.downloadBlocks[i] = nil
         }
         i += 1

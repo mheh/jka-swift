@@ -431,10 +431,50 @@ func Sys_DefaultBasePath() -> String {
 
 /// Source: oracle/codemp/null/win_main.cpp:434
 func Sys_ListFilteredFiles(_ basedir: String, _ subdirs: inout JKAShared.CharBuf, _ filter: String?, _ psList: inout ArraySlice<String>, _ numfiles: inout Int32) {
-    // Port-note: The stub takes `char **psList` as a `TextCursor`, and Raven stores a string into each slot.
-    // The row is "the char ** file list" of the win round.
-    // TODO: Port Sys_ListFilteredFiles
-    portMissing("Sys_ListFilteredFiles", source: "oracle/codemp/null/win_main.cpp:434")
+    var search = CharBuf(MAX_OSPATH)
+    var newsubdirs = CharBuf(MAX_OSPATH)
+    var filename = CharBuf(MAX_OSPATH)
+    let findhandle: Int32
+    var findinfo = _finddata_t()
+
+    if numfiles >= MAX_FOUND_FILES - 1 {
+        return
+    }
+
+    if strlen(subdirs) != 0 {
+        Com_sprintf(&search, Int32(search.count), "%s\\%s\\*", basedir, subdirs)
+    } else {
+        Com_sprintf(&search, Int32(search.count), "%s\\*", basedir)
+    }
+
+    findhandle = SysBackend._findfirst(search, &findinfo)
+    if findhandle == -1 {
+        return
+    }
+
+    repeat {
+        if (findinfo.attrib & _A_SUBDIR) != 0 {
+            if Q_stricmp(findinfo.name, ".") != 0 && Q_stricmp(findinfo.name, "..") != 0 {
+                if strlen(subdirs) != 0 {
+                    Com_sprintf(&newsubdirs, Int32(newsubdirs.count), "%s\\%s", subdirs, findinfo.name)
+                } else {
+                    Com_sprintf(&newsubdirs, Int32(newsubdirs.count), "%s", findinfo.name)
+                }
+                Sys_ListFilteredFiles(basedir, &newsubdirs, filter, &psList, &numfiles)
+            }
+        }
+        if numfiles >= MAX_FOUND_FILES - 1 {
+            break
+        }
+        Com_sprintf(&filename, Int32(filename.count), "%s\\%s", subdirs, findinfo.name)
+        if Com_FilterPath(filter, String(filename), 0) == 0 {
+            continue
+        }
+        psList[psList.startIndex + numfiles] = CopyString(String(filename))
+        numfiles += 1
+    } while SysBackend._findnext(findhandle, &findinfo) != -1
+
+    SysBackend._findclose(findhandle)
 }
 
 /// Source: oracle/codemp/null/win_main.cpp:481
@@ -467,15 +507,113 @@ private func strgtr(_ s0: String, _ s1: String) -> Bool {
 
 /// Source: oracle/codemp/null/win_main.cpp:502
 func Sys_ListFiles(_ directory: String, _ `extension`: String?, _ filter: String?, _ numfiles: inout Int32, _ wantsubs: Bool) -> [String] {
-    // TODO: Port Sys_ListFiles
-    portMissing("Sys_ListFiles", source: "oracle/codemp/null/win_main.cpp:502")
+    var search = CharBuf(MAX_OSPATH)
+    var nfiles: Int32
+    var listCopy: [String]
+    var list = [String](repeating: "", count: Int(MAX_FOUND_FILES))
+    var findinfo = _finddata_t()
+    let findhandle: Int32
+    var flag: Int32
+    var i: Int32
+    // Raven assigns his own `extension` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
+    var `extension` = `extension`
+
+    if filter != nil {
+
+        nfiles = 0
+        var subdirs: CharBuf = ""
+        Sys_ListFilteredFiles(directory, &subdirs, filter, &list[...], &nfiles)
+
+        list[nfiles] = ""
+        numfiles = nfiles
+
+        if nfiles == 0 {
+            return []
+        }
+
+        // AI: Raven copies the list into a Z_Malloc table with a NULL at the end. The array is the table, and its count ends the list.
+        listCopy = [String](repeating: "", count: Int(nfiles))
+        i = 0
+        while i < nfiles {
+            listCopy[i] = list[i]
+            i += 1
+        }
+
+        return listCopy
+    }
+
+    if `extension` == nil {
+        `extension` = ""
+    }
+
+    // passing a slash as extension will find directories
+    if CharBuf(`extension`!)[0] == Int32(ascii: "/") && CharBuf(`extension`!)[1] == 0 {
+        `extension` = ""
+        flag = 0
+    } else {
+        flag = _A_SUBDIR
+    }
+
+    Com_sprintf(&search, Int32(search.count), "%s\\*%s", directory, `extension`!)
+
+    // search
+    nfiles = 0
+
+    findhandle = SysBackend._findfirst(search, &findinfo)
+    if findhandle == -1 {
+        numfiles = 0
+        return []
+    }
+
+    repeat {
+        if (!wantsubs && (flag ^ (findinfo.attrib & _A_SUBDIR)) != 0) || (wantsubs && (findinfo.attrib & _A_SUBDIR) != 0) {
+            if nfiles == MAX_FOUND_FILES - 1 {
+                break
+            }
+            list[nfiles] = CopyString(findinfo.name)
+            nfiles += 1
+        }
+    } while SysBackend._findnext(findhandle, &findinfo) != -1
+
+    list[nfiles] = ""
+
+    SysBackend._findclose(findhandle)
+
+    // return a copy of the list
+    numfiles = nfiles
+
+    if nfiles == 0 {
+        return []
+    }
+
+    // AI: Raven copies the list into a Z_Malloc table with a NULL at the end. The array is the table, and its count ends the list.
+    listCopy = [String](repeating: "", count: Int(nfiles))
+    i = 0
+    while i < nfiles {
+        listCopy[i] = list[i]
+        i += 1
+    }
+
+    repeat {
+        flag = 0
+        i = 1
+        while i < nfiles {
+            if strgtr(listCopy[i - 1], listCopy[i]) {
+                let temp = listCopy[i]
+                listCopy[i] = listCopy[i - 1]
+                listCopy[i - 1] = temp
+                flag = 1
+            }
+            i += 1
+        }
+    } while flag != 0
+
+    return listCopy
 }
 
 /// Source: oracle/codemp/null/win_main.cpp:597
 func Sys_FreeFileList(_ psList: [String]) {
-    // Port-note: The stub takes `char **psList` as a `TextCursor`, and Raven frees each slot, row "the char ** file list" of the win round.
-    // TODO: Port Sys_FreeFileList
-    portMissing("Sys_FreeFileList", source: "oracle/codemp/null/win_main.cpp:597")
+    // AI: Raven frees each CopyString text and the Z_Malloc table. The list is a Swift array that frees itself, so the function frees nothing.
 }
 
 /**

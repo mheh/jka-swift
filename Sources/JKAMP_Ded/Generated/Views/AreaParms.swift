@@ -61,43 +61,31 @@ public struct AreaParms: Hashable, HandleView {
         self.raw.pointee = other.raw.pointee
     }
 
-    /// Source: oracle/codemp/server/sv_world.cpp:360
-    public var mins: OpaquePointer? {
-        get { OpaquePointer(self.raw.pointee.mins) }
-        nonmutating set { self.raw.pointee.mins = UnsafePointer(newValue) }
-    }
-
-    /// Raven's `mins[i]`, the vector the pointer holds. A NULL pointer traps with the field's name.
-    public var minsVector: JKAShared.vec3_t {
-        precondition(self.raw.pointee.mins != nil, "mins is NULL")
-        return JKAShared.vec3_t(self.raw.pointee.mins![0], self.raw.pointee.mins![1], self.raw.pointee.mins![2])
-    }
-
     /// Source: oracle/codemp/server/sv_world.cpp:361
-    public var maxs: OpaquePointer? {
-        get { OpaquePointer(self.raw.pointee.maxs) }
-        nonmutating set { self.raw.pointee.maxs = UnsafePointer(newValue) }
-    }
-
-    /// Raven's `maxs[i]`, the vector the pointer holds. A NULL pointer traps with the field's name.
-    public var maxsVector: JKAShared.vec3_t {
-        precondition(self.raw.pointee.maxs != nil, "maxs is NULL")
-        return JKAShared.vec3_t(self.raw.pointee.maxs![0], self.raw.pointee.maxs![1], self.raw.pointee.maxs![2])
+    public var mins: JKAShared.vec3_t {
+        get { vec3(of: self.raw.pointee.mins) }
+        nonmutating set { self.raw.pointee.mins = tuple(of: newValue) }
     }
 
     /// Source: oracle/codemp/server/sv_world.cpp:362
+    public var maxs: JKAShared.vec3_t {
+        get { vec3(of: self.raw.pointee.maxs) }
+        nonmutating set { self.raw.pointee.maxs = tuple(of: newValue) }
+    }
+
+    /// Source: oracle/codemp/server/sv_world.cpp:363
     public var list: Slots<Int32>? {
         get { self.raw.pointee.list.map { Slots(scalars: UnsafeMutableRawPointer($0), count: Int.max) } }
         nonmutating set { self.raw.pointee.list = newValue?.base.assumingMemoryBound(to: Int32.self) }
     }
 
-    /// Source: oracle/codemp/server/sv_world.cpp:363
+    /// Source: oracle/codemp/server/sv_world.cpp:364
     public var count: Int32 {
         get { self.raw.pointee.count }
         nonmutating set { self.raw.pointee.count = newValue }
     }
 
-    /// Source: oracle/codemp/server/sv_world.cpp:363
+    /// Source: oracle/codemp/server/sv_world.cpp:364
     public var maxcount: Int32 {
         get { self.raw.pointee.maxcount }
         nonmutating set { self.raw.pointee.maxcount = newValue }

@@ -97,4 +97,14 @@ public struct PatchCollide: Hashable, HandleView {
         get { self.raw.pointee.facets.map { Facet(handle: OpaquePointer($0)) } }
         nonmutating set { self.raw.pointee.facets = UnsafeMutablePointer(newValue?.handle) }
     }
+
+    /// Raven's `facets[i]`, the records the pointer holds. A NULL pointer traps with the field's name.
+    /// C gives the pointer no bound, so the Slots takes the widest count.
+    public var facetsSlots: Slots<Facet> {
+        get {
+            precondition(self.raw.pointee.facets != nil, "facets is NULL")
+            return Slots(views: UnsafeMutableRawPointer(self.raw.pointee.facets!), count: Int.max, stride: Facet.stride)
+        }
+        nonmutating set { self.raw.pointee.facets = newValue.base.assumingMemoryBound(to: facet_t.self) }
+    }
 }

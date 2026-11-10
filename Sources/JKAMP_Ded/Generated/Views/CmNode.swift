@@ -7,7 +7,7 @@ import JKAShared
 /// Source: oracle/codemp/qcommon/cm_local.h:27
 /// A view over one `cNode_t` in C memory.
 /// A copy of a view is a copy of the pointer, and two views of one slot compare equal.
-public struct CNode: Hashable, HandleView {
+public struct CmNode: Hashable, HandleView {
     let raw: UnsafeMutablePointer<cNode_t>
 
     init(raw: UnsafeMutablePointer<cNode_t>) { self.raw = raw }
@@ -31,24 +31,24 @@ public struct CNode: Hashable, HandleView {
     public static let stride = MemoryLayout<cNode_t>.stride
 
     /// Raven's `cNode_t cNode;` on the stack. The slot is zero at entry, lives for the closure, and the closure's value is the result.
-    public static func scratch<Result>(_ body: (CNode) throws -> Result) rethrows -> Result {
+    public static func scratch<Result>(_ body: (CmNode) throws -> Result) rethrows -> Result {
         var slot = cNode_t()
-        return try withUnsafeMutablePointer(to: &slot) { try body(CNode(raw: $0)) }
+        return try withUnsafeMutablePointer(to: &slot) { try body(CmNode(raw: $0)) }
     }
 
     /// Raven's `cNode_t cNode[N];` on the stack, a local array of records.
     /// The slots are zero at entry, live for the closure, and the closure's value is the result.
-    public static func scratch<Result>(count: Int, _ body: (Slots<CNode>) throws -> Result) rethrows -> Result {
-        let base = UnsafeMutableRawPointer.allocate(byteCount: count * CNode.stride, alignment: MemoryLayout<cNode_t>.alignment)
+    public static func scratch<Result>(count: Int, _ body: (Slots<CmNode>) throws -> Result) rethrows -> Result {
+        let base = UnsafeMutableRawPointer.allocate(byteCount: count * CmNode.stride, alignment: MemoryLayout<cNode_t>.alignment)
         defer { base.deallocate() }
-        base.initializeMemory(as: UInt8.self, repeating: 0, count: count * CNode.stride)
-        return try body(Slots(views: base, count: count, stride: CNode.stride))
+        base.initializeMemory(as: UInt8.self, repeating: 0, count: count * CmNode.stride)
+        return try body(Slots(views: base, count: count, stride: CmNode.stride))
     }
 
     /// Raven's `cNode_t cNode = *other;`, a copy of another slot on the stack.
-    public static func scratch<Result>(copying other: CNode, _ body: (CNode) throws -> Result) rethrows -> Result {
+    public static func scratch<Result>(copying other: CmNode, _ body: (CmNode) throws -> Result) rethrows -> Result {
         var slot = other.raw.pointee
-        return try withUnsafeMutablePointer(to: &slot) { try body(CNode(raw: $0)) }
+        return try withUnsafeMutablePointer(to: &slot) { try body(CmNode(raw: $0)) }
     }
 
     /// Raven's `memset(&cNode, 0, sizeof(cNode))`, every byte of the slot to zero.
@@ -57,7 +57,7 @@ public struct CNode: Hashable, HandleView {
     }
 
     /// Raven's `cNode = *other;` or his `memcpy`, every byte of the other slot into this one.
-    public func copy(from other: CNode) {
+    public func copy(from other: CmNode) {
         self.raw.pointee = other.raw.pointee
     }
 

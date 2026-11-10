@@ -145,4 +145,14 @@ public struct Pack: Hashable, HandleView {
         get { self.raw.pointee.buildBuffer.map { FileInPack(handle: OpaquePointer($0)) } }
         nonmutating set { self.raw.pointee.buildBuffer = UnsafeMutablePointer(newValue?.handle) }
     }
+
+    /// Raven's `buildBuffer[i]`, the records the pointer holds. A NULL pointer traps with the field's name.
+    /// C gives the pointer no bound, so the Slots takes the widest count.
+    public var buildBufferSlots: Slots<FileInPack> {
+        get {
+            precondition(self.raw.pointee.buildBuffer != nil, "buildBuffer is NULL")
+            return Slots(views: UnsafeMutableRawPointer(self.raw.pointee.buildBuffer!), count: Int.max, stride: FileInPack.stride)
+        }
+        nonmutating set { self.raw.pointee.buildBuffer = newValue.base.assumingMemoryBound(to: fileInPack_t.self) }
+    }
 }

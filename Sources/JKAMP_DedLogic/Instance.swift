@@ -6,11 +6,15 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/icarus/Instance.cpp:19
-// TODO: Port global gSequencers
-// Raven wrote: CSequencer *gSequencers[MAX_GENTITIES]
-// No table row for `CSequencer *[1024]`.
+/// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
+var gSequencers: [CSequencer?] {
+    get { world.gSequencers }
+    set { world.gSequencers = newValue }
+}
 
 /// Source: oracle/codemp/icarus/Instance.cpp:20
-// TODO: Port global gTaskManagers
-// Raven wrote: CTaskManager *gTaskManagers[MAX_GENTITIES]
-// No table row for `CTaskManager *[1024]`.
+/// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
+var gTaskManagers: [CTaskManager?] {
+    get { world.gTaskManagers }
+    set { world.gTaskManagers = newValue }
+}

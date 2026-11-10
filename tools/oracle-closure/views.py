@@ -45,7 +45,7 @@ from clang.cindex import CursorKind, TypeKind
 
 import closure as C
 from reexport import DEPS, SCALARS, SOURCES, VIEW_OF, source_lines
-from rulings import BYTE_STORAGE_FIELDS, ENUM_TYPEDEFS, FIELD_NAMES, FIELDS, NEVER_NULL, NULLABLE, PARAMS, ROOTS, SLOT_BOUNDS
+from rulings import BYTE_STORAGE_FIELDS, ENUM_TYPEDEFS, FIELD_NAMES, FIELDS, INDEXED_FIELDS, NEVER_NULL, NULLABLE, PARAMS, ROOTS, SLOT_BOUNDS
 from spelling import Types
 
 # Every C target the translation unit of the run's unit reaches, most specific first.
@@ -399,6 +399,9 @@ class Generator:
                 # A pointer to a record no header completes, such as `struct worldSector_s *` of server.h, imports as an `OpaquePointer?` itself.
                 return self.property(name, "OpaquePointer?", pointee, f"{pointee} = newValue")
             back = "UnsafeMutableRawPointer" if inner.get_canonical().kind == TypeKind.VOID else "UnsafeMutablePointer"
+            if back == "UnsafeMutablePointer" and inner.is_const_qualified():
+                # A `const byte *` field, `vis` of world_t at tr_local.h:1084, imports as an UnsafePointer, so the setter stores one.
+                back = "UnsafePointer"
             if inner.is_const_qualified() and inner.get_canonical().kind == TypeKind.FLOAT:
                 # A `const float *` field, `mins` of moveclip_t, imports as an UnsafePointer, so the setter stores one and the vector reads alone.
                 lines = self.property(name, "OpaquePointer?", f"OpaquePointer({pointee})", f"{pointee} = UnsafePointer(newValue)")
@@ -431,9 +434,34 @@ class Generator:
                     "    }",
                 ]
             return lines
+        if t.spelling.split()[-1] == "vec3pair_t":
+            # A pair of bounds, `vec3pair_t bounds` of traceWork_t at cm_local.h:247, reads as the array of two vectors,
+            # the form of a `vec3pair_t` parameter, row R3. The setter writes both vectors back.
+            pair = f"self.raw.pointee.{name}"
+            return self.property(name, "[JKAShared.vec3_t]",
+                                 f"[JKAShared.vec3_t({pair}.0.0, {pair}.0.1, {pair}.0.2), JKAShared.vec3_t({pair}.1.0, {pair}.1.1, {pair}.1.2)]",
+                                 f"{pair} = ((newValue[0][0], newValue[0][1], newValue[0][2]), (newValue[1][0], newValue[1][1], newValue[1][2]))")
         if canonical.kind == TypeKind.CONSTANTARRAY:
             count = canonical.element_count
             address = f"UnsafeMutableRawPointer(self.raw.pointer(to: \\.{name})!)"
+            element = canonical.element_type.get_canonical()
+            if FIELDS.get((self.owner_of(field), name)) == "bytes_table" and element.kind == TypeKind.POINTER \
+                    and element.get_pointee().get_canonical().kind == TypeKind.UCHAR:
+                # An array of byte buffer pointers, `byte *downloadBlocks[MAX_DOWNLOAD_WINDOW]` of server.h, reads as an array of the Slots over
+                # each buffer or nil, the `bytes` form per slot, and a store keeps the base of each assigned Slots.
+                bound, _ = self.slots_count(field, target)
+                return [
+                    f"    public var {name}: [Slots<JKAShared.byte>?] {{",
+                    "        get {",
+                    f"            let slots = {address}.assumingMemoryBound(to: UnsafeMutablePointer<UInt8>?.self)",
+                    f"            return (0..<{count}).map {{ i in slots[i].map {{ Slots(scalars: UnsafeMutableRawPointer($0), count: {bound}) }} }}",
+                    "        }",
+                    "        nonmutating set {",
+                    f"            let slots = {address}.assumingMemoryBound(to: UnsafeMutablePointer<UInt8>?.self)",
+                    f"            for i in 0..<{count} {{ slots[i] = newValue[i]?.base.assumingMemoryBound(to: UInt8.self) }}",
+                    "        }",
+                    "    }",
+                ]
             if canonical.element_type.get_canonical().kind == TypeKind.CHAR_S and (self.owner_of(field), name) in BYTE_STORAGE_FIELDS:
                 # The engine holds the address of this field, so the view reads the address, and a body views records at its base.
                 return [f"    public var {name}: UnsafeMutableRawPointer {{ {address} }}"]
@@ -570,7 +598,7 @@ class Generator:
     def indexed(self, field: ci.Cursor) -> bool:
         """True when the subscript sweep of table.py read a body that indexes this field, `pm->animations[anim]`."""
         owner = self.owner_of(field)
-        return (owner, field.spelling) in self.indexed_fields
+        return (owner, field.spelling) in self.indexed_fields or (owner, field.spelling) in INDEXED_FIELDS
 
     def slots_count(self, field: ci.Cursor, target: str) -> tuple[str, str]:
         """The count of a pointer field's Slots, and the line that states where the count comes from.
@@ -931,6 +959,10 @@ class Generator:
                 lines.append("")
                 lines.append(f"    /// Source: {source_path}:{base_line + delta}")
                 body = self.accessor(field, target)
+                if body is not None and field.spelling in SWIFT_KEYWORDS:
+                    # A field Raven names with a Swift keyword, `func` of waveForm_t at tr_local.h:288, takes backticks at each use.
+                    word = field.spelling
+                    body = [re.sub(rf"(var |\.)({word})\b(?!`)", rf"\1`\2`", line) for line in body]
                 if body is None:
                     self.todo += 1
                     text = " ".join(t.spelling for t in field.get_tokens())
@@ -1010,6 +1042,11 @@ def write(files: dict[tuple[str, str], list[str]], only: bool, gen: Generator) -
             (out / f"{stem}.swift").write_text(text)
             count += 1
     return count
+
+
+# The Swift keywords a C field name can take, which an accessor and a key path spell in backticks.
+SWIFT_KEYWORDS = {"func", "in", "is", "as", "repeat", "protocol", "extension", "where", "let", "var", "internal", "operator", "import",
+                  "init", "deinit", "subscript", "self", "Self", "super", "throw", "throws", "rethrows", "defer", "guard", "fallthrough", "associatedtype", "inout"}
 
 
 def indexed_fields(gen: Generator) -> set[tuple[str, str]]:

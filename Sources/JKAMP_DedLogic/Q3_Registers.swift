@@ -57,7 +57,7 @@ func Q3_GetStringVariable(_ name: String, _ value: inout JKAShared.TextCursor) -
 }
 
 /// Source: oracle/codemp/icarus/Q3_Registers.cpp:170
-func Q3_GetVectorVariable(_ name: String, _ value: JKAShared.vec3_t) -> Int32 {
+func Q3_GetVectorVariable(_ name: String, _ value: inout JKAShared.vec3_t) -> Int32 {
     // TODO: Port Q3_GetVectorVariable
     portMissing("Q3_GetVectorVariable", source: "oracle/codemp/icarus/Q3_Registers.cpp:170")
 }

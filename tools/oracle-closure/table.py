@@ -2133,6 +2133,9 @@ class Table:
             return ("JKAShared.TextCursor", "")
         if ruled == "raw":
             return ("UnsafeMutableRawPointer", "")
+        if ruled == "optional_raw":
+            # The raw return of a function that hands NULL back on one path, the twin of `optional_bytes`.
+            return ("UnsafeMutableRawPointer?", "")
         if ruled == "pooled_string":
             return ("String", "")
         if ruled == "optional_string":

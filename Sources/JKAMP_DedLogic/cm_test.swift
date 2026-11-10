@@ -13,8 +13,32 @@ CM_PointLeafnum_r
 */
 /// Source: oracle/codemp/qcommon/cm_test.cpp:16
 func CM_PointLeafnum_r(_ p: JKAShared.vec3_t, _ num: Int32, _ local: ClipMap) -> Int32 {
-    // TODO: Port CM_PointLeafnum_r
-    portMissing("CM_PointLeafnum_r", source: "oracle/codemp/qcommon/cm_test.cpp:16")
+    // Raven assigns his own `num` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
+    var num = num
+    var d: Float
+    var node: CmNode
+    var plane: JKAShared.Cplane
+
+    while num >= 0 {
+        node = local.nodesSlots[num]
+
+        plane = node.plane!
+
+        if plane.type < 3 {
+            d = p[plane.type] - plane.dist
+        } else {
+            d = _DotProduct(plane.normal, p) - plane.dist
+        }
+        if d < 0 {
+            num = node.children[1]
+        } else {
+            num = node.children[0]
+        }
+    }
+
+    c_pointcontents += 1 // optimize counter
+
+    return -1 - num
 }
 
 /// Source: oracle/codemp/qcommon/cm_test.cpp:46
@@ -23,21 +47,71 @@ func CM_PointLeafnum(_ p: JKAShared.vec3_t) -> Int32 {
         // map not loaded
         return 0
     }
-    // Port-note: CM_PointLeafnum_r carries a signature marker, row T6.
-    // Raven wrote: return CM_PointLeafnum_r (p, 0, &cmg)
-    portMissing("CM_PointLeafnum", source: "oracle/codemp/qcommon/cm_test.cpp:46")
+    return CM_PointLeafnum_r(p, 0, cmg)
 }
 
 /// Source: oracle/codemp/qcommon/cm_test.cpp:63
 func CM_StoreLeafs(_ ll: LeafList, _ nodenum: Int32) {
-    // TODO: Port CM_StoreLeafs
-    portMissing("CM_StoreLeafs", source: "oracle/codemp/qcommon/cm_test.cpp:63")
+    let leafNum: Int32
+
+    leafNum = -1 - nodenum
+
+    // store the lastLeaf even if the list is overflowed
+    if cmg.leafsSlots[leafNum].cluster != -1 {
+        ll.lastLeaf = leafNum
+    }
+
+    if ll.count >= ll.maxcount {
+        ll.overflowed = true
+        return
+    }
+    ll.list![ll.count] = leafNum
+    ll.count += 1
 }
 
 /// Source: oracle/codemp/qcommon/cm_test.cpp:80
 func CM_StoreBrushes(_ ll: LeafList, _ nodenum: Int32) {
-    // TODO: Port CM_StoreBrushes
-    portMissing("CM_StoreBrushes", source: "oracle/codemp/qcommon/cm_test.cpp:80")
+    var i: Int32
+    var k: Int32
+    let leafnum: Int32
+    var brushnum: Int32
+    let leaf: CLeaf
+    var b: Cbrush
+
+    leafnum = -1 - nodenum
+
+    leaf = cmg.leafsSlots[leafnum]
+
+    k = 0
+    while k < leaf.numLeafBrushes {
+        // AI: Raven indexes the table with no bound, and a submodel leaf points into another hunk block. The view reads the word as C does.
+        brushnum = cmg.leafbrush(at: leaf.firstLeafBrush + k)
+        b = cmg.brushesSlots[brushnum]
+        if b.checkcount == cmg.checkcount {
+            k += 1
+            continue // already checked this brush in another leaf
+        }
+        b.checkcount = cmg.checkcount
+        i = 0
+        while i < 3 {
+            if b.bounds[0][i] >= ll.bounds[1][i] || b.bounds[1][i] <= ll.bounds[0][i] {
+                break
+            }
+            i += 1
+        }
+        if i != 3 {
+            k += 1
+            continue
+        }
+        if ll.count >= ll.maxcount {
+            ll.overflowed = true
+            return
+        }
+        // Port-note: The `int *list` of `leafList_t` holds `cbrush_t *` slots here, and the view gives it as a `Slots<Int32>`.
+        // Raven wrote: ((cbrush_t **)ll->list)[ ll->count++ ] = b;
+        portMissing("CM_StoreBrushes", source: "oracle/codemp/qcommon/cm_test.cpp:80")
+        k += 1
+    }
 }
 
 /**
@@ -51,8 +125,36 @@ Fills in a list of all the leafs touched
 */
 /// Source: oracle/codemp/qcommon/cm_test.cpp:130
 func CM_BoxLeafnums_r(_ ll: LeafList, _ nodenum: Int32) {
-    // TODO: Port CM_BoxLeafnums_r
-    portMissing("CM_BoxLeafnums_r", source: "oracle/codemp/qcommon/cm_test.cpp:130")
+    // Raven assigns his own `nodenum` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
+    var nodenum = nodenum
+    var plane: JKAShared.Cplane
+    var node: CmNode
+    var s: Int32
+
+    while true {
+        if nodenum < 0 {
+            ll.runStoreLeafs(nodenum)
+            return
+        }
+
+        node = cmg.nodesSlots[nodenum]
+
+        plane = node.plane!
+
+        // AI: Raven hands the `cplane_t *` to BoxOnPlaneSide. The value function of q_math takes the plane read out of the slot.
+        var planeValue = plane.plane
+        s = BoxOnPlaneSide(ll.bounds[0], ll.bounds[1], &planeValue)
+        if s == 1 {
+            nodenum = node.children[0]
+        } else if s == 2 {
+            nodenum = node.children[1]
+        } else {
+            // go down both
+            CM_BoxLeafnums_r(ll, node.children[0])
+            nodenum = node.children[1]
+        }
+
+    }
 }
 
 /**
@@ -65,47 +167,25 @@ CM_BoxLeafnums
 /// Source: oracle/codemp/qcommon/cm_test.cpp:168
 func CM_BoxLeafnums(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ boxList: Slots<Int32>, _ listsize: Int32, _ lastLeaf: inout Int32) -> Int32 {
     //rwwRMG - changed to boxList to not conflict with list type
-    // Port-note: A local `leafList_t ll` has no view, row T4.
-    // Raven wrote: leafList_t ll;
-    portMissing("CM_BoxLeafnums", source: "oracle/codemp/qcommon/cm_test.cpp:168")
+    LeafList.scratch { ll -> Int32 in
+        cmg.checkcount += 1
 
-    cmg.checkcount += 1
+        ll.bounds[0] = mins
+        ll.bounds[1] = maxs
+        ll.count = 0
+        ll.maxcount = listsize
+        ll.list = boxList
+        // Port-note: The `storeLeafs` field has no generated thunk for CM_StoreLeafs.
+        // Raven wrote: ll.storeLeafs = CM_StoreLeafs;
+        portMissing("CM_BoxLeafnums", source: "oracle/codemp/qcommon/cm_test.cpp:168")
+        ll.lastLeaf = 0
+        ll.overflowed = false
 
-    // Port-note: A read of `ll`, a local the draft left as a hole.
-    // Raven wrote: VectorCopy( mins, ll.bounds[0] )
-    portMissing("CM_BoxLeafnums", source: "oracle/codemp/qcommon/cm_test.cpp:168")
-    // Port-note: A read of `ll`, a local the draft left as a hole.
-    // Raven wrote: VectorCopy( maxs, ll.bounds[1] )
-    portMissing("CM_BoxLeafnums", source: "oracle/codemp/qcommon/cm_test.cpp:168")
-    // Port-note: A read of `ll`, a local the draft left as a hole.
-    // Raven wrote: ll.count = 0
-    portMissing("CM_BoxLeafnums", source: "oracle/codemp/qcommon/cm_test.cpp:168")
-    // Port-note: A read of `ll`, a local the draft left as a hole.
-    // Raven wrote: ll.maxcount = listsize
-    portMissing("CM_BoxLeafnums", source: "oracle/codemp/qcommon/cm_test.cpp:168")
-    // Port-note: A read of `ll`, a local the draft left as a hole. The `int *boxList` parameter is one `inout Int32`, row T4.
-    // Raven wrote: ll.list = boxList
-    portMissing("CM_BoxLeafnums", source: "oracle/codemp/qcommon/cm_test.cpp:168")
-    // Port-note: A read of `ll`, a local the draft left as a hole.
-    // Raven wrote: ll.storeLeafs = CM_StoreLeafs
-    portMissing("CM_BoxLeafnums", source: "oracle/codemp/qcommon/cm_test.cpp:168")
-    // Port-note: A read of `ll`, a local the draft left as a hole.
-    // Raven wrote: ll.lastLeaf = 0
-    portMissing("CM_BoxLeafnums", source: "oracle/codemp/qcommon/cm_test.cpp:168")
-    // Port-note: A read of `ll`, a local the draft left as a hole.
-    // Raven wrote: ll.overflowed = qfalse
-    portMissing("CM_BoxLeafnums", source: "oracle/codemp/qcommon/cm_test.cpp:168")
+        CM_BoxLeafnums_r(ll, 0)
 
-    // Port-note: A read of `ll`, a local the draft left as a hole.
-    // Raven wrote: CM_BoxLeafnums_r( &ll, 0 )
-    portMissing("CM_BoxLeafnums", source: "oracle/codemp/qcommon/cm_test.cpp:168")
-
-    // Port-note: A read of `ll`, a local the draft left as a hole.
-    // Raven wrote: *lastLeaf = ll.lastLeaf
-    portMissing("CM_BoxLeafnums", source: "oracle/codemp/qcommon/cm_test.cpp:168")
-    // Port-note: A read of `ll`, a local the draft left as a hole.
-    // Raven wrote: return ll.count
-    portMissing("CM_BoxLeafnums", source: "oracle/codemp/qcommon/cm_test.cpp:168")
+        lastLeaf = ll.lastLeaf
+        return ll.count
+    }
 }
 
 /**
@@ -148,29 +228,24 @@ func CM_PointContents(_ p: JKAShared.vec3_t, _ model: JKAShared.clipHandle_t) ->
     }
 
     if model != 0 {
-        // Port-note: CM_ClipHandleToModel carries a signature marker, row CM3 of the cm_load round.
-        // Raven wrote: clipm = CM_ClipHandleToModel( model, &local )
-        portMissing("CM_PointContents", source: "oracle/codemp/qcommon/cm_test.cpp:224")
+        clipm = CM_ClipHandleToModel(model, &local)
         if clipm!.firstNode != -1 {
-            // Port-note: CM_PointLeafnum_r carries a signature marker, row T6.
-            // Raven wrote: leafnum = CM_PointLeafnum_r (p, 0, local)
-            portMissing("CM_PointContents", source: "oracle/codemp/qcommon/cm_test.cpp:224")
+            leafnum = CM_PointLeafnum_r(p, 0, local!)
             leaf = local!.leafsSlots[leafnum]
         } else {
             leaf = clipm!.leaf
         }
     } else {
         local = cmg
-        // Port-note: CM_PointLeafnum_r carries a signature marker, row T6.
-        // Raven wrote: leafnum = CM_PointLeafnum_r (p, 0, &cmg)
-        portMissing("CM_PointContents", source: "oracle/codemp/qcommon/cm_test.cpp:224")
+        leafnum = CM_PointLeafnum_r(p, 0, cmg)
         leaf = local!.leafsSlots[leafnum]
     }
 
     contents = 0
     k = 0
     while k < leaf!.numLeafBrushes {
-        brushnum = local!.leafbrushes![leaf!.firstLeafBrush + k]
+        // AI: Raven indexes the table with no bound, and a submodel leaf points into another hunk block. The view reads the word as C does.
+        brushnum = local!.leafbrush(at: leaf!.firstLeafBrush + k)
         b = local!.brushesSlots[brushnum]
 
         // see if the point is in the brush
@@ -235,20 +310,62 @@ func CM_TransformedPointContents(_ p: JKAShared.vec3_t, _ model: JKAShared.clipH
 
 /// Source: oracle/codemp/qcommon/cm_test.cpp:351
 func CM_ClusterPVS(_ cluster: Int32) -> Slots<JKAShared.byte> {
-    // TODO: Port CM_ClusterPVS
-    portMissing("CM_ClusterPVS", source: "oracle/codemp/qcommon/cm_test.cpp:351")
+    if cluster < 0 || cluster >= cmg.numClusters || !cmg.vised {
+        return cmg.visibility!
+    }
+
+    return cmg.visibility!.suffix(from: cluster * cmg.clusterBytes)
 }
 
 /// Source: oracle/codemp/qcommon/cm_test.cpp:395
 func CM_FloodArea_r(_ areaNum: Int32, _ floodnum: Int32, _ cm: ClipMap) {
-    // TODO: Port CM_FloodArea_r
-    portMissing("CM_FloodArea_r", source: "oracle/codemp/qcommon/cm_test.cpp:395")
+    var i: Int32
+    let area: CArea
+    let con: Slots<Int32>
+
+    area = cm.areasSlots[areaNum]
+
+    if area.floodvalid == cm.floodvalid {
+        if area.floodnum == floodnum {
+            return
+        }
+        Com_Error(ERR_DROP, "FloodArea_r: reflooded")
+    }
+
+    area.floodnum = floodnum
+    area.floodvalid = cm.floodvalid
+    con = cm.areaPortals!.suffix(from: areaNum * cm.numAreas)
+    i = 0
+    while i < cm.numAreas {
+        if con[i] > 0 {
+            CM_FloodArea_r(i, floodnum, cm)
+        }
+        i += 1
+    }
 }
 
 /// Source: oracle/codemp/qcommon/cm_test.cpp:448
 func CM_FloodAreaConnections(_ cm: ClipMap) {
-    // TODO: Port CM_FloodAreaConnections
-    portMissing("CM_FloodAreaConnections", source: "oracle/codemp/qcommon/cm_test.cpp:448")
+    var i: Int32
+    var area: CArea
+    var floodnum: Int32
+
+    // all current floods are now invalid
+    cm.floodvalid += 1
+    floodnum = 0
+
+    i = 0
+    while i < cm.numAreas {
+        area = cm.areasSlots[i]
+        if area.floodvalid == cm.floodvalid {
+            i += 1
+            continue // already flooded into
+        }
+        floodnum += 1
+        CM_FloodArea_r(i, floodnum, cm)
+        i += 1
+    }
+
 }
 
 /**
@@ -280,9 +397,7 @@ func CM_AdjustAreaPortalState(_ area1: Int32, _ area2: Int32, _ open: Bool) {
         }
     }
 
-    // Port-note: CM_FloodAreaConnections carries a signature marker, row T6.
-    // Raven wrote: CM_FloodAreaConnections (cmg)
-    portMissing("CM_AdjustAreaPortalState", source: "oracle/codemp/qcommon/cm_test.cpp:476")
+    CM_FloodAreaConnections(cmg)
 }
 
 /**

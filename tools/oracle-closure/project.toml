@@ -352,6 +352,7 @@ srcglob = [
 name = "mp-engine-ded"
 lang = "c++"
 # The header parse reads the stage 1 headers by hand, in the shape of mp-engine, and no botlib header, row T2.
+# The renderer header tr_local.h joins the list for the records of `tr`, the models, and the shaders, row TR1 of notes/2026-11-09/dedicated-open-rows-ledger-8.md.
 # The null folder has no header of its own.
 # cm_local.h reaches <list> through cm_landscape.h, and the foreign triples have no C++ library, so their parse stops there.
 # The lp64 asserts alone cover the C++ reach of cm_local.h, row S2, and the ilp32 and llp64 blocks say "did not parse for" at each such record.
@@ -365,6 +366,7 @@ entry = [
     "codemp/server/server.h",
     "codemp/win32/win_local.h",
     "codemp/win32/resource.h",
+    "codemp/renderer/tr_local.h",
 ]
 includes = [
     "codemp/qcommon",

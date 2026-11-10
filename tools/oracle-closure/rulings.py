@@ -255,7 +255,8 @@ HOST_ROOTS = {
     "clipMap_t": ("ClipMap", "CJKAMP_Ded"),
     "cbrush_t": ("Cbrush", "CJKAMP_Ded"),
     "cbrushside_t": ("Cbrushside", "CJKAMP_Ded"),
-    "cNode_t": ("CNode", "CJKAMP_Ded"),
+    # The view takes another name than the C struct, because the navigator's C++ class `CNode` of navigator.h:70 keeps Raven's name in the logic target, row C.
+    "cNode_t": ("CmNode", "CJKAMP_Ded"),
     "cLeaf_t": ("CLeaf", "CJKAMP_Ded"),
     "cPatch_t": ("CPatch", "CJKAMP_Ded"),
     "cArea_t": ("CArea", "CJKAMP_Ded"),
@@ -265,6 +266,8 @@ HOST_ROOTS = {
     "dheader_t": ("Dheader", "CJKAMP_Ded"),
     # qfiles.h is a header of the tree, and lump_t is the one disk record of it the merge places in CJKAMP.
     "lump_t": ("Lump", "CJKAMP"),
+    # CMod_LoadPatches of cm_load.cpp:523 reads the vertex lump as `drawVert_t`, a disk record of qfiles.h the merge places in CJKAMP.
+    "drawVert_t": ("DrawVert", "CJKAMP"),
     "dshader_t": ("Dshader", "CJKAMP_Ded"),
     "dmodel_t": ("Dmodel", "CJKAMP_Ded"),
     "dnode_t": ("Dnode", "CJKAMP_Ded"),
@@ -291,6 +294,52 @@ HOST_ROOTS = {
     "sphere_t": ("Sphere", "CJKAMP_Ded"),
     "leafList_t": ("LeafList", "CJKAMP_Ded"),
     "cGrid_t": ("CGrid", "CJKAMP_Ded"),
+    # The renderer records of tr_local.h and the model records of qfiles.h and mdx_format.h, row TR1 of the tr round and rows G3, G2B4, and G2B5 of the Ghoul2 rounds.
+    # `tr` of tr_main.cpp:15, `backEnd` and `backEndData` of tr_backend.cpp:20 and :21, and `shader` and `stages` of tr_shader.cpp:100 and :101 hold them.
+    "trGlobals_t": ("TrGlobals", "CJKAMP_Ded"),
+    "backEndState_t": ("BackEndState", "CJKAMP_Ded"),
+    "backEndData_t": ("BackEndData", "CJKAMP_Ded"),
+    "model_t": ("Model", "CJKAMP_Ded"),
+    "shader_t": ("Shader", "CJKAMP_Ded"),
+    "shaderStage_t": ("ShaderStage", "CJKAMP_Ded"),
+    "texModInfo_t": ("TexModInfo", "CJKAMP_Ded"),
+    "waveForm_t": ("WaveForm", "CJKAMP_Ded"),
+    "skin_t": ("Skin", "CJKAMP_Ded"),
+    "skinSurface_t": ("SkinSurface", "CJKAMP_Ded"),
+    "image_t": ("Image", "CJKAMP_Ded"),
+    "trRefEntity_t": ("TrRefEntity", "CJKAMP_Ded"),
+    "md3Header_t": ("Md3Header", "CJKAMP_Ded"),
+    "md3Tag_t": ("Md3Tag", "CJKAMP_Ded"),
+    "md3Frame_t": ("Md3Frame", "CJKAMP_Ded"),
+    "mdxmHeader_t": ("MdxmHeader", "CJKAMP_Ded"),
+    "mdxaHeader_t": ("MdxaHeader", "CJKAMP_Ded"),
+    "mdxmSurface_t": ("MdxmSurface", "CJKAMP_Ded"),
+    "mdxmSurfHierarchy_t": ("MdxmSurfHierarchy", "CJKAMP_Ded"),
+    "mdxmHierarchyOffsets_t": ("MdxmHierarchyOffsets", "CJKAMP_Ded"),
+    "mdxmLOD_t": ("MdxmLOD", "CJKAMP_Ded"),
+    "mdxmVertex_t": ("MdxmVertex", "CJKAMP_Ded"),
+    "mdxaSkel_t": ("MdxaSkel", "CJKAMP_Ded"),
+    "mdxaSkelOffsets_t": ("MdxaSkelOffsets", "CJKAMP_Ded"),
+    # The Ghoul2 matrices of tr_ghoul2.cpp:128 to :137 and the ragdoll table of G2_bones.cpp:1216 hold the record of q_shared.h the game views.
+    "mdxaBone_t": ("MdxaBone", "CJKAMP"),
+    # The collision records of G2API_CollisionDetect and QsortDistance of G2_API.cpp:1993, row G4.
+    # The game's view stands in JKAMP_Game, which the host cannot import, so the host has its own, the form of the cgame row.
+    "CollisionRecord_t": ("CollisionRecord", "CJKAMP_Ded"),
+    # Raven defines these inside a .cpp file, and ded_types.h carries them into the host target, the cmd_t form.
+    # `mhHashTable` of tr_model.cpp:36, `ragEffectors` of G2_bones.cpp:1217, the resample records of tr_image.cpp:2338, and `r_vidModes` of tr_init.cpp:465.
+    "modelHash_t": ("ModelHash", "CJKAMP_Ded"),
+    # The view takes another name than the C struct, because the view target imports the C struct under its own name, the CCMShader form.
+    "SRagEffector": ("RagEffector", "CJKAMP_Ded"),
+    "contrib_t": ("Contrib", "CJKAMP_Ded"),
+    "contrib_list_t": ("ContribList", "CJKAMP_Ded"),
+    "vidmode_t": ("Vidmode", "CJKAMP_Ded"),
+    # The botlib edge of botlib.h:93 to :422, row B1: `be_botlib_export` and `botimport` of be_interface.cpp and `botlib_export` of sv_game.cpp.
+    # botlib.h is a header of the game parse, so ded_types.h holds a copy of the records, the form of row W1.
+    "botlib_export_t": ("BotlibExport", "CJKAMP_Ded"),
+    "botlib_import_t": ("BotlibImport", "CJKAMP_Ded"),
+    "bot_input_t": ("BotInput", "CJKAMP_Ded"),
+    "bsp_trace_t": ("BspTrace", "CJKAMP_Ded"),
+    "bot_entitystate_t": ("BotEntitystate", "CJKAMP_Ded"),
 }
 
 ROOTS = {"mp-game": GAME_ROOTS, "mp-cgame": CGAME_ROOTS, "mp-engine-ded": HOST_ROOTS}
@@ -316,6 +365,8 @@ SLOT_BOUNDS = {
     ("winding_t", "p"): "MAX_POINTS_ON_WINDING",
     # vm_local.h:107 declares `char symName[1]`, and VM_LoadSymbols allocates `sizeof( *sym ) + chars` for a token of COM_Parse at vm.cpp:300.
     ("vmSymbol_t", "symName"): "MAX_TOKEN_CHARS",
+    # Each block of the download window holds MAX_DOWNLOAD_BLKSIZE bytes, the Z_Malloc of sv_client.cpp:1158.
+    ("client_t", "downloadBlocks"): "MAX_DOWNLOAD_BLKSIZE",
 }
 
 # File-scope variables a body reads with no bind, because Raven's callers always set them before any body runs.
@@ -340,6 +391,38 @@ HAND_VARS = {
     "menuParseKeywords": "[KeywordHashRow]",
     "itemParseKeywordHash": "[Int32?]",
     "menuParseKeywordHash": "[Int32?]",
+    # A file-scope instance of a C++ class of CXX_CLASSES is a hand property of the state object, and the stub forwards it,
+    # the form of `TheStringPackage` at stringed_ingame.swift:124. A table of class pointers and a `std::` container are hand tables, rule 17.
+    "theROFFSystem": "CROFFSystem",
+    "navigator": "CNavigator",
+    "gSequencers": "[CSequencer?]",
+    "gTaskManagers": "[CTaskManager?]",
+    "iICARUS": "ICARUS_Instance?",
+    # The Ghoul2 statics of G2_API.cpp:44 and :477, G2_bones.cpp:1218 and :1241, and G2_misc.cpp:35, :36, and :125, rows G1, G2, G2B2, and G2B3.
+    "g_G2AllocTrack": "[CGhoul2Info_v?]",
+    "singleton": "Ghoul2InfoArray?",
+    "ragBoneData": "[boneInfo_t?]",
+    "rag": "[boneInfo_t?]",
+    "GoreRecords": "[Int32: GoreTextureCoordinates]",
+    "GoreTagsTemp": "[[Int32]: Int32]",
+    "GoreSets": "[Int32: CGoreSet]",
+    # `CachedModels_t *CachedModels` of tr_model.cpp:68 is a `map<sstring_t, CachedEndianedModelBinary_t> *`, row TR2.
+    "CachedModels": "[String: CachedEndianedModelBinary_t]?",
+    # `char **shaderTextHashTable[MAX_SHADERTEXT_HASH]` of tr_shader.cpp:109 holds cursors into `s_shaderText`, row TR7.
+    "shaderTextHashTable": "[[TextCursor]]",
+    # The heap of the Ghoul2 vertices, tr_init.cpp:1305 and sv_init.cpp:885, row S1 of the sv-core round.
+    "G2VertSpaceServer": "CMiniHeap?",
+    "CMiniHeap_singleton": "CMiniHeap",
+    # The nine cycle timers of tr_ghoul2.cpp:42 to :50, row G2B8 and the Com_Frame timer of common.cpp:1598.
+    "G2PerformanceTimer_RenderSurfaces": "timing_c",
+    "G2PerformanceTimer_R_AddGHOULSurfaces": "timing_c",
+    "G2PerformanceTimer_G2_TransformGhoulBones": "timing_c",
+    "G2PerformanceTimer_G2_ProcessGeneratedSurfaceBolts": "timing_c",
+    "G2PerformanceTimer_ProcessModelBoltSurfaces": "timing_c",
+    "G2PerformanceTimer_G2_ConstructGhoulSkeleton": "timing_c",
+    "G2PerformanceTimer_RB_SurfaceGhoul": "timing_c",
+    "G2PerformanceTimer_G2_SetupModelPointers": "timing_c",
+    "G2PerformanceTimer_PreciseFrame": "timing_c",
 }
 
 # File-scope character arrays whose address the engine holds, so each one is one zeroed byte allocation on the storage class, not a `CharBuf`.
@@ -396,6 +479,10 @@ BYTE_STORAGE_LOCALS = {
     # of SV_AreaEntities and CM_BoxLeafnums at sv_world.cpp:883 and :280.
     ("touch", "SV_PointContents"): ("SV_PointContents",),
     ("leafs", "SV_LinkEntity"): ("SV_LinkEntity",),
+    # `static int touchlist[MAX_GENTITIES]` of SV_ClipMoveToEntities goes to SV_AreaEntities at sv_world.cpp:532, row SV2.
+    ("touchlist", "SV_ClipMoveToEntities"): ("SV_ClipMoveToEntities",),
+    # `int leafs[MAX_POSITION_LEAFS]` of CM_PositionTest goes to the `int *` list of `leafList_t` at cm_trace.cpp:457, row R2.
+    ("leafs", "CM_PositionTest"): ("CM_PositionTest",),
 }
 # A scalar data table Raven initializes at file scope that tables.py copies into C storage, which the view target reads as a Slots of its scalar.
 # `static unsigned char PADDING[64]` of md4.cpp goes to MD4Update at md4.cpp:157, whose `input` is a Slots of bytes.
@@ -411,6 +498,7 @@ BYTE_STORAGE_FIELDS = {("cg_t", "sharedBuffer")}
 #   slot  a Slots of one optional view for a pointer to a record pointer, over the slot the field points at, so `*node->head` reads `node.head![0]`.
 #         On a record pointer field it adds the accessor `<field>Slot`, the slot of the field itself, for Raven's `&sym->next`
 #   pointer_table  a Slots of optional views with the widest count for a `T **` field that holds an array of record pointers
+#   bytes_table  an array of optional Slots of bytes for a fixed array of `byte *` buffers, each Slots bounded by SLOT_BOUNDS
 # Item_ValidateTypeData allocates one of five records into `typeData` by `item->type`, ui_shared.c:7279, and the bodies cast it back.
 FIELDS = {
     ("itemDef_t", "typeData"): "raw",
@@ -461,6 +549,9 @@ FIELDS = {
     # CM_BoxLeafnums stores the caller's list at cm_test.cpp:410, and CM_StoreLeafs writes `ll->list[ll->count++]` at :356.
     ("areaParms_t", "list"): "bytes",
     ("leafList_t", "list"): "bytes",
+    # SV_WriteDownloadToClient stores a Z_Malloc block of MAX_DOWNLOAD_BLKSIZE bytes in each slot at sv_client.cpp:1158 and reads it at :1243, row G13.
+    # A `byte *` array of kind `bytes_table` reads as an array of the Slots over each block or nil, the `bytes` form per slot.
+    ("client_t", "downloadBlocks"): "bytes_table",
 }
 
 # (struct, field) -> the accessor name of a field whose C name is a member of every view, `handle` or `raw`, where a body reads the field.
@@ -528,6 +619,20 @@ TYPES = {
     # Raven declares `static bot_debugpoly_t *debugpolygons` at sv_bot.cpp:16, the Z_Malloc table of SV_BotInitBotLib, and indexes it by polygon id.
     # be_aas_debug.cpp declares an `int debugpolygons[MAX_DEBUGPOLYGONS]` of its own, so the key names the file.
     "sv_bot:debugpolygons": "Slots<BotDebugpoly>?",
+    # The C++ `bool` globals of the host, the row of `g_nOverrideChecked`, rows TR3 and G2B2.
+    "gServerSkinHack": "Bool",
+    "tr_stencilled": "Bool",
+    "g_bRenderGlowingObjects": "Bool",
+    "g_bDynamicGlowSupported": "Bool",
+    "HackadelicOnClient": "Bool",
+    "g_G2AllocTrackInit": "Bool",
+    "haveDesiredPelvisOffset": "Bool",
+    # The vectors of ghoul2_shared.h:223 to :226 are Swift arrays of their records, rule 17.
+    # A non-const reference to one is inout, so `boneInfo_v &blist` is `inout [boneInfo_t]`.
+    "surfaceInfo_v": "[surfaceInfo_t]",
+    "boneInfo_v": "[boneInfo_t]",
+    "boltInfo_v": "[boltInfo_t]",
+    "mdxaBone_v": "[(Int32, MdxaBone)]",
 }
 
 # A typedef Raven gives a narrow C type whose values are the enumerators of an anonymous enum, which reexport.py writes as the Int32 alias of a C enum.
@@ -555,6 +660,7 @@ ENUM_TYPEDEFS = {"memtag_t"}
 #   record         the view of a record Raven returns by value, which the body takes from a storage record or a table slot and the caller copies
 #   bytes          a Slots<byte>, for a `byte *` Raven returns into a byte buffer the caller indexes, the return twin of the PARAMS kind
 #   optional_bytes  a Slots<byte>?, the same for a function that returns NULL on one path
+#   optional_raw   an UnsafeMutableRawPointer?, the `raw` return of a function that returns NULL on one path
 #   string_list    a [String], for a `char **` list of zone texts with its count beside it, the file lists of files_pc.cpp and win_main.cpp
 #   class_ref      the Swift class of a C++ class of CXX_CLASSES, optional, for a pointer to an instance Raven returns or NULL
 RETURNS = {
@@ -602,8 +708,9 @@ RETURNS = {
     "Hunk_AllocateTempMemory": "raw",
     # VM_Alloc of vm.cpp:227 returns the block of one Hunk_Alloc call, and VM_ArgPtr of :640 and BotVMShift of :657 return an address in the module's data.
     "VM_Alloc": "raw",
-    "VM_ArgPtr": "raw",
-    "BotVMShift": "raw",
+    # VM_ArgPtr and BotVMShift return NULL for a zero word at vm.cpp:642 and :661, row FC3, the optional twin of `raw`.
+    "VM_ArgPtr": "optional_raw",
+    "BotVMShift": "optional_raw",
     # Every caller of VM_ExplicitArgPtr of vm.cpp:742 casts the return to `char *`, the denial text of GAME_CLIENT_CONNECT, and the body returns NULL for a zero word.
     "VM_ExplicitArgPtr": "optional_string",
     # FS_ShiftedStrStr of files_pc.cpp:649 returns `strstr(string, buf)`, the text from the match or NULL.
@@ -643,6 +750,8 @@ RETURNS = {
     "SE_LoadLanguage": "optional_string",
     # Com_ParseTextFile of common.cpp:2209 returns a `new CGenericParser2` or NULL.
     "Com_ParseTextFile": "class_ref",
+    # ICARUS_Malloc of icarus/Memory.cpp:8 returns the Z_Malloc block, the row of S_Malloc and row B5, row FC4.
+    "ICARUS_Malloc": "raw",
 }
 
 # Allocators whose `char *` result a body holds as a CharBuf of the constant size Raven asks for, when every store into the local is that call.
@@ -682,6 +791,7 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #   string_value  a String by value for a `const void *` a qsort comparator reads as `*(char **)`, the text twin of int_value
 #   std_string  an inout String, for a C++ `std::string &` the body writes, the reference twin of out_string
 #   vec4_const  a vec4_t by value for a `float plane[4]` or a `float *` plane the body only reads, the form a `vec4_t` parameter has
+#   vec3_array  a [vec3_t] by value for a `vec3_t *` array the body reads with a count beside it, the form a trap's vector array has
 PARAMS = {
     # free_ppnode of huffman.cpp:59 takes the slot address that get_ppnode returned, the form of a `node_t **` field.
     ("free_ppnode", "ppnode"): "slot",
@@ -872,6 +982,30 @@ PARAMS = {
     ("CM_PlaneEqual", "plane"): "vec4_const",
     ("CM_FindPlane2", "plane"): "vec4_const",
     ("CM_CheckFacetPlane", "plane"): "vec4_const",
+    # Q3_GetVectorVariable writes the three floats of `value` through sscanf at Q3_Registers.cpp:179, row SV4.
+    ("Q3_GetVectorVariable", "value"): "vec3_mut",
+    # CM_ComparePoints reads the three floats of each grid point at cm_patch.cpp:373 to :384, row P1, the row of CM_FindPlane.
+    ("CM_ComparePoints", "a"): "vec3_const",
+    ("CM_ComparePoints", "b"): "vec3_const",
+    # CM_GeneratePatchCollide reads `width * height` points of the caller's `vec3_t points[MAX_PATCH_VERTS]` at cm_patch.cpp:1163, row P2,
+    # so the caller's array of vectors crosses, the row a trap's `vec3_t *` array has.
+    ("CM_GeneratePatchCollide", "points"): "vec3_array",
+    # CM_ParseVector fills three floats of the one caller's `vec3_t fogColor` at cm_shader.cpp:435, row S2, the row of BG_ValidateSkinForTeam.
+    ("CM_ParseVector", "v"): "vec3_mut",
+    # The lightmap index lists of tr_shader.cpp are the four tables of :124 to :149 or a surface's list, read and never written, row TR8.
+    ("R_CreateExtendedName", "lightmapIndex"): "int_array",
+    ("IsShader", "lightmapIndex"): "int_array",
+    ("R_FindShader", "lightmapIndex"): "int_array",
+    ("R_FindServerShader", "lightmapIndex"): "int_array",
+    ("RE_RegisterShaderFromImage", "lightmapIndex"): "int_array",
+    ("RE_RegisterShaderLightMap", "lightmapIndex"): "int_array",
+    # QsortDistance of G2_API.cpp:1993 reads `(CollisionRecord_t *)a` and `b`, and the two collision functions sort the table with it, row G4.
+    ("QsortDistance", "a"): ("view", "CollisionRecord_t"),
+    ("QsortDistance", "b"): ("view", "CollisionRecord_t"),
+    # The collision functions fill and sort the caller's table of MAX_G2_COLLISIONS records by index, G2_misc.cpp:1114 and :1346, row G4.
+    ("G2API_CollisionDetectCache", "collRecMap"): "table",
+    ("G2API_CollisionDetect", "collRecMap"): "table",
+    ("G2_TraceModels", "collRecMap"): "table",
 }
 
 # Rule 20: a function with no caller in either tree stays as its stub, and the stub carries one note line that it is dead.
@@ -879,6 +1013,14 @@ DEAD = {
     "CG_ParticleExplosion": "Raven calls this function from no file of either tree",
     # R_DebugGraphics of tr_main.cpp:1583 is the one caller, and the dedicated build never draws.
     "CM_DrawDebugSurface": "The renderer's R_DebugGraphics is the one caller, and the dedicated build never draws",
+    # tr_image.cpp:2252 and :2295 call LoadTGA under `#ifndef DEDICATED`, and client/cl_main.cpp:2483 calls GetRefAPI, row TR9.
+    "LoadTGA": "Its two callers in tr_image.cpp stand under `#ifndef DEDICATED`, so no caller builds in the dedicated host",
+    "GetRefAPI": "The client's cl_main.cpp is the one caller, and the dedicated host does not link it",
+    # R_AddGhoulSurfaces of tr_ghoul2.cpp:3384 is the one caller, under `#ifndef DEDICATED`, row G2B7.
+    "bInShadowRange": "R_AddGhoulSurfaces is the one caller, under `#ifndef DEDICATED`, so no caller builds in the dedicated host",
+    # CM_BoxBrushes of cm_test.cpp:194 has no caller in either tree, and it is the one function that stores CM_StoreBrushes, row R4.
+    "CM_BoxBrushes": "Raven calls this function from no file of either tree",
+    "CM_StoreBrushes": "CM_BoxBrushes is the one function that stores it, and no file of either tree calls CM_BoxBrushes",
 }
 
 # Functions of the oracle the port leaves out. The stub carries the cite, Raven's line, and the reason, and no function.
@@ -934,6 +1076,14 @@ C_STRUCT_CLASSES = {
     "CCMLandScape": ("tag", "oracle/codemp/qcommon/cm_landscape.h:135"),
     # `traceWork_t` is a C struct but for its two C++ `bool` fields, which C spells `_Bool`, row S7.
     "traceWork_t": ("fields", "oracle/codemp/qcommon/cm_local.h:238"),
+    # The renderer records of tr_local.h hold C++ `bool` fields, and `tr` of tr_main.cpp:15 holds them by value and by pointer, row TR1.
+    "image_t": ("fields", "oracle/codemp/renderer/tr_local.h:136"),
+    "textureBundle_t": ("fields", "oracle/codemp/renderer/tr_local.h:372"),
+    "shaderStage_t": ("fields", "oracle/codemp/renderer/tr_local.h:394"),
+    "shader_t": ("fields", "oracle/codemp/renderer/tr_local.h:459"),
+    # `tr.landScape` holds the record by value, and its `class CTRLandScape *` field points at the renderer's terrain class, which C never reads.
+    "srfTerrain_t": ("fields", "oracle/codemp/renderer/tr_local.h:744"),
+    "CTRLandScape": ("tag", "oracle/codemp/renderer/tr_local.h:747"),
 }
 
 # C++ classes of the oracle that a hand Swift class of the same name ports, by the C++ track of rule 17.
@@ -941,6 +1091,24 @@ C_STRUCT_CLASSES = {
 # CGenericParser2 is the final class of GenericParser2.swift, row C3 of notes/2026-11-03/dedicated-cxx-docket.md and row G1 of the unzip round.
 CXX_CLASSES = {
     "CGenericParser2": "CGenericParser2",
+    # Row C of notes/2026-11-09/dedicated-open-rows-ledger-7.md: one final class per Raven class of ICARUS, the navigator, and ROFF.
+    "CBlockMember": "CBlockMember", "CBlock": "CBlock", "CBlockStream": "CBlockStream",
+    "CSequence": "CSequence", "CSequencer": "CSequencer",
+    "CTask": "CTask", "CTaskGroup": "CTaskGroup", "CTaskManager": "CTaskManager",
+    "ICARUS_Instance": "ICARUS_Instance",
+    "CNavigator": "CNavigator", "CNode": "CNode", "CEdge": "CEdge", "CPriorityQueue": "CPriorityQueue",
+    "CROFFSystem": "CROFFSystem",
+    # The Ghoul2 classes of ghoul2_shared.h:38 to :457, G2_gore.h, and tr_ghoul2.cpp, and the renderer classes of tr_local.h:2047 and MiniHeap.h:5.
+    "surfaceInfo_t": "surfaceInfo_t", "boneInfo_t": "boneInfo_t", "boltInfo_t": "boltInfo_t",
+    "CGhoul2Info": "CGhoul2Info", "CGhoul2Info_v": "CGhoul2Info_v",
+    # IGhoul2InfoArray of ghoul2_shared.h:316 is an interface with one implementation, so it is the class it hides, rule 17.
+    "IGhoul2InfoArray": "Ghoul2InfoArray", "Ghoul2InfoArray": "Ghoul2InfoArray",
+    "CBoneCache": "CBoneCache", "CRagDollUpdateParams": "CRagDollUpdateParams", "CRagDollParams": "CRagDollParams",
+    "CGoreSet": "CGoreSet", "GoreTextureCoordinates": "GoreTextureCoordinates", "CTraceSurface": "CTraceSurface",
+    "CConstructBoneList": "CConstructBoneList", "CRenderableSurface": "CRenderableSurface", "CMiniHeap": "CMiniHeap",
+    "CachedEndianedModelBinary_t": "CachedEndianedModelBinary_t",
+    # The cycle timer of timing.h:2, which Com_Frame and the Ghoul2 timers of tr_ghoul2.cpp:42 to :50 hold under G2_PERFORMANCE_ANALYSIS of q_shared.h:46.
+    "timing_c": "timing_c",
 }
 
 # C targets whose copied headers include a C library header, as CJKASyscall includes <stdint.h>.
@@ -1042,6 +1210,14 @@ NULLABLE = {
     ("unzGetCurrentFileInfo", "pfile_info"),
     ("unzGetCurrentFileInfo", "szFileName"),
     ("unzGetCurrentFileInfo", "szComment"),
+}
+# (struct, field) pairs of a record pointer field a body indexes through a local copy or a `++` walk, which the subscript sweep cannot see.
+# The view gives the field its `<field>Slots` accessor, as the sweep does for a field a body indexes in place.
+# FS_LoadZipFile copies `pak->buildBuffer` into a local and indexes it at files_pc.cpp:1635 to :1641, row FC1.
+# CM_TracePointThroughPatchCollide walks `pc->facets` with `facet++` at cm_patch.cpp:1288, row P5.
+INDEXED_FIELDS = {
+    ("pack_t", "buildBuffer"),
+    ("patchCollide_t", "facets"),
 }
 # Files whose functions a bg body reaches directly, because they live in the shared module or in bg itself.
 # The functions whose integer arithmetic is a generator or a hash, where C wraps at 32 bits and Swift's plain operators trap.

@@ -293,10 +293,7 @@ BotImport_Trace
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:309
-// TODO: Port signature
-// Raven wrote: void BotImport_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask)
-// No table row for `bsp_trace_t * bsptrace`.
-func BotImport_Trace() -> Never {
+func BotImport_Trace(_ bsptrace: BspTrace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ passent: Int32, _ contentmask: Int32) {
     // TODO: Port BotImport_Trace
     portMissing("BotImport_Trace", source: "oracle/codemp/server/sv_bot.cpp:309")
 }
@@ -309,10 +306,7 @@ BotImport_EntityTrace
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:334
-// TODO: Port signature
-// Raven wrote: void BotImport_EntityTrace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int entnum, int contentmask)
-// No table row for `bsp_trace_t * bsptrace`.
-func BotImport_EntityTrace() -> Never {
+func BotImport_EntityTrace(_ bsptrace: BspTrace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ entnum: Int32, _ contentmask: Int32) {
     // TODO: Port BotImport_EntityTrace
     portMissing("BotImport_EntityTrace", source: "oracle/codemp/server/sv_bot.cpp:334")
 }

@@ -52,10 +52,7 @@ func AAS_PointContents(_ point: JKAShared.vec3_t) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:153
-// TODO: Port signature
-// Raven wrote: qboolean AAS_EntityCollision(int entnum, vec3_t start, vec3_t boxmins, vec3_t boxmaxs, vec3_t end, int contentmask, bsp_trace_t *trace)
-// No table row for `bsp_trace_t * trace`.
-func AAS_EntityCollision() -> Never {
+func AAS_EntityCollision(_ entnum: Int32, _ start: JKAShared.vec3_t, _ boxmins: JKAShared.vec3_t, _ boxmaxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ contentmask: Int32, _ trace: BspTrace) -> Bool {
     // TODO: Port AAS_EntityCollision
     portMissing("AAS_EntityCollision", source: "oracle/codemp/botlib/be_aas_bspq3.cpp:153")
 }

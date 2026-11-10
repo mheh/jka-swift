@@ -22,6 +22,11 @@ public struct EngineVariables {
     /// Source: oracle/codemp/ghoul2/G2_API.cpp:37
     public var g_G2AllocServer: Int32 = 0
 
+    /// Raven's `bool g_G2AllocTrackInit` of `G2_API.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_API.cpp:43
+    // Raven wrote `= false`, and the hand line in `EngineWorld.init` holds it.
+    public var g_G2AllocTrackInit: Bool = false
+
     /// Raven's `int G2TimeBases[NUM_G2T_TIME]` of `G2_API.cpp`.
     /// Source: oracle/codemp/ghoul2/G2_API.cpp:160
     public var G2TimeBases: [Int32] = [Int32](repeating: 0, count: 2)
@@ -57,6 +62,11 @@ public struct EngineVariables {
     /// Raven's `vec3_t ragBoneCM` of `G2_bones.cpp`.
     /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1224
     public var ragBoneCM: JKAShared.vec3_t = vec3_t()
+
+    /// Raven's `bool haveDesiredPelvisOffset` of `G2_bones.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1225
+    // Raven wrote `= false`, and the hand line in `EngineWorld.init` holds it.
+    public var haveDesiredPelvisOffset: Bool = false
 
     /// Raven's `vec3_t desiredPelvisOffset` of `G2_bones.cpp`.
     /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1226
@@ -239,6 +249,10 @@ public struct EngineVariables {
     /// Raven's `int modeltypes[MAX_MODELS]` of `be_ai_move.cpp`.
     /// Source: oracle/codemp/botlib/be_ai_move.cpp:100
     public var modeltypes: [Int32] = [Int32](repeating: 0, count: 512)
+
+    /// Raven's `bot_input_t *botinputs` of `be_ea.cpp`.
+    /// Source: oracle/codemp/botlib/be_ea.cpp:27
+    public var botinputs: BotInput? = nil
 
     /// Raven's `int bot_developer` of `be_interface.cpp`.
     /// Source: oracle/codemp/botlib/be_interface.cpp:44
@@ -778,6 +792,10 @@ public struct EngineVariables {
     /// Source: oracle/codemp/server/sv_bot.cpp:22
     public var gWPNum: Int32 = 0
 
+    /// Raven's `botlib_export_t *botlib_export` of `sv_game.cpp`.
+    /// Source: oracle/codemp/server/sv_game.cpp:32
+    public var botlib_export: BotlibExport? = nil
+
     /// Raven's `vm_t *gvm` of `sv_main.cpp`.
     /// Source: oracle/codemp/server/sv_main.cpp:12
     public var gvm: Vm? = nil
@@ -890,6 +908,10 @@ public struct EngineVariables {
     /// Source: oracle/codemp/server/sv_world.cpp:59
     public var sv_numworldSectors: Int32 = 0
 
+    /// Raven's `backEndData_t *backEndData` of `tr_backend.cpp`.
+    /// Source: oracle/codemp/renderer/tr_backend.cpp:20
+    public var backEndData: BackEndData? = nil
+
     /// Raven's `int G2PerformanceCounter_G2_TransformGhoulBones` of `tr_ghoul2.cpp`.
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:52
     public var G2PerformanceCounter_G2_TransformGhoulBones: Int32 = 0
@@ -933,6 +955,11 @@ public struct EngineVariables {
     /// Raven's `unsigned int NextRS` of `tr_ghoul2.cpp`.
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:867
     public var NextRS: UInt32 = 0
+
+    /// Raven's `bool gServerSkinHack` of `tr_image.cpp`.
+    /// Source: oracle/codemp/renderer/tr_image.cpp:2967
+    // Raven wrote `= false`, and the hand line in `EngineWorld.init` holds it.
+    public var gServerSkinHack: Bool = false
 
     /// Raven's `cvar_t *r_verbose` of `tr_init.cpp`.
     /// Source: oracle/codemp/renderer/tr_init.cpp:40

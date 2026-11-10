@@ -23,6 +23,17 @@ extension SIMD3 where Scalar == Float {
     }
 }
 
+extension SIMD4 where Scalar == Float {
+    public subscript<I: BinaryInteger>(i: I) -> Scalar {
+        get {
+            self[Int(i)]
+        }
+        set {
+            self[Int(i)] = newValue
+        }
+    }
+}
+
 extension Array {
     public subscript<I: BinaryInteger>(i: I) -> Element {
         get {

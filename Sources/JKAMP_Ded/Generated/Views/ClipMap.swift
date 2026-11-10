@@ -146,17 +146,17 @@ public struct ClipMap: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/qcommon/cm_local.h:174
-    public var nodes: CNode? {
-        get { self.raw.pointee.nodes.map { CNode(handle: OpaquePointer($0)) } }
+    public var nodes: CmNode? {
+        get { self.raw.pointee.nodes.map { CmNode(handle: OpaquePointer($0)) } }
         nonmutating set { self.raw.pointee.nodes = UnsafeMutablePointer(newValue?.handle) }
     }
 
     /// Raven's `nodes[i]`, the records the pointer holds. A NULL pointer traps with the field's name.
     /// C gives the pointer no bound, so the Slots takes the widest count.
-    public var nodesSlots: Slots<CNode> {
+    public var nodesSlots: Slots<CmNode> {
         get {
             precondition(self.raw.pointee.nodes != nil, "nodes is NULL")
-            return Slots(views: UnsafeMutableRawPointer(self.raw.pointee.nodes!), count: Int.max, stride: CNode.stride)
+            return Slots(views: UnsafeMutableRawPointer(self.raw.pointee.nodes!), count: Int.max, stride: CmNode.stride)
         }
         nonmutating set { self.raw.pointee.nodes = newValue.base.assumingMemoryBound(to: cNode_t.self) }
     }

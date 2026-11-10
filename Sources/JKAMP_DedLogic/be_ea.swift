@@ -15,9 +15,10 @@ let MAX_COMMANDARGUMENTS = 10 as Int32
 let ACTION_JUMPEDLASTFRAME = 0x0800000 as Int32
 
 /// Source: oracle/codemp/botlib/be_ea.cpp:27
-// TODO: Port global botinputs
-// Raven wrote: bot_input_t *botinputs
-// No table row for `bot_input_t *`.
+var botinputs: BotInput? {
+    get { world.variables.botinputs }
+    set { world.variables.botinputs = newValue }
+}
 
 //===========================================================================
 //
@@ -386,10 +387,7 @@ func EA_EndRegular(_ client: Int32, _ thinktime: Float) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:454
-// TODO: Port signature
-// Raven wrote: void EA_GetInput(int client, float thinktime, bot_input_t *input)
-// No table row for `bot_input_t * input`.
-func EA_GetInput() -> Never {
+func EA_GetInput(_ client: Int32, _ thinktime: Float, _ input: BotInput) {
     // TODO: Port EA_GetInput
     portMissing("EA_GetInput", source: "oracle/codemp/botlib/be_ea.cpp:454")
 }

@@ -44,6 +44,12 @@ public final class EngineWorld {
 
     // MARK: - Raven's data tables
 
+    // MARK: - cm_load.cpp
+
+    /// Raven's `static unsigned last_checksum` of `CM_LoadMap_Actual` in `cm_load.cpp`, the checksum of the last map the loader read.
+    /// Source: oracle/codemp/qcommon/cm_load.cpp:610
+    var last_checksum: UInt32 = 0
+
     // MARK: - cm_shader.cpp
 
     /// Raven's `CHash<CCMShaderText> shaderTextTable` of `cm_shader.cpp`, the name of each shader block to the byte offset of its text in `shaderText`.
@@ -243,15 +249,13 @@ public final class EngineWorld {
 
     // MARK: - tr_shader.cpp
 
-    // AI: Raven fills the table with LIGHTMAP_NONE of tr_local.h:434, which has no re-export in the host target. The table holds its value, -1.
     /// Raven's `const int lightmapsNone[MAXLIGHTMAPS]` of `tr_shader.cpp`.
     /// Source: oracle/codemp/renderer/tr_shader.cpp:125
-    var lightmapsNone: [Int32] = [-1, -1, -1, -1]
+    var lightmapsNone: [Int32] = [LIGHTMAP_NONE, LIGHTMAP_NONE, LIGHTMAP_NONE, LIGHTMAP_NONE]
 
-    // AI: Raven fills the table with LIGHTMAP_2D of tr_local.h:431, which has no re-export in the host target. The table holds its value, -4.
     /// Raven's `const int lightmaps2d[MAXLIGHTMAPS]` of `tr_shader.cpp`.
     /// Source: oracle/codemp/renderer/tr_shader.cpp:133
-    var lightmaps2d: [Int32] = [-4, -4, -4, -4]
+    var lightmaps2d: [Int32] = [LIGHTMAP_2D, LIGHTMAP_2D, LIGHTMAP_2D, LIGHTMAP_2D]
 
     /// Raven's `const byte stylesDefault[MAXLIGHTMAPS]` of `tr_shader.cpp`.
     /// Source: oracle/codemp/renderer/tr_shader.cpp:157
@@ -451,6 +455,118 @@ public final class EngineWorld {
         "TEMP_HUNKALLOC",
         "COUNT",
     ]
+
+    // MARK: - Instance.cpp and GameInterface.cpp
+
+    /// Raven's `CSequencer *gSequencers[MAX_GENTITIES]` of `Instance.cpp`, one sequencer slot per entity.
+    /// Source: oracle/codemp/icarus/Instance.cpp:19
+    var gSequencers: [CSequencer?] = Array(repeating: nil, count: Int(MAX_GENTITIES))
+
+    /// Raven's `CTaskManager *gTaskManagers[MAX_GENTITIES]` of `Instance.cpp`, one task manager slot per entity.
+    /// Source: oracle/codemp/icarus/Instance.cpp:20
+    var gTaskManagers: [CTaskManager?] = Array(repeating: nil, count: Int(MAX_GENTITIES))
+
+    /// Raven's `ICARUS_Instance *iICARUS` of `GameInterface.cpp`, the one ICARUS instance after ICARUS_Init.
+    /// Source: oracle/codemp/icarus/GameInterface.cpp:16
+    var iICARUS: ICARUS_Instance? = nil
+
+    // MARK: - navigator.cpp
+
+    /// Raven's `CNavigator navigator` of `navigator.cpp`, the one waypoint graph.
+    /// Source: oracle/codemp/server/NPCNav/navigator.cpp:32
+    // AI: Raven constructs the instance before main, and its constructor reads the cvars. The world constructs it at the first read.
+    lazy var navigator = CNavigator()
+
+    // MARK: - RoffSystem.cpp
+
+    /// Raven's `CROFFSystem theROFFSystem` of `RoffSystem.cpp`, the one ROFF cache.
+    /// Source: oracle/codemp/qcommon/RoffSystem.cpp:8
+    // AI: Raven constructs the instance before main. The world constructs it at the first read, the form of the navigator.
+    lazy var theROFFSystem = CROFFSystem()
+
+    // MARK: - G2_API.cpp
+
+    /// Raven's `static CGhoul2Info_v *g_G2AllocTrack[MAX_TRACKED_ALLOC]` of `G2_API.cpp`, the leak tracker table.
+    /// Source: oracle/codemp/ghoul2/G2_API.cpp:44
+    var g_G2AllocTrack: [CGhoul2Info_v?] = Array(repeating: nil, count: Int(MAX_TRACKED_ALLOC))
+
+    /// Raven's `static Ghoul2InfoArray *singleton` of `G2_API.cpp`, which TheGhoul2InfoArray makes on its first call.
+    /// Source: oracle/codemp/ghoul2/G2_API.cpp:477
+    var singleton: Ghoul2InfoArray? = nil
+
+    // MARK: - G2_bones.cpp
+
+    /// Raven's `static boneInfo_t *ragBoneData[MAX_BONES_RAG]` of `G2_bones.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1218
+    var ragBoneData: [boneInfo_t?] = Array(repeating: nil, count: Int(MAX_BONES_RAG))
+
+    /// Raven's `static vector<boneInfo_t *> rag` of `G2_bones.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1241
+    var rag: [boneInfo_t?] = []
+
+    // MARK: - G2_misc.cpp
+
+    /// Raven's `static map<int,GoreTextureCoordinates> GoreRecords` of `G2_misc.cpp`, keyed by gore tag.
+    /// Source: oracle/codemp/ghoul2/G2_misc.cpp:35
+    var GoreRecords: [Int32: GoreTextureCoordinates] = [:]
+
+    /// Raven's `static map<pair<int,int>,int> GoreTagsTemp` of `G2_misc.cpp`, keyed by the pair of the surface and the LOD.
+    /// Source: oracle/codemp/ghoul2/G2_misc.cpp:36
+    // AI: Raven keys the map by a `pair<int,int>`. The key is a two-element array, because a Swift tuple is not Hashable.
+    var GoreTagsTemp: [[Int32]: Int32] = [:]
+
+    /// Raven's `static map<int,CGoreSet *> GoreSets` of `G2_misc.cpp`, keyed by the gore set id.
+    /// Source: oracle/codemp/ghoul2/G2_misc.cpp:125
+    var GoreSets: [Int32: CGoreSet] = [:]
+
+    // MARK: - tr_ghoul2.cpp and common.cpp
+
+    /// Raven's nine `timing_c G2PerformanceTimer_` timers of `tr_ghoul2.cpp:42` to `:50`.
+    /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:42
+    let G2PerformanceTimer_RenderSurfaces = timing_c()
+    let G2PerformanceTimer_R_AddGHOULSurfaces = timing_c()
+    let G2PerformanceTimer_G2_TransformGhoulBones = timing_c()
+    let G2PerformanceTimer_G2_ProcessGeneratedSurfaceBolts = timing_c()
+    let G2PerformanceTimer_ProcessModelBoltSurfaces = timing_c()
+    let G2PerformanceTimer_G2_ConstructGhoulSkeleton = timing_c()
+    let G2PerformanceTimer_RB_SurfaceGhoul = timing_c()
+    let G2PerformanceTimer_G2_SetupModelPointers = timing_c()
+    let G2PerformanceTimer_PreciseFrame = timing_c()
+
+    // MARK: - tr_model.cpp and tr_shader.cpp
+
+    /// Raven's `CachedModels_t *CachedModels` of `tr_model.cpp`, the model binaries by name, which RE_RegisterModels_Init makes.
+    /// Source: oracle/codemp/renderer/tr_model.cpp:68
+    var CachedModels: [String: CachedEndianedModelBinary_t]? = nil
+
+    /// Raven's `static char **shaderTextHashTable[MAX_SHADERTEXT_HASH]` of `tr_shader.cpp`, one list of cursors into `s_shaderText` per hash.
+    /// Source: oracle/codemp/renderer/tr_shader.cpp:109
+    var shaderTextHashTable: [[TextCursor]] = Array(repeating: [], count: Int(MAX_SHADERTEXT_HASH))
+
+    /// Raven's `static char sPrevMapName[MAX_QPATH]` of RE_RegisterMedia_LevelLoadBegin, the map name of the last level load.
+    /// Source: oracle/codemp/renderer/tr_model.cpp:560
+    var sPrevMapName = CharBuf(MAX_QPATH)
+
+    // MARK: - cm_patch.cpp
+
+    /// Raven's `static cvar_t *cv` of CM_TracePointThroughPatchCollide.
+    /// Source: oracle/codemp/qcommon/cm_patch.cpp:1256
+    var cv_CM_TracePointThroughPatchCollide: Cvar? = nil
+
+    /// Raven's `static cvar_t *cv` of CM_TraceThroughPatchCollide.
+    /// Source: oracle/codemp/qcommon/cm_patch.cpp:1401
+    var cv_CM_TraceThroughPatchCollide: Cvar? = nil
+
+    // MARK: - tr_init.cpp
+
+    /// Raven's `CMiniHeap *G2VertSpaceServer` of `tr_init.cpp`, which SV_Init points at `CMiniHeap_singleton`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:29
+    var G2VertSpaceServer: CMiniHeap? = nil
+
+    /// Raven's `CMiniHeap CMiniHeap_singleton(G2_VERT_SPACE_SERVER_SIZE * 1024)` of `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:30
+    // AI: Raven constructs the heap before main, and its constructor allocates it. The world constructs it at the first read, the form of the navigator.
+    lazy var CMiniHeap_singleton = CMiniHeap(G2_VERT_SPACE_SERVER_SIZE * 1024)
 
     /// The shell entry builds a fresh world, so the initializer is public.
     public init() {

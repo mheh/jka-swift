@@ -1,0 +1,42 @@
+import Foundation
+import JKAMP
+import JKAShared
+import JKAMP_Ded
+
+/// Raven's renderable Ghoul2 surface, the surface data and the bone cache that `RB_SurfaceGhoul` draws, with the gore values.
+/// `RenderSurfaces` of tr_ghoul2.cpp makes one per drawn surface.
+/// Source: oracle/codemp/renderer/tr_local.h:2047
+final class CRenderableSurface {
+    var ident: Int32 = 0
+    var boneCache: CBoneCache? = nil
+    var surfaceData: MdxmSurface? = nil	// pointer to surface data loaded into file - only used by client renderer DO NOT USE IN GAME SIDE - if there is a vid restart this will be out of wack on the game
+    var alternateTex: Slots<Float>? = nil		// alternate texture coordinates.
+    var goreChain: OpaquePointer? = nil
+
+    var scale: Float = 0
+    var fade: Float = 0
+    var impactTime: Float = 0 // this is a number between 0 and 1 that dictates the progression of the bullet impact
+
+    /// Source: oracle/codemp/renderer/tr_local.h:2067
+    // AI: Raven defines `operator=`. The method is `copy`.
+    @discardableResult
+    func copy(_ src: CRenderableSurface) -> CRenderableSurface {
+        // TODO: Port CRenderableSurface::operator=
+        portMissing("CRenderableSurface::operator=", source: "oracle/codemp/renderer/tr_local.h:2067")
+    }
+
+    /// Source: oracle/codemp/renderer/tr_local.h:2079
+    init() {
+        self.ident = SF_MDX
+        self.boneCache = nil
+        self.surfaceData = nil
+        self.alternateTex = nil
+        self.goreChain = nil
+    }
+
+    /// Source: oracle/codemp/renderer/tr_local.h:2092
+    func Init() {
+        // TODO: Port CRenderableSurface::Init
+        portMissing("CRenderableSurface::Init", source: "oracle/codemp/renderer/tr_local.h:2092")
+    }
+}

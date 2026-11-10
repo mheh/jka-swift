@@ -89,6 +89,20 @@ extension Slots where Element == Int32 {
         Slots<Int32>(scalars: self.word(x)!, count: Int.max / 4)
     }
 
+    /// Raven's `(float *)VMA(x)` of a float that the callee writes, the floats at the word with the widest count.
+    /// Source: oracle/codemp/server/sv_game.cpp:403
+    // AI: Raven's macro reads the local `args` of the switch. The accessor is a method of `args`, and it gives the floats at the word.
+    public func VMA(_ x: Int32) -> Slots<Float> {
+        Slots<Float>(scalars: self.word(x)!, count: Int.max / 4)
+    }
+
+    /// Raven's `(T **)VMA(x)` of a table of record pointers, the pointer slots at the word with the widest count.
+    /// Source: oracle/codemp/server/sv_game.cpp:403
+    // AI: Raven's macro reads the local `args` of the switch. The accessor is a method of `args`, and it gives the record pointers at the word.
+    public func VMA<V: HandleView>(_ x: Int32) -> Slots<V?> {
+        Slots<V?>(pointers: self.word(x)!, count: Int.max / MemoryLayout<Int>.stride)
+    }
+
     /// Raven's `VMF(x)`, `((float *)args)[x]`, the float whose bits `PASSFLOAT` put in the low half of the word.
     /// Source: oracle/codemp/server/sv_game.cpp:406
     // AI: Raven's macro reads the local `args` of the switch as floats. The accessor is a method of `args`, and it reads the low int as float bits.

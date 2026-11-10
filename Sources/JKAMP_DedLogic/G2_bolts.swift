@@ -7,20 +7,14 @@ import JKAMP_Ded
 
 // Given a bone number, see if that bone is already in our bone list
 /// Source: oracle/codemp/ghoul2/G2_bolts.cpp:21
-// TODO: Port signature
-// Raven wrote: int G2_Find_Bolt_Bone_Num(boltInfo_v &bltlist, const int boneNum)
-// No table row for `boltInfo_v & bltlist`.
-func G2_Find_Bolt_Bone_Num() -> Never {
+func G2_Find_Bolt_Bone_Num(_ bltlist: inout [boltInfo_t], _ boneNum: Int32) -> Int32 {
     // TODO: Port G2_Find_Bolt_Bone_Num
     portMissing("G2_Find_Bolt_Bone_Num", source: "oracle/codemp/ghoul2/G2_bolts.cpp:21")
 }
 
 // Given a bone number, see if that surface is already in our surfacelist list
 /// Source: oracle/codemp/ghoul2/G2_bolts.cpp:45
-// TODO: Port signature
-// Raven wrote: int G2_Find_Bolt_Surface_Num(boltInfo_v &bltlist, const int surfaceNum, const int flags)
-// No table row for `boltInfo_v & bltlist`.
-func G2_Find_Bolt_Surface_Num() -> Never {
+func G2_Find_Bolt_Surface_Num(_ bltlist: inout [boltInfo_t], _ surfaceNum: Int32, _ flags: Int32) -> Int32 {
     // TODO: Port G2_Find_Bolt_Surface_Num
     portMissing("G2_Find_Bolt_Surface_Num", source: "oracle/codemp/ghoul2/G2_bolts.cpp:45")
 }
@@ -28,49 +22,34 @@ func G2_Find_Bolt_Surface_Num() -> Never {
 //=========================================================================================
 //// Public Bolt Routines
 /// Source: oracle/codemp/ghoul2/G2_bolts.cpp:70
-// TODO: Port signature
-// Raven wrote: int G2_Add_Bolt_Surf_Num(CGhoul2Info *ghlInfo, boltInfo_v &bltlist, surfaceInfo_v &slist, const int surfNum)
-// No table row for `CGhoul2Info * ghlInfo`.
-func G2_Add_Bolt_Surf_Num() -> Never {
+func G2_Add_Bolt_Surf_Num(_ ghlInfo: CGhoul2Info?, _ bltlist: inout [boltInfo_t], _ slist: inout [surfaceInfo_t], _ surfNum: Int32) -> Int32 {
     // TODO: Port G2_Add_Bolt_Surf_Num
     portMissing("G2_Add_Bolt_Surf_Num", source: "oracle/codemp/ghoul2/G2_bolts.cpp:70")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bolts.cpp:119
-// TODO: Port signature
-// Raven wrote: int G2_Add_Bolt(CGhoul2Info *ghlInfo, boltInfo_v &bltlist, surfaceInfo_v &slist, const char *boneName)
-// No table row for `CGhoul2Info * ghlInfo`.
-func G2_Add_Bolt() -> Never {
+func G2_Add_Bolt(_ ghlInfo: CGhoul2Info?, _ bltlist: inout [boltInfo_t], _ slist: inout [surfaceInfo_t], _ boneName: String) -> Int32 {
     // TODO: Port G2_Add_Bolt
     portMissing("G2_Add_Bolt", source: "oracle/codemp/ghoul2/G2_bolts.cpp:119")
 }
 
 // Given a model handle, and a bone name, we want to remove this bone from the bone override list
 /// Source: oracle/codemp/ghoul2/G2_bolts.cpp:236
-// TODO: Port signature
-// Raven wrote: qboolean G2_Remove_Bolt (boltInfo_v &bltlist, int index)
-// No table row for `boltInfo_v & bltlist`.
-func G2_Remove_Bolt() -> Never {
+func G2_Remove_Bolt(_ bltlist: inout [boltInfo_t], _ index: Int32) -> Bool {
     // TODO: Port G2_Remove_Bolt
     portMissing("G2_Remove_Bolt", source: "oracle/codemp/ghoul2/G2_bolts.cpp:236")
 }
 
 // set the bolt list to all unused so the bone transformation routine ignores it.
 /// Source: oracle/codemp/ghoul2/G2_bolts.cpp:280
-// TODO: Port signature
-// Raven wrote: void G2_Init_Bolt_List(boltInfo_v &bltlist)
-// No table row for `boltInfo_v & bltlist`.
-func G2_Init_Bolt_List() -> Never {
+func G2_Init_Bolt_List(_ bltlist: inout [boltInfo_t]) {
     // TODO: Port G2_Init_Bolt_List
     portMissing("G2_Init_Bolt_List", source: "oracle/codemp/ghoul2/G2_bolts.cpp:280")
 }
 
 // remove any bolts that reference original surfaces, generated surfaces, or bones that aren't active anymore
 /// Source: oracle/codemp/ghoul2/G2_bolts.cpp:286
-// TODO: Port signature
-// Raven wrote: void G2_RemoveRedundantBolts(boltInfo_v &bltlist, surfaceInfo_v &slist, int *activeSurfaces, int *activeBones)
-// No table row for `boltInfo_v & bltlist`.
-func G2_RemoveRedundantBolts() -> Never {
+func G2_RemoveRedundantBolts(_ bltlist: inout [boltInfo_t], _ slist: inout [surfaceInfo_t], _ activeSurfaces: Slots<Int32>, _ activeBones: Slots<Int32>) {
     // TODO: Port G2_RemoveRedundantBolts
     portMissing("G2_RemoveRedundantBolts", source: "oracle/codemp/ghoul2/G2_bolts.cpp:286")
 }

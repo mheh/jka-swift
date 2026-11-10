@@ -49,7 +49,7 @@ import reexport
 from fnsweep import binop_assign_op, rhs_function, root_var
 from overlay import MACROS, written_arguments
 from reexport import REPO, SOURCES
-from rulings import BYTE_STORAGE_LOCALS, BYTE_STORAGE_VARS, DEAD, HAND_MACROS, HAND_VARS, LIBC_FUNCTIONS, NEVER_NULL_VARS, NOT_PORTED, PUBLIC_NAMES, RETURNS, \
+from rulings import BYTE_STORAGE_LOCALS, BYTE_STORAGE_VARS, CXX_CLASSES, DEAD, HAND_MACROS, HAND_VARS, LIBC_FUNCTIONS, NEVER_NULL_VARS, NOT_PORTED, PUBLIC_NAMES, RETURNS, \
     SCALAR_DATA_TABLES, TYPES
 from store import Store, combined, file_hash, named
 from table import Param, SourceFile, Table, swift_name
@@ -206,6 +206,10 @@ class Variable:
             return self.reason
         if self.reason == "hand_table":
             return "state_data"
+        if C.HOST and self.name in HAND_VARS and HAND_VARS[self.name] is not None:
+            # An instance of a C++ class or a `std::` container of the host has no view, and the ruling gives it a hand property of the state object.
+            # A module keeps the marker of such a variable, so its adopted stems hold their hand forwards as they stand.
+            return "hand"
         if self.reason is not None:
             return "marker"
         if self.name in HAND_VARS:
@@ -959,6 +963,18 @@ class Skeleton:
                           f"    get {{ {spelled}.{var.name} }}",
                           f"    set {{ {spelled}.{var.name} = newValue }}",
                           "}"]
+            elif HAND_VARS[var.name].rstrip("?") in CXX_CLASSES.values():
+                # A file-scope instance of a C++ class is a hand property of the state object, which the stub forwards under Raven's name,
+                # the form of `TheStringPackage` at stringed_ingame.swift:124. An instance by value has no setter, and a pointer has one.
+                home = f"{STATE}World"
+                lines = [f"/// Source: {var.cite}", f"/// Raven's instance, a hand property of `{home}`, by the HAND_VARS ruling."]
+                if HAND_VARS[var.name].endswith("?"):
+                    lines += [f"{self.variable_access(var)}var {var.name}: {HAND_VARS[var.name]} {{",
+                              f"    get {{ world.{var.name} }}",
+                              f"    set {{ world.{var.name} = newValue }}",
+                              "}"]
+                else:
+                    lines.append(f"{self.variable_access(var)}var {var.name}: {HAND_VARS[var.name]} {{ world.{var.name} }}")
             else:
                 lines.append(f"// A hand property of the state object, `{HAND_VARS[var.name]}`, by the HAND_VARS ruling.")
         elif kind == "state_data":
@@ -1269,6 +1285,12 @@ class Skeleton:
             if i >= len(params):
                 continue
             tokens = [t.spelling for t in params[i].get_tokens()]
+            if not tokens:
+                # A parameter whose type is a macro, `SE_BOOL bLoadDebug = SE_TRUE` of SE_Load at stringed_ingame.cpp:910, starts inside the macro's
+                # expansion, so its extent gives no token. The default is then the one reference the parse resolved under the parameter.
+                refs = [c.referenced.spelling for c in params[i].walk_preorder() if c.kind == CursorKind.DECL_REF_EXPR and c.referenced is not None]
+                if len(refs) == 1:
+                    tokens = ["=", refs[0]]
             if "=" not in tokens:
                 continue
             value = tokens[tokens.index("=") + 1:]

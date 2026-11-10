@@ -47,7 +47,6 @@ let buildDate = "unknown"
 // TODO: Port global debuglogfile
 // Raven wrote: FILE *debuglogfile
 // No table row for `FILE *`.
-// Raven never reads or writes it, so it is dead under rule 20.
 
 /// Source: oracle/codemp/qcommon/common.cpp:33
 var logfile: JKAShared.fileHandle_t {
@@ -1090,9 +1089,11 @@ func Com_GetRealEvent() -> SysEvent {
                 Com_Error(ERR_FATAL, "Error writing to journal file")
             }
             if ev.evPtrLength != 0 {
-                // Port-note: Raven writes the bytes of the `void *` field `ev.evPtr`, and FS_Write takes a Slots of bytes, which a handle field does not give.
-                // Raven wrote: r = FS_Write( ev.evPtr, ev.evPtrLength, com_journalFile ), and its test of `r`
-                portMissing("Com_GetRealEvent", source: "oracle/codemp/qcommon/common.cpp:789")
+                // AI: Raven hands the `void *` field to FS_Write. The call hands the Slots over the `evPtrLength` bytes of the block.
+                r = FS_Write(Slots(scalars: ev.evPtr!, count: Int(ev.evPtrLength)), ev.evPtrLength, com_journalFile)
+                if r != ev.evPtrLength {
+                    Com_Error(ERR_FATAL, "Error writing to journal file")
+                }
             }
         }
     }
@@ -1983,20 +1984,62 @@ func Q_asin(_ c: Float) -> Float {
 
 /// Source: oracle/codemp/qcommon/common.cpp:2179
 func Com_ParseTextFile(_ file: String, _ parser: CGenericParser2, _ cleanFirst: Bool = true) -> Bool {
-    // TODO: Port Com_ParseTextFile
-    portMissing("Com_ParseTextFile", source: "oracle/codemp/qcommon/common.cpp:2179")
+    var f: fileHandle_t = 0
+    var length: Int32 = 0
+    var buf: CharBuf
+    var bufParse: TextCursor
+
+    length = FS_FOpenFileByMode(file, &f, FS_READ)
+    if f == 0 || length == 0 {
+        return false
+    }
+
+    // AI: Raven reads the file into a `new char[length + 1]` block. The block is a CharBuf of that size, which frees itself.
+    buf = CharBuf(length + 1)
+    FS_Read(&buf, length, f)
+    buf[length] = 0
+
+    bufParse = TextCursor(buf)
+    parser.Parse(&bufParse, cleanFirst)
+
+    FS_FCloseFile(f)
+
+    return true
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:2204
 func Com_ParseTextFileDestroy(_ parser: CGenericParser2) {
-    // TODO: Port Com_ParseTextFileDestroy
-    portMissing("Com_ParseTextFileDestroy", source: "oracle/codemp/qcommon/common.cpp:2204")
+    parser.Clean()
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:2209
 func Com_ParseTextFile(_ file: String, _ cleanFirst: Bool, _ writeable: Bool) -> CGenericParser2? {
-    // TODO: Port Com_ParseTextFile
-    portMissing("Com_ParseTextFile", source: "oracle/codemp/qcommon/common.cpp:2209")
+    var f: fileHandle_t = 0
+    var length: Int32 = 0
+    var buf: CharBuf
+    var bufParse: TextCursor
+    var parse: CGenericParser2?
+
+    length = FS_FOpenFileByMode(file, &f, FS_READ)
+    if f == 0 || length == 0 {
+        return nil
+    }
+
+    // AI: Raven reads the file into a `new char[length + 1]` block. The block is a CharBuf of that size, which frees itself.
+    buf = CharBuf(length + 1)
+    FS_Read(&buf, length, f)
+    FS_FCloseFile(f)
+    buf[length] = 0
+
+    bufParse = TextCursor(buf)
+
+    parse = CGenericParser2()
+    if !parse!.Parse(&bufParse, cleanFirst, writeable) {
+        // AI: Raven deletes the parser. The nil store drops the last reference, which frees it.
+        parse = nil
+    }
+
+    return parse
 }
 
 // MARK: - The C library rand

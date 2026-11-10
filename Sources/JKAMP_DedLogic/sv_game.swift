@@ -4,9 +4,10 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/server/sv_game.cpp:32
-// TODO: Port global botlib_export
-// Raven wrote: botlib_export_t *botlib_export
-// No table row for `botlib_export_t *`.
+var botlib_export: BotlibExport? {
+    get { world.variables.botlib_export }
+    set { world.variables.botlib_export = newValue }
+}
 
 /// Source: oracle/codemp/server/sv_game.cpp:420
 var gLocalModifier: JKAMP.SharedEntity { world.storage.gLocalModifier }
@@ -194,23 +195,19 @@ func SV_inPVS(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool {
     var cluster: Int32
     let area1: Int32
     let area2: Int32
-    // Port-note: Row G5. CM_ClusterPVS has a signature marker for its `byte *` return, so the local `mask` has no form.
-    // Raven wrote: byte *mask;
-    portMissing("SV_inPVS", source: "oracle/codemp/server/sv_game.cpp:209")
+    let mask: Slots<byte>
 
     leafnum = CM_PointLeafnum(p1)
     cluster = CM_LeafCluster(leafnum)
     area1 = CM_LeafArea(leafnum)
-    // Port-note: A store into `mask`, a local the draft left as a hole.
-    // Raven wrote: mask = CM_ClusterPVS (cluster)
-    portMissing("SV_inPVS", source: "oracle/codemp/server/sv_game.cpp:209")
+    mask = CM_ClusterPVS(cluster)
 
     leafnum = CM_PointLeafnum(p2)
     cluster = CM_LeafCluster(leafnum)
     area2 = CM_LeafArea(leafnum)
-    // Port-note: A read of `mask`, a local the draft left as a hole.
-    // Raven wrote: if ( mask && (!(mask[cluster>>3] & (1<<(cluster&7)) ) ) ) return qfalse
-    portMissing("SV_inPVS", source: "oracle/codemp/server/sv_game.cpp:209")
+    if (Int32(mask[cluster >> 3]) & (1 << (cluster & 7))) == 0 {
+        return false
+    }
     if !CM_AreasConnected(area1, area2) {
         return false // a door blocks sight
     }
@@ -232,24 +229,20 @@ func SV_inPVSIgnorePortals(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bo
     var cluster: Int32
     let area1: Int32
     let area2: Int32
-    // Port-note: Row G5. CM_ClusterPVS has a signature marker for its `byte *` return, so the local `mask` has no form.
-    // Raven wrote: byte *mask;
-    portMissing("SV_inPVSIgnorePortals", source: "oracle/codemp/server/sv_game.cpp:243")
+    let mask: Slots<byte>
 
     leafnum = CM_PointLeafnum(p1)
     cluster = CM_LeafCluster(leafnum)
     area1 = CM_LeafArea(leafnum)
-    // Port-note: A store into `mask`, a local the draft left as a hole.
-    // Raven wrote: mask = CM_ClusterPVS (cluster)
-    portMissing("SV_inPVSIgnorePortals", source: "oracle/codemp/server/sv_game.cpp:243")
+    mask = CM_ClusterPVS(cluster)
 
     leafnum = CM_PointLeafnum(p2)
     cluster = CM_LeafCluster(leafnum)
     area2 = CM_LeafArea(leafnum)
 
-    // Port-note: A read of `mask`, a local the draft left as a hole.
-    // Raven wrote: if ( mask && (!(mask[cluster>>3] & (1<<(cluster&7)) ) ) ) return qfalse
-    portMissing("SV_inPVSIgnorePortals", source: "oracle/codemp/server/sv_game.cpp:243")
+    if (Int32(mask[cluster >> 3]) & (1 << (cluster & 7))) == 0 {
+        return false
+    }
 
     return true
 }
@@ -428,9 +421,13 @@ func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
         return 0
 
     case TRAP_STRNCPY:
-        // Port-note: Row G3. Raven returns the destination pointer as an int, which drops the high half of an address on a 64-bit host.
-        // Raven wrote: return (int)strncpy( (char *)VMA(1), (const char *)VMA(2), args[3] );
-        portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
+        // Port-note: Raven returns the destination pointer as an int, which drops the high half of an address on a 64-bit host.
+        // Port-note: No module reads the value, so the arm returns 0.
+        // AI: Raven's strncpy writes into the module's buffer. The arm fills a CharBuf of that size and copies all of its bytes into the module's bytes.
+        var buffer = CharBuf(args[3])
+        strncpy(&buffer, args.VMA(2) as String, args[3])
+        Com_Memcpy(args.VMA(1), buffer, args[3])
+        return 0
 
     case TRAP_SIN:
         return FloatAsInt(Float(sin(Double(args.VMF(1)))))
@@ -582,9 +579,7 @@ func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
         return 0
 
     case G_ENTITIES_IN_BOX:
-        // Port-note: Row G6. SV_AreaEntities takes `inout Int32` for Raven's `int *entityList`, which the body fills as an array.
-        // Raven wrote: return SV_AreaEntities( (const float *)VMA(1), (const float *)VMA(2), (int *)VMA(3), args[4] );
-        portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
+        return SV_AreaEntities(args.VMA(1), args.VMA(2), args.VMA(3), args[4])
 
     case G_ENTITY_CONTACT:
         return (SV_EntityContact(args.VMA(1), args.VMA(2), args.VMA(3)!, /*int capsule*/ 0) ? 1 : 0)
@@ -672,10 +667,14 @@ func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
         return 0
 
 
-    case G_SIEGEPERSSET, G_SIEGEPERSGET:
-        // Port-note: Row G7. `siegePers_t` has no view, so `sv_siegePersData` has no storage.
-        // Raven wrote: sv_siegePersData = *((siegePers_t *)VMA(1)); and *((siegePers_t *)VMA(1)) = sv_siegePersData;
-        portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
+    case G_SIEGEPERSSET:
+        sv_siegePersData.copy(from: args.VMA(1)!)
+        return 0
+
+    case G_SIEGEPERSGET:
+        let siegePers: SiegePers? = args.VMA(1)
+        siegePers!.copy(from: sv_siegePersData)
+        return 0
 
         //rwwRMG - see below
         /*
@@ -703,23 +702,20 @@ func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
         return 0;
         */
     case G_DEBUG_POLYGON_CREATE:
-        // Port-note: Row G8. BotImport_DebugPolygonCreate takes `inout vec3_t` for Raven's `vec3_t *points`, an array of `numPoints` vectors.
-        // Raven wrote: return BotImport_DebugPolygonCreate( args[1], args[2], (float (*)[3])VMA(3) );
-        portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
+        return BotImport_DebugPolygonCreate(args[1], args[2], args.VMA(3))
 
     case G_DEBUG_POLYGON_DELETE:
         BotImport_DebugPolygonDelete(args[1])
         return 0
 
     case G_REAL_TIME:
-        // Port-note: Row G9. Com_RealTime has a signature marker for its `qtime_t *` parameter.
-        // Raven wrote: return Com_RealTime( (struct qtime_s *)VMA(1) );
-        portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
+        return Com_RealTime(args.VMA(1))
 
     case G_SNAPVECTOR:
-        // Port-note: Row G10. Sys_SnapVector takes `inout Float` for Raven's `float *v`, which it reads as three floats.
-        // Raven wrote: Sys_SnapVector( (float *)VMA(1) );
-        portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
+        // AI: Raven hands the module's vector to the callee by address. The arm hands the slot of the Slots at the word.
+        let v: Slots<vec3_t> = args.VMA(1)
+        Sys_SnapVector(&v[0])
+        return 0
 
 //	case SP_REGISTER_SERVER_CMD:
 //		return SP_RegisterServer( (const char *)VMA(1) );
@@ -749,7 +745,7 @@ func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
         }
 
     case G_ROFF_CLEAN, G_ROFF_UPDATE_ENTITIES, G_ROFF_CACHE, G_ROFF_PLAY, G_ROFF_PURGE_ENT:
-        // Port-note: Row E5. The ROFF system of RoffSystem.cpp waits for its own stage, so its 5 arms are one hole.
+        // Port-note: Row C. `theROFFSystem` is an instance of the C++ class CROFFSystem, which has no port, so its 5 arms are one hole.
         // Raven wrote: the theROFFSystem calls of sv_game.cpp:714 to :728.
         portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
 
@@ -767,12 +763,74 @@ func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
         return 0
 
     //rww - icarus traps
-    case G_ICARUS_RUNSCRIPT, G_ICARUS_REGISTERSCRIPT, G_ICARUS_INIT, G_ICARUS_VALIDENT, G_ICARUS_ISINITIALIZED,
-         G_ICARUS_MAINTAINTASKMANAGER, G_ICARUS_ISRUNNING, G_ICARUS_TASKIDPENDING, G_ICARUS_INITENT, G_ICARUS_FREEENT,
-         G_ICARUS_ASSOCIATEENT, G_ICARUS_SHUTDOWN, G_ICARUS_TASKIDSET, G_ICARUS_TASKIDCOMPLETE, G_ICARUS_SETVAR,
-         G_ICARUS_VARIABLEDECLARED, G_ICARUS_GETFLOATVARIABLE, G_ICARUS_GETSTRINGVARIABLE, G_ICARUS_GETVECTORVARIABLE:
-        // Port-note: Row E5. ICARUS waits for its own stage, so its 19 arms are one hole.
-        // Raven wrote: the ICARUS and Q3_ calls of sv_game.cpp:739 to :833.
+    case G_ICARUS_RUNSCRIPT:
+        return ICARUS_RunScript(ConvertedEntity(args.VMA(1)!)!, args.VMA(2))
+
+    case G_ICARUS_REGISTERSCRIPT:
+        return (ICARUS_RegisterScript(args.VMA(1), args[2] != 0) ? 1 : 0)
+
+    case G_ICARUS_INIT:
+        ICARUS_Init()
+        return 0
+
+    case G_ICARUS_VALIDENT:
+        return (ICARUS_ValidEnt(ConvertedEntity(args.VMA(1)!)!) ? 1 : 0)
+
+    case G_ICARUS_ISINITIALIZED, G_ICARUS_MAINTAINTASKMANAGER, G_ICARUS_ISRUNNING:
+        // Port-note: Row C. `gSequencers` and `gTaskManagers` hold instances of the C++ classes CSequencer and CTaskManager, which have no port.
+        // Raven wrote: the gSequencers and gTaskManagers tests of sv_game.cpp:752 to :782.
+        portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
+
+    case G_ICARUS_TASKIDPENDING:
+        return (Q3_TaskIDPending(args.VMA(1)!, args[2]) ? 1 : 0)
+
+    case G_ICARUS_INITENT:
+        ICARUS_InitEnt(ConvertedEntity(args.VMA(1)!)!)
+        return 0
+
+    case G_ICARUS_FREEENT:
+        ICARUS_FreeEnt(ConvertedEntity(args.VMA(1)!)!)
+        return 0
+
+    case G_ICARUS_ASSOCIATEENT:
+        ICARUS_AssociateEnt(ConvertedEntity(args.VMA(1)!)!)
+        return 0
+
+    case G_ICARUS_SHUTDOWN:
+        ICARUS_Shutdown()
+        return 0
+
+    case G_ICARUS_TASKIDSET:
+        //rww - note that we are passing in the true entity here.
+        //This is because we allow modification of certain non-pointer values,
+        //which is valid.
+        Q3_TaskIDSet(args.VMA(1)!, args[2], args[3])
+        return 0
+
+    case G_ICARUS_TASKIDCOMPLETE:
+        //same as above.
+        Q3_TaskIDComplete(args.VMA(1)!, args[2])
+        return 0
+
+    case G_ICARUS_SETVAR:
+        Q3_SetVar(args[1], args[2], args.VMA(3), args.VMA(4))
+        return 0
+
+    case G_ICARUS_VARIABLEDECLARED:
+        return Q3_VariableDeclared(args.VMA(1))
+
+    case G_ICARUS_GETFLOATVARIABLE:
+        // AI: Raven hands the module's float to the callee by address. The arm hands the slot of the Slots at the word.
+        let value: Slots<Float> = args.VMA(2)
+        return Q3_GetFloatVariable(args.VMA(1), &value[0])
+
+    case G_ICARUS_GETSTRINGVARIABLE:
+        var rec = TextCursor(CharBuf(args.VMA(2) as String))
+        return Q3_GetStringVariable(args.VMA(1), &rec)
+
+    case G_ICARUS_GETVECTORVARIABLE:
+        // Port-note: Q3_GetVectorVariable takes `value` by value, and Raven's sscanf writes the three floats through it, so the module gets no vector.
+        // Raven wrote: return Q3_GetVectorVariable((const char *)VMA(1), (float *)VMA(2));
         portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
 
     //rww - BEGIN NPC NAV TRAPS
@@ -784,7 +842,7 @@ func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
          G_NAV_CHECKALLFAILEDEDGES, G_NAV_ROUTEBLOCKED, G_NAV_GETBESTNODEALTROUTE, G_NAV_GETBESTNODEALT2,
          G_NAV_GETBESTPATHBETWEENENTS, G_NAV_GETNODERADIUS, G_NAV_CHECKBLOCKEDEDGES, G_NAV_CLEARCHECKEDNODES,
          G_NAV_CHECKEDNODE, G_NAV_SETCHECKEDNODE, G_NAV_FLAGALLNODES, G_NAV_GETPATHSCALCULATED, G_NAV_SETPATHSCALCULATED:
-        // Port-note: Row E5. The NPC navigator of navigator.cpp waits for its stage, so its 42 arms are one hole.
+        // Port-note: Row C. `navigator` is an instance of the C++ class CNavigator, which has no port, so its 42 arms are one hole.
         // Raven wrote: the navigator calls of sv_game.cpp:837 to :935.
         portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
     //rww - END NPC NAV TRAPS
@@ -804,7 +862,7 @@ func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
     case BOTLIB_LIBVAR_SET, BOTLIB_LIBVAR_GET, BOTLIB_PC_ADD_GLOBAL_DEFINE, BOTLIB_PC_LOAD_SOURCE, BOTLIB_PC_FREE_SOURCE,
          BOTLIB_PC_READ_TOKEN, BOTLIB_PC_SOURCE_FILE_AND_LINE, BOTLIB_START_FRAME, BOTLIB_LOAD_MAP, BOTLIB_UPDATENTITY,
          BOTLIB_TEST:
-        // Port-note: Row E5. The botlib waits for its own stage, and `botlib_export` has no storage, so these 11 arms are one hole.
+        // Port-note: Row B1. `botlib_export_t` has no host form, and `botlib_export` has no storage, so these 11 arms are one hole.
         // Raven wrote: the botlib_export calls of sv_game.cpp:948 to :971.
         portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
 
@@ -858,7 +916,7 @@ func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
          BOTLIB_AI_CHOOSE_BEST_FIGHT_WEAPON, BOTLIB_AI_GET_WEAPON_INFO, BOTLIB_AI_LOAD_WEAPON_WEIGHTS,
          BOTLIB_AI_ALLOC_WEAPON_STATE, BOTLIB_AI_FREE_WEAPON_STATE, BOTLIB_AI_RESET_WEAPON_STATE,
          BOTLIB_AI_GENETIC_PARENTS_AND_CHILD_SELECTION:
-        // Port-note: Row E5. The botlib waits for its own stage, and `botlib_export` has no storage, so these 123 arms are one hole.
+        // Port-note: Row B1. `botlib_export_t` has no host form, and `botlib_export` has no storage, so these 123 arms are one hole.
         // Raven wrote: the botlib_export calls of sv_game.cpp:981 to :1311.
         portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
 
@@ -873,7 +931,7 @@ func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
          G_G2_RAGEFFECTORGOAL, G_G2_GETRAGBONEPOS, G_G2_RAGEFFECTORKICK, G_G2_RAGFORCESOLVE, G_G2_SETBONEIKSTATE,
          G_G2_IKMOVE, G_G2_REMOVEBONE, G_G2_ATTACHINSTANCETOENTNUM, G_G2_CLEARATTACHEDINSTANCE, G_G2_CLEANENTATTACHMENTS,
          G_G2_OVERRIDESERVER, G_G2_GETSURFACENAME:
-        // Port-note: Row Z6. RE_RegisterServerSkin and the G2API_ functions of the renderer and Ghoul2 files wait for their stage.
+        // Port-note: Row Z6. The G2API_ stubs of G2_API.swift carry signature markers, so the arms have no callee to call.
         // Port-note: Row Z6. These 48 arms are one hole.
         // Raven wrote: the RE_RegisterServerSkin and G2API_ calls of sv_game.cpp:1313 to :1617.
         portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
@@ -883,14 +941,13 @@ func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
         return 0
 
     case G_RMG_INIT, G_CM_REGISTER_TERRAIN:
-        // Port-note: Row E5. The RMG and the terrain wait for their own stage, so their 2 arms are one hole.
+        // Port-note: Row C. TheRandomMissionManager and the return of CM_RegisterTerrain are C++ class instances with no port, so their 2 arms are one hole.
         // Raven wrote: the TheRandomMissionManager and CM_RegisterTerrain calls of sv_game.cpp:1624 to :1641.
         portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
 
     case G_BOT_UPDATEWAYPOINTS:
-        // Port-note: Row G11. SV_BotWaypointReception has a signature marker for its `wpobject_t **` parameter.
-        // Raven wrote: SV_BotWaypointReception(args[1], (wpobject_t **)VMA(2));
-        portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
+        SV_BotWaypointReception(args[1], args.VMA(2))
+        return 0
 
     case G_BOT_CALCULATEPATHS:
         SV_BotCalculatePaths(args[1])
@@ -1009,8 +1066,8 @@ func SV_InitGameProgs() {
     }
 
     // load the dll or bytecode
-    // Port-note: Row V2. VM_Create takes `((inout Int32) -> Int32)?` for `systemCalls`.
-    // Port-note: Row V2. SV_GameSystemCalls takes the `Slots<Int32>` of Raven's `int *args`.
+    // Port-note: Row V2. VM_Create takes `VmSystemCall?`, a C function over the words, and SV_GameSystemCalls takes a `Slots<Int32>`.
+    // Port-note: Row V2. No C thunk over SV_GameSystemCalls exists, and the shell does not set `jka_systemCall` of CJKAHost.
     // Raven wrote: gvm = VM_Create( "jampgame", SV_GameSystemCalls, (vmInterpret_t)(int)Cvar_VariableValue( "vm_game" ) )
     portMissing("SV_InitGameProgs", source: "oracle/codemp/server/sv_game.cpp:1731")
     if gvm == nil {

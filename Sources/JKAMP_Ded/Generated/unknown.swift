@@ -65,3 +65,11 @@ import JKAShared
 public let stricmp = strcasecmp
 
 public let strnicmp = strncasecmp
+
+public let PRT_WARNING = CJKAMP_Ded.PRT_WARNING
+
+public let PRT_ERROR = CJKAMP_Ded.PRT_ERROR
+
+public let PRT_FATAL = CJKAMP_Ded.PRT_FATAL
+
+public let PRT_EXIT = CJKAMP_Ded.PRT_EXIT

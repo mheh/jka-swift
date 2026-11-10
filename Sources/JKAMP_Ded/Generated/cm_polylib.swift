@@ -7,15 +7,6 @@ import JKAShared
 /// Source: oracle/codemp/qcommon/cm_polylib.h:10
 public let MAX_POINTS_ON_WINDING = CJKAMP_Ded.MAX_POINTS_ON_WINDING
 
-/// Source: oracle/codemp/qcommon/cm_polylib.h:12
-public let SIDE_FRONT = CJKAMP_Ded.SIDE_FRONT
-
-/// Source: oracle/codemp/qcommon/cm_polylib.h:13
-public let SIDE_BACK = CJKAMP_Ded.SIDE_BACK
-
-/// Source: oracle/codemp/qcommon/cm_polylib.h:14
-public let SIDE_ON = CJKAMP_Ded.SIDE_ON
-
 /// Source: oracle/codemp/qcommon/cm_polylib.h:15
 public let SIDE_CROSS = CJKAMP_Ded.SIDE_CROSS
 
