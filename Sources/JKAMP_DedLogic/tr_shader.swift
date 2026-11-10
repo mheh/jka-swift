@@ -198,10 +198,48 @@ var materialNames: [String] {
     set { world.materialNames = newValue }
 }
 
+// this table is also present in q3map
+
 /// Source: oracle/codemp/renderer/tr_shader.cpp:2228
-// TODO: Port global infoParms
-// Raven wrote: infoParm_t infoParms[]
-// No view for `infoParm_t`, a struct Raven defines inside a .c file.
+// AI: Raven keeps `infoParm_t infoParms[]` as C data. The table is a constant Array of the `InfoParm` rows of cm_shader.swift, whose `infoParm_t` has the same fields.
+let infoParms: [InfoParm] = [
+    // Game content Flags
+    InfoParm(name: "nonsolid", clearSolid: ~CONTENTS_SOLID, surfaceFlags: 0, contents: 0), // special hack to clear solid flag
+    InfoParm(name: "nonopaque", clearSolid: ~CONTENTS_OPAQUE, surfaceFlags: 0, contents: 0), // special hack to clear opaque flag
+    InfoParm(name: "lava", clearSolid: ~CONTENTS_SOLID, surfaceFlags: 0, contents: CONTENTS_LAVA), // very damaging
+    InfoParm(name: "slime", clearSolid: ~CONTENTS_SOLID, surfaceFlags: 0, contents: CONTENTS_SLIME), // mildly damaging
+    InfoParm(name: "water", clearSolid: ~CONTENTS_SOLID, surfaceFlags: 0, contents: CONTENTS_WATER),
+    InfoParm(name: "fog", clearSolid: ~CONTENTS_SOLID, surfaceFlags: 0, contents: CONTENTS_FOG), // carves surfaces entering
+    InfoParm(name: "shotclip", clearSolid: ~CONTENTS_SOLID, surfaceFlags: 0, contents: CONTENTS_SHOTCLIP), // block shots, but not people
+    InfoParm(name: "playerclip", clearSolid: ~(CONTENTS_SOLID | CONTENTS_OPAQUE), surfaceFlags: 0, contents: CONTENTS_PLAYERCLIP), // block only the player
+    InfoParm(name: "monsterclip", clearSolid: ~(CONTENTS_SOLID | CONTENTS_OPAQUE), surfaceFlags: 0, contents: CONTENTS_MONSTERCLIP),
+    InfoParm(name: "botclip", clearSolid: ~(CONTENTS_SOLID | CONTENTS_OPAQUE), surfaceFlags: 0, contents: CONTENTS_BOTCLIP), // for bots
+    InfoParm(name: "trigger", clearSolid: ~(CONTENTS_SOLID | CONTENTS_OPAQUE), surfaceFlags: 0, contents: CONTENTS_TRIGGER),
+    InfoParm(name: "nodrop", clearSolid: ~(CONTENTS_SOLID | CONTENTS_OPAQUE), surfaceFlags: 0, contents: CONTENTS_NODROP), // don't drop items or leave bodies (death fog, lava, etc)
+    InfoParm(name: "terrain", clearSolid: ~(CONTENTS_SOLID | CONTENTS_OPAQUE), surfaceFlags: 0, contents: CONTENTS_TERRAIN), // use special terrain collsion
+    InfoParm(name: "ladder", clearSolid: ~(CONTENTS_SOLID | CONTENTS_OPAQUE), surfaceFlags: 0, contents: CONTENTS_LADDER), // climb up in it like water
+    InfoParm(name: "abseil", clearSolid: ~(CONTENTS_SOLID | CONTENTS_OPAQUE), surfaceFlags: 0, contents: CONTENTS_ABSEIL), // can abseil down this brush
+    InfoParm(name: "outside", clearSolid: ~(CONTENTS_SOLID | CONTENTS_OPAQUE), surfaceFlags: 0, contents: CONTENTS_OUTSIDE), // volume is considered to be in the outside (i.e. not indoors)
+    InfoParm(name: "inside", clearSolid: ~(CONTENTS_SOLID | CONTENTS_OPAQUE), surfaceFlags: 0, contents: CONTENTS_INSIDE), // volume is considered to be inside (i.e. indoors)
+
+    InfoParm(name: "detail", clearSolid: -1, surfaceFlags: 0, contents: CONTENTS_DETAIL), // don't include in structural bsp
+    // Raven wrote CONTENTS_TRANSLUCENT, the unsigned 0x80000000.
+    InfoParm(name: "trans", clearSolid: -1, surfaceFlags: 0, contents: ~0x7fff_ffff), // surface has an alpha component
+
+    /* Game surface flags */
+    InfoParm(name: "sky", clearSolid: -1, surfaceFlags: SURF_SKY, contents: 0), // emit light from an environment map
+    InfoParm(name: "slick", clearSolid: -1, surfaceFlags: SURF_SLICK, contents: 0),
+
+    InfoParm(name: "nodamage", clearSolid: -1, surfaceFlags: SURF_NODAMAGE, contents: 0),
+    InfoParm(name: "noimpact", clearSolid: -1, surfaceFlags: SURF_NOIMPACT, contents: 0), // don't make impact explosions or marks
+    InfoParm(name: "nomarks", clearSolid: -1, surfaceFlags: SURF_NOMARKS, contents: 0), // don't make impact marks, but still explode
+    InfoParm(name: "nodraw", clearSolid: -1, surfaceFlags: SURF_NODRAW, contents: 0), // don't generate a drawsurface (or a lightmap)
+    InfoParm(name: "nosteps", clearSolid: -1, surfaceFlags: SURF_NOSTEPS, contents: 0),
+    InfoParm(name: "nodlight", clearSolid: -1, surfaceFlags: SURF_NODLIGHT, contents: 0), // don't ever add dynamic lights
+    InfoParm(name: "metalsteps", clearSolid: -1, surfaceFlags: SURF_METALSTEPS, contents: 0),
+    InfoParm(name: "nomiscents", clearSolid: -1, surfaceFlags: SURF_NOMISCENTS, contents: 0), // No misc ents on this surface
+    InfoParm(name: "forcefield", clearSolid: -1, surfaceFlags: SURF_FORCEFIELD, contents: 0),
+]
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:111
 func KillTheShaderHashTable() {
@@ -275,9 +313,8 @@ private func ClearGlobalShader() {
     stages.zero()
     i = 0
     while i < MAX_SHADER_STAGES {
-        // Port-note: Row TR17. The storage of `texMods` holds MAX_SHADER_STAGES records, and Raven's table holds MAX_SHADER_STAGES rows of TR_MAX_TEXMODS records.
-        // Raven wrote: stages[i].bundle[0].texMods = texMods[i];
-        portMissing("ClearGlobalShader", source: "oracle/codemp/renderer/tr_shader.cpp:241")
+        // Raven's row `texMods[i]` of the two-dimensional table starts at record `i * TR_MAX_TEXMODS` of the flat storage.
+        stages[i].bundle[0].texModsSlots = texMods.suffix(from: i * TR_MAX_TEXMODS)
         stages[i].mGLFogColorOverride = GLFOGOVERRIDE_NONE
         i += 1
     }
@@ -330,12 +367,12 @@ func R_RemapShader(_ shaderName: String, _ newShaderName: String, _ timeOffset: 
     var hash: Int32
     var sh: Shader?
     var sh2: Shader?
+    var h: JKAShared.qhandle_t
 
     sh = R_FindShaderByName(shaderName)
     if sh == nil || sh == tr.defaultShader {
-        // Port-note: Row TR11. The callee takes `styles` as a `Slots<UInt8>`, and `stylesDefault` is a Swift array, so the call has no form.
-        // Raven wrote: h = RE_RegisterShaderLightMap(shaderName, lightmapsNone, stylesDefault); sh = R_GetShaderByHandle(h);
-        portMissing("R_RemapShader", source: "oracle/codemp/renderer/tr_shader.cpp:281")
+        h = RE_RegisterShaderLightMap(shaderName, lightmapsNone, stylesDefault)
+        sh = R_GetShaderByHandle(h)
     }
     if sh == nil || sh == tr.defaultShader {
         Com_Printf(S_COLOR_YELLOW + "WARNING: R_RemapShader: shader %s not found\n", shaderName)
@@ -344,9 +381,8 @@ func R_RemapShader(_ shaderName: String, _ newShaderName: String, _ timeOffset: 
 
     sh2 = R_FindShaderByName(newShaderName)
     if sh2 == nil || sh2 == tr.defaultShader {
-        // Port-note: Row TR11. The callee takes `styles` as a `Slots<UInt8>`, and `stylesDefault` is a Swift array, so the call has no form.
-        // Raven wrote: h = RE_RegisterShaderLightMap(newShaderName, lightmapsNone, stylesDefault); sh2 = R_GetShaderByHandle(h);
-        portMissing("R_RemapShader", source: "oracle/codemp/renderer/tr_shader.cpp:291")
+        h = RE_RegisterShaderLightMap(newShaderName, lightmapsNone, stylesDefault)
+        sh2 = R_GetShaderByHandle(h)
     }
 
     if sh2 == nil || sh2 == tr.defaultShader {
@@ -419,10 +455,21 @@ NameToAFunc
 ```
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:358
-private func NameToAFunc(_ funcname: String) -> UInt32 {
-    // Port-note: Row TR18. The function returns `UInt32`, and three of the four GLS_ATEST_ macros import as `Int32`, so each return needs a conversion Raven did not write.
-    // TODO: Port NameToAFunc
-    portMissing("NameToAFunc", source: "oracle/codemp/renderer/tr_shader.cpp:358")
+// AI: Raven returns `unsigned`. The return is the Int32 of the masks, because every caller stores it into an `int`.
+private func NameToAFunc(_ funcname: String) -> Int32 {
+    if Q_stricmp(funcname, "GT0") == 0 {
+        return GLS_ATEST_GT_0
+    } else if Q_stricmp(funcname, "LT128") == 0 {
+        return GLS_ATEST_LT_80
+    } else if Q_stricmp(funcname, "GE128") == 0 {
+        return GLS_ATEST_GE_80
+    } else if Q_stricmp(funcname, "GE192") == 0 {
+        // Raven wrote GLS_ATEST_GE_C0, the unsigned 0x80000000.
+        return ~0x7fff_ffff
+    }
+
+    Com_Printf(S_COLOR_YELLOW + "WARNING: invalid alphaFunc name '%s' in shader '%s'\n", funcname, shader.name)
+    return 0
 }
 
 /**
@@ -795,9 +842,21 @@ surfaceparm <name>
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:2275
 private func ParseSurfaceParm(_ text: inout JKAShared.TextCursor) {
-    // Port-note: Row TR19. `infoParms` holds `infoParm_t`, a struct Raven defines inside tr_shader.cpp, which has no view, so the table has no storage.
-    // TODO: Port ParseSurfaceParm
-    portMissing("ParseSurfaceParm", source: "oracle/codemp/renderer/tr_shader.cpp:2275")
+    let token: String
+    let numInfoParms = infoParms.count
+    var i: Int32
+
+    token = COM_ParseExt(&text, false)
+    i = 0
+    while i < numInfoParms {
+        if Q_stricmp(token, infoParms[i].name) == 0 {
+            shader.surfaceFlags |= infoParms[i].surfaceFlags
+            shader.contentFlags |= infoParms[i].contents
+            shader.contentFlags &= infoParms[i].clearSolid
+            break
+        }
+        i += 1
+    }
 }
 
 /**
@@ -847,9 +906,25 @@ Sets shader->sortedIndex
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:2727
 private func SortNewShader() {
-    // Port-note: Row TR16. `trGlobals_t` declares `shaders` and `sortedShaders` as `shader_t *[MAX_SHADERS]`, and the view has no accessor for them.
-    // TODO: Port SortNewShader
-    portMissing("SortNewShader", source: "oracle/codemp/renderer/tr_shader.cpp:2727")
+    var i: Int32
+    var sort: Float
+    var newShader: Shader
+
+    newShader = tr.shaders[tr.numShaders - 1]!
+    sort = newShader.sort
+
+    i = tr.numShaders - 2
+    while i >= 0 {
+        if tr.sortedShaders[i]!.sort <= sort {
+            break
+        }
+        tr.sortedShaders[i + 1] = tr.sortedShaders[i]
+        tr.sortedShaders[i + 1]!.sortedIndex += 1
+        i -= 1
+    }
+
+    newShader.sortedIndex = i + 1
+    tr.sortedShaders[i + 1] = newShader
 }
 
 /**
@@ -861,9 +936,66 @@ GeneratePermanentShader
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:2753
 private func GeneratePermanentShader() -> Shader? {
-    // Port-note: Row TR16. `trGlobals_t` declares `shaders` and `sortedShaders` as `shader_t *[MAX_SHADERS]`, and the view has no accessor for them.
-    // TODO: Port GeneratePermanentShader
-    portMissing("GeneratePermanentShader", source: "oracle/codemp/renderer/tr_shader.cpp:2753")
+    var newShader: Shader
+    var i: Int32
+    var b: Int32
+    var size: Int32
+
+    if tr.numShaders == MAX_SHADERS {
+        //Com_Printf (S_COLOR_YELLOW  "WARNING: GeneratePermanentShader - MAX_SHADERS hit\n");
+        Com_Printf("WARNING: GeneratePermanentShader - MAX_SHADERS hit\n")
+        return tr.defaultShader
+    }
+
+    newShader = Shader(/*ri.*/Hunk_Alloc(Int32(Shader.byteCount), h_low))
+
+    newShader.copy(from: shader)
+
+    if shader.sort <= /*SS_OPAQUE*/SS_SEE_THROUGH {
+        newShader.fogPass = FP_EQUAL
+    } else if shader.contentFlags & CONTENTS_FOG != 0 {
+        newShader.fogPass = FP_LE
+    }
+
+    tr.shaders[tr.numShaders] = newShader
+    newShader.index = tr.numShaders
+
+    tr.sortedShaders[tr.numShaders] = newShader
+    newShader.sortedIndex = tr.numShaders
+
+    tr.numShaders += 1
+
+    size = newShader.numUnfoggedPasses != 0 ? newShader.numUnfoggedPasses * Int32(ShaderStage.byteCount) : Int32(ShaderStage.byteCount)
+    newShader.stages = ShaderStage(Hunk_Alloc(size, h_low))
+
+    i = 0
+    while i < newShader.numUnfoggedPasses {
+        if !stages[i].active {
+            break
+        }
+        newShader.stagesSlots[i].copy(from: stages[i])
+
+        b = 0
+        while b < NUM_TEXTURE_BUNDLES {
+            if newShader.stagesSlots[i].bundle[b].numTexMods != 0 {
+                size = newShader.stagesSlots[i].bundle[b].numTexMods * Int32(TexModInfo.byteCount)
+                newShader.stagesSlots[i].bundle[b].texMods = TexModInfo(Hunk_Alloc(size, h_low))
+                Com_Memcpy(newShader.stagesSlots[i].bundle[b].texMods!, stages[i].bundle[b].texMods!, size)
+            } else {
+                newShader.stagesSlots[i].bundle[b].texMods = nil //clear the globabl ptr jic
+            }
+            b += 1
+        }
+        i += 1
+    }
+
+    SortNewShader()
+
+    let hash = Int32(generateHashValue(newShader.name, FILE_HASH_SIZE))
+    newShader.next = hashTable[hash]
+    hashTable[hash] = newShader
+
+    return newShader
 }
 
 /**
@@ -992,18 +1124,17 @@ func IsShader(_ sh: Shader, _ name: String, _ lightmapIndex: [Int32]?, _ styles:
         return false
     }
 
-    // Port-note: Row TR15. `shader_t` declares `defaultShader` as a C++ `bool`, and the view has no accessor for a `_Bool` field.
-    // Raven wrote: if (!sh->defaultShader) { for(i=0;i<MAXLIGHTMAPS;i++) { ... } }
-    portMissing("IsShader", source: "oracle/codemp/renderer/tr_shader.cpp:3382")
-    i = 0
-    while i < MAXLIGHTMAPS {
-        if sh.lightmapIndex[i] != lightmapIndex![i] {
-            return false
+    if !sh.defaultShader {
+        i = 0
+        while i < MAXLIGHTMAPS {
+            if sh.lightmapIndex[i] != lightmapIndex![i] {
+                return false
+            }
+            if sh.styles[i] != styles[i] {
+                return false
+            }
+            i += 1
         }
-        if sh.styles[i] != styles[i] {
-            return false
-        }
-        i += 1
     }
 
     return true
@@ -1097,9 +1228,7 @@ func R_FindShader(_ name: String, _ lightmapIndex: [Int32]?, _ styles: [JKAShare
         var text = TextCursor(CharBuf(shaderText!))
         if !ParseShader(&text) {
             // had errors, so use default shader
-            // Port-note: Row TR15. `shader_t` declares `defaultShader` as a C++ `bool`, and the view has no accessor for a `_Bool` field.
-            // Raven wrote: shader.defaultShader = true;
-            portMissing("R_FindShader", source: "oracle/codemp/renderer/tr_shader.cpp:3479")
+            shader.defaultShader = true
         }
         sh = FinishShader()
         return sh
@@ -1110,9 +1239,8 @@ func R_FindShader(_ name: String, _ lightmapIndex: [Int32]?, _ styles: [JKAShare
     // look for a single TGA, BMP, or PCX
     //
     COM_StripExtension(name, &fileName)
-    // Port-note: Row TR15. `shader_t` declares `defaultShader` as a C++ `bool`, and the view has no accessor for a `_Bool` field.
-    // Raven wrote: shader.defaultShader = qtrue; return FinishShader();
-    portMissing("R_FindShader", source: "oracle/codemp/renderer/tr_shader.cpp:3492")
+    shader.defaultShader = true
+    return FinishShader()
 }
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3560
@@ -1156,9 +1284,8 @@ func R_FindServerShader(_ name: String, _ lightmapIndex: [Int32]?, _ styles: [JK
         shader.styles[i] = styles[i]
     }
 
-    // Port-note: Row TR15. `shader_t` declares `defaultShader` as a C++ `bool`, and the view has no accessor for a `_Bool` field.
-    // Raven wrote: shader.defaultShader = true; return FinishShader();
-    portMissing("R_FindServerShader", source: "oracle/codemp/renderer/tr_shader.cpp:3594")
+    shader.defaultShader = true
+    return FinishShader()
 }
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3598
@@ -1196,9 +1323,9 @@ func RE_RegisterShaderLightMap(_ name: String, _ lightmapIndex: [Int32]?, _ styl
     // still keep a name allocated for it, so if
     // something calls RE_RegisterShader again with
     // the same name, we don't try looking for it again
-    // Port-note: Row TR15. `shader_t` declares `defaultShader` as a C++ `bool`, and the view has no accessor for a `_Bool` field.
-    // Raven wrote: if ( sh->defaultShader ) { return 0; }
-    portMissing("RE_RegisterShaderLightMap", source: "oracle/codemp/renderer/tr_shader.cpp:3712")
+    if sh!.defaultShader {
+        return 0
+    }
 
     return sh!.index
 }
@@ -1223,9 +1350,18 @@ func RE_RegisterShader(_ name: String) -> JKAShared.qhandle_t {
         return 0
     }
 
-    // Port-note: Row TR11. The callee takes `styles` as a `Slots<UInt8>`, and `stylesDefault` is a Swift array, so the call has no form.
-    // Raven wrote: sh = R_FindShader( name, lightmaps2d, stylesDefault, qtrue ); if ( sh->defaultShader ) { return 0; } return sh->index;
-    portMissing("RE_RegisterShader", source: "oracle/codemp/renderer/tr_shader.cpp:3739")
+    let sh = R_FindShader(name, lightmaps2d, stylesDefault, true)
+
+    // we want to return 0 if the shader failed to
+    // load for some reason, but R_FindShader should
+    // still keep a name allocated for it, so if
+    // something calls RE_RegisterShader again with
+    // the same name, we don't try looking for it again
+    if sh!.defaultShader {
+        return 0
+    }
+
+    return sh!.index
 }
 
 /**
@@ -1244,17 +1380,25 @@ func RE_RegisterShaderNoMip(_ name: String) -> JKAShared.qhandle_t {
         return 0
     }
 
-    // Port-note: Row TR11. The callee takes `styles` as a `Slots<UInt8>`, and `stylesDefault` is a Swift array, so the call has no form.
-    // Raven wrote: sh = R_FindShader( name, lightmaps2d, stylesDefault, qfalse ); if ( sh->defaultShader ) { return 0; } return sh->index;
-    portMissing("RE_RegisterShaderNoMip", source: "oracle/codemp/renderer/tr_shader.cpp:3769")
+    let sh = R_FindShader(name, lightmaps2d, stylesDefault, false)
+
+    // we want to return 0 if the shader failed to
+    // load for some reason, but R_FindShader should
+    // still keep a name allocated for it, so if
+    // something calls RE_RegisterShader again with
+    // the same name, we don't try looking for it again
+    if sh!.defaultShader {
+        return 0
+    }
+
+    return sh!.index
 }
 
 //added for ui -rww
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3785
 func RE_ShaderNameFromIndex(_ index: Int32) -> String {
-    // Port-note: Row TR16. `trGlobals_t` declares `shaders` as `shader_t *[MAX_SHADERS]`, and the view has no accessor for it.
-    // Raven wrote: return tr.shaders[index]->name;
-    portMissing("RE_ShaderNameFromIndex", source: "oracle/codemp/renderer/tr_shader.cpp:3788")
+    assert(index >= 0 && index < tr.numShaders && tr.shaders[index] != nil)
+    return tr.shaders[index]!.name
 }
 
 /**
@@ -1277,9 +1421,7 @@ func R_GetShaderByHandle(_ hShader: JKAShared.qhandle_t) -> Shader? {
         Com_Printf(S_COLOR_YELLOW + "R_GetShaderByHandle: out of range hShader '%d'\n", hShader)
         return tr.defaultShader
     }
-    // Port-note: Row TR16. `trGlobals_t` declares `shaders` as `shader_t *[MAX_SHADERS]`, and the view has no accessor for it.
-    // Raven wrote: return tr.shaders[hShader];
-    portMissing("R_GetShaderByHandle", source: "oracle/codemp/renderer/tr_shader.cpp:3809")
+    return tr.shaders[hShader]
 }
 
 /**

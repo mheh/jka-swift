@@ -36,10 +36,27 @@ var gbInsideRegisterModel: Bool {
 }
 
 /// Source: oracle/codemp/renderer/tr_model.cpp:70
-func RE_RegisterModels_StoreShaderRequest(_ psModelFileName: String, _ psShaderName: String, _ piShaderIndexPoke: inout Int32) {
-    // Port-note: Row TR20. Raven subtracts the disk image address from `psShaderName` and `piShaderIndexPoke`, and a `String` and an `inout Int32` carry no address.
-    // TODO: Port RE_RegisterModels_StoreShaderRequest
-    portMissing("RE_RegisterModels_StoreShaderRequest", source: "oracle/codemp/renderer/tr_model.cpp:70")
+// AI: Raven takes two pointers into the disk image and subtracts its base. The parameters are the byte offsets into the image, the pointer-into-a-buffer rule.
+func RE_RegisterModels_StoreShaderRequest(_ psModelFileName: String, _ psShaderName: Int32, _ piShaderIndexPoke: Int32) {
+    var sModelName = CharBuf(MAX_QPATH)
+
+    Q_strncpyz(&sModelName, psModelFileName, Int32(sModelName.count))
+    Q_strlwr(&sModelName)
+
+    // AI: Raven's `(*CachedModels)[sModelName]` inserts a default entry for a new name. The body inserts one before the read.
+    if CachedModels![String(sModelName)] == nil {
+        CachedModels![String(sModelName)] = CachedEndianedModelBinary_t()
+    }
+    let ModelBin = CachedModels![String(sModelName)]!
+
+    if ModelBin.pModelDiskImage == nil {
+        assert(false) // should never happen, means that we're being called on a model that wasn't loaded
+    } else {
+        let iNameOffset = psShaderName
+        let iPokeOffset = piShaderIndexPoke
+
+        ModelBin.ShaderRegisterData.append((iNameOffset, iPokeOffset))
+    }
 }
 
 // returns qtrue if loaded, and sets the supplied qbool to true if it was from cache (instead of disk)

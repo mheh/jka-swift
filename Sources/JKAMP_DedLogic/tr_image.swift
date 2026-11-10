@@ -347,9 +347,11 @@ func RE_RegisterIndividualSkin(_ name: String, _ hSkin: JKAShared.qhandle_t) -> 
         skin.surfaces[skin.numSurfaces] = surf
         Q_strncpyz(&surf.nameBuffer, String(surfName), Int32(surf.nameBuffer.count))
 
-        // Port-note: Row TR11. R_FindServerShader and R_FindShader take `styles` as a `Slots<UInt8>`, and `stylesDefault` is a Swift array, so the call has no form.
-        // Raven wrote: surf->shader = gServerSkinHack ? R_FindServerShader( token, lightmapsNone, stylesDefault, qtrue ) : R_FindShader( token, lightmapsNone, stylesDefault, qtrue )
-        portMissing("RE_RegisterIndividualSkin", source: "oracle/codemp/renderer/tr_image.cpp:3093")
+        if gServerSkinHack {
+            surf.shader = R_FindServerShader(token, lightmapsNone, stylesDefault, true)
+        } else {
+            surf.shader = R_FindShader(token, lightmapsNone, stylesDefault, true)
+        }
         skin.numSurfaces += 1
     }
 
