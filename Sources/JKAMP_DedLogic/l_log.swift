@@ -89,10 +89,16 @@ func Log_Write(_ fmt: String, _ args: any JKAShared.FormatArg...) {
 func Log_WriteTimeStamped(_ fmt: String, _ args: any JKAShared.FormatArg...) {
     if logfile.fp == nil { return }
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // Raven wrote: fprintf(logfile.fp, "%d   %02d:%02d:%02d:%02d   ", logfile.numwrites, (int) (botlibglobals.time / 60 / 60), (int) (botlibglobals.time / 60), (int) (botlibglobals.time), (int) ((int) (botlibglobals.time * 100)) - ((int) botlibglobals.time) * 100)
-    portMissing("Log_WriteTimeStamped", source: "oracle/codemp/botlib/l_log.cpp:113")
-    // AI: Raven prints with vfprintf and fprintf to the stream. The text formats with JKAShared.format, and FileBackend.fwrite writes its bytes.
-    let text = CharBuf(JKAShared.format(fmt, args) + "\r\n")
+    // AI: Raven prints with fprintf, vfprintf, and fprintf to the stream. Each text formats with JKAShared.format, and FileBackend.fwrite writes its bytes.
+    var text = CharBuf(JKAShared.format("%d   %02d:%02d:%02d:%02d   ", [
+        logfile.numwrites,
+        Int32(botlibglobals.time / 60 / 60),
+        Int32(botlibglobals.time / 60),
+        Int32(botlibglobals.time),
+        Int32(botlibglobals.time * 100) - Int32(botlibglobals.time) * 100,
+    ]))
+    _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), logfile.fp)
+    text = CharBuf(JKAShared.format(fmt, args) + "\r\n")
     _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), logfile.fp)
     logfile.numwrites += 1
     FileBackend.fflush(logfile.fp)

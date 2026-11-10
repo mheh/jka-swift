@@ -261,8 +261,17 @@ func ReadStructure(_ source: Source, _ def: Structdef, _ structure: UnsafeMutabl
 func WriteIndent(_ fp: OpaquePointer?, _ indent: Int32) -> Int32 {
     // WriteStructWithIndent is the one live caller, and its one caller WriteStructure stands only under DEBUG_AI_WEAP.
     // The build does not define DEBUG_AI_WEAP, and the calls of be_ai_weight.cpp:433 to :525 stand under `#if 0`, so this function is dead.
-    // TODO: Port WriteIndent
-    portMissing("WriteIndent", source: "oracle/codemp/botlib/l_struct.cpp:313")
+    // Raven assigns his own `indent` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
+    var indent = indent
+    var text: CharBuf
+
+    // AI: Raven prints with fprintf and tests for a negative return. The text formats with JKAShared.format, FileBackend.fwrite writes its bytes, and the test reads a short count, because a stream error gives both.
+    while indent > 0 {
+        indent -= 1
+        text = CharBuf(JKAShared.format("\t", []))
+        if FileBackend.fwrite(text, at: 0, 1, strlen(text), fp) < strlen(text) { return 0 }
+    } //end while
+    return 1
 }
 
 //===========================================================================
@@ -275,8 +284,27 @@ func WriteIndent(_ fp: OpaquePointer?, _ indent: Int32) -> Int32 {
 func WriteFloat(_ fp: OpaquePointer?, _ value: Float) -> Int32 {
     // WriteStructWithIndent is the one live caller, and its one caller WriteStructure stands only under DEBUG_AI_WEAP.
     // The build does not define DEBUG_AI_WEAP, and the calls of be_ai_weight.cpp:433 to :525 stand under `#if 0`, so this function is dead.
-    // TODO: Port WriteFloat
-    portMissing("WriteFloat", source: "oracle/codemp/botlib/l_struct.cpp:327")
+    var buf = CharBuf(128)
+    var l: Int32
+    let text: CharBuf
+
+    strcpy(&buf, JKAShared.format("%f", [value]))
+    l = strlen(buf)
+    //strip any trailing zeros
+    while l > 1 {
+        l -= 1
+        if buf[l] != Int32(ascii: "0") && buf[l] != Int32(ascii: ".") { break }
+        if buf[l] == Int32(ascii: ".") {
+            buf[l] = 0
+            break
+        } //end if
+        buf[l] = 0
+    } //end while
+    //write the float to file
+    // AI: Raven prints with fprintf and tests for a negative return. The text formats with JKAShared.format, FileBackend.fwrite writes its bytes, and the test reads a short count, because a stream error gives both.
+    text = CharBuf(JKAShared.format("%s", [buf]))
+    if FileBackend.fwrite(text, at: 0, 1, strlen(text), fp) < strlen(text) { return 0 }
+    return 1
 }
 
 //===========================================================================
@@ -288,8 +316,79 @@ func WriteFloat(_ fp: OpaquePointer?, _ value: Float) -> Int32 {
 /// Source: oracle/codemp/botlib/l_struct.cpp:355
 func WriteStructWithIndent(_ fp: OpaquePointer?, _ def: Structdef, _ structure: UnsafeMutableRawPointer, _ indent: Int32) -> Int32 {
     // Port-note: Raven calls this function only from WriteStructure, which no file of either tree calls, so it is dead.
-    // TODO: Port WriteStructWithIndent
-    portMissing("WriteStructWithIndent", source: "oracle/codemp/botlib/l_struct.cpp:355")
+    // Raven assigns his own `indent` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
+    var indent = indent
+    var i: Int32, num: Int32
+    var p: UnsafeMutableRawPointer
+    var fd: Fielddef
+    var text: CharBuf
+
+    // AI: Raven prints with fprintf and tests for a negative return. Each text formats with JKAShared.format, FileBackend.fwrite writes its bytes, and the test reads a short count, because a stream error gives both.
+    if WriteIndent(fp, indent) == 0 { return 0 }
+    text = CharBuf(JKAShared.format("{\r\n", []))
+    if FileBackend.fwrite(text, at: 0, 1, strlen(text), fp) < strlen(text) { return 0 }
+
+    indent += 1
+    i = 0
+    while def.fieldsSlots[i].name != nil {
+        fd = def.fieldsSlots[i]
+        if WriteIndent(fp, indent) == 0 { return 0 }
+        text = CharBuf(JKAShared.format("%s\t", [fd.name!]))
+        if FileBackend.fwrite(text, at: 0, 1, strlen(text), fp) < strlen(text) { return 0 }
+        p = structure + fd.offset
+        if (fd.type & FT_ARRAY) != 0 {
+            num = fd.maxarray
+            text = CharBuf(JKAShared.format("{", []))
+            if FileBackend.fwrite(text, at: 0, 1, strlen(text), fp) < strlen(text) { return 0 }
+        } //end if
+        else {
+            num = 1
+        } //end else
+        while num > 0 {
+            num -= 1
+            switch fd.type & FT_TYPE {
+            case FT_CHAR:
+                text = CharBuf(JKAShared.format("%d", [p[byte: 0] as Int32]))
+                if FileBackend.fwrite(text, at: 0, 1, strlen(text), fp) < strlen(text) { return 0 }
+                p = p + CChar.byteCount
+            case FT_INT:
+                text = CharBuf(JKAShared.format("%d", [p[int: 0]]))
+                if FileBackend.fwrite(text, at: 0, 1, strlen(text), fp) < strlen(text) { return 0 }
+                p = p + Int32.byteCount
+            case FT_FLOAT:
+                if WriteFloat(fp, p[float: 0]) == 0 { return 0 }
+                p = p + Float.byteCount
+            case FT_STRING:
+                text = CharBuf(JKAShared.format("\"%s\"", [cString(at: p)]))
+                if FileBackend.fwrite(text, at: 0, 1, strlen(text), fp) < strlen(text) { return 0 }
+                p = p + MAX_STRINGFIELD
+            case FT_STRUCT:
+                if WriteStructWithIndent(fp, fd.substruct!, structure, indent) == 0 { return 0 }
+                p = p + fd.substruct!.size
+            default:
+                break
+            } //end switch
+            if (fd.type & FT_ARRAY) != 0 {
+                if num > 0 {
+                    text = CharBuf(JKAShared.format(",", []))
+                    if FileBackend.fwrite(text, at: 0, 1, strlen(text), fp) < strlen(text) { return 0 }
+                } //end if
+                else {
+                    text = CharBuf(JKAShared.format("}", []))
+                    if FileBackend.fwrite(text, at: 0, 1, strlen(text), fp) < strlen(text) { return 0 }
+                } //end else
+            } //end if
+        } //end while
+        text = CharBuf(JKAShared.format("\r\n", []))
+        if FileBackend.fwrite(text, at: 0, 1, strlen(text), fp) < strlen(text) { return 0 }
+        i += 1
+    } //end for
+    indent -= 1
+
+    if WriteIndent(fp, indent) == 0 { return 0 }
+    text = CharBuf(JKAShared.format("}\r\n", []))
+    if FileBackend.fwrite(text, at: 0, 1, strlen(text), fp) < strlen(text) { return 0 }
+    return 1
 }
 
 //===========================================================================
@@ -301,6 +400,5 @@ func WriteStructWithIndent(_ fp: OpaquePointer?, _ def: Structdef, _ structure: 
 /// Source: oracle/codemp/botlib/l_struct.cpp:441
 func WriteStructure(_ fp: OpaquePointer?, _ def: Structdef, _ structure: UnsafeMutableRawPointer) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port WriteStructure
-    portMissing("WriteStructure", source: "oracle/codemp/botlib/l_struct.cpp:441")
+    return WriteStructWithIndent(fp, def, structure, 0)
 }

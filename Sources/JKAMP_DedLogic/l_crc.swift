@@ -115,6 +115,13 @@ func CRC_ProcessString(_ data: Slots<UInt8>, _ length: Int32) -> Int32 {
 /// Source: oracle/codemp/botlib/l_crc.cpp:126
 func CRC_ContinueProcessString(_ crc: inout UInt16, _ data: Slots<JKAShared.byte>, _ length: Int32) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port CRC_ContinueProcessString
-    portMissing("CRC_ContinueProcessString", source: "oracle/codemp/botlib/l_crc.cpp:126")
+    var i: Int32
+
+    i = 0
+    while i < length {
+        // Port-note: Raven's `char` is signed, so a byte of 128 or more gives a negative index and reads before `crctable`, undefined.
+        // The port reads the byte unsigned, rule 19.
+        crc = UInt16(truncatingIfNeeded: (Int32(crc) << 8) ^ Int32(crctable[(Int32(crc) >> 8) ^ Int32(data[i])]))
+        i += 1
+    } //end for
 }

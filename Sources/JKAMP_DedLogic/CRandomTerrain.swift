@@ -284,8 +284,69 @@ final class CRandomTerrain {
     /// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:770
     func Generate(_ symmetric: Int32) {
         // The dedicated build never makes a CRandomTerrain, so it never calls this method.
-        // TODO: Port CRandomTerrain::Generate
-        portMissing("CRandomTerrain::Generate", source: "oracle/codemp/qcommon/cm_randomterrain.cpp:770")
+        var i: Int32
+        var j: Int32
+        var x: Int32
+        var y: Int32
+
+        // Clear out all existing data
+        // AI: Raven calls memset on the pointer. Com_Memset over the Slots sets the same bytes.
+        Com_Memset(self.mGrid!, 255, self.mArea)
+
+        // make landscape a little bumpy
+        let t1 = self.mLandScape!.flrand(0, 2)
+
+        /*
+        	CM_NoiseInit(mLandScape);
+
+        	for (y = 0; y < mHeight; y++)
+        		for (x = 0; x < mWidth; x++)
+        		{
+        			i = x + y*mWidth;
+        			byte val = (byte)Com_Clamp(0, 255, (int)(220 + (CM_NoiseGet4f( x*0.25, y*0.25, 0, t3 ) * 20)) + (CM_NoiseGet4f( x*0.5, y*0.5, 0, t2 ) * 15));
+        			mGrid[i] = val;
+        		}
+        */
+
+        // Port-note: Raven reads `mPaths[MAX_RANDOM_PATHS]` past the array when every path is set, undefined.
+        // The Array index traps there, rule 19.
+        i = 0
+        while self.mPaths[i] != nil {
+            self.mPaths[i]!.DrawPath(self.mGrid, self.mWidth, self.mHeight)
+            i += 1
+        }
+
+        y = 0
+        while y < self.mHeight {
+            x = 0
+            while x < self.mWidth {
+                i = x + y * self.mWidth
+                // C widens the byte and the `int` coordinates to `float`, truncates the sum to `int`, and converts the clamp to the byte.
+                let val = JKAShared.byte(Com_Clamp(0, 255, Float(Int32(Int32(self.mGrid![i]) + (CM_NoiseGet4f(Float(x), Float(y), 0, t1) * 5)))))
+                self.mGrid![i] = val
+                x += 1
+            }
+            y += 1
+        }
+
+        // if symmetric, do this now
+        if symmetric != 0 {
+            assert(self.mWidth == self.mHeight) // must be square
+
+            y = 0
+            while y < self.mHeight {
+                x = 0
+                while x < (self.mWidth - y) {
+                    i = x + y * self.mWidth
+                    j = (self.mWidth - 1 - x) + (self.mHeight - 1 - y) * self.mWidth
+                    let val = self.mGrid![i] < self.mGrid![j] ? self.mGrid![i] : self.mGrid![j]
+                    self.mGrid![j] = val
+                    self.mGrid![i] = self.mGrid![j]
+                    x += 1
+                }
+                y += 1
+            }
+        }
     }
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:584

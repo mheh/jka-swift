@@ -317,14 +317,112 @@ final class CRMMission {
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:1189
     private func ParseRandom(_ randomGroup: CGPGroup?) -> CGPGroup? {
-        // TODO: Port CRMMission::ParseRandom
-        portMissing("CRMMission::ParseRandom", source: "oracle/codemp/RMG/RM_Mission.cpp:1189")
+        if nil == randomGroup {
+            return nil
+        }
+
+        var group: CGPGroup?
+        var groups = [CGPGroup?](repeating: nil, count: Int(MAX_RANDOM_CHOICES))
+        var numGroups: Int32
+
+        // Build a list of the groups one can be chosen
+        numGroups = 0
+        group = randomGroup!.GetSubGroups()
+        while group != nil {
+            if Q_stricmp(group!.GetName(), "random_choice") != 0 {
+                group = group!.GetNext()
+                continue
+            }
+
+            var weight = atoi(group!.FindPairValue("random_weight", "1")!)
+            while weight > 0 {
+                weight -= 1
+                // Port-note: Raven writes past `groups` when the weights add up to more than MAX_RANDOM_CHOICES, undefined.
+                // The Array index traps there, rule 19.
+                groups[numGroups] = group
+                numGroups += 1
+            }
+            assert(numGroups <= MAX_RANDOM_CHOICES)
+            group = group!.GetNext()
+        }
+
+        // No groups!
+        if numGroups == 0 {
+            return randomGroup
+        }
+
+        // Now choose a group to parse
+        return groups[self.mLandScape!.irand(0, numGroups - 1)]
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:163
     private func ParseOrigin(_ originGroup: CGPGroup?, _ origin: inout JKAShared.vec3_t, _ lookat: inout JKAShared.vec3_t, _ flattenHeight: inout Int32) -> Bool {
-        // TODO: Port CRMMission::ParseOrigin
-        portMissing("CRMMission::ParseOrigin", source: "oracle/codemp/RMG/RM_Mission.cpp:163")
+        let szNodeName: String
+        var mins = JKAShared.vec3_t()
+        var maxs = JKAShared.vec3_t()
+
+        // AI: Raven tests the `int *` for NULL. An inout Int32 is never NULL, so the test drops.
+        flattenHeight = 66
+
+        // If no group was given then use 0,0,0
+        if nil == originGroup {
+            _VectorCopy(vec3_origin, &origin)
+            return false
+        }
+
+        // See if attaching to a named node
+        szNodeName = originGroup!.FindPairValue("node", "")!
+        if strlen(szNodeName) != 0 {
+            let node: CRMNode?
+            // Find the node being attached to
+            node = self.mPathManager!.FindNodeByName(szNodeName)
+            if node != nil {
+                // AI: Raven tests the `int *` for NULL. An inout Int32 is never NULL, so the test drops.
+                if node!.GetFlattenHeight() == -1 {
+                    node!.SetFlattenHeight(40 + self.mLandScape!.irand(0, 40))
+                }
+
+                flattenHeight = node!.GetFlattenHeight()
+
+                _VectorCopy(node!.GetPos(), &origin)
+
+                _VectorCopy(origin, &lookat)
+
+                var dir: Int32
+                let rnd_offset = self.mLandScape!.irand(0, DIR_MAX - 1)
+                dir = 0
+                while dir < DIR_MAX {
+                    let d = (dir + rnd_offset) % DIR_MAX
+                    if node!.PathExist(d) != 0 {
+                        var tmp_pt = JKAShared.vec4_t()
+                        var tmp_dir = JKAShared.vec4_t()
+                        // C converts the `float` path id to the `int` local at the store.
+                        let pathID = Int32(node!.GetPath(d))
+                        self.mLandScape!.GetPathInfo(pathID, 0.1, &tmp_pt, &tmp_dir)
+                        lookat[0] = tmp_pt[0]
+                        lookat[1] = tmp_pt[1]
+                        lookat[2] = 0
+                        return true
+                    }
+                    dir += 1
+                }
+                return true
+            }
+        }
+
+        mins[0] = Float(atof(originGroup!.FindPairValue("left", ".1")!))
+        mins[1] = Float(atof(originGroup!.FindPairValue("top", ".1")!))
+        maxs[0] = Float(atof(originGroup!.FindPairValue("right", ".9")!))
+        maxs[1] = Float(atof(originGroup!.FindPairValue("bottom", ".9")!))
+
+        origin[0] = self.mLandScape!.flrand(mins[0], maxs[0])
+        lookat[0] = origin[0]
+        origin[1] = self.mLandScape!.flrand(mins[1], maxs[1])
+        lookat[1] = origin[1]
+        origin[2] = 0
+        lookat[2] = origin[2]
+
+        return true
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:248
