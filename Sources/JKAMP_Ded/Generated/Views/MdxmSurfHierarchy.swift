@@ -110,5 +110,6 @@ public struct MdxmSurfHierarchy: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/renderer/mdx_format.h:194
-    public var childIndexes: Slots<Int32> { Slots<Int32>(scalars: UnsafeMutableRawPointer(self.raw.pointer(to: \.childIndexes)!), count: 1) }
+    // AI: Raven declares `childIndexes[1]` and allocates the record past it. No macro bounds it, so the count is the widest.
+    public var childIndexes: Slots<Int32> { Slots<Int32>(scalars: UnsafeMutableRawPointer(self.raw.pointer(to: \.childIndexes)!), count: Int.max) }
 }

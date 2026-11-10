@@ -5,6 +5,19 @@ import JKAMP
 import JKAShared
 import JKAMP_Ded
 
+/// Source: oracle/codemp/botlib/be_ai_goal.cpp:75
+private let GT_FFA: Int32 = 0
+private let GT_HOLOCRON: Int32 = 1
+private let GT_JEDIMASTER: Int32 = 2
+private let GT_DUEL: Int32 = 3
+private let GT_POWERDUEL: Int32 = 4
+private let GT_SINGLE_PLAYER: Int32 = 5
+private let GT_TEAM: Int32 = 6
+private let GT_SIEGE: Int32 = 7
+private let GT_CTF: Int32 = 8
+private let GT_CTY: Int32 = 9
+private let GT_MAX_GAME_TYPE: Int32 = 10
+
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:38
 let AVOID_MINIMUM_TIME = 10 as Int32
 
@@ -33,39 +46,39 @@ let IFL_NOTBOT = 8 as Int32
 let IFL_ROAM = 16 as Int32
 
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:123
-// TODO: Port global iteminfo_fields
 // Raven wrote: fielddef_t iteminfo_fields[]
-// No view for `fielddef_s` of `l_struct.h`.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:136
-// TODO: Port global iteminfo_struct
 // Raven wrote: structdef_t iteminfo_struct
-// No view for `structdef_s` of `l_struct.h`.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:163
-// TODO: Port global botgoalstates
-// Raven wrote: bot_goalstate_t *botgoalstates[MAX_CLIENTS + 1]
-// No table row for `bot_goalstate_t *[33]`.
+var botgoalstates: Slots<BotGoalstate?> { world.storage.botgoalstates }
 
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:165
-// TODO: Port global itemconfig
-// Raven wrote: itemconfig_t *itemconfig = NULL
-// No table row for `itemconfig_t *`.
+var itemconfig: Itemconfig? {
+    get { world.variables.itemconfig }
+    set { world.variables.itemconfig = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:167
-// TODO: Port global levelitemheap
-// Raven wrote: levelitem_t *levelitemheap = NULL
-// No table row for `levelitem_t *`.
+var levelitemheap: Slots<Levelitem>? {
+    get { world.variables.levelitemheap }
+    set { world.variables.levelitemheap = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:168
-// TODO: Port global freelevelitems
-// Raven wrote: levelitem_t *freelevelitems = NULL
-// No table row for `levelitem_t *`.
+var freelevelitems: Levelitem? {
+    get { world.variables.freelevelitems }
+    set { world.variables.freelevelitems = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:169
-// TODO: Port global levelitems
-// Raven wrote: levelitem_t *levelitems = NULL
-// No table row for `levelitem_t *`.
+var levelitems: Levelitem? {
+    get { world.variables.levelitems }
+    set { world.variables.levelitems = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:170
 var numlevelitems: Int32 {
@@ -74,14 +87,16 @@ var numlevelitems: Int32 {
 }
 
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:172
-// TODO: Port global maplocations
-// Raven wrote: maplocation_t *maplocations = NULL
-// No table row for `maplocation_t *`.
+var maplocations: Maplocation? {
+    get { world.variables.maplocations }
+    set { world.variables.maplocations = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:174
-// TODO: Port global campspots
-// Raven wrote: campspot_t *campspots = NULL
-// No table row for `campspot_t *`.
+var campspots: Campspot? {
+    get { world.variables.campspots }
+    set { world.variables.campspots = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:176
 var g_gametype: Int32 {
@@ -90,12 +105,13 @@ var g_gametype: Int32 {
 }
 
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:178
-// TODO: Port global droppedweight
-// Raven wrote: libvar_t *droppedweight = NULL
-// No table row for `libvar_t *`.
+var droppedweight: Libvar? {
+    get { world.variables.droppedweight }
+    set { world.variables.droppedweight = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:991
-let ET_ITEM = 2 as Int32
+private let ET_ITEM = 2 as Int32
 
 //========================================================================
 //
@@ -104,10 +120,7 @@ let ET_ITEM = 2 as Int32
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:186
-// TODO: Port signature
-// Raven wrote: bot_goalstate_t *BotGoalStateFromHandle(int handle)
-// No table row for the return `bot_goalstate_t *`.
-func BotGoalStateFromHandle() -> Never {
+func BotGoalStateFromHandle(_ handle: Int32) -> BotGoalstate? {
     // TODO: Port BotGoalStateFromHandle
     portMissing("BotGoalStateFromHandle", source: "oracle/codemp/botlib/be_ai_goal.cpp:186")
 }
@@ -155,10 +168,7 @@ func BotMutateGoalFuzzyLogic(_ goalstate: Int32, _ range: Float) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:251
-// TODO: Port signature
-// Raven wrote: itemconfig_t *LoadItemConfig(char *filename)
-// No table row for the return `itemconfig_t *`.
-func LoadItemConfig() -> Never {
+func LoadItemConfig(_ filename: String) -> Itemconfig? {
     // TODO: Port LoadItemConfig
     portMissing("LoadItemConfig", source: "oracle/codemp/botlib/be_ai_goal.cpp:251")
 }
@@ -173,7 +183,7 @@ func LoadItemConfig() -> Never {
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:332
 // TODO: Port signature
 // Raven wrote: int *ItemWeightIndex(weightconfig_t *iwc, itemconfig_t *ic)
-// No table row for `weightconfig_t * iwc`.
+// No table row for the return `int *`.
 func ItemWeightIndex() -> Never {
     // TODO: Port ItemWeightIndex
     portMissing("ItemWeightIndex", source: "oracle/codemp/botlib/be_ai_goal.cpp:332")
@@ -198,10 +208,7 @@ func InitLevelItemHeap() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:378
-// TODO: Port signature
-// Raven wrote: levelitem_t *AllocLevelItem(void)
-// No table row for the return `levelitem_t *`.
-func AllocLevelItem() -> Never {
+func AllocLevelItem() -> Levelitem? {
     // TODO: Port AllocLevelItem
     portMissing("AllocLevelItem", source: "oracle/codemp/botlib/be_ai_goal.cpp:378")
 }
@@ -213,10 +220,7 @@ func AllocLevelItem() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:399
-// TODO: Port signature
-// Raven wrote: void FreeLevelItem(levelitem_t *li)
-// No table row for `levelitem_t * li`.
-func FreeLevelItem() -> Never {
+func FreeLevelItem(_ li: Levelitem) {
     // TODO: Port FreeLevelItem
     portMissing("FreeLevelItem", source: "oracle/codemp/botlib/be_ai_goal.cpp:399")
 }
@@ -228,10 +232,7 @@ func FreeLevelItem() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:410
-// TODO: Port signature
-// Raven wrote: void AddLevelItemToList(levelitem_t *li)
-// No table row for `levelitem_t * li`.
-func AddLevelItemToList() -> Never {
+func AddLevelItemToList(_ li: Levelitem) {
     // TODO: Port AddLevelItemToList
     portMissing("AddLevelItemToList", source: "oracle/codemp/botlib/be_ai_goal.cpp:410")
 }
@@ -243,10 +244,7 @@ func AddLevelItemToList() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:423
-// TODO: Port signature
-// Raven wrote: void RemoveLevelItemFromList(levelitem_t *li)
-// No table row for `levelitem_t * li`.
-func RemoveLevelItemFromList() -> Never {
+func RemoveLevelItemFromList(_ li: Levelitem) {
     // TODO: Port RemoveLevelItemFromList
     portMissing("RemoveLevelItemFromList", source: "oracle/codemp/botlib/be_ai_goal.cpp:423")
 }
@@ -330,10 +328,7 @@ func BotDumpAvoidGoals(_ goalstate: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:726
-// TODO: Port signature
-// Raven wrote: void BotAddToAvoidGoals(bot_goalstate_t *gs, int number, float avoidtime)
-// No table row for `bot_goalstate_t * gs`.
-func BotAddToAvoidGoals() -> Never {
+func BotAddToAvoidGoals(_ gs: BotGoalstate, _ number: Int32, _ avoidtime: Float) {
     // TODO: Port BotAddToAvoidGoals
     portMissing("BotAddToAvoidGoals", source: "oracle/codemp/botlib/be_ai_goal.cpp:726")
 }
@@ -381,10 +376,7 @@ func BotSetAvoidGoalTime(_ goalstate: Int32, _ number: Int32, _ avoidtime: Float
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:843
-// TODO: Port signature
-// Raven wrote: int BotGetLevelItemGoal(int index, char *name, bot_goal_t *goal)
-// No table row for `bot_goal_t * goal`.
-func BotGetLevelItemGoal() -> Never {
+func BotGetLevelItemGoal(_ index: Int32, _ name: String, _ goal: BotGoal) -> Int32 {
     // TODO: Port BotGetLevelItemGoal
     portMissing("BotGetLevelItemGoal", source: "oracle/codemp/botlib/be_ai_goal.cpp:843")
 }
@@ -396,10 +388,7 @@ func BotGetLevelItemGoal() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:896
-// TODO: Port signature
-// Raven wrote: int BotGetMapLocationGoal(char *name, bot_goal_t *goal)
-// No table row for `bot_goal_t * goal`.
-func BotGetMapLocationGoal() -> Never {
+func BotGetMapLocationGoal(_ name: String, _ goal: BotGoal) -> Int32 {
     // TODO: Port BotGetMapLocationGoal
     portMissing("BotGetMapLocationGoal", source: "oracle/codemp/botlib/be_ai_goal.cpp:896")
 }
@@ -411,10 +400,7 @@ func BotGetMapLocationGoal() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:921
-// TODO: Port signature
-// Raven wrote: int BotGetNextCampSpotGoal(int num, bot_goal_t *goal)
-// No table row for `bot_goal_t * goal`.
-func BotGetNextCampSpotGoal() -> Never {
+func BotGetNextCampSpotGoal(_ num: Int32, _ goal: BotGoal) -> Int32 {
     // TODO: Port BotGetNextCampSpotGoal
     portMissing("BotGetNextCampSpotGoal", source: "oracle/codemp/botlib/be_ai_goal.cpp:921")
 }
@@ -426,10 +412,7 @@ func BotGetNextCampSpotGoal() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:949
-// TODO: Port signature
-// Raven wrote: void BotFindEntityForLevelItem(levelitem_t *li)
-// No table row for `levelitem_t * li`.
-func BotFindEntityForLevelItem() -> Never {
+func BotFindEntityForLevelItem(_ li: Levelitem) {
     // TODO: Port BotFindEntityForLevelItem
     portMissing("BotFindEntityForLevelItem", source: "oracle/codemp/botlib/be_ai_goal.cpp:949")
 }
@@ -459,10 +442,7 @@ func BotDumpGoalStack(_ goalstate: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1186
-// TODO: Port signature
-// Raven wrote: void BotPushGoal(int goalstate, bot_goal_t *goal)
-// No table row for `bot_goal_t * goal`.
-func BotPushGoal() -> Never {
+func BotPushGoal(_ goalstate: Int32, _ goal: BotGoal) {
     // TODO: Port BotPushGoal
     portMissing("BotPushGoal", source: "oracle/codemp/botlib/be_ai_goal.cpp:1186")
 }
@@ -498,10 +478,7 @@ func BotEmptyGoalStack(_ goalstate: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1235
-// TODO: Port signature
-// Raven wrote: int BotGetTopGoal(int goalstate, bot_goal_t *goal)
-// No table row for `bot_goal_t * goal`.
-func BotGetTopGoal() -> Never {
+func BotGetTopGoal(_ goalstate: Int32, _ goal: BotGoal) -> Int32 {
     // TODO: Port BotGetTopGoal
     portMissing("BotGetTopGoal", source: "oracle/codemp/botlib/be_ai_goal.cpp:1235")
 }
@@ -513,10 +490,7 @@ func BotGetTopGoal() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1251
-// TODO: Port signature
-// Raven wrote: int BotGetSecondGoal(int goalstate, bot_goal_t *goal)
-// No table row for `bot_goal_t * goal`.
-func BotGetSecondGoal() -> Never {
+func BotGetSecondGoal(_ goalstate: Int32, _ goal: BotGoal) -> Int32 {
     // TODO: Port BotGetSecondGoal
     portMissing("BotGetSecondGoal", source: "oracle/codemp/botlib/be_ai_goal.cpp:1251")
 }
@@ -529,7 +503,7 @@ func BotGetSecondGoal() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1268
-func BotChooseLTGItem(_ goalstate: Int32, _ origin: JKAShared.vec3_t, _ inventory: inout Int32, _ travelflags: Int32) -> Int32 {
+func BotChooseLTGItem(_ goalstate: Int32, _ origin: JKAShared.vec3_t, _ inventory: Slots<Int32>, _ travelflags: Int32) -> Int32 {
     // TODO: Port BotChooseLTGItem
     portMissing("BotChooseLTGItem", source: "oracle/codemp/botlib/be_ai_goal.cpp:1268")
 }
@@ -541,10 +515,7 @@ func BotChooseLTGItem(_ goalstate: Int32, _ origin: JKAShared.vec3_t, _ inventor
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1435
-// TODO: Port signature
-// Raven wrote: int BotChooseNBGItem(int goalstate, vec3_t origin, int *inventory, int travelflags, bot_goal_t *ltg, float maxtime)
-// No table row for `bot_goal_t * ltg`.
-func BotChooseNBGItem() -> Never {
+func BotChooseNBGItem(_ goalstate: Int32, _ origin: JKAShared.vec3_t, _ inventory: Slots<Int32>, _ travelflags: Int32, _ ltg: BotGoal, _ maxtime: Float) -> Int32 {
     // TODO: Port BotChooseNBGItem
     portMissing("BotChooseNBGItem", source: "oracle/codemp/botlib/be_ai_goal.cpp:1435")
 }
@@ -556,10 +527,7 @@ func BotChooseNBGItem() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1592
-// TODO: Port signature
-// Raven wrote: int BotTouchingGoal(vec3_t origin, bot_goal_t *goal)
-// No table row for `bot_goal_t * goal`.
-func BotTouchingGoal() -> Never {
+func BotTouchingGoal(_ origin: JKAShared.vec3_t, _ goal: BotGoal) -> Int32 {
     // TODO: Port BotTouchingGoal
     portMissing("BotTouchingGoal", source: "oracle/codemp/botlib/be_ai_goal.cpp:1592")
 }
@@ -571,10 +539,7 @@ func BotTouchingGoal() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1621
-// TODO: Port signature
-// Raven wrote: int BotItemGoalInVisButNotVisible(int viewer, vec3_t eye, vec3_t viewangles, bot_goal_t *goal)
-// No table row for `bot_goal_t * goal`.
-func BotItemGoalInVisButNotVisible() -> Never {
+func BotItemGoalInVisButNotVisible(_ viewer: Int32, _ eye: JKAShared.vec3_t, _ viewangles: JKAShared.vec3_t, _ goal: BotGoal) -> Int32 {
     // TODO: Port BotItemGoalInVisButNotVisible
     portMissing("BotItemGoalInVisButNotVisible", source: "oracle/codemp/botlib/be_ai_goal.cpp:1621")
 }

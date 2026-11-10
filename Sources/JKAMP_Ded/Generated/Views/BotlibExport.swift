@@ -189,9 +189,9 @@ public struct BotlibExport: Hashable, HandleView {
     /// Calls the stored `PC_ReadTokenHandle` function through the C pointer, with the caller's arguments, as Raven's `pm->PC_ReadTokenHandle(...)` did.
     /// A NULL `PC_ReadTokenHandle` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runPC_ReadTokenHandle(_ handle: Int32, _ pc_token: OpaquePointer?) -> Int32 {
+    public func runPC_ReadTokenHandle(_ handle: Int32, _ pc_token: JKAMP.PcToken?) -> Int32 {
         precondition(self.raw.pointee.PC_ReadTokenHandle != nil, "PC_ReadTokenHandle is NULL")
-        return self.PC_ReadTokenHandle!(handle, pc_token)
+        return self.PC_ReadTokenHandle!(handle, pc_token?.handle)
     }
 
     /// Source: unknown:22

@@ -24,37 +24,25 @@ let totalmemorysize: Int32 = 0
 let numblocks: Int32 = 0
 
 /// Source: oracle/codemp/botlib/l_memory.cpp:325
-// TODO: Port signature
-// Raven wrote: void *GetMemory(unsigned long size) #endif //MEMDEBUG
-// No table row for the return `void *`.
-func GetMemory() -> Never {
+func GetMemory(_ size: UInt32) -> UnsafeMutableRawPointer? {
     // TODO: Port GetMemory
     portMissing("GetMemory", source: "oracle/codemp/botlib/l_memory.cpp:325")
 }
 
 /// Source: oracle/codemp/botlib/l_memory.cpp:346
-// TODO: Port signature
-// Raven wrote: void *GetClearedMemory(unsigned long size) #endif //MEMDEBUG
-// No table row for the return `void *`.
-func GetClearedMemory() -> Never {
+func GetClearedMemory(_ size: UInt32) -> UnsafeMutableRawPointer {
     // TODO: Port GetClearedMemory
     portMissing("GetClearedMemory", source: "oracle/codemp/botlib/l_memory.cpp:346")
 }
 
 /// Source: oracle/codemp/botlib/l_memory.cpp:367
-// TODO: Port signature
-// Raven wrote: void *GetHunkMemory(unsigned long size) #endif //MEMDEBUG
-// No table row for the return `void *`.
-func GetHunkMemory() -> Never {
+func GetHunkMemory(_ size: UInt32) -> UnsafeMutableRawPointer? {
     // TODO: Port GetHunkMemory
     portMissing("GetHunkMemory", source: "oracle/codemp/botlib/l_memory.cpp:367")
 }
 
 /// Source: oracle/codemp/botlib/l_memory.cpp:388
-// TODO: Port signature
-// Raven wrote: void *GetClearedHunkMemory(unsigned long size) #endif //MEMDEBUG
-// No table row for the return `void *`.
-func GetClearedHunkMemory() -> Never {
+func GetClearedHunkMemory(_ size: UInt32) -> UnsafeMutableRawPointer {
     // TODO: Port GetClearedHunkMemory
     portMissing("GetClearedHunkMemory", source: "oracle/codemp/botlib/l_memory.cpp:388")
 }

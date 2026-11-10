@@ -6,7 +6,7 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:29
-let MASK_SOLID = JKAShared.CONTENTS_PLAYERCLIP
+private let MASK_SOLID = JKAShared.CONTENTS_PLAYERCLIP
 
 //===========================================================================
 //
@@ -27,10 +27,7 @@ func AAS_UpdateEntity(_ entnum: Int32, _ state: BotEntitystate) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:154
-// TODO: Port signature
-// Raven wrote: void AAS_EntityInfo(int entnum, aas_entityinfo_t *info)
-// No table row for `aas_entityinfo_t * info`.
-func AAS_EntityInfo() -> Never {
+func AAS_EntityInfo(_ entnum: Int32, _ info: AasEntityinfo) {
     // TODO: Port AAS_EntityInfo
     portMissing("AAS_EntityInfo", source: "oracle/codemp/botlib/be_aas_entity.cpp:154")
 }
@@ -114,10 +111,7 @@ func AAS_EntitySize(_ entnum: Int32, _ mins: inout JKAShared.vec3_t, _ maxs: ino
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:291
-// TODO: Port signature
-// Raven wrote: void AAS_EntityBSPData(int entnum, bsp_entdata_t *entdata)
-// No table row for `bsp_entdata_t * entdata`.
-func AAS_EntityBSPData() -> Never {
+func AAS_EntityBSPData(_ entnum: Int32, _ entdata: BspEntdata) {
     // TODO: Port AAS_EntityBSPData
     portMissing("AAS_EntityBSPData", source: "oracle/codemp/botlib/be_aas_entity.cpp:291")
 }

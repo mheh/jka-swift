@@ -62,5 +62,6 @@ public struct MdxaSkelOffsets: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/renderer/mdx_format.h:378
-    public var offsets: Slots<Int32> { Slots<Int32>(scalars: UnsafeMutableRawPointer(self.raw.pointer(to: \.offsets)!), count: 1) }
+    // AI: Raven declares `offsets[1]` and allocates the record past it. No macro bounds it, so the count is the widest.
+    public var offsets: Slots<Int32> { Slots<Int32>(scalars: UnsafeMutableRawPointer(self.raw.pointer(to: \.offsets)!), count: Int.max) }
 }

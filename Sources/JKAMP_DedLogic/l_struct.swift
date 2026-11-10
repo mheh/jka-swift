@@ -12,10 +12,7 @@ import JKAMP_Ded
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_struct.cpp:43
-// TODO: Port signature
-// Raven wrote: fielddef_t *FindField(fielddef_t *defs, char *name)
-// No table row for `fielddef_t * defs`.
-func FindField() -> Never {
+func FindField(_ defs: Slots<Fielddef>, _ name: String) -> Fielddef? {
     // TODO: Port FindField
     portMissing("FindField", source: "oracle/codemp/botlib/l_struct.cpp:43")
 }
@@ -27,10 +24,7 @@ func FindField() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_struct.cpp:59
-// TODO: Port signature
-// Raven wrote: qboolean ReadNumber(source_t *source, fielddef_t *fd, void *p)
-// No table row for `source_t * source`.
-func ReadNumber() -> Never {
+func ReadNumber(_ source: Source, _ fd: Fielddef, _ p: UnsafeMutableRawPointer) -> Bool {
     // TODO: Port ReadNumber
     portMissing("ReadNumber", source: "oracle/codemp/botlib/l_struct.cpp:59")
 }
@@ -42,10 +36,7 @@ func ReadNumber() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_struct.cpp:174
-// TODO: Port signature
-// Raven wrote: qboolean ReadChar(source_t *source, fielddef_t *fd, void *p)
-// No table row for `source_t * source`.
-func ReadChar() -> Never {
+func ReadChar(_ source: Source, _ fd: Fielddef, _ p: UnsafeMutableRawPointer) -> Bool {
     // TODO: Port ReadChar
     portMissing("ReadChar", source: "oracle/codemp/botlib/l_struct.cpp:174")
 }
@@ -57,10 +48,7 @@ func ReadChar() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_struct.cpp:199
-// TODO: Port signature
-// Raven wrote: int ReadString(source_t *source, fielddef_t *fd, void *p)
-// No table row for `source_t * source`.
-func ReadString() -> Never {
+func ReadString(_ source: Source, _ fd: Fielddef, _ p: UnsafeMutableRawPointer) -> Int32 {
     // TODO: Port ReadString
     portMissing("ReadString", source: "oracle/codemp/botlib/l_struct.cpp:199")
 }
@@ -72,10 +60,7 @@ func ReadString() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_struct.cpp:219
-// TODO: Port signature
-// Raven wrote: int ReadStructure(source_t *source, structdef_t *def, char *structure)
-// No table row for `source_t * source`.
-func ReadStructure() -> Never {
+func ReadStructure(_ source: Source, _ def: Structdef, _ structure: UnsafeMutableRawPointer) -> Int32 {
     // TODO: Port ReadStructure
     portMissing("ReadStructure", source: "oracle/codemp/botlib/l_struct.cpp:219")
 }
@@ -87,10 +72,7 @@ func ReadStructure() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_struct.cpp:313
-// TODO: Port signature
-// Raven wrote: int WriteIndent(FILE *fp, int indent)
-// No table row for `FILE * fp`.
-func WriteIndent() -> Never {
+func WriteIndent(_ fp: OpaquePointer?, _ indent: Int32) -> Int32 {
     // TODO: Port WriteIndent
     portMissing("WriteIndent", source: "oracle/codemp/botlib/l_struct.cpp:313")
 }
@@ -102,10 +84,7 @@ func WriteIndent() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_struct.cpp:327
-// TODO: Port signature
-// Raven wrote: int WriteFloat(FILE *fp, float value)
-// No table row for `FILE * fp`.
-func WriteFloat() -> Never {
+func WriteFloat(_ fp: OpaquePointer?, _ value: Float) -> Int32 {
     // TODO: Port WriteFloat
     portMissing("WriteFloat", source: "oracle/codemp/botlib/l_struct.cpp:327")
 }
@@ -117,10 +96,7 @@ func WriteFloat() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_struct.cpp:355
-// TODO: Port signature
-// Raven wrote: int WriteStructWithIndent(FILE *fp, structdef_t *def, char *structure, int indent)
-// No table row for `FILE * fp`.
-func WriteStructWithIndent() -> Never {
+func WriteStructWithIndent(_ fp: OpaquePointer?, _ def: Structdef, _ structure: UnsafeMutableRawPointer, _ indent: Int32) -> Int32 {
     // TODO: Port WriteStructWithIndent
     portMissing("WriteStructWithIndent", source: "oracle/codemp/botlib/l_struct.cpp:355")
 }
@@ -132,10 +108,7 @@ func WriteStructWithIndent() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_struct.cpp:441
-// TODO: Port signature
-// Raven wrote: int WriteStructure(FILE *fp, structdef_t *def, char *structure)
-// No table row for `FILE * fp`.
-func WriteStructure() -> Never {
+func WriteStructure(_ fp: OpaquePointer?, _ def: Structdef, _ structure: UnsafeMutableRawPointer) -> Int32 {
     // TODO: Port WriteStructure
     portMissing("WriteStructure", source: "oracle/codemp/botlib/l_struct.cpp:441")
 }

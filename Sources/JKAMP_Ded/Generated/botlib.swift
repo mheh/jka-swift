@@ -6,3 +6,9 @@ import JKAShared
 
 /// Source: oracle/codemp/game/botlib.h:40
 public let PRT_MESSAGE = CJKAMP_Ded.PRT_MESSAGE
+
+/// Source: oracle/codemp/game/botlib.h:30
+public let BOTFILESBASEFOLDER = CJKAMP_Ded.BOTFILESBASEFOLDER
+
+/// Source: oracle/codemp/game/botlib.h:46
+public let CMS_NORMAL = CJKAMP_Ded.CMS_NORMAL

@@ -6,6 +6,8 @@
 #include "CJKAMP_Ded_forward.h"
 
 // Source: oracle/codemp/renderer/tr_local.h:5
+// available API calls...
+//
 typedef const char * LPCSTR;
 
 #endif // JKA_CODEMP_RENDERER_TR_LOCAL_LPCSTR_H

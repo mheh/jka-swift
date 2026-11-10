@@ -6,9 +6,8 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/botlib/l_script.cpp:69
-// TODO: Port global default_punctuations
 // Raven wrote: punctuation_t default_punctuations[]
-// No view for `punctuation_s` of `l_script.h`.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/botlib/l_script.cpp:151
 var basefolder: JKAShared.CharBuf {
@@ -23,10 +22,7 @@ var basefolder: JKAShared.CharBuf {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:160
-// TODO: Port signature
-// Raven wrote: void PS_CreatePunctuationTable(script_t *script, punctuation_t *punctuations)
-// No table row for `script_t * script`.
-func PS_CreatePunctuationTable() -> Never {
+func PS_CreatePunctuationTable(_ script: Script, _ punctuations: Slots<Punctuation>) {
     // TODO: Port PS_CreatePunctuationTable
     portMissing("PS_CreatePunctuationTable", source: "oracle/codemp/botlib/l_script.cpp:160")
 }
@@ -38,10 +34,7 @@ func PS_CreatePunctuationTable() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:200
-// TODO: Port signature
-// Raven wrote: char *PunctuationFromNum(script_t *script, int num)
-// No table row for `script_t * script`.
-func PunctuationFromNum() -> Never {
+func PunctuationFromNum(_ script: Script, _ num: Int32) -> String {
     // TODO: Port PunctuationFromNum
     portMissing("PunctuationFromNum", source: "oracle/codemp/botlib/l_script.cpp:200")
 }
@@ -53,10 +46,7 @@ func PunctuationFromNum() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:216
-// TODO: Port signature
-// Raven wrote: void QDECL ScriptError(script_t *script, char *str, ...)
-// No table row for `script_t * script`.
-func ScriptError() -> Never {
+func ScriptError(_ script: Script, _ str: String, _ args: any JKAShared.FormatArg...) {
     // TODO: Port ScriptError
     portMissing("ScriptError", source: "oracle/codemp/botlib/l_script.cpp:216")
 }
@@ -68,10 +58,7 @@ func ScriptError() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:242
-// TODO: Port signature
-// Raven wrote: void QDECL ScriptWarning(script_t *script, char *str, ...)
-// No table row for `script_t * script`.
-func ScriptWarning() -> Never {
+func ScriptWarning(_ script: Script, _ str: String, _ args: any JKAShared.FormatArg...) {
     // TODO: Port ScriptWarning
     portMissing("ScriptWarning", source: "oracle/codemp/botlib/l_script.cpp:242")
 }
@@ -83,10 +70,7 @@ func ScriptWarning() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:268
-// TODO: Port signature
-// Raven wrote: void SetScriptPunctuations(script_t *script, punctuation_t *p)
-// No table row for `script_t * script`.
-func SetScriptPunctuations() -> Never {
+func SetScriptPunctuations(_ script: Script, _ p: Punctuation?) {
     // TODO: Port SetScriptPunctuations
     portMissing("SetScriptPunctuations", source: "oracle/codemp/botlib/l_script.cpp:268")
 }
@@ -100,10 +84,7 @@ func SetScriptPunctuations() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:285
-// TODO: Port signature
-// Raven wrote: int PS_ReadWhiteSpace(script_t *script)
-// No table row for `script_t * script`.
-func PS_ReadWhiteSpace() -> Never {
+func PS_ReadWhiteSpace(_ script: Script) -> Int32 {
     // TODO: Port PS_ReadWhiteSpace
     portMissing("PS_ReadWhiteSpace", source: "oracle/codemp/botlib/l_script.cpp:285")
 }
@@ -117,10 +98,7 @@ func PS_ReadWhiteSpace() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:344
-// TODO: Port signature
-// Raven wrote: int PS_ReadEscapeCharacter(script_t *script, char *ch)
-// No table row for `script_t * script`.
-func PS_ReadEscapeCharacter() -> Never {
+func PS_ReadEscapeCharacter(_ script: Script, _ ch: inout JKAShared.CharBuf) -> Int32 {
     // TODO: Port PS_ReadEscapeCharacter
     portMissing("PS_ReadEscapeCharacter", source: "oracle/codemp/botlib/l_script.cpp:344")
 }
@@ -136,10 +114,7 @@ func PS_ReadEscapeCharacter() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:422
-// TODO: Port signature
-// Raven wrote: int PS_ReadString(script_t *script, token_t *token, int quote)
-// No table row for `script_t * script`.
-func PS_ReadString() -> Never {
+func PS_ReadString(_ script: Script, _ token: Token, _ quote: Int32) -> Int32 {
     // TODO: Port PS_ReadString
     portMissing("PS_ReadString", source: "oracle/codemp/botlib/l_script.cpp:422")
 }
@@ -151,10 +126,7 @@ func PS_ReadString() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:511
-// TODO: Port signature
-// Raven wrote: int PS_ReadName(script_t *script, token_t *token)
-// No table row for `script_t * script`.
-func PS_ReadName() -> Never {
+func PS_ReadName(_ script: Script, _ token: Token) -> Int32 {
     // TODO: Port PS_ReadName
     portMissing("PS_ReadName", source: "oracle/codemp/botlib/l_script.cpp:511")
 }
@@ -166,10 +138,7 @@ func PS_ReadName() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:541
-// TODO: Port signature
-// Raven wrote: void NumberValue(char *string, int subtype, unsigned long int *intvalue, long double *floatvalue)
-// No table row for `long double * floatvalue`.
-func NumberValue() -> Never {
+func NumberValue(_ string: inout JKAShared.CharBuf, _ subtype: Int32, _ intvalue: inout UInt32, _ floatvalue: inout Double) {
     // TODO: Port NumberValue
     portMissing("NumberValue", source: "oracle/codemp/botlib/l_script.cpp:541")
 }
@@ -181,10 +150,7 @@ func NumberValue() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:613
-// TODO: Port signature
-// Raven wrote: int PS_ReadNumber(script_t *script, token_t *token)
-// No table row for `script_t * script`.
-func PS_ReadNumber() -> Never {
+func PS_ReadNumber(_ script: Script, _ token: Token) -> Int32 {
     // TODO: Port PS_ReadNumber
     portMissing("PS_ReadNumber", source: "oracle/codemp/botlib/l_script.cpp:613")
 }
@@ -196,10 +162,7 @@ func PS_ReadNumber() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:721
-// TODO: Port signature
-// Raven wrote: int PS_ReadLiteral(script_t *script, token_t *token)
-// No table row for `script_t * script`.
-func PS_ReadLiteral() -> Never {
+func PS_ReadLiteral(_ script: Script, _ token: Token) -> Int32 {
     // TODO: Port PS_ReadLiteral
     portMissing("PS_ReadLiteral", source: "oracle/codemp/botlib/l_script.cpp:721")
 }
@@ -211,10 +174,7 @@ func PS_ReadLiteral() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:768
-// TODO: Port signature
-// Raven wrote: int PS_ReadPunctuation(script_t *script, token_t *token)
-// No table row for `script_t * script`.
-func PS_ReadPunctuation() -> Never {
+func PS_ReadPunctuation(_ script: Script, _ token: Token) -> Int32 {
     // TODO: Port PS_ReadPunctuation
     portMissing("PS_ReadPunctuation", source: "oracle/codemp/botlib/l_script.cpp:768")
 }
@@ -226,10 +186,7 @@ func PS_ReadPunctuation() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:809
-// TODO: Port signature
-// Raven wrote: int PS_ReadPrimitive(script_t *script, token_t *token)
-// No table row for `script_t * script`.
-func PS_ReadPrimitive() -> Never {
+func PS_ReadPrimitive(_ script: Script, _ token: Token) -> Int32 {
     // TODO: Port PS_ReadPrimitive
     portMissing("PS_ReadPrimitive", source: "oracle/codemp/botlib/l_script.cpp:809")
 }
@@ -241,10 +198,7 @@ func PS_ReadPrimitive() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:835
-// TODO: Port signature
-// Raven wrote: int PS_ReadToken(script_t *script, token_t *token)
-// No table row for `script_t * script`.
-func PS_ReadToken() -> Never {
+func PS_ReadToken(_ script: Script, _ token: Token) -> Int32 {
     // TODO: Port PS_ReadToken
     portMissing("PS_ReadToken", source: "oracle/codemp/botlib/l_script.cpp:835")
 }
@@ -256,10 +210,7 @@ func PS_ReadToken() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:909
-// TODO: Port signature
-// Raven wrote: int PS_ExpectTokenString(script_t *script, char *string)
-// No table row for `script_t * script`.
-func PS_ExpectTokenString() -> Never {
+func PS_ExpectTokenString(_ script: Script, _ string: String) -> Int32 {
     // TODO: Port PS_ExpectTokenString
     portMissing("PS_ExpectTokenString", source: "oracle/codemp/botlib/l_script.cpp:909")
 }
@@ -271,10 +222,7 @@ func PS_ExpectTokenString() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:932
-// TODO: Port signature
-// Raven wrote: int PS_ExpectTokenType(script_t *script, int type, int subtype, token_t *token)
-// No table row for `script_t * script`.
-func PS_ExpectTokenType() -> Never {
+func PS_ExpectTokenType(_ script: Script, _ type: Int32, _ subtype: Int32, _ token: Token) -> Int32 {
     // TODO: Port PS_ExpectTokenType
     portMissing("PS_ExpectTokenType", source: "oracle/codemp/botlib/l_script.cpp:932")
 }
@@ -286,10 +234,7 @@ func PS_ExpectTokenType() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:990
-// TODO: Port signature
-// Raven wrote: int PS_ExpectAnyToken(script_t *script, token_t *token)
-// No table row for `script_t * script`.
-func PS_ExpectAnyToken() -> Never {
+func PS_ExpectAnyToken(_ script: Script, _ token: Token) -> Int32 {
     // TODO: Port PS_ExpectAnyToken
     portMissing("PS_ExpectAnyToken", source: "oracle/codemp/botlib/l_script.cpp:990")
 }
@@ -301,10 +246,7 @@ func PS_ExpectAnyToken() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1008
-// TODO: Port signature
-// Raven wrote: int PS_CheckTokenString(script_t *script, char *string)
-// No table row for `script_t * script`.
-func PS_CheckTokenString() -> Never {
+func PS_CheckTokenString(_ script: Script, _ string: String) -> Int32 {
     // TODO: Port PS_CheckTokenString
     portMissing("PS_CheckTokenString", source: "oracle/codemp/botlib/l_script.cpp:1008")
 }
@@ -316,10 +258,7 @@ func PS_CheckTokenString() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1025
-// TODO: Port signature
-// Raven wrote: int PS_CheckTokenType(script_t *script, int type, int subtype, token_t *token)
-// No table row for `script_t * script`.
-func PS_CheckTokenType() -> Never {
+func PS_CheckTokenType(_ script: Script, _ type: Int32, _ subtype: Int32, _ token: Token) -> Int32 {
     // TODO: Port PS_CheckTokenType
     portMissing("PS_CheckTokenType", source: "oracle/codemp/botlib/l_script.cpp:1025")
 }
@@ -331,10 +270,7 @@ func PS_CheckTokenType() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1047
-// TODO: Port signature
-// Raven wrote: int PS_SkipUntilString(script_t *script, char *string)
-// No table row for `script_t * script`.
-func PS_SkipUntilString() -> Never {
+func PS_SkipUntilString(_ script: Script, _ string: String) -> Int32 {
     // TODO: Port PS_SkipUntilString
     portMissing("PS_SkipUntilString", source: "oracle/codemp/botlib/l_script.cpp:1047")
 }
@@ -346,10 +282,7 @@ func PS_SkipUntilString() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1063
-// TODO: Port signature
-// Raven wrote: void PS_UnreadLastToken(script_t *script)
-// No table row for `script_t * script`.
-func PS_UnreadLastToken() -> Never {
+func PS_UnreadLastToken(_ script: Script) {
     // TODO: Port PS_UnreadLastToken
     portMissing("PS_UnreadLastToken", source: "oracle/codemp/botlib/l_script.cpp:1063")
 }
@@ -361,10 +294,7 @@ func PS_UnreadLastToken() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1073
-// TODO: Port signature
-// Raven wrote: void PS_UnreadToken(script_t *script, token_t *token)
-// No table row for `script_t * script`.
-func PS_UnreadToken() -> Never {
+func PS_UnreadToken(_ script: Script, _ token: Token) {
     // TODO: Port PS_UnreadToken
     portMissing("PS_UnreadToken", source: "oracle/codemp/botlib/l_script.cpp:1073")
 }
@@ -377,10 +307,7 @@ func PS_UnreadToken() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1085
-// TODO: Port signature
-// Raven wrote: char PS_NextWhiteSpaceChar(script_t *script)
-// No table row for `script_t * script`.
-func PS_NextWhiteSpaceChar() -> Never {
+func PS_NextWhiteSpaceChar(_ script: Script) -> CChar {
     // TODO: Port PS_NextWhiteSpaceChar
     portMissing("PS_NextWhiteSpaceChar", source: "oracle/codemp/botlib/l_script.cpp:1085")
 }
@@ -416,10 +343,7 @@ func StripSingleQuotes(_ string: inout JKAShared.CharBuf) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1136
-// TODO: Port signature
-// Raven wrote: long double ReadSignedFloat(script_t *script)
-// No table row for `script_t * script`.
-func ReadSignedFloat() -> Never {
+func ReadSignedFloat(_ script: Script) -> Double {
     // TODO: Port ReadSignedFloat
     portMissing("ReadSignedFloat", source: "oracle/codemp/botlib/l_script.cpp:1136")
 }
@@ -431,10 +355,7 @@ func ReadSignedFloat() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1159
-// TODO: Port signature
-// Raven wrote: signed long int ReadSignedInt(script_t *script)
-// No table row for `script_t * script`.
-func ReadSignedInt() -> Never {
+func ReadSignedInt(_ script: Script) -> Int32 {
     // TODO: Port ReadSignedInt
     portMissing("ReadSignedInt", source: "oracle/codemp/botlib/l_script.cpp:1159")
 }
@@ -446,10 +367,7 @@ func ReadSignedInt() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1182
-// TODO: Port signature
-// Raven wrote: void SetScriptFlags(script_t *script, int flags)
-// No table row for `script_t * script`.
-func SetScriptFlags() -> Never {
+func SetScriptFlags(_ script: Script, _ flags: Int32) {
     // TODO: Port SetScriptFlags
     portMissing("SetScriptFlags", source: "oracle/codemp/botlib/l_script.cpp:1182")
 }
@@ -461,10 +379,7 @@ func SetScriptFlags() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1192
-// TODO: Port signature
-// Raven wrote: int GetScriptFlags(script_t *script)
-// No table row for `script_t * script`.
-func GetScriptFlags() -> Never {
+func GetScriptFlags(_ script: Script) -> Int32 {
     // TODO: Port GetScriptFlags
     portMissing("GetScriptFlags", source: "oracle/codemp/botlib/l_script.cpp:1192")
 }
@@ -476,10 +391,7 @@ func GetScriptFlags() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1202
-// TODO: Port signature
-// Raven wrote: void ResetScript(script_t *script)
-// No table row for `script_t * script`.
-func ResetScript() -> Never {
+func ResetScript(_ script: Script) {
     // TODO: Port ResetScript
     portMissing("ResetScript", source: "oracle/codemp/botlib/l_script.cpp:1202")
 }
@@ -492,10 +404,7 @@ func ResetScript() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1227
-// TODO: Port signature
-// Raven wrote: int EndOfScript(script_t *script)
-// No table row for `script_t * script`.
-func EndOfScript() -> Never {
+func EndOfScript(_ script: Script) -> Int32 {
     // TODO: Port EndOfScript
     portMissing("EndOfScript", source: "oracle/codemp/botlib/l_script.cpp:1227")
 }
@@ -507,10 +416,7 @@ func EndOfScript() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1237
-// TODO: Port signature
-// Raven wrote: int NumLinesCrossed(script_t *script)
-// No table row for `script_t * script`.
-func NumLinesCrossed() -> Never {
+func NumLinesCrossed(_ script: Script) -> Int32 {
     // TODO: Port NumLinesCrossed
     portMissing("NumLinesCrossed", source: "oracle/codemp/botlib/l_script.cpp:1237")
 }
@@ -522,10 +428,7 @@ func NumLinesCrossed() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1247
-// TODO: Port signature
-// Raven wrote: int ScriptSkipTo(script_t *script, char *value)
-// No table row for `script_t * script`.
-func ScriptSkipTo() -> Never {
+func ScriptSkipTo(_ script: Script, _ value: String) -> Int32 {
     // TODO: Port ScriptSkipTo
     portMissing("ScriptSkipTo", source: "oracle/codemp/botlib/l_script.cpp:1247")
 }
@@ -537,10 +440,7 @@ func ScriptSkipTo() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1293
-// TODO: Port signature
-// Raven wrote: script_t *LoadScriptFile(const char *filename)
-// No table row for the return `script_t *`.
-func LoadScriptFile() -> Never {
+func LoadScriptFile(_ filename: String) -> Script? {
     // TODO: Port LoadScriptFile
     portMissing("LoadScriptFile", source: "oracle/codemp/botlib/l_script.cpp:1293")
 }
@@ -552,10 +452,7 @@ func LoadScriptFile() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1362
-// TODO: Port signature
-// Raven wrote: script_t *LoadScriptMemory(char *ptr, int length, char *name)
-// No table row for the return `script_t *`.
-func LoadScriptMemory() -> Never {
+func LoadScriptMemory(_ ptr: String, _ length: Int32, _ name: String) -> Script? {
     // TODO: Port LoadScriptMemory
     portMissing("LoadScriptMemory", source: "oracle/codemp/botlib/l_script.cpp:1362")
 }
@@ -567,10 +464,7 @@ func LoadScriptMemory() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1398
-// TODO: Port signature
-// Raven wrote: void FreeScript(script_t *script)
-// No table row for `script_t * script`.
-func FreeScript() -> Never {
+func FreeScript(_ script: Script) {
     // TODO: Port FreeScript
     portMissing("FreeScript", source: "oracle/codemp/botlib/l_script.cpp:1398")
 }

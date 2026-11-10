@@ -6,34 +6,29 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:38
-// TODO: Port global weaponinfo_fields
 // Raven wrote: static fielddef_t weaponinfo_fields[]
-// No view for `fielddef_s` of `l_struct.h`.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:66
-// TODO: Port global projectileinfo_fields
 // Raven wrote: static fielddef_t projectileinfo_fields[]
-// No view for `fielddef_s` of `l_struct.h`.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:86
-// TODO: Port global weaponinfo_struct
 // Raven wrote: static structdef_t weaponinfo_struct
-// No view for `structdef_s` of `l_struct.h`.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:90
-// TODO: Port global projectileinfo_struct
 // Raven wrote: static structdef_t projectileinfo_struct
-// No view for `structdef_s` of `l_struct.h`.
+// Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:111
-// TODO: Port global botweaponstates
-// Raven wrote: static bot_weaponstate_t *botweaponstates[MAX_CLIENTS+1]
-// No table row for `bot_weaponstate_t *[33]`.
+var botweaponstates: Slots<BotWeaponstate?> { world.storage.botweaponstates }
 
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:112
-// TODO: Port global weaponconfig
-// Raven wrote: static weaponconfig_t *weaponconfig
-// No table row for `weaponconfig_t *`.
+var weaponconfig: Weaponconfig? {
+    get { world.variables.weaponconfig }
+    set { world.variables.weaponconfig = newValue }
+}
 
 //========================================================================
 //
@@ -54,10 +49,7 @@ func BotValidWeaponNumber(_ weaponnum: Int32) -> Int32 {
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:135
-// TODO: Port signature
-// Raven wrote: bot_weaponstate_t *BotWeaponStateFromHandle(int handle)
-// No table row for the return `bot_weaponstate_t *`.
-func BotWeaponStateFromHandle() -> Never {
+func BotWeaponStateFromHandle(_ handle: Int32) -> BotWeaponstate? {
     // TODO: Port BotWeaponStateFromHandle
     portMissing("BotWeaponStateFromHandle", source: "oracle/codemp/botlib/be_ai_weap.cpp:135")
 }
@@ -69,10 +61,7 @@ func BotWeaponStateFromHandle() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:181
-// TODO: Port signature
-// Raven wrote: weaponconfig_t *LoadWeaponConfig(char *filename)
-// No table row for the return `weaponconfig_t *`.
-func LoadWeaponConfig() -> Never {
+func LoadWeaponConfig(_ filename: String) -> Weaponconfig? {
     // TODO: Port LoadWeaponConfig
     portMissing("LoadWeaponConfig", source: "oracle/codemp/botlib/be_ai_weap.cpp:181")
 }
@@ -86,7 +75,7 @@ func LoadWeaponConfig() -> Never {
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:313
 // TODO: Port signature
 // Raven wrote: int *WeaponWeightIndex(weightconfig_t *wwc, weaponconfig_t *wc)
-// No table row for `weightconfig_t * wwc`.
+// No table row for the return `int *`.
 func WeaponWeightIndex() -> Never {
     // TODO: Port WeaponWeightIndex
     portMissing("WeaponWeightIndex", source: "oracle/codemp/botlib/be_ai_weap.cpp:313")
@@ -123,10 +112,7 @@ func BotLoadWeaponWeights(_ weaponstate: Int32, _ filename: inout JKAShared.Char
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:371
-// TODO: Port signature
-// Raven wrote: void BotGetWeaponInfo(int weaponstate, int weapon, weaponinfo_t *weaponinfo)
-// No table row for `weaponinfo_t * weaponinfo`.
-func BotGetWeaponInfo() -> Never {
+func BotGetWeaponInfo(_ weaponstate: Int32, _ weapon: Int32, _ weaponinfo: Weaponinfo) {
     // TODO: Port BotGetWeaponInfo
     portMissing("BotGetWeaponInfo", source: "oracle/codemp/botlib/be_ai_weap.cpp:371")
 }
@@ -138,7 +124,7 @@ func BotGetWeaponInfo() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:387
-func BotChooseBestFightWeapon(_ weaponstate: Int32, _ inventory: inout Int32) -> Int32 {
+func BotChooseBestFightWeapon(_ weaponstate: Int32, _ inventory: Slots<Int32>) -> Int32 {
     // TODO: Port BotChooseBestFightWeapon
     portMissing("BotChooseBestFightWeapon", source: "oracle/codemp/botlib/be_ai_weap.cpp:387")
 }

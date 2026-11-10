@@ -6,11 +6,15 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/RMG/RM_Manager.cpp:16
-// TODO: Port global mCurObjective
-// Raven wrote: CRMObjective *CRMManager::mCurObjective=0
-// No table row for `CRMObjective *`.
+/// Raven's instance, a hand property of `EngineWorld`, by the HAND_VARS ruling.
+var mCurObjective: CRMObjective? {
+    get { world.mCurObjective }
+    set { world.mCurObjective = newValue }
+}
 
 /// Source: oracle/codemp/RMG/RM_Manager.cpp:23
-// TODO: Port global TheRandomMissionManager
-// Raven wrote: CRMManager *TheRandomMissionManager
-// No table row for `CRMManager *`.
+/// Raven's instance, a hand property of `EngineWorld`, by the HAND_VARS ruling.
+var TheRandomMissionManager: CRMManager? {
+    get { world.TheRandomMissionManager }
+    set { world.TheRandomMissionManager = newValue }
+}

@@ -294,17 +294,17 @@ public struct ClipMap: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/qcommon/cm_local.h:200
-    public var areas: CArea? {
-        get { self.raw.pointee.areas.map { CArea(handle: OpaquePointer($0)) } }
+    public var areas: CmArea? {
+        get { self.raw.pointee.areas.map { CmArea(handle: OpaquePointer($0)) } }
         nonmutating set { self.raw.pointee.areas = UnsafeMutablePointer(newValue?.handle) }
     }
 
     /// Raven's `areas[i]`, the records the pointer holds. A NULL pointer traps with the field's name.
     /// C gives the pointer no bound, so the Slots takes the widest count.
-    public var areasSlots: Slots<CArea> {
+    public var areasSlots: Slots<CmArea> {
         get {
             precondition(self.raw.pointee.areas != nil, "areas is NULL")
-            return Slots(views: UnsafeMutableRawPointer(self.raw.pointee.areas!), count: Int.max, stride: CArea.stride)
+            return Slots(views: UnsafeMutableRawPointer(self.raw.pointee.areas!), count: Int.max, stride: CmArea.stride)
         }
         nonmutating set { self.raw.pointee.areas = newValue.base.assumingMemoryBound(to: cArea_t.self) }
     }

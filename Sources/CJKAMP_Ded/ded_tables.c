@@ -855,3 +855,223 @@ vidmode_t r_vidModes[13] = {
     { "Mode 11: 856x480 (wide)", 856,	 480 },
     { "Mode 12: 2400x600(surround)",2400,600 }
 };
+
+// Raven wrote `punctuation_t default_punctuations[] =` at l_script.cpp:69, and ded_tables.h declares the table `extern` with its bound,
+// so this declaration line and its brace are the tool's own and Raven's bytes start at his first row, row D11.
+punctuation_t default_punctuations[54] = {
+// Source: oracle/codemp/botlib/l_script.cpp:71-146
+	//binary operators
+	{">>=",P_RSHIFT_ASSIGN, NULL},
+	{"<<=",P_LSHIFT_ASSIGN, NULL},
+	//
+	{"...",P_PARMS, NULL},
+	//define merge operator
+	{"##",P_PRECOMPMERGE, NULL},
+	//logic operators
+	{"&&",P_LOGIC_AND, NULL},
+	{"||",P_LOGIC_OR, NULL},
+	{">=",P_LOGIC_GEQ, NULL},
+	{"<=",P_LOGIC_LEQ, NULL},
+	{"==",P_LOGIC_EQ, NULL},
+	{"!=",P_LOGIC_UNEQ, NULL},
+	//arithmatic operators
+	{"*=",P_MUL_ASSIGN, NULL},
+	{"/=",P_DIV_ASSIGN, NULL},
+	{"%=",P_MOD_ASSIGN, NULL},
+	{"+=",P_ADD_ASSIGN, NULL},
+	{"-=",P_SUB_ASSIGN, NULL},
+	{"++",P_INC, NULL},
+	{"--",P_DEC, NULL},
+	//binary operators
+	{"&=",P_BIN_AND_ASSIGN, NULL},
+	{"|=",P_BIN_OR_ASSIGN, NULL},
+	{"^=",P_BIN_XOR_ASSIGN, NULL},
+	{">>",P_RSHIFT, NULL},
+	{"<<",P_LSHIFT, NULL},
+	//reference operators
+	{"->",P_POINTERREF, NULL},
+	//C++
+	{"::",P_CPP1, NULL},
+	{".*",P_CPP2, NULL},
+	//arithmatic operators
+	{"*",P_MUL, NULL},
+	{"/",P_DIV, NULL},
+	{"%",P_MOD, NULL},
+	{"+",P_ADD, NULL},
+	{"-",P_SUB, NULL},
+	{"=",P_ASSIGN, NULL},
+	//binary operators
+	{"&",P_BIN_AND, NULL},
+	{"|",P_BIN_OR, NULL},
+	{"^",P_BIN_XOR, NULL},
+	{"~",P_BIN_NOT, NULL},
+	//logic operators
+	{"!",P_LOGIC_NOT, NULL},
+	{">",P_LOGIC_GREATER, NULL},
+	{"<",P_LOGIC_LESS, NULL},
+	//reference operator
+	{".",P_REF, NULL},
+	//seperators
+	{",",P_COMMA, NULL},
+	{";",P_SEMICOLON, NULL},
+	//label indication
+	{":",P_COLON, NULL},
+	//if statement
+	{"?",P_QUESTIONMARK, NULL},
+	//embracements
+	{"(",P_PARENTHESESOPEN, NULL},
+	{")",P_PARENTHESESCLOSE, NULL},
+	{"{",P_BRACEOPEN, NULL},
+	{"}",P_BRACECLOSE, NULL},
+	{"[",P_SQBRACKETOPEN, NULL},
+	{"]",P_SQBRACKETCLOSE, NULL},
+	//
+	{"\\",P_BACKSLASH, NULL},
+	//precompiler operator
+	{"#",P_PRECOMP, NULL},
+#ifdef DOLLAR
+	{"$",P_DOLLAR, NULL},
+#endif //DOLLAR
+	// StringEd key
+	{"@",P_ATSIGN, NULL},
+	{NULL, 0}
+};
+
+// Raven's offset macro of be_ai_goal.cpp, which the table below names.
+// Source: oracle/codemp/botlib/be_ai_goal.cpp:121
+#define ITEMINFO_OFS(x)	(int)&(((iteminfo_t *)0)->x)
+
+// Raven wrote `fielddef_t iteminfo_fields[] =` at be_ai_goal.cpp:123, and ded_tables.h declares the table `extern` with its bound, row D19.
+fielddef_t iteminfo_fields[9] = {
+// Source: oracle/codemp/botlib/be_ai_goal.cpp:125-134
+{"name", ITEMINFO_OFS(name), FT_STRING},
+{"model", ITEMINFO_OFS(model), FT_STRING},
+{"modelindex", ITEMINFO_OFS(modelindex), FT_INT},
+{"type", ITEMINFO_OFS(type), FT_INT},
+{"index", ITEMINFO_OFS(index), FT_INT},
+{"respawntime", ITEMINFO_OFS(respawntime), FT_FLOAT},
+{"mins", ITEMINFO_OFS(mins), FT_FLOAT|FT_ARRAY, 3},
+{"maxs", ITEMINFO_OFS(maxs), FT_FLOAT|FT_ARRAY, 3},
+{0, 0, 0}
+};
+
+// Source: oracle/codemp/botlib/be_ai_goal.cpp:136-139
+structdef_t iteminfo_struct =
+{
+	sizeof(iteminfo_t), iteminfo_fields
+};
+
+// Raven's offset macros of be_ai_weap.cpp, which the tables below name.
+// Source: oracle/codemp/botlib/be_ai_weap.cpp:34-35
+#define WEAPON_OFS(x) (int)&(((weaponinfo_t *)0)->x)
+#define PROJECTILE_OFS(x) (int)&(((projectileinfo_t *)0)->x)
+
+// Raven wrote `static fielddef_t weaponinfo_fields[] =` at be_ai_weap.cpp:38, and ded_tables.h declares the table `extern` with its bound,
+// so this declaration line and its brace are the tool's own and Raven's bytes start at his first row, row D19.
+fielddef_t weaponinfo_fields[23] = {
+// Source: oracle/codemp/botlib/be_ai_weap.cpp:40-63
+{"number", WEAPON_OFS(number), FT_INT},						//weapon number
+{"name", WEAPON_OFS(name), FT_STRING},							//name of the weapon
+{"level", WEAPON_OFS(level), FT_INT},
+{"model", WEAPON_OFS(model), FT_STRING},						//model of the weapon
+{"weaponindex", WEAPON_OFS(weaponindex), FT_INT},			//index of weapon in inventory
+{"flags", WEAPON_OFS(flags), FT_INT},							//special flags
+{"projectile", WEAPON_OFS(projectile), FT_STRING},			//projectile used by the weapon
+{"numprojectiles", WEAPON_OFS(numprojectiles), FT_INT},	//number of projectiles
+{"hspread", WEAPON_OFS(hspread), FT_FLOAT},					//horizontal spread of projectiles (degrees from middle)
+{"vspread", WEAPON_OFS(vspread), FT_FLOAT},					//vertical spread of projectiles (degrees from middle)
+{"speed", WEAPON_OFS(speed), FT_FLOAT},						//speed of the projectile (0 = instant hit)
+{"acceleration", WEAPON_OFS(acceleration), FT_FLOAT},		//"acceleration" * time (in seconds) + "speed" = projectile speed
+{"recoil", WEAPON_OFS(recoil), FT_FLOAT|FT_ARRAY, 3},		//amount of recoil the player gets from the weapon
+{"offset", WEAPON_OFS(offset), FT_FLOAT|FT_ARRAY, 3},		//projectile start offset relative to eye and view angles
+{"angleoffset", WEAPON_OFS(angleoffset), FT_FLOAT|FT_ARRAY, 3},//offset of the shoot angles relative to the view angles
+{"extrazvelocity", WEAPON_OFS(extrazvelocity), FT_FLOAT},//extra z velocity the projectile gets
+{"ammoamount", WEAPON_OFS(ammoamount), FT_INT},				//ammo amount used per shot
+{"ammoindex", WEAPON_OFS(ammoindex), FT_INT},				//index of ammo in inventory
+{"activate", WEAPON_OFS(activate), FT_FLOAT},				//time it takes to select the weapon
+{"reload", WEAPON_OFS(reload), FT_FLOAT},						//time it takes to reload the weapon
+{"spinup", WEAPON_OFS(spinup), FT_FLOAT},						//time it takes before first shot
+{"spindown", WEAPON_OFS(spindown), FT_FLOAT},				//time it takes before weapon stops firing
+{NULL, 0, 0, 0}
+};
+
+// Raven wrote `static fielddef_t projectileinfo_fields[] =` at be_ai_weap.cpp:66, the same form.
+fielddef_t projectileinfo_fields[15] = {
+// Source: oracle/codemp/botlib/be_ai_weap.cpp:68-84
+{"name", PROJECTILE_OFS(name), FT_STRING},					//name of the projectile
+{"model", WEAPON_OFS(model), FT_STRING},						//model of the projectile
+{"flags", PROJECTILE_OFS(flags), FT_INT},						//special flags
+{"gravity", PROJECTILE_OFS(gravity), FT_FLOAT},				//amount of gravity applied to the projectile [0,1]
+{"damage", PROJECTILE_OFS(damage), FT_INT},					//damage of the projectile
+{"radius", PROJECTILE_OFS(radius), FT_FLOAT},				//radius of damage
+{"visdamage", PROJECTILE_OFS(visdamage), FT_INT},			//damage of the projectile to visible entities
+{"damagetype", PROJECTILE_OFS(damagetype), FT_INT},		//type of damage (combination of the DAMAGETYPE_? flags)
+{"healthinc", PROJECTILE_OFS(healthinc), FT_INT},			//health increase the owner gets
+{"push", PROJECTILE_OFS(push), FT_FLOAT},						//amount a player is pushed away from the projectile impact
+{"detonation", PROJECTILE_OFS(detonation), FT_FLOAT},		//time before projectile explodes after fire pressed
+{"bounce", PROJECTILE_OFS(bounce), FT_FLOAT},				//amount the projectile bounces
+{"bouncefric", PROJECTILE_OFS(bouncefric), FT_FLOAT}, 	//amount the bounce decreases per bounce
+{"bouncestop", PROJECTILE_OFS(bouncestop), FT_FLOAT},		//minimum bounce value before bouncing stops
+//recurive projectile definition??
+{NULL, 0, 0, 0}
+};
+
+// Raven wrote `static structdef_t weaponinfo_struct =` at be_ai_weap.cpp:86 and `projectileinfo_struct` at :90, the same form.
+structdef_t weaponinfo_struct = {
+// Source: oracle/codemp/botlib/be_ai_weap.cpp:88-89
+	sizeof(weaponinfo_t), weaponinfo_fields
+};
+
+structdef_t projectileinfo_struct = {
+// Source: oracle/codemp/botlib/be_ai_weap.cpp:92-93
+	sizeof(projectileinfo_t), projectileinfo_fields
+};
+
+// Raven wrote `const static mdxaBone_t identityMatrix =` at tr_ghoul2.cpp:128, and ded_tables.h declares the record `extern`,
+// so this declaration line and its brace are the tool's own and Raven's bytes start at his first row, row R3.
+mdxaBone_t identityMatrix = {
+// Source: oracle/codemp/renderer/tr_ghoul2.cpp:130-133
+	0.0f, -1.0f, 0.0f, 0.0f,
+	1.0f, 0.0f, 0.0f, 0.0f,
+	0.0f, 0.0f, 1.0f, 0.0f
+};
+
+// Raven wrote `const static mdxaBone_t identityMatrix =` in G2API_GetBoltMatrix at G2_API.cpp:1801, the same form.
+mdxaBone_t identityMatrix_G2API_GetBoltMatrix = {
+// Source: oracle/codemp/ghoul2/G2_API.cpp:1803-1806
+		0.0f, -1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f
+	};
+
+// Raven wrote `static mdxaBone_t id =` in G2_Set_Bone_Angles_Rag at G2_bones.cpp:1423 and in G2_Set_Bone_Angles_IK at :4575, the same form.
+mdxaBone_t id_G2_Set_Bone_Angles_Rag = {
+// Source: oracle/codemp/ghoul2/G2_bones.cpp:1425-1428
+				1.0f, 0.0f, 0.0f, 0.0f,
+				0.0f, 1.0f, 0.0f, 0.0f,
+				0.0f, 0.0f, 1.0f, 0.0f
+			};
+
+mdxaBone_t id_G2_Set_Bone_Angles_IK = {
+// Source: oracle/codemp/ghoul2/G2_bones.cpp:4577-4580
+				1.0f, 0.0f, 0.0f, 0.0f,
+				0.0f, 1.0f, 0.0f, 0.0f,
+				0.0f, 0.0f, 1.0f, 0.0f
+			};
+
+// Source: oracle/codemp/icarus/GameInterface.cpp:592-606
+stringID_table_t BSTable[] =
+{
+	ENUM2STRING(BS_DEFAULT),//# default behavior for that NPC
+	ENUM2STRING(BS_ADVANCE_FIGHT),//# Advance to captureGoal and shoot enemies if you can
+	ENUM2STRING(BS_SLEEP),//# Play awake script when startled by sound
+	ENUM2STRING(BS_FOLLOW_LEADER),//# Follow your leader and shoot any enemies you come across
+	ENUM2STRING(BS_JUMP),//# Face navgoal and jump to it.
+	ENUM2STRING(BS_SEARCH),//# Using current waypoint as a base), search the immediate branches of waypoints for enemies
+	ENUM2STRING(BS_WANDER),//# Wander down random waypoint paths
+	ENUM2STRING(BS_NOCLIP),//# Moves through walls), etc.
+	ENUM2STRING(BS_REMOVE),//# Waits for player to leave PVS then removes itself
+	ENUM2STRING(BS_CINEMATIC),//# Does nothing but face it's angles and move to a goal if it has one
+	//the rest are internal only
+	"",				-1,
+};

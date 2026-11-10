@@ -36,54 +36,64 @@ let MODELTYPE_FUNC_DOOR = 3 as Int32
 let MODELTYPE_FUNC_STATIC = 4 as Int32
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:89
-// TODO: Port global sv_maxstep
-// Raven wrote: libvar_t *sv_maxstep
-// No table row for `libvar_t *`.
+var sv_maxstep: Libvar? {
+    get { world.variables.sv_maxstep }
+    set { world.variables.sv_maxstep = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:90
-// TODO: Port global sv_maxbarrier
-// Raven wrote: libvar_t *sv_maxbarrier
-// No table row for `libvar_t *`.
+var sv_maxbarrier: Libvar? {
+    get { world.variables.sv_maxbarrier }
+    set { world.variables.sv_maxbarrier = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:91
-// TODO: Port global sv_gravity
-// Raven wrote: libvar_t *sv_gravity
-// No table row for `libvar_t *`.
+var sv_gravity: Libvar? {
+    get { world.variables.sv_gravity }
+    set { world.variables.sv_gravity = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:92
-// TODO: Port global weapindex_rocketlauncher
-// Raven wrote: libvar_t *weapindex_rocketlauncher
-// No table row for `libvar_t *`.
+var weapindex_rocketlauncher: Libvar? {
+    get { world.variables.weapindex_rocketlauncher }
+    set { world.variables.weapindex_rocketlauncher = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:93
-// TODO: Port global weapindex_bfg10k
-// Raven wrote: libvar_t *weapindex_bfg10k
-// No table row for `libvar_t *`.
+var weapindex_bfg10k: Libvar? {
+    get { world.variables.weapindex_bfg10k }
+    set { world.variables.weapindex_bfg10k = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:94
-// TODO: Port global weapindex_grapple
-// Raven wrote: libvar_t *weapindex_grapple
-// No table row for `libvar_t *`.
+var weapindex_grapple: Libvar? {
+    get { world.variables.weapindex_grapple }
+    set { world.variables.weapindex_grapple = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:95
-// TODO: Port global entitytypemissile
-// Raven wrote: libvar_t *entitytypemissile
-// No table row for `libvar_t *`.
+var entitytypemissile: Libvar? {
+    get { world.variables.entitytypemissile }
+    set { world.variables.entitytypemissile = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:96
-// TODO: Port global offhandgrapple
-// Raven wrote: libvar_t *offhandgrapple
-// No table row for `libvar_t *`.
+var offhandgrapple: Libvar? {
+    get { world.variables.offhandgrapple }
+    set { world.variables.offhandgrapple = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:97
-// TODO: Port global cmd_grappleoff
-// Raven wrote: libvar_t *cmd_grappleoff
-// No table row for `libvar_t *`.
+var cmd_grappleoff: Libvar? {
+    get { world.variables.cmd_grappleoff }
+    set { world.variables.cmd_grappleoff = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:98
-// TODO: Port global cmd_grappleon
-// Raven wrote: libvar_t *cmd_grappleon
-// No table row for `libvar_t *`.
+var cmd_grappleon: Libvar? {
+    get { world.variables.cmd_grappleon }
+    set { world.variables.cmd_grappleon = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:100
 var modeltypes: [Int32] {
@@ -92,9 +102,19 @@ var modeltypes: [Int32] {
 }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:102
-// TODO: Port global botmovestates
-// Raven wrote: bot_movestate_t *botmovestates[MAX_CLIENTS+1]
-// No table row for `bot_movestate_t *[33]`.
+var botmovestates: Slots<BotMovestate?> { world.storage.botmovestates }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:227
+// AI: Raven declares `areas` on the stack of BotFuzzyPointReachabilityArea. The function uses one zeroed allocation on the storage class.
+private var areas_BotFuzzyPointReachabilityArea: Slots<Int32> { world.storage.be_ai_move_areas_BotFuzzyPointReachabilityArea }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:229
+// AI: Raven declares `points` on the stack of BotFuzzyPointReachabilityArea. The function uses one zeroed allocation on the storage class.
+private var points_BotFuzzyPointReachabilityArea: Slots<JKAShared.vec3_t> { world.storage.be_ai_move_points_BotFuzzyPointReachabilityArea }
+
+/// Source: oracle/codemp/botlib/be_ai_move.cpp:3385
+// AI: Raven declares `areas` on the stack of BotMoveToGoal. The function uses one zeroed allocation on the storage class.
+private var areas_BotMoveToGoal: Slots<Int32> { world.storage.be_ai_move_areas_BotMoveToGoal }
 
 //========================================================================
 //
@@ -127,10 +147,7 @@ func BotFreeMoveState(_ handle: Int32) {
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:151
-// TODO: Port signature
-// Raven wrote: bot_movestate_t *BotMoveStateFromHandle(int handle)
-// No table row for the return `bot_movestate_t *`.
-func BotMoveStateFromHandle() -> Never {
+func BotMoveStateFromHandle(_ handle: Int32) -> BotMovestate? {
     // TODO: Port BotMoveStateFromHandle
     portMissing("BotMoveStateFromHandle", source: "oracle/codemp/botlib/be_ai_move.cpp:151")
 }
@@ -142,10 +159,7 @@ func BotMoveStateFromHandle() -> Never {
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:171
-// TODO: Port signature
-// Raven wrote: void BotInitMoveState(int handle, bot_initmove_t *initmove)
-// No table row for `bot_initmove_t * initmove`.
-func BotInitMoveState() -> Never {
+func BotInitMoveState(_ handle: Int32, _ initmove: BotInitmove) {
     // TODO: Port BotInitMoveState
     portMissing("BotInitMoveState", source: "oracle/codemp/botlib/be_ai_move.cpp:171")
 }
@@ -272,10 +286,7 @@ int BotReachabilityArea(vec3_t origin, int testground)
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:425
-// TODO: Port signature
-// Raven wrote: int BotOnMover(vec3_t origin, int entnum, aas_reachability_t *reach)
-// No table row for `aas_reachability_t * reach`.
-func BotOnMover() -> Never {
+func BotOnMover(_ origin: JKAShared.vec3_t, _ entnum: Int32, _ reach: AasReachability) -> Int32 {
     // TODO: Port BotOnMover
     portMissing("BotOnMover", source: "oracle/codemp/botlib/be_ai_move.cpp:425")
 }
@@ -287,10 +298,7 @@ func BotOnMover() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:471
-// TODO: Port signature
-// Raven wrote: int MoverDown(aas_reachability_t *reach)
-// No table row for `aas_reachability_t * reach`.
-func MoverDown() -> Never {
+func MoverDown(_ reach: AasReachability) -> Int32 {
     // TODO: Port MoverDown
     portMissing("MoverDown", source: "oracle/codemp/botlib/be_ai_move.cpp:471")
 }
@@ -314,10 +322,7 @@ func BotSetBrushModelTypes() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:532
-// TODO: Port signature
-// Raven wrote: int BotOnTopOfEntity(bot_movestate_t *ms)
-// No table row for `bot_movestate_t * ms`.
-func BotOnTopOfEntity() -> Never {
+func BotOnTopOfEntity(_ ms: BotMovestate) -> Int32 {
     // TODO: Port BotOnTopOfEntity
     portMissing("BotOnTopOfEntity", source: "oracle/codemp/botlib/be_ai_move.cpp:532")
 }
@@ -329,10 +334,7 @@ func BotOnTopOfEntity() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:552
-// TODO: Port signature
-// Raven wrote: int BotValidTravel(vec3_t origin, aas_reachability_t *reach, int travelflags)
-// No table row for `aas_reachability_t * reach`.
-func BotValidTravel() -> Never {
+func BotValidTravel(_ origin: JKAShared.vec3_t, _ reach: AasReachability, _ travelflags: Int32) -> Int32 {
     // TODO: Port BotValidTravel
     portMissing("BotValidTravel", source: "oracle/codemp/botlib/be_ai_move.cpp:552")
 }
@@ -344,10 +346,7 @@ func BotValidTravel() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:566
-// TODO: Port signature
-// Raven wrote: void BotAddToAvoidReach(bot_movestate_t *ms, int number, float avoidtime)
-// No table row for `bot_movestate_t * ms`.
-func BotAddToAvoidReach() -> Never {
+func BotAddToAvoidReach(_ ms: BotMovestate, _ number: Int32, _ avoidtime: Float) {
     // TODO: Port BotAddToAvoidReach
     portMissing("BotAddToAvoidReach", source: "oracle/codemp/botlib/be_ai_move.cpp:566")
 }
@@ -383,10 +382,7 @@ func VectorDistanceSquared(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Fl
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:636
-// TODO: Port signature
-// Raven wrote: int BotAvoidSpots(vec3_t origin, aas_reachability_t *reach, bot_avoidspot_t *avoidspots, int numavoidspots)
-// No table row for `aas_reachability_t * reach`.
-func BotAvoidSpots() -> Never {
+func BotAvoidSpots(_ origin: JKAShared.vec3_t, _ reach: AasReachability, _ avoidspots: Slots<BotAvoidspot>, _ numavoidspots: Int32) -> Int32 {
     // TODO: Port BotAvoidSpots
     portMissing("BotAvoidSpots", source: "oracle/codemp/botlib/be_ai_move.cpp:636")
 }
@@ -410,10 +406,7 @@ func BotAddAvoidSpot(_ movestate: Int32, _ origin: JKAShared.vec3_t, _ radius: F
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:727
-// TODO: Port signature
-// Raven wrote: int BotGetReachabilityToGoal(vec3_t origin, int areanum, int lastgoalareanum, int lastareanum, int *avoidreach, float *avoidreachtimes, int *avoidreachtries, bot_goal_t *goal, int travelflags, int movetravelflags, struct bot_avoidspot_s *avoidspots, int numavoidspots, int *flags)
-// No table row for `bot_goal_t * goal`.
-func BotGetReachabilityToGoal() -> Never {
+func BotGetReachabilityToGoal(_ origin: JKAShared.vec3_t, _ areanum: Int32, _ lastgoalareanum: Int32, _ lastareanum: Int32, _ avoidreach: Slots<Int32>, _ avoidreachtimes: Slots<Float>, _ avoidreachtries: Slots<Int32>, _ goal: BotGoal, _ travelflags: Int32, _ movetravelflags: Int32, _ avoidspots: BotAvoidspot?, _ numavoidspots: Int32, _ flags: UnsafeMutablePointer<Int32>?) -> Int32 {
     // TODO: Port BotGetReachabilityToGoal
     portMissing("BotGetReachabilityToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:727")
 }
@@ -431,10 +424,7 @@ func BotAddToTarget(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ maxdis
 }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:826
-// TODO: Port signature
-// Raven wrote: int BotMovementViewTarget(int movestate, bot_goal_t *goal, int travelflags, float lookahead, vec3_t target)
-// No table row for `bot_goal_t * goal`.
-func BotMovementViewTarget() -> Never {
+func BotMovementViewTarget(_ movestate: Int32, _ goal: BotGoal, _ travelflags: Int32, _ lookahead: Float, _ target: inout JKAShared.vec3_t) -> Int32 {
     // TODO: Port BotMovementViewTarget
     portMissing("BotMovementViewTarget", source: "oracle/codemp/botlib/be_ai_move.cpp:826")
 }
@@ -458,10 +448,7 @@ func BotVisible(_ ent: Int32, _ eye: JKAShared.vec3_t, _ target: JKAShared.vec3_
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:895
-// TODO: Port signature
-// Raven wrote: int BotPredictVisiblePosition(vec3_t origin, int areanum, bot_goal_t *goal, int travelflags, vec3_t target)
-// No table row for `bot_goal_t * goal`.
-func BotPredictVisiblePosition() -> Never {
+func BotPredictVisiblePosition(_ origin: JKAShared.vec3_t, _ areanum: Int32, _ goal: BotGoal, _ travelflags: Int32, _ target: inout JKAShared.vec3_t) -> Int32 {
     // TODO: Port BotPredictVisiblePosition
     portMissing("BotPredictVisiblePosition", source: "oracle/codemp/botlib/be_ai_move.cpp:895")
 }
@@ -473,10 +460,7 @@ func BotPredictVisiblePosition() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:958
-// TODO: Port signature
-// Raven wrote: void MoverBottomCenter(aas_reachability_t *reach, vec3_t bottomcenter)
-// No table row for `aas_reachability_t * reach`.
-func MoverBottomCenter() -> Never {
+func MoverBottomCenter(_ reach: AasReachability, _ bottomcenter: inout JKAShared.vec3_t) {
     // TODO: Port MoverBottomCenter
     portMissing("MoverBottomCenter", source: "oracle/codemp/botlib/be_ai_move.cpp:958")
 }
@@ -500,10 +484,7 @@ func BotGapDistance(_ origin: JKAShared.vec3_t, _ hordir: JKAShared.vec3_t, _ en
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1032
-// TODO: Port signature
-// Raven wrote: int BotCheckBarrierJump(bot_movestate_t *ms, vec3_t dir, float speed)
-// No table row for `bot_movestate_t * ms`.
-func BotCheckBarrierJump() -> Never {
+func BotCheckBarrierJump(_ ms: BotMovestate, _ dir: JKAShared.vec3_t, _ speed: Float) -> Int32 {
     // TODO: Port BotCheckBarrierJump
     portMissing("BotCheckBarrierJump", source: "oracle/codemp/botlib/be_ai_move.cpp:1032")
 }
@@ -515,10 +496,7 @@ func BotCheckBarrierJump() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1082
-// TODO: Port signature
-// Raven wrote: int BotSwimInDirection(bot_movestate_t *ms, vec3_t dir, float speed, int type)
-// No table row for `bot_movestate_t * ms`.
-func BotSwimInDirection() -> Never {
+func BotSwimInDirection(_ ms: BotMovestate, _ dir: JKAShared.vec3_t, _ speed: Float, _ type: Int32) -> Int32 {
     // TODO: Port BotSwimInDirection
     portMissing("BotSwimInDirection", source: "oracle/codemp/botlib/be_ai_move.cpp:1082")
 }
@@ -530,10 +508,7 @@ func BotSwimInDirection() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1097
-// TODO: Port signature
-// Raven wrote: int BotWalkInDirection(bot_movestate_t *ms, vec3_t dir, float speed, int type)
-// No table row for `bot_movestate_t * ms`.
-func BotWalkInDirection() -> Never {
+func BotWalkInDirection(_ ms: BotMovestate, _ dir: JKAShared.vec3_t, _ speed: Float, _ type: Int32) -> Int32 {
     // TODO: Port BotWalkInDirection
     portMissing("BotWalkInDirection", source: "oracle/codemp/botlib/be_ai_move.cpp:1097")
 }
@@ -569,10 +544,7 @@ func Intersection(_ p1: JKAShared.vec2_t, _ p2: JKAShared.vec2_t, _ p3: JKAShare
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1265
-// TODO: Port signature
-// Raven wrote: void BotCheckBlocked(bot_movestate_t *ms, vec3_t dir, int checkbottom, bot_moveresult_t *result)
-// No table row for `bot_movestate_t * ms`.
-func BotCheckBlocked() -> Never {
+func BotCheckBlocked(_ ms: BotMovestate, _ dir: JKAShared.vec3_t, _ checkbottom: Int32, _ result: BotMoveresult) {
     // TODO: Port BotCheckBlocked
     portMissing("BotCheckBlocked", source: "oracle/codemp/botlib/be_ai_move.cpp:1265")
 }
@@ -584,10 +556,7 @@ func BotCheckBlocked() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1313
-// TODO: Port signature
-// Raven wrote: void BotClearMoveResult(bot_moveresult_t *moveresult)
-// No table row for `bot_moveresult_t * moveresult`.
-func BotClearMoveResult() -> Never {
+func BotClearMoveResult(_ moveresult: BotMoveresult) {
     // TODO: Port BotClearMoveResult
     portMissing("BotClearMoveResult", source: "oracle/codemp/botlib/be_ai_move.cpp:1313")
 }
@@ -601,7 +570,7 @@ func BotClearMoveResult() -> Never {
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1328
 // TODO: Port signature
 // Raven wrote: bot_moveresult_t BotTravel_Walk(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for `bot_movestate_t * ms`.
+// No table row for the return `bot_moveresult_t`.
 func BotTravel_Walk() -> Never {
     // TODO: Port BotTravel_Walk
     portMissing("BotTravel_Walk", source: "oracle/codemp/botlib/be_ai_move.cpp:1328")
@@ -616,7 +585,7 @@ func BotTravel_Walk() -> Never {
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1383
 // TODO: Port signature
 // Raven wrote: bot_moveresult_t BotFinishTravel_Walk(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for `bot_movestate_t * ms`.
+// No table row for the return `bot_moveresult_t`.
 func BotFinishTravel_Walk() -> Never {
     // TODO: Port BotFinishTravel_Walk
     portMissing("BotFinishTravel_Walk", source: "oracle/codemp/botlib/be_ai_move.cpp:1383")
@@ -631,7 +600,7 @@ func BotFinishTravel_Walk() -> Never {
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1421
 // TODO: Port signature
 // Raven wrote: bot_moveresult_t BotTravel_Crouch(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for `bot_movestate_t * ms`.
+// No table row for the return `bot_moveresult_t`.
 func BotTravel_Crouch() -> Never {
     // TODO: Port BotTravel_Crouch
     portMissing("BotTravel_Crouch", source: "oracle/codemp/botlib/be_ai_move.cpp:1421")
@@ -646,7 +615,7 @@ func BotTravel_Crouch() -> Never {
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1451
 // TODO: Port signature
 // Raven wrote: bot_moveresult_t BotTravel_BarrierJump(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for `bot_movestate_t * ms`.
+// No table row for the return `bot_moveresult_t`.
 func BotTravel_BarrierJump() -> Never {
     // TODO: Port BotTravel_BarrierJump
     portMissing("BotTravel_BarrierJump", source: "oracle/codemp/botlib/be_ai_move.cpp:1451")
@@ -661,7 +630,7 @@ func BotTravel_BarrierJump() -> Never {
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1486
 // TODO: Port signature
 // Raven wrote: bot_moveresult_t BotFinishTravel_BarrierJump(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for `bot_movestate_t * ms`.
+// No table row for the return `bot_moveresult_t`.
 func BotFinishTravel_BarrierJump() -> Never {
     // TODO: Port BotFinishTravel_BarrierJump
     portMissing("BotFinishTravel_BarrierJump", source: "oracle/codemp/botlib/be_ai_move.cpp:1486")
@@ -676,7 +645,7 @@ func BotFinishTravel_BarrierJump() -> Never {
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1515
 // TODO: Port signature
 // Raven wrote: bot_moveresult_t BotTravel_Swim(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for `bot_movestate_t * ms`.
+// No table row for the return `bot_moveresult_t`.
 func BotTravel_Swim() -> Never {
     // TODO: Port BotTravel_Swim
     portMissing("BotTravel_Swim", source: "oracle/codemp/botlib/be_ai_move.cpp:1515")
@@ -691,7 +660,7 @@ func BotTravel_Swim() -> Never {
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1541
 // TODO: Port signature
 // Raven wrote: bot_moveresult_t BotTravel_WaterJump(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for `bot_movestate_t * ms`.
+// No table row for the return `bot_moveresult_t`.
 func BotTravel_WaterJump() -> Never {
     // TODO: Port BotTravel_WaterJump
     portMissing("BotTravel_WaterJump", source: "oracle/codemp/botlib/be_ai_move.cpp:1541")
@@ -706,7 +675,7 @@ func BotTravel_WaterJump() -> Never {
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1575
 // TODO: Port signature
 // Raven wrote: bot_moveresult_t BotFinishTravel_WaterJump(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for `bot_movestate_t * ms`.
+// No table row for the return `bot_moveresult_t`.
 func BotFinishTravel_WaterJump() -> Never {
     // TODO: Port BotFinishTravel_WaterJump
     portMissing("BotFinishTravel_WaterJump", source: "oracle/codemp/botlib/be_ai_move.cpp:1575")
@@ -721,7 +690,7 @@ func BotFinishTravel_WaterJump() -> Never {
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1612
 // TODO: Port signature
 // Raven wrote: bot_moveresult_t BotTravel_WalkOffLedge(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for `bot_movestate_t * ms`.
+// No table row for the return `bot_moveresult_t`.
 func BotTravel_WalkOffLedge() -> Never {
     // TODO: Port BotTravel_WalkOffLedge
     portMissing("BotTravel_WalkOffLedge", source: "oracle/codemp/botlib/be_ai_move.cpp:1612")
@@ -748,7 +717,7 @@ func BotAirControl(_ origin: JKAShared.vec3_t, _ velocity: JKAShared.vec3_t, _ g
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1712
 // TODO: Port signature
 // Raven wrote: bot_moveresult_t BotFinishTravel_WalkOffLedge(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for `bot_movestate_t * ms`.
+// No table row for the return `bot_moveresult_t`.
 func BotFinishTravel_WalkOffLedge() -> Never {
     // TODO: Port BotFinishTravel_WalkOffLedge
     portMissing("BotFinishTravel_WalkOffLedge", source: "oracle/codemp/botlib/be_ai_move.cpp:1712")
@@ -891,7 +860,7 @@ bot_moveresult_t BotTravel_Jump(bot_movestate_t *ms, aas_reachability_t *reach)
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1872
 // TODO: Port signature
 // Raven wrote: bot_moveresult_t BotTravel_Jump(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for `bot_movestate_t * ms`.
+// No table row for the return `bot_moveresult_t`.
 func BotTravel_Jump() -> Never {
     // TODO: Port BotTravel_Jump
     portMissing("BotTravel_Jump", source: "oracle/codemp/botlib/be_ai_move.cpp:1872")
@@ -965,7 +934,7 @@ func BotTravel_Jump() -> Never {
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1943
 // TODO: Port signature
 // Raven wrote: bot_moveresult_t BotFinishTravel_Jump(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for `bot_movestate_t * ms`.
+// No table row for the return `bot_moveresult_t`.
 func BotFinishTravel_Jump() -> Never {
     // TODO: Port BotFinishTravel_Jump
     portMissing("BotFinishTravel_Jump", source: "oracle/codemp/botlib/be_ai_move.cpp:1943")
@@ -980,7 +949,7 @@ func BotFinishTravel_Jump() -> Never {
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1978
 // TODO: Port signature
 // Raven wrote: bot_moveresult_t BotTravel_Ladder(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for `bot_movestate_t * ms`.
+// No table row for the return `bot_moveresult_t`.
 func BotTravel_Ladder() -> Never {
     // TODO: Port BotTravel_Ladder
     portMissing("BotTravel_Ladder", source: "oracle/codemp/botlib/be_ai_move.cpp:1978")
@@ -995,7 +964,7 @@ func BotTravel_Ladder() -> Never {
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2034
 // TODO: Port signature
 // Raven wrote: bot_moveresult_t BotTravel_Teleport(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for `bot_movestate_t * ms`.
+// No table row for the return `bot_moveresult_t`.
 func BotTravel_Teleport() -> Never {
     // TODO: Port BotTravel_Teleport
     portMissing("BotTravel_Teleport", source: "oracle/codemp/botlib/be_ai_move.cpp:2034")
@@ -1010,7 +979,7 @@ func BotTravel_Teleport() -> Never {
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2065
 // TODO: Port signature
 // Raven wrote: bot_moveresult_t BotTravel_Elevator(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for `bot_movestate_t * ms`.
+// No table row for the return `bot_moveresult_t`.
 func BotTravel_Elevator() -> Never {
     // TODO: Port BotTravel_Elevator
     portMissing("BotTravel_Elevator", source: "oracle/codemp/botlib/be_ai_move.cpp:2065")
@@ -1025,7 +994,7 @@ func BotTravel_Elevator() -> Never {
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2216
 // TODO: Port signature
 // Raven wrote: bot_moveresult_t BotFinishTravel_Elevator(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for `bot_movestate_t * ms`.
+// No table row for the return `bot_moveresult_t`.
 func BotFinishTravel_Elevator() -> Never {
     // TODO: Port BotFinishTravel_Elevator
     portMissing("BotFinishTravel_Elevator", source: "oracle/codemp/botlib/be_ai_move.cpp:2216")
@@ -1038,10 +1007,7 @@ func BotFinishTravel_Elevator() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2246
-// TODO: Port signature
-// Raven wrote: void BotFuncBobStartEnd(aas_reachability_t *reach, vec3_t start, vec3_t end, vec3_t origin)
-// No table row for `aas_reachability_t * reach`.
-func BotFuncBobStartEnd() -> Never {
+func BotFuncBobStartEnd(_ reach: AasReachability, _ start: inout JKAShared.vec3_t, _ end: inout JKAShared.vec3_t, _ origin: inout JKAShared.vec3_t) {
     // TODO: Port BotFuncBobStartEnd
     portMissing("BotFuncBobStartEnd", source: "oracle/codemp/botlib/be_ai_move.cpp:2246")
 }
@@ -1055,7 +1021,7 @@ func BotFuncBobStartEnd() -> Never {
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2304
 // TODO: Port signature
 // Raven wrote: bot_moveresult_t BotTravel_FuncBobbing(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for `bot_movestate_t * ms`.
+// No table row for the return `bot_moveresult_t`.
 func BotTravel_FuncBobbing() -> Never {
     // TODO: Port BotTravel_FuncBobbing
     portMissing("BotTravel_FuncBobbing", source: "oracle/codemp/botlib/be_ai_move.cpp:2304")
@@ -1070,7 +1036,7 @@ func BotTravel_FuncBobbing() -> Never {
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2462
 // TODO: Port signature
 // Raven wrote: bot_moveresult_t BotFinishTravel_FuncBobbing(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for `bot_movestate_t * ms`.
+// No table row for the return `bot_moveresult_t`.
 func BotFinishTravel_FuncBobbing() -> Never {
     // TODO: Port BotFinishTravel_FuncBobbing
     portMissing("BotFinishTravel_FuncBobbing", source: "oracle/codemp/botlib/be_ai_move.cpp:2462")
@@ -1086,10 +1052,7 @@ func BotFinishTravel_FuncBobbing() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2517
-// TODO: Port signature
-// Raven wrote: int GrappleState(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for `bot_movestate_t * ms`.
-func GrappleState() -> Never {
+func GrappleState(_ ms: BotMovestate, _ reach: AasReachability) -> Int32 {
     // TODO: Port GrappleState
     portMissing("GrappleState", source: "oracle/codemp/botlib/be_ai_move.cpp:2517")
 }
@@ -1101,10 +1064,7 @@ func GrappleState() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2547
-// TODO: Port signature
-// Raven wrote: void BotResetGrapple(bot_movestate_t *ms)
-// No table row for `bot_movestate_t * ms`.
-func BotResetGrapple() -> Never {
+func BotResetGrapple(_ ms: BotMovestate) {
     // TODO: Port BotResetGrapple
     portMissing("BotResetGrapple", source: "oracle/codemp/botlib/be_ai_move.cpp:2547")
 }
@@ -1118,7 +1078,7 @@ func BotResetGrapple() -> Never {
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2573
 // TODO: Port signature
 // Raven wrote: bot_moveresult_t BotTravel_Grapple(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for `bot_movestate_t * ms`.
+// No table row for the return `bot_moveresult_t`.
 func BotTravel_Grapple() -> Never {
     // TODO: Port BotTravel_Grapple
     portMissing("BotTravel_Grapple", source: "oracle/codemp/botlib/be_ai_move.cpp:2573")
@@ -1133,7 +1093,7 @@ func BotTravel_Grapple() -> Never {
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2727
 // TODO: Port signature
 // Raven wrote: bot_moveresult_t BotTravel_RocketJump(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for `bot_movestate_t * ms`.
+// No table row for the return `bot_moveresult_t`.
 func BotTravel_RocketJump() -> Never {
     // TODO: Port BotTravel_RocketJump
     portMissing("BotTravel_RocketJump", source: "oracle/codemp/botlib/be_ai_move.cpp:2727")
@@ -1148,7 +1108,7 @@ func BotTravel_RocketJump() -> Never {
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2792
 // TODO: Port signature
 // Raven wrote: bot_moveresult_t BotTravel_BFGJump(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for `bot_movestate_t * ms`.
+// No table row for the return `bot_moveresult_t`.
 func BotTravel_BFGJump() -> Never {
     // TODO: Port BotTravel_BFGJump
     portMissing("BotTravel_BFGJump", source: "oracle/codemp/botlib/be_ai_move.cpp:2792")
@@ -1163,7 +1123,7 @@ func BotTravel_BFGJump() -> Never {
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2853
 // TODO: Port signature
 // Raven wrote: bot_moveresult_t BotFinishTravel_WeaponJump(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for `bot_movestate_t * ms`.
+// No table row for the return `bot_moveresult_t`.
 func BotFinishTravel_WeaponJump() -> Never {
     // TODO: Port BotFinishTravel_WeaponJump
     portMissing("BotFinishTravel_WeaponJump", source: "oracle/codemp/botlib/be_ai_move.cpp:2853")
@@ -1178,7 +1138,7 @@ func BotFinishTravel_WeaponJump() -> Never {
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2893
 // TODO: Port signature
 // Raven wrote: bot_moveresult_t BotTravel_JumpPad(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for `bot_movestate_t * ms`.
+// No table row for the return `bot_moveresult_t`.
 func BotTravel_JumpPad() -> Never {
     // TODO: Port BotTravel_JumpPad
     portMissing("BotTravel_JumpPad", source: "oracle/codemp/botlib/be_ai_move.cpp:2893")
@@ -1193,7 +1153,7 @@ func BotTravel_JumpPad() -> Never {
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2920
 // TODO: Port signature
 // Raven wrote: bot_moveresult_t BotFinishTravel_JumpPad(bot_movestate_t *ms, aas_reachability_t *reach)
-// No table row for `bot_movestate_t * ms`.
+// No table row for the return `bot_moveresult_t`.
 func BotFinishTravel_JumpPad() -> Never {
     // TODO: Port BotFinishTravel_JumpPad
     portMissing("BotFinishTravel_JumpPad", source: "oracle/codemp/botlib/be_ai_move.cpp:2920")
@@ -1207,10 +1167,7 @@ func BotFinishTravel_JumpPad() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2949
-// TODO: Port signature
-// Raven wrote: int BotReachabilityTime(aas_reachability_t *reach)
-// No table row for `aas_reachability_t * reach`.
-func BotReachabilityTime() -> Never {
+func BotReachabilityTime(_ reach: AasReachability) -> Int32 {
     // TODO: Port BotReachabilityTime
     portMissing("BotReachabilityTime", source: "oracle/codemp/botlib/be_ai_move.cpp:2949")
 }
@@ -1224,7 +1181,7 @@ func BotReachabilityTime() -> Never {
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2981
 // TODO: Port signature
 // Raven wrote: bot_moveresult_t BotMoveInGoalArea(bot_movestate_t *ms, bot_goal_t *goal)
-// No table row for `bot_movestate_t * ms`.
+// No table row for the return `bot_moveresult_t`.
 func BotMoveInGoalArea() -> Never {
     // TODO: Port BotMoveInGoalArea
     portMissing("BotMoveInGoalArea", source: "oracle/codemp/botlib/be_ai_move.cpp:2981")
@@ -1237,10 +1194,7 @@ func BotMoveInGoalArea() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:3038
-// TODO: Port signature
-// Raven wrote: void BotMoveToGoal(bot_moveresult_t *result, int movestate, bot_goal_t *goal, int travelflags)
-// No table row for `bot_moveresult_t * result`.
-func BotMoveToGoal() -> Never {
+func BotMoveToGoal(_ result: BotMoveresult, _ movestate: Int32, _ goal: BotGoal, _ travelflags: Int32) {
     // TODO: Port BotMoveToGoal
     portMissing("BotMoveToGoal", source: "oracle/codemp/botlib/be_ai_move.cpp:3038")
 }

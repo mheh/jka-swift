@@ -21,6 +21,22 @@ let MAX_PORTALAREAS = 1024 as Int32
 // Raven wrote: int nofaceflood = qtrue
 let nofaceflood: Int32 = { () -> Int32 in portMissing("nofaceflood", source: "oracle/codemp/botlib/be_aas_cluster.cpp:38") }()
 
+/// Source: oracle/codemp/botlib/be_aas_cluster.cpp:708
+// AI: Raven declares `connectedareas` on the stack of AAS_ConnectedAreas. The function uses one zeroed allocation on the storage class.
+var connectedareas_AAS_ConnectedAreas: Slots<Int32> { world.storage.connectedareas_AAS_ConnectedAreas }
+
+/// Source: oracle/codemp/botlib/be_aas_cluster.cpp:779
+// AI: Raven declares `areanums` on the stack of AAS_CheckAreaForPossiblePortals. The function uses one zeroed allocation on the storage class.
+var areanums_AAS_CheckAreaForPossiblePortals: Slots<Int32> { world.storage.areanums_AAS_CheckAreaForPossiblePortals }
+
+/// Source: oracle/codemp/botlib/be_aas_cluster.cpp:783
+// AI: Raven declares `frontareanums` on the stack of AAS_CheckAreaForPossiblePortals. The function uses one zeroed allocation on the storage class.
+var frontareanums_AAS_CheckAreaForPossiblePortals: Slots<Int32> { world.storage.frontareanums_AAS_CheckAreaForPossiblePortals }
+
+/// Source: oracle/codemp/botlib/be_aas_cluster.cpp:783
+// AI: Raven declares `backareanums` on the stack of AAS_CheckAreaForPossiblePortals. The function uses one zeroed allocation on the storage class.
+var backareanums_AAS_CheckAreaForPossiblePortals: Slots<Int32> { world.storage.backareanums_AAS_CheckAreaForPossiblePortals }
+
 //===========================================================================
 //
 // Parameter:				-
@@ -383,7 +399,7 @@ func AAS_ConnectedAreas_r(_ areanums: Slots<Int32>, _ numareas: Int32, _ connect
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:706
-func AAS_ConnectedAreas(_ areanums: inout Int32, _ numareas: Int32) -> Bool {
+func AAS_ConnectedAreas(_ areanums: Slots<Int32>, _ numareas: Int32) -> Bool {
     // TODO: Port AAS_ConnectedAreas
     portMissing("AAS_ConnectedAreas", source: "oracle/codemp/botlib/be_aas_cluster.cpp:706")
 }

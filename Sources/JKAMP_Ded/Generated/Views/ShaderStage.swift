@@ -62,12 +62,16 @@ public struct ShaderStage: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/renderer/tr_local.h:396
-    // TODO: Port shaderStage_t.active
-    // Raven wrote: _Bool active
+    public var active: Bool {
+        get { self.raw.pointee.active }
+        nonmutating set { self.raw.pointee.active = newValue }
+    }
 
     /// Source: oracle/codemp/renderer/tr_local.h:397
-    // TODO: Port shaderStage_t.isDetail
-    // Raven wrote: _Bool isDetail
+    public var isDetail: Bool {
+        get { self.raw.pointee.isDetail }
+        nonmutating set { self.raw.pointee.isDetail = newValue }
+    }
 
     /// Source: oracle/codemp/renderer/tr_local.h:398
     public var index: Int32 {
@@ -136,6 +140,8 @@ public struct ShaderStage: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/renderer/tr_local.h:410
-    // TODO: Port shaderStage_t.glow
-    // Raven wrote: _Bool glow
+    public var glow: Bool {
+        get { self.raw.pointee.glow }
+        nonmutating set { self.raw.pointee.glow = newValue }
+    }
 }

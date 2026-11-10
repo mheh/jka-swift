@@ -12,9 +12,7 @@ let MAX_INVENTORYVALUE = 999999 as Int32
 let MAX_WEIGHT_FILES = 128 as Int32
 
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:34
-// TODO: Port global weightFileList
-// Raven wrote: weightconfig_t *weightFileList[MAX_WEIGHT_FILES]
-// No table row for `weightconfig_t *[128]`.
+var weightFileList: Slots<Weightconfig?> { world.storage.weightFileList }
 
 //===========================================================================
 //
@@ -23,10 +21,7 @@ let MAX_WEIGHT_FILES = 128 as Int32
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:42
-// TODO: Port signature
-// Raven wrote: int ReadValue(source_t *source, float *value)
-// No table row for `source_t * source`.
-func ReadValue() -> Never {
+func ReadValue(_ source: Source, _ value: inout Float) -> Int32 {
     // TODO: Port ReadValue
     portMissing("ReadValue", source: "oracle/codemp/botlib/be_ai_weight.cpp:42")
 }
@@ -38,10 +33,7 @@ func ReadValue() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:66
-// TODO: Port signature
-// Raven wrote: int ReadFuzzyWeight(source_t *source, fuzzyseperator_t *fs)
-// No table row for `source_t * source`.
-func ReadFuzzyWeight() -> Never {
+func ReadFuzzyWeight(_ source: Source, _ fs: Fuzzyseperator) -> Int32 {
     // TODO: Port ReadFuzzyWeight
     portMissing("ReadFuzzyWeight", source: "oracle/codemp/botlib/be_ai_weight.cpp:66")
 }
@@ -53,10 +45,7 @@ func ReadFuzzyWeight() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:95
-// TODO: Port signature
-// Raven wrote: void FreeFuzzySeperators_r(fuzzyseperator_t *fs)
-// No table row for `fuzzyseperator_t * fs`.
-func FreeFuzzySeperators_r() -> Never {
+func FreeFuzzySeperators_r(_ fs: Fuzzyseperator) {
     // TODO: Port FreeFuzzySeperators_r
     portMissing("FreeFuzzySeperators_r", source: "oracle/codemp/botlib/be_ai_weight.cpp:95")
 }
@@ -68,10 +57,7 @@ func FreeFuzzySeperators_r() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:108
-// TODO: Port signature
-// Raven wrote: void FreeWeightConfig2(weightconfig_t *config)
-// No table row for `weightconfig_t * config`.
-func FreeWeightConfig2() -> Never {
+func FreeWeightConfig2(_ config: Weightconfig) {
     // TODO: Port FreeWeightConfig2
     portMissing("FreeWeightConfig2", source: "oracle/codemp/botlib/be_ai_weight.cpp:108")
 }
@@ -83,10 +69,7 @@ func FreeWeightConfig2() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:125
-// TODO: Port signature
-// Raven wrote: void FreeWeightConfig(weightconfig_t *config)
-// No table row for `weightconfig_t * config`.
-func FreeWeightConfig() -> Never {
+func FreeWeightConfig(_ config: Weightconfig) {
     // TODO: Port FreeWeightConfig
     portMissing("FreeWeightConfig", source: "oracle/codemp/botlib/be_ai_weight.cpp:125")
 }
@@ -98,10 +81,7 @@ func FreeWeightConfig() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:136
-// TODO: Port signature
-// Raven wrote: fuzzyseperator_t *ReadFuzzySeperators_r(source_t *source)
-// No table row for `source_t * source`.
-func ReadFuzzySeperators_r() -> Never {
+func ReadFuzzySeperators_r(_ source: Source) -> Fuzzyseperator? {
     // TODO: Port ReadFuzzySeperators_r
     portMissing("ReadFuzzySeperators_r", source: "oracle/codemp/botlib/be_ai_weight.cpp:136")
 }
@@ -113,10 +93,7 @@ func ReadFuzzySeperators_r() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:262
-// TODO: Port signature
-// Raven wrote: weightconfig_t *ReadWeightConfig(char *filename)
-// No table row for the return `weightconfig_t *`.
-func ReadWeightConfig() -> Never {
+func ReadWeightConfig(_ filename: inout JKAShared.CharBuf) -> Weightconfig? {
     // TODO: Port ReadWeightConfig
     portMissing("ReadWeightConfig", source: "oracle/codemp/botlib/be_ai_weight.cpp:262")
 }
@@ -128,10 +105,7 @@ func ReadWeightConfig() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:540
-// TODO: Port signature
-// Raven wrote: int FindFuzzyWeight(weightconfig_t *wc, char *name)
-// No table row for `weightconfig_t * wc`.
-func FindFuzzyWeight() -> Never {
+func FindFuzzyWeight(_ wc: Weightconfig, _ name: String) -> Int32 {
     // TODO: Port FindFuzzyWeight
     portMissing("FindFuzzyWeight", source: "oracle/codemp/botlib/be_ai_weight.cpp:540")
 }
@@ -143,10 +117,7 @@ func FindFuzzyWeight() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:559
-// TODO: Port signature
-// Raven wrote: float FuzzyWeight_r(int *inventory, fuzzyseperator_t *fs)
-// No table row for `fuzzyseperator_t * fs`.
-func FuzzyWeight_r() -> Never {
+func FuzzyWeight_r(_ inventory: Slots<Int32>, _ fs: Fuzzyseperator) -> Float {
     // TODO: Port FuzzyWeight_r
     portMissing("FuzzyWeight_r", source: "oracle/codemp/botlib/be_ai_weight.cpp:559")
 }
@@ -158,10 +129,7 @@ func FuzzyWeight_r() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:593
-// TODO: Port signature
-// Raven wrote: float FuzzyWeightUndecided_r(int *inventory, fuzzyseperator_t *fs)
-// No table row for `fuzzyseperator_t * fs`.
-func FuzzyWeightUndecided_r() -> Never {
+func FuzzyWeightUndecided_r(_ inventory: Slots<Int32>, _ fs: Fuzzyseperator) -> Float {
     // TODO: Port FuzzyWeightUndecided_r
     portMissing("FuzzyWeightUndecided_r", source: "oracle/codemp/botlib/be_ai_weight.cpp:593")
 }
@@ -173,10 +141,7 @@ func FuzzyWeightUndecided_r() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:627
-// TODO: Port signature
-// Raven wrote: float FuzzyWeight(int *inventory, weightconfig_t *wc, int weightnum)
-// No table row for `weightconfig_t * wc`.
-func FuzzyWeight() -> Never {
+func FuzzyWeight(_ inventory: inout Int32, _ wc: Weightconfig, _ weightnum: Int32) -> Float {
     // TODO: Port FuzzyWeight
     portMissing("FuzzyWeight", source: "oracle/codemp/botlib/be_ai_weight.cpp:627")
 }
@@ -188,10 +153,7 @@ func FuzzyWeight() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:658
-// TODO: Port signature
-// Raven wrote: float FuzzyWeightUndecided(int *inventory, weightconfig_t *wc, int weightnum)
-// No table row for `weightconfig_t * wc`.
-func FuzzyWeightUndecided() -> Never {
+func FuzzyWeightUndecided(_ inventory: inout Int32, _ wc: Weightconfig, _ weightnum: Int32) -> Float {
     // TODO: Port FuzzyWeightUndecided
     portMissing("FuzzyWeightUndecided", source: "oracle/codemp/botlib/be_ai_weight.cpp:658")
 }
@@ -203,10 +165,7 @@ func FuzzyWeightUndecided() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:689
-// TODO: Port signature
-// Raven wrote: void EvolveFuzzySeperator_r(fuzzyseperator_t *fs)
-// No table row for `fuzzyseperator_t * fs`.
-func EvolveFuzzySeperator_r() -> Never {
+func EvolveFuzzySeperator_r(_ fs: Fuzzyseperator) {
     // TODO: Port EvolveFuzzySeperator_r
     portMissing("EvolveFuzzySeperator_r", source: "oracle/codemp/botlib/be_ai_weight.cpp:689")
 }
@@ -218,10 +177,7 @@ func EvolveFuzzySeperator_r() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:712
-// TODO: Port signature
-// Raven wrote: void EvolveWeightConfig(weightconfig_t *config)
-// No table row for `weightconfig_t * config`.
-func EvolveWeightConfig() -> Never {
+func EvolveWeightConfig(_ config: Weightconfig) {
     // TODO: Port EvolveWeightConfig
     portMissing("EvolveWeightConfig", source: "oracle/codemp/botlib/be_ai_weight.cpp:712")
 }
@@ -233,10 +189,7 @@ func EvolveWeightConfig() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:727
-// TODO: Port signature
-// Raven wrote: void ScaleFuzzySeperator_r(fuzzyseperator_t *fs, float scale)
-// No table row for `fuzzyseperator_t * fs`.
-func ScaleFuzzySeperator_r() -> Never {
+func ScaleFuzzySeperator_r(_ fs: Fuzzyseperator, _ scale: Float) {
     // TODO: Port ScaleFuzzySeperator_r
     portMissing("ScaleFuzzySeperator_r", source: "oracle/codemp/botlib/be_ai_weight.cpp:727")
 }
@@ -248,10 +201,7 @@ func ScaleFuzzySeperator_r() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:749
-// TODO: Port signature
-// Raven wrote: void ScaleWeight(weightconfig_t *config, char *name, float scale)
-// No table row for `weightconfig_t * config`.
-func ScaleWeight() -> Never {
+func ScaleWeight(_ config: Weightconfig, _ name: String, _ scale: Float) {
     // TODO: Port ScaleWeight
     portMissing("ScaleWeight", source: "oracle/codemp/botlib/be_ai_weight.cpp:749")
 }
@@ -263,10 +213,7 @@ func ScaleWeight() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:770
-// TODO: Port signature
-// Raven wrote: void ScaleFuzzySeperatorBalanceRange_r(fuzzyseperator_t *fs, float scale)
-// No table row for `fuzzyseperator_t * fs`.
-func ScaleFuzzySeperatorBalanceRange_r() -> Never {
+func ScaleFuzzySeperatorBalanceRange_r(_ fs: Fuzzyseperator, _ scale: Float) {
     // TODO: Port ScaleFuzzySeperatorBalanceRange_r
     portMissing("ScaleFuzzySeperatorBalanceRange_r", source: "oracle/codemp/botlib/be_ai_weight.cpp:770")
 }
@@ -278,10 +225,7 @@ func ScaleFuzzySeperatorBalanceRange_r() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:795
-// TODO: Port signature
-// Raven wrote: void ScaleFuzzyBalanceRange(weightconfig_t *config, float scale)
-// No table row for `weightconfig_t * config`.
-func ScaleFuzzyBalanceRange() -> Never {
+func ScaleFuzzyBalanceRange(_ config: Weightconfig, _ scale: Float) {
     // TODO: Port ScaleFuzzyBalanceRange
     portMissing("ScaleFuzzyBalanceRange", source: "oracle/codemp/botlib/be_ai_weight.cpp:795")
 }
@@ -293,10 +237,7 @@ func ScaleFuzzyBalanceRange() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:812
-// TODO: Port signature
-// Raven wrote: int InterbreedFuzzySeperator_r(fuzzyseperator_t *fs1, fuzzyseperator_t *fs2, fuzzyseperator_t *fsout)
-// No table row for `fuzzyseperator_t * fs1`.
-func InterbreedFuzzySeperator_r() -> Never {
+func InterbreedFuzzySeperator_r(_ fs1: Fuzzyseperator, _ fs2: Fuzzyseperator, _ fsout: Fuzzyseperator) -> Int32 {
     // TODO: Port InterbreedFuzzySeperator_r
     portMissing("InterbreedFuzzySeperator_r", source: "oracle/codemp/botlib/be_ai_weight.cpp:812")
 }
@@ -309,10 +250,7 @@ func InterbreedFuzzySeperator_r() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:859
-// TODO: Port signature
-// Raven wrote: void InterbreedWeightConfigs(weightconfig_t *config1, weightconfig_t *config2, weightconfig_t *configout)
-// No table row for `weightconfig_t * config1`.
-func InterbreedWeightConfigs() -> Never {
+func InterbreedWeightConfigs(_ config1: Weightconfig, _ config2: Weightconfig, _ configout: Weightconfig) {
     // TODO: Port InterbreedWeightConfigs
     portMissing("InterbreedWeightConfigs", source: "oracle/codemp/botlib/be_ai_weight.cpp:859")
 }

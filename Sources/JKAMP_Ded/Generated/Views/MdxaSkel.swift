@@ -104,5 +104,6 @@ public struct MdxaSkel: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/renderer/mdx_format.h:395
-    public var children: Slots<Int32> { Slots<Int32>(scalars: UnsafeMutableRawPointer(self.raw.pointer(to: \.children)!), count: 1) }
+    // AI: Raven declares `children[1]` and allocates the record past it. No macro bounds it, so the count is the widest.
+    public var children: Slots<Int32> { Slots<Int32>(scalars: UnsafeMutableRawPointer(self.raw.pointer(to: \.children)!), count: Int.max) }
 }

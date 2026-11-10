@@ -53,6 +53,10 @@ let RCVERSION = 2 as Int32
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1124
 let MAX_REACHABILITYPASSAREAS = 32 as Int32
 
+/// Source: oracle/codemp/botlib/be_aas_route.cpp:1128
+// AI: Raven declares `areas` on the stack of AAS_InitReachabilityAreas. The function uses one zeroed allocation on the storage class.
+private var areas_AAS_InitReachabilityAreas: Slots<Int32> { world.storage.be_aas_route_areas_AAS_InitReachabilityAreas }
+
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:77
 func AAS_RoutingInfo() {
     // TODO: Port AAS_RoutingInfo
@@ -116,10 +120,7 @@ func AAS_TravelFlagForType(_ traveltype: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:183
-// TODO: Port signature
-// Raven wrote: void AAS_UnlinkCache(aas_routingcache_t *cache)
-// No table row for `aas_routingcache_t * cache`.
-func AAS_UnlinkCache() -> Never {
+func AAS_UnlinkCache(_ cache: AasRoutingcache) {
     // TODO: Port AAS_UnlinkCache
     portMissing("AAS_UnlinkCache", source: "oracle/codemp/botlib/be_aas_route.cpp:183")
 }
@@ -131,10 +132,7 @@ func AAS_UnlinkCache() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:198
-// TODO: Port signature
-// Raven wrote: void AAS_LinkCache(aas_routingcache_t *cache)
-// No table row for `aas_routingcache_t * cache`.
-func AAS_LinkCache() -> Never {
+func AAS_LinkCache(_ cache: AasRoutingcache) {
     // TODO: Port AAS_LinkCache
     portMissing("AAS_LinkCache", source: "oracle/codemp/botlib/be_aas_route.cpp:198")
 }
@@ -146,10 +144,7 @@ func AAS_LinkCache() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:219
-// TODO: Port signature
-// Raven wrote: void AAS_FreeRoutingCache(aas_routingcache_t *cache)
-// No table row for `aas_routingcache_t * cache`.
-func AAS_FreeRoutingCache() -> Never {
+func AAS_FreeRoutingCache(_ cache: AasRoutingcache) {
     // TODO: Port AAS_FreeRoutingCache
     portMissing("AAS_FreeRoutingCache", source: "oracle/codemp/botlib/be_aas_route.cpp:219")
 }
@@ -406,10 +401,7 @@ func AAS_FreeOldestCache() -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:717
-// TODO: Port signature
-// Raven wrote: aas_routingcache_t *AAS_AllocRoutingCache(int numtraveltimes)
-// No table row for the return `aas_routingcache_t *`.
-func AAS_AllocRoutingCache() -> Never {
+func AAS_AllocRoutingCache(_ numtraveltimes: Int32) -> AasRoutingcache? {
     // TODO: Port AAS_AllocRoutingCache
     portMissing("AAS_AllocRoutingCache", source: "oracle/codemp/botlib/be_aas_route.cpp:717")
 }
@@ -499,10 +491,7 @@ func AAS_WriteRouteCache() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1014
-// TODO: Port signature
-// Raven wrote: aas_routingcache_t *AAS_ReadCache(fileHandle_t fp)
-// No table row for the return `aas_routingcache_t *`.
-func AAS_ReadCache() -> Never {
+func AAS_ReadCache(_ fp: JKAShared.fileHandle_t) -> AasRoutingcache? {
     // TODO: Port AAS_ReadCache
     portMissing("AAS_ReadCache", source: "oracle/codemp/botlib/be_aas_route.cpp:1014")
 }
@@ -557,10 +546,7 @@ func AAS_FreeRoutingCaches() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1271
-// TODO: Port signature
-// Raven wrote: void AAS_UpdateAreaRoutingCache(aas_routingcache_t *areacache)
-// No table row for `aas_routingcache_t * areacache`.
-func AAS_UpdateAreaRoutingCache() -> Never {
+func AAS_UpdateAreaRoutingCache(_ areacache: AasRoutingcache) {
     // TODO: Port AAS_UpdateAreaRoutingCache
     portMissing("AAS_UpdateAreaRoutingCache", source: "oracle/codemp/botlib/be_aas_route.cpp:1271")
 }
@@ -572,10 +558,7 @@ func AAS_UpdateAreaRoutingCache() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1382
-// TODO: Port signature
-// Raven wrote: aas_routingcache_t *AAS_GetAreaRoutingCache(int clusternum, int areanum, int travelflags)
-// No table row for the return `aas_routingcache_t *`.
-func AAS_GetAreaRoutingCache() -> Never {
+func AAS_GetAreaRoutingCache(_ clusternum: Int32, _ areanum: Int32, _ travelflags: Int32) -> AasRoutingcache? {
     // TODO: Port AAS_GetAreaRoutingCache
     portMissing("AAS_GetAreaRoutingCache", source: "oracle/codemp/botlib/be_aas_route.cpp:1382")
 }
@@ -587,10 +570,7 @@ func AAS_GetAreaRoutingCache() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1428
-// TODO: Port signature
-// Raven wrote: void AAS_UpdatePortalRoutingCache(aas_routingcache_t *portalcache)
-// No table row for `aas_routingcache_t * portalcache`.
-func AAS_UpdatePortalRoutingCache() -> Never {
+func AAS_UpdatePortalRoutingCache(_ portalcache: AasRoutingcache) {
     // TODO: Port AAS_UpdatePortalRoutingCache
     portMissing("AAS_UpdatePortalRoutingCache", source: "oracle/codemp/botlib/be_aas_route.cpp:1428")
 }
@@ -602,10 +582,7 @@ func AAS_UpdatePortalRoutingCache() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1526
-// TODO: Port signature
-// Raven wrote: aas_routingcache_t *AAS_GetPortalRoutingCache(int clusternum, int areanum, int travelflags)
-// No table row for the return `aas_routingcache_t *`.
-func AAS_GetPortalRoutingCache() -> Never {
+func AAS_GetPortalRoutingCache(_ clusternum: Int32, _ areanum: Int32, _ travelflags: Int32) -> AasRoutingcache? {
     // TODO: Port AAS_GetPortalRoutingCache
     portMissing("AAS_GetPortalRoutingCache", source: "oracle/codemp/botlib/be_aas_route.cpp:1526")
 }
@@ -654,10 +631,7 @@ func AAS_AreaReachabilityToGoalArea(_ areanum: Int32, _ origin: JKAShared.vec3_t
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1783
-// TODO: Port signature
-// Raven wrote: int AAS_PredictRoute(struct aas_predictroute_s *route, int areanum, vec3_t origin, int goalareanum, int travelflags, int maxareas, int maxtime, int stopevent, int stopcontents, int stoptfl, int stopareanum)
-// No table row for `struct aas_predictroute_s * route`.
-func AAS_PredictRoute() -> Never {
+func AAS_PredictRoute(_ route: AasPredictroute, _ areanum: Int32, _ origin: JKAShared.vec3_t, _ goalareanum: Int32, _ travelflags: Int32, _ maxareas: Int32, _ maxtime: Int32, _ stopevent: Int32, _ stopcontents: Int32, _ stoptfl: Int32, _ stopareanum: Int32) -> Int32 {
     // TODO: Port AAS_PredictRoute
     portMissing("AAS_PredictRoute", source: "oracle/codemp/botlib/be_aas_route.cpp:1783")
 }
@@ -681,10 +655,7 @@ func AAS_BridgeWalkable(_ areanum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1902
-// TODO: Port signature
-// Raven wrote: void AAS_ReachabilityFromNum(int num, struct aas_reachability_s *reach)
-// No table row for `struct aas_reachability_s * reach`.
-func AAS_ReachabilityFromNum() -> Never {
+func AAS_ReachabilityFromNum(_ num: Int32, _ reach: AasReachability) {
     // TODO: Port AAS_ReachabilityFromNum
     portMissing("AAS_ReachabilityFromNum", source: "oracle/codemp/botlib/be_aas_route.cpp:1902")
 }

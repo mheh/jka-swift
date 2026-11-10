@@ -9,12 +9,10 @@ import JKAMP_Ded
 private let ON_EPSILON = 0.005 as Double
 
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:33
-let MAX_BSPENTITIES = 2048 as Int32
+private let MAX_BSPENTITIES = 2048 as Int32
 
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:70
-// TODO: Port global bspworld
-// Raven wrote: bsp_t bspworld
-// No view for `bsp_s`, a struct Raven defines inside a .c file.
+var bspworld: Bsp { world.storage.bspworld }
 
 //===========================================================================
 // traces axial boxes of any size through the world
@@ -103,10 +101,7 @@ func AAS_BSPModelMinsMaxsOrigin(_ modelnum: Int32, _ angles: JKAShared.vec3_t, _
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:206
-// TODO: Port signature
-// Raven wrote: void AAS_UnlinkFromBSPLeaves(bsp_link_t *leaves)
-// No table row for `bsp_link_t * leaves`.
-func AAS_UnlinkFromBSPLeaves() -> Never {
+func AAS_UnlinkFromBSPLeaves(_ leaves: BspLink) {
     // TODO: Port AAS_UnlinkFromBSPLeaves
     portMissing("AAS_UnlinkFromBSPLeaves", source: "oracle/codemp/botlib/be_aas_bspq3.cpp:206")
 }
@@ -118,10 +113,7 @@ func AAS_UnlinkFromBSPLeaves() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:215
-// TODO: Port signature
-// Raven wrote: bsp_link_t *AAS_BSPLinkEntity(vec3_t absmins, vec3_t absmaxs, int entnum, int modelnum)
-// No table row for the return `bsp_link_t *`.
-func AAS_BSPLinkEntity() -> Never {
+func AAS_BSPLinkEntity(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _ entnum: Int32, _ modelnum: Int32) -> BspLink? {
     // TODO: Port AAS_BSPLinkEntity
     portMissing("AAS_BSPLinkEntity", source: "oracle/codemp/botlib/be_aas_bspq3.cpp:215")
 }
@@ -133,7 +125,7 @@ func AAS_BSPLinkEntity() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:225
-func AAS_BoxEntities(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _ list: inout Int32, _ maxcount: Int32) -> Int32 {
+func AAS_BoxEntities(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _ list: Slots<Int32>, _ maxcount: Int32) -> Int32 {
     // TODO: Port AAS_BoxEntities
     portMissing("AAS_BoxEntities", source: "oracle/codemp/botlib/be_aas_bspq3.cpp:225")
 }

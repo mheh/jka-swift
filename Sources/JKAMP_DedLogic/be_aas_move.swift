@@ -6,9 +6,7 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:29
-// TODO: Port global aassettings
-// Raven wrote: aas_settings_t aassettings
-// No view for `aas_settings_s` of `be_aas_def.h`.
+var aassettings: AasSettings { world.storage.aassettings }
 
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:213
 /// Raven's data table, a hand property of `EngineWorld`.
@@ -31,6 +29,14 @@ var VEC_DOWN: JKAShared.vec3_t {
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:216
 // Raven wrote: static vec3_t MOVEDIR_DOWN = {0, 0, -1}
 let MOVEDIR_DOWN: JKAShared.vec3_t = { () -> JKAShared.vec3_t in portMissing("MOVEDIR_DOWN", source: "oracle/codemp/botlib/be_aas_move.cpp:216") }()
+
+/// Source: oracle/codemp/botlib/be_aas_move.cpp:505
+// AI: Raven declares `areas` on the stack of AAS_ClientMovementPrediction. The function uses one zeroed allocation on the storage class.
+private var areas_AAS_ClientMovementPrediction: Slots<Int32> { world.storage.be_aas_move_areas_AAS_ClientMovementPrediction }
+
+/// Source: oracle/codemp/botlib/be_aas_move.cpp:506
+// AI: Raven declares `points` on the stack of AAS_ClientMovementPrediction. The function uses one zeroed allocation on the storage class.
+private var points_AAS_ClientMovementPrediction: Slots<JKAShared.vec3_t> { world.storage.be_aas_move_points_AAS_ClientMovementPrediction }
 
 //===========================================================================
 //
@@ -108,10 +114,7 @@ func AAS_SetMovedir(_ angles: JKAShared.vec3_t, _ movedir: inout JKAShared.vec3_
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:239
-// TODO: Port signature
-// Raven wrote: void AAS_JumpReachRunStart(aas_reachability_t *reach, vec3_t runstart)
-// No table row for `aas_reachability_t * reach`.
-func AAS_JumpReachRunStart() -> Never {
+func AAS_JumpReachRunStart(_ reach: AasReachability, _ runstart: inout JKAShared.vec3_t) {
     // TODO: Port AAS_JumpReachRunStart
     portMissing("AAS_JumpReachRunStart", source: "oracle/codemp/botlib/be_aas_move.cpp:239")
 }
@@ -198,10 +201,7 @@ func AAS_ApplyFriction(_ vel: inout JKAShared.vec3_t, _ friction: Float, _ stops
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:409
-// TODO: Port signature
-// Raven wrote: int AAS_ClipToBBox(aas_trace_t *trace, vec3_t start, vec3_t end, int presencetype, vec3_t mins, vec3_t maxs)
-// No table row for `aas_trace_t * trace`.
-func AAS_ClipToBBox() -> Never {
+func AAS_ClipToBBox(_ trace: AasTrace, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ presencetype: Int32, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) -> Int32 {
     // TODO: Port AAS_ClipToBBox
     portMissing("AAS_ClipToBBox", source: "oracle/codemp/botlib/be_aas_move.cpp:409")
 }
@@ -225,10 +225,7 @@ func AAS_ClipToBBox() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:488
-// TODO: Port signature
-// Raven wrote: int AAS_ClientMovementPrediction(struct aas_clientmove_s *move, int entnum, vec3_t origin, int presencetype, int onground, vec3_t velocity, vec3_t cmdmove, int cmdframes, int maxframes, float frametime, int stopevent, int stopareanum, vec3_t mins, vec3_t maxs, int visualize)
-// No table row for `struct aas_clientmove_s * move`.
-func AAS_ClientMovementPrediction() -> Never {
+func AAS_ClientMovementPrediction(_ move: AasClientmove, _ entnum: Int32, _ origin: JKAShared.vec3_t, _ presencetype: Int32, _ onground: Int32, _ velocity: JKAShared.vec3_t, _ cmdmove: JKAShared.vec3_t, _ cmdframes: Int32, _ maxframes: Int32, _ frametime: Float, _ stopevent: Int32, _ stopareanum: Int32, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ visualize: Int32) -> Int32 {
     // TODO: Port AAS_ClientMovementPrediction
     portMissing("AAS_ClientMovementPrediction", source: "oracle/codemp/botlib/be_aas_move.cpp:488")
 }
@@ -240,10 +237,7 @@ func AAS_ClientMovementPrediction() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:977
-// TODO: Port signature
-// Raven wrote: int AAS_PredictClientMovement(struct aas_clientmove_s *move, int entnum, vec3_t origin, int presencetype, int onground, vec3_t velocity, vec3_t cmdmove, int cmdframes, int maxframes, float frametime, int stopevent, int stopareanum, int visualize)
-// No table row for `struct aas_clientmove_s * move`.
-func AAS_PredictClientMovement() -> Never {
+func AAS_PredictClientMovement(_ move: AasClientmove, _ entnum: Int32, _ origin: JKAShared.vec3_t, _ presencetype: Int32, _ onground: Int32, _ velocity: JKAShared.vec3_t, _ cmdmove: JKAShared.vec3_t, _ cmdframes: Int32, _ maxframes: Int32, _ frametime: Float, _ stopevent: Int32, _ stopareanum: Int32, _ visualize: Int32) -> Int32 {
     // TODO: Port AAS_PredictClientMovement
     portMissing("AAS_PredictClientMovement", source: "oracle/codemp/botlib/be_aas_move.cpp:977")
 }
@@ -255,10 +249,7 @@ func AAS_PredictClientMovement() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:997
-// TODO: Port signature
-// Raven wrote: int AAS_ClientMovementHitBBox(struct aas_clientmove_s *move, int entnum, vec3_t origin, int presencetype, int onground, vec3_t velocity, vec3_t cmdmove, int cmdframes, int maxframes, float frametime, vec3_t mins, vec3_t maxs, int visualize)
-// No table row for `struct aas_clientmove_s * move`.
-func AAS_ClientMovementHitBBox() -> Never {
+func AAS_ClientMovementHitBBox(_ move: AasClientmove, _ entnum: Int32, _ origin: JKAShared.vec3_t, _ presencetype: Int32, _ onground: Int32, _ velocity: JKAShared.vec3_t, _ cmdmove: JKAShared.vec3_t, _ cmdframes: Int32, _ maxframes: Int32, _ frametime: Float, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ visualize: Int32) -> Int32 {
     // TODO: Port AAS_ClientMovementHitBBox
     portMissing("AAS_ClientMovementHitBBox", source: "oracle/codemp/botlib/be_aas_move.cpp:997")
 }

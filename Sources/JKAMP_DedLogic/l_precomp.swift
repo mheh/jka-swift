@@ -24,9 +24,10 @@ var numtokens: Int32 {
 }
 
 /// Source: oracle/codemp/botlib/l_precomp.cpp:105
-// TODO: Port global globaldefines
-// Raven wrote: define_t **globaldefines = NULL
-// No table row for `define_t **`.
+var globaldefines: Slots<Define?>? {
+    get { world.variables.globaldefines }
+    set { world.variables.globaldefines = newValue }
+}
 
 /// Source: oracle/codemp/botlib/l_precomp.cpp:109
 var addGlobalDefine: Bool {
@@ -41,22 +42,24 @@ let MAX_VALUES = 64 as Int32
 let MAX_OPERATORS = 64 as Int32
 
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2535
-// TODO: Port global directives
-// Raven wrote: directive_t directives[20]
-// No view for `directive_s`, a struct Raven defines inside a .c file.
+/// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
+var directives: [DirectiveRow] {
+    get { world.directives }
+    set { world.directives = newValue }
+}
 
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2648
-// TODO: Port global dollardirectives
-// Raven wrote: directive_t dollardirectives[20]
-// No view for `directive_s`, a struct Raven defines inside a .c file.
+/// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
+var dollardirectives: [DirectiveRow] {
+    get { world.dollardirectives }
+    set { world.dollardirectives = newValue }
+}
 
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3185
 let MAX_SOURCEFILES = 64 as Int32
 
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3187
-// TODO: Port global sourceFiles
-// Raven wrote: source_t *sourceFiles[MAX_SOURCEFILES]
-// No table row for `source_t *[64]`.
+var sourceFiles: Slots<Source?> { world.storage.sourceFiles }
 
 //============================================================================
 //
@@ -65,10 +68,7 @@ let MAX_SOURCEFILES = 64 as Int32
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:117
-// TODO: Port signature
-// Raven wrote: void QDECL SourceError(source_t *source, char *str, ...)
-// No table row for `source_t * source`.
-func SourceError() -> Never {
+func SourceError(_ source: Source, _ str: String, _ args: any JKAShared.FormatArg...) {
     // TODO: Port SourceError
     portMissing("SourceError", source: "oracle/codemp/botlib/l_precomp.cpp:117")
 }
@@ -80,10 +80,7 @@ func SourceError() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:141
-// TODO: Port signature
-// Raven wrote: void QDECL SourceWarning(source_t *source, char *str, ...)
-// No table row for `source_t * source`.
-func SourceWarning() -> Never {
+func SourceWarning(_ source: Source, _ str: String, _ args: any JKAShared.FormatArg...) {
     // TODO: Port SourceWarning
     portMissing("SourceWarning", source: "oracle/codemp/botlib/l_precomp.cpp:141")
 }
@@ -95,10 +92,7 @@ func SourceWarning() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:165
-// TODO: Port signature
-// Raven wrote: void PC_PushIndent(source_t *source, int type, int skip)
-// No table row for `source_t * source`.
-func PC_PushIndent() -> Never {
+func PC_PushIndent(_ source: Source, _ type: Int32, _ skip: Int32) {
     // TODO: Port PC_PushIndent
     portMissing("PC_PushIndent", source: "oracle/codemp/botlib/l_precomp.cpp:165")
 }
@@ -110,10 +104,7 @@ func PC_PushIndent() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:183
-// TODO: Port signature
-// Raven wrote: void PC_PopIndent(source_t *source, int *type, int *skip)
-// No table row for `source_t * source`.
-func PC_PopIndent() -> Never {
+func PC_PopIndent(_ source: Source, _ type: inout Int32, _ skip: inout Int32) {
     // TODO: Port PC_PopIndent
     portMissing("PC_PopIndent", source: "oracle/codemp/botlib/l_precomp.cpp:183")
 }
@@ -125,10 +116,7 @@ func PC_PopIndent() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:208
-// TODO: Port signature
-// Raven wrote: void PC_PushScript(source_t *source, script_t *script)
-// No table row for `source_t * source`.
-func PC_PushScript() -> Never {
+func PC_PushScript(_ source: Source, _ script: Script) {
     // TODO: Port PC_PushScript
     portMissing("PC_PushScript", source: "oracle/codemp/botlib/l_precomp.cpp:208")
 }
@@ -152,10 +140,7 @@ func PC_InitTokenHeap() {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:251
-// TODO: Port signature
-// Raven wrote: token_t *PC_CopyToken(token_t *token)
-// No table row for `token_t * token`.
-func PC_CopyToken() -> Never {
+func PC_CopyToken(_ token: Token) -> Token? {
     // TODO: Port PC_CopyToken
     portMissing("PC_CopyToken", source: "oracle/codemp/botlib/l_precomp.cpp:251")
 }
@@ -167,10 +152,7 @@ func PC_CopyToken() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:279
-// TODO: Port signature
-// Raven wrote: void PC_FreeToken(token_t *token)
-// No table row for `token_t * token`.
-func PC_FreeToken() -> Never {
+func PC_FreeToken(_ token: Token) {
     // TODO: Port PC_FreeToken
     portMissing("PC_FreeToken", source: "oracle/codemp/botlib/l_precomp.cpp:279")
 }
@@ -182,10 +164,7 @@ func PC_FreeToken() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:293
-// TODO: Port signature
-// Raven wrote: int PC_ReadSourceToken(source_t *source, token_t *token)
-// No table row for `source_t * source`.
-func PC_ReadSourceToken() -> Never {
+func PC_ReadSourceToken(_ source: Source, _ token: Token) -> Int32 {
     // TODO: Port PC_ReadSourceToken
     portMissing("PC_ReadSourceToken", source: "oracle/codemp/botlib/l_precomp.cpp:293")
 }
@@ -197,10 +176,7 @@ func PC_ReadSourceToken() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:336
-// TODO: Port signature
-// Raven wrote: int PC_UnreadSourceToken(source_t *source, token_t *token)
-// No table row for `source_t * source`.
-func PC_UnreadSourceToken() -> Never {
+func PC_UnreadSourceToken(_ source: Source, _ token: Token) -> Int32 {
     // TODO: Port PC_UnreadSourceToken
     portMissing("PC_UnreadSourceToken", source: "oracle/codemp/botlib/l_precomp.cpp:336")
 }
@@ -212,10 +188,7 @@ func PC_UnreadSourceToken() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:351
-// TODO: Port signature
-// Raven wrote: int PC_ReadDefineParms(source_t *source, define_t *define, token_t **parms, int maxparms)
-// No table row for `source_t * source`.
-func PC_ReadDefineParms() -> Never {
+func PC_ReadDefineParms(_ source: Source, _ define: Define, _ parms: inout Token?, _ maxparms: Int32) -> Int32 {
     // TODO: Port PC_ReadDefineParms
     portMissing("PC_ReadDefineParms", source: "oracle/codemp/botlib/l_precomp.cpp:351")
 }
@@ -227,10 +200,7 @@ func PC_ReadDefineParms() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:450
-// TODO: Port signature
-// Raven wrote: int PC_StringizeTokens(token_t *tokens, token_t *token)
-// No table row for `token_t * tokens`.
-func PC_StringizeTokens() -> Never {
+func PC_StringizeTokens(_ tokens: Token, _ token: Token) -> Int32 {
     // TODO: Port PC_StringizeTokens
     portMissing("PC_StringizeTokens", source: "oracle/codemp/botlib/l_precomp.cpp:450")
 }
@@ -242,10 +212,7 @@ func PC_StringizeTokens() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:472
-// TODO: Port signature
-// Raven wrote: int PC_MergeTokens(token_t *t1, token_t *t2)
-// No table row for `token_t * t1`.
-func PC_MergeTokens() -> Never {
+func PC_MergeTokens(_ t1: Token, _ t2: Token) -> Int32 {
     // TODO: Port PC_MergeTokens
     portMissing("PC_MergeTokens", source: "oracle/codemp/botlib/l_precomp.cpp:472")
 }
@@ -257,10 +224,7 @@ func PC_MergeTokens() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:516
-// TODO: Port signature
-// Raven wrote: void PC_PrintDefineHashTable(define_t **definehash)
-// No table row for `define_t ** definehash`.
-func PC_PrintDefineHashTable() -> Never {
+func PC_PrintDefineHashTable(_ definehash: inout Define?) {
     // TODO: Port PC_PrintDefineHashTable
     portMissing("PC_PrintDefineHashTable", source: "oracle/codemp/botlib/l_precomp.cpp:516")
 }
@@ -278,10 +242,7 @@ func PC_NameHash(_ name: String) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:559
-// TODO: Port signature
-// Raven wrote: void PC_AddDefineToHash(define_t *define, define_t **definehash)
-// No table row for `define_t * define`.
-func PC_AddDefineToHash() -> Never {
+func PC_AddDefineToHash(_ define: Define, _ definehash: inout Define?) {
     // TODO: Port PC_AddDefineToHash
     portMissing("PC_AddDefineToHash", source: "oracle/codemp/botlib/l_precomp.cpp:559")
 }
@@ -293,10 +254,7 @@ func PC_AddDefineToHash() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:585
-// TODO: Port signature
-// Raven wrote: define_t *PC_FindHashedDefine(define_t **definehash, char *name)
-// No table row for `define_t ** definehash`.
-func PC_FindHashedDefine() -> Never {
+func PC_FindHashedDefine(_ definehash: inout Define?, _ name: String) -> Define? {
     // TODO: Port PC_FindHashedDefine
     portMissing("PC_FindHashedDefine", source: "oracle/codemp/botlib/l_precomp.cpp:585")
 }
@@ -308,10 +266,7 @@ func PC_FindHashedDefine() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:604
-// TODO: Port signature
-// Raven wrote: define_t *PC_FindDefine(define_t *defines, char *name)
-// No table row for `define_t * defines`.
-func PC_FindDefine() -> Never {
+func PC_FindDefine(_ defines: Define, _ name: String) -> Define? {
     // TODO: Port PC_FindDefine
     portMissing("PC_FindDefine", source: "oracle/codemp/botlib/l_precomp.cpp:604")
 }
@@ -324,10 +279,7 @@ func PC_FindDefine() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:621
-// TODO: Port signature
-// Raven wrote: int PC_FindDefineParm(define_t *define, char *name)
-// No table row for `define_t * define`.
-func PC_FindDefineParm() -> Never {
+func PC_FindDefineParm(_ define: Define, _ name: String) -> Int32 {
     // TODO: Port PC_FindDefineParm
     portMissing("PC_FindDefineParm", source: "oracle/codemp/botlib/l_precomp.cpp:621")
 }
@@ -339,10 +291,7 @@ func PC_FindDefineParm() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:640
-// TODO: Port signature
-// Raven wrote: void PC_FreeDefine(define_t *define)
-// No table row for `define_t * define`.
-func PC_FreeDefine() -> Never {
+func PC_FreeDefine(_ define: Define) {
     // TODO: Port PC_FreeDefine
     portMissing("PC_FreeDefine", source: "oracle/codemp/botlib/l_precomp.cpp:640")
 }
@@ -354,10 +303,7 @@ func PC_FreeDefine() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:665
-// TODO: Port signature
-// Raven wrote: void PC_AddBuiltinDefines(source_t *source)
-// No table row for `source_t * source`.
-func PC_AddBuiltinDefines() -> Never {
+func PC_AddBuiltinDefines(_ source: Source) {
     // TODO: Port PC_AddBuiltinDefines
     portMissing("PC_AddBuiltinDefines", source: "oracle/codemp/botlib/l_precomp.cpp:665")
 }
@@ -369,10 +315,7 @@ func PC_AddBuiltinDefines() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:705
-// TODO: Port signature
-// Raven wrote: int PC_ExpandBuiltinDefine(source_t *source, token_t *deftoken, define_t *define, token_t **firsttoken, token_t **lasttoken)
-// No table row for `source_t * source`.
-func PC_ExpandBuiltinDefine() -> Never {
+func PC_ExpandBuiltinDefine(_ source: Source, _ deftoken: Token, _ define: Define, _ firsttoken: inout Token?, _ lasttoken: inout Token?) -> Int32 {
     // TODO: Port PC_ExpandBuiltinDefine
     portMissing("PC_ExpandBuiltinDefine", source: "oracle/codemp/botlib/l_precomp.cpp:705")
 }
@@ -384,10 +327,7 @@ func PC_ExpandBuiltinDefine() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:782
-// TODO: Port signature
-// Raven wrote: int PC_ExpandDefine(source_t *source, token_t *deftoken, define_t *define, token_t **firsttoken, token_t **lasttoken)
-// No table row for `source_t * source`.
-func PC_ExpandDefine() -> Never {
+func PC_ExpandDefine(_ source: Source, _ deftoken: Token, _ define: Define, _ firsttoken: inout Token?, _ lasttoken: inout Token?) -> Int32 {
     // TODO: Port PC_ExpandDefine
     portMissing("PC_ExpandDefine", source: "oracle/codemp/botlib/l_precomp.cpp:782")
 }
@@ -399,10 +339,7 @@ func PC_ExpandDefine() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:920
-// TODO: Port signature
-// Raven wrote: int PC_ExpandDefineIntoSource(source_t *source, token_t *deftoken, define_t *define)
-// No table row for `source_t * source`.
-func PC_ExpandDefineIntoSource() -> Never {
+func PC_ExpandDefineIntoSource(_ source: Source, _ deftoken: Token, _ define: Define) -> Int32 {
     // TODO: Port PC_ExpandDefineIntoSource
     portMissing("PC_ExpandDefineIntoSource", source: "oracle/codemp/botlib/l_precomp.cpp:920")
 }
@@ -426,10 +363,7 @@ func PC_ConvertPath(_ path: inout JKAShared.CharBuf) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:970
-// TODO: Port signature
-// Raven wrote: int PC_Directive_include(source_t *source)
-// No table row for `source_t * source`.
-func PC_Directive_include() -> Never {
+func PC_Directive_include(_ source: Source) -> Int32 {
     // TODO: Port PC_Directive_include
     portMissing("PC_Directive_include", source: "oracle/codemp/botlib/l_precomp.cpp:970")
 }
@@ -443,10 +377,7 @@ func PC_Directive_include() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1062
-// TODO: Port signature
-// Raven wrote: int PC_ReadLine(source_t *source, token_t *token)
-// No table row for `source_t * source`.
-func PC_ReadLine() -> Never {
+func PC_ReadLine(_ source: Source, _ token: Token) -> Int32 {
     // TODO: Port PC_ReadLine
     portMissing("PC_ReadLine", source: "oracle/codemp/botlib/l_precomp.cpp:1062")
 }
@@ -458,10 +389,7 @@ func PC_ReadLine() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1086
-// TODO: Port signature
-// Raven wrote: int PC_WhiteSpaceBeforeToken(token_t *token)
-// No table row for `token_t * token`.
-func PC_WhiteSpaceBeforeToken() -> Never {
+func PC_WhiteSpaceBeforeToken(_ token: Token) -> Int32 {
     // TODO: Port PC_WhiteSpaceBeforeToken
     portMissing("PC_WhiteSpaceBeforeToken", source: "oracle/codemp/botlib/l_precomp.cpp:1086")
 }
@@ -473,10 +401,7 @@ func PC_WhiteSpaceBeforeToken() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1096
-// TODO: Port signature
-// Raven wrote: void PC_ClearTokenWhiteSpace(token_t *token)
-// No table row for `token_t * token`.
-func PC_ClearTokenWhiteSpace() -> Never {
+func PC_ClearTokenWhiteSpace(_ token: Token) {
     // TODO: Port PC_ClearTokenWhiteSpace
     portMissing("PC_ClearTokenWhiteSpace", source: "oracle/codemp/botlib/l_precomp.cpp:1096")
 }
@@ -488,10 +413,7 @@ func PC_ClearTokenWhiteSpace() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1108
-// TODO: Port signature
-// Raven wrote: int PC_Directive_undef(source_t *source)
-// No table row for `source_t * source`.
-func PC_Directive_undef() -> Never {
+func PC_Directive_undef(_ source: Source) -> Int32 {
     // TODO: Port PC_Directive_undef
     portMissing("PC_Directive_undef", source: "oracle/codemp/botlib/l_precomp.cpp:1108")
 }
@@ -503,10 +425,7 @@ func PC_Directive_undef() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1180
-// TODO: Port signature
-// Raven wrote: int PC_Directive_define(source_t *source)
-// No table row for `source_t * source`.
-func PC_Directive_define() -> Never {
+func PC_Directive_define(_ source: Source) -> Int32 {
     // TODO: Port PC_Directive_define
     portMissing("PC_Directive_define", source: "oracle/codemp/botlib/l_precomp.cpp:1180")
 }
@@ -518,10 +437,7 @@ func PC_Directive_define() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1323
-// TODO: Port signature
-// Raven wrote: define_t *PC_DefineFromString(char *string)
-// No table row for the return `define_t *`.
-func PC_DefineFromString() -> Never {
+func PC_DefineFromString(_ string: String) -> Define? {
     // TODO: Port PC_DefineFromString
     portMissing("PC_DefineFromString", source: "oracle/codemp/botlib/l_precomp.cpp:1323")
 }
@@ -533,10 +449,7 @@ func PC_DefineFromString() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1381
-// TODO: Port signature
-// Raven wrote: int PC_AddDefine(source_t *source, char *string)
-// No table row for `source_t * source`.
-func PC_AddDefine() -> Never {
+func PC_AddDefine(_ source: Source, _ string: String) -> Int32 {
     // TODO: Port PC_AddDefine
     portMissing("PC_AddDefine", source: "oracle/codemp/botlib/l_precomp.cpp:1381")
 }
@@ -587,10 +500,7 @@ func PC_RemoveAllGlobalDefines() {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1479
-// TODO: Port signature
-// Raven wrote: define_t *PC_CopyDefine(source_t *source, define_t *define)
-// No table row for `source_t * source`.
-func PC_CopyDefine() -> Never {
+func PC_CopyDefine(_ source: Source, _ define: Define) -> Define? {
     // TODO: Port PC_CopyDefine
     portMissing("PC_CopyDefine", source: "oracle/codemp/botlib/l_precomp.cpp:1479")
 }
@@ -602,10 +512,7 @@ func PC_CopyDefine() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1522
-// TODO: Port signature
-// Raven wrote: void PC_AddGlobalDefinesToSource(source_t *source)
-// No table row for `source_t * source`.
-func PC_AddGlobalDefinesToSource() -> Never {
+func PC_AddGlobalDefinesToSource(_ source: Source) {
     // TODO: Port PC_AddGlobalDefinesToSource
     portMissing("PC_AddGlobalDefinesToSource", source: "oracle/codemp/botlib/l_precomp.cpp:1522")
 }
@@ -617,10 +524,7 @@ func PC_AddGlobalDefinesToSource() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1558
-// TODO: Port signature
-// Raven wrote: int PC_Directive_if_def(source_t *source, int type)
-// No table row for `source_t * source`.
-func PC_Directive_if_def() -> Never {
+func PC_Directive_if_def(_ source: Source, _ type: Int32) -> Int32 {
     // TODO: Port PC_Directive_if_def
     portMissing("PC_Directive_if_def", source: "oracle/codemp/botlib/l_precomp.cpp:1558")
 }
@@ -632,10 +536,7 @@ func PC_Directive_if_def() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1590
-// TODO: Port signature
-// Raven wrote: int PC_Directive_ifdef(source_t *source)
-// No table row for `source_t * source`.
-func PC_Directive_ifdef() -> Never {
+func PC_Directive_ifdef(_ source: Source) -> Int32 {
     // TODO: Port PC_Directive_ifdef
     portMissing("PC_Directive_ifdef", source: "oracle/codemp/botlib/l_precomp.cpp:1590")
 }
@@ -647,10 +548,7 @@ func PC_Directive_ifdef() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1600
-// TODO: Port signature
-// Raven wrote: int PC_Directive_ifndef(source_t *source)
-// No table row for `source_t * source`.
-func PC_Directive_ifndef() -> Never {
+func PC_Directive_ifndef(_ source: Source) -> Int32 {
     // TODO: Port PC_Directive_ifndef
     portMissing("PC_Directive_ifndef", source: "oracle/codemp/botlib/l_precomp.cpp:1600")
 }
@@ -662,10 +560,7 @@ func PC_Directive_ifndef() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1610
-// TODO: Port signature
-// Raven wrote: int PC_Directive_else(source_t *source)
-// No table row for `source_t * source`.
-func PC_Directive_else() -> Never {
+func PC_Directive_else(_ source: Source) -> Int32 {
     // TODO: Port PC_Directive_else
     portMissing("PC_Directive_else", source: "oracle/codemp/botlib/l_precomp.cpp:1610")
 }
@@ -677,10 +572,7 @@ func PC_Directive_else() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1634
-// TODO: Port signature
-// Raven wrote: int PC_Directive_endif(source_t *source)
-// No table row for `source_t * source`.
-func PC_Directive_endif() -> Never {
+func PC_Directive_endif(_ source: Source) -> Int32 {
     // TODO: Port PC_Directive_endif
     portMissing("PC_Directive_endif", source: "oracle/codemp/botlib/l_precomp.cpp:1634")
 }
@@ -694,7 +586,7 @@ func PC_OperatorPriority(_ op: Int32) -> Int32 {
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1730
 // TODO: Port signature
 // Raven wrote: int PC_EvaluateTokens(source_t *source, token_t *tokens, signed long int *intvalue, double *floatvalue, int integer)
-// No table row for `source_t * source`.
+// No table row for `double * floatvalue`.
 func PC_EvaluateTokens() -> Never {
     // TODO: Port PC_EvaluateTokens
     portMissing("PC_EvaluateTokens", source: "oracle/codemp/botlib/l_precomp.cpp:1730")
@@ -709,7 +601,7 @@ func PC_EvaluateTokens() -> Never {
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2184
 // TODO: Port signature
 // Raven wrote: int PC_Evaluate(source_t *source, signed long int *intvalue, double *floatvalue, int integer)
-// No table row for `source_t * source`.
+// No table row for `double * floatvalue`.
 func PC_Evaluate() -> Never {
     // TODO: Port PC_Evaluate
     portMissing("PC_Evaluate", source: "oracle/codemp/botlib/l_precomp.cpp:2184")
@@ -724,7 +616,7 @@ func PC_Evaluate() -> Never {
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2283
 // TODO: Port signature
 // Raven wrote: int PC_DollarEvaluate(source_t *source, signed long int *intvalue, double *floatvalue, int integer)
-// No table row for `source_t * source`.
+// No table row for `double * floatvalue`.
 func PC_DollarEvaluate() -> Never {
     // TODO: Port PC_DollarEvaluate
     portMissing("PC_DollarEvaluate", source: "oracle/codemp/botlib/l_precomp.cpp:2283")
@@ -737,10 +629,7 @@ func PC_DollarEvaluate() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2391
-// TODO: Port signature
-// Raven wrote: int PC_Directive_elif(source_t *source)
-// No table row for `source_t * source`.
-func PC_Directive_elif() -> Never {
+func PC_Directive_elif(_ source: Source) -> Int32 {
     // TODO: Port PC_Directive_elif
     portMissing("PC_Directive_elif", source: "oracle/codemp/botlib/l_precomp.cpp:2391")
 }
@@ -752,10 +641,7 @@ func PC_Directive_elif() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2413
-// TODO: Port signature
-// Raven wrote: int PC_Directive_if(source_t *source)
-// No table row for `source_t * source`.
-func PC_Directive_if() -> Never {
+func PC_Directive_if(_ source: Source) -> Int32 {
     // TODO: Port PC_Directive_if
     portMissing("PC_Directive_if", source: "oracle/codemp/botlib/l_precomp.cpp:2413")
 }
@@ -767,10 +653,7 @@ func PC_Directive_if() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2429
-// TODO: Port signature
-// Raven wrote: int PC_Directive_line(source_t *source)
-// No table row for `source_t * source`.
-func PC_Directive_line() -> Never {
+func PC_Directive_line(_ source: Source) -> Int32 {
     // TODO: Port PC_Directive_line
     portMissing("PC_Directive_line", source: "oracle/codemp/botlib/l_precomp.cpp:2429")
 }
@@ -782,10 +665,7 @@ func PC_Directive_line() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2440
-// TODO: Port signature
-// Raven wrote: int PC_Directive_error(source_t *source)
-// No table row for `source_t * source`.
-func PC_Directive_error() -> Never {
+func PC_Directive_error(_ source: Source) -> Int32 {
     // TODO: Port PC_Directive_error
     portMissing("PC_Directive_error", source: "oracle/codemp/botlib/l_precomp.cpp:2440")
 }
@@ -797,10 +677,7 @@ func PC_Directive_error() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2455
-// TODO: Port signature
-// Raven wrote: int PC_Directive_pragma(source_t *source)
-// No table row for `source_t * source`.
-func PC_Directive_pragma() -> Never {
+func PC_Directive_pragma(_ source: Source) -> Int32 {
     // TODO: Port PC_Directive_pragma
     portMissing("PC_Directive_pragma", source: "oracle/codemp/botlib/l_precomp.cpp:2455")
 }
@@ -812,10 +689,7 @@ func PC_Directive_pragma() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2469
-// TODO: Port signature
-// Raven wrote: void UnreadSignToken(source_t *source)
-// No table row for `source_t * source`.
-func UnreadSignToken() -> Never {
+func UnreadSignToken(_ source: Source) {
     // TODO: Port UnreadSignToken
     portMissing("UnreadSignToken", source: "oracle/codemp/botlib/l_precomp.cpp:2469")
 }
@@ -827,10 +701,7 @@ func UnreadSignToken() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2488
-// TODO: Port signature
-// Raven wrote: int PC_Directive_eval(source_t *source)
-// No table row for `source_t * source`.
-func PC_Directive_eval() -> Never {
+func PC_Directive_eval(_ source: Source) -> Int32 {
     // TODO: Port PC_Directive_eval
     portMissing("PC_Directive_eval", source: "oracle/codemp/botlib/l_precomp.cpp:2488")
 }
@@ -842,19 +713,13 @@ func PC_Directive_eval() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2512
-// TODO: Port signature
-// Raven wrote: int PC_Directive_evalfloat(source_t *source)
-// No table row for `source_t * source`.
-func PC_Directive_evalfloat() -> Never {
+func PC_Directive_evalfloat(_ source: Source) -> Int32 {
     // TODO: Port PC_Directive_evalfloat
     portMissing("PC_Directive_evalfloat", source: "oracle/codemp/botlib/l_precomp.cpp:2512")
 }
 
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2554
-// TODO: Port signature
-// Raven wrote: int PC_ReadDirective(source_t *source)
-// No table row for `source_t * source`.
-func PC_ReadDirective() -> Never {
+func PC_ReadDirective(_ source: Source) -> Int32 {
     // TODO: Port PC_ReadDirective
     portMissing("PC_ReadDirective", source: "oracle/codemp/botlib/l_precomp.cpp:2554")
 }
@@ -866,10 +731,7 @@ func PC_ReadDirective() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2593
-// TODO: Port signature
-// Raven wrote: int PC_DollarDirective_evalint(source_t *source)
-// No table row for `source_t * source`.
-func PC_DollarDirective_evalint() -> Never {
+func PC_DollarDirective_evalint(_ source: Source) -> Int32 {
     // TODO: Port PC_DollarDirective_evalint
     portMissing("PC_DollarDirective_evalint", source: "oracle/codemp/botlib/l_precomp.cpp:2593")
 }
@@ -881,19 +743,13 @@ func PC_DollarDirective_evalint() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2621
-// TODO: Port signature
-// Raven wrote: int PC_DollarDirective_evalfloat(source_t *source)
-// No table row for `source_t * source`.
-func PC_DollarDirective_evalfloat() -> Never {
+func PC_DollarDirective_evalfloat(_ source: Source) -> Int32 {
     // TODO: Port PC_DollarDirective_evalfloat
     portMissing("PC_DollarDirective_evalfloat", source: "oracle/codemp/botlib/l_precomp.cpp:2621")
 }
 
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2655
-// TODO: Port signature
-// Raven wrote: int PC_ReadDollarDirective(source_t *source)
-// No table row for `source_t * source`.
-func PC_ReadDollarDirective() -> Never {
+func PC_ReadDollarDirective(_ source: Source) -> Int32 {
     // TODO: Port PC_ReadDollarDirective
     portMissing("PC_ReadDollarDirective", source: "oracle/codemp/botlib/l_precomp.cpp:2655")
 }
@@ -905,10 +761,7 @@ func PC_ReadDollarDirective() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2749
-// TODO: Port signature
-// Raven wrote: int PC_ReadToken(source_t *source, token_t *token)
-// No table row for `source_t * source`.
-func PC_ReadToken() -> Never {
+func PC_ReadToken(_ source: Source, _ token: Token) -> Int32 {
     // TODO: Port PC_ReadToken
     portMissing("PC_ReadToken", source: "oracle/codemp/botlib/l_precomp.cpp:2749")
 }
@@ -920,10 +773,7 @@ func PC_ReadToken() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2844
-// TODO: Port signature
-// Raven wrote: int PC_ExpectTokenString(source_t *source, char *string)
-// No table row for `source_t * source`.
-func PC_ExpectTokenString() -> Never {
+func PC_ExpectTokenString(_ source: Source, _ string: String) -> Int32 {
     // TODO: Port PC_ExpectTokenString
     portMissing("PC_ExpectTokenString", source: "oracle/codemp/botlib/l_precomp.cpp:2844")
 }
@@ -935,10 +785,7 @@ func PC_ExpectTokenString() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2867
-// TODO: Port signature
-// Raven wrote: int PC_ExpectTokenType(source_t *source, int type, int subtype, token_t *token)
-// No table row for `source_t * source`.
-func PC_ExpectTokenType() -> Never {
+func PC_ExpectTokenType(_ source: Source, _ type: Int32, _ subtype: Int32, _ token: Token) -> Int32 {
     // TODO: Port PC_ExpectTokenType
     portMissing("PC_ExpectTokenType", source: "oracle/codemp/botlib/l_precomp.cpp:2867")
 }
@@ -950,10 +797,7 @@ func PC_ExpectTokenType() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2920
-// TODO: Port signature
-// Raven wrote: int PC_ExpectAnyToken(source_t *source, token_t *token)
-// No table row for `source_t * source`.
-func PC_ExpectAnyToken() -> Never {
+func PC_ExpectAnyToken(_ source: Source, _ token: Token) -> Int32 {
     // TODO: Port PC_ExpectAnyToken
     portMissing("PC_ExpectAnyToken", source: "oracle/codemp/botlib/l_precomp.cpp:2920")
 }
@@ -965,10 +809,7 @@ func PC_ExpectAnyToken() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2938
-// TODO: Port signature
-// Raven wrote: int PC_CheckTokenString(source_t *source, char *string)
-// No table row for `source_t * source`.
-func PC_CheckTokenString() -> Never {
+func PC_CheckTokenString(_ source: Source, _ string: String) -> Int32 {
     // TODO: Port PC_CheckTokenString
     portMissing("PC_CheckTokenString", source: "oracle/codemp/botlib/l_precomp.cpp:2938")
 }
@@ -980,10 +821,7 @@ func PC_CheckTokenString() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2955
-// TODO: Port signature
-// Raven wrote: int PC_CheckTokenType(source_t *source, int type, int subtype, token_t *token)
-// No table row for `source_t * source`.
-func PC_CheckTokenType() -> Never {
+func PC_CheckTokenType(_ source: Source, _ type: Int32, _ subtype: Int32, _ token: Token) -> Int32 {
     // TODO: Port PC_CheckTokenType
     portMissing("PC_CheckTokenType", source: "oracle/codemp/botlib/l_precomp.cpp:2955")
 }
@@ -995,10 +833,7 @@ func PC_CheckTokenType() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2977
-// TODO: Port signature
-// Raven wrote: int PC_SkipUntilString(source_t *source, char *string)
-// No table row for `source_t * source`.
-func PC_SkipUntilString() -> Never {
+func PC_SkipUntilString(_ source: Source, _ string: String) -> Int32 {
     // TODO: Port PC_SkipUntilString
     portMissing("PC_SkipUntilString", source: "oracle/codemp/botlib/l_precomp.cpp:2977")
 }
@@ -1010,10 +845,7 @@ func PC_SkipUntilString() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2993
-// TODO: Port signature
-// Raven wrote: void PC_UnreadLastToken(source_t *source)
-// No table row for `source_t * source`.
-func PC_UnreadLastToken() -> Never {
+func PC_UnreadLastToken(_ source: Source) {
     // TODO: Port PC_UnreadLastToken
     portMissing("PC_UnreadLastToken", source: "oracle/codemp/botlib/l_precomp.cpp:2993")
 }
@@ -1025,10 +857,7 @@ func PC_UnreadLastToken() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3003
-// TODO: Port signature
-// Raven wrote: void PC_UnreadToken(source_t *source, token_t *token)
-// No table row for `source_t * source`.
-func PC_UnreadToken() -> Never {
+func PC_UnreadToken(_ source: Source, _ token: Token) {
     // TODO: Port PC_UnreadToken
     portMissing("PC_UnreadToken", source: "oracle/codemp/botlib/l_precomp.cpp:3003")
 }
@@ -1040,10 +869,7 @@ func PC_UnreadToken() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3013
-// TODO: Port signature
-// Raven wrote: void PC_SetIncludePath(source_t *source, char *path)
-// No table row for `source_t * source`.
-func PC_SetIncludePath() -> Never {
+func PC_SetIncludePath(_ source: Source, _ path: String) {
     // TODO: Port PC_SetIncludePath
     portMissing("PC_SetIncludePath", source: "oracle/codemp/botlib/l_precomp.cpp:3013")
 }
@@ -1055,10 +881,7 @@ func PC_SetIncludePath() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3029
-// TODO: Port signature
-// Raven wrote: void PC_SetPunctuations(source_t *source, punctuation_t *p)
-// No table row for `source_t * source`.
-func PC_SetPunctuations() -> Never {
+func PC_SetPunctuations(_ source: Source, _ p: Punctuation) {
     // TODO: Port PC_SetPunctuations
     portMissing("PC_SetPunctuations", source: "oracle/codemp/botlib/l_precomp.cpp:3029")
 }
@@ -1070,10 +893,7 @@ func PC_SetPunctuations() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3039
-// TODO: Port signature
-// Raven wrote: source_t *LoadSourceFile(const char *filename)
-// No table row for the return `source_t *`.
-func LoadSourceFile() -> Never {
+func LoadSourceFile(_ filename: String) -> Source? {
     // TODO: Port LoadSourceFile
     portMissing("LoadSourceFile", source: "oracle/codemp/botlib/l_precomp.cpp:3039")
 }
@@ -1085,10 +905,7 @@ func LoadSourceFile() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3080
-// TODO: Port signature
-// Raven wrote: source_t *LoadSourceMemory(char *ptr, int length, char *name)
-// No table row for the return `source_t *`.
-func LoadSourceMemory() -> Never {
+func LoadSourceMemory(_ ptr: String, _ length: Int32, _ name: String) -> Source? {
     // TODO: Port LoadSourceMemory
     portMissing("LoadSourceMemory", source: "oracle/codemp/botlib/l_precomp.cpp:3080")
 }
@@ -1100,10 +917,7 @@ func LoadSourceMemory() -> Never {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3113
-// TODO: Port signature
-// Raven wrote: void FreeSource(source_t *source)
-// No table row for `source_t * source`.
-func FreeSource() -> Never {
+func FreeSource(_ source: Source) {
     // TODO: Port FreeSource
     portMissing("FreeSource", source: "oracle/codemp/botlib/l_precomp.cpp:3113")
 }
@@ -1139,10 +953,7 @@ func PC_LoadGlobalDefines(_ filename: String) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3253
-// TODO: Port signature
-// Raven wrote: int PC_ReadTokenHandle(int handle, pc_token_t *pc_token)
-// No table row for `pc_token_t * pc_token`.
-func PC_ReadTokenHandle() -> Never {
+func PC_ReadTokenHandle(_ handle: Int32, _ pc_token: JKAMP.PcToken) -> Int32 {
     // TODO: Port PC_ReadTokenHandle
     portMissing("PC_ReadTokenHandle", source: "oracle/codemp/botlib/l_precomp.cpp:3253")
 }

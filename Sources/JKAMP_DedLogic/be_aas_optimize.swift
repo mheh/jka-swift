@@ -12,10 +12,7 @@ import JKAMP_Ded
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_optimize.cpp:61
-// TODO: Port signature
-// Raven wrote: int AAS_KeepEdge(aas_edge_t *edge)
-// No table row for `aas_edge_t * edge`.
-func AAS_KeepEdge() -> Never {
+func AAS_KeepEdge(_ edge: AasEdge) -> Int32 {
     // TODO: Port AAS_KeepEdge
     portMissing("AAS_KeepEdge", source: "oracle/codemp/botlib/be_aas_optimize.cpp:61")
 }
@@ -27,10 +24,7 @@ func AAS_KeepEdge() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_optimize.cpp:71
-// TODO: Port signature
-// Raven wrote: int AAS_OptimizeEdge(optimized_t *optimized, int edgenum)
-// No table row for `optimized_t * optimized`.
-func AAS_OptimizeEdge() -> Never {
+func AAS_OptimizeEdge(_ optimized: Optimized, _ edgenum: Int32) -> Int32 {
     // TODO: Port AAS_OptimizeEdge
     portMissing("AAS_OptimizeEdge", source: "oracle/codemp/botlib/be_aas_optimize.cpp:71")
 }
@@ -42,10 +36,7 @@ func AAS_OptimizeEdge() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_optimize.cpp:116
-// TODO: Port signature
-// Raven wrote: int AAS_KeepFace(aas_face_t *face)
-// No table row for `aas_face_t * face`.
-func AAS_KeepFace() -> Never {
+func AAS_KeepFace(_ face: AasFace) -> Int32 {
     // TODO: Port AAS_KeepFace
     portMissing("AAS_KeepFace", source: "oracle/codemp/botlib/be_aas_optimize.cpp:116")
 }
@@ -57,10 +48,7 @@ func AAS_KeepFace() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_optimize.cpp:127
-// TODO: Port signature
-// Raven wrote: int AAS_OptimizeFace(optimized_t *optimized, int facenum)
-// No table row for `optimized_t * optimized`.
-func AAS_OptimizeFace() -> Never {
+func AAS_OptimizeFace(_ optimized: Optimized, _ facenum: Int32) -> Int32 {
     // TODO: Port AAS_OptimizeFace
     portMissing("AAS_OptimizeFace", source: "oracle/codemp/botlib/be_aas_optimize.cpp:127")
 }
@@ -72,10 +60,7 @@ func AAS_OptimizeFace() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_optimize.cpp:172
-// TODO: Port signature
-// Raven wrote: void AAS_OptimizeArea(optimized_t *optimized, int areanum)
-// No table row for `optimized_t * optimized`.
-func AAS_OptimizeArea() -> Never {
+func AAS_OptimizeArea(_ optimized: Optimized, _ areanum: Int32) {
     // TODO: Port AAS_OptimizeArea
     portMissing("AAS_OptimizeArea", source: "oracle/codemp/botlib/be_aas_optimize.cpp:172")
 }
@@ -87,10 +72,7 @@ func AAS_OptimizeArea() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_optimize.cpp:201
-// TODO: Port signature
-// Raven wrote: void AAS_OptimizeAlloc(optimized_t *optimized)
-// No table row for `optimized_t * optimized`.
-func AAS_OptimizeAlloc() -> Never {
+func AAS_OptimizeAlloc(_ optimized: Optimized) {
     // TODO: Port AAS_OptimizeAlloc
     portMissing("AAS_OptimizeAlloc", source: "oracle/codemp/botlib/be_aas_optimize.cpp:201")
 }
@@ -102,10 +84,7 @@ func AAS_OptimizeAlloc() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_optimize.cpp:226
-// TODO: Port signature
-// Raven wrote: void AAS_OptimizeStore(optimized_t *optimized)
-// No table row for `optimized_t * optimized`.
-func AAS_OptimizeStore() -> Never {
+func AAS_OptimizeStore(_ optimized: Optimized) {
     // TODO: Port AAS_OptimizeStore
     portMissing("AAS_OptimizeStore", source: "oracle/codemp/botlib/be_aas_optimize.cpp:226")
 }
