@@ -8,27 +8,27 @@ typealias VmMainWords = @convention(c) (Int, Int, Int, Int, Int, Int, Int, Int, 
 extension Vm {
     /// This is Raven's `vm->entryPoint( callnum, args[0], ..., args[15] )` of `VM_Call`, a call into the `vmMain` of the loaded module.
     /// A NULL `entryPoint` traps with the field's name, as Raven's call through the pointer would crash.
-    // AI: Raven called through the variadic pointer with 16 words. The call takes the fixed type of the export, 12 words that each widen to the word of the export.
+    // AI: Raven called through the variadic pointer with 16 `int` words. The call takes the fixed type of the export, 12 pointer-wide words, so an address stays whole.
     // Port-note: A variadic call into the fixed vmMain is undefined off x86, and the export reads 12 words, so the last 4 words go nowhere.
     // AI: Raven's pointer returned an `int`. The export returns a pointer-wide word, and the call returns the whole word, the address of a text for GAME_CLIENT_CONNECT.
     @discardableResult
-    public func runEntryPoint(_ callNum: Int32, _ args: [Int32]) -> Int {
+    public func runEntryPoint(_ callNum: Int32, _ args: [Int]) -> Int {
         precondition(self.raw.pointee.entryPoint != nil, "entryPoint is NULL")
         let vmMain = unsafeBitCast(self.raw.pointee.entryPoint, to: VmMainWords.self)
         let r = vmMain(
             Int(callNum),
-            Int(args[0]),
-            Int(args[1]),
-            Int(args[2]),
-            Int(args[3]),
-            Int(args[4]),
-            Int(args[5]),
-            Int(args[6]),
-            Int(args[7]),
-            Int(args[8]),
-            Int(args[9]),
-            Int(args[10]),
-            Int(args[11])
+            args[0],
+            args[1],
+            args[2],
+            args[3],
+            args[4],
+            args[5],
+            args[6],
+            args[7],
+            args[8],
+            args[9],
+            args[10],
+            args[11]
         )
         return r
     }
@@ -54,6 +54,44 @@ extension Vm {
     public func unshifted(_ ptr: OpaquePointer?) -> OpaquePointer? {
         OpaquePointer(bitPattern: Int(bitPattern: UnsafeRawPointer(self.raw.pointee.dataBase)) &+ Int(bitPattern: UnsafeRawPointer(ptr)))
     }
+
+    /// Raven's `(void *)(vm->dataBase + word)` of VM_ArgPtr, BotVMShift, and VM_ExplicitArgPtr, the address of a word of the module.
+    /// A NULL `dataBase`, the form of a dll module, gives the word itself as the address, and a zero sum gives nil.
+    /// Source: oracle/codemp/qcommon/vm.cpp:649
+    // Port-note: Raven adds an `int` word, which holds an address only on a 32-bit build, so the sum takes the full width of the address.
+    public func address(at word: some BinaryInteger) -> UnsafeMutableRawPointer? {
+        UnsafeMutableRawPointer(bitPattern: Int(bitPattern: UnsafeRawPointer(self.raw.pointee.dataBase)) &+ Int(word))
+    }
+
+    /// Raven's `(char *)VM_ExplicitArgPtr( vm, word )`, the text at the address of a word of the module, and nil for a zero sum.
+    /// Source: oracle/codemp/qcommon/vm.cpp:753
+    // Port-note: Raven adds an `int` word, which holds an address only on a 32-bit build, so the sum takes the full width of the address.
+    public func address(at word: some BinaryInteger) -> String? {
+        (self.address(at: word) as UnsafeMutableRawPointer?).map { cString(at: $0) }
+    }
+}
+
+/// Raven's `vec3_t` arguments of `VM_Call` in gameCallbacks.cpp, the address of each vector as a word for the life of the body.
+/// The module reads the three floats at each word and writes none of them.
+/// Source: oracle/codemp/server/NPCNav/gameCallbacks.cpp:8
+// AI: Raven passes the address of the caller's vector. The word holds the address of a copy that lives for the body, the `withUnsafePointer` form of the generated trap thunks.
+public func withVectorWords<Result>(_ vectors: JKAShared.vec3_t..., body: ([Int]) -> Result) -> Result {
+    vectors.withUnsafeBufferPointer { buffer in
+        body(buffer.indices.map { Int(bitPattern: buffer.baseAddress! + $0) })
+    }
+}
+
+/// Raven's `SV_GameSystemCalls`, which the shell installs at its entry, for the thunk that VM_Create stores in `systemCall`.
+/// Source: oracle/codemp/server/sv_game.cpp:458
+// AI: Raven passes the C function SV_GameSystemCalls to VM_Create. The view target cannot see the logic target, so the shell installs a closure over it, the form of `LoadLibrary`.
+public nonisolated(unsafe) var GameSystemCalls: ((Slots<Int32>) -> Int32)? = nil
+
+/// The C function over `GameSystemCalls`, the `int (*systemCalls)( int * )` that SV_InitGameProgs hands to VM_Create.
+/// It reads the 16 pointer-wide words that VM_DllSyscall of jka_host.c gathers from the module.
+/// Source: oracle/codemp/server/sv_game.cpp:1750
+// AI: Raven's SV_GameSystemCalls is a C function over `int` words. The thunk gives the words to the Swift body as `Slots(syscallWords:)`.
+public func SV_GameSystemCallThunk(_ parms: OpaquePointer?) -> Int32 {
+    GameSystemCalls!(Slots(syscallWords: UnsafeMutableRawPointer(parms!), count: 16))
 }
 
 extension VmHeader {

@@ -5,23 +5,27 @@ import JKAMP_Ded
 
 /// Source: oracle/codemp/server/NPCNav/gameCallbacks.cpp:6
 func GNavCallback_NAV_ClearPathToPoint(_ `self`: JKAMP.SharedEntity, _ pmins: JKAShared.vec3_t, _ pmaxs: JKAShared.vec3_t, _ point: JKAShared.vec3_t, _ clipmask: Int32, _ okToHitEntNum: Int32) -> Bool {
-    // Port-note: Row SV3. VM_Call reads only integer arguments, so it cannot pass the address of a vector to the module.
-    // Raven wrote: return (qboolean)VM_Call(gvm, GAME_NAV_CLEARPATHTOPOINT, self->s.number, pmins, pmaxs, point, clipmask, okToHitEntNum);
-    portMissing("GNavCallback_NAV_ClearPathToPoint", source: "oracle/codemp/server/NPCNav/gameCallbacks.cpp:6")
+    // AI: Raven passes the addresses of the caller's vectors. The words hold the addresses of copies that live for the call, and the module only reads them.
+    return withVectorWords(pmins, pmaxs, point) { vectors in
+        VM_Call(gvm!, GAME_NAV_CLEARPATHTOPOINT, `self`.s.number, vectors[0], vectors[1], vectors[2], clipmask, okToHitEntNum) != 0
+    }
 }
 
 /// Source: oracle/codemp/server/NPCNav/gameCallbacks.cpp:11
 func GNavCallback_NPC_ClearLOS(_ ent: JKAMP.SharedEntity, _ end: JKAShared.vec3_t) -> Bool {
-    // Port-note: Row SV3. VM_Call reads only integer arguments, so it cannot pass the address of a vector to the module.
-    // Raven wrote: return (qboolean)VM_Call(gvm, GAME_NAV_CLEARLOS, ent->s.number, end);
-    portMissing("GNavCallback_NPC_ClearLOS", source: "oracle/codemp/server/NPCNav/gameCallbacks.cpp:11")
+    // AI: Raven passes the address of the caller's vector. The word holds the address of a copy that lives for the call, and the module only reads it.
+    return withVectorWords(end) { vectors in
+        VM_Call(gvm!, GAME_NAV_CLEARLOS, ent.s.number, vectors[0]) != 0
+    }
 }
 
 /// Source: oracle/codemp/server/NPCNav/gameCallbacks.cpp:16
 func GNavCallback_NAVNEW_ClearPathBetweenPoints(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ ignore: Int32, _ clipmask: Int32) -> Int32 {
-    // Port-note: Row SV3. VM_Call reads only integer arguments, so it cannot pass the address of a vector to the module.
-    // Raven wrote: return VM_Call(gvm, GAME_NAV_CLEARPATHBETWEENPOINTS, start, end, mins, maxs, ignore, clipmask);
-    portMissing("GNavCallback_NAVNEW_ClearPathBetweenPoints", source: "oracle/codemp/server/NPCNav/gameCallbacks.cpp:16")
+    // AI: Raven passes the addresses of the caller's vectors. The words hold the addresses of copies that live for the call, and the module only reads them.
+    // AI: Raven's VM_Call returns an `int`. It returns the pointer-wide word of the module, so the body narrows it to the `int` of the callback.
+    return withVectorWords(start, end, mins, maxs) { vectors in
+        Int32(truncatingIfNeeded: VM_Call(gvm!, GAME_NAV_CLEARPATHBETWEENPOINTS, vectors[0], vectors[1], vectors[2], vectors[3], ignore, clipmask))
+    }
 }
 
 /// Source: oracle/codemp/server/NPCNav/gameCallbacks.cpp:21
