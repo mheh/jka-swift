@@ -496,9 +496,7 @@ func CM_PositionTest(_ tw: TraceWork, _ trace: JKAMP.Trace) {
         // Port-note: A read of `leafs`, a local with no storage.
         // Raven wrote: ll.list = leafs;
         portMissing("CM_PositionTest", source: "oracle/codemp/qcommon/cm_trace.cpp:448")
-        // Port-note: The `storeLeafs` field has no generated thunk for CM_StoreLeafs.
-        // Raven wrote: ll.storeLeafs = CM_StoreLeafs;
-        portMissing("CM_PositionTest", source: "oracle/codemp/qcommon/cm_trace.cpp:448")
+        ll.storeLeafs = LeafListThunks.CM_StoreLeafs
         ll.lastLeaf = 0
         ll.overflowed = false
 
@@ -1795,4 +1793,11 @@ func CM_CullWorldBox(_ frustum: JKAShared.Cplane, _ bounds: [JKAShared.vec3_t]) 
     }
 
     return (CM_CullBox(frustum, &transformed))
+}
+
+/// One static per function this file stores in a `LeafList` callback field, so each has one address for the life of the module.
+/// The thunks stand in this file, because the functions they call are private to it.
+private enum LeafListThunks {
+    /// Source: oracle/codemp/qcommon/cm_test.cpp:63
+    static let CM_StoreLeafs: LeafListStoreLeafs = { JKAMP_DedLogic.CM_StoreLeafs(LeafList(handle: $0!), $1) }
 }

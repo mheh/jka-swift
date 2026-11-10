@@ -41,9 +41,8 @@ final class CSequencer {
     private var m_ownerID: Int32 = 0
 
     private var m_taskManager: CTaskManager? = nil
-    // TODO: Port m_ie
-    // Raven wrote: interface_export_t	*m_ie;				//This is unique to the sequencer so that client side and server side sequencers could both
-    // Raven wrote: //operate under different interfaces (for client side scripting)
+    private var m_ie: interface_export_t? = nil				//This is unique to the sequencer so that client side and server side sequencers could both
+    //operate under different interfaces (for client side scripting)
 
     private var m_numCommands: Int32 = 0		//Total number of commands for the sequencer (including all child sequences)
 
@@ -99,10 +98,7 @@ final class CSequencer {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:56
-    // TODO: Port signature
-    // Raven wrote: int CSequencer::Init( int ownerID, interface_export_t *ie, CTaskManager *taskManager, ICARUS_Instance *iICARUS )
-    // No table row for `interface_export_t *`.
-    func Init() -> Never {
+    func Init(_ ownerID: Int32, _ ie: interface_export_t?, _ taskManager: CTaskManager?, _ iICARUS: ICARUS_Instance?) -> Int32 {
         // TODO: Port CSequencer::Init
         portMissing("CSequencer::Init", source: "oracle/codemp/icarus/Sequencer.cpp:56")
     }
@@ -670,12 +666,8 @@ final class CSequencer {
     }
 
     /// Source: oracle/codemp/icarus/sequencer.h:91
-    // TODO: Port signature
-    // Raven wrote: interface_export_t *GetInterface( void )	const	{	return m_ie;			}
-    // No table row for `interface_export_t *`.
-    func GetInterface() -> Never {
-        // TODO: Port CSequencer::GetInterface
-        portMissing("CSequencer::GetInterface", source: "oracle/codemp/icarus/sequencer.h:91")
+    func GetInterface() -> interface_export_t? {
+        self.m_ie
     }
 
     /// Source: oracle/codemp/icarus/sequencer.h:92

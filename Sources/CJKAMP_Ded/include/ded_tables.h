@@ -32,4 +32,21 @@ extern StaticMem_t gNumberString[10];
 // Source: oracle/codemp/renderer/tr_init.cpp:465
 extern vidmode_t r_vidModes[13];
 
+// The botlib tables, with the bound of Raven's rows, rows D11 and D19 of the ninth batch.
+// Source: oracle/codemp/botlib/l_script.cpp:69
+extern punctuation_t default_punctuations[54];
+// Source: oracle/codemp/botlib/be_ai_goal.cpp:123
+extern fielddef_t iteminfo_fields[9];
+// Source: oracle/codemp/botlib/be_ai_goal.cpp:136
+extern structdef_t iteminfo_struct;
+// Raven declares the next four `static` in be_ai_weap.cpp, and ded_tables.c defines them without the `static`, so this header can declare them.
+// Source: oracle/codemp/botlib/be_ai_weap.cpp:38
+extern fielddef_t weaponinfo_fields[23];
+// Source: oracle/codemp/botlib/be_ai_weap.cpp:66
+extern fielddef_t projectileinfo_fields[15];
+// Source: oracle/codemp/botlib/be_ai_weap.cpp:86
+extern structdef_t weaponinfo_struct;
+// Source: oracle/codemp/botlib/be_ai_weap.cpp:90
+extern structdef_t projectileinfo_struct;
+
 #endif

@@ -27,10 +27,17 @@ final class CGhoul2Info_v {
     }
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:350
-    // AI: Raven defines a non-const and a const overload, the second at ghoul2_shared.h:355. The class has one method.
-    private func Array() -> [CGhoul2Info] {
-        // TODO: Port CGhoul2Info_v::Array
-        portMissing("CGhoul2Info_v::Array", source: "oracle/codemp/ghoul2/ghoul2_shared.h:350")
+    // AI: Raven defines a non-const and a const overload, the second at ghoul2_shared.h:355, and each returns a reference to the stored vector.
+    // The property forwards to the stored array of `Ghoul2InfoArray` with a getter and a setter, so `Array.append(model)` writes the stored array.
+    private var Array: [CGhoul2Info] {
+        get {
+            // TODO: Port CGhoul2Info_v::Array
+            portMissing("CGhoul2Info_v::Array", source: "oracle/codemp/ghoul2/ghoul2_shared.h:350")
+        }
+        set {
+            // TODO: Port CGhoul2Info_v::Array
+            portMissing("CGhoul2Info_v::Array", source: "oracle/codemp/ghoul2/ghoul2_shared.h:350")
+        }
     }
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:362

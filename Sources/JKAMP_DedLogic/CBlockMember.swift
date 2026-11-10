@@ -10,7 +10,9 @@ import JKAMP_Ded
 final class CBlockMember {
     private var m_id: Int32 = 0		//ID of the value contained in data
     private var m_size: Int32 = 0		//Size of the data member variable
-    private var m_data: OpaquePointer? = nil	//Data for this member
+    // AI: Raven holds the ICARUS_Malloc block of the data as `void *`, a text, a float, an int, or a vector by `m_id`.
+    // The field is the Slots over the bytes of the block, the form of `pModelDiskImage` of CachedEndianedModelBinary_t, so a body reads `m_data![float: 0]`.
+    private var m_data: Slots<JKAShared.byte>? = nil	//Data for this member
 
     /**
     ```
@@ -48,7 +50,7 @@ final class CBlockMember {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:61
-    func GetInfo(_ id: inout Int32, _ size: inout Int32, _ data: inout OpaquePointer?) {
+    func GetInfo(_ id: inout Int32, _ size: inout Int32, _ data: inout Slots<JKAShared.byte>?) {
         // TODO: Port CBlockMember::GetInfo
         portMissing("CBlockMember::GetInfo", source: "oracle/codemp/icarus/BlockStream.cpp:61")
     }
@@ -73,7 +75,7 @@ final class CBlockMember {
     }
 
     /// Source: oracle/codemp/icarus/BlockStream.cpp:84
-    func SetData(_ data: OpaquePointer?, _ size: Int32) {
+    func SetData(_ data: Slots<JKAShared.byte>?, _ size: Int32) {
         // TODO: Port CBlockMember::SetData
         portMissing("CBlockMember::SetData", source: "oracle/codemp/icarus/BlockStream.cpp:84")
     }
@@ -141,7 +143,7 @@ final class CBlockMember {
 
     //Get data member variable
     /// Source: oracle/codemp/icarus/blockstream.h:61
-    func GetData() -> OpaquePointer? {
+    func GetData() -> Slots<JKAShared.byte>? {
         self.m_data
     }
 
@@ -152,13 +154,27 @@ final class CBlockMember {
     }
 
     /// Source: oracle/codemp/icarus/blockstream.h:76
-    func WriteData<T>(_ data: inout T) {
+    // AI: Raven defines a template. The class has one overload for each type Raven's calls take, `float` and `int` of CBlock::Write at BlockStream.cpp:278 and :291.
+    func WriteData(_ data: inout Float) {
+        // TODO: Port CBlockMember::WriteData
+        portMissing("CBlockMember::WriteData", source: "oracle/codemp/icarus/blockstream.h:76")
+    }
+
+    /// Source: oracle/codemp/icarus/blockstream.h:76
+    func WriteData(_ data: inout Int32) {
         // TODO: Port CBlockMember::WriteData
         portMissing("CBlockMember::WriteData", source: "oracle/codemp/icarus/blockstream.h:76")
     }
 
     /// Source: oracle/codemp/icarus/blockstream.h:88
-    func WriteDataPointer<T>(_ data: [T], _ num: Int32) {
+    // AI: Raven defines a template. The class has one overload for each type Raven's calls take, the text and the vector of SetData at BlockStream.cpp:76 and :81.
+    func WriteDataPointer(_ data: String, _ num: Int32) {
+        // TODO: Port CBlockMember::WriteDataPointer
+        portMissing("CBlockMember::WriteDataPointer", source: "oracle/codemp/icarus/blockstream.h:88")
+    }
+
+    /// Source: oracle/codemp/icarus/blockstream.h:88
+    func WriteDataPointer(_ data: JKAShared.vec3_t, _ num: Int32) {
         // TODO: Port CBlockMember::WriteDataPointer
         portMissing("CBlockMember::WriteDataPointer", source: "oracle/codemp/icarus/blockstream.h:88")
     }

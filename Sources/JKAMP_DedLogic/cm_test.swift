@@ -175,9 +175,7 @@ func CM_BoxLeafnums(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ boxLis
         ll.count = 0
         ll.maxcount = listsize
         ll.list = boxList
-        // Port-note: The `storeLeafs` field has no generated thunk for CM_StoreLeafs.
-        // Raven wrote: ll.storeLeafs = CM_StoreLeafs;
-        portMissing("CM_BoxLeafnums", source: "oracle/codemp/qcommon/cm_test.cpp:168")
+        ll.storeLeafs = LeafListThunks.CM_StoreLeafs
         ll.lastLeaf = 0
         ll.overflowed = false
 
@@ -320,7 +318,7 @@ func CM_ClusterPVS(_ cluster: Int32) -> Slots<JKAShared.byte> {
 /// Source: oracle/codemp/qcommon/cm_test.cpp:395
 func CM_FloodArea_r(_ areaNum: Int32, _ floodnum: Int32, _ cm: ClipMap) {
     var i: Int32
-    let area: CArea
+    let area: CmArea
     let con: Slots<Int32>
 
     area = cm.areasSlots[areaNum]
@@ -347,7 +345,7 @@ func CM_FloodArea_r(_ areaNum: Int32, _ floodnum: Int32, _ cm: ClipMap) {
 /// Source: oracle/codemp/qcommon/cm_test.cpp:448
 func CM_FloodAreaConnections(_ cm: ClipMap) {
     var i: Int32
-    var area: CArea
+    var area: CmArea
     var floodnum: Int32
 
     // all current floods are now invalid
@@ -467,4 +465,11 @@ func CM_WriteAreaBits(_ buffer: Slots<UInt8>, _ area: Int32) -> Int32 {
     }
 
     return bytes
+}
+
+/// One static per function this file stores in a `LeafList` callback field, so each has one address for the life of the module.
+/// The thunks stand in this file, because the functions they call are private to it.
+private enum LeafListThunks {
+    /// Source: oracle/codemp/qcommon/cm_test.cpp:63
+    static let CM_StoreLeafs: LeafListStoreLeafs = { JKAMP_DedLogic.CM_StoreLeafs(LeafList(handle: $0!), $1) }
 }

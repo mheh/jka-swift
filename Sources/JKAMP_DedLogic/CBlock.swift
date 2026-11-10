@@ -141,7 +141,7 @@ final class CBlock {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:344
-    func GetMemberData(_ memberNum: Int32) -> OpaquePointer? {
+    func GetMemberData(_ memberNum: Int32) -> Slots<JKAShared.byte>? {
         // TODO: Port CBlock::GetMemberData
         portMissing("CBlock::GetMemberData", source: "oracle/codemp/icarus/BlockStream.cpp:344")
     }

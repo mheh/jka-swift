@@ -7,18 +7,31 @@ import JKAMP_Ded
 /// `CBoneCache.mFinalBones` and `CBoneCache.mSmoothBones` hold one per bone.
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:166
 final class CTransformBone {
+    // AI: Raven holds `boneMatrix` by value. The instance owns one allocation of the record, and the field is the view of the slot.
+    // A store is `copy(from:)`, Raven's `=`. Raven leaves the record unset, and the allocation zeroes it.
+    private let mdxaBones: Slots<MdxaBone> = {
+        let mdxaBones = Slots<MdxaBone>.new(count: 1)
+        mdxaBones.zero(count: 1)
+        return mdxaBones
+    }()
+
     var touch: Int32 = 0 // for minimal recalculation
     //rww - RAGDOLL_BEGIN
     var touchRender: Int32 = 0
     //rww - RAGDOLL_END
-    var boneMatrix: MdxaBone //final matrix
+    var boneMatrix: MdxaBone { self.mdxaBones[0] } //final matrix
     var parent: Int32 = 0 // only set once
 
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:182
-    // AI: Raven holds `boneMatrix` by value. The field is the `MdxaBone` view over a slot the instance owns, so the constructor sets the slot.
     init() {
-        // TODO: Port CTransformBone::CTransformBone
-        portMissing("CTransformBone::CTransformBone", source: "oracle/codemp/renderer/tr_ghoul2.cpp:182")
+        self.touch = 0
+        //rww - RAGDOLL_BEGIN
+        self.touchRender = 0
+        //rww - RAGDOLL_END
+    }
+
+    deinit {
+        self.mdxaBones.delete()
     }
 }
 
@@ -53,7 +66,14 @@ final class CBoneCache {
 
     // AI: Raven points at the caller's `boneInfo_v`. The field holds the array, and its elements are the caller's bone objects.
     var rootBoneList: [boneInfo_t]? = nil
-    var rootMatrix: MdxaBone
+    // AI: Raven holds `rootMatrix` by value. The instance owns one zeroed allocation of the record, and the field is the view of the slot.
+    // A store is `copy(from:)`, Raven's `=`, and the deinit frees the allocation.
+    private let mdxaBones: Slots<MdxaBone> = {
+        let mdxaBones = Slots<MdxaBone>.new(count: 1)
+        mdxaBones.zero(count: 1)
+        return mdxaBones
+    }()
+    var rootMatrix: MdxaBone { self.mdxaBones[0] }
     var incomingTime: Int32 = 0
 
     var mCurrentTouch: Int32 = 0
@@ -92,6 +112,10 @@ final class CBoneCache {
     init(_ amod: Model?, _ aheader: MdxaHeader?) {
         // TODO: Port CBoneCache::CBoneCache
         portMissing("CBoneCache::CBoneCache", source: "oracle/codemp/renderer/tr_ghoul2.cpp:390")
+    }
+
+    deinit {
+        self.mdxaBones.delete()
     }
 
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:441

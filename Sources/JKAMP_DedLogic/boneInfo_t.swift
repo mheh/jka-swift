@@ -8,8 +8,16 @@ import JKAMP_Ded
 /// `CGhoul2Info.mBlist` holds one per overridden bone.
 /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:63
 final class boneInfo_t {
+    // AI: Raven holds eight `mdxaBone_t` records by value. The instance owns one allocation of the eight, and each record field is the view of one slot.
+    // A store is `copy(from:)`, Raven's `=`. Raven leaves seven of the records unset, and the allocation zeroes them.
+    private let mdxaBones: Slots<MdxaBone> = {
+        let mdxaBones = Slots<MdxaBone>.new(count: 8)
+        mdxaBones.zero(count: 8)
+        return mdxaBones
+    }()
+
     var boneNumber: Int32 = -1		// what bone are we overriding?
-    var matrix: MdxaBone			// details of bone angle overrides - some are pre-done on the server, some in ghoul2
+    var matrix: MdxaBone { self.mdxaBones[0] }			// details of bone angle overrides - some are pre-done on the server, some in ghoul2
     var flags: Int32 = 0			// flags for override
     var startFrame: Int32 = 0		// start frame for animation
     var endFrame: Int32 = 0		// end frame for animation NOTE anim actually ends on endFrame+1
@@ -23,7 +31,7 @@ final class boneInfo_t {
     var boneBlendTime: Int32 = 0	// time for duration of bone angle blend with normal animation
     var boneBlendStart: Int32 = 0	// time bone angle blend with normal animation began
     var lastTime: Int32 = 0		// this does not go across the network
-    var newMatrix: MdxaBone		// This is the lerped matrix that Ghoul2 uses on the client side - does not go across the network
+    var newMatrix: MdxaBone { self.mdxaBones[1] }		// This is the lerped matrix that Ghoul2 uses on the client side - does not go across the network
 
     //rww - RAGDOLL_BEGIN
     var lastTimeUpdated: Int32 = 0  // if non-zero this is all intialized
@@ -46,9 +54,9 @@ final class boneInfo_t {
     var restTime: Int32 = 0
     var RagFlags: Int32 = 0
     var DependentRagIndexMask: Int32 = 0
-    var originalTrueBoneMatrix: MdxaBone
-    var parentTrueBoneMatrix: MdxaBone			// figure I will need this sooner or later
-    var parentOriginalTrueBoneMatrix: MdxaBone	// figure I will need this sooner or later
+    var originalTrueBoneMatrix: MdxaBone { self.mdxaBones[2] }
+    var parentTrueBoneMatrix: MdxaBone { self.mdxaBones[3] }			// figure I will need this sooner or later
+    var parentOriginalTrueBoneMatrix: MdxaBone { self.mdxaBones[4] }	// figure I will need this sooner or later
     var originalOrigin = JKAShared.vec3_t()
     var originalAngles = JKAShared.vec3_t()
     var lastShotDir = JKAShared.vec3_t()
@@ -57,9 +65,9 @@ final class boneInfo_t {
     var baseposeParent: MdxaBone? = nil
     var baseposeInvParent: MdxaBone? = nil
     var parentRawBoneIndex: Int32 = 0
-    var ragOverrideMatrix: MdxaBone	// figure I will need this sooner or later
+    var ragOverrideMatrix: MdxaBone { self.mdxaBones[5] }	// figure I will need this sooner or later
 
-    var extraMatrix: MdxaBone	// figure I will need this sooner or later
+    var extraMatrix: MdxaBone { self.mdxaBones[6] }	// figure I will need this sooner or later
     var extraVec1 = JKAShared.vec3_t()		// I am really tired of recomiling the whole game to add a param here
     var extraFloat1: Float = 0
     var extraInt1: Int32 = 0
@@ -83,16 +91,19 @@ final class boneInfo_t {
     var overGoalSpot = JKAShared.vec3_t()
     var hasOverGoal: Bool = false
 
-    var animFrameMatrix: MdxaBone //matrix for the bone in the desired settling pose -rww
+    var animFrameMatrix: MdxaBone { self.mdxaBones[7] } //matrix for the bone in the desired settling pose -rww
     var hasAnimFrameMatrix: Int32 = 0
 
     var airTime: Int32 = 0 //base is in air, be more quick and sensitive about collisions
     //rww - RAGDOLL_END
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:146
-    // AI: Raven holds each `mdxaBone_t` by value. Each field is the `MdxaBone` view over a slot the instance owns, so the constructor sets the slots.
     init() {
-        // TODO: Port boneInfo_t::boneInfo_t
-        portMissing("boneInfo_t::boneInfo_t", source: "oracle/codemp/ghoul2/ghoul2_shared.h:146")
+        // AI: Raven sets the 12 floats of `matrix` to 0 in one chain. The call clears the record, which holds the 12 floats alone.
+        self.matrix.clear()
+    }
+
+    deinit {
+        self.mdxaBones.delete()
     }
 }

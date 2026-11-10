@@ -16,7 +16,7 @@ typealias drawMap_m = [Int32: Bool]
 /// Raven's NPC navigator, the waypoint graph of the level and the path search over it.
 /// One instance exists, `navigator`, and the game reaches it through the `trap_Nav_` calls.
 /// Source: oracle/codemp/server/NPCNav/navigator.h:134
-// AI: Raven's destructor at navigator.cpp:486 has an empty body. The class has no deinit.
+// AI: Raven's destructor at navigator.cpp:486 has an empty body. The deinit frees the allocation of `failedEdges`.
 final class CNavigator {
     /// Source: oracle/codemp/server/NPCNav/navigator.h:136
     // AI: Raven declares a `vector < CNode * >`. The type is an Array of the optional class, by rule 17.
@@ -40,9 +40,13 @@ final class CNavigator {
     //rww - made failedEdges private as it doesn't seem to need to be public.
     //And I'd rather shoot myself than have to devise a way of setting/accessing this
     //array via trap calls.
-    // TODO: Port CNavigator::failedEdges
-    // AI: Raven holds MAX_FAILED_EDGES `failedEdge_t` records in the class. The record is a C view, so the field is a Slots that no storage fills yet.
-    private var failedEdges: Slots<JKAMP.FailedEdge>? = nil
+    // AI: Raven holds MAX_FAILED_EDGES `failedEdge_t` records in the class, and MAX_FAILED_EDGES of navigator.h is 32, which no module of the host declares.
+    // The instance owns one allocation of the 32 records, zeroed as C zeroes the global `navigator`, and the deinit frees it.
+    private let failedEdges: Slots<JKAMP.FailedEdge> = {
+        let failedEdges = Slots<JKAMP.FailedEdge>.new(count: 32)
+        failedEdges.zero(count: 32)
+        return failedEdges
+    }()
 
     private var m_nodes: node_v = []
     private var m_edgeLookupMap: EdgeMultimap = [:]
@@ -58,6 +62,11 @@ final class CNavigator {
     init() {
         // TODO: Port CNavigator::CNavigator
         portMissing("CNavigator::CNavigator", source: "oracle/codemp/server/NPCNav/navigator.cpp:478")
+    }
+
+    /// Source: oracle/codemp/server/NPCNav/navigator.cpp:486
+    deinit {
+        self.failedEdges.delete()
     }
 
     /**

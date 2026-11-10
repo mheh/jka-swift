@@ -14,8 +14,7 @@ final class ICARUS_Instance {
     typealias sequencer_l = [CSequencer]
     typealias signal_m = [String: Int32]
 
-    // TODO: Port m_interface
-    // Raven wrote: interface_export_t	*m_interface;
+    private var m_interface: interface_export_t? = nil
     private var m_GUID: Int32 = 0
 
     private var m_sequences: sequence_l = []
@@ -40,10 +39,7 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:56
-    // TODO: Port signature
-    // Raven wrote: ICARUS_Instance *ICARUS_Instance::Create( interface_export_t *ie )
-    // No table row for `interface_export_t *`.
-    static func Create() -> Never {
+    static func Create(_ ie: interface_export_t?) -> ICARUS_Instance? {
         // TODO: Port ICARUS_Instance::Create
         portMissing("ICARUS_Instance::Create", source: "oracle/codemp/icarus/Instance.cpp:56")
     }
@@ -322,11 +318,7 @@ final class ICARUS_Instance {
     }
 
     /// Source: oracle/codemp/icarus/instance.h:33
-    // TODO: Port signature
-    // Raven wrote: interface_export_t	*GetInterface( void )	const	{	return	m_interface;	}
-    // No table row for `interface_export_t *`.
-    func GetInterface() -> Never {
-        // TODO: Port ICARUS_Instance::GetInterface
-        portMissing("ICARUS_Instance::GetInterface", source: "oracle/codemp/icarus/instance.h:33")
+    func GetInterface() -> interface_export_t? {
+        self.m_interface
     }
 }

@@ -8,16 +8,24 @@ import JKAMP_Ded
 /// `CGhoul2Info.mBltlist` holds one per bolt.
 /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:170
 final class boltInfo_t {
+    // AI: Raven holds `position` by value. The instance owns one allocation of the record, and the field is the view of the slot.
+    // A store is `copy(from:)`, Raven's `=`. Raven leaves the record unset, and the allocation zeroes it.
+    private let mdxaBones: Slots<MdxaBone> = {
+        let mdxaBones = Slots<MdxaBone>.new(count: 1)
+        mdxaBones.zero(count: 1)
+        return mdxaBones
+    }()
+
     var boneNumber: Int32 = -1		// bone number bolt attaches to
     var surfaceNumber: Int32 = -1	// surface number bolt attaches to
     var surfaceType: Int32 = 0	// if we attach to a surface, this tells us if it is an original surface or a generated one - doesn't go across the network
     var boltUsed: Int32 = 0		// nor does this
-    var position: MdxaBone		// this does not go across the network
+    var position: MdxaBone { self.mdxaBones[0] }		// this does not go across the network
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:176
-    // AI: Raven holds `position` by value. The field is the `MdxaBone` view over a slot the instance owns, so the constructor sets the slot.
-    init() {
-        // TODO: Port boltInfo_t::boltInfo_t
-        portMissing("boltInfo_t::boltInfo_t", source: "oracle/codemp/ghoul2/ghoul2_shared.h:176")
+    init() {}
+
+    deinit {
+        self.mdxaBones.delete()
     }
 }

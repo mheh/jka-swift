@@ -397,7 +397,7 @@ func CMod_LoadLeafs(_ l: JKAMP.Lump, _ cm: ClipMap) {
         i += 1
     }
 
-    cm.areas = CArea(Hunk_Alloc(cm.numAreas * Int32(CArea.byteCount), h_high))
+    cm.areas = CmArea(Hunk_Alloc(cm.numAreas * Int32(CmArea.byteCount), h_high))
     cm.areaPortals = Slots(scalars: Hunk_Alloc(cm.numAreas * cm.numAreas * Int32(Int32.byteCount), h_high), count: Int(cm.numAreas * cm.numAreas))
 }
 
@@ -896,15 +896,14 @@ func CM_ClearMap() {
     CM_ShutdownShaderProperties()
     //	MAT_Shutdown();
 
-    // Port-note: Row CM6. `TheRandomMissionManager` of RM_Manager.cpp:23 is a `CRMManager *` of the C++ track, so the stem of stage E5 gives it no storage.
-    // Raven wrote: if (TheRandomMissionManager) { delete TheRandomMissionManager; TheRandomMissionManager = 0; }
-    portMissing("CM_ClearMap", source: "oracle/codemp/qcommon/cm_load.cpp:791")
+    if TheRandomMissionManager != nil {
+        // AI: Raven deletes the manager. The store of nil releases the class, and its deinit runs Raven's destructor.
+        TheRandomMissionManager = nil
+    }
 
-    if cmg.landScape != nil {
-        // Port-note: Row CM6. `CCMLandScape` of cm_landscape.h:135 is a class of the C++ track, and stage E5 gives its destructor no Swift name.
-        // Raven wrote: delete cmg.landScape;
-        portMissing("CM_ClearMap", source: "oracle/codemp/qcommon/cm_load.cpp:791")
-        cmg.landScape = nil
+    // AI: Raven tests and deletes `cmg.landScape`. The world holds the class as `landScape_cmg`, and the store of nil releases it.
+    if world.landScape_cmg != nil {
+        world.landScape_cmg = nil
     }
 
     cmg.clear()
