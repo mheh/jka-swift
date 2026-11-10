@@ -977,9 +977,28 @@ R_GetTag
 */
 /// Source: oracle/codemp/renderer/tr_model.cpp:1744
 private func R_GetTag(_ mod: JKAMP.Md3Header, _ frame: Int32, _ tagName: String) -> Md3Tag? {
-    // Port-note: Row TR14. The tags stand at the byte offset `ofsTags` from the header, and a view gives no record at a byte offset of another record.
-    // TODO: Port R_GetTag
-    portMissing("R_GetTag", source: "oracle/codemp/renderer/tr_model.cpp:1744")
+    var tag: Md3Tag
+    var i: Int32
+    var frame = frame
+
+    if frame >= mod.numFrames {
+        // it is possible to have a bad frame while changing models, so don't error
+        frame = mod.numFrames - 1
+    }
+
+    // Raven steps the `md3Tag_t *` by `frame * mod->numTags` records, so the byte offset adds that many record sizes.
+    tag = Md3Tag(mod, byteOffset: mod.ofsTags + frame * mod.numTags * Int32(Md3Tag.byteCount))
+    i = 0
+    while i < mod.numTags {
+        if strcmp(tag.name, tagName) == 0 {
+            return tag // found it
+        }
+        i += 1
+        // Raven's `tag++` steps one record.
+        tag = Md3Tag(tag, byteOffset: Md3Tag.byteCount)
+    }
+
+    return nil
 }
 
 /**
@@ -1009,6 +1028,7 @@ R_ModelBounds
 func R_ModelBounds(_ handle: JKAShared.qhandle_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t) {
     var model: Model
     var header: Md3Header
+    var frame: Md3Frame
 
     model = R_GetModelByHandle(handle)!
 
@@ -1026,7 +1046,8 @@ func R_ModelBounds(_ handle: JKAShared.qhandle_t, _ mins: inout JKAShared.vec3_t
 
     header = model.md3[0]!
 
-    // Port-note: Row TR14. `md3Frame_t` stands at the byte offset `ofsFrames` from the header, and a view gives no record at a byte offset of another record.
-    // Raven wrote: frame = (md3Frame_t *)( (byte *)header + header->ofsFrames ); VectorCopy( frame->bounds[0], mins ); VectorCopy( frame->bounds[1], maxs );
-    portMissing("R_ModelBounds", source: "oracle/codemp/renderer/tr_model.cpp:1832")
+    frame = Md3Frame(header, byteOffset: header.ofsFrames)
+
+    mins = frame.bounds[0]
+    maxs = frame.bounds[1]
 }
