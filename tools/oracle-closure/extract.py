@@ -41,7 +41,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import closure as C
-from rulings import C_STRUCT_CLASSES, HAND_FILES, HEADER_PRELUDES, PLATFORM_MACROS
+from rulings import C_STRUCT_CLASSES, HAND_FILES, HEADER_PRELUDES, PLATFORM_MACROS, WIDENED_FIELDS
 from clang.cindex import CursorKind, TokenKind, TypeKind
 
 REPO = C.REPO
@@ -934,6 +934,20 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
             else:
                 d.override = (f"// Raven declares {d.name} with C++ `bool` fields at {d.cite}. C spells the type `_Bool`, which has the same size.\n"
                               f"typedef struct{(' ' + tag_of(d.record())) if tag_of(d.record()) else ''}\n{body} {d.name};")
+    for d in decls:
+        if d.kind == "typedef" and d.name in WIDENED_FIELDS:
+            # A WIDENED_FIELDS row changes the C type of named fields, the OpenJK width of `cLeaf_t`, row X46 of docket 10.
+            width, names, cite = WIDENED_FIELDS[d.name]
+            lines = lines_of(d.file)
+            text = "\n".join(lines[d.cur.extent.start.line - 1:d.cur.extent.end.line])
+            text = text[:len(text) - len(lines[d.cur.extent.end.line - 1]) + d.cur.extent.end.column - 1]
+            for name in names:
+                text, count = re.subn(rf"\bint(\s+){name}\b", rf"{width}\g<1>{name}", text)
+                if count != 1:
+                    sys.exit(f"extract.py: WIDENED_FIELDS names {d.name}.{name}, which is not one `int` field at {d.cite}")
+            d.system.add("stddef.h")
+            d.override = (f"// AI: Raven typed {', '.join(names)} as int. The copy takes the {width} of OpenJK, {cite}, "
+                          f"so the distance of two zone blocks fits on a 64-bit host.\n{text};")
     macro_names = {d.name: d for d in decls if d.kind == "macro"}
     link(decls, macro_names)
     commit = oracle_commit()
@@ -1169,7 +1183,7 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
         files[decl.filename] = wrap(decl.filename, note, includes, body)
         counts[decl.stem][decl.kind] += 1
         manifest["files"][decl.filename] = {"kind": decl.kind, "source": decl.cite, "includes": includes, "c": decl.filename not in cxx_files}
-        if decl.filename not in cxx_files:
+        if decl.filename not in cxx_files and decl.name not in WIDENED_FIELDS:
             lines = asserts_for(decl)
             if lines:
                 asserted.append((record_spelling(decl), lines))

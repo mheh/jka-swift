@@ -21,7 +21,7 @@ from reexport import NARROW, SCALARS
 from rulings import CXX_CLASSES, TYPES
 
 TARGET = C.TARGETS["c_target"]
-BUILTINS = set(SCALARS.values()) | {"Bool", "Float", "Int32"}
+BUILTINS = set(SCALARS.values()) | {"Bool", "Float", "Int32", "Int"}
 # The Swift storage of a C integer narrower than int, which a local keeps.
 NARROW_STORAGE = {SCALARS[k] for k in NARROW}
 INT_KINDS = {TypeKind.INT, TypeKind.UINT, TypeKind.LONG, TypeKind.ULONG, TypeKind.SHORT, TypeKind.USHORT}
@@ -173,6 +173,9 @@ class Types:
             name = t.spelling
             if name == "qboolean":
                 return "Bool"
+            if name == "ptrdiff_t":
+                # Swift imports the C `ptrdiff_t` as Int on every triple, the width of the WIDENED_FIELDS rows, row X46 of docket 10.
+                return "Int"
             if name in self.views.enums or name in self.views.declared and self.views.declared[name] and name != "vec_t":
                 return self.views.qualified(name, target)
             return self.scalar(t.get_declaration().underlying_typedef_type, target)

@@ -458,6 +458,8 @@ HOST_ROOTS = {
     "mdxaIndex_t": ("MdxaIndex", "CJKAMP_Ded"),
     "mdxmTriangle_t": ("MdxmTriangle", "CJKAMP_Ded"),
     "md3Surface_t": ("Md3Surface", "CJKAMP_Ded"),
+    # R_TransformEachSurface reads the texture coordinates of a surface at G2_misc.cpp:388, row X8 of docket 10.
+    "mdxmVertexTexCoord_t": ("MdxmVertexTexCoord", "CJKAMP_Ded"),
     # The named union of be_ai_char.cpp:39 that `bot_characteristic_t.value` holds, the `qfile_gut` row, row X22 of docket 10.
     "cvalue": ("Cvalue", "CJKAMP_Ded"),
     # GetAutomapSymbol of RM_Manager.cpp:418 returns the record of client.h:143, which ded_types.h copies, row X41 of docket 10.
@@ -706,8 +708,6 @@ BYTE_STORAGE_LOCALS = {
     ("avoidreachtries", "BotPredictVisiblePosition"): ("BotPredictVisiblePosition",),
     # AAS_UpdateAreaRoutingCache keeps the address of `startareatraveltimes` in a routing update at be_aas_route.cpp:1275.
     ("startareatraveltimes", "AAS_UpdateAreaRoutingCache"): ("AAS_UpdateAreaRoutingCache",),
-    # The Wait arm of CTaskManager hands `&dwtime` to SetData at TaskManager.cpp:1111 and :1129.
-    ("dwtime", "Wait"): ("Wait",),
     # BotImport_DebugLineCreate and BotImport_DebugLineShow hand their `vec3_t points[]` locals to the `vec3_t *` table of the polygon calls,
     # sv_bot.cpp:526 and :569, row B4 of the cmsv round, the `hullPoints` rule.
     ("points", "BotImport_DebugLineCreate"): ("BotImport_DebugLineCreate",),
@@ -717,6 +717,9 @@ BYTE_STORAGE_LOCALS = {
     # at be_aas_debug.cpp:670. The scalar statics beside them are properties of EngineWorld.
     ("tbone", "G2_TransformBone"): ("G2_TransformBone",),
     ("reach", "AAS_ShowReachableAreas"): ("AAS_ShowReachableAreas",),
+    # `unsigned char heightmap[15000]` of SV_SendClientGameState is the output of deflate at sv_client.cpp:747 and goes to MSG_WriteData at :753,
+    # the `msgBuffer` row of the same function, row X44 of docket 10.
+    ("heightmap", "SV_SendClientGameState"): ("SV_SendClientGameState",),
 }
 # A scalar data table Raven initializes at file scope that tables.py copies into C storage, which the view target reads as a Slots of its scalar.
 # `static unsigned char PADDING[64]` of md4.cpp goes to MD4Update at md4.cpp:157, whose `input` is a Slots of bytes.
@@ -1149,6 +1152,7 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #             and an inout Int32 for an `int *` of the same use, the `fileHandle_t *` of `botlib_import_t.FS_FOpenFile`
 #   view_array  an inout [View?] for a `T **` that is the caller's C array of struct pointers the function fills, the rule of a `T *name[N]` parameter
 #   out_scalar  an inout CChar for a `char *` that holds one character the body writes, the rule of a pointer to one scalar
+#   text      a String for a `char *` of a stored function that the filler only reads, Raven's missing `const`, keyed by "record.field"
 #   keyword_buckets  the bucket table of row indices and the row table beside it, form A of R53, for `keywordHash_t *table[]`
 #   keyword_buckets_mut  the same pair inout, for the function that links a row into the buckets
 #   row_index  an Int32 row index for a `keywordHash_t *` row pointer, form A of R53
@@ -1458,8 +1462,13 @@ PARAMS = {
     ("botlib_import_t.FS_Read", "buffer"): "bytes",
     ("botlib_import_t.FS_Write", "buffer"): "bytes",
     ("botlib_import_t.DebugPolygonCreate", "points"): "table",
+    # BotImport_BotClientCommand of sv_bot.cpp:577 only reads `command`, and Raven left out the `const`, the trap rule of docs/transcription.md:105.
+    # Row X1b of docket 10, ruled 2026-11-10.
+    ("botlib_import_t.BotClientCommand", "command"): "text",
     # Every caller of UnCompressBone hands the `matrix` of an `mdxaBone_t`, tr_ghoul2.cpp:1464 and :1707 to :1748, so the parameter is that view, row X4.
     ("UnCompressBone", "mat"): ("view", "mdxaBone_t"),
+    # UnCompressBone hands its `mat` on to MC_UnCompressQuat of matcomp.c, the same matrix, row X4.
+    ("MC_UnCompressQuat", "mat"): ("view", "mdxaBone_t"),
     # AAS_BSPModelMinsMaxsOrigin hands its three vectors to botimport.BSPModelMinsMaxsOrigin at be_aas_bspq3.cpp:195, which writes them, row X18.
     ("AAS_BSPModelMinsMaxsOrigin", "mins"): "vec3_mut",
     ("AAS_BSPModelMinsMaxsOrigin", "maxs"): "vec3_mut",
@@ -1578,6 +1587,16 @@ C_STRUCT_CLASSES = {
     "CTRLandScape": ("tag", "oracle/codemp/renderer/tr_local.h:747"),
     # The compressed bone of mdx_format.h:119 is a C struct but for its `operator <`, which C leaves out, the CCMShader row, row X4 of docket 10.
     "mdxaCompQuatBone_t": ("fields", "oracle/codemp/renderer/mdx_format.h:119"),
+}
+
+# Record fields whose C width the copied header changes, record -> (the C type, the fields, the cite of the precedent).
+# extract.py writes the record with the type of each field changed and one AI line, and it writes no layout asserts for the record,
+# because the oracle's numbers no longer hold on a 64-bit triple.
+# CMod_LoadSubmodels stores the difference of two zone blocks into `firstLeafBrush` and `firstLeafSurface` at cm_load.cpp:154 and :161,
+# which overflows an `int` when the blocks lie far apart on a 64-bit host. OpenJK widens both to `ptrdiff_t`.
+# Row X46 of docket 10, ruled 2026-11-10 by the user.
+WIDENED_FIELDS = {
+    "cLeaf_t": ("ptrdiff_t", ("firstLeafBrush", "firstLeafSurface"), "openjk/codemp/qcommon/cm_local.h:48 and :51"),
 }
 
 # C++ classes of the oracle that a hand Swift class of the same name ports, by the C++ track of rule 17.
@@ -1756,6 +1775,8 @@ NULLABLE = {
     # FreeFuzzySeperators_r tests `!fs` at be_ai_weight.cpp:97, and ReadFuzzySeperators_r hands it a NULL `firstfs`.
     ("FreeFuzzySeperators_r", "fs"),
     ("BotGetReachabilityToGoal", "avoidspots"),
+    # BotGetReachabilityToGoal hands its NULL `avoidspots` on to BotAvoidSpots, which loops `numavoidspots` times, be_ai_move.cpp:790.
+    ("BotAvoidSpots", "avoidspots"),
     # The module hands NULL for an unused variable through the export, and the bodies test `if (var0)` at be_ai_chat.cpp:2499 and :2682, row X24 P19.
     ("BotInitialChat", "var0"), ("BotInitialChat", "var1"), ("BotInitialChat", "var2"), ("BotInitialChat", "var3"),
     ("BotInitialChat", "var4"), ("BotInitialChat", "var5"), ("BotInitialChat", "var6"), ("BotInitialChat", "var7"),

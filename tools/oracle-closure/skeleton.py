@@ -1529,6 +1529,10 @@ class Skeleton:
                 args.append(f"${i} != 0")
             else:
                 args.append(f"${i}")
+        if C.HOST and proto.is_function_variadic() and args and fn.params and fn.params[-1].swift == "String":
+            # The run method of a variadic stored function hands over text it already formatted, so the filler prints it through "%s",
+            # BotImport_Print of sv_bot.cpp:267, row X1a of docket 10.
+            args[-1] = f'"%s", {args[-1]}'
         # A closure that names only some of its parameters names none, so every argument is positional.
         call = f"{target_of(fn.stem)}.{swift_name(fn.name)}({', '.join(args)})"
         if fn.returns == "Bool":
