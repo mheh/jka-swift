@@ -53,3 +53,14 @@ One granted frame, no client, `sv_refSeed 42`, `sv_fps 40`, `sv_maxclients 32`, 
 | release `jampded` | `map=mp/ffa1 seed=42 fps=40 es=532 er=112 ps=1552 cmd=28` | `n=1 t=425 ck=ae89b5ba` |
 
 The two streams are equal. The Swift host printed the hitch warning of the first frame (`1893219200 msec`) and one more of 4431 msec, and the `t=` field is equal anyway, because the gate forces `msec` and clears `timeResidual`. The corpus replay with clients was not run.
+
+## The corpus replay
+
+The replay of `corpus-ffa1.rec` (shasum `9c08017178ab1cd2f720242c457fbc566d584f6e`, read from `~/Developer/jka/seam-test/referee/`, copied into each homepath) used 2400 granted frames, the release module of this branch, and the cvars of the first comparison with `sv_replayInputs corpus-ffa1.rec` in place of `sv_refSeed`. The runner is `/tmp/referee-out/run-corpus.sh`, and the logs and streams are in `/tmp/referee-run/corpus/`. `tools/host-referee.sh` now takes its scratch folder from `SCRATCH`, with `/tmp/referee-scratch` as the default.
+
+- The fork host: 2400 `REF STEP` lines, `REF REPLAY END` once, 3 s. First and last steps: `n=1 t=425 ck=3cfa876c` and `n=2400 t=60400 ck=c24e9a6b`.
+- The Swift host: `REF READY` is equal to the fork's line, and `REF REPLAY LOADED file=corpus-ffa1.rec bytes=346883 seed=42` prints. The host stops with SIGTRAP after 14 s, before the first `REF STEP` line. So 0 steps match, and no step differs.
+
+The stop: `Swift runtime failure: Unexpectedly found nil while unwrapping an Optional value`. The stack is `Ref_SpawnFake` (client 0, Desann) to `VM_Call` of `GAME_CLIENT_BEGIN`, then `ClientBegin` (`g_client.swift:2353`), `SetupGameGhoul2Model` (`g_client.swift:1779`), and `trap_G2API_SetBoneAngles` with `modelList` nil, into `SV_GameSystemCalls_Real` at the `G_G2_ANGLEOVERRIDE` arm, `sv_game.swift:1699:42`, `args.VMA(9)`. The parameter is `Slots<qhandle_t>?`, and no optional `Slots<Int32>` form of `VMA` exists, so the call takes the form at `Sources/JKAMP_Ded/GameViews.swift:95-97`, which unwraps the word with `!`. Raven passes the NULL word on as `(qhandle_t *)VMA(9)`, `oracle/codemp/server/sv_game.cpp:1370-1372`. The fault is in the host's syscall arm, not in the referee, and it is on the path of every client that enters the game.
+
+The same 2400 frames with no client and `sv_refSeed 42` (`/tmp/referee-run/noclient/`) match on every line: equal `REF READY`, 2400 equal `REF STEP` lines on each side. The fork took 2 s and the Swift host 20 s.
