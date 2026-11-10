@@ -23,7 +23,8 @@ final class CPriorityQueue {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2731
     func Pop() -> CEdge? {
-        // Port-note: The body needs NodeTotalGreater of navigator.cpp:2694, the comparator of the heap, and no Swift form of it exists.
+        // Port-note: The body calls std::pop_heap of the C++ library with NodeTotalGreater, and the port has no form of the heap algorithm.
+        // The order of edges of equal cost depends on that algorithm, so the body waits for a row.
         // TODO: Port CPriorityQueue::Pop
         portMissing("CPriorityQueue::Pop", source: "oracle/codemp/server/NPCNav/navigator.cpp:2731")
     }
@@ -54,7 +55,8 @@ final class CPriorityQueue {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2751
     func Push(_ theEdge: CEdge?) {
-        // Port-note: The body needs NodeTotalGreater of navigator.cpp:2694, the comparator of the heap, and no Swift form of it exists.
+        // Port-note: The body calls std::push_heap of the C++ library with NodeTotalGreater, and the port has no form of the heap algorithm.
+        // The order of edges of equal cost depends on that algorithm, so the body waits for a row.
         // TODO: Port CPriorityQueue::Push
         portMissing("CPriorityQueue::Push", source: "oracle/codemp/server/NPCNav/navigator.cpp:2751")
     }
@@ -68,7 +70,8 @@ final class CPriorityQueue {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2763
     func Update(_ edge: CEdge?) {
-        // Port-note: The body needs NodeTotalGreater of navigator.cpp:2694, the comparator of the heap, and no Swift form of it exists.
+        // Port-note: The body calls std::push_heap of the C++ library with NodeTotalGreater, and the port has no form of the heap algorithm.
+        // The order of edges of equal cost depends on that algorithm, so the body waits for a row.
         // TODO: Port CPriorityQueue::Update
         portMissing("CPriorityQueue::Update", source: "oracle/codemp/server/NPCNav/navigator.cpp:2763")
     }

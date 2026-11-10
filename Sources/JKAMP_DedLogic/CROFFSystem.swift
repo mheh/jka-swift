@@ -431,6 +431,7 @@ final class CROFFSystem {
 
         if roff_ent.mIsClient {
             // Port-note: The dedicated build drops Raven's client arm, so the trajectories stay uninitialized and SetLerp reads them.
+            // No caller of WinDed sets mIsClient, because sv_game.cpp:725 passes qfalse and WinDed does not link cl_cgame.cpp:1279.
             portMissing("CROFFSystem::ApplyROFF", source: "oracle/codemp/qcommon/RoffSystem.cpp:820")
         } else {
             // Find the entity to apply the roff to
@@ -595,6 +596,7 @@ final class CROFFSystem {
 
         if roff_ent.mIsClient {
             // Port-note: The dedicated build drops Raven's client arm, so the trajectories stay uninitialized and SetLerp reads them.
+            // No caller of WinDed sets mIsClient, because sv_game.cpp:725 passes qfalse and WinDed does not link cl_cgame.cpp:1279.
             portMissing("CROFFSystem::ClearLerp", source: "oracle/codemp/qcommon/RoffSystem.cpp:973")
         } else {
             // Find the entity to apply the roff to
@@ -658,6 +660,7 @@ final class CROFFSystem {
     ```
     */
     /// Source: oracle/codemp/qcommon/RoffSystem.cpp:298
+    @discardableResult
     func Cache(_ file: String, _ isClient: Bool) -> Int32 {
         // See if this item is already cached
         var len: Int32

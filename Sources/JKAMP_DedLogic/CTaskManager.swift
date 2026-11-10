@@ -156,9 +156,7 @@ final class CTaskManager {
 
         //TODO: Emit warning
         if group == nil {
-            // Port-note: The call goes through `m_owner->GetInterface()`, and `interface_export_t` has no Swift form.
-            // Raven wrote: (m_owner->GetInterface())->I_DPrintf( WL_ERROR, "Unable to allocate task group \"%s\"\n", name );
-            portMissing("CTaskManager::AddTaskGroup", source: "oracle/codemp/icarus/TaskManager.cpp:240")
+            (self.m_owner!.GetInterface())!.I_DPrintf!(WL_ERROR, "Unable to allocate task group \"%s\"\n", name)
             return nil
         }
 
@@ -186,9 +184,7 @@ final class CTaskManager {
         let tgi: CTaskGroup? = self.m_taskGroupNameMap[name]
 
         if tgi == nil {
-            // Port-note: The call goes through `m_owner->GetInterface()`, and `interface_export_t` has no Swift form.
-            // Raven wrote: (m_owner->GetInterface())->I_DPrintf( WL_WARNING, "Could not find task group \"%s\"\n", name );
-            portMissing("CTaskManager::GetTaskGroup", source: "oracle/codemp/icarus/TaskManager.cpp:286")
+            (self.m_owner!.GetInterface())!.I_DPrintf!(WL_WARNING, "Could not find task group \"%s\"\n", name)
             return nil
         }
 
@@ -200,9 +196,7 @@ final class CTaskManager {
         let tgi: CTaskGroup? = self.m_taskGroupIDMap[id]
 
         if tgi == nil {
-            // Port-note: The call goes through `m_owner->GetInterface()`, and `interface_export_t` has no Swift form.
-            // Raven wrote: (m_owner->GetInterface())->I_DPrintf( WL_WARNING, "Could not find task group \"%d\"\n", id );
-            portMissing("CTaskManager::GetTaskGroup", source: "oracle/codemp/icarus/TaskManager.cpp:301")
+            (self.m_owner!.GetInterface())!.I_DPrintf!(WL_WARNING, "Could not find task group \"%d\"\n", id)
             return nil
         }
 
@@ -217,6 +211,7 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:322
+    @discardableResult
     func Update() -> Int32 {
         let owner = SV_GentityNum(self.m_ownerID)
 
@@ -269,10 +264,69 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:370
-    // Port-note: The body reads block member data, which waits for the `m_data` row, and it calls through the interface.
     private func GetFloat(_ entID: Int32, _ block: CBlock?, _ memberNum: inout Int32, _ value: inout Float) -> Int32 {
-        // TODO: Port CTaskManager::GetFloat
-        portMissing("CTaskManager::GetFloat", source: "oracle/codemp/icarus/TaskManager.cpp:370")
+        var name: CharBuf
+        var type: Int32
+
+        //See if this is a get() command replacement
+        if self.Check(ID_GET, block, memberNum) {
+            //Update the member past the header id
+            memberNum += 1
+
+            //get( TYPE, NAME )
+            type = Int32(block!.GetMemberData(memberNum)![float: 0])
+            memberNum += 1
+            // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+            name = CharBuf(block!.GetMember(memberNum)!.GetSize())
+            Com_Memcpy(&name, block!.GetMemberData(memberNum)!, name.count)
+            memberNum += 1
+
+            //TODO: Emit warning
+            if type != TK_FLOAT {
+                (self.m_owner!.GetInterface())!.I_DPrintf!(WL_ERROR, "Get() call tried to return a non-FLOAT parameter!\n")
+                return 0
+            }
+
+            return (self.m_owner!.GetInterface())!.I_GetFloat!(entID, type, String(name), &value)
+        }
+
+        //Look for a random() inline call
+        if self.Check(ID_RANDOM, block, memberNum) {
+            let min: Float
+            let max: Float
+
+            memberNum += 1
+
+            min = block!.GetMemberData(memberNum)![float: 0]
+            memberNum += 1
+            max = block!.GetMemberData(memberNum)![float: 0]
+            memberNum += 1
+
+            value = (self.m_owner!.GetInterface())!.I_Random!(min, max)
+
+            return 1
+        }
+
+        //Look for a tag() inline call
+        if self.Check(ID_TAG, block, memberNum) {
+            (self.m_owner!.GetInterface())!.I_DPrintf!(WL_WARNING, "Invalid use of \"tag\" inline.  Not a valid replacement for type FLOAT\n")
+            return 0
+        }
+
+        let bm: CBlockMember? = block!.GetMember(memberNum)
+
+        if bm!.GetID() == TK_INT {
+            value = Float(block!.GetMemberData(memberNum)![int: 0])
+            memberNum += 1
+        } else if bm!.GetID() == TK_FLOAT {
+            value = block!.GetMemberData(memberNum)![float: 0]
+            memberNum += 1
+        } else {
+            (self.m_owner!.GetInterface())!.I_DPrintf!(WL_WARNING, "Unexpected value; expected type FLOAT\n")
+            return 0
+        }
+
+        return 1
     }
 
     /**
@@ -283,10 +337,91 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:443
-    // Port-note: The body reads block member data, which waits for the `m_data` row, and it calls through the interface.
     private func GetVector(_ entID: Int32, _ block: CBlock?, _ memberNum: inout Int32, _ value: inout JKAShared.vec3_t) -> Int32 {
-        // TODO: Port CTaskManager::GetVector
-        portMissing("CTaskManager::GetVector", source: "oracle/codemp/icarus/TaskManager.cpp:443")
+        var name: CharBuf
+        var type: Int32
+        var i: Int32
+
+        //See if this is a get() command replacement
+        if self.Check(ID_GET, block, memberNum) {
+            //Update the member past the header id
+            memberNum += 1
+
+            //get( TYPE, NAME )
+            type = Int32(block!.GetMemberData(memberNum)![float: 0])
+            memberNum += 1
+            // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+            name = CharBuf(block!.GetMember(memberNum)!.GetSize())
+            Com_Memcpy(&name, block!.GetMemberData(memberNum)!, name.count)
+            memberNum += 1
+
+            //TODO: Emit warning
+            if type != TK_VECTOR {
+                (self.m_owner!.GetInterface())!.I_DPrintf!(WL_ERROR, "Get() call tried to return a non-VECTOR parameter!\n")
+            }
+
+            return (self.m_owner!.GetInterface())!.I_GetVector!(entID, type, String(name), &value)
+        }
+
+        //Look for a random() inline call
+        if self.Check(ID_RANDOM, block, memberNum) {
+            let min: Float
+            let max: Float
+
+            memberNum += 1
+
+            min = block!.GetMemberData(memberNum)![float: 0]
+            memberNum += 1
+            max = block!.GetMemberData(memberNum)![float: 0]
+            memberNum += 1
+
+            i = 0
+            while i < 3 {
+                value[i] = Float((self.m_owner!.GetInterface())!.I_Random!(min, max))	//FIXME: Just truncating it for now.. should be fine though
+                i += 1
+            }
+
+            return 1
+        }
+
+        //Look for a tag() inline call
+        if self.Check(ID_TAG, block, memberNum) {
+            var tagName = ""
+            var tagLookup: Float = 0
+
+            memberNum += 1
+            // ICARUS_VALIDATE
+            if self.Get(entID, block, &memberNum, &tagName) == 0 { return TASK_FAILED }
+            if self.GetFloat(entID, block, &memberNum, &tagLookup) == 0 { return TASK_FAILED }
+
+            if (self.m_owner!.GetInterface())!.I_GetTag!(entID, tagName, Int32(tagLookup), &value) == 0 {
+                (self.m_owner!.GetInterface())!.I_DPrintf!(WL_ERROR, "Unable to find tag \"%s\" for ent %i!\n", tagName, entID)
+                //			assert(0);
+                return TASK_FAILED
+            }
+
+            return 1
+        }
+
+        //Check for a real vector here
+        type = Int32(block!.GetMemberData(memberNum)![float: 0])
+
+        if type != TK_VECTOR {
+            //		(m_owner->GetInterface())->I_DPrintf( WL_WARNING, "Unexpected value; expected type VECTOR\n" );
+            return 0
+        }
+
+        memberNum += 1
+
+        i = 0
+        while i < 3 {
+            if self.GetFloat(entID, block, &memberNum, &value[i]) == 0 {
+                return 0
+            }
+            i += 1
+        }
+
+        return 1
     }
 
     /**
@@ -297,10 +432,167 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:531
-    // Port-note: The body reads block member data, which waits for the `m_data` row, and it calls through the interface.
     private func Get(_ entID: Int32, _ block: CBlock?, _ memberNum: inout Int32, _ value: inout String) -> Int32 {
-        // TODO: Port CTaskManager::Get
-        portMissing("CTaskManager::Get", source: "oracle/codemp/icarus/TaskManager.cpp:531")
+        // AI: Raven formats into a static buffer and returns a pointer into it. The buffer is a local, because the String of `value` is a copy.
+        var tempBuffer = CharBuf(128)	//FIXME: EEEK!
+        var vector = vec3_t()
+        var name: CharBuf
+        var tagName = ""
+        var tagLookup: Float = 0
+        var type: Int32
+
+        //Look for a get() inline call
+        if self.Check(ID_GET, block, memberNum) {
+            //Update the member past the header id
+            memberNum += 1
+
+            //get( TYPE, NAME )
+            type = Int32(block!.GetMemberData(memberNum)![float: 0])
+            memberNum += 1
+            // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+            name = CharBuf(block!.GetMember(memberNum)!.GetSize())
+            Com_Memcpy(&name, block!.GetMemberData(memberNum)!, name.count)
+            memberNum += 1
+
+            //Format the return properly
+            //FIXME: This is probably doing double formatting in certain cases...
+            //FIXME: STRING MANAGEMENT NEEDS TO BE IMPLEMENTED, MY CURRENT SOLUTION IS NOT ACCEPTABLE!!
+            switch type {
+            case TK_STRING:
+                if (self.m_owner!.GetInterface())!.I_GetString!(entID, type, String(name), &value) == 0 {
+                    (self.m_owner!.GetInterface())!.I_DPrintf!(WL_ERROR, "Get() parameter \"%s\" could not be found!\n", name)
+                    return 0
+                }
+
+                return 1
+
+            case TK_FLOAT:
+                var temp: Float = 0
+
+                if (self.m_owner!.GetInterface())!.I_GetFloat!(entID, type, String(name), &temp) == 0 {
+                    (self.m_owner!.GetInterface())!.I_DPrintf!(WL_ERROR, "Get() parameter \"%s\" could not be found!\n", name)
+                    return 0
+                }
+
+                // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of tempBuffer.
+                Com_sprintf(&tempBuffer, 128, "%f", temp)
+                value = String(tempBuffer)
+
+                return 1
+
+            case TK_VECTOR:
+                var vval = vec3_t()
+
+                if (self.m_owner!.GetInterface())!.I_GetVector!(entID, type, String(name), &vval) == 0 {
+                    (self.m_owner!.GetInterface())!.I_DPrintf!(WL_ERROR, "Get() parameter \"%s\" could not be found!\n", name)
+                    return 0
+                }
+
+                // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of tempBuffer.
+                Com_sprintf(&tempBuffer, 128, "%f %f %f", vval[0], vval[1], vval[2])
+                value = String(tempBuffer)
+
+                return 1
+
+            default:
+                (self.m_owner!.GetInterface())!.I_DPrintf!(WL_ERROR, "Get() call tried to return an unknown type!\n")
+                return 0
+            }
+        }
+
+        //Look for a random() inline call
+        if self.Check(ID_RANDOM, block, memberNum) {
+            let min: Float
+            let max: Float
+            let ret: Float
+
+            memberNum += 1
+
+            min = block!.GetMemberData(memberNum)![float: 0]
+            memberNum += 1
+            max = block!.GetMemberData(memberNum)![float: 0]
+            memberNum += 1
+
+            ret = (self.m_owner!.GetInterface())!.I_Random!(min, max)
+
+            // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of tempBuffer.
+            Com_sprintf(&tempBuffer, 128, "%f", ret)
+            value = String(tempBuffer)
+
+            return 1
+        }
+
+        //Look for a tag() inline call
+        if self.Check(ID_TAG, block, memberNum) {
+            memberNum += 1
+            // ICARUS_VALIDATE
+            if self.Get(entID, block, &memberNum, &tagName) == 0 { return TASK_FAILED }
+            if self.GetFloat(entID, block, &memberNum, &tagLookup) == 0 { return TASK_FAILED }
+
+            if (self.m_owner!.GetInterface())!.I_GetTag!(entID, tagName, Int32(tagLookup), &vector) == 0 {
+                (self.m_owner!.GetInterface())!.I_DPrintf!(WL_ERROR, "Unable to find tag \"%s\"!\n", tagName)
+                return 0
+            }
+
+            // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of tempBuffer.
+            Com_sprintf(&tempBuffer, 128, "%f %f %f", vector[0], vector[1], vector[2])
+            value = String(tempBuffer)
+
+            return 1
+        }
+
+        //Get an actual piece of data
+
+        let bm: CBlockMember? = block!.GetMember(memberNum)
+
+        if bm!.GetID() == TK_INT {
+            let fval = Float(block!.GetMemberData(memberNum)![int: 0])
+            memberNum += 1
+            // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of tempBuffer.
+            Com_sprintf(&tempBuffer, 128, "%f", fval)
+            value = String(tempBuffer)
+
+            return 1
+        } else if bm!.GetID() == TK_FLOAT {
+            let fval: Float = block!.GetMemberData(memberNum)![float: 0]
+            memberNum += 1
+            // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of tempBuffer.
+            Com_sprintf(&tempBuffer, 128, "%f", fval)
+            value = String(tempBuffer)
+
+            return 1
+        } else if bm!.GetID() == TK_VECTOR {
+            var vval = vec3_t()
+
+            memberNum += 1
+
+            var i: Int32 = 0
+            while i < 3 {
+                if self.GetFloat(entID, block, &memberNum, &vval[i]) == 0 {
+                    return 0
+                }
+
+                // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of tempBuffer.
+                Com_sprintf(&tempBuffer, 128, "%f %f %f", vval[0], vval[1], vval[2])
+                value = String(tempBuffer)
+                i += 1
+            }
+
+            return 1
+        } else if (bm!.GetID() == TK_STRING) || (bm!.GetID() == TK_IDENTIFIER) {
+            // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+            name = CharBuf(bm!.GetSize())
+            Com_Memcpy(&name, block!.GetMemberData(memberNum)!, name.count)
+            memberNum += 1
+            value = String(name)
+
+            return 1
+        }
+
+        //TODO: Emit warning
+        (self.m_owner!.GetInterface())!.I_DPrintf!(WL_WARNING, "Unexpected value; expected type STRING\n")
+
+        return 0
     }
 
     /**
@@ -319,9 +611,7 @@ final class CTaskManager {
         let count: Int32 = self.m_count
         self.m_count += 1
         if count > RUNAWAY_LIMIT {
-            // Port-note: The call goes through `m_owner->GetInterface()`, and `interface_export_t` has no Swift form.
-            // Raven wrote: (m_owner->GetInterface())->I_DPrintf( WL_ERROR, "Runaway loop detected!\n" );
-            portMissing("CTaskManager::Go", source: "oracle/codemp/icarus/TaskManager.cpp:700")
+            (self.m_owner!.GetInterface())!.I_DPrintf!(WL_ERROR, "Runaway loop detected!\n")
             return TASK_FAILED
         }
 
@@ -331,15 +621,13 @@ final class CTaskManager {
             task = self.PopTask(POP_BACK)
 
             if task == nil {
-                // Port-note: The call goes through `m_owner->GetInterface()`, and `interface_export_t` has no Swift form.
-                // Raven wrote: (m_owner->GetInterface())->I_DPrintf( WL_ERROR, "Invalid task found in Go()!\n" );
-                portMissing("CTaskManager::Go", source: "oracle/codemp/icarus/TaskManager.cpp:700")
+                (self.m_owner!.GetInterface())!.I_DPrintf!(WL_ERROR, "Invalid task found in Go()!\n")
                 return TASK_FAILED
             }
 
             //If this hasn't been stamped, do so
             if task!.GetTimeStamp() == 0 {
-                // Port-note: The call goes through `m_owner->GetInterface()`, and `interface_export_t` has no Swift form.
+                // Port-note: CTask keeps Raven's `DWORD` time stamp as Int32, and I_GetTime returns UInt32, so the store needs a conversion Raven did not write.
                 // Raven wrote: task->SetTimeStamp( ( m_owner->GetInterface())->I_GetTime() );
                 portMissing("CTaskManager::Go", source: "oracle/codemp/icarus/TaskManager.cpp:700")
             }
@@ -411,9 +699,7 @@ final class CTaskManager {
 
             default:
                 task!.Free()
-                // Port-note: The call goes through `m_owner->GetInterface()`, and `interface_export_t` has no Swift form.
-                // Raven wrote: (m_owner->GetInterface())->I_DPrintf( WL_ERROR, "Found unknown task type!\n" );
-                portMissing("CTaskManager::Go", source: "oracle/codemp/icarus/TaskManager.cpp:700")
+                (self.m_owner!.GetInterface())!.I_DPrintf!(WL_ERROR, "Found unknown task type!\n")
                 return TASK_FAILED
             }
 
@@ -449,9 +735,7 @@ final class CTaskManager {
 
         //TODO: Emit warning
         if task == nil {
-            // Port-note: The call goes through `m_owner->GetInterface()`, and `interface_export_t` has no Swift form.
-            // Raven wrote: (m_owner->GetInterface())->I_DPrintf( WL_ERROR, "Unable to allocate new task!\n" );
-            portMissing("CTaskManager::SetCommand", source: "oracle/codemp/icarus/TaskManager.cpp:841")
+            (self.m_owner!.GetInterface())!.I_DPrintf!(WL_ERROR, "Unable to allocate new task!\n")
             return TASK_FAILED
         }
 
@@ -468,6 +752,7 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:870
+    @discardableResult
     func MarkTask(_ id: Int32, _ operation: Int32) -> Int32 {
         let group: CTaskGroup? = self.GetTaskGroup(id)
 
@@ -527,9 +812,7 @@ final class CTaskManager {
             return self.Go()
         }
 
-        // Port-note: The call goes through `m_owner->GetInterface()`, and `interface_export_t` has no Swift form.
-        // Raven wrote: (m_owner->GetInterface())->I_DPrintf( WL_ERROR, "Command callback failure!\n" );
-        portMissing("CTaskManager::CallbackCommand", source: "oracle/codemp/icarus/TaskManager.cpp:933")
+        (self.m_owner!.GetInterface())!.I_DPrintf!(WL_ERROR, "Command callback failure!\n")
         return TASK_FAILED
     }
 
@@ -655,7 +938,8 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1062
-    // Port-note: The body reads block member data, which waits for the `m_data` row, and it calls through the interface.
+    // Port-note: CTask keeps Raven's `DWORD` time stamp as Int32, and Raven adds it to a float and compares the sum with the UInt32 of I_GetTime.
+    // The body also hands the address of a local float to SetData, which takes a Slots. Neither has a form, so the body waits for a row.
     @discardableResult
     private func Wait(_ task: CTask?, _ completed: inout Bool) -> Int32 {
         // TODO: Port CTaskManager::Wait
@@ -670,11 +954,28 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1146
-    // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
     @discardableResult
     private func WaitSignal(_ task: CTask?, _ completed: inout Bool) -> Int32 {
-        // TODO: Port CTaskManager::WaitSignal
-        portMissing("CTaskManager::WaitSignal", source: "oracle/codemp/icarus/TaskManager.cpp:1146")
+        let block: CBlock? = task!.GetBlock()
+        var sVal = ""
+        var memberNum: Int32 = 0
+
+        completed = false
+
+        // ICARUS_VALIDATE
+        if self.Get(self.m_ownerID, block, &memberNum, &sVal) == 0 { return TASK_FAILED }
+
+        if task!.GetTimeStamp() == (self.m_owner!.GetInterface())!.I_GetTime!() {
+            //Print out the debug info
+            (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d waitsignal(\"%s\"); [%d]", self.m_ownerID, sVal, task!.GetTimeStamp())
+        }
+
+        if (self.m_owner!.GetOwner())!.CheckSignal(sVal) {
+            completed = true
+            (self.m_owner!.GetOwner())!.ClearSignal(sVal)
+        }
+
+        return TASK_OK
     }
 
     /**
@@ -685,11 +986,22 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1177
-    // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
     @discardableResult
     private func Print(_ task: CTask?) -> Int32 {
-        // TODO: Port CTaskManager::Print
-        portMissing("CTaskManager::Print", source: "oracle/codemp/icarus/TaskManager.cpp:1177")
+        let block: CBlock? = task!.GetBlock()
+        var sVal = ""
+        var memberNum: Int32 = 0
+
+        // ICARUS_VALIDATE
+        if self.Get(self.m_ownerID, block, &memberNum, &sVal) == 0 { return TASK_FAILED }
+
+        (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d print(\"%s\"); [%d]", self.m_ownerID, sVal, task!.GetTimeStamp())
+
+        (self.m_owner!.GetInterface())!.I_CenterPrint!(sVal)
+
+        self.Completed(task!.GetGUID())
+
+        return TASK_OK
     }
 
     /**
@@ -700,11 +1012,25 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1200
-    // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
     @discardableResult
     private func Sound(_ task: CTask?) -> Int32 {
-        // TODO: Port CTaskManager::Sound
-        portMissing("CTaskManager::Sound", source: "oracle/codemp/icarus/TaskManager.cpp:1200")
+        let block: CBlock? = task!.GetBlock()
+        var sVal = ""
+        var sVal2 = ""
+        var memberNum: Int32 = 0
+
+        // ICARUS_VALIDATE
+        if self.Get(self.m_ownerID, block, &memberNum, &sVal) == 0 { return TASK_FAILED }
+        if self.Get(self.m_ownerID, block, &memberNum, &sVal2) == 0 { return TASK_FAILED }
+
+        (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d sound(\"%s\", \"%s\"); [%d]", self.m_ownerID, sVal, sVal2, task!.GetTimeStamp())
+
+        //Only instantly complete if the user has requested it
+        if (self.m_owner!.GetInterface())!.I_PlaySound!(task!.GetGUID(), self.m_ownerID, sVal2, sVal) != 0 {
+            self.Completed(task!.GetGUID())
+        }
+
+        return TASK_OK
     }
 
     /**
@@ -715,11 +1041,40 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1224
-    // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
     @discardableResult
     private func Rotate(_ task: CTask?) -> Int32 {
-        // TODO: Port CTaskManager::Rotate
-        portMissing("CTaskManager::Rotate", source: "oracle/codemp/icarus/TaskManager.cpp:1224")
+        var vector = vec3_t()
+        let block: CBlock? = task!.GetBlock()
+        var tagName = ""
+        var tagLookup: Float = 0
+        var duration: Float = 0
+        var memberNum: Int32 = 0
+
+        //Check for a tag reference
+        if self.Check(ID_TAG, block, memberNum) {
+            memberNum += 1
+
+            // ICARUS_VALIDATE
+            if self.Get(self.m_ownerID, block, &memberNum, &tagName) == 0 { return TASK_FAILED }
+            if self.GetFloat(self.m_ownerID, block, &memberNum, &tagLookup) == 0 { return TASK_FAILED }
+
+            if (self.m_owner!.GetInterface())!.I_GetTag!(self.m_ownerID, tagName, Int32(tagLookup), &vector) == 0 {
+                //TODO: Emit warning
+                (self.m_owner!.GetInterface())!.I_DPrintf!(WL_ERROR, "Unable to find tag \"%s\"!\n", tagName)
+                return TASK_FAILED
+            }
+        } else {
+            //Get a normal vector
+            if self.GetVector(self.m_ownerID, block, &memberNum, &vector) == 0 { return TASK_FAILED }
+        }
+
+        //Find the duration
+        if self.GetFloat(self.m_ownerID, block, &memberNum, &duration) == 0 { return TASK_FAILED }
+
+        (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d rotate( <%f,%f,%f>, %d); [%d]", self.m_ownerID, vector[0], vector[1], vector[2], Int32(duration), task!.GetTimeStamp())
+        (self.m_owner!.GetInterface())!.I_Lerp2Angles!(task!.GetGUID(), self.m_ownerID, &vector, duration)
+
+        return TASK_OK
     }
 
     /**
@@ -730,11 +1085,21 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1269
-    // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
     @discardableResult
     private func Remove(_ task: CTask?) -> Int32 {
-        // TODO: Port CTaskManager::Remove
-        portMissing("CTaskManager::Remove", source: "oracle/codemp/icarus/TaskManager.cpp:1269")
+        let block: CBlock? = task!.GetBlock()
+        var sVal = ""
+        var memberNum: Int32 = 0
+
+        // ICARUS_VALIDATE
+        if self.Get(self.m_ownerID, block, &memberNum, &sVal) == 0 { return TASK_FAILED }
+
+        (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d remove(\"%s\"); [%d]", self.m_ownerID, sVal, task!.GetTimeStamp())
+        (self.m_owner!.GetInterface())!.I_Remove!(self.m_ownerID, sVal)
+
+        self.Completed(task!.GetGUID())
+
+        return TASK_OK
     }
 
     /**
@@ -745,11 +1110,125 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1291
-    // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
     @discardableResult
     private func Camera(_ task: CTask?) -> Int32 {
-        // TODO: Port CTaskManager::Camera
-        portMissing("CTaskManager::Camera", source: "oracle/codemp/icarus/TaskManager.cpp:1291")
+        let ie: interface_export_t? = (self.m_owner!.GetInterface())
+        let block: CBlock? = task!.GetBlock()
+        var vector = vec3_t()
+        var vector2 = vec3_t()
+        var type: Float = 0
+        var fVal: Float = 0
+        var fVal2: Float = 0
+        var fVal3: Float = 0
+        var sVal = ""
+        var memberNum: Int32 = 0
+
+        //Get the camera function type
+        // ICARUS_VALIDATE
+        if self.GetFloat(self.m_ownerID, block, &memberNum, &type) == 0 { return TASK_FAILED }
+
+        switch Int32(type) {
+        case TYPE_PAN:
+
+            if self.GetVector(self.m_ownerID, block, &memberNum, &vector) == 0 { return TASK_FAILED }
+            if self.GetVector(self.m_ownerID, block, &memberNum, &vector2) == 0 { return TASK_FAILED }
+
+            if self.GetFloat(self.m_ownerID, block, &memberNum, &fVal) == 0 { return TASK_FAILED }
+
+            (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d camera( PAN, <%f %f %f>, <%f %f %f>, %f); [%d]", self.m_ownerID, vector[0], vector[1], vector[2], vector2[0], vector2[1], vector2[2], fVal, task!.GetTimeStamp())
+            ie!.I_CameraPan!(vector, vector2, fVal)
+
+        case TYPE_ZOOM:
+
+            if self.GetFloat(self.m_ownerID, block, &memberNum, &fVal) == 0 { return TASK_FAILED }
+            if self.GetFloat(self.m_ownerID, block, &memberNum, &fVal2) == 0 { return TASK_FAILED }
+
+            (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d camera( ZOOM, %f, %f); [%d]", self.m_ownerID, fVal, fVal2, task!.GetTimeStamp())
+            ie!.I_CameraZoom!(fVal, fVal2)
+
+        case TYPE_MOVE:
+
+            if self.GetVector(self.m_ownerID, block, &memberNum, &vector) == 0 { return TASK_FAILED }
+            if self.GetFloat(self.m_ownerID, block, &memberNum, &fVal) == 0 { return TASK_FAILED }
+
+            (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d camera( MOVE, <%f %f %f>, %f); [%d]", self.m_ownerID, vector[0], vector[1], vector[2], fVal, task!.GetTimeStamp())
+            ie!.I_CameraMove!(vector, fVal)
+
+        case TYPE_ROLL:
+
+            if self.GetFloat(self.m_ownerID, block, &memberNum, &fVal) == 0 { return TASK_FAILED }
+            if self.GetFloat(self.m_ownerID, block, &memberNum, &fVal2) == 0 { return TASK_FAILED }
+
+            (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d camera( ROLL, %f, %f); [%d]", self.m_ownerID, fVal, fVal2, task!.GetTimeStamp())
+            ie!.I_CameraRoll!(fVal, fVal2)
+
+        case TYPE_FOLLOW:
+
+            if self.Get(self.m_ownerID, block, &memberNum, &sVal) == 0 { return TASK_FAILED }
+            if self.GetFloat(self.m_ownerID, block, &memberNum, &fVal) == 0 { return TASK_FAILED }
+            if self.GetFloat(self.m_ownerID, block, &memberNum, &fVal2) == 0 { return TASK_FAILED }
+
+            (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d camera( FOLLOW, \"%s\", %f, %f); [%d]", self.m_ownerID, sVal, fVal, fVal2, task!.GetTimeStamp())
+            ie!.I_CameraFollow!(sVal, fVal, fVal2)
+
+        case TYPE_TRACK:
+
+            if self.Get(self.m_ownerID, block, &memberNum, &sVal) == 0 { return TASK_FAILED }
+            if self.GetFloat(self.m_ownerID, block, &memberNum, &fVal) == 0 { return TASK_FAILED }
+            if self.GetFloat(self.m_ownerID, block, &memberNum, &fVal2) == 0 { return TASK_FAILED }
+
+            (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d camera( TRACK, \"%s\", %f, %f); [%d]", self.m_ownerID, sVal, fVal, fVal2, task!.GetTimeStamp())
+            ie!.I_CameraTrack!(sVal, fVal, fVal2)
+
+        case TYPE_DISTANCE:
+
+            if self.GetFloat(self.m_ownerID, block, &memberNum, &fVal) == 0 { return TASK_FAILED }
+            if self.GetFloat(self.m_ownerID, block, &memberNum, &fVal2) == 0 { return TASK_FAILED }
+
+            (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d camera( DISTANCE, %f, %f); [%d]", self.m_ownerID, fVal, fVal2, task!.GetTimeStamp())
+            ie!.I_CameraDistance!(fVal, fVal2)
+
+        case TYPE_FADE:
+
+            if self.GetVector(self.m_ownerID, block, &memberNum, &vector) == 0 { return TASK_FAILED }
+            if self.GetFloat(self.m_ownerID, block, &memberNum, &fVal) == 0 { return TASK_FAILED }
+
+            if self.GetVector(self.m_ownerID, block, &memberNum, &vector2) == 0 { return TASK_FAILED }
+            if self.GetFloat(self.m_ownerID, block, &memberNum, &fVal2) == 0 { return TASK_FAILED }
+
+            if self.GetFloat(self.m_ownerID, block, &memberNum, &fVal3) == 0 { return TASK_FAILED }
+
+            (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d camera( FADE, <%f %f %f>, %f, <%f %f %f>, %f, %f); [%d]", self.m_ownerID, vector[0], vector[1], vector[2], fVal, vector2[0], vector2[1], vector2[2], fVal2, fVal3, task!.GetTimeStamp())
+            ie!.I_CameraFade!(vector[0], vector[1], vector[2], fVal, vector2[0], vector2[1], vector2[2], fVal2, fVal3)
+
+        case TYPE_PATH:
+            if self.Get(self.m_ownerID, block, &memberNum, &sVal) == 0 { return TASK_FAILED }
+
+            (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d camera( PATH, \"%s\"); [%d]", self.m_ownerID, sVal, task!.GetTimeStamp())
+            ie!.I_CameraPath!(sVal)
+
+        case TYPE_ENABLE:
+            (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d camera( ENABLE ); [%d]", self.m_ownerID, task!.GetTimeStamp())
+            ie!.I_CameraEnable!()
+
+        case TYPE_DISABLE:
+            (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d camera( DISABLE ); [%d]", self.m_ownerID, task!.GetTimeStamp())
+            ie!.I_CameraDisable!()
+
+        case TYPE_SHAKE:
+            if self.GetFloat(self.m_ownerID, block, &memberNum, &fVal) == 0 { return TASK_FAILED }
+            if self.GetFloat(self.m_ownerID, block, &memberNum, &fVal2) == 0 { return TASK_FAILED }
+
+            (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d camera( SHAKE, %f, %f ); [%d]", self.m_ownerID, fVal, fVal2, task!.GetTimeStamp())
+            ie!.I_CameraShake!(fVal, Int32(fVal2))
+
+        default:
+            break
+        }
+
+        self.Completed(task!.GetGUID())
+
+        return TASK_OK
     }
 
     /**
@@ -760,11 +1239,40 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1425
-    // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
     @discardableResult
     private func Move(_ task: CTask?) -> Int32 {
-        // TODO: Port CTaskManager::Move
-        portMissing("CTaskManager::Move", source: "oracle/codemp/icarus/TaskManager.cpp:1425")
+        var vector = vec3_t()
+        var vector2 = vec3_t()
+        let block: CBlock? = task!.GetBlock()
+        var duration: Float = 0
+        var memberNum: Int32 = 0
+
+        //Get the goal position
+        // ICARUS_VALIDATE
+        if self.GetVector(self.m_ownerID, block, &memberNum, &vector) == 0 { return TASK_FAILED }
+
+        //Check for possible angles field
+        if self.GetVector(self.m_ownerID, block, &memberNum, &vector2) == 0 {
+            if self.GetFloat(self.m_ownerID, block, &memberNum, &duration) == 0 { return TASK_FAILED }
+
+
+            (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d move( <%f %f %f>, %f ); [%d]", self.m_ownerID, vector[0], vector[1], vector[2], duration, task!.GetTimeStamp())
+            // Raven passes NULL for the angles.
+            var noAngles: vec3_t? = nil
+            (self.m_owner!.GetInterface())!.I_Lerp2Pos!(task!.GetGUID(), self.m_ownerID, &vector, &noAngles, duration)
+
+            return TASK_OK
+        }
+
+        //Get the duration and make the call
+        if self.GetFloat(self.m_ownerID, block, &memberNum, &duration) == 0 { return TASK_FAILED }
+
+        (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d move( <%f %f %f>, <%f %f %f>, %f ); [%d]", self.m_ownerID, vector[0], vector[1], vector[2], vector2[0], vector2[1], vector2[2], duration, task!.GetTimeStamp())
+        // The angles parameter of I_Lerp2Pos is an optional vector, so the call passes vector2 in an optional.
+        var angles: vec3_t? = vector2
+        (self.m_owner!.GetInterface())!.I_Lerp2Pos!(task!.GetGUID(), self.m_ownerID, &vector, &angles, duration)
+
+        return TASK_OK
     }
 
     /**
@@ -775,11 +1283,21 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1462
-    // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
     @discardableResult
     private func Kill(_ task: CTask?) -> Int32 {
-        // TODO: Port CTaskManager::Kill
-        portMissing("CTaskManager::Kill", source: "oracle/codemp/icarus/TaskManager.cpp:1462")
+        let block: CBlock? = task!.GetBlock()
+        var sVal = ""
+        var memberNum: Int32 = 0
+
+        // ICARUS_VALIDATE
+        if self.Get(self.m_ownerID, block, &memberNum, &sVal) == 0 { return TASK_FAILED }
+
+        (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d kill( \"%s\" ); [%d]", self.m_ownerID, sVal, task!.GetTimeStamp())
+        (self.m_owner!.GetInterface())!.I_Kill!(self.m_ownerID, sVal)
+
+        self.Completed(task!.GetGUID())
+
+        return TASK_OK
     }
 
     /**
@@ -790,11 +1308,21 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1484
-    // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
     @discardableResult
     private func Set(_ task: CTask?) -> Int32 {
-        // TODO: Port CTaskManager::Set
-        portMissing("CTaskManager::Set", source: "oracle/codemp/icarus/TaskManager.cpp:1484")
+        let block: CBlock? = task!.GetBlock()
+        var sVal = ""
+        var sVal2 = ""
+        var memberNum: Int32 = 0
+
+        // ICARUS_VALIDATE
+        if self.Get(self.m_ownerID, block, &memberNum, &sVal) == 0 { return TASK_FAILED }
+        if self.Get(self.m_ownerID, block, &memberNum, &sVal2) == 0 { return TASK_FAILED }
+
+        (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d set( \"%s\", \"%s\" ); [%d]", self.m_ownerID, sVal, sVal2, task!.GetTimeStamp())
+        (self.m_owner!.GetInterface())!.I_Set!(task!.GetGUID(), self.m_ownerID, sVal, sVal2)
+
+        return TASK_OK
     }
 
     /**
@@ -805,11 +1333,21 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1505
-    // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
     @discardableResult
     private func Use(_ task: CTask?) -> Int32 {
-        // TODO: Port CTaskManager::Use
-        portMissing("CTaskManager::Use", source: "oracle/codemp/icarus/TaskManager.cpp:1505")
+        let block: CBlock? = task!.GetBlock()
+        var sVal = ""
+        var memberNum: Int32 = 0
+
+        // ICARUS_VALIDATE
+        if self.Get(self.m_ownerID, block, &memberNum, &sVal) == 0 { return TASK_FAILED }
+
+        (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d use( \"%s\" ); [%d]", self.m_ownerID, sVal, task!.GetTimeStamp())
+        (self.m_owner!.GetInterface())!.I_Use!(self.m_ownerID, sVal)
+
+        self.Completed(task!.GetGUID())
+
+        return TASK_OK
     }
 
     /**
@@ -820,11 +1358,23 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1527
-    // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
     @discardableResult
     private func DeclareVariable(_ task: CTask?) -> Int32 {
-        // TODO: Port CTaskManager::DeclareVariable
-        portMissing("CTaskManager::DeclareVariable", source: "oracle/codemp/icarus/TaskManager.cpp:1527")
+        let block: CBlock? = task!.GetBlock()
+        var sVal = ""
+        var memberNum: Int32 = 0
+        var fVal: Float = 0
+
+        // ICARUS_VALIDATE
+        if self.GetFloat(self.m_ownerID, block, &memberNum, &fVal) == 0 { return TASK_FAILED }
+        if self.Get(self.m_ownerID, block, &memberNum, &sVal) == 0 { return TASK_FAILED }
+
+        (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d declare( %d, \"%s\" ); [%d]", self.m_ownerID, Int32(fVal), sVal, task!.GetTimeStamp())
+        (self.m_owner!.GetInterface())!.I_DeclareVariable!(Int32(fVal), sVal)
+
+        self.Completed(task!.GetGUID())
+
+        return TASK_OK
     }
 
     /**
@@ -835,11 +1385,21 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1552
-    // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
     @discardableResult
     private func FreeVariable(_ task: CTask?) -> Int32 {
-        // TODO: Port CTaskManager::FreeVariable
-        portMissing("CTaskManager::FreeVariable", source: "oracle/codemp/icarus/TaskManager.cpp:1552")
+        let block: CBlock? = task!.GetBlock()
+        var sVal = ""
+        var memberNum: Int32 = 0
+
+        // ICARUS_VALIDATE
+        if self.Get(self.m_ownerID, block, &memberNum, &sVal) == 0 { return TASK_FAILED }
+
+        (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d free( \"%s\" ); [%d]", self.m_ownerID, sVal, task!.GetTimeStamp())
+        (self.m_owner!.GetInterface())!.I_FreeVariable!(sVal)
+
+        self.Completed(task!.GetGUID())
+
+        return TASK_OK
     }
 
     /**
@@ -850,11 +1410,21 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1575
-    // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
     @discardableResult
     private func Signal(_ task: CTask?) -> Int32 {
-        // TODO: Port CTaskManager::Signal
-        portMissing("CTaskManager::Signal", source: "oracle/codemp/icarus/TaskManager.cpp:1575")
+        let block: CBlock? = task!.GetBlock()
+        var sVal = ""
+        var memberNum: Int32 = 0
+
+        // ICARUS_VALIDATE
+        if self.Get(self.m_ownerID, block, &memberNum, &sVal) == 0 { return TASK_FAILED }
+
+        (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d signal( \"%s\" ); [%d]", self.m_ownerID, sVal, task!.GetTimeStamp())
+        (self.m_owner!.GetOwner())!.Signal(sVal)
+
+        self.Completed(task!.GetGUID())
+
+        return TASK_OK
     }
 
     /**
@@ -865,11 +1435,21 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1597
-    // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
     @discardableResult
     private func Play(_ task: CTask?) -> Int32 {
-        // TODO: Port CTaskManager::Play
-        portMissing("CTaskManager::Play", source: "oracle/codemp/icarus/TaskManager.cpp:1597")
+        let block: CBlock? = task!.GetBlock()
+        var sVal = ""
+        var sVal2 = ""
+        var memberNum: Int32 = 0
+
+        // ICARUS_VALIDATE
+        if self.Get(self.m_ownerID, block, &memberNum, &sVal) == 0 { return TASK_FAILED }
+        if self.Get(self.m_ownerID, block, &memberNum, &sVal2) == 0 { return TASK_FAILED }
+
+        (self.m_owner!.GetInterface())!.I_DPrintf!(WL_DEBUG, "%4d play( \"%s\", \"%s\" ); [%d]", self.m_ownerID, sVal, sVal2, task!.GetTimeStamp())
+        (self.m_owner!.GetInterface())!.I_Play!(task!.GetGUID(), self.m_ownerID, sVal, sVal2)
+
+        return TASK_OK
     }
 
     /**
@@ -881,7 +1461,7 @@ final class CTaskManager {
     */
     //FIXME: ARGH!  This is duplicated from CSequence because I can't directly link it any other way...
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1620
-    // Port-note: Each call of the body goes through `interface_export_t`, which has no Swift form, so the body waits for that row.
+    // Port-note: Rule 20. The one caller is CTaskManager::Save, and Raven compiles that call out with `#if 0` at TaskManager.cpp:1665, so the function keeps its marker.
     private func SaveCommand(_ block: CBlock?) -> Int32 {
         // TODO: Port CTaskManager::SaveCommand
         portMissing("CTaskManager::SaveCommand", source: "oracle/codemp/icarus/TaskManager.cpp:1620")

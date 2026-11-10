@@ -113,8 +113,12 @@ final class CSequencer {
     /// Source: oracle/codemp/icarus/Sequencer.cpp:56
     @discardableResult
     func Init(_ ownerID: Int32, _ ie: interface_export_t?, _ taskManager: CTaskManager?, _ iICARUS: ICARUS_Instance?) -> Int32 {
-        // TODO: Port CSequencer::Init
-        portMissing("CSequencer::Init", source: "oracle/codemp/icarus/Sequencer.cpp:56")
+        self.m_ownerID = ownerID
+        self.m_owner = iICARUS
+        self.m_taskManager = taskManager
+        self.m_ie = ie
+
+        return SEQ_OK
     }
 
     /**
@@ -379,9 +383,7 @@ final class CSequencer {
 
         //Open the stream as an IBI stream
         if blockStream!.stream!.Open(buffer, size) == 0 {
-            // Port-note: The call goes through `m_ie`, and `interface_export_t` has no Swift form.
-            // Raven wrote: m_ie->I_DPrintf( WL_ERROR, "invalid stream" );
-            portMissing("CSequencer::Run", source: "oracle/codemp/icarus/Sequencer.cpp:308")
+            self.m_ie!.I_DPrintf!(WL_ERROR, "invalid stream")
             return SEQ_FAILED
         }
 
@@ -406,10 +408,53 @@ final class CSequencer {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:344
-    // Port-note: The body reads block member data, which waits for the `m_data` row, and it calls through `m_ie`.
     private func ParseRun(_ block: CBlock?) -> Int32 {
-        // TODO: Port CSequencer::ParseRun
-        portMissing("CSequencer::ParseRun", source: "oracle/codemp/icarus/Sequencer.cpp:344")
+        var new_sequence: CSequence?
+        var new_stream: bstream_t?
+        var buffer = TextCursor()
+        var newname = CharBuf(MAX_STRING_SIZE)
+        var buffer_size: Int32
+
+        //Get the name and format it
+        // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+        var runName = CharBuf(block!.GetMember(0)!.GetSize())
+        Com_Memcpy(&runName, block!.GetMemberData(0)!, runName.count)
+        self.StripExtension(String(runName), &newname)
+
+        //Get the file from the game engine
+        buffer_size = self.m_ie!.I_LoadFile!(String(newname), &buffer)
+
+        if buffer_size <= 0 {
+            self.m_ie!.I_DPrintf!(WL_ERROR, "'%s' : could not open file\n", runName)
+            return SEQ_FAILED
+        }
+
+        //Create a new stream for this file
+        new_stream = self.AddStream()
+
+        //Begin streaming the file
+        if new_stream!.stream!.Open(buffer.buf, buffer_size) == 0 {
+            self.m_ie!.I_DPrintf!(WL_ERROR, "invalid stream")
+            return SEQ_FAILED
+        }
+
+        //Create a new sequence
+        new_sequence = self.AddSequence(self.m_curSequence, self.m_curSequence, (SQ_RUN | SQ_PENDING))
+
+        self.m_curSequence!.AddChild(new_sequence)
+
+        // Interpret the command blocks and route them properly
+        if S_FAILED(self.Route(new_sequence, new_stream)) {
+            //Error code is set inside of Route()
+            return SEQ_FAILED
+        }
+
+        self.m_curSequence = self.m_curSequence!.GetReturn()
+
+        block!.Write(TK_FLOAT, Float(new_sequence!.GetID()))
+        self.PushCommand(block, PUSH_FRONT)
+
+        return SEQ_OK
     }
 
     /**
@@ -429,9 +474,7 @@ final class CSequencer {
         sequence = self.AddSequence(self.m_curSequence, self.m_curSequence, SQ_CONDITIONAL)
 
         if sequence == nil {
-            // Port-note: The call goes through `m_ie`, and `interface_export_t` has no Swift form.
-            // Raven wrote: m_ie->I_DPrintf( WL_ERROR, "ParseIf: failed to allocate container sequence" );
-            portMissing("CSequencer::ParseIf", source: "oracle/codemp/icarus/Sequencer.cpp:410")
+            self.m_ie!.I_DPrintf!(WL_ERROR, "ParseIf: failed to allocate container sequence")
             return SEQ_FAILED
         }
 
@@ -471,9 +514,7 @@ final class CSequencer {
         sequence = self.AddSequence(self.m_curSequence, self.m_curSequence, SQ_CONDITIONAL)
 
         if sequence == nil {
-            // Port-note: The call goes through `m_ie`, and `interface_export_t` has no Swift form.
-            // Raven wrote: m_ie->I_DPrintf( WL_ERROR, "ParseIf: failed to allocate container sequence" );
-            portMissing("CSequencer::ParseElse", source: "oracle/codemp/icarus/Sequencer.cpp:451")
+            self.m_ie!.I_DPrintf!(WL_ERROR, "ParseIf: failed to allocate container sequence")
             return SEQ_FAILED
         }
 
@@ -482,9 +523,7 @@ final class CSequencer {
         //Add a unique conditional identifier to the block for reference later
         //TODO: Emit warning
         if self.m_elseOwner == nil {
-            // Port-note: The call goes through `m_ie`, and `interface_export_t` has no Swift form.
-            // Raven wrote: m_ie->I_DPrintf( WL_ERROR, "Invalid 'else' found!\n" );
-            portMissing("CSequencer::ParseElse", source: "oracle/codemp/icarus/Sequencer.cpp:451")
+            self.m_ie!.I_DPrintf!(WL_ERROR, "Invalid 'else' found!\n")
             return SEQ_FAILED
         }
 
@@ -511,10 +550,52 @@ final class CSequencer {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:500
-    // Port-note: The body reads block member data, which waits for the `m_data` row, and it calls through `m_ie`.
     private func ParseLoop(_ block: CBlock?, _ bstream: bstream_t?) -> Int32 {
-        // TODO: Port CSequencer::ParseLoop
-        portMissing("CSequencer::ParseLoop", source: "oracle/codemp/icarus/Sequencer.cpp:500")
+        var sequence: CSequence?
+        var bm: CBlockMember?
+        let min: Float
+        let max: Float
+        var rIter: Int32
+        var memberNum: Int32 = 0
+
+        //Set the parent
+        sequence = self.AddSequence(self.m_curSequence, self.m_curSequence, (SQ_LOOP | SQ_RETAIN))
+
+        if sequence == nil {
+            self.m_ie!.I_DPrintf!(WL_ERROR, "ParseLoop : failed to allocate container sequence")
+            return SEQ_FAILED
+        }
+
+        self.m_curSequence!.AddChild(sequence)
+
+        //Set the number of iterations of this sequence
+
+        bm = block!.GetMember(memberNum)
+        memberNum += 1
+
+        if bm!.GetID() == ID_RANDOM {
+            //Parse out the random number
+            min = block!.GetMemberData(memberNum)![float: 0]
+            memberNum += 1
+            max = block!.GetMemberData(memberNum)![float: 0]
+            memberNum += 1
+
+            rIter = Int32(self.m_ie!.I_Random!(min, max))
+            sequence!.SetIterations(rIter)
+        } else {
+            sequence!.SetIterations(Int32(bm!.GetData()![float: 0]))
+        }
+
+        //Add a unique loop identifier to the block for reference later
+        block!.Write(TK_FLOAT, Float(sequence!.GetID()))
+
+        //Push this onto the stack to mark the loop entrance
+        self.PushCommand(block, PUSH_FRONT)
+
+        //Recursively obtain the loop
+        self.Route(sequence, bstream)
+
+        return SEQ_OK
     }
 
     /**
@@ -565,10 +646,118 @@ final class CSequencer {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:597
-    // Port-note: The body reads block member data, which waits for the `m_data` row, and it calls through `m_ie`.
     private func ParseAffect(_ block: CBlock?, _ bstream: bstream_t?) -> Int32 {
-        // TODO: Port CSequencer::ParseAffect
-        portMissing("CSequencer::ParseAffect", source: "oracle/codemp/icarus/Sequencer.cpp:597")
+        var stream_sequencer: CSequencer? = nil
+        var entname: CharBuf
+        var ret: Int32 = 0
+        var ent: JKAMP.SharedEntity? = nil
+
+        // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+        entname = CharBuf(block!.GetMember(0)!.GetSize())
+        Com_Memcpy(&entname, block!.GetMemberData(0)!, entname.count)
+        ent = self.m_ie!.I_GetEntityByName!(String(entname))
+
+        if ent == nil { // if there wasn't a valid entname in the affect, we need to check if it's a get command
+            //try to parse a 'get' command that is embeded in this 'affect'
+
+            var id: Int32
+            var p1: String? = nil
+            var name: CharBuf
+            var bm: CBlockMember? = nil
+            //
+            //	Get the first parameter (this should be the get)
+            //
+            bm = block!.GetMember(0)
+            id = bm!.GetID()
+
+            switch id {
+            // these 3 cases probably aren't necessary
+            case TK_STRING, TK_IDENTIFIER, TK_CHAR:
+                // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+                var p1Text = CharBuf(bm!.GetSize())
+                Com_Memcpy(&p1Text, bm!.GetData()!, p1Text.count)
+                p1 = String(p1Text)
+
+            case ID_GET:
+                var type: Int32
+
+                //get( TYPE, NAME )
+                type = Int32(block!.GetMemberData(1)![float: 0])
+                // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+                name = CharBuf(block!.GetMember(2)!.GetSize())
+                Com_Memcpy(&name, block!.GetMemberData(2)!, name.count)
+
+                switch type { // what type are they attempting to get
+
+                case TK_STRING:
+                    //only string is acceptable for affect, store result in p1
+                    // Raven's p1 is NULL here, and I_GetString sets it on success, so the call fills a text local first.
+                    var p1Value = ""
+                    if self.m_ie!.I_GetString!(self.m_ownerID, type, String(name), &p1Value) == 0 {
+                        return 0
+                    }
+                    p1 = p1Value
+
+                default:
+                    //FIXME: Make an enum id for the error...
+                    self.m_ie!.I_DPrintf!(WL_ERROR, "Invalid parameter type on affect _1")
+                    return 0
+                }
+
+            default:
+                //FIXME: Make an enum id for the error...
+                self.m_ie!.I_DPrintf!(WL_ERROR, "Invalid parameter type on affect _2")
+                return 0
+            }//end id switch
+
+            if p1 != nil {
+                ent = self.m_ie!.I_GetEntityByName!(p1!)
+            }
+            if ent == nil {	// a valid entity name was not returned from the get command
+                // Port-note: Rule 19. Raven passes no argument for the `%s`, so his vsprintf reads an unset stack word.
+                // The port passes "(null)", the text his vsprintf prints for a NULL text.
+                self.m_ie!.I_DPrintf!(WL_WARNING, "'%s' : invalid affect() target\n", "(null)")
+            }
+
+        } // end if(!ent)
+
+        if ent != nil {
+            stream_sequencer = gSequencers[ent!.s.number]//ent->sequencer;
+        }
+
+        if stream_sequencer == nil {
+            self.m_ie!.I_DPrintf!(WL_WARNING, "'%s' : invalid affect() target\n", entname)
+
+            //Fast-forward out of this affect block onto the next valid code
+            let backSeq: CSequence? = self.m_curSequence
+
+            let trashSeq: CSequence? = self.m_owner!.GetSequence()
+            self.Route(trashSeq, bstream)
+            self.Recall()
+            self.DestroySequence(trashSeq)
+            self.m_curSequence = backSeq
+            return SEQ_OK
+        }
+
+        if S_FAILED(stream_sequencer!.AddAffect(bstream, Int32(self.m_curSequence!.HasFlag(SQ_RETAIN)), &ret)) {
+            return SEQ_FAILED
+        }
+
+        //Hold onto the id for later use
+        //FIXME: If the target sequence is freed, what then?		(!suspect!)
+
+        block!.Write(TK_FLOAT, Float(ret))
+
+        self.PushCommand(block, PUSH_FRONT)
+        /*
+        //Don't actually do these right now, we're just pre-processing (parsing) the affect
+        if( ent )
+        {	// ents need to update upon being affected
+            ent->taskManager->Update();
+        }
+        */
+
+        return SEQ_OK
     }
 
     /**
@@ -579,10 +768,40 @@ final class CSequencer {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:734
-    // Port-note: The body reads the task name as block member data, which waits for the `m_data` row, and it calls through `m_ie`.
     private func ParseTask(_ block: CBlock?, _ bstream: bstream_t?) -> Int32 {
-        // TODO: Port CSequencer::ParseTask
-        portMissing("CSequencer::ParseTask", source: "oracle/codemp/icarus/Sequencer.cpp:734")
+        var sequence: CSequence?
+        var group: CTaskGroup?
+
+        //Setup the container sequence
+        sequence = self.AddSequence(self.m_curSequence, self.m_curSequence, SQ_TASK | SQ_RETAIN)
+        self.m_curSequence!.AddChild(sequence)
+
+        //Get the name of this task for reference later
+        // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+        var taskName = CharBuf(block!.GetMember(0)!.GetSize())
+        Com_Memcpy(&taskName, block!.GetMemberData(0)!, taskName.count)
+
+        //Get a new task group from the task manager
+        group = self.m_taskManager!.AddTaskGroup(String(taskName))
+
+        if group == nil {
+            self.m_ie!.I_DPrintf!(WL_ERROR, "error : unable to allocate a new task group")
+            return SEQ_FAILED
+        }
+
+        //The current group is set to this group, all subsequent commands (until a block end) will fall into this task group
+        group!.SetParent(self.m_curGroup)
+        self.m_curGroup = group
+
+        //Keep an association between this task and the container sequence
+        self.AddTaskSequence(sequence, group)
+
+        //PushCommand( block, PUSH_FRONT );
+
+        //Recursively obtain the loop
+        self.Route(sequence, bstream)
+
+        return SEQ_OK
     }
 
     /**
@@ -672,9 +891,7 @@ final class CSequencer {
 
                 //TODO: Emit warning
                 if self.m_elseValid == 0 {
-                    // Port-note: The call goes through `m_ie`, and `interface_export_t` has no Swift form.
-                    // Raven wrote: m_ie->I_DPrintf( WL_ERROR, "Invalid 'else' found!\n" );
-                    portMissing("CSequencer::Route", source: "oracle/codemp/icarus/Sequencer.cpp:787")
+                    self.m_ie!.I_DPrintf!(WL_ERROR, "Invalid 'else' found!\n")
                     return SEQ_FAILED
                 }
 
@@ -697,9 +914,7 @@ final class CSequencer {
             //Error
             default:
 
-                // Port-note: The call goes through `m_ie`, and `interface_export_t` has no Swift form.
-                // Raven wrote: m_ie->I_DPrintf( WL_ERROR, "'%d' : invalid block ID", block->GetBlockID() );
-                portMissing("CSequencer::Route", source: "oracle/codemp/icarus/Sequencer.cpp:787")
+                self.m_ie!.I_DPrintf!(WL_ERROR, "'%d' : invalid block ID", block!.GetBlockID())
 
                 return SEQ_FAILED
             }
@@ -745,10 +960,68 @@ final class CSequencer {
     */
     //Directly changes the parameter to avoid excess push/pop
     /// Source: oracle/codemp/icarus/Sequencer.cpp:961
-    // Port-note: The body reads block member data, which waits for the `m_data` row, and it calls through `m_ie`.
     private func CheckRun(_ command: inout CBlock?) {
-        // TODO: Port CSequencer::CheckRun
-        portMissing("CSequencer::CheckRun", source: "oracle/codemp/icarus/Sequencer.cpp:961")
+        let block: CBlock? = command
+
+        if block == nil {
+            return
+        }
+
+        //Check for a run command
+        if block!.GetBlockID() == ID_RUN {
+            let id = Int32(block!.GetMemberData(1)![float: 0])
+
+            // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+            var runName = CharBuf(block!.GetMember(0)!.GetSize())
+            Com_Memcpy(&runName, block!.GetMemberData(0)!, runName.count)
+            // Port-note: Raven prints the `DWORD` of I_GetTime with `%d`, and the format takes no UInt32, so the call needs a conversion Raven did not write.
+            // Raven wrote: m_ie->I_DPrintf( WL_DEBUG, "%4d run( \"%s\" ); [%d]", m_ownerID, (char *) block->GetMemberData(0), m_ie->I_GetTime() );
+            portMissing("CSequencer::CheckRun", source: "oracle/codemp/icarus/Sequencer.cpp:961")
+
+            if self.m_curSequence!.HasFlag(SQ_RETAIN) != 0 {
+                self.PushCommand(block, PUSH_FRONT)
+            } else {
+                command = nil
+            }
+
+            self.m_curSequence = self.GetSequence(id)
+
+            //TODO: Emit warning
+            if self.m_curSequence == nil {
+                self.m_ie!.I_DPrintf!(WL_ERROR, "Unable to find 'run' sequence!\n")
+                command = nil
+                return
+            }
+
+            if self.m_curSequence!.GetNumCommands() > 0 {
+                command = self.PopCommand(POP_BACK)
+
+                self.Prep(&command)	//Account for any other pre-processes
+                return
+            }
+
+            return
+        }
+
+        //Check for the end of a run
+        if (block!.GetBlockID() == ID_BLOCK_END) && (self.m_curSequence!.HasFlag(SQ_RUN) != 0) {
+            if self.m_curSequence!.HasFlag(SQ_RETAIN) != 0 {
+                self.PushCommand(block, PUSH_FRONT)
+            } else {
+                command = nil
+            }
+
+            self.m_curSequence = self.ReturnSequence(self.m_curSequence)
+
+            if self.m_curSequence != nil && self.m_curSequence!.GetNumCommands() > 0 {
+                command = self.PopCommand(POP_BACK)
+
+                self.Prep(&command)	//Account for any other pre-processes
+                return
+            }
+
+            //FIXME: Check this...
+        }
     }
 
     /**
@@ -760,10 +1033,330 @@ final class CSequencer {
     */
     //FIXME: This function will be written better later once the functionality of the ideas here are tested
     /// Source: oracle/codemp/icarus/Sequencer.cpp:1045
-    // Port-note: The body reads block member data, which waits for the `m_data` row, and it calls through `m_ie`.
     private func EvaluateConditional(_ block: CBlock?) -> Int32 {
-        // TODO: Port CSequencer::EvaluateConditional
-        portMissing("CSequencer::EvaluateConditional", source: "oracle/codemp/icarus/Sequencer.cpp:1045")
+        var bm: CBlockMember?
+        var tempString1 = CharBuf(128)
+        var tempString2 = CharBuf(128)
+        var vec = vec3_t()
+        var id: Int32
+        var i: Int32
+        var oper: Int32
+        var memberNum: Int32 = 0
+        var p1: String? = nil
+        var p2: String? = nil
+        var t1: Int32
+        var t2: Int32
+
+        //
+        //	Get the first parameter
+        //
+
+        bm = block!.GetMember(memberNum)
+        memberNum += 1
+        id = bm!.GetID()
+        t1 = id
+
+        switch id {
+        case TK_FLOAT:
+            // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of the buffer.
+            Com_sprintf(&tempString1, 128, "%.3f", bm!.GetData()![float: 0])
+            p1 = String(tempString1)
+
+        case TK_VECTOR:
+
+            tempString1[0] = 0
+
+            i = 0
+            while i < 3 {
+                bm = block!.GetMember(memberNum)
+                memberNum += 1
+                vec[i] = bm!.GetData()![float: 0]
+                i += 1
+            }
+
+            // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of the buffer.
+            Com_sprintf(&tempString1, 128, "%.3f %.3f %.3f", vec[0], vec[1], vec[2])
+            p1 = String(tempString1)
+
+        case TK_STRING, TK_IDENTIFIER, TK_CHAR:
+
+            // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+            var p1Text = CharBuf(bm!.GetSize())
+            Com_Memcpy(&p1Text, bm!.GetData()!, p1Text.count)
+            p1 = String(p1Text)
+
+        case ID_GET:
+            var type: Int32
+            var name: CharBuf
+
+            //get( TYPE, NAME )
+            type = Int32(block!.GetMemberData(memberNum)![float: 0])
+            memberNum += 1
+            // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+            name = CharBuf(block!.GetMember(memberNum)!.GetSize())
+            Com_Memcpy(&name, block!.GetMemberData(memberNum)!, name.count)
+            memberNum += 1
+
+            //Get the type returned and hold onto it
+            t1 = type
+
+            switch type {
+            case TK_FLOAT:
+                var fVal: Float = 0
+
+                if self.m_ie!.I_GetFloat!(self.m_ownerID, type, String(name), &fVal) == 0 {
+                    return 0
+                }
+
+                // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of the buffer.
+                Com_sprintf(&tempString1, 128, "%.3f", fVal)
+                p1 = String(tempString1)
+
+            case TK_INT:
+                var fVal: Float = 0
+
+                if self.m_ie!.I_GetFloat!(self.m_ownerID, type, String(name), &fVal) == 0 {
+                    return 0
+                }
+
+                // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of the buffer.
+                Com_sprintf(&tempString1, 128, "%d", Int32(fVal))
+                p1 = String(tempString1)
+
+            case TK_STRING:
+
+                // Raven's p1 is NULL here, and I_GetString sets it on success, so the call fills a text local first.
+                var p1Value = ""
+                if self.m_ie!.I_GetString!(self.m_ownerID, type, String(name), &p1Value) == 0 {
+                    return 0
+                }
+                p1 = p1Value
+
+            case TK_VECTOR:
+                var vVal = vec3_t()
+
+                if self.m_ie!.I_GetVector!(self.m_ownerID, type, String(name), &vVal) == 0 {
+                    return 0
+                }
+
+                // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of the buffer.
+                Com_sprintf(&tempString1, 128, "%.3f %.3f %.3f", vVal[0], vVal[1], vVal[2])
+                p1 = String(tempString1)
+
+            default:
+                break
+            }
+
+        case ID_RANDOM:
+            let min: Float
+            let max: Float
+            //FIXME: This will not account for nested random() statements
+
+            min = block!.GetMemberData(memberNum)![float: 0]
+            memberNum += 1
+            max = block!.GetMemberData(memberNum)![float: 0]
+            memberNum += 1
+
+            //A float value is returned from the function
+            t1 = TK_FLOAT
+
+            // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of the buffer.
+            Com_sprintf(&tempString1, 128, "%.3f", self.m_ie!.I_Random!(min, max))
+            p1 = String(tempString1)
+
+        case ID_TAG:
+            var name: CharBuf
+            let type: Float
+
+            // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+            name = CharBuf(block!.GetMember(memberNum)!.GetSize())
+            Com_Memcpy(&name, block!.GetMemberData(memberNum)!, name.count)
+            memberNum += 1
+            type = block!.GetMemberData(memberNum)![float: 0]
+            memberNum += 1
+
+            t1 = TK_VECTOR
+
+            //TODO: Emit warning
+            if self.m_ie!.I_GetTag!(self.m_ownerID, String(name), Int32(type), &vec) == 0 {
+                self.m_ie!.I_DPrintf!(WL_ERROR, "Unable to find tag \"%s\"!\n", name)
+                return 0
+            }
+
+            // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of the buffer.
+            Com_sprintf(&tempString1, 128, "%.3f %.3f %.3f", vec[0], vec[1], vec[2])
+            p1 = String(tempString1)
+
+        default:
+            //FIXME: Make an enum id for the error...
+            self.m_ie!.I_DPrintf!(WL_ERROR, "Invalid parameter type on conditional")
+            return 0
+        }
+
+        //
+        //	Get the comparison operator
+        //
+
+        bm = block!.GetMember(memberNum)
+        memberNum += 1
+        id = bm!.GetID()
+
+        switch id {
+        case TK_EQUALS, TK_GREATER_THAN, TK_LESS_THAN, TK_NOT:
+            oper = id
+
+        default:
+            self.m_ie!.I_DPrintf!(WL_ERROR, "Invalid operator type found on conditional!\n")
+            return 0	//FIXME: Emit warning
+        }
+
+        //
+        //	Get the second parameter
+        //
+
+        bm = block!.GetMember(memberNum)
+        memberNum += 1
+        id = bm!.GetID()
+        t2 = id
+
+        switch id {
+        case TK_FLOAT:
+            // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of the buffer.
+            Com_sprintf(&tempString2, 128, "%.3f", bm!.GetData()![float: 0])
+            p2 = String(tempString2)
+
+        case TK_VECTOR:
+
+            tempString2[0] = 0
+
+            i = 0
+            while i < 3 {
+                bm = block!.GetMember(memberNum)
+                memberNum += 1
+                vec[i] = bm!.GetData()![float: 0]
+                i += 1
+            }
+
+            // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of the buffer.
+            Com_sprintf(&tempString2, 128, "%.3f %.3f %.3f", vec[0], vec[1], vec[2])
+            p2 = String(tempString2)
+
+        case TK_STRING, TK_IDENTIFIER, TK_CHAR:
+
+            // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+            var p2Text = CharBuf(bm!.GetSize())
+            Com_Memcpy(&p2Text, bm!.GetData()!, p2Text.count)
+            p2 = String(p2Text)
+
+        case ID_GET:
+            var type: Int32
+            var name: CharBuf
+
+            //get( TYPE, NAME )
+            type = Int32(block!.GetMemberData(memberNum)![float: 0])
+            memberNum += 1
+            // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+            name = CharBuf(block!.GetMember(memberNum)!.GetSize())
+            Com_Memcpy(&name, block!.GetMemberData(memberNum)!, name.count)
+            memberNum += 1
+
+            //Get the type returned and hold onto it
+            t2 = type
+
+            switch type {
+            case TK_FLOAT:
+                var fVal: Float = 0
+
+                if self.m_ie!.I_GetFloat!(self.m_ownerID, type, String(name), &fVal) == 0 {
+                    return 0
+                }
+
+                // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of the buffer.
+                Com_sprintf(&tempString2, 128, "%.3f", fVal)
+                p2 = String(tempString2)
+
+            case TK_INT:
+                var fVal: Float = 0
+
+                if self.m_ie!.I_GetFloat!(self.m_ownerID, type, String(name), &fVal) == 0 {
+                    return 0
+                }
+
+                // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of the buffer.
+                Com_sprintf(&tempString2, 128, "%d", Int32(fVal))
+                p2 = String(tempString2)
+
+            case TK_STRING:
+
+                // Raven's p2 is NULL here, and I_GetString sets it on success, so the call fills a text local first.
+                var p2Value = ""
+                if self.m_ie!.I_GetString!(self.m_ownerID, type, String(name), &p2Value) == 0 {
+                    return 0
+                }
+                p2 = p2Value
+
+            case TK_VECTOR:
+                var vVal = vec3_t()
+
+                if self.m_ie!.I_GetVector!(self.m_ownerID, type, String(name), &vVal) == 0 {
+                    return 0
+                }
+
+                // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of the buffer.
+                Com_sprintf(&tempString2, 128, "%.3f %.3f %.3f", vVal[0], vVal[1], vVal[2])
+                p2 = String(tempString2)
+
+            default:
+                break
+            }
+
+        case ID_RANDOM:
+            let min: Float
+            let max: Float
+            //FIXME: This will not account for nested random() statements
+
+            min = block!.GetMemberData(memberNum)![float: 0]
+            memberNum += 1
+            max = block!.GetMemberData(memberNum)![float: 0]
+            memberNum += 1
+
+            //A float value is returned from the function
+            t2 = TK_FLOAT
+
+            // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of the buffer.
+            Com_sprintf(&tempString2, 128, "%.3f", self.m_ie!.I_Random!(min, max))
+            p2 = String(tempString2)
+
+        case ID_TAG:
+            var name: CharBuf
+            let type: Float
+
+            // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+            name = CharBuf(block!.GetMember(memberNum)!.GetSize())
+            Com_Memcpy(&name, block!.GetMemberData(memberNum)!, name.count)
+            memberNum += 1
+            type = block!.GetMemberData(memberNum)![float: 0]
+            memberNum += 1
+
+            t2 = TK_VECTOR
+
+            //TODO: Emit warning
+            if self.m_ie!.I_GetTag!(self.m_ownerID, String(name), Int32(type), &vec) == 0 {
+                self.m_ie!.I_DPrintf!(WL_ERROR, "Unable to find tag \"%s\"!\n", name)
+                return 0
+            }
+
+            // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of the buffer.
+            Com_sprintf(&tempString2, 128, "%.3f %.3f %.3f", vec[0], vec[1], vec[2])
+            p2 = String(tempString2)
+
+        default:
+            //FIXME: Make an enum id for the error...
+            self.m_ie!.I_DPrintf!(WL_ERROR, "Invalid parameter type on conditional")
+            return 0
+        }
+
+        return self.m_ie!.I_Evaluate!(t1, p1!, t2, p2!, oper)
     }
 
     /**
@@ -776,10 +1369,118 @@ final class CSequencer {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:1385
-    // Port-note: The body reads block member data, which waits for the `m_data` row, and it calls through `m_ie`.
     private func CheckIf(_ command: inout CBlock?) {
-        // TODO: Port CSequencer::CheckIf
-        portMissing("CSequencer::CheckIf", source: "oracle/codemp/icarus/Sequencer.cpp:1385")
+        let block: CBlock? = command
+        var successID: Int32
+        var failureID: Int32
+        var successSeq: CSequence?
+        var failureSeq: CSequence?
+
+        if block == nil {
+            return
+        }
+
+        if block!.GetBlockID() == ID_IF {
+            let ret: Int32 = self.EvaluateConditional(block)
+
+            if ret != 0 /*TRUE*/ {
+                if block!.HasFlag(BF_ELSE) != 0 {
+                    successID = Int32(block!.GetMemberData(block!.GetNumMembers() - 2)![float: 0])
+                } else {
+                    successID = Int32(block!.GetMemberData(block!.GetNumMembers() - 1)![float: 0])
+                }
+
+                successSeq = self.GetSequence(successID)
+
+                //TODO: Emit warning
+                if successSeq == nil {
+                    self.m_ie!.I_DPrintf!(WL_ERROR, "Unable to find conditional success sequence!\n")
+                    command = nil
+                    return
+                }
+
+                //Only save the conditional statement if the calling sequence is retained
+                if self.m_curSequence!.HasFlag(SQ_RETAIN) != 0 {
+                    self.PushCommand(block, PUSH_FRONT)
+                } else {
+                    command = nil
+                }
+
+                self.m_curSequence = successSeq
+
+                //Recursively work out any other pre-processors
+                command = self.PopCommand(POP_BACK)
+                self.Prep(&command)
+
+                return
+            }
+
+            if (ret == 0) && (block!.HasFlag(BF_ELSE) != 0) {
+                failureID = Int32(block!.GetMemberData(block!.GetNumMembers() - 1)![float: 0])
+                failureSeq = self.GetSequence(failureID)
+
+                //TODO: Emit warning
+                if failureSeq == nil {
+                    self.m_ie!.I_DPrintf!(WL_ERROR, "Unable to find conditional failure sequence!\n")
+                    command = nil
+                    return
+                }
+
+                //Only save the conditional statement if the calling sequence is retained
+                if self.m_curSequence!.HasFlag(SQ_RETAIN) != 0 {
+                    self.PushCommand(block, PUSH_FRONT)
+                } else {
+                    command = nil
+                }
+
+                self.m_curSequence = failureSeq
+
+                //Recursively work out any other pre-processors
+                command = self.PopCommand(POP_BACK)
+                self.Prep(&command)
+
+                return
+            }
+
+            //Only save the conditional statement if the calling sequence is retained
+            if self.m_curSequence!.HasFlag(SQ_RETAIN) != 0 {
+                self.PushCommand(block, PUSH_FRONT)
+            } else {
+                command = nil
+            }
+
+            //Conditional failed, just move on to the next command
+            command = self.PopCommand(POP_BACK)
+            self.Prep(&command)
+
+            return
+        }
+
+        if (block!.GetBlockID() == ID_BLOCK_END) && (self.m_curSequence!.HasFlag(SQ_CONDITIONAL) != 0) {
+            if self.m_curSequence!.GetReturn() == nil {
+                command = nil
+                return
+            }
+
+            //Check to retain it
+            if self.m_curSequence!.GetParent()!.HasFlag(SQ_RETAIN) != 0 {
+                self.PushCommand(block, PUSH_FRONT)
+            } else {
+                command = nil
+            }
+
+            //Back out of the conditional and resume the previous sequence
+            self.m_curSequence = self.ReturnSequence(self.m_curSequence)
+
+            //This can safely happen
+            if self.m_curSequence == nil {
+                command = nil
+                return
+            }
+
+            command = self.PopCommand(POP_BACK)
+            self.Prep(&command)
+        }
     }
 
     /**
@@ -792,10 +1493,115 @@ final class CSequencer {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:1539
-    // Port-note: The body reads block member data, which waits for the `m_data` row, and it calls through `m_ie`.
     private func CheckLoop(_ command: inout CBlock?) {
-        // TODO: Port CSequencer::CheckLoop
-        portMissing("CSequencer::CheckLoop", source: "oracle/codemp/icarus/Sequencer.cpp:1539")
+        var bm: CBlockMember?
+        let block: CBlock? = command
+        let min: Float
+        let max: Float
+        var iterations: Int32
+        var loopID: Int32
+        var memberNum: Int32 = 0
+
+        if block == nil {
+            return
+        }
+
+        //Check for a loop
+        if block!.GetBlockID() == ID_LOOP {
+            //Get the loop ID
+            bm = block!.GetMember(memberNum)
+            memberNum += 1
+
+            if bm!.GetID() == ID_RANDOM {
+                //Parse out the random number
+                min = block!.GetMemberData(memberNum)![float: 0]
+                memberNum += 1
+                max = block!.GetMemberData(memberNum)![float: 0]
+                memberNum += 1
+
+                iterations = Int32(self.m_ie!.I_Random!(min, max))
+            } else {
+                iterations = Int32(bm!.GetData()![float: 0])
+            }
+
+            loopID = Int32(block!.GetMemberData(memberNum)![float: 0])
+            memberNum += 1
+
+            let loop: CSequence? = self.GetSequence(loopID)
+
+            //TODO: Emit warning
+            if loop == nil {
+                self.m_ie!.I_DPrintf!(WL_ERROR, "Unable to find 'loop' sequence!\n")
+                command = nil
+                return
+            }
+
+            if loop!.GetParent() == nil {
+                command = nil
+                return
+            }
+
+            //Restore the count if it has been lost
+            loop!.SetIterations(iterations)
+
+            //Only save the loop command if the calling sequence is retained
+            if self.m_curSequence!.HasFlag(SQ_RETAIN) != 0 {
+                self.PushCommand(block, PUSH_FRONT)
+            } else {
+                command = nil
+            }
+
+            self.m_curSequence = loop
+
+            //Recursively work out any other pre-processors
+            command = self.PopCommand(POP_BACK)
+            self.Prep(&command)
+
+            return
+        }
+
+        //Check for the end of the loop
+        if (block!.GetBlockID() == ID_BLOCK_END) && (self.m_curSequence!.HasFlag(SQ_LOOP) != 0) {
+            //We don't want to decrement -1
+            if self.m_curSequence!.GetIterations() > 0 {
+                self.m_curSequence!.SetIterations(self.m_curSequence!.GetIterations() - 1)	//Nice, eh?
+            }
+
+            //Either there's another iteration, or it's infinite
+            if self.m_curSequence!.GetIterations() != 0 {
+                //Another iteration is going to happen, so this will need to be considered again
+                self.PushCommand(block, PUSH_FRONT)
+
+                command = self.PopCommand(POP_BACK)
+                self.Prep(&command)
+
+                return
+            } else {
+                if self.m_curSequence!.GetReturn() == nil {
+                    command = nil
+                    return
+                }
+
+                //Check to retain it
+                if self.m_curSequence!.GetParent()!.HasFlag(SQ_RETAIN) != 0 {
+                    self.PushCommand(block, PUSH_FRONT)
+                } else {
+                    command = nil
+                }
+
+                //Back out of the loop and resume the previous sequence
+                self.m_curSequence = self.ReturnSequence(self.m_curSequence)
+
+                //This can safely happen
+                if self.m_curSequence == nil {
+                    command = nil
+                    return
+                }
+
+                command = self.PopCommand(POP_BACK)
+                self.Prep(&command)
+            }
+        }
     }
 
     /**
@@ -843,10 +1649,145 @@ final class CSequencer {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:1717
-    // Port-note: The body reads block member data, which waits for the `m_data` row, and it calls through `m_ie`.
     private func CheckAffect(_ command: inout CBlock?) {
-        // TODO: Port CSequencer::CheckAffect
-        portMissing("CSequencer::CheckAffect", source: "oracle/codemp/icarus/Sequencer.cpp:1717")
+        let block: CBlock? = command
+        var ent: JKAMP.SharedEntity? = nil
+        var entname: CharBuf
+        var memberNum: Int32 = 0
+
+        if block == nil {
+            return
+        }
+
+        if block!.GetBlockID() == ID_AFFECT {
+            var sequencer: CSequencer? = nil
+            // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+            entname = CharBuf(block!.GetMember(memberNum)!.GetSize())
+            Com_Memcpy(&entname, block!.GetMemberData(memberNum)!, entname.count)
+            memberNum += 1
+            ent = self.m_ie!.I_GetEntityByName!(String(entname))
+
+            if ent == nil { // if there wasn't a valid entname in the affect, we need to check if it's a get command
+                //try to parse a 'get' command that is embeded in this 'affect'
+
+                var id: Int32
+                var p1: String? = nil
+                var name: CharBuf
+                var bm: CBlockMember? = nil
+                //
+                //	Get the first parameter (this should be the get)
+                //
+                bm = block!.GetMember(0)
+                id = bm!.GetID()
+
+                switch id {
+                // these 3 cases probably aren't necessary
+                case TK_STRING, TK_IDENTIFIER, TK_CHAR:
+                    // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+                    var p1Text = CharBuf(bm!.GetSize())
+                    Com_Memcpy(&p1Text, bm!.GetData()!, p1Text.count)
+                    p1 = String(p1Text)
+
+                case ID_GET:
+                    var type: Int32
+
+                    //get( TYPE, NAME )
+                    type = Int32(block!.GetMemberData(memberNum)![float: 0])
+                    memberNum += 1
+                    // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+                    name = CharBuf(block!.GetMember(memberNum)!.GetSize())
+                    Com_Memcpy(&name, block!.GetMemberData(memberNum)!, name.count)
+                    memberNum += 1
+
+                    switch type { // what type are they attempting to get
+
+                    case TK_STRING:
+                        //only string is acceptable for affect, store result in p1
+                        // Raven's p1 is NULL here, and I_GetString sets it on success, so the call fills a text local first.
+                        var p1Value = ""
+                        if self.m_ie!.I_GetString!(self.m_ownerID, type, String(name), &p1Value) == 0 {
+                            return
+                        }
+                        p1 = p1Value
+
+                    default:
+                        //FIXME: Make an enum id for the error...
+                        self.m_ie!.I_DPrintf!(WL_ERROR, "Invalid parameter type on affect _1")
+                        return
+                    }
+
+                default:
+                    //FIXME: Make an enum id for the error...
+                    self.m_ie!.I_DPrintf!(WL_ERROR, "Invalid parameter type on affect _2")
+                    return
+                }//end id switch
+
+                if p1 != nil {
+                    ent = self.m_ie!.I_GetEntityByName!(p1!)
+                }
+                if ent == nil {	// a valid entity name was not returned from the get command
+                    // Port-note: Rule 19. Raven passes no argument for the `%s`, so his vsprintf reads an unset stack word.
+                    // The port passes "(null)", the text his vsprintf prints for a NULL text.
+                    self.m_ie!.I_DPrintf!(WL_WARNING, "'%s' : invalid affect() target\n", "(null)")
+                }
+
+            } // end if(!ent)
+
+            if ent != nil {
+                sequencer = gSequencers[ent!.s.number]//ent->sequencer;
+            }
+            if memberNum == 0 {	//there was no get, increment manually before next step
+                memberNum += 1
+            }
+            let type = Int32(block!.GetMemberData(memberNum)![float: 0])
+            let id = Int32(block!.GetMemberData(memberNum + 1)![float: 0])
+
+            if self.m_curSequence!.HasFlag(SQ_RETAIN) != 0 {
+                self.PushCommand(block, PUSH_FRONT)
+            } else {
+                command = nil
+            }
+
+            //NOTENOTE: If this isn't found, continue on to the next command
+            if sequencer == nil {
+                command = self.PopCommand(POP_BACK)
+                self.Prep(&command)
+                return
+            }
+
+            sequencer!.Affect(id, type)
+
+            command = self.PopCommand(POP_BACK)
+            self.Prep(&command)
+            if ent != nil {	// ents need to update upon being affected
+                //ent->taskManager->Update();
+                gTaskManagers[ent!.s.number]!.Update()
+            }
+
+            return
+        }
+
+        if (block!.GetBlockID() == ID_BLOCK_END) && (self.m_curSequence!.HasFlag(SQ_AFFECT) != 0) {
+            if self.m_curSequence!.HasFlag(SQ_RETAIN) != 0 {
+                self.PushCommand(block, PUSH_FRONT)
+            } else {
+                command = nil
+            }
+
+            self.m_curSequence = self.ReturnSequence(self.m_curSequence)
+
+            if self.m_curSequence == nil {
+                command = nil
+                return
+            }
+
+            command = self.PopCommand(POP_BACK)
+            self.Prep(&command)
+            if ent != nil {	// ents need to update upon being affected
+                //ent->taskManager->Update();
+                gTaskManagers[ent!.s.number]!.Update()
+            }
+        }
     }
 
     /**
@@ -857,10 +1798,83 @@ final class CSequencer {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:1885
-    // Port-note: The body reads block member data, which waits for the `m_data` row, and it calls through `m_ie`.
     private func CheckDo(_ command: inout CBlock?) {
-        // TODO: Port CSequencer::CheckDo
-        portMissing("CSequencer::CheckDo", source: "oracle/codemp/icarus/Sequencer.cpp:1885")
+        let block: CBlock? = command
+
+        if block == nil {
+            return
+        }
+
+        if block!.GetBlockID() == ID_DO {
+            //Get the sequence
+            // AI: Raven casts the member data to `char *`. The text is a copy of the member bytes in a CharBuf.
+            var groupName = CharBuf(block!.GetMember(0)!.GetSize())
+            Com_Memcpy(&groupName, block!.GetMemberData(0)!, groupName.count)
+            let group: CTaskGroup? = self.m_taskManager!.GetTaskGroup(String(groupName))
+            let sequence: CSequence? = self.GetTaskSequence(group)
+
+            //TODO: Emit warning
+            if group == nil {
+                //TODO: Give name/number of entity trying to execute, too
+                self.m_ie!.I_DPrintf!(WL_ERROR, "ICARUS Unable to find task group \"%s\"!\n", groupName)
+                command = nil
+                return
+            }
+
+            //TODO: Emit warning
+            if sequence == nil {
+                //TODO: Give name/number of entity trying to execute, too
+                self.m_ie!.I_DPrintf!(WL_ERROR, "ICARUS Unable to find task 'group' sequence!\n", groupName)
+                command = nil
+                return
+            }
+
+            //Only save the loop command if the calling sequence is retained
+            if self.m_curSequence!.HasFlag(SQ_RETAIN) != 0 {
+                self.PushCommand(block, PUSH_FRONT)
+            } else {
+                command = nil
+            }
+
+            //Set this to our current sequence
+            sequence!.SetReturn(self.m_curSequence)
+            self.m_curSequence = sequence
+
+            group!.SetParent(self.m_curGroup)
+            self.m_curGroup = group
+
+            //Mark all the following commands as being in the task
+            self.m_taskManager!.MarkTask(group!.GetGUID(), TASK_START)
+
+            //Recursively work out any other pre-processors
+            command = self.PopCommand(POP_BACK)
+            self.Prep(&command)
+
+            return
+        }
+
+        if (block!.GetBlockID() == ID_BLOCK_END) && (self.m_curSequence!.HasFlag(SQ_TASK) != 0) {
+            if self.m_curSequence!.HasFlag(SQ_RETAIN) != 0 {
+                self.PushCommand(block, PUSH_FRONT)
+            } else {
+                command = nil
+            }
+
+            self.m_taskManager!.MarkTask(self.m_curGroup!.GetGUID(), TASK_END)
+            self.m_curGroup = self.m_curGroup!.GetParent()
+
+            let returnSeq: CSequence? = self.ReturnSequence(self.m_curSequence)
+            self.m_curSequence!.SetReturn(nil)
+            self.m_curSequence = returnSeq
+
+            if self.m_curSequence == nil {
+                command = nil
+                return
+            }
+
+            command = self.PopCommand(POP_BACK)
+            self.Prep(&command)
+        }
     }
 
     /**
@@ -950,9 +1964,7 @@ final class CSequencer {
         }
 
         //FIXME: This could be more descriptive
-        // Port-note: The call goes through `m_ie`, and `interface_export_t` has no Swift form.
-        // Raven wrote: m_ie->I_DPrintf( WL_ERROR,  "command could not be called back\n" );
-        portMissing("CSequencer::Callback", source: "oracle/codemp/icarus/Sequencer.cpp:2026")
+        self.m_ie!.I_DPrintf!(WL_ERROR, "command could not be called back\n")
 
         return SEQ_FAILED
     }
@@ -994,6 +2006,7 @@ final class CSequencer {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:2114
+    @discardableResult
     private func Affect(_ id: Int32, _ type: Int32) -> Int32 {
         let sequence: CSequence? = self.GetSequence(id)
 
@@ -1027,9 +2040,7 @@ final class CSequencer {
             self.Prime(self.m_taskManager, self.PopCommand(POP_BACK))
 
         default:
-            // Port-note: The call goes through `m_ie`, and `interface_export_t` has no Swift form.
-            // Raven wrote: m_ie->I_DPrintf( WL_ERROR, "unknown affect type found" );
-            portMissing("CSequencer::Affect", source: "oracle/codemp/icarus/Sequencer.cpp:2114")
+            self.m_ie!.I_DPrintf!(WL_ERROR, "unknown affect type found")
         }
 
         return SEQ_OK
@@ -1134,9 +2145,7 @@ final class CSequencer {
 
             //TODO: Emit warning
             if temp == nil {
-                // Port-note: The call goes through `m_ie`, and `interface_export_t` has no Swift form.
-                // Raven wrote: m_ie->I_DPrintf( WL_WARNING, "Unable to find child sequence on RemoveSequence call!\n" );
-                portMissing("CSequencer::RemoveSequence", source: "oracle/codemp/icarus/Sequencer.cpp:2240")
+                self.m_ie!.I_DPrintf!(WL_WARNING, "Unable to find child sequence on RemoveSequence call!\n")
                 i += 1
                 continue
             }

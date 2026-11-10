@@ -17,7 +17,6 @@ final class NodeTotalGreater {
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2696
     // AI: Raven defines `operator()`. The method is `callAsFunction`, so a call reads `NodeTotalGreater()(first, second)`.
     func callAsFunction(_ first: CEdge?, _ second: CEdge?) -> Bool {
-        // TODO: Port NodeTotalGreater::operator()
-        portMissing("NodeTotalGreater::operator()", source: "oracle/codemp/server/NPCNav/navigator.cpp:2696")
+        return (first!.m_cost > second!.m_cost)
     }
 }

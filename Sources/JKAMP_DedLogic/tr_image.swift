@@ -21,6 +21,7 @@ var gServerSkinHack: Bool {
 // Raven wrote: void LoadTGA ( const char *name, byte **pic, int *width, int *height)
 // No table row for `byte ** pic`.
 func LoadTGA() -> Never {
+    // Its two callers at tr_image.cpp:2252 and :2295 stand under `#ifndef DEDICATED`, so the function is dead in the dedicated build.
     // TODO: Port LoadTGA
     portMissing("LoadTGA", source: "oracle/codemp/renderer/tr_image.cpp:1421")
 }
