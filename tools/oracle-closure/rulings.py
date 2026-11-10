@@ -473,6 +473,13 @@ SLOT_BOUNDS = {
     # be_aas_def.h:146 declares `unsigned short int traveltimes[1]`, and AAS_AllocRoutingCache sizes the block at be_aas_route.cpp:729.
     # No macro bounds it, so the row names no macro and the count is the widest, the form of `areaParms_t.list`, row N7.
     ("aas_routingcache_t", "traveltimes"): None,
+    # The mdx records of mdx_format.h:179, :194, :211, :378, and :395 declare `[1]` with the comment "variable sized",
+    # and the model file gives the count, `numSurfaces`, `numBones`, or `numChildren`. Row R1 of the second G2_bones round, the `traveltimes` row.
+    ("mdxmHierarchyOffsets_t", "offsets"): None,
+    ("mdxmSurfHierarchy_t", "childIndexes"): None,
+    ("mdxmLODSurfOffset_t", "offsets"): None,
+    ("mdxaSkelOffsets_t", "offsets"): None,
+    ("mdxaSkel_t", "children"): None,
 }
 
 # File-scope variables a body reads with no bind, because Raven's callers always set them before any body runs.
@@ -960,6 +967,12 @@ RETURNS = {
     "GetClearedHunkMemory": "raw",
     # Log_FilePointer of l_log.cpp:138 returns the `FILE *` of the bot log, the FS_FileForHandle row, row D20.
     "Log_FilePointer": "opaque",
+    # G2_FindSurface of G2_misc.cpp:1689 returns a `void *` that every caller casts to `mdxmSurface_t *`, G2_surfaces.cpp:123 and G2_API.cpp:2385, row G2A5.
+    "G2_FindSurface": ("view", "mdxmSurface_t"),
+    # RE_RegisterModels_Malloc and RE_RegisterServerModels_Malloc return `ModelBin.pModelDiskImage`, the disk image of the model, tr_model.cpp:250 and :318,
+    # which the loaders cast to their header at :718, :841, and :1467. The `pModelDiskImage` field is a Slots of bytes.
+    "RE_RegisterModels_Malloc": "bytes",
+    "RE_RegisterServerModels_Malloc": "bytes",
 }
 
 # Allocators whose `char *` result a body holds as a CharBuf of the constant size Raven asks for, when every store into the local is that call.
@@ -979,6 +992,7 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #   float_array  an inout [Float] for a `float *` a body fills as a matrix of the counts beside it, or as a fixed count of floats
 #   int_array  an [Int32]? by value for a read-only `int *` with a count beside it, and a caller's NULL is nil
 #   int_array_mut  an inout [Int32] for an `int *` the body writes by index, the `int` twin of float_array
+#   byte_array  a [byte] by value for a read-only `const byte *` table every caller passes as a Swift array, the byte twin of int_array
 #   pointer_table  a Slots<View?> over a file-scope array of struct pointers, whose base a trap hands to the engine
 #   key_path  a KeyPath<Entity, String?> for an `int` field offset Raven takes from `FOFS(field)`, which a call site spells `\.field`
 #   int_value  an Int32 by value for a `const void *` a qsort comparator reads as `*(int *)`, so the comparator is `(Int32, Int32) -> Int32`
@@ -991,6 +1005,7 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #   row_index  an Int32 row index for a `keywordHash_t *` row pointer, form A of R53
 #   opaque    an OpaquePointer? for a `byte *` buffer the body stores into a `byte *` field or hands on as a `void *`, the spelling of the field
 #   bytes     a Slots<byte> for a `void *` or `byte *` of a host function that the body hands on as bytes, the row a host `byte *` has
+#             A `void **` of kind `bytes` is the caller's `inout Slots<byte>?`, which the body sets to a byte buffer
 #   word      an Int for an `int` that takes the pointer-wide word VM_Call returns
 #   callback  the optional callback typealias of a view field for a function pointer the body stores into that field, the form of a function-pointer return,
 #             given as ("callback", "record.field") with that field when another field has the same C signature
@@ -1209,6 +1224,33 @@ PARAMS = {
     ("R_FindServerShader", "lightmapIndex"): "int_array",
     ("RE_RegisterShaderFromImage", "lightmapIndex"): "int_array",
     ("RE_RegisterShaderLightMap", "lightmapIndex"): "int_array",
+    # The style lists of the same six functions are `stylesDefault` of tr_shader.cpp:157, a Swift array, or a surface's list, read and never written.
+    # Raven hands `stylesDefault` at tr_shader.cpp:281, :291, :3739, and :3769, and tr_image.cpp:3093 and :3097, row TR11.
+    ("R_CreateExtendedName", "styles"): "byte_array",
+    ("IsShader", "styles"): "byte_array",
+    ("R_FindShader", "styles"): "byte_array",
+    ("R_FindServerShader", "styles"): "byte_array",
+    ("RE_RegisterShaderFromImage", "styles"): "byte_array",
+    ("RE_RegisterShaderLightMap", "styles"): "byte_array",
+    # RE_RegisterModels_GetDiskFile sets `*ppvBuffer` to the disk image of a model, tr_model.cpp:125, and its callers read `*(unsigned *)buf`
+    # and hand `buf` to the loaders at :1094 and :1313. A `void **` of kind `bytes` is the caller's `inout Slots<byte>?`, the type of `pModelDiskImage`, row TR13.
+    ("RE_RegisterModels_GetDiskFile", "ppvBuffer"): "bytes",
+    # The Malloc pair stores the disk image into `ModelBin.pModelDiskImage` at tr_model.cpp:207 and :274, and the loaders read the file through `buffer`
+    # and hand it to the Malloc pair at :718, :841, and :1467. Each caller passes the buffer of RE_RegisterModels_GetDiskFile.
+    ("RE_RegisterModels_Malloc", "pvDiskBufferIfJustLoaded"): "bytes",
+    ("RE_RegisterServerModels_Malloc", "pvDiskBufferIfJustLoaded"): "bytes",
+    ("ServerLoadMDXA", "buffer"): "bytes",
+    ("ServerLoadMDXM", "buffer"): "bytes",
+    ("R_LoadMD3", "buffer"): "bytes",
+    # R_LoadMDXA and R_LoadMDXM of tr_ghoul2.cpp:5256 and :4816 take the same buffer from RE_RegisterModel_Actual at tr_model.cpp:1325 and :1329.
+    ("R_LoadMDXA", "buffer"): "bytes",
+    ("R_LoadMDXM", "buffer"): "bytes",
+    # G2_IsSurfaceLegal and G2_FindSurface cast `void *mod` to `model_t *` on their first line, G2_surfaces.cpp:69 and G2_misc.cpp:1692,
+    # and every caller passes a `model_t *`, rows G2A3 and G2A5, the QsortDistance row.
+    ("G2_IsSurfaceLegal", "mod"): ("view", "model_t"),
+    ("G2_FindSurface", "mod_t"): ("view", "model_t"),
+    # G2API_GetBoneAnim hands the caller's model list to G2_Get_Bone_Anim, row G2A6, the trap_G2API_GetBoneAnim row.
+    ("G2API_GetBoneAnim", "modelList"): "model_list",
     # QsortDistance of G2_API.cpp:1993 reads `(CollisionRecord_t *)a` and `b`, and the two collision functions sort the table with it, row G4.
     ("QsortDistance", "a"): ("view", "CollisionRecord_t"),
     ("QsortDistance", "b"): ("view", "CollisionRecord_t"),
@@ -1256,6 +1298,8 @@ DEAD = {
     # CM_BoxBrushes of cm_test.cpp:194 has no caller in either tree, and it is the one function that stores CM_StoreBrushes, row R4.
     "CM_BoxBrushes": "Raven calls this function from no file of either tree",
     "CM_StoreBrushes": "CM_BoxBrushes is the one function that stores it, and no file of either tree calls CM_BoxBrushes",
+    # GetRefAPI stores R_LerpTag into `re.LerpTag` at tr_init.cpp:1488, and the client's trap_R_LerpTag reaches it. GetRefAPI is dead under row TR9.
+    "R_LerpTag": "GetRefAPI is the one function that stores it, and the dedicated host does not link the client that calls GetRefAPI",
 }
 
 # Functions of the oracle the port leaves out. The stub carries the cite, Raven's line, and the reason, and no function.

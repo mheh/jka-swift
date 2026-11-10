@@ -318,6 +318,11 @@ class Types:
             if alias:
                 return Answer(f"{alias}?", "bare")
         if facts.ruled == "bytes" and canonical.kind == TypeKind.POINTER:
+            pointee = canonical.get_pointee().get_canonical()
+            if pointee.kind == TypeKind.POINTER and pointee.get_pointee().get_canonical().kind == TypeKind.VOID:
+                # A `void **` the body sets to a byte buffer, `ppvBuffer` of RE_RegisterModels_GetDiskFile, is the caller's optional Slots of bytes,
+                # inout, the shape a `void **` handle has, row TR13.
+                return Answer("inout Slots<JKAShared.byte>?", "out_opaque")
             if canonical.get_pointee().get_canonical().kind == TypeKind.INT:
                 # An `int *` list the body fills, `int *entityList` of SV_AreaEntities, is the caller's Slots of Int32, the rule of the field kind.
                 return Answer("Slots<Int32>", "slots")
@@ -372,12 +377,22 @@ class Types:
                 if named in TYPES:
                     const = pointee.is_const_qualified()
                     return Answer(TYPES[named] if const else f"inout {TYPES[named]}", "bare" if const else "out_string_ref")
+            # A C++ reference to a scalar the body writes, `qboolean &bAlreadyCached` of ServerLoadMDXA, is the caller's scalar, inout,
+            # the form a pointer to one scalar has below. The tr round names it for its loaders, tr_model.cpp:683, :799, and :1427.
+            scalar = canonical.get_pointee().get_canonical() if canonical.kind == TypeKind.LVALUEREFERENCE else None
+            if scalar is not None and not scalar.is_const_qualified() and (scalar.kind in INT_KINDS or scalar.kind in (TypeKind.FLOAT, TypeKind.ENUM, TypeKind.BOOL)):
+                swift = "Bool" if scalar.kind == TypeKind.BOOL else self.scalar(t.get_pointee() if t.kind == TypeKind.LVALUEREFERENCE else canonical.get_pointee(), TARGET)
+                if swift is not None and self.known(swift):
+                    return Answer(f"inout {swift}", "bare")
         if facts.ruled == "int_array_mut":
             # The body writes the caller's `int` array by index, so the array crosses inout, the `int` twin of float_array.
             return Answer("inout [Int32]", "bare")
         if facts.ruled == "int_array":
             # The body only reads the values, and Raven's callers pass NULL with a count of zero, so the array crosses by value as an optional.
             return Answer("[Int32]?", "int_array")
+        if facts.ruled == "byte_array":
+            # The body only reads the bytes, and every caller passes a byte table that is a Swift array, so the array crosses by value.
+            return Answer("[JKAShared.byte]", "bare")
         if t.spelling.replace("const ", "") in TYPES:
             return Answer(TYPES[t.spelling.replace("const ", "")], "bare")
         # A trap's buffer with a maximum count before it is an array the engine fills up to that count,

@@ -311,7 +311,8 @@ BG_FIELDS = {"s", "playerState", "m_pVehicle", "ghoul2", "localAnimIndex", "mode
 # a return of it, and a pass to a function with no body are none of these, so each one keeps the CharBuf.
 # The store kind of a cursor local set from the text a call returns, which names the call and no buffer.
 TEXT_CALL = ("", False)
-TEXT_READERS = {"Q_stricmp", "Q_stricmpn", "Q_strncmp", "strlen", "strcmp", "strncmp", "atoi", "atof", "Com_Printf"}
+# `va_start` names the last fixed parameter to find the arguments after it and reads no byte of it, Log_Write of l_log.cpp:101, row D18.
+TEXT_READERS = {"Q_stricmp", "Q_stricmpn", "Q_strncmp", "strlen", "strcmp", "strncmp", "atoi", "atof", "Com_Printf", "__builtin_va_start"}
 TEXT_TESTS = {"==", "!=", "<", ">", "<=", ">=", "&&", "||"}
 # A C comment of either form, which a reader of the source text between two nodes drops before it reads the operator there.
 COMMENT = re.compile(r"//[^\n]*|/\*.*?\*/", re.S)

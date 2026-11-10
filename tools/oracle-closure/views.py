@@ -72,6 +72,16 @@ def declaration_heads(text: str) -> str:
     return "\n".join(DECLARATION_HEAD.findall(text))
 
 
+
+def row_stride(element: ci.Type, count: int, storage) -> str:
+    """The byte stride of one row of a two-index array field, `count` elements of `element`, as Swift text.
+    `storage` answers the Swift storage type of a C scalar. An element that is itself an array, the `vec3_t` of
+    `points[MAX_GRID_SIZE][MAX_GRID_SIZE]` at cm_patch.h:115, takes its own count times the stride of its scalar, so a row is 129 * 3 floats."""
+    canonical = element.get_canonical()
+    if canonical.kind == TypeKind.CONSTANTARRAY:
+        return f"{count} * {canonical.element_count} * MemoryLayout<{storage(canonical.element_type)}>.stride"
+    return f"{count} * MemoryLayout<{storage(element)}>.stride"
+
 class Generator:
     def __init__(self, parse: C.Parse, only: str | None, indexed_fields: set[tuple[str, str]] | None = None) -> None:
         self.parse = parse
@@ -278,7 +288,7 @@ class Generator:
                 return None
             inner_type, inner_call = inner
             inner_call = inner_call.replace("{count}", str(inner_count))
-            stride = f"{inner_count} * MemoryLayout<{self.types.storage(inner_c, target)}>.stride"
+            stride = row_stride(inner_c, inner_count, lambda c: self.types.storage(c, target))
             return f"Slots<{inner_type}>", f"Slots(rows: {address}, count: {{count}}, stride: {stride}) {{ {inner_call} }}"
         if answer.kind == "flags":
             return answer.swift, f"Slots(flags: {address}, count: {{count}})"
