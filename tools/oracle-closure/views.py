@@ -811,6 +811,11 @@ class Generator:
                     # the row a host function's buffer has, and the method hands the function its base.
                     params.append(f"_ {label}: Slots<JKAShared.byte>")
                     args.append(f"OpaquePointer({label}.base)")
+                elif PARAMS.get((f"{owner}.{name}", label)) == "bytes" and pointee.get_canonical().kind == TypeKind.FLOAT:
+                    # A rulings row names a `float *` list the stored function reads with a count beside it, `ranks` of
+                    # `ai_export_t.GeneticParentsAndChildSelection`, so the caller's Slots of floats crosses, and the method hands the function its base.
+                    params.append(f"_ {label}: Slots<Float>")
+                    args.append(f"OpaquePointer({label}.base)")
                 elif PARAMS.get((f"{owner}.{name}", label)) == "table" and pointee.get_canonical().kind == TypeKind.CONSTANTARRAY \
                         and pointee.get_canonical().element_count == 3 and pointee.get_canonical().element_type.get_canonical().kind == TypeKind.FLOAT:
                     # A rulings row names a `vec3_t *` the stored function reads as a table of vectors with a count beside it,
