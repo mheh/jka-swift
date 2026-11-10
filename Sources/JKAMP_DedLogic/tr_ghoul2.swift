@@ -259,10 +259,11 @@ private func G2_Find_Bone_ByNum(_ mod: Model, _ blist: inout [boneInfo_t], _ bon
 }
 
 /// The byte size of Raven's `CBoneCache` in the 32-bit build, which `g_Ghoul2Allocations` counts at each new and each delete.
-/// The members are `frameSize`, two pointers, three vectors of 16 bytes, five ints, two bools with padding, and one float: 12 + 48 + 20 + 4 + 4.
+/// The members are `frameSize`, two pointers, three vectors of 16 bytes, the `rootBoneList` pointer, the `rootMatrix` record of 48 bytes,
+/// five ints, two bools with padding, and one float: 12 + 48 + 4 + 48 + 20 + 4 + 4.
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:572
 // AI: Raven takes `sizeof` of the C++ class. The Swift class has no byte size, so the constant holds the byte count of the 32-bit build.
-private let sizeofCBoneCache = 88 as Int32
+private let sizeofCBoneCache = 140 as Int32
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:569
 func RemoveBoneCache(_ boneCache: CBoneCache?) {
