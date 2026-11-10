@@ -70,19 +70,35 @@ final class CBoneCache {
 
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:208
     private func SetRenderMatrix(_ bone: CTransformBone?) {
+        // Raven's body and both calls stand under `#ifdef _XBOX`, the calls at tr_ghoul2.cpp:261 and :339, so the method is dead in the dedicated build.
         // TODO: Port CBoneCache::SetRenderMatrix
         portMissing("CBoneCache::SetRenderMatrix", source: "oracle/codemp/renderer/tr_ghoul2.cpp:208")
     }
 
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:236
     private func EvalLow(_ index: Int32) {
-        // TODO: Port CBoneCache::EvalLow
-        portMissing("CBoneCache::EvalLow", source: "oracle/codemp/renderer/tr_ghoul2.cpp:236")
+        if self.mFinalBones[index].touch != self.mCurrentTouch {
+            // need to evaluate the bone
+            if self.mFinalBones[index].parent >= 0 {
+                self.EvalLow(self.mFinalBones[index].parent) // make sure parent is evaluated
+                let par = self.mBones[self.mFinalBones[index].parent]
+                self.mBones[index].newFrame = par.newFrame
+                self.mBones[index].currentFrame = par.currentFrame
+                self.mBones[index].backlerp = par.backlerp
+                self.mBones[index].blendFrame = par.blendFrame
+                self.mBones[index].blendOldFrame = par.blendOldFrame
+                self.mBones[index].blendMode = par.blendMode
+                self.mBones[index].blendLerp = par.blendLerp
+            }
+            G2_TransformBone(index, self)
+            self.mFinalBones[index].touch = self.mCurrentTouch
+        }
     }
 
 //rww - RAGDOLL_BEGIN
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:267
     private func SmoothLow(_ index: Int32) {
+        // Port-note: Raven casts a record at a byte offset of `header`, and the view target has no accessor for a view at a byte offset.
         // TODO: Port CBoneCache::SmoothLow
         portMissing("CBoneCache::SmoothLow", source: "oracle/codemp/renderer/tr_ghoul2.cpp:267")
     }
@@ -90,46 +106,116 @@ final class CBoneCache {
 
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:390
     init(_ amod: Model?, _ aheader: MdxaHeader?) {
+        // Port-note: Raven casts a record at a byte offset of `header`, and the view target has no accessor for a view at a byte offset.
         // TODO: Port CBoneCache::CBoneCache
         portMissing("CBoneCache::CBoneCache", source: "oracle/codemp/renderer/tr_ghoul2.cpp:390")
     }
 
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:441
     func Root() -> SBoneCalc {
-        // TODO: Port CBoneCache::Root
-        portMissing("CBoneCache::Root", source: "oracle/codemp/renderer/tr_ghoul2.cpp:441")
+        return self.mBones[0]
     }
 
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:446
     func EvalUnsmooth(_ index: Int32) -> MdxaBone {
-        // TODO: Port CBoneCache::EvalUnsmooth
-        portMissing("CBoneCache::EvalUnsmooth", source: "oracle/codemp/renderer/tr_ghoul2.cpp:446")
+        self.EvalLow(index)
+        if self.mSmoothingActive && self.mSmoothBones[index].touch != 0 {
+            return self.mSmoothBones[index].boneMatrix
+        }
+        return self.mFinalBones[index].boneMatrix
     }
 
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:455
     func Eval(_ index: Int32) -> MdxaBone {
-        // TODO: Port CBoneCache::Eval
-        portMissing("CBoneCache::Eval", source: "oracle/codemp/renderer/tr_ghoul2.cpp:455")
+        /*
+        bool wasEval=EvalLow(index);
+        if (mSmoothingActive)
+        {
+            if (mSmoothBones[index].touch!=incomingTime||wasEval)
+            {
+                float dif=float(incomingTime)-float(mSmoothBones[index].touch);
+                if (mSmoothBones[index].touch&&dif<300.0f)
+                {
+
+                    if (dif<16.0f)  // 60 fps
+                    {
+                        dif=16.0f;
+                    }
+                    if (dif>100.0f) // 10 fps
+                    {
+                        dif=100.0f;
+                    }
+                    float f=1.0f-pow(1.0f-mSmoothFactor,16.0f/dif);
+
+                    int i;
+                    float *oldM=&mSmoothBones[index].boneMatrix.matrix[0][0];
+                    float *newM=&mFinalBones[index].boneMatrix.matrix[0][0];
+                    for (i=0;i<12;i++,oldM++,newM++)
+                    {
+                        *oldM=f*(*oldM-*newM)+*newM;
+                    }
+                    if (mUnsquash)
+                    {
+                        mdxaBone_t tempMatrix;
+                        Multiply_3x4Matrix(&tempMatrix,&mSmoothBones[index].boneMatrix, &mSkels[index]->BasePoseMat);
+                        float maxl;
+                        maxl=VectorLength(&mSkels[index]->BasePoseMat.matrix[0][0]);
+                        VectorNormalize(&tempMatrix.matrix[0][0]);
+                        VectorNormalize(&tempMatrix.matrix[1][0]);
+                        VectorNormalize(&tempMatrix.matrix[2][0]);
+
+                        VectorScale(&tempMatrix.matrix[0][0],maxl,&tempMatrix.matrix[0][0]);
+                        VectorScale(&tempMatrix.matrix[1][0],maxl,&tempMatrix.matrix[1][0]);
+                        VectorScale(&tempMatrix.matrix[2][0],maxl,&tempMatrix.matrix[2][0]);
+                        Multiply_3x4Matrix(&mSmoothBones[index].boneMatrix,&tempMatrix,&mSkels[index]->BasePoseMatInv);
+                    }
+                }
+                else
+                {
+                    memcpy(&mSmoothBones[index].boneMatrix,&mFinalBones[index].boneMatrix,sizeof(mdxaBone_t));
+                }
+                mSmoothBones[index].touch=incomingTime;
+            }
+            return mSmoothBones[index].boneMatrix;
+        }
+        return mFinalBones[index].boneMatrix;
+        */
+
+        //Hey, this is what sof2 does. Let's try it out.
+        if self.mFinalBones[index].touch != self.mCurrentTouch {
+            self.EvalLow(index)
+        }
+        return self.mFinalBones[index].boneMatrix
     }
 
     //rww - RAGDOLL_BEGIN
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:520
     func EvalRender(_ index: Int32) -> MdxaBone {
-        // TODO: Port CBoneCache::EvalRender
-        portMissing("CBoneCache::EvalRender", source: "oracle/codemp/renderer/tr_ghoul2.cpp:520")
+        if self.mFinalBones[index].touch != self.mCurrentTouch {
+            self.mFinalBones[index].touchRender = self.mCurrentTouchRender
+            self.EvalLow(index)
+        }
+        if self.mSmoothingActive {
+            if self.mSmoothBones[index].touch != self.mCurrentTouch {
+                self.SmoothLow(index)
+            }
+            return self.mSmoothBones[index].boneMatrix
+        }
+        return self.mFinalBones[index].boneMatrix
     }
     //rww - RAGDOLL_END
     //rww - RAGDOLL_BEGIN
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:540
     func WasRendered(_ index: Int32) -> Bool {
-        // TODO: Port CBoneCache::WasRendered
-        portMissing("CBoneCache::WasRendered", source: "oracle/codemp/renderer/tr_ghoul2.cpp:540")
+        return self.mFinalBones[index].touchRender == self.mCurrentTouchRender
     }
 
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:545
     func GetParent(_ index: Int32) -> Int32 {
-        // TODO: Port CBoneCache::GetParent
-        portMissing("CBoneCache::GetParent", source: "oracle/codemp/renderer/tr_ghoul2.cpp:545")
+        if index == 0 {
+            return -1
+        }
+        return self.mFinalBones[index].parent
     }
     //rww - RAGDOLL_END
 }

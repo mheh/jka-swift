@@ -101,7 +101,7 @@ var G2Time_PreciseFrame: Int32 {
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:104
 // Raven wrote: bool HackadelicOnClient=false
-let HackadelicOnClient: Bool = { () -> Bool in portMissing("HackadelicOnClient", source: "oracle/codemp/renderer/tr_ghoul2.cpp:104") }()
+let HackadelicOnClient: Bool = false // means this is a render traversal
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:128
 // Raven wrote: const static mdxaBone_t identityMatrix
@@ -253,12 +253,14 @@ func G2Time_ReportTimers() {
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:112
 private func G2_Find_Bone_ByNum(_ mod: Model, _ blist: inout [boneInfo_t], _ boneNum: Int32) -> Int32 {
+    // Raven's one call stands inside `#if 0` at tr_ghoul2.cpp:274, so the function is dead.
     // TODO: Port G2_Find_Bone_ByNum
     portMissing("G2_Find_Bone_ByNum", source: "oracle/codemp/renderer/tr_ghoul2.cpp:112")
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:569
 func RemoveBoneCache(_ boneCache: CBoneCache?) {
+    // Port-note: Raven counts `sizeof(*boneCache)` of the C++ class into `g_Ghoul2Allocations`, and the Swift class has no byte size.
     // TODO: Port RemoveBoneCache
     portMissing("RemoveBoneCache", source: "oracle/codemp/renderer/tr_ghoul2.cpp:569")
 }
@@ -275,20 +277,29 @@ func EvalBoneCache() -> Never {
 //rww - RAGDOLL_BEGIN
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:592
 func G2_GetModA(_ ghoul2: CGhoul2Info) -> MdxaHeader? {
-    // TODO: Port G2_GetModA
-    portMissing("G2_GetModA", source: "oracle/codemp/renderer/tr_ghoul2.cpp:592")
+    if ghoul2.mBoneCache == nil {
+        return nil
+    }
+
+    let boneCache = ghoul2.mBoneCache!
+    return boneCache.header
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:603
 func G2_GetBoneDependents(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ tempDependents: inout Int32, _ maxDep: Int32) -> Int32 {
+    // Port-note: Raven casts a record at a byte offset of `boneCache.header`, and the view target has no accessor for a view at a byte offset.
     // TODO: Port G2_GetBoneDependents
     portMissing("G2_GetBoneDependents", source: "oracle/codemp/renderer/tr_ghoul2.cpp:603")
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:645
 func G2_WasBoneRendered(_ ghoul2: CGhoul2Info, _ boneNum: Int32) -> Bool {
-    // TODO: Port G2_WasBoneRendered
-    portMissing("G2_WasBoneRendered", source: "oracle/codemp/renderer/tr_ghoul2.cpp:645")
+    if ghoul2.mBoneCache == nil {
+        return false
+    }
+    let boneCache = ghoul2.mBoneCache!
+
+    return boneCache.WasRendered(boneNum)
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:656
@@ -302,12 +313,14 @@ func G2_GetBoneBasepose() -> Never {
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:678
 func G2_GetBoneNameFromSkel(_ ghoul2: CGhoul2Info, _ boneNum: Int32) -> String? {
+    // Port-note: Raven casts a record at a byte offset of `boneCache.header`, and the view target has no accessor for a view at a byte offset.
     // TODO: Port G2_GetBoneNameFromSkel
     portMissing("G2_GetBoneNameFromSkel", source: "oracle/codemp/renderer/tr_ghoul2.cpp:678")
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:696
 func G2_RagGetBoneBasePoseMatrixLow(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ boneMatrix: JKAMP.MdxaBone, _ retMatrix: JKAMP.MdxaBone, _ scale: JKAShared.vec3_t) {
+    // Port-note: Raven casts a record at a byte offset of `boneCache.header`, and the view target has no accessor for a view at a byte offset.
     // TODO: Port G2_RagGetBoneBasePoseMatrixLow
     portMissing("G2_RagGetBoneBasePoseMatrixLow", source: "oracle/codemp/renderer/tr_ghoul2.cpp:696")
 }
@@ -332,6 +345,7 @@ func G2_GetParentBoneMatrixLow() -> Never {
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:869
 func AllocRS() -> CRenderableSurface? {
+    // Raven's one call is in RenderSurfaces under `#ifndef DEDICATED` at tr_ghoul2.cpp:2520, so the function is dead in the dedicated build.
     // TODO: Port AllocRS
     portMissing("AllocRS", source: "oracle/codemp/renderer/tr_ghoul2.cpp:869")
 }
@@ -345,6 +359,7 @@ R_ACullModel
 */
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:896
 private func R_GCullModel(_ ent: TrRefEntity) -> Int32 {
+    // Raven's one call is in R_AddGhoulSurfaces under `#ifndef DEDICATED` at tr_ghoul2.cpp:3384, so the function is dead in the dedicated build.
     // TODO: Port R_GCullModel
     portMissing("R_GCullModel", source: "oracle/codemp/renderer/tr_ghoul2.cpp:896")
 }
@@ -359,6 +374,7 @@ R_AComputeFogNum
 */
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:939
 private func R_GComputeFogNum(_ ent: TrRefEntity) -> Int32 {
+    // Raven's one call is in R_AddGhoulSurfaces under `#ifndef DEDICATED` at tr_ghoul2.cpp:3384, so the function is dead in the dedicated build.
     // TODO: Port R_GComputeFogNum
     portMissing("R_GComputeFogNum", source: "oracle/codemp/renderer/tr_ghoul2.cpp:939")
 }
@@ -366,18 +382,21 @@ private func R_GComputeFogNum(_ ent: TrRefEntity) -> Int32 {
 // work out lod for this entity.
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:967
 private func G2_ComputeLOD(_ ent: TrRefEntity, _ currentModel: Model, _ lodBias: Int32) -> Int32 {
+    // Raven's one call is in R_AddGhoulSurfaces under `#ifndef DEDICATED` at tr_ghoul2.cpp:3384, so the function is dead in the dedicated build.
     // TODO: Port G2_ComputeLOD
     portMissing("G2_ComputeLOD", source: "oracle/codemp/renderer/tr_ghoul2.cpp:967")
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1048
 func G2_CreateQuaterion(_ mat: JKAMP.MdxaBone, _ quat: inout JKAShared.vec4_t) {
+    // Raven calls this function from no file of either tree, so it is dead.
     // TODO: Port G2_CreateQuaterion
     portMissing("G2_CreateQuaterion", source: "oracle/codemp/renderer/tr_ghoul2.cpp:1048")
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1097
 func G2_CreateMatrixFromQuaterion(_ mat: JKAMP.MdxaBone, _ quat: JKAShared.vec4_t) {
+    // Raven calls this function from no file of either tree, so it is dead.
     // TODO: Port G2_CreateMatrixFromQuaterion
     portMissing("G2_CreateMatrixFromQuaterion", source: "oracle/codemp/renderer/tr_ghoul2.cpp:1097")
 }
@@ -385,12 +404,26 @@ func G2_CreateMatrixFromQuaterion(_ mat: JKAMP.MdxaBone, _ quat: JKAShared.vec4_
 // nasty little matrix multiply going on here..
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1128
 func Multiply_3x4Matrix(_ out: JKAMP.MdxaBone, _ in2: JKAMP.MdxaBone, _ `in`: JKAMP.MdxaBone) {
-    // TODO: Port Multiply_3x4Matrix
-    portMissing("Multiply_3x4Matrix", source: "oracle/codemp/renderer/tr_ghoul2.cpp:1128")
+    // first row of out
+    out.matrix[0][0] = (in2.matrix[0][0] * `in`.matrix[0][0]) + (in2.matrix[0][1] * `in`.matrix[1][0]) + (in2.matrix[0][2] * `in`.matrix[2][0])
+    out.matrix[0][1] = (in2.matrix[0][0] * `in`.matrix[0][1]) + (in2.matrix[0][1] * `in`.matrix[1][1]) + (in2.matrix[0][2] * `in`.matrix[2][1])
+    out.matrix[0][2] = (in2.matrix[0][0] * `in`.matrix[0][2]) + (in2.matrix[0][1] * `in`.matrix[1][2]) + (in2.matrix[0][2] * `in`.matrix[2][2])
+    out.matrix[0][3] = (in2.matrix[0][0] * `in`.matrix[0][3]) + (in2.matrix[0][1] * `in`.matrix[1][3]) + (in2.matrix[0][2] * `in`.matrix[2][3]) + in2.matrix[0][3]
+    // second row of outf out
+    out.matrix[1][0] = (in2.matrix[1][0] * `in`.matrix[0][0]) + (in2.matrix[1][1] * `in`.matrix[1][0]) + (in2.matrix[1][2] * `in`.matrix[2][0])
+    out.matrix[1][1] = (in2.matrix[1][0] * `in`.matrix[0][1]) + (in2.matrix[1][1] * `in`.matrix[1][1]) + (in2.matrix[1][2] * `in`.matrix[2][1])
+    out.matrix[1][2] = (in2.matrix[1][0] * `in`.matrix[0][2]) + (in2.matrix[1][1] * `in`.matrix[1][2]) + (in2.matrix[1][2] * `in`.matrix[2][2])
+    out.matrix[1][3] = (in2.matrix[1][0] * `in`.matrix[0][3]) + (in2.matrix[1][1] * `in`.matrix[1][3]) + (in2.matrix[1][2] * `in`.matrix[2][3]) + in2.matrix[1][3]
+    // third row of out  out
+    out.matrix[2][0] = (in2.matrix[2][0] * `in`.matrix[0][0]) + (in2.matrix[2][1] * `in`.matrix[1][0]) + (in2.matrix[2][2] * `in`.matrix[2][0])
+    out.matrix[2][1] = (in2.matrix[2][0] * `in`.matrix[0][1]) + (in2.matrix[2][1] * `in`.matrix[1][1]) + (in2.matrix[2][2] * `in`.matrix[2][1])
+    out.matrix[2][2] = (in2.matrix[2][0] * `in`.matrix[0][2]) + (in2.matrix[2][1] * `in`.matrix[1][2]) + (in2.matrix[2][2] * `in`.matrix[2][2])
+    out.matrix[2][3] = (in2.matrix[2][0] * `in`.matrix[0][3]) + (in2.matrix[2][1] * `in`.matrix[1][3]) + (in2.matrix[2][2] * `in`.matrix[2][3]) + in2.matrix[2][3]
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1148
 private func G2_GetBonePoolIndex(_ pMDXAHeader: MdxaHeader, _ iFrame: Int32, _ iBone: Int32) -> Int32 {
+    // Port-note: Raven casts a record at a byte offset of `pMDXAHeader`, and the view target has no accessor for a view at a byte offset.
     // TODO: Port G2_GetBonePoolIndex
     portMissing("G2_GetBonePoolIndex", source: "oracle/codemp/renderer/tr_ghoul2.cpp:1148")
 }
@@ -415,24 +448,30 @@ func G2_TimingModel() -> Never {
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1417
 func G2_RagGetAnimMatrix(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ matrix: JKAMP.MdxaBone, _ frame: Int32) {
+    // Port-note: Raven casts a record at a byte offset of `ghoul2.mBoneCache->header`, and the view target has no accessor for a view at a byte offset.
+    // Port-note: The body calls UnCompressBone, which keeps its signature marker.
     // TODO: Port G2_RagGetAnimMatrix
     portMissing("G2_RagGetAnimMatrix", source: "oracle/codemp/renderer/tr_ghoul2.cpp:1417")
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1541
 func G2_TransformBone(_ child: Int32, _ BC: CBoneCache) {
+    // Port-note: Raven casts a record at a byte offset of `BC.header`, and the view target has no accessor for a view at a byte offset.
+    // Port-note: The body calls G2_TimingModel and UnCompressBone, which keep their signature markers.
     // TODO: Port G2_TransformBone
     portMissing("G2_TransformBone", source: "oracle/codemp/renderer/tr_ghoul2.cpp:1541")
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2053
 func G2_SetUpBolts(_ header: MdxaHeader, _ ghoul2: CGhoul2Info, _ bonePtr: inout [(Int32, MdxaBone)], _ boltList: inout [boltInfo_t]) {
+    // Port-note: Raven casts a record at a byte offset of `header`, and the view target has no accessor for a view at a byte offset.
     // TODO: Port G2_SetUpBolts
     portMissing("G2_SetUpBolts", source: "oracle/codemp/renderer/tr_ghoul2.cpp:2053")
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2075
 func G2_TransformGhoulBones(_ rootBoneList: inout [boneInfo_t], _ rootMatrix: JKAMP.MdxaBone, _ ghoul2: CGhoul2Info, _ time: Int32, _ smooth: Bool = true) {
+    // Port-note: Raven counts `sizeof(*ghoul2.mBoneCache)` of the C++ class into `g_Ghoul2Allocations`, and the Swift class has no byte size.
     // TODO: Port G2_TransformGhoulBones
     portMissing("G2_TransformGhoulBones", source: "oracle/codemp/renderer/tr_ghoul2.cpp:2075")
 }
@@ -440,6 +479,8 @@ func G2_TransformGhoulBones(_ rootBoneList: inout [boneInfo_t], _ rootMatrix: JK
 // We've come across a surface that's designated as a bolt surface, process it and put it in the appropriate bolt place
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2246
 func G2_ProcessSurfaceBolt(_ bonePtr: inout [(Int32, MdxaBone)], _ surface: MdxmSurface?, _ boltNum: Int32, _ boltList: inout [boltInfo_t], _ surfInfo: surfaceInfo_t?, _ mod: Model) {
+    // Port-note: The body calls G2_FindSurface, which keeps its signature marker.
+    // Port-note: Raven casts a record at a byte offset of `originalSurf`, and the view target has no accessor for a view at a byte offset.
     // TODO: Port G2_ProcessSurfaceBolt
     portMissing("G2_ProcessSurfaceBolt", source: "oracle/codemp/renderer/tr_ghoul2.cpp:2246")
 }
@@ -447,6 +488,7 @@ func G2_ProcessSurfaceBolt(_ bonePtr: inout [(Int32, MdxaBone)], _ surface: Mdxm
 // now go through all the generated surfaces that aren't included in the model surface hierarchy and create the correct bolt info for them
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2495
 func G2_ProcessGeneratedSurfaceBolts(_ ghoul2: CGhoul2Info, _ bonePtr: inout [(Int32, MdxaBone)], _ mod_t: Model) {
+    // Raven calls this function from no file of either tree, so it is dead.
     // TODO: Port G2_ProcessGeneratedSurfaceBolts
     portMissing("G2_ProcessGeneratedSurfaceBolts", source: "oracle/codemp/renderer/tr_ghoul2.cpp:2495")
 }
@@ -454,6 +496,8 @@ func G2_ProcessGeneratedSurfaceBolts(_ ghoul2: CGhoul2Info, _ bonePtr: inout [(I
 // Go through the model and deal with just the surfaces that are tagged as bolt on points - this is for the server side skeleton construction
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2739
 func ProcessModelBoltSurfaces(_ surfaceNum: Int32, _ rootSList: inout [surfaceInfo_t], _ bonePtr: inout [(Int32, MdxaBone)], _ currentModel: Model, _ lod: Int32, _ boltList: inout [boltInfo_t]) {
+    // Port-note: The body calls G2_FindSurface, which keeps its signature marker.
+    // Port-note: Raven casts a record at a byte offset of `currentModel->mdxm`, and the view target has no accessor for a view at a byte offset.
     // TODO: Port ProcessModelBoltSurfaces
     portMissing("ProcessModelBoltSurfaces", source: "oracle/codemp/renderer/tr_ghoul2.cpp:2739")
 }
@@ -461,6 +505,8 @@ func ProcessModelBoltSurfaces(_ surfaceNum: Int32, _ rootSList: inout [surfaceIn
 // build the used bone list so when doing bone transforms we can determine if we need to do it or not
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2796
 func G2_ConstructUsedBoneList(_ CBL: CConstructBoneList) {
+    // Port-note: The body calls G2_FindSurface, which keeps its signature marker.
+    // Port-note: Raven casts a record at a byte offset of `CBL.currentModel->mdxm`, and the view target has no accessor for a view at a byte offset.
     // TODO: Port G2_ConstructUsedBoneList
     portMissing("G2_ConstructUsedBoneList", source: "oracle/codemp/renderer/tr_ghoul2.cpp:2796")
 }
@@ -468,8 +514,77 @@ func G2_ConstructUsedBoneList(_ CBL: CConstructBoneList) {
 // NOTE!! This assumes at least one model will NOT have a parent. If it does - we are screwed
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2881
 private func G2_Sort_Models(_ ghoul2: CGhoul2Info_v, _ modelList: Slots<Int32>, _ modelCount: inout Int32) {
-    // TODO: Port G2_Sort_Models
-    portMissing("G2_Sort_Models", source: "oracle/codemp/renderer/tr_ghoul2.cpp:2881")
+    var startPoint: Int32
+    var endPoint: Int32
+    var i: Int32
+    var boltTo: Int32
+    var j: Int32
+
+    modelCount = 0
+
+    // first walk all the possible ghoul2 models, and stuff the out array with those with no parents
+    i = 0
+    while i < ghoul2.size() {
+        // have a ghoul model here?
+        if ghoul2[i].mModelindex == -1 {
+            i += 1
+            continue
+        }
+
+        if !ghoul2[i].mValid {
+            i += 1
+            continue
+        }
+
+        // are we attached to anything?
+        if ghoul2[i].mModelBoltLink == -1 {
+            // no, insert us first
+            modelList[modelCount] = i
+            modelCount += 1
+        }
+        i += 1
+    }
+
+    startPoint = 0
+    endPoint = modelCount
+
+    // now, using that list of parentless models, walk the descendant tree for each of them, inserting the descendents in the list
+    while startPoint != endPoint {
+        i = 0
+        while i < ghoul2.size() {
+            // have a ghoul model here?
+            if ghoul2[i].mModelindex == -1 {
+                i += 1
+                continue
+            }
+
+            if !ghoul2[i].mValid {
+                i += 1
+                continue
+            }
+
+            // what does this model think it's attached to?
+            if ghoul2[i].mModelBoltLink != -1 {
+                boltTo = (ghoul2[i].mModelBoltLink >> MODEL_SHIFT) & MODEL_AND
+                // is it any of the models we just added to the list?
+                j = startPoint
+                while j < endPoint {
+                    // is this my parent model?
+                    if boltTo == modelList[j] {
+                        // yes, insert into list and exit now
+                        modelList[modelCount] = i
+                        modelCount += 1
+                        break
+                    }
+                    j += 1
+                }
+            }
+            i += 1
+        }
+        // update start and end points
+        startPoint = endPoint
+        endPoint = modelCount
+    }
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2952
@@ -484,25 +599,31 @@ func G2_FindSurface_BC() -> Never {
 // We've come across a surface that's designated as a bolt surface, process it and put it in the appropriate bolt place
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2983
 func G2_ProcessSurfaceBolt2(_ boneCache: CBoneCache, _ surface: MdxmSurface, _ boltNum: Int32, _ boltList: inout [boltInfo_t], _ surfInfo: surfaceInfo_t?, _ mod: Model, _ retMatrix: JKAMP.MdxaBone) {
+    // Port-note: The body calls G2_FindSurface_BC, which keeps its signature marker.
+    // Port-note: Raven casts a record at a byte offset of `originalSurf`, and the view target has no accessor for a view at a byte offset.
     // TODO: Port G2_ProcessSurfaceBolt2
     portMissing("G2_ProcessSurfaceBolt2", source: "oracle/codemp/renderer/tr_ghoul2.cpp:2983")
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:3253
 func G2_GetBoltMatrixLow(_ ghoul2: CGhoul2Info, _ boltNum: Int32, _ scale: JKAShared.vec3_t, _ retMatrix: JKAMP.MdxaBone) {
+    // Port-note: The file-scope `identityMatrix` has no storage.
+    // Port-note: Raven casts a record at a byte offset of `boneCache.header`, and the view target has no accessor for a view at a byte offset.
+    // Port-note: The body calls G2_FindSurface_BC, which keeps its signature marker.
     // TODO: Port G2_GetBoltMatrixLow
     portMissing("G2_GetBoltMatrixLow", source: "oracle/codemp/renderer/tr_ghoul2.cpp:3253")
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:3333
 private func RootMatrix(_ ghoul2: CGhoul2Info_v, _ time: Int32, _ scale: JKAShared.vec3_t, _ retMatrix: JKAMP.MdxaBone) {
+    // Port-note: The file-scope `identityMatrix` has no storage.
     // TODO: Port RootMatrix
     portMissing("RootMatrix", source: "oracle/codemp/renderer/tr_ghoul2.cpp:3333")
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:3369
 private func bInShadowRange(_ location: JKAShared.vec3_t) -> Bool {
-    // Port-note: The global tr has no view, so the body cannot read tr.viewParms.ori.
+    // Raven's one call is in R_AddGhoulSurfaces under `#ifndef DEDICATED` at tr_ghoul2.cpp:3384, so the function is dead in the dedicated build.
     // TODO: Port bInShadowRange
     portMissing("bInShadowRange", source: "oracle/codemp/renderer/tr_ghoul2.cpp:3369")
 }
@@ -516,14 +637,21 @@ R_AddGHOULSurfaces
 */
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:3383
 func R_AddGhoulSurfaces(_ ent: TrRefEntity) {
-    // TODO: Port R_AddGhoulSurfaces
-    portMissing("R_AddGhoulSurfaces", source: "oracle/codemp/renderer/tr_ghoul2.cpp:3383")
+    // Raven's whole body stands under `#ifndef DEDICATED`, so the dedicated build has an empty body.
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:3544
 func G2_NeedsRecalc(_ ghlInfo: CGhoul2Info?, _ frameNum: Int32) -> Bool {
-    // TODO: Port G2_NeedsRecalc
-    portMissing("G2_NeedsRecalc", source: "oracle/codemp/renderer/tr_ghoul2.cpp:3544")
+    G2_SetupModelPointers(ghlInfo)
+    // not sure if I still need this test, probably
+    if ghlInfo!.mSkelFrameNum != frameNum ||
+        ghlInfo!.mBoneCache == nil ||
+        ghlInfo!.mBoneCache!.mod != ghlInfo!.currentModel
+    {
+        ghlInfo!.mSkelFrameNum = frameNum
+        return true
+    }
+    return false
 }
 
 /**
@@ -535,6 +663,7 @@ G2_ConstructGhoulSkeleton - builds a complete skeleton for all ghoul models in a
 */
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:3570
 func G2_ConstructGhoulSkeleton(_ ghoul2: CGhoul2Info_v, _ frameNum: Int32, _ checkForNewOrigin: Bool, _ scale: JKAShared.vec3_t) {
+    // Port-note: The file-scope `identityMatrix` has no storage, and the local `int modelList[256]` has no `Slots<Int32>` storage for G2_Sort_Models.
     // TODO: Port G2_ConstructGhoulSkeleton
     portMissing("G2_ConstructGhoulSkeleton", source: "oracle/codemp/renderer/tr_ghoul2.cpp:3570")
 }
