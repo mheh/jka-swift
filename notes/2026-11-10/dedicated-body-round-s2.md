@@ -38,7 +38,14 @@ WriteBlock, VM_VM2C, and VM_LogSyscalls are not in this set. They wait on the ge
 
 - The "so it keeps its marker" ends of the three CBlockStream notes are gone, because the functions now have bodies.
 
-## The rule 19 notes
+## The rule 19 note
 
-- AAS_NearestHideArea zeroes `aasworld.numareas` entries of the allocation of the first call (`be_aas_route.cpp:2081`), and a larger count on a later map writes past its end. The Slots keeps the count of the first call, and the body zeroes that count with `zero()`.
-- CBlockStream::Create writes `sizeof(id_header)` bytes of `IBI_HEADER_ID` (`BlockStream.cpp:546`), the size of a pointer. That is 4 bytes on WinDed. On a 64-bit target the size passes the four bytes of the text, and the fwrite precondition traps.
+- AAS_NearestHideArea zeroes `aasworld.numareas` entries of the allocation of the first call (`be_aas_route.cpp:2081`), and a larger count on a later map writes past its end. The Slots keeps the count of the first call, and the body zeroes that count with `zero()`. With a smaller count on a later map, the entries past `aasworld.numareas` are never read. With a larger count, the Slots subscript traps at `hidetraveltimes![nextareanum]` for an area past the first count.
+
+## The review fixes
+
+- CBlockStream::Create writes `sizeof(id_header)` bytes of `IBI_HEADER_ID` (`BlockStream.cpp:546`). `id_header` is a `char *`, and a pointer is 4 bytes in Raven's 32-bit build, the length of `IBI\0`. That is defined behavior, not rule 19. The body writes `strlen(IBI_HEADER_ID) + 1` bytes, the size form of the file's `Open`, and both readers take 4 bytes.
+- The rule 19 note of AAS_NearestHideArea now states both cases, the smaller count and the larger count.
+- VM_SymbolForCompiledPointer converts the `int` of `instructionPointers` to an address at `vm.cpp:175`. In Raven's 32-bit build an `int` and a pointer are both 4 bytes, so the `int` bits are the address with no extension. The body zero-extends with `UInt(UInt32(bitPattern:))`, and one comment line states the width fact.
+
+The tests pass 156 after the review fixes.

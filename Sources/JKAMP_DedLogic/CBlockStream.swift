@@ -204,9 +204,8 @@ final class CBlockStream {
             return 0
         }
 
-        // Raven's `sizeof(id_header)` is the size of a pointer, the size of `UInt` on every Swift target.
-        // Port-note: Rule 19. On a 64-bit target the size passes the four bytes of `IBI_HEADER_ID`, and the fwrite precondition traps.
-        _ = FileBackend.fwrite(id_header, at: 0, 1, Int32(UInt.byteCount), self.m_fileHandle)
+        // Raven's `sizeof(id_header)` is the size of a pointer in his 32-bit build, 4, the length of the header text with its terminator.
+        _ = FileBackend.fwrite(id_header, at: 0, 1, strlen(IBI_HEADER_ID) + 1, self.m_fileHandle)
         _ = FileBackend.fwrite(version, at: 0, 1, Int32(Float.byteCount), self.m_fileHandle)
 
         return 1

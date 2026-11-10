@@ -226,8 +226,8 @@ func VM_SymbolForCompiledPointer(_ vm: Vm, _ code: OpaquePointer?) -> String {
     // find which original instruction it is after
     i = 0
     while i < vm.codeLength {
-        // C converts the `int` to an address at the compare.
-        if UInt(truncatingIfNeeded: vm.instructionPointers![i]) > UInt(bitPattern: code) {
+        // In Raven's 32-bit build an `int` and a pointer are both 4 bytes, so the `int` bits are the address with no extension.
+        if UInt(UInt32(bitPattern: vm.instructionPointers![i])) > UInt(bitPattern: code) {
             break
         }
         i += 1

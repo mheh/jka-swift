@@ -2333,7 +2333,9 @@ func AAS_NearestHideArea(_ srcnum: Int32, _ origin: JKAShared.vec3_t, _ areanum:
     } //end if
     else {
         // Port-note: Rule 19. Raven zeroes `aasworld.numareas` entries of the allocation of the first call, and a larger count writes past its end.
-        // The Slots holds the count of the first call, so the body zeroes that count, and an entry past `aasworld.numareas` is never read.
+        // The Slots holds the count of the first call, so the body zeroes that count.
+        // With a smaller count on a later map, the entries past `aasworld.numareas` are never read.
+        // With a larger count, the Slots subscript traps at `hidetraveltimes![nextareanum]` for an area past the first count.
         hidetraveltimes!.zero()
     } //end else
     besttraveltime = 0
