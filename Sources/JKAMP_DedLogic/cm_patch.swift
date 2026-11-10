@@ -664,6 +664,8 @@ private func CM_EdgePlaneNum(_ grid: CGrid, _ gridPlanes: [[[Int32]]], _ i: Int3
     var up = vec3_t()
     var p: Int32
 
+    // Port-note: When CM_GridPlane returns -1, Raven reads `planes[-1]`, the record before the plane array, which C leaves undefined.
+    // The Slots subscript of each arm traps there.
     switch k {
     case 0:	// top border
         p1 = grid.points[i][j]
