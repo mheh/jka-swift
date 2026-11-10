@@ -1485,6 +1485,14 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
     case G_R_REGISTERSKIN:
         return Int(RE_RegisterServerSkin(args.VMA(1)))
 
+    case G_G2_CLEARATTACHEDINSTANCE:
+        G2API_ClearAttachedInstance(args[1])
+        return 0
+
+    case G_G2_CLEANENTATTACHMENTS:
+        G2API_CleanEntAttachments()
+        return 0
+
     case G_G2_LISTBONES, G_G2_LISTSURFACES, G_G2_HAVEWEGHOULMODELS, G_G2_SETMODELS, G_G2_GETBOLT, G_G2_GETBOLT_NOREC,
          G_G2_GETBOLT_NOREC_NOROT, G_G2_INITGHOUL2MODEL, G_G2_SETSKIN, G_G2_SIZE, G_G2_ADDBOLT, G_G2_SETBOLTINFO,
          G_G2_ANGLEOVERRIDE, G_G2_PLAYANIM, G_G2_GETBONEANIM, G_G2_GETGLANAME, G_G2_COPYGHOUL2INSTANCE,
@@ -1493,10 +1501,10 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
          G_G2_SETROOTSURFACE, G_G2_SETSURFACEONOFF, G_G2_SETNEWORIGIN, G_G2_DOESBONEEXIST, G_G2_GETSURFACERENDERSTATUS,
          G_G2_ABSURDSMOOTHING, G_G2_SETRAGDOLL, G_G2_ANIMATEG2MODELS, G_G2_RAGPCJCONSTRAINT, G_G2_RAGPCJGRADIENTSPEED,
          G_G2_RAGEFFECTORGOAL, G_G2_GETRAGBONEPOS, G_G2_RAGEFFECTORKICK, G_G2_RAGFORCESOLVE, G_G2_SETBONEIKSTATE,
-         G_G2_IKMOVE, G_G2_REMOVEBONE, G_G2_ATTACHINSTANCETOENTNUM, G_G2_CLEARATTACHEDINSTANCE, G_G2_CLEANENTATTACHMENTS,
+         G_G2_IKMOVE, G_G2_REMOVEBONE, G_G2_ATTACHINSTANCETOENTNUM,
          G_G2_OVERRIDESERVER, G_G2_GETSURFACENAME:
         // Port-note: Row Z6. Each arm reads a word of the module as the address of a `CGhoul2Info` or a `CGhoul2Info_v`, and the Swift classes have no form from a word.
-        // Port-note: Row Z6. These 47 arms are one hole.
+        // Port-note: Row Z6. These 45 arms are one hole.
         // Raven wrote: the G2API_ calls of sv_game.cpp:1316 to :1617.
         portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
 

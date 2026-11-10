@@ -114,7 +114,8 @@ func CM_LoadShaderFiles() {
     var shaderFiles2: [String]
     var numShaders2: Int32 = 0
     // AI: Raven keeps `char *buffers[MAX_SHADER_FILES]`. The Array holds one CharBuf per file, and nil is Raven's NULL.
-    var buffers = [CharBuf?](repeating: nil, count: Int(MAX_SHADER_FILES))
+    // Each entry starts as an empty CharBuf, because Raven hands FS_ReadFile the address `&buffers[i]`, and a nil entry is his NULL, which asks for the length alone.
+    var buffers = [CharBuf?](repeating: CharBuf(0), count: Int(MAX_SHADER_FILES))
     var numShaders: Int32
     var i: Int32
     var sum: Int32 = 0

@@ -658,52 +658,53 @@ CM_EdgePlaneNum
 */
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:615
 private func CM_EdgePlaneNum(_ grid: CGrid, _ gridPlanes: [[[Int32]]], _ i: Int32, _ j: Int32, _ k: Int32) -> Int32 {
-    var p1: JKAShared.vec3_t
-    var p2: JKAShared.vec3_t
+    // AI: Raven points `p1` and `p2` at rows of the grid and only reads them. Each local holds a copy of the vector.
+    var p1: vec3_t
+    var p2: vec3_t
     var up = vec3_t()
     var p: Int32
 
     switch k {
-    case 0: // top border
+    case 0:	// top border
         p1 = grid.points[i][j]
         p2 = grid.points[i + 1][j]
         p = CM_GridPlane(gridPlanes, i, j, 0)
-        _VectorMA(p1, 4, planes[p].plane.vector, &up)
+        _VectorMA(p1, 4, vec3_t(planes[p].plane[0], planes[p].plane[1], planes[p].plane[2]), &up)
         return CM_FindPlane(p1, p2, up)
 
-    case 2: // bottom border
+    case 2:	// bottom border
         p1 = grid.points[i][j + 1]
         p2 = grid.points[i + 1][j + 1]
         p = CM_GridPlane(gridPlanes, i, j, 1)
-        _VectorMA(p1, 4, planes[p].plane.vector, &up)
+        _VectorMA(p1, 4, vec3_t(planes[p].plane[0], planes[p].plane[1], planes[p].plane[2]), &up)
         return CM_FindPlane(p2, p1, up)
 
-    case 3: // left border
+    case 3:	// left border
         p1 = grid.points[i][j]
         p2 = grid.points[i][j + 1]
         p = CM_GridPlane(gridPlanes, i, j, 1)
-        _VectorMA(p1, 4, planes[p].plane.vector, &up)
+        _VectorMA(p1, 4, vec3_t(planes[p].plane[0], planes[p].plane[1], planes[p].plane[2]), &up)
         return CM_FindPlane(p2, p1, up)
 
-    case 1: // right border
+    case 1:	// right border
         p1 = grid.points[i + 1][j]
         p2 = grid.points[i + 1][j + 1]
         p = CM_GridPlane(gridPlanes, i, j, 0)
-        _VectorMA(p1, 4, planes[p].plane.vector, &up)
+        _VectorMA(p1, 4, vec3_t(planes[p].plane[0], planes[p].plane[1], planes[p].plane[2]), &up)
         return CM_FindPlane(p1, p2, up)
 
-    case 4: // diagonal out of triangle 0
+    case 4:	// diagonal out of triangle 0
         p1 = grid.points[i + 1][j + 1]
         p2 = grid.points[i][j]
         p = CM_GridPlane(gridPlanes, i, j, 0)
-        _VectorMA(p1, 4, planes[p].plane.vector, &up)
+        _VectorMA(p1, 4, vec3_t(planes[p].plane[0], planes[p].plane[1], planes[p].plane[2]), &up)
         return CM_FindPlane(p1, p2, up)
 
-    case 5: // diagonal out of triangle 1
+    case 5:	// diagonal out of triangle 1
         p1 = grid.points[i][j]
         p2 = grid.points[i + 1][j + 1]
         p = CM_GridPlane(gridPlanes, i, j, 1)
-        _VectorMA(p1, 4, planes[p].plane.vector, &up)
+        _VectorMA(p1, 4, vec3_t(planes[p].plane[0], planes[p].plane[1], planes[p].plane[2]), &up)
         return CM_FindPlane(p1, p2, up)
 
     default:
@@ -724,8 +725,9 @@ CM_SetBorderInward
 private func CM_SetBorderInward(_ facet: Facet, _ grid: CGrid, _ gridPlanes: [[[Int32]]], _ i: Int32, _ j: Int32, _ which: Int32) {
     var k: Int32
     var l: Int32
-    var points = [JKAShared.vec3_t](repeating: vec3_t(), count: 4)
-    var numPoints: Int32
+    // AI: Raven points the four entries of `points` at rows of the grid and only reads them. Each entry holds a copy of the vector.
+    var points = [vec3_t](repeating: vec3_t(), count: 4)
+    let numPoints: Int32
 
     switch which {
     case -1:
@@ -734,16 +736,19 @@ private func CM_SetBorderInward(_ facet: Facet, _ grid: CGrid, _ gridPlanes: [[[
         points[2] = grid.points[i + 1][j + 1]
         points[3] = grid.points[i][j + 1]
         numPoints = 4
+
     case 0:
         points[0] = grid.points[i][j]
         points[1] = grid.points[i + 1][j]
         points[2] = grid.points[i + 1][j + 1]
         numPoints = 3
+
     case 1:
         points[0] = grid.points[i + 1][j + 1]
         points[1] = grid.points[i][j + 1]
         points[2] = grid.points[i][j]
         numPoints = 3
+
     default:
         Com_Error(ERR_FATAL, "CM_SetBorderInward: bad parameter")
     }

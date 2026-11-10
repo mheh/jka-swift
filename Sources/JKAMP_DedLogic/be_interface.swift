@@ -3,6 +3,10 @@ import JKAMP
 import JKAShared
 import JKAMP_Ded
 
+// The copy of botlib.h in ded_types.h starts at :18, so the host has no C form of this macro.
+/// Source: oracle/codemp/game/botlib.h:16
+let BOTLIB_API_VERSION: Int32 = 2
+
 /// Source: oracle/codemp/botlib/be_interface.cpp:39
 var botlibglobals: BotlibGlobals { world.storage.botlibglobals }
 
@@ -475,15 +479,17 @@ GetBotLibAPI
 */
 /// Source: oracle/codemp/botlib/be_interface.cpp:834
 func GetBotLibAPI(_ apiVersion: Int32, _ `import`: BotlibImport) -> BotlibExport? {
-    // bk001129 - this wasn't set for base/
+    // Raven asserts `import` here, and a view parameter is never NULL. // bk001129 - this wasn't set for base/
     botimport.copy(from: `import`)
-    // bk001129 - pars pro toto
+    assert(botimport.Print != nil)   // bk001129 - pars pro toto
 
     be_botlib_export.clear()
 
-    // Port-note: BOTLIB_API_VERSION of botlib.h has no host re-export, so the version test has no constant, row BL5.
-    // Raven wrote: if ( apiVersion != BOTLIB_API_VERSION ) { botimport.Print( PRT_ERROR, "Mismatched BOTLIB_API_VERSION: expected %i, got %i\n", BOTLIB_API_VERSION, apiVersion ); return NULL; }
-    portMissing("GetBotLibAPI", source: "oracle/codemp/botlib/be_interface.cpp:834")
+    if apiVersion != BOTLIB_API_VERSION {
+        // Port-note: The `Print` field of the import table is a C function with a variadic tail, and the typealias `BotlibImportPrint` drops the tail.
+        // Raven wrote: botimport.Print( PRT_ERROR, "Mismatched BOTLIB_API_VERSION: expected %i, got %i\n", BOTLIB_API_VERSION, apiVersion );
+        portMissing("GetBotLibAPI", source: "oracle/codemp/botlib/be_interface.cpp:834")
+    }
 
     Init_AAS_Export(be_botlib_export.aas)
     Init_EA_Export(be_botlib_export.ea)

@@ -503,6 +503,11 @@ private func SV_ClipMoveToEntities(_ clip: Moveclip) {
     let num: Int32
     var touch: SharedEntity?
     var passOwnerNum: Int32
+    // The closures below capture these three locals, and Swift requires a value before a capture, so each starts at zero.
+    var clipHandle: clipHandle_t = 0
+    // AI: Raven points `origin` and `angles` at vectors of the entity and only reads them. Each local holds a copy of the vector.
+    var origin = vec3_t()
+    var angles = vec3_t()
     var thisOwnerShared: Int32 = 1
 
     num = SV_AreaEntities(clip.boxmins, clip.boxmaxs, touchlist_SV_ClipMoveToEntities, MAX_GENTITIES)
@@ -524,10 +529,6 @@ private func SV_ClipMoveToEntities(_ clip: Moveclip) {
     Trace.scratch { trace in
         Trace.scratch { oldTrace in
             var i: Int32
-            var clipHandle: clipHandle_t
-            // AI: Raven points `origin` and `angles` at vectors of the entity and only reads them. Each local holds a copy of the vector.
-            var origin: vec3_t
-            var angles: vec3_t
 
             i = 0
             while i < num {
