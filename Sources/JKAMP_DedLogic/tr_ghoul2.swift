@@ -121,9 +121,11 @@ let goreShader: JKAShared.qhandle_t = -1
 let MAX_RENDER_SURFACES = (2048) as Int32
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:866
-// TODO: Port global RSStorage
-// Raven wrote: static CRenderableSurface RSStorage[MAX_RENDER_SURFACES]
-// No view for `CRenderableSurface` of `tr_local.h`.
+/// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
+var RSStorage: [CRenderableSurface] {
+    get { world.RSStorage }
+    set { world.RSStorage = newValue }
+}
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:867
 var NextRS: UInt32 {
@@ -2193,7 +2195,7 @@ func G2_ProcessSurfaceBolt2(_ boneCache: CBoneCache, _ surface: MdxmSurface?, _ 
         var vec0 = vec3_t()
         var vec1 = vec3_t()
         // work out baryCentricK
-        let baryCentricK: Float = 1.0 - (surfInfo!.genBarycentricI + surfInfo!.genBarycentricJ)
+        let baryCentricK = Float(1.0 - Double(surfInfo!.genBarycentricI + surfInfo!.genBarycentricJ))
 
         // now we have the model transformed into model space, now generate an origin.
         retMatrix.matrix[0][3] = (pTri[0][0] * surfInfo!.genBarycentricI) + (pTri[1][0] * surfInfo!.genBarycentricJ) + (pTri[2][0] * baryCentricK)

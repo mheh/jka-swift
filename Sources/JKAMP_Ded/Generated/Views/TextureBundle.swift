@@ -74,9 +74,9 @@ public struct TextureBundle: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/renderer/tr_local.h:376
-    public var tcGenVectors: OpaquePointer? {
-        get { OpaquePointer(self.raw.pointee.tcGenVectors) }
-        nonmutating set { self.raw.pointee.tcGenVectors = UnsafeMutablePointer(newValue) }
+    public var tcGenVectors: Slots<JKAShared.vec3_t>? {
+        get { self.raw.pointee.tcGenVectors.map { Slots(vectors: UnsafeMutableRawPointer($0), count: Int.max) } }
+        nonmutating set { self.raw.pointee.tcGenVectors = newValue.map { UnsafeMutablePointer(OpaquePointer($0.base)) } }
     }
 
     /// Source: oracle/codemp/renderer/tr_local.h:377

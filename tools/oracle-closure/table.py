@@ -2159,7 +2159,8 @@ class Table:
             return ("UnsafeMutableRawPointer?", "")
         if ruled == "pooled_string":
             return ("String", "")
-        if ruled == "optional_string":
+        if ruled == "optional_string" and cur.result_type.get_canonical().kind == TypeKind.POINTER:
+            # A C++ overload of the same name that returns a `bool`, `GPG_FindPairValue` of GenericParser2.cpp:1099, keeps its own return.
             return (OPTIONAL_TEXT_RESULT.swift, OPTIONAL_TEXT_RESULT.crossing)
         if ruled == "in_place":
             # Raven returns the argument it rewrote in place, which the caller already holds.

@@ -18,6 +18,10 @@ var height2_FlattenArea: Slots<Int32> { world.storage.height2_FlattenArea }
 // AI: Raven declares `info` on the stack of FlattenArea. The function uses one zeroed allocation on the storage class.
 var info_FlattenArea: Slots<Int32> { world.storage.info_FlattenArea }
 
+/// Source: oracle/codemp/qcommon/cm_terrain.cpp:1382
+// AI: Raven declares `info` on the stack of FractionBelowLevel. The function uses one zeroed allocation on the storage class.
+var info_FractionBelowLevel: Slots<Int32> { world.storage.info_FractionBelowLevel }
+
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1067
 func CM_CircularIterate(_ data: Slots<UInt8>, _ width: Int32, _ height: Int32, _ xo: Int32, _ yo: Int32, _ insideRadius: Int32, _ outsideRadius: Int32, _ user: Slots<Int32>, _ callback: ((Slots<UInt8>, Float, Slots<Int32>) -> Void)?) {
     var x: Int32
@@ -123,8 +127,7 @@ func CM_FlattenArea(_ landscape: CCMLandScape?, _ area: CArea?, _ height: Int32,
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1643
-// AI: Raven reads `numCtls` vectors through `vec3_t *ctls`. The parameter is the caller's array, the PARAMS kind `vec3_array` of the method.
-func CM_CarveBezierCurve(_ landscape: CCMLandScape?, _ numCtls: Int32, _ ctls: [JKAShared.vec3_t], _ steps: Int32, _ depth: Int32, _ size: Int32) {
+func CM_CarveBezierCurve(_ landscape: CCMLandScape?, _ numCtls: Int32, _ ctls: Slots<JKAShared.vec3_t>, _ steps: Int32, _ depth: Int32, _ size: Int32) {
     landscape!.CarveBezierCurve(numCtls, ctls, steps, depth, size)
 }
 

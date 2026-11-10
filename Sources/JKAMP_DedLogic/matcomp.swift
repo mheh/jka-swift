@@ -119,14 +119,14 @@ let MC_SHIFT_X = (0) as Int32
 // The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
 
 /// Source: oracle/codemp/renderer/matcomp.c:50
-func MC_Compress(_ mat: [[Float]], _ _comp: Slots<UInt8>) {
+func MC_Compress(_ mat: JKAMP.MdxaBone?, _ _comp: Slots<UInt8>) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     // TODO: Port MC_Compress
     portMissing("MC_Compress", source: "oracle/codemp/renderer/matcomp.c:50")
 }
 
 /// Source: oracle/codemp/renderer/matcomp.c:163
-func MC_UnCompress(_ mat: [[Float]], _ comp: Slots<UInt8>) {
+func MC_UnCompress(_ mat: JKAMP.MdxaBone?, _ comp: Slots<UInt8>) {
     // Port-note: Raven calls this function only from the comments of tr_ghoul2.cpp:1705 to :1746, so it is dead.
     // TODO: Port MC_UnCompress
     portMissing("MC_UnCompress", source: "oracle/codemp/renderer/matcomp.c:163")

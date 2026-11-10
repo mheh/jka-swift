@@ -3,6 +3,19 @@ import JKAMP
 import JKAShared
 import JKAMP_Ded
 
+// maximum random choices
+/// Source: oracle/codemp/RMG/RM_Mission.h:10
+let MAX_RANDOM_CHOICES = 100 as Int32
+
+/// Source: oracle/codemp/qcommon/cm_terrainmap.h:63
+let SIDE_NONE = 0 as Int32
+
+/// Source: oracle/codemp/qcommon/cm_terrainmap.h:64
+let SIDE_BLUE = 1 as Int32
+
+/// Source: oracle/codemp/qcommon/cm_terrainmap.h:65
+let SIDE_RED = 2 as Int32
+
 /// Raven's random mission, its objectives, its instances, and the pickup odds of a random map.
 /// CRMManager.LoadMission makes one only when the landscape holds a random terrain, and the dedicated build never makes that terrain.
 /// Source: oracle/codemp/RMG/RM_Mission.h:15
@@ -309,10 +322,7 @@ final class CRMMission {
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:163
-    // TODO: Port signature
-    // Raven wrote: bool CRMMission::ParseOrigin ( CGPGroup* originGroup, vec3_t origin, vec3_t lookat, int* flattenHeight )
-    // No table row for `int* flattenHeight`.
-    private func ParseOrigin() -> Never {
+    private func ParseOrigin(_ originGroup: CGPGroup?, _ origin: inout JKAShared.vec3_t, _ lookat: inout JKAShared.vec3_t, _ flattenHeight: inout Int32) -> Bool {
         // TODO: Port CRMMission::ParseOrigin
         portMissing("CRMMission::ParseOrigin", source: "oracle/codemp/RMG/RM_Mission.cpp:163")
     }

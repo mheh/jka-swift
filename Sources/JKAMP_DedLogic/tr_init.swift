@@ -781,6 +781,10 @@ var broadsword_dircap: JKAMP.Cvar? {
 // Raven wrote: static const int s_numVidModes = ( sizeof( r_vidModes ) / sizeof( r_vidModes[0] ) )
 let s_numVidModes: Int32 = Int32(r_vidModes.count)
 
+/// Source: oracle/codemp/renderer/tr_init.cpp:1460
+// AI: Raven declares `re` static in GetRefAPI. The function uses one zeroed allocation on the storage class.
+var re_GetRefAPI: Refexport { world.storage.re_GetRefAPI }
+
 /// Source: oracle/codemp/renderer/tr_init.cpp:300
 private func AssertCvarRange(_ cv: JKAMP.Cvar, _ minVal: Float, _ maxVal: Float, _ shouldBeIntegral: Bool) {
     if shouldBeIntegral {
@@ -1119,11 +1123,15 @@ GetRefAPI
 ```
 */
 /// Source: oracle/codemp/renderer/tr_init.cpp:1459
-// TODO: Port signature
-// Raven wrote: refexport_t *GetRefAPI ( int apiVersion )
-// No table row for the return `refexport_t *`.
-func GetRefAPI() -> Never {
+func GetRefAPI(_ apiVersion: Int32) -> Refexport? {
     // The client's cl_main.cpp is the one caller, and the dedicated host does not link it, so the function is dead.
     // TODO: Port GetRefAPI
     portMissing("GetRefAPI", source: "oracle/codemp/renderer/tr_init.cpp:1459")
+}
+
+/// One static per function this file stores in a `Refexport` callback field, so each has one address for the life of the module.
+/// The thunks stand in this file, because the functions they call are private to it.
+private enum RefexportThunks {
+    /// Source: oracle/codemp/renderer/tr_init.cpp:1333
+    static let RE_Shutdown: RefexportShutdown = { JKAMP_DedLogic.RE_Shutdown($0 != 0) }
 }

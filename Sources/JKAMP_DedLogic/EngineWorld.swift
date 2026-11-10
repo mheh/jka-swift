@@ -437,6 +437,14 @@ public final class EngineWorld {
     /// Source: oracle/codemp/qcommon/vm.cpp:21
     var g_symbolMap: Vm? = nil
 
+    /// Raven's `static int callnum` of `VM_LogSyscalls` in `vm.cpp`.
+    /// Source: oracle/codemp/qcommon/vm.cpp:935
+    var callnum: Int32 = 0
+
+    /// Raven's `static FILE *f` of `VM_LogSyscalls` in `vm.cpp`, the stream of `syscalls.log`.
+    /// Source: oracle/codemp/qcommon/vm.cpp:936
+    var f: OpaquePointer? = nil
+
     // MARK: - vm_interpreted.cpp
 
     // AI: Raven sized the table at 256 and left the slots after OP_CVFI NULL. A `[String]` holds no NULL, so the table ends at the last name.
@@ -753,6 +761,10 @@ public final class EngineWorld {
     let G2PerformanceTimer_RB_SurfaceGhoul = timing_c()
     let G2PerformanceTimer_G2_SetupModelPointers = timing_c()
     let G2PerformanceTimer_PreciseFrame = timing_c()
+
+    /// Raven's `static CRenderableSurface RSStorage[MAX_RENDER_SURFACES]` of `tr_ghoul2.cpp`, the ring of surfaces that AllocRS hands out.
+    /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:866
+    var RSStorage: [CRenderableSurface] = (0..<Int(MAX_RENDER_SURFACES)).map { _ in CRenderableSurface() }
 
     /// Raven's `static mdxaSkel_t *skel` of G2_TransformBone.
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1549

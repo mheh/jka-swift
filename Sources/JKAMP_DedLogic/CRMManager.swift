@@ -346,10 +346,7 @@ final class CRMManager {
     ```
     */
     /// Source: oracle/codemp/RMG/RM_Manager.cpp:442
-    // TODO: Port signature
-    // Raven wrote: void CRMManager::ProcessAutomapSymbols ( int count, rmAutomapSymbol_t* symbols )
-    // No table row for `rmAutomapSymbol_t *`.
-    static func ProcessAutomapSymbols() -> Never {
+    static func ProcessAutomapSymbols(_ count: Int32, _ symbols: Slots<RmAutomapSymbol>) {
         // Its body and its two callers at RM_Mission.cpp:1508 and :1512 stand under `#ifndef DEDICATED`, so the function is dead in the dedicated build.
         // TODO: Port CRMManager::ProcessAutomapSymbols
         portMissing("CRMManager::ProcessAutomapSymbols", source: "oracle/codemp/RMG/RM_Manager.cpp:442")

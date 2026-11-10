@@ -70,11 +70,8 @@ func VM_SetSymbolMap(_ vm: Vm) {
 // converts a VM pointer to a C pointer and
 // checks to make sure that the range is acceptable
 /// Source: oracle/codemp/qcommon/vm.cpp:37
-// TODO: Port signature
-// Raven wrote: void *VM_VM2C( vmptr_t p, int length )
-// No table row for the return `void *`.
 // Raven calls this function from no file of either tree, so it is dead.
-func VM_VM2C() -> Never {
+func VM_VM2C(_ p: vmptr_t, _ length: Int32) -> OpaquePointer? {
     // TODO: Port VM_VM2C
     portMissing("VM_VM2C", source: "oracle/codemp/qcommon/vm.cpp:37")
 }
@@ -1002,6 +999,18 @@ func VM_VmInfo_f() {
         Com_Printf("    data length : %7i\n", vm!.dataMask + 1)
         i += 1
     }
+}
+
+/// Source: oracle/codemp/qcommon/vm.cpp:935
+var callnum: Int32 {
+    get { world.callnum }
+    set { world.callnum = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/vm.cpp:936
+var f: OpaquePointer? {
+    get { world.f }
+    set { world.f = newValue }
 }
 
 /**

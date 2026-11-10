@@ -143,11 +143,8 @@ final class CBlockMember {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:133
-    // TODO: Port signature
-    // Raven wrote: int CBlockMember::WriteMember( FILE *m_fileHandle )
-    // No table row for `FILE *`.
     // Port-note: Rule 20. The one caller is CBlockStream::WriteBlock, whose callers are in Interpreter.cpp, and WinDed does not link Interpreter.cpp, so the function keeps its marker.
-    func WriteMember() -> Never {
+    func WriteMember(_ m_fileHandle: OpaquePointer?) -> Int32 {
         // TODO: Port CBlockMember::WriteMember
         portMissing("CBlockMember::WriteMember", source: "oracle/codemp/icarus/BlockStream.cpp:133")
     }

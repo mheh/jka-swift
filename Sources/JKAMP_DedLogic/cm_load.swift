@@ -109,6 +109,10 @@ let VIS_HEADER = 8 as Int32
 /// Source: oracle/codemp/qcommon/cm_load.cpp:482
 let MAX_PATCH_VERTS = 1024 as Int32
 
+/// Source: oracle/codemp/qcommon/cm_load.cpp:545
+// AI: Raven declares `checksums` on the stack of CM_Checksum. The function uses one zeroed allocation on the storage class.
+var checksums_CM_Checksum: Slots<UInt32> { world.storage.checksums_CM_Checksum }
+
 /// Source: oracle/codemp/qcommon/cm_load.cpp:568
 var gpvCachedMapDiskImage: OpaquePointer? {
     get { world.variables.gpvCachedMapDiskImage }

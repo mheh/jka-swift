@@ -217,7 +217,8 @@ class Drafter(Statements, Expressions, Calls, Declarations, Classification):
         self.statement_seqs = {}
         if not fn.mapped or not header[-1].startswith("}") or fn.raven_name in DEAD:
             # The stub stands as the skeleton wrote it, and only its closing brace is no header line.
-            # A dead function of rule 20 keeps its stub, so the draft prints the stub and counts no hole.
+            # A function of a DEAD row has no body yet, so the draft prints the stub and counts no hole.
+            # Rule 20 gives a function with no caller its real body, and the row goes out in the commit of that body.
             self.line_keys = [None] * len(header)
             self.line_roles = ["header"] * (len(header) - 1) + ["frame"]
             self.line_trailing = [None] * len(header)
