@@ -97,7 +97,11 @@ public struct BotChatstate: Hashable, HandleView {
     }
 
     /// Source: unknown:6
-    // Raven's `handle` field is the engine's, and the view's own `handle` takes the name. No module body reads it.
+    // AI: Raven names the field `handle`. The view's own slot pointer takes that name, so the field reads as `chatHandle`.
+    public var chatHandle: Int32 {
+        get { self.raw.pointee.handle }
+        nonmutating set { self.raw.pointee.handle = newValue }
+    }
 
     /// Source: unknown:8
     public var firstmessage: BotConsolemessage? {
