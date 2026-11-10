@@ -57,7 +57,7 @@ func GeneticSelection(_ numranks: Int32, _ rankings: Slots<Float>) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_gen.cpp:73
-// Port-note: The body calls botimport.Print, and `botlib_import_t botimport` has no form in the host, row B1 of the seventh ledger.
+// Port-note: The body calls botimport.Print, row P1, and hands the local `float rankings[256]` to the `Slots<Float>` of GeneticSelection, row P9 of the bot-ai round.
 func GeneticParentsAndChildSelection(_ numranks: Int32, _ ranks: Slots<Float>, _ parent1: inout Int32, _ parent2: inout Int32, _ child: inout Int32) -> Int32 {
     // TODO: Port GeneticParentsAndChildSelection
     portMissing("GeneticParentsAndChildSelection", source: "oracle/codemp/botlib/be_ai_gen.cpp:73")
