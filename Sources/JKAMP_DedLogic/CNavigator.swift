@@ -713,11 +713,8 @@ final class CNavigator {
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.h:182
-    // Port-note: Rule 20. Raven declares this method in navigator.h, defines no body for it, and no file calls it, so it keeps its marker.
-    func GetNodeLeadDistance(_ nodeID: Int32) -> Float {
-        // TODO: Port CNavigator::GetNodeLeadDistance
-        portMissing("CNavigator::GetNodeLeadDistance", source: "oracle/codemp/server/NPCNav/navigator.h:182")
-    }
+    // Raven wrote: float GetNodeLeadDistance( int nodeID );
+    // Not ported: Raven declares the method in navigator.h and defines no body for it.
 
     /// Source: oracle/codemp/server/NPCNav/navigator.h:184
     func GetNumNodes() -> Int32 {

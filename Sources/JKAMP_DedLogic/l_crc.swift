@@ -113,7 +113,7 @@ func CRC_ProcessString(_ data: Slots<UInt8>, _ length: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_crc.cpp:126
-func CRC_ContinueProcessString(_ crc: inout UInt16, _ data: String, _ length: Int32) {
+func CRC_ContinueProcessString(_ crc: inout UInt16, _ data: Slots<JKAShared.byte>, _ length: Int32) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     // TODO: Port CRC_ContinueProcessString
     portMissing("CRC_ContinueProcessString", source: "oracle/codemp/botlib/l_crc.cpp:126")

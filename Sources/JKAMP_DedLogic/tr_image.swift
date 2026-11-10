@@ -17,10 +17,7 @@ var gServerSkinHack: Bool {
 }
 
 /// Source: oracle/codemp/renderer/tr_image.cpp:1421
-// TODO: Port signature
-// Raven wrote: void LoadTGA ( const char *name, byte **pic, int *width, int *height)
-// No table row for `byte ** pic`.
-func LoadTGA() -> Never {
+func LoadTGA(_ name: String, _ pic: inout Slots<JKAShared.byte>?, _ width: inout Int32, _ height: inout Int32) {
     // Its two callers at tr_image.cpp:2252 and :2295 stand under `#ifndef DEDICATED`, so the function is dead in the dedicated build.
     // TODO: Port LoadTGA
     portMissing("LoadTGA", source: "oracle/codemp/renderer/tr_image.cpp:1421")

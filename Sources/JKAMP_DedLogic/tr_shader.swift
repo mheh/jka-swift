@@ -418,7 +418,7 @@ ParseVector
 ```
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:323
-func ParseVector(_ text: inout JKAShared.TextCursor, _ count: Int32, _ v: Slots<Float>) -> Bool {
+func ParseVector(_ text: inout JKAShared.TextCursor, _ count: Int32, _ v: inout JKAShared.vec3_t) -> Bool {
     var token: String
     var i: Int32
 

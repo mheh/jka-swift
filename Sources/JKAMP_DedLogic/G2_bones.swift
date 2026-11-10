@@ -1906,8 +1906,9 @@ private func G2_RagDoll(_ ghoul2V: CGhoul2Info_v, _ g2Index: Int32, _ params: CR
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:2580
 private func G2_Get_Bone_Name(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ boneNum: Int32) -> String {
-    // Raven's two calls, at G2_bones.cpp:2625 and :3851, stand under `_DEBUG_BONE_NAMES`, and only `_DEBUG` defines it (:2576), so the Release build has no caller.
-    // The body itself has no guard, so the Release build compiles it.
+    // Raven's three calls have no caller in the dedicated build.
+    // The calls at G2_bones.cpp:2625 and :3851 stand under `_DEBUG_BONE_NAMES`, which only `_DEBUG` defines (:2576).
+    // The call at :3964 stands in the `#ifndef DEDICATED` arm of G2_BoneSnap, and the dedicated build takes the `return` at :3954.
     var i: Int32
     var skel: MdxaSkel
     let offsets: MdxaSkelOffsets

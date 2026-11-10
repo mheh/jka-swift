@@ -195,7 +195,7 @@ CM_BoxBrushes
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_test.cpp:194
-func CM_BoxBrushes(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ boxList: inout Cbrush?, _ listsize: Int32) -> Int32 {
+func CM_BoxBrushes(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ boxList: Slots<Cbrush?>, _ listsize: Int32) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     // TODO: Port CM_BoxBrushes
     portMissing("CM_BoxBrushes", source: "oracle/codemp/qcommon/cm_test.cpp:194")

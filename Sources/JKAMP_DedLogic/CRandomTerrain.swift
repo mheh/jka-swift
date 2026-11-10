@@ -3,6 +3,79 @@ import JKAMP
 import JKAShared
 import JKAMP_Ded
 
+/// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:11
+private let NOISE_SIZE = 256 as Int32
+
+/// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:12
+private let NOISE_MASK = (NOISE_SIZE - 1)
+
+/// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:14
+// AI: Raven declares `static float noiseTable[NOISE_SIZE]`, which only CM_NoiseInit under `#if 0` writes. The table is a file-scope `let` of zeros, the form of `neighbor_x`.
+private let noiseTable = [Float](repeating: 0, count: Int(NOISE_SIZE))
+
+/// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:15
+// AI: Raven declares `static int noisePerm[NOISE_SIZE]`, which only CM_NoiseInit under `#if 0` writes. The table is a file-scope `let` of zeros, the form of `neighbor_x`.
+private let noisePerm = [Int32](repeating: 0, count: Int(NOISE_SIZE))
+
+/// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:35
+private func GetNoiseValue(_ x: Int32, _ y: Int32, _ z: Int32, _ t: Int32) -> Float {
+    // Raven's INDEX and VAL macros of this file expand here, because the port has no function for them.
+    let index = noisePerm[(Int32(x) + noisePerm[(Int32(y) + noisePerm[(Int32(z) + noisePerm[Int32(t) & NOISE_MASK]) & NOISE_MASK]) & NOISE_MASK]) & NOISE_MASK]
+
+    return noiseTable[index]
+}
+
+/// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:51
+private func CM_NoiseGet4f(_ x: Float, _ y: Float, _ z: Float, _ t: Float) -> Float {
+    var i: Int32
+    let ix: Int32
+    let iy: Int32
+    let iz: Int32
+    let it: Int32
+    let fx: Float
+    let fy: Float
+    let fz: Float
+    let ft: Float
+    var front = [Float](repeating: 0, count: 4)
+    var back = [Float](repeating: 0, count: 4)
+    var fvalue: Float
+    var bvalue: Float
+    var value = [Float](repeating: 0, count: 2)
+    let finalvalue: Float
+
+    ix = Int32(floor(x))
+    fx = x - ix
+    iy = Int32(floor(y))
+    fy = y - iy
+    iz = Int32(floor(z))
+    fz = z - iz
+    it = Int32(floor(t))
+    ft = t - it
+
+    i = 0
+    while i < 2 {
+        front[0] = GetNoiseValue(ix, iy, iz, it + i)
+        front[1] = GetNoiseValue(ix + 1, iy, iz, it + i)
+        front[2] = GetNoiseValue(ix, iy + 1, iz, it + i)
+        front[3] = GetNoiseValue(ix + 1, iy + 1, iz, it + i)
+
+        back[0] = GetNoiseValue(ix, iy, iz + 1, it + i)
+        back[1] = GetNoiseValue(ix + 1, iy, iz + 1, it + i)
+        back[2] = GetNoiseValue(ix, iy + 1, iz + 1, it + i)
+        back[3] = GetNoiseValue(ix + 1, iy + 1, iz + 1, it + i)
+
+        // Raven's LERP macro of this file expands at each site, because the port has no function for it.
+        fvalue = (front[0] * (1.0 - fx) + front[1] * fx) * (1.0 - fy) + (front[2] * (1.0 - fx) + front[3] * fx) * fy
+        bvalue = (back[0] * (1.0 - fx) + back[1] * fx) * (1.0 - fy) + (back[2] * (1.0 - fx) + back[3] * fx) * fy
+
+        value[i] = fvalue * (1.0 - fz) + bvalue * fz
+        i += 1
+    }
+
+    finalvalue = value[0] * (1.0 - ft) + value[1] * ft
+    return finalvalue
+}
+
 /// Raven's random terrain of a landscape, the height grid and the paths that carve it.
 /// CreateRandomTerrain makes one for a `random_` height map, and only a client build calls it, so the dedicated build never makes one.
 /// Source: oracle/codemp/qcommon/cm_randomterrain.h:51

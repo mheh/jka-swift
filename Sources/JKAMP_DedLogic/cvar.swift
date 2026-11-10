@@ -910,12 +910,7 @@ func Cvar_Init() {
 /// Source: oracle/codemp/qcommon/cvar.cpp:965
 // TODO: Port signature
 // Raven wrote: static void Cvar_Realloc(char **string, char *memPool, int &memPoolUsed)
-// No table row for `int & memPoolUsed`.
-// Cvar_Defrag is the one caller, and only the client calls Cvar_Defrag, so this function is dead.
-private func Cvar_Realloc() -> Never {
-    // TODO: Port Cvar_Realloc
-    portMissing("Cvar_Realloc", source: "oracle/codemp/qcommon/cvar.cpp:965")
-}
+// Not ported: the string pool holds every cvar string, so the memory pool it copies into does not exist, and Cvar_Defrag is a no-op.
 
 //Turns many small allocation blocks into one big one.
 /// Source: oracle/codemp/qcommon/cvar.cpp:979
