@@ -720,6 +720,11 @@ BYTE_STORAGE_LOCALS = {
     # `unsigned char heightmap[15000]` of SV_SendClientGameState is the output of deflate at sv_client.cpp:747 and goes to MSG_WriteData at :753,
     # the `msgBuffer` row of the same function, row X44 of docket 10.
     ("heightmap", "SV_SendClientGameState"): ("SV_SendClientGameState",),
+    # CCMLandScape::FlattenArea hands `&height`, `&height2`, and its `ivec3_t info` to the `int *user` of CM_CircularIterate,
+    # cm_terrain.cpp:1343 to :1366, the `key` row of Com_BlockChecksumKey. A key of a method gives storage too, row X42 R5 of docket 10.
+    ("height", "FlattenArea"): ("FlattenArea",),
+    ("height2", "FlattenArea"): ("FlattenArea",),
+    ("info", "FlattenArea"): ("FlattenArea",),
 }
 # A scalar data table Raven initializes at file scope that tables.py copies into C storage, which the view target reads as a Slots of its scalar.
 # `static unsigned char PADDING[64]` of md4.cpp goes to MD4Update at md4.cpp:157, whose `input` is a Slots of bytes.

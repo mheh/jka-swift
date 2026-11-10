@@ -702,6 +702,35 @@ def record_spelling(decl: Decl) -> str | None:
     return None
 
 
+def holds_widened(decl: Decl) -> bool:
+    """True for a record of WIDENED_FIELDS or a record that holds one by value, `cmodel_t` with its `cLeaf_t leaf`,
+    whose oracle layout no longer holds on a 64-bit triple, so it takes no layout asserts."""
+    if decl.name in WIDENED_FIELDS:
+        return True
+    if decl.kind == "macro":
+        return False
+    cur = decl.record()
+    if cur is None or cur.kind not in RECORD_KINDS:
+        return False
+
+    def holds(record: ci.Cursor, depth: int = 0) -> bool:
+        for field in record.get_children():
+            if field.kind != CursorKind.FIELD_DECL:
+                continue
+            t = field.type.get_canonical()
+            while t.kind == TypeKind.CONSTANTARRAY:
+                t = t.element_type.get_canonical()
+            if t.kind != TypeKind.RECORD:
+                continue
+            inner = t.get_declaration()
+            names = {inner.spelling} | {c.spelling for c in [field.type.get_declaration()] if c is not None}
+            if names & set(WIDENED_FIELDS) or (depth < 8 and holds(inner, depth + 1)):
+                return True
+        return False
+
+    return holds(cur)
+
+
 def asserts_for(decl: Decl) -> list[str]:
     name = record_spelling(decl)
     if not name:
@@ -910,7 +939,7 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
         NOTES.append(f"{d.cite} macro {d.name} stays in its header, because an enum of an included header names {d.name}")
     decls = [d for d in decls if d not in clashing]
     for d in decls:
-        if d.kind in ("class", "typedef") and C_STRUCT_CLASSES.get(d.name, ("",))[0] == "fields":
+        if d.kind in ("class", "struct", "typedef") and C_STRUCT_CLASSES.get(d.name, ("",))[0] == "fields":
             # The struct holds the fields alone, each in Raven's text with `struct` in the place of `class` and `_Bool` in the place of `bool`.
             lines = lines_of(d.file)
             # Two names of one declaration, `USHORT width, height`, share the start of the first, so the declaration stands once,
@@ -930,6 +959,10 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
             if d.kind == "class":
                 d.kind = "struct"
                 d.override = (f"// Raven declares {d.name} as a class at {d.cite}. C has no class, so the fields stand as a struct and the methods stay out.\n"
+                              f"struct {d.name}\n{body};")
+            elif d.kind == "struct":
+                # A C++ struct with a method, `operator <` of mdxaCompQuatBone_t at mdx_format.h:129, keeps its fields, row X4 of docket 10.
+                d.override = (f"// Raven declares {d.name} with a C++ method at {d.cite}. C has no method, so the fields stand and the method stays out.\n"
                               f"struct {d.name}\n{body};")
             else:
                 d.override = (f"// Raven declares {d.name} with C++ `bool` fields at {d.cite}. C spells the type `_Bool`, which has the same size.\n"
@@ -1183,7 +1216,7 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
         files[decl.filename] = wrap(decl.filename, note, includes, body)
         counts[decl.stem][decl.kind] += 1
         manifest["files"][decl.filename] = {"kind": decl.kind, "source": decl.cite, "includes": includes, "c": decl.filename not in cxx_files}
-        if decl.filename not in cxx_files and decl.name not in WIDENED_FIELDS:
+        if decl.filename not in cxx_files and not holds_widened(decl):
             lines = asserts_for(decl)
             if lines:
                 asserted.append((record_spelling(decl), lines))

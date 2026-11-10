@@ -403,6 +403,19 @@ class Skeleton:
             cursors += [(cur, True) for cur in self.cgame_tu.cursor.get_children()]
         return cursors
 
+    def method_of(self, name: str) -> tuple[ci.Cursor | None, str | None]:
+        """The definition of a C++ method of a hand class and its stem, for a BYTE_STORAGE_LOCALS key of a host.
+        The skeleton writes no stub for a method, and a local whose address the method takes still needs storage,
+        `height` of CCMLandScape::FlattenArea at cm_terrain.cpp:1356, row X42 R5 of docket 10."""
+        if not C.HOST:
+            return None, None
+        for cur, _ in self.file_scope_cursors():
+            if cur.kind == CursorKind.CXX_METHOD and cur.spelling == name and cur.is_definition() and cur.location.file:
+                stem = Path(cur.location.file.name).stem
+                if stem in self.files:
+                    return cur, stem
+        return None, None
+
     def cgame_bg_function(self, cur: ci.Cursor) -> bool:
         """A function of a bg file that the cgame parse compiles and the game parse does not, so its writes count for the bg variables."""
         if not cur.location.file or cur.spelling in self.by_name:
@@ -442,15 +455,16 @@ class Skeleton:
             # A key of a local and its function names one local of several that share the name, and its storage takes the suffix.
             name = key[0] if isinstance(key, tuple) else key
             fn = self.by_name.get(functions[0])
-            local = next((c for c in fn.cur.walk_preorder() if c.kind in (CursorKind.VAR_DECL, CursorKind.PARM_DECL) and c.spelling == name),
-                         None) if fn else None
+            body, stem = (fn.cur, fn.stem) if fn else self.method_of(functions[0])
+            local = next((c for c in body.walk_preorder() if c.kind in (CursorKind.VAR_DECL, CursorKind.PARM_DECL) and c.spelling == name),
+                         None) if body is not None else None
             if local is None:
                 continue
-            var = Variable(local, fn.stem)
+            var = Variable(local, stem)
             var.local = functions
             var.suffixed = isinstance(key, tuple)
             self.map_variable(var)
-            self.variables[fn.stem].append(var)
+            self.variables[stem].append(var)
         owners: dict[str, set[str]] = defaultdict(set)
         for stem, variables in self.variables.items():
             for var in variables:
@@ -706,7 +720,8 @@ class Skeleton:
                 inner = inner.element_type.get_canonical()
             var.swift = f"Slots<{var.view}>" if depth else var.view
             return
-        if self.table.views.is_vec3(t) or (depth and "vec3_t" in t.spelling):
+        # The word match keeps `ivec3_t`, an `int[3]`, out, `info` of CCMLandScape::FlattenArea, row X42 R5 of docket 10.
+        if self.table.views.is_vec3(t) or (depth and re.search(r"\bvec3_t\b", t.spelling)):
             if depth == 2 and var.local:
                 # A BYTE_STORAGE_LOCALS ruling moves a `vec3_t` array local to the storage class, so a body hands it to a Slots parameter.
                 var.reason = "byte_storage"
@@ -729,7 +744,8 @@ class Skeleton:
             var.swift = "JKAShared.vec4_t"
             return
         # The element type as Raven spelled it, which keeps a typedef that TYPES names.
-        typed = (t.element_type.spelling if depth == 1 else t.spelling).replace("const ", "")
+        # A typedef of an array, `ivec3_t`, has its element type on the canonical type alone.
+        typed = ((t if t.kind == TypeKind.CONSTANTARRAY else t.get_canonical()).element_type.spelling if depth == 1 else t.spelling).replace("const ", "")
         if not depth and var.name in self.table.file_walks:
             # Raven walks the pointer over a file-scope table of records, so the port holds the index of the slot it points at.
             var.walk = self.table.file_walks[var.name]
@@ -1520,13 +1536,24 @@ class Skeleton:
         args: list[str] = []
         for i, arg in enumerate(proto.argument_types()):
             canonical = arg.get_canonical()
+            param = fn.params[i] if i < len(fn.params) else None
             if canonical.kind == TypeKind.POINTER:
                 record = self.table.views.record_name(canonical.get_pointee())
                 view = self.table.views.qualified_view(record, C_TARGET) if record in self.table.views.views else None
+                if view and param is not None and (param.swift or "").startswith("Slots<"):
+                    # The function takes the table of records with its count beside it, which no reader gives from the word alone.
+                    self.counts["thunks over an unmapped signature"] += 1
+                    ignored = ", ".join("_" for _ in proto.argument_types())
+                    return lines + ["    // TODO: Port signature",
+                                    f'    static let {swift_name(fn.name)}: {alias} = {{ {ignored} in portMissing("{fn.name}", source: "{fn.cite}") }}']
                 reader = None if view else self.host_reader(fn.params[i] if i < len(fn.params) else None)
                 args.append(f"{view}(handle: ${i}!)" if view else reader.replace("{}", f"${i}") if reader else f"${i}")
             elif self.table.views.scalar(arg, C_TARGET) == "Bool":
                 args.append(f"${i} != 0")
+            elif C.HOST and canonical.kind in (TypeKind.LONG, TypeKind.ULONG) and param is not None and param.swift in ("Int32", "UInt32"):
+                # The C `long` of the stored function is the 32 bits of WinDed in the botlib function, MSVC_WIDTH_FOLDERS,
+                # so the thunk keeps the low 32 bits, BotFindMatch of be_ai_chat.cpp, row X2 of docket 10.
+                args.append(f"{param.swift}(truncatingIfNeeded: ${i})")
             else:
                 args.append(f"${i}")
         if C.HOST and proto.is_function_variadic() and args and fn.params and fn.params[-1].swift == "String":
