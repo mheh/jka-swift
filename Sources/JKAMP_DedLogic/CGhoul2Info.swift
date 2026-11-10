@@ -66,4 +66,48 @@ final class CGhoul2Info {
         self.mValid = false
         self.mFileName[0] = 0
     }
+
+    /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:240
+    // AI: Raven copies the class by value with the compiler's `operator=`. The method is `copy`, a memberwise assign in Raven's member order, and each list copies into new objects.
+    func copy(_ other: CGhoul2Info) {
+        self.mSlist = other.mSlist.map { surface in
+            let copy = surfaceInfo_t()
+            copy.copy(surface)
+            return copy
+        }
+        self.mBltlist = other.mBltlist.map { bolt in
+            let copy = boltInfo_t()
+            copy.copy(bolt)
+            return copy
+        }
+        self.mBlist = other.mBlist.map { bone in
+            let copy = boneInfo_t()
+            copy.copy(bone)
+            return copy
+        }
+        self.mModelindex = other.mModelindex
+        self.mCustomShader = other.mCustomShader
+        self.mCustomSkin = other.mCustomSkin
+        self.mModelBoltLink = other.mModelBoltLink
+        self.mSurfaceRoot = other.mSurfaceRoot
+        self.mLodBias = other.mLodBias
+        self.mNewOrigin = other.mNewOrigin
+        self.mGoreSetTag = other.mGoreSetTag
+        self.mModel = other.mModel
+        self.mFileName = other.mFileName
+        self.mAnimFrameDefault = other.mAnimFrameDefault
+        self.mSkelFrameNum = other.mSkelFrameNum
+        self.mMeshFrameNum = other.mMeshFrameNum
+        self.mFlags = other.mFlags
+        self.mTransformedVertsArray = other.mTransformedVertsArray
+        self.mBoneCache = other.mBoneCache
+        self.mSkin = other.mSkin
+
+        self.mValid = other.mValid
+        self.currentModel = other.currentModel
+        self.currentModelSize = other.currentModelSize
+        self.animModel = other.animModel
+        self.currentAnimModelSize = other.currentAnimModelSize
+        self.aHeader = other.aHeader
+    }
 }

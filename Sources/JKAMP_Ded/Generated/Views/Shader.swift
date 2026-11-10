@@ -110,20 +110,28 @@ public struct Shader: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/renderer/tr_local.h:469
-    // TODO: Port shader_t.defaultShader
-    // Raven wrote: _Bool defaultShader
+    public var defaultShader: Bool {
+        get { self.raw.pointee.defaultShader }
+        nonmutating set { self.raw.pointee.defaultShader = newValue }
+    }
 
     /// Source: oracle/codemp/renderer/tr_local.h:470
-    // TODO: Port shader_t.explicitlyDefined
-    // Raven wrote: _Bool explicitlyDefined
+    public var explicitlyDefined: Bool {
+        get { self.raw.pointee.explicitlyDefined }
+        nonmutating set { self.raw.pointee.explicitlyDefined = newValue }
+    }
 
     /// Source: oracle/codemp/renderer/tr_local.h:471
-    // TODO: Port shader_t.entityMergable
-    // Raven wrote: _Bool entityMergable
+    public var entityMergable: Bool {
+        get { self.raw.pointee.entityMergable }
+        nonmutating set { self.raw.pointee.entityMergable = newValue }
+    }
 
     /// Source: oracle/codemp/renderer/tr_local.h:472
-    // TODO: Port shader_t.isBumpMap
-    // Raven wrote: _Bool isBumpMap
+    public var isBumpMap: Bool {
+        get { self.raw.pointee.isBumpMap }
+        nonmutating set { self.raw.pointee.isBumpMap = newValue }
+    }
 
     /// Source: oracle/codemp/renderer/tr_local.h:473
     public var sky: SkyParms? {
@@ -156,20 +164,28 @@ public struct Shader: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/renderer/tr_local.h:478
-    // TODO: Port shader_t.polygonOffset
-    // Raven wrote: _Bool polygonOffset
+    public var polygonOffset: Bool {
+        get { self.raw.pointee.polygonOffset }
+        nonmutating set { self.raw.pointee.polygonOffset = newValue }
+    }
 
     /// Source: oracle/codemp/renderer/tr_local.h:479
-    // TODO: Port shader_t.noMipMaps
-    // Raven wrote: _Bool noMipMaps
+    public var noMipMaps: Bool {
+        get { self.raw.pointee.noMipMaps }
+        nonmutating set { self.raw.pointee.noMipMaps = newValue }
+    }
 
     /// Source: oracle/codemp/renderer/tr_local.h:480
-    // TODO: Port shader_t.noPicMip
-    // Raven wrote: _Bool noPicMip
+    public var noPicMip: Bool {
+        get { self.raw.pointee.noPicMip }
+        nonmutating set { self.raw.pointee.noPicMip = newValue }
+    }
 
     /// Source: oracle/codemp/renderer/tr_local.h:481
-    // TODO: Port shader_t.noTC
-    // Raven wrote: _Bool noTC
+    public var noTC: Bool {
+        get { self.raw.pointee.noTC }
+        nonmutating set { self.raw.pointee.noTC = newValue }
+    }
 
     /// Source: oracle/codemp/renderer/tr_local.h:482
     public var fogPass: fogPass_t {
@@ -227,8 +243,10 @@ public struct Shader: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/renderer/tr_local.h:490
-    // TODO: Port shader_t.hasGlow
-    // Raven wrote: _Bool hasGlow
+    public var hasGlow: Bool {
+        get { self.raw.pointee.hasGlow }
+        nonmutating set { self.raw.pointee.hasGlow = newValue }
+    }
 
     /// Source: oracle/codemp/renderer/tr_local.h:491
     public var remappedShader: Shader? {

@@ -63,10 +63,7 @@ func AAS_FreeAASLinkHeap() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:129
-// TODO: Port signature
-// Raven wrote: aas_link_t *AAS_AllocAASLink(void)
-// No table row for the return `aas_link_t *`.
-func AAS_AllocAASLink() -> Never {
+func AAS_AllocAASLink() -> AasLink? {
     // TODO: Port AAS_AllocAASLink
     portMissing("AAS_AllocAASLink", source: "oracle/codemp/botlib/be_aas_sample.cpp:129")
 }
@@ -78,10 +75,7 @@ func AAS_AllocAASLink() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:155
-// TODO: Port signature
-// Raven wrote: void AAS_DeAllocAASLink(aas_link_t *link)
-// No table row for `aas_link_t * link`.
-func AAS_DeAllocAASLink() -> Never {
+func AAS_DeAllocAASLink(_ link: AasLink) {
     // TODO: Port AAS_DeAllocAASLink
     portMissing("AAS_DeAllocAASLink", source: "oracle/codemp/botlib/be_aas_sample.cpp:155")
 }
@@ -201,10 +195,7 @@ func AAS_BoxOriginDistanceFromPlane(_ normal: JKAShared.vec3_t, _ mins: JKAShare
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:389
-// TODO: Port signature
-// Raven wrote: qboolean AAS_AreaEntityCollision(int areanum, vec3_t start, vec3_t end, int presencetype, int passent, aas_trace_t *trace)
-// No table row for `aas_trace_t * trace`.
-func AAS_AreaEntityCollision() -> Never {
+func AAS_AreaEntityCollision(_ areanum: Int32, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ presencetype: Int32, _ passent: Int32, _ trace: AasTrace) -> Bool {
     // TODO: Port AAS_AreaEntityCollision
     portMissing("AAS_AreaEntityCollision", source: "oracle/codemp/botlib/be_aas_sample.cpp:389")
 }
@@ -233,7 +224,7 @@ func AAS_TraceClientBBox() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:709
-func AAS_TraceAreas(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ areas: Slots<Int32>, _ points: inout JKAShared.vec3_t, _ maxareas: Int32) -> Int32 {
+func AAS_TraceAreas(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ areas: Slots<Int32>, _ points: Slots<JKAShared.vec3_t>?, _ maxareas: Int32) -> Int32 {
     // TODO: Port AAS_TraceAreas
     portMissing("AAS_TraceAreas", source: "oracle/codemp/botlib/be_aas_sample.cpp:709")
 }
@@ -248,10 +239,7 @@ func AAS_TraceAreas(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ areas:
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:909
-// TODO: Port signature
-// Raven wrote: qboolean AAS_InsideFace(aas_face_t *face, vec3_t pnormal, vec3_t point, float epsilon)
-// No table row for `aas_face_t * face`.
-func AAS_InsideFace() -> Never {
+func AAS_InsideFace(_ face: AasFace, _ pnormal: JKAShared.vec3_t, _ point: JKAShared.vec3_t, _ epsilon: Float) -> Bool {
     // TODO: Port AAS_InsideFace
     portMissing("AAS_InsideFace", source: "oracle/codemp/botlib/be_aas_sample.cpp:909")
 }
@@ -276,10 +264,7 @@ func AAS_PointInsideFace(_ facenum: Int32, _ point: JKAShared.vec3_t, _ epsilon:
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1001
-// TODO: Port signature
-// Raven wrote: aas_face_t *AAS_AreaGroundFace(int areanum, vec3_t point)
-// No table row for the return `aas_face_t *`.
-func AAS_AreaGroundFace() -> Never {
+func AAS_AreaGroundFace(_ areanum: Int32, _ point: JKAShared.vec3_t) -> AasFace? {
     // TODO: Port AAS_AreaGroundFace
     portMissing("AAS_AreaGroundFace", source: "oracle/codemp/botlib/be_aas_sample.cpp:1001")
 }
@@ -305,10 +290,7 @@ func AAS_FacePlane(_ facenum: Int32, _ normal: inout JKAShared.vec3_t, _ dist: i
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1050
-// TODO: Port signature
-// Raven wrote: aas_face_t *AAS_TraceEndFace(aas_trace_t *trace)
-// No table row for `aas_trace_t * trace`.
-func AAS_TraceEndFace() -> Never {
+func AAS_TraceEndFace(_ trace: AasTrace) -> AasFace? {
     // TODO: Port AAS_TraceEndFace
     portMissing("AAS_TraceEndFace", source: "oracle/codemp/botlib/be_aas_sample.cpp:1050")
 }
@@ -320,10 +302,7 @@ func AAS_TraceEndFace() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1110
-// TODO: Port signature
-// Raven wrote: int AAS_BoxOnPlaneSide2(vec3_t absmins, vec3_t absmaxs, aas_plane_t *p)
-// No table row for `aas_plane_t * p`.
-func AAS_BoxOnPlaneSide2() -> Never {
+func AAS_BoxOnPlaneSide2(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _ p: AasPlane) -> Int32 {
     // TODO: Port AAS_BoxOnPlaneSide2
     portMissing("AAS_BoxOnPlaneSide2", source: "oracle/codemp/botlib/be_aas_sample.cpp:1110")
 }
@@ -336,19 +315,13 @@ func AAS_BoxOnPlaneSide2() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1175
-// TODO: Port signature
-// Raven wrote: void AAS_UnlinkFromAreas(aas_link_t *areas)
-// No table row for `aas_link_t * areas`.
-func AAS_UnlinkFromAreas() -> Never {
+func AAS_UnlinkFromAreas(_ areas: AasLink) {
     // TODO: Port AAS_UnlinkFromAreas
     portMissing("AAS_UnlinkFromAreas", source: "oracle/codemp/botlib/be_aas_sample.cpp:1175")
 }
 
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1206
-// TODO: Port signature
-// Raven wrote: aas_link_t *AAS_AASLinkEntity(vec3_t absmins, vec3_t absmaxs, int entnum)
-// No table row for the return `aas_link_t *`.
-func AAS_AASLinkEntity() -> Never {
+func AAS_AASLinkEntity(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _ entnum: Int32) -> AasLink? {
     // TODO: Port AAS_AASLinkEntity
     portMissing("AAS_AASLinkEntity", source: "oracle/codemp/botlib/be_aas_sample.cpp:1206")
 }
@@ -360,10 +333,7 @@ func AAS_AASLinkEntity() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1306
-// TODO: Port signature
-// Raven wrote: aas_link_t *AAS_LinkEntityClientBBox(vec3_t absmins, vec3_t absmaxs, int entnum, int presencetype)
-// No table row for the return `aas_link_t *`.
-func AAS_LinkEntityClientBBox() -> Never {
+func AAS_LinkEntityClientBBox(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _ entnum: Int32, _ presencetype: Int32) -> AasLink? {
     // TODO: Port AAS_LinkEntityClientBBox
     portMissing("AAS_LinkEntityClientBBox", source: "oracle/codemp/botlib/be_aas_sample.cpp:1306")
 }
@@ -387,10 +357,7 @@ func AAS_BBoxAreas(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _ a
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1346
-// TODO: Port signature
-// Raven wrote: int AAS_AreaInfo( int areanum, aas_areainfo_t *info )
-// No table row for `aas_areainfo_t * info`.
-func AAS_AreaInfo() -> Never {
+func AAS_AreaInfo(_ areanum: Int32, _ info: AasAreainfo) -> Int32 {
     // TODO: Port AAS_AreaInfo
     portMissing("AAS_AreaInfo", source: "oracle/codemp/botlib/be_aas_sample.cpp:1346")
 }
@@ -402,10 +369,7 @@ func AAS_AreaInfo() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1372
-// TODO: Port signature
-// Raven wrote: aas_plane_t *AAS_PlaneFromNum(int planenum)
-// No table row for the return `aas_plane_t *`.
-func AAS_PlaneFromNum() -> Never {
+func AAS_PlaneFromNum(_ planenum: Int32) -> AasPlane? {
     // TODO: Port AAS_PlaneFromNum
     portMissing("AAS_PlaneFromNum", source: "oracle/codemp/botlib/be_aas_sample.cpp:1372")
 }

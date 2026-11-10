@@ -5,16 +5,21 @@ import Testing
 private final class Anchor {}
 
 /// This test runs the built `jampded` executable in its own process.
-/// The shell runs Raven's main, and the first function it reaches with no port traps with its `TODO: Port` subject.
-/// So the test proves the product builds, starts, and reaches the logic target.
+/// The shell runs Raven's main in an empty directory, so the file system finds no game data.
+/// Raven then stops with its own fatal error for the missing `mpdefault.cfg`, at `files_pc.cpp:3022`.
+/// So the test proves the product builds, starts, and runs the logic target through FS_Startup.
 @Suite(.serialized)
 struct JampdedSmokeSuite {
-    @Test("jampded runs Raven's main to its first unported function")
-    func runsToTheFirstUnportedFunction() throws {
+    @Test("jampded runs Raven's main to the fatal error for missing game data")
+    func runsToTheMissingGameDataError() throws {
         let server = try #require(Self.builtArtifactPath(named: Self.serverName))
 
         let process = Process()
         process.executableURL = URL(fileURLWithPath: server)
+        let emptyDirectory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: emptyDirectory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: emptyDirectory) }
+        process.currentDirectoryURL = emptyDirectory
 
         let stdoutPipe = Pipe()
         let stderrPipe = Pipe()
@@ -22,14 +27,15 @@ struct JampdedSmokeSuite {
         process.standardError = stderrPipe
 
         try process.run()
-        _ = stdoutPipe.fileHandleForReading.readDataToEndOfFile()
+        let stdoutData = stdoutPipe.fileHandleForReading.readDataToEndOfFile()
         let stderrData = stderrPipe.fileHandleForReading.readDataToEndOfFile()
         process.waitUntilExit()
 
-        // The trap of portMissing names its subject, so a stop for any other reason fails here.
-        let stderrText = String(data: stderrData, encoding: .utf8) ?? ""
+        // Raven's error names the file, so a stop for any other reason fails here.
+        let output = (String(data: stdoutData, encoding: .utf8) ?? "") + (String(data: stderrData, encoding: .utf8) ?? "")
         #expect(process.terminationStatus != 0)
-        #expect(stderrText.contains("TODO: Port "))
+        #expect(output.contains("Couldn't load mpdefault.cfg"))
+        #expect(!output.contains("TODO: Port "))
     }
 
     /// The executable's file name on this platform, as the linker writes it.

@@ -45,12 +45,13 @@ import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
 import closure as C
+import extract
 import reexport
 from fnsweep import binop_assign_op, rhs_function, root_var
 from overlay import MACROS, written_arguments
 from reexport import REPO, SOURCES
 from rulings import BYTE_STORAGE_LOCALS, BYTE_STORAGE_VARS, CXX_CLASSES, DEAD, HAND_MACROS, HAND_VARS, LIBC_FUNCTIONS, NEVER_NULL_VARS, NOT_PORTED, PUBLIC_NAMES, RETURNS, \
-    SCALAR_DATA_TABLES, TYPES
+    POINTER_SLOT_VARS, SCALAR_DATA_TABLES, TYPES
 from store import Store, combined, file_hash, named
 from table import Param, SourceFile, Table, swift_name
 
@@ -511,17 +512,34 @@ class Skeleton:
             for macro in macros:
                 owners[macro.name].add(target_of(stem) + "/" + stem)
         for stem, macros in self.macros.items():
+            # A host .cpp macro with the name of an exported constant is private, or its `let` hides the export in the whole target.
+            # be_aas_entity.cpp:29 defines MASK_SOLID as CONTENTS_PLAYERCLIP, and SV_OrgVisibleBox of sv_bot.cpp reads the MASK_SOLID of bg_public.h:1171.
+            exported = self.exported_of(stem) if C.HOST else {}
             for macro in macros:
-                macro.shared = len(owners[macro.name]) > 1
+                macro.shared = len(owners[macro.name]) > 1 or macro.name in exported
 
     def collect_file_enums(self) -> dict[str, list[tuple[int, list[str]]]]:
         """The .c enums extract.py leaves in their .c file because another .c file declares their names differently, per stem.
         extract.py writes the list into its manifest, and each one becomes private constants at the top of its stub."""
         path = Path(__file__).resolve().parent / "out" / "extract" / C.UNIT / "extract.json"
         found: dict[str, list[tuple[int, list[str]]]] = defaultdict(list)
-        if not path.exists():
-            return found
-        for row in json.loads(path.read_text()).get("file_enums", []):
+        rows = json.loads(path.read_text()).get("file_enums", []) if path.exists() else []
+        if C.HOST:
+            # A host's .cpp file has no constants header, so its enums come from the parse, as its macros do, `edgeName_t` of cm_patch.cpp.
+            # An enum with a name that a macro of the module also has stays out, because the stub's `let` would declare the name twice.
+            macro_names = {m.name for macros in self.macros.values() for m in macros}
+            game = (C.ORACLE / ORACLE_DIR).resolve()
+            for cur in self.tu.cursor.get_children():
+                if cur.kind != CursorKind.ENUM_DECL or not cur.is_definition() or not cur.location.file:
+                    continue
+                enum_path = Path(cur.location.file.name).resolve()
+                if enum_path.suffix != ".cpp" or not C.within(enum_path, game) or enum_path.name != C.file_name(enum_path.stem):
+                    continue
+                values = extract.enumerator_values(cur)
+                if not values or any(name in macro_names for name, _ in values):
+                    continue
+                rows.append({"source": f"{enum_path.relative_to(C.REPO.resolve())}:{cur.location.line}", "enumerators": values})
+        for row in rows:
             source, line = row["source"].rsplit(":", 1)
             source_path = Path(source)
             if source_path.parent != Path("oracle") / C.folder_of(source_path.stem) or source_path.name in SKIP:
@@ -666,7 +684,7 @@ class Skeleton:
                 var.reason = (f"No view for `{' '.join(element.spelling.split())}` of `{header}`." if header
                               else f"No view for `{' '.join(element.spelling.split())}`, a struct Raven defines inside a .c file.")
                 return
-            if var.data and depth and self.holds_address(element):
+            if var.data and depth and self.holds_address(element) and not (C.HOST and self.fills_no_address(var, element)):
                 # C storage cannot hold the address of a Swift function or of a record the state object owns,
                 # so Raven's table is a hand array on the state object, one `<View>Row` per row, with his rows in his order.
                 var.reason = "hand_table"
@@ -678,6 +696,12 @@ class Skeleton:
             var.reason = "storage"
             var.view = self.table.views.qualified_view(record, C_TARGET)
             var.count = canonical.element_count if depth and canonical.kind == TypeKind.CONSTANTARRAY else 0
+            # A record array of more than one dimension is one flat Slots of every record, `texMods[MAX_SHADER_STAGES][TR_MAX_TEXMODS]`
+            # of tr_shader.cpp:102, and a row reads `suffix(from:)` at its first record, the form of the flat two-dimensional tables, row TR17.
+            inner = canonical.element_type.get_canonical() if var.count else None
+            while inner is not None and inner.kind == TypeKind.CONSTANTARRAY:
+                var.count *= inner.element_count
+                inner = inner.element_type.get_canonical()
             var.swift = f"Slots<{var.view}>" if depth else var.view
             return
         if self.table.views.is_vec3(t) or (depth and "vec3_t" in t.spelling):
@@ -722,6 +746,14 @@ class Skeleton:
                     var.reason = f"No table row for `{' '.join(t.spelling.split())}`."
                     return
                 inner = self.table.views.qualified_view(record, C_TARGET) + "?"
+                if not depth and var.name in POINTER_SLOT_VARS:
+                    # A POINTER_SLOT_VARS ruling makes the pointer one slot of storage, so a body takes its address, `&fs_searchpaths`.
+                    # The hand forward reads and writes slot 0 under Raven's name.
+                    var.reason = "pointer_table"
+                    var.swift = f"Slots<{inner}>"
+                    var.view = inner[:-1]
+                    var.count = 1
+                    return
                 if depth == 1:
                     # A file-scope array of struct pointers is C storage the engine may read, reached through a Slots of optional views.
                     var.reason = "pointer_table"
@@ -729,8 +761,9 @@ class Skeleton:
                     var.view = inner[:-1]
                     var.count = canonical.element_count
                     return
-        elif depth <= 1 and var.local and (element.kind in INT_ELEMENTS or typed in TYPES):
+        elif depth <= 1 and (var.local or var.name in BYTE_STORAGE_VARS) and (element.kind in INT_ELEMENTS or typed in TYPES):
             # A BYTE_STORAGE_LOCALS ruling moves an `int` array local, or an `int` parameter whose address Raven takes, to the storage class.
+            # A BYTE_STORAGE_VARS ruling moves a file-scope `int` array that a body steps through a pointer, `tempDependents` of G2_bones.cpp:1219.
             # The body hands it on as bytes, `MD4Final((unsigned char *)digest, &ctx)`, through the `bytes` view of the Slots.
             # A TYPES typedef keeps its spelling, so `UINT4 x[16]` of MD4Transform is a Slots of UInt32 and not of the canonical `unsigned long`.
             var.reason = "byte_storage"
@@ -798,6 +831,20 @@ class Skeleton:
             if t.kind == TypeKind.POINTER and t.get_pointee().get_canonical().kind in (TypeKind.FUNCTIONPROTO, TypeKind.FUNCTIONNOPROTO, TypeKind.RECORD):
                 return True
         return False
+
+    def fills_no_address(self, var: Variable, record: ci.Type) -> bool:
+        """True when the record has no function pointer field and Raven's initializer takes no address, so C storage holds the rows.
+        The field tables of the botlib, `iteminfo_fields` of be_ai_goal.cpp:123, leave `substruct` NULL, row D19."""
+        for field in record.get_declaration().get_children():
+            if field.kind != CursorKind.FIELD_DECL:
+                continue
+            t = field.type.get_canonical()
+            if t.kind == TypeKind.POINTER and t.get_pointee().get_canonical().kind in (TypeKind.FUNCTIONPROTO, TypeKind.FUNCTIONNOPROTO):
+                return False
+        # A text, a character literal, or a comment is no address, `{"&&",P_LOGIC_AND, NULL}` of l_script.cpp:79.
+        literals = r'"(?:[^"\\]|\\.)*"|\'(?:[^\'\\]|\\.)*\'|//[^\n]*|/\*.*?\*/'
+        initializer = re.sub(literals, "", self.declaration_text(var).split("=", 1)[-1], flags=re.S)
+        return "&" not in initializer
 
     def zero_initializer(self, var: Variable) -> bool:
         """True when every value of Raven's initializer is C's zero, `{qfalse, 0, 0}` or `{0}`."""
@@ -1087,7 +1134,8 @@ class Skeleton:
                     # The unity parse leaves a second file's `static` of the same name unresolved, so the name is read from Raven's text.
                     name = rhs_function(rhs) or self.source(stem).slice(rhs.extent).strip()
                     stored = own.get(name) if name else None
-                    if stored is None and name in self.by_name and target_of(self.by_name[name].stem) != LOGIC:
+                    # In a host, a function of another file of the same target counts when it is not `static`, as CM_StoreLeafs of cm_test.cpp in cm_trace.cpp.
+                    if stored is None and name in self.by_name and (target_of(self.by_name[name].stem) != LOGIC or (C.HOST and not self.by_name[name].static)):
                         stored = self.by_name[name]
                     if stored is None and name:
                         stored = self.bg_function(rhs, name)
@@ -1678,8 +1726,11 @@ class Skeleton:
                     # A parameter of a ruling is one slot.
                     count = str(var.count)
                 elif var.count:
-                    bound = declaration[declaration.index("[") + 1:declaration.index("]")].strip()
-                    count = f"Int({exported[bound]}.{bound})" if bound in exported else str(var.count)
+                    # Each bound of the declaration is one factor, so a record array of two dimensions takes every record, row TR17.
+                    bounds = [b.strip() for b in re.findall(r"\[([^\]]*)\]", declaration)]
+                    if var.kind in ("byte_storage", "pointer_table"):
+                        bounds = bounds[:1]
+                    count = " * ".join(f"Int({exported[b]}.{b})" for b in bounds) if all(b in exported for b in bounds) else str(var.count)
                 if var.kind == "byte_storage" and var.swift == "Slots<JKAShared.vec3_t>":
                     # A `vec3_t` array local of a ruling, one zeroed allocation of Raven's 12-byte vectors.
                     inits.append(f"        self.{var.field} = Slots(vectors: {cls}.bytes(count: {count} * JKAShared.vec3_t.byteCount), count: {count})")

@@ -75,10 +75,7 @@ func AAS_LoadAASFile(_ filename: inout JKAShared.CharBuf) -> Int32 {
 }
 
 /// Source: oracle/codemp/botlib/be_aas_file.cpp:481
-// TODO: Port signature
-// Raven wrote: int AAS_WriteAASLump(fileHandle_t fp, aas_header_t *h, int lumpnum, void *data, int length)
-// No table row for `aas_header_t * h`.
-func AAS_WriteAASLump() -> Never {
+func AAS_WriteAASLump(_ fp: JKAShared.fileHandle_t, _ h: AasHeader, _ lumpnum: Int32, _ data: OpaquePointer?, _ length: Int32) -> Int32 {
     // TODO: Port AAS_WriteAASLump
     portMissing("AAS_WriteAASLump", source: "oracle/codemp/botlib/be_aas_file.cpp:481")
 }

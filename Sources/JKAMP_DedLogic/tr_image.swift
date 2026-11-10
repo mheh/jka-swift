@@ -60,10 +60,11 @@ func Lanczos3(_ t: Float) -> Float {
     if t == 0 {
         return (1.0)
     }
-    t = Float(abs(Double(t)))
+    t = Float(abs(t))
     if t < 3.0 {
-        // M_PI_OVER_3 is Raven's `( M_PI / 3.0f )`, and the double M_PI makes every product run in double.
-        return Float(Double(sinf(Float(Double(t) * M_PI)) * sinf(Float(Double(t) * (M_PI / 3.0)))) / (Double(t) * M_PI * Double(t) * (M_PI / 3.0)))
+        // M_PI_OVER_3 is Raven's `( M_PI / 3.0f )`.
+        // Foundation also declares M_PI as a double, so the qualifier picks the float M_PI of q_shared.h:548.
+        return (sinf(t * JKAShared.M_PI) * sinf(t * (JKAShared.M_PI / 3.0)) / (t * JKAShared.M_PI * t * (JKAShared.M_PI / 3.0)))
     }
     return (0.0)
 }
@@ -332,14 +333,15 @@ func RE_RegisterIndividualSkin(_ name: String, _ hSkin: JKAShared.qhandle_t) -> 
         // parse the shader name
         token = CommaParse(&text_p)
 
-        // Port-note: Raven reads before the buffer when the surface name has fewer than four bytes. The slice traps there.
-        if strcmp(surfName[(strlen(surfName) - 4)...], "_off") == 0 {
+        // Port-note: Raven reads before the buffer when the surface name has fewer than four bytes. The cursor reads the empty text there.
+        if strcmp(TextCursor(surfName, at: strlen(surfName) - 4).text, "_off") == 0 {
             if strcmp(token, "*off") == 0 {
                 continue //don't need these double offs
             }
             surfName[strlen(surfName) - 4] = 0 //remove the "_off"
         }
-        if skin.surfaces.count <= skin.numSurfaces {
+        // AI: Raven compares the signed index with the unsigned size, so a negative index is out of range. The test names that case.
+        if skin.numSurfaces < 0 || skin.surfaces.count <= skin.numSurfaces {
             Com_Printf("WARNING: RE_RegisterSkin( '%s' ) more than %d surfaces!\n", name, skin.surfaces.count)
             break
         }
@@ -347,9 +349,11 @@ func RE_RegisterIndividualSkin(_ name: String, _ hSkin: JKAShared.qhandle_t) -> 
         skin.surfaces[skin.numSurfaces] = surf
         Q_strncpyz(&surf.nameBuffer, String(surfName), Int32(surf.nameBuffer.count))
 
-        // Port-note: Row TR11. R_FindServerShader and R_FindShader take `styles` as a `Slots<UInt8>`, and `stylesDefault` is a Swift array, so the call has no form.
-        // Raven wrote: surf->shader = gServerSkinHack ? R_FindServerShader( token, lightmapsNone, stylesDefault, qtrue ) : R_FindShader( token, lightmapsNone, stylesDefault, qtrue )
-        portMissing("RE_RegisterIndividualSkin", source: "oracle/codemp/renderer/tr_image.cpp:3093")
+        if gServerSkinHack {
+            surf.shader = R_FindServerShader(token, lightmapsNone, stylesDefault, true)
+        } else {
+            surf.shader = R_FindShader(token, lightmapsNone, stylesDefault, true)
+        }
         skin.numSurfaces += 1
     }
 
@@ -406,8 +410,8 @@ func RE_RegisterSkin(_ name: String) -> JKAShared.qhandle_t {
     R_SyncRenderThread()
 
     // If not a .skin file, load as a single shader
-    // Port-note: Raven reads before the text when the name has fewer than five bytes. The slice traps there.
-    if strcmp(CharBuf(name)[(strlen(name) - 5)...], ".skin") != 0 {
+    // Port-note: Raven reads before the text when the name has fewer than five bytes. The cursor reads the empty text there.
+    if strcmp(TextCursor(CharBuf(name), at: strlen(name) - 5).text, ".skin") != 0 {
         /*		skin->numSurfaces = 1;
         		skin->surfaces[0] = (skinSurface_t *)Hunk_Alloc( sizeof(skin->surfaces[0]), h_low );
         		skin->surfaces[0]->shader = R_FindShader( name, lightmapsNone, stylesDefault, qtrue );

@@ -6,14 +6,16 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/botlib/be_aas_routealt.cpp:39
-// TODO: Port global midrangeareas
-// Raven wrote: midrangearea_t *midrangeareas
-// No table row for `midrangearea_t *`.
+var midrangeareas: Slots<Midrangearea>? {
+    get { world.variables.midrangeareas }
+    set { world.variables.midrangeareas = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_aas_routealt.cpp:40
-// TODO: Port global clusterareas
-// Raven wrote: int *clusterareas
-// No table row for `int *`.
+var clusterareas: Slots<Int32>? {
+    get { world.variables.clusterareas }
+    set { world.variables.clusterareas = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_aas_routealt.cpp:41
 var numclusterareas: Int32 {
@@ -40,10 +42,7 @@ func AAS_AltRoutingFloodCluster_r(_ areanum: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_routealt.cpp:82
-// TODO: Port signature
-// Raven wrote: int AAS_AlternativeRouteGoals(vec3_t start, int startareanum, vec3_t goal, int goalareanum, int travelflags, aas_altroutegoal_t *altroutegoals, int maxaltroutegoals, int type)
-// No table row for `aas_altroutegoal_t * altroutegoals`.
-func AAS_AlternativeRouteGoals() -> Never {
+func AAS_AlternativeRouteGoals(_ start: JKAShared.vec3_t, _ startareanum: Int32, _ goal: JKAShared.vec3_t, _ goalareanum: Int32, _ travelflags: Int32, _ altroutegoals: Slots<AasAltroutegoal>, _ maxaltroutegoals: Int32, _ type: Int32) -> Int32 {
     // TODO: Port AAS_AlternativeRouteGoals
     portMissing("AAS_AlternativeRouteGoals", source: "oracle/codemp/botlib/be_aas_routealt.cpp:82")
 }

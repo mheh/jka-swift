@@ -14,8 +14,7 @@ final class ICARUS_Instance {
     typealias sequencer_l = [CSequencer]
     typealias signal_m = [String: Int32]
 
-    // TODO: Port m_interface
-    // Raven wrote: interface_export_t	*m_interface;
+    private var m_interface: interface_export_t? = nil
     private var m_GUID: Int32 = 0
 
     private var m_sequences: sequence_l = []
@@ -28,8 +27,11 @@ final class ICARUS_Instance {
     // Instance
     /// Source: oracle/codemp/icarus/Instance.cpp:24
     init() {
-        // TODO: Port ICARUS_Instance::ICARUS_Instance
-        portMissing("ICARUS_Instance::ICARUS_Instance", source: "oracle/codemp/icarus/Instance.cpp:24")
+        self.m_GUID = 0
+
+        //to be safe
+        gSequencers = gSequencers.map { _ in nil }
+        gTaskManagers = gTaskManagers.map { _ in nil }
     }
 
     /**
@@ -40,10 +42,7 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:56
-    // TODO: Port signature
-    // Raven wrote: ICARUS_Instance *ICARUS_Instance::Create( interface_export_t *ie )
-    // No table row for `interface_export_t *`.
-    static func Create() -> Never {
+    static func Create(_ ie: interface_export_t?) -> ICARUS_Instance? {
         // TODO: Port ICARUS_Instance::Create
         portMissing("ICARUS_Instance::Create", source: "oracle/codemp/icarus/Instance.cpp:56")
     }
@@ -56,9 +55,29 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:72
+    @discardableResult
     private func Free() -> Int32 {
-        // TODO: Port ICARUS_Instance::Free
-        portMissing("ICARUS_Instance::Free", source: "oracle/codemp/icarus/Instance.cpp:72")
+        //Delete any residual sequencers
+        for sri in self.m_sequencers {
+            // AI: Raven deletes each sequencer, and the destructor calls Free. ARC runs no destructor here, so the loop calls Free.
+            sri.Free()
+        }
+
+        self.m_sequencers.removeAll()
+        //all these are deleted now so clear the global map.
+        gSequencers = gSequencers.map { _ in nil }
+        gTaskManagers = gTaskManagers.map { _ in nil }
+        self.m_signals.removeAll()
+
+        //Delete any residual sequences
+        for si in self.m_sequences {
+            // AI: Raven deletes each sequence, and the destructor calls Delete. ARC runs no destructor here, so the loop calls Delete.
+            si.Delete()
+        }
+
+        self.m_sequences.removeAll()
+
+        return 1
     }
 
     /**
@@ -70,8 +89,11 @@ final class ICARUS_Instance {
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:121
     func Delete() -> Int32 {
-        // TODO: Port ICARUS_Instance::Delete
-        portMissing("ICARUS_Instance::Delete", source: "oracle/codemp/icarus/Instance.cpp:121")
+        self.Free()
+
+        // AI: Raven deletes the instance here. ARC frees it when ICARUS_Shutdown drops `iICARUS`, so the step drops.
+
+        return 1
     }
 
     /**
@@ -83,8 +105,16 @@ final class ICARUS_Instance {
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:165
     func GetSequencer(_ ownerID: Int32) -> CSequencer? {
-        // TODO: Port ICARUS_Instance::GetSequencer
-        portMissing("ICARUS_Instance::GetSequencer", source: "oracle/codemp/icarus/Instance.cpp:165")
+        let sequencer: CSequencer? = CSequencer.Create()
+        let taskManager: CTaskManager? = CTaskManager.Create()
+
+        sequencer!.Init(ownerID, self.m_interface, taskManager, self)
+
+        taskManager!.Init(sequencer)
+
+        self.m_sequencers.append(sequencer!)
+
+        return sequencer
     }
 
     /**
@@ -96,8 +126,18 @@ final class ICARUS_Instance {
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:191
     func DeleteSequencer(_ sequencer: CSequencer?) {
-        // TODO: Port ICARUS_Instance::DeleteSequencer
-        portMissing("ICARUS_Instance::DeleteSequencer", source: "oracle/codemp/icarus/Instance.cpp:191")
+        // added 2/12/2 to properly delete blocks that were passed to the task manager
+        sequencer!.Recall()
+
+        let taskManager: CTaskManager? = sequencer!.GetTaskManager()
+
+        if taskManager != nil {
+            taskManager!.Free()
+        }
+
+        self.m_sequencers.removeAll { $0 === sequencer }
+
+        sequencer!.Free()
     }
 
     /**
@@ -109,8 +149,16 @@ final class ICARUS_Instance {
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:223
     func GetSequence() -> CSequence? {
-        // TODO: Port ICARUS_Instance::GetSequence
-        portMissing("ICARUS_Instance::GetSequence", source: "oracle/codemp/icarus/Instance.cpp:223")
+        let sequence: CSequence? = CSequence.Create()
+
+        //Assign the GUID
+        sequence!.SetID(self.m_GUID)
+        self.m_GUID += 1
+        sequence!.SetOwner(self)
+
+        self.m_sequences.append(sequence!)
+
+        return sequence
     }
 
     /**
@@ -122,8 +170,13 @@ final class ICARUS_Instance {
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:248
     func GetSequence(_ id: Int32) -> CSequence? {
-        // TODO: Port ICARUS_Instance::GetSequence
-        portMissing("ICARUS_Instance::GetSequence", source: "oracle/codemp/icarus/Instance.cpp:248")
+        for si in self.m_sequences {
+            if si.GetID() == id {
+                return si
+            }
+        }
+
+        return nil
     }
 
     /**
@@ -135,8 +188,11 @@ final class ICARUS_Instance {
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:266
     func DeleteSequence(_ sequence: CSequence?) {
-        // TODO: Port ICARUS_Instance::DeleteSequence
-        portMissing("ICARUS_Instance::DeleteSequence", source: "oracle/codemp/icarus/Instance.cpp:266")
+        self.m_sequences.removeAll { $0 === sequence }
+
+        // AI: Raven deletes the sequence, and the destructor calls Delete.
+        // The parent and the sequencer can still hold a reference, so the body calls Delete.
+        sequence!.Delete()
     }
 
     /**
@@ -148,8 +204,27 @@ final class ICARUS_Instance {
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:285
     private func AllocateSequences(_ numSequences: Int32, _ idTable: [Int32]) -> Int32 {
-        // TODO: Port ICARUS_Instance::AllocateSequences
-        portMissing("ICARUS_Instance::AllocateSequences", source: "oracle/codemp/icarus/Instance.cpp:285")
+        var sequence: CSequence?
+
+        var i: Int32 = 0
+        while i < numSequences {
+            //If the GUID of this sequence is higher than the current, take this a the "current" GUID
+            if idTable[i] > self.m_GUID {
+                self.m_GUID = idTable[i]
+            }
+
+            //Allocate the container sequence
+            sequence = self.GetSequence()
+            if sequence == nil {
+                return 0
+            }
+
+            //Override the given GUID with the real one
+            sequence!.SetID(idTable[i])
+            i += 1
+        }
+
+        return 1
     }
 
     /**
@@ -160,6 +235,8 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:312
+    // Port-note: The body calls through `m_interface`, and `interface_export_t` has no Swift form, so the body waits for that row.
+    @discardableResult
     private func SaveSequenceIDTable() -> Int32 {
         // TODO: Port ICARUS_Instance::SaveSequenceIDTable
         portMissing("ICARUS_Instance::SaveSequenceIDTable", source: "oracle/codemp/icarus/Instance.cpp:312")
@@ -174,8 +251,15 @@ final class ICARUS_Instance {
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:346
     private func SaveSequences() -> Int32 {
-        // TODO: Port ICARUS_Instance::SaveSequences
-        portMissing("ICARUS_Instance::SaveSequences", source: "oracle/codemp/icarus/Instance.cpp:346")
+        //Save out a listing of all the used sequences by ID
+        self.SaveSequenceIDTable()
+
+        //Save all the information in order
+        for sqi in self.m_sequences {
+            sqi.Save()
+        }
+
+        return 1
     }
 
     /**
@@ -186,6 +270,7 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:367
+    // Port-note: The body calls through `m_interface`, and `interface_export_t` has no Swift form, so the body waits for that row.
     private func SaveSequencers() -> Int32 {
         // TODO: Port ICARUS_Instance::SaveSequencers
         portMissing("ICARUS_Instance::SaveSequencers", source: "oracle/codemp/icarus/Instance.cpp:367")
@@ -199,6 +284,7 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:389
+    // Port-note: The body calls through `m_interface`, and `interface_export_t` has no Swift form, so the body waits for that row.
     private func SaveSignals() -> Int32 {
         // TODO: Port ICARUS_Instance::SaveSignals
         portMissing("ICARUS_Instance::SaveSignals", source: "oracle/codemp/icarus/Instance.cpp:389")
@@ -212,6 +298,8 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:422
+    // Port-note: The body calls through `m_interface`, and `interface_export_t` has no Swift form, so the body waits for that row.
+    @discardableResult
     func Save() -> Int32 {
         // TODO: Port ICARUS_Instance::Save
         portMissing("ICARUS_Instance::Save", source: "oracle/codemp/icarus/Instance.cpp:422")
@@ -225,6 +313,7 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:451
+    // Port-note: The body calls through `m_interface`, and `interface_export_t` has no Swift form, so the body waits for that row.
     private func LoadSignals() -> Int32 {
         // TODO: Port ICARUS_Instance::LoadSignals
         portMissing("ICARUS_Instance::LoadSignals", source: "oracle/codemp/icarus/Instance.cpp:451")
@@ -239,8 +328,17 @@ final class ICARUS_Instance {
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:483
     private func LoadSequence() -> Int32 {
-        // TODO: Port ICARUS_Instance::LoadSequence
-        portMissing("ICARUS_Instance::LoadSequence", source: "oracle/codemp/icarus/Instance.cpp:483")
+        let sequence: CSequence? = self.GetSequence()
+
+        //Load the sequence back in
+        sequence!.Load()
+
+        //If this sequence had a higher GUID than the current, save it
+        if sequence!.GetID() > self.m_GUID {
+            self.m_GUID = sequence!.GetID()
+        }
+
+        return 1
     }
 
     /**
@@ -251,6 +349,7 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:503
+    // Port-note: The body calls through `m_interface`, and `interface_export_t` has no Swift form, so the body waits for that row.
     private func LoadSequences() -> Int32 {
         // TODO: Port ICARUS_Instance::LoadSequences
         portMissing("ICARUS_Instance::LoadSequences", source: "oracle/codemp/icarus/Instance.cpp:503")
@@ -264,6 +363,7 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:547
+    // Port-note: The body calls through `m_interface`, and `interface_export_t` has no Swift form, so the body waits for that row.
     private func LoadSequencers() -> Int32 {
         // TODO: Port ICARUS_Instance::LoadSequencers
         portMissing("ICARUS_Instance::LoadSequencers", source: "oracle/codemp/icarus/Instance.cpp:547")
@@ -277,6 +377,8 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:575
+    // Port-note: The body calls through `m_interface`, and `interface_export_t` has no Swift form, so the body waits for that row.
+    @discardableResult
     func Load() -> Int32 {
         // TODO: Port ICARUS_Instance::Load
         portMissing("ICARUS_Instance::Load", source: "oracle/codemp/icarus/Instance.cpp:575")
@@ -291,8 +393,7 @@ final class ICARUS_Instance {
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:623
     func Signal(_ identifier: String) {
-        // TODO: Port ICARUS_Instance::Signal
-        portMissing("ICARUS_Instance::Signal", source: "oracle/codemp/icarus/Instance.cpp:623")
+        self.m_signals[identifier] = 1
     }
 
     /**
@@ -304,8 +405,13 @@ final class ICARUS_Instance {
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:634
     func CheckSignal(_ identifier: String) -> Bool {
-        // TODO: Port ICARUS_Instance::CheckSignal
-        portMissing("ICARUS_Instance::CheckSignal", source: "oracle/codemp/icarus/Instance.cpp:634")
+        let smi: Int32? = self.m_signals[identifier]
+
+        if smi == nil {
+            return false
+        }
+
+        return true
     }
 
     /**
@@ -317,16 +423,11 @@ final class ICARUS_Instance {
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:652
     func ClearSignal(_ identifier: String) {
-        // TODO: Port ICARUS_Instance::ClearSignal
-        portMissing("ICARUS_Instance::ClearSignal", source: "oracle/codemp/icarus/Instance.cpp:652")
+        self.m_signals[identifier] = nil
     }
 
     /// Source: oracle/codemp/icarus/instance.h:33
-    // TODO: Port signature
-    // Raven wrote: interface_export_t	*GetInterface( void )	const	{	return	m_interface;	}
-    // No table row for `interface_export_t *`.
-    func GetInterface() -> Never {
-        // TODO: Port ICARUS_Instance::GetInterface
-        portMissing("ICARUS_Instance::GetInterface", source: "oracle/codemp/icarus/instance.h:33")
+    func GetInterface() -> interface_export_t? {
+        self.m_interface
     }
 }

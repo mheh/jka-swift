@@ -72,6 +72,16 @@ def declaration_heads(text: str) -> str:
     return "\n".join(DECLARATION_HEAD.findall(text))
 
 
+
+def row_stride(element: ci.Type, count: int, storage) -> str:
+    """The byte stride of one row of a two-index array field, `count` elements of `element`, as Swift text.
+    `storage` answers the Swift storage type of a C scalar. An element that is itself an array, the `vec3_t` of
+    `points[MAX_GRID_SIZE][MAX_GRID_SIZE]` at cm_patch.h:115, takes its own count times the stride of its scalar, so a row is 129 * 3 floats."""
+    canonical = element.get_canonical()
+    if canonical.kind == TypeKind.CONSTANTARRAY:
+        return f"{count} * {canonical.element_count} * MemoryLayout<{storage(canonical.element_type)}>.stride"
+    return f"{count} * MemoryLayout<{storage(element)}>.stride"
+
 class Generator:
     def __init__(self, parse: C.Parse, only: str | None, indexed_fields: set[tuple[str, str]] | None = None) -> None:
         self.parse = parse
@@ -278,7 +288,7 @@ class Generator:
                 return None
             inner_type, inner_call = inner
             inner_call = inner_call.replace("{count}", str(inner_count))
-            stride = f"{inner_count} * MemoryLayout<{self.types.storage(inner_c, target)}>.stride"
+            stride = row_stride(inner_c, inner_count, lambda c: self.types.storage(c, target))
             return f"Slots<{inner_type}>", f"Slots(rows: {address}, count: {{count}}, stride: {stride}) {{ {inner_call} }}"
         if answer.kind == "flags":
             return answer.swift, f"Slots(flags: {address}, count: {{count}})"
@@ -328,6 +338,22 @@ class Generator:
             if inner.get_canonical().kind == TypeKind.CHAR_S and FIELDS.get((self.owner_of(field), name)) == "opaque":
                 # A `char *` field of kind `opaque` holds a byte buffer that a body hands on as a handle, `read_buffer` of unzip.h:66.
                 return self.property(name, "OpaquePointer?", f"OpaquePointer({pointee})", f"{pointee} = UnsafeMutablePointer(newValue)")
+            ruled_text = FIELDS.get((self.owner_of(field), name))
+            if inner.get_canonical().kind == TypeKind.CHAR_S and isinstance(ruled_text, tuple) and ruled_text[0] == "text_buffer":
+                # The field holds the text a script reads, `script->buffer` of l_script.h:161, so it reads as a Slots over its bytes and the NUL,
+                # the count field beside it plus one, row N1 of the ninth batch. A store keeps the base of the assigned Slots.
+                count = f"Int(self.raw.pointee.{ruled_text[1]}) + 1"
+                return self.property(name, "Slots<JKAShared.byte>?", f"{pointee}.map {{ Slots(scalars: UnsafeMutableRawPointer($0), count: {count}) }}",
+                                     f"{pointee} = newValue?.base.assumingMemoryBound(to: CChar.self)")
+            if inner.get_canonical().kind == TypeKind.CHAR_S and isinstance(ruled_text, tuple) and ruled_text[0] == "text_offset":
+                # A cursor into the buffer of its record reads as the Int32 byte offset from that buffer, the field twin of the RETURNS kind
+                # `text_offset_nonnull`, row N1 of the ninth batch. The C record keeps Raven's pointer, `script->script_p` of l_script.h:162.
+                if ruled_text[1] is not None:
+                    base = f"self.raw.pointee.{ruled_text[1]}"
+                    return self.property(name, "Int32", f"Int32({base}!.distance(to: {pointee}!))", f"{pointee} = {base}! + Int(newValue)")
+                # A token holds no buffer, so its cursor keeps the offset of the script's buffer as the bits of the pointer.
+                return [f"    // AI: Raven holds a pointer into the script's buffer. The token holds no buffer, so the field keeps the byte offset as the pointer's bits."] \
+                    + self.property(name, "Int32", f"Int32(Int(bitPattern: {pointee}))", f"{pointee} = UnsafeMutablePointer(bitPattern: Int(newValue))")
             if inner.get_canonical().kind == TypeKind.CHAR_S:
                 # A `char *` field reads as its text, and a store interns the text in the shared pool, so the engine reads a pointer that lives on.
                 get = f"{pointee}.map {{ cString(at: $0) }}"
@@ -365,6 +391,19 @@ class Generator:
                 count, _ = self.slots_count(field, target)
                 return self.property(name, "Slots<Int32>?", f"{pointee}.map {{ Slots(scalars: UnsafeMutableRawPointer($0), count: {count}) }}",
                                      f"{pointee} = newValue?.base.assumingMemoryBound(to: Int32.self)")
+            if ruled == "bytes" and inner.get_canonical().kind == TypeKind.USHORT:
+                # An `unsigned short *` field a body indexes, `areatraveltimes` of aas_routingupdate_t at be_aas_def.h:156, reads as a Slots
+                # over the shorts by the same rule, row N5 of the ninth batch.
+                count, _ = self.slots_count(field, target)
+                return self.property(name, "Slots<UInt16>?", f"{pointee}.map {{ Slots(scalars: UnsafeMutableRawPointer($0), count: {count}) }}",
+                                     f"{pointee} = newValue?.base.assumingMemoryBound(to: UInt16.self)")
+            if ruled == "vectors" and inner.get_canonical().kind == TypeKind.CONSTANTARRAY and inner.get_canonical().element_count == 3 \
+                    and inner.get_canonical().element_type.get_canonical().kind == TypeKind.FLOAT:
+                # A `vec3_t *` field a body indexes, `aasworld.vertexes` of be_aas_def.h:200, reads as a Slots of vectors through `Slots(vectors:)`,
+                # the form of an array field of vectors, row N4 of the ninth batch. A store keeps the base of the assigned Slots.
+                count, _ = self.slots_count(field, target)
+                return self.property(name, "Slots<JKAShared.vec3_t>?", f"{pointee}.map {{ Slots(vectors: UnsafeMutableRawPointer($0), count: {count}) }}",
+                                     f"{pointee} = newValue.map {{ UnsafeMutablePointer(OpaquePointer($0.base)) }}")
             if ruled == "slot" and inner.get_canonical().kind == TypeKind.POINTER:
                 # The field holds the address of one record pointer slot, so it reads as the Slots of one optional view over that slot.
                 # Two records that hold one address share the slot, as Raven's nodes of one block share their `head`.
@@ -490,14 +529,32 @@ class Generator:
                 # An element of one byte has no padding before it, so the array starts where the field before it ends.
                 fields = [f for f in field.semantic_parent.get_children() if f.kind == CursorKind.FIELD_DECL]
                 at = fields.index(field)
-                if canonical.element_type.get_canonical().get_size() != 1 or at == 0 \
-                        or fields[at - 1].type.get_canonical().kind == TypeKind.CONSTANTARRAY \
-                        and fields[at - 1].type.get_canonical().element_count > IMPORT_LIMIT:
-                    return None
-                before = fields[at - 1].spelling
                 c_type = self.swift_c_type(self.owner_of(field))
-                address = f"(UnsafeMutableRawPointer(self.raw) + MemoryLayout<{c_type}>.offset(of: \\.{before})! + MemoryLayout.size(ofValue: self.raw.pointee.{before}))"
-                note = [f"    // Swift imports no C array of more than {IMPORT_LIMIT} elements, so the array starts where `{before}` ends."]
+
+                def imported(f: ci.Cursor) -> bool:
+                    ft = f.type.get_canonical()
+                    return not (ft.kind == TypeKind.CONSTANTARRAY and ft.element_count > IMPORT_LIMIT)
+
+                element = canonical.element_type.get_canonical()
+                if element.kind == TypeKind.POINTER and at > 0 and imported(fields[at - 1]):
+                    # An array of record pointers, `shader_t *shaders[MAX_SHADERS]` of trGlobals_t, starts at the end of the field before it,
+                    # rounded up to the alignment of a pointer, row TR16.
+                    before = fields[at - 1].spelling
+                    address = f"(UnsafeMutableRawPointer(self.raw) + MemoryLayout<{c_type}>.offset(of: \\.{before})! + MemoryLayout.size(ofValue: self.raw.pointee.{before}))" \
+                        f".alignedUp(toMultipleOf: MemoryLayout<UnsafeRawPointer?>.alignment)"
+                    note = [f"    // Swift imports no C array of more than {IMPORT_LIMIT} elements, so the array starts where `{before}` ends, at pointer alignment."]
+                elif element.kind == TypeKind.POINTER and at + 1 < len(fields) and imported(fields[at + 1]):
+                    # The field before is an array over the limit too, `sortedShaders` after `shaders`, so the array ends where the field after it
+                    # starts. A field after an array of pointers has no padding before it.
+                    after = fields[at + 1].spelling
+                    address = f"(UnsafeMutableRawPointer(self.raw) + MemoryLayout<{c_type}>.offset(of: \\.{after})! - {count} * MemoryLayout<UnsafeRawPointer?>.stride)"
+                    note = [f"    // Swift imports no C array of more than {IMPORT_LIMIT} elements, so the array ends where `{after}` starts."]
+                elif element.get_size() != 1 or at == 0 or not imported(fields[at - 1]):
+                    return None
+                else:
+                    before = fields[at - 1].spelling
+                    address = f"(UnsafeMutableRawPointer(self.raw) + MemoryLayout<{c_type}>.offset(of: \\.{before})! + MemoryLayout.size(ofValue: self.raw.pointee.{before}))"
+                    note = [f"    // Swift imports no C array of more than {IMPORT_LIMIT} elements, so the array starts where `{before}` ends."]
             mapped = self.element(self.element_type(t), target, address, field)
             if mapped is None:
                 return None
@@ -505,7 +562,8 @@ class Generator:
             if (self.owner_of(field), name) in SLOT_BOUNDS:
                 # Raven declares the array short and allocates the record past it, so a SLOT_BOUNDS macro bounds the elements, `p` of winding_t.
                 macro = SLOT_BOUNDS[(self.owner_of(field), name)]
-                return note + [f"    // AI: Raven declares `{name}[{count}]` and allocates the record past it. The count is Raven's `{macro}` bound.",
+                bound = f"The count is Raven's `{macro}` bound." if macro else "No macro bounds it, so the count is the widest."
+                return note + [f"    // AI: Raven declares `{name}[{count}]` and allocates the record past it. {bound}",
                                f"    public var {name}: Slots<{element_type}> {{ {call.replace('{count}', self.slots_count(field, target)[0])} }}"]
             return note + [f"    public var {name}: Slots<{element_type}> {{ {call.replace('{count}', str(count))} }}"]
         if canonical.kind == TypeKind.RECORD:
@@ -516,6 +574,9 @@ class Generator:
                 return self.property(name, view, f"{view}(handle: OpaquePointer(self.raw.pointer(to: \\.{name})!))",
                                      f"{pointee} = UnsafeMutablePointer(newValue.handle).pointee")
             return None
+        if canonical.kind == TypeKind.BOOL:
+            # A C++ `bool` field of a C_STRUCT_CLASSES record, which C spells `_Bool`, imports as Swift's Bool, the TYPES `Bool` rows of row TR3, row TR15.
+            return self.property(name, "Bool", pointee, f"{pointee} = newValue")
         swift = self.types.scalar(t, target)
         if swift is None:
             return None
@@ -607,6 +668,9 @@ class Generator:
         A field the rule does not name takes the widest count, and Raven's own index is the one that reads."""
         owner = self.owner_of(field)
         macro = SLOT_BOUNDS.get((owner, field.spelling))
+        if macro is None and (owner, field.spelling) in SLOT_BOUNDS:
+            # A row with no macro names an array Raven sizes at the allocation, which no macro bounds, row N7 of the ninth batch.
+            return "Int.max", "Raven sizes the block at the allocation, and no macro bounds it, so the Slots takes the widest count."
         if macro is None:
             return "Int.max", "C gives the pointer no bound, so the Slots takes the widest count."
         exported = self.exported_names(target)
@@ -671,15 +735,21 @@ class Generator:
             c_result = "Int32" if returns == "Bool" else returns or "Void"
         return f"@convention(c) ({', '.join(c_params)}) -> {c_result}"
 
-    def callback_alias(self, proto: ci.Type, target: str) -> str | None:
+    def callback_alias(self, proto: ci.Type, target: str, field: str | None = None) -> str | None:
         """The callback typealias a view field holds for this prototype, qualified for the target, or None when no field has it.
-        Every alias of one signature is the same type, so the first in name order serves."""
+        Every alias of one signature is the same type, so the first in name order serves, unless a `record.field` row names the field."""
         signature = self.c_signature(proto, target)
+        preferred = None
+        if field and field.split(".")[0] in self.views:
+            record, name = field.split(".", 1)
+            preferred = f"{self.views[record][0]}{name[0].upper()}{name[1:]}"
         for owner in [target] + DEPS[target]:
             # The aliases are read from the Callbacks file views.py wrote, the same way exported_names reads reexport's names.
             paths = [root / VIEW_OF[owner] / "Generated" / "Views" / "Callbacks.swift" for root in C.READ_ROOTS]
             text = "".join(path.read_text() for path in paths if path.exists())
             aliases = sorted(alias for alias, sig in re.findall(r"^public typealias (\w+) = (@convention\(c\) .*)$", text, re.M) if sig == signature)
+            if preferred in aliases:
+                aliases = [preferred]
             if aliases:
                 return aliases[0] if owner == target else f"{VIEW_OF[owner]}.{aliases[0]}"
         return None

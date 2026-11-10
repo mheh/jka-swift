@@ -30,8 +30,10 @@ final class CTaskGroup {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:71
     init() {
-        // TODO: Port CTaskGroup::CTaskGroup
-        portMissing("CTaskGroup::CTaskGroup", source: "oracle/codemp/icarus/TaskManager.cpp:71")
+        self.Init()
+
+        self.m_GUID = 0
+        self.m_parent = nil
     }
 
     /**
@@ -43,8 +45,7 @@ final class CTaskGroup {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:90
     func SetGUID(_ GUID: Int32) {
-        // TODO: Port CTaskGroup::SetGUID
-        portMissing("CTaskGroup::SetGUID", source: "oracle/codemp/icarus/TaskManager.cpp:90")
+        self.m_GUID = GUID
     }
 
     /**
@@ -56,8 +57,10 @@ final class CTaskGroup {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:101
     func Init() {
-        // TODO: Port CTaskGroup::Init
-        portMissing("CTaskGroup::Init", source: "oracle/codemp/icarus/TaskManager.cpp:101")
+        self.m_completedTasks.removeAll()
+
+        self.m_numCompleted = 0
+        self.m_parent = nil
     }
 
     /**
@@ -68,9 +71,10 @@ final class CTaskGroup {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:115
+    @discardableResult
     func Add(_ task: CTask?) -> Int32 {
-        // TODO: Port CTaskGroup::Add
-        portMissing("CTaskGroup::Add", source: "oracle/codemp/icarus/TaskManager.cpp:115")
+        self.m_completedTasks[task!.GetGUID()] = false
+        return TASK_OK
     }
 
     /**
@@ -82,8 +86,14 @@ final class CTaskGroup {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:127
     func MarkTaskComplete(_ id: Int32) -> Bool {
-        // TODO: Port CTaskGroup::MarkTaskComplete
-        portMissing("CTaskGroup::MarkTaskComplete", source: "oracle/codemp/icarus/TaskManager.cpp:127")
+        if self.m_completedTasks[id] != nil {
+            self.m_completedTasks[id] = true
+            self.m_numCompleted += 1
+
+            return true
+        }
+
+        return false
     }
 
     /// Source: oracle/codemp/icarus/taskmanager.h:76

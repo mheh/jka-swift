@@ -405,7 +405,8 @@ func ConvertedEntity(_ ent: JKAMP.SharedEntity) -> JKAMP.SharedEntity? {
 
 /// Source: oracle/codemp/server/sv_game.cpp:458
 // AI: Raven's function is file-scope. It is public, because the shell installs it as `GameSystemCalls` of the view target.
-public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
+// AI: Raven returns an `int`, which holds an address only on a 32-bit build. The function returns the pointer-wide word, the form of VM_Call, so each `int` result widens.
+public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
     // AI: Raven's VMA and VMF macros read the local `args`. Each macro is a method of `args` in the view target, `args.VMA(1)` and `args.VMF(1)`.
     switch args[0] {
     //rww - alright, DO NOT EVER add a GAME/CGAME/UI generic call without adding a trap to match, and
@@ -422,25 +423,24 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
         return 0
 
     case TRAP_STRNCPY:
-        // Port-note: Raven returns the destination pointer as an int, which drops the high half of an address on a 64-bit host.
-        // Port-note: No module reads the value, so the arm returns 0.
         // AI: Raven's strncpy writes into the module's buffer. The arm fills a CharBuf of that size and copies all of its bytes into the module's bytes.
         var buffer = CharBuf(args[3])
         strncpy(&buffer, args.VMA(2) as String, args[3])
         Com_Memcpy(args.VMA(1), buffer, args[3])
-        return 0
+        // AI: Raven returns the destination pointer of strncpy, the module's buffer. The arm returns the whole word of that address.
+        return args.VMA(1)
 
     case TRAP_SIN:
-        return FloatAsInt(Float(sin(Double(args.VMF(1)))))
+        return Int(FloatAsInt(Float(sin(Double(args.VMF(1))))))
 
     case TRAP_COS:
-        return FloatAsInt(Float(cos(Double(args.VMF(1)))))
+        return Int(FloatAsInt(Float(cos(Double(args.VMF(1))))))
 
     case TRAP_ATAN2:
-        return FloatAsInt(Float(atan2(Double(args.VMF(1)), Double(args.VMF(2)))))
+        return Int(FloatAsInt(Float(atan2(Double(args.VMF(1)), Double(args.VMF(2))))))
 
     case TRAP_SQRT:
-        return FloatAsInt(Float(sqrt(Double(args.VMF(1)))))
+        return Int(FloatAsInt(Float(sqrt(Double(args.VMF(1))))))
 
     case TRAP_MATRIXMULTIPLY:
         let in1: Slots<vec3_t> = args.VMA(1)
@@ -462,10 +462,10 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
         return 0
 
     case TRAP_FLOOR:
-        return FloatAsInt(Float(floor(Double(args.VMF(1)))))
+        return Int(FloatAsInt(Float(floor(Double(args.VMF(1))))))
 
     case TRAP_CEIL:
-        return FloatAsInt(Float(ceil(Double(args.VMF(1)))))
+        return Int(FloatAsInt(Float(ceil(Double(args.VMF(1))))))
 
     case TRAP_TESTPRINTINT:
         return 0
@@ -474,10 +474,10 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
         return 0
 
     case TRAP_ACOS:
-        return FloatAsInt(Q_acos(args.VMF(1)))
+        return Int(FloatAsInt(Q_acos(args.VMF(1))))
 
     case TRAP_ASIN:
-        return FloatAsInt(Q_asin(args.VMF(1)))
+        return Int(FloatAsInt(Q_asin(args.VMF(1))))
 
 
     case G_PRINT:
@@ -488,7 +488,7 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
         Com_Error(ERR_DROP, "%s", args.VMA(1) as String)
 
     case G_MILLISECONDS:
-        return Sys_Milliseconds()
+        return Int(Sys_Milliseconds())
 
     //rww - precision timer funcs... -ALWAYS- call end after start with supplied ptr, or you'll get a nasty memory leak.
     //not that you should be using these outside of debug anyway.. because you shouldn't be. So don't.
@@ -510,7 +510,7 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
         return 0
 
     case G_CVAR_VARIABLE_INTEGER_VALUE:
-        return Cvar_VariableIntegerValue(args.VMA(1))
+        return Int(Cvar_VariableIntegerValue(args.VMA(1)))
 
     case G_CVAR_VARIABLE_STRING_BUFFER:
         // AI: Raven's callee writes into the module's buffer. The callee fills a CharBuf, and the arm copies the text into the module's bytes.
@@ -520,7 +520,7 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
         return 0
 
     case G_ARGC:
-        return Cmd_Argc()
+        return Int(Cmd_Argc())
 
     case G_ARGV:
         // AI: Raven's callee writes into the module's buffer. The callee fills a CharBuf, and the arm copies the text into the module's bytes.
@@ -537,7 +537,7 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
     case G_FS_FOPEN_FILE:
         // AI: Raven hands the module's int to the callee by address. The arm hands the slot of the Slots at the word.
         let f: Slots<Int32> = args.VMA(2)
-        return FS_FOpenFileByMode(args.VMA(1), &f[0], args[3])
+        return Int(FS_FOpenFileByMode(args.VMA(1), &f[0], args[3]))
 
     case G_FS_READ:
         FS_Read2(args.VMA(1), args[2], args[3])
@@ -556,7 +556,7 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
         var listbuf = CharBuf(args[4])
         let count = FS_GetFileList(args.VMA(1), args.VMA(2), &listbuf, args[4])
         Com_Memcpy(args.VMA(3), listbuf, args[4])
-        return count
+        return Int(count)
 
 
     case G_LOCATE_GAME_DATA:
@@ -580,7 +580,7 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
         return 0
 
     case G_ENTITIES_IN_BOX:
-        return SV_AreaEntities(args.VMA(1), args.VMA(2), args.VMA(3), args[4])
+        return Int(SV_AreaEntities(args.VMA(1), args.VMA(2), args.VMA(3), args[4]))
 
     case G_ENTITY_CONTACT:
         return (SV_EntityContact(args.VMA(1), args.VMA(2), args.VMA(3)!, /*int capsule*/ 0) ? 1 : 0)
@@ -601,7 +601,7 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
         return 0
 
     case G_POINT_CONTENTS:
-        return SV_PointContents(args.VMA(1), args[2])
+        return Int(SV_PointContents(args.VMA(1), args[2]))
 
     case G_SET_SERVER_CULL:
         g_svCullDist = args.VMF(1)
@@ -656,7 +656,7 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
 
 
     case G_BOT_ALLOCATE_CLIENT:
-        return SV_BotAllocateClient()
+        return Int(SV_BotAllocateClient())
 
     case G_BOT_FREE_CLIENT:
         SV_BotFreeClient(args[1])
@@ -703,14 +703,14 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
         return 0;
         */
     case G_DEBUG_POLYGON_CREATE:
-        return BotImport_DebugPolygonCreate(args[1], args[2], args.VMA(3))
+        return Int(BotImport_DebugPolygonCreate(args[1], args[2], args.VMA(3)))
 
     case G_DEBUG_POLYGON_DELETE:
         BotImport_DebugPolygonDelete(args[1])
         return 0
 
     case G_REAL_TIME:
-        return Com_RealTime(args.VMA(1))
+        return Int(Com_RealTime(args.VMA(1)))
 
     case G_SNAPVECTOR:
         // AI: Raven hands the module's vector to the callee by address. The arm hands the slot of the Slots at the word.
@@ -745,10 +745,21 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
             return 0
         }
 
-    case G_ROFF_CLEAN, G_ROFF_UPDATE_ENTITIES, G_ROFF_CACHE, G_ROFF_PLAY, G_ROFF_PURGE_ENT:
-        // Port-note: Row C. `theROFFSystem` is an instance of the C++ class CROFFSystem, which has no port, so its 5 arms are one hole.
-        // Raven wrote: the theROFFSystem calls of sv_game.cpp:714 to :728.
-        portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
+    case G_ROFF_CLEAN:
+        return (theROFFSystem.Clean(false) ? 1 : 0)
+
+    case G_ROFF_UPDATE_ENTITIES:
+        theROFFSystem.UpdateEntities(false)
+        return 0
+
+    case G_ROFF_CACHE:
+        return Int(theROFFSystem.Cache(args.VMA(1), false))
+
+    case G_ROFF_PLAY:
+        return (theROFFSystem.Play(args[1], args[2], args[3] != 0, false) ? 1 : 0)
+
+    case G_ROFF_PURGE_ENT:
+        return (theROFFSystem.PurgeEnt(args[1], false) ? 1 : 0)
 
     //rww - dynamic vm memory allocation!
     case G_TRUEMALLOC:
@@ -765,7 +776,7 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
 
     //rww - icarus traps
     case G_ICARUS_RUNSCRIPT:
-        return ICARUS_RunScript(ConvertedEntity(args.VMA(1)!)!, args.VMA(2))
+        return Int(ICARUS_RunScript(ConvertedEntity(args.VMA(1)!)!, args.VMA(2)))
 
     case G_ICARUS_REGISTERSCRIPT:
         return (ICARUS_RegisterScript(args.VMA(1), args[2] != 0) ? 1 : 0)
@@ -777,10 +788,36 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
     case G_ICARUS_VALIDENT:
         return (ICARUS_ValidEnt(ConvertedEntity(args.VMA(1)!)!) ? 1 : 0)
 
-    case G_ICARUS_ISINITIALIZED, G_ICARUS_MAINTAINTASKMANAGER, G_ICARUS_ISRUNNING:
-        // Port-note: Row C. `gSequencers` and `gTaskManagers` hold instances of the C++ classes CSequencer and CTaskManager, which have no port.
-        // Raven wrote: the gSequencers and gTaskManagers tests of sv_game.cpp:752 to :782.
-        portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
+    case G_ICARUS_ISINITIALIZED:
+        do {
+            let entID = args[1]
+
+            if gSequencers[entID] == nil || gTaskManagers[entID] == nil {
+                return 0
+            }
+        }
+        return 1
+
+    case G_ICARUS_MAINTAINTASKMANAGER:
+        do {
+            let entID = args[1]
+
+            if let taskManager = gTaskManagers[entID] {
+                taskManager.Update()
+                return 1
+            }
+        }
+        return 0
+
+    case G_ICARUS_ISRUNNING:
+        do {
+            let entID = args[1]
+
+            if gTaskManagers[entID] == nil || !gTaskManagers[entID]!.IsRunning() {
+                return 0
+            }
+        }
+        return 1
 
     case G_ICARUS_TASKIDPENDING:
         return (Q3_TaskIDPending(args.VMA(1)!, args[2]) ? 1 : 0)
@@ -818,34 +855,173 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
         return 0
 
     case G_ICARUS_VARIABLEDECLARED:
-        return Q3_VariableDeclared(args.VMA(1))
+        return Int(Q3_VariableDeclared(args.VMA(1)))
 
     case G_ICARUS_GETFLOATVARIABLE:
         // AI: Raven hands the module's float to the callee by address. The arm hands the slot of the Slots at the word.
         let value: Slots<Float> = args.VMA(2)
-        return Q3_GetFloatVariable(args.VMA(1), &value[0])
+        return Int(Q3_GetFloatVariable(args.VMA(1), &value[0]))
 
     case G_ICARUS_GETSTRINGVARIABLE:
         var rec = TextCursor(CharBuf(args.VMA(2) as String))
-        return Q3_GetStringVariable(args.VMA(1), &rec)
+        return Int(Q3_GetStringVariable(args.VMA(1), &rec))
 
     case G_ICARUS_GETVECTORVARIABLE:
-        // Port-note: Q3_GetVectorVariable takes `value` by value, and Raven's sscanf writes the three floats through it, so the module gets no vector.
-        // Raven wrote: return Q3_GetVectorVariable((const char *)VMA(1), (float *)VMA(2));
-        portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
+        // AI: Raven hands the module's vector to the callee by address. The arm hands the slot of the Slots at the word.
+        let value: Slots<vec3_t> = args.VMA(2)
+        return Int(Q3_GetVectorVariable(args.VMA(1), &value[0]))
 
     //rww - BEGIN NPC NAV TRAPS
-    case G_NAV_INIT, G_NAV_FREE, G_NAV_LOAD, G_NAV_SAVE, G_NAV_ADDRAWPOINT, G_NAV_CALCULATEPATHS, G_NAV_HARDCONNECT,
-         G_NAV_SHOWNODES, G_NAV_SHOWEDGES, G_NAV_SHOWPATH, G_NAV_GETNEARESTNODE, G_NAV_GETBESTNODE, G_NAV_GETNODEPOSITION,
-         G_NAV_GETNODENUMEDGES, G_NAV_GETNODEEDGE, G_NAV_GETNUMNODES, G_NAV_CONNECTED, G_NAV_GETPATHCOST, G_NAV_GETEDGECOST,
-         G_NAV_GETPROJECTEDNODE, G_NAV_CHECKFAILEDNODES, G_NAV_ADDFAILEDNODE, G_NAV_NODEFAILED, G_NAV_NODESARENEIGHBORS,
-         G_NAV_CLEARFAILEDEDGE, G_NAV_CLEARALLFAILEDEDGES, G_NAV_EDGEFAILED, G_NAV_ADDFAILEDEDGE, G_NAV_CHECKFAILEDEDGE,
-         G_NAV_CHECKALLFAILEDEDGES, G_NAV_ROUTEBLOCKED, G_NAV_GETBESTNODEALTROUTE, G_NAV_GETBESTNODEALT2,
-         G_NAV_GETBESTPATHBETWEENENTS, G_NAV_GETNODERADIUS, G_NAV_CHECKBLOCKEDEDGES, G_NAV_CLEARCHECKEDNODES,
-         G_NAV_CHECKEDNODE, G_NAV_SETCHECKEDNODE, G_NAV_FLAGALLNODES, G_NAV_GETPATHSCALCULATED, G_NAV_SETPATHSCALCULATED:
-        // Port-note: Row C. `navigator` is an instance of the C++ class CNavigator, which has no port, so its 42 arms are one hole.
-        // Raven wrote: the navigator calls of sv_game.cpp:837 to :935.
-        portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
+    case G_NAV_INIT:
+        navigator.Init()
+        return 0
+
+    case G_NAV_FREE:
+        navigator.Free()
+        return 0
+
+    case G_NAV_LOAD:
+        return (navigator.Load(args.VMA(1), args[2]) ? 1 : 0)
+
+    case G_NAV_SAVE:
+        return (navigator.Save(args.VMA(1), args[2]) ? 1 : 0)
+
+    case G_NAV_ADDRAWPOINT:
+        return Int(navigator.AddRawPoint(args.VMA(1), args[2], args[3]))
+
+    case G_NAV_CALCULATEPATHS:
+        navigator.CalculatePaths(args[1] != 0)
+        return 0
+
+    case G_NAV_HARDCONNECT:
+        navigator.HardConnect(args[1], args[2])
+        return 0
+
+    case G_NAV_SHOWNODES:
+        navigator.ShowNodes()
+        return 0
+
+    case G_NAV_SHOWEDGES:
+        navigator.ShowEdges()
+        return 0
+
+    case G_NAV_SHOWPATH:
+        navigator.ShowPath(args[1], args[2])
+        return 0
+
+    case G_NAV_GETNEARESTNODE:
+        return Int(navigator.GetNearestNode(args.VMA(1), args[2], args[3], args[4]))
+
+    case G_NAV_GETBESTNODE:
+        return Int(navigator.GetBestNode(args[1], args[2], args[3]))
+
+    case G_NAV_GETNODEPOSITION:
+        // AI: Raven hands the module's vector to the callee by address. The arm hands the slot of the Slots at the word.
+        let out: Slots<vec3_t> = args.VMA(2)
+        return Int(navigator.GetNodePosition(args[1], &out[0]))
+
+    case G_NAV_GETNODENUMEDGES:
+        return Int(navigator.GetNodeNumEdges(args[1]))
+
+    case G_NAV_GETNODEEDGE:
+        return Int(navigator.GetNodeEdge(args[1], args[2]))
+
+    case G_NAV_GETNUMNODES:
+        return Int(navigator.GetNumNodes())
+
+    case G_NAV_CONNECTED:
+        return (navigator.Connected(args[1], args[2]) ? 1 : 0)
+
+    case G_NAV_GETPATHCOST:
+        return Int(navigator.GetPathCost(args[1], args[2]))
+
+    case G_NAV_GETEDGECOST:
+        return Int(navigator.GetEdgeCost(args[1], args[2]))
+
+    case G_NAV_GETPROJECTEDNODE:
+        return Int(navigator.GetProjectedNode(args.VMA(1), args[2]))
+
+    case G_NAV_CHECKFAILEDNODES:
+        navigator.CheckFailedNodes(args.VMA(1))
+        return 0
+
+    case G_NAV_ADDFAILEDNODE:
+        navigator.AddFailedNode(args.VMA(1), args[2])
+        return 0
+
+    case G_NAV_NODEFAILED:
+        return (navigator.NodeFailed(args.VMA(1), args[2]) ? 1 : 0)
+
+    case G_NAV_NODESARENEIGHBORS:
+        return (navigator.NodesAreNeighbors(args[1], args[2]) ? 1 : 0)
+
+    case G_NAV_CLEARFAILEDEDGE:
+        navigator.ClearFailedEdge(args.VMA(1))
+        return 0
+
+    case G_NAV_CLEARALLFAILEDEDGES:
+        navigator.ClearAllFailedEdges()
+        return 0
+
+    case G_NAV_EDGEFAILED:
+        return Int(navigator.EdgeFailed(args[1], args[2]))
+
+    case G_NAV_ADDFAILEDEDGE:
+        navigator.AddFailedEdge(args[1], args[2], args[3])
+        return 0
+
+    case G_NAV_CHECKFAILEDEDGE:
+        return (navigator.CheckFailedEdge(args.VMA(1)) ? 1 : 0)
+
+    case G_NAV_CHECKALLFAILEDEDGES:
+        navigator.CheckAllFailedEdges()
+        return 0
+
+    case G_NAV_ROUTEBLOCKED:
+        return (navigator.RouteBlocked(args[1], args[2], args[3], args[4]) ? 1 : 0)
+
+    case G_NAV_GETBESTNODEALTROUTE:
+        // AI: Raven hands the module's int to the callee by address. The arm hands the slot of the Slots at the word.
+        let pathCost: Slots<Int32> = args.VMA(3)
+        return Int(navigator.GetBestNodeAltRoute(args[1], args[2], &pathCost[0], args[4]))
+
+    case G_NAV_GETBESTNODEALT2:
+        return Int(navigator.GetBestNodeAltRoute(args[1], args[2], args[3]))
+
+    case G_NAV_GETBESTPATHBETWEENENTS:
+        return Int(navigator.GetBestPathBetweenEnts(args.VMA(1), args.VMA(2), args[3]))
+
+    case G_NAV_GETNODERADIUS:
+        return Int(navigator.GetNodeRadius(args[1]))
+
+    case G_NAV_CHECKBLOCKEDEDGES:
+        navigator.CheckBlockedEdges()
+        return 0
+
+    case G_NAV_CLEARCHECKEDNODES:
+        navigator.ClearCheckedNodes()
+        return 0
+
+    case G_NAV_CHECKEDNODE:
+        return Int(navigator.CheckedNode(args[1], args[2]))
+
+    case G_NAV_SETCHECKEDNODE:
+        // C converts the `int` value to the `byte` parameter.
+        navigator.SetCheckedNode(args[1], args[2], JKAShared.byte(truncatingIfNeeded: args[3]))
+        // Raven's case has no return, so it falls through to the next case.
+        fallthrough
+
+    case G_NAV_FLAGALLNODES:
+        navigator.FlagAllNodes(args[1])
+        // Raven's case has no return, so it falls through to the next case.
+        fallthrough
+
+    case G_NAV_GETPATHSCALCULATED:
+        return (navigator.pathsCalculated ? 1 : 0)
+
+    case G_NAV_SETPATHSCALCULATED:
+        navigator.pathsCalculated = args[1] != 0
+        return 0
     //rww - END NPC NAV TRAPS
 
     case G_SET_SHARED_BUFFER:
@@ -855,10 +1031,10 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
         //====================================
 
     case BOTLIB_SETUP:
-        return SV_BotLibSetup()
+        return Int(SV_BotLibSetup())
 
     case BOTLIB_SHUTDOWN:
-        return SV_BotLibShutdown()
+        return Int(SV_BotLibShutdown())
 
     case BOTLIB_LIBVAR_SET, BOTLIB_LIBVAR_GET, BOTLIB_PC_ADD_GLOBAL_DEFINE, BOTLIB_PC_LOAD_SOURCE, BOTLIB_PC_FREE_SOURCE,
          BOTLIB_PC_READ_TOKEN, BOTLIB_PC_SOURCE_FILE_AND_LINE, BOTLIB_START_FRAME, BOTLIB_LOAD_MAP, BOTLIB_UPDATENTITY,
@@ -868,14 +1044,14 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int32 {
         portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
 
     case BOTLIB_GET_SNAPSHOT_ENTITY:
-        return SV_BotGetSnapshotEntity(args[1], args[2])
+        return Int(SV_BotGetSnapshotEntity(args[1], args[2]))
 
     case BOTLIB_GET_CONSOLE_MESSAGE:
         // AI: Raven's callee writes into the module's buffer. The callee fills a CharBuf, and the arm copies the text into the module's bytes.
         var buf = CharBuf(args[3])
         let r = SV_BotGetConsoleMessage(args[1], &buf, args[3])
         Com_Memcpy(args.VMA(2), buf, strlen(buf) + 1)
-        return r
+        return Int(r)
 
     case BOTLIB_USER_COMMAND:
         SV_ClientThink(svs.clientsSlots[args[1]], args.VMA(2)!)

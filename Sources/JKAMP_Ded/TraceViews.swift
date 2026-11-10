@@ -11,24 +11,6 @@ extension Cbrushside {
     }
 }
 
-extension TraceWork {
-    /// Raven's `bool startout` of `traceWork_t`.
-    /// Source: oracle/codemp/qcommon/cm_local.h:258
-    // AI: Raven declares the field as a C++ `bool`. The view has no row for `_Bool`, so this accessor reads and writes the field.
-    public var startout: Bool {
-        get { self.raw.pointee.startout }
-        nonmutating set { self.raw.pointee.startout = newValue }
-    }
-
-    /// Raven's `bool getout` of `traceWork_t`.
-    /// Source: oracle/codemp/qcommon/cm_local.h:259
-    // AI: Raven declares the field as a C++ `bool`. The view has no row for `_Bool`, so this accessor reads and writes the field.
-    public var getout: Bool {
-        get { self.raw.pointee.getout }
-        nonmutating set { self.raw.pointee.getout = newValue }
-    }
-}
-
 /// Raven's `Com_Memset( buffer, val, count )` over a `byte *` that the port holds as a Slots of bytes.
 /// Source: oracle/codemp/qcommon/common.cpp:1820
 // AI: Raven fills the bytes from a raw pointer. The overload takes the Slots and stores the low byte of `val` into each of the first `count` bytes, the form of the `CharBuf` overload.

@@ -122,8 +122,13 @@ final class CROFFSystem {
         */
         /// Source: oracle/codemp/qcommon/RoffSystem.cpp:20
         init(_ file: String, _ id: Int32) {
-            // TODO: Port CROFFSystem::CROFF::CROFF
-            portMissing("CROFFSystem::CROFF::CROFF", source: "oracle/codemp/qcommon/RoffSystem.cpp:20")
+            self.mROFFFilePath = file
+
+            self.mID = id
+            self.mMoveRotateList = []
+            self.mNoteTrackIndexes = []
+            self.mUsedByServer = false
+            self.mUsedByClient = self.mUsedByServer
         }
     }
 
@@ -135,7 +140,8 @@ final class CROFFSystem {
     ```
     */
     /// Source: oracle/codemp/qcommon/RoffSystem.h:125
-    // AI: Raven allocates each record with `new` and passes its pointer. The record is a struct in the Array, and a method that writes it takes it inout.
+    // AI: Raven allocates each record with `new` and passes its pointer.
+    // The record is a struct in the Array, and a method that writes it takes it inout.
     private struct SROFFEntity {
         var mEntID: Int32 = 0			// the entity that is currently roffing
 
@@ -172,8 +178,37 @@ final class CROFFSystem {
     */
     /// Source: oracle/codemp/qcommon/RoffSystem.cpp:96
     private func IsROFF(_ data: Slots<JKAShared.byte>) -> Bool {
-        // TODO: Port CROFFSystem::IsROFF
-        portMissing("CROFFSystem::IsROFF", source: "oracle/codemp/qcommon/RoffSystem.cpp:96")
+        // AI: Raven casts the file bytes to his two header records.
+        // The body reads each field at its byte offset in the file, `mVersion` at 4 and `mCount` at 8.
+        var hdr = TROFFHeader()
+        var hdr2 = TROFF2Header()
+
+        hdr.mVersion = data[int: 4]
+        hdr.mCount = data[float: 8]
+        hdr2.mCount = data[int: 8]
+
+        // AI: Raven runs strcmp over his 4-byte `mHeader`, which reads on into `mVersion`, so the compare decides by the fifth byte at the latest.
+        // The body compares the first five bytes of the file with ROFF_STRING.
+        var mHeader = CharBuf(5)
+        Com_Memcpy(&mHeader, data, 5)
+
+        if strcmp(mHeader, ROFF_STRING) == 0 { // bad header
+            return false
+        }
+
+        if hdr.mVersion != ROFF_VERSION && hdr.mVersion != ROFF_NEW_VERSION {	// bad version
+            return false
+        }
+
+        if hdr.mVersion == ROFF_VERSION && hdr.mCount <= 0.0 {	// bad count
+            return false
+        }
+
+        if hdr.mVersion == ROFF_NEW_VERSION && hdr2.mCount <= 0 {	// bad count
+            return false
+        }
+
+        return true
     }
 
     /**
@@ -192,8 +227,43 @@ final class CROFFSystem {
     */
     /// Source: oracle/codemp/qcommon/RoffSystem.cpp:135
     private func InitROFF(_ data: Slots<JKAShared.byte>, _ obj: CROFF?) -> Bool {
-        // TODO: Port CROFFSystem::InitROFF
-        portMissing("CROFFSystem::InitROFF", source: "oracle/codemp/qcommon/RoffSystem.cpp:135")
+        var i: Int32
+
+        // AI: Raven casts the file bytes to his header record.
+        // The body reads each field at its byte offset in the file, `mVersion` at 4 and `mCount` at 8.
+        var hdr = TROFFHeader()
+        hdr.mVersion = data[int: 4]
+        hdr.mCount = data[float: 8]
+
+        if hdr.mVersion == ROFF_NEW_VERSION {
+            return self.InitROFF2(data, obj)
+        }
+
+        obj!.mROFFEntries = Int32(hdr.mCount)
+        obj!.mMoveRotateList = Array(repeating: TROFF2Entry(), count: Int(Int32(hdr.mCount)))
+        obj!.mFrameTime = 1000 / ROFF_SAMPLE_RATE		// default 10 hz
+        obj!.mLerp = ROFF_SAMPLE_RATE
+        obj!.mNumNoteTracks = 0
+        obj!.mNoteTrackIndexes = []
+
+        // Raven tests the result of `new` for NULL, and an Array is never NULL, so the test and its failure arm drop.
+        // Step past the header to get to the goods
+        // The entries start after the 12 bytes of the header, and each entry is six floats, 24 bytes.
+
+        // Copy all of the goods into our ROFF cache
+        i = 0
+        while i < hdr.mCount {
+            let roff_data = 12 + i * 24
+            obj!.mMoveRotateList[i].mOriginOffset = vec3_t(data[float: roff_data], data[float: roff_data + 4], data[float: roff_data + 8])
+            obj!.mMoveRotateList[i].mRotateOffset = vec3_t(data[float: roff_data + 12], data[float: roff_data + 16], data[float: roff_data + 20])
+            obj!.mMoveRotateList[i].mStartNote = -1
+            obj!.mMoveRotateList[i].mNumNotes = 0
+            i += 1
+        }
+
+        self.FixBadAngles(obj)
+
+        return true
     }
 
     /**
@@ -212,8 +282,73 @@ final class CROFFSystem {
     */
     /// Source: oracle/codemp/qcommon/RoffSystem.cpp:187
     private func InitROFF2(_ data: Slots<JKAShared.byte>, _ obj: CROFF?) -> Bool {
-        // TODO: Port CROFFSystem::InitROFF2
-        portMissing("CROFFSystem::InitROFF2", source: "oracle/codemp/qcommon/RoffSystem.cpp:187")
+        var i: Int32
+
+        // AI: Raven casts the file bytes to his header record.
+        // The body reads each field at its byte offset in the file, from `mVersion` at 4 to `mNumNotes` at 16.
+        var hdr = TROFF2Header()
+        hdr.mVersion = data[int: 4]
+        hdr.mCount = data[int: 8]
+        hdr.mFrameRate = data[int: 12]
+        hdr.mNumNotes = data[int: 16]
+
+        obj!.mROFFEntries = hdr.mCount
+        obj!.mMoveRotateList = Array(repeating: TROFF2Entry(), count: Int(hdr.mCount))
+        obj!.mFrameTime = hdr.mFrameRate
+        obj!.mLerp = 1000 / hdr.mFrameRate
+        obj!.mNumNoteTracks = hdr.mNumNotes
+
+        // Raven tests the result of `new` for NULL, and an Array is never NULL, so the test and its failure arm drop.
+        // Step past the header to get to the goods
+        // The entries start after the 20 bytes of the header, and each entry is six floats and two ints, 32 bytes.
+
+        // Copy all of the goods into our ROFF cache
+        i = 0
+        while i < hdr.mCount {
+            let roff_data = 20 + i * 32
+            obj!.mMoveRotateList[i].mOriginOffset = vec3_t(data[float: roff_data], data[float: roff_data + 4], data[float: roff_data + 8])
+            obj!.mMoveRotateList[i].mRotateOffset = vec3_t(data[float: roff_data + 12], data[float: roff_data + 16], data[float: roff_data + 20])
+            obj!.mMoveRotateList[i].mStartNote = data[int: roff_data + 24]
+            obj!.mMoveRotateList[i].mNumNotes = data[int: roff_data + 28]
+            i += 1
+        }
+
+        self.FixBadAngles(obj)
+
+        if obj!.mNumNoteTracks != 0 {
+            var size: Int32
+            var ptr: Int32
+            let start = 20 + i * 32
+
+            // AI: Raven walks the note texts in the file bytes with strlen. The body copies the bytes after the entries into a CharBuf,
+            // the CharBuf overload of Com_Memcpy, and walks the CharBuf with strlen.
+            var notes = CharBuf(Int32(data.count) - start)
+            Com_Memcpy(&notes, data.suffix(from: start), Int32(data.count) - start)
+
+            ptr = 0
+            size = 0
+
+            i = 0
+            while i < obj!.mNumNoteTracks {
+                size += strlen(notes[ptr...]) + 1
+                ptr += strlen(notes[ptr...]) + 1
+                i += 1
+            }
+
+            // AI: Raven copies the `size` bytes of the texts into one block and points each index into it. Each index is the String of its text.
+            obj!.mNoteTrackIndexes = Array(repeating: "", count: Int(obj!.mNumNoteTracks))
+            ptr = 0
+            obj!.mNoteTrackIndexes[0] = String(notes[ptr...])
+
+            i = 1
+            while i < obj!.mNumNoteTracks {
+                ptr += strlen(notes[ptr...]) + 1
+                obj!.mNoteTrackIndexes[i] = String(notes[ptr...])
+                i += 1
+            }
+        }
+
+        return true
     }
 
     /**
@@ -233,8 +368,29 @@ final class CROFFSystem {
     */
     /// Source: oracle/codemp/qcommon/RoffSystem.cpp:258
     private func FixBadAngles(_ obj: CROFF?) {
-        // TODO: Port CROFFSystem::FixBadAngles
-        portMissing("CROFFSystem::FixBadAngles", source: "oracle/codemp/qcommon/RoffSystem.cpp:258")
+        // Ideally we would fix the ROFF exporter, if that doesn't happen, this may be an adequate solution
+        var index: Int32
+        var t: Int32
+
+        // Attempt to fix bad angles
+
+        index = 0
+        while index < obj!.mROFFEntries {
+            t = 0
+            while t < 3 {
+                if obj!.mMoveRotateList[index].mRotateOffset[t] > 180.0 { // found a bad angle
+                    //	Com_Printf( S_COLOR_YELLOW"Fixing bad roff angle\n <%6.2f> changed to <%6.2f>.\n",
+                    //				roff_data[i].mRotateOffset[t], roff_data[i].mRotateOffset[t] - 360.0f );
+                    obj!.mMoveRotateList[index].mRotateOffset[t] -= 360.0
+                } else if obj!.mMoveRotateList[index].mRotateOffset[t] < -180.0 { // found a bad angle
+                    //	Com_Printf( S_COLOR_YELLOW"Fixing bad roff angle\n <%6.2f> changed to <%6.2f>.\n",
+                    //				roff_data[i].mRotateOffset[t], roff_data[i].mRotateOffset[t] + 360.0f );
+                    obj!.mMoveRotateList[index].mRotateOffset[t] += 360.0
+                }
+                t += 1
+            }
+            index += 1
+        }
     }
 
     /// Source: oracle/codemp/qcommon/RoffSystem.h:146
@@ -259,8 +415,80 @@ final class CROFFSystem {
     */
     /// Source: oracle/codemp/qcommon/RoffSystem.cpp:820
     private func ApplyROFF(_ roff_ent: inout SROFFEntity, _ roff: CROFF?) -> Bool {
-        // TODO: Port CROFFSystem::ApplyROFF
-        portMissing("CROFFSystem::ApplyROFF", source: "oracle/codemp/qcommon/RoffSystem.cpp:820")
+        var f = vec3_t()
+        var r = vec3_t()
+        var u = vec3_t()
+        var result = vec3_t()
+        var ent: JKAMP.SharedEntity? = nil
+        let originTrajectory: JKAShared.Trajectory
+        let angleTrajectory: JKAShared.Trajectory
+        let origin: JKAShared.vec3_t
+        let angle: JKAShared.vec3_t
+
+        if svs.time < roff_ent.mNextROFFTime { // Not time to roff yet
+            return true
+        }
+
+        if roff_ent.mIsClient {
+            // Port-note: The dedicated build drops Raven's client arm, so the trajectories stay uninitialized and SetLerp reads them.
+            portMissing("CROFFSystem::ApplyROFF", source: "oracle/codemp/qcommon/RoffSystem.cpp:820")
+        } else {
+            // Find the entity to apply the roff to
+            ent = SV_GentityNum(roff_ent.mEntID)
+
+            if ent == nil {	// bad stuff
+                return false
+            }
+
+            originTrajectory = ent!.s.pos
+            angleTrajectory = ent!.s.apos
+            origin = ent!.r.currentOrigin
+            angle = ent!.r.currentAngles
+        }
+
+        if roff_ent.mROFFFrame >= roff!.mROFFEntries { // we are done roffing, so stop moving and flag this ent to be removed
+            self.SetLerp(originTrajectory, TR_STATIONARY, origin, nil, svs.time, roff!.mLerp)
+            self.SetLerp(angleTrajectory, TR_STATIONARY, angle, nil, svs.time, roff!.mLerp)
+            if !roff_ent.mIsClient {
+                ent!.r.mIsRoffing = false
+            }
+            return false
+        }
+
+        if roff_ent.mTranslated {
+            AngleVectors(roff_ent.mStartAngles, &f, &r, &u)
+            result = f * roff!.mMoveRotateList[roff_ent.mROFFFrame].mOriginOffset[0]
+            _VectorMA(result, -roff!.mMoveRotateList[roff_ent.mROFFFrame].mOriginOffset[1], r, &result)
+            _VectorMA(result, roff!.mMoveRotateList[roff_ent.mROFFFrame].mOriginOffset[2], u, &result)
+        } else {
+            result = roff!.mMoveRotateList[roff_ent.mROFFFrame].mOriginOffset
+        }
+
+        // Set up our origin interpolation
+        self.SetLerp(originTrajectory, TR_LINEAR, origin, result, svs.time, roff!.mLerp)
+
+        // Set up our angle interpolation
+        self.SetLerp(angleTrajectory, TR_LINEAR, angle,
+                     roff!.mMoveRotateList[roff_ent.mROFFFrame].mRotateOffset, svs.time, roff!.mLerp)
+
+        if roff!.mMoveRotateList[roff_ent.mROFFFrame].mStartNote >= 0 {
+            var i: Int32
+
+            i = 0
+            while i < roff!.mMoveRotateList[roff_ent.mROFFFrame].mNumNotes {
+                self.ProcessNote(roff_ent, roff!.mNoteTrackIndexes[roff!.mMoveRotateList[roff_ent.mROFFFrame].mStartNote + i])
+                i += 1
+            }
+        }
+
+        // Advance ROFF frames and lock to a 10hz cycle
+        roff_ent.mROFFFrame += 1
+        roff_ent.mNextROFFTime = svs.time + roff!.mFrameTime
+
+        //rww - npcs need to know when they're getting roff'd
+        ent!.next_roff_time = roff_ent.mNextROFFTime
+
+        return true
     }
 
     /**
@@ -282,8 +510,35 @@ final class CROFFSystem {
     */
     /// Source: oracle/codemp/qcommon/RoffSystem.cpp:927
     private func ProcessNote(_ roff_ent: SROFFEntity, _ note: String) {
-        // TODO: Port CROFFSystem::ProcessNote
-        portMissing("CROFFSystem::ProcessNote", source: "oracle/codemp/qcommon/RoffSystem.cpp:927")
+        // Raven walks his `note` parameter by byte, so the body walks a CharBuf of it.
+        let note = CharBuf(note)
+        var temp = CharBuf(1024)
+        var pos: Int32
+        var size: Int32
+
+        pos = 0
+        while note[pos] != 0 {
+            size = 0
+            while note[pos] != 0 && note[pos] < Int32(ascii: " ") {
+                pos += 1
+            }
+
+            while note[pos] != 0 && note[pos] >= Int32(ascii: " ") {
+                temp[size] = note[pos]
+                size += 1
+                pos += 1
+            }
+            temp[size] = 0
+
+            if size != 0 {
+                if roff_ent.mIsClient {
+                } else {
+                    // Port-note: Row SV3. VM_Call reads only integer arguments, so it cannot pass the address of the text to the module.
+                    // Raven wrote: VM_Call( gvm, GAME_ROFF_NOTETRACK_CALLBACK, roff_ent->mEntID, temp );
+                    portMissing("CROFFSystem::ProcessNote", source: "oracle/codemp/qcommon/RoffSystem.cpp:927")
+                }
+            }
+        }
     }
 
     /**
@@ -302,9 +557,18 @@ final class CROFFSystem {
     ```
     */
     /// Source: oracle/codemp/qcommon/RoffSystem.cpp:1024
-    private func SetLerp(_ tr: JKAShared.Trajectory?, _ type: JKAShared.trType_t, _ origin: JKAShared.vec3_t, _ delta: JKAShared.vec3_t, _ time: Int32, _ rate: Int32) {
-        // TODO: Port CROFFSystem::SetLerp
-        portMissing("CROFFSystem::SetLerp", source: "oracle/codemp/qcommon/RoffSystem.cpp:1024")
+    // AI: Raven's `vec3_t delta` is a pointer that a caller passes as NULL. The parameter is `vec3_t?`, the form of the mins and maxs of SV_Trace.
+    private func SetLerp(_ tr: JKAShared.Trajectory?, _ type: JKAShared.trType_t, _ origin: JKAShared.vec3_t, _ delta: JKAShared.vec3_t?, _ time: Int32, _ rate: Int32) {
+        tr!.trType = type
+        tr!.trTime = time
+        tr!.trBase = origin
+
+        // Check for a NULL delta
+        if delta != nil {
+            tr!.trDelta = delta! * Float(rate)
+        } else {
+            tr!.trDelta = vec3_t()
+        }
     }
 
     /**
@@ -323,8 +587,33 @@ final class CROFFSystem {
     */
     /// Source: oracle/codemp/qcommon/RoffSystem.cpp:973
     private func ClearLerp(_ roff_ent: SROFFEntity) -> Bool {
-        // TODO: Port CROFFSystem::ClearLerp
-        portMissing("CROFFSystem::ClearLerp", source: "oracle/codemp/qcommon/RoffSystem.cpp:973")
+        let ent: JKAMP.SharedEntity?
+        let originTrajectory: JKAShared.Trajectory
+        let angleTrajectory: JKAShared.Trajectory
+        let origin: JKAShared.vec3_t
+        let angle: JKAShared.vec3_t
+
+        if roff_ent.mIsClient {
+            // Port-note: The dedicated build drops Raven's client arm, so the trajectories stay uninitialized and SetLerp reads them.
+            portMissing("CROFFSystem::ClearLerp", source: "oracle/codemp/qcommon/RoffSystem.cpp:973")
+        } else {
+            // Find the entity to apply the roff to
+            ent = SV_GentityNum(roff_ent.mEntID)
+
+            if ent == nil {	// bad stuff
+                return false
+            }
+
+            originTrajectory = ent!.s.pos
+            angleTrajectory = ent!.s.apos
+            origin = ent!.r.currentOrigin
+            angle = ent!.r.currentAngles
+        }
+
+        self.SetLerp(originTrajectory, TR_STATIONARY, origin, nil, svs.time, ROFF_SAMPLE_RATE)
+        self.SetLerp(angleTrajectory, TR_STATIONARY, angle, nil, svs.time, ROFF_SAMPLE_RATE)
+
+        return true
     }
 
     /**
@@ -343,8 +632,14 @@ final class CROFFSystem {
     */
     /// Source: oracle/codemp/qcommon/RoffSystem.cpp:66
     func Restart() -> Bool {
-        // TODO: Port CROFFSystem::Restart
-        portMissing("CROFFSystem::Restart", source: "oracle/codemp/qcommon/RoffSystem.cpp:66")
+        // remove everything from the list
+        // AI: Raven deletes and erases each roff in a loop. Emptying the Dictionary frees them.
+        self.mROFFList.removeAll()
+
+        // clear CROFFSystem unique ID counter
+        self.mID = 0
+
+        return true
     }
 
     /**
@@ -364,8 +659,63 @@ final class CROFFSystem {
     */
     /// Source: oracle/codemp/qcommon/RoffSystem.cpp:298
     func Cache(_ file: String, _ isClient: Bool) -> Int32 {
-        // TODO: Port CROFFSystem::Cache
-        portMissing("CROFFSystem::Cache", source: "oracle/codemp/qcommon/RoffSystem.cpp:298")
+        // See if this item is already cached
+        var len: Int32
+        var id = self.GetID(file)
+        var data: Slots<JKAShared.byte>
+        var cROFF: CROFF?
+
+        if id != 0 {
+        } else { // Read the file in one fell swoop
+            var block: OpaquePointer? = nil
+            len = FS_ReadFile(file, &block)
+
+            if len <= 0 {
+                var otherPath = CharBuf(1024)
+                COM_StripExtension(file, &otherPath)
+                len = FS_ReadFile(va("scripts/%s.rof", otherPath), &block)
+                if len <= 0 {
+                    Com_Printf(S_COLOR_RED + "Could not open .ROF file '%s'\n", file)
+                    return 0
+                }
+            }
+            // AI: Raven reads the `unsigned char *` of the block.
+            // The body reads a Slots over the `len` bytes and the NUL that FS_ReadFile puts after them.
+            data = ZipBackend.bytes(block, count: len + 1)!
+
+            // Make sure that the file is roff
+            if !self.IsROFF(data) {
+                Com_Printf(S_COLOR_RED + "cache failed: roff <%s> does not exist or is not a valid roff\n", file)
+                FS_FreeFile(data)
+
+                return 0
+            }
+
+            // Things are looking good so far, so create a new CROFF object
+            id = self.NewID()
+
+            cROFF = CROFF(file, id)
+
+            self.mROFFList[id] = cROFF
+
+            if !self.InitROFF(data, cROFF) { // something failed, so get rid of the object
+                _ = self.Unload(id)
+                id = 0
+            }
+
+            FS_FreeFile(data)
+        }
+
+        // Port-note: Raven reads the end iterator when InitROFF fails, which is undefined. The force unwrap traps there.
+        cROFF = self.mROFFList[id]!
+        if isClient {
+            cROFF!.mUsedByClient = true
+        } else {
+            cROFF!.mUsedByServer = true
+        }
+
+        // If we haven't requested a new ID, we'll just be returning the ID of the existing roff
+        return id
     }
 
     /**
@@ -384,8 +734,16 @@ final class CROFFSystem {
     */
     /// Source: oracle/codemp/qcommon/RoffSystem.cpp:378
     func GetID(_ file: String) -> Int32 {
-        // TODO: Port CROFFSystem::GetID
-        portMissing("CROFFSystem::GetID", source: "oracle/codemp/qcommon/RoffSystem.cpp:378")
+        // Attempt to find the requested roff
+        // AI: Raven walks his `map` in key order. The body walks the sorted keys of the Dictionary.
+        for itr in self.mROFFList.keys.sorted() {
+            if self.mROFFList[itr]!.mROFFFilePath == file { // return the ID to this roff
+                return itr
+            }
+        }
+
+        // Not found
+        return 0
     }
 
     /**
@@ -405,8 +763,13 @@ final class CROFFSystem {
     */
     /// Source: oracle/codemp/qcommon/RoffSystem.cpp:407
     func Unload(_ id: Int32) -> Bool {
-        // TODO: Port CROFFSystem::Unload
-        portMissing("CROFFSystem::Unload", source: "oracle/codemp/qcommon/RoffSystem.cpp:407")
+        if self.mROFFList[id] != nil { // requested item found in the list, free mem, then remove from list
+            self.mROFFList.removeValue(forKey: id)
+
+            return true
+        } else { // not found
+            return false
+        }
     }
 
     /**
@@ -425,8 +788,11 @@ final class CROFFSystem {
     */
     /// Source: oracle/codemp/qcommon/RoffSystem.cpp:453
     func Clean(_ isClient: Bool) -> Bool {
-        // TODO: Port CROFFSystem::Clean
-        portMissing("CROFFSystem::Clean", source: "oracle/codemp/qcommon/RoffSystem.cpp:453")
+        // Raven's smallest key is the `begin()` of his ordered map.
+        while let itr = self.mROFFList.keys.min() {
+            _ = self.Unload(itr)
+        }
+        return true
     }
 
     /**
@@ -445,8 +811,15 @@ final class CROFFSystem {
     */
     /// Source: oracle/codemp/qcommon/RoffSystem.cpp:522
     func List() {
-        // TODO: Port CROFFSystem::List
-        portMissing("CROFFSystem::List", source: "oracle/codemp/qcommon/RoffSystem.cpp:522")
+        Com_Printf(S_COLOR_GREEN + "\n--Cached ROFF files--\n")
+        Com_Printf(S_COLOR_GREEN + "ID   FILE\n")
+
+        // AI: Raven walks his `map` in key order. The body walks the sorted keys of the Dictionary.
+        for itr in self.mROFFList.keys.sorted() {
+            Com_Printf(S_COLOR_GREEN + "%2i - %s\n", itr, self.mROFFList[itr]!.mROFFFilePath)
+        }
+
+        Com_Printf(S_COLOR_GREEN + "\nFiles: %i\n", Int32(self.mROFFList.count))
     }
 
     /**
@@ -465,8 +838,29 @@ final class CROFFSystem {
     */
     /// Source: oracle/codemp/qcommon/RoffSystem.cpp:548
     func List(_ id: Int32) -> Bool {
-        // TODO: Port CROFFSystem::List
-        portMissing("CROFFSystem::List", source: "oracle/codemp/qcommon/RoffSystem.cpp:548")
+        if let obj = self.mROFFList[id] { // requested item found in the list
+            let dat = obj.mMoveRotateList
+
+            Com_Printf(S_COLOR_GREEN + "File: %s\n", obj.mROFFFilePath)
+            Com_Printf(S_COLOR_GREEN + "ID: %i\n", id)
+            Com_Printf(S_COLOR_GREEN + "Entries: %i\n\n", obj.mROFFEntries)
+
+            Com_Printf(S_COLOR_GREEN + "MOVE                 ROTATE\n")
+
+            var i: Int32 = 0
+            while i < obj.mROFFEntries {
+                Com_Printf(S_COLOR_GREEN + "%6.2f %6.2f %6.2f   %6.2f %6.2f %6.2f\n",
+                           dat[i].mOriginOffset[0], dat[i].mOriginOffset[1], dat[i].mOriginOffset[2],
+                           dat[i].mRotateOffset[0], dat[i].mRotateOffset[1], dat[i].mRotateOffset[2])
+                i += 1
+            }
+
+            return true
+        }
+
+        Com_Printf(S_COLOR_YELLOW + "ROFF not found: id <%d>\n", id)
+
+        return false
     }
 
     /**
@@ -486,8 +880,35 @@ final class CROFFSystem {
     */
     /// Source: oracle/codemp/qcommon/RoffSystem.cpp:592
     func Play(_ entID: Int32, _ id: Int32, _ doTranslation: Bool, _ isClient: Bool) -> Bool {
-        // TODO: Port CROFFSystem::Play
-        portMissing("CROFFSystem::Play", source: "oracle/codemp/qcommon/RoffSystem.cpp:592")
+        let ent = SV_GentityNum(entID)
+
+        ent!.r.mIsRoffing = true
+        /*rjr	if(ent->GetPhysics() == PHYSICS_TYPE_NONE)
+        {
+            ent->SetPhysics(PHYSICS_TYPE_BRUSHMODEL);
+        }*/
+        //bjg TODO: reset this latter?
+
+        if ent == nil { // shame on you..
+            return false
+        }
+
+        var roffing_ent = SROFFEntity()
+
+        roffing_ent.mEntID = entID
+        roffing_ent.mROFFID = id
+        roffing_ent.mNextROFFTime = svs.time
+        roffing_ent.mROFFFrame = 0
+        roffing_ent.mKill = false
+        roffing_ent.mSignal = true // TODO: hook up the real signal code
+        roffing_ent.mTranslated = doTranslation
+        roffing_ent.mIsClient = isClient
+
+        roffing_ent.mStartAngles = ent!.s.apos.trBase
+
+        self.mROFFEntList.append(roffing_ent)
+
+        return true
     }
 
     /**
@@ -506,8 +927,38 @@ final class CROFFSystem {
     */
     /// Source: oracle/codemp/qcommon/RoffSystem.cpp:637
     func ListEnts() {
-        // TODO: Port CROFFSystem::ListEnts
-        portMissing("CROFFSystem::ListEnts", source: "oracle/codemp/qcommon/RoffSystem.cpp:637")
+        /*	char	*name, *file;
+        int		id;
+
+        TROFFEntList::iterator itr = mROFFEntList.begin();
+        TROFFList::iterator itrRoff;
+
+        Com_Printf( S_COLOR_GREEN"\n--ROFFing Entities--\n" );
+        Com_Printf( S_COLOR_GREEN"EntID EntName       RoffFile\n" );
+
+        // display everything in the end list
+        for ( itr = mROFFEntList.begin(); itr != mROFFEntList.end(); ++itr )
+        {
+            // Entity ID
+            id = ((SROFFEntity *)(*itr))->mEntID;
+            // Entity Name
+            name = entitySystem->GetEntityFromID( id )->GetName();
+            // ROFF object that will contain the roff file name
+            itrRoff = mROFFList.find( ((SROFFEntity *)(*itr))->mROFFID );
+
+            if ( itrRoff != mROFFList.end() )
+            { // grab our filename
+                file = ((CROFF *)((*itrRoff).second ))->mROFFFilePath;
+            }
+            else
+            { // roff filename not found == bad
+                file = "Error:  Unknown";
+            }
+
+            Com_Printf( S_COLOR_GREEN"%3i  %s    %s\n", id, name, file );
+        }
+
+        Com_Printf( S_COLOR_GREEN"\nEntities: %i\n", mROFFEntList.size() );*/
     }
 
     /**
@@ -526,8 +977,19 @@ final class CROFFSystem {
     */
     /// Source: oracle/codemp/qcommon/RoffSystem.cpp:684
     func PurgeEnt(_ entID: Int32, _ isClient: Bool) -> Bool {
-        // TODO: Port CROFFSystem::PurgeEnt
-        portMissing("CROFFSystem::PurgeEnt", source: "oracle/codemp/qcommon/RoffSystem.cpp:684")
+        for itr in self.mROFFEntList.indices {
+            if self.mROFFEntList[itr].mIsClient == isClient && self.mROFFEntList[itr].mEntID == entID {
+                // Make sure it won't stay lerping
+                _ = self.ClearLerp(self.mROFFEntList[itr])
+
+                self.mROFFEntList.remove(at: itr)
+                return true
+            }
+        }
+
+        Com_Printf(S_COLOR_RED + "Purge failed:  Entity <%i> not found\n", entID)
+
+        return false
     }
 
     /**
@@ -546,8 +1008,19 @@ final class CROFFSystem {
     */
     /// Source: oracle/codemp/qcommon/RoffSystem.cpp:719
     func PurgeEnt(_ name: String) -> Bool {
-        // TODO: Port CROFFSystem::PurgeEnt
-        portMissing("CROFFSystem::PurgeEnt", source: "oracle/codemp/qcommon/RoffSystem.cpp:719")
+        /* rjr	CEntity *ent = entitySystem->GetEntityFromName( NULL, name );
+
+        if ( ent && ent->GetInUse() == qtrue )
+        {
+            return PurgeEnt( ent->GetID() );
+        }
+        else
+        {
+            Com_Printf( S_COLOR_RED"Entity <%s> not found or not in use\n", name );
+            return qfalse;
+        }*/
+
+        return false
     }
 
     /**
@@ -566,7 +1039,55 @@ final class CROFFSystem {
     */
     /// Source: oracle/codemp/qcommon/RoffSystem.cpp:746
     func UpdateEntities(_ isClient: Bool) {
-        // TODO: Port CROFFSystem::UpdateEntities
-        portMissing("CROFFSystem::UpdateEntities", source: "oracle/codemp/qcommon/RoffSystem.cpp:746")
+        var itr: Int
+
+        // display everything in the entity list
+        itr = 0
+        while itr < self.mROFFEntList.count {
+            if self.mROFFEntList[itr].mIsClient != isClient {
+                itr += 1
+                continue
+            }
+
+            // Get this entities ROFF object
+            let itrRoff = self.mROFFList[self.mROFFEntList[itr].mROFFID]
+
+            if itrRoff != nil { // roff that baby!
+                if !self.ApplyROFF(&self.mROFFEntList[itr], itrRoff) { // done roffing, mark for death
+                    self.mROFFEntList[itr].mKill = true
+                }
+            } else { // roff not found == bad, dump an error message and purge this ent
+                Com_Printf(S_COLOR_RED + "ROFF System Error:\n")
+                //			Com_Printf( S_COLOR_RED" -ROFF not found for entity <%s>\n",
+                //					entitySystem->GetEntityFromID(((SROFFEntity *)(*itr))->mEntID)->GetName() );
+
+                self.mROFFEntList[itr].mKill = true
+
+                _ = self.ClearLerp(self.mROFFEntList[itr])
+            }
+            itr += 1
+        }
+
+        itr = 0
+
+        // Delete killed ROFFers from the list
+        // Man, there just has to be a better way to do this
+        while itr < self.mROFFEntList.count {
+            if self.mROFFEntList[itr].mIsClient != isClient {
+                itr += 1
+                continue
+            }
+
+            if self.mROFFEntList[itr].mKill == true {
+                //make sure ICARUS knows ROFF is stopped
+                //			CICARUSGameInterface::TaskIDComplete(
+                //				entitySystem->GetEntityFromID(((SROFFEntity *)(*itr))->mEntID), TID_MOVE);
+                // trash this guy from the list
+                self.mROFFEntList.remove(at: itr)
+                itr = 0
+            } else {
+                itr += 1
+            }
+        }
     }
 }

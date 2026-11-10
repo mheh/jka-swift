@@ -3,6 +3,12 @@ import JKAMP
 import JKAShared
 import JKAMP_Ded
 
+/// Source: oracle/codemp/qcommon/cm_patch.cpp:971
+private let EN_TOP: Int32 = 0
+private let EN_RIGHT: Int32 = 1
+private let EN_BOTTOM: Int32 = 2
+private let EN_LEFT: Int32 = 3
+
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:85
 var c_totalPatchBlocks: Int32 {
     get { world.variables.c_totalPatchBlocks }
@@ -424,9 +430,9 @@ private func CM_RemoveDegenerateColumns(_ grid: CGrid) {
     while i < grid.width - 1 {
         j = 0
         while j < grid.height {
-            // Port-note: CM_ComparePoints takes a `Slots<Float>`, and the grid point is a `vec3_t`, so the call waits for the `vec3_const` row.
-            // Raven wrote: if ( !CM_ComparePoints( grid->points[i][j], grid->points[i+1][j] ) ) { break; }
-            portMissing("CM_RemoveDegenerateColumns", source: "oracle/codemp/qcommon/cm_patch.cpp:395")
+            if !CM_ComparePoints(grid.points[i][j], grid.points[i + 1][j]) {
+                break
+            }
             j += 1
         }
 
@@ -577,7 +583,6 @@ private func CM_FindPlane(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t, _ p3: 
 
         // found it
         return i
-        i += 1
     }
 
     // add a new plane
@@ -627,10 +632,7 @@ private func CM_PointOnPlaneSide(_ p: JKAShared.vec3_t, _ planeNum: Int32) -> In
 }
 
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:592
-// TODO: Port signature
-// Raven wrote: static inline int CM_GridPlane( int gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2], int i, int j, int tri )
-// No table row for `int[129][129][2] gridPlanes`.
-private func CM_GridPlane() -> Never {
+private func CM_GridPlane(_ gridPlanes: [[[Int32]]], _ i: Int32, _ j: Int32, _ tri: Int32) -> Int32 {
     // TODO: Port CM_GridPlane
     portMissing("CM_GridPlane", source: "oracle/codemp/qcommon/cm_patch.cpp:592")
 }
@@ -643,10 +645,7 @@ CM_EdgePlaneNum
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:615
-// TODO: Port signature
-// Raven wrote: static inline int CM_EdgePlaneNum( cGrid_t *grid, int gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2], int i, int j, int k )
-// No table row for `int[129][129][2] gridPlanes`.
-private func CM_EdgePlaneNum() -> Never {
+private func CM_EdgePlaneNum(_ grid: CGrid, _ gridPlanes: [[[Int32]]], _ i: Int32, _ j: Int32, _ k: Int32) -> Int32 {
     // TODO: Port CM_EdgePlaneNum
     portMissing("CM_EdgePlaneNum", source: "oracle/codemp/qcommon/cm_patch.cpp:615")
 }
@@ -659,10 +658,7 @@ CM_SetBorderInward
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:675
-// TODO: Port signature
-// Raven wrote: static inline void CM_SetBorderInward( facet_t *facet, cGrid_t *grid, int gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2], int i, int j, int which )
-// No table row for `int[129][129][2] gridPlanes`.
-private func CM_SetBorderInward() -> Never {
+private func CM_SetBorderInward(_ facet: Facet, _ grid: CGrid, _ gridPlanes: [[[Int32]]], _ i: Int32, _ j: Int32, _ which: Int32) {
     // TODO: Port CM_SetBorderInward
     portMissing("CM_SetBorderInward", source: "oracle/codemp/qcommon/cm_patch.cpp:675")
 }
@@ -980,14 +976,6 @@ private func CM_AddFacetBevels(_ facet: Facet) {
 
 }
 
-/// Source: oracle/codemp/qcommon/cm_patch.cpp:971
-// AI: Raven defines `edgeName_t` inside cm_patch.cpp, and the stub has no entry for it. The alias and its four cases stand here, so CM_PatchCollideFromGrid reads Raven's names.
-typealias edgeName_t = Int32
-let EN_TOP: edgeName_t = 0
-let EN_RIGHT: edgeName_t = 1
-let EN_BOTTOM: edgeName_t = 2
-let EN_LEFT: edgeName_t = 3
-
 /**
 ```
 ==================
@@ -1002,7 +990,6 @@ private func CM_PatchCollideFromGrid(_ grid: CGrid, _ pf: PatchCollide) {
     var p1: JKAShared.vec3_t
     var p2: JKAShared.vec3_t
     var p3: JKAShared.vec3_t
-    // AI: Raven declares `int gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2]` on his stack. The body holds it as a nested Swift array, because the three-index form of row T7 is open.
     var gridPlanes = [[[Int32]]](repeating: [[Int32]](repeating: [Int32](repeating: 0, count: 2), count: MAX_GRID_SIZE), count: MAX_GRID_SIZE)
     var facet: Facet
     var borders = [Int32](repeating: 0, count: 4)
@@ -1047,9 +1034,7 @@ private func CM_PatchCollideFromGrid(_ grid: CGrid, _ pf: PatchCollide) {
             }
             noAdjust[EN_TOP] = (borders[EN_TOP] == gridPlanes[i][j][0]) ? 1 : 0
             if borders[EN_TOP] == -1 || noAdjust[EN_TOP] != 0 {
-                // Port-note: CM_EdgePlaneNum carries a signature marker for `gridPlanes`, row T7.
-                // Raven wrote: borders[EN_TOP] = CM_EdgePlaneNum( grid, gridPlanes, i, j, 0 );
-                portMissing("CM_PatchCollideFromGrid", source: "oracle/codemp/qcommon/cm_patch.cpp:983")
+                borders[EN_TOP] = CM_EdgePlaneNum(grid, gridPlanes, i, j, 0)
             }
 
             borders[EN_BOTTOM] = -1
@@ -1060,9 +1045,7 @@ private func CM_PatchCollideFromGrid(_ grid: CGrid, _ pf: PatchCollide) {
             }
             noAdjust[EN_BOTTOM] = (borders[EN_BOTTOM] == gridPlanes[i][j][1]) ? 1 : 0
             if borders[EN_BOTTOM] == -1 || noAdjust[EN_BOTTOM] != 0 {
-                // Port-note: CM_EdgePlaneNum carries a signature marker for `gridPlanes`, row T7.
-                // Raven wrote: borders[EN_BOTTOM] = CM_EdgePlaneNum( grid, gridPlanes, i, j, 2 );
-                portMissing("CM_PatchCollideFromGrid", source: "oracle/codemp/qcommon/cm_patch.cpp:983")
+                borders[EN_BOTTOM] = CM_EdgePlaneNum(grid, gridPlanes, i, j, 2)
             }
 
             borders[EN_LEFT] = -1
@@ -1073,9 +1056,7 @@ private func CM_PatchCollideFromGrid(_ grid: CGrid, _ pf: PatchCollide) {
             }
             noAdjust[EN_LEFT] = (borders[EN_LEFT] == gridPlanes[i][j][1]) ? 1 : 0
             if borders[EN_LEFT] == -1 || noAdjust[EN_LEFT] != 0 {
-                // Port-note: CM_EdgePlaneNum carries a signature marker for `gridPlanes`, row T7.
-                // Raven wrote: borders[EN_LEFT] = CM_EdgePlaneNum( grid, gridPlanes, i, j, 3 );
-                portMissing("CM_PatchCollideFromGrid", source: "oracle/codemp/qcommon/cm_patch.cpp:983")
+                borders[EN_LEFT] = CM_EdgePlaneNum(grid, gridPlanes, i, j, 3)
             }
 
             borders[EN_RIGHT] = -1
@@ -1086,9 +1067,7 @@ private func CM_PatchCollideFromGrid(_ grid: CGrid, _ pf: PatchCollide) {
             }
             noAdjust[EN_RIGHT] = (borders[EN_RIGHT] == gridPlanes[i][j][0]) ? 1 : 0
             if borders[EN_RIGHT] == -1 || noAdjust[EN_RIGHT] != 0 {
-                // Port-note: CM_EdgePlaneNum carries a signature marker for `gridPlanes`, row T7.
-                // Raven wrote: borders[EN_RIGHT] = CM_EdgePlaneNum( grid, gridPlanes, i, j, 1 );
-                portMissing("CM_PatchCollideFromGrid", source: "oracle/codemp/qcommon/cm_patch.cpp:983")
+                borders[EN_RIGHT] = CM_EdgePlaneNum(grid, gridPlanes, i, j, 1)
             }
 
             if numFacets == MAX_FACETS {
@@ -1112,9 +1091,7 @@ private func CM_PatchCollideFromGrid(_ grid: CGrid, _ pf: PatchCollide) {
                 facet.borderNoAdjust[2] = noAdjust[EN_BOTTOM] != 0
                 facet.borderPlanes[3] = borders[EN_LEFT]
                 facet.borderNoAdjust[3] = noAdjust[EN_LEFT] != 0
-                // Port-note: CM_SetBorderInward carries a signature marker for `gridPlanes`, row T7.
-                // Raven wrote: CM_SetBorderInward( facet, grid, gridPlanes, i, j, -1 );
-                portMissing("CM_PatchCollideFromGrid", source: "oracle/codemp/qcommon/cm_patch.cpp:983")
+                CM_SetBorderInward(facet, grid, gridPlanes, i, j, -1)
                 if CM_ValidateFacet(facet) {
                     CM_AddFacetBevels(facet)
                     numFacets += 1
@@ -1131,14 +1108,10 @@ private func CM_PatchCollideFromGrid(_ grid: CGrid, _ pf: PatchCollide) {
                 if facet.borderPlanes[2] == -1 {
                     facet.borderPlanes[2] = borders[EN_BOTTOM]
                     if facet.borderPlanes[2] == -1 {
-                        // Port-note: CM_EdgePlaneNum carries a signature marker for `gridPlanes`, row T7.
-                        // Raven wrote: facet->borderPlanes[2] = CM_EdgePlaneNum( grid, gridPlanes, i, j, 4 );
-                        portMissing("CM_PatchCollideFromGrid", source: "oracle/codemp/qcommon/cm_patch.cpp:983")
+                        facet.borderPlanes[2] = CM_EdgePlaneNum(grid, gridPlanes, i, j, 4)
                     }
                 }
-                // Port-note: CM_SetBorderInward carries a signature marker for `gridPlanes`, row T7.
-                // Raven wrote: CM_SetBorderInward( facet, grid, gridPlanes, i, j, 0 );
-                portMissing("CM_PatchCollideFromGrid", source: "oracle/codemp/qcommon/cm_patch.cpp:983")
+                CM_SetBorderInward(facet, grid, gridPlanes, i, j, 0)
                 if CM_ValidateFacet(facet) {
                     CM_AddFacetBevels(facet)
                     numFacets += 1
@@ -1160,14 +1133,10 @@ private func CM_PatchCollideFromGrid(_ grid: CGrid, _ pf: PatchCollide) {
                 if facet.borderPlanes[2] == -1 {
                     facet.borderPlanes[2] = borders[EN_TOP]
                     if facet.borderPlanes[2] == -1 {
-                        // Port-note: CM_EdgePlaneNum carries a signature marker for `gridPlanes`, row T7.
-                        // Raven wrote: facet->borderPlanes[2] = CM_EdgePlaneNum( grid, gridPlanes, i, j, 5 );
-                        portMissing("CM_PatchCollideFromGrid", source: "oracle/codemp/qcommon/cm_patch.cpp:983")
+                        facet.borderPlanes[2] = CM_EdgePlaneNum(grid, gridPlanes, i, j, 5)
                     }
                 }
-                // Port-note: CM_SetBorderInward carries a signature marker for `gridPlanes`, row T7.
-                // Raven wrote: CM_SetBorderInward( facet, grid, gridPlanes, i, j, 1 );
-                portMissing("CM_PatchCollideFromGrid", source: "oracle/codemp/qcommon/cm_patch.cpp:983")
+                CM_SetBorderInward(facet, grid, gridPlanes, i, j, 1)
                 if CM_ValidateFacet(facet) {
                     CM_AddFacetBevels(facet)
                     numFacets += 1
@@ -1235,9 +1204,7 @@ func CM_GeneratePatchCollide(_ width: Int32, _ height: Int32, _ points: [JKAShar
         while i < width {
             j = 0
             while j < height {
-                // Port-note: `points` is one `inout vec3_t`, where Raven indexes the `vec3_t *` as the packed rows, so the read waits for the signature row.
-                // Raven wrote: VectorCopy( points[j*width + i], grid.points[i][j] );
-                portMissing("CM_GeneratePatchCollide", source: "oracle/codemp/qcommon/cm_patch.cpp:1163")
+                grid.points[i][j] = points[j * width + i]
                 j += 1
             }
             i += 1

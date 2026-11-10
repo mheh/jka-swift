@@ -139,25 +139,60 @@ var calcgrapplereach: Int32 {
 }
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:83
-// TODO: Port global reachabilityheap
-// Raven wrote: aas_lreachability_t *reachabilityheap
-// No table row for `aas_lreachability_t *`.
+var reachabilityheap: Slots<AasLreachability>? {
+    get { world.variables.reachabilityheap }
+    set { world.variables.reachabilityheap = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:84
-// TODO: Port global nextreachability
-// Raven wrote: aas_lreachability_t *nextreachability
-// No table row for `aas_lreachability_t *`.
+var nextreachability: AasLreachability? {
+    get { world.variables.nextreachability }
+    set { world.variables.nextreachability = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:85
-// TODO: Port global areareachability
-// Raven wrote: aas_lreachability_t **areareachability
-// No table row for `aas_lreachability_t **`.
+var areareachability: Slots<AasLreachability?>? {
+    get { world.variables.areareachability }
+    set { world.variables.areareachability = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:86
 var numlreachabilities: Int32 {
     get { world.variables.numlreachabilities }
     set { world.variables.numlreachabilities = newValue }
 }
+
+/// Source: oracle/codemp/botlib/be_aas_reach.cpp:1044
+// AI: Raven declares `areas` on the stack of AAS_Reachability_Step_Barrier_WaterJump_WalkOffLedge. The function uses one zeroed allocation on the storage class.
+private var areas_AAS_Reachability_Step_Barrier_WaterJump_WalkOffLedge: Slots<Int32> { world.storage.be_aas_reach_areas_AAS_Reachability_Step_Barrier_WaterJump_WalkOffLedge }
+
+/// Source: oracle/codemp/botlib/be_aas_reach.cpp:2095
+// AI: Raven declares `areas` on the stack of AAS_Reachability_Jump. The function uses one zeroed allocation on the storage class.
+private var areas_AAS_Reachability_Jump: Slots<Int32> { world.storage.be_aas_reach_areas_AAS_Reachability_Jump }
+
+/// Source: oracle/codemp/botlib/be_aas_reach.cpp:3271
+// AI: Raven declares `areas` on the stack of AAS_Reachability_FuncBobbing. The function uses one zeroed allocation on the storage class.
+private var areas_AAS_Reachability_FuncBobbing: Slots<Int32> { world.storage.be_aas_reach_areas_AAS_Reachability_FuncBobbing }
+
+/// Source: oracle/codemp/botlib/be_aas_reach.cpp:3275
+// AI: Raven declares `start_edgeverts` on the stack of AAS_Reachability_FuncBobbing. The function uses one zeroed allocation on the storage class.
+var start_edgeverts_AAS_Reachability_FuncBobbing: Slots<JKAShared.vec3_t> { world.storage.start_edgeverts_AAS_Reachability_FuncBobbing }
+
+/// Source: oracle/codemp/botlib/be_aas_reach.cpp:3275
+// AI: Raven declares `end_edgeverts` on the stack of AAS_Reachability_FuncBobbing. The function uses one zeroed allocation on the storage class.
+var end_edgeverts_AAS_Reachability_FuncBobbing: Slots<JKAShared.vec3_t> { world.storage.end_edgeverts_AAS_Reachability_FuncBobbing }
+
+/// Source: oracle/codemp/botlib/be_aas_reach.cpp:3276
+// AI: Raven declares `points` on the stack of AAS_Reachability_FuncBobbing. The function uses one zeroed allocation on the storage class.
+private var points_AAS_Reachability_FuncBobbing: Slots<JKAShared.vec3_t> { world.storage.be_aas_reach_points_AAS_Reachability_FuncBobbing }
+
+/// Source: oracle/codemp/botlib/be_aas_reach.cpp:3778
+// AI: Raven declares `areas` on the stack of AAS_Reachability_Grapple. The function uses one zeroed allocation on the storage class.
+private var areas_AAS_Reachability_Grapple: Slots<Int32> { world.storage.be_aas_reach_areas_AAS_Reachability_Grapple }
+
+/// Source: oracle/codemp/botlib/be_aas_reach.cpp:4111
+// AI: Raven declares `areas` on the stack of AAS_Reachability_WalkOffLedge. The function uses one zeroed allocation on the storage class.
+private var areas_AAS_Reachability_WalkOffLedge: Slots<Int32> { world.storage.be_aas_reach_areas_AAS_Reachability_WalkOffLedge }
 
 //===========================================================================
 // returns the surface area of the given face
@@ -167,10 +202,7 @@ var numlreachabilities: Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:95
-// TODO: Port signature
-// Raven wrote: float AAS_FaceArea(aas_face_t *face)
-// No table row for `aas_face_t * face`.
-func AAS_FaceArea() -> Never {
+func AAS_FaceArea(_ face: AasFace) -> Float {
     // TODO: Port AAS_FaceArea
     portMissing("AAS_FaceArea", source: "oracle/codemp/botlib/be_aas_reach.cpp:95")
 }
@@ -195,10 +227,7 @@ func AAS_AreaVolume(_ areanum: Int32) -> Float {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:168
-// TODO: Port signature
-// Raven wrote: int AAS_BestReachableLinkArea(aas_link_t *areas)
-// No table row for `aas_link_t * areas`.
-func AAS_BestReachableLinkArea() -> Never {
+func AAS_BestReachableLinkArea(_ areas: AasLink) -> Int32 {
     // TODO: Port AAS_BestReachableLinkArea
     portMissing("AAS_BestReachableLinkArea", source: "oracle/codemp/botlib/be_aas_reach.cpp:168")
 }
@@ -271,10 +300,7 @@ func AAS_ShutDownReachabilityHeap() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:471
-// TODO: Port signature
-// Raven wrote: aas_lreachability_t *AAS_AllocReachability(void)
-// No table row for the return `aas_lreachability_t *`.
-func AAS_AllocReachability() -> Never {
+func AAS_AllocReachability() -> AasLreachability? {
     // TODO: Port AAS_AllocReachability
     portMissing("AAS_AllocReachability", source: "oracle/codemp/botlib/be_aas_reach.cpp:471")
 }
@@ -287,10 +313,7 @@ func AAS_AllocReachability() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:491
-// TODO: Port signature
-// Raven wrote: void AAS_FreeReachability(aas_lreachability_t *lreach)
-// No table row for `aas_lreachability_t * lreach`.
-func AAS_FreeReachability() -> Never {
+func AAS_FreeReachability(_ lreach: AasLreachability) {
     // TODO: Port AAS_FreeReachability
     portMissing("AAS_FreeReachability", source: "oracle/codemp/botlib/be_aas_reach.cpp:491")
 }
@@ -645,10 +668,7 @@ func VectorMiddle(_ v1: JKAShared.vec3_t, _ v2: JKAShared.vec3_t, _ middle: inou
 }
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:1814
-// TODO: Port signature
-// Raven wrote: float AAS_ClosestEdgePoints(vec3_t v1, vec3_t v2, vec3_t v3, vec3_t v4, aas_plane_t *plane1, aas_plane_t *plane2, vec3_t beststart1, vec3_t bestend1, vec3_t beststart2, vec3_t bestend2, float bestdist)
-// No table row for `aas_plane_t * plane1`.
-func AAS_ClosestEdgePoints() -> Never {
+func AAS_ClosestEdgePoints(_ v1: JKAShared.vec3_t, _ v2: JKAShared.vec3_t, _ v3: JKAShared.vec3_t, _ v4: JKAShared.vec3_t, _ plane1: AasPlane, _ plane2: AasPlane, _ beststart1: inout JKAShared.vec3_t, _ bestend1: inout JKAShared.vec3_t, _ beststart2: inout JKAShared.vec3_t, _ bestend2: inout JKAShared.vec3_t, _ bestdist: Float) -> Float {
     // TODO: Port AAS_ClosestEdgePoints
     portMissing("AAS_ClosestEdgePoints", source: "oracle/codemp/botlib/be_aas_reach.cpp:1814")
 }
@@ -744,10 +764,7 @@ func AAS_Reachability_Elevator() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:3145
-// TODO: Port signature
-// Raven wrote: aas_lreachability_t *AAS_FindFaceReachabilities(vec3_t *facepoints, int numpoints, aas_plane_t *plane, int towardsface)
-// No table row for `aas_plane_t * plane`.
-func AAS_FindFaceReachabilities() -> Never {
+func AAS_FindFaceReachabilities(_ facepoints: Slots<JKAShared.vec3_t>, _ numpoints: Int32, _ plane: AasPlane, _ towardsface: Int32) -> AasLreachability? {
     // TODO: Port AAS_FindFaceReachabilities
     portMissing("AAS_FindFaceReachabilities", source: "oracle/codemp/botlib/be_aas_reach.cpp:3145")
 }

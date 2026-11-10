@@ -64,10 +64,15 @@ var fs_dirbeforepak: JKAMP.Cvar? {
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:193
+// AI: Raven takes the address of the pointer in FS_ReorderPurePaks. The pointer is slot 0 of a storage slot, and the forward keeps Raven's name.
 var fs_searchpaths: Searchpath? {
-    get { world.variables.fs_searchpaths }
-    set { world.variables.fs_searchpaths = newValue }
+    get { world.storage.fs_searchpaths[0] }
+    set { world.storage.fs_searchpaths[0] = newValue }
 }
+
+/// Raven's `&fs_searchpaths`, the slot of the pointer as the Slots of one optional view.
+/// Source: oracle/codemp/qcommon/files_pc.cpp:2458
+var fs_searchpathsSlot: Slots<Searchpath?> { world.storage.fs_searchpaths }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:194
 var fs_readCount: Int32 {

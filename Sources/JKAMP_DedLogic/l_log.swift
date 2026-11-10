@@ -6,12 +6,10 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/botlib/l_log.cpp:24
-let MAX_LOGFILENAMESIZE = 1024 as Int32
+private let MAX_LOGFILENAMESIZE = 1024 as Int32
 
 /// Source: oracle/codemp/botlib/l_log.cpp:33
-// TODO: Port global logfile
-// Raven wrote: static logfile_t logfile
-// No view for `logfile_s`, a struct Raven defines inside a .c file.
+private var logfile: Logfile { world.storage.l_log_logfile }
 
 //===========================================================================
 //
@@ -80,10 +78,7 @@ func Log_WriteTimeStamped(_ fmt: inout JKAShared.CharBuf, _ args: any JKAShared.
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_log.cpp:138
-// TODO: Port signature
-// Raven wrote: FILE *Log_FilePointer(void)
-// No table row for the return `FILE *`.
-func Log_FilePointer() -> Never {
+func Log_FilePointer() -> OpaquePointer? {
     // TODO: Port Log_FilePointer
     portMissing("Log_FilePointer", source: "oracle/codemp/botlib/l_log.cpp:138")
 }

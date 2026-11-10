@@ -220,9 +220,9 @@ public struct Ai_export: Hashable, HandleView {
     /// Calls the stored `BotNextConsoleMessage` function through the C pointer, with the caller's arguments, as Raven's `pm->BotNextConsoleMessage(...)` did.
     /// A NULL `BotNextConsoleMessage` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runBotNextConsoleMessage(_ chatstate: Int32, _ cm: OpaquePointer?) -> Int32 {
+    public func runBotNextConsoleMessage(_ chatstate: Int32, _ cm: BotConsolemessage?) -> Int32 {
         precondition(self.raw.pointee.BotNextConsoleMessage != nil, "BotNextConsoleMessage is NULL")
-        return self.BotNextConsoleMessage!(chatstate, cm)
+        return self.BotNextConsoleMessage!(chatstate, cm?.handle)
     }
 
     /// Source: unknown:20
@@ -345,9 +345,9 @@ public struct Ai_export: Hashable, HandleView {
     /// Calls the stored `BotFindMatch` function through the C pointer, with the caller's arguments, as Raven's `pm->BotFindMatch(...)` did.
     /// A NULL `BotFindMatch` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runBotFindMatch(_ str: OpaquePointer?, _ match: OpaquePointer?, _ context: CUnsignedLong) -> Int32 {
+    public func runBotFindMatch(_ str: OpaquePointer?, _ match: BotMatch?, _ context: CUnsignedLong) -> Int32 {
         precondition(self.raw.pointee.BotFindMatch != nil, "BotFindMatch is NULL")
-        return self.BotFindMatch!(str, match, context)
+        return self.BotFindMatch!(str, match?.handle, context)
     }
 
     /// Source: unknown:29
@@ -358,10 +358,10 @@ public struct Ai_export: Hashable, HandleView {
 
     /// Calls the stored `BotMatchVariable` function through the C pointer, with the caller's arguments, as Raven's `pm->BotMatchVariable(...)` did.
     /// A NULL `BotMatchVariable` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runBotMatchVariable(_ match: OpaquePointer?, _ variable: Int32, _ buf: inout JKAShared.CharBuf, _ size: Int32) {
+    public func runBotMatchVariable(_ match: BotMatch?, _ variable: Int32, _ buf: inout JKAShared.CharBuf, _ size: Int32) {
         precondition(self.raw.pointee.BotMatchVariable != nil, "BotMatchVariable is NULL")
         buf.withUnsafeMutableRawPointer { buf in
-            self.BotMatchVariable!(match, variable, OpaquePointer(buf), size)
+            self.BotMatchVariable!(match?.handle, variable, OpaquePointer(buf), size)
         }
     }
 
@@ -478,9 +478,9 @@ public struct Ai_export: Hashable, HandleView {
 
     /// Calls the stored `BotPushGoal` function through the C pointer, with the caller's arguments, as Raven's `pm->BotPushGoal(...)` did.
     /// A NULL `BotPushGoal` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runBotPushGoal(_ goalstate: Int32, _ goal: OpaquePointer?) {
+    public func runBotPushGoal(_ goalstate: Int32, _ goal: BotGoal?) {
         precondition(self.raw.pointee.BotPushGoal != nil, "BotPushGoal is NULL")
-        self.BotPushGoal!(goalstate, goal)
+        self.BotPushGoal!(goalstate, goal?.handle)
     }
 
     /// Source: unknown:42
@@ -559,9 +559,9 @@ public struct Ai_export: Hashable, HandleView {
     /// Calls the stored `BotGetTopGoal` function through the C pointer, with the caller's arguments, as Raven's `pm->BotGetTopGoal(...)` did.
     /// A NULL `BotGetTopGoal` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runBotGetTopGoal(_ goalstate: Int32, _ goal: OpaquePointer?) -> Int32 {
+    public func runBotGetTopGoal(_ goalstate: Int32, _ goal: BotGoal?) -> Int32 {
         precondition(self.raw.pointee.BotGetTopGoal != nil, "BotGetTopGoal is NULL")
-        return self.BotGetTopGoal!(goalstate, goal)
+        return self.BotGetTopGoal!(goalstate, goal?.handle)
     }
 
     /// Source: unknown:48
@@ -573,9 +573,9 @@ public struct Ai_export: Hashable, HandleView {
     /// Calls the stored `BotGetSecondGoal` function through the C pointer, with the caller's arguments, as Raven's `pm->BotGetSecondGoal(...)` did.
     /// A NULL `BotGetSecondGoal` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runBotGetSecondGoal(_ goalstate: Int32, _ goal: OpaquePointer?) -> Int32 {
+    public func runBotGetSecondGoal(_ goalstate: Int32, _ goal: BotGoal?) -> Int32 {
         precondition(self.raw.pointee.BotGetSecondGoal != nil, "BotGetSecondGoal is NULL")
-        return self.BotGetSecondGoal!(goalstate, goal)
+        return self.BotGetSecondGoal!(goalstate, goal?.handle)
     }
 
     /// Source: unknown:49
@@ -603,10 +603,10 @@ public struct Ai_export: Hashable, HandleView {
     /// Calls the stored `BotChooseNBGItem` function through the C pointer, with the caller's arguments, as Raven's `pm->BotChooseNBGItem(...)` did.
     /// A NULL `BotChooseNBGItem` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runBotChooseNBGItem(_ goalstate: Int32, _ origin: inout JKAShared.vec3_t, _ inventory: OpaquePointer?, _ travelflags: Int32, _ ltg: OpaquePointer?, _ maxtime: Float) -> Int32 {
+    public func runBotChooseNBGItem(_ goalstate: Int32, _ origin: inout JKAShared.vec3_t, _ inventory: OpaquePointer?, _ travelflags: Int32, _ ltg: BotGoal?, _ maxtime: Float) -> Int32 {
         precondition(self.raw.pointee.BotChooseNBGItem != nil, "BotChooseNBGItem is NULL")
         return withUnsafeMutablePointer(to: &origin) { origin in
-            self.BotChooseNBGItem!(goalstate, OpaquePointer(origin), inventory, travelflags, ltg, maxtime)
+            self.BotChooseNBGItem!(goalstate, OpaquePointer(origin), inventory, travelflags, ltg?.handle, maxtime)
         }
     }
 
@@ -619,10 +619,10 @@ public struct Ai_export: Hashable, HandleView {
     /// Calls the stored `BotTouchingGoal` function through the C pointer, with the caller's arguments, as Raven's `pm->BotTouchingGoal(...)` did.
     /// A NULL `BotTouchingGoal` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runBotTouchingGoal(_ origin: inout JKAShared.vec3_t, _ goal: OpaquePointer?) -> Int32 {
+    public func runBotTouchingGoal(_ origin: inout JKAShared.vec3_t, _ goal: BotGoal?) -> Int32 {
         precondition(self.raw.pointee.BotTouchingGoal != nil, "BotTouchingGoal is NULL")
         return withUnsafeMutablePointer(to: &origin) { origin in
-            self.BotTouchingGoal!(OpaquePointer(origin), goal)
+            self.BotTouchingGoal!(OpaquePointer(origin), goal?.handle)
         }
     }
 
@@ -635,11 +635,11 @@ public struct Ai_export: Hashable, HandleView {
     /// Calls the stored `BotItemGoalInVisButNotVisible` function through the C pointer, with the caller's arguments, as Raven's `pm->BotItemGoalInVisButNotVisible(...)` did.
     /// A NULL `BotItemGoalInVisButNotVisible` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runBotItemGoalInVisButNotVisible(_ viewer: Int32, _ eye: inout JKAShared.vec3_t, _ viewangles: inout JKAShared.vec3_t, _ goal: OpaquePointer?) -> Int32 {
+    public func runBotItemGoalInVisButNotVisible(_ viewer: Int32, _ eye: inout JKAShared.vec3_t, _ viewangles: inout JKAShared.vec3_t, _ goal: BotGoal?) -> Int32 {
         precondition(self.raw.pointee.BotItemGoalInVisButNotVisible != nil, "BotItemGoalInVisButNotVisible is NULL")
         return withUnsafeMutablePointer(to: &eye) { eye in
             withUnsafeMutablePointer(to: &viewangles) { viewangles in
-                self.BotItemGoalInVisButNotVisible!(viewer, OpaquePointer(eye), OpaquePointer(viewangles), goal)
+                self.BotItemGoalInVisButNotVisible!(viewer, OpaquePointer(eye), OpaquePointer(viewangles), goal?.handle)
             }
         }
     }
@@ -653,9 +653,9 @@ public struct Ai_export: Hashable, HandleView {
     /// Calls the stored `BotGetLevelItemGoal` function through the C pointer, with the caller's arguments, as Raven's `pm->BotGetLevelItemGoal(...)` did.
     /// A NULL `BotGetLevelItemGoal` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runBotGetLevelItemGoal(_ index: Int32, _ classname: OpaquePointer?, _ goal: OpaquePointer?) -> Int32 {
+    public func runBotGetLevelItemGoal(_ index: Int32, _ classname: OpaquePointer?, _ goal: BotGoal?) -> Int32 {
         precondition(self.raw.pointee.BotGetLevelItemGoal != nil, "BotGetLevelItemGoal is NULL")
-        return self.BotGetLevelItemGoal!(index, classname, goal)
+        return self.BotGetLevelItemGoal!(index, classname, goal?.handle)
     }
 
     /// Source: unknown:55
@@ -667,9 +667,9 @@ public struct Ai_export: Hashable, HandleView {
     /// Calls the stored `BotGetNextCampSpotGoal` function through the C pointer, with the caller's arguments, as Raven's `pm->BotGetNextCampSpotGoal(...)` did.
     /// A NULL `BotGetNextCampSpotGoal` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runBotGetNextCampSpotGoal(_ num: Int32, _ goal: OpaquePointer?) -> Int32 {
+    public func runBotGetNextCampSpotGoal(_ num: Int32, _ goal: BotGoal?) -> Int32 {
         precondition(self.raw.pointee.BotGetNextCampSpotGoal != nil, "BotGetNextCampSpotGoal is NULL")
-        return self.BotGetNextCampSpotGoal!(num, goal)
+        return self.BotGetNextCampSpotGoal!(num, goal?.handle)
     }
 
     /// Source: unknown:56
@@ -681,9 +681,9 @@ public struct Ai_export: Hashable, HandleView {
     /// Calls the stored `BotGetMapLocationGoal` function through the C pointer, with the caller's arguments, as Raven's `pm->BotGetMapLocationGoal(...)` did.
     /// A NULL `BotGetMapLocationGoal` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runBotGetMapLocationGoal(_ name: OpaquePointer?, _ goal: OpaquePointer?) -> Int32 {
+    public func runBotGetMapLocationGoal(_ name: OpaquePointer?, _ goal: BotGoal?) -> Int32 {
         precondition(self.raw.pointee.BotGetMapLocationGoal != nil, "BotGetMapLocationGoal is NULL")
-        return self.BotGetMapLocationGoal!(name, goal)
+        return self.BotGetMapLocationGoal!(name, goal?.handle)
     }
 
     /// Source: unknown:57
@@ -853,9 +853,9 @@ public struct Ai_export: Hashable, HandleView {
 
     /// Calls the stored `BotMoveToGoal` function through the C pointer, with the caller's arguments, as Raven's `pm->BotMoveToGoal(...)` did.
     /// A NULL `BotMoveToGoal` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runBotMoveToGoal(_ result: OpaquePointer?, _ movestate: Int32, _ goal: OpaquePointer?, _ travelflags: Int32) {
+    public func runBotMoveToGoal(_ result: BotMoveresult?, _ movestate: Int32, _ goal: BotGoal?, _ travelflags: Int32) {
         precondition(self.raw.pointee.BotMoveToGoal != nil, "BotMoveToGoal is NULL")
-        self.BotMoveToGoal!(result, movestate, goal, travelflags)
+        self.BotMoveToGoal!(result?.handle, movestate, goal?.handle, travelflags)
     }
 
     /// Source: unknown:73
@@ -925,10 +925,10 @@ public struct Ai_export: Hashable, HandleView {
     /// Calls the stored `BotMovementViewTarget` function through the C pointer, with the caller's arguments, as Raven's `pm->BotMovementViewTarget(...)` did.
     /// A NULL `BotMovementViewTarget` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runBotMovementViewTarget(_ movestate: Int32, _ goal: OpaquePointer?, _ travelflags: Int32, _ lookahead: Float, _ target: inout JKAShared.vec3_t) -> Int32 {
+    public func runBotMovementViewTarget(_ movestate: Int32, _ goal: BotGoal?, _ travelflags: Int32, _ lookahead: Float, _ target: inout JKAShared.vec3_t) -> Int32 {
         precondition(self.raw.pointee.BotMovementViewTarget != nil, "BotMovementViewTarget is NULL")
         return withUnsafeMutablePointer(to: &target) { target in
-            self.BotMovementViewTarget!(movestate, goal, travelflags, lookahead, OpaquePointer(target))
+            self.BotMovementViewTarget!(movestate, goal?.handle, travelflags, lookahead, OpaquePointer(target))
         }
     }
 
@@ -941,11 +941,11 @@ public struct Ai_export: Hashable, HandleView {
     /// Calls the stored `BotPredictVisiblePosition` function through the C pointer, with the caller's arguments, as Raven's `pm->BotPredictVisiblePosition(...)` did.
     /// A NULL `BotPredictVisiblePosition` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runBotPredictVisiblePosition(_ origin: inout JKAShared.vec3_t, _ areanum: Int32, _ goal: OpaquePointer?, _ travelflags: Int32, _ target: inout JKAShared.vec3_t) -> Int32 {
+    public func runBotPredictVisiblePosition(_ origin: inout JKAShared.vec3_t, _ areanum: Int32, _ goal: BotGoal?, _ travelflags: Int32, _ target: inout JKAShared.vec3_t) -> Int32 {
         precondition(self.raw.pointee.BotPredictVisiblePosition != nil, "BotPredictVisiblePosition is NULL")
         return withUnsafeMutablePointer(to: &origin) { origin in
             withUnsafeMutablePointer(to: &target) { target in
-                self.BotPredictVisiblePosition!(OpaquePointer(origin), areanum, goal, travelflags, OpaquePointer(target))
+                self.BotPredictVisiblePosition!(OpaquePointer(origin), areanum, goal?.handle, travelflags, OpaquePointer(target))
             }
         }
     }
@@ -985,9 +985,9 @@ public struct Ai_export: Hashable, HandleView {
 
     /// Calls the stored `BotInitMoveState` function through the C pointer, with the caller's arguments, as Raven's `pm->BotInitMoveState(...)` did.
     /// A NULL `BotInitMoveState` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runBotInitMoveState(_ handle: Int32, _ initmove: OpaquePointer?) {
+    public func runBotInitMoveState(_ handle: Int32, _ initmove: BotInitmove?) {
         precondition(self.raw.pointee.BotInitMoveState != nil, "BotInitMoveState is NULL")
-        self.BotInitMoveState!(handle, initmove)
+        self.BotInitMoveState!(handle, initmove?.handle)
     }
 
     /// Source: unknown:82
@@ -1027,9 +1027,9 @@ public struct Ai_export: Hashable, HandleView {
 
     /// Calls the stored `BotGetWeaponInfo` function through the C pointer, with the caller's arguments, as Raven's `pm->BotGetWeaponInfo(...)` did.
     /// A NULL `BotGetWeaponInfo` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runBotGetWeaponInfo(_ weaponstate: Int32, _ weapon: Int32, _ weaponinfo: OpaquePointer?) {
+    public func runBotGetWeaponInfo(_ weaponstate: Int32, _ weapon: Int32, _ weaponinfo: Weaponinfo?) {
         precondition(self.raw.pointee.BotGetWeaponInfo != nil, "BotGetWeaponInfo is NULL")
-        self.BotGetWeaponInfo!(weaponstate, weapon, weaponinfo)
+        self.BotGetWeaponInfo!(weaponstate, weapon, weaponinfo?.handle)
     }
 
     /// Source: unknown:88

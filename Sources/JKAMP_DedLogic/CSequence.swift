@@ -30,14 +30,17 @@ final class CSequence {
 
     /// Source: oracle/codemp/icarus/Sequence.cpp:13
     init() {
-        // TODO: Port CSequence::CSequence
-        portMissing("CSequence::CSequence", source: "oracle/codemp/icarus/Sequence.cpp:13")
+        self.m_numCommands = 0
+        self.m_flags = 0
+        self.m_iterations = 1
+
+        self.m_parent = nil
+        self.m_return = nil
     }
 
     /// Source: oracle/codemp/icarus/Sequence.cpp:23
     deinit {
-        // TODO: Port CSequence::~CSequence
-        portMissing("CSequence::~CSequence", source: "oracle/codemp/icarus/Sequence.cpp:23")
+        self.Delete()
     }
 
     /**
@@ -49,8 +52,16 @@ final class CSequence {
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:34
     static func Create() -> CSequence? {
-        // TODO: Port CSequence::Create
-        portMissing("CSequence::Create", source: "oracle/codemp/icarus/Sequence.cpp:34")
+        let seq: CSequence? = CSequence()
+
+        //TODO: Emit warning
+        if seq == nil {
+            return nil
+        }
+
+        seq!.SetFlag(SQ_COMMON)
+
+        return seq
     }
 
     /**
@@ -62,8 +73,28 @@ final class CSequence {
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:54
     func Delete() {
-        // TODO: Port CSequence::Delete
-        portMissing("CSequence::Delete", source: "oracle/codemp/icarus/Sequence.cpp:54")
+        //Notify the parent of the deletion
+        if self.m_parent != nil {
+            self.m_parent!.RemoveChild(self)
+        }
+
+        //Clear all children
+        if self.m_children.count > 0 {
+            /*for ( iterSeq = m_childrenMap.begin(); iterSeq != m_childrenMap.end(); iterSeq++ )
+            {
+                (*iterSeq).second->SetParent( NULL );
+            }*/
+
+            for si in self.m_children {
+                si.SetParent(nil)
+            }
+        }
+        self.m_children.removeAll()
+
+        //Clear all held commands
+        // AI: Raven deletes each command block in a loop, and the block frees its members.
+        // ARC frees each block when the list drops it, so the loop drops.
+        self.m_commands.removeAll()
     }
 
     /**
@@ -75,8 +106,11 @@ final class CSequence {
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:96
     func AddChild(_ child: CSequence?) {
-        // TODO: Port CSequence::AddChild
-        portMissing("CSequence::AddChild", source: "oracle/codemp/icarus/Sequence.cpp:96")
+        if child == nil {
+            return
+        }
+
+        self.m_children.append(child!)
     }
 
     /**
@@ -88,8 +122,12 @@ final class CSequence {
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:111
     func RemoveChild(_ child: CSequence?) {
-        // TODO: Port CSequence::RemoveChild
-        portMissing("CSequence::RemoveChild", source: "oracle/codemp/icarus/Sequence.cpp:111")
+        if child == nil {
+            return
+        }
+
+        //Remove the child
+        self.m_children.removeAll { $0 === child }
     }
 
     /**
@@ -101,8 +139,17 @@ final class CSequence {
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:127
     func HasChild(_ sequence: CSequence?) -> Bool {
-        // TODO: Port CSequence::HasChild
-        portMissing("CSequence::HasChild", source: "oracle/codemp/icarus/Sequence.cpp:127")
+        for ci in self.m_children {
+            if ci === sequence {
+                return true
+            }
+
+            if ci.HasChild(sequence) {
+                return true
+            }
+        }
+
+        return false
     }
 
     /**
@@ -114,8 +161,20 @@ final class CSequence {
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:149
     func SetParent(_ parent: CSequence?) {
-        // TODO: Port CSequence::SetParent
-        portMissing("CSequence::SetParent", source: "oracle/codemp/icarus/Sequence.cpp:149")
+        self.m_parent = parent
+
+        if parent == nil {
+            return
+        }
+
+        //Inherit the parent's properties (this avoids messy tree walks later on)
+        if (parent!.m_flags & SQ_RETAIN) != 0 {
+            self.m_flags |= SQ_RETAIN
+        }
+
+        if (parent!.m_flags & SQ_PENDING) != 0 {
+            self.m_flags |= SQ_PENDING
+        }
     }
 
     /**
@@ -127,8 +186,35 @@ final class CSequence {
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:170
     func PopCommand(_ type: Int32) -> CBlock? {
-        // TODO: Port CSequence::PopCommand
-        portMissing("CSequence::PopCommand", source: "oracle/codemp/icarus/Sequence.cpp:170")
+        var command: CBlock? = nil
+
+        //Make sure everything is ok
+
+        if self.m_commands.isEmpty {
+            return nil
+        }
+
+        switch type {
+        case POP_FRONT:
+            command = self.m_commands.first
+            self.m_commands.removeFirst()
+            self.m_numCommands -= 1
+
+            return command
+
+        case POP_BACK:
+            command = self.m_commands.last
+            self.m_commands.removeLast()
+            self.m_numCommands -= 1
+
+            return command
+
+        default:
+            break
+        }
+
+        //Invalid flag
+        return nil
     }
 
     /**
@@ -139,9 +225,29 @@ final class CSequence {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:211
+    @discardableResult
     func PushCommand(_ block: CBlock?, _ type: Int32) -> Int32 {
-        // TODO: Port CSequence::PushCommand
-        portMissing("CSequence::PushCommand", source: "oracle/codemp/icarus/Sequence.cpp:211")
+        //Make sure everything is ok
+
+        switch type {
+        case PUSH_FRONT:
+            self.m_commands.insert(block!, at: 0)
+            self.m_numCommands += 1
+
+            return 1
+
+        case PUSH_BACK:
+            self.m_commands.append(block!)
+            self.m_numCommands += 1
+
+            return 1
+
+        default:
+            break
+        }
+
+        //Invalid flag
+        return 0
     }
 
     /**
@@ -153,8 +259,7 @@ final class CSequence {
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:246
     func SetFlag(_ flag: Int32) {
-        // TODO: Port CSequence::SetFlag
-        portMissing("CSequence::SetFlag", source: "oracle/codemp/icarus/Sequence.cpp:246")
+        self.m_flags |= flag
     }
 
     /**
@@ -166,8 +271,13 @@ final class CSequence {
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:257
     func RemoveFlag(_ flag: Int32, _ children: Bool = false) {
-        // TODO: Port CSequence::RemoveFlag
-        portMissing("CSequence::RemoveFlag", source: "oracle/codemp/icarus/Sequence.cpp:257")
+        self.m_flags &= ~flag
+
+        if children {
+            for si in self.m_children {
+                si.RemoveFlag(flag, true)
+            }
+        }
     }
 
     /**
@@ -179,8 +289,7 @@ final class CSequence {
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:278
     func HasFlag(_ flag: Int32) -> Int32 {
-        // TODO: Port CSequence::HasFlag
-        portMissing("CSequence::HasFlag", source: "oracle/codemp/icarus/Sequence.cpp:278")
+        return (self.m_flags & flag)
     }
 
     /**
@@ -192,8 +301,7 @@ final class CSequence {
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:289
     func SetReturn(_ sequence: CSequence?) {
-        // TODO: Port CSequence::SetReturn
-        portMissing("CSequence::SetReturn", source: "oracle/codemp/icarus/Sequence.cpp:289")
+        self.m_return = sequence
     }
 
     /**
@@ -205,8 +313,11 @@ final class CSequence {
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:301
     func GetChildByIndex(_ iIndex: Int32) -> CSequence? {
-        // TODO: Port CSequence::GetChildByIndex
-        portMissing("CSequence::GetChildByIndex", source: "oracle/codemp/icarus/Sequence.cpp:301")
+        if iIndex < 0 || iIndex >= Int32(self.m_children.count) {
+            return nil
+        }
+
+        return self.m_children[iIndex]
     }
 
     /**
@@ -217,6 +328,7 @@ final class CSequence {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:320
+    // Port-note: The body calls through `m_owner->GetInterface()`, and `interface_export_t` has no Swift form, so the body waits for that row.
     private func SaveCommand(_ block: CBlock?) -> Int32 {
         // TODO: Port CSequence::SaveCommand
         portMissing("CSequence::SaveCommand", source: "oracle/codemp/icarus/Sequence.cpp:320")
@@ -230,9 +342,9 @@ final class CSequence {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:363
+    @discardableResult
     func Save() -> Int32 {
-        // TODO: Port CSequence::Save
-        portMissing("CSequence::Save", source: "oracle/codemp/icarus/Sequence.cpp:363")
+        return 0
     }
 
     /**
@@ -243,9 +355,9 @@ final class CSequence {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:414
+    @discardableResult
     func Load() -> Int32 {
-        // TODO: Port CSequence::Load
-        portMissing("CSequence::Load", source: "oracle/codemp/icarus/Sequence.cpp:414")
+        return 0
     }
 
     /// Source: oracle/codemp/icarus/sequence.h:34

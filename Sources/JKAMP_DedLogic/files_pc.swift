@@ -2740,10 +2740,29 @@ private func FS_ReorderPurePaks() {
 
     fs_reordered = false
 
-    // Port-note: Row F10. Raven walks `searchpath_t **` slots, the address of `fs_searchpaths` and of each `next` field.
-    // Port-note: `nextSlot` of the Searchpath view gives the slot of `next`, and `fs_searchpaths` is a variable of EngineVariables, which has no slot.
-    // Raven wrote: p_insert_index = &fs_searchpaths; and the loop that moves each pure pak to the insert slot
-    portMissing("FS_ReorderPurePaks", source: "oracle/codemp/qcommon/files_pc.cpp:2445")
+    // AI: Raven walks `searchpath_t **` slots. Each slot is the Slots of one optional view, `fs_searchpathsSlot` and the `nextSlot` of a record.
+    var p_insert_index = fs_searchpathsSlot // we insert in order at the beginning of the list
+    var i: Int32 = 0
+    while i < fs_numServerPaks {
+        var p_previous = p_insert_index // track the pointer-to-current-item
+        var s = p_insert_index[0]
+        while let sp = s {
+            // the part of the list before p_insert_index has been sorted already
+            if sp.pack != nil && fs_serverPaks[i] == sp.pack!.checksum {
+                fs_reordered = true
+                // move this element to the insert list
+                p_previous[0] = sp.next
+                sp.next = p_insert_index[0]
+                p_insert_index[0] = sp
+                // increment insert list
+                p_insert_index = sp.nextSlot
+                break // iterate to next server pack
+            }
+            p_previous = sp.nextSlot
+            s = sp.next
+        }
+        i += 1
+    }
 }
 
 /**

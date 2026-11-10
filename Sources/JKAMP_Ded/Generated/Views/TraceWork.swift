@@ -164,10 +164,14 @@ public struct TraceWork: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/qcommon/cm_local.h:258
-    // TODO: Port traceWork_t.startout
-    // Raven wrote: _Bool startout
+    public var startout: Bool {
+        get { self.raw.pointee.startout }
+        nonmutating set { self.raw.pointee.startout = newValue }
+    }
 
     /// Source: oracle/codemp/qcommon/cm_local.h:259
-    // TODO: Port traceWork_t.getout
-    // Raven wrote: _Bool getout
+    public var getout: Bool {
+        get { self.raw.pointee.getout }
+        nonmutating set { self.raw.pointee.getout = newValue }
+    }
 }

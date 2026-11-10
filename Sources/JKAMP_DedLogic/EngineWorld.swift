@@ -247,6 +247,36 @@ public final class EngineWorld {
     /// Source: oracle/codemp/botlib/be_aas_move.cpp:215
     var VEC_DOWN = vec3_t(0, -2, 0)
 
+    // MARK: - l_precomp.cpp
+
+    /// Raven's `directive_t directives[20]` of `l_precomp.cpp`, 14 rows and the NULL rows after them, in Raven's order.
+    /// Source: oracle/codemp/botlib/l_precomp.cpp:2535
+    // AI: Raven holds the address of each directive function in C. The table is hand data with the function as a Swift value, the commandList form.
+    lazy var directives: [DirectiveRow] = [
+        DirectiveRow(name: "if", func: PC_Directive_if),
+        DirectiveRow(name: "ifdef", func: PC_Directive_ifdef),
+        DirectiveRow(name: "ifndef", func: PC_Directive_ifndef),
+        DirectiveRow(name: "elif", func: PC_Directive_elif),
+        DirectiveRow(name: "else", func: PC_Directive_else),
+        DirectiveRow(name: "endif", func: PC_Directive_endif),
+        DirectiveRow(name: "include", func: PC_Directive_include),
+        DirectiveRow(name: "define", func: PC_Directive_define),
+        DirectiveRow(name: "undef", func: PC_Directive_undef),
+        DirectiveRow(name: "line", func: PC_Directive_line),
+        DirectiveRow(name: "error", func: PC_Directive_error),
+        DirectiveRow(name: "pragma", func: PC_Directive_pragma),
+        DirectiveRow(name: "eval", func: PC_Directive_eval),
+        DirectiveRow(name: "evalfloat", func: PC_Directive_evalfloat),
+    ] + Array(repeating: DirectiveRow(name: nil, func: nil), count: 6)
+
+    /// Raven's `directive_t dollardirectives[20]` of `l_precomp.cpp`, 2 rows and the NULL rows after them, in Raven's order.
+    /// Source: oracle/codemp/botlib/l_precomp.cpp:2648
+    // AI: Raven holds the address of each directive function in C. The table is hand data with the function as a Swift value, the commandList form.
+    lazy var dollardirectives: [DirectiveRow] = [
+        DirectiveRow(name: "evalint", func: PC_DollarDirective_evalint),
+        DirectiveRow(name: "evalfloat", func: PC_DollarDirective_evalfloat),
+    ] + Array(repeating: DirectiveRow(name: nil, func: nil), count: 18)
+
     // MARK: - tr_shader.cpp
 
     /// Raven's `const int lightmapsNone[MAXLIGHTMAPS]` of `tr_shader.cpp`.
@@ -470,6 +500,55 @@ public final class EngineWorld {
     /// Source: oracle/codemp/icarus/GameInterface.cpp:16
     var iICARUS: ICARUS_Instance? = nil
 
+    /// Raven's `bufferlist_t ICARUS_BufferList` of `GameInterface.cpp`, the cached scripts by name.
+    /// Source: oracle/codemp/icarus/GameInterface.cpp:17
+    var ICARUS_BufferList: bufferlist_t = [:]
+
+    /// Raven's `entlist_t ICARUS_EntList` of `GameInterface.cpp`, the entity numbers by their uppercase script target name.
+    /// Source: oracle/codemp/icarus/GameInterface.cpp:18
+    var ICARUS_EntList: entlist_t = [:]
+
+    /// Raven's `varString_m varStrings` of `Q3_Registers.cpp`, the script string variables by name.
+    /// Source: oracle/codemp/icarus/Q3_Registers.cpp:9
+    // AI: Raven declares a `map < string, string >`. The type is a Dictionary, by rule 17.
+    var varStrings: [String: String] = [:]
+
+    /// Raven's `varFloat_m varFloats` of `Q3_Registers.cpp`, the script float variables by name.
+    /// Source: oracle/codemp/icarus/Q3_Registers.cpp:10
+    // AI: Raven declares a `map < string, float >`. The type is a Dictionary, by rule 17.
+    var varFloats: [String: Float] = [:]
+
+    /// Raven's `varString_m varVectors` of `Q3_Registers.cpp`, the script vector variables by name, each as its text.
+    /// Source: oracle/codemp/icarus/Q3_Registers.cpp:11
+    // AI: Raven declares a `map < string, string >`. The type is a Dictionary, by rule 17.
+    var varVectors: [String: String] = [:]
+
+    // MARK: - navigator.cpp
+
+    /// Raven's `static map<int,byte> CheckedNodes` of `navigator.cpp`, keyed by `wayPoint*MAX_GENTITIES+ent`.
+    /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1687
+    // AI: Raven declares a `map<int,byte>`. The type is a Dictionary, by rule 17.
+    var CheckedNodes: [Int32: JKAShared.byte] = [:]
+
+    /// Raven's `interface_export_t interface_export` of `Q3_Interface.cpp`, the ICARUS game table that Interface_Init fills.
+    /// Source: oracle/codemp/icarus/Q3_Interface.cpp:32
+    let interface_export = interface_export_t()
+
+    // MARK: - RM_Manager.cpp and cm_load.cpp
+
+    /// Raven's `CRMManager *TheRandomMissionManager` of `RM_Manager.cpp`, which the G_RMG_INIT arm makes and CM_ClearMap deletes.
+    /// Source: oracle/codemp/RMG/RM_Manager.cpp:23
+    var TheRandomMissionManager: CRMManager? = nil
+
+    /// Raven's static member `CRMObjective *CRMManager::mCurObjective` of `RM_Manager.cpp`.
+    /// Source: oracle/codemp/RMG/RM_Manager.cpp:16
+    var mCurObjective: CRMObjective? = nil
+
+    /// Raven's `cmg.landScape` of `cm_local.h`, the terrain of the clip map, which CM_RegisterTerrain sets and CM_ClearMap deletes.
+    /// Source: oracle/codemp/qcommon/cm_local.h:210
+    // AI: Raven holds the class pointer in the C record `clipMap_t`. The C field stays unused, and the world holds the Swift class, rule 12.
+    var landScape_cmg: CCMLandScape? = nil
+
     // MARK: - navigator.cpp
 
     /// Raven's `CNavigator navigator` of `navigator.cpp`, the one waypoint graph.
@@ -582,6 +661,14 @@ public final class EngineWorld {
     deinit {
         self.adr.delete()
     }
+}
+
+/// One row of Raven's `directives` and `dollardirectives` of `l_precomp.cpp`, the `directive_t` record of :86 with the parse function as a Swift value.
+/// C storage cannot hold the address of a Swift function, so the tables are hand data on `EngineWorld`. A nil name is Raven's NULL row.
+/// Source: oracle/codemp/botlib/l_precomp.cpp:86
+struct DirectiveRow {
+    let name: String?
+    let `func`: ((Source) -> Int32)?
 }
 
 /// The one instance. The engine runs one thread, so this is not isolated.

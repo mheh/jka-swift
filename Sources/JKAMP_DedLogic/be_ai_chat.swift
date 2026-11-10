@@ -45,44 +45,46 @@ let RCKFL_GENDERLESS = 256 as Int32
 let CHATMESSAGE_RECENTTIME = 20 as Int32
 
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:181
-// TODO: Port global ichatdata
-// Raven wrote: bot_ichatdata_t *ichatdata[MAX_CLIENTS]
-// No table row for `bot_ichatdata_t *[32]`.
+var ichatdata: Slots<BotIchatdata?> { world.storage.ichatdata }
 
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:183
-// TODO: Port global botchatstates
-// Raven wrote: bot_chatstate_t *botchatstates[MAX_CLIENTS+1]
-// No table row for `bot_chatstate_t *[33]`.
+var botchatstates: Slots<BotChatstate?> { world.storage.botchatstates }
 
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:185
-// TODO: Port global consolemessageheap
-// Raven wrote: bot_consolemessage_t *consolemessageheap = NULL
-// No table row for `bot_consolemessage_t *`.
+var consolemessageheap: Slots<BotConsolemessage>? {
+    get { world.variables.consolemessageheap }
+    set { world.variables.consolemessageheap = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:186
-// TODO: Port global freeconsolemessages
-// Raven wrote: bot_consolemessage_t *freeconsolemessages = NULL
-// No table row for `bot_consolemessage_t *`.
+var freeconsolemessages: BotConsolemessage? {
+    get { world.variables.freeconsolemessages }
+    set { world.variables.freeconsolemessages = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:188
-// TODO: Port global matchtemplates
-// Raven wrote: bot_matchtemplate_t *matchtemplates = NULL
-// No table row for `bot_matchtemplate_t *`.
+var matchtemplates: BotMatchtemplate? {
+    get { world.variables.matchtemplates }
+    set { world.variables.matchtemplates = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:190
-// TODO: Port global synonyms
-// Raven wrote: bot_synonymlist_t *synonyms = NULL
-// No table row for `bot_synonymlist_t *`.
+var synonyms: BotSynonymlist? {
+    get { world.variables.synonyms }
+    set { world.variables.synonyms = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:192
-// TODO: Port global randomstrings
-// Raven wrote: bot_randomlist_t *randomstrings = NULL
-// No table row for `bot_randomlist_t *`.
+var randomstrings: BotRandomlist? {
+    get { world.variables.randomstrings }
+    set { world.variables.randomstrings = newValue }
+}
 
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:194
-// TODO: Port global replychats
-// Raven wrote: bot_replychat_t *replychats = NULL
-// No table row for `bot_replychat_t *`.
+var replychats: BotReplychat? {
+    get { world.variables.replychats }
+    set { world.variables.replychats = newValue }
+}
 
 //========================================================================
 //
@@ -91,10 +93,7 @@ let CHATMESSAGE_RECENTTIME = 20 as Int32
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:202
-// TODO: Port signature
-// Raven wrote: bot_chatstate_t *BotChatStateFromHandle(int handle)
-// No table row for the return `bot_chatstate_t *`.
-func BotChatStateFromHandle() -> Never {
+func BotChatStateFromHandle(_ handle: Int32) -> BotChatstate? {
     // TODO: Port BotChatStateFromHandle
     portMissing("BotChatStateFromHandle", source: "oracle/codemp/botlib/be_ai_chat.cpp:202")
 }
@@ -120,10 +119,7 @@ func InitConsoleMessageHeap() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:251
-// TODO: Port signature
-// Raven wrote: bot_consolemessage_t *AllocConsoleMessage(void)
-// No table row for the return `bot_consolemessage_t *`.
-func AllocConsoleMessage() -> Never {
+func AllocConsoleMessage() -> BotConsolemessage? {
     // TODO: Port AllocConsoleMessage
     portMissing("AllocConsoleMessage", source: "oracle/codemp/botlib/be_ai_chat.cpp:251")
 }
@@ -136,10 +132,7 @@ func AllocConsoleMessage() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:266
-// TODO: Port signature
-// Raven wrote: void FreeConsoleMessage(bot_consolemessage_t *message)
-// No table row for `bot_consolemessage_t * message`.
-func FreeConsoleMessage() -> Never {
+func FreeConsoleMessage(_ message: BotConsolemessage) {
     // TODO: Port FreeConsoleMessage
     portMissing("FreeConsoleMessage", source: "oracle/codemp/botlib/be_ai_chat.cpp:266")
 }
@@ -175,10 +168,7 @@ func BotQueueConsoleMessage(_ chatstate: Int32, _ type: Int32, _ message: String
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:350
-// TODO: Port signature
-// Raven wrote: int BotNextConsoleMessage(int chatstate, bot_consolemessage_t *cm)
-// No table row for `bot_consolemessage_t * cm`.
-func BotNextConsoleMessage() -> Never {
+func BotNextConsoleMessage(_ chatstate: Int32, _ cm: BotConsolemessage) -> Int32 {
     // TODO: Port BotNextConsoleMessage
     portMissing("BotNextConsoleMessage", source: "oracle/codemp/botlib/be_ai_chat.cpp:350")
 }
@@ -274,10 +264,7 @@ func StringReplaceWords(_ string: inout JKAShared.CharBuf, _ synonym: String, _ 
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:553
-// TODO: Port signature
-// Raven wrote: void BotDumpSynonymList(bot_synonymlist_t *synlist)
-// No table row for `bot_synonymlist_t * synlist`.
-func BotDumpSynonymList() -> Never {
+func BotDumpSynonymList(_ synlist: BotSynonymlist) {
     // TODO: Port BotDumpSynonymList
     portMissing("BotDumpSynonymList", source: "oracle/codemp/botlib/be_ai_chat.cpp:553")
 }
@@ -289,10 +276,7 @@ func BotDumpSynonymList() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:578
-// TODO: Port signature
-// Raven wrote: bot_synonymlist_t *BotLoadSynonyms(char *filename)
-// No table row for the return `bot_synonymlist_t *`.
-func BotLoadSynonyms() -> Never {
+func BotLoadSynonyms(_ filename: inout JKAShared.CharBuf) -> BotSynonymlist? {
     // TODO: Port BotLoadSynonyms
     portMissing("BotLoadSynonyms", source: "oracle/codemp/botlib/be_ai_chat.cpp:578")
 }
@@ -305,7 +289,7 @@ func BotLoadSynonyms() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:744
-func BotReplaceSynonyms(_ string: inout JKAShared.CharBuf, _ context: CUnsignedLong) {
+func BotReplaceSynonyms(_ string: inout JKAShared.CharBuf, _ context: UInt32) {
     // TODO: Port BotReplaceSynonyms
     portMissing("BotReplaceSynonyms", source: "oracle/codemp/botlib/be_ai_chat.cpp:744")
 }
@@ -317,7 +301,7 @@ func BotReplaceSynonyms(_ string: inout JKAShared.CharBuf, _ context: CUnsignedL
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:764
-func BotReplaceWeightedSynonyms(_ string: inout JKAShared.CharBuf, _ context: CUnsignedLong) {
+func BotReplaceWeightedSynonyms(_ string: inout JKAShared.CharBuf, _ context: UInt32) {
     // TODO: Port BotReplaceWeightedSynonyms
     portMissing("BotReplaceWeightedSynonyms", source: "oracle/codemp/botlib/be_ai_chat.cpp:764")
 }
@@ -329,7 +313,7 @@ func BotReplaceWeightedSynonyms(_ string: inout JKAShared.CharBuf, _ context: CU
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:797
-func BotReplaceReplySynonyms(_ string: inout JKAShared.CharBuf, _ context: CUnsignedLong) {
+func BotReplaceReplySynonyms(_ string: inout JKAShared.CharBuf, _ context: UInt32) {
     // TODO: Port BotReplaceReplySynonyms
     portMissing("BotReplaceReplySynonyms", source: "oracle/codemp/botlib/be_ai_chat.cpp:797")
 }
@@ -341,10 +325,7 @@ func BotReplaceReplySynonyms(_ string: inout JKAShared.CharBuf, _ context: CUnsi
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:845
-// TODO: Port signature
-// Raven wrote: int BotLoadChatMessage(source_t *source, char *chatmessagestring)
-// No table row for `source_t * source`.
-func BotLoadChatMessage() -> Never {
+func BotLoadChatMessage(_ source: Source, _ chatmessagestring: inout JKAShared.CharBuf) -> Int32 {
     // TODO: Port BotLoadChatMessage
     portMissing("BotLoadChatMessage", source: "oracle/codemp/botlib/be_ai_chat.cpp:845")
 }
@@ -356,10 +337,7 @@ func BotLoadChatMessage() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:904
-// TODO: Port signature
-// Raven wrote: void BotDumpRandomStringList(bot_randomlist_t *randomlist)
-// No table row for `bot_randomlist_t * randomlist`.
-func BotDumpRandomStringList() -> Never {
+func BotDumpRandomStringList(_ randomlist: BotRandomlist) {
     // TODO: Port BotDumpRandomStringList
     portMissing("BotDumpRandomStringList", source: "oracle/codemp/botlib/be_ai_chat.cpp:904")
 }
@@ -371,10 +349,7 @@ func BotDumpRandomStringList() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:929
-// TODO: Port signature
-// Raven wrote: bot_randomlist_t *BotLoadRandomStrings(char *filename)
-// No table row for the return `bot_randomlist_t *`.
-func BotLoadRandomStrings() -> Never {
+func BotLoadRandomStrings(_ filename: inout JKAShared.CharBuf) -> BotRandomlist? {
     // TODO: Port BotLoadRandomStrings
     portMissing("BotLoadRandomStrings", source: "oracle/codemp/botlib/be_ai_chat.cpp:929")
 }
@@ -398,10 +373,7 @@ func RandomString(_ name: String) -> String? {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1060
-// TODO: Port signature
-// Raven wrote: void BotDumpMatchTemplates(bot_matchtemplate_t *matches)
-// No table row for `bot_matchtemplate_t * matches`.
-func BotDumpMatchTemplates() -> Never {
+func BotDumpMatchTemplates(_ matches: BotMatchtemplate) {
     // TODO: Port BotDumpMatchTemplates
     portMissing("BotDumpMatchTemplates", source: "oracle/codemp/botlib/be_ai_chat.cpp:1060")
 }
@@ -413,10 +385,7 @@ func BotDumpMatchTemplates() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1097
-// TODO: Port signature
-// Raven wrote: void BotFreeMatchPieces(bot_matchpiece_t *matchpieces)
-// No table row for `bot_matchpiece_t * matchpieces`.
-func BotFreeMatchPieces() -> Never {
+func BotFreeMatchPieces(_ matchpieces: BotMatchpiece) {
     // TODO: Port BotFreeMatchPieces
     portMissing("BotFreeMatchPieces", source: "oracle/codemp/botlib/be_ai_chat.cpp:1097")
 }
@@ -428,10 +397,7 @@ func BotFreeMatchPieces() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1122
-// TODO: Port signature
-// Raven wrote: bot_matchpiece_t *BotLoadMatchPieces(source_t *source, char *endtoken)
-// No table row for `source_t * source`.
-func BotLoadMatchPieces() -> Never {
+func BotLoadMatchPieces(_ source: Source, _ endtoken: String) -> BotMatchpiece? {
     // TODO: Port BotLoadMatchPieces
     portMissing("BotLoadMatchPieces", source: "oracle/codemp/botlib/be_ai_chat.cpp:1122")
 }
@@ -443,10 +409,7 @@ func BotLoadMatchPieces() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1224
-// TODO: Port signature
-// Raven wrote: void BotFreeMatchTemplates(bot_matchtemplate_t *mt)
-// No table row for `bot_matchtemplate_t * mt`.
-func BotFreeMatchTemplates() -> Never {
+func BotFreeMatchTemplates(_ mt: BotMatchtemplate) {
     // TODO: Port BotFreeMatchTemplates
     portMissing("BotFreeMatchTemplates", source: "oracle/codemp/botlib/be_ai_chat.cpp:1224")
 }
@@ -458,10 +421,7 @@ func BotFreeMatchTemplates() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1241
-// TODO: Port signature
-// Raven wrote: bot_matchtemplate_t *BotLoadMatchTemplates(char *matchfile)
-// No table row for the return `bot_matchtemplate_t *`.
-func BotLoadMatchTemplates() -> Never {
+func BotLoadMatchTemplates(_ matchfile: inout JKAShared.CharBuf) -> BotMatchtemplate? {
     // TODO: Port BotLoadMatchTemplates
     portMissing("BotLoadMatchTemplates", source: "oracle/codemp/botlib/be_ai_chat.cpp:1241")
 }
@@ -473,10 +433,7 @@ func BotLoadMatchTemplates() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1340
-// TODO: Port signature
-// Raven wrote: int StringsMatch(bot_matchpiece_t *pieces, bot_match_t *match)
-// No table row for `bot_matchpiece_t * pieces`.
-func StringsMatch() -> Never {
+func StringsMatch(_ pieces: BotMatchpiece, _ match: BotMatch) -> Int32 {
     // TODO: Port StringsMatch
     portMissing("StringsMatch", source: "oracle/codemp/botlib/be_ai_chat.cpp:1340")
 }
@@ -488,10 +445,7 @@ func StringsMatch() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1417
-// TODO: Port signature
-// Raven wrote: int BotFindMatch(char *str, bot_match_t *match, unsigned long int context)
-// No table row for `bot_match_t * match`.
-func BotFindMatch() -> Never {
+func BotFindMatch(_ str: String, _ match: BotMatch, _ context: UInt32) -> Int32 {
     // TODO: Port BotFindMatch
     portMissing("BotFindMatch", source: "oracle/codemp/botlib/be_ai_chat.cpp:1417")
 }
@@ -503,10 +457,7 @@ func BotFindMatch() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1451
-// TODO: Port signature
-// Raven wrote: void BotMatchVariable(bot_match_t *match, int variable, char *buf, int size)
-// No table row for `bot_match_t * match`.
-func BotMatchVariable() -> Never {
+func BotMatchVariable(_ match: BotMatch, _ variable: Int32, _ buf: inout JKAShared.CharBuf, _ size: Int32) {
     // TODO: Port BotMatchVariable
     portMissing("BotMatchVariable", source: "oracle/codemp/botlib/be_ai_chat.cpp:1451")
 }
@@ -518,10 +469,7 @@ func BotMatchVariable() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1480
-// TODO: Port signature
-// Raven wrote: bot_stringlist_t *BotFindStringInList(bot_stringlist_t *list, char *string)
-// No table row for `bot_stringlist_t * list`.
-func BotFindStringInList() -> Never {
+func BotFindStringInList(_ list: BotStringlist, _ string: String) -> BotStringlist? {
     // TODO: Port BotFindStringInList
     portMissing("BotFindStringInList", source: "oracle/codemp/botlib/be_ai_chat.cpp:1480")
 }
@@ -533,10 +481,7 @@ func BotFindStringInList() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1496
-// TODO: Port signature
-// Raven wrote: bot_stringlist_t *BotCheckChatMessageIntegrety(char *message, bot_stringlist_t *stringlist)
-// No table row for `bot_stringlist_t * stringlist`.
-func BotCheckChatMessageIntegrety() -> Never {
+func BotCheckChatMessageIntegrety(_ message: inout JKAShared.CharBuf, _ stringlist: BotStringlist) -> BotStringlist? {
     // TODO: Port BotCheckChatMessageIntegrety
     portMissing("BotCheckChatMessageIntegrety", source: "oracle/codemp/botlib/be_ai_chat.cpp:1496")
 }
@@ -548,10 +493,7 @@ func BotCheckChatMessageIntegrety() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1567
-// TODO: Port signature
-// Raven wrote: void BotCheckInitialChatIntegrety(bot_chat_t *chat)
-// No table row for `bot_chat_t * chat`.
-func BotCheckInitialChatIntegrety() -> Never {
+func BotCheckInitialChatIntegrety(_ chat: BotChat) {
     // TODO: Port BotCheckInitialChatIntegrety
     portMissing("BotCheckInitialChatIntegrety", source: "oracle/codemp/botlib/be_ai_chat.cpp:1567")
 }
@@ -563,10 +505,7 @@ func BotCheckInitialChatIntegrety() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1593
-// TODO: Port signature
-// Raven wrote: void BotCheckReplyChatIntegrety(bot_replychat_t *replychat)
-// No table row for `bot_replychat_t * replychat`.
-func BotCheckReplyChatIntegrety() -> Never {
+func BotCheckReplyChatIntegrety(_ replychat: BotReplychat) {
     // TODO: Port BotCheckReplyChatIntegrety
     portMissing("BotCheckReplyChatIntegrety", source: "oracle/codemp/botlib/be_ai_chat.cpp:1593")
 }
@@ -578,10 +517,7 @@ func BotCheckReplyChatIntegrety() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1619
-// TODO: Port signature
-// Raven wrote: void BotDumpReplyChat(bot_replychat_t *replychat)
-// No table row for `bot_replychat_t * replychat`.
-func BotDumpReplyChat() -> Never {
+func BotDumpReplyChat(_ replychat: BotReplychat) {
     // TODO: Port BotDumpReplyChat
     portMissing("BotDumpReplyChat", source: "oracle/codemp/botlib/be_ai_chat.cpp:1619")
 }
@@ -593,10 +529,7 @@ func BotDumpReplyChat() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1674
-// TODO: Port signature
-// Raven wrote: void BotFreeReplyChat(bot_replychat_t *replychat)
-// No table row for `bot_replychat_t * replychat`.
-func BotFreeReplyChat() -> Never {
+func BotFreeReplyChat(_ replychat: BotReplychat) {
     // TODO: Port BotFreeReplyChat
     portMissing("BotFreeReplyChat", source: "oracle/codemp/botlib/be_ai_chat.cpp:1674")
 }
@@ -608,10 +541,7 @@ func BotFreeReplyChat() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1704
-// TODO: Port signature
-// Raven wrote: void BotCheckValidReplyChatKeySet(source_t *source, bot_replychatkey_t *keys)
-// No table row for `source_t * source`.
-func BotCheckValidReplyChatKeySet() -> Never {
+func BotCheckValidReplyChatKeySet(_ source: Source, _ keys: BotReplychatkey) {
     // TODO: Port BotCheckValidReplyChatKeySet
     portMissing("BotCheckValidReplyChatKeySet", source: "oracle/codemp/botlib/be_ai_chat.cpp:1704")
 }
@@ -623,10 +553,7 @@ func BotCheckValidReplyChatKeySet() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1811
-// TODO: Port signature
-// Raven wrote: bot_replychat_t *BotLoadReplyChat(char *filename)
-// No table row for the return `bot_replychat_t *`.
-func BotLoadReplyChat() -> Never {
+func BotLoadReplyChat(_ filename: inout JKAShared.CharBuf) -> BotReplychat? {
     // TODO: Port BotLoadReplyChat
     portMissing("BotLoadReplyChat", source: "oracle/codemp/botlib/be_ai_chat.cpp:1811")
 }
@@ -638,10 +565,7 @@ func BotLoadReplyChat() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1971
-// TODO: Port signature
-// Raven wrote: void BotDumpInitialChat(bot_chat_t *chat)
-// No table row for `bot_chat_t * chat`.
-func BotDumpInitialChat() -> Never {
+func BotDumpInitialChat(_ chat: BotChat) {
     // TODO: Port BotDumpInitialChat
     portMissing("BotDumpInitialChat", source: "oracle/codemp/botlib/be_ai_chat.cpp:1971")
 }
@@ -653,10 +577,7 @@ func BotDumpInitialChat() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1996
-// TODO: Port signature
-// Raven wrote: bot_chat_t *BotLoadInitialChat(char *chatfile, char *chatname)
-// No table row for the return `bot_chat_t *`.
-func BotLoadInitialChat() -> Never {
+func BotLoadInitialChat(_ chatfile: inout JKAShared.CharBuf, _ chatname: inout JKAShared.CharBuf) -> BotChat? {
     // TODO: Port BotLoadInitialChat
     portMissing("BotLoadInitialChat", source: "oracle/codemp/botlib/be_ai_chat.cpp:1996")
 }
@@ -692,10 +613,7 @@ func BotLoadChatFile(_ chatstate: Int32, _ chatfile: inout JKAShared.CharBuf, _ 
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2241
-// TODO: Port signature
-// Raven wrote: int BotExpandChatMessage(char *outmessage, char *message, unsigned long mcontext, bot_match_t *match, unsigned long vcontext, int reply)
-// No table row for `bot_match_t * match`.
-func BotExpandChatMessage() -> Never {
+func BotExpandChatMessage(_ outmessage: inout JKAShared.CharBuf, _ message: inout JKAShared.CharBuf, _ mcontext: UInt32, _ match: BotMatch, _ vcontext: UInt32, _ reply: Int32) -> Int32 {
     // TODO: Port BotExpandChatMessage
     portMissing("BotExpandChatMessage", source: "oracle/codemp/botlib/be_ai_chat.cpp:2241")
 }
@@ -707,10 +625,7 @@ func BotExpandChatMessage() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2362
-// TODO: Port signature
-// Raven wrote: void BotConstructChatMessage(bot_chatstate_t *chatstate, char *message, unsigned long mcontext, bot_match_t *match, unsigned long vcontext, int reply)
-// No table row for `bot_chatstate_t * chatstate`.
-func BotConstructChatMessage() -> Never {
+func BotConstructChatMessage(_ chatstate: BotChatstate, _ message: String, _ mcontext: UInt32, _ match: BotMatch, _ vcontext: UInt32, _ reply: Int32) {
     // TODO: Port BotConstructChatMessage
     portMissing("BotConstructChatMessage", source: "oracle/codemp/botlib/be_ai_chat.cpp:2362")
 }
@@ -723,10 +638,7 @@ func BotConstructChatMessage() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2390
-// TODO: Port signature
-// Raven wrote: char *BotChooseInitialChatMessage(bot_chatstate_t *cs, char *type)
-// No table row for `bot_chatstate_t * cs`.
-func BotChooseInitialChatMessage() -> Never {
+func BotChooseInitialChatMessage(_ cs: BotChatstate, _ type: String) -> String? {
     // TODO: Port BotChooseInitialChatMessage
     portMissing("BotChooseInitialChatMessage", source: "oracle/codemp/botlib/be_ai_chat.cpp:2390")
 }
@@ -762,10 +674,7 @@ func BotInitialChat(_ chatstate: Int32, _ type: String, _ mcontext: Int32, _ var
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2556
-// TODO: Port signature
-// Raven wrote: void BotPrintReplyChatKeys(bot_replychat_t *replychat)
-// No table row for `bot_replychat_t * replychat`.
-func BotPrintReplyChatKeys() -> Never {
+func BotPrintReplyChatKeys(_ replychat: BotReplychat) {
     // TODO: Port BotPrintReplyChatKeys
     portMissing("BotPrintReplyChatKeys", source: "oracle/codemp/botlib/be_ai_chat.cpp:2556")
 }

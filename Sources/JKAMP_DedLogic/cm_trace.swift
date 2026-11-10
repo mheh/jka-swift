@@ -281,7 +281,8 @@ func CM_TestInLeaf(_ tw: TraceWork, _ trace: JKAMP.Trace, _ leaf: CLeaf, _ local
             continue
         }
 
-        if com_terrainPhysics!.integer != 0 && cmg.landScape != nil && (b.contents & CONTENTS_TERRAIN) != 0 {
+        // AI: Raven reads the class pointer `cmg.landScape` of the C record. The world holds the Swift class as `landScape_cmg`, the C field stays unused.
+        if com_terrainPhysics!.integer != 0 && landScape_cmg != nil && (b.contents & CONTENTS_TERRAIN) != 0 {
             // Invalidate the checkcount for terrain as the terrain brush has to be processed
             // many times.
             b.checkcount -= 1
@@ -474,9 +475,6 @@ func CM_TestBoundingBoxInCapsule(_ tw: TraceWork, _ trace: JKAMP.Trace, _ model:
 
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:448
 func CM_PositionTest(_ tw: TraceWork, _ trace: JKAMP.Trace) {
-    // Port-note: The local `int leafs[MAX_POSITION_LEAFS]` has no BYTE_STORAGE_LOCALS entry.
-    // Raven wrote: int leafs[MAX_POSITION_LEAFS];
-    portMissing("CM_PositionTest", source: "oracle/codemp/qcommon/cm_trace.cpp:448")
     LeafList.scratch { ll in
         var i: Int32
 
@@ -493,12 +491,8 @@ func CM_PositionTest(_ tw: TraceWork, _ trace: JKAMP.Trace) {
 
         ll.count = 0
         ll.maxcount = MAX_POSITION_LEAFS
-        // Port-note: A read of `leafs`, a local with no storage.
-        // Raven wrote: ll.list = leafs;
-        portMissing("CM_PositionTest", source: "oracle/codemp/qcommon/cm_trace.cpp:448")
-        // Port-note: The `storeLeafs` field has no generated thunk for CM_StoreLeafs.
-        // Raven wrote: ll.storeLeafs = CM_StoreLeafs;
-        portMissing("CM_PositionTest", source: "oracle/codemp/qcommon/cm_trace.cpp:448")
+        ll.list = leafs_CM_PositionTest
+        ll.storeLeafs = LeafListThunks.CM_StoreLeafs
         ll.lastLeaf = 0
         ll.overflowed = false
 
@@ -511,9 +505,7 @@ func CM_PositionTest(_ tw: TraceWork, _ trace: JKAMP.Trace) {
         // test the contents of the leafs
         i = 0
         while i < ll.count {
-            // Port-note: A read of `leafs`, a local with no storage.
-            // Raven wrote: CM_TestInLeaf( tw, trace, &cmg.leafs[leafs[i]], &cmg );
-            portMissing("CM_PositionTest", source: "oracle/codemp/qcommon/cm_trace.cpp:448")
+            CM_TestInLeaf(tw, trace, cmg.leafsSlots[leafs_CM_PositionTest[i]], cmg)
             if trace.allsolid != 0 {
                 break
             }
@@ -687,7 +679,7 @@ func CM_TraceThroughBrush(_ tw: TraceWork, _ trace: JKAMP.Trace, _ brush: Cbrush
 
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:703
 func CM_TraceThroughTerrain(_ tw: TraceWork, _ trace: JKAMP.Trace, _ brush: Cbrush) {
-    let landscape: OpaquePointer?
+    let landscape: CCMLandScape?
     var tBegin = vec3_t()
     var tEnd = vec3_t()
     var tDistance = vec3_t()
@@ -699,13 +691,13 @@ func CM_TraceThroughTerrain(_ tw: TraceWork, _ trace: JKAMP.Trace, _ brush: Cbru
     var fraction: Float
 
     // At this point we know we may be colliding with a terrain brush (and we know we have a valid terrain structure)
-    landscape = cmg.landScape
+    // AI: Raven reads the class pointer `cmg.landScape` of the C record. The world holds the Swift class as `landScape_cmg`, the C field stays unused.
+    landscape = landScape_cmg
 
     // Check for absolutely no connection
-    // Port-note: The methods of CCMLandScape have no Swift name, row CM6 of the cm_load round.
-    // The view gives `tw->bounds` as a Slots of rows, and CM_GenericBoxCollide takes `[vec3_t]`.
-    // Raven wrote: if(!CM_GenericBoxCollide(tw->bounds, landscape->GetBounds())) { return; }
-    portMissing("CM_TraceThroughTerrain", source: "oracle/codemp/qcommon/cm_trace.cpp:703")
+    if !CM_GenericBoxCollide(tw.bounds, landscape!.GetBounds()) {
+        return
+    }
     // Now we know that at least some part of the trace needs to collide with the terrain
     // The regular brush collision is handled elsewhere, so advance the ray to an edge in the terrain brush
     CM_TraceThroughBrush(tw, trace, brush, true)
@@ -853,7 +845,8 @@ func CM_TraceThroughLeaf(_ tw: TraceWork, _ trace: JKAMP.Trace, _ local: ClipMap
             continue
         }
 
-        if com_terrainPhysics!.integer != 0 && cmg.landScape != nil && (b.contents & CONTENTS_TERRAIN) != 0 {
+        // AI: Raven reads the class pointer `cmg.landScape` of the C record. The world holds the Swift class as `landScape_cmg`, the C field stays unused.
+        if com_terrainPhysics!.integer != 0 && landScape_cmg != nil && (b.contents & CONTENTS_TERRAIN) != 0 {
             // Invalidate the checkcount for terrain as the terrain brush has to be processed
             // many times.
             b.checkcount -= 1
@@ -1265,7 +1258,8 @@ func CM_TraceToLeaf(_ tw: TraceWork, _ trace: JKAMP.Trace, _ leaf: CLeaf, _ loca
             continue
         }
 
-        if com_terrainPhysics!.integer != 0 && cmg.landScape != nil && (b.contents & CONTENTS_TERRAIN) != 0 {
+        // AI: Raven reads the class pointer `cmg.landScape` of the C record. The world holds the Swift class as `landScape_cmg`, the C field stays unused.
+        if com_terrainPhysics!.integer != 0 && landScape_cmg != nil && (b.contents & CONTENTS_TERRAIN) != 0 {
             // Invalidate the checkcount for terrain as the terrain brush has to be processed
             // many times.
             b.checkcount -= 1
@@ -1795,4 +1789,11 @@ func CM_CullWorldBox(_ frustum: JKAShared.Cplane, _ bounds: [JKAShared.vec3_t]) 
     }
 
     return (CM_CullBox(frustum, &transformed))
+}
+
+/// One static per function this file stores in a `LeafList` callback field, so each has one address for the life of the module.
+/// The thunks stand in this file, because the functions they call are private to it.
+private enum LeafListThunks {
+    /// Source: oracle/codemp/qcommon/cm_test.cpp:63
+    static let CM_StoreLeafs: LeafListStoreLeafs = { JKAMP_DedLogic.CM_StoreLeafs(LeafList(handle: $0!), $1) }
 }

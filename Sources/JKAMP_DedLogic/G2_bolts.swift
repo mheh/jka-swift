@@ -59,7 +59,8 @@ func G2_Add_Bolt_Surf_Num(_ ghlInfo: CGhoul2Info?, _ bltlist: inout [boltInfo_t]
     var i: Int32
 
     // first up, make sure have a surface first
-    if surfNum >= slist.count {
+    // AI: Raven compares the signed index with the unsigned size, so a negative index is out of range. The test names that case.
+    if surfNum < 0 || surfNum >= slist.count {
         return -1
     }
 
@@ -102,7 +103,6 @@ func G2_Add_Bolt_Surf_Num(_ ghlInfo: CGhoul2Info?, _ bltlist: inout [boltInfo_t]
 
 /// Source: oracle/codemp/ghoul2/G2_bolts.cpp:119
 func G2_Add_Bolt(_ ghlInfo: CGhoul2Info?, _ bltlist: inout [boltInfo_t], _ slist: inout [surfaceInfo_t], _ boneName: String) -> Int32 {
-    // Port-note: Raven passes the model to G2_IsSurfaceLegal, whose `OpaquePointer?` parameter a logic body cannot fill, and walks the skeleton at a byte offset from `mdxa`.
     // TODO: Port G2_Add_Bolt
     portMissing("G2_Add_Bolt", source: "oracle/codemp/ghoul2/G2_bolts.cpp:119")
 }

@@ -114,20 +114,28 @@ public struct TextureBundle: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/renderer/tr_local.h:381
-    // TODO: Port textureBundle_t.isLightmap
-    // Raven wrote: _Bool isLightmap
+    public var isLightmap: Bool {
+        get { self.raw.pointee.isLightmap }
+        nonmutating set { self.raw.pointee.isLightmap = newValue }
+    }
 
     /// Source: oracle/codemp/renderer/tr_local.h:382
-    // TODO: Port textureBundle_t.oneShotAnimMap
-    // Raven wrote: _Bool oneShotAnimMap
+    public var oneShotAnimMap: Bool {
+        get { self.raw.pointee.oneShotAnimMap }
+        nonmutating set { self.raw.pointee.oneShotAnimMap = newValue }
+    }
 
     /// Source: oracle/codemp/renderer/tr_local.h:383
-    // TODO: Port textureBundle_t.vertexLightmap
-    // Raven wrote: _Bool vertexLightmap
+    public var vertexLightmap: Bool {
+        get { self.raw.pointee.vertexLightmap }
+        nonmutating set { self.raw.pointee.vertexLightmap = newValue }
+    }
 
     /// Source: oracle/codemp/renderer/tr_local.h:384
-    // TODO: Port textureBundle_t.isVideoMap
-    // Raven wrote: _Bool isVideoMap
+    public var isVideoMap: Bool {
+        get { self.raw.pointee.isVideoMap }
+        nonmutating set { self.raw.pointee.isVideoMap = newValue }
+    }
 
     /// Source: oracle/codemp/renderer/tr_local.h:385
     public var videoMapHandle: Int32 {

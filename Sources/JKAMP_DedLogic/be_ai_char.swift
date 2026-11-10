@@ -6,7 +6,7 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:30
-let MAX_CHARACTERISTICS = 80 as Int32
+private let MAX_CHARACTERISTICS = 80 as Int32
 
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:32
 let CT_INTEGER = 1 as Int32
@@ -21,9 +21,7 @@ let CT_STRING = 3 as Int32
 let DEFAULT_CHARACTER = "bots/default_c.c"
 
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:60
-// TODO: Port global botcharacters
-// Raven wrote: bot_character_t *botcharacters[MAX_CLIENTS + 1]
-// No table row for `bot_character_t *[33]`.
+var botcharacters: Slots<BotCharacter?> { world.storage.botcharacters }
 
 //========================================================================
 //
@@ -32,10 +30,7 @@ let DEFAULT_CHARACTER = "bots/default_c.c"
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:68
-// TODO: Port signature
-// Raven wrote: bot_character_t *BotCharacterFromHandle(int handle)
-// No table row for the return `bot_character_t *`.
-func BotCharacterFromHandle() -> Never {
+func BotCharacterFromHandle(_ handle: Int32) -> BotCharacter? {
     // TODO: Port BotCharacterFromHandle
     portMissing("BotCharacterFromHandle", source: "oracle/codemp/botlib/be_ai_char.cpp:68")
 }
@@ -47,10 +42,7 @@ func BotCharacterFromHandle() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:88
-// TODO: Port signature
-// Raven wrote: void BotDumpCharacter(bot_character_t *ch)
-// No table row for `bot_character_t * ch`.
-func BotDumpCharacter() -> Never {
+func BotDumpCharacter(_ ch: BotCharacter) {
     // TODO: Port BotDumpCharacter
     portMissing("BotDumpCharacter", source: "oracle/codemp/botlib/be_ai_char.cpp:88")
 }
@@ -62,10 +54,7 @@ func BotDumpCharacter() -> Never {
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:112
-// TODO: Port signature
-// Raven wrote: void BotFreeCharacterStrings(bot_character_t *ch)
-// No table row for `bot_character_t * ch`.
-func BotFreeCharacterStrings() -> Never {
+func BotFreeCharacterStrings(_ ch: BotCharacter) {
     // TODO: Port BotFreeCharacterStrings
     portMissing("BotFreeCharacterStrings", source: "oracle/codemp/botlib/be_ai_char.cpp:112")
 }
@@ -101,10 +90,7 @@ func BotFreeCharacter(_ handle: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:163
-// TODO: Port signature
-// Raven wrote: void BotDefaultCharacteristics(bot_character_t *ch, bot_character_t *defaultch)
-// No table row for `bot_character_t * ch`.
-func BotDefaultCharacteristics() -> Never {
+func BotDefaultCharacteristics(_ ch: BotCharacter, _ defaultch: BotCharacter) {
     // TODO: Port BotDefaultCharacteristics
     portMissing("BotDefaultCharacteristics", source: "oracle/codemp/botlib/be_ai_char.cpp:163")
 }
@@ -116,10 +102,7 @@ func BotDefaultCharacteristics() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:195
-// TODO: Port signature
-// Raven wrote: bot_character_t *BotLoadCharacterFromFile(char *charfile, int skill)
-// No table row for the return `bot_character_t *`.
-func BotLoadCharacterFromFile() -> Never {
+func BotLoadCharacterFromFile(_ charfile: inout JKAShared.CharBuf, _ skill: Int32) -> BotCharacter? {
     // TODO: Port BotLoadCharacterFromFile
     portMissing("BotLoadCharacterFromFile", source: "oracle/codemp/botlib/be_ai_char.cpp:195")
 }

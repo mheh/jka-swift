@@ -174,6 +174,63 @@ DED_PIECES: tuple[Piece, ...] = (
         "// so this declaration line and its brace are the tool's own and Raven's bytes start at his first row, row TR4.",
         "vidmode_t r_vidModes[13] = {",
     ), source="codemp/renderer/tr_init.cpp", first=467, last=480),
+    # The botlib tables of the ninth batch: the punctuations of l_script.cpp, row D11, and the field tables of l_struct.cpp's readers, row D19.
+    # Each row holds a `char *` name and integers, which a body reads in place, the netField shape.
+    Piece(own=(
+        "// Raven wrote `punctuation_t default_punctuations[] =` at l_script.cpp:69, and ded_tables.h declares the table `extern` with its bound,",
+        "// so this declaration line and its brace are the tool's own and Raven's bytes start at his first row, row D11.",
+        "punctuation_t default_punctuations[54] = {",
+    ), source="codemp/botlib/l_script.cpp", first=71, last=146),
+    Piece(
+        own=("// Raven's offset macro of be_ai_goal.cpp, which the table below names.",),
+        source="codemp/botlib/be_ai_goal.cpp", first=121, last=121, table=False,
+    ),
+    Piece(own=(
+        "// Raven wrote `fielddef_t iteminfo_fields[] =` at be_ai_goal.cpp:123, and ded_tables.h declares the table `extern` with its bound, row D19.",
+        "fielddef_t iteminfo_fields[9] = {",
+    ), source="codemp/botlib/be_ai_goal.cpp", first=125, last=134),
+    Piece(source="codemp/botlib/be_ai_goal.cpp", first=136, last=139),
+    Piece(
+        own=("// Raven's offset macros of be_ai_weap.cpp, which the tables below name.",),
+        source="codemp/botlib/be_ai_weap.cpp", first=34, last=35, table=False,
+    ),
+    Piece(own=(
+        "// Raven wrote `static fielddef_t weaponinfo_fields[] =` at be_ai_weap.cpp:38, and ded_tables.h declares the table `extern` with its bound,",
+        "// so this declaration line and its brace are the tool's own and Raven's bytes start at his first row, row D19.",
+        "fielddef_t weaponinfo_fields[23] = {",
+    ), source="codemp/botlib/be_ai_weap.cpp", first=40, last=63),
+    Piece(own=(
+        "// Raven wrote `static fielddef_t projectileinfo_fields[] =` at be_ai_weap.cpp:66, the same form.",
+        "fielddef_t projectileinfo_fields[15] = {",
+    ), source="codemp/botlib/be_ai_weap.cpp", first=68, last=84),
+    Piece(own=(
+        "// Raven wrote `static structdef_t weaponinfo_struct =` at be_ai_weap.cpp:86 and `projectileinfo_struct` at :90, the same form.",
+        "structdef_t weaponinfo_struct = {",
+    ), source="codemp/botlib/be_ai_weap.cpp", first=88, last=89),
+    Piece(own=(
+        "structdef_t projectileinfo_struct = {",
+    ), source="codemp/botlib/be_ai_weap.cpp", first=92, last=93),
+    # The identity matrices of the Ghoul2 code, row R3: the file-scope `identityMatrix` of tr_ghoul2.cpp, the static local of
+    # G2API_GetBoltMatrix, and the static local `id` of G2_Set_Bone_Angles_Rag and of G2_Set_Bone_Angles_IK.
+    # A static local takes the function name as a suffix, because its name stands in two functions.
+    Piece(own=(
+        "// Raven wrote `const static mdxaBone_t identityMatrix =` at tr_ghoul2.cpp:128, and ded_tables.h declares the record `extern`,",
+        "// so this declaration line and its brace are the tool's own and Raven's bytes start at his first row, row R3.",
+        "mdxaBone_t identityMatrix = {",
+    ), source="codemp/renderer/tr_ghoul2.cpp", first=130, last=133),
+    Piece(own=(
+        "// Raven wrote `const static mdxaBone_t identityMatrix =` in G2API_GetBoltMatrix at G2_API.cpp:1801, the same form.",
+        "mdxaBone_t identityMatrix_G2API_GetBoltMatrix = {",
+    ), source="codemp/ghoul2/G2_API.cpp", first=1803, last=1806),
+    Piece(own=(
+        "// Raven wrote `static mdxaBone_t id =` in G2_Set_Bone_Angles_Rag at G2_bones.cpp:1423 and in G2_Set_Bone_Angles_IK at :4575, the same form.",
+        "mdxaBone_t id_G2_Set_Bone_Angles_Rag = {",
+    ), source="codemp/ghoul2/G2_bones.cpp", first=1425, last=1428),
+    Piece(own=(
+        "mdxaBone_t id_G2_Set_Bone_Angles_IK = {",
+    ), source="codemp/ghoul2/G2_bones.cpp", first=4577, last=4580),
+    # The behavior state names of GameInterface.cpp, the twin of the game's BSTable of NPC_stats.c, row 2 of the icarus round.
+    Piece(source="codemp/icarus/GameInterface.cpp", first=592, last=606),
 )
 
 

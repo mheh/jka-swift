@@ -313,11 +313,16 @@ class Types:
             return Answer("Int", "bare")
         if facts.ruled == "callback" and canonical.kind == TypeKind.POINTER and canonical.get_pointee().get_canonical().kind == TypeKind.FUNCTIONPROTO:
             # The body stores the function pointer into a view's stored function, so it is that field's callback type, optional,
-            # the form a function-pointer return has.
-            alias = self.views.callback_alias(canonical.get_pointee().get_canonical(), TARGET)
+            # the form a function-pointer return has. A row that names the field picks that field's alias among aliases of one signature.
+            alias = self.views.callback_alias(canonical.get_pointee().get_canonical(), TARGET, facts.capacity)
             if alias:
                 return Answer(f"{alias}?", "bare")
         if facts.ruled == "bytes" and canonical.kind == TypeKind.POINTER:
+            pointee = canonical.get_pointee().get_canonical()
+            if pointee.kind == TypeKind.POINTER and pointee.get_pointee().get_canonical().kind == TypeKind.VOID:
+                # A `void **` the body sets to a byte buffer, `ppvBuffer` of RE_RegisterModels_GetDiskFile, is the caller's optional Slots of bytes,
+                # inout, the shape a `void **` handle has, row TR13.
+                return Answer("inout Slots<JKAShared.byte>?", "out_opaque")
             if canonical.get_pointee().get_canonical().kind == TypeKind.INT:
                 # An `int *` list the body fills, `int *entityList` of SV_AreaEntities, is the caller's Slots of Int32, the rule of the field kind.
                 return Answer("Slots<Int32>", "slots")
@@ -347,6 +352,10 @@ class Types:
             return Answer(f"[JKAShared.{t.get_pointee().spelling.replace('const ', '')}]", "vec3_array")
         if facts.ruled == "table" and canonical.kind == TypeKind.POINTER and t.get_pointee().spelling.replace("const ", "") in VECTORS:
             # Raven indexes the vectors through the pointer with a count beside it, so the Slots over them crosses, the row of a record table.
+            if facts.nullable:
+                # A caller hands NULL, `AAS_TraceAreas(start, end, areas, NULL, 10)` of be_aas_reach.cpp:1542, so the Slots is optional,
+                # the form of the `modelList` row.
+                return Answer("Slots<JKAShared.vec3_t>?", "slots_opt")
             return Answer("Slots<JKAShared.vec3_t>", "slots")
         if canonical.kind in (TypeKind.LVALUEREFERENCE, TypeKind.POINTER) and not facts.traps:
             # A C++ class of CXX_CLASSES is the hand Swift class of the same name, a reference by itself and a pointer optional, rule 17.
@@ -368,12 +377,25 @@ class Types:
                 if named in TYPES:
                     const = pointee.is_const_qualified()
                     return Answer(TYPES[named] if const else f"inout {TYPES[named]}", "bare" if const else "out_string_ref")
+            # A C++ reference to a scalar the body writes, `qboolean &bAlreadyCached` of ServerLoadMDXA, is the caller's scalar, inout,
+            # the form a pointer to one scalar has below. The tr round names it for its loaders, tr_model.cpp:683, :799, and :1427.
+            scalar = canonical.get_pointee().get_canonical() if canonical.kind == TypeKind.LVALUEREFERENCE else None
+            if scalar is not None and not scalar.is_const_qualified() and (scalar.kind in INT_KINDS or scalar.kind in (TypeKind.FLOAT, TypeKind.ENUM, TypeKind.BOOL)):
+                swift = "Bool" if scalar.kind == TypeKind.BOOL else self.scalar(t.get_pointee() if t.kind == TypeKind.LVALUEREFERENCE else canonical.get_pointee(), TARGET)
+                if swift is not None and self.known(swift):
+                    return Answer(f"inout {swift}", "bare")
         if facts.ruled == "int_array_mut":
             # The body writes the caller's `int` array by index, so the array crosses inout, the `int` twin of float_array.
             return Answer("inout [Int32]", "bare")
         if facts.ruled == "int_array":
             # The body only reads the values, and Raven's callers pass NULL with a count of zero, so the array crosses by value as an optional.
             return Answer("[Int32]?", "int_array")
+        if facts.ruled == "byte_offset":
+            # A pointer into a byte buffer the body subtracts the base from is its byte offset, the pointer-into-a-buffer rule, row TR20.
+            return Answer("Int32", "bare")
+        if facts.ruled == "byte_array":
+            # The body only reads the bytes, and every caller passes a byte table that is a Swift array, so the array crosses by value.
+            return Answer("[JKAShared.byte]", "bare")
         if t.spelling.replace("const ", "") in TYPES:
             return Answer(TYPES[t.spelling.replace("const ", "")], "bare")
         # A trap's buffer with a maximum count before it is an array the engine fills up to that count,
@@ -490,6 +512,9 @@ class Types:
             if inner.kind == TypeKind.VOID:
                 return Answer("OpaquePointer?", "bare")
             if inner.kind == TypeKind.POINTER and inner.get_pointee().get_canonical().kind == TypeKind.VOID:
+                if facts.ruled == "text_cursor":
+                    # A `void **` that the body casts to `char **` for a text cursor, Q3_ReadScript of Q3_Interface.cpp:45.
+                    return Answer("inout JKAShared.TextCursor", "text_cursor")
                 # The address of a `void *` the engine fills or clears, one word up from the handle it holds.
                 return Answer("inout OpaquePointer?", "out_opaque")
             if inner.kind == TypeKind.POINTER and inner.get_pointee().get_canonical().kind == TypeKind.CHAR_S:
@@ -586,6 +611,15 @@ class Types:
                     return Answer(f"Slots<{swift}>", "slots")
                 if swift is not None and self.known(swift):
                     return Answer(f"[{swift}]", "bare")
+            if C.HOST and canonical.kind == TypeKind.CONSTANTARRAY and element.kind == TypeKind.CONSTANTARRAY and not facts.stores_through:
+                # A host array of arrays of a scalar the body reads, `int gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2]` of cm_patch.cpp:592,
+                # nests the rule above, one Swift Array per index, the form of the caller's local in CM_PatchCollideFromGrid, row T7.
+                depth, scalar = 1, element
+                while scalar.kind == TypeKind.CONSTANTARRAY:
+                    depth, scalar = depth + 1, scalar.element_type.get_canonical()
+                swift = self.scalar(scalar, TARGET) if scalar.kind in INT_KINDS or scalar.kind == TypeKind.FLOAT else None
+                if swift is not None and self.known(swift):
+                    return Answer("[" * depth + swift + "]" * depth, "bare")
         if canonical.kind == TypeKind.CONSTANTARRAY and facts.traps:
             # A fixed C array of a scalar into a trap is an array the engine fills, `trap_R_GetLightStyle(style, color)` with Raven's
             # `typedef byte color4ub_t[4]`, so the caller's array crosses `inout`, as an `int *` with a count beside it does.

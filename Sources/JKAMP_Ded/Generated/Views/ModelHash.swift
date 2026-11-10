@@ -74,7 +74,11 @@ public struct ModelHash: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/renderer/tr_model.cpp:30
-    // Raven's `handle` field is the engine's, and the view's own `handle` takes the name. No module body reads it.
+    // AI: Raven names the field `handle`. The view's own slot pointer takes that name, so the field reads as `modelHandle`.
+    public var modelHandle: JKAShared.qhandle_t {
+        get { self.raw.pointee.handle }
+        nonmutating set { self.raw.pointee.handle = newValue }
+    }
 
     /// Source: oracle/codemp/renderer/tr_model.cpp:31
     public var next: ModelHash? {

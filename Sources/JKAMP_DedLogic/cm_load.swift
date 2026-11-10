@@ -18,6 +18,13 @@ let BOX_PLANES = 12 as Int32
 /// Source: oracle/codemp/qcommon/cm_load.cpp:37
 var cmg: ClipMap { world.storage.cmg }
 
+/// Raven's `cmg.landScape` of `cm_local.h:210`, the terrain class of the clip map, held on the world.
+// AI: Raven holds the class pointer in the C record. The forward reads the Swift class the world holds, so the C field stays unused, rule 12.
+var landScape_cmg: CCMLandScape? {
+    get { world.landScape_cmg }
+    set { world.landScape_cmg = newValue }
+}
+
 /// Source: oracle/codemp/qcommon/cm_load.cpp:38
 var c_pointcontents: Int32 {
     get { world.variables.c_pointcontents }
@@ -397,7 +404,7 @@ func CMod_LoadLeafs(_ l: JKAMP.Lump, _ cm: ClipMap) {
         i += 1
     }
 
-    cm.areas = CArea(Hunk_Alloc(cm.numAreas * Int32(CArea.byteCount), h_high))
+    cm.areas = CmArea(Hunk_Alloc(cm.numAreas * Int32(CmArea.byteCount), h_high))
     cm.areaPortals = Slots(scalars: Hunk_Alloc(cm.numAreas * cm.numAreas * Int32(Int32.byteCount), h_high), count: Int(cm.numAreas * cm.numAreas))
 }
 
@@ -896,15 +903,14 @@ func CM_ClearMap() {
     CM_ShutdownShaderProperties()
     //	MAT_Shutdown();
 
-    // Port-note: Row CM6. `TheRandomMissionManager` of RM_Manager.cpp:23 is a `CRMManager *` of the C++ track, so the stem of stage E5 gives it no storage.
-    // Raven wrote: if (TheRandomMissionManager) { delete TheRandomMissionManager; TheRandomMissionManager = 0; }
-    portMissing("CM_ClearMap", source: "oracle/codemp/qcommon/cm_load.cpp:791")
+    if TheRandomMissionManager != nil {
+        // AI: Raven deletes the manager. The store of nil releases the class, and its deinit runs Raven's destructor.
+        TheRandomMissionManager = nil
+    }
 
-    if cmg.landScape != nil {
-        // Port-note: Row CM6. `CCMLandScape` of cm_landscape.h:135 is a class of the C++ track, and stage E5 gives its destructor no Swift name.
-        // Raven wrote: delete cmg.landScape;
-        portMissing("CM_ClearMap", source: "oracle/codemp/qcommon/cm_load.cpp:791")
-        cmg.landScape = nil
+    // AI: Raven tests and deletes `cmg.landScape`. The world holds the class as `landScape_cmg`, and the store of nil releases it.
+    if landScape_cmg != nil {
+        landScape_cmg = nil
     }
 
     cmg.clear()
@@ -1141,9 +1147,10 @@ func CM_RegisterTerrain() -> Never {
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:1065
 func CM_ShutdownTerrain(_ terrainId: JKAShared.thandle_t) {
-    var landscape: OpaquePointer?
+    var landscape: CCMLandScape?
 
-    landscape = cmg.landScape
+    // AI: Raven reads the class pointer `cmg.landScape` of the C record. The world holds the Swift class as `landScape_cmg`, the C field stays unused.
+    landscape = landScape_cmg
 
     if landscape != nil {
         // Port-note: Row CM6. `CCMLandScape` of cm_landscape.h:135 is a class of the C++ track, and stage E5 gives its methods no Swift name.

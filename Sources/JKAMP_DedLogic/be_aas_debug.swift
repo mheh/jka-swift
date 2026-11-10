@@ -35,6 +35,10 @@ private var debugpolygons: [Int32] {
     set { world.variables.be_aas_debug_debugpolygons = newValue }
 }
 
+/// Source: oracle/codemp/botlib/be_aas_debug.cpp:335
+// AI: Raven declares `points` on the stack of AAS_ShowFacePolygon. The function uses one zeroed allocation on the storage class.
+private var points_AAS_ShowFacePolygon: Slots<JKAShared.vec3_t> { world.storage.be_aas_debug_points_AAS_ShowFacePolygon }
+
 //===========================================================================
 //
 // Parameter:				-
@@ -54,7 +58,7 @@ func AAS_ClearShownPolygons() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:67
-func AAS_ShowPolygon(_ color: Int32, _ numpoints: Int32, _ points: inout JKAShared.vec3_t) {
+func AAS_ShowPolygon(_ color: Int32, _ numpoints: Int32, _ points: Slots<JKAShared.vec3_t>) {
     // TODO: Port AAS_ShowPolygon
     portMissing("AAS_ShowPolygon", source: "oracle/codemp/botlib/be_aas_debug.cpp:67")
 }
@@ -222,10 +226,7 @@ func AAS_DrawArrow(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ linecol
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:588
-// TODO: Port signature
-// Raven wrote: void AAS_ShowReachability(aas_reachability_t *reach)
-// No table row for `aas_reachability_t * reach`.
-func AAS_ShowReachability() -> Never {
+func AAS_ShowReachability(_ reach: AasReachability) {
     // TODO: Port AAS_ShowReachability
     portMissing("AAS_ShowReachability", source: "oracle/codemp/botlib/be_aas_debug.cpp:588")
 }

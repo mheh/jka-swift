@@ -67,9 +67,7 @@ var GoreSets: [Int32: CGoreSet] {
 let MAX_GORE_VERTS = (3000) as Int32
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:793
-// TODO: Port global GoreVerts
-// Raven wrote: static SVertexTemp GoreVerts[MAX_GORE_VERTS]
-// No view for `SVertexTemp`, a struct Raven defines inside a .c file.
+var GoreVerts: Slots<VertexTemp> { world.storage.GoreVerts }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:794
 var GoreIndexCopy: [Int32] {
@@ -208,7 +206,6 @@ func DeleteGoreSet(_ goreSetTag: Int32) {
 // list all surfaces associated with a model
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:279
 func G2_List_Model_Surfaces(_ fileName: String) {
-    // Port-note: Raven casts a record at a byte offset of `mod_m->mdxm`, and the view target has no accessor for a view at a byte offset.
     // TODO: Port G2_List_Model_Surfaces
     portMissing("G2_List_Model_Surfaces", source: "oracle/codemp/ghoul2/G2_misc.cpp:279")
 }
@@ -216,7 +213,6 @@ func G2_List_Model_Surfaces(_ fileName: String) {
 // list all bones associated with a model
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:307
 func G2_List_Model_Bones(_ fileName: String, _ frame: Int32) {
-    // Port-note: Raven casts a record at a byte offset of `header`, and the view target has no accessor for a view at a byte offset.
     // TODO: Port G2_List_Model_Bones
     portMissing("G2_List_Model_Bones", source: "oracle/codemp/ghoul2/G2_misc.cpp:307")
 }
@@ -269,26 +265,101 @@ func G2_DecideTraceLod(_ ghoul2: CGhoul2Info, _ useLod: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:404
-func R_TransformEachSurface(_ surface: MdxmSurface, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ TransformedVertsArray: inout Int32, _ boneCache: CBoneCache?) {
-    // Port-note: Raven casts a record at a byte offset of `surface`, and the view target has no accessor for a view at a byte offset.
+func R_TransformEachSurface(_ surface: MdxmSurface, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ TransformedVertsArray: Slots<Int32>, _ boneCache: CBoneCache?) {
     // TODO: Port R_TransformEachSurface
     portMissing("R_TransformEachSurface", source: "oracle/codemp/ghoul2/G2_misc.cpp:404")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:517
-func G2_TransformSurfaces(_ surfaceNum: Int32, _ rootSList: inout [surfaceInfo_t], _ boneCache: CBoneCache?, _ currentModel: Model, _ lod: Int32, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ TransformedVertArray: inout Int32, _ secondTimeAround: Bool) {
-    // Port-note: The body calls G2_FindSurface, which keeps its signature marker.
-    // Port-note: Raven casts a record at a byte offset of `currentModel->mdxm`, and the view target has no accessor for a view at a byte offset.
+func G2_TransformSurfaces(_ surfaceNum: Int32, _ rootSList: inout [surfaceInfo_t], _ boneCache: CBoneCache?, _ currentModel: Model, _ lod: Int32, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ TransformedVertArray: Slots<Int32>, _ secondTimeAround: Bool) {
     // TODO: Port G2_TransformSurfaces
     portMissing("G2_TransformSurfaces", source: "oracle/codemp/ghoul2/G2_misc.cpp:517")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:560
 func G2_TransformModel(_ ghoul2: CGhoul2Info_v, _ frameNum: Int32, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ useLod: Int32, _ ApplyGore: Bool) {
-    // Port-note: G2_TransformSurfaces takes `int *TransformedVertArray` as `inout Int32`, and the field `mTransformedVertsArray` is `Slots<Int32>?`, so the call has no form.
-    // Port-note: Raven casts the `char *` of MiniHeapAlloc to `int *` and clears `numSurfaces * 4` bytes of it, and the body has no form for the cast or the partial memset.
-    // TODO: Port G2_TransformModel
-    portMissing("G2_TransformModel", source: "oracle/codemp/ghoul2/G2_misc.cpp:560")
+    var i: Int32
+    var lod: Int32
+    var correctScale = JKAShared.vec3_t()
+    var firstModelOnly = false
+
+    if cg_g2MarksAllModels == nil {
+        cg_g2MarksAllModels = Cvar_Get("cg_g2MarksAllModels", "0", 0)
+    }
+
+    if cg_g2MarksAllModels == nil
+        || cg_g2MarksAllModels!.integer == 0
+    {
+        firstModelOnly = true
+    }
+
+    _VectorCopy(scale, &correctScale)
+    // check for scales of 0 - that's the default I believe
+    if scale[0] == 0 {
+        correctScale[0] = 1.0
+    }
+    if scale[1] == 0 {
+        correctScale[1] = 1.0
+    }
+    if scale[2] == 0 {
+        correctScale[2] = 1.0
+    }
+
+    // walk each possible model for this entity and try rendering it out
+    i = 0
+    while i < ghoul2.size() {
+        let g = ghoul2[i]
+        // don't bother with models that we don't care about.
+        if !g.mValid {
+            i += 1
+            continue
+        }
+        assert(g.mBoneCache != nil)
+//		assert(G2_MODEL_OK(&g));
+        // stop us building this model more than once per frame
+        g.mMeshFrameNum = frameNum
+
+        // decide the LOD
+        if ApplyGore {
+            lod = useLod
+            assert(g.currentModel != nil)
+            if lod >= g.currentModel!.numLods {
+                g.mTransformedVertsArray = nil
+                if firstModelOnly {
+                    // we don't really need to do multiple models for gore.
+                    return
+                }
+                //do the rest
+                i += 1
+                continue
+            }
+        } else {
+            lod = G2_DecideTraceLod(g, useLod)
+        }
+
+        // give us space for the transformed vertex array to be put in
+        if (g.mFlags & GHOUL2_ZONETRANSALLOC) == 0 { //do not stomp if we're using zone space
+            let heap = G2VertSpace!.MiniHeapAlloc(g.currentModel!.mdxm!.numSurfaces * 4)
+            // AI: Raven casts the `char *` of MiniHeapAlloc to `int *`. The Slots of `numSurfaces` words over the bytes is the cast, so the memset below clears Raven's `numSurfaces * 4` bytes.
+            g.mTransformedVertsArray = heap == nil ? nil : Slots<Int32>(scalars: heap!.base, count: Int(g.currentModel!.mdxm!.numSurfaces))
+            if g.mTransformedVertsArray == nil {
+                Com_Error(ERR_DROP, "Ran out of transform space for Ghoul2 Models. Adjust MiniHeapSize in SV_SpawnServer.\n")
+            }
+        }
+
+        g.mTransformedVertsArray!.zero()
+
+        _ = G2_FindOverrideSurface(-1, &g.mSlist) //reset the quick surface override lookup;
+        // recursively call the model surface transform
+
+        G2_TransformSurfaces(g.mSurfaceRoot, &g.mSlist, g.mBoneCache, g.currentModel!, lod, correctScale, G2VertSpace, g.mTransformedVertsArray!, false)
+
+        if ApplyGore && firstModelOnly {
+            // we don't really need to do multiple models for gore.
+            break
+        }
+        i += 1
+    }
 }
 
 // work out how much space a triangle takes
@@ -383,8 +454,7 @@ func G2_SegmentTriangleTest(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, 
 // now we at poly level, check each model space transformed poly against the model world transfomed ray
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:804
 func G2_GorePolys(_ surface: MdxmSurface, _ TS: CTraceSurface, _ surfInfo: MdxmSurfHierarchy) {
-    // Port-note: Raven casts a record at a byte offset of `surface`, and the view target has no accessor for a view at a byte offset.
-    // Port-note: Raven casts the `int` of `TS.TransformedVertsArray` back to a `float *`, and `GoreVerts` has no storage.
+    // Port-note: Raven casts the `int` of `TS.TransformedVertsArray` back to a `float *`.
     // TODO: Port G2_GorePolys
     portMissing("G2_GorePolys", source: "oracle/codemp/ghoul2/G2_misc.cpp:804")
 }
@@ -392,7 +462,6 @@ func G2_GorePolys(_ surface: MdxmSurface, _ TS: CTraceSurface, _ surfInfo: MdxmS
 // now we're at poly level, check each model space transformed poly against the model world transfomed ray
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1092
 private func G2_TracePolys(_ surface: MdxmSurface, _ surfInfo: MdxmSurfHierarchy, _ TS: CTraceSurface) -> Bool {
-    // Port-note: Raven casts a record at a byte offset of `surface`, and the view target has no accessor for a view at a byte offset.
     // Port-note: Raven casts the `int` of `TS.TransformedVertsArray` back to a `float *`, and the body calls G2_BuildHitPointST, which keeps its signature marker.
     // TODO: Port G2_TracePolys
     portMissing("G2_TracePolys", source: "oracle/codemp/ghoul2/G2_misc.cpp:1092")
@@ -401,8 +470,7 @@ private func G2_TracePolys(_ surface: MdxmSurface, _ surfInfo: MdxmSurfHierarchy
 // now we're at poly level, check each model space transformed poly against the model world transfomed ray
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1222
 private func G2_RadiusTracePolys(_ surface: MdxmSurface, _ TS: CTraceSurface) -> Bool {
-    // Port-note: Raven casts a record at a byte offset of `surface`, and the view target has no accessor for a view at a byte offset.
-    // Port-note: Raven casts the `int` of `TS.TransformedVertsArray` back to a `float *`, and `GoreVerts` has no storage.
+    // Port-note: Raven casts the `int` of `TS.TransformedVertsArray` back to a `float *`.
     // TODO: Port G2_RadiusTracePolys
     portMissing("G2_RadiusTracePolys", source: "oracle/codemp/ghoul2/G2_misc.cpp:1222")
 }
@@ -410,17 +478,12 @@ private func G2_RadiusTracePolys(_ surface: MdxmSurface, _ TS: CTraceSurface) ->
 // look at a surface and then do the trace on each poly
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1428
 private func G2_TraceSurfaces(_ TS: CTraceSurface) {
-    // Port-note: The body calls G2_FindSurface, which keeps its signature marker.
-    // Port-note: Raven casts a record at a byte offset of `TS.currentModel->mdxm`, and the view target has no accessor for a view at a byte offset.
     // TODO: Port G2_TraceSurfaces
     portMissing("G2_TraceSurfaces", source: "oracle/codemp/ghoul2/G2_misc.cpp:1428")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1514
-// TODO: Port signature
-// Raven wrote: void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, CollisionRecord_t *collRecMap, int entNum, int eG2TraceType, int useLod, float fRadius, float ssize,float tsize,float theta,int shader, SSkinGoreData *gore, qboolean skipIfLODNotMatch) #else void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, CollisionRecord_t *collRecMap, int entNum, int eG2TraceType, int useLod, float fRadius) #endif
-// No table row for `SSkinGoreData * gore`.
-func G2_TraceModels() -> Never {
+func G2_TraceModels(_ ghoul2: CGhoul2Info_v, _ rayStart: JKAShared.vec3_t, _ rayEnd: JKAShared.vec3_t, _ collRecMap: Slots<CollisionRecord>?, _ entNum: Int32, _ eG2TraceType: Int32, _ useLod: Int32, _ fRadius: Float, _ ssize: Float, _ tsize: Float, _ theta: Float, _ shader: Int32, _ gore: SkinGoreData?, _ skipIfLODNotMatch: Bool) {
     // TODO: Port G2_TraceModels
     portMissing("G2_TraceModels", source: "oracle/codemp/ghoul2/G2_misc.cpp:1514")
 }
@@ -446,10 +509,28 @@ func TransformAndTranslatePoint(_ `in`: JKAShared.vec3_t, _ out: inout JKAShared
 
 // create a matrix using a set of angles
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1630
-func Create_Matrix(_ angle: JKAShared.vec4_t?, _ matrix: JKAMP.MdxaBone) {
-    // Port-note: The signature gives `const float *angle` as `vec4_t?`, and AnglesToAxis takes a `vec3_t`, the type every caller passes.
-    // TODO: Port Create_Matrix
-    portMissing("Create_Matrix", source: "oracle/codemp/ghoul2/G2_misc.cpp:1630")
+func Create_Matrix(_ angle: JKAShared.vec3_t, _ matrix: JKAMP.MdxaBone) {
+    var axis = [vec3_t](repeating: vec3_t(), count: 3)
+
+    // convert angles to axis
+    AnglesToAxis(angle, &axis)
+    matrix.matrix[0][0] = axis[0][0]
+    matrix.matrix[1][0] = axis[0][1]
+    matrix.matrix[2][0] = axis[0][2]
+
+    matrix.matrix[0][1] = axis[1][0]
+    matrix.matrix[1][1] = axis[1][1]
+    matrix.matrix[2][1] = axis[1][2]
+
+    matrix.matrix[0][2] = axis[2][0]
+    matrix.matrix[1][2] = axis[2][1]
+    matrix.matrix[2][2] = axis[2][2]
+
+    matrix.matrix[0][3] = 0
+    matrix.matrix[1][3] = 0
+    matrix.matrix[2][3] = 0
+
+
 }
 
 // given a matrix, generate the inverse of that matrix
@@ -482,25 +563,42 @@ func Inverse_Matrix(_ src: JKAMP.MdxaBone, _ dest: JKAMP.MdxaBone) {
 // generate the world matrix for a given set of angles and origin - called from lots of places
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1678
 func G2_GenerateWorldMatrix(_ angles: JKAShared.vec3_t, _ origin: JKAShared.vec3_t) {
-    // Port-note: Create_Matrix takes `angle` as `vec4_t?`, and Raven passes the `vec3_t` angles, so the call has no form.
-    // TODO: Port G2_GenerateWorldMatrix
-    portMissing("G2_GenerateWorldMatrix", source: "oracle/codemp/ghoul2/G2_misc.cpp:1678")
+    Create_Matrix(angles, worldMatrix)
+    worldMatrix.matrix[0][3] = origin[0]
+    worldMatrix.matrix[1][3] = origin[1]
+    worldMatrix.matrix[2][3] = origin[2]
+
+    Inverse_Matrix(worldMatrix, worldMatrixInv)
 }
 
 // go away and determine what the pointer for a specific surface definition within the model definition is
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1689
-// TODO: Port signature
-// Raven wrote: void *G2_FindSurface(void *mod_t, int index, int lod)
-// No table row for the return `void *`.
-private func G2_FindSurface() -> Never {
-    // TODO: Port G2_FindSurface
-    portMissing("G2_FindSurface", source: "oracle/codemp/ghoul2/G2_misc.cpp:1689")
+func G2_FindSurface(_ mod_t: Model?, _ index: Int32, _ lod: Int32) -> MdxmSurface? {
+    // damn include file dependancies
+    let mod = mod_t!
+
+    // point at first lod list
+    // Raven's `current` is a byte pointer, and each read casts it to the record at its address.
+    var current = MdxmLOD(mod.mdxm!, byteOffset: mod.mdxm!.ofsLODs)
+    var i: Int32
+
+    //walk the lods
+    i = 0
+    while i < lod {
+        let lodData = current
+        current = MdxmLOD(current, byteOffset: lodData.ofsEnd)
+        i += 1
+    }
+
+    // avoid the lod pointer data structure
+    let indexes = MdxmLODSurfOffset(current, byteOffset: MdxmLOD.byteCount)
+    // we are now looking at the offset array
+    return MdxmSurface(indexes, byteOffset: indexes.offsets[index])
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1719
 func G2_SaveGhoul2Models(_ ghoul2: CGhoul2Info_v, _ buffer: inout JKAShared.TextCursor, _ size: inout Int32) -> Bool {
-    // Port-note: Raven copies the bytes of `CGhoul2Info` from `mModelindex` to `mTransformedVertsArray`, and of `surfaceInfo_t`, `boneInfo_t`, and `boltInfo_t`, into a zone block.
-    // The Swift classes have no byte layout, and `char **buffer` is a `TextCursor`, so the body has no form.
+    // G2API_SaveGhoul2Models is the one caller, and no file of the MP tree calls it, so the function is dead.
     // TODO: Port G2_SaveGhoul2Models
     portMissing("G2_SaveGhoul2Models", source: "oracle/codemp/ghoul2/G2_misc.cpp:1719")
 }
@@ -533,8 +631,7 @@ func G2_FindConfigStringSpace(_ name: String, _ start: Int32, _ max: Int32) -> I
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1841
 func G2_LoadGhoul2Model(_ ghoul2: CGhoul2Info_v, _ buffer: inout JKAShared.CharBuf) {
-    // Port-note: Raven copies bytes of the buffer into `CGhoul2Info` from `mModelindex` to `mTransformedVertsArray`, and into `surfaceInfo_t`, `boneInfo_t`, and `boltInfo_t`.
-    // The Swift classes have no byte layout, so the body has no form.
+    // G2API_LoadGhoul2Models is the one caller, and no file of the MP tree calls it, so the function is dead.
     // TODO: Port G2_LoadGhoul2Model
     portMissing("G2_LoadGhoul2Model", source: "oracle/codemp/ghoul2/G2_misc.cpp:1841")
 }

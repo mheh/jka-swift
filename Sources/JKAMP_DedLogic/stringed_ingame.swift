@@ -3,42 +3,6 @@ import JKAMP
 import JKAShared
 import JKAMP_Ded
 
-// AI: Raven defines these names in stringed_ingame.h, which the header parse of the unit does not read. The file holds them as constants.
-/// Source: oracle/codemp/qcommon/stringed_ingame.h:13
-let iSE_MAX_FILENAME_LENGTH = MAX_QPATH
-/// Source: oracle/codemp/qcommon/stringed_ingame.h:14
-let sSE_STRINGS_DIR = "strings"
-/// Source: oracle/codemp/qcommon/stringed_ingame.h:15
-let sSE_DEBUGSTR_PREFIX = "["
-/// Source: oracle/codemp/qcommon/stringed_ingame.h:16
-let sSE_DEBUGSTR_SUFFIX = "]"
-/// Source: oracle/codemp/qcommon/stringed_ingame.h:22
-let iSE_VERSION = 1 as Int32
-/// Source: oracle/codemp/qcommon/stringed_ingame.h:23
-let sSE_KEYWORD_VERSION = "VERSION"
-/// Source: oracle/codemp/qcommon/stringed_ingame.h:24
-let sSE_KEYWORD_CONFIG = "CONFIG"
-/// Source: oracle/codemp/qcommon/stringed_ingame.h:25
-let sSE_KEYWORD_FILENOTES = "FILENOTES"
-/// Source: oracle/codemp/qcommon/stringed_ingame.h:26
-let sSE_KEYWORD_REFERENCE = "REFERENCE"
-/// Source: oracle/codemp/qcommon/stringed_ingame.h:27
-let sSE_KEYWORD_FLAGS = "FLAGS"
-/// Source: oracle/codemp/qcommon/stringed_ingame.h:28
-let sSE_KEYWORD_NOTES = "NOTES"
-/// Source: oracle/codemp/qcommon/stringed_ingame.h:29
-let sSE_KEYWORD_LANG = "LANG_"
-/// Source: oracle/codemp/qcommon/stringed_ingame.h:30
-let sSE_KEYWORD_ENDMARKER = "ENDMARKER"
-/// Source: oracle/codemp/qcommon/stringed_ingame.h:31
-let sSE_FILE_EXTENSION = ".st"
-/// Source: oracle/codemp/qcommon/stringed_ingame.h:32
-let sSE_EXPORT_FILE_EXTENSION = ".ste"
-/// Source: oracle/codemp/qcommon/stringed_ingame.h:33
-let sSE_INGAME_FILE_EXTENSION = ".str"
-/// Source: oracle/codemp/qcommon/stringed_ingame.h:34
-let sSE_EXPORT_SAME = "#same"
-
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:41
 var se_language: JKAMP.Cvar? {
     get { world.variables.se_language }

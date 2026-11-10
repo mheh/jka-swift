@@ -68,9 +68,9 @@ public struct Aas_export: Hashable, HandleView {
 
     /// Calls the stored `AAS_EntityInfo` function through the C pointer, with the caller's arguments, as Raven's `pm->AAS_EntityInfo(...)` did.
     /// A NULL `AAS_EntityInfo` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runAAS_EntityInfo(_ entnum: Int32, _ info: OpaquePointer?) {
+    public func runAAS_EntityInfo(_ entnum: Int32, _ info: AasEntityinfo?) {
         precondition(self.raw.pointee.AAS_EntityInfo != nil, "AAS_EntityInfo is NULL")
-        self.AAS_EntityInfo!(entnum, info)
+        self.AAS_EntityInfo!(entnum, info?.handle)
     }
 
     /// Source: unknown:9
@@ -195,9 +195,9 @@ public struct Aas_export: Hashable, HandleView {
     /// Calls the stored `AAS_AreaInfo` function through the C pointer, with the caller's arguments, as Raven's `pm->AAS_AreaInfo(...)` did.
     /// A NULL `AAS_AreaInfo` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runAAS_AreaInfo(_ areanum: Int32, _ info: OpaquePointer?) -> Int32 {
+    public func runAAS_AreaInfo(_ areanum: Int32, _ info: AasAreainfo?) -> Int32 {
         precondition(self.raw.pointee.AAS_AreaInfo != nil, "AAS_AreaInfo is NULL")
-        return self.AAS_AreaInfo!(areanum, info)
+        return self.AAS_AreaInfo!(areanum, info?.handle)
     }
 
     /// Source: unknown:23
@@ -345,10 +345,10 @@ public struct Aas_export: Hashable, HandleView {
     /// Calls the stored `AAS_PredictRoute` function through the C pointer, with the caller's arguments, as Raven's `pm->AAS_PredictRoute(...)` did.
     /// A NULL `AAS_PredictRoute` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runAAS_PredictRoute(_ route: OpaquePointer?, _ areanum: Int32, _ origin: inout JKAShared.vec3_t, _ goalareanum: Int32, _ travelflags: Int32, _ maxareas: Int32, _ maxtime: Int32, _ stopevent: Int32, _ stopcontents: Int32, _ stoptfl: Int32, _ stopareanum: Int32) -> Int32 {
+    public func runAAS_PredictRoute(_ route: AasPredictroute?, _ areanum: Int32, _ origin: inout JKAShared.vec3_t, _ goalareanum: Int32, _ travelflags: Int32, _ maxareas: Int32, _ maxtime: Int32, _ stopevent: Int32, _ stopcontents: Int32, _ stoptfl: Int32, _ stopareanum: Int32) -> Int32 {
         precondition(self.raw.pointee.AAS_PredictRoute != nil, "AAS_PredictRoute is NULL")
         return withUnsafeMutablePointer(to: &origin) { origin in
-            self.AAS_PredictRoute!(route, areanum, OpaquePointer(origin), goalareanum, travelflags, maxareas, maxtime, stopevent, stopcontents, stoptfl, stopareanum)
+            self.AAS_PredictRoute!(route?.handle, areanum, OpaquePointer(origin), goalareanum, travelflags, maxareas, maxtime, stopevent, stopcontents, stoptfl, stopareanum)
         }
     }
 
@@ -361,11 +361,11 @@ public struct Aas_export: Hashable, HandleView {
     /// Calls the stored `AAS_AlternativeRouteGoals` function through the C pointer, with the caller's arguments, as Raven's `pm->AAS_AlternativeRouteGoals(...)` did.
     /// A NULL `AAS_AlternativeRouteGoals` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runAAS_AlternativeRouteGoals(_ start: inout JKAShared.vec3_t, _ startareanum: Int32, _ goal: inout JKAShared.vec3_t, _ goalareanum: Int32, _ travelflags: Int32, _ altroutegoals: OpaquePointer?, _ maxaltroutegoals: Int32, _ type: Int32) -> Int32 {
+    public func runAAS_AlternativeRouteGoals(_ start: inout JKAShared.vec3_t, _ startareanum: Int32, _ goal: inout JKAShared.vec3_t, _ goalareanum: Int32, _ travelflags: Int32, _ altroutegoals: AasAltroutegoal?, _ maxaltroutegoals: Int32, _ type: Int32) -> Int32 {
         precondition(self.raw.pointee.AAS_AlternativeRouteGoals != nil, "AAS_AlternativeRouteGoals is NULL")
         return withUnsafeMutablePointer(to: &start) { start in
             withUnsafeMutablePointer(to: &goal) { goal in
-                self.AAS_AlternativeRouteGoals!(OpaquePointer(start), startareanum, OpaquePointer(goal), goalareanum, travelflags, altroutegoals, maxaltroutegoals, type)
+                self.AAS_AlternativeRouteGoals!(OpaquePointer(start), startareanum, OpaquePointer(goal), goalareanum, travelflags, altroutegoals?.handle, maxaltroutegoals, type)
             }
         }
     }
@@ -395,12 +395,12 @@ public struct Aas_export: Hashable, HandleView {
     /// Calls the stored `AAS_PredictClientMovement` function through the C pointer, with the caller's arguments, as Raven's `pm->AAS_PredictClientMovement(...)` did.
     /// A NULL `AAS_PredictClientMovement` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runAAS_PredictClientMovement(_ move: OpaquePointer?, _ entnum: Int32, _ origin: inout JKAShared.vec3_t, _ presencetype: Int32, _ onground: Int32, _ velocity: inout JKAShared.vec3_t, _ cmdmove: inout JKAShared.vec3_t, _ cmdframes: Int32, _ maxframes: Int32, _ frametime: Float, _ stopevent: Int32, _ stopareanum: Int32, _ visualize: Int32) -> Int32 {
+    public func runAAS_PredictClientMovement(_ move: AasClientmove?, _ entnum: Int32, _ origin: inout JKAShared.vec3_t, _ presencetype: Int32, _ onground: Int32, _ velocity: inout JKAShared.vec3_t, _ cmdmove: inout JKAShared.vec3_t, _ cmdframes: Int32, _ maxframes: Int32, _ frametime: Float, _ stopevent: Int32, _ stopareanum: Int32, _ visualize: Int32) -> Int32 {
         precondition(self.raw.pointee.AAS_PredictClientMovement != nil, "AAS_PredictClientMovement is NULL")
         return withUnsafeMutablePointer(to: &origin) { origin in
             withUnsafeMutablePointer(to: &velocity) { velocity in
                 withUnsafeMutablePointer(to: &cmdmove) { cmdmove in
-                    self.AAS_PredictClientMovement!(move, entnum, OpaquePointer(origin), presencetype, onground, OpaquePointer(velocity), OpaquePointer(cmdmove), cmdframes, maxframes, frametime, stopevent, stopareanum, visualize)
+                    self.AAS_PredictClientMovement!(move?.handle, entnum, OpaquePointer(origin), presencetype, onground, OpaquePointer(velocity), OpaquePointer(cmdmove), cmdframes, maxframes, frametime, stopevent, stopareanum, visualize)
                 }
             }
         }

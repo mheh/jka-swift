@@ -362,12 +362,12 @@ public struct TrGlobals: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/renderer/tr_local.h:1400
-    // TODO: Port trGlobals_t.shaders
-    // Raven wrote: shader_t * shaders [ MAX_SHADERS ]
+    // Swift imports no C array of more than 4096 elements, so the array starts where `numShaders` ends, at pointer alignment.
+    public var shaders: Slots<Shader?> { Slots(pointers: (UnsafeMutableRawPointer(self.raw) + MemoryLayout<trGlobals_t>.offset(of: \.numShaders)! + MemoryLayout.size(ofValue: self.raw.pointee.numShaders)).alignedUp(toMultipleOf: MemoryLayout<UnsafeRawPointer?>.alignment), count: 16384) }
 
     /// Source: oracle/codemp/renderer/tr_local.h:1401
-    // TODO: Port trGlobals_t.sortedShaders
-    // Raven wrote: shader_t * sortedShaders [ MAX_SHADERS ]
+    // Swift imports no C array of more than 4096 elements, so the array ends where `numSkins` starts.
+    public var sortedShaders: Slots<Shader?> { Slots(pointers: (UnsafeMutableRawPointer(self.raw) + MemoryLayout<trGlobals_t>.offset(of: \.numSkins)! - 16384 * MemoryLayout<UnsafeRawPointer?>.stride), count: 16384) }
 
     /// Source: oracle/codemp/renderer/tr_local.h:1403
     public var numSkins: Int32 {

@@ -110,12 +110,16 @@ public struct Image: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/renderer/tr_local.h:144
-    // TODO: Port image_t.mipmap
-    // Raven wrote: _Bool mipmap
+    public var mipmap: Bool {
+        get { self.raw.pointee.mipmap }
+        nonmutating set { self.raw.pointee.mipmap = newValue }
+    }
 
     /// Source: oracle/codemp/renderer/tr_local.h:145
-    // TODO: Port image_t.allowPicmip
-    // Raven wrote: _Bool allowPicmip
+    public var allowPicmip: Bool {
+        get { self.raw.pointee.allowPicmip }
+        nonmutating set { self.raw.pointee.allowPicmip = newValue }
+    }
 
     /// Source: oracle/codemp/renderer/tr_local.h:146
     public var iLastLevelUsedOn: Int32 {

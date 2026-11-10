@@ -15,7 +15,7 @@ let MAX_COMMANDARGUMENTS = 10 as Int32
 let ACTION_JUMPEDLASTFRAME = 0x0800000 as Int32
 
 /// Source: oracle/codemp/botlib/be_ea.cpp:27
-var botinputs: BotInput? {
+var botinputs: Slots<BotInput>? {
     get { world.variables.botinputs }
     set { world.variables.botinputs = newValue }
 }

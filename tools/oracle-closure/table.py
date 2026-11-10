@@ -22,7 +22,7 @@ import closure as C
 import store as S
 from fnsweep import ASSIGN_OPS
 from overlay import DECLARED, DROPPED, MACROS, written_arguments
-from rulings import HAND_MACROS, NULLABLE, PARAMS, RETURNS
+from rulings import HAND_MACROS, MSVC_WIDTH_FOLDERS, NULLABLE, PARAMS, RETURNS
 from views import Generator
 from spelling import INT_KINDS, Facts, OPTIONAL_TEXT_RESULT, engine_array
 
@@ -311,7 +311,8 @@ BG_FIELDS = {"s", "playerState", "m_pVehicle", "ghoul2", "localAnimIndex", "mode
 # a return of it, and a pass to a function with no body are none of these, so each one keeps the CharBuf.
 # The store kind of a cursor local set from the text a call returns, which names the call and no buffer.
 TEXT_CALL = ("", False)
-TEXT_READERS = {"Q_stricmp", "Q_stricmpn", "Q_strncmp", "strlen", "strcmp", "strncmp", "atoi", "atof", "Com_Printf"}
+# `va_start` names the last fixed parameter to find the arguments after it and reads no byte of it, Log_Write of l_log.cpp:101, row D18.
+TEXT_READERS = {"Q_stricmp", "Q_stricmpn", "Q_strncmp", "strlen", "strcmp", "strncmp", "atoi", "atof", "Com_Printf", "__builtin_va_start"}
 TEXT_TESTS = {"==", "!=", "<", ">", "<=", ">=", "&&", "||"}
 # A C comment of either form, which a reader of the source text between two nodes drops before it reads the operator there.
 COMMENT = re.compile(r"//[^\n]*|/\*.*?\*/", re.S)
@@ -2062,6 +2063,11 @@ class Table:
             fills_array=(owner, name) in self.array_handoffs,
             reinterprets=self.reinterprets(cur),
         )
+        width = self.msvc_width(cur.type, cur.semantic_parent)
+        if width is not None:
+            # The botlib's `long` is the 32 bits of WinDed, the ded_types.h copy of `token_t`, so a pointer to one is that scalar inout.
+            pointer = cur.type.get_canonical().kind == TypeKind.POINTER
+            return Param(name, f"inout {width}" if pointer else width, "out_scalar" if pointer else "bare")
         answer = self.types.answer("parameter", cur.type, facts)
         if answer is None:
             return None
@@ -2069,6 +2075,19 @@ class Table:
             # A function-pointer parameter, whose own prototype parameters cross by these rows in turn.
             return self.closure(cur, name)
         return Param(name, answer.swift, answer.kind, size=answer.size)
+
+    @staticmethod
+    def msvc_width(t: ci.Type, function: ci.Cursor | None) -> str | None:
+        """The Swift scalar of a `long`, an `unsigned long`, or a `long double`, or a pointer to one, in a function of a folder that
+        MSVC_WIDTH_FOLDERS names, at the width WinDed gives it. None for any other type or function."""
+        if function is None or function.location.file is None:
+            return None
+        if Path(function.location.file.name).parent.name not in MSVC_WIDTH_FOLDERS:
+            return None
+        canonical = t.get_canonical()
+        if canonical.kind == TypeKind.POINTER and not canonical.get_pointee().is_const_qualified():
+            canonical = canonical.get_pointee().get_canonical()
+        return {TypeKind.LONG: "Int32", TypeKind.ULONG: "UInt32", TypeKind.LONGDOUBLE: "Double"}.get(canonical.kind)
 
     @classmethod
     def reinterprets(cls, cur: ci.Cursor) -> bool:
@@ -2155,6 +2174,9 @@ class Table:
             return ("OpaquePointer?", "")
         if ruled == "row_index":
             return ("Int32?", "")
+        if ruled == "int32":
+            # An `unsigned` mask Raven returns into an `int` of every caller, NameToAFunc of tr_shader.cpp:358, is the Int32 of the masks, row TR18.
+            return ("Int32", "")
         if ruled == "word":
             # The module returns a pointer-wide word, the text of GAME_CLIENT_CONNECT, so the return keeps the whole word of the export.
             return ("Int", "")
@@ -2182,6 +2204,10 @@ class Table:
         if isinstance(ruled, tuple) and ruled[0] == "view":
             # Every return is the record or NULL, so the function returns that record's optional view.
             return (f"{self.views.qualified_view(ruled[1], TARGET)}?", "")
+        width = self.msvc_width(cur.result_type, cur)
+        if width is not None and cur.result_type.get_canonical().kind != TypeKind.POINTER:
+            # The botlib's `long` return is the 32 bits of WinDed, ReadSignedInt of l_script.cpp, the parameter rule above.
+            return (width, "")
         result = self.result_type(cur.result_type)
         if result is not None and result[0] == "String" and cur.spelling in self.null_returns:
             # The body hands NULL back at one site, so the text is optional and `return nil` is that site.

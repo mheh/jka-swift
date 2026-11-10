@@ -6,9 +6,10 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/botlib/l_libvar.cpp:20
-// TODO: Port global libvarlist
-// Raven wrote: libvar_t *libvarlist
-// No table row for `libvar_t *`.
+var libvarlist: Libvar? {
+    get { world.variables.libvarlist }
+    set { world.variables.libvarlist = newValue }
+}
 
 //===========================================================================
 //
@@ -29,10 +30,7 @@ func LibVarStringValue(_ string: inout JKAShared.CharBuf) -> Float {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_libvar.cpp:66
-// TODO: Port signature
-// Raven wrote: libvar_t *LibVarAlloc(char *var_name)
-// No table row for the return `libvar_t *`.
-func LibVarAlloc() -> Never {
+func LibVarAlloc(_ var_name: String) -> Libvar? {
     // TODO: Port LibVarAlloc
     portMissing("LibVarAlloc", source: "oracle/codemp/botlib/l_libvar.cpp:66")
 }
@@ -44,10 +42,7 @@ func LibVarAlloc() -> Never {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_libvar.cpp:85
-// TODO: Port signature
-// Raven wrote: void LibVarDeAlloc(libvar_t *v)
-// No table row for `libvar_t * v`.
-func LibVarDeAlloc() -> Never {
+func LibVarDeAlloc(_ v: Libvar) {
     // TODO: Port LibVarDeAlloc
     portMissing("LibVarDeAlloc", source: "oracle/codemp/botlib/l_libvar.cpp:85")
 }
@@ -71,10 +66,7 @@ func LibVarDeAllocAll() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_libvar.cpp:113
-// TODO: Port signature
-// Raven wrote: libvar_t *LibVarGet(char *var_name)
-// No table row for the return `libvar_t *`.
-func LibVarGet() -> Never {
+func LibVarGet(_ var_name: String) -> Libvar? {
     // TODO: Port LibVarGet
     portMissing("LibVarGet", source: "oracle/codemp/botlib/l_libvar.cpp:113")
 }
@@ -110,10 +102,7 @@ func LibVarGetValue(_ var_name: String) -> Float {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_libvar.cpp:172
-// TODO: Port signature
-// Raven wrote: libvar_t *LibVar(char *var_name, char *value)
-// No table row for the return `libvar_t *`.
-func LibVar() -> Never {
+func LibVar(_ var_name: String, _ value: String) -> Libvar? {
     // TODO: Port LibVar
     portMissing("LibVar", source: "oracle/codemp/botlib/l_libvar.cpp:172")
 }

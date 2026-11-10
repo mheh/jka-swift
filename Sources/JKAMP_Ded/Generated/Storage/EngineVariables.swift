@@ -39,10 +39,6 @@ public struct EngineVariables {
     /// Source: oracle/codemp/ghoul2/G2_API.cpp:1725
     public var gG2_GBMUseSPMethod: Bool = false
 
-    /// Raven's `int tempDependents[MAX_BONES_RAG]` of `G2_bones.cpp`.
-    /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1219
-    public var tempDependents: [Int32] = [Int32](repeating: 0, count: 256)
-
     /// Raven's `int ragBlistIndex[MAX_BONES_RAG]` of `G2_bones.cpp`.
     /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1220
     public var ragBlistIndex: [Int32] = [Int32](repeating: 0, count: 256)
@@ -146,6 +142,10 @@ public struct EngineVariables {
     /// Source: oracle/codemp/botlib/be_aas_file.cpp:479
     public var AAS_WriteAASLump_offset: Int32 = 0
 
+    /// Raven's `libvar_t *saveroutingcache` of `be_aas_main.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_main.cpp:32
+    public var saveroutingcache: Libvar? = nil
+
     /// Raven's `int reach_swim` of `be_aas_reach.cpp`.
     /// Source: oracle/codemp/botlib/be_aas_reach.cpp:48
     public var reach_swim: Int32 = 0
@@ -210,6 +210,18 @@ public struct EngineVariables {
     /// Source: oracle/codemp/botlib/be_aas_reach.cpp:68
     public var calcgrapplereach: Int32 = 0
 
+    /// Raven's `aas_lreachability_t *reachabilityheap` of `be_aas_reach.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_reach.cpp:83
+    public var reachabilityheap: Slots<AasLreachability>? = nil
+
+    /// Raven's `aas_lreachability_t *nextreachability` of `be_aas_reach.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_reach.cpp:84
+    public var nextreachability: AasLreachability? = nil
+
+    /// Raven's `aas_lreachability_t **areareachability` of `be_aas_reach.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_reach.cpp:85
+    public var areareachability: Slots<AasLreachability?>? = nil
+
     /// Raven's `int numlreachabilities` of `be_aas_reach.cpp`.
     /// Source: oracle/codemp/botlib/be_aas_reach.cpp:86
     public var numlreachabilities: Int32 = 0
@@ -230,6 +242,14 @@ public struct EngineVariables {
     /// Source: oracle/codemp/botlib/be_aas_route.cpp:68
     public var max_routingcachesize: Int32 = 0
 
+    /// Raven's `midrangearea_t *midrangeareas` of `be_aas_routealt.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_routealt.cpp:39
+    public var midrangeareas: Slots<Midrangearea>? = nil
+
+    /// Raven's `int *clusterareas` of `be_aas_routealt.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_routealt.cpp:40
+    public var clusterareas: Slots<Int32>? = nil
+
     /// Raven's `int numclusterareas` of `be_aas_routealt.cpp`.
     /// Source: oracle/codemp/botlib/be_aas_routealt.cpp:41
     public var numclusterareas: Int32 = 0
@@ -238,21 +258,117 @@ public struct EngineVariables {
     /// Source: oracle/codemp/botlib/be_aas_sample.cpp:48
     public var numaaslinks: Int32 = 0
 
+    /// Raven's `bot_consolemessage_t *consolemessageheap` of `be_ai_chat.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_chat.cpp:185
+    public var consolemessageheap: Slots<BotConsolemessage>? = nil
+
+    /// Raven's `bot_consolemessage_t *freeconsolemessages` of `be_ai_chat.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_chat.cpp:186
+    public var freeconsolemessages: BotConsolemessage? = nil
+
+    /// Raven's `bot_matchtemplate_t *matchtemplates` of `be_ai_chat.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_chat.cpp:188
+    public var matchtemplates: BotMatchtemplate? = nil
+
+    /// Raven's `bot_synonymlist_t *synonyms` of `be_ai_chat.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_chat.cpp:190
+    public var synonyms: BotSynonymlist? = nil
+
+    /// Raven's `bot_randomlist_t *randomstrings` of `be_ai_chat.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_chat.cpp:192
+    public var randomstrings: BotRandomlist? = nil
+
+    /// Raven's `bot_replychat_t *replychats` of `be_ai_chat.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_chat.cpp:194
+    public var replychats: BotReplychat? = nil
+
+    /// Raven's `itemconfig_t *itemconfig` of `be_ai_goal.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_goal.cpp:165
+    public var itemconfig: Itemconfig? = nil
+
+    /// Raven's `levelitem_t *levelitemheap` of `be_ai_goal.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_goal.cpp:167
+    public var levelitemheap: Slots<Levelitem>? = nil
+
+    /// Raven's `levelitem_t *freelevelitems` of `be_ai_goal.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_goal.cpp:168
+    public var freelevelitems: Levelitem? = nil
+
+    /// Raven's `levelitem_t *levelitems` of `be_ai_goal.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_goal.cpp:169
+    public var levelitems: Levelitem? = nil
+
     /// Raven's `int numlevelitems` of `be_ai_goal.cpp`.
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:170
     public var numlevelitems: Int32 = 0
+
+    /// Raven's `maplocation_t *maplocations` of `be_ai_goal.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_goal.cpp:172
+    public var maplocations: Maplocation? = nil
+
+    /// Raven's `campspot_t *campspots` of `be_ai_goal.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_goal.cpp:174
+    public var campspots: Campspot? = nil
 
     /// Raven's `int g_gametype` of `be_ai_goal.cpp`.
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:176
     public var g_gametype: Int32 = 0
 
+    /// Raven's `libvar_t *droppedweight` of `be_ai_goal.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_goal.cpp:178
+    public var droppedweight: Libvar? = nil
+
+    /// Raven's `libvar_t *sv_maxstep` of `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:89
+    public var sv_maxstep: Libvar? = nil
+
+    /// Raven's `libvar_t *sv_maxbarrier` of `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:90
+    public var sv_maxbarrier: Libvar? = nil
+
+    /// Raven's `libvar_t *sv_gravity` of `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:91
+    public var sv_gravity: Libvar? = nil
+
+    /// Raven's `libvar_t *weapindex_rocketlauncher` of `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:92
+    public var weapindex_rocketlauncher: Libvar? = nil
+
+    /// Raven's `libvar_t *weapindex_bfg10k` of `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:93
+    public var weapindex_bfg10k: Libvar? = nil
+
+    /// Raven's `libvar_t *weapindex_grapple` of `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:94
+    public var weapindex_grapple: Libvar? = nil
+
+    /// Raven's `libvar_t *entitytypemissile` of `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:95
+    public var entitytypemissile: Libvar? = nil
+
+    /// Raven's `libvar_t *offhandgrapple` of `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:96
+    public var offhandgrapple: Libvar? = nil
+
+    /// Raven's `libvar_t *cmd_grappleoff` of `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:97
+    public var cmd_grappleoff: Libvar? = nil
+
+    /// Raven's `libvar_t *cmd_grappleon` of `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:98
+    public var cmd_grappleon: Libvar? = nil
+
     /// Raven's `int modeltypes[MAX_MODELS]` of `be_ai_move.cpp`.
     /// Source: oracle/codemp/botlib/be_ai_move.cpp:100
     public var modeltypes: [Int32] = [Int32](repeating: 0, count: 512)
 
+    /// Raven's `weaponconfig_t *weaponconfig` of `be_ai_weap.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_weap.cpp:112
+    public var weaponconfig: Weaponconfig? = nil
+
     /// Raven's `bot_input_t *botinputs` of `be_ea.cpp`.
     /// Source: oracle/codemp/botlib/be_ea.cpp:27
-    public var botinputs: BotInput? = nil
+    public var botinputs: Slots<BotInput>? = nil
 
     /// Raven's `int bot_developer` of `be_interface.cpp`.
     /// Source: oracle/codemp/botlib/be_interface.cpp:44
@@ -619,10 +735,6 @@ public struct EngineVariables {
     /// Source: oracle/codemp/qcommon/files_common.cpp:192
     public var fs_dirbeforepak: JKAMP.Cvar? = nil
 
-    /// Raven's `searchpath_t *fs_searchpaths` of `files_common.cpp`.
-    /// Source: oracle/codemp/qcommon/files_common.cpp:193
-    public var fs_searchpaths: Searchpath? = nil
-
     /// Raven's `int fs_readCount` of `files_common.cpp`.
     /// Source: oracle/codemp/qcommon/files_common.cpp:194
     public var fs_readCount: Int32 = 0
@@ -691,9 +803,17 @@ public struct EngineVariables {
     /// Source: oracle/codemp/qcommon/huffman.cpp:10
     public var bloc: Int32 = 0
 
+    /// Raven's `libvar_t *libvarlist` of `l_libvar.cpp`.
+    /// Source: oracle/codemp/botlib/l_libvar.cpp:20
+    public var libvarlist: Libvar? = nil
+
     /// Raven's `int numtokens` of `l_precomp.cpp`.
     /// Source: oracle/codemp/botlib/l_precomp.cpp:96
     public var numtokens: Int32 = 0
+
+    /// Raven's `define_t **globaldefines` of `l_precomp.cpp`.
+    /// Source: oracle/codemp/botlib/l_precomp.cpp:105
+    public var globaldefines: Slots<Define?>? = nil
 
     /// Raven's `qboolean addGlobalDefine` of `l_precomp.cpp`.
     /// Source: oracle/codemp/botlib/l_precomp.cpp:109

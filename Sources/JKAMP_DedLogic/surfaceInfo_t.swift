@@ -24,4 +24,15 @@ final class surfaceInfo_t {
         self.genPolySurfaceIndex = 0
         self.genLod = 0
     }
+
+    /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:38
+    // AI: Raven copies the struct by value with the compiler's `operator=`. The method is `copy`, a memberwise assign in Raven's member order.
+    func copy(_ other: surfaceInfo_t) {
+        self.offFlags = other.offFlags
+        self.surface = other.surface
+        self.genBarycentricJ = other.genBarycentricJ
+        self.genBarycentricI = other.genBarycentricI
+        self.genPolySurfaceIndex = other.genPolySurfaceIndex
+        self.genLod = other.genLod
+    }
 }

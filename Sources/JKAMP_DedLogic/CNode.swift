@@ -39,8 +39,9 @@ final class CNode {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:104
     init() {
-        // TODO: Port CNode::CNode
-        portMissing("CNode::CNode", source: "oracle/codemp/server/NPCNav/navigator.cpp:104")
+        self.m_numEdges = 0
+        self.m_radius = 0
+        self.m_ranks = []
     }
 
     /**
@@ -52,8 +53,15 @@ final class CNode {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:125
     static func Create(_ position: JKAShared.vec3_t, _ flags: Int32, _ radius: Int32, _ ID: Int32) -> CNode? {
-        // TODO: Port CNode::Create
-        portMissing("CNode::Create", source: "oracle/codemp/server/NPCNav/navigator.cpp:125")
+        let node = CNode()
+
+        node.m_position = position
+
+        node.m_flags = flags
+        node.m_ID = ID
+        node.m_radius = radius
+
+        return node
     }
 
     /**
@@ -65,8 +73,7 @@ final class CNode {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:144
     static func Create() -> CNode? {
-        // TODO: Port CNode::Create
-        portMissing("CNode::Create", source: "oracle/codemp/server/NPCNav/navigator.cpp:144")
+        return CNode()
     }
 
     /**
@@ -77,10 +84,27 @@ final class CNode {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:155
-    // AI: Raven defaults flags to EFLAG_NONE of navigator.h, which no module of the host declares. The default is its value, 0.
-    func AddEdge(_ ID: Int32, _ cost: Int32, _ flags: Int32 = 0) {
-        // TODO: Port CNode::AddEdge
-        portMissing("CNode::AddEdge", source: "oracle/codemp/server/NPCNav/navigator.cpp:155")
+    func AddEdge(_ ID: Int32, _ cost: Int32, _ flags: Int32 = EFLAG_NONE) {
+        if self.m_numEdges != 0 {//already have at least 1
+            //see if it exists already
+            for ei in self.m_edges.indices {
+                if self.m_edges[ei].ID == ID {//found it
+                    self.m_edges[ei].cost = cost
+                    self.m_edges[ei].flags = JKAShared.byte(truncatingIfNeeded: flags)
+                    return
+                }
+            }
+        }
+
+        var edge = edge_t()
+
+        edge.ID = ID
+        edge.cost = cost
+        edge.flags = JKAShared.byte(truncatingIfNeeded: flags)
+
+        self.m_edges.append(edge)
+
+        self.m_numEdges += 1
     }
 
     /**
@@ -92,8 +116,7 @@ final class CNode {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:214
     func AddRank(_ ID: Int32, _ rank: Int32) {
-        // TODO: Port CNode::AddRank
-        portMissing("CNode::AddRank", source: "oracle/codemp/server/NPCNav/navigator.cpp:214")
+        self.m_ranks[ID] = rank
     }
 
     /**
@@ -105,8 +128,14 @@ final class CNode {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:227
     func Draw(_ showRadius: Bool) {
-        // TODO: Port CNode::Draw
-        portMissing("CNode::Draw", source: "oracle/codemp/server/NPCNav/navigator.cpp:227")
+        //rwwFIXMEFIXME: ...
+        /*
+        CG_DrawNode( m_position, NODE_NORMAL );
+        if( showRadius )
+        {
+            CG_DrawRadius( m_position, m_radius, NODE_NORMAL );
+        }
+        */
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.h:94
@@ -134,8 +163,16 @@ final class CNode {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:191
     func GetEdgeNumToNode(_ ID: Int32) -> Int32 {
-        // TODO: Port CNode::GetEdgeNumToNode
-        portMissing("CNode::GetEdgeNumToNode", source: "oracle/codemp/server/NPCNav/navigator.cpp:191")
+        var count: Int32 = 0
+
+        for ei in self.m_edges {
+            if ei.ID == ID {
+                return count
+            }
+
+            count += 1
+        }
+        return -1
     }
 
     /**
@@ -147,8 +184,21 @@ final class CNode {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:244
     func GetEdge(_ edgeNum: Int32) -> Int32 {
-        // TODO: Port CNode::GetEdge
-        portMissing("CNode::GetEdge", source: "oracle/codemp/server/NPCNav/navigator.cpp:244")
+        if edgeNum > self.m_numEdges {
+            return -1
+        }
+
+        var count: Int32 = 0
+
+        for ei in self.m_edges {
+            if count == edgeNum {
+                return ei.ID
+            }
+
+            count += 1
+        }
+
+        return -1
     }
 
     /**
@@ -160,8 +210,21 @@ final class CNode {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:271
     func GetEdgeCost(_ edgeNum: Int32) -> Int32 {
-        // TODO: Port CNode::GetEdgeCost
-        portMissing("CNode::GetEdgeCost", source: "oracle/codemp/server/NPCNav/navigator.cpp:271")
+        if edgeNum > self.m_numEdges {
+            return Q3_INFINITE // return -1;
+        }
+
+        var count: Int32 = 0
+
+        for ei in self.m_edges {
+            if count == edgeNum {
+                return ei.cost
+            }
+
+            count += 1
+        }
+
+        return Q3_INFINITE // return -1;
     }
 
     /**
@@ -173,8 +236,21 @@ final class CNode {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:298
     func GetEdgeFlags(_ edgeNum: Int32) -> JKAShared.byte {
-        // TODO: Port CNode::GetEdgeFlags
-        portMissing("CNode::GetEdgeFlags", source: "oracle/codemp/server/NPCNav/navigator.cpp:298")
+        if edgeNum > self.m_numEdges {
+            return 0
+        }
+
+        var count: Int32 = 0
+
+        for ei in self.m_edges {
+            if count == edgeNum {
+                return ei.flags
+            }
+
+            count += 1
+        }
+
+        return 0
     }
 
     /**
@@ -186,8 +262,20 @@ final class CNode {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:325
     func SetEdgeFlags(_ edgeNum: Int32, _ newFlags: Int32) {
-        // TODO: Port CNode::SetEdgeFlags
-        portMissing("CNode::SetEdgeFlags", source: "oracle/codemp/server/NPCNav/navigator.cpp:325")
+        if edgeNum > self.m_numEdges {
+            return
+        }
+
+        var count: Int32 = 0
+
+        for ei in self.m_edges.indices {
+            if count == edgeNum {
+                self.m_edges[ei].flags = JKAShared.byte(truncatingIfNeeded: newFlags)
+                return
+            }
+
+            count += 1
+        }
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.h:103
@@ -204,8 +292,10 @@ final class CNode {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:351
     func InitRanks(_ size: Int32) {
-        // TODO: Port CNode::InitRanks
-        portMissing("CNode::InitRanks", source: "oracle/codemp/server/NPCNav/navigator.cpp:351")
+        //Clear it if it's already allocated
+        self.m_ranks = []
+
+        self.m_ranks = Array(repeating: -1, count: Int(size))
     }
 
     /**
@@ -217,8 +307,7 @@ final class CNode {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:371
     func GetRank(_ ID: Int32) -> Int32 {
-        // TODO: Port CNode::GetRank
-        portMissing("CNode::GetRank", source: "oracle/codemp/server/NPCNav/navigator.cpp:371")
+        return self.m_ranks[ID]
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.h:108
@@ -245,8 +334,56 @@ final class CNode {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:385
     func Save(_ numNodes: Int32, _ file: JKAShared.fileHandle_t) -> Int32 {
-        // TODO: Port CNode::Save
-        portMissing("CNode::Save", source: "oracle/codemp/server/NPCNav/navigator.cpp:385")
+        // AI: Raven writes each value through its address. The value goes into a CharBuf of its bytes, and the CharBuf is written.
+        var value = CharBuf(Int32.byteCount)
+
+        //Write out the header
+        // AI: Raven writes an `unsigned long` of NODE_HEADER_ID of navigator.h, 4 bytes on WinDed. The body writes its value, 'NODE'.
+        value.withMutableSlots { $0[int: 0] = 0x4E4F_4445 }
+        _ = FS_Write(value, Int32(UInt32.byteCount), file)
+
+        //Write out the basic information
+        for i in 0..<3 {
+            value.withMutableSlots { $0[float: 0] = self.m_position[i] }
+            _ = FS_Write(value, Int32(Float.byteCount), file)
+        }
+
+        value.withMutableSlots { $0[int: 0] = self.m_flags }
+        _ = FS_Write(value, Int32(Int32.byteCount), file)
+        value.withMutableSlots { $0[int: 0] = self.m_ID }
+        _ = FS_Write(value, Int32(Int32.byteCount), file)
+        value.withMutableSlots { $0[int: 0] = self.m_radius }
+        _ = FS_Write(value, Int32(Int32.byteCount), file)
+
+        //Write out the edge information
+        value.withMutableSlots { $0[int: 0] = self.m_numEdges }
+        _ = FS_Write(value, Int32(Int32.byteCount), file)
+
+        // AI: Raven writes each `edge_t` whole, 12 bytes with ID at 0, cost at 4, and flags at 8. The body writes the same bytes.
+        // Port-note: Raven writes the three padding bytes of the record uninitialized. The body writes them as zero.
+        var record = CharBuf(12)
+        for ei in self.m_edges {
+            record.zero()
+            record.withMutableSlots {
+                $0[int: 0] = ei.ID
+                $0[int: 4] = ei.cost
+                $0[byte: 8] = ei.flags
+            }
+            _ = FS_Write(record, 12, file)
+        }
+
+        //Write out the node ranks
+        value.withMutableSlots { $0[int: 0] = numNodes }
+        _ = FS_Write(value, Int32(Int32.byteCount), file)
+
+        var i: Int32 = 0
+        while i < numNodes {
+            value.withMutableSlots { $0[int: 0] = self.m_ranks[i] }
+            _ = FS_Write(value, Int32(Int32.byteCount), file)
+            i += 1
+        }
+
+        return 1
     }
 
     /**
@@ -258,7 +395,66 @@ final class CNode {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:426
     func Load(_ numNodes: Int32, _ file: JKAShared.fileHandle_t) -> Int32 {
-        // TODO: Port CNode::Load
-        portMissing("CNode::Load", source: "oracle/codemp/server/NPCNav/navigator.cpp:426")
+        // AI: Raven reads each value through its address. The read fills a CharBuf of the value's bytes, and the body takes the value from it.
+        var value = CharBuf(Int32.byteCount)
+
+        // AI: Raven reads an `unsigned long` header, 4 bytes on WinDed.
+        _ = FS_Read(&value, Int32(UInt32.byteCount), file)
+
+        //Validate the header
+        // AI: Raven compares with NODE_HEADER_ID of navigator.h, which no module of the host declares. The body reads its value, 'NODE'.
+        if value.withSlots({ $0[int: 0] }) != 0x4E4F_4445 {
+            return 0
+        }
+
+        //Get the basic information
+        for i in 0..<3 {
+            _ = FS_Read(&value, Int32(Float.byteCount), file)
+            self.m_position[i] = value.withSlots { $0[float: 0] }
+        }
+
+        _ = FS_Read(&value, Int32(Int32.byteCount), file)
+        self.m_flags = value.withSlots { $0[int: 0] }
+        _ = FS_Read(&value, Int32(Int32.byteCount), file)
+        self.m_ID = value.withSlots { $0[int: 0] }
+        _ = FS_Read(&value, Int32(Int32.byteCount), file)
+        self.m_radius = value.withSlots { $0[int: 0] }
+
+        //Get the edge information
+        _ = FS_Read(&value, Int32(Int32.byteCount), file)
+        self.m_numEdges = value.withSlots { $0[int: 0] }
+
+        // AI: Raven reads each `edge_t` whole, 12 bytes with ID at 0, cost at 4, and flags at 8. The body takes the three fields from the bytes.
+        var record = CharBuf(12)
+        var i: Int32 = 0
+        while i < self.m_numEdges {
+            var edge = edge_t()
+
+            _ = FS_Read(&record, 12, file)
+            record.withSlots {
+                edge.ID = $0[int: 0]
+                edge.cost = $0[int: 4]
+                edge.flags = $0[byte: 8]
+            }
+
+            self.m_edges.append(edge)
+            i += 1
+        }
+
+        //Read the node ranks
+        _ = FS_Read(&value, Int32(Int32.byteCount), file)
+        let numRanks = value.withSlots { $0[int: 0] }
+
+        //Allocate the memory
+        self.InitRanks(numRanks)
+
+        i = 0
+        while i < numRanks {
+            _ = FS_Read(&value, Int32(Int32.byteCount), file)
+            self.m_ranks[i] = value.withSlots { $0[int: 0] }
+            i += 1
+        }
+
+        return 1
     }
 }

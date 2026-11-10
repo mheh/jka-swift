@@ -14,6 +14,60 @@ extension Slots where Element: HandleView {
     }
 }
 
+// MARK: - A record at a byte offset of another record
+
+extension HandleView {
+    /// Raven's cast of a record address plus a byte offset to a record pointer, `(mdxaSkel_t *)((byte *)mdxa + sizeof(mdxaHeader_t) + offsets->offsets[i])`.
+    /// The model files hold their records at byte offsets from a header, and an offset can be negative, as `ofsHeader` of a surface is.
+    /// Source: oracle/codemp/ghoul2/G2_bones.cpp:46
+    // AI: Raven adds a byte offset to the address of a record and casts the result. The initializer does the step in the view target.
+    public init(_ record: some HandleView, byteOffset: some BinaryInteger) {
+        self.init(handle: OpaquePointer(UnsafeMutableRawPointer(record.handle) + Int(byteOffset)))
+    }
+}
+
+extension MdxmSurfHierarchy {
+    /// Raven's `(int)( &((mdxmSurfHierarchy_t *)0)->childIndexes[ n ] )`, the size of a hierarchy record with `n` children.
+    /// The walks of the hierarchy step to the next record by this size.
+    /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:80
+    // AI: Raven takes the address of child n of a null record pointer. The static gives the byte offset of child n, the form of `Winding.byteCount(points:)`.
+    public static func byteCount(childIndexes n: some BinaryInteger) -> Int {
+        MemoryLayout<mdxmSurfHierarchy_t>.offset(of: \mdxmSurfHierarchy_t.childIndexes)! + Int(n) * Int32.byteCount
+    }
+
+    /// Raven's `psShaderName - pModelDiskImage` for `&surfInfo->shader[0]`, the distance in bytes from the base of the model image to the `shader` field.
+    /// Source: oracle/codemp/renderer/tr_model.cpp:87
+    // AI: Raven subtracts the base of the disk image from a pointer into it. The view gives the byte distance, the form of `ClipMap.leafbrushes(_:)`.
+    public func shader(_ image: Slots<byte>) -> Int32 {
+        Int32(image.base.distance(to: UnsafeMutableRawPointer(self.raw.pointer(to: \.shader)!)))
+    }
+
+    /// Raven's `piShaderIndexPoke - pModelDiskImage` for `&surfInfo->shaderIndex`, the distance in bytes from the base of the model image to the `shaderIndex` field.
+    /// Source: oracle/codemp/renderer/tr_model.cpp:88
+    // AI: Raven subtracts the base of the disk image from a pointer into it. The view gives the byte distance, the form of `ClipMap.leafbrushes(_:)`.
+    public func shaderIndex(_ image: Slots<byte>) -> Int32 {
+        Int32(image.base.distance(to: UnsafeMutableRawPointer(self.raw.pointer(to: \.shaderIndex)!)))
+    }
+}
+
+extension MdxmSurface {
+    /// Raven's `(int *) ( (byte *)surf + surf->ofsBoneReferences )`, the `numBoneReferences` bone indexes at a byte offset from the surface.
+    /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:5028
+    // AI: Raven casts the surface address plus a byte offset to a word pointer. The accessor gives the Slots of the words, the form of `HandleView.init(_:byteOffset:)`.
+    public var boneReferences: Slots<Int32> {
+        Slots<Int32>(scalars: UnsafeMutableRawPointer(self.handle) + Int(self.ofsBoneReferences), count: Int(self.numBoneReferences))
+    }
+}
+
+extension MdxaSkel {
+    /// Raven's `(int)( &((mdxaSkel_t *)0)->children[ n ] )`, the size of a skeleton record with `n` children.
+    /// Source: oracle/codemp/renderer/tr_model.cpp:769
+    // AI: Raven takes the address of child n of a null record pointer. The static gives the byte offset of child n, the form of `Winding.byteCount(points:)`.
+    public static func byteCount(children n: some BinaryInteger) -> Int {
+        MemoryLayout<mdxaSkel_t>.offset(of: \mdxaSkel_t.children)! + Int(n) * Int32.byteCount
+    }
+}
+
 // MARK: - The leaf index blocks of a clip map
 
 extension ClipMap {

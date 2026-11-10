@@ -28,9 +28,18 @@ final class CGhoul2Info_v {
     }
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:350
-    // AI: Raven defines a non-const and a const overload, the second at ghoul2_shared.h:355. The class has one method.
-    private func Array() -> [CGhoul2Info] {
-        return self.InfoArray().Get(self.mItem)
+    // AI: Raven defines a non-const and a const overload, the second at ghoul2_shared.h:355, and each returns a reference to the stored vector.
+    // The property reads the stored array of `Ghoul2InfoArray` and writes it back, so `Array.append(model)` writes the stored array, row G2A1.
+    private var Array: [CGhoul2Info] {
+        get {
+            return self.InfoArray().Get(self.mItem)
+        }
+        set {
+            // AI: Raven writes the static empty vector that Get returns for a bad handle. The setter drops that write.
+            if self.InfoArray().IsValid(self.mItem) {
+                self.InfoArray().mInfos[self.mItem & G2_INDEX_MASK] = newValue
+            }
+        }
     }
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:362
@@ -62,24 +71,55 @@ final class CGhoul2Info_v {
     }
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:382
-    // Port-note: Raven assigns `Array()=other.Array()`, a copy of each CGhoul2Info by value into the slot of `mItem`.
-    // `Array()` returns a copy of the list, and CGhoul2Info is a class with no copy, so the body has no form.
     func DeepCopy(_ other: CGhoul2Info_v) {
-        // TODO: Port CGhoul2Info_v::DeepCopy
-        portMissing("CGhoul2Info_v::DeepCopy", source: "oracle/codemp/ghoul2/ghoul2_shared.h:382")
+        self.Free()
+        if other.mItem != 0 {
+            self.Alloc()
+            // AI: Raven assigns `Array()=other.Array()`, a copy of each model by value. The list takes a new instance per model, and `copy` assigns its members.
+            self.Array = other.Array.map { model in
+                let copy = CGhoul2Info()
+                copy.copy(model)
+                return copy
+            }
+            var i: Int32
+            i = 0
+            while i < self.size() {
+                self.Array[i].mBoneCache = nil
+                self.Array[i].mTransformedVertsArray = nil
+                self.Array[i].mSkelFrameNum = 0
+                self.Array[i].mMeshFrameNum = 0
+                i += 1
+            }
+        }
     }
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:399
     // AI: Raven defines a non-const and a const `operator[]`, the second at ghoul2_shared.h:405. The class has one subscript.
     subscript(_ idx: Int32) -> CGhoul2Info {
-        return self.Array()[idx]
+        get {
+            return self.Array[idx]
+        }
+        set {
+            self.Array[idx] = newValue
+        }
     }
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:411
-    // Port-note: Raven resizes the list that `Array()` returns by reference, and the Swift `Array()` returns a copy.
     func resize(_ num: Int32) {
-        // TODO: Port CGhoul2Info_v::resize
-        portMissing("CGhoul2Info_v::resize", source: "oracle/codemp/ghoul2/ghoul2_shared.h:411")
+        if num != 0 {
+            if self.mItem == 0 {
+                self.Alloc()
+            }
+        }
+        if self.mItem != 0 || num != 0 {
+            // Raven's `Array().resize(num)` constructs each new model and destroys each model past `num`.
+            while self.Array.count < num {
+                self.Array.append(CGhoul2Info())
+            }
+            while self.Array.count > num {
+                self.Array.removeLast()
+            }
+        }
     }
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:426
@@ -88,10 +128,12 @@ final class CGhoul2Info_v {
     }
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:430
-    // Port-note: Raven appends a copy of the model to the list that `Array()` returns by reference, and the Swift `Array()` returns a copy.
+    // AI: Raven appends a copy of the model. The list holds the instance itself, because the one caller hands a new temporary, G2_API.cpp:645.
     func push_back(_ model: CGhoul2Info) {
-        // TODO: Port CGhoul2Info_v::push_back
-        portMissing("CGhoul2Info_v::push_back", source: "oracle/codemp/ghoul2/ghoul2_shared.h:430")
+        if self.mItem == 0 {
+            self.Alloc()
+        }
+        self.Array.append(model)
     }
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:438
@@ -99,7 +141,7 @@ final class CGhoul2Info_v {
         if !self.IsValid() {
             return 0
         }
-        return Int32(self.Array().count)
+        return Int32(self.Array.count)
     }
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:446

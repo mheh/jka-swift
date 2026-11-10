@@ -25,8 +25,9 @@ LoadLibrary = { path, entryPoint in
 // The host installs SV_GameSystemCalls here for the thunk of the view target, which cannot see the logic target.
 GameSystemCalls = SV_GameSystemCalls
 // The host installs the callee of VM_DllSyscall of CJKAHost here, Raven's `currentVM->systemCall( args )` at oracle/codemp/qcommon/vm.cpp:376.
-// AI: Raven calls the systemCall of currentVM. The dedicated host loads one module, the game, so the callee is the thunk of SV_GameSystemCalls.
-jka_systemCall = { parms in intptr_t(SV_GameSystemCallThunk(OpaquePointer(parms))) }
+// AI: Raven calls the systemCall of currentVM. The dedicated host loads one module, the game, so the callee is SV_GameSystemCalls.
+// AI: Raven's callee returns an `int`. The callee gives the whole word to the module, so an address stays whole on a 64-bit host.
+jka_systemCall = { parms in GameSystemCalls!(Slots(syscallWords: UnsafeMutableRawPointer(mutating: parms!), count: 16)) }
 
 // merge the command line, this is kinda silly
 var cmdline = CharBuf(CommandLine.arguments.dropFirst().joined(separator: " "))
