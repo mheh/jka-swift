@@ -137,8 +137,13 @@ func AAS_EntityInfo(_ entnum: Int32, _ info: AasEntityinfo) {
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:178
 func AAS_EntityOrigin(_ entnum: Int32, _ origin: inout JKAShared.vec3_t) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port AAS_EntityOrigin
-    portMissing("AAS_EntityOrigin", source: "oracle/codemp/botlib/be_aas_entity.cpp:178")
+    if entnum < 0 || entnum >= aasworld.maxentities {
+        botimport.runPrint(PRT_FATAL, "AAS_EntityOrigin: entnum %d out of range\n", entnum)
+        origin = vec3_t()
+        return
+    } //end if
+
+    origin = aasworld.entitiesSlots[entnum].i.origin
 }
 
 //===========================================================================
@@ -224,8 +229,18 @@ func AAS_OriginOfMoverWithModelNum(_ modelnum: Int32, _ origin: inout JKAShared.
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:269
 func AAS_EntitySize(_ entnum: Int32, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port AAS_EntitySize
-    portMissing("AAS_EntitySize", source: "oracle/codemp/botlib/be_aas_entity.cpp:269")
+    let ent: AasEntity
+
+    if aasworld.initialized == 0 { return }
+
+    if entnum < 0 || entnum >= aasworld.maxentities {
+        botimport.runPrint(PRT_FATAL, "AAS_EntitySize: entnum %d out of range\n", entnum)
+        return
+    } //end if
+
+    ent = aasworld.entitiesSlots[entnum]
+    mins = ent.i.mins
+    maxs = ent.i.maxs
 }
 
 //===========================================================================
@@ -237,8 +252,15 @@ func AAS_EntitySize(_ entnum: Int32, _ mins: inout JKAShared.vec3_t, _ maxs: ino
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:291
 func AAS_EntityBSPData(_ entnum: Int32, _ entdata: BspEntdata) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port AAS_EntityBSPData
-    portMissing("AAS_EntityBSPData", source: "oracle/codemp/botlib/be_aas_entity.cpp:291")
+    let ent: AasEntity
+
+    ent = aasworld.entitiesSlots[entnum]
+    entdata.origin = ent.i.origin
+    entdata.angles = ent.i.angles
+    entdata.absmins = ent.i.origin + ent.i.mins
+    entdata.absmaxs = ent.i.origin + ent.i.maxs
+    entdata.solid = ent.i.solid
+    entdata.modelnum = ent.i.modelindex - 1
 }
 
 //===========================================================================
@@ -308,8 +330,33 @@ func AAS_UnlinkInvalidEntities() {
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:362
 func AAS_NearestEntity(_ origin: JKAShared.vec3_t, _ modelindex: Int32) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port AAS_NearestEntity
-    portMissing("AAS_NearestEntity", source: "oracle/codemp/botlib/be_aas_entity.cpp:362")
+    var i: Int32, bestentnum: Int32
+    var dist: Float, bestdist: Float
+    var ent: AasEntity
+    var dir = vec3_t()
+
+    bestentnum = 0
+    bestdist = 99999
+    i = 0
+    while i < aasworld.maxentities {
+        ent = aasworld.entitiesSlots[i]
+        if ent.i.modelindex != modelindex {
+            i += 1
+            continue
+        }
+        dir = ent.i.origin - origin
+        if abs(dir[0]) < 40 {
+            if abs(dir[1]) < 40 {
+                dist = VectorLength(dir)
+                if dist < bestdist {
+                    bestdist = dist
+                    bestentnum = i
+                } //end if
+            } //end if
+        } //end if
+        i += 1
+    } //end for
+    return bestentnum
 }
 
 //===========================================================================
@@ -321,8 +368,10 @@ func AAS_NearestEntity(_ origin: JKAShared.vec3_t, _ modelindex: Int32) -> Int32
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:397
 func AAS_BestReachableEntityArea(_ entnum: Int32) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port AAS_BestReachableEntityArea
-    portMissing("AAS_BestReachableEntityArea", source: "oracle/codemp/botlib/be_aas_entity.cpp:397")
+    let ent: AasEntity
+
+    ent = aasworld.entitiesSlots[entnum]
+    return AAS_BestReachableLinkArea(ent.areas)
 }
 
 //===========================================================================

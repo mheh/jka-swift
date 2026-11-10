@@ -243,9 +243,19 @@ func AAS_Swimming(_ origin: JKAShared.vec3_t) -> Int32 {
 
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:218
 func AAS_SetMovedir(_ angles: JKAShared.vec3_t, _ movedir: inout JKAShared.vec3_t) {
-    // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port AAS_SetMovedir
-    portMissing("AAS_SetMovedir", source: "oracle/codemp/botlib/be_aas_move.cpp:218")
+    // Port-note: Raven calls this function only from a comment, at be_aas_reach.cpp:3516, so it is dead.
+    if VectorCompare(angles, VEC_UP) != 0 {
+        movedir = MOVEDIR_UP
+    } //end if
+    else if VectorCompare(angles, VEC_DOWN) != 0 {
+        movedir = MOVEDIR_DOWN
+    } //end else if
+    else {
+        // Raven passes NULL for the right and up outputs.
+        var scratchRight = vec3_t()
+        var scratchUp = vec3_t()
+        AngleVectors(angles, &movedir, &scratchRight, &scratchUp)
+    } //end else
 }
 
 //===========================================================================
@@ -419,8 +429,9 @@ func AAS_Accelerate(_ velocity: inout JKAShared.vec3_t, _ frametime: Float, _ wi
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:373
 func AAS_AirControl(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ velocity: JKAShared.vec3_t, _ cmdmove: JKAShared.vec3_t) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port AAS_AirControl
-    portMissing("AAS_AirControl", source: "oracle/codemp/botlib/be_aas_move.cpp:373")
+    var dir = vec3_t()
+
+    dir = end - start
 }
 
 //===========================================================================
@@ -1093,8 +1104,21 @@ func AAS_ClientMovementHitBBox(_ move: AasClientmove, _ entnum: Int32, _ origin:
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:1016
 func AAS_TestMovementPrediction(_ entnum: Int32, _ origin: JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t) {
     // Port-note: Raven calls this function only from a comment of BotExportTest, so it is dead.
-    // TODO: Port AAS_TestMovementPrediction
-    portMissing("AAS_TestMovementPrediction", source: "oracle/codemp/botlib/be_aas_move.cpp:1016")
+    var velocity = vec3_t(), cmdmove = vec3_t()
+
+    velocity = vec3_t()
+    if AAS_Swimming(origin) == 0 { dir[2] = 0 }
+    _ = VectorNormalize(&dir)
+    cmdmove = dir * 400
+    cmdmove[2] = 224
+    AAS_ClearShownDebugLines()
+    AasClientmove.scratch { move in
+        AAS_PredictClientMovement(move, entnum, origin, PRESENCE_NORMAL, 1,
+                                    velocity, cmdmove, 13, 13, 0.1, SE_HITGROUND, 0, 1)//SE_LEAVEGROUND);
+        if (move.stopevent & SE_LEAVEGROUND) != 0 {
+            botimport.runPrint(PRT_MESSAGE, "leave ground\n")
+        } //end if
+    }
 }
 
 //===========================================================================

@@ -61,8 +61,15 @@ func AAS_RemoveClusterAreas() {
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:61
 func AAS_ClearCluster(_ clusternum: Int32) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port AAS_ClearCluster
-    portMissing("AAS_ClearCluster", source: "oracle/codemp/botlib/be_aas_cluster.cpp:61")
+    var i: Int32
+
+    i = 1
+    while i < aasworld.numareas {
+        if aasworld.areasettingsSlots[i].cluster == clusternum {
+            aasworld.areasettingsSlots[i].cluster = 0
+        } //end if
+        i += 1
+    } //end for
 }
 
 //===========================================================================
@@ -74,8 +81,18 @@ func AAS_ClearCluster(_ clusternum: Int32) {
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:79
 func AAS_RemovePortalsClusterReference(_ clusternum: Int32) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port AAS_RemovePortalsClusterReference
-    portMissing("AAS_RemovePortalsClusterReference", source: "oracle/codemp/botlib/be_aas_cluster.cpp:79")
+    var portalnum: Int32
+
+    portalnum = 1
+    while portalnum < aasworld.numportals {
+        if aasworld.portalsSlots[portalnum].frontcluster == clusternum {
+            aasworld.portalsSlots[portalnum].frontcluster = 0
+        } //end if
+        if aasworld.portalsSlots[portalnum].backcluster == clusternum {
+            aasworld.portalsSlots[portalnum].backcluster = 0
+        } //end if
+        portalnum += 1
+    } //end for
 }
 
 //===========================================================================
@@ -276,9 +293,27 @@ func AAS_FloodClusterAreasUsingReachabilities(_ clusternum: Int32) -> Int32 {
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:271
 func AAS_NumberClusterPortals(_ clusternum: Int32) {
-    // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port AAS_NumberClusterPortals
-    portMissing("AAS_NumberClusterPortals", source: "oracle/codemp/botlib/be_aas_cluster.cpp:271")
+    // Port-note: Raven calls this function only from a comment, at be_aas_cluster.cpp:409, so it is dead.
+    var i: Int32
+    var portalnum: Int32
+    let cluster: AasCluster
+    var portal: AasPortal
+
+    cluster = aasworld.clustersSlots[clusternum]
+    i = 0
+    while i < cluster.numportals {
+        portalnum = aasworld.portalindex![cluster.firstportal + i]
+        portal = aasworld.portalsSlots[portalnum]
+        if portal.frontcluster == clusternum {
+            portal.clusterareanum[0] = cluster.numareas
+            cluster.numareas += 1
+        } //end if
+        else {
+            portal.clusterareanum[1] = cluster.numareas
+            cluster.numareas += 1
+        } //end else
+        i += 1
+    } //end for
 }
 
 //===========================================================================
@@ -1069,8 +1104,13 @@ func AAS_FindPossiblePortals() {
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:920
 func AAS_RemoveAllPortals() {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port AAS_RemoveAllPortals
-    portMissing("AAS_RemoveAllPortals", source: "oracle/codemp/botlib/be_aas_cluster.cpp:920")
+    var i: Int32
+
+    i = 1
+    while i < aasworld.numareas {
+        aasworld.areasettingsSlots[i].contents &= ~AREACONTENTS_CLUSTERPORTAL
+        i += 1
+    } //end for
 }
 
 //===========================================================================
