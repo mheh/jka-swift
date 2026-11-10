@@ -1,38 +1,89 @@
 #!/bin/sh
 # This script runs one `.rec` file on two dedicated hosts with the same Swift jampgame and compares their `REF STEP` streams.
-# Usage: `tools/host-referee.sh <file.rec> <host A> <host B> [extra args to both hosts]`.
-# Host A and host B are paths to dedicated server binaries, for example `.build/openjk/openjkded.arm64` on both sides.
+# Usage: `tools/host-referee.sh <file.rec> [host A] <host B> [extra args to both hosts]`.
+# Host A and host B are paths to dedicated server binaries. Host A is the reference host `.build/openjk-nocontract/openjkded.arm64` by default.
+# `tools/build-referee-host.sh` builds the reference host.
 # FRAMES=N grants N frames after the map load, 4000 by default. Set N above the last frame of the file.
 # The logs and the filtered streams go to SCRATCH, /tmp/referee-scratch/ by default, and the script exits 0 when the run is green.
-# The script deletes SCRATCH at the start of a run, so SCRATCH must name a folder that holds nothing else.
+# The script deletes SCRATCH at the start of a run, so SCRATCH must name a folder that holds nothing else, and it refuses a SCRATCH that names or holds the repository.
+# BASE_PATH sets the folder of the game assets, the Steam copy by default.
 # notes/2026-11-03/dedicated-referee-docket.md section 3 gives the command lines and the green test.
 
 set -u
 
-if [ $# -lt 3 ]; then
-    echo "usage: $0 <file.rec> <host A> <host B> [extra args]" >&2
+if [ $# -lt 2 ]; then
+    echo "usage: $0 <file.rec> [host A] <host B> [extra args]" >&2
     exit 2
 fi
 
-ROOT=$(cd "$(dirname "$0")/.." && pwd)
+ROOT=$(cd "$(dirname "$0")/.." && pwd -P)
+REFERENCE=$ROOT/.build/openjk-nocontract/openjkded.arm64
 REC=$1
-HOST_A=$2
-HOST_B=$3
-shift 3
+shift
+# An extra arg starts with `+`, so a second path names host B and the first names host A.
+if [ $# -ge 2 ] && [ "${2#+}" = "$2" ]; then
+    HOST_A=$1
+    HOST_B=$2
+    shift 2
+else
+    HOST_A=$REFERENCE
+    HOST_B=$1
+    shift
+fi
 SCRATCH=${SCRATCH:-/tmp/referee-scratch}
 MOD=swift
-BASE_PATH="$HOME/Library/Application Support/Steam/steamapps/common/Jedi Academy/SWJKJA.app/Contents"
+BASE_PATH=${BASE_PATH:-"$HOME/Library/Application Support/Steam/steamapps/common/Jedi Academy/SWJKJA.app/Contents"}
 FRAMES=${FRAMES:-4000}
 GAMETYPE=${GAMETYPE:-0}
+# The run deletes SCRATCH, so SCRATCH must not be the repository, a folder in it, or a folder that holds it.
+# The reference build lives in the repository, so this test also keeps it out of SCRATCH.
+case "$SCRATCH" in
+    /*) ;;
+    *) SCRATCH=$(pwd -P)/$SCRATCH ;;
+esac
+# Resolve the links of SCRATCH, or of its parent when SCRATCH does not exist yet, so /tmp and /private/tmp compare equal.
+if [ -d "$SCRATCH" ]; then
+    SCRATCH=$(cd "$SCRATCH" && pwd -P)
+else
+    SCRATCH_PARENT=$(cd "$(dirname "$SCRATCH")" 2>/dev/null && pwd -P) || {
+        echo "$0: the parent of SCRATCH does not exist: $SCRATCH" >&2
+        exit 2
+    }
+    SCRATCH=${SCRATCH_PARENT%/}/$(basename "$SCRATCH")
+fi
+if [ "$SCRATCH" = "/" ]; then
+    echo "$0: SCRATCH is the root folder" >&2
+    exit 2
+fi
+case "$SCRATCH/" in
+    "$ROOT/"*)
+        echo "$0: SCRATCH is in the repository: $SCRATCH" >&2
+        exit 2
+        ;;
+esac
+case "$ROOT/" in
+    "$SCRATCH/"*)
+        echo "$0: SCRATCH holds the repository: $SCRATCH" >&2
+        exit 2
+        ;;
+esac
+
 # The alarm covers the map load, the granted frames, and the quit.
 ALARM=$((120 + FRAMES / 10))
 
 for FILE in "$REC" "$HOST_A" "$HOST_B"; do
     if [ ! -f "$FILE" ]; then
         echo "$0: missing: $FILE" >&2
+        if [ "$FILE" = "$REFERENCE" ]; then
+            echo "$0: run tools/build-referee-host.sh to build the reference host" >&2
+        fi
         exit 2
     fi
 done
+if [ ! -d "$BASE_PATH" ]; then
+    echo "$0: missing base path: $BASE_PATH" >&2
+    exit 2
+fi
 
 # The replayer reads only the seed of the header, so the command line sets the map and sv_fps from the header.
 HEADER=$(head -n 1 "$REC")
@@ -55,6 +106,10 @@ fi
 
 # Start from empty homepaths, because a run writes banip.txt and the next run reads it.
 rm -rf "$SCRATCH"
+mkdir -p "$SCRATCH"
+# Raven's main joins argv with spaces and no quotes, null/win_main.cpp:1425, so a Raven host splits a path at a space.
+# A link with no space in its path gives both hosts the same base path.
+ln -s "$BASE_PATH" "$SCRATCH/basepath"
 for SIDE in a b; do
     mkdir -p "$SCRATCH/$SIDE/$MOD"
     cp -f "$ROOT/.build/debug/libjampgame.dylib" "$SCRATCH/$SIDE/$MOD/jampgamearm64.dylib"
@@ -83,7 +138,7 @@ run_host() {
     # The fork registers g_maxForceRank with the default 7 and Raven with 6, so the line sets it on both hosts.
     perl -e 'alarm shift; exec @ARGV' "$ALARM" "$HOST" \
         +set fs_homepath "$SCRATCH/$SIDE" \
-        +set fs_basepath "$BASE_PATH" \
+        +set fs_basepath "$SCRATCH/basepath" \
         +set fs_game "$MOD" \
         $FORK_ARGS \
         +set sv_pure 0 \
