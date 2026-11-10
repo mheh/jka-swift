@@ -25,8 +25,8 @@ final class CBlock {
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:170
     init() {
-        // TODO: Port CBlock::CBlock
-        portMissing("CBlock::CBlock", source: "oracle/codemp/icarus/BlockStream.cpp:170")
+        self.m_flags = 0
+        self.m_id = 0
     }
 
     /**
@@ -38,8 +38,10 @@ final class CBlock {
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:187
     func Init() -> Int32 {
-        // TODO: Port CBlock::Init
-        portMissing("CBlock::Init", source: "oracle/codemp/icarus/BlockStream.cpp:187")
+        self.m_flags = 0
+        self.m_id = 0
+
+        return 1
     }
 
     /**
@@ -51,8 +53,11 @@ final class CBlock {
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:201
     func Create(_ block_id: Int32) -> Int32 {
-        // TODO: Port CBlock::Create
-        portMissing("CBlock::Create", source: "oracle/codemp/icarus/BlockStream.cpp:201")
+        _ = self.Init()
+
+        self.m_id = block_id
+
+        return 1
     }
 
     /**
@@ -64,8 +69,21 @@ final class CBlock {
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:216
     func Free() -> Int32 {
-        // TODO: Port CBlock::Free
-        portMissing("CBlock::Free", source: "oracle/codemp/icarus/BlockStream.cpp:216")
+        var numMembers: Int32 = self.GetNumMembers()
+        var bMember: CBlockMember?
+
+        while numMembers != 0 {
+            numMembers -= 1
+            bMember = self.GetMember(numMembers)
+
+            if bMember == nil {
+                return 0
+            }
+        }
+
+        self.m_members.removeAll()			//List of all CBlockMembers owned by this list
+
+        return 1
     }
 
     //	Write overloads
@@ -78,32 +96,68 @@ final class CBlock {
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:244
     func Write(_ member_id: Int32, _ member_data: String) -> Int32 {
-        // TODO: Port CBlock::Write
-        portMissing("CBlock::Write", source: "oracle/codemp/icarus/BlockStream.cpp:244")
+        let bMember = CBlockMember()
+
+        bMember.SetID(member_id)
+
+        bMember.SetData(member_data)
+        bMember.SetSize(strlen(member_data) + 1)
+
+        _ = self.AddMember(bMember)
+
+        return 1
     }
 
     /// Source: oracle/codemp/icarus/BlockStream.cpp:258
     func Write(_ member_id: Int32, _ member_data: JKAShared.vec3_t) -> Int32 {
-        // TODO: Port CBlock::Write
-        portMissing("CBlock::Write", source: "oracle/codemp/icarus/BlockStream.cpp:258")
+        let bMember: CBlockMember
+
+        bMember = CBlockMember()
+
+        bMember.SetID(member_id)
+        bMember.SetData(member_data)
+        bMember.SetSize(Int32(vec3_t.byteCount))
+
+        _ = self.AddMember(bMember)
+
+        return 1
     }
 
     /// Source: oracle/codemp/icarus/BlockStream.cpp:273
     func Write(_ member_id: Int32, _ member_data: Float) -> Int32 {
-        // TODO: Port CBlock::Write
-        portMissing("CBlock::Write", source: "oracle/codemp/icarus/BlockStream.cpp:273")
+        var member_data = member_data
+        let bMember = CBlockMember()
+
+        bMember.SetID(member_id)
+        bMember.WriteData(&member_data)
+        bMember.SetSize(Int32(Float.byteCount))
+
+        _ = self.AddMember(bMember)
+
+        return 1
     }
 
     /// Source: oracle/codemp/icarus/BlockStream.cpp:286
     func Write(_ member_id: Int32, _ member_data: Int32) -> Int32 {
-        // TODO: Port CBlock::Write
-        portMissing("CBlock::Write", source: "oracle/codemp/icarus/BlockStream.cpp:286")
+        var member_data = member_data
+        let bMember = CBlockMember()
+
+        bMember.SetID(member_id)
+        bMember.WriteData(&member_data)
+        bMember.SetSize(Int32(Int32.byteCount))
+
+        _ = self.AddMember(bMember)
+
+        return 1
     }
 
     /// Source: oracle/codemp/icarus/BlockStream.cpp:300
     func Write(_ bMember: CBlockMember?) -> Int32 {
-        // TODO: Port CBlock::Write
-        portMissing("CBlock::Write", source: "oracle/codemp/icarus/BlockStream.cpp:300")
+        // findme: this is wrong:	bMember->SetSize( sizeof(bMember->GetData()) );
+
+        _ = self.AddMember(bMember)
+
+        return 1
     }
 
     // Member list functions
@@ -116,8 +170,8 @@ final class CBlock {
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:317
     func AddMember(_ member: CBlockMember?) -> Int32 {
-        // TODO: Port CBlock::AddMember
-        portMissing("CBlock::AddMember", source: "oracle/codemp/icarus/BlockStream.cpp:317")
+        self.m_members.append(member!)
+        return 1
     }
 
     /**
@@ -129,8 +183,10 @@ final class CBlock {
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:329
     func GetMember(_ memberNum: Int32) -> CBlockMember? {
-        // TODO: Port CBlock::GetMember
-        portMissing("CBlock::GetMember", source: "oracle/codemp/icarus/BlockStream.cpp:329")
+        if memberNum > self.GetNumMembers() - 1 {
+            return nil
+        }
+        return self.m_members[memberNum]
     }
 
     /**
@@ -141,6 +197,7 @@ final class CBlock {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:344
+    // Port-note: The body reads or writes `m_data`, which is `OpaquePointer?` and has no body form, so the body waits for that row.
     func GetMemberData(_ memberNum: Int32) -> OpaquePointer? {
         // TODO: Port CBlock::GetMemberData
         portMissing("CBlock::GetMemberData", source: "oracle/codemp/icarus/BlockStream.cpp:344")
@@ -155,8 +212,22 @@ final class CBlock {
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:359
     func Duplicate() -> CBlock? {
-        // TODO: Port CBlock::Duplicate
-        portMissing("CBlock::Duplicate", source: "oracle/codemp/icarus/BlockStream.cpp:359")
+        var newblock: CBlock?
+
+        newblock = CBlock()
+
+        if newblock == nil {
+            return nil
+        }
+
+        _ = newblock!.Create(self.m_id)
+
+        //Duplicate entire block and return the cc
+        for mi in self.m_members {
+            _ = newblock!.AddMember(mi.Duplicate())
+        }
+
+        return newblock
     }
 
     //Get the ID for the block

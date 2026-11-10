@@ -23,6 +23,7 @@ final class CPriorityQueue {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2731
     func Pop() -> CEdge? {
+        // Port-note: The body needs NodeTotalGreater of navigator.cpp:2694, the comparator of the heap, and no Swift form of it exists.
         // TODO: Port CPriorityQueue::Pop
         portMissing("CPriorityQueue::Pop", source: "oracle/codemp/server/NPCNav/navigator.cpp:2731")
     }
@@ -36,8 +37,12 @@ final class CPriorityQueue {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2716
     func Find(_ npNum: Int32) -> CEdge? {
-        // TODO: Port CPriorityQueue::Find
-        portMissing("CPriorityQueue::Find", source: "oracle/codemp/server/NPCNav/navigator.cpp:2716")
+        for HeapIter in self.mHeap {
+            if HeapIter!.m_first == npNum {
+                return HeapIter
+            }
+        }
+        return nil
     }
 
     /**
@@ -49,6 +54,7 @@ final class CPriorityQueue {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2751
     func Push(_ theEdge: CEdge?) {
+        // Port-note: The body needs NodeTotalGreater of navigator.cpp:2694, the comparator of the heap, and no Swift form of it exists.
         // TODO: Port CPriorityQueue::Push
         portMissing("CPriorityQueue::Push", source: "oracle/codemp/server/NPCNav/navigator.cpp:2751")
     }
@@ -62,6 +68,7 @@ final class CPriorityQueue {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2763
     func Update(_ edge: CEdge?) {
+        // Port-note: The body needs NodeTotalGreater of navigator.cpp:2694, the comparator of the heap, and no Swift form of it exists.
         // TODO: Port CPriorityQueue::Update
         portMissing("CPriorityQueue::Update", source: "oracle/codemp/server/NPCNav/navigator.cpp:2763")
     }
@@ -75,7 +82,6 @@ final class CPriorityQueue {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2779
     func Empty() -> Bool {
-        // TODO: Port CPriorityQueue::Empty
-        portMissing("CPriorityQueue::Empty", source: "oracle/codemp/server/NPCNav/navigator.cpp:2779")
+        return self.mHeap.isEmpty
     }
 }

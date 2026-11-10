@@ -7,8 +7,9 @@ import JKAMP_Ded
 //
 /// Source: oracle/codemp/icarus/Memory.cpp:8
 func ICARUS_Malloc(_ iSize: Int32) -> UnsafeMutableRawPointer {
-    // TODO: Port ICARUS_Malloc
-    portMissing("ICARUS_Malloc", source: "oracle/codemp/icarus/Memory.cpp:8")
+    //return gi.Malloc(iSize, TAG_ICARUS);
+    //return malloc(iSize);
+    return Z_Malloc(iSize, TAG_ICARUS5, false)
 }
 
 /// Source: oracle/codemp/icarus/Memory.cpp:15
