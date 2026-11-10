@@ -1953,12 +1953,12 @@ func Q_acos(_ c: Float) -> Float {
 
     angle = acos(c)
 
-    // JKAShared declares M_PI as a Float too, so the qualifier picks the double of the C library, the type of Raven's macro.
-    if Double(angle) > Foundation.M_PI {
-        return Float(Foundation.M_PI)
+    // JKAShared's M_PI is the float of Raven's macro at q_shared.h:548, and the qualifier breaks the tie with the double of Foundation.
+    if angle > JKAShared.M_PI {
+        return Float(JKAShared.M_PI)
     }
-    if Double(angle) < -Foundation.M_PI {
-        return Float(Foundation.M_PI)
+    if angle < -JKAShared.M_PI {
+        return Float(JKAShared.M_PI)
     }
     return angle
 }
@@ -1969,12 +1969,12 @@ func Q_asin(_ c: Float) -> Float {
 
     angle = asin(c)
 
-    // JKAShared declares M_PI as a Float too, so the qualifier picks the double of the C library, the type of Raven's macro.
-    if Double(angle) > Foundation.M_PI {
-        return Float(Foundation.M_PI)
+    // JKAShared's M_PI is the float of Raven's macro at q_shared.h:548, and the qualifier breaks the tie with the double of Foundation.
+    if angle > JKAShared.M_PI {
+        return Float(JKAShared.M_PI)
     }
-    if Double(angle) < -Foundation.M_PI {
-        return Float(Foundation.M_PI)
+    if angle < -JKAShared.M_PI {
+        return Float(JKAShared.M_PI)
     }
     return angle
 }

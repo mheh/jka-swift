@@ -431,16 +431,16 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
         return args.VMA(1)
 
     case TRAP_SIN:
-        return Int(FloatAsInt(Float(sin(Double(args.VMF(1))))))
+        return Int(FloatAsInt(sin(args.VMF(1))))
 
     case TRAP_COS:
-        return Int(FloatAsInt(Float(cos(Double(args.VMF(1))))))
+        return Int(FloatAsInt(cos(args.VMF(1))))
 
     case TRAP_ATAN2:
-        return Int(FloatAsInt(Float(atan2(Double(args.VMF(1)), Double(args.VMF(2))))))
+        return Int(FloatAsInt(atan2(args.VMF(1), args.VMF(2))))
 
     case TRAP_SQRT:
-        return Int(FloatAsInt(Float(sqrt(Double(args.VMF(1))))))
+        return Int(FloatAsInt(sqrt(args.VMF(1))))
 
     case TRAP_MATRIXMULTIPLY:
         let in1: Slots<vec3_t> = args.VMA(1)
@@ -462,10 +462,10 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
         return 0
 
     case TRAP_FLOOR:
-        return Int(FloatAsInt(Float(floor(Double(args.VMF(1))))))
+        return Int(FloatAsInt(floor(args.VMF(1))))
 
     case TRAP_CEIL:
-        return Int(FloatAsInt(Float(ceil(Double(args.VMF(1))))))
+        return Int(FloatAsInt(ceil(args.VMF(1))))
 
     case TRAP_TESTPRINTINT:
         return 0
