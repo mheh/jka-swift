@@ -115,9 +115,13 @@ public struct BotlibExport: Hashable, HandleView {
     /// Calls the stored `BotLibVarSet` function through the C pointer, with the caller's arguments, as Raven's `pm->BotLibVarSet(...)` did.
     /// A NULL `BotLibVarSet` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runBotLibVarSet(_ var_name: OpaquePointer?, _ value: OpaquePointer?) -> Int32 {
+    public func runBotLibVarSet(_ var_name: String, _ value: String) -> Int32 {
         precondition(self.raw.pointee.BotLibVarSet != nil, "BotLibVarSet is NULL")
-        return self.BotLibVarSet!(var_name, value)
+        return withCString(var_name) { var_name in
+            withCString(value) { value in
+                self.BotLibVarSet!(OpaquePointer(var_name), OpaquePointer(value))
+            }
+        }
     }
 
     /// Source: unknown:15

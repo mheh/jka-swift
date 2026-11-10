@@ -302,6 +302,10 @@ public final class EngineStorage {
     /// Source: oracle/codemp/qcommon/cm_load.cpp:60
     public let SubBSP: Slots<ClipMap>
 
+    /// Raven's `unsigned checksums[16]` local of `CM_Checksum` in `cm_load.cpp`.
+    /// Source: oracle/codemp/qcommon/cm_load.cpp:545
+    public let checksums_CM_Checksum: Slots<UInt32>
+
     /// Raven's `patchPlane_t planes[MAX_PATCH_PLANES]` of `cm_patch.cpp`.
     /// Source: oracle/codemp/qcommon/cm_patch.cpp:431
     public let planes: Slots<PatchPlane>
@@ -329,6 +333,10 @@ public final class EngineStorage {
     /// Raven's `ivec3_t info` local of `FlattenArea` in `cm_terrain.cpp`.
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1339
     public let info_FlattenArea: Slots<Int32>
+
+    /// Raven's `ivec3_t info` local of `FractionBelowLevel` in `cm_terrain.cpp`.
+    /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1382
+    public let info_FractionBelowLevel: Slots<Int32>
 
     /// Raven's `int leafs[MAX_POSITION_LEAFS]` local of `CM_PositionTest` in `cm_trace.cpp`.
     /// Source: oracle/codemp/qcommon/cm_trace.cpp:449
@@ -506,6 +514,10 @@ public final class EngineStorage {
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1544
     public let tbone_G2_TransformBone: Slots<JKAMP.MdxaBone>
 
+    /// Raven's `refexport_t re` local of `GetRefAPI` in `tr_init.cpp`.
+    /// Source: oracle/codemp/renderer/tr_init.cpp:1460
+    public let re_GetRefAPI: Refexport
+
     /// Raven's `trGlobals_t tr` of `tr_main.cpp`.
     /// Source: oracle/codemp/renderer/tr_main.cpp:15
     public let tr: TrGlobals
@@ -645,6 +657,7 @@ public final class EngineStorage {
         self.cmg = EngineStorage.record(of: ClipMap.self)
         self.box_model = EngineStorage.record(of: Cmodel.self)
         self.SubBSP = EngineStorage.records(count: Int(JKAShared.MAX_SUB_BSP), of: ClipMap.self)
+        self.checksums_CM_Checksum = Slots(scalars: EngineStorage.bytes(count: 16 * MemoryLayout<UInt32>.stride), count: 16)
         self.planes = EngineStorage.records(count: Int(JKAMP_Ded.MAX_PATCH_PLANES), of: PatchPlane.self)
         self.p = Slots(vectors: EngineStorage.bytes(count: Int(JKAMP_Ded.MAX_POINTS_ON_WINDING) * JKAShared.vec3_t.byteCount), count: Int(JKAMP_Ded.MAX_POINTS_ON_WINDING))
         self.hullPoints = Slots(vectors: EngineStorage.bytes(count: 128 * JKAShared.vec3_t.byteCount), count: 128)
@@ -652,6 +665,7 @@ public final class EngineStorage {
         self.height_FlattenArea = Slots(scalars: EngineStorage.bytes(count: 1 * MemoryLayout<Int32>.stride), count: 1)
         self.height2_FlattenArea = Slots(scalars: EngineStorage.bytes(count: 1 * MemoryLayout<Int32>.stride), count: 1)
         self.info_FlattenArea = Slots(scalars: EngineStorage.bytes(count: 3 * MemoryLayout<Int32>.stride), count: 3)
+        self.info_FractionBelowLevel = Slots(scalars: EngineStorage.bytes(count: 3 * MemoryLayout<Int32>.stride), count: 3)
         self.cm_trace_leafs_CM_PositionTest = Slots(scalars: EngineStorage.bytes(count: 1024 * MemoryLayout<Int32>.stride), count: 1024)
         self.cmd_text = EngineStorage.record(of: Cmd.self)
         self.cmd_text_buf = Slots(scalars: EngineStorage.bytes(count: 16384), count: 16384)
@@ -696,6 +710,7 @@ public final class EngineStorage {
         self.worldMatrixInv = EngineStorage.record(of: JKAMP.MdxaBone.self)
         self.modelList_G2_ConstructGhoulSkeleton = Slots(scalars: EngineStorage.bytes(count: 256 * MemoryLayout<Int32>.stride), count: 256)
         self.tbone_G2_TransformBone = EngineStorage.records(count: 6, of: JKAMP.MdxaBone.self)
+        self.re_GetRefAPI = EngineStorage.record(of: Refexport.self)
         self.tr = EngineStorage.record(of: TrGlobals.self)
         self.mhHashTable = EngineStorage.table(count: 1024, of: ModelHash.self)
         self.stages = EngineStorage.records(count: Int(JKAMP_Ded.MAX_SHADER_STAGES), of: ShaderStage.self)
@@ -789,6 +804,7 @@ public final class EngineStorage {
         UnsafeMutableRawPointer(self.cmg.handle).deallocate()
         UnsafeMutableRawPointer(self.box_model.handle).deallocate()
         self.SubBSP.base.deallocate()
+        self.checksums_CM_Checksum.base.deallocate()
         self.planes.base.deallocate()
         self.p.base.deallocate()
         self.hullPoints.base.deallocate()
@@ -796,6 +812,7 @@ public final class EngineStorage {
         self.height_FlattenArea.base.deallocate()
         self.height2_FlattenArea.base.deallocate()
         self.info_FlattenArea.base.deallocate()
+        self.info_FractionBelowLevel.base.deallocate()
         self.cm_trace_leafs_CM_PositionTest.base.deallocate()
         UnsafeMutableRawPointer(self.cmd_text.handle).deallocate()
         self.cmd_text_buf.base.deallocate()
@@ -840,6 +857,7 @@ public final class EngineStorage {
         UnsafeMutableRawPointer(self.worldMatrixInv.handle).deallocate()
         self.modelList_G2_ConstructGhoulSkeleton.base.deallocate()
         self.tbone_G2_TransformBone.base.deallocate()
+        UnsafeMutableRawPointer(self.re_GetRefAPI.handle).deallocate()
         UnsafeMutableRawPointer(self.tr.handle).deallocate()
         self.mhHashTable.base.deallocate()
         self.stages.base.deallocate()
