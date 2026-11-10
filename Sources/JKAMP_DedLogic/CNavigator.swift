@@ -41,11 +41,11 @@ final class CNavigator {
     //rww - made failedEdges private as it doesn't seem to need to be public.
     //And I'd rather shoot myself than have to devise a way of setting/accessing this
     //array via trap calls.
-    // AI: Raven holds MAX_FAILED_EDGES `failedEdge_t` records in the class, and MAX_FAILED_EDGES of navigator.h is 32, which no module of the host declares.
-    // The instance owns one allocation of the 32 records, zeroed as C zeroes the global `navigator`, and the deinit frees it.
+    // AI: Raven holds MAX_FAILED_EDGES `failedEdge_t` records in the class.
+    // The instance owns one allocation of the records, zeroed as C zeroes the global `navigator`, and the deinit frees it.
     private let failedEdges: Slots<JKAMP.FailedEdge> = {
-        let failedEdges = Slots<JKAMP.FailedEdge>.new(count: 32)
-        failedEdges.zero(count: 32)
+        let failedEdges = Slots<JKAMP.FailedEdge>.new(count: MAX_FAILED_EDGES)
+        failedEdges.zero(count: MAX_FAILED_EDGES)
         return failedEdges
     }()
 
@@ -149,11 +149,10 @@ final class CNavigator {
         }
 
         //read in the failed edges
-        // AI: Raven reads `sizeof( failedEdges )` and counts to MAX_FAILED_EDGES of navigator.h, which no module of the host declares.
-        // The body reads the bytes of the 32 records, the form of ClearAllFailedEdges.
-        _ = FS_Read(self.failedEdges.bytes, Int32(JKAMP.FailedEdge.byteCount * 32), file)
+        // AI: Raven reads `sizeof( failedEdges )`. The body reads the bytes of the records, the form of ClearAllFailedEdges.
+        _ = FS_Read(self.failedEdges.bytes, Int32(JKAMP.FailedEdge.byteCount * Int(MAX_FAILED_EDGES)), file)
         var j: Int32 = 0
-        while j < 32 {
+        while j < MAX_FAILED_EDGES {
             self.m_edgeLookupMap[self.failedEdges[j].startID, default: []].append(j)
             j += 1
         }
@@ -206,7 +205,7 @@ final class CNavigator {
 
         //write out failed edges
         // AI: Raven writes `sizeof( failedEdges )`. The body writes the bytes of the 32 records, the form of ClearAllFailedEdges.
-        _ = FS_Write(self.failedEdges.bytes, Int32(JKAMP.FailedEdge.byteCount * 32), file)
+        _ = FS_Write(self.failedEdges.bytes, Int32(JKAMP.FailedEdge.byteCount * Int(MAX_FAILED_EDGES)), file)
 
         FS_FCloseFile(file)
 
@@ -288,16 +287,14 @@ final class CNavigator {
 
         // Raven's record lives to the end of his function, so the rest of the function is the closure.
         Trace.scratch { trace in
-            // AI: Raven reads EFLAG_NONE and EFLAG_BLOCKED of navigator.h, which no module of the host declares.
-            // The body reads their values, 0 and 1.
-            var flags: Int32 = 0
+            var flags: Int32 = EFLAG_NONE
 
             SV_Trace(trace, p1, wpMins, wpMaxs, p2, ENTITYNUM_NONE, JKAShared.MASK_SOLID | CONTENTS_BOTCLIP | CONTENTS_MONSTERCLIP, 0, 0, 10)
 
             let cost = Int32(Distance(p1, p2))
 
             if trace.fraction != 1.0 || trace.startsolid == 1 || trace.allsolid == 1 {
-                flags |= 0x0000_0001
+                flags |= EFLAG_BLOCKED
             }
 
             start!.AddEdge(second, cost, flags)
@@ -489,19 +486,17 @@ final class CNavigator {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1514
     func GetNearestNode(_ ent: JKAMP.SharedEntity?, _ lastID: Int32, _ flags: Int32, _ targetID: Int32) -> Int32 {
-        // AI: Raven reads NODE_NONE and NF_CLEAR_PATH of navigator.h and WAYPOINT_NONE of g_nav.h, which no module of the host declares.
-        // The body reads their values, -1, 2, and -1.
-        var bestNode: Int32 = -1
+        var bestNode: Int32 = NODE_NONE
         //Must have nodes
         if self.m_nodes.count == 0 {
-            return -1
+            return NODE_NONE
         }
 
-        if targetID == -1 {
+        if targetID == NODE_NONE {
             //Try and find an early match using our last node
             bestNode = self.TestBestFirst(ent, lastID, flags)
 
-            if bestNode != -1 {
+            if bestNode != NODE_NONE {
                 return bestNode
             }
         }//else can't rely on testing last, we want best to targetID
@@ -547,7 +542,7 @@ final class CNavigator {
                 continue
             } else {
                 //Do we need a clear path?
-                if (flags & 0x0000_0002) != 0 {
+                if (flags & NF_CLEAR_PATH) != 0 {
                     if self.TestNodePath(ent, ENTITYNUM_NONE, position, false) == 0 {//qtrue?
                         self.SetCheckedNode(nci.nodeID, ent!.s.number, CHECKED_FAILED)
                         continue
@@ -568,7 +563,7 @@ final class CNavigator {
                 self.SetCheckedNode(nci.nodeID, ent!.s.number, CHECKED_PASSED)
             }
 
-            if targetID != -1 {//we want to find the one with the shortest route here
+            if targetID != WAYPOINT_NONE {//we want to find the one with the shortest route here
                 // C converts the unsigned cost to `int` at the store.
                 dist = Int32(bitPattern: self.GetPathCost(nci.nodeID, targetID))
                 if dist < bestDist {
@@ -593,18 +588,15 @@ final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2377
-    // AI: Raven defaults rejectID to NODE_NONE of navigator.h, which no module of the host declares. The default is its value, -1.
-    func GetBestNode(_ startID: Int32, _ endID: Int32, _ rejectID: Int32 = -1) -> Int32 {
-        // AI: Raven reads NODE_NONE of navigator.h and WAYPOINT_NONE of g_nav.h, which no module of the host declares.
-        // The body reads their value, -1.
+    func GetBestNode(_ startID: Int32, _ endID: Int32, _ rejectID: Int32 = NODE_NONE) -> Int32 {
         //Validate the start position
         if (startID < 0) || (startID >= self.m_nodes.count) {
-            return -1
+            return WAYPOINT_NONE
         }
 
         //Validate the end position
         if (endID < 0) || (endID >= self.m_nodes.count) {
-            return -1
+            return WAYPOINT_NONE
         }
 
         if startID == endID {
@@ -619,7 +611,7 @@ final class CNavigator {
         var testRank: Int32
         var rejectRank: Int32 = 0
 
-        if rejectID != -1 {
+        if rejectID != WAYPOINT_NONE {
             var i: Int32 = 0
             while i < start!.GetNumEdges() {
                 if start!.GetEdge(i) == rejectID {
@@ -648,8 +640,8 @@ final class CNavigator {
             }
 
             //No possible connection
-            if testRank == -1 {
-                return -1
+            if testRank == NODE_NONE {
+                return NODE_NONE
             }
 
             //Found a better one
@@ -767,8 +759,7 @@ final class CNavigator {
                 return true
             }
 
-            // AI: Raven compares with NODE_NONE of navigator.h, which no module of the host declares. The body reads its value, -1.
-            if (end!.GetRank(edgeID)) != -1 {
+            if (end!.GetRank(edgeID)) != NODE_NONE {
                 return true
             }
             i += 1
@@ -834,9 +825,8 @@ final class CNavigator {
 
                 testRank = endNode!.GetRank(edgeID)
 
-                // AI: Raven compares with NODE_NONE of navigator.h, which no module of the host declares. The body reads its value, -1.
                 //No possible connection
-                if testRank == -1 {
+                if testRank == NODE_NONE {
                     return UInt32(Q3_INFINITE) // return 0;
                 }
 
@@ -900,17 +890,16 @@ final class CNavigator {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2643
     func GetProjectedNode(_ origin: JKAShared.vec3_t, _ nodeID: Int32) -> Int32 {
-        // AI: Raven reads NODE_NONE of navigator.h, which no module of the host declares. The body reads its value, -1.
         //Validate the start position
         if (nodeID < 0) || (nodeID >= self.m_nodes.count) {
-            return -1
+            return NODE_NONE
         }
 
         let node = self.m_nodes[nodeID]
         var tempNode: CNode?
 
         var bestDot: Float = 0.0
-        var bestNode: Int32 = -1
+        var bestNode: Int32 = NODE_NONE
 
         var targetDir = vec3_t()
         var basePos = vec3_t()
@@ -1079,8 +1068,7 @@ final class CNavigator {
         */
         //clear failedEdge info
         self.SetEdgeCost(failedEdge!.startID, failedEdge!.endID, -1)
-        // AI: Raven stores WAYPOINT_NONE of g_nav.h, which no module of the host declares. The body stores its value, -1.
-        failedEdge!.endID = -1
+        failedEdge!.endID = WAYPOINT_NONE
         failedEdge!.startID = failedEdge!.endID
         failedEdge!.entID = ENTITYNUM_NONE
         failedEdge!.checkTime = 0
@@ -1088,11 +1076,10 @@ final class CNavigator {
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1867
     func ClearAllFailedEdges() {
-        // AI: Raven calls memset over the array with WAYPOINT_NONE of g_nav.h and MAX_FAILED_EDGES of navigator.h, which no module of the host declares.
-        // The body calls Com_Memset over the bytes of the records, the form of cm_test.swift:456, with the values -1 and 32.
-        Com_Memset(self.failedEdges.bytes, -1, JKAMP.FailedEdge.byteCount * 32)
+        // AI: Raven calls memset over `sizeof( failedEdges )`. The body calls Com_Memset over the bytes of the records, the form of cm_test.swift:456.
+        Com_Memset(self.failedEdges.bytes, WAYPOINT_NONE, JKAMP.FailedEdge.byteCount * Int(MAX_FAILED_EDGES))
         var j: Int32 = 0
-        while j < 32 {
+        while j < MAX_FAILED_EDGES {
             self.ClearFailedEdge(self.failedEdges[j])
             j += 1
         }
@@ -1181,11 +1168,9 @@ final class CNavigator {
         }
 
         //Okay, new one, find an empty slot
-        // AI: Raven compares with WAYPOINT_NONE of g_nav.h and counts to MAX_FAILED_EDGES of navigator.h, which no module of the host declares.
-        // The body reads their values, -1 and 32.
         j = 0
-        while j < 32 {
-            if self.failedEdges[j].startID == -1 {
+        while j < MAX_FAILED_EDGES {
+            if self.failedEdges[j].startID == WAYPOINT_NONE {
                 self.failedEdges[j].startID = startID
                 self.failedEdges[j].endID = endID
                 //Check one second from now to see if it's clear
@@ -1247,8 +1232,7 @@ final class CNavigator {
                     //reconnect the nodes and mark every node's flag NF_RECALC
                     //Com_Printf( S_COLOR_CYAN"%d marking all nodes for recalc\n", svs.time );
                     self.SetEdgeCost(startID, endID, Q3_INFINITE)
-                    // AI: Raven sets NF_RECALC of navigator.h, which no module of the host declares. The body reads its value, 4.
-                    self.FlagAllNodes(4)
+                    self.FlagAllNodes(NF_RECALC)
                 }
                 return
             }
@@ -1266,8 +1250,7 @@ final class CNavigator {
 
         //Every 1 second, see if our failed edges are clear
         if failedEdge!.checkTime < svs.time {
-            // AI: Raven compares with WAYPOINT_NONE of g_nav.h, which no module of the host declares. The body reads its value, -1.
-            if failedEdge!.startID != -1 {
+            if failedEdge!.startID != WAYPOINT_NONE {
                 var start = vec3_t()
                 var end = vec3_t()
                 var mins = vec3_t()
@@ -1349,9 +1332,8 @@ final class CNavigator {
             return
         }
 
-        // AI: Raven counts to MAX_FAILED_EDGES of navigator.h, which no module of the host declares. The body reads its value, 32.
         var j: Int32 = 0
-        while j < 32 {
+        while j < MAX_FAILED_EDGES {
             failedEdge = self.failedEdges[j]
 
             clearedAny = self.CheckFailedEdge(failedEdge) ? true : clearedAny
@@ -1361,19 +1343,17 @@ final class CNavigator {
             if self.pathsCalculated {
                 //reconnect the nodes and mark every node's flag NF_RECALC
                 //Com_Printf( S_COLOR_CYAN"%d marking all nodes for recalc\n", svs.time );
-                // AI: Raven sets NF_RECALC of navigator.h, which no module of the host declares. The body reads its value, 4.
-                self.FlagAllNodes(4)
+                self.FlagAllNodes(NF_RECALC)
             }
         }
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2170
     func RouteBlocked(_ startID: Int32, _ testEdgeID: Int32, _ endID: Int32, _ rejectRank: Int32) -> Bool {
-        // AI: Raven reads NODE_NONE of navigator.h, which no module of the host declares. The body reads its value, -1.
         var nextID: Int32
         var edgeID: Int32
         var lastID: Int32
-        var bestNextID: Int32 = -1
+        var bestNextID: Int32 = NODE_NONE
         var bestRank = rejectRank
         var testRank: Int32
         var allEdgesFailed: Bool
@@ -1456,23 +1436,20 @@ final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2261
-    // AI: Raven defaults rejectID to NODE_NONE of navigator.h, which no module of the host declares. The default is its value, -1.
-    func GetBestNodeAltRoute(_ startID: Int32, _ endID: Int32, _ pathCost: inout Int32, _ rejectID: Int32 = -1) -> Int32 {
-        // AI: Raven reads NODE_NONE of navigator.h and WAYPOINT_NONE of g_nav.h, which no module of the host declares.
-        // The body reads their value, -1.
+    func GetBestNodeAltRoute(_ startID: Int32, _ endID: Int32, _ pathCost: inout Int32, _ rejectID: Int32 = NODE_NONE) -> Int32 {
         //Must have nodes
         if self.m_nodes.count == 0 {
-            return -1
+            return WAYPOINT_NONE
         }
 
         //Validate the start position
         if (startID < 0) || (startID >= self.m_nodes.count) {
-            return -1
+            return WAYPOINT_NONE
         }
 
         //Validate the end position
         if (endID < 0) || (endID >= self.m_nodes.count) {
-            return -1
+            return WAYPOINT_NONE
         }
 
         //Is it the same node?
@@ -1480,7 +1457,7 @@ final class CNavigator {
             if d_altRoutes!.integer == 0 || self.EdgeFailed(startID, endID) == -1 {
                 return startID
             } else {
-                return -1
+                return WAYPOINT_NONE
             }
         }
 
@@ -1495,7 +1472,7 @@ final class CNavigator {
         pathCost = 0
 
         //Find the minimum rank of the edge(s) we want to reject as paths
-        if rejectID != -1 {
+        if rejectID != WAYPOINT_NONE {
             var i: Int32 = 0
             while i < start!.GetNumEdges() {
                 if start!.GetEdge(i) == rejectID {
@@ -1532,9 +1509,9 @@ final class CNavigator {
             }
 
             //No possible connection
-            if testRank == -1 {
+            if testRank == NODE_NONE {
                 pathCost = Q3_INFINITE
-                return -1
+                return NODE_NONE
             }
 
             //Found a better one
@@ -1564,19 +1541,16 @@ final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2366
-    // AI: Raven defaults rejectID to NODE_NONE of navigator.h, which no module of the host declares. The default is its value, -1.
-    func GetBestNodeAltRoute(_ startID: Int32, _ endID: Int32, _ rejectID: Int32 = -1) -> Int32 {
+    func GetBestNodeAltRoute(_ startID: Int32, _ endID: Int32, _ rejectID: Int32 = NODE_NONE) -> Int32 {
         var junk: Int32 = 0
         return self.GetBestNodeAltRoute(startID, endID, &junk, rejectID)
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1320
     func GetBestPathBetweenEnts(_ ent: JKAMP.SharedEntity?, _ goal: JKAMP.SharedEntity?, _ flags: Int32) -> Int32 {
-        // AI: Raven reads NODE_NONE, NF_CLEAR_PATH, and NF_RECALC of navigator.h, which no module of the host declares.
-        // The body reads their values, -1, 2, and 4.
         //Must have nodes
         if self.m_nodes.count == 0 {
-            return -1
+            return NODE_NONE
         }
 
         var nodeChain = nodeChain_l()
@@ -1596,13 +1570,13 @@ final class CNavigator {
         var node2: CNode?
         var nodeNum: Int32
         var nodeNum2: Int32
-        var nextNode: Int32 = -1
-        var bestNode: Int32 = -1
+        var nextNode: Int32 = NODE_NONE
+        var bestNode: Int32 = NODE_NONE
         var nodeFlags: Int32 = 0
         //	bool				recalc = false;
 
-        ent!.waypoint = -1
-        goal!.waypoint = -1
+        ent!.waypoint = NODE_NONE
+        goal!.waypoint = NODE_NONE
 
         //Look through all nodes
         for nci in nodeChain {
@@ -1629,7 +1603,7 @@ final class CNavigator {
                     //We're not *within* this node, so check clear path, etc.
 
                     //FIXME: any way to call G_FindClosestPointOnLineSegment and see if I can at least get to the waypoint's path
-                    if (flags & 0x0000_0002) != 0 {//|| flags & NF_CLEAR_LOS )
+                    if (flags & NF_CLEAR_PATH) != 0 {//|| flags & NF_CLEAR_LOS )
                         //need a clear path or LOS
                         if !SV_inPVS(ent!.r.currentOrigin, position) {//not even potentially clear
                             self.SetCheckedNode(nodeNum, ent!.s.number, CHECKED_FAILED)
@@ -1638,7 +1612,7 @@ final class CNavigator {
                     }
 
                     //Do we need a clear path?
-                    if (flags & 0x0000_0002) != 0 {
+                    if (flags & NF_CLEAR_PATH) != 0 {
                         if self.TestNodePath(ent, goal!.s.number, position, true) == 0 {
                             self.SetCheckedNode(nodeNum, ent!.s.number, CHECKED_FAILED)
                             continue
@@ -1651,7 +1625,7 @@ final class CNavigator {
             if d_altRoutes!.integer != 0 {
                 //calc the paths for this node if they're out of date
                 nodeFlags = node!.GetFlags()
-                if (nodeFlags & 0x0000_0004) != 0 {
+                if (nodeFlags & NF_RECALC) != 0 {
                     //Com_Printf( S_COLOR_CYAN"%d recalcing paths from node %d\n", svs.time, nodeNum );
                     self.CalculatePath(node)
                 }
@@ -1663,7 +1637,7 @@ final class CNavigator {
                 if d_altRoutes!.integer != 0 {
                     //calc the paths for this node if they're out of date
                     nodeFlags = node2!.GetFlags()
-                    if (nodeFlags & 0x0000_0004) != 0 {
+                    if (nodeFlags & NF_RECALC) != 0 {
                         //Com_Printf( S_COLOR_CYAN"%d recalcing paths from node %d\n", svs.time, nodeNum2 );
                         self.CalculatePath(node2)
                     }
@@ -1702,7 +1676,7 @@ final class CNavigator {
                     if nci2.distance >= UInt32(bitPattern: radius * radius) || (abs(position2[2] - goal!.r.currentOrigin[2]) >= MAX_Z_DELTA) {
                         //We're not *within* this node, so check clear path, etc.
 
-                        if (flags & 0x0000_0002) != 0 {//|| flags & NF_CLEAR_LOS )
+                        if (flags & NF_CLEAR_PATH) != 0 {//|| flags & NF_CLEAR_LOS )
                             //need a clear path or LOS
                             if !SV_inPVS(goal!.r.currentOrigin, position2) {//not even potentially clear
                                 self.SetCheckedNode(nodeNum2, goal!.s.number, CHECKED_FAILED)
@@ -1710,7 +1684,7 @@ final class CNavigator {
                             }
                         }
                         //Do we need a clear path?
-                        if (flags & 0x0000_0002) != 0 {
+                        if (flags & NF_CLEAR_PATH) != 0 {
                             if self.TestNodePath(goal, ent!.s.number, position2, false) == 0 {//qtrue?
                                 self.SetCheckedNode(nodeNum2, goal!.s.number, CHECKED_FAILED)
                                 continue
@@ -1728,8 +1702,8 @@ final class CNavigator {
         }
 
         if d_altRoutes!.integer == 0 {//bestNode would not have been set by GetBestNodeAltRoute above, so get it here
-            if ent!.waypoint != -1 && goal!.waypoint != -1 {//have 2 valid waypoints which means a valid path
-                bestNode = self.GetBestNodeAltRoute(ent!.waypoint, goal!.waypoint, &bestCost, -1)
+            if ent!.waypoint != NODE_NONE && goal!.waypoint != NODE_NONE {//have 2 valid waypoints which means a valid path
+                bestNode = self.GetBestNodeAltRoute(ent!.waypoint, goal!.waypoint, &bestCost, NODE_NONE)
             }
         }
         return bestNode
@@ -1761,8 +1735,7 @@ final class CNavigator {
             edgeNum = 0
             while edgeNum < ni!.GetNumEdges() {
                 flags = Int32(ni!.GetEdgeFlags(edgeNum))
-                // AI: Raven tests EFLAG_BLOCKED of navigator.h, which no module of the host declares. The body reads its value, 1.
-                if (flags & 0x0000_0001) != 0 {
+                if (flags & EFLAG_BLOCKED) != 0 {
                     first = ni!.GetID()
                     second = ni!.GetEdge(edgeNum)
                     start = self.m_nodes[first]
@@ -1812,8 +1785,7 @@ final class CNavigator {
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1693
     func CheckedNode(_ wayPoint: Int32, _ ent: Int32) -> JKAShared.byte {
         //assert(wayPoint>=0&&wayPoint<MAX_STORED_WAYPOINTS);
-        // AI: Raven compares with MAX_STORED_WAYPOINTS of g_nav.h, which no module of the host declares. The body reads its value, 512.
-        if wayPoint < 0 || wayPoint >= 512 {
+        if wayPoint < 0 || wayPoint >= MAX_STORED_WAYPOINTS {
             return CHECKED_NO
         }
         assert(ent >= 0 && ent < MAX_GENTITIES)
@@ -1826,8 +1798,7 @@ final class CNavigator {
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1709
     func SetCheckedNode(_ wayPoint: Int32, _ ent: Int32, _ value: JKAShared.byte) {
         //assert(wayPoint>=0&&wayPoint<MAX_STORED_WAYPOINTS);
-        // AI: Raven compares with MAX_STORED_WAYPOINTS of g_nav.h, which no module of the host declares. The body reads its value, 512.
-        if wayPoint < 0 || wayPoint >= 512 {
+        if wayPoint < 0 || wayPoint >= MAX_STORED_WAYPOINTS {
             return
         }
         assert(ent >= 0 && ent < MAX_GENTITIES)
@@ -1893,15 +1864,14 @@ final class CNavigator {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1182
     private func TestBestFirst(_ ent: JKAMP.SharedEntity?, _ lastID: Int32, _ flags: Int32) -> Int32 {
-        // AI: Raven reads NODE_NONE of navigator.h, which no module of the host declares. The body reads its value, -1.
         //Must be a valid one to begin with
-        if lastID == -1 {
-            return -1
+        if lastID == NODE_NONE {
+            return NODE_NONE
         }
 
         // AI: Raven compares the signed index with the unsigned size, so a negative index is out of range. The test names that case.
         if lastID < 0 || lastID >= self.m_nodes.count {
-            return -1
+            return NODE_NONE
         }
 
         //Get the info
@@ -1914,8 +1884,8 @@ final class CNavigator {
         node!.GetPosition(&nodePos)
 
         //Setup our last node as our root, and search for a closer one according to its edges
-        var bestNode: Int32 = (self.TestNodePath(ent, ENTITYNUM_NONE, nodePos, true) != 0) ? lastID : -1
-        var bestDist: Float = (bestNode == -1) ? Float(Q3_INFINITE) : DistanceSquared(ent!.r.currentOrigin, nodePos)
+        var bestNode: Int32 = (self.TestNodePath(ent, ENTITYNUM_NONE, nodePos, true) != 0) ? lastID : NODE_NONE
+        var bestDist: Float = (bestNode == NODE_NONE) ? Float(Q3_INFINITE) : DistanceSquared(ent!.r.currentOrigin, nodePos)
 
         //Test all these edges first
         var i: Int32 = 0
@@ -2247,7 +2217,6 @@ final class CNavigator {
             // AI: Raven deletes each popped edge, then the queue and the table. Dropping the references frees them.
         }
 
-        // AI: Raven clears NF_RECALC of navigator.h, which no module of the host declares. The body reads its value, 4.
-        node!.RemoveFlag(0x0000_0004)
+        node!.RemoveFlag(NF_RECALC)
     }
 }

@@ -188,25 +188,23 @@ final class CROFFSystem {
         hdr2.mCount = data[int: 8]
 
         // AI: Raven runs strcmp over his 4-byte `mHeader`, which reads on into `mVersion`, so the compare decides by the fifth byte at the latest.
-        // The body compares the first five bytes of the file with ROFF_STRING of RoffSystem.h, "ROFF", which no module of the host declares.
+        // The body compares the first five bytes of the file with ROFF_STRING.
         var mHeader = CharBuf(5)
         Com_Memcpy(&mHeader, data, 5)
 
-        if strcmp(mHeader, "ROFF") == 0 { // bad header
+        if strcmp(mHeader, ROFF_STRING) == 0 { // bad header
             return false
         }
 
-        // AI: Raven reads ROFF_VERSION and ROFF_NEW_VERSION of RoffSystem.h, which no module of the host declares.
-        // The body reads their values, 1 and 2.
-        if hdr.mVersion != 1 && hdr.mVersion != 2 {	// bad version
+        if hdr.mVersion != ROFF_VERSION && hdr.mVersion != ROFF_NEW_VERSION {	// bad version
             return false
         }
 
-        if hdr.mVersion == 1 && hdr.mCount <= 0.0 {	// bad count
+        if hdr.mVersion == ROFF_VERSION && hdr.mCount <= 0.0 {	// bad count
             return false
         }
 
-        if hdr.mVersion == 2 && hdr2.mCount <= 0 {	// bad count
+        if hdr.mVersion == ROFF_NEW_VERSION && hdr2.mCount <= 0 {	// bad count
             return false
         }
 
@@ -237,16 +235,14 @@ final class CROFFSystem {
         hdr.mVersion = data[int: 4]
         hdr.mCount = data[float: 8]
 
-        // AI: Raven reads ROFF_NEW_VERSION and ROFF_SAMPLE_RATE of RoffSystem.h, which no module of the host declares.
-        // The body reads their values, 2 and 10.
-        if hdr.mVersion == 2 {
+        if hdr.mVersion == ROFF_NEW_VERSION {
             return self.InitROFF2(data, obj)
         }
 
         obj!.mROFFEntries = Int32(hdr.mCount)
         obj!.mMoveRotateList = Array(repeating: TROFF2Entry(), count: Int(Int32(hdr.mCount)))
-        obj!.mFrameTime = 1000 / 10		// default 10 hz
-        obj!.mLerp = 10
+        obj!.mFrameTime = 1000 / ROFF_SAMPLE_RATE		// default 10 hz
+        obj!.mLerp = ROFF_SAMPLE_RATE
         obj!.mNumNoteTracks = 0
         obj!.mNoteTrackIndexes = []
 
@@ -614,9 +610,8 @@ final class CROFFSystem {
             angle = ent!.r.currentAngles
         }
 
-        // AI: Raven passes ROFF_SAMPLE_RATE of RoffSystem.h, which no module of the host declares. The body passes its value, 10.
-        self.SetLerp(originTrajectory, TR_STATIONARY, origin, nil, svs.time, 10)
-        self.SetLerp(angleTrajectory, TR_STATIONARY, angle, nil, svs.time, 10)
+        self.SetLerp(originTrajectory, TR_STATIONARY, origin, nil, svs.time, ROFF_SAMPLE_RATE)
+        self.SetLerp(angleTrajectory, TR_STATIONARY, angle, nil, svs.time, ROFF_SAMPLE_RATE)
 
         return true
     }

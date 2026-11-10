@@ -25,6 +25,16 @@ final class boltInfo_t {
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:176
     init() {}
 
+    /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:170
+    // AI: Raven copies the struct by value with the compiler's `operator=`. The method is `copy`, a memberwise assign in Raven's member order.
+    func copy(_ other: boltInfo_t) {
+        self.boneNumber = other.boneNumber
+        self.surfaceNumber = other.surfaceNumber
+        self.surfaceType = other.surfaceType
+        self.boltUsed = other.boltUsed
+        self.position.copy(from: other.position)
+    }
+
     deinit {
         self.mdxaBones.delete()
     }

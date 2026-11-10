@@ -1096,17 +1096,122 @@ func G2API_AttachEnt(_ boltInfo: inout Int32, _ ghlInfoTo: CGhoul2Info?, _ toBol
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1727
 func G2API_GetBoltMatrix_SPMethod(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: Slots<qhandle_t>?, _ scale: JKAShared.vec3_t) -> Bool {
-    // Port-note: Raven normalizes each row of a `mdxaBone_t` in place as a `float *`, and a `Slots<Float>` row has no form for VectorNormalize.
-    // TODO: Port G2API_GetBoltMatrix_SPMethod
-    portMissing("G2API_GetBoltMatrix_SPMethod", source: "oracle/codemp/ghoul2/G2_API.cpp:1727")
+    assert(ghoul2.size() > modelIndex)
+
+    if ghoul2.size() > modelIndex {
+        let ghlInfo = ghoul2[modelIndex]
+
+        //assert(boltIndex < ghlInfo->mBltlist.size());
+
+        if boltIndex < ghlInfo.mBltlist.count && boltIndex >= 0 {
+            // make sure we have transformed the skeleton
+            if !gG2_GBMNoReconstruct {
+                G2_ConstructGhoulSkeleton(ghoul2, frameNum, true, scale)
+            }
+
+            gG2_GBMNoReconstruct = false
+
+            return MdxaBone.scratch { scaled in
+                var use: MdxaBone
+                use = ghlInfo.mBltlist[boltIndex].position
+
+                if scale[0] != 0 || scale[1] != 0 || scale[2] != 0 {
+                    scaled.copy(from: use)
+                    use = scaled
+
+                    // scale the bolt position by the scale factor for this model since at this point its still in model space
+                    if scale[0] != 0 {
+                        scaled.matrix[0][3] *= scale[0]
+                    }
+                    if scale[1] != 0 {
+                        scaled.matrix[1][3] *= scale[1]
+                    }
+                    if scale[2] != 0 {
+                        scaled.matrix[2][3] *= scale[2]
+                    }
+                }
+                // pre generate the world matrix
+                G2_GenerateWorldMatrix(angles, position)
+
+                // AI: Raven casts each row of four floats to a float pointer for VectorNormalize. The call normalizes the vector accessor of the row.
+                _ = VectorNormalize(&use.matrix[0].vector)
+                _ = VectorNormalize(&use.matrix[1].vector)
+                _ = VectorNormalize(&use.matrix[2].vector)
+
+                Multiply_3x4Matrix(matrix, worldMatrix, use)
+                return true
+            }
+        }
+    }
+    return false
 }
 
 //qboolean G2API_GetBoltMatrix(CGhoul2Info_v &ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles,
 //							 const vec3_t position, const int AframeNum, qhandle_t *modelList, const vec3_t scale )
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1795
 func G2API_GetBoltMatrix(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: Slots<qhandle_t>?, _ scale: JKAShared.vec3_t) -> Bool {
-    // TODO: Port G2API_GetBoltMatrix
-    portMissing("G2API_GetBoltMatrix", source: "oracle/codemp/ghoul2/G2_API.cpp:1795")
+//	G2ERROR(ghoul2.IsValid(),"Invalid ghlInfo");
+    G2_GenerateWorldMatrix(angles, position)
+    if G2_SetupModelPointers(ghoul2) {
+        if modelIndex >= 0 && modelIndex < ghoul2.size() {
+            let tframeNum = G2API_GetTime(frameNum)
+            let ghlInfo = ghoul2[modelIndex]
+
+            if boltIndex >= 0 && boltIndex < ghlInfo.mBltlist.count {
+                return MdxaBone.scratch { bolt in
+                    if G2_NeedsRecalc(ghlInfo, tframeNum) {
+                        G2_ConstructGhoulSkeleton(ghoul2, tframeNum, true, scale)
+                    }
+
+                    G2_GetBoltMatrixLow(ghlInfo, boltIndex, scale, bolt)
+                    // scale the bolt position by the scale factor for this model since at this point its still in model space
+                    if scale[0] != 0 {
+                        bolt.matrix[0][3] *= scale[0]
+                    }
+                    if scale[1] != 0 {
+                        bolt.matrix[1][3] *= scale[1]
+                    }
+                    if scale[2] != 0 {
+                        bolt.matrix[2][3] *= scale[2]
+                    }
+                    // AI: Raven casts each row of four floats to a float pointer for VectorNormalize. The call normalizes the vector accessor of the row.
+                    _ = VectorNormalize(&bolt.matrix[0].vector)
+                    _ = VectorNormalize(&bolt.matrix[1].vector)
+                    _ = VectorNormalize(&bolt.matrix[2].vector)
+
+                    Multiply_3x4Matrix(matrix, worldMatrix, bolt)
+
+                    if !gG2_GBMUseSPMethod { //this is horribly stupid and I hate it. But lots of game code is written to assume this 90 degree offset thing.
+                        MdxaBone.scratch { rotMat in
+                            MdxaBone.scratch { tempMatrix in
+                                let newangles = JKAShared.vec3_t(0, 270, 0)
+                                Create_Matrix(newangles, rotMat)
+                                // make the model space matrix we have for this bolt into a world matrix
+                                Multiply_3x4Matrix(tempMatrix, worldMatrix, bolt)
+                                var origin = JKAShared.vec3_t()
+                                origin[0] = tempMatrix.matrix[0][3]
+                                origin[1] = tempMatrix.matrix[1][3]
+                                origin[2] = tempMatrix.matrix[2][3]
+                                tempMatrix.matrix[0][3] = 0
+                                tempMatrix.matrix[1][3] = 0
+                                tempMatrix.matrix[2][3] = 0
+                                Multiply_3x4Matrix(matrix, tempMatrix, rotMat)
+                                matrix.matrix[0][3] = origin[0]
+                                matrix.matrix[1][3] = origin[1]
+                                matrix.matrix[2][3] = origin[2]
+                            }
+                        }
+                    } else { //reset it
+                        gG2_GBMUseSPMethod = false
+                    }
+
+                    return true
+                }
+            }
+        }
+    }
+    Multiply_3x4Matrix(matrix, worldMatrix, identityMatrix_G2API_GetBoltMatrix)
+    return false
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1903
@@ -1286,6 +1391,9 @@ func G2API_GiveMeVectorFromMatrix(_ boltMatrix: JKAMP.MdxaBone, _ flags: JKAMP.E
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2239
 func G2API_CopyGhoul2Instance(_ g2From: CGhoul2Info_v, _ g2To: CGhoul2Info_v, _ modelIndex: Int32) -> Int32 {
+    assert(modelIndex == -1) // copy individual bolted parts is not used in jk2 and I didn't want to deal with it
+    // if ya want it, we will add it back correctly
+
     //G2ERROR(ghoul2From.IsValid(),"Invalid ghlInfo");
     if g2From.IsValid() {
         g2To.DeepCopy(g2From)
@@ -1309,9 +1417,25 @@ func G2API_CopyGhoul2Instance(_ g2From: CGhoul2Info_v, _ g2To: CGhoul2Info_v, _ 
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2282
 func G2API_CopySpecificG2Model(_ ghoul2From: CGhoul2Info_v, _ modelFrom: Int32, _ ghoul2To: CGhoul2Info_v, _ modelTo: Int32) {
-    // Port-note: Raven assigns `ghoul2To[modelTo] = ghoul2From[modelFrom]`, a copy by value into a slot, and CGhoul2Info is a class with no copy of its value.
-    // TODO: Port G2API_CopySpecificG2Model
-    portMissing("G2API_CopySpecificG2Model", source: "oracle/codemp/ghoul2/G2_API.cpp:2282")
+    // have we real ghoul2 models yet?
+    // assume we actually have a model to copy from
+    if ghoul2From.size() > modelFrom {
+        // if we don't have enough models on the to side, resize us so we do
+        if ghoul2To.size() <= modelTo {
+            assert(modelTo < 5)
+            ghoul2To.resize(modelTo + 1)
+        }
+        // do the copy
+
+        if ghoul2To.IsValid() && ghoul2To.size() >= modelTo { //remove the bonecache before we stomp over this instance.
+            if ghoul2To[modelTo].mBoneCache != nil {
+                RemoveBoneCache(ghoul2To[modelTo].mBoneCache)
+                ghoul2To[modelTo].mBoneCache = nil
+            }
+        }
+        // AI: Raven assigns the model by value with the compiler's `operator=`. The call copies the members into the model of the slot.
+        ghoul2To[modelTo].copy(ghoul2From[modelFrom])
+    }
 }
 
 // This version will automatically copy everything about this model, and make a new one if necessary.

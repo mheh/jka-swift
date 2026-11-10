@@ -49,7 +49,8 @@ let buildDate = "unknown"
 // No table row for `FILE *`.
 
 /// Source: oracle/codemp/qcommon/common.cpp:33
-var logfile: JKAShared.fileHandle_t {
+// AI: Raven's `logfile` is a global of common.cpp, and l_log.cpp declares a static of the same name. Both copies are private, the rule of a name two files declare.
+private var logfile: JKAShared.fileHandle_t {
     get { world.variables.common_logfile }
     set { world.variables.common_logfile = newValue }
 }

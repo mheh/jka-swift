@@ -108,9 +108,7 @@ final class ICARUS_Instance {
         let sequencer: CSequencer? = CSequencer.Create()
         let taskManager: CTaskManager? = CTaskManager.Create()
 
-        // Port-note: CSequencer.Init keeps its signature marker for `interface_export_t *`, so the call passes no arguments.
-        // Raven wrote: sequencer->Init( ownerID, m_interface, taskManager, this );
-        sequencer!.Init()
+        sequencer!.Init(ownerID, self.m_interface, taskManager, self)
 
         taskManager!.Init(sequencer)
 

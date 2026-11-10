@@ -258,11 +258,17 @@ private func G2_Find_Bone_ByNum(_ mod: Model, _ blist: inout [boneInfo_t], _ bon
     portMissing("G2_Find_Bone_ByNum", source: "oracle/codemp/renderer/tr_ghoul2.cpp:112")
 }
 
+/// The byte size of Raven's `CBoneCache` in the 32-bit build, which `g_Ghoul2Allocations` counts at each new and each delete.
+/// The members are `frameSize`, two pointers, three vectors of 16 bytes, five ints, two bools with padding, and one float: 12 + 48 + 20 + 4 + 4.
+/// Source: oracle/codemp/renderer/tr_ghoul2.cpp:572
+// AI: Raven takes `sizeof` of the C++ class. The Swift class has no byte size, so the constant holds the byte count of the 32-bit build.
+private let sizeofCBoneCache = 88 as Int32
+
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:569
 func RemoveBoneCache(_ boneCache: CBoneCache?) {
-    // Port-note: Raven counts `sizeof(*boneCache)` of the C++ class into `g_Ghoul2Allocations`, and the Swift class has no byte size.
-    // TODO: Port RemoveBoneCache
-    portMissing("RemoveBoneCache", source: "oracle/codemp/renderer/tr_ghoul2.cpp:569")
+    g_Ghoul2Allocations -= sizeofCBoneCache
+
+    // AI: Raven deletes the cache. ARC frees the cache when the last reference drops, so the body holds no statement.
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:585
@@ -287,9 +293,45 @@ func G2_GetModA(_ ghoul2: CGhoul2Info) -> MdxaHeader? {
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:603
 func G2_GetBoneDependents(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ tempDependents: Slots<Int32>, _ maxDep: Int32) -> Int32 {
-    // Port-note: Raven casts a record at a byte offset of `boneCache.header`, and the view target has no accessor for a view at a byte offset.
-    // TODO: Port G2_GetBoneDependents
-    portMissing("G2_GetBoneDependents", source: "oracle/codemp/renderer/tr_ghoul2.cpp:603")
+    var tempDependents = tempDependents
+    var maxDep = maxDep
+    // fixme, these should be precomputed
+    if ghoul2.mBoneCache == nil || maxDep == 0 {
+        return 0
+    }
+
+    let boneCache = ghoul2.mBoneCache!
+    let skel: MdxaSkel
+    let offsets: MdxaSkelOffsets
+    offsets = MdxaSkelOffsets(boneCache.header!, byteOffset: MdxaHeader.byteCount)
+    skel = MdxaSkel(boneCache.header!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[boneNum])
+    var i: Int32
+    var ret: Int32 = 0
+    i = 0
+    while i < skel.numChildren {
+        if maxDep == 0 {
+            return i // number added
+        }
+        tempDependents[0] = skel.children[i]
+        assert(tempDependents[0] > 0 && tempDependents[0] < boneCache.header!.numBones)
+        maxDep -= 1
+        tempDependents = tempDependents.suffix(from: 1)
+        ret += 1
+        i += 1
+    }
+    i = 0
+    while i < skel.numChildren {
+        let num = G2_GetBoneDependents(ghoul2, skel.children[i], tempDependents, maxDep)
+        tempDependents = tempDependents.suffix(from: num)
+        ret += num
+        maxDep -= num
+        assert(maxDep >= 0)
+        if maxDep == 0 {
+            break
+        }
+        i += 1
+    }
+    return ret
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:645
@@ -471,9 +513,139 @@ func G2_SetUpBolts(_ header: MdxaHeader, _ ghoul2: CGhoul2Info, _ bonePtr: inout
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2075
 func G2_TransformGhoulBones(_ rootBoneList: inout [boneInfo_t], _ rootMatrix: JKAMP.MdxaBone, _ ghoul2: CGhoul2Info, _ time: Int32, _ smooth: Bool = true) {
-    // Port-note: Raven counts `sizeof(*ghoul2.mBoneCache)` of the C++ class into `g_Ghoul2Allocations`, and the Swift class has no byte size.
-    // TODO: Port G2_TransformGhoulBones
-    portMissing("G2_TransformGhoulBones", source: "oracle/codemp/renderer/tr_ghoul2.cpp:2075")
+    G2PerformanceTimer_G2_TransformGhoulBones.Start()
+    G2PerformanceCounter_G2_TransformGhoulBones += 1
+
+    /*
+    model_t			*currentModel;
+    model_t			*animModel;
+    mdxaHeader_t	*aHeader;
+
+    //currentModel = R_GetModelByHandle(RE_RegisterModel(ghoul2.mFileName));
+    currentModel = R_GetModelByHandle(ghoul2.mModel);
+    assert(currentModel);
+    assert(currentModel->mdxm);
+
+    animModel =  R_GetModelByHandle(currentModel->mdxm->animIndex);
+    assert(animModel);
+    aHeader = animModel->mdxa;
+    assert(aHeader);
+    */
+    let currentModel = ghoul2.currentModel
+    let aHeader = ghoul2.aHeader
+
+    assert(ghoul2.aHeader != nil)
+    assert(ghoul2.currentModel != nil)
+    assert(ghoul2.currentModel!.mdxm != nil)
+    if aHeader!.numBones == 0 {
+        assert(false) // this would be strange
+        return
+    }
+    if ghoul2.mBoneCache == nil {
+        ghoul2.mBoneCache = CBoneCache(currentModel, aHeader)
+
+        g_Ghoul2Allocations += sizeofCBoneCache
+    }
+    ghoul2.mBoneCache!.mod = currentModel
+    ghoul2.mBoneCache!.header = aHeader
+    assert(ghoul2.mBoneCache!.mBones.count == aHeader!.numBones)
+
+    ghoul2.mBoneCache!.mSmoothingActive = false
+    ghoul2.mBoneCache!.mUnsquash = false
+
+    // master smoothing control
+    if HackadelicOnClient && smooth && com_dedicated!.integer == 0 {
+        ghoul2.mBoneCache!.mLastTouch = ghoul2.mBoneCache!.mLastLastTouch
+        /*
+        float val=r_Ghoul2AnimSmooth->value;
+        if (smooth&&val>0.0f&&val<1.0f)
+        {
+        //	if (HackadelicOnClient)
+        //	{
+                ghoul2.mBoneCache->mLastTouch=ghoul2.mBoneCache->mLastLastTouch;
+        //	}
+
+            ghoul2.mBoneCache->mSmoothFactor=val;
+            ghoul2.mBoneCache->mSmoothingActive=true;
+            if (r_Ghoul2UnSqashAfterSmooth->integer)
+            {
+                ghoul2.mBoneCache->mUnsquash=true;
+            }
+        }
+        else
+        {
+            ghoul2.mBoneCache->mSmoothFactor=1.0f;
+        }
+        */
+
+        // master smoothing control
+        var val: Float = r_Ghoul2AnimSmooth!.value
+        if val > 0.0 && val < 1.0 {
+            //if (ghoul2.mFlags&GHOUL2_RESERVED_FOR_RAGDOLL)
+            if (ghoul2.mFlags & GHOUL2_CRAZY_SMOOTH) != 0 {
+                val = 0.9
+            } else if (ghoul2.mFlags & GHOUL2_RAG_STARTED) != 0 {
+                var k: Int32
+                k = 0
+                while k < rootBoneList.count {
+                    let bone = rootBoneList[k]
+                    if (bone.flags & BONE_ANGLES_RAGDOLL) != 0 {
+                        if bone.firstCollisionTime != 0 &&
+                            bone.firstCollisionTime > time - 250 &&
+                            bone.firstCollisionTime < time
+                        {
+                            val = 0.9 //(val+0.8f)/2.0f;
+                        } else if bone.airTime > time {
+                            val = 0.2
+                        } else {
+                            val = 0.8
+                        }
+                        break
+                    }
+                    k += 1
+                }
+            }
+
+//			ghoul2.mBoneCache->mSmoothFactor=(val + 1.0f-pow(1.0f-val,50.0f/dif))/2.0f;  // meaningless formula
+            ghoul2.mBoneCache!.mSmoothFactor = val // meaningless formula
+            ghoul2.mBoneCache!.mSmoothingActive = true
+
+            if r_Ghoul2UnSqashAfterSmooth!.integer != 0 {
+                ghoul2.mBoneCache!.mUnsquash = true
+            }
+        }
+    } else {
+        ghoul2.mBoneCache!.mSmoothFactor = 1.0
+    }
+
+    ghoul2.mBoneCache!.mCurrentTouch += 1
+
+//rww - RAGDOLL_BEGIN
+    if HackadelicOnClient {
+        ghoul2.mBoneCache!.mLastLastTouch = ghoul2.mBoneCache!.mCurrentTouch
+        ghoul2.mBoneCache!.mCurrentTouchRender = ghoul2.mBoneCache!.mCurrentTouch
+    } else {
+        ghoul2.mBoneCache!.mCurrentTouchRender = 0
+    }
+//rww - RAGDOLL_END
+
+    ghoul2.mBoneCache!.frameSize = 0 // can be deleted in new G2 format	//(int)( &((mdxaFrame_t *)0)->boneIndexes[ ghoul2.aHeader->numBones ] );
+
+    // AI: Raven stores `&rootBoneList`. The cache stores `ghoul2`, because all four callers pass that instance's `mBlist`.
+    ghoul2.mBoneCache!.rootBoneListOwner = ghoul2
+    ghoul2.mBoneCache!.rootMatrix.copy(from: rootMatrix)
+    ghoul2.mBoneCache!.incomingTime = time
+
+    let TB = ghoul2.mBoneCache!.Root()
+    TB.newFrame = 0
+    TB.currentFrame = 0
+    TB.backlerp = 0.0
+    TB.blendFrame = 0
+    TB.blendOldFrame = 0
+    TB.blendMode = false
+    TB.blendLerp = 0
+
+    G2Time_G2_TransformGhoulBones += G2PerformanceTimer_G2_TransformGhoulBones.End()
 }
 
 // We've come across a surface that's designated as a bolt surface, process it and put it in the appropriate bolt place
@@ -676,6 +848,7 @@ func G2_ConstructGhoulSkeleton(_ ghoul2: CGhoul2Info_v, _ frameNum: Int32, _ che
 func R_LoadMDXM(_ mod: Model, _ buffer: Slots<JKAShared.byte>, _ mod_name: String, _ bAlreadyCached: inout Bool) -> Bool {
     var i: Int32
     var l: Int32
+    var j: Int32
     var pinmodel: MdxmHeader
     var mdxm: MdxmHeader
     var lod: MdxmLOD
@@ -790,9 +963,17 @@ func R_LoadMDXM(_ mod: Model, _ buffer: Slots<JKAShared.byte>, _ mod_name: Strin
             // register the shaders
 
             if isAnOldModelFile {
-                // Port-note: Raven casts `(byte *)surf + surf->ofsBoneReferences` to an `int *`, and the view target has no Slots of words at a byte offset of a record.
-                // Raven wrote: int *boneRef = (int *) ( (byte *)surf + surf->ofsBoneReferences ); for ( j = 0 ; j < surf->numBoneReferences ; j++ ) { assert(boneRef[j] >= 0 && boneRef[j] < 72); if (boneRef[j] >= 0 && boneRef[j] < 72) { boneRef[j]=OldToNewRemapTable[boneRef[j]]; } else { boneRef[j]=0; } }
-                portMissing("R_LoadMDXM", source: "oracle/codemp/renderer/tr_ghoul2.cpp:5026")
+                let boneRef = surf.boneReferences
+                j = 0
+                while j < surf.numBoneReferences {
+                    assert(boneRef[j] >= 0 && boneRef[j] < 72)
+                    if boneRef[j] >= 0 && boneRef[j] < 72 {
+                        boneRef[j] = OldToNewRemapTable[boneRef[j]]
+                    } else {
+                        boneRef[j] = 0
+                    }
+                    j += 1
+                }
             }
             // find the next surface
             surf = MdxmSurface(surf, byteOffset: surf.ofsEnd)

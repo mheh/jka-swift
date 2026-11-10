@@ -50,6 +50,15 @@ extension MdxmSurfHierarchy {
     }
 }
 
+extension MdxmSurface {
+    /// Raven's `(int *) ( (byte *)surf + surf->ofsBoneReferences )`, the `numBoneReferences` bone indexes at a byte offset from the surface.
+    /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:5028
+    // AI: Raven casts the surface address plus a byte offset to a word pointer. The accessor gives the Slots of the words, the form of `HandleView.init(_:byteOffset:)`.
+    public var boneReferences: Slots<Int32> {
+        Slots<Int32>(scalars: UnsafeMutableRawPointer(self.handle) + Int(self.ofsBoneReferences), count: Int(self.numBoneReferences))
+    }
+}
+
 extension MdxaSkel {
     /// Raven's `(int)( &((mdxaSkel_t *)0)->children[ n ] )`, the size of a skeleton record with `n` children.
     /// Source: oracle/codemp/renderer/tr_model.cpp:769

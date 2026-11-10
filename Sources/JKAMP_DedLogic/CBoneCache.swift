@@ -64,8 +64,12 @@ final class CBoneCache {
     var mSmoothBones: [CTransformBone] = [] // for render smoothing
     //vector<mdxaSkel_t *>   mSkels;
 
-    // AI: Raven points at the caller's `boneInfo_v`. The field holds the array, and its elements are the caller's bone objects.
-    var rootBoneList: [boneInfo_t]? = nil
+    // AI: Raven points at the caller's `boneInfo_v`. The field holds the model that owns the list, and `rootBoneList` reads and writes its `mBlist`.
+    weak var rootBoneListOwner: CGhoul2Info? = nil
+    var rootBoneList: [boneInfo_t] {
+        get { self.rootBoneListOwner!.mBlist }
+        set { self.rootBoneListOwner!.mBlist = newValue }
+    }
     // AI: Raven holds `rootMatrix` by value. The instance owns one zeroed allocation of the record, and the field is the view of the slot.
     // A store is `copy(from:)`, Raven's `=`, and the deinit frees the allocation.
     private let mdxaBones: Slots<MdxaBone> = {

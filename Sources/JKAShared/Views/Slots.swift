@@ -243,6 +243,24 @@ extension Slots where Element == byte {
     }
 }
 
+// MARK: - The vector of a float row
+
+extension Slots where Element == Float {
+    /// Raven's `(float*)use->matrix[0]`, the first three floats of a row read and written as one vector.
+    /// Source: oracle/codemp/ghoul2/G2_API.cpp:1774
+    // AI: Raven casts a row of four floats to a float pointer and hands it to a vector function. The accessor reads and writes floats 0, 1, and 2 of the row as a vec3_t.
+    public var vector: vec3_t {
+        get {
+            return vec3_t(self[0], self[1], self[2])
+        }
+        nonmutating set {
+            self[0] = newValue.x
+            self[1] = newValue.y
+            self[2] = newValue.z
+        }
+    }
+}
+
 // MARK: - The slot index
 
 extension Slots where Element: HandleView {

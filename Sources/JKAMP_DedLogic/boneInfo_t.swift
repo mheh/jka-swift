@@ -103,6 +103,88 @@ final class boneInfo_t {
         self.matrix.clear()
     }
 
+    /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:63
+    // AI: Raven copies the struct by value with the compiler's `operator=`. The method is `copy`, a memberwise assign in Raven's member order.
+    func copy(_ other: boneInfo_t) {
+        self.boneNumber = other.boneNumber
+        self.matrix.copy(from: other.matrix)
+        self.flags = other.flags
+        self.startFrame = other.startFrame
+        self.endFrame = other.endFrame
+        self.startTime = other.startTime
+        self.pauseTime = other.pauseTime
+        self.animSpeed = other.animSpeed
+        self.blendFrame = other.blendFrame
+        self.blendLerpFrame = other.blendLerpFrame
+        self.blendTime = other.blendTime
+        self.blendStart = other.blendStart
+        self.boneBlendTime = other.boneBlendTime
+        self.boneBlendStart = other.boneBlendStart
+        self.lastTime = other.lastTime
+        self.newMatrix.copy(from: other.newMatrix)
+
+        self.lastTimeUpdated = other.lastTimeUpdated
+        self.lastContents = other.lastContents
+        self.lastPosition = other.lastPosition
+        self.velocityEffector = other.velocityEffector
+        self.lastAngles = other.lastAngles
+        self.minAngles = other.minAngles
+        self.maxAngles = other.maxAngles
+        self.currentAngles = other.currentAngles
+        self.anglesOffset = other.anglesOffset
+        self.positionOffset = other.positionOffset
+        self.radius = other.radius
+        self.weight = other.weight
+        self.ragIndex = other.ragIndex
+        self.velocityRoot = other.velocityRoot
+        self.ragStartTime = other.ragStartTime
+        self.firstTime = other.firstTime
+        self.firstCollisionTime = other.firstCollisionTime
+        self.restTime = other.restTime
+        self.RagFlags = other.RagFlags
+        self.DependentRagIndexMask = other.DependentRagIndexMask
+        self.originalTrueBoneMatrix.copy(from: other.originalTrueBoneMatrix)
+        self.parentTrueBoneMatrix.copy(from: other.parentTrueBoneMatrix)
+        self.parentOriginalTrueBoneMatrix.copy(from: other.parentOriginalTrueBoneMatrix)
+        self.originalOrigin = other.originalOrigin
+        self.originalAngles = other.originalAngles
+        self.lastShotDir = other.lastShotDir
+        self.basepose = other.basepose
+        self.baseposeInv = other.baseposeInv
+        self.baseposeParent = other.baseposeParent
+        self.baseposeInvParent = other.baseposeInvParent
+        self.parentRawBoneIndex = other.parentRawBoneIndex
+        self.ragOverrideMatrix.copy(from: other.ragOverrideMatrix)
+
+        self.extraMatrix.copy(from: other.extraMatrix)
+        self.extraVec1 = other.extraVec1
+        self.extraFloat1 = other.extraFloat1
+        self.extraInt1 = other.extraInt1
+
+        self.ikPosition = other.ikPosition
+        self.ikSpeed = other.ikSpeed
+
+        self.epVelocity = other.epVelocity
+        self.epGravFactor = other.epGravFactor
+        self.solidCount = other.solidCount
+        self.physicsSettled = other.physicsSettled
+        self.snapped = other.snapped
+
+        self.parentBoneIndex = other.parentBoneIndex
+
+        self.offsetRotation = other.offsetRotation
+
+        self.overGradSpeed = other.overGradSpeed
+
+        self.overGoalSpot = other.overGoalSpot
+        self.hasOverGoal = other.hasOverGoal
+
+        self.animFrameMatrix.copy(from: other.animFrameMatrix)
+        self.hasAnimFrameMatrix = other.hasAnimFrameMatrix
+
+        self.airTime = other.airTime
+    }
+
     deinit {
         self.mdxaBones.delete()
     }

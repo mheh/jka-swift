@@ -278,9 +278,88 @@ func G2_TransformSurfaces(_ surfaceNum: Int32, _ rootSList: inout [surfaceInfo_t
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:560
 func G2_TransformModel(_ ghoul2: CGhoul2Info_v, _ frameNum: Int32, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ useLod: Int32, _ ApplyGore: Bool) {
-    // Port-note: Raven casts the `char *` of MiniHeapAlloc to `int *` and clears `numSurfaces * 4` bytes of it, and the body has no form for the cast or the partial memset.
-    // TODO: Port G2_TransformModel
-    portMissing("G2_TransformModel", source: "oracle/codemp/ghoul2/G2_misc.cpp:560")
+    var i: Int32
+    var lod: Int32
+    var correctScale = JKAShared.vec3_t()
+    var firstModelOnly = false
+
+    if cg_g2MarksAllModels == nil {
+        cg_g2MarksAllModels = Cvar_Get("cg_g2MarksAllModels", "0", 0)
+    }
+
+    if cg_g2MarksAllModels == nil
+        || cg_g2MarksAllModels!.integer == 0
+    {
+        firstModelOnly = true
+    }
+
+    _VectorCopy(scale, &correctScale)
+    // check for scales of 0 - that's the default I believe
+    if scale[0] == 0 {
+        correctScale[0] = 1.0
+    }
+    if scale[1] == 0 {
+        correctScale[1] = 1.0
+    }
+    if scale[2] == 0 {
+        correctScale[2] = 1.0
+    }
+
+    // walk each possible model for this entity and try rendering it out
+    i = 0
+    while i < ghoul2.size() {
+        let g = ghoul2[i]
+        // don't bother with models that we don't care about.
+        if !g.mValid {
+            i += 1
+            continue
+        }
+        assert(g.mBoneCache != nil)
+//		assert(G2_MODEL_OK(&g));
+        // stop us building this model more than once per frame
+        g.mMeshFrameNum = frameNum
+
+        // decide the LOD
+        if ApplyGore {
+            lod = useLod
+            assert(g.currentModel != nil)
+            if lod >= g.currentModel!.numLods {
+                g.mTransformedVertsArray = nil
+                if firstModelOnly {
+                    // we don't really need to do multiple models for gore.
+                    return
+                }
+                //do the rest
+                i += 1
+                continue
+            }
+        } else {
+            lod = G2_DecideTraceLod(g, useLod)
+        }
+
+        // give us space for the transformed vertex array to be put in
+        if (g.mFlags & GHOUL2_ZONETRANSALLOC) == 0 { //do not stomp if we're using zone space
+            let heap = G2VertSpace!.MiniHeapAlloc(g.currentModel!.mdxm!.numSurfaces * 4)
+            // AI: Raven casts the `char *` of MiniHeapAlloc to `int *`. The Slots of `numSurfaces` words over the bytes is the cast, so the memset below clears Raven's `numSurfaces * 4` bytes.
+            g.mTransformedVertsArray = heap == nil ? nil : Slots<Int32>(scalars: heap!.base, count: Int(g.currentModel!.mdxm!.numSurfaces))
+            if g.mTransformedVertsArray == nil {
+                Com_Error(ERR_DROP, "Ran out of transform space for Ghoul2 Models. Adjust MiniHeapSize in SV_SpawnServer.\n")
+            }
+        }
+
+        g.mTransformedVertsArray!.zero()
+
+        _ = G2_FindOverrideSurface(-1, &g.mSlist) //reset the quick surface override lookup;
+        // recursively call the model surface transform
+
+        G2_TransformSurfaces(g.mSurfaceRoot, &g.mSlist, g.mBoneCache, g.currentModel!, lod, correctScale, G2VertSpace, g.mTransformedVertsArray!, false)
+
+        if ApplyGore && firstModelOnly {
+            // we don't really need to do multiple models for gore.
+            break
+        }
+        i += 1
+    }
 }
 
 // work out how much space a triangle takes

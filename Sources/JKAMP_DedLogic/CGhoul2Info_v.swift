@@ -71,11 +71,26 @@ final class CGhoul2Info_v {
     }
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:382
-    // Port-note: Raven assigns `Array()=other.Array()`, a copy of each CGhoul2Info by value into the slot of `mItem`.
-    // CGhoul2Info is a class with no copy of its value, so the body has no form, row G2A1.
     func DeepCopy(_ other: CGhoul2Info_v) {
-        // TODO: Port CGhoul2Info_v::DeepCopy
-        portMissing("CGhoul2Info_v::DeepCopy", source: "oracle/codemp/ghoul2/ghoul2_shared.h:382")
+        self.Free()
+        if other.mItem != 0 {
+            self.Alloc()
+            // AI: Raven assigns `Array()=other.Array()`, a copy of each model by value. The list takes a new instance per model, and `copy` assigns its members.
+            self.Array = other.Array.map { model in
+                let copy = CGhoul2Info()
+                copy.copy(model)
+                return copy
+            }
+            var i: Int32
+            i = 0
+            while i < self.size() {
+                self.Array[i].mBoneCache = nil
+                self.Array[i].mTransformedVertsArray = nil
+                self.Array[i].mSkelFrameNum = 0
+                self.Array[i].mMeshFrameNum = 0
+                i += 1
+            }
+        }
     }
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:399

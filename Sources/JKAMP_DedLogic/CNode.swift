@@ -84,8 +84,7 @@ final class CNode {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:155
-    // AI: Raven defaults flags to EFLAG_NONE of navigator.h, which no module of the host declares. The default is its value, 0.
-    func AddEdge(_ ID: Int32, _ cost: Int32, _ flags: Int32 = 0) {
+    func AddEdge(_ ID: Int32, _ cost: Int32, _ flags: Int32 = EFLAG_NONE) {
         if self.m_numEdges != 0 {//already have at least 1
             //see if it exists already
             for ei in self.m_edges.indices {

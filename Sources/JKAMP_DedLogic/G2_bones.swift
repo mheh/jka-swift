@@ -1240,7 +1240,6 @@ private func G2_BoneSnap(_ ghoul2V: CGhoul2Info_v, _ bone: boneInfo_t, _ params:
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:3970
 private func G2_RagDollSolve(_ ghoul2V: CGhoul2Info_v, _ g2Index: Int32, _ decay: Float, _ frameNum: Int32, _ currentOrg: JKAShared.vec3_t, _ limitAngles: Bool, _ params: CRagDollUpdateParams? = nil) {
-    // Port-note: G2_GetBoneDependents of tr_ghoul2.swift still takes one inout Int32, where the PARAMS row gives the Slots of Int32 that Raven fills.
     // TODO: Port G2_RagDollSolve
     portMissing("G2_RagDollSolve", source: "oracle/codemp/ghoul2/G2_bones.cpp:3970")
 }
@@ -1287,7 +1286,6 @@ private func G2_IKReposition(_ currentOrg: JKAShared.vec3_t, _ params: CRagDollU
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:4297
 private func G2_IKSolve(_ ghoul2V: CGhoul2Info_v, _ g2Index: Int32, _ decay: Float, _ frameNum: Int32, _ currentOrg: JKAShared.vec3_t, _ limitAngles: Bool) {
-    // Port-note: G2_GetBoneDependents of tr_ghoul2.swift still takes one inout Int32, where the PARAMS row gives the Slots of Int32 that Raven fills.
     // TODO: Port G2_IKSolve
     portMissing("G2_IKSolve", source: "oracle/codemp/ghoul2/G2_bones.cpp:4297")
 }
