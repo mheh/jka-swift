@@ -728,6 +728,9 @@ func SV_SpawnServer(_ server: String, _ killBots: Bool, _ eForceReload: JKAMP.Fo
 
     Hunk_SetMark()
 
+    // AI: Raven ends the spawn here. The fork's referee resets its frame index, opens the record or replay file, and prints REF READY.
+    SVRef_MapSpawned(server)
+
     /* MrE: 2000-09-13: now called in CL_DownloadsComplete
     // don't call when running dedicated
     if ( !com_dedicated->integer ) {
@@ -806,6 +809,9 @@ func SV_Init() {
     // init the botlib here because we need the pre-compiler in the UI
     SV_BotInitBotLib()
 
+    // AI: Raven registers no referee. The fork's SVRef_Init registers its five cvars and three commands here.
+    SVRef_Init()
+
     // Only allocated once, no point in moving it around and fragmenting
     // create a heap for Ghoul2 to use for game side model vertex transforms used in collision detection
     G2VertSpaceServer = CMiniHeap_singleton
@@ -873,6 +879,9 @@ func SV_Shutdown(_ finalmsg: String) {
     if svs.clients != nil && !com_errorEntered {
         SV_FinalMessage(finalmsg)
     }
+
+    // AI: Raven has no referee to stop. The fork's SVRef_ServerShutdown closes the record file and frees the replay here.
+    SVRef_ServerShutdown()
 
     SV_RemoveOperatorCommands()
     SV_MasterShutdown()

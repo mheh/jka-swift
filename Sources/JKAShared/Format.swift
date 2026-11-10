@@ -1,4 +1,4 @@
-/// This file holds the `printf` subset Raven's game code prints through: `%i`, `%d`, `%s`, `%f`, with an optional `-` flag, a width, a precision, and an `l` length on `%i` and `%d`.
+/// This file holds the `printf` subset Raven's game code prints through: `%i`, `%d`, `%x`, `%s`, `%f`, with an optional `-` flag, a `0` flag on `%x`, a width, a precision, and an `l` or `ll` length on `%i`, `%d`, and `%x`.
 /// A ported body passes its arguments as `[any FormatArg]`, and the callers `va`, `Com_sprintf`, and `Com_Printf` build that array.
 /// The port is by hand, so the semantics are ours and the tests can hold them, and no Foundation call decides them.
 
@@ -71,7 +71,7 @@ extension Bool: FormatArg {
 // MARK: - format
 
 /// This prints `fmt` with `args` substituted, Raven's `printf` over the specifiers the game uses.
-/// A specifier outside `%[-][width][.precision][l](i|d|s|f)`, an argument of the wrong shape, or a missing argument traps, so a new shape surfaces at once instead of printing wrong text.
+/// A specifier outside `%[-|0][width][.precision][l|ll](i|d|x|s|f)`, an argument of the wrong shape, or a missing argument traps, so a new shape surfaces at once instead of printing wrong text.
 public func format(_ fmt: String, _ args: [any FormatArg]) -> String {
     let characters = Array(fmt)
     var out = ""
@@ -97,8 +97,13 @@ public func format(_ fmt: String, _ args: [any FormatArg]) -> String {
         }
 
         var leftAlign = false
-        while index < characters.count, characters[index] == "-" {
-            leftAlign = true
+        var zeroPad = false
+        while index < characters.count, characters[index] == "-" || characters[index] == "0" {
+            if characters[index] == "-" {
+                leftAlign = true
+            } else {
+                zeroPad = true
+            }
             index += 1
         }
 
@@ -126,9 +131,17 @@ public func format(_ fmt: String, _ args: [any FormatArg]) -> String {
             index += 1
         }
 
+        // An `ll` length prints the whole 64 bits of `long long`, the form of the fork's `%lld`.
+        var longLong = false
+        if long, index < characters.count, characters[index] == "l" {
+            long = false
+            longLong = true
+            index += 1
+        }
+
         precondition(index < characters.count, "format: the format string ends inside a specifier")
         let conversion = characters[index]
-        precondition(!long || conversion == "i" || conversion == "d", "format: %l\(conversion) is not a specifier this port supports")
+        precondition(!(long || longLong) || conversion == "i" || conversion == "d" || conversion == "x", "format: %l\(conversion) is not a specifier this port supports")
         index += 1
 
         precondition(nextArg < args.count, "format: too few arguments for \(fmt)")
@@ -144,6 +157,19 @@ public func format(_ fmt: String, _ args: [any FormatArg]) -> String {
                 long ? String(Int32(truncatingIfNeeded: number)) : String(number),
                 width: width,
                 leftAlign: leftAlign
+            )
+
+        // C prints `%x` as the hex of the `unsigned int`, so a negative `int` prints its 32 bits.
+        // The `0` flag pads only `%x`, because the `0` flag on `%d` and `%i` waits for its own ruling.
+        case "x":
+            guard case .integer(let number) = value else {
+                preconditionFailure("format: %x needs an integer argument")
+            }
+            out += pad(
+                longLong ? String(UInt64(bitPattern: number), radix: 16) : String(UInt32(truncatingIfNeeded: number), radix: 16),
+                width: width,
+                leftAlign: leftAlign,
+                zeroPad: zeroPad
             )
 
         case "s":
@@ -197,9 +223,17 @@ private func asciiDigit(_ character: Character) -> Int? {
 
 /// This pads `text` with spaces up to `width`, on the left, or on the right when the `-` flag is set.
 /// Text at or past the width passes through whole, because C's width is a minimum and never truncates.
-private func pad(_ text: String, width: Int, leftAlign: Bool) -> String {
+/// The `0` flag pads a number on the left with zeros after its sign, and the `-` flag wins over it, as C does.
+private func pad(_ text: String, width: Int, leftAlign: Bool, zeroPad: Bool = false) -> String {
     let deficit = width - text.count
     guard deficit > 0 else { return text }
+    if zeroPad && !leftAlign {
+        let zeros = String(repeating: "0", count: deficit)
+        if text.hasPrefix("-") {
+            return "-" + zeros + text.dropFirst()
+        }
+        return zeros + text
+    }
     let spaces = String(repeating: " ", count: deficit)
     return leftAlign ? text + spaces : spaces + text
 }
