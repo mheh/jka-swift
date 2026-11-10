@@ -95,8 +95,6 @@ final class CBoneCache {
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:208
     private func SetRenderMatrix(_ bone: CTransformBone?) {
         // Raven's body and both calls stand under `#ifdef _XBOX`, the calls at tr_ghoul2.cpp:261 and :339, so the method is dead in the dedicated build.
-        // TODO: Port CBoneCache::SetRenderMatrix
-        portMissing("CBoneCache::SetRenderMatrix", source: "oracle/codemp/renderer/tr_ghoul2.cpp:208")
     }
 
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:236
@@ -124,8 +122,34 @@ final class CBoneCache {
     private func SmoothLow(_ index: Int32) {
         // Raven calls this method only from EvalRender, and each call of EvalRender stands under the undefined G2EVALRENDER, `#if 0`, `_XBOX`, or `#ifndef DEDICATED`.
         // The calls stand at tr_ghoul2.cpp:3033, :3063, :3093, :3184, :4272, :4287, and :559, and in RB_SurfaceGhoul at :4314 to :4368, so the method is dead in the dedicated build.
-        // TODO: Port CBoneCache::SmoothLow
-        portMissing("CBoneCache::SmoothLow", source: "oracle/codemp/renderer/tr_ghoul2.cpp:267")
+        if self.mSmoothBones[index].touch == self.mLastTouch {
+            var i: Int32
+            let oldM = self.mSmoothBones[index].boneMatrix.matrix
+            let newM = self.mFinalBones[index].boneMatrix.matrix
+            i = 0
+            while i < 12 {
+                oldM[i / 4][i % 4] = self.mSmoothFactor * (oldM[i / 4][i % 4] - newM[i / 4][i % 4]) + newM[i / 4][i % 4]
+                i += 1
+            }
+        } else {
+            self.mSmoothBones[index].boneMatrix.copy(from: self.mFinalBones[index].boneMatrix)
+        }
+        let offsets = MdxaSkelOffsets(self.header!, byteOffset: MdxaHeader.byteCount)
+        let skel = MdxaSkel(self.header!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[index])
+        MdxaBone.scratch { tempMatrix in
+            Multiply_3x4Matrix(tempMatrix, self.mSmoothBones[index].boneMatrix, skel.BasePoseMat)
+            var maxl: Float
+            maxl = VectorLength(skel.BasePoseMat.matrix[0].vector)
+            _ = VectorNormalize(&tempMatrix.matrix[0].vector)
+            _ = VectorNormalize(&tempMatrix.matrix[1].vector)
+            _ = VectorNormalize(&tempMatrix.matrix[2].vector)
+
+            tempMatrix.matrix[0].vector = tempMatrix.matrix[0].vector * maxl
+            tempMatrix.matrix[1].vector = tempMatrix.matrix[1].vector * maxl
+            tempMatrix.matrix[2].vector = tempMatrix.matrix[2].vector * maxl
+            Multiply_3x4Matrix(self.mSmoothBones[index].boneMatrix, tempMatrix, skel.BasePoseMatInv)
+        }
+        self.mSmoothBones[index].touch = self.mCurrentTouch
     }
 //rww - RAGDOLL_END
 

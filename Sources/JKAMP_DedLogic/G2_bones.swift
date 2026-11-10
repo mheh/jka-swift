@@ -997,8 +997,68 @@ func G2_Stop_Bone_Angles(_ fileName: String, _ blist: inout [boneInfo_t], _ bone
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1065
 func G2_Animate_Bone_List(_ ghoul2: CGhoul2Info_v, _ currentTime: Int32, _ index: Int32) {
     // Raven calls only the overload with the CRagDollUpdateParams parameter, at G2_API.cpp:1450, so this overload is dead.
-    // TODO: Port G2_Animate_Bone_List
-    portMissing("G2_Animate_Bone_List", source: "oracle/codemp/ghoul2/G2_bones.cpp:1065")
+    var i: Int32
+    // Raven's `blist` is a reference to `ghoul2[index].mBlist`.
+
+    // look through entire list
+    i = 0
+    while i < Int32(ghoul2[index].mBlist.count) {
+        // we we a valid bone override?
+        if ghoul2[index].mBlist[i].boneNumber != -1 {
+            // are we animating?
+            if (ghoul2[index].mBlist[i].flags & (BONE_ANIM_OVERRIDE_LOOP | BONE_ANIM_OVERRIDE)) != 0 {
+                // yes - add in animation speed to current frame
+                let animSpeed: Float = ghoul2[index].mBlist[i].animSpeed
+                let endFrame = Float(ghoul2[index].mBlist[i].endFrame)
+                var time: Float = (currentTime - ghoul2[index].mBlist[i].startTime) / 50.0
+                // are we a paused anim?
+                if ghoul2[index].mBlist[i].pauseTime != 0 {
+                    time = (ghoul2[index].mBlist[i].pauseTime - ghoul2[index].mBlist[i].startTime) / 50.0
+                }
+                if time < 0.0 {
+                    time = 0.0
+                }
+                var newFrame_g: Float = ghoul2[index].mBlist[i].startFrame + (time * animSpeed)
+
+                let animSize = Int32(endFrame - ghoul2[index].mBlist[i].startFrame)
+                // we are supposed to be animating right?
+                if animSize != 0 {
+                    // did we run off the end?
+                    if ((animSpeed > 0.0) && (newFrame_g > endFrame - 1)) ||
+                        ((animSpeed < 0.0) && (newFrame_g < endFrame + 1))
+                    {
+                        // yep - decide what to do
+                        if (ghoul2[index].mBlist[i].flags & BONE_ANIM_OVERRIDE_LOOP) != 0 {
+                            // get our new animation frame back within the bounds of the animation set
+                            if animSpeed < 0.0 {
+                                if newFrame_g <= endFrame + 1 {
+                                    newFrame_g = endFrame + fmod(newFrame_g - endFrame, Float(animSize)) - animSize
+                                }
+                            } else {
+                                if newFrame_g >= endFrame {
+                                    newFrame_g = endFrame + fmod(newFrame_g - endFrame, Float(animSize)) - animSize
+                                }
+                            }
+                            // figure out new start time
+                            let frameTime: Float = newFrame_g - ghoul2[index].mBlist[i].startFrame
+                            ghoul2[index].mBlist[i].startTime = currentTime - Int32((frameTime / animSpeed) * 50.0)
+                            if ghoul2[index].mBlist[i].startTime > currentTime {
+                                ghoul2[index].mBlist[i].startTime = currentTime
+                            }
+                            assert(ghoul2[index].mBlist[i].startTime <= currentTime)
+                            ghoul2[index].mBlist[i].lastTime = ghoul2[index].mBlist[i].startTime
+                        } else {
+                            if (ghoul2[index].mBlist[i].flags & BONE_ANIM_OVERRIDE_FREEZE) != BONE_ANIM_OVERRIDE_FREEZE {
+                                // nope, just stop it. And remove the bone if possible
+                                _ = G2_Stop_Bone_Index(&ghoul2[index].mBlist, i, (BONE_ANIM_TOTAL))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        i += 1
+    }
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1244
@@ -1520,8 +1580,67 @@ func G2_SetRagDoll(_ ghoul2V: CGhoul2Info_v, _ parms: CRagDollParams?) {
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:2040
 func G2_SetRagDollBullet(_ ghoul2: CGhoul2Info, _ rayStart: JKAShared.vec3_t, _ hit: JKAShared.vec3_t) {
     // Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port G2_SetRagDollBullet
-    portMissing("G2_SetRagDollBullet", source: "oracle/codemp/ghoul2/G2_bones.cpp:2040")
+    if broadsword == nil || broadsword!.integer == 0 {
+        return
+    }
+    var shotDir: vec3_t
+    shotDir = hit - rayStart
+    var len: Float = VectorLength(shotDir)
+    if len < 1.0 {
+        return
+    }
+    var lenr: Float = 1.0 / len
+    shotDir[0] *= lenr
+    shotDir[1] *= lenr
+    shotDir[2] *= lenr
+
+    var firstOne = false
+    if broadsword_kickbones != nil && broadsword_kickbones!.integer != 0 {
+        var i: Int32
+        let magicFactor13: Int32 = 150 // squared radius multiplier for shot effects
+        // Raven's `blist` is a reference to `ghoul2.mBlist`.
+        i = Int32(ghoul2.mBlist.count) - 1
+        while i >= 0 {
+            let bone = ghoul2.mBlist[i]
+            if (bone.flags & BONE_ANGLES_TOTAL) != 0 {
+                if (bone.flags & BONE_ANGLES_RAGDOLL) != 0 {
+                    if !firstOne {
+                        firstOne = true
+                    }
+
+                    bone.lastShotDir = shotDir
+                    var dir: vec3_t
+                    dir = bone.lastPosition - hit
+                    len = VectorLength(dir)
+                    if len < 1.0 {
+                        len = 1.0
+                    }
+                    lenr = 1.0 / len
+                    var effect: Float = lenr
+                    effect *= magicFactor13 * effect // this is cubed, one of them is absorbed by the next calc
+                    bone.velocityEffector[0] = shotDir[0] * (effect + flrand(0.0, 0.05))
+                    bone.velocityEffector[1] = shotDir[1] * (effect + flrand(0.0, 0.05))
+                    bone.velocityEffector[2] = abs(shotDir[2]) * (effect + flrand(0.0, 0.05))
+//					bone.velocityEffector[0]=shotDir[0]*(effect+flrand(0.0f,0.05f))*flrand(-0.1f,3.0f);
+//					bone.velocityEffector[1]=shotDir[1]*(effect+flrand(0.0f,0.05f))*flrand(-0.1f,3.0f);
+//					bone.velocityEffector[2]=fabs(shotDir[2])*(effect+flrand(0.0f,0.05f))*flrand(-0.1f,3.0f);
+                    assert(!shotDir[2].isNaN)
+    //				bone.currentAngles[0]+=flrand(-10.0f*lenr,10.0f*lenr);
+    //				bone.currentAngles[1]+=flrand(-10.0f*lenr,10.0f*lenr);
+    //				bone.currentAngles[2]+=flrand(-10.0f*lenr,10.0f*lenr);
+    //				bone.lastAngles[0]+=flrand(-10.0f*lenr,10.0f*lenr);
+    //				bone.lastAngles[1]+=flrand(-10.0f*lenr,10.0f*lenr);
+    //				bone.lastAngles[2]+=flrand(-10.0f*lenr,10.0f*lenr);
+
+                    // go dynamic
+                    bone.firstCollisionTime = G2API_GetTime(0)
+//					bone.firstCollisionTime=0;
+                    bone.restTime = 0
+                }
+            }
+            i -= 1
+        }
+    }
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:2152
@@ -1786,9 +1905,31 @@ private func G2_RagDoll(_ ghoul2V: CGhoul2Info_v, _ g2Index: Int32, _ params: CR
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:2580
 private func G2_Get_Bone_Name(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ boneNum: Int32) -> String {
-    // The callers sit under _DEBUG_BONE_NAMES and the #ifndef DEDICATED arm of G2_BoneSnap, which the build drops, so it is dead.
-    // TODO: Port G2_Get_Bone_Name
-    portMissing("G2_Get_Bone_Name", source: "oracle/codemp/ghoul2/G2_bones.cpp:2580")
+    // Raven's two calls, at G2_bones.cpp:2625 and :3851, stand under `_DEBUG_BONE_NAMES`, and only `_DEBUG` defines it (:2576), so the Release build has no caller.
+    // The body itself has no guard, so the Release build compiles it.
+    var i: Int32
+    var skel: MdxaSkel
+    let offsets: MdxaSkelOffsets
+    offsets = MdxaSkelOffsets(ghlInfo!.aHeader!, byteOffset: MdxaHeader.byteCount)
+    skel = MdxaSkel(ghlInfo!.aHeader!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[0])
+
+    // look through entire list
+    i = 0
+    while i < blist.count {
+        // if this bone entry has no info in it, bounce over it
+        if blist[i].boneNumber != boneNum {
+            i += 1
+            continue
+        }
+
+        // figure out what skeletal info structure this bone entry is looking at
+        skel = MdxaSkel(ghlInfo!.aHeader!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[blist[i].boneNumber])
+
+        return skel.name
+    }
+
+    // didn't find it
+    return "BONE_NOT_FOUND"
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:2609
