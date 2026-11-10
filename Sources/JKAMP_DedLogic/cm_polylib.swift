@@ -51,8 +51,13 @@ var newHullPoints: Slots<JKAShared.vec3_t> { world.storage.newHullPoints }
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:17
 func pw(_ w: Winding) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port pw
-    portMissing("pw", source: "oracle/codemp/qcommon/cm_polylib.cpp:17")
+    var i: Int32
+    i = 0
+    while i < w.numpoints {
+        // AI: Raven called the C printf. The backend writes the bytes of the formatted text to standard output.
+        SysBackend.printf(CharBuf(JKAShared.format("(%5.1f, %5.1f, %5.1f)\n", [w.p[i][0], w.p[i][1], w.p[i][2]])))
+        i += 1
+    }
 }
 
 /**
