@@ -676,51 +676,35 @@ func VM_Clear() {
 /// Source: oracle/codemp/qcommon/vm.cpp:640
 func VM_ArgPtr(_ intValue: Int32) -> UnsafeMutableRawPointer? {
     if intValue == 0 {
-        // Port-note: Raven returns NULL, and the function returns a `UnsafeMutableRawPointer`.
-        // Raven wrote: return NULL
-        portMissing("VM_ArgPtr", source: "oracle/codemp/qcommon/vm.cpp:640")
+        return nil
     }
     // bk001220 - currentVM is missing on reconnect
     if currentVM == nil {
-        // Port-note: Raven returns NULL, and the function returns a `UnsafeMutableRawPointer`.
-        // Raven wrote: return NULL
-        portMissing("VM_ArgPtr", source: "oracle/codemp/qcommon/vm.cpp:640")
+        return nil
     }
 
     if currentVM!.entryPoint != nil {
-        // Port-note: A cast to `void *` the draft has no view for.
-        // Raven wrote: return (void *)(currentVM->dataBase + intValue)
-        portMissing("VM_ArgPtr", source: "oracle/codemp/qcommon/vm.cpp:640")
+        return currentVM!.address(at: intValue)
     } else {
-        // Port-note: A cast to `void *` the draft has no view for.
-        // Raven wrote: return (void *)(currentVM->dataBase + (intValue & currentVM->dataMask))
-        portMissing("VM_ArgPtr", source: "oracle/codemp/qcommon/vm.cpp:640")
+        return currentVM!.address(at: intValue & currentVM!.dataMask)
     }
 }
 
 /// Source: oracle/codemp/qcommon/vm.cpp:657
 func BotVMShift(_ ptr: Int32) -> UnsafeMutableRawPointer? {
     if ptr == 0 {
-        // Port-note: Raven returns NULL, and the function returns a `UnsafeMutableRawPointer`.
-        // Raven wrote: return NULL
-        portMissing("BotVMShift", source: "oracle/codemp/qcommon/vm.cpp:657")
+        return nil
     }
 
     if gvm == nil {
         //always using the game vm here.
-        // Port-note: Raven returns NULL, and the function returns a `UnsafeMutableRawPointer`.
-        // Raven wrote: return NULL
-        portMissing("BotVMShift", source: "oracle/codemp/qcommon/vm.cpp:657")
+        return nil
     }
 
     if gvm!.entryPoint != nil {
-        // Port-note: A cast to `void *` the draft has no view for.
-        // Raven wrote: return (void *)(gvm->dataBase + ptr)
-        portMissing("BotVMShift", source: "oracle/codemp/qcommon/vm.cpp:657")
+        return gvm!.address(at: ptr)
     } else {
-        // Port-note: A cast to `void *` the draft has no view for.
-        // Raven wrote: return (void *)(gvm->dataBase + (ptr & gvm->dataMask))
-        portMissing("BotVMShift", source: "oracle/codemp/qcommon/vm.cpp:657")
+        return gvm!.address(at: ptr & gvm!.dataMask)
     }
 }
 
@@ -787,13 +771,10 @@ func VM_ExplicitArgPtr(_ vm: Vm, _ intValue: Int) -> String? {
 
     //
     if vm.entryPoint != nil {
-        // Port-note: A cast to `void *` the draft has no view for.
-        // Raven wrote: return (void *)(vm->dataBase + intValue)
-        portMissing("VM_ExplicitArgPtr", source: "oracle/codemp/qcommon/vm.cpp:742")
+        return vm.address(at: intValue)
     } else {
-        // Port-note: A cast to `void *` the draft has no view for.
-        // Raven wrote: return (void *)(vm->dataBase + (intValue & vm->dataMask))
-        portMissing("VM_ExplicitArgPtr", source: "oracle/codemp/qcommon/vm.cpp:742")
+        // AI: Raven masks an `int` word. The word of VM_Call is pointer-wide, so the mask widens to it.
+        return vm.address(at: intValue & Int(vm.dataMask))
     }
 }
 
@@ -827,7 +808,8 @@ func VM_Call(_ vm: Vm, _ callnum: Int32, _ args: any JKAShared.FormatArg...) -> 
     var oldVM: Vm?
     var r: Int
     // Raven's local `int args[16]` is `words`, because the variadic parameter holds the name `args`.
-    var words = [Int32](repeating: 0, count: 16)
+    // AI: Raven's words are `int`. The words are pointer-wide, so the address of a vector reaches a dll module whole.
+    var words = [Int](repeating: 0, count: 16)
 
     oldVM = currentVM
     currentVM = vm
@@ -843,7 +825,7 @@ func VM_Call(_ vm: Vm, _ callnum: Int32, _ args: any JKAShared.FormatArg...) -> 
         guard case .integer(let word) = arg.formatValue else {
             preconditionFailure("VM_Call: argument \(n) is not an int")
         }
-        words[n] = Int32(truncatingIfNeeded: word)
+        words[n] = Int(truncatingIfNeeded: word)
     }
 
     // if we have a dll loaded, call it directly
@@ -852,9 +834,11 @@ func VM_Call(_ vm: Vm, _ callnum: Int32, _ args: any JKAShared.FormatArg...) -> 
         r = vm.runEntryPoint(callnum, words)
     } else if vm.compiled {
         // AI: Raven's VM_Call returns the `int` of each arm. It returns the word of the module's vmMain, so the `int` of a QVM arm widens to it.
-        r = Int(VM_CallCompiled(vm, [callnum] + words))
+        // AI: Raven's QVM arms read `int` words. The arm narrows each pointer-wide word to the `int` of the QVM.
+        r = Int(VM_CallCompiled(vm, [callnum] + words.map { Int32(truncatingIfNeeded: $0) }))
     } else {
-        r = Int(VM_CallInterpreted(vm, [callnum] + words))
+        // AI: Raven's QVM arms read `int` words. The arm narrows each pointer-wide word to the `int` of the QVM.
+        r = Int(VM_CallInterpreted(vm, [callnum] + words.map { Int32(truncatingIfNeeded: $0) }))
     }
 
     if oldVM != nil { // bk001220 - assert(currentVM!=NULL) for oldVM==NULL

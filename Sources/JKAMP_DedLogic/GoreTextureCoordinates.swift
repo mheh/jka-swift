@@ -13,7 +13,12 @@ final class GoreTextureCoordinates {
 
     /// Source: oracle/codemp/ghoul2/G2_gore.h:14
     init() {
-        // TODO: Port GoreTextureCoordinates::GoreTextureCoordinates
-        portMissing("GoreTextureCoordinates::GoreTextureCoordinates", source: "oracle/codemp/ghoul2/G2_gore.h:14")
+        var i: Int32
+        i = 0
+        // AI: Raven loops to `MAX_LODS`, which has no Swift name. The bound is its value, 8.
+        while i < 8 {
+            self.tex[i] = nil
+            i += 1
+        }
     }
 }
