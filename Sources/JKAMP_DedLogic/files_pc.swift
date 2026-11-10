@@ -616,13 +616,8 @@ func FS_FOpenFileAppend(_ filename: String) -> JKAShared.fileHandle_t {
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:568
-// TODO: Port signature
 // Raven wrote: bool Sys_GetFileTime(LPCSTR psFileName, FILETIME &ft)
-// No table row for `int & ft`.
-func Sys_GetFileTime() -> Never {
-    // TODO: Port Sys_GetFileTime
-    portMissing("Sys_GetFileTime", source: "oracle/codemp/qcommon/files_pc.cpp:568")
-}
+// Not ported: SysBackend.GetFileTime of Sources/JKAMP_Ded/SysBackend.swift reads the POSIX modification time, and Sys_FileOutOfDate calls it.
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:600
 func Sys_FileOutOfDate(_ psFinalFileName: String, _ psDataFileName: String) -> Bool {

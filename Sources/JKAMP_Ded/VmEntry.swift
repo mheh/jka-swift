@@ -81,6 +81,16 @@ public func withVectorWords<Result>(_ vectors: JKAShared.vec3_t..., body: ([Int]
     }
 }
 
+/// Raven's `char *` argument of `VM_Call` in RoffSystem.cpp, the address of the text as a word for the life of the body.
+/// The module reads the text at the word and writes none of it.
+/// Source: oracle/codemp/qcommon/RoffSystem.cpp:957
+// AI: Raven passes the address of the caller's buffer. The word holds the address of the buffer for the body, the `withUnsafePointer` form of the generated trap thunks.
+public func withTextWord<Result>(_ text: CharBuf, body: (Int) -> Result) -> Result {
+    text.withUnsafeRawPointer { buffer in
+        body(Int(bitPattern: buffer))
+    }
+}
+
 /// Raven's `SV_GameSystemCalls`, which the shell installs at its entry, for the thunk that VM_Create stores in `systemCall`.
 /// Source: oracle/codemp/server/sv_game.cpp:458
 // AI: Raven passes the C function SV_GameSystemCalls to VM_Create. The view target cannot see the logic target, so the shell installs a closure over it, the form of `LoadLibrary`.

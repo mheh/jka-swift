@@ -1,4 +1,4 @@
-/// This file holds the `printf` subset Raven's game code prints through: `%i`, `%d`, `%x`, `%s`, `%f`, with an optional `-` flag, a `0` flag on `%x`, a width, a precision, and an `l` or `ll` length on `%i`, `%d`, and `%x`.
+/// This file holds the `printf` subset Raven's game code prints through: `%i`, `%d`, `%x`, `%s`, `%f`, with an optional `-` flag, a `0` flag on `%i`, `%d`, and `%x`, a width, a precision, and an `l` or `ll` length on `%i`, `%d`, and `%x`.
 /// A ported body passes its arguments as `[any FormatArg]`, and the callers `va`, `Com_sprintf`, and `Com_Printf` build that array.
 /// The port is by hand, so the semantics are ours and the tests can hold them, and no Foundation call decides them.
 
@@ -156,11 +156,11 @@ public func format(_ fmt: String, _ args: [any FormatArg]) -> String {
             out += pad(
                 long ? String(Int32(truncatingIfNeeded: number)) : String(number),
                 width: width,
-                leftAlign: leftAlign
+                leftAlign: leftAlign,
+                zeroPad: zeroPad
             )
 
         // C prints `%x` as the hex of the `unsigned int`, so a negative `int` prints its 32 bits.
-        // The `0` flag pads only `%x`, because the `0` flag on `%d` and `%i` waits for its own ruling.
         case "x":
             guard case .integer(let number) = value else {
                 preconditionFailure("format: %x needs an integer argument")

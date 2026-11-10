@@ -88,7 +88,7 @@ func Log_Write(_ fmt: String, _ args: any JKAShared.FormatArg...) {
 /// Source: oracle/codemp/botlib/l_log.cpp:113
 func Log_WriteTimeStamped(_ fmt: String, _ args: any JKAShared.FormatArg...) {
     if logfile.fp == nil { return }
-    // Port-note: JKAShared.format has no `0` flag, so `%02d` pads with spaces where Raven's fprintf pads with zeros.
+    // Port-note: Raven calls this function from no file of either tree, so it is dead.
     // Raven wrote: fprintf(logfile.fp, "%d   %02d:%02d:%02d:%02d   ", logfile.numwrites, (int) (botlibglobals.time / 60 / 60), (int) (botlibglobals.time / 60), (int) (botlibglobals.time), (int) ((int) (botlibglobals.time * 100)) - ((int) botlibglobals.time) * 100)
     portMissing("Log_WriteTimeStamped", source: "oracle/codemp/botlib/l_log.cpp:113")
     // AI: Raven prints with vfprintf and fprintf to the stream. The text formats with JKAShared.format, and FileBackend.fwrite writes its bytes.

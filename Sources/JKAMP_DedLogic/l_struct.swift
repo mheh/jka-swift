@@ -259,8 +259,8 @@ func ReadStructure(_ source: Source, _ def: Structdef, _ structure: UnsafeMutabl
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_struct.cpp:313
 func WriteIndent(_ fp: OpaquePointer?, _ indent: Int32) -> Int32 {
-    // WriteStructWithIndent is the one caller, and its one caller WriteStructure stands only under DEBUG_AI_WEAP.
-    // The build does not define DEBUG_AI_WEAP, so this function is dead.
+    // WriteStructWithIndent is the one live caller, and its one caller WriteStructure stands only under DEBUG_AI_WEAP.
+    // The build does not define DEBUG_AI_WEAP, and the calls of be_ai_weight.cpp:433 to :525 stand under `#if 0`, so this function is dead.
     // TODO: Port WriteIndent
     portMissing("WriteIndent", source: "oracle/codemp/botlib/l_struct.cpp:313")
 }
@@ -273,8 +273,8 @@ func WriteIndent(_ fp: OpaquePointer?, _ indent: Int32) -> Int32 {
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_struct.cpp:327
 func WriteFloat(_ fp: OpaquePointer?, _ value: Float) -> Int32 {
-    // WriteStructWithIndent is the one caller, and its one caller WriteStructure stands only under DEBUG_AI_WEAP.
-    // The build does not define DEBUG_AI_WEAP, so this function is dead.
+    // WriteStructWithIndent is the one live caller, and its one caller WriteStructure stands only under DEBUG_AI_WEAP.
+    // The build does not define DEBUG_AI_WEAP, and the calls of be_ai_weight.cpp:433 to :525 stand under `#if 0`, so this function is dead.
     // TODO: Port WriteFloat
     portMissing("WriteFloat", source: "oracle/codemp/botlib/l_struct.cpp:327")
 }

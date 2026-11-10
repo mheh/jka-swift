@@ -73,6 +73,7 @@ func VM_SetSymbolMap(_ vm: Vm) {
 // TODO: Port signature
 // Raven wrote: void *VM_VM2C( vmptr_t p, int length )
 // No table row for the return `void *`.
+// Raven calls this function from no file of either tree, so it is dead.
 func VM_VM2C() -> Never {
     // TODO: Port VM_VM2C
     portMissing("VM_VM2C", source: "oracle/codemp/qcommon/vm.cpp:37")

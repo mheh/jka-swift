@@ -170,7 +170,7 @@ final class CBlockStream {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:525
-    // Port-note: Rule 20. The callers of this function are in Interpreter.cpp, and WinDed does not link Interpreter.cpp, so the function keeps its marker.
+    // Port-note: Rule 20. No file of either tree calls CBlockStream::Create, so the function keeps its marker.
     @discardableResult
     func Create(_ filename: String) -> Int32 {
         // TODO: Port CBlockStream::Create

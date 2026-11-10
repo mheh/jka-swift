@@ -849,6 +849,10 @@ FIELD_NAMES = {
     ("pack_t", "handle"): "packHandle",
     # Raven stores the model handle at tr_model.cpp:664 and reads it at :1040, :1213, and :1241, row TR12.
     ("modelHash_t", "handle"): "modelHandle",
+    # Raven stores the message handle at be_ai_chat.cpp:325 and reads it at :290 and :360, row FN-consolehandle of docket 12.
+    ("bot_consolemessage_t", "handle"): "messageHandle",
+    # Raven counts the last message handle of a chat state at be_ai_chat.cpp:323 to :325, row FN-chathandle of docket 12.
+    ("bot_chatstate_t", "handle"): "chatHandle",
 }
 
 @dataclass(frozen=True)
@@ -1529,8 +1533,9 @@ DEAD = {
     "BotDrawDebugPolygons": "CM_DrawDebugSurface is the one caller, and the dedicated build never draws",
     # WriteStructWithIndent of l_struct.cpp:355 is the one caller of each, and WriteStructure, its one caller, is called only by DumpWeaponConfig
     # of be_ai_weap.cpp:156 under DEBUG_AI_WEAP, which the build does not define, row X34 of docket 10.
-    "WriteIndent": "WriteStructWithIndent is the one caller, and its one caller WriteStructure stands only under DEBUG_AI_WEAP, which the build does not define",
-    "WriteFloat": "WriteStructWithIndent is the one caller, and its one caller WriteStructure stands only under DEBUG_AI_WEAP, which the build does not define",
+    # The calls of be_ai_weight.cpp:433 to :525 stand under the `#if 0` of :421 to :533, docket 12.
+    "WriteIndent": "WriteStructWithIndent is the one live caller, its one caller WriteStructure stands only under DEBUG_AI_WEAP, which the build does not define, and the calls of be_ai_weight.cpp stand under `#if 0`",
+    "WriteFloat": "WriteStructWithIndent is the one live caller, its one caller WriteStructure stands only under DEBUG_AI_WEAP, which the build does not define, and the calls of be_ai_weight.cpp stand under `#if 0`",
     # The body of RM_Manager.cpp:444 to :473 and both callers of RM_Mission.cpp:1508 and :1512 stand under `#ifndef DEDICATED`, row 8 of docket 11.
     "ProcessAutomapSymbols": "Its body and its two callers in RM_Mission.cpp stand under `#ifndef DEDICATED`, so no caller builds in the dedicated host",
     # tr_terrain.cpp:923 of the renderer and RM_CreateRandomModels of RM_Terrain.cpp:493 are the callers, and only cl_cgame.cpp:1707 calls the second, row 8 of docket 11.
@@ -1553,6 +1558,10 @@ NOT_PORTED = {
     "qsort": "Raven's byte-swap qsort has no view form, and the hand port is generic over the element type",
     # The module calls the C VM_DllSyscall of Sources/CJKAHost/jka_host.c, which hands the words to the host.
     "VM_DllSyscall": "the C function of Sources/CJKAHost/jka_host.c, because Swift cannot write a C variadic callee, and the module reaches it through dllEntry",
+    # Raven's callers in cvar.cpp are live. Each Swift site drops the free under an AI line, so no Swift caller remains, row NOT_PORTED-replaced of docket 12.
+    "Cvar_FreeString": "the string pool holds every cvar string, and each caller drops the free under an AI line",
+    # Sys_FileOutOfDate of files_pc.cpp:600 is the one caller, and the Swift body calls SysBackend.GetFileTime under an AI line, row NOT_PORTED-replaced of docket 12.
+    "Sys_GetFileTime": "SysBackend.GetFileTime of Sources/JKAMP_Ded/SysBackend.swift reads the POSIX modification time, and Sys_FileOutOfDate calls it",
 }
 
 # Game functions and globals the shell's `vmMain` names, which cross the module line, so each is public. Rule 11 and ruling E1.

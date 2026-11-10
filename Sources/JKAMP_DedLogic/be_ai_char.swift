@@ -57,9 +57,12 @@ func BotDumpCharacter(_ ch: BotCharacter) {
     Log_Write("{\n")
     i = 0
     while i < MAX_CHARACTERISTICS {
-        // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
-        // Raven wrote: switch(ch->c[i].type) { case CT_INTEGER: Log_Write(" %4d %d\n", i, ch->c[i].value.integer); break; case CT_FLOAT: Log_Write(" %4d %f\n", i, ch->c[i].value._float); break; case CT_STRING: Log_Write(" %4d %s\n", i, ch->c[i].value.string); break; }
-        portMissing("BotDumpCharacter", source: "oracle/codemp/botlib/be_ai_char.cpp:88")
+        switch ch.c[i].type {
+        case CT_INTEGER: Log_Write(" %4d %d\n", i, ch.c[i].value.integer)
+        case CT_FLOAT: Log_Write(" %4d %f\n", i, ch.c[i].value._float)
+        case CT_STRING: Log_Write(" %4d %s\n", i, ch.c[i].value.string!)
+        default: break
+        } //end case
         i += 1
     }
     Log_Write("}\n")
@@ -78,9 +81,7 @@ func BotFreeCharacterStrings(_ ch: BotCharacter) {
     i = 0
     while i < MAX_CHARACTERISTICS {
         if Int32(ch.c[i].type) == CT_STRING {
-            // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
-            // Raven wrote: FreeMemory(ch->c[i].value.string);
-            portMissing("BotFreeCharacterStrings", source: "oracle/codemp/botlib/be_ai_char.cpp:112")
+            // AI: Raven frees the GetMemory block of the text. The field holds a pooled text, so the free drops.
         }
         i += 1
     }
@@ -138,19 +139,15 @@ func BotDefaultCharacteristics(_ ch: BotCharacter, _ defaultch: BotCharacter) {
         //
         if Int32(defaultch.c[i].type) == CT_FLOAT {
             ch.c[i].type = CT_FLOAT
-            // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
-            // Raven wrote: ch->c[i].value._float = defaultch->c[i].value._float;
-            portMissing("BotDefaultCharacteristics", source: "oracle/codemp/botlib/be_ai_char.cpp:163")
+            ch.c[i].value._float = defaultch.c[i].value._float
         } else if Int32(defaultch.c[i].type) == CT_INTEGER {
             ch.c[i].type = CT_INTEGER
-            // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
-            // Raven wrote: ch->c[i].value.integer = defaultch->c[i].value.integer;
-            portMissing("BotDefaultCharacteristics", source: "oracle/codemp/botlib/be_ai_char.cpp:163")
+            ch.c[i].value.integer = defaultch.c[i].value.integer
         } else if Int32(defaultch.c[i].type) == CT_STRING {
             ch.c[i].type = CT_STRING
-            // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
-            // Raven wrote: ch->c[i].value.string = (char *) GetMemory(strlen(defaultch->c[i].value.string)+1); strcpy(ch->c[i].value.string, defaultch->c[i].value.string);
-            portMissing("BotDefaultCharacteristics", source: "oracle/codemp/botlib/be_ai_char.cpp:163")
+            // AI: Raven copies the text into a GetMemory block. The call stays for the zone count, and the field takes the text.
+            _ = GetMemory(strlen(defaultch.c[i].value.string!) + 1)
+            ch.c[i].value.string = defaultch.c[i].value.string
         }
         i += 1
     }
@@ -233,21 +230,18 @@ func BotLoadCharacterFromFile(_ charfile: inout JKAShared.CharBuf, _ skill: Int3
                         }
                         if token.type == TT_NUMBER {
                             if (token.subtype & TT_FLOAT) != 0 {
-                                // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
-                                // Raven wrote: ch->c[index].value._float = token.floatvalue;
-                                portMissing("BotLoadCharacterFromFile", source: "oracle/codemp/botlib/be_ai_char.cpp:195")
+                                ch.c[index].value._float = Float(token.floatvalue)
                                 ch.c[index].type = CT_FLOAT
                             } else {
-                                // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
-                                // Raven wrote: ch->c[index].value.integer = token.intvalue;
-                                portMissing("BotLoadCharacterFromFile", source: "oracle/codemp/botlib/be_ai_char.cpp:195")
+                                // C converts the unsigned long to an int.
+                                ch.c[index].value.integer = Int32(bitPattern: token.intvalue)
                                 ch.c[index].type = CT_INTEGER
                             }
                         } else if token.type == TT_STRING {
                             StripDoubleQuotes(&token.stringBuffer)
-                            // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
-                            // Raven wrote: ch->c[index].value.string = (char *)GetMemory(strlen(token.string)+1); strcpy(ch->c[index].value.string, token.string);
-                            portMissing("BotLoadCharacterFromFile", source: "oracle/codemp/botlib/be_ai_char.cpp:195")
+                            // AI: Raven copies the text into a GetMemory block. The call stays for the zone count, and the field takes the text.
+                            _ = GetMemory(strlen(token.string) + 1)
+                            ch.c[index].value.string = token.string
                             ch.c[index].type = CT_STRING
                         } else {
                             SourceError(source, "expected integer, float or string, found %s\n", token.string)
@@ -465,19 +459,15 @@ func BotInterpolateCharacters(_ handle1: Int32, _ handle2: Int32, _ desiredskill
         //
         if Int32(ch1.c[i].type) == CT_FLOAT && Int32(ch2.c[i].type) == CT_FLOAT {
             out.c[i].type = CT_FLOAT
-            // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
-            // Raven wrote: out->c[i].value._float = ch1->c[i].value._float + (ch2->c[i].value._float - ch1->c[i].value._float) * scale;
-            portMissing("BotInterpolateCharacters", source: "oracle/codemp/botlib/be_ai_char.cpp:499")
+            out.c[i].value._float = ch1.c[i].value._float + (ch2.c[i].value._float - ch1.c[i].value._float) * scale
         } else if Int32(ch1.c[i].type) == CT_INTEGER {
             out.c[i].type = CT_INTEGER
-            // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
-            // Raven wrote: out->c[i].value.integer = ch1->c[i].value.integer;
-            portMissing("BotInterpolateCharacters", source: "oracle/codemp/botlib/be_ai_char.cpp:499")
+            out.c[i].value.integer = ch1.c[i].value.integer
         } else if Int32(ch1.c[i].type) == CT_STRING {
             out.c[i].type = CT_STRING
-            // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
-            // Raven wrote: out->c[i].value.string = (char *) GetMemory(strlen(ch1->c[i].value.string)+1); strcpy(out->c[i].value.string, ch1->c[i].value.string);
-            portMissing("BotInterpolateCharacters", source: "oracle/codemp/botlib/be_ai_char.cpp:499")
+            // AI: Raven copies the text into a GetMemory block. The call stays for the zone count, and the field takes the text.
+            _ = GetMemory(strlen(ch1.c[i].value.string!) + 1)
+            out.c[i].value.string = ch1.c[i].value.string
         }
         i += 1
     }
@@ -566,15 +556,11 @@ func Characteristic_Float(_ character: Int32, _ index: Int32) -> Float {
     if CheckCharacteristicIndex(character, index) == 0 { return 0 }
     //an integer will be converted to a float
     if Int32(ch.c[index].type) == CT_INTEGER {
-        // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
-        // Raven wrote: return (float) ch->c[index].value.integer;
-        portMissing("Characteristic_Float", source: "oracle/codemp/botlib/be_ai_char.cpp:624")
+        return Float(ch.c[index].value.integer)
     }
     //floats are just returned
     else if Int32(ch.c[index].type) == CT_FLOAT {
-        // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
-        // Raven wrote: return ch->c[index].value._float;
-        portMissing("Characteristic_Float", source: "oracle/codemp/botlib/be_ai_char.cpp:624")
+        return ch.c[index].value._float
     }
     //cannot convert a string pointer to a float
     else {
@@ -618,15 +604,11 @@ func Characteristic_Integer(_ character: Int32, _ index: Int32) -> Int32 {
     if CheckCharacteristicIndex(character, index) == 0 { return 0 }
     //an integer will just be returned
     if Int32(ch.c[index].type) == CT_INTEGER {
-        // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
-        // Raven wrote: return ch->c[index].value.integer;
-        portMissing("Characteristic_Integer", source: "oracle/codemp/botlib/be_ai_char.cpp:679")
+        return ch.c[index].value.integer
     }
     //floats are casted to integers
     else if Int32(ch.c[index].type) == CT_FLOAT {
-        // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
-        // Raven wrote: return (int) ch->c[index].value._float;
-        portMissing("Characteristic_Integer", source: "oracle/codemp/botlib/be_ai_char.cpp:679")
+        return Int32(ch.c[index].value._float)
     } else {
         botimport.runPrint(PRT_ERROR, "characteristic %d is not a integer\n", index)
         return 0
@@ -668,9 +650,7 @@ func Characteristic_String(_ character: Int32, _ index: Int32, _ buf: inout JKAS
     if CheckCharacteristicIndex(character, index) == 0 { return }
     //an integer will be converted to a float
     if Int32(ch.c[index].type) == CT_STRING {
-        // Port-note: The union `value` of `bot_characteristic_t` has no accessor in its view, row P2 of the bot-ai round.
-        // Raven wrote: strncpy(buf, ch->c[index].value.string, size-1);
-        portMissing("Characteristic_String", source: "oracle/codemp/botlib/be_ai_char.cpp:733")
+        strncpy(&buf, ch.c[index].value.string!, size - 1)
         buf[size - 1] = 0
         return
     } else {

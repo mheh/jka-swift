@@ -1634,16 +1634,16 @@ func SV_GameSystemCalls_Real(_ args: Slots<Int32>) -> Int {
     // AI: Raven reads `args[x]` of the Ghoul2 arms below as the address of a `CGhoul2Info_v`.
     // Each arm takes the instance that the whole word names in `ghoul2Instances`, and a `CGhoul2Info_v **` arm writes the word of the result back, row Z6 of docket 10.
     case G_G2_LISTBONES:
-        // Port-note: Row Z6. Raven reads the module's word as the address of one `CGhoul2Info`, and the word names a `CGhoul2Info_v`.
-        // No game file calls the trap.
-        // Raven wrote: G2API_ListBones( (CGhoul2Info *) VMA(1), args[2]);
-        portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:1316")
+        // Port-note: Rule 19. Raven reads the word of a `CGhoul2Info_v` as one `CGhoul2Info`, so he reads past the 4-byte object.
+        // The port takes model 0 of the instance that the word names, and no game file calls the trap.
+        G2API_ListBones(ghoul2Instances.instance(word: args.VMA(1))![0], args[2])
+        return 0
 
     case G_G2_LISTSURFACES:
-        // Port-note: Row Z6. Raven reads the module's word as the address of one `CGhoul2Info`, and the word names a `CGhoul2Info_v`.
-        // No game file calls the trap.
-        // Raven wrote: G2API_ListSurfaces( (CGhoul2Info *) args[1] );
-        portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:1320")
+        // Port-note: Rule 19. Raven reads the word of a `CGhoul2Info_v` as one `CGhoul2Info`, so he reads past the 4-byte object.
+        // The port takes model 0 of the instance that the word names, and no game file calls the trap.
+        G2API_ListSurfaces(ghoul2Instances.instance(word: args.VMA(1))![0])
+        return 0
 
     case G_G2_HAVEWEGHOULMODELS:
         return (G2API_HaveWeGhoul2Models(ghoul2Instances.instance(word: args.VMA(1))!) ? 1 : 0)

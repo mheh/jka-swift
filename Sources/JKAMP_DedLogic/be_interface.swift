@@ -823,8 +823,13 @@ private enum Ai_exportThunks {
     static let BotRemoveFromAvoidGoals: Ai_exportBotRemoveFromAvoidGoals = { JKAMP_DedLogic.BotRemoveFromAvoidGoals($0, $1) }
 
     /// Source: oracle/codemp/botlib/be_ai_chat.cpp:744
-    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
-    static let BotReplaceSynonyms: Ai_exportBotReplaceSynonyms = { _, _ in portMissing("BotReplaceSynonyms", source: "oracle/codemp/botlib/be_ai_chat.cpp:744") }
+    // AI: Raven gives no bound for the text. The thunk takes MAX_MESSAGE_SIZE, the size of `temp` of the one internal caller at be_ai_chat.cpp:2247.
+    // AI: Raven's `unsigned long context` is 32 bits in WinDed. The thunk keeps the low 32 bits of the host's `unsigned long`.
+    static let BotReplaceSynonyms: Ai_exportBotReplaceSynonyms = { string, context in
+        var buf = charBuf(at: UnsafeMutableRawPointer(string!), capacity: Int(MAX_MESSAGE_SIZE))
+        JKAMP_DedLogic.BotReplaceSynonyms(&buf, UInt32(truncatingIfNeeded: context))
+        store(buf, at: UnsafeMutableRawPointer(string!), capacity: Int(MAX_MESSAGE_SIZE))
+    }
 
     /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2597
     static let BotReplyChat: Ai_exportBotReplyChat = { chatstate, message, mcontext, vcontext, var0, var1, var2, var3, var4, var5, var6, var7 in
