@@ -21,13 +21,15 @@ final class CEdge {
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:82
     init() {
-        // TODO: Port CEdge::CEdge
-        portMissing("CEdge::CEdge", source: "oracle/codemp/server/NPCNav/navigator.cpp:82")
+        // Port-note: Raven's line builds a temporary CEdge and drops it, so the fields of this edge stay uninitialized.
+        // The fields keep their zero defaults.
+        _ = CEdge(-1, -1, -1)
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:87
     init(_ first: Int32, _ second: Int32, _ cost: Int32) {
-        // TODO: Port CEdge::CEdge
-        portMissing("CEdge::CEdge", source: "oracle/codemp/server/NPCNav/navigator.cpp:87")
+        self.m_first = first
+        self.m_second = second
+        self.m_cost = cost
     }
 }

@@ -21,15 +21,22 @@ final class CTask {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:27
-    init() {
-        // TODO: Port CTask::CTask
-        portMissing("CTask::CTask", source: "oracle/codemp/icarus/TaskManager.cpp:27")
-    }
+    init() {}
 
     /// Source: oracle/codemp/icarus/TaskManager.cpp:35
     static func Create(_ GUID: Int32, _ block: CBlock?) -> CTask? {
-        // TODO: Port CTask::Create
-        portMissing("CTask::Create", source: "oracle/codemp/icarus/TaskManager.cpp:35")
+        let task: CTask? = CTask()
+
+        //TODO: Emit warning
+        if task == nil {
+            return nil
+        }
+
+        task!.SetTimeStamp(0)
+        task!.SetBlock(block)
+        task!.SetGUID(GUID)
+
+        return task
     }
 
     /**
@@ -41,8 +48,8 @@ final class CTask {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:57
     func Free() {
-        // TODO: Port CTask::Free
-        portMissing("CTask::Free", source: "oracle/codemp/icarus/TaskManager.cpp:57")
+        //NOTENOTE: The block is not consumed by the task, it is the sequencer's job to clean blocks up
+        // AI: Raven deletes the task here. ARC frees the task when the last reference drops, so the body holds no statement.
     }
 
     /// Source: oracle/codemp/icarus/taskmanager.h:44
@@ -62,8 +69,7 @@ final class CTask {
 
     /// Source: oracle/codemp/icarus/taskmanager.h:47
     func GetID() -> Int32 {
-        // TODO: Port CTask::GetID
-        portMissing("CTask::GetID", source: "oracle/codemp/icarus/taskmanager.h:47")
+        self.m_block!.GetBlockID()
     }
 
     /// Source: oracle/codemp/icarus/taskmanager.h:49

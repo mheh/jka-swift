@@ -25,8 +25,9 @@ final class CBlockMember {
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:26
     init() {
-        // TODO: Port CBlockMember::CBlockMember
-        portMissing("CBlockMember::CBlockMember", source: "oracle/codemp/icarus/BlockStream.cpp:26")
+        self.m_id = -1
+        self.m_size = -1
+        self.m_data = nil
     }
 
     /**
@@ -37,6 +38,7 @@ final class CBlockMember {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:44
+    // Port-note: The body reads or writes `m_data`, which is `OpaquePointer?` and has no body form, so the body waits for that row.
     func Free() {
         // TODO: Port CBlockMember::Free
         portMissing("CBlockMember::Free", source: "oracle/codemp/icarus/BlockStream.cpp:44")
@@ -63,12 +65,14 @@ final class CBlockMember {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:74
+    // Port-note: The body reads or writes `m_data`, which is `OpaquePointer?` and has no body form, so the body waits for that row.
     func SetData(_ data: String) {
         // TODO: Port CBlockMember::SetData
         portMissing("CBlockMember::SetData", source: "oracle/codemp/icarus/BlockStream.cpp:74")
     }
 
     /// Source: oracle/codemp/icarus/BlockStream.cpp:79
+    // Port-note: The body reads or writes `m_data`, which is `OpaquePointer?` and has no body form, so the body waits for that row.
     func SetData(_ data: JKAShared.vec3_t) {
         // TODO: Port CBlockMember::SetData
         portMissing("CBlockMember::SetData", source: "oracle/codemp/icarus/BlockStream.cpp:79")
@@ -89,6 +93,7 @@ final class CBlockMember {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:102
+    // Port-note: The body reads or writes `m_data`, which is `OpaquePointer?` and has no body form, so the body waits for that row.
     func ReadMember(_ stream: CharBuf, _ streamPos: inout Int32) -> Int32 {
         // TODO: Port CBlockMember::ReadMember
         portMissing("CBlockMember::ReadMember", source: "oracle/codemp/icarus/BlockStream.cpp:102")
@@ -118,6 +123,7 @@ final class CBlockMember {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:148
+    // Port-note: The body reads or writes `m_data`, which is `OpaquePointer?` and has no body form, so the body waits for that row.
     func Duplicate() -> CBlockMember? {
         // TODO: Port CBlockMember::Duplicate
         portMissing("CBlockMember::Duplicate", source: "oracle/codemp/icarus/BlockStream.cpp:148")
