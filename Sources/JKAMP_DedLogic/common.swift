@@ -2076,7 +2076,7 @@ func random() -> Float {
 
 /// Source: oracle/codemp/game/q_shared.h:1592
 func crandom() -> Double {
-    2.0 * (Double(random()) - 0.5)
+    2.0 * (Double(JKAMP_DedLogic.random()) - 0.5)
 }
 
 /// Source: oracle/codemp/qcommon/qcommon.h:1094
