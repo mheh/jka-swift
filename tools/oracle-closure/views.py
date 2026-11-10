@@ -328,6 +328,22 @@ class Generator:
             if inner.get_canonical().kind == TypeKind.CHAR_S and FIELDS.get((self.owner_of(field), name)) == "opaque":
                 # A `char *` field of kind `opaque` holds a byte buffer that a body hands on as a handle, `read_buffer` of unzip.h:66.
                 return self.property(name, "OpaquePointer?", f"OpaquePointer({pointee})", f"{pointee} = UnsafeMutablePointer(newValue)")
+            ruled_text = FIELDS.get((self.owner_of(field), name))
+            if inner.get_canonical().kind == TypeKind.CHAR_S and isinstance(ruled_text, tuple) and ruled_text[0] == "text_buffer":
+                # The field holds the text a script reads, `script->buffer` of l_script.h:161, so it reads as a Slots over its bytes and the NUL,
+                # the count field beside it plus one, row N1 of the ninth batch. A store keeps the base of the assigned Slots.
+                count = f"Int(self.raw.pointee.{ruled_text[1]}) + 1"
+                return self.property(name, "Slots<JKAShared.byte>?", f"{pointee}.map {{ Slots(scalars: UnsafeMutableRawPointer($0), count: {count}) }}",
+                                     f"{pointee} = newValue?.base.assumingMemoryBound(to: CChar.self)")
+            if inner.get_canonical().kind == TypeKind.CHAR_S and isinstance(ruled_text, tuple) and ruled_text[0] == "text_offset":
+                # A cursor into the buffer of its record reads as the Int32 byte offset from that buffer, the field twin of the RETURNS kind
+                # `text_offset_nonnull`, row N1 of the ninth batch. The C record keeps Raven's pointer, `script->script_p` of l_script.h:162.
+                if ruled_text[1] is not None:
+                    base = f"self.raw.pointee.{ruled_text[1]}"
+                    return self.property(name, "Int32", f"Int32({base}!.distance(to: {pointee}!))", f"{pointee} = {base}! + Int(newValue)")
+                # A token holds no buffer, so its cursor keeps the offset of the script's buffer as the bits of the pointer.
+                return [f"    // AI: Raven holds a pointer into the script's buffer. The token holds no buffer, so the field keeps the byte offset as the pointer's bits."] \
+                    + self.property(name, "Int32", f"Int32(Int(bitPattern: {pointee}))", f"{pointee} = UnsafeMutablePointer(bitPattern: Int(newValue))")
             if inner.get_canonical().kind == TypeKind.CHAR_S:
                 # A `char *` field reads as its text, and a store interns the text in the shared pool, so the engine reads a pointer that lives on.
                 get = f"{pointee}.map {{ cString(at: $0) }}"
@@ -365,6 +381,19 @@ class Generator:
                 count, _ = self.slots_count(field, target)
                 return self.property(name, "Slots<Int32>?", f"{pointee}.map {{ Slots(scalars: UnsafeMutableRawPointer($0), count: {count}) }}",
                                      f"{pointee} = newValue?.base.assumingMemoryBound(to: Int32.self)")
+            if ruled == "bytes" and inner.get_canonical().kind == TypeKind.USHORT:
+                # An `unsigned short *` field a body indexes, `areatraveltimes` of aas_routingupdate_t at be_aas_def.h:156, reads as a Slots
+                # over the shorts by the same rule, row N5 of the ninth batch.
+                count, _ = self.slots_count(field, target)
+                return self.property(name, "Slots<UInt16>?", f"{pointee}.map {{ Slots(scalars: UnsafeMutableRawPointer($0), count: {count}) }}",
+                                     f"{pointee} = newValue?.base.assumingMemoryBound(to: UInt16.self)")
+            if ruled == "vectors" and inner.get_canonical().kind == TypeKind.CONSTANTARRAY and inner.get_canonical().element_count == 3 \
+                    and inner.get_canonical().element_type.get_canonical().kind == TypeKind.FLOAT:
+                # A `vec3_t *` field a body indexes, `aasworld.vertexes` of be_aas_def.h:200, reads as a Slots of vectors through `Slots(vectors:)`,
+                # the form of an array field of vectors, row N4 of the ninth batch. A store keeps the base of the assigned Slots.
+                count, _ = self.slots_count(field, target)
+                return self.property(name, "Slots<JKAShared.vec3_t>?", f"{pointee}.map {{ Slots(vectors: UnsafeMutableRawPointer($0), count: {count}) }}",
+                                     f"{pointee} = newValue.map {{ UnsafeMutablePointer(OpaquePointer($0.base)) }}")
             if ruled == "slot" and inner.get_canonical().kind == TypeKind.POINTER:
                 # The field holds the address of one record pointer slot, so it reads as the Slots of one optional view over that slot.
                 # Two records that hold one address share the slot, as Raven's nodes of one block share their `head`.
@@ -505,7 +534,8 @@ class Generator:
             if (self.owner_of(field), name) in SLOT_BOUNDS:
                 # Raven declares the array short and allocates the record past it, so a SLOT_BOUNDS macro bounds the elements, `p` of winding_t.
                 macro = SLOT_BOUNDS[(self.owner_of(field), name)]
-                return note + [f"    // AI: Raven declares `{name}[{count}]` and allocates the record past it. The count is Raven's `{macro}` bound.",
+                bound = f"The count is Raven's `{macro}` bound." if macro else "No macro bounds it, so the count is the widest."
+                return note + [f"    // AI: Raven declares `{name}[{count}]` and allocates the record past it. {bound}",
                                f"    public var {name}: Slots<{element_type}> {{ {call.replace('{count}', self.slots_count(field, target)[0])} }}"]
             return note + [f"    public var {name}: Slots<{element_type}> {{ {call.replace('{count}', str(count))} }}"]
         if canonical.kind == TypeKind.RECORD:
@@ -607,6 +637,9 @@ class Generator:
         A field the rule does not name takes the widest count, and Raven's own index is the one that reads."""
         owner = self.owner_of(field)
         macro = SLOT_BOUNDS.get((owner, field.spelling))
+        if macro is None and (owner, field.spelling) in SLOT_BOUNDS:
+            # A row with no macro names an array Raven sizes at the allocation, which no macro bounds, row N7 of the ninth batch.
+            return "Int.max", "Raven sizes the block at the allocation, and no macro bounds it, so the Slots takes the widest count."
         if macro is None:
             return "Int.max", "C gives the pointer no bound, so the Slots takes the widest count."
         exported = self.exported_names(target)
@@ -671,15 +704,21 @@ class Generator:
             c_result = "Int32" if returns == "Bool" else returns or "Void"
         return f"@convention(c) ({', '.join(c_params)}) -> {c_result}"
 
-    def callback_alias(self, proto: ci.Type, target: str) -> str | None:
+    def callback_alias(self, proto: ci.Type, target: str, field: str | None = None) -> str | None:
         """The callback typealias a view field holds for this prototype, qualified for the target, or None when no field has it.
-        Every alias of one signature is the same type, so the first in name order serves."""
+        Every alias of one signature is the same type, so the first in name order serves, unless a `record.field` row names the field."""
         signature = self.c_signature(proto, target)
+        preferred = None
+        if field and field.split(".")[0] in self.views:
+            record, name = field.split(".", 1)
+            preferred = f"{self.views[record][0]}{name[0].upper()}{name[1:]}"
         for owner in [target] + DEPS[target]:
             # The aliases are read from the Callbacks file views.py wrote, the same way exported_names reads reexport's names.
             paths = [root / VIEW_OF[owner] / "Generated" / "Views" / "Callbacks.swift" for root in C.READ_ROOTS]
             text = "".join(path.read_text() for path in paths if path.exists())
             aliases = sorted(alias for alias, sig in re.findall(r"^public typealias (\w+) = (@convention\(c\) .*)$", text, re.M) if sig == signature)
+            if preferred in aliases:
+                aliases = [preferred]
             if aliases:
                 return aliases[0] if owner == target else f"{VIEW_OF[owner]}.{aliases[0]}"
         return None

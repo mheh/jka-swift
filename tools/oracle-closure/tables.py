@@ -174,6 +174,42 @@ DED_PIECES: tuple[Piece, ...] = (
         "// so this declaration line and its brace are the tool's own and Raven's bytes start at his first row, row TR4.",
         "vidmode_t r_vidModes[13] = {",
     ), source="codemp/renderer/tr_init.cpp", first=467, last=480),
+    # The botlib tables of the ninth batch: the punctuations of l_script.cpp, row D11, and the field tables of l_struct.cpp's readers, row D19.
+    # Each row holds a `char *` name and integers, which a body reads in place, the netField shape.
+    Piece(own=(
+        "// Raven wrote `punctuation_t default_punctuations[] =` at l_script.cpp:69, and ded_tables.h declares the table `extern` with its bound,",
+        "// so this declaration line and its brace are the tool's own and Raven's bytes start at his first row, row D11.",
+        "punctuation_t default_punctuations[54] = {",
+    ), source="codemp/botlib/l_script.cpp", first=71, last=146),
+    Piece(
+        own=("// Raven's offset macro of be_ai_goal.cpp, which the table below names.",),
+        source="codemp/botlib/be_ai_goal.cpp", first=121, last=121, table=False,
+    ),
+    Piece(own=(
+        "// Raven wrote `fielddef_t iteminfo_fields[] =` at be_ai_goal.cpp:123, and ded_tables.h declares the table `extern` with its bound, row D19.",
+        "fielddef_t iteminfo_fields[9] = {",
+    ), source="codemp/botlib/be_ai_goal.cpp", first=125, last=134),
+    Piece(source="codemp/botlib/be_ai_goal.cpp", first=136, last=139),
+    Piece(
+        own=("// Raven's offset macros of be_ai_weap.cpp, which the tables below name.",),
+        source="codemp/botlib/be_ai_weap.cpp", first=34, last=35, table=False,
+    ),
+    Piece(own=(
+        "// Raven wrote `static fielddef_t weaponinfo_fields[] =` at be_ai_weap.cpp:38, and ded_tables.h declares the table `extern` with its bound,",
+        "// so this declaration line and its brace are the tool's own and Raven's bytes start at his first row, row D19.",
+        "fielddef_t weaponinfo_fields[23] = {",
+    ), source="codemp/botlib/be_ai_weap.cpp", first=40, last=63),
+    Piece(own=(
+        "// Raven wrote `static fielddef_t projectileinfo_fields[] =` at be_ai_weap.cpp:66, the same form.",
+        "fielddef_t projectileinfo_fields[15] = {",
+    ), source="codemp/botlib/be_ai_weap.cpp", first=68, last=84),
+    Piece(own=(
+        "// Raven wrote `static structdef_t weaponinfo_struct =` at be_ai_weap.cpp:86 and `projectileinfo_struct` at :90, the same form.",
+        "structdef_t weaponinfo_struct = {",
+    ), source="codemp/botlib/be_ai_weap.cpp", first=88, last=89),
+    Piece(own=(
+        "structdef_t projectileinfo_struct = {",
+    ), source="codemp/botlib/be_ai_weap.cpp", first=92, last=93),
 )
 
 

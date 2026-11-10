@@ -22,7 +22,7 @@ import closure as C
 import store as S
 from fnsweep import ASSIGN_OPS
 from overlay import DECLARED, DROPPED, MACROS, written_arguments
-from rulings import HAND_MACROS, NULLABLE, PARAMS, RETURNS
+from rulings import HAND_MACROS, MSVC_WIDTH_FOLDERS, NULLABLE, PARAMS, RETURNS
 from views import Generator
 from spelling import INT_KINDS, Facts, OPTIONAL_TEXT_RESULT, engine_array
 
@@ -2062,6 +2062,11 @@ class Table:
             fills_array=(owner, name) in self.array_handoffs,
             reinterprets=self.reinterprets(cur),
         )
+        width = self.msvc_width(cur.type, cur.semantic_parent)
+        if width is not None:
+            # The botlib's `long` is the 32 bits of WinDed, the ded_types.h copy of `token_t`, so a pointer to one is that scalar inout.
+            pointer = cur.type.get_canonical().kind == TypeKind.POINTER
+            return Param(name, f"inout {width}" if pointer else width, "out_scalar" if pointer else "bare")
         answer = self.types.answer("parameter", cur.type, facts)
         if answer is None:
             return None
@@ -2069,6 +2074,19 @@ class Table:
             # A function-pointer parameter, whose own prototype parameters cross by these rows in turn.
             return self.closure(cur, name)
         return Param(name, answer.swift, answer.kind, size=answer.size)
+
+    @staticmethod
+    def msvc_width(t: ci.Type, function: ci.Cursor | None) -> str | None:
+        """The Swift scalar of a `long`, an `unsigned long`, or a `long double`, or a pointer to one, in a function of a folder that
+        MSVC_WIDTH_FOLDERS names, at the width WinDed gives it. None for any other type or function."""
+        if function is None or function.location.file is None:
+            return None
+        if Path(function.location.file.name).parent.name not in MSVC_WIDTH_FOLDERS:
+            return None
+        canonical = t.get_canonical()
+        if canonical.kind == TypeKind.POINTER and not canonical.get_pointee().is_const_qualified():
+            canonical = canonical.get_pointee().get_canonical()
+        return {TypeKind.LONG: "Int32", TypeKind.ULONG: "UInt32", TypeKind.LONGDOUBLE: "Double"}.get(canonical.kind)
 
     @classmethod
     def reinterprets(cls, cur: ci.Cursor) -> bool:
@@ -2182,6 +2200,10 @@ class Table:
         if isinstance(ruled, tuple) and ruled[0] == "view":
             # Every return is the record or NULL, so the function returns that record's optional view.
             return (f"{self.views.qualified_view(ruled[1], TARGET)}?", "")
+        width = self.msvc_width(cur.result_type, cur)
+        if width is not None and cur.result_type.get_canonical().kind != TypeKind.POINTER:
+            # The botlib's `long` return is the 32 bits of WinDed, ReadSignedInt of l_script.cpp, the parameter rule above.
+            return (width, "")
         result = self.result_type(cur.result_type)
         if result is not None and result[0] == "String" and cur.spelling in self.null_returns:
             # The body hands NULL back at one site, so the text is optional and `return nil` is that site.

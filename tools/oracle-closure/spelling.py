@@ -313,8 +313,8 @@ class Types:
             return Answer("Int", "bare")
         if facts.ruled == "callback" and canonical.kind == TypeKind.POINTER and canonical.get_pointee().get_canonical().kind == TypeKind.FUNCTIONPROTO:
             # The body stores the function pointer into a view's stored function, so it is that field's callback type, optional,
-            # the form a function-pointer return has.
-            alias = self.views.callback_alias(canonical.get_pointee().get_canonical(), TARGET)
+            # the form a function-pointer return has. A row that names the field picks that field's alias among aliases of one signature.
+            alias = self.views.callback_alias(canonical.get_pointee().get_canonical(), TARGET, facts.capacity)
             if alias:
                 return Answer(f"{alias}?", "bare")
         if facts.ruled == "bytes" and canonical.kind == TypeKind.POINTER:
@@ -347,6 +347,10 @@ class Types:
             return Answer(f"[JKAShared.{t.get_pointee().spelling.replace('const ', '')}]", "vec3_array")
         if facts.ruled == "table" and canonical.kind == TypeKind.POINTER and t.get_pointee().spelling.replace("const ", "") in VECTORS:
             # Raven indexes the vectors through the pointer with a count beside it, so the Slots over them crosses, the row of a record table.
+            if facts.nullable:
+                # A caller hands NULL, `AAS_TraceAreas(start, end, areas, NULL, 10)` of be_aas_reach.cpp:1542, so the Slots is optional,
+                # the form of the `modelList` row.
+                return Answer("Slots<JKAShared.vec3_t>?", "slots_opt")
             return Answer("Slots<JKAShared.vec3_t>", "slots")
         if canonical.kind in (TypeKind.LVALUEREFERENCE, TypeKind.POINTER) and not facts.traps:
             # A C++ class of CXX_CLASSES is the hand Swift class of the same name, a reference by itself and a pointer optional, rule 17.
@@ -586,6 +590,15 @@ class Types:
                     return Answer(f"Slots<{swift}>", "slots")
                 if swift is not None and self.known(swift):
                     return Answer(f"[{swift}]", "bare")
+            if C.HOST and canonical.kind == TypeKind.CONSTANTARRAY and element.kind == TypeKind.CONSTANTARRAY and not facts.stores_through:
+                # A host array of arrays of a scalar the body reads, `int gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2]` of cm_patch.cpp:592,
+                # nests the rule above, one Swift Array per index, the form of the caller's local in CM_PatchCollideFromGrid, row T7.
+                depth, scalar = 1, element
+                while scalar.kind == TypeKind.CONSTANTARRAY:
+                    depth, scalar = depth + 1, scalar.element_type.get_canonical()
+                swift = self.scalar(scalar, TARGET) if scalar.kind in INT_KINDS or scalar.kind == TypeKind.FLOAT else None
+                if swift is not None and self.known(swift):
+                    return Answer("[" * depth + swift + "]" * depth, "bare")
         if canonical.kind == TypeKind.CONSTANTARRAY and facts.traps:
             # A fixed C array of a scalar into a trap is an array the engine fills, `trap_R_GetLightStyle(style, color)` with Raven's
             # `typedef byte color4ub_t[4]`, so the caller's array crosses `inout`, as an `int *` with a count beside it does.

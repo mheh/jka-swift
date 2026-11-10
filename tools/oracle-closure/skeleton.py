@@ -45,6 +45,7 @@ import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
 import closure as C
+import extract
 import reexport
 from fnsweep import binop_assign_op, rhs_function, root_var
 from overlay import MACROS, written_arguments
@@ -519,9 +520,23 @@ class Skeleton:
         extract.py writes the list into its manifest, and each one becomes private constants at the top of its stub."""
         path = Path(__file__).resolve().parent / "out" / "extract" / C.UNIT / "extract.json"
         found: dict[str, list[tuple[int, list[str]]]] = defaultdict(list)
-        if not path.exists():
-            return found
-        for row in json.loads(path.read_text()).get("file_enums", []):
+        rows = json.loads(path.read_text()).get("file_enums", []) if path.exists() else []
+        if C.HOST:
+            # A host's .cpp file has no constants header, so its enums come from the parse, as its macros do, `edgeName_t` of cm_patch.cpp.
+            # An enum with a name that a macro of the module also has stays out, because the stub's `let` would declare the name twice.
+            macro_names = {m.name for macros in self.macros.values() for m in macros}
+            game = (C.ORACLE / ORACLE_DIR).resolve()
+            for cur in self.tu.cursor.get_children():
+                if cur.kind != CursorKind.ENUM_DECL or not cur.is_definition() or not cur.location.file:
+                    continue
+                enum_path = Path(cur.location.file.name).resolve()
+                if enum_path.suffix != ".cpp" or not C.within(enum_path, game) or enum_path.name != C.file_name(enum_path.stem):
+                    continue
+                values = extract.enumerator_values(cur)
+                if not values or any(name in macro_names for name, _ in values):
+                    continue
+                rows.append({"source": f"{enum_path.relative_to(C.REPO.resolve())}:{cur.location.line}", "enumerators": values})
+        for row in rows:
             source, line = row["source"].rsplit(":", 1)
             source_path = Path(source)
             if source_path.parent != Path("oracle") / C.folder_of(source_path.stem) or source_path.name in SKIP:
@@ -1087,7 +1102,8 @@ class Skeleton:
                     # The unity parse leaves a second file's `static` of the same name unresolved, so the name is read from Raven's text.
                     name = rhs_function(rhs) or self.source(stem).slice(rhs.extent).strip()
                     stored = own.get(name) if name else None
-                    if stored is None and name in self.by_name and target_of(self.by_name[name].stem) != LOGIC:
+                    # In a host, a function of another file of the same target counts when it is not `static`, as CM_StoreLeafs of cm_test.cpp in cm_trace.cpp.
+                    if stored is None and name in self.by_name and (target_of(self.by_name[name].stem) != LOGIC or (C.HOST and not self.by_name[name].static)):
                         stored = self.by_name[name]
                     if stored is None and name:
                         stored = self.bg_function(rhs, name)

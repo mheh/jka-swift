@@ -259,7 +259,8 @@ HOST_ROOTS = {
     "cNode_t": ("CmNode", "CJKAMP_Ded"),
     "cLeaf_t": ("CLeaf", "CJKAMP_Ded"),
     "cPatch_t": ("CPatch", "CJKAMP_Ded"),
-    "cArea_t": ("CArea", "CJKAMP_Ded"),
+    # The view takes another name than the C struct, because the terrain's C++ class `CArea` of cm_landscape.h:42 keeps Raven's name, the cNode_t form.
+    "cArea_t": ("CmArea", "CJKAMP_Ded"),
     # The view takes another name than the C struct, because the view target imports the C struct under its own name.
     "CCMShader": ("CmShader", "CJKAMP_Ded"),
     # The loaders of cm_load.cpp read the BSP file through these disk records of qfiles.h, at `cmod_base + l->fileofs`.
@@ -340,6 +341,105 @@ HOST_ROOTS = {
     "bot_input_t": ("BotInput", "CJKAMP_Ded"),
     "bsp_trace_t": ("BspTrace", "CJKAMP_Ded"),
     "bot_entitystate_t": ("BotEntitystate", "CJKAMP_Ded"),
+    # The botlib records of its own headers, its .cpp files, and the game headers it reads, rows D1 to D5 of the ninth batch.
+    # ded_types.h holds a copy of each, the form of row B1, because the host entry list reads no botlib header, ruling T2.
+    # The records of the game headers be_aas.h, be_ai_goal.h, be_ai_move.h, be_ai_chat.h, and be_ai_weap.h.
+    "aas_trace_t": ("AasTrace", "CJKAMP_Ded"),
+    "aas_entityinfo_t": ("AasEntityinfo", "CJKAMP_Ded"),
+    "aas_areainfo_t": ("AasAreainfo", "CJKAMP_Ded"),
+    "aas_clientmove_t": ("AasClientmove", "CJKAMP_Ded"),
+    "aas_altroutegoal_t": ("AasAltroutegoal", "CJKAMP_Ded"),
+    "aas_predictroute_t": ("AasPredictroute", "CJKAMP_Ded"),
+    "bot_goal_t": ("BotGoal", "CJKAMP_Ded"),
+    "bot_initmove_t": ("BotInitmove", "CJKAMP_Ded"),
+    "bot_moveresult_t": ("BotMoveresult", "CJKAMP_Ded"),
+    "bot_avoidspot_t": ("BotAvoidspot", "CJKAMP_Ded"),
+    "bot_consolemessage_t": ("BotConsolemessage", "CJKAMP_Ded"),
+    "bot_matchvariable_t": ("BotMatchvariable", "CJKAMP_Ded"),
+    "bot_match_t": ("BotMatch", "CJKAMP_Ded"),
+    "projectileinfo_t": ("Projectileinfo", "CJKAMP_Ded"),
+    "weaponinfo_t": ("Weaponinfo", "CJKAMP_Ded"),
+    # The AAS world of be_aas_def.h:183, `aasworld` of be_aas_main.cpp:30 and `aassettings` of be_aas_move.cpp:29, and the disk records of aasfile.h, row D2.
+    "aas_t": ("Aas", "CJKAMP_Ded"),
+    "aas_settings_t": ("AasSettings", "CJKAMP_Ded"),
+    "aas_header_t": ("AasHeader", "CJKAMP_Ded"),
+    "aas_lump_t": ("AasLump", "CJKAMP_Ded"),
+    "aas_bbox_t": ("AasBbox", "CJKAMP_Ded"),
+    "aas_reachability_t": ("AasReachability", "CJKAMP_Ded"),
+    "aas_areasettings_t": ("AasAreasettings", "CJKAMP_Ded"),
+    "aas_portal_t": ("AasPortal", "CJKAMP_Ded"),
+    "aas_cluster_t": ("AasCluster", "CJKAMP_Ded"),
+    "aas_plane_t": ("AasPlane", "CJKAMP_Ded"),
+    "aas_edge_t": ("AasEdge", "CJKAMP_Ded"),
+    "aas_face_t": ("AasFace", "CJKAMP_Ded"),
+    "aas_area_t": ("AasArea", "CJKAMP_Ded"),
+    "aas_node_t": ("AasNode", "CJKAMP_Ded"),
+    "aas_link_t": ("AasLink", "CJKAMP_Ded"),
+    "bsp_link_t": ("BspLink", "CJKAMP_Ded"),
+    "bsp_entdata_t": ("BspEntdata", "CJKAMP_Ded"),
+    "aas_entity_t": ("AasEntity", "CJKAMP_Ded"),
+    "aas_routingcache_t": ("AasRoutingcache", "CJKAMP_Ded"),
+    "aas_routingupdate_t": ("AasRoutingupdate", "CJKAMP_Ded"),
+    "aas_reversedlink_t": ("AasReversedlink", "CJKAMP_Ded"),
+    "aas_reversedreachability_t": ("AasReversedreachability", "CJKAMP_Ded"),
+    "aas_reachabilityareas_t": ("AasReachabilityareas", "CJKAMP_Ded"),
+    # The script and precompiler records of l_script.h and l_precomp.h, row D5, and the libvar record of l_libvar.h, row D8.
+    "punctuation_t": ("Punctuation", "CJKAMP_Ded"),
+    "token_t": ("Token", "CJKAMP_Ded"),
+    "script_t": ("Script", "CJKAMP_Ded"),
+    "define_t": ("Define", "CJKAMP_Ded"),
+    "indent_t": ("Indent", "CJKAMP_Ded"),
+    "source_t": ("Source", "CJKAMP_Ded"),
+    "libvar_t": ("Libvar", "CJKAMP_Ded"),
+    # The field tables of l_struct.h, row D19, the weights of be_ai_weight.h, and the globals of be_interface.h, row D9.
+    "fielddef_t": ("Fielddef", "CJKAMP_Ded"),
+    "structdef_t": ("Structdef", "CJKAMP_Ded"),
+    "fuzzyseperator_t": ("Fuzzyseperator", "CJKAMP_Ded"),
+    "weight_t": ("Weight", "CJKAMP_Ded"),
+    "weightconfig_t": ("Weightconfig", "CJKAMP_Ded"),
+    "botlib_globals_t": ("BotlibGlobals", "CJKAMP_Ded"),
+    # The records Raven defines inside a botlib .cpp file, row D4, and `bspworld` of be_aas_bspq3.cpp:70 and `logfile` of l_log.cpp:33.
+    "bsp_t": ("Bsp", "CJKAMP_Ded"),
+    "bsp_entity_t": ("BspEntity", "CJKAMP_Ded"),
+    "bsp_epair_t": ("BspEpair", "CJKAMP_Ded"),
+    "rgb_t": ("Rgb", "CJKAMP_Ded"),
+    "aas_lreachability_t": ("AasLreachability", "CJKAMP_Ded"),
+    "aas_tracestack_t": ("AasTracestack", "CJKAMP_Ded"),
+    "aas_linkstack_t": ("AasLinkstack", "CJKAMP_Ded"),
+    "routecacheheader_t": ("Routecacheheader", "CJKAMP_Ded"),
+    "optimized_t": ("Optimized", "CJKAMP_Ded"),
+    "midrangearea_t": ("Midrangearea", "CJKAMP_Ded"),
+    "bot_characteristic_t": ("BotCharacteristic", "CJKAMP_Ded"),
+    "bot_character_t": ("BotCharacter", "CJKAMP_Ded"),
+    "bot_chatmessage_t": ("BotChatmessage", "CJKAMP_Ded"),
+    "bot_chattype_t": ("BotChattype", "CJKAMP_Ded"),
+    "bot_chat_t": ("BotChat", "CJKAMP_Ded"),
+    "bot_randomstring_t": ("BotRandomstring", "CJKAMP_Ded"),
+    "bot_randomlist_t": ("BotRandomlist", "CJKAMP_Ded"),
+    "bot_synonym_t": ("BotSynonym", "CJKAMP_Ded"),
+    "bot_synonymlist_t": ("BotSynonymlist", "CJKAMP_Ded"),
+    "bot_matchstring_t": ("BotMatchstring", "CJKAMP_Ded"),
+    "bot_matchpiece_t": ("BotMatchpiece", "CJKAMP_Ded"),
+    "bot_matchtemplate_t": ("BotMatchtemplate", "CJKAMP_Ded"),
+    "bot_replychatkey_t": ("BotReplychatkey", "CJKAMP_Ded"),
+    "bot_replychat_t": ("BotReplychat", "CJKAMP_Ded"),
+    "bot_stringlist_t": ("BotStringlist", "CJKAMP_Ded"),
+    "bot_chatstate_t": ("BotChatstate", "CJKAMP_Ded"),
+    "bot_ichatdata_t": ("BotIchatdata", "CJKAMP_Ded"),
+    "maplocation_t": ("Maplocation", "CJKAMP_Ded"),
+    "campspot_t": ("Campspot", "CJKAMP_Ded"),
+    "levelitem_t": ("Levelitem", "CJKAMP_Ded"),
+    "iteminfo_t": ("Iteminfo", "CJKAMP_Ded"),
+    "itemconfig_t": ("Itemconfig", "CJKAMP_Ded"),
+    "bot_goalstate_t": ("BotGoalstate", "CJKAMP_Ded"),
+    "bot_movestate_t": ("BotMovestate", "CJKAMP_Ded"),
+    "weaponconfig_t": ("Weaponconfig", "CJKAMP_Ded"),
+    "bot_weaponstate_t": ("BotWeaponstate", "CJKAMP_Ded"),
+    "logfile_t": ("Logfile", "CJKAMP_Ded"),
+    "operator_t": ("Operator", "CJKAMP_Ded"),
+    "value_t": ("Value", "CJKAMP_Ded"),
+    # PC_ReadTokenHandle of l_precomp.cpp:3253 fills the record of q_shared.h the game views, row D17, the qtime_t form.
+    "pc_token_t": ("PcToken", "CJKAMP"),
 }
 
 ROOTS = {"mp-game": GAME_ROOTS, "mp-cgame": CGAME_ROOTS, "mp-engine-ded": HOST_ROOTS}
@@ -367,6 +467,12 @@ SLOT_BOUNDS = {
     ("vmSymbol_t", "symName"): "MAX_TOKEN_CHARS",
     # Each block of the download window holds MAX_DOWNLOAD_BLKSIZE bytes, the Z_Malloc of sv_client.cpp:1158.
     ("client_t", "downloadBlocks"): "MAX_DOWNLOAD_BLKSIZE",
+    # be_ai_char.cpp:57 declares `bot_characteristic_t c[1]` with the comment "variable sized", and BotLoadCharacterFromFile allocates
+    # MAX_CHARACTERISTICS of them at :211, row D12 shape 9 of the ninth batch.
+    ("bot_character_t", "c"): "MAX_CHARACTERISTICS",
+    # be_aas_def.h:146 declares `unsigned short int traveltimes[1]`, and AAS_AllocRoutingCache sizes the block at be_aas_route.cpp:729.
+    # No macro bounds it, so the row names no macro and the count is the widest, the form of `areaParms_t.list`, row N7.
+    ("aas_routingcache_t", "traveltimes"): None,
 }
 
 # File-scope variables a body reads with no bind, because Raven's callers always set them before any body runs.
@@ -387,6 +493,9 @@ NEVER_NULL_VARS = {"pm"}
 HAND_VARS = {
     "bg_pool": None, "memoryPool": None, "cg_strPool": None,
     "commandList": "[CommandDefRow]",
+    # The directive tables of l_precomp.cpp:2535 and :2648 hold the address of a parse function in each row, the commandList form, row D11.
+    "directives": "[DirectiveRow]",
+    "dollardirectives": "[DirectiveRow]",
     "itemParseKeywords": "[KeywordHashRow]",
     "menuParseKeywords": "[KeywordHashRow]",
     "itemParseKeywordHash": "[Int32?]",
@@ -423,6 +532,10 @@ HAND_VARS = {
     "G2PerformanceTimer_RB_SurfaceGhoul": "timing_c",
     "G2PerformanceTimer_G2_SetupModelPointers": "timing_c",
     "G2PerformanceTimer_PreciseFrame": "timing_c",
+    # The ICARUS game table of Q3_Interface.cpp:32, which Interface_Init fills, and the random mission manager of RM_Manager.cpp:16 and :23.
+    "interface_export": "interface_export_t",
+    "TheRandomMissionManager": "CRMManager?",
+    "mCurObjective": "CRMObjective?",
 }
 
 # File-scope character arrays whose address the engine holds, so each one is one zeroed byte allocation on the storage class, not a `CharBuf`.
@@ -483,6 +596,34 @@ BYTE_STORAGE_LOCALS = {
     ("touchlist", "SV_ClipMoveToEntities"): ("SV_ClipMoveToEntities",),
     # `int leafs[MAX_POSITION_LEAFS]` of CM_PositionTest goes to the `int *` list of `leafList_t` at cm_trace.cpp:457, row R2.
     ("leafs", "CM_PositionTest"): ("CM_PositionTest",),
+    # The botlib locals a caller hands to a list parameter of row D16, the rows `touch` and `leafs` for `int` and `p` for `vec3_t`.
+    # AAS_ConnectedAreas hands `connectedareas` to AAS_ConnectedAreas_r at be_aas_cluster.cpp:713,
+    # and AAS_CheckAreaForPossiblePortals hands its area lists to AAS_ConnectedAreas and AAS_CanMergeAreas at :861 and :863.
+    ("connectedareas", "AAS_ConnectedAreas"): ("AAS_ConnectedAreas",),
+    ("areanums", "AAS_CheckAreaForPossiblePortals"): ("AAS_CheckAreaForPossiblePortals",),
+    ("frontareanums", "AAS_CheckAreaForPossiblePortals"): ("AAS_CheckAreaForPossiblePortals",),
+    ("backareanums", "AAS_CheckAreaForPossiblePortals"): ("AAS_CheckAreaForPossiblePortals",),
+    # The `vec3_t points[]` locals of AAS_ShowPolygon at be_aas_debug.cpp:369 and of AAS_TraceAreas, and the edge vertices
+    # of AAS_FindFaceReachabilities at be_aas_reach.cpp:3395 to :3401.
+    ("points", "AAS_ShowFacePolygon"): ("AAS_ShowFacePolygon",),
+    ("points", "AAS_ClientMovementPrediction"): ("AAS_ClientMovementPrediction",),
+    ("points", "AAS_Reachability_FuncBobbing"): ("AAS_Reachability_FuncBobbing",),
+    ("points", "BotFuzzyPointReachabilityArea"): ("BotFuzzyPointReachabilityArea",),
+    ("points", "BotReachabilityArea"): ("BotReachabilityArea",),
+    ("start_edgeverts", "AAS_Reachability_FuncBobbing"): ("AAS_Reachability_FuncBobbing",),
+    ("end_edgeverts", "AAS_Reachability_FuncBobbing"): ("AAS_Reachability_FuncBobbing",),
+    # The `int areas[]` locals of the eleven callers of AAS_TraceAreas, whose `areas` the body indexes, be_aas_sample.cpp:752.
+    ("areas", "AAS_ClientMovementPrediction"): ("AAS_ClientMovementPrediction",),
+    ("areas", "AAS_Reachability_Step_Barrier_WaterJump_WalkOffLedge"): ("AAS_Reachability_Step_Barrier_WaterJump_WalkOffLedge",),
+    ("areas", "AAS_Reachability_Jump"): ("AAS_Reachability_Jump",),
+    ("areas", "AAS_Reachability_FuncBobbing"): ("AAS_Reachability_FuncBobbing",),
+    ("areas", "AAS_Reachability_Grapple"): ("AAS_Reachability_Grapple",),
+    ("areas", "AAS_Reachability_WalkOffLedge"): ("AAS_Reachability_WalkOffLedge",),
+    ("areas", "AAS_InitReachabilityAreas"): ("AAS_InitReachabilityAreas",),
+    ("areas", "BotFuzzyPointReachabilityArea"): ("BotFuzzyPointReachabilityArea",),
+    ("areas", "BotReachabilityArea"): ("BotReachabilityArea",),
+    ("areas", "BotMoveToGoal"): ("BotMoveToGoal",),
+    ("areas", "BotExportTest"): ("BotExportTest",),
 }
 # A scalar data table Raven initializes at file scope that tables.py copies into C storage, which the view target reads as a Slots of its scalar.
 # `static unsigned char PADDING[64]` of md4.cpp goes to MD4Update at md4.cpp:157, whose `input` is a Slots of bytes.
@@ -552,6 +693,47 @@ FIELDS = {
     # SV_WriteDownloadToClient stores a Z_Malloc block of MAX_DOWNLOAD_BLKSIZE bytes in each slot at sv_client.cpp:1158 and reads it at :1243, row G13.
     # A `byte *` array of kind `bytes_table` reads as an array of the Slots over each block or nil, the `bytes` form per slot.
     ("client_t", "downloadBlocks"): "bytes_table",
+    # The botlib fields of the ninth batch, rows D6, D15, D20, N1, N4, and N5.
+    # A `T **` field that holds an allocated table of record pointers, the `pack_t.hashTable` row. PC_FindHashedDefine indexes
+    # `definehash[hash]` at l_precomp.cpp:640, PS_CreatePunctuationTable fills `punctuationtable[*p->p]` at l_script.cpp:175,
+    # and be_aas_sample.cpp:175 and be_aas_route.cpp:831 allocate the area entity links and the portal caches.
+    ("source_t", "definehash"): "pointer_table",
+    ("script_t", "punctuationtable"): "pointer_table",
+    ("aas_t", "arealinkedentities"): "pointer_table",
+    ("aas_t", "portalcache"): "pointer_table",
+    # An `int *` field a body indexes, the `clipMap_t.leafbrushes` row. The AAS loaders store each lump at be_aas_file.cpp:383 to :416,
+    # and be_aas_optimize.cpp:205 to :218 allocates the optimized tables.
+    ("aas_t", "edgeindex"): "bytes",
+    ("aas_t", "faceindex"): "bytes",
+    ("aas_t", "portalindex"): "bytes",
+    ("aas_t", "areacontentstravelflags"): "bytes",
+    ("aas_t", "portalmaxtraveltimes"): "bytes",
+    ("aas_t", "reachabilityareaindex"): "bytes",
+    ("optimized_t", "edgeindex"): "bytes",
+    ("optimized_t", "faceindex"): "bytes",
+    ("optimized_t", "vertexoptimizeindex"): "bytes",
+    ("optimized_t", "edgeoptimizeindex"): "bytes",
+    ("optimized_t", "faceoptimizeindex"): "bytes",
+    # An `unsigned char *` and an `unsigned short *` field a body indexes take the same kind, row N5.
+    # AAS_UpdateAreaRoutingCache writes `areacache->reachabilities[i]`, and `curupdate->areatraveltimes[i]` reads the times of be_aas_route.cpp:1301.
+    ("aas_routingcache_t", "reachabilities"): "bytes",
+    ("aas_routingupdate_t", "areatraveltimes"): "bytes",
+    # A `vec3_t *` field a body indexes reads as a Slots of vectors, row N4. The AAS loaders store the vertex lump,
+    # and AAS_OptimizeEdge indexes `optimized->vertexes[...]` of be_aas_optimize.cpp.
+    ("aas_t", "vertexes"): "vectors",
+    ("optimized_t", "vertexes"): "vectors",
+    # The stream of the bot log, `logfile.fp` of l_log.cpp:29, is the C library's `FILE *`, the `qfile_gut.o` row, row D20.
+    ("logfile_t", "fp"): "opaque",
+    # The text of a script and the cursors into it, row N1. LoadScriptFile sets `script->buffer` to the bytes after the record at l_script.cpp:1323,
+    # and the cursors are byte offsets into that buffer. A token's cursors hold the offsets of the script it came from.
+    ("script_t", "buffer"): ("text_buffer", "length"),
+    ("script_t", "script_p"): ("text_offset", "buffer"),
+    ("script_t", "end_p"): ("text_offset", "buffer"),
+    ("script_t", "lastscript_p"): ("text_offset", "buffer"),
+    ("script_t", "whitespace_p"): ("text_offset", "buffer"),
+    ("script_t", "endwhitespace_p"): ("text_offset", "buffer"),
+    ("token_t", "whitespace_p"): ("text_offset", None),
+    ("token_t", "endwhitespace_p"): ("text_offset", None),
 }
 
 # (struct, field) -> the accessor name of a field whose C name is a member of every view, `handle` or `raw`, where a body reads the field.
@@ -633,7 +815,25 @@ TYPES = {
     "boneInfo_v": "[boneInfo_t]",
     "boltInfo_v": "[boltInfo_t]",
     "mdxaBone_v": "[(Int32, MdxaBone)]",
+    # A file-scope `T **` that holds an allocated table of record pointers is a Slots of optional views or nil, row N3 of the ninth batch.
+    # `define_t **globaldefines` of l_precomp.cpp:105 takes DEFINEHASHSIZE pointers at :3049, and `areareachability` of be_aas_reach.cpp:85 one per area at :4521.
+    "globaldefines": "Slots<Define?>?",
+    "areareachability": "Slots<AasLreachability?>?",
+    # A file-scope record pointer a body indexes is the Slots over its table, the `facets` row, row D14.
+    # be_aas_reach.cpp:447, be_ai_chat.cpp:232, be_ai_goal.cpp:362, be_aas_routealt.cpp:203, and be_ea.cpp:505 allocate and index them.
+    "reachabilityheap": "Slots<AasLreachability>?",
+    "consolemessageheap": "Slots<BotConsolemessage>?",
+    "levelitemheap": "Slots<Levelitem>?",
+    "midrangeareas": "Slots<Midrangearea>?",
+    "botinputs": "Slots<BotInput>?",
+    # `int *clusterareas` of be_aas_routealt.cpp:40 is the table of be_aas_routealt.cpp:205, the `cmod_base` row.
+    "clusterareas": "Slots<Int32>?",
 }
+
+# The folders whose `long`, `unsigned long`, and `long double` are the widths of WinDed, 32, 32, and 64 bits, row D5 of the ninth batch.
+# A parameter, a pointer parameter, and a return of a function of the folder take Int32, UInt32, and Double, the copy of `token_t` in ded_types.h.
+# NumberValue of l_script.cpp:541 fills `token->intvalue` and `token->floatvalue` through its two pointers. The pattern is the UINT4 row above.
+MSVC_WIDTH_FOLDERS = {"botlib"}
 
 # A typedef Raven gives a narrow C type whose values are the enumerators of an anonymous enum, which reexport.py writes as the Int32 alias of a C enum.
 # q_shared.h:3107 declares `typedef char memtag_t` after the enum of the TAG_ names, and Z_Malloc takes the tag, so `Z_Malloc(s, TAG_BSP, qtrue)` needs no cast.
@@ -752,6 +952,14 @@ RETURNS = {
     "Com_ParseTextFile": "class_ref",
     # ICARUS_Malloc of icarus/Memory.cpp:8 returns the Z_Malloc block, the row of S_Malloc and row B5, row FC4.
     "ICARUS_Malloc": "raw",
+    # The botlib allocators of l_memory.cpp, row D12. GetMemory and GetHunkMemory return NULL when the import does, :332 and :374,
+    # and GetClearedMemory and GetClearedHunkMemory hand that NULL to Com_Memset, so they never return it. The rows of S_Malloc and FC3.
+    "GetMemory": "optional_raw",
+    "GetHunkMemory": "optional_raw",
+    "GetClearedMemory": "raw",
+    "GetClearedHunkMemory": "raw",
+    # Log_FilePointer of l_log.cpp:138 returns the `FILE *` of the bot log, the FS_FileForHandle row, row D20.
+    "Log_FilePointer": "opaque",
 }
 
 # Allocators whose `char *` result a body holds as a CharBuf of the constant size Raven asks for, when every store into the local is that call.
@@ -784,7 +992,8 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #   opaque    an OpaquePointer? for a `byte *` buffer the body stores into a `byte *` field or hands on as a `void *`, the spelling of the field
 #   bytes     a Slots<byte> for a `void *` or `byte *` of a host function that the body hands on as bytes, the row a host `byte *` has
 #   word      an Int for an `int` that takes the pointer-wide word VM_Call returns
-#   callback  the optional callback typealias of a view field for a function pointer the body stores into that field, the form of a function-pointer return
+#   callback  the optional callback typealias of a view field for a function pointer the body stores into that field, the form of a function-pointer return,
+#             given as ("callback", "record.field") with that field when another field has the same C signature
 #   string_list  a [String] by value, for a `char **` list of zone texts the body reads or frees, the parameter twin of the RETURNS kind
 #   string_list_mut  an inout [String], for a `char **` list the body reorders in place, FS_SortFileList
 #   string_slice  an inout ArraySlice<String>, for a `char **` the body fills by index from a caller's `&array[i]`, the `char *infos[]` row
@@ -933,7 +1142,8 @@ PARAMS = {
     # VM_ExplicitArgPtr takes the word VM_Call returns, sv_init.cpp:700 and sv_ccmds.cpp:326.
     ("VM_ExplicitArgPtr", "intValue"): "word",
     # VM_Create stores `systemCalls` into `vm->systemCall` at vm.cpp:506, and VM_Restart passes that field back at :408.
-    ("VM_Create", "systemCalls"): "callback",
+    # The row names that field, because `AAS_PointAreaNum` of aas_export_t has the same C signature.
+    ("VM_Create", "systemCalls"): ("callback", "vm_t.systemCall"),
     # Sys_LoadDll of win_main.cpp:784 stores the module's vmMain through `entryPoint`, the address of `vm->entryPoint`,
     # and hands `systemcalls` to the module's dllEntry. The shell loads the library through jka_load_dll of CJKAHost.
     ("Sys_LoadDll", "entryPoint"): "raw",
@@ -1006,6 +1216,31 @@ PARAMS = {
     ("G2API_CollisionDetectCache", "collRecMap"): "table",
     ("G2API_CollisionDetect", "collRecMap"): "table",
     ("G2_TraceModels", "collRecMap"): "table",
+    # The botlib lists of the ninth batch, row D16. An `int *` list the body hands on or fills is the caller's Slots of Int32, the SV_AreaEntities row.
+    # AAS_ConnectedAreas hands `areanums` to AAS_ConnectedAreas_r at be_aas_cluster.cpp:713, the goal and weapon choosers hand `inventory`
+    # to FuzzyWeight at be_ai_goal.cpp:1334, :1505, and be_ai_weap.cpp:409, and AAS_BoxEntities of be_aas_bspq3.cpp:225 takes a list by its shape.
+    ("AAS_ConnectedAreas", "areanums"): "bytes",
+    ("BotChooseLTGItem", "inventory"): "bytes",
+    ("BotChooseNBGItem", "inventory"): "bytes",
+    ("BotChooseBestFightWeapon", "inventory"): "bytes",
+    ("AAS_BoxEntities", "list"): "bytes",
+    # A `vec3_t *` list the body indexes or hands on is the Slots of vectors, the BotImport_DebugPolygonCreate row.
+    # AAS_TraceAreas writes `points[numareas]` at be_aas_sample.cpp:757, and nine callers hand NULL, so NULLABLE names it too.
+    ("AAS_ShowPolygon", "points"): "table",
+    ("AAS_TraceAreas", "points"): "table",
+    ("AAS_FindFaceReachabilities", "facepoints"): "table",
+    # The record that l_struct.cpp reads and writes at a field offset, `void *p` and `char *structure`, the BG_ParseField row, row D19.
+    ("ReadNumber", "p"): "raw",
+    ("ReadChar", "p"): "raw",
+    ("ReadString", "p"): "raw",
+    ("ReadStructure", "structure"): "raw",
+    ("WriteStructWithIndent", "structure"): "raw",
+    ("WriteStructure", "structure"): "raw",
+    # The `FILE *` stream of the l_struct.cpp writers, the unzlocal_getShort row.
+    ("WriteIndent", "fp"): "opaque",
+    ("WriteFloat", "fp"): "opaque",
+    ("WriteStructWithIndent", "fp"): "opaque",
+    ("WriteStructure", "fp"): "opaque",
 }
 
 # Rule 20: a function with no caller in either tree stays as its stub, and the stub carries one note line that it is dead.
@@ -1109,6 +1344,11 @@ CXX_CLASSES = {
     "CachedEndianedModelBinary_t": "CachedEndianedModelBinary_t",
     # The cycle timer of timing.h:2, which Com_Frame and the Ghoul2 timers of tr_ghoul2.cpp:42 to :50 hold under G2_PERFORMANCE_ANALYSIS of q_shared.h:46.
     "timing_c": "timing_c",
+    # The heap order of CPriorityQueue at navigator.cpp:2693, and the ICARUS game table of interface.h:17, whose canonical record is `interface_export_s`.
+    "NodeTotalGreater": "NodeTotalGreater", "interface_export_s": "interface_export_t",
+    # The terrain classes of cm_landscape.h:42 to :135 and the random mission classes of RM_Manager.h:9 and RM_Objective.h:9, rows S1 and CM6.
+    "CArea": "CArea", "CCMHeightDetails": "CCMHeightDetails", "CCMPatch": "CCMPatch", "CCMLandScape": "CCMLandScape",
+    "CRMManager": "CRMManager", "CRMObjective": "CRMObjective",
 }
 
 # C targets whose copied headers include a C library header, as CJKASyscall includes <stdint.h>.
@@ -1210,6 +1450,8 @@ NULLABLE = {
     ("unzGetCurrentFileInfo", "pfile_info"),
     ("unzGetCurrentFileInfo", "szFileName"),
     ("unzGetCurrentFileInfo", "szComment"),
+    # Nine callers of AAS_TraceAreas hand NULL for `points`, be_interface.cpp:413 and be_aas_reach.cpp:1542 among them, row D16.
+    ("AAS_TraceAreas", "points"),
 }
 # (struct, field) pairs of a record pointer field a body indexes through a local copy or a `++` walk, which the subscript sweep cannot see.
 # The view gives the field its `<field>Slots` accessor, as the sweep does for a field a body indexes in place.
