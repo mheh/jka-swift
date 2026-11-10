@@ -74,6 +74,15 @@ class Shapes(unittest.TestCase):
         self.assertIn("(c)[Int(i)] = f", self.draft("COM_ParseVec4"))
         self.assertIn("let cc: CChar = CChar(truncatingIfNeeded: c)", self.draft("Q_strrchr"))
 
+    def test_an_element_of_a_char_array_local_stays_a_char_buf_element(self) -> None:
+        # given BG_SiegeGetValueGroup, which stores into and reads the elements of its `char checkGroup[4096]` local
+        lines = self.draft("BG_SiegeGetValueGroup")
+
+        # then the store goes into the CharBuf element, with no Int32 widen on either side
+        self.assertIn("checkGroup[j] = CharBuf(buf)[i]", lines)
+        self.assertIn("checkGroup[j] = 0", lines)
+        self.assertFalse([line for line in lines if "Int32(checkGroup[" in line])
+
     def test_a_shared_state_variable_names_its_home_in_the_stub(self) -> None:
         # given com_token, a file-scope state variable of the shared stem q_shared
         var = next(v for v in self.sk.variables["q_shared"] if v.name == "com_token")
