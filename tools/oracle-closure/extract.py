@@ -912,8 +912,19 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
         if d.kind in ("class", "typedef") and C_STRUCT_CLASSES.get(d.name, ("",))[0] == "fields":
             # The struct holds the fields alone, each in Raven's text with `struct` in the place of `class` and `_Bool` in the place of `bool`.
             lines = lines_of(d.file)
-            fields = [re.sub(r"\bbool\b", "_Bool", re.sub(r"\bclass\b", "struct", lines[f.extent.start.line - 1][f.extent.start.column - 1:f.extent.end.column - 1]))
-                      for f in d.record().get_children() if f.kind == CursorKind.FIELD_DECL]
+            # Two names of one declaration, `USHORT width, height`, share the start of the first, so the declaration stands once,
+            # from that start to the end of its last name.
+            spans: list[list] = []
+            for f in d.record().get_children():
+                if f.kind != CursorKind.FIELD_DECL:
+                    continue
+                start = (f.extent.start.line, f.extent.start.column)
+                if spans and spans[-1][0] == start:
+                    spans[-1][1] = f.extent.end.column
+                else:
+                    spans.append([start, f.extent.end.column])
+            fields = [re.sub(r"\bbool\b", "_Bool", re.sub(r"\bclass\b", "struct", lines[line - 1][column - 1:end - 1]))
+                      for (line, column), end in spans]
             body = "{\n" + "".join(f"\t{field};\n" for field in fields) + "}"
             if d.kind == "class":
                 d.kind = "struct"
@@ -921,7 +932,7 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
                               f"struct {d.name}\n{body};")
             else:
                 d.override = (f"// Raven declares {d.name} with C++ `bool` fields at {d.cite}. C spells the type `_Bool`, which has the same size.\n"
-                              f"typedef struct {tag_of(d.record())}\n{body} {d.name};")
+                              f"typedef struct{(' ' + tag_of(d.record())) if tag_of(d.record()) else ''}\n{body} {d.name};")
     macro_names = {d.name: d for d in decls if d.kind == "macro"}
     link(decls, macro_names)
     commit = oracle_commit()

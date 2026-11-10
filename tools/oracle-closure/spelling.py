@@ -258,8 +258,8 @@ class Types:
             inner = self.views.element_type(t)
             if inner.get_canonical().kind == TypeKind.CHAR_S:
                 return Answer("String", "cstrings")
-            if self.views.is_vec3(inner):
-                return Answer("JKAShared.vec3_t", "vectors")
+            # A row of vectors, `vec3_t points[MAX_GRID_SIZE][MAX_GRID_SIZE]` of cm_patch.h:115, is a row like any other, and the accessor
+            # asks for its `vec3_t` element in turn, row P4.
             # A row of the outer array, whose own element type the accessor asks for in turn.
             return Answer(None, "rows")
         swift = self.scalar(t, target)
@@ -342,6 +342,9 @@ class Types:
         if facts.ruled == "vec4_const":
             # The body reads the four floats of a plane and writes none, the form a `vec4_t` parameter has.
             return Answer("JKAShared.vec4_t", "bare")
+        if facts.ruled == "vec3_array" and canonical.kind == TypeKind.POINTER and t.get_pointee().spelling.replace("const ", "") in VECTORS:
+            # The body reads the caller's array of vectors with a count beside it, the form a trap's `vec3_t *` array has.
+            return Answer(f"[JKAShared.{t.get_pointee().spelling.replace('const ', '')}]", "vec3_array")
         if facts.ruled == "table" and canonical.kind == TypeKind.POINTER and t.get_pointee().spelling.replace("const ", "") in VECTORS:
             # Raven indexes the vectors through the pointer with a count beside it, so the Slots over them crosses, the row of a record table.
             return Answer("Slots<JKAShared.vec3_t>", "slots")
@@ -351,6 +354,20 @@ class Types:
             if declaration is not None and declaration.spelling in CXX_CLASSES:
                 swift = CXX_CLASSES[declaration.spelling]
                 return Answer(swift if canonical.kind == TypeKind.LVALUEREFERENCE else f"{swift}?", "bare")
+            if canonical.kind == TypeKind.POINTER and canonical.get_pointee().get_canonical().kind == TypeKind.POINTER:
+                # A pointer to a class pointer, `CGhoul2Info_v **ghlRemove`, is the caller's optional class, inout,
+                # the shape a `void **` handle has.
+                declaration = canonical.get_pointee().get_canonical().get_pointee().get_canonical().get_declaration()
+                if declaration is not None and declaration.spelling in CXX_CLASSES:
+                    return Answer(f"inout {CXX_CLASSES[declaration.spelling]}?", "out_opaque")
+            # A C++ reference to a typedef of TYPES, `boneInfo_v &blist`, is the TYPES spelling, inout unless the reference is const.
+            # The canonical type loses the name, so the rule reads the pointee as Raven spelled it.
+            if canonical.kind == TypeKind.LVALUEREFERENCE and t.kind == TypeKind.LVALUEREFERENCE:
+                pointee = t.get_pointee()
+                named = (pointee.get_named_type() if pointee.kind == TypeKind.ELABORATED else pointee).spelling.replace("const ", "")
+                if named in TYPES:
+                    const = pointee.is_const_qualified()
+                    return Answer(TYPES[named] if const else f"inout {TYPES[named]}", "bare" if const else "out_string_ref")
         if facts.ruled == "int_array_mut":
             # The body writes the caller's `int` array by index, so the array crosses inout, the `int` twin of float_array.
             return Answer("inout [Int32]", "bare")
@@ -617,6 +634,13 @@ class Types:
             return Answer("Bool", crossing="word != 0")
         if canonical.kind == TypeKind.FLOAT:
             return Answer("Float", crossing="Float(bitPattern: UInt32(truncatingIfNeeded: word))")
+        if canonical.kind in (TypeKind.LVALUEREFERENCE, TypeKind.POINTER):
+            # A C++ class of CXX_CLASSES is the hand Swift class, a returned reference by itself and a returned pointer optional,
+            # the return twin of the parameter rule, rule 17.
+            declaration = canonical.get_pointee().get_canonical().get_declaration()
+            if declaration is not None and declaration.spelling in CXX_CLASSES:
+                swift = CXX_CLASSES[declaration.spelling]
+                return Answer(swift if canonical.kind == TypeKind.LVALUEREFERENCE else f"{swift}?")
         if canonical.kind == TypeKind.POINTER:
             pointee = canonical.get_pointee()
             if pointee.get_canonical().kind == TypeKind.FUNCTIONPROTO:

@@ -169,6 +169,11 @@ DED_PIECES: tuple[Piece, ...] = (
         source=ZONE_FILE, first=28, last=28, table=False,
     ),
     Piece(source=ZONE_FILE, first=139, last=154),
+    Piece(own=(
+        "// Raven wrote `const vidmode_t r_vidModes[] =` at tr_init.cpp:465, and ded_tables.h declares the table `extern` with its bound,",
+        "// so this declaration line and its brace are the tool's own and Raven's bytes start at his first row, row TR4.",
+        "vidmode_t r_vidModes[13] = {",
+    ), source="codemp/renderer/tr_init.cpp", first=467, last=480),
 )
 
 
