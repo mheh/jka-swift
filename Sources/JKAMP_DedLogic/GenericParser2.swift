@@ -137,14 +137,8 @@ private func GetToken(_ text: inout JKAShared.TextCursor, _ allowLineBreaks: Boo
 }
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:212
-// TODO: Port signature
 // Raven wrote: void CleanTextPool(CTextPool *pool)
-// No table row for `CTextPool * pool`.
-// Port-note: Rule 20. The one caller, CGenericParser2::Clean at GenericParser2.cpp:907, drops the call, because row C3 gives CTextPool no Swift type, so it keeps its marker.
-func CleanTextPool() -> Never {
-    // TODO: Port CleanTextPool
-    portMissing("CleanTextPool", source: "oracle/codemp/qcommon/GenericParser2.cpp:212")
-}
+// Not ported: row C3 makes the text pool a String, so the chain it frees does not exist, and CGenericParser2::Clean drops the call.
 
 // MARK: - CGPObject
 
