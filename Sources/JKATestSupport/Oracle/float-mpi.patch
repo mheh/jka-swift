@@ -1,0 +1,66 @@
+diff --git a/run.sh b/run.sh
+--- a/run.sh
++++ b/run.sh
+@@ -53,6 +53,7 @@ cp "$ORACLE"/codemp/icarus/*.h build/codemp/icarus/ 2>/dev/null || true
+ # in q_shared.h/q_math.c is renamed out of the way of libm's powf(float,float).
+ cat > build/codemp/game/shim.h <<'EOF'
+ #include <math.h>
++#undef M_PI
+ #define powf raven_powf
+ EOF
+ 
+diff --git a/run_bgmisc.sh b/run_bgmisc.sh
+--- a/run_bgmisc.sh
++++ b/run_bgmisc.sh
+@@ -45,6 +45,7 @@ cp "$G/bg_misc.c" "$G/bg_weapons.c" "$G/q_shared.c" "$G/q_math.c" "$B/codemp/gam
+ # is renamed out of the way of libm's powf(float,float). Same as run.sh.
+ cat > "$B/codemp/game/shim.h" <<'EOF'
+ #include <math.h>
++#undef M_PI
+ #define powf raven_powf
+ EOF
+ 
+diff --git a/run_gcombat.sh b/run_gcombat.sh
+--- a/run_gcombat.sh
++++ b/run_gcombat.sh
+@@ -47,6 +47,7 @@ cp "$G/g_combat.c" "$G/q_shared.c" "$G/q_math.c" "$B/codemp/game/"
+ # is renamed out of the way of libm's powf(float,float). Same as run_bgmisc.sh.
+ cat > "$B/codemp/game/shim.h" <<'EOF'
+ #include <math.h>
++#undef M_PI
+ #define powf raven_powf
+ EOF
+ 
+diff --git a/run_pmove_saber.sh b/run_pmove_saber.sh
+--- a/run_pmove_saber.sh
++++ b/run_pmove_saber.sh
+@@ -43,6 +43,7 @@ cp "$ORACLE"/codemp/icarus/*.h "$B/codemp/icarus/" 2>/dev/null || true
+ # is renamed out of the way of libm's powf(float,float).
+ cat > "$B/codemp/game/shim.h" <<'EOF'
+ #include <math.h>
++#undef M_PI
+ #define powf raven_powf
+ EOF
+ 
+diff --git a/run_qshared.sh b/run_qshared.sh
+--- a/run_qshared.sh
++++ b/run_qshared.sh
+@@ -36,6 +36,7 @@ cp "$ORACLE/codemp/namespace_begin.h" "$ORACLE/codemp/namespace_end.h" build-qsh
+ # in q_shared.h is renamed out of the way of libm's powf(float,float).
+ cat > build-qshared/codemp/game/shim.h <<'EOF'
+ #include <math.h>
++#undef M_PI
+ #define powf raven_powf
+ EOF
+ 
+diff --git a/run_wsaber.sh b/run_wsaber.sh
+--- a/run_wsaber.sh
++++ b/run_wsaber.sh
+@@ -40,6 +40,7 @@ cp "$G/w_saber.c" "$G/q_shared.c" "$G/q_math.c" "$B/codemp/game/"
+ 
+ cat > "$B/codemp/game/shim.h" <<'EOF'
+ #include <math.h>
++#undef M_PI
+ #define powf raven_powf
+ EOF
+ 

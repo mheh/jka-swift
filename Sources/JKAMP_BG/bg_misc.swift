@@ -532,8 +532,8 @@ public func vectoyaw(_ vec: JKAShared.vec3_t) -> Float {
         yaw = 0
     } else {
         if vec[PITCH] != 0 {
-            // Raven's atan2 is the double libm call and M_PI is the double of math.h.
-            yaw = Float(atan2(Double(vec[YAW]), Double(vec[PITCH])) * 180 / Double.pi)
+            // Raven's atan2 is the double libm call, and the float M_PI widens to double at the divide.
+            yaw = Float(atan2(Double(vec[YAW]), Double(vec[PITCH])) * 180 / Double(JKAShared.M_PI))
         } else if vec[YAW] > 0 {
             yaw = 90
         } else {
@@ -1099,8 +1099,8 @@ public func BG_EvaluateTrajectory(_ tr: JKAShared.Trajectory, _ atTime: Int32, _
         _VectorMA(tr.trBase, deltaTime, tr.trDelta, &result)
     case TR_SINE:
         deltaTime = (atTime - tr.trTime) / Float(tr.trDuration)
-        // M_PI is the double of math.h and sin is the double libm call, so the term runs in double and rounds once.
-        phase = Float(sin(Double(deltaTime) * Double.pi * 2))
+        // The product runs in float with the float M_PI, and sin is the double libm call.
+        phase = Float(sin(Double(deltaTime * JKAShared.M_PI * 2)))
         _VectorMA(tr.trBase, phase, tr.trDelta, &result)
     case TR_LINEAR_STOP:
         if atTime > tr.trTime + tr.trDuration {
@@ -1120,9 +1120,9 @@ public func BG_EvaluateTrajectory(_ tr: JKAShared.Trajectory, _ atTime: Int32, _
             deltaTime = 0
         } else {
             //FIXME: maybe scale this somehow?  So that it starts out faster and stops faster?
-            // Raven's DEG2RAD multiplies by the double M_PI and cos is the double libm call, so the angle runs in double.
+            // Raven's DEG2RAD runs in float with the float M_PI, and cos is the double libm call.
             let degrees: Float = 90.0 - (90.0 * (Float(atTime) - tr.trTime) / Float(tr.trDuration))
-            deltaTime = tr.trDuration * 0.001 * Float(cos(Double(degrees) * Double.pi / 180.0))
+            deltaTime = tr.trDuration * 0.001 * Float(cos(Double(DEG2RAD(degrees))))
         }
         _VectorMA(tr.trBase, deltaTime, tr.trDelta, &result)
     case TR_GRAVITY:
@@ -1160,8 +1160,8 @@ public func BG_EvaluateTrajectoryDelta(_ tr: JKAShared.Trajectory, _ atTime: Int
         result = tr.trDelta
     case TR_SINE:
         deltaTime = (atTime - tr.trTime) / Float(tr.trDuration)
-        // M_PI is the double of math.h and cos is the double libm call, so the term runs in double and rounds once.
-        phase = Float(cos(Double(deltaTime) * Double.pi * 2))	// derivative of sin = cos
+        // The product runs in float with the float M_PI, and cos is the double libm call.
+        phase = Float(cos(Double(deltaTime * JKAShared.M_PI * 2)))	// derivative of sin = cos
         phase *= 0.5
         _VectorScale(tr.trDelta, phase, &result)
     case TR_LINEAR_STOP:
@@ -1175,9 +1175,9 @@ public func BG_EvaluateTrajectoryDelta(_ tr: JKAShared.Trajectory, _ atTime: Int
             result = vec3_t()
             return
         }
-        // Raven's DEG2RAD multiplies by the double M_PI and cos is the double libm call, so the angle runs in double.
+        // Raven's DEG2RAD runs in float with the float M_PI, and cos is the double libm call.
         let degrees: Float = 90.0 - (90.0 * (Float(atTime) - tr.trTime) / Float(tr.trDuration))
-        deltaTime = tr.trDuration * 0.001 * Float(cos(Double(degrees) * Double.pi / 180.0))
+        deltaTime = tr.trDuration * 0.001 * Float(cos(Double(DEG2RAD(degrees))))
         _VectorScale(tr.trDelta, deltaTime, &result)
     case TR_GRAVITY:
         // Raven's `0.001` is a double, so the product runs in double and rounds once into the float.

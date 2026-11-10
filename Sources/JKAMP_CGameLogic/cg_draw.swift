@@ -7152,7 +7152,7 @@ private func CG_Draw2DScreenTints() {
 
     if (cg.refdef.viewContents & CONTENTS_LAVA) != 0 {
         //tint screen red
-        let phase: Float = Float(Double(cg.time) / 1000.0 * WAVE_FREQUENCY * M_PI * 2)
+        let phase: Float = Float(Double(cg.time) / 1000.0 * WAVE_FREQUENCY * Double(JKAShared.M_PI) * 2)
         hcolor[3] = Float(0.5 + (0.15 * sin(Double(phase))))
         hcolor[0] = 0.7
         hcolor[1] = 0
@@ -7161,7 +7161,7 @@ private func CG_Draw2DScreenTints() {
         CG_DrawRect(0, 0, Float(SCREEN_WIDTH), Float(SCREEN_HEIGHT), Float(SCREEN_WIDTH * SCREEN_HEIGHT), hcolor)
     } else if (cg.refdef.viewContents & CONTENTS_SLIME) != 0 {
         //tint screen green
-        let phase: Float = Float(Double(cg.time) / 1000.0 * WAVE_FREQUENCY * M_PI * 2)
+        let phase: Float = Float(Double(cg.time) / 1000.0 * WAVE_FREQUENCY * Double(JKAShared.M_PI) * 2)
         hcolor[3] = Float(0.4 + (0.1 * sin(Double(phase))))
         hcolor[0] = 0
         hcolor[1] = 0.7
@@ -7170,7 +7170,7 @@ private func CG_Draw2DScreenTints() {
         CG_DrawRect(0, 0, Float(SCREEN_WIDTH), Float(SCREEN_HEIGHT), Float(SCREEN_WIDTH * SCREEN_HEIGHT), hcolor)
     } else if (cg.refdef.viewContents & CONTENTS_WATER) != 0 {
         //tint screen light blue -- FIXME: don't do this if CONTENTS_FOG? (in case someone *does* make a water shader with fog in it?)
-        let phase: Float = Float(Double(cg.time) / 1000.0 * WAVE_FREQUENCY * M_PI * 2)
+        let phase: Float = Float(Double(cg.time) / 1000.0 * WAVE_FREQUENCY * Double(JKAShared.M_PI) * 2)
         hcolor[3] = Float(0.3 + (0.05 * sin(Double(phase))))
         hcolor[0] = 0
         hcolor[1] = 0.2
