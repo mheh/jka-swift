@@ -4,9 +4,10 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:32
-// TODO: Port global interface_export
-// Raven wrote: interface_export_t interface_export
-// No view for `interface_export_s` of `interface.h`.
+/// Raven's ICARUS game table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
+var interface_export: interface_export_t {
+    world.interface_export
+}
 
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:45
 private func Q3_ReadScript(_ name: String, _ buf: inout JKAShared.TextCursor) -> Int32 {
@@ -242,8 +243,37 @@ Q3_SetVar
 */
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:337
 func Q3_SetVar(_ taskID: Int32, _ entID: Int32, _ type_name: String, _ data: String) {
-    // TODO: Port Q3_SetVar
-    portMissing("Q3_SetVar", source: "oracle/codemp/icarus/Q3_Interface.cpp:337")
+    let vret: Int32 = Q3_VariableDeclared(type_name)
+    var float_data: Float = 0
+    var val: Float = 0.0
+
+    if vret != VTYPE_NONE {
+        switch vret {
+        case VTYPE_FLOAT:
+            //Check to see if increment command
+            val = Q3_CheckStringCounterIncrement(data)
+            if val != 0 {
+                _ = Q3_GetFloatVariable(type_name, &float_data)
+                float_data += val
+            } else {
+                float_data = Float(atof(data))
+            }
+            _ = Q3_SetFloatVariable(type_name, float_data)
+
+        case VTYPE_STRING:
+            _ = Q3_SetStringVariable(type_name, data)
+
+        case VTYPE_VECTOR:
+            _ = Q3_SetVectorVariable(type_name, data)
+
+        default:
+            break
+        }
+
+        return
+    }
+
+    Q3_DebugPrint(WL_ERROR, "%s variable or field not found!\n", type_name)
 }
 
 /**
@@ -789,10 +819,57 @@ Interface_Init
 ```
 */
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:956
-// TODO: Port signature
-// Raven wrote: void Interface_Init( interface_export_t *pe )
-// No table row for `interface_export_t * pe`.
-func Interface_Init() -> Never {
-    // TODO: Port Interface_Init
-    portMissing("Interface_Init", source: "oracle/codemp/icarus/Q3_Interface.cpp:956")
+// AI: Raven takes `interface_export_t *pe`. The parameter is the optional hand class, the form of `ie` of ICARUS_Instance::Create.
+func Interface_Init(_ pe: interface_export_t?) {
+    //TODO: This is where you link up all your functions to the engine
+
+    //General
+    pe!.I_LoadFile				=	Q3_ReadScript
+    pe!.I_CenterPrint			=	Q3_CenterPrint
+    pe!.I_DPrintf				=	Q3_DebugPrint
+    pe!.I_GetEntityByName		=	Q3_GetEntityByName
+    pe!.I_GetTime				=	Q3_GetTime
+    pe!.I_GetTimeScale			=	Q3_GetTimeScale
+    pe!.I_PlaySound				=	Q3_PlaySound
+    pe!.I_Lerp2Pos				=	Q3_Lerp2Pos
+    pe!.I_Lerp2Origin			=	Q3_Lerp2Origin
+    pe!.I_Lerp2Angles			=	Q3_Lerp2Angles
+    pe!.I_GetTag				=	Q3_GetTag
+    pe!.I_Lerp2Start			=	Q3_Lerp2Start
+    pe!.I_Lerp2End				=	Q3_Lerp2End
+    pe!.I_Use					=	Q3_Use
+    pe!.I_Kill					=	Q3_Kill
+    pe!.I_Remove				=	Q3_Remove
+    pe!.I_Set					=	Q3_Set
+    pe!.I_Random				=	Q_flrand
+    pe!.I_Play					=	Q3_Play
+
+    //Camera functions
+    pe!.I_CameraEnable			=	CGCam_Enable
+    pe!.I_CameraDisable			=	CGCam_Disable
+    pe!.I_CameraZoom			=	CGCam_Zoom
+    pe!.I_CameraMove			=	CGCam_Move
+    pe!.I_CameraPan				=	CGCam_Pan
+    pe!.I_CameraRoll			=	CGCam_Roll
+    pe!.I_CameraTrack			=	CGCam_Track
+    pe!.I_CameraFollow			=	CGCam_Follow
+    pe!.I_CameraDistance		=	CGCam_Distance
+    pe!.I_CameraShake			=	CGCam_Shake
+    pe!.I_CameraFade			=	Q3_CameraFade
+    pe!.I_CameraPath			=	Q3_CameraPath
+
+    //Variable information
+    pe!.I_GetFloat				=	Q3_GetFloat
+    pe!.I_GetVector				=	Q3_GetVector
+    pe!.I_GetString				=	Q3_GetString
+
+    pe!.I_Evaluate				=	Q3_Evaluate
+
+    pe!.I_DeclareVariable		=	Q3_DeclareVariable
+    pe!.I_FreeVariable			=	Q3_FreeVariable
+
+    //Save / Load functions
+    pe!.I_WriteSaveData			=	AppendToSaveGame
+    pe!.I_ReadSaveData			=	ReadFromSaveGame
+    pe!.I_LinkEntity			=	ICARUS_LinkEntity
 }

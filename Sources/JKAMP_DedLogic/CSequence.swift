@@ -328,7 +328,7 @@ final class CSequence {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:320
-    // Port-note: The body calls through `m_owner->GetInterface()`, and `interface_export_t` has no Swift form, so the body waits for that row.
+    // Port-note: Rule 20. The one caller is CSequence::Save, and Raven compiles that call out with `#if 0` at Sequence.cpp:365, so the function keeps its marker.
     private func SaveCommand(_ block: CBlock?) -> Int32 {
         // TODO: Port CSequence::SaveCommand
         portMissing("CSequence::SaveCommand", source: "oracle/codemp/icarus/Sequence.cpp:320")

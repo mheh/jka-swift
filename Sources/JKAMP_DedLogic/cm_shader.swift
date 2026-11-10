@@ -114,7 +114,8 @@ func CM_LoadShaderFiles() {
     var shaderFiles2: [String]
     var numShaders2: Int32 = 0
     // AI: Raven keeps `char *buffers[MAX_SHADER_FILES]`. The Array holds one CharBuf per file, and nil is Raven's NULL.
-    var buffers = [CharBuf?](repeating: nil, count: Int(MAX_SHADER_FILES))
+    // Each entry starts as an empty CharBuf, because Raven hands FS_ReadFile the address `&buffers[i]`, and a nil entry is his NULL, which asks for the length alone.
+    var buffers = [CharBuf?](repeating: CharBuf(0), count: Int(MAX_SHADER_FILES))
     var numShaders: Int32
     var i: Int32
     var sum: Int32 = 0
@@ -265,8 +266,6 @@ ParseVector
 private func CM_ParseVector(_ shader: CmShader, _ text: inout JKAShared.TextCursor, _ count: Int32, _ v: inout JKAShared.vec3_t) -> Bool {
     var token: String
     var i: Int32
-    // Raven assigns his own `v` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
-    var v = v
 
     // FIXME: spaces are currently required after parens, should change parseext...
     token = COM_ParseExt(&text, false)
@@ -368,9 +367,9 @@ private func CM_ParseShader(_ shader: CmShader, _ text: inout JKAShared.TextCurs
             continue
         } else if Q_stricmp(token, "fogParms") == 0 {
             var fogColor = vec3_t()
-            // Port-note: Raven passes `fogColor` to `CM_ParseVector`, whose `v` parameter takes the Slots over the records, and Swift holds one record here. A Slots over one record has no form yet.
-            // Raven wrote: if ( !CM_ParseVector( shader, text, 3, fogColor ) ) { return; }
-            portMissing("CM_ParseShader", source: "oracle/codemp/qcommon/cm_shader.cpp:361")
+            if !CM_ParseVector(shader, &text, 3, &fogColor) {
+                return
+            }
 
             token = COM_ParseExt(&text, false)
             if token.isEmpty {

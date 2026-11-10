@@ -163,6 +163,7 @@ func FindGoreRecord(_ tag: Int32) -> GoreTextureCoordinates? {
 // Raven wrote: void *G2_GetGoreRecord(int tag)
 // No table row for the return `void *`.
 func G2_GetGoreRecord() -> Never {
+    // Raven calls this function from no file of either tree, so it is dead.
     // TODO: Port G2_GetGoreRecord
     portMissing("G2_GetGoreRecord", source: "oracle/codemp/ghoul2/G2_misc.cpp:113")
 }
@@ -206,15 +207,71 @@ func DeleteGoreSet(_ goreSetTag: Int32) {
 // list all surfaces associated with a model
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:279
 func G2_List_Model_Surfaces(_ fileName: String) {
-    // TODO: Port G2_List_Model_Surfaces
-    portMissing("G2_List_Model_Surfaces", source: "oracle/codemp/ghoul2/G2_misc.cpp:279")
+    var i: Int32
+    var x: Int32
+    let mod_m = R_GetModelByHandle(RE_RegisterModel(fileName))
+    var surf: MdxmSurfHierarchy
+
+    surf = MdxmSurfHierarchy(mod_m!.mdxm!, byteOffset: mod_m!.mdxm!.ofsSurfHierarchy)
+    var surface = MdxmSurface(mod_m!.mdxm!, byteOffset: mod_m!.mdxm!.ofsLODs + Int32(MdxmLOD.byteCount))
+
+    x = 0
+    while x < mod_m!.mdxm!.numSurfaces {
+        Com_Printf("Surface %i Name %s\n", x, surf.name)
+        if r_verbose!.value != 0 {
+            Com_Printf("Num Descendants %i\n", surf.numChildren)
+            i = 0
+            while i < surf.numChildren {
+                Com_Printf("Descendant %i\n", surf.childIndexes[i])
+                i += 1
+            }
+        }
+        // find the next surface
+        surf = MdxmSurfHierarchy(surf, byteOffset: MdxmSurfHierarchy.byteCount(childIndexes: surf.numChildren))
+        surface = MdxmSurface(surface, byteOffset: surface.ofsEnd)
+        x += 1
+    }
+
 }
 
 // list all bones associated with a model
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:307
 func G2_List_Model_Bones(_ fileName: String, _ frame: Int32) {
-    // TODO: Port G2_List_Model_Bones
-    portMissing("G2_List_Model_Bones", source: "oracle/codemp/ghoul2/G2_misc.cpp:307")
+    var x: Int32
+    var i: Int32
+    var skel: MdxaSkel
+    let offsets: MdxaSkelOffsets
+    let mod_m = R_GetModelByHandle(RE_RegisterModel(fileName))
+    let mod_a = R_GetModelByHandle(mod_m!.mdxm!.animIndex)
+// 	mdxaFrame_t		*aframe=0;
+//	int				frameSize;
+    let header = mod_a!.mdxa
+
+    // figure out where the offset list is
+    offsets = MdxaSkelOffsets(header!, byteOffset: MdxaHeader.byteCount)
+
+//    frameSize = (int)( &((mdxaFrame_t *)0)->boneIndexes[ header->numBones ] );
+
+//	aframe = (mdxaFrame_t *)((byte *)header + header->ofsFrames + (frame * frameSize));
+    // walk each bone and list it's name
+    x = 0
+    while x < mod_a!.mdxa!.numBones {
+        skel = MdxaSkel(header!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[x])
+        Com_Printf("Bone %i Name %s\n", x, skel.name)
+
+        Com_Printf("X pos %f, Y pos %f, Z pos %f\n", skel.BasePoseMat.matrix[0][3], skel.BasePoseMat.matrix[1][3], skel.BasePoseMat.matrix[2][3])
+
+        // if we are in verbose mode give us more details
+        if r_verbose!.value != 0 {
+            Com_Printf("Num Descendants %i\n", skel.numChildren)
+            i = 0
+            while i < skel.numChildren {
+                Com_Printf("Num Descendants %i\n", skel.numChildren)
+                i += 1
+            }
+        }
+        x += 1
+    }
 }
 
 /**
@@ -266,14 +323,47 @@ func G2_DecideTraceLod(_ ghoul2: CGhoul2Info, _ useLod: Int32) -> Int32 {
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:404
 func R_TransformEachSurface(_ surface: MdxmSurface, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ TransformedVertsArray: Slots<Int32>, _ boneCache: CBoneCache?) {
+    // Port-note: Raven stores the MiniHeapAlloc pointer as an `int` in `TransformedVertsArray`, which a 64-bit address does not fit.
+    // The body also calls G2_GetVertWeights, G2_GetVertBoneIndex, and G2_GetVertBoneWeight of mdx_format.h:290 to :322, which have no Swift home.
     // TODO: Port R_TransformEachSurface
     portMissing("R_TransformEachSurface", source: "oracle/codemp/ghoul2/G2_misc.cpp:404")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:517
 func G2_TransformSurfaces(_ surfaceNum: Int32, _ rootSList: inout [surfaceInfo_t], _ boneCache: CBoneCache?, _ currentModel: Model, _ lod: Int32, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ TransformedVertArray: Slots<Int32>, _ secondTimeAround: Bool) {
-    // TODO: Port G2_TransformSurfaces
-    portMissing("G2_TransformSurfaces", source: "oracle/codemp/ghoul2/G2_misc.cpp:517")
+    var i: Int32
+    assert(currentModel.mdxm != nil)
+    // back track and get the surfinfo struct for this surface
+    let surface = G2_FindSurface(currentModel, surfaceNum, lod)!
+    let surfIndexes = MdxmHierarchyOffsets(currentModel.mdxm!, byteOffset: MdxmHeader.byteCount)
+    let surfInfo = MdxmSurfHierarchy(surfIndexes, byteOffset: surfIndexes.offsets[surface.thisSurfaceIndex])
+
+    // see if we have an override surface in the surface list
+    let surfOverride = G2_FindOverrideSurface(surfaceNum, &rootSList)
+
+    // really, we should use the default flags for this surface unless it's been overriden
+    var offFlags = Int32(truncatingIfNeeded: surfInfo.flags)
+
+    if surfOverride != nil {
+        offFlags = surfOverride!.offFlags
+    }
+    // if this surface is not off, add it to the shader render list
+    if offFlags == 0 {
+
+        R_TransformEachSurface(surface, scale, G2VertSpace, TransformedVertArray, boneCache)
+    }
+
+    // if we are turning off all descendants, then stop this recursion now
+    if (offFlags & G2SURFACEFLAG_NODESCENDANTS) != 0 {
+        return
+    }
+
+    // now recursively call for the children
+    i = 0
+    while i < surfInfo.numChildren {
+        G2_TransformSurfaces(surfInfo.childIndexes[i], &rootSList, boneCache, currentModel, lod, scale, G2VertSpace, TransformedVertArray, secondTimeAround)
+        i += 1
+    }
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:560
@@ -378,12 +468,31 @@ private func G2_AreaOfTri(_ A: JKAShared.vec3_t, _ B: JKAShared.vec3_t, _ C: JKA
 
 // actually determine the S and T of the coordinate we hit in a given poly
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:677
-// TODO: Port signature
-// Raven wrote: static void G2_BuildHitPointST( const vec3_t A, const float SA, const float TA, const vec3_t B, const float SB, const float TB, const vec3_t C, const float SC, const float TC, const vec3_t P, float *s, float *t,float &bary_i,float &bary_j)
-// No table row for `float & bary_i`.
-private func G2_BuildHitPointST() -> Never {
-    // TODO: Port G2_BuildHitPointST
-    portMissing("G2_BuildHitPointST", source: "oracle/codemp/ghoul2/G2_misc.cpp:677")
+private func G2_BuildHitPointST(_ A: JKAShared.vec3_t, _ SA: Float, _ TA: Float,
+                                _ B: JKAShared.vec3_t, _ SB: Float, _ TB: Float,
+                                _ C: JKAShared.vec3_t, _ SC: Float, _ TC: Float,
+                                _ P: JKAShared.vec3_t, _ s: inout Float, _ t: inout Float, _ bary_i: inout Float, _ bary_j: inout Float) {
+    let areaABC: Float = G2_AreaOfTri(A, B, C)
+
+    let i: Float = G2_AreaOfTri(P, B, C) / areaABC
+    bary_i = i
+    let j: Float = G2_AreaOfTri(A, P, C) / areaABC
+    bary_j = j
+    let k: Float = G2_AreaOfTri(A, B, P) / areaABC
+
+    s = SA * i + SB * j + SC * k
+    t = TA * i + TB * j + TC * k
+
+    s = fmod(s, 1)
+    if s < 0 {
+        s = Float(Double(s) + 1.0)
+    }
+
+    t = fmod(t, 1)
+    if t < 0 {
+        t = Float(Double(t) + 1.0)
+    }
+
 }
 
 // routine that works out given a ray whether or not it hits a poly
@@ -462,7 +571,8 @@ func G2_GorePolys(_ surface: MdxmSurface, _ TS: CTraceSurface, _ surfInfo: MdxmS
 // now we're at poly level, check each model space transformed poly against the model world transfomed ray
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1092
 private func G2_TracePolys(_ surface: MdxmSurface, _ surfInfo: MdxmSurfHierarchy, _ TS: CTraceSurface) -> Bool {
-    // Port-note: Raven casts the `int` of `TS.TransformedVertsArray` back to a `float *`, and the body calls G2_BuildHitPointST, which keeps its signature marker.
+    // Port-note: Raven casts the `int` of `TS.TransformedVertsArray` back to a `float *`.
+    // `TS.collRecMap` holds one record, and the body indexes a table.
     // TODO: Port G2_TracePolys
     portMissing("G2_TracePolys", source: "oracle/codemp/ghoul2/G2_misc.cpp:1092")
 }
@@ -478,12 +588,78 @@ private func G2_RadiusTracePolys(_ surface: MdxmSurface, _ TS: CTraceSurface) ->
 // look at a surface and then do the trace on each poly
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1428
 private func G2_TraceSurfaces(_ TS: CTraceSurface) {
-    // TODO: Port G2_TraceSurfaces
-    portMissing("G2_TraceSurfaces", source: "oracle/codemp/ghoul2/G2_misc.cpp:1428")
+    var i: Int32
+    // back track and get the surfinfo struct for this surface
+    assert(TS.currentModel != nil)
+    assert(TS.currentModel!.mdxm != nil)
+    let surface = G2_FindSurface(TS.currentModel, TS.surfaceNum, TS.lod)!
+    let surfIndexes = MdxmHierarchyOffsets(TS.currentModel!.mdxm!, byteOffset: MdxmHeader.byteCount)
+    let surfInfo = MdxmSurfHierarchy(surfIndexes, byteOffset: surfIndexes.offsets[surface.thisSurfaceIndex])
+
+    // see if we have an override surface in the surface list
+    let surfOverride = G2_FindOverrideSurface(TS.surfaceNum, &TS.rootSList)
+
+    // don't allow recursion if we've already hit a polygon
+    if TS.hitOne {
+        return
+    }
+
+    // really, we should use the default flags for this surface unless it's been overriden
+    var offFlags = Int32(truncatingIfNeeded: surfInfo.flags)
+
+    // set the off flags if we have some
+    if surfOverride != nil {
+        offFlags = surfOverride!.offFlags
+    }
+
+    // if this surface is not off, try to hit it
+    if offFlags == 0 {
+        if TS.collRecMap != nil {
+            if !(Double(abs(TS.m_fRadius)) < 0.1) {	// if not a point-trace
+                // .. then use radius check
+                //
+                if G2_RadiusTracePolys(surface,		// const mdxmSurface_t *surface,
+                                       TS
+                                       )
+                    && (TS.traceFlags == G2_RETURNONHIT)
+                {
+                    TS.hitOne = true
+                    return
+                }
+            } else {
+                // go away and trace the polys in this surface
+                if G2_TracePolys(surface, surfInfo, TS)
+                    && (TS.traceFlags == G2_RETURNONHIT)
+                {
+                    // ok, we hit one, *and* we want to return instantly because the returnOnHit is set
+                    // so indicate we've hit one, so other surfaces don't get hit and return
+                    TS.hitOne = true
+                    return
+                }
+            }
+        } else {
+            G2_GorePolys(surface, TS, surfInfo)
+        }
+    }
+
+    // if we are turning off all descendants, then stop this recursion now
+    if (offFlags & G2SURFACEFLAG_NODESCENDANTS) != 0 {
+        return
+    }
+
+    // now recursively call for the children
+    i = 0
+    while i < surfInfo.numChildren && !TS.hitOne {
+        TS.surfaceNum = surfInfo.childIndexes[i]
+        G2_TraceSurfaces(TS)
+        i += 1
+    }
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1514
 func G2_TraceModels(_ ghoul2: CGhoul2Info_v, _ rayStart: JKAShared.vec3_t, _ rayEnd: JKAShared.vec3_t, _ collRecMap: Slots<CollisionRecord>?, _ entNum: Int32, _ eG2TraceType: Int32, _ useLod: Int32, _ fRadius: Float, _ ssize: Float, _ tsize: Float, _ theta: Float, _ shader: Int32, _ gore: SkinGoreData?, _ skipIfLODNotMatch: Bool) {
+    // Port-note: The CTraceSurface initializer takes `collRecMap` as one `CollisionRecord?`.
+    // This function holds the table as `Slots<CollisionRecord>?`.
     // TODO: Port G2_TraceModels
     portMissing("G2_TraceModels", source: "oracle/codemp/ghoul2/G2_misc.cpp:1514")
 }

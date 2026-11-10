@@ -672,7 +672,8 @@ func Sys_UnloadDll(_ dllHandle: OpaquePointer?) {
 /// Source: oracle/codemp/null/win_main.cpp:735
 func Sys_UnpackDLL(_ name: String) -> Bool {
     // AI: Raven reads the dll into a `void *` block of the zone. The read takes the CharBuf form of FS_ReadFile, whose bytes the CharBuf FS_Write takes.
-    var data: CharBuf? = nil
+    // The buffer starts as an empty CharBuf, because Raven hands FS_ReadFile the address `&data`, and a nil buffer is his NULL, which asks for the length alone.
+    var data: CharBuf? = CharBuf(0)
     let f: fileHandle_t
     let len: Int32 = FS_ReadFile(name, &data)
     var ck: Int32 = 0

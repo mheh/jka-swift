@@ -1731,9 +1731,7 @@ public func Com_Frame() {
     // Port-note: Raven wraps the frame in a try, and the catch prints the text a Com_Error throws for an ERR_DROP and returns.
     // Row C1: the three throw sites of Com_Error print the text and end the process, so no throw reaches this function.
 
-    // Port-note: Row G1. Raven starts the C++ timer G2PerformanceTimer_PreciseFrame, a `timing_c` of the C++ track that stage E5 gives no storage.
-    // Raven wrote: G2PerformanceTimer_PreciseFrame.Start();
-    portMissing("Com_Frame", source: "oracle/codemp/qcommon/common.cpp:1593")
+    G2PerformanceTimer_PreciseFrame.Start()
     var msec: Int32
     let minMsec: Int32
     var key: Int32
@@ -1886,9 +1884,7 @@ public func Com_Frame() {
 
     com_frameNumber += 1
 
-    // Port-note: Row G1. Raven adds the end of the C++ timer G2PerformanceTimer_PreciseFrame, a `timing_c` of the C++ track that stage E5 gives no storage.
-    // Raven wrote: G2Time_PreciseFrame += G2PerformanceTimer_PreciseFrame.End();
-    portMissing("Com_Frame", source: "oracle/codemp/qcommon/common.cpp:1593")
+    G2Time_PreciseFrame += G2PerformanceTimer_PreciseFrame.End()
 
     if com_G2Report != nil && com_G2Report!.integer != 0 {
         G2Time_ReportTimers()

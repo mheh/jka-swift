@@ -493,7 +493,7 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
     //rww - precision timer funcs... -ALWAYS- call end after start with supplied ptr, or you'll get a nasty memory leak.
     //not that you should be using these outside of debug anyway.. because you shouldn't be. So don't.
     // Port-note: Row G4. Raven's labels are CG_PRECISIONTIMER_START and CG_PRECISIONTIMER_END of cg_public.h, which the host does not import.
-    // Port-note: Row G4. The C++ class timing_c of timing.h has no port.
+    // Port-note: Row G4. The arms keep a `timing_c` in the module's memory as a word, and the Swift class has no form as a word.
     // Raven wrote: case CG_PRECISIONTIMER_START: ... newTimer->Start(); ... case CG_PRECISIONTIMER_END: ... r = timer->End(); delete timer; return r;
     // A game number that matches no label reaches the default arm, as in Raven's switch.
 
@@ -1036,11 +1036,27 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
     case BOTLIB_SHUTDOWN:
         return Int(SV_BotLibShutdown())
 
-    case BOTLIB_LIBVAR_SET, BOTLIB_LIBVAR_GET, BOTLIB_PC_ADD_GLOBAL_DEFINE, BOTLIB_PC_LOAD_SOURCE, BOTLIB_PC_FREE_SOURCE,
-         BOTLIB_PC_READ_TOKEN, BOTLIB_PC_SOURCE_FILE_AND_LINE, BOTLIB_START_FRAME, BOTLIB_LOAD_MAP, BOTLIB_UPDATENTITY,
-         BOTLIB_TEST:
-        // Port-note: Row B1. `botlib_export_t` has no host form, and `botlib_export` has no storage, so these 11 arms are one hole.
-        // Raven wrote: the botlib_export calls of sv_game.cpp:948 to :971.
+    case BOTLIB_PC_LOAD_SOURCE:
+        return Int(botlib_export!.runPC_LoadSourceHandle(args.VMA(1)))
+
+    case BOTLIB_PC_FREE_SOURCE:
+        return Int(botlib_export!.runPC_FreeSourceHandle(args[1]))
+
+    case BOTLIB_PC_READ_TOKEN:
+        return Int(botlib_export!.runPC_ReadTokenHandle(args[1], args.VMA(2)))
+
+    case BOTLIB_START_FRAME:
+        return Int(botlib_export!.runBotLibStartFrame(args.VMF(1)))
+
+    case BOTLIB_LOAD_MAP:
+        return Int(botlib_export!.runBotLibLoadMap(args.VMA(1)))
+
+    case BOTLIB_UPDATENTITY:
+        return Int(botlib_export!.runBotLibUpdateEntity(args[1], args.VMA(2)))
+
+    case BOTLIB_LIBVAR_SET, BOTLIB_LIBVAR_GET, BOTLIB_PC_ADD_GLOBAL_DEFINE, BOTLIB_PC_SOURCE_FILE_AND_LINE, BOTLIB_TEST:
+        // Port-note: Row B5. The run methods of these 5 arms take a `char *` or an `int *` of the module as an untyped OpaquePointer, so the arms are one hole.
+        // Raven wrote: the botlib_export calls of sv_game.cpp:948, :950, :953, :961, and :971.
         portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
 
     case BOTLIB_GET_SNAPSHOT_ENTITY:
@@ -1057,48 +1073,427 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
         SV_ClientThink(svs.clientsSlots[args[1]], args.VMA(2)!)
         return 0
 
-    case BOTLIB_AAS_BBOX_AREAS, BOTLIB_AAS_AREA_INFO, BOTLIB_AAS_ALTERNATIVE_ROUTE_GOAL, BOTLIB_AAS_ENTITY_INFO,
-         BOTLIB_AAS_INITIALIZED, BOTLIB_AAS_PRESENCE_TYPE_BOUNDING_BOX, BOTLIB_AAS_TIME, BOTLIB_AAS_POINT_AREA_NUM,
-         BOTLIB_AAS_POINT_REACHABILITY_AREA_INDEX, BOTLIB_AAS_TRACE_AREAS, BOTLIB_AAS_POINT_CONTENTS,
-         BOTLIB_AAS_NEXT_BSP_ENTITY, BOTLIB_AAS_VALUE_FOR_BSP_EPAIR_KEY, BOTLIB_AAS_VECTOR_FOR_BSP_EPAIR_KEY,
-         BOTLIB_AAS_FLOAT_FOR_BSP_EPAIR_KEY, BOTLIB_AAS_INT_FOR_BSP_EPAIR_KEY, BOTLIB_AAS_AREA_REACHABILITY,
-         BOTLIB_AAS_AREA_TRAVEL_TIME_TO_GOAL_AREA, BOTLIB_AAS_ENABLE_ROUTING_AREA, BOTLIB_AAS_PREDICT_ROUTE,
-         BOTLIB_AAS_SWIMMING, BOTLIB_AAS_PREDICT_CLIENT_MOVEMENT,
-         BOTLIB_EA_SAY, BOTLIB_EA_SAY_TEAM, BOTLIB_EA_COMMAND, BOTLIB_EA_ACTION, BOTLIB_EA_GESTURE, BOTLIB_EA_TALK,
-         BOTLIB_EA_ATTACK, BOTLIB_EA_ALT_ATTACK, BOTLIB_EA_FORCEPOWER, BOTLIB_EA_USE, BOTLIB_EA_RESPAWN, BOTLIB_EA_CROUCH,
-         BOTLIB_EA_MOVE_UP, BOTLIB_EA_MOVE_DOWN, BOTLIB_EA_MOVE_FORWARD, BOTLIB_EA_MOVE_BACK, BOTLIB_EA_MOVE_LEFT,
-         BOTLIB_EA_MOVE_RIGHT, BOTLIB_EA_SELECT_WEAPON, BOTLIB_EA_JUMP, BOTLIB_EA_DELAYED_JUMP, BOTLIB_EA_MOVE,
-         BOTLIB_EA_VIEW, BOTLIB_EA_END_REGULAR, BOTLIB_EA_GET_INPUT, BOTLIB_EA_RESET_INPUT,
-         BOTLIB_AI_LOAD_CHARACTER, BOTLIB_AI_FREE_CHARACTER, BOTLIB_AI_CHARACTERISTIC_FLOAT, BOTLIB_AI_CHARACTERISTIC_BFLOAT,
-         BOTLIB_AI_CHARACTERISTIC_INTEGER, BOTLIB_AI_CHARACTERISTIC_BINTEGER, BOTLIB_AI_CHARACTERISTIC_STRING,
-         BOTLIB_AI_ALLOC_CHAT_STATE, BOTLIB_AI_FREE_CHAT_STATE, BOTLIB_AI_QUEUE_CONSOLE_MESSAGE,
-         BOTLIB_AI_REMOVE_CONSOLE_MESSAGE, BOTLIB_AI_NEXT_CONSOLE_MESSAGE, BOTLIB_AI_NUM_CONSOLE_MESSAGE,
-         BOTLIB_AI_INITIAL_CHAT, BOTLIB_AI_NUM_INITIAL_CHATS, BOTLIB_AI_REPLY_CHAT, BOTLIB_AI_CHAT_LENGTH,
-         BOTLIB_AI_ENTER_CHAT, BOTLIB_AI_GET_CHAT_MESSAGE, BOTLIB_AI_STRING_CONTAINS, BOTLIB_AI_FIND_MATCH,
-         BOTLIB_AI_MATCH_VARIABLE, BOTLIB_AI_UNIFY_WHITE_SPACES, BOTLIB_AI_REPLACE_SYNONYMS, BOTLIB_AI_LOAD_CHAT_FILE,
-         BOTLIB_AI_SET_CHAT_GENDER, BOTLIB_AI_SET_CHAT_NAME,
-         BOTLIB_AI_RESET_GOAL_STATE, BOTLIB_AI_RESET_AVOID_GOALS, BOTLIB_AI_REMOVE_FROM_AVOID_GOALS, BOTLIB_AI_PUSH_GOAL,
-         BOTLIB_AI_POP_GOAL, BOTLIB_AI_EMPTY_GOAL_STACK, BOTLIB_AI_DUMP_AVOID_GOALS, BOTLIB_AI_DUMP_GOAL_STACK,
-         BOTLIB_AI_GOAL_NAME, BOTLIB_AI_GET_TOP_GOAL, BOTLIB_AI_GET_SECOND_GOAL, BOTLIB_AI_CHOOSE_LTG_ITEM,
-         BOTLIB_AI_CHOOSE_NBG_ITEM, BOTLIB_AI_TOUCHING_GOAL, BOTLIB_AI_ITEM_GOAL_IN_VIS_BUT_NOT_VISIBLE,
-         BOTLIB_AI_GET_LEVEL_ITEM_GOAL, BOTLIB_AI_GET_NEXT_CAMP_SPOT_GOAL, BOTLIB_AI_GET_MAP_LOCATION_GOAL,
-         BOTLIB_AI_AVOID_GOAL_TIME, BOTLIB_AI_SET_AVOID_GOAL_TIME, BOTLIB_AI_INIT_LEVEL_ITEMS,
-         BOTLIB_AI_UPDATE_ENTITY_ITEMS, BOTLIB_AI_LOAD_ITEM_WEIGHTS, BOTLIB_AI_FREE_ITEM_WEIGHTS,
-         BOTLIB_AI_INTERBREED_GOAL_FUZZY_LOGIC, BOTLIB_AI_SAVE_GOAL_FUZZY_LOGIC, BOTLIB_AI_MUTATE_GOAL_FUZZY_LOGIC,
-         BOTLIB_AI_ALLOC_GOAL_STATE, BOTLIB_AI_FREE_GOAL_STATE,
-         BOTLIB_AI_RESET_MOVE_STATE, BOTLIB_AI_ADD_AVOID_SPOT, BOTLIB_AI_MOVE_TO_GOAL, BOTLIB_AI_MOVE_IN_DIRECTION,
-         BOTLIB_AI_RESET_AVOID_REACH, BOTLIB_AI_RESET_LAST_AVOID_REACH, BOTLIB_AI_REACHABILITY_AREA,
-         BOTLIB_AI_MOVEMENT_VIEW_TARGET, BOTLIB_AI_PREDICT_VISIBLE_POSITION, BOTLIB_AI_ALLOC_MOVE_STATE,
-         BOTLIB_AI_FREE_MOVE_STATE, BOTLIB_AI_INIT_MOVE_STATE,
-         BOTLIB_AI_CHOOSE_BEST_FIGHT_WEAPON, BOTLIB_AI_GET_WEAPON_INFO, BOTLIB_AI_LOAD_WEAPON_WEIGHTS,
-         BOTLIB_AI_ALLOC_WEAPON_STATE, BOTLIB_AI_FREE_WEAPON_STATE, BOTLIB_AI_RESET_WEAPON_STATE,
+    case BOTLIB_AAS_AREA_INFO:
+        return Int(botlib_export!.aas.runAAS_AreaInfo(args[1], args.VMA(2)))
+
+    case BOTLIB_AAS_ALTERNATIVE_ROUTE_GOAL:
+        // AI: Raven hands the module's vectors to the callee by address. The arm hands the slot of the Slots at each word.
+        let start: Slots<vec3_t> = args.VMA(1)
+        let goal: Slots<vec3_t> = args.VMA(3)
+        return Int(botlib_export!.aas.runAAS_AlternativeRouteGoals(&start[0], args[2], &goal[0], args[4], args[5], args.VMA(6), args[7], args[8]))
+
+    case BOTLIB_AAS_ENTITY_INFO:
+        botlib_export!.aas.runAAS_EntityInfo(args[1], args.VMA(2))
+        return 0
+
+    case BOTLIB_AAS_INITIALIZED:
+        return Int(botlib_export!.aas.runAAS_Initialized())
+
+    case BOTLIB_AAS_PRESENCE_TYPE_BOUNDING_BOX:
+        // AI: Raven hands the module's vectors to the callee by address. The arm hands the slot of the Slots at each word.
+        let mins: Slots<vec3_t> = args.VMA(2)
+        let maxs: Slots<vec3_t> = args.VMA(3)
+        botlib_export!.aas.runAAS_PresenceTypeBoundingBox(args[1], &mins[0], &maxs[0])
+        return 0
+
+    case BOTLIB_AAS_TIME:
+        return Int(FloatAsInt(botlib_export!.aas.runAAS_Time()))
+
+    case BOTLIB_AAS_POINT_AREA_NUM:
+        // AI: Raven hands the module's vector to the callee by address. The arm hands the slot of the Slots at the word.
+        let point: Slots<vec3_t> = args.VMA(1)
+        return Int(botlib_export!.aas.runAAS_PointAreaNum(&point[0]))
+
+    case BOTLIB_AAS_POINT_REACHABILITY_AREA_INDEX:
+        // AI: Raven hands the module's vector to the callee by address. The arm hands the slot of the Slots at the word.
+        let point: Slots<vec3_t> = args.VMA(1)
+        return Int(botlib_export!.aas.runAAS_PointReachabilityAreaIndex(&point[0]))
+
+    case BOTLIB_AAS_POINT_CONTENTS:
+        // AI: Raven hands the module's vector to the callee by address. The arm hands the slot of the Slots at the word.
+        let point: Slots<vec3_t> = args.VMA(1)
+        return Int(botlib_export!.aas.runAAS_PointContents(&point[0]))
+
+    case BOTLIB_AAS_NEXT_BSP_ENTITY:
+        return Int(botlib_export!.aas.runAAS_NextBSPEntity(args[1]))
+
+    case BOTLIB_AAS_AREA_REACHABILITY:
+        return Int(botlib_export!.aas.runAAS_AreaReachability(args[1]))
+
+    case BOTLIB_AAS_AREA_TRAVEL_TIME_TO_GOAL_AREA:
+        // AI: Raven hands the module's vector to the callee by address. The arm hands the slot of the Slots at the word.
+        let origin: Slots<vec3_t> = args.VMA(2)
+        return Int(botlib_export!.aas.runAAS_AreaTravelTimeToGoalArea(args[1], &origin[0], args[3], args[4]))
+
+    case BOTLIB_AAS_ENABLE_ROUTING_AREA:
+        return Int(botlib_export!.aas.runAAS_EnableRoutingArea(args[1], args[2]))
+
+    case BOTLIB_AAS_PREDICT_ROUTE:
+        // AI: Raven hands the module's vector to the callee by address. The arm hands the slot of the Slots at the word.
+        let origin: Slots<vec3_t> = args.VMA(3)
+        return Int(botlib_export!.aas.runAAS_PredictRoute(args.VMA(1), args[2], &origin[0], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11]))
+
+    case BOTLIB_AAS_SWIMMING:
+        // AI: Raven hands the module's vector to the callee by address. The arm hands the slot of the Slots at the word.
+        let origin: Slots<vec3_t> = args.VMA(1)
+        return Int(botlib_export!.aas.runAAS_Swimming(&origin[0]))
+
+    case BOTLIB_AAS_PREDICT_CLIENT_MOVEMENT:
+        // AI: Raven hands the module's vectors to the callee by address. The arm hands the slot of the Slots at each word.
+        let origin: Slots<vec3_t> = args.VMA(3)
+        let velocity: Slots<vec3_t> = args.VMA(6)
+        let cmdmove: Slots<vec3_t> = args.VMA(7)
+        return Int(botlib_export!.aas.runAAS_PredictClientMovement(args.VMA(1), args[2], &origin[0], args[4], args[5], &velocity[0], &cmdmove[0], args[8], args[9], args.VMF(10), args[11], args[12], args[13]))
+
+    case BOTLIB_EA_ACTION:
+        botlib_export!.ea.runEA_Action(args[1], args[2])
+        break
+
+    case BOTLIB_EA_GESTURE:
+        botlib_export!.ea.runEA_Gesture(args[1])
+        return 0
+
+    case BOTLIB_EA_TALK:
+        botlib_export!.ea.runEA_Talk(args[1])
+        return 0
+
+    case BOTLIB_EA_ATTACK:
+        botlib_export!.ea.runEA_Attack(args[1])
+        return 0
+
+    case BOTLIB_EA_ALT_ATTACK:
+        botlib_export!.ea.runEA_Alt_Attack(args[1])
+        return 0
+
+    case BOTLIB_EA_FORCEPOWER:
+        botlib_export!.ea.runEA_ForcePower(args[1])
+        return 0
+
+    case BOTLIB_EA_USE:
+        botlib_export!.ea.runEA_Use(args[1])
+        return 0
+
+    case BOTLIB_EA_RESPAWN:
+        botlib_export!.ea.runEA_Respawn(args[1])
+        return 0
+
+    case BOTLIB_EA_CROUCH:
+        botlib_export!.ea.runEA_Crouch(args[1])
+        return 0
+
+    case BOTLIB_EA_MOVE_UP:
+        botlib_export!.ea.runEA_MoveUp(args[1])
+        return 0
+
+    case BOTLIB_EA_MOVE_DOWN:
+        botlib_export!.ea.runEA_MoveDown(args[1])
+        return 0
+
+    case BOTLIB_EA_MOVE_FORWARD:
+        botlib_export!.ea.runEA_MoveForward(args[1])
+        return 0
+
+    case BOTLIB_EA_MOVE_BACK:
+        botlib_export!.ea.runEA_MoveBack(args[1])
+        return 0
+
+    case BOTLIB_EA_MOVE_LEFT:
+        botlib_export!.ea.runEA_MoveLeft(args[1])
+        return 0
+
+    case BOTLIB_EA_MOVE_RIGHT:
+        botlib_export!.ea.runEA_MoveRight(args[1])
+        return 0
+
+    case BOTLIB_EA_SELECT_WEAPON:
+        botlib_export!.ea.runEA_SelectWeapon(args[1], args[2])
+        return 0
+
+    case BOTLIB_EA_JUMP:
+        botlib_export!.ea.runEA_Jump(args[1])
+        return 0
+
+    case BOTLIB_EA_DELAYED_JUMP:
+        botlib_export!.ea.runEA_DelayedJump(args[1])
+        return 0
+
+    case BOTLIB_EA_MOVE:
+        // AI: Raven hands the module's vector to the callee by address. The arm hands the slot of the Slots at the word.
+        let dir: Slots<vec3_t> = args.VMA(2)
+        botlib_export!.ea.runEA_Move(args[1], &dir[0], args.VMF(3))
+        return 0
+
+    case BOTLIB_EA_VIEW:
+        // AI: Raven hands the module's vector to the callee by address. The arm hands the slot of the Slots at the word.
+        let viewangles: Slots<vec3_t> = args.VMA(2)
+        botlib_export!.ea.runEA_View(args[1], &viewangles[0])
+        return 0
+
+    case BOTLIB_EA_END_REGULAR:
+        botlib_export!.ea.runEA_EndRegular(args[1], args.VMF(2))
+        return 0
+
+    case BOTLIB_EA_GET_INPUT:
+        botlib_export!.ea.runEA_GetInput(args[1], args.VMF(2), args.VMA(3))
+        return 0
+
+    case BOTLIB_EA_RESET_INPUT:
+        botlib_export!.ea.runEA_ResetInput(args[1])
+        return 0
+
+    case BOTLIB_AI_FREE_CHARACTER:
+        botlib_export!.ai.runBotFreeCharacter(args[1])
+        return 0
+
+    case BOTLIB_AI_CHARACTERISTIC_FLOAT:
+        return Int(FloatAsInt(botlib_export!.ai.runCharacteristic_Float(args[1], args[2])))
+
+    case BOTLIB_AI_CHARACTERISTIC_BFLOAT:
+        return Int(FloatAsInt(botlib_export!.ai.runCharacteristic_BFloat(args[1], args[2], args.VMF(3), args.VMF(4))))
+
+    case BOTLIB_AI_CHARACTERISTIC_INTEGER:
+        return Int(botlib_export!.ai.runCharacteristic_Integer(args[1], args[2]))
+
+    case BOTLIB_AI_CHARACTERISTIC_BINTEGER:
+        return Int(botlib_export!.ai.runCharacteristic_BInteger(args[1], args[2], args[3], args[4]))
+
+    case BOTLIB_AI_CHARACTERISTIC_STRING:
+        // AI: Raven's callee writes into the module's buffer. The callee fills a CharBuf, and the arm copies the text into the module's bytes.
+        var buf = CharBuf(args[4])
+        botlib_export!.ai.runCharacteristic_String(args[1], args[2], &buf, args[4])
+        Com_Memcpy(args.VMA(3), buf, strlen(buf) + 1)
+        return 0
+
+    case BOTLIB_AI_ALLOC_CHAT_STATE:
+        return Int(botlib_export!.ai.runBotAllocChatState())
+
+    case BOTLIB_AI_FREE_CHAT_STATE:
+        botlib_export!.ai.runBotFreeChatState(args[1])
+        return 0
+
+    case BOTLIB_AI_REMOVE_CONSOLE_MESSAGE:
+        botlib_export!.ai.runBotRemoveConsoleMessage(args[1], args[2])
+        return 0
+
+    case BOTLIB_AI_NEXT_CONSOLE_MESSAGE:
+        return Int(botlib_export!.ai.runBotNextConsoleMessage(args[1], args.VMA(2)))
+
+    case BOTLIB_AI_NUM_CONSOLE_MESSAGE:
+        return Int(botlib_export!.ai.runBotNumConsoleMessages(args[1]))
+
+    case BOTLIB_AI_CHAT_LENGTH:
+        return Int(botlib_export!.ai.runBotChatLength(args[1]))
+
+    case BOTLIB_AI_ENTER_CHAT:
+        botlib_export!.ai.runBotEnterChat(args[1], args[2], args[3])
+        return 0
+
+    case BOTLIB_AI_GET_CHAT_MESSAGE:
+        // AI: Raven's callee writes into the module's buffer. The callee fills a CharBuf, and the arm copies the text into the module's bytes.
+        var buf = CharBuf(args[3])
+        botlib_export!.ai.runBotGetChatMessage(args[1], &buf, args[3])
+        Com_Memcpy(args.VMA(2), buf, strlen(buf) + 1)
+        return 0
+
+    case BOTLIB_AI_MATCH_VARIABLE:
+        // AI: Raven's callee writes into the module's buffer. The callee fills a CharBuf, and the arm copies the text into the module's bytes.
+        var buf = CharBuf(args[4])
+        botlib_export!.ai.runBotMatchVariable(args.VMA(1), args[2], &buf, args[4])
+        Com_Memcpy(args.VMA(3), buf, strlen(buf) + 1)
+        return 0
+
+    case BOTLIB_AI_SET_CHAT_GENDER:
+        botlib_export!.ai.runBotSetChatGender(args[1], args[2])
+        return 0
+
+    case BOTLIB_AI_RESET_GOAL_STATE:
+        botlib_export!.ai.runBotResetGoalState(args[1])
+        return 0
+
+    case BOTLIB_AI_RESET_AVOID_GOALS:
+        botlib_export!.ai.runBotResetAvoidGoals(args[1])
+        return 0
+
+    case BOTLIB_AI_REMOVE_FROM_AVOID_GOALS:
+        botlib_export!.ai.runBotRemoveFromAvoidGoals(args[1], args[2])
+        return 0
+
+    case BOTLIB_AI_PUSH_GOAL:
+        botlib_export!.ai.runBotPushGoal(args[1], args.VMA(2))
+        return 0
+
+    case BOTLIB_AI_POP_GOAL:
+        botlib_export!.ai.runBotPopGoal(args[1])
+        return 0
+
+    case BOTLIB_AI_EMPTY_GOAL_STACK:
+        botlib_export!.ai.runBotEmptyGoalStack(args[1])
+        return 0
+
+    case BOTLIB_AI_DUMP_AVOID_GOALS:
+        botlib_export!.ai.runBotDumpAvoidGoals(args[1])
+        return 0
+
+    case BOTLIB_AI_DUMP_GOAL_STACK:
+        botlib_export!.ai.runBotDumpGoalStack(args[1])
+        return 0
+
+    case BOTLIB_AI_GOAL_NAME:
+        // AI: Raven's callee writes into the module's buffer. The callee fills a CharBuf, and the arm copies the text into the module's bytes.
+        var name = CharBuf(args[3])
+        botlib_export!.ai.runBotGoalName(args[1], &name, args[3])
+        Com_Memcpy(args.VMA(2), name, strlen(name) + 1)
+        return 0
+
+    case BOTLIB_AI_GET_TOP_GOAL:
+        return Int(botlib_export!.ai.runBotGetTopGoal(args[1], args.VMA(2)))
+
+    case BOTLIB_AI_GET_SECOND_GOAL:
+        return Int(botlib_export!.ai.runBotGetSecondGoal(args[1], args.VMA(2)))
+
+    case BOTLIB_AI_TOUCHING_GOAL:
+        // AI: Raven hands the module's vector to the callee by address. The arm hands the slot of the Slots at the word.
+        let origin: Slots<vec3_t> = args.VMA(1)
+        return Int(botlib_export!.ai.runBotTouchingGoal(&origin[0], args.VMA(2)))
+
+    case BOTLIB_AI_ITEM_GOAL_IN_VIS_BUT_NOT_VISIBLE:
+        // AI: Raven hands the module's vectors to the callee by address. The arm hands the slot of the Slots at each word.
+        let eye: Slots<vec3_t> = args.VMA(2)
+        let viewangles: Slots<vec3_t> = args.VMA(3)
+        return Int(botlib_export!.ai.runBotItemGoalInVisButNotVisible(args[1], &eye[0], &viewangles[0], args.VMA(4)))
+
+    case BOTLIB_AI_GET_NEXT_CAMP_SPOT_GOAL:
+        return Int(botlib_export!.ai.runBotGetNextCampSpotGoal(args[1], args.VMA(2)))
+
+    case BOTLIB_AI_AVOID_GOAL_TIME:
+        return Int(FloatAsInt(botlib_export!.ai.runBotAvoidGoalTime(args[1], args[2])))
+
+    case BOTLIB_AI_SET_AVOID_GOAL_TIME:
+        botlib_export!.ai.runBotSetAvoidGoalTime(args[1], args[2], args.VMF(3))
+        return 0
+
+    case BOTLIB_AI_INIT_LEVEL_ITEMS:
+        botlib_export!.ai.runBotInitLevelItems()
+        return 0
+
+    case BOTLIB_AI_UPDATE_ENTITY_ITEMS:
+        botlib_export!.ai.runBotUpdateEntityItems()
+        return 0
+
+    case BOTLIB_AI_FREE_ITEM_WEIGHTS:
+        botlib_export!.ai.runBotFreeItemWeights(args[1])
+        return 0
+
+    case BOTLIB_AI_INTERBREED_GOAL_FUZZY_LOGIC:
+        botlib_export!.ai.runBotInterbreedGoalFuzzyLogic(args[1], args[2], args[3])
+        return 0
+
+    case BOTLIB_AI_MUTATE_GOAL_FUZZY_LOGIC:
+        botlib_export!.ai.runBotMutateGoalFuzzyLogic(args[1], args.VMF(2))
+        return 0
+
+    case BOTLIB_AI_ALLOC_GOAL_STATE:
+        return Int(botlib_export!.ai.runBotAllocGoalState(args[1]))
+
+    case BOTLIB_AI_FREE_GOAL_STATE:
+        botlib_export!.ai.runBotFreeGoalState(args[1])
+        return 0
+
+    case BOTLIB_AI_RESET_MOVE_STATE:
+        botlib_export!.ai.runBotResetMoveState(args[1])
+        return 0
+
+    case BOTLIB_AI_ADD_AVOID_SPOT:
+        // AI: Raven hands the module's vector to the callee by address. The arm hands the slot of the Slots at the word.
+        let origin: Slots<vec3_t> = args.VMA(2)
+        botlib_export!.ai.runBotAddAvoidSpot(args[1], &origin[0], args.VMF(3), args[4])
+        return 0
+
+    case BOTLIB_AI_MOVE_TO_GOAL:
+        botlib_export!.ai.runBotMoveToGoal(args.VMA(1), args[2], args.VMA(3), args[4])
+        return 0
+
+    case BOTLIB_AI_MOVE_IN_DIRECTION:
+        // AI: Raven hands the module's vector to the callee by address. The arm hands the slot of the Slots at the word.
+        let dir: Slots<vec3_t> = args.VMA(2)
+        return Int(botlib_export!.ai.runBotMoveInDirection(args[1], &dir[0], args.VMF(3), args[4]))
+
+    case BOTLIB_AI_RESET_AVOID_REACH:
+        botlib_export!.ai.runBotResetAvoidReach(args[1])
+        return 0
+
+    case BOTLIB_AI_RESET_LAST_AVOID_REACH:
+        botlib_export!.ai.runBotResetLastAvoidReach(args[1])
+        return 0
+
+    case BOTLIB_AI_REACHABILITY_AREA:
+        // AI: Raven hands the module's vector to the callee by address. The arm hands the slot of the Slots at the word.
+        let origin: Slots<vec3_t> = args.VMA(1)
+        return Int(botlib_export!.ai.runBotReachabilityArea(&origin[0], args[2]))
+
+    case BOTLIB_AI_MOVEMENT_VIEW_TARGET:
+        // AI: Raven hands the module's vector to the callee by address. The arm hands the slot of the Slots at the word.
+        let target: Slots<vec3_t> = args.VMA(5)
+        return Int(botlib_export!.ai.runBotMovementViewTarget(args[1], args.VMA(2), args[3], args.VMF(4), &target[0]))
+
+    case BOTLIB_AI_PREDICT_VISIBLE_POSITION:
+        // AI: Raven hands the module's vectors to the callee by address. The arm hands the slot of the Slots at each word.
+        let origin: Slots<vec3_t> = args.VMA(1)
+        let target: Slots<vec3_t> = args.VMA(5)
+        return Int(botlib_export!.ai.runBotPredictVisiblePosition(&origin[0], args[2], args.VMA(3), args[4], &target[0]))
+
+    case BOTLIB_AI_ALLOC_MOVE_STATE:
+        return Int(botlib_export!.ai.runBotAllocMoveState())
+
+    case BOTLIB_AI_FREE_MOVE_STATE:
+        botlib_export!.ai.runBotFreeMoveState(args[1])
+        return 0
+
+    case BOTLIB_AI_INIT_MOVE_STATE:
+        botlib_export!.ai.runBotInitMoveState(args[1], args.VMA(2))
+        return 0
+
+    case BOTLIB_AI_GET_WEAPON_INFO:
+        botlib_export!.ai.runBotGetWeaponInfo(args[1], args[2], args.VMA(3))
+        return 0
+
+    case BOTLIB_AI_ALLOC_WEAPON_STATE:
+        return Int(botlib_export!.ai.runBotAllocWeaponState())
+
+    case BOTLIB_AI_FREE_WEAPON_STATE:
+        botlib_export!.ai.runBotFreeWeaponState(args[1])
+        return 0
+
+    case BOTLIB_AI_RESET_WEAPON_STATE:
+        botlib_export!.ai.runBotResetWeaponState(args[1])
+        return 0
+
+    case BOTLIB_AAS_BBOX_AREAS, BOTLIB_AAS_TRACE_AREAS, BOTLIB_AAS_VALUE_FOR_BSP_EPAIR_KEY, BOTLIB_AAS_VECTOR_FOR_BSP_EPAIR_KEY,
+         BOTLIB_AAS_FLOAT_FOR_BSP_EPAIR_KEY, BOTLIB_AAS_INT_FOR_BSP_EPAIR_KEY,
+         BOTLIB_EA_SAY, BOTLIB_EA_SAY_TEAM, BOTLIB_EA_COMMAND,
+         BOTLIB_AI_LOAD_CHARACTER, BOTLIB_AI_QUEUE_CONSOLE_MESSAGE, BOTLIB_AI_INITIAL_CHAT, BOTLIB_AI_NUM_INITIAL_CHATS,
+         BOTLIB_AI_REPLY_CHAT, BOTLIB_AI_STRING_CONTAINS, BOTLIB_AI_FIND_MATCH, BOTLIB_AI_UNIFY_WHITE_SPACES,
+         BOTLIB_AI_REPLACE_SYNONYMS, BOTLIB_AI_LOAD_CHAT_FILE, BOTLIB_AI_SET_CHAT_NAME,
+         BOTLIB_AI_CHOOSE_LTG_ITEM, BOTLIB_AI_CHOOSE_NBG_ITEM, BOTLIB_AI_GET_LEVEL_ITEM_GOAL, BOTLIB_AI_GET_MAP_LOCATION_GOAL,
+         BOTLIB_AI_LOAD_ITEM_WEIGHTS, BOTLIB_AI_SAVE_GOAL_FUZZY_LOGIC,
+         BOTLIB_AI_CHOOSE_BEST_FIGHT_WEAPON, BOTLIB_AI_LOAD_WEAPON_WEIGHTS,
          BOTLIB_AI_GENETIC_PARENTS_AND_CHILD_SELECTION:
-        // Port-note: Row B1. `botlib_export_t` has no host form, and `botlib_export` has no storage, so these 123 arms are one hole.
-        // Raven wrote: the botlib_export calls of sv_game.cpp:981 to :1311.
+        // Port-note: Row B5. The run methods of these 29 arms take a `char *`, an `int *`, or a `float (*)[3]` of the module as an untyped OpaquePointer, so the arms are one hole.
+        // Raven wrote: the botlib_export calls of these arms in sv_game.cpp:981 to :1311.
         portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
 
-    case G_R_REGISTERSKIN,
-         G_G2_LISTBONES, G_G2_LISTSURFACES, G_G2_HAVEWEGHOULMODELS, G_G2_SETMODELS, G_G2_GETBOLT, G_G2_GETBOLT_NOREC,
+    case G_R_REGISTERSKIN:
+        return Int(RE_RegisterServerSkin(args.VMA(1)))
+
+    case G_G2_CLEARATTACHEDINSTANCE:
+        G2API_ClearAttachedInstance(args[1])
+        return 0
+
+    case G_G2_CLEANENTATTACHMENTS:
+        G2API_CleanEntAttachments()
+        return 0
+
+    case G_G2_LISTBONES, G_G2_LISTSURFACES, G_G2_HAVEWEGHOULMODELS, G_G2_SETMODELS, G_G2_GETBOLT, G_G2_GETBOLT_NOREC,
          G_G2_GETBOLT_NOREC_NOROT, G_G2_INITGHOUL2MODEL, G_G2_SETSKIN, G_G2_SIZE, G_G2_ADDBOLT, G_G2_SETBOLTINFO,
          G_G2_ANGLEOVERRIDE, G_G2_PLAYANIM, G_G2_GETBONEANIM, G_G2_GETGLANAME, G_G2_COPYGHOUL2INSTANCE,
          G_G2_COPYSPECIFICGHOUL2MODEL, G_G2_DUPLICATEGHOUL2INSTANCE, G_G2_HASGHOUL2MODELONINDEX, G_G2_REMOVEGHOUL2MODEL,
@@ -1106,20 +1501,34 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
          G_G2_SETROOTSURFACE, G_G2_SETSURFACEONOFF, G_G2_SETNEWORIGIN, G_G2_DOESBONEEXIST, G_G2_GETSURFACERENDERSTATUS,
          G_G2_ABSURDSMOOTHING, G_G2_SETRAGDOLL, G_G2_ANIMATEG2MODELS, G_G2_RAGPCJCONSTRAINT, G_G2_RAGPCJGRADIENTSPEED,
          G_G2_RAGEFFECTORGOAL, G_G2_GETRAGBONEPOS, G_G2_RAGEFFECTORKICK, G_G2_RAGFORCESOLVE, G_G2_SETBONEIKSTATE,
-         G_G2_IKMOVE, G_G2_REMOVEBONE, G_G2_ATTACHINSTANCETOENTNUM, G_G2_CLEARATTACHEDINSTANCE, G_G2_CLEANENTATTACHMENTS,
+         G_G2_IKMOVE, G_G2_REMOVEBONE, G_G2_ATTACHINSTANCETOENTNUM,
          G_G2_OVERRIDESERVER, G_G2_GETSURFACENAME:
-        // Port-note: Row Z6. The G2API_ stubs of G2_API.swift carry signature markers, so the arms have no callee to call.
-        // Port-note: Row Z6. These 48 arms are one hole.
-        // Raven wrote: the RE_RegisterServerSkin and G2API_ calls of sv_game.cpp:1313 to :1617.
+        // Port-note: Row Z6. Each arm reads a word of the module as the address of a `CGhoul2Info` or a `CGhoul2Info_v`, and the Swift classes have no form from a word.
+        // Port-note: Row Z6. These 45 arms are one hole.
+        // Raven wrote: the G2API_ calls of sv_game.cpp:1316 to :1617.
         portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
 
     case G_SET_ACTIVE_SUBBSP:
         SV_SetActiveSubBSP(args[1])
         return 0
 
-    case G_RMG_INIT, G_CM_REGISTER_TERRAIN:
-        // Port-note: Row C. TheRandomMissionManager and the return of CM_RegisterTerrain are C++ class instances with no port, so their 2 arms are one hole.
-        // Raven wrote: the TheRandomMissionManager and CM_RegisterTerrain calls of sv_game.cpp:1624 to :1641.
+    case G_RMG_INIT:
+        if com_RMG != nil && com_RMG!.integer != 0 {
+            if TheRandomMissionManager == nil {
+                TheRandomMissionManager = CRMManager()
+            }
+            // AI: Raven reads the class pointer `cmg.landScape` of the C record. The world holds the Swift class as `landScape_cmg`, the C field stays unused.
+            TheRandomMissionManager!.SetLandScape(landScape_cmg)
+            if TheRandomMissionManager!.LoadMission(true) {
+                TheRandomMissionManager!.SpawnMission(true)
+            }
+//			cmg.landScape->UpdatePatches();
+        }
+        return 0
+
+    case G_CM_REGISTER_TERRAIN:
+        // Port-note: Row C. CM_RegisterTerrain of cm_load.swift carries a signature marker, so the arm has no callee to call.
+        // Raven wrote: return CM_RegisterTerrain((const char *)VMA(1), true)->GetTerrainId();
         portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
 
     case G_BOT_UPDATEWAYPOINTS:
@@ -1141,6 +1550,7 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
     default:
         Com_Error(ERR_DROP, "Bad game system trap: %i", args[0])
     }
+    return -1
 }
 
 /**

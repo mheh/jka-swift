@@ -500,20 +500,17 @@ private func VectorDistance(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> F
 
 /// Source: oracle/codemp/server/sv_world.cpp:522
 private func SV_ClipMoveToEntities(_ clip: Moveclip) {
-    // Port-note: Row SV2. The static local `touchlist` has no storage, so SV_AreaEntities has no Slots to fill.
-    // Raven wrote: static int touchlist[MAX_GENTITIES];
-    let touchlist: Slots<Int32>
-    portMissing("SV_ClipMoveToEntities", source: "oracle/codemp/server/sv_world.cpp:522")
     let num: Int32
     var touch: SharedEntity?
     var passOwnerNum: Int32
-    var clipHandle: clipHandle_t
+    // The closures below capture these three locals, and Swift requires a value before a capture, so each starts at zero.
+    var clipHandle: clipHandle_t = 0
     // AI: Raven points `origin` and `angles` at vectors of the entity and only reads them. Each local holds a copy of the vector.
-    var origin: vec3_t
-    var angles: vec3_t
+    var origin = vec3_t()
+    var angles = vec3_t()
     var thisOwnerShared: Int32 = 1
 
-    num = SV_AreaEntities(clip.boxmins, clip.boxmaxs, touchlist, MAX_GENTITIES)
+    num = SV_AreaEntities(clip.boxmins, clip.boxmaxs, touchlist_SV_ClipMoveToEntities, MAX_GENTITIES)
 
     if clip.passEntityNum != ENTITYNUM_NONE {
         passOwnerNum = (SV_GentityNum(clip.passEntityNum))!.r.ownerNum
@@ -538,11 +535,11 @@ private func SV_ClipMoveToEntities(_ clip: Moveclip) {
                 if clip.trace.allsolid != 0 {
                     return
                 }
-                touch = SV_GentityNum(touchlist[i])
+                touch = SV_GentityNum(touchlist_SV_ClipMoveToEntities[i])
 
                 // see if we should ignore this entity
                 if clip.passEntityNum != ENTITYNUM_NONE {
-                    if touchlist[i] == clip.passEntityNum {
+                    if touchlist_SV_ClipMoveToEntities[i] == clip.passEntityNum {
                         i += 1
                         continue // don't clip against the pass entity
                     }
@@ -628,7 +625,7 @@ private func SV_ClipMoveToEntities(_ clip: Moveclip) {
                 if (clip.traceFlags & G2TRFLAG_DOGHOULTRACE) != 0 && trace.entityNum == touch!.s.number && touch!.ghoul2 != nil
                     && ((clip.traceFlags & G2TRFLAG_HITCORPSES) != 0 || (touch!.s.eFlags & EF_DEAD) == 0) {
                     //standard behavior will be to ignore g2 col on dead ents, but if traceFlags is set to allow, then we'll try g2 col on EF_DEAD people too.
-                    // Port-note: Row Z6. `G2Trace_t` has no view, and G2API_CollisionDetect and G2API_CollisionDetectCache carry signature markers.
+                    // Port-note: Row Z6. The static `G2Trace_t G2Trace` has no storage, and `touch->ghoul2` is a word with no form as the Swift class `CGhoul2Info_v`.
                     // Raven wrote: static G2Trace_t G2Trace; ... the Ghoul2 collision test of sv_world.cpp:692 to :782, with oldTrace and VectorDistance.
                     portMissing("SV_ClipMoveToEntities", source: "oracle/codemp/server/sv_world.cpp:522")
                 }

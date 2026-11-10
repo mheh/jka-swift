@@ -1039,14 +1039,21 @@ func SE_ShutDown() {
 //
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:1208
 func SE_LoadLanguage(_ psLanguage: String, _ bLoadDebug: Bool = true) -> String? {
-    let psErrorMessage: String? = nil
+    var psErrorMessage: String? = nil
 
     if !psLanguage.isEmpty {
         SE_NewLanguage()
 
-        // Port-note: Row S6. Raven calls SE_Load with two arguments, and the stub has no default for `bFailIsCritical`, so the load stops here.
-        // Raven wrote: string strResults; SE_BuildFileList( sSE_STRINGS_DIR, strResults ); LPCSTR p; while ( (p=SE_GetFoundFile (strResults)) != NULL && !psErrorMessage ) { LPCSTR psThisLang = TheStringPackage.ExtractLanguageFromPath( p ); if ( !stricmp( psLanguage, psThisLang ) ) { psErrorMessage = SE_Load( p, bLoadDebug ); } }
-        portMissing("SE_LoadLanguage", source: "oracle/codemp/qcommon/stringed_ingame.cpp:1216")
+        var strResults = ""
+        /*int iFilesFound = */SE_BuildFileList(sSE_STRINGS_DIR, &strResults)
+
+        while let p = SE_GetFoundFile(&strResults), psErrorMessage == nil {
+            let psThisLang = TheStringPackage.ExtractLanguageFromPath(p)
+
+            if stricmp(psLanguage, psThisLang) == 0 {
+                psErrorMessage = SE_Load(p, bLoadDebug)
+            }
+        }
     } else {
         //	__ASSERT( 0 && "SE_LoadLanguage(): Bad language name!" );
     }

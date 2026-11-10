@@ -122,6 +122,8 @@ final class CBoneCache {
 //rww - RAGDOLL_BEGIN
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:267
     private func SmoothLow(_ index: Int32) {
+        // Raven calls this method only from EvalRender, and each call of EvalRender stands under the undefined G2EVALRENDER, `#if 0`, or `_XBOX`.
+        // The calls stand at tr_ghoul2.cpp:3033, :3063, :3093, :3184, :4272, :4287, and :559, so the method is dead in the dedicated build.
         // TODO: Port CBoneCache::SmoothLow
         portMissing("CBoneCache::SmoothLow", source: "oracle/codemp/renderer/tr_ghoul2.cpp:267")
     }
@@ -129,8 +131,45 @@ final class CBoneCache {
 
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:390
     init(_ amod: Model?, _ aheader: MdxaHeader?) {
-        // TODO: Port CBoneCache::CBoneCache
-        portMissing("CBoneCache::CBoneCache", source: "oracle/codemp/renderer/tr_ghoul2.cpp:390")
+        self.mod = amod
+        self.header = aheader
+        assert(amod != nil)
+        assert(aheader != nil)
+        self.mSmoothingActive = false
+        self.mUnsquash = false
+        self.mSmoothFactor = 0.0
+
+        let numBones = self.header!.numBones
+        // Raven's `resize` constructs each new element.
+        while self.mBones.count < numBones {
+            self.mBones.append(SBoneCalc())
+        }
+        while self.mFinalBones.count < numBones {
+            self.mFinalBones.append(CTransformBone())
+        }
+        while self.mSmoothBones.count < numBones {
+            self.mSmoothBones.append(CTransformBone())
+        }
+//		mSkels.resize(numBones);
+        //rww - removed mSkels
+        let offsets: MdxaSkelOffsets
+        var skel: MdxaSkel
+        offsets = MdxaSkelOffsets(self.header!, byteOffset: MdxaHeader.byteCount)
+
+        var i: Int32
+        i = 0
+        while i < numBones {
+            skel = MdxaSkel(self.header!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[i])
+            //mSkels[i]=skel;
+            //ditto
+            self.mFinalBones[i].parent = skel.parent
+            i += 1
+        }
+        self.mCurrentTouch = 3
+//rww - RAGDOLL_BEGIN
+        self.mLastTouch = 2
+        self.mLastLastTouch = 1
+//rww - RAGDOLL_END
     }
 
     deinit {

@@ -658,9 +658,7 @@ func CMod_LoadPatches(_ surfs: JKAMP.Lump, _ verts: JKAMP.Lump, _ cm: ClipMap) {
         patch.surfaceFlags = cm.shadersSlots[shaderNum].surfaceFlags
 
         // create the internal facet structure
-        // Port-note: CM_GeneratePatchCollide takes `points` as one `inout vec3_t`, and Raven passes the array `vec3_t points[MAX_PATCH_VERTS]`.
-        // Raven wrote: patch->pc = CM_GeneratePatchCollide( width, height, points );
-        portMissing("CMod_LoadPatches", source: "oracle/codemp/qcommon/cm_load.cpp:483")
+        patch.pc = CM_GeneratePatchCollide(width, height, points)
         i += 1
     }
 }
@@ -1152,10 +1150,12 @@ func CM_ShutdownTerrain(_ terrainId: JKAShared.thandle_t) {
     // AI: Raven reads the class pointer `cmg.landScape` of the C record. The world holds the Swift class as `landScape_cmg`, the C field stays unused.
     landscape = landScape_cmg
 
-    if landscape != nil {
-        // Port-note: Row CM6. `CCMLandScape` of cm_landscape.h:135 is a class of the C++ track, and stage E5 gives its methods no Swift name.
-        // Raven wrote: landscape->DecreaseRefCount(); if(landscape->GetRefCount() <= 0) { delete landscape; cmg.landScape = NULL; }
-        portMissing("CM_ShutdownTerrain", source: "oracle/codemp/qcommon/cm_load.cpp:1065")
+    if let landscape {
+        landscape.DecreaseRefCount()
+        if landscape.GetRefCount() <= 0 {
+            // AI: Raven deletes the landscape and then clears `cmg.landScape`. The store of nil releases the class, and its deinit runs Raven's destructor.
+            landScape_cmg = nil
+        }
     }
 }
 
