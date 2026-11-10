@@ -390,6 +390,9 @@ class Types:
         if facts.ruled == "int_array":
             # The body only reads the values, and Raven's callers pass NULL with a count of zero, so the array crosses by value as an optional.
             return Answer("[Int32]?", "int_array")
+        if facts.ruled == "byte_offset":
+            # A pointer into a byte buffer the body subtracts the base from is its byte offset, the pointer-into-a-buffer rule, row TR20.
+            return Answer("Int32", "bare")
         if facts.ruled == "byte_array":
             # The body only reads the bytes, and every caller passes a byte table that is a Swift array, so the array crosses by value.
             return Answer("[JKAShared.byte]", "bare")

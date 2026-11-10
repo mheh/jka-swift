@@ -693,6 +693,12 @@ class Skeleton:
             var.reason = "storage"
             var.view = self.table.views.qualified_view(record, C_TARGET)
             var.count = canonical.element_count if depth and canonical.kind == TypeKind.CONSTANTARRAY else 0
+            # A record array of more than one dimension is one flat Slots of every record, `texMods[MAX_SHADER_STAGES][TR_MAX_TEXMODS]`
+            # of tr_shader.cpp:102, and a row reads `suffix(from:)` at its first record, the form of the flat two-dimensional tables, row TR17.
+            inner = canonical.element_type.get_canonical() if var.count else None
+            while inner is not None and inner.kind == TypeKind.CONSTANTARRAY:
+                var.count *= inner.element_count
+                inner = inner.element_type.get_canonical()
             var.swift = f"Slots<{var.view}>" if depth else var.view
             return
         if self.table.views.is_vec3(t) or (depth and "vec3_t" in t.spelling):
@@ -1694,8 +1700,11 @@ class Skeleton:
                     # A parameter of a ruling is one slot.
                     count = str(var.count)
                 elif var.count:
-                    bound = declaration[declaration.index("[") + 1:declaration.index("]")].strip()
-                    count = f"Int({exported[bound]}.{bound})" if bound in exported else str(var.count)
+                    # Each bound of the declaration is one factor, so a record array of two dimensions takes every record, row TR17.
+                    bounds = [b.strip() for b in re.findall(r"\[([^\]]*)\]", declaration)]
+                    if var.kind in ("byte_storage", "pointer_table"):
+                        bounds = bounds[:1]
+                    count = " * ".join(f"Int({exported[b]}.{b})" for b in bounds) if all(b in exported for b in bounds) else str(var.count)
                 if var.kind == "byte_storage" and var.swift == "Slots<JKAShared.vec3_t>":
                     # A `vec3_t` array local of a ruling, one zeroed allocation of Raven's 12-byte vectors.
                     inits.append(f"        self.{var.field} = Slots(vectors: {cls}.bytes(count: {count} * JKAShared.vec3_t.byteCount), count: {count})")

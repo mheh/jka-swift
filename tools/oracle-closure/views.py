@@ -529,14 +529,32 @@ class Generator:
                 # An element of one byte has no padding before it, so the array starts where the field before it ends.
                 fields = [f for f in field.semantic_parent.get_children() if f.kind == CursorKind.FIELD_DECL]
                 at = fields.index(field)
-                if canonical.element_type.get_canonical().get_size() != 1 or at == 0 \
-                        or fields[at - 1].type.get_canonical().kind == TypeKind.CONSTANTARRAY \
-                        and fields[at - 1].type.get_canonical().element_count > IMPORT_LIMIT:
-                    return None
-                before = fields[at - 1].spelling
                 c_type = self.swift_c_type(self.owner_of(field))
-                address = f"(UnsafeMutableRawPointer(self.raw) + MemoryLayout<{c_type}>.offset(of: \\.{before})! + MemoryLayout.size(ofValue: self.raw.pointee.{before}))"
-                note = [f"    // Swift imports no C array of more than {IMPORT_LIMIT} elements, so the array starts where `{before}` ends."]
+
+                def imported(f: ci.Cursor) -> bool:
+                    ft = f.type.get_canonical()
+                    return not (ft.kind == TypeKind.CONSTANTARRAY and ft.element_count > IMPORT_LIMIT)
+
+                element = canonical.element_type.get_canonical()
+                if element.kind == TypeKind.POINTER and at > 0 and imported(fields[at - 1]):
+                    # An array of record pointers, `shader_t *shaders[MAX_SHADERS]` of trGlobals_t, starts at the end of the field before it,
+                    # rounded up to the alignment of a pointer, row TR16.
+                    before = fields[at - 1].spelling
+                    address = f"(UnsafeMutableRawPointer(self.raw) + MemoryLayout<{c_type}>.offset(of: \\.{before})! + MemoryLayout.size(ofValue: self.raw.pointee.{before}))" \
+                        f".alignedUp(toMultipleOf: MemoryLayout<UnsafeRawPointer?>.alignment)"
+                    note = [f"    // Swift imports no C array of more than {IMPORT_LIMIT} elements, so the array starts where `{before}` ends, at pointer alignment."]
+                elif element.kind == TypeKind.POINTER and at + 1 < len(fields) and imported(fields[at + 1]):
+                    # The field before is an array over the limit too, `sortedShaders` after `shaders`, so the array ends where the field after it
+                    # starts. A field after an array of pointers has no padding before it.
+                    after = fields[at + 1].spelling
+                    address = f"(UnsafeMutableRawPointer(self.raw) + MemoryLayout<{c_type}>.offset(of: \\.{after})! - {count} * MemoryLayout<UnsafeRawPointer?>.stride)"
+                    note = [f"    // Swift imports no C array of more than {IMPORT_LIMIT} elements, so the array ends where `{after}` starts."]
+                elif element.get_size() != 1 or at == 0 or not imported(fields[at - 1]):
+                    return None
+                else:
+                    before = fields[at - 1].spelling
+                    address = f"(UnsafeMutableRawPointer(self.raw) + MemoryLayout<{c_type}>.offset(of: \\.{before})! + MemoryLayout.size(ofValue: self.raw.pointee.{before}))"
+                    note = [f"    // Swift imports no C array of more than {IMPORT_LIMIT} elements, so the array starts where `{before}` ends."]
             mapped = self.element(self.element_type(t), target, address, field)
             if mapped is None:
                 return None
@@ -556,6 +574,9 @@ class Generator:
                 return self.property(name, view, f"{view}(handle: OpaquePointer(self.raw.pointer(to: \\.{name})!))",
                                      f"{pointee} = UnsafeMutablePointer(newValue.handle).pointee")
             return None
+        if canonical.kind == TypeKind.BOOL:
+            # A C++ `bool` field of a C_STRUCT_CLASSES record, which C spells `_Bool`, imports as Swift's Bool, the TYPES `Bool` rows of row TR3, row TR15.
+            return self.property(name, "Bool", pointee, f"{pointee} = newValue")
         swift = self.types.scalar(t, target)
         if swift is None:
             return None

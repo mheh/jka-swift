@@ -870,6 +870,7 @@ ENUM_TYPEDEFS = {"memtag_t"}
 #   optional_raw   an UnsafeMutableRawPointer?, the `raw` return of a function that returns NULL on one path
 #   string_list    a [String], for a `char **` list of zone texts with its count beside it, the file lists of files_pc.cpp and win_main.cpp
 #   class_ref      the Swift class of a C++ class of CXX_CLASSES, optional, for a pointer to an instance Raven returns or NULL
+#   int32          an Int32, for an `unsigned` mask Raven returns into an `int` of every caller
 RETURNS = {
     # get_ppnode of huffman.cpp:48 returns the address of a `node_t *` slot of `nodePtrs` or of the free list.
     "get_ppnode": "slot",
@@ -973,6 +974,9 @@ RETURNS = {
     # which the loaders cast to their header at :718, :841, and :1467. The `pModelDiskImage` field is a Slots of bytes.
     "RE_RegisterModels_Malloc": "bytes",
     "RE_RegisterServerModels_Malloc": "bytes",
+    # NameToAFunc of tr_shader.cpp:358 returns `unsigned`, and ParseStage stores it into `int atestBits` at :1502. GLS_ATEST_GE_C0 is the unsigned 0x80000000,
+    # so the body spells it as the Int32 complement, the form of CONTENTS_TRANSLUCENT in cm_shader.swift, row TR18.
+    "NameToAFunc": "int32",
 }
 
 # Allocators whose `char *` result a body holds as a CharBuf of the constant size Raven asks for, when every store into the local is that call.
@@ -993,6 +997,7 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #   int_array  an [Int32]? by value for a read-only `int *` with a count beside it, and a caller's NULL is nil
 #   int_array_mut  an inout [Int32] for an `int *` the body writes by index, the `int` twin of float_array
 #   byte_array  a [byte] by value for a read-only `const byte *` table every caller passes as a Swift array, the byte twin of int_array
+#   byte_offset  an Int32 byte offset for a pointer into a byte buffer the body turns into an offset from the buffer base
 #   pointer_table  a Slots<View?> over a file-scope array of struct pointers, whose base a trap hands to the engine
 #   key_path  a KeyPath<Entity, String?> for an `int` field offset Raven takes from `FOFS(field)`, which a call site spells `\.field`
 #   int_value  an Int32 by value for a `const void *` a qsort comparator reads as `*(int *)`, so the comparator is `(Int32, Int32) -> Int32`
@@ -1242,6 +1247,10 @@ PARAMS = {
     ("ServerLoadMDXA", "buffer"): "bytes",
     ("ServerLoadMDXM", "buffer"): "bytes",
     ("R_LoadMD3", "buffer"): "bytes",
+    # RE_RegisterModels_StoreShaderRequest subtracts the disk image base from both pointers at tr_model.cpp:87 and :88 and stores the offsets, row TR20.
+    # The callers at tr_model.cpp:898 and :1580 and tr_ghoul2.cpp:4939 pass field addresses inside that image.
+    ("RE_RegisterModels_StoreShaderRequest", "psShaderName"): "byte_offset",
+    ("RE_RegisterModels_StoreShaderRequest", "piShaderIndexPoke"): "byte_offset",
     # R_LoadMDXA and R_LoadMDXM of tr_ghoul2.cpp:5256 and :4816 take the same buffer from RE_RegisterModel_Actual at tr_model.cpp:1325 and :1329.
     ("R_LoadMDXA", "buffer"): "bytes",
     ("R_LoadMDXM", "buffer"): "bytes",

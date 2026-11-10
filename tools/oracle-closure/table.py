@@ -2174,6 +2174,9 @@ class Table:
             return ("OpaquePointer?", "")
         if ruled == "row_index":
             return ("Int32?", "")
+        if ruled == "int32":
+            # An `unsigned` mask Raven returns into an `int` of every caller, NameToAFunc of tr_shader.cpp:358, is the Int32 of the masks, row TR18.
+            return ("Int32", "")
         if ruled == "word":
             # The module returns a pointer-wide word, the text of GAME_CLIENT_CONNECT, so the return keeps the whole word of the export.
             return ("Int", "")
