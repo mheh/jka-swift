@@ -288,9 +288,7 @@ func AAS_WriteAASLump(_ fp: JKAShared.fileHandle_t, _ h: AasHeader, _ lumpnum: I
     lump.filelen = length
 
     if length > 0 {
-        // Port-note: runFS_Write takes a Slots of bytes, and no form binds the OpaquePointer `data` without an `Unsafe` type.
-        // Raven wrote: botimport.FS_Write(data, length, fp );
-        portMissing("botimport.FS_Write", source: "oracle/codemp/botlib/be_aas_file.cpp:492")
+        botimport.runFS_Write(Slots<byte>(scalars: data!, count: Int(length)), length, fp)
     } //end if
 
     AAS_WriteAASLump_offset += length

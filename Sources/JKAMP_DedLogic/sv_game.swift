@@ -1159,9 +1159,9 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
         return Int(botlib_export!.aas.runAAS_VectorForBSPEpairKey(args[1], args.VMA(2), &v[0]))
 
     case BOTLIB_AAS_FLOAT_FOR_BSP_EPAIR_KEY:
-        // Port-note: Row X2. The run method takes the module's `float *` as one `inout vec3_t`, and Raven passes one float or a list of floats, so a copy of three floats is wrong.
-        // Raven wrote: return botlib_export->aas.AAS_FloatForBSPEpairKey( args[1], (char *)VMA(2), (float *)VMA(3) );
-        portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
+        // AI: Raven hands the module's float to the callee by address. The arm hands the slot of the Slots at the word.
+        let value: Slots<Float> = args.VMA(3)
+        return Int(botlib_export!.aas.runAAS_FloatForBSPEpairKey(args[1], args.VMA(2), &value[0]))
 
     case BOTLIB_AAS_INT_FOR_BSP_EPAIR_KEY:
         return Int(botlib_export!.aas.runAAS_IntForBSPEpairKey(args[1], args.VMA(2), args.VMA(3)))
@@ -1599,9 +1599,7 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
         return 0
 
     case BOTLIB_AI_GENETIC_PARENTS_AND_CHILD_SELECTION:
-        // Port-note: Row X2. The run method takes the module's `float *` as one `inout vec3_t`, and Raven passes one float or a list of floats, so a copy of three floats is wrong.
-        // Raven wrote: return botlib_export->ai.GeneticParentsAndChildSelection(args[1], (float *)VMA(2), (int *)VMA(3), (int *)VMA(4), (int *)VMA(5));
-        portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
+        return Int(botlib_export!.ai.runGeneticParentsAndChildSelection(args[1], args.VMA(2), args.VMA(3), args.VMA(4), args.VMA(5)))
 
     case G_R_REGISTERSKIN:
         return Int(RE_RegisterServerSkin(args.VMA(1)))

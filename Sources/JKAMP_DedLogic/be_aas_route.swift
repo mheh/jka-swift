@@ -1090,12 +1090,13 @@ func AAS_WriteRouteCache() {
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1014
 func AAS_ReadCache(_ fp: JKAShared.fileHandle_t) -> AasRoutingcache? {
-    let size: Int32 = 0
+    let size: Int32
     var cache: AasRoutingcache
 
-    // Port-note: runFS_Read takes a Slots of bytes, and no form gives the bytes of the scalar `size` without a new helper.
-    // Raven wrote: botimport.FS_Read(&size, sizeof(size), fp);
-    portMissing("botimport.FS_Read", source: "oracle/codemp/botlib/be_aas_route.cpp:1019")
+    // AI: Raven reads into an `int` local through its address. The local is a CharBuf of the four bytes, and the read gives the `int` of them.
+    var sizeBytes = CharBuf(Int32.byteCount)
+    sizeBytes.withMutableSlots { _ = botimport.runFS_Read($0, Int32(Int32.byteCount), fp) }
+    size = sizeBytes.withSlots { $0[int: 0] }
     let block = GetMemory(size)!
     cache = AasRoutingcache(block)
     cache.size = size

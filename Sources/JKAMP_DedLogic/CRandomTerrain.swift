@@ -14,14 +14,12 @@ final class CRandomTerrain {
     private var mBorder: Int32 = 0
     // AI: Raven holds the height map of the landscape as `byte *`. The field is the Slots over the bytes, the form of `mHeightMap` of CCMLandScape.
     private var mGrid: Slots<JKAShared.byte>? = nil
-    // TODO: Port mPaths
-    // Raven wrote: CPathInfo			*mPaths[MAX_RANDOM_PATHS];
+    // AI: Raven declares MAX_RANDOM_PATHS pointers by value. The field is an Array of the optional class, rule 17.
+    private var mPaths: [CPathInfo?] = [CPathInfo?](repeating: nil, count: Int(MAX_RANDOM_PATHS))
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:563
     init() {
-        // Port-note: The class holds no `mPaths`, because `CPathInfo` has no Swift class.
-        // Raven wrote: memset(mPaths, 0, sizeof(mPaths));
-        portMissing("CRandomTerrain::CRandomTerrain", source: "oracle/codemp/qcommon/cm_randomterrain.cpp:563")
+        // AI: Raven zeroes the MAX_RANDOM_PATHS pointers with memset. The field initializer already gives nil pointers, so the call drops.
     }
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:568
@@ -84,10 +82,7 @@ final class CRandomTerrain {
     }
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:628
-    // TODO: Port signature
-    // Raven wrote: bool CRandomTerrain::GetPathInfo(int PathNum, float PercentInto, vec4_t Coord, vec4_t Vector)
-    // No table row for the `vec4_t` outputs `Coord` and `Vector`.
-    func GetPathInfo() -> Never {
+    func GetPathInfo(_ PathNum: Int32, _ PercentInto: Float, _ Coord: inout JKAShared.vec4_t, _ Vector: inout JKAShared.vec4_t) -> Bool {
         // Raven calls this method only from a client build, so it is dead.
         // TODO: Port CRandomTerrain::GetPathInfo
         portMissing("CRandomTerrain::GetPathInfo", source: "oracle/codemp/qcommon/cm_randomterrain.cpp:628")
@@ -113,9 +108,18 @@ final class CRandomTerrain {
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:584
     func ClearPaths() {
-        // Raven calls this method only from a client build, so it is dead.
-        // Port-note: The class holds no `mPaths`, because `CPathInfo` has no Swift class.
-        // Raven wrote: for(i=0;i<MAX_RANDOM_PATHS;i++) { if (mPaths[i]) { delete mPaths[i]; mPaths[i] = 0; } } memset(mPaths, 0, sizeof(mPaths));
-        portMissing("CRandomTerrain::ClearPaths", source: "oracle/codemp/qcommon/cm_randomterrain.cpp:584")
+        var i: Int32
+
+        i = 0
+        while i < MAX_RANDOM_PATHS {
+            if self.mPaths[i] != nil {
+                // AI: Raven deletes the path and zeroes the pointer. The store of nil releases the class, and its deinit runs Raven's destructor.
+                self.mPaths[i] = nil
+            }
+            i += 1
+        }
+
+        // AI: Raven zeroes the MAX_RANDOM_PATHS pointers with memset. The store of a nil-filled array clears them.
+        self.mPaths = [CPathInfo?](repeating: nil, count: Int(MAX_RANDOM_PATHS))
     }
 }
