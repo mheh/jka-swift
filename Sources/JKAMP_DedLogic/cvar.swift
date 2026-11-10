@@ -54,11 +54,8 @@ var memPoolSize: Int32 {
 //If the string came from the memory pool, don't really free it.  The entire
 //memory pool will be wiped during the next level load.
 /// Source: oracle/codemp/qcommon/cvar.cpp:26
-// Not ported: no caller, because the string pool holds every cvar string and each caller drops the free.
-private func Cvar_FreeString(_ string: inout JKAShared.CharBuf) {
-    // TODO: Port Cvar_FreeString
-    portMissing("Cvar_FreeString", source: "oracle/codemp/qcommon/cvar.cpp:26")
-}
+// Raven wrote: static void Cvar_FreeString(char *string)
+// Not ported: the string pool holds every cvar string, and each caller drops the free under an AI line.
 
 /**
 ```

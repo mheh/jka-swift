@@ -180,9 +180,14 @@ func BotRemoveConsoleMessage(_ chatstate: Int32, _ handle: Int32) {
     m = cs.firstmessage
     while m != nil {
         nextm = m!.next
-        // Port-note: The `handle` field of `bot_consolemessage_t` has no accessor in its view, row P2 of the bot-ai round.
-        // Raven wrote: if (m->handle == handle) { if (m->next) m->next->prev = m->prev; else cs->lastmessage = m->prev; if (m->prev) m->prev->next = m->next; else cs->firstmessage = m->next; FreeConsoleMessage(m); cs->numconsolemessages--; break; }
-        portMissing("BotRemoveConsoleMessage", source: "oracle/codemp/botlib/be_ai_chat.cpp:279")
+        if m!.messageHandle == handle {
+            if m!.next != nil { m!.next!.prev = m!.prev } else { cs.lastmessage = m!.prev }
+            if m!.prev != nil { m!.prev!.next = m!.next } else { cs.firstmessage = m!.next }
+
+            FreeConsoleMessage(m!)
+            cs.numconsolemessages -= 1
+            break
+        }
         m = nextm
     }
 }
@@ -201,9 +206,9 @@ func BotQueueConsoleMessage(_ chatstate: Int32, _ type: Int32, _ message: String
         botimport.runPrint(PRT_ERROR, "empty console message heap\n")
         return
     }
-    // Port-note: The `handle` fields of `bot_chatstate_t` and `bot_consolemessage_t` have no accessor in their views, row P2 of the bot-ai round.
-    // Raven wrote: cs->handle++; if (cs->handle <= 0 || cs->handle > 8192) cs->handle = 1; m->handle = cs->handle;
-    portMissing("BotQueueConsoleMessage", source: "oracle/codemp/botlib/be_ai_chat.cpp:309")
+    cs.chatHandle += 1
+    if cs.chatHandle <= 0 || cs.chatHandle > 8192 { cs.chatHandle = 1 }
+    m.messageHandle = cs.chatHandle
     m.time = AAS_Time()
     m.type = type
     strncpy(&m.messageBuffer, message, MAX_MESSAGE_SIZE)
@@ -233,9 +238,7 @@ func BotNextConsoleMessage(_ chatstate: Int32, _ cm: BotConsolemessage) -> Int32
         cm.copy(from: cs.firstmessage!)
         cm.prev = nil
         cm.next = cm.prev
-        // Port-note: The `handle` field of `bot_consolemessage_t` has no accessor in its view, row P2 of the bot-ai round.
-        // Raven wrote: return cm->handle;
-        portMissing("BotNextConsoleMessage", source: "oracle/codemp/botlib/be_ai_chat.cpp:350")
+        return cm.messageHandle
     }
     return 0
 }
