@@ -512,8 +512,11 @@ class Skeleton:
             for macro in macros:
                 owners[macro.name].add(target_of(stem) + "/" + stem)
         for stem, macros in self.macros.items():
+            # A host .cpp macro with the name of an exported constant is private, or its `let` hides the export in the whole target.
+            # be_aas_entity.cpp:29 defines MASK_SOLID as CONTENTS_PLAYERCLIP, and SV_OrgVisibleBox of sv_bot.cpp reads the MASK_SOLID of bg_public.h:1171.
+            exported = self.exported_of(stem) if C.HOST else {}
             for macro in macros:
-                macro.shared = len(owners[macro.name]) > 1
+                macro.shared = len(owners[macro.name]) > 1 or macro.name in exported
 
     def collect_file_enums(self) -> dict[str, list[tuple[int, list[str]]]]:
         """The .c enums extract.py leaves in their .c file because another .c file declares their names differently, per stem.
@@ -750,8 +753,9 @@ class Skeleton:
                     var.view = inner[:-1]
                     var.count = canonical.element_count
                     return
-        elif depth <= 1 and var.local and (element.kind in INT_ELEMENTS or typed in TYPES):
+        elif depth <= 1 and (var.local or var.name in BYTE_STORAGE_VARS) and (element.kind in INT_ELEMENTS or typed in TYPES):
             # A BYTE_STORAGE_LOCALS ruling moves an `int` array local, or an `int` parameter whose address Raven takes, to the storage class.
+            # A BYTE_STORAGE_VARS ruling moves a file-scope `int` array that a body steps through a pointer, `tempDependents` of G2_bones.cpp:1219.
             # The body hands it on as bytes, `MD4Final((unsigned char *)digest, &ctx)`, through the `bytes` view of the Slots.
             # A TYPES typedef keeps its spelling, so `UINT4 x[16]` of MD4Transform is a Slots of UInt32 and not of the canonical `unsigned long`.
             var.reason = "byte_storage"

@@ -512,6 +512,9 @@ class Types:
             if inner.kind == TypeKind.VOID:
                 return Answer("OpaquePointer?", "bare")
             if inner.kind == TypeKind.POINTER and inner.get_pointee().get_canonical().kind == TypeKind.VOID:
+                if facts.ruled == "text_cursor":
+                    # A `void **` that the body casts to `char **` for a text cursor, Q3_ReadScript of Q3_Interface.cpp:45.
+                    return Answer("inout JKAShared.TextCursor", "text_cursor")
                 # The address of a `void *` the engine fills or clears, one word up from the handle it holds.
                 return Answer("inout OpaquePointer?", "out_opaque")
             if inner.kind == TypeKind.POINTER and inner.get_pointee().get_canonical().kind == TypeKind.CHAR_S:

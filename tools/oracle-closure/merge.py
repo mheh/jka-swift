@@ -374,14 +374,16 @@ def partition_tree(tree: str, headers: dict[str, dict[str, Header]], abi_only: b
                     continue
                 p = placed.get(identity)
                 split = any(key.startswith(f"{identity}@") for key in placed)
+                # The host reads a placed file only in a target it depends on. A file of one module target, g_nav.h of the game, is out of its reach.
+                visible = p is not None and p.target in TARGET_DEPS[HOST_TARGET]
                 if p is None and not split:
                     placed[identity] = Placed(identity, HOST_TARGET, h)
-                elif (not split and h.is_constants and {n for n, _, _ in h.macros} <= {n for n, _, _ in p.header.macros}
+                elif (not split and visible and h.is_constants and {n for n, _, _ in h.macros} <= {n for n, _, _ in p.header.macros}
                       and not disagreeing_macros({m: h, "tree": p.header})):
                     # The tree carries the union of a constants file, so a host that reads a subset of its macros with the same text
                     # reads the tree's file, and no header path stands in two module maps.
                     continue
-                elif split or p.header.key != h.key:
+                elif split or not visible or p.header.key != h.key:
                     placed[f"{identity}@{m}"] = Placed(identity, HOST_TARGET, h, conflict=m)
         return placed
     identities = set()

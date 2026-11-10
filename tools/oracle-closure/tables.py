@@ -210,6 +210,27 @@ DED_PIECES: tuple[Piece, ...] = (
     Piece(own=(
         "structdef_t projectileinfo_struct = {",
     ), source="codemp/botlib/be_ai_weap.cpp", first=92, last=93),
+    # The identity matrices of the Ghoul2 code, row R3: the file-scope `identityMatrix` of tr_ghoul2.cpp, the static local of
+    # G2API_GetBoltMatrix, and the static local `id` of G2_Set_Bone_Angles_Rag and of G2_Set_Bone_Angles_IK.
+    # A static local takes the function name as a suffix, because its name stands in two functions.
+    Piece(own=(
+        "// Raven wrote `const static mdxaBone_t identityMatrix =` at tr_ghoul2.cpp:128, and ded_tables.h declares the record `extern`,",
+        "// so this declaration line and its brace are the tool's own and Raven's bytes start at his first row, row R3.",
+        "mdxaBone_t identityMatrix = {",
+    ), source="codemp/renderer/tr_ghoul2.cpp", first=130, last=133),
+    Piece(own=(
+        "// Raven wrote `const static mdxaBone_t identityMatrix =` in G2API_GetBoltMatrix at G2_API.cpp:1801, the same form.",
+        "mdxaBone_t identityMatrix_G2API_GetBoltMatrix = {",
+    ), source="codemp/ghoul2/G2_API.cpp", first=1803, last=1806),
+    Piece(own=(
+        "// Raven wrote `static mdxaBone_t id =` in G2_Set_Bone_Angles_Rag at G2_bones.cpp:1423 and in G2_Set_Bone_Angles_IK at :4575, the same form.",
+        "mdxaBone_t id_G2_Set_Bone_Angles_Rag = {",
+    ), source="codemp/ghoul2/G2_bones.cpp", first=1425, last=1428),
+    Piece(own=(
+        "mdxaBone_t id_G2_Set_Bone_Angles_IK = {",
+    ), source="codemp/ghoul2/G2_bones.cpp", first=4577, last=4580),
+    # The behavior state names of GameInterface.cpp, the twin of the game's BSTable of NPC_stats.c, row 2 of the icarus round.
+    Piece(source="codemp/icarus/GameInterface.cpp", first=592, last=606),
 )
 
 

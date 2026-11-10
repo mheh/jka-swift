@@ -318,11 +318,20 @@ HOST_ROOTS = {
     "mdxmSurfHierarchy_t": ("MdxmSurfHierarchy", "CJKAMP_Ded"),
     "mdxmHierarchyOffsets_t": ("MdxmHierarchyOffsets", "CJKAMP_Ded"),
     "mdxmLOD_t": ("MdxmLOD", "CJKAMP_Ded"),
+    # ServerLoadMDXM and R_LoadMDXM step past the offset table of a LOD by `sizeof(mdxmLODSurfOffset_t)`, tr_model.cpp:912 and tr_ghoul2.cpp:4953.
+    "mdxmLODSurfOffset_t": ("MdxmLODSurfOffset", "CJKAMP_Ded"),
     "mdxmVertex_t": ("MdxmVertex", "CJKAMP_Ded"),
     "mdxaSkel_t": ("MdxaSkel", "CJKAMP_Ded"),
     "mdxaSkelOffsets_t": ("MdxaSkelOffsets", "CJKAMP_Ded"),
     # The Ghoul2 matrices of tr_ghoul2.cpp:128 to :137 and the ragdoll table of G2_bones.cpp:1216 hold the record of q_shared.h the game views.
     "mdxaBone_t": ("MdxaBone", "CJKAMP"),
+    # The game hands these records of q_shared.h to the Ghoul2 API through its traps, G2API_SetBoneIKState, G2API_IKMove, and G2API_AddSkinGore
+    # of G2_API.cpp:1613, :1619, and :2569, and G2_SetBoneIKState hands a `sharedRagDollUpdateParams_t` local to G2_InitIK at G2_bones.cpp:4708.
+    # The game views stand in JKAMP, the mdxaBone_t row.
+    "sharedSetBoneIKStateParams_t": ("SharedSetBoneIKStateParams", "CJKAMP"),
+    "sharedIKMoveParams_t": ("SharedIKMoveParams", "CJKAMP"),
+    "sharedRagDollUpdateParams_t": ("SharedRagDollUpdateParams", "CJKAMP"),
+    "SSkinGoreData": ("SkinGoreData", "CJKAMP"),
     # The collision records of G2API_CollisionDetect and QsortDistance of G2_API.cpp:1993, row G4.
     # The game's view stands in JKAMP_Game, which the host cannot import, so the host has its own, the form of the cgame row.
     "CollisionRecord_t": ("CollisionRecord", "CJKAMP_Ded"),
@@ -331,6 +340,8 @@ HOST_ROOTS = {
     "modelHash_t": ("ModelHash", "CJKAMP_Ded"),
     # The view takes another name than the C struct, because the view target imports the C struct under its own name, the CCMShader form.
     "SRagEffector": ("RagEffector", "CJKAMP_Ded"),
+    # `static SVertexTemp GoreVerts[MAX_GORE_VERTS]` of G2_misc.cpp:793, which the gore bodies index, row R10. The SRagEffector form of the name.
+    "SVertexTemp": ("VertexTemp", "CJKAMP_Ded"),
     "contrib_t": ("Contrib", "CJKAMP_Ded"),
     "contrib_list_t": ("ContribList", "CJKAMP_Ded"),
     "vidmode_t": ("Vidmode", "CJKAMP_Ded"),
@@ -514,6 +525,13 @@ HAND_VARS = {
     "gSequencers": "[CSequencer?]",
     "gTaskManagers": "[CTaskManager?]",
     "iICARUS": "ICARUS_Instance?",
+    # The `std::map` globals of GameInterface.cpp:17 and :18, Q3_Registers.cpp:9 to :11, and navigator.cpp:1687, rows 1, 3, and 8 of the icarus round.
+    "ICARUS_BufferList": "bufferlist_t",
+    "ICARUS_EntList": "entlist_t",
+    "varStrings": "[String: String]",
+    "varFloats": "[String: Float]",
+    "varVectors": "[String: String]",
+    "CheckedNodes": "[Int32: JKAShared.byte]",
     # The Ghoul2 statics of G2_API.cpp:44 and :477, G2_bones.cpp:1218 and :1241, and G2_misc.cpp:35, :36, and :125, rows G1, G2, G2B2, and G2B3.
     "g_G2AllocTrack": "[CGhoul2Info_v?]",
     "singleton": "Ghoul2InfoArray?",
@@ -550,7 +568,9 @@ HAND_VARS = {
 # See "The post-spine walk", row P1, and the zeroed storage rule of docs/transcription.md.
 # `cmd_text_buf` of cmd_common.cpp is the buffer `cmd_text.data` points at, cmd_common.cpp:56, so its `byte` elements read as a Slots.
 # `sys_packetReceived` of win_main.cpp:1116 is the buffer of the message that Sys_GetEvent hands MSG_Init at win_main.cpp:1198, the cmd_text_buf form.
-BYTE_STORAGE_VARS = {"gSharedBuffer", "cmd_text_buf", "sys_packetReceived"}
+# `int tempDependents[MAX_BONES_RAG]` of G2_bones.cpp:1219 goes to G2_GetBoneDependents at :4112 and :4355, which fills it and steps it, row R2.
+# An `int` array of the ruling is a Slots of Int32, the form of the `int` locals of BYTE_STORAGE_LOCALS.
+BYTE_STORAGE_VARS = {"gSharedBuffer", "cmd_text_buf", "sys_packetReceived", "tempDependents"}
 # Function locals that a ruling moves to the storage class as one zeroed byte allocation, each with the functions that declare it, first one first.
 # `byte seq[65536]` of Huff_Decompress and Huff_Compress goes to the `byte *` of Huff_transmit and to Com_Memcpy, so a body needs its base.
 # The two functions never run at once, and add_bit zeroes each byte before it writes, so one allocation serves both. Row R-A of the huffman round.
@@ -631,6 +651,8 @@ BYTE_STORAGE_LOCALS = {
     ("areas", "BotReachabilityArea"): ("BotReachabilityArea",),
     ("areas", "BotMoveToGoal"): ("BotMoveToGoal",),
     ("areas", "BotExportTest"): ("BotExportTest",),
+    # `int modelList[256]` of G2_ConstructGhoulSkeleton goes to the `int *` list of G2_Sort_Models at tr_ghoul2.cpp:3592, row R8.
+    ("modelList", "G2_ConstructGhoulSkeleton"): ("G2_ConstructGhoulSkeleton",),
 }
 # A scalar data table Raven initializes at file scope that tables.py copies into C storage, which the view target reads as a Slots of its scalar.
 # `static unsigned char PADDING[64]` of md4.cpp goes to MD4Update at md4.cpp:157, whose `input` is a Slots of bytes.
@@ -840,7 +862,8 @@ TYPES = {
 # The folders whose `long`, `unsigned long`, and `long double` are the widths of WinDed, 32, 32, and 64 bits, row D5 of the ninth batch.
 # A parameter, a pointer parameter, and a return of a function of the folder take Int32, UInt32, and Double, the copy of `token_t` in ded_types.h.
 # NumberValue of l_script.cpp:541 fills `token->intvalue` and `token->floatvalue` through its two pointers. The pattern is the UINT4 row above.
-MSVC_WIDTH_FOLDERS = {"botlib"}
+# CNavigator::GetLong of navigator.cpp:557 and the CNode Save and Load of navigator.cpp:385 and :426 read and write a 4-byte `long` in a `.nav` file.
+MSVC_WIDTH_FOLDERS = {"botlib", "icarus", "NPCNav"}
 
 # A typedef Raven gives a narrow C type whose values are the enumerators of an anonymous enum, which reexport.py writes as the Int32 alias of a C enum.
 # q_shared.h:3107 declares `typedef char memtag_t` after the enum of the TAG_ names, and Z_Malloc takes the tag, so `Z_Malloc(s, TAG_BSP, qtrue)` needs no cast.
@@ -991,6 +1014,7 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #   out_string  an inout String, for a `const char **` the function sets to the token instead of walking
 #   out_optional_string  an inout String?, for a `const char **` the function sets to a text or NULL, which a caller passes as a `char *` field
 #   text_cursor  a TextCursor by value, for a `const char *` Raven passes as a cursor and returns advanced
+#                A `void **` of kind `text_cursor` is an inout TextCursor, which the body hands on as a `char **`
 #   fill_buffer  a `char *` a trap fills with no size beside it, given as ("fill_buffer", capacity) with the capacity Raven's
 #                callers declare for the buffer, and the trap returns the String the same way a sized buffer does
 #   float_array  an inout [Float] for a `float *` a body fills as a matrix of the counts beside it, or as a fixed count of floats
@@ -1034,6 +1058,8 @@ PARAMS = {
     ("G_SpawnString", "out"): "out_string",
     ("Q3_GetString", "value"): "out_string",
     ("SkipWhitespace", "data"): "text_cursor",
+    # Q3_ReadScript of Q3_Interface.cpp:45 hands `(char**)buf` to ICARUS_GetScript, whose `char **buf` is an inout TextCursor, row 6 of the icarus round.
+    ("Q3_ReadScript", "buf"): "text_cursor",
     ("trap_Bot_UpdateWaypoints", "wps"): "pointer_table",
     ("BG_ParseField", "ent"): "raw",
     ("BG_ValidateSkinForTeam", "colors"): "vec3_mut",
@@ -1260,6 +1286,19 @@ PARAMS = {
     ("G2_FindSurface", "mod_t"): ("view", "model_t"),
     # G2API_GetBoneAnim hands the caller's model list to G2_Get_Bone_Anim, row G2A6, the trap_G2API_GetBoneAnim row.
     ("G2API_GetBoneAnim", "modelList"): "model_list",
+    # G2_GetBoneDependents fills `*tempDependents` and steps the pointer at tr_ghoul2.cpp:624 to :633, and G2_bones.cpp:4112 and :4355 hand it
+    # the file-scope table of BYTE_STORAGE_VARS, row R2. An `int *` of kind `bytes` is a Slots of Int32, the SV_AreaEntities row.
+    ("G2_GetBoneDependents", "tempDependents"): "bytes",
+    # R_TransformEachSurface fills the caller's table of one word per surface at G2_misc.cpp:417, G2_TransformSurfaces hands it on at :542 and :554,
+    # and G2_TransformModel hands them `g.mTransformedVertsArray` at :651, the field of kind `bytes` on an `int *`, row R7.
+    ("R_TransformEachSurface", "TransformedVertsArray"): "bytes",
+    ("G2_TransformSurfaces", "TransformedVertArray"): "bytes",
+    # Every caller of the three passes a `vec3_t`, G2_API.cpp:1293 and :1333 and G2_bones.cpp:471, :506, and :525, rows G2A7 and R6, the CM_FindPlane row.
+    ("G2_Set_Bone_Angles_Index", "angles"): "vec3_const",
+    ("G2_Set_Bone_Angles", "angles"): "vec3_const",
+    ("G2_Generate_Matrix", "angles"): "vec3_const",
+    # Create_Matrix hands `angle` to AnglesToAxis at G2_misc.cpp:1635, and every caller passes a `vec3_t`, G2_bones.cpp:312 and G2_misc.cpp:1680 among them.
+    ("Create_Matrix", "angle"): "vec3_const",
     # QsortDistance of G2_API.cpp:1993 reads `(CollisionRecord_t *)a` and `b`, and the two collision functions sort the table with it, row G4.
     ("QsortDistance", "a"): ("view", "CollisionRecord_t"),
     ("QsortDistance", "b"): ("view", "CollisionRecord_t"),
@@ -1309,6 +1348,10 @@ DEAD = {
     "CM_StoreBrushes": "CM_BoxBrushes is the one function that stores it, and no file of either tree calls CM_BoxBrushes",
     # GetRefAPI stores R_LerpTag into `re.LerpTag` at tr_init.cpp:1488, and the client's trap_R_LerpTag reaches it. GetRefAPI is dead under row TR9.
     "R_LerpTag": "GetRefAPI is the one function that stores it, and the dedicated host does not link the client that calls GetRefAPI",
+    # G2API_SaveGhoul2Models and G2API_LoadGhoul2Models of G2_API.cpp:2472 and :2477 are the one caller of each, and no file of the MP tree calls them.
+    # The SP calls of code/game/g_savegame.cpp:856 and :1058 reach the SP tree's own G2_API.cpp, row R9.
+    "G2_SaveGhoul2Models": "G2API_SaveGhoul2Models is the one caller, and no file of the MP tree calls it",
+    "G2_LoadGhoul2Model": "G2API_LoadGhoul2Models is the one caller, and no file of the MP tree calls it",
 }
 
 # Functions of the oracle the port leaves out. The stub carries the cite, Raven's line, and the reason, and no function.
@@ -1505,6 +1548,29 @@ NULLABLE = {
     ("unzGetCurrentFileInfo", "szComment"),
     # Nine callers of AAS_TraceAreas hand NULL for `points`, be_interface.cpp:413 and be_aas_reach.cpp:1542 among them, row D16.
     ("AAS_TraceAreas", "points"),
+    # cg_players.c:3876 to :3880 hand NULL through trap_G2API_RagEffectorGoal, and the game trap of the same shape reaches sv_game.cpp:1565.
+    # The body tests `!pos` at G2_API.cpp:1552.
+    ("G2API_RagEffectorGoal", "pos"),
+    # G2_Set_Bone_Angles_Rag and G2_Set_Bone_Angles_IK default both to `0` and test `angleMin&&angleMax` at G2_bones.cpp:1411 and :4563,
+    # and G2_SetRagDoll and G2_InitIK leave both out, :1981 to :1994 and :4648 to :4660, row R4.
+    ("G2_Set_Bone_Angles_Rag", "angleMin"),
+    ("G2_Set_Bone_Angles_Rag", "angleMax"),
+    ("G2_Set_Bone_Angles_IK", "angleMin"),
+    ("G2_Set_Bone_Angles_IK", "angleMax"),
+    # bg_pmove.c:8624, :8713, and :8726 hand NULL for the bone name or the parameters through strap_G2API_SetBoneIKState,
+    # and G2_SetBoneIKState tests both at G2_bones.cpp:4674, :4698, and :4748.
+    ("G2API_SetBoneIKState", "boneName"),
+    ("G2API_SetBoneIKState", "params"),
+    ("G2_SetBoneIKState", "boneName"),
+    ("G2_SetBoneIKState", "params"),
+    # G2_SetBoneIKState hands the result of G2_GetModA to G2_InitIK at G2_bones.cpp:4708 with no test, and neither body reads it.
+    ("G2_InitIK", "mod_a"),
+    ("G2_Set_Bone_Angles_IK", "mod_a"),
+    # G2API_AddSkinGore passes `0` for the collision table at G2_API.cpp:2601, and the two collision functions pass `0` for the gore at :2110 and :2162.
+    ("G2_TraceModels", "collRecMap"),
+    ("G2_TraceModels", "gore"),
+    # tr_arioche.cpp:29 passes NULL for `timeOffset`, and R_RemapShader tests it at tr_shader.cpp:313 before the store.
+    ("R_RemapShader", "timeOffset"),
 }
 # (struct, field) pairs of a record pointer field a body indexes through a local copy or a `++` walk, which the subscript sweep cannot see.
 # The view gives the field its `<field>Slots` accessor, as the sweep does for a field a body indexes in place.

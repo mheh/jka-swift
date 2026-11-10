@@ -354,6 +354,7 @@ lang = "c++"
 # The header parse reads the stage 1 headers by hand, in the shape of mp-engine, and no botlib header, row T2.
 # The renderer header tr_local.h joins the list for the records of `tr`, the models, and the shaders, row TR1 of notes/2026-11-09/dedicated-open-rows-ledger-8.md.
 # stringed_ingame.h joins the list for its constants, row S4 of that ledger.
+# Q3_Registers.h, navigator.h, g_nav.h, and RoffSystem.h join the list for their constants, rows 4 and 5 of notes/2026-11-09/dedicated-body-round-icarus.md.
 # The null folder has no header of its own.
 # cm_local.h reaches <list> through cm_landscape.h, and the foreign triples have no C++ library, so their parse stops there.
 # The lp64 asserts alone cover the C++ reach of cm_local.h, row S2, and the ilp32 and llp64 blocks say "did not parse for" at each such record.
@@ -369,6 +370,10 @@ entry = [
     "codemp/win32/resource.h",
     "codemp/renderer/tr_local.h",
     "codemp/qcommon/stringed_ingame.h",
+    "codemp/icarus/Q3_Registers.h",
+    "codemp/server/NPCNav/navigator.h",
+    "codemp/game/g_nav.h",
+    "codemp/qcommon/RoffSystem.h",
 ]
 includes = [
     "codemp/qcommon",
