@@ -1124,9 +1124,18 @@ GetRefAPI
 */
 /// Source: oracle/codemp/renderer/tr_init.cpp:1459
 func GetRefAPI(_ apiVersion: Int32) -> Refexport? {
-    // The client's cl_main.cpp is the one caller, and the dedicated host does not link it, so the function is dead.
-    // TODO: Port GetRefAPI
-    portMissing("GetRefAPI", source: "oracle/codemp/renderer/tr_init.cpp:1459")
+    // The client's cl_main.cpp:2483 is the one caller, and the dedicated host does not link it, so the function is dead.
+    re_GetRefAPI.clear()
+
+    if apiVersion != REF_API_VERSION {
+        Com_Printf("Mismatched REF_API_VERSION: expected %i, got %i\n", REF_API_VERSION, apiVersion)
+        return nil
+    }
+
+    // the RE_ functions are Renderer Entry points
+
+    re_GetRefAPI.Shutdown = RefexportThunks.RE_Shutdown
+    return re_GetRefAPI
 }
 
 /// One static per function this file stores in a `Refexport` callback field, so each has one address for the life of the module.
