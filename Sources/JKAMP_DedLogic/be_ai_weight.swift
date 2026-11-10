@@ -493,7 +493,7 @@ func EvolveFuzzySeperator_r(_ fs: Fuzzyseperator) {
         EvolveFuzzySeperator_r(fs.child!)
     } else if fs.type == WT_BALANCE {
         //every once in a while an evolution leap occurs, mutation
-        if Double(random()) < 0.01 {
+        if Double(JKAMP_DedLogic.random()) < 0.01 {
             fs.weight = Float(Double(fs.weight) + crandom() * Double(fs.maxweight - fs.minweight))
         } else {
             fs.weight = Float(Double(fs.weight) + crandom() * Double(fs.maxweight - fs.minweight) * 0.5)
