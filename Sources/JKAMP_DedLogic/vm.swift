@@ -828,6 +828,11 @@ func VM_Call(_ vm: Vm, _ callnum: Int32, _ args: any JKAShared.FormatArg...) -> 
         words[n] = Int(truncatingIfNeeded: word)
     }
 
+    // AI: Raven calls the module with no trace. The fork's referee records each call on the game VM after the word read.
+    if vm == gvm {
+        SVRef_TraceVmCall(callnum, words[0], words[1], words[2], words[3])
+    }
+
     // if we have a dll loaded, call it directly
     if vm.entryPoint != nil {
         //rcg010207 -  see dissertation at top of VM_DllSyscall() in this file.

@@ -715,6 +715,7 @@ func Sys_UnpackDLL(_ name: String) -> Bool {
 func Sys_LoadDll(_ name: String, _ entryPoint: UnsafeMutableRawPointer, _ systemcalls: OpaquePointer?) -> OpaquePointer? {
     var libHandle: OpaquePointer?
     let basepath: String
+    let homepath: String
     let cdpath: String
     let gamedir: String
     var fn: String
@@ -733,11 +734,18 @@ func Sys_LoadDll(_ name: String, _ entryPoint: UnsafeMutableRawPointer, _ system
     if libHandle == nil {
         //#endif
         basepath = Cvar_VariableString("fs_basepath")
+        homepath = Cvar_VariableString("fs_homepath")
         cdpath = Cvar_VariableString("fs_cdpath")
         gamedir = Cvar_VariableString("fs_game")
 
-        fn = FS_BuildOSPath(basepath, gamedir, String(filename))
+        // AI: Raven looks under fs_basepath and fs_cdpath. The lookup looks under fs_homepath first, as the fork's loader does, so one mod folder serves both hosts.
+        fn = FS_BuildOSPath(homepath, gamedir, String(filename))
         libHandle = LoadLibrary!(fn, entryPoint)
+
+        if libHandle == nil {
+            fn = FS_BuildOSPath(basepath, gamedir, String(filename))
+            libHandle = LoadLibrary!(fn, entryPoint)
+        }
 
         if libHandle == nil {
             if !cdpath.isEmpty {

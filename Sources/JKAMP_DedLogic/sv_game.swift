@@ -404,9 +404,9 @@ func ConvertedEntity(_ ent: JKAMP.SharedEntity) -> JKAMP.SharedEntity? {
 }
 
 /// Source: oracle/codemp/server/sv_game.cpp:458
-// AI: Raven's function is file-scope. It is public, because the shell installs it as `GameSystemCalls` of the view target.
+// AI: Raven names the switch SV_GameSystemCalls. The fork's name SV_GameSystemCalls_Real takes it, and the trace wrapper of sv_referee.swift keeps the old name.
 // AI: Raven returns an `int`, which holds an address only on a 32-bit build. The function returns the pointer-wide word, the form of VM_Call, so each `int` result widens.
-public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
+func SV_GameSystemCalls_Real(_ args: Slots<Int32>) -> Int {
     // AI: Raven's VMA and VMF macros read the local `args`. Each macro is a method of `args` in the view target, `args.VMA(1)` and `args.VMF(1)`.
     switch args[0] {
     //rww - alright, DO NOT EVER add a GAME/CGAME/UI generic call without adding a trap to match, and
@@ -1987,7 +1987,8 @@ private func SV_InitGameVM(_ restart: Bool) {
 
     // use the current msec count for a random seed
     // init for this gamestate
-    VM_Call(gvm!, GAME_INIT, svs.time, Com_Milliseconds(), restart)
+    // AI: Raven seeds GAME_INIT with Com_Milliseconds. The fork's SVRef_GameSeed replaces the seed with sv_refSeed or the seed of the replay header.
+    VM_Call(gvm!, GAME_INIT, svs.time, SVRef_GameSeed(Com_Milliseconds()), restart)
 
     // clear all gentity pointers that might still be set from
     // a previous level

@@ -490,6 +490,9 @@ func SV_DropClient(_ drop: Client, _ reason: String) {
         return // already dropped
     }
 
+    // AI: Raven records no input. The fork's recorder writes the disconnect record of the client here.
+    SVRef_RecordDisconnect(drop)
+
     if drop.gentity == nil || !((drop.gentity!.r.svFlags & SVF_BOT) != 0) {
         // see if we already have a challenge for this ip
         challenge = svs.challenges
@@ -771,6 +774,9 @@ func SV_ClientEnterWorld(_ client: Client, _ cmd: JKAMP.Usercmd) {
 
     // call the game begin function
     VM_Call(gvm!, GAME_CLIENT_BEGIN, svs.clientsSlots.index(of: client))
+
+    // AI: Raven records no input. The fork's recorder writes the enter-world record of the client here.
+    SVRef_RecordEnterWorld(client)
 }
 
 /// Source: oracle/codemp/server/sv_client.cpp:988
@@ -1451,6 +1457,8 @@ Also called by bot code
 */
 /// Source: oracle/codemp/server/sv_client.cpp:1652
 func SV_ClientThink(_ cl: Client, _ cmd: JKAMP.Usercmd) {
+    // AI: Raven records no input. The fork's recorder writes the usercmd record of the client first.
+    SVRef_OnClientThink(cl, cmd)
     cl.lastUsercmd = cmd
 
     if cl.state != CS_ACTIVE {
