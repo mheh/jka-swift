@@ -752,6 +752,8 @@ func G2_RagGetAnimMatrix(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ matrix: JKAM
 
         assert(bListIndex != -1)
 
+        // Port-note: The recursive call can reach the push_back of G2_Add_Bone, and a reallocation leaves Raven's `bone` reference dangling, which C++ leaves undefined.
+        // The bone is a class object here, so the two writes below reach the live bone of the list.
         let bone = ghoul2.mBlist[bListIndex]
 
         if bone.hasAnimFrameMatrix == frame { //already calculated so just grab it
