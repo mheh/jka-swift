@@ -86,5 +86,5 @@ public struct CGrid: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/qcommon/cm_patch.h:112
-    public var points: Slots<JKAShared.vec3_t> { Slots(vectors: UnsafeMutableRawPointer(self.raw.pointer(to: \.points)!), count: 129) }
+    public var points: Slots<Slots<JKAShared.vec3_t>> { Slots(rows: UnsafeMutableRawPointer(self.raw.pointer(to: \.points)!), count: 129, stride: 129 * MemoryLayout<Int32>.stride) { Slots(vectors: $0, count: 129) } }
 }

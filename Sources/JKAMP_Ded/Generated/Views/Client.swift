@@ -221,7 +221,16 @@ public struct Client: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/server/server.h:154
-    public var downloadBlocks: Slots<OpaquePointer?> { Slots(opaque: UnsafeMutableRawPointer(self.raw.pointer(to: \.downloadBlocks)!), count: 8) }
+    public var downloadBlocks: [Slots<JKAShared.byte>?] {
+        get {
+            let slots = UnsafeMutableRawPointer(self.raw.pointer(to: \.downloadBlocks)!).assumingMemoryBound(to: UnsafeMutablePointer<UInt8>?.self)
+            return (0..<8).map { i in slots[i].map { Slots(scalars: UnsafeMutableRawPointer($0), count: Int(MAX_DOWNLOAD_BLKSIZE)) } }
+        }
+        nonmutating set {
+            let slots = UnsafeMutableRawPointer(self.raw.pointer(to: \.downloadBlocks)!).assumingMemoryBound(to: UnsafeMutablePointer<UInt8>?.self)
+            for i in 0..<8 { slots[i] = newValue[i]?.base.assumingMemoryBound(to: UInt8.self) }
+        }
+    }
 
     /// Source: oracle/codemp/server/server.h:155
     public var downloadBlockSize: Slots<Int32> { Slots<Int32>(scalars: UnsafeMutableRawPointer(self.raw.pointer(to: \.downloadBlockSize)!), count: 8) }

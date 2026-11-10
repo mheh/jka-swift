@@ -5,20 +5,940 @@ import JKAMP
 import JKAShared
 
 /// The C types of the stored functions, one per signature, and the address compares Raven's `==` and `!=` did.
+public typealias Aas_exportAAS_AlternativeRouteGoals = @convention(c) (OpaquePointer?, Int32, OpaquePointer?, Int32, Int32, OpaquePointer?, Int32, Int32) -> Int32
+
+public typealias Aas_exportAAS_AreaInfo = @convention(c) (Int32, OpaquePointer?) -> Int32
+
+public typealias Aas_exportAAS_AreaReachability = @convention(c) (Int32) -> Int32
+
+public typealias Aas_exportAAS_AreaTravelTimeToGoalArea = @convention(c) (Int32, OpaquePointer?, Int32, Int32) -> Int32
+
+public typealias Aas_exportAAS_BBoxAreas = @convention(c) (OpaquePointer?, OpaquePointer?, OpaquePointer?, Int32) -> Int32
+
+public typealias Aas_exportAAS_EnableRoutingArea = @convention(c) (Int32, Int32) -> Int32
+
+public typealias Aas_exportAAS_EntityInfo = @convention(c) (Int32, OpaquePointer?) -> Void
+
+public typealias Aas_exportAAS_FloatForBSPEpairKey = @convention(c) (Int32, OpaquePointer?, OpaquePointer?) -> Int32
+
+public typealias Aas_exportAAS_Initialized = @convention(c) () -> Int32
+
+public typealias Aas_exportAAS_IntForBSPEpairKey = @convention(c) (Int32, OpaquePointer?, OpaquePointer?) -> Int32
+
+public typealias Aas_exportAAS_NextBSPEntity = @convention(c) (Int32) -> Int32
+
+public typealias Aas_exportAAS_PointAreaNum = @convention(c) (OpaquePointer?) -> Int32
+
+public typealias Aas_exportAAS_PointContents = @convention(c) (OpaquePointer?) -> Int32
+
+public typealias Aas_exportAAS_PointReachabilityAreaIndex = @convention(c) (OpaquePointer?) -> Int32
+
+public typealias Aas_exportAAS_PredictClientMovement = @convention(c) (OpaquePointer?, Int32, OpaquePointer?, Int32, Int32, OpaquePointer?, OpaquePointer?, Int32, Int32, Float, Int32, Int32, Int32) -> Int32
+
+public typealias Aas_exportAAS_PredictRoute = @convention(c) (OpaquePointer?, Int32, OpaquePointer?, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32) -> Int32
+
+public typealias Aas_exportAAS_PresenceTypeBoundingBox = @convention(c) (Int32, OpaquePointer?, OpaquePointer?) -> Void
+
+public typealias Aas_exportAAS_Swimming = @convention(c) (OpaquePointer?) -> Int32
+
+public typealias Aas_exportAAS_Time = @convention(c) () -> Float
+
+public typealias Aas_exportAAS_TraceAreas = @convention(c) (OpaquePointer?, OpaquePointer?, OpaquePointer?, OpaquePointer?, Int32) -> Int32
+
+public typealias Aas_exportAAS_ValueForBSPEpairKey = @convention(c) (Int32, OpaquePointer?, OpaquePointer?, Int32) -> Int32
+
+public typealias Aas_exportAAS_VectorForBSPEpairKey = @convention(c) (Int32, OpaquePointer?, OpaquePointer?) -> Int32
+
+public typealias Ai_exportBotAddAvoidSpot = @convention(c) (Int32, OpaquePointer?, Float, Int32) -> Void
+
+public typealias Ai_exportBotAllocChatState = @convention(c) () -> Int32
+
+public typealias Ai_exportBotAllocGoalState = @convention(c) (Int32) -> Int32
+
+public typealias Ai_exportBotAllocMoveState = @convention(c) () -> Int32
+
+public typealias Ai_exportBotAllocWeaponState = @convention(c) () -> Int32
+
+public typealias Ai_exportBotAvoidGoalTime = @convention(c) (Int32, Int32) -> Float
+
+public typealias Ai_exportBotChatLength = @convention(c) (Int32) -> Int32
+
+public typealias Ai_exportBotChooseBestFightWeapon = @convention(c) (Int32, OpaquePointer?) -> Int32
+
+public typealias Ai_exportBotChooseLTGItem = @convention(c) (Int32, OpaquePointer?, OpaquePointer?, Int32) -> Int32
+
+public typealias Ai_exportBotChooseNBGItem = @convention(c) (Int32, OpaquePointer?, OpaquePointer?, Int32, OpaquePointer?, Float) -> Int32
+
+public typealias Ai_exportBotDumpAvoidGoals = @convention(c) (Int32) -> Void
+
+public typealias Ai_exportBotDumpGoalStack = @convention(c) (Int32) -> Void
+
+public typealias Ai_exportBotEmptyGoalStack = @convention(c) (Int32) -> Void
+
+public typealias Ai_exportBotEnterChat = @convention(c) (Int32, Int32, Int32) -> Void
+
+public typealias Ai_exportBotFindMatch = @convention(c) (OpaquePointer?, OpaquePointer?, CUnsignedLong) -> Int32
+
+public typealias Ai_exportBotFreeCharacter = @convention(c) (Int32) -> Void
+
+public typealias Ai_exportBotFreeChatState = @convention(c) (Int32) -> Void
+
+public typealias Ai_exportBotFreeGoalState = @convention(c) (Int32) -> Void
+
+public typealias Ai_exportBotFreeItemWeights = @convention(c) (Int32) -> Void
+
+public typealias Ai_exportBotFreeMoveState = @convention(c) (Int32) -> Void
+
+public typealias Ai_exportBotFreeWeaponState = @convention(c) (Int32) -> Void
+
+public typealias Ai_exportBotGetChatMessage = @convention(c) (Int32, OpaquePointer?, Int32) -> Void
+
+public typealias Ai_exportBotGetLevelItemGoal = @convention(c) (Int32, OpaquePointer?, OpaquePointer?) -> Int32
+
+public typealias Ai_exportBotGetMapLocationGoal = @convention(c) (OpaquePointer?, OpaquePointer?) -> Int32
+
+public typealias Ai_exportBotGetNextCampSpotGoal = @convention(c) (Int32, OpaquePointer?) -> Int32
+
+public typealias Ai_exportBotGetSecondGoal = @convention(c) (Int32, OpaquePointer?) -> Int32
+
+public typealias Ai_exportBotGetTopGoal = @convention(c) (Int32, OpaquePointer?) -> Int32
+
+public typealias Ai_exportBotGetWeaponInfo = @convention(c) (Int32, Int32, OpaquePointer?) -> Void
+
+public typealias Ai_exportBotGoalName = @convention(c) (Int32, OpaquePointer?, Int32) -> Void
+
+public typealias Ai_exportBotInitLevelItems = @convention(c) () -> Void
+
+public typealias Ai_exportBotInitMoveState = @convention(c) (Int32, OpaquePointer?) -> Void
+
+public typealias Ai_exportBotInitialChat = @convention(c) (Int32, OpaquePointer?, Int32, OpaquePointer?, OpaquePointer?, OpaquePointer?, OpaquePointer?, OpaquePointer?, OpaquePointer?, OpaquePointer?, OpaquePointer?) -> Void
+
+public typealias Ai_exportBotInterbreedGoalFuzzyLogic = @convention(c) (Int32, Int32, Int32) -> Void
+
+public typealias Ai_exportBotItemGoalInVisButNotVisible = @convention(c) (Int32, OpaquePointer?, OpaquePointer?, OpaquePointer?) -> Int32
+
+public typealias Ai_exportBotLoadCharacter = @convention(c) (OpaquePointer?, Float) -> Int32
+
+public typealias Ai_exportBotLoadChatFile = @convention(c) (Int32, OpaquePointer?, OpaquePointer?) -> Int32
+
+public typealias Ai_exportBotLoadItemWeights = @convention(c) (Int32, OpaquePointer?) -> Int32
+
+public typealias Ai_exportBotLoadWeaponWeights = @convention(c) (Int32, OpaquePointer?) -> Int32
+
+public typealias Ai_exportBotMatchVariable = @convention(c) (OpaquePointer?, Int32, OpaquePointer?, Int32) -> Void
+
+public typealias Ai_exportBotMoveInDirection = @convention(c) (Int32, OpaquePointer?, Float, Int32) -> Int32
+
+public typealias Ai_exportBotMoveToGoal = @convention(c) (OpaquePointer?, Int32, OpaquePointer?, Int32) -> Void
+
+public typealias Ai_exportBotMovementViewTarget = @convention(c) (Int32, OpaquePointer?, Int32, Float, OpaquePointer?) -> Int32
+
+public typealias Ai_exportBotMutateGoalFuzzyLogic = @convention(c) (Int32, Float) -> Void
+
+public typealias Ai_exportBotNextConsoleMessage = @convention(c) (Int32, OpaquePointer?) -> Int32
+
+public typealias Ai_exportBotNumConsoleMessages = @convention(c) (Int32) -> Int32
+
+public typealias Ai_exportBotNumInitialChats = @convention(c) (Int32, OpaquePointer?) -> Int32
+
+public typealias Ai_exportBotPopGoal = @convention(c) (Int32) -> Void
+
+public typealias Ai_exportBotPredictVisiblePosition = @convention(c) (OpaquePointer?, Int32, OpaquePointer?, Int32, OpaquePointer?) -> Int32
+
+public typealias Ai_exportBotPushGoal = @convention(c) (Int32, OpaquePointer?) -> Void
+
+public typealias Ai_exportBotQueueConsoleMessage = @convention(c) (Int32, Int32, OpaquePointer?) -> Void
+
+public typealias Ai_exportBotReachabilityArea = @convention(c) (OpaquePointer?, Int32) -> Int32
+
+public typealias Ai_exportBotRemoveConsoleMessage = @convention(c) (Int32, Int32) -> Void
+
+public typealias Ai_exportBotRemoveFromAvoidGoals = @convention(c) (Int32, Int32) -> Void
+
+public typealias Ai_exportBotReplaceSynonyms = @convention(c) (OpaquePointer?, CUnsignedLong) -> Void
+
+public typealias Ai_exportBotReplyChat = @convention(c) (Int32, OpaquePointer?, Int32, Int32, OpaquePointer?, OpaquePointer?, OpaquePointer?, OpaquePointer?, OpaquePointer?, OpaquePointer?, OpaquePointer?, OpaquePointer?) -> Int32
+
+public typealias Ai_exportBotResetAvoidGoals = @convention(c) (Int32) -> Void
+
+public typealias Ai_exportBotResetAvoidReach = @convention(c) (Int32) -> Void
+
+public typealias Ai_exportBotResetGoalState = @convention(c) (Int32) -> Void
+
+public typealias Ai_exportBotResetLastAvoidReach = @convention(c) (Int32) -> Void
+
+public typealias Ai_exportBotResetMoveState = @convention(c) (Int32) -> Void
+
+public typealias Ai_exportBotResetWeaponState = @convention(c) (Int32) -> Void
+
+public typealias Ai_exportBotSaveGoalFuzzyLogic = @convention(c) (Int32, OpaquePointer?) -> Void
+
+public typealias Ai_exportBotSetAvoidGoalTime = @convention(c) (Int32, Int32, Float) -> Void
+
+public typealias Ai_exportBotSetChatGender = @convention(c) (Int32, Int32) -> Void
+
+public typealias Ai_exportBotSetChatName = @convention(c) (Int32, OpaquePointer?, Int32) -> Void
+
+public typealias Ai_exportBotTouchingGoal = @convention(c) (OpaquePointer?, OpaquePointer?) -> Int32
+
+public typealias Ai_exportBotUpdateEntityItems = @convention(c) () -> Void
+
+public typealias Ai_exportCharacteristic_BFloat = @convention(c) (Int32, Int32, Float, Float) -> Float
+
+public typealias Ai_exportCharacteristic_BInteger = @convention(c) (Int32, Int32, Int32, Int32) -> Int32
+
+public typealias Ai_exportCharacteristic_Float = @convention(c) (Int32, Int32) -> Float
+
+public typealias Ai_exportCharacteristic_Integer = @convention(c) (Int32, Int32) -> Int32
+
+public typealias Ai_exportCharacteristic_String = @convention(c) (Int32, Int32, OpaquePointer?, Int32) -> Void
+
+public typealias Ai_exportGeneticParentsAndChildSelection = @convention(c) (Int32, OpaquePointer?, OpaquePointer?, OpaquePointer?, OpaquePointer?) -> Int32
+
+public typealias Ai_exportStringContains = @convention(c) (OpaquePointer?, OpaquePointer?, Int32) -> Int32
+
+public typealias Ai_exportUnifyWhiteSpaces = @convention(c) (OpaquePointer?) -> Void
+
+public typealias BotlibExportBotLibLoadMap = @convention(c) (OpaquePointer?) -> Int32
+
+public typealias BotlibExportBotLibSetup = @convention(c) () -> Int32
+
+public typealias BotlibExportBotLibShutdown = @convention(c) () -> Int32
+
+public typealias BotlibExportBotLibStartFrame = @convention(c) (Float) -> Int32
+
+public typealias BotlibExportBotLibUpdateEntity = @convention(c) (Int32, OpaquePointer?) -> Int32
+
+public typealias BotlibExportBotLibVarGet = @convention(c) (OpaquePointer?, OpaquePointer?, Int32) -> Int32
+
+public typealias BotlibExportBotLibVarSet = @convention(c) (OpaquePointer?, OpaquePointer?) -> Int32
+
+public typealias BotlibExportPC_AddGlobalDefine = @convention(c) (OpaquePointer?) -> Int32
+
+public typealias BotlibExportPC_FreeSourceHandle = @convention(c) (Int32) -> Int32
+
+public typealias BotlibExportPC_LoadGlobalDefines = @convention(c) (OpaquePointer?) -> Int32
+
+public typealias BotlibExportPC_LoadSourceHandle = @convention(c) (OpaquePointer?) -> Int32
+
+public typealias BotlibExportPC_ReadTokenHandle = @convention(c) (Int32, OpaquePointer?) -> Int32
+
+public typealias BotlibExportPC_RemoveAllGlobalDefines = @convention(c) () -> Void
+
+public typealias BotlibExportPC_SourceFileAndLine = @convention(c) (Int32, OpaquePointer?, OpaquePointer?) -> Int32
+
+public typealias BotlibExportTest = @convention(c) (Int32, OpaquePointer?, OpaquePointer?, OpaquePointer?) -> Int32
+
+public typealias BotlibImportAvailableMemory = @convention(c) () -> Int32
+
+public typealias BotlibImportBSPEntityData = @convention(c) () -> OpaquePointer?
+
+public typealias BotlibImportBSPModelMinsMaxsOrigin = @convention(c) (Int32, OpaquePointer?, OpaquePointer?, OpaquePointer?, OpaquePointer?) -> Void
+
+public typealias BotlibImportBotClientCommand = @convention(c) (Int32, OpaquePointer?) -> Void
+
+public typealias BotlibImportDebugLineCreate = @convention(c) () -> Int32
+
+public typealias BotlibImportDebugLineDelete = @convention(c) (Int32) -> Void
+
+public typealias BotlibImportDebugLineShow = @convention(c) (Int32, OpaquePointer?, OpaquePointer?, Int32) -> Void
+
+public typealias BotlibImportDebugPolygonCreate = @convention(c) (Int32, Int32, OpaquePointer?) -> Int32
+
+public typealias BotlibImportDebugPolygonDelete = @convention(c) (Int32) -> Void
+
+public typealias BotlibImportEntityTrace = @convention(c) (OpaquePointer?, OpaquePointer?, OpaquePointer?, OpaquePointer?, OpaquePointer?, Int32, Int32) -> Void
+
+public typealias BotlibImportFS_FCloseFile = @convention(c) (Int32) -> Void
+
+public typealias BotlibImportFS_FOpenFile = @convention(c) (OpaquePointer?, OpaquePointer?, JKAShared.fsMode_t) -> Int32
+
+public typealias BotlibImportFS_Read = @convention(c) (OpaquePointer?, Int32, Int32) -> Int32
+
+public typealias BotlibImportFS_Seek = @convention(c) (Int32, CLong, Int32) -> Int32
+
+public typealias BotlibImportFS_Write = @convention(c) (OpaquePointer?, Int32, Int32) -> Int32
+
+public typealias BotlibImportFreeMemory = @convention(c) (OpaquePointer?) -> Void
+
+public typealias BotlibImportGetMemory = @convention(c) (Int32) -> OpaquePointer?
+
+public typealias BotlibImportHunkAlloc = @convention(c) (Int32) -> OpaquePointer?
+
+public typealias BotlibImportInPVS = @convention(c) (OpaquePointer?, OpaquePointer?) -> Int32
+
+public typealias BotlibImportPointContents = @convention(c) (OpaquePointer?) -> Int32
+
+public typealias BotlibImportPrint = @convention(c) (Int32, OpaquePointer?) -> Void
+
+public typealias BotlibImportTrace = @convention(c) (OpaquePointer?, OpaquePointer?, OpaquePointer?, OpaquePointer?, OpaquePointer?, Int32, Int32) -> Void
+
+public typealias Ea_exportEA_Action = @convention(c) (Int32, Int32) -> Void
+
+public typealias Ea_exportEA_Alt_Attack = @convention(c) (Int32) -> Void
+
+public typealias Ea_exportEA_Attack = @convention(c) (Int32) -> Void
+
+public typealias Ea_exportEA_Command = @convention(c) (Int32, OpaquePointer?) -> Void
+
+public typealias Ea_exportEA_Crouch = @convention(c) (Int32) -> Void
+
+public typealias Ea_exportEA_DelayedJump = @convention(c) (Int32) -> Void
+
+public typealias Ea_exportEA_EndRegular = @convention(c) (Int32, Float) -> Void
+
+public typealias Ea_exportEA_ForcePower = @convention(c) (Int32) -> Void
+
+public typealias Ea_exportEA_Gesture = @convention(c) (Int32) -> Void
+
+public typealias Ea_exportEA_GetInput = @convention(c) (Int32, Float, OpaquePointer?) -> Void
+
+public typealias Ea_exportEA_Jump = @convention(c) (Int32) -> Void
+
+public typealias Ea_exportEA_Move = @convention(c) (Int32, OpaquePointer?, Float) -> Void
+
+public typealias Ea_exportEA_MoveBack = @convention(c) (Int32) -> Void
+
+public typealias Ea_exportEA_MoveDown = @convention(c) (Int32) -> Void
+
+public typealias Ea_exportEA_MoveForward = @convention(c) (Int32) -> Void
+
+public typealias Ea_exportEA_MoveLeft = @convention(c) (Int32) -> Void
+
+public typealias Ea_exportEA_MoveRight = @convention(c) (Int32) -> Void
+
+public typealias Ea_exportEA_MoveUp = @convention(c) (Int32) -> Void
+
+public typealias Ea_exportEA_ResetInput = @convention(c) (Int32) -> Void
+
+public typealias Ea_exportEA_Respawn = @convention(c) (Int32) -> Void
+
+public typealias Ea_exportEA_Say = @convention(c) (Int32, OpaquePointer?) -> Void
+
+public typealias Ea_exportEA_SayTeam = @convention(c) (Int32, OpaquePointer?) -> Void
+
+public typealias Ea_exportEA_SelectWeapon = @convention(c) (Int32, Int32) -> Void
+
+public typealias Ea_exportEA_Talk = @convention(c) (Int32) -> Void
+
+public typealias Ea_exportEA_Use = @convention(c) (Int32) -> Void
+
+public typealias Ea_exportEA_View = @convention(c) (Int32, OpaquePointer?) -> Void
+
 public typealias LeafListStoreLeafs = @convention(c) (OpaquePointer?, Int32) -> Void
 
 public typealias VmEntryPoint = @convention(c) (Int32) -> Int32
 
 public typealias VmSystemCall = @convention(c) (OpaquePointer?) -> Int32
 
-private struct VmEntryPointBits { var function: VmEntryPoint? }
+private struct Aas_exportAAS_AlternativeRouteGoalsBits { var function: Aas_exportAAS_AlternativeRouteGoals? }
 
-public func == (lhs: VmEntryPoint?, rhs: VmEntryPoint?) -> Bool {
-    precondition(MemoryLayout<VmEntryPointBits>.size == MemoryLayout<UInt>.size)
-    return withUnsafeBytes(of: VmEntryPointBits(function: lhs)) { $0.load(as: UInt.self) }
-        == withUnsafeBytes(of: VmEntryPointBits(function: rhs)) { $0.load(as: UInt.self) }
+public func == (lhs: Aas_exportAAS_AlternativeRouteGoals?, rhs: Aas_exportAAS_AlternativeRouteGoals?) -> Bool {
+    precondition(MemoryLayout<Aas_exportAAS_AlternativeRouteGoalsBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Aas_exportAAS_AlternativeRouteGoalsBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Aas_exportAAS_AlternativeRouteGoalsBits(function: rhs)) { $0.load(as: UInt.self) }
 }
 
-public func != (lhs: VmEntryPoint?, rhs: VmEntryPoint?) -> Bool {
+public func != (lhs: Aas_exportAAS_AlternativeRouteGoals?, rhs: Aas_exportAAS_AlternativeRouteGoals?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Aas_exportAAS_AreaInfoBits { var function: Aas_exportAAS_AreaInfo? }
+
+public func == (lhs: Aas_exportAAS_AreaInfo?, rhs: Aas_exportAAS_AreaInfo?) -> Bool {
+    precondition(MemoryLayout<Aas_exportAAS_AreaInfoBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Aas_exportAAS_AreaInfoBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Aas_exportAAS_AreaInfoBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Aas_exportAAS_AreaInfo?, rhs: Aas_exportAAS_AreaInfo?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Aas_exportAAS_AreaReachabilityBits { var function: Aas_exportAAS_AreaReachability? }
+
+public func == (lhs: Aas_exportAAS_AreaReachability?, rhs: Aas_exportAAS_AreaReachability?) -> Bool {
+    precondition(MemoryLayout<Aas_exportAAS_AreaReachabilityBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Aas_exportAAS_AreaReachabilityBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Aas_exportAAS_AreaReachabilityBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Aas_exportAAS_AreaReachability?, rhs: Aas_exportAAS_AreaReachability?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Aas_exportAAS_AreaTravelTimeToGoalAreaBits { var function: Aas_exportAAS_AreaTravelTimeToGoalArea? }
+
+public func == (lhs: Aas_exportAAS_AreaTravelTimeToGoalArea?, rhs: Aas_exportAAS_AreaTravelTimeToGoalArea?) -> Bool {
+    precondition(MemoryLayout<Aas_exportAAS_AreaTravelTimeToGoalAreaBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Aas_exportAAS_AreaTravelTimeToGoalAreaBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Aas_exportAAS_AreaTravelTimeToGoalAreaBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Aas_exportAAS_AreaTravelTimeToGoalArea?, rhs: Aas_exportAAS_AreaTravelTimeToGoalArea?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Aas_exportAAS_BBoxAreasBits { var function: Aas_exportAAS_BBoxAreas? }
+
+public func == (lhs: Aas_exportAAS_BBoxAreas?, rhs: Aas_exportAAS_BBoxAreas?) -> Bool {
+    precondition(MemoryLayout<Aas_exportAAS_BBoxAreasBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Aas_exportAAS_BBoxAreasBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Aas_exportAAS_BBoxAreasBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Aas_exportAAS_BBoxAreas?, rhs: Aas_exportAAS_BBoxAreas?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Aas_exportAAS_EnableRoutingAreaBits { var function: Aas_exportAAS_EnableRoutingArea? }
+
+public func == (lhs: Aas_exportAAS_EnableRoutingArea?, rhs: Aas_exportAAS_EnableRoutingArea?) -> Bool {
+    precondition(MemoryLayout<Aas_exportAAS_EnableRoutingAreaBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Aas_exportAAS_EnableRoutingAreaBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Aas_exportAAS_EnableRoutingAreaBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Aas_exportAAS_EnableRoutingArea?, rhs: Aas_exportAAS_EnableRoutingArea?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Aas_exportAAS_EntityInfoBits { var function: Aas_exportAAS_EntityInfo? }
+
+public func == (lhs: Aas_exportAAS_EntityInfo?, rhs: Aas_exportAAS_EntityInfo?) -> Bool {
+    precondition(MemoryLayout<Aas_exportAAS_EntityInfoBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Aas_exportAAS_EntityInfoBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Aas_exportAAS_EntityInfoBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Aas_exportAAS_EntityInfo?, rhs: Aas_exportAAS_EntityInfo?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Aas_exportAAS_FloatForBSPEpairKeyBits { var function: Aas_exportAAS_FloatForBSPEpairKey? }
+
+public func == (lhs: Aas_exportAAS_FloatForBSPEpairKey?, rhs: Aas_exportAAS_FloatForBSPEpairKey?) -> Bool {
+    precondition(MemoryLayout<Aas_exportAAS_FloatForBSPEpairKeyBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Aas_exportAAS_FloatForBSPEpairKeyBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Aas_exportAAS_FloatForBSPEpairKeyBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Aas_exportAAS_FloatForBSPEpairKey?, rhs: Aas_exportAAS_FloatForBSPEpairKey?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Aas_exportAAS_InitializedBits { var function: Aas_exportAAS_Initialized? }
+
+public func == (lhs: Aas_exportAAS_Initialized?, rhs: Aas_exportAAS_Initialized?) -> Bool {
+    precondition(MemoryLayout<Aas_exportAAS_InitializedBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Aas_exportAAS_InitializedBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Aas_exportAAS_InitializedBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Aas_exportAAS_Initialized?, rhs: Aas_exportAAS_Initialized?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Aas_exportAAS_PredictClientMovementBits { var function: Aas_exportAAS_PredictClientMovement? }
+
+public func == (lhs: Aas_exportAAS_PredictClientMovement?, rhs: Aas_exportAAS_PredictClientMovement?) -> Bool {
+    precondition(MemoryLayout<Aas_exportAAS_PredictClientMovementBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Aas_exportAAS_PredictClientMovementBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Aas_exportAAS_PredictClientMovementBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Aas_exportAAS_PredictClientMovement?, rhs: Aas_exportAAS_PredictClientMovement?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Aas_exportAAS_PredictRouteBits { var function: Aas_exportAAS_PredictRoute? }
+
+public func == (lhs: Aas_exportAAS_PredictRoute?, rhs: Aas_exportAAS_PredictRoute?) -> Bool {
+    precondition(MemoryLayout<Aas_exportAAS_PredictRouteBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Aas_exportAAS_PredictRouteBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Aas_exportAAS_PredictRouteBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Aas_exportAAS_PredictRoute?, rhs: Aas_exportAAS_PredictRoute?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Aas_exportAAS_PresenceTypeBoundingBoxBits { var function: Aas_exportAAS_PresenceTypeBoundingBox? }
+
+public func == (lhs: Aas_exportAAS_PresenceTypeBoundingBox?, rhs: Aas_exportAAS_PresenceTypeBoundingBox?) -> Bool {
+    precondition(MemoryLayout<Aas_exportAAS_PresenceTypeBoundingBoxBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Aas_exportAAS_PresenceTypeBoundingBoxBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Aas_exportAAS_PresenceTypeBoundingBoxBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Aas_exportAAS_PresenceTypeBoundingBox?, rhs: Aas_exportAAS_PresenceTypeBoundingBox?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Aas_exportAAS_TimeBits { var function: Aas_exportAAS_Time? }
+
+public func == (lhs: Aas_exportAAS_Time?, rhs: Aas_exportAAS_Time?) -> Bool {
+    precondition(MemoryLayout<Aas_exportAAS_TimeBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Aas_exportAAS_TimeBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Aas_exportAAS_TimeBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Aas_exportAAS_Time?, rhs: Aas_exportAAS_Time?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Aas_exportAAS_TraceAreasBits { var function: Aas_exportAAS_TraceAreas? }
+
+public func == (lhs: Aas_exportAAS_TraceAreas?, rhs: Aas_exportAAS_TraceAreas?) -> Bool {
+    precondition(MemoryLayout<Aas_exportAAS_TraceAreasBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Aas_exportAAS_TraceAreasBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Aas_exportAAS_TraceAreasBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Aas_exportAAS_TraceAreas?, rhs: Aas_exportAAS_TraceAreas?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Aas_exportAAS_ValueForBSPEpairKeyBits { var function: Aas_exportAAS_ValueForBSPEpairKey? }
+
+public func == (lhs: Aas_exportAAS_ValueForBSPEpairKey?, rhs: Aas_exportAAS_ValueForBSPEpairKey?) -> Bool {
+    precondition(MemoryLayout<Aas_exportAAS_ValueForBSPEpairKeyBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Aas_exportAAS_ValueForBSPEpairKeyBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Aas_exportAAS_ValueForBSPEpairKeyBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Aas_exportAAS_ValueForBSPEpairKey?, rhs: Aas_exportAAS_ValueForBSPEpairKey?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ai_exportBotAddAvoidSpotBits { var function: Ai_exportBotAddAvoidSpot? }
+
+public func == (lhs: Ai_exportBotAddAvoidSpot?, rhs: Ai_exportBotAddAvoidSpot?) -> Bool {
+    precondition(MemoryLayout<Ai_exportBotAddAvoidSpotBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ai_exportBotAddAvoidSpotBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ai_exportBotAddAvoidSpotBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ai_exportBotAddAvoidSpot?, rhs: Ai_exportBotAddAvoidSpot?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ai_exportBotAvoidGoalTimeBits { var function: Ai_exportBotAvoidGoalTime? }
+
+public func == (lhs: Ai_exportBotAvoidGoalTime?, rhs: Ai_exportBotAvoidGoalTime?) -> Bool {
+    precondition(MemoryLayout<Ai_exportBotAvoidGoalTimeBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ai_exportBotAvoidGoalTimeBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ai_exportBotAvoidGoalTimeBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ai_exportBotAvoidGoalTime?, rhs: Ai_exportBotAvoidGoalTime?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ai_exportBotChooseNBGItemBits { var function: Ai_exportBotChooseNBGItem? }
+
+public func == (lhs: Ai_exportBotChooseNBGItem?, rhs: Ai_exportBotChooseNBGItem?) -> Bool {
+    precondition(MemoryLayout<Ai_exportBotChooseNBGItemBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ai_exportBotChooseNBGItemBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ai_exportBotChooseNBGItemBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ai_exportBotChooseNBGItem?, rhs: Ai_exportBotChooseNBGItem?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ai_exportBotDumpAvoidGoalsBits { var function: Ai_exportBotDumpAvoidGoals? }
+
+public func == (lhs: Ai_exportBotDumpAvoidGoals?, rhs: Ai_exportBotDumpAvoidGoals?) -> Bool {
+    precondition(MemoryLayout<Ai_exportBotDumpAvoidGoalsBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ai_exportBotDumpAvoidGoalsBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ai_exportBotDumpAvoidGoalsBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ai_exportBotDumpAvoidGoals?, rhs: Ai_exportBotDumpAvoidGoals?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ai_exportBotEnterChatBits { var function: Ai_exportBotEnterChat? }
+
+public func == (lhs: Ai_exportBotEnterChat?, rhs: Ai_exportBotEnterChat?) -> Bool {
+    precondition(MemoryLayout<Ai_exportBotEnterChatBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ai_exportBotEnterChatBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ai_exportBotEnterChatBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ai_exportBotEnterChat?, rhs: Ai_exportBotEnterChat?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ai_exportBotFindMatchBits { var function: Ai_exportBotFindMatch? }
+
+public func == (lhs: Ai_exportBotFindMatch?, rhs: Ai_exportBotFindMatch?) -> Bool {
+    precondition(MemoryLayout<Ai_exportBotFindMatchBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ai_exportBotFindMatchBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ai_exportBotFindMatchBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ai_exportBotFindMatch?, rhs: Ai_exportBotFindMatch?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ai_exportBotGetChatMessageBits { var function: Ai_exportBotGetChatMessage? }
+
+public func == (lhs: Ai_exportBotGetChatMessage?, rhs: Ai_exportBotGetChatMessage?) -> Bool {
+    precondition(MemoryLayout<Ai_exportBotGetChatMessageBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ai_exportBotGetChatMessageBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ai_exportBotGetChatMessageBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ai_exportBotGetChatMessage?, rhs: Ai_exportBotGetChatMessage?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ai_exportBotGetWeaponInfoBits { var function: Ai_exportBotGetWeaponInfo? }
+
+public func == (lhs: Ai_exportBotGetWeaponInfo?, rhs: Ai_exportBotGetWeaponInfo?) -> Bool {
+    precondition(MemoryLayout<Ai_exportBotGetWeaponInfoBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ai_exportBotGetWeaponInfoBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ai_exportBotGetWeaponInfoBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ai_exportBotGetWeaponInfo?, rhs: Ai_exportBotGetWeaponInfo?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ai_exportBotInitLevelItemsBits { var function: Ai_exportBotInitLevelItems? }
+
+public func == (lhs: Ai_exportBotInitLevelItems?, rhs: Ai_exportBotInitLevelItems?) -> Bool {
+    precondition(MemoryLayout<Ai_exportBotInitLevelItemsBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ai_exportBotInitLevelItemsBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ai_exportBotInitLevelItemsBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ai_exportBotInitLevelItems?, rhs: Ai_exportBotInitLevelItems?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ai_exportBotInitialChatBits { var function: Ai_exportBotInitialChat? }
+
+public func == (lhs: Ai_exportBotInitialChat?, rhs: Ai_exportBotInitialChat?) -> Bool {
+    precondition(MemoryLayout<Ai_exportBotInitialChatBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ai_exportBotInitialChatBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ai_exportBotInitialChatBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ai_exportBotInitialChat?, rhs: Ai_exportBotInitialChat?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ai_exportBotItemGoalInVisButNotVisibleBits { var function: Ai_exportBotItemGoalInVisButNotVisible? }
+
+public func == (lhs: Ai_exportBotItemGoalInVisButNotVisible?, rhs: Ai_exportBotItemGoalInVisButNotVisible?) -> Bool {
+    precondition(MemoryLayout<Ai_exportBotItemGoalInVisButNotVisibleBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ai_exportBotItemGoalInVisButNotVisibleBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ai_exportBotItemGoalInVisButNotVisibleBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ai_exportBotItemGoalInVisButNotVisible?, rhs: Ai_exportBotItemGoalInVisButNotVisible?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ai_exportBotLoadCharacterBits { var function: Ai_exportBotLoadCharacter? }
+
+public func == (lhs: Ai_exportBotLoadCharacter?, rhs: Ai_exportBotLoadCharacter?) -> Bool {
+    precondition(MemoryLayout<Ai_exportBotLoadCharacterBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ai_exportBotLoadCharacterBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ai_exportBotLoadCharacterBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ai_exportBotLoadCharacter?, rhs: Ai_exportBotLoadCharacter?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ai_exportBotMatchVariableBits { var function: Ai_exportBotMatchVariable? }
+
+public func == (lhs: Ai_exportBotMatchVariable?, rhs: Ai_exportBotMatchVariable?) -> Bool {
+    precondition(MemoryLayout<Ai_exportBotMatchVariableBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ai_exportBotMatchVariableBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ai_exportBotMatchVariableBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ai_exportBotMatchVariable?, rhs: Ai_exportBotMatchVariable?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ai_exportBotMoveInDirectionBits { var function: Ai_exportBotMoveInDirection? }
+
+public func == (lhs: Ai_exportBotMoveInDirection?, rhs: Ai_exportBotMoveInDirection?) -> Bool {
+    precondition(MemoryLayout<Ai_exportBotMoveInDirectionBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ai_exportBotMoveInDirectionBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ai_exportBotMoveInDirectionBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ai_exportBotMoveInDirection?, rhs: Ai_exportBotMoveInDirection?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ai_exportBotMovementViewTargetBits { var function: Ai_exportBotMovementViewTarget? }
+
+public func == (lhs: Ai_exportBotMovementViewTarget?, rhs: Ai_exportBotMovementViewTarget?) -> Bool {
+    precondition(MemoryLayout<Ai_exportBotMovementViewTargetBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ai_exportBotMovementViewTargetBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ai_exportBotMovementViewTargetBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ai_exportBotMovementViewTarget?, rhs: Ai_exportBotMovementViewTarget?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ai_exportBotMutateGoalFuzzyLogicBits { var function: Ai_exportBotMutateGoalFuzzyLogic? }
+
+public func == (lhs: Ai_exportBotMutateGoalFuzzyLogic?, rhs: Ai_exportBotMutateGoalFuzzyLogic?) -> Bool {
+    precondition(MemoryLayout<Ai_exportBotMutateGoalFuzzyLogicBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ai_exportBotMutateGoalFuzzyLogicBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ai_exportBotMutateGoalFuzzyLogicBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ai_exportBotMutateGoalFuzzyLogic?, rhs: Ai_exportBotMutateGoalFuzzyLogic?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ai_exportBotPredictVisiblePositionBits { var function: Ai_exportBotPredictVisiblePosition? }
+
+public func == (lhs: Ai_exportBotPredictVisiblePosition?, rhs: Ai_exportBotPredictVisiblePosition?) -> Bool {
+    precondition(MemoryLayout<Ai_exportBotPredictVisiblePositionBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ai_exportBotPredictVisiblePositionBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ai_exportBotPredictVisiblePositionBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ai_exportBotPredictVisiblePosition?, rhs: Ai_exportBotPredictVisiblePosition?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ai_exportBotRemoveConsoleMessageBits { var function: Ai_exportBotRemoveConsoleMessage? }
+
+public func == (lhs: Ai_exportBotRemoveConsoleMessage?, rhs: Ai_exportBotRemoveConsoleMessage?) -> Bool {
+    precondition(MemoryLayout<Ai_exportBotRemoveConsoleMessageBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ai_exportBotRemoveConsoleMessageBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ai_exportBotRemoveConsoleMessageBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ai_exportBotRemoveConsoleMessage?, rhs: Ai_exportBotRemoveConsoleMessage?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ai_exportBotReplaceSynonymsBits { var function: Ai_exportBotReplaceSynonyms? }
+
+public func == (lhs: Ai_exportBotReplaceSynonyms?, rhs: Ai_exportBotReplaceSynonyms?) -> Bool {
+    precondition(MemoryLayout<Ai_exportBotReplaceSynonymsBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ai_exportBotReplaceSynonymsBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ai_exportBotReplaceSynonymsBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ai_exportBotReplaceSynonyms?, rhs: Ai_exportBotReplaceSynonyms?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ai_exportBotReplyChatBits { var function: Ai_exportBotReplyChat? }
+
+public func == (lhs: Ai_exportBotReplyChat?, rhs: Ai_exportBotReplyChat?) -> Bool {
+    precondition(MemoryLayout<Ai_exportBotReplyChatBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ai_exportBotReplyChatBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ai_exportBotReplyChatBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ai_exportBotReplyChat?, rhs: Ai_exportBotReplyChat?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ai_exportBotSetAvoidGoalTimeBits { var function: Ai_exportBotSetAvoidGoalTime? }
+
+public func == (lhs: Ai_exportBotSetAvoidGoalTime?, rhs: Ai_exportBotSetAvoidGoalTime?) -> Bool {
+    precondition(MemoryLayout<Ai_exportBotSetAvoidGoalTimeBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ai_exportBotSetAvoidGoalTimeBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ai_exportBotSetAvoidGoalTimeBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ai_exportBotSetAvoidGoalTime?, rhs: Ai_exportBotSetAvoidGoalTime?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ai_exportCharacteristic_BFloatBits { var function: Ai_exportCharacteristic_BFloat? }
+
+public func == (lhs: Ai_exportCharacteristic_BFloat?, rhs: Ai_exportCharacteristic_BFloat?) -> Bool {
+    precondition(MemoryLayout<Ai_exportCharacteristic_BFloatBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ai_exportCharacteristic_BFloatBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ai_exportCharacteristic_BFloatBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ai_exportCharacteristic_BFloat?, rhs: Ai_exportCharacteristic_BFloat?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ai_exportCharacteristic_BIntegerBits { var function: Ai_exportCharacteristic_BInteger? }
+
+public func == (lhs: Ai_exportCharacteristic_BInteger?, rhs: Ai_exportCharacteristic_BInteger?) -> Bool {
+    precondition(MemoryLayout<Ai_exportCharacteristic_BIntegerBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ai_exportCharacteristic_BIntegerBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ai_exportCharacteristic_BIntegerBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ai_exportCharacteristic_BInteger?, rhs: Ai_exportCharacteristic_BInteger?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ai_exportCharacteristic_StringBits { var function: Ai_exportCharacteristic_String? }
+
+public func == (lhs: Ai_exportCharacteristic_String?, rhs: Ai_exportCharacteristic_String?) -> Bool {
+    precondition(MemoryLayout<Ai_exportCharacteristic_StringBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ai_exportCharacteristic_StringBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ai_exportCharacteristic_StringBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ai_exportCharacteristic_String?, rhs: Ai_exportCharacteristic_String?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ai_exportGeneticParentsAndChildSelectionBits { var function: Ai_exportGeneticParentsAndChildSelection? }
+
+public func == (lhs: Ai_exportGeneticParentsAndChildSelection?, rhs: Ai_exportGeneticParentsAndChildSelection?) -> Bool {
+    precondition(MemoryLayout<Ai_exportGeneticParentsAndChildSelectionBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ai_exportGeneticParentsAndChildSelectionBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ai_exportGeneticParentsAndChildSelectionBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ai_exportGeneticParentsAndChildSelection?, rhs: Ai_exportGeneticParentsAndChildSelection?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct BotlibExportBotLibStartFrameBits { var function: BotlibExportBotLibStartFrame? }
+
+public func == (lhs: BotlibExportBotLibStartFrame?, rhs: BotlibExportBotLibStartFrame?) -> Bool {
+    precondition(MemoryLayout<BotlibExportBotLibStartFrameBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: BotlibExportBotLibStartFrameBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: BotlibExportBotLibStartFrameBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: BotlibExportBotLibStartFrame?, rhs: BotlibExportBotLibStartFrame?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct BotlibImportBSPEntityDataBits { var function: BotlibImportBSPEntityData? }
+
+public func == (lhs: BotlibImportBSPEntityData?, rhs: BotlibImportBSPEntityData?) -> Bool {
+    precondition(MemoryLayout<BotlibImportBSPEntityDataBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: BotlibImportBSPEntityDataBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: BotlibImportBSPEntityDataBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: BotlibImportBSPEntityData?, rhs: BotlibImportBSPEntityData?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct BotlibImportBSPModelMinsMaxsOriginBits { var function: BotlibImportBSPModelMinsMaxsOrigin? }
+
+public func == (lhs: BotlibImportBSPModelMinsMaxsOrigin?, rhs: BotlibImportBSPModelMinsMaxsOrigin?) -> Bool {
+    precondition(MemoryLayout<BotlibImportBSPModelMinsMaxsOriginBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: BotlibImportBSPModelMinsMaxsOriginBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: BotlibImportBSPModelMinsMaxsOriginBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: BotlibImportBSPModelMinsMaxsOrigin?, rhs: BotlibImportBSPModelMinsMaxsOrigin?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct BotlibImportDebugLineShowBits { var function: BotlibImportDebugLineShow? }
+
+public func == (lhs: BotlibImportDebugLineShow?, rhs: BotlibImportDebugLineShow?) -> Bool {
+    precondition(MemoryLayout<BotlibImportDebugLineShowBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: BotlibImportDebugLineShowBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: BotlibImportDebugLineShowBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: BotlibImportDebugLineShow?, rhs: BotlibImportDebugLineShow?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct BotlibImportDebugPolygonCreateBits { var function: BotlibImportDebugPolygonCreate? }
+
+public func == (lhs: BotlibImportDebugPolygonCreate?, rhs: BotlibImportDebugPolygonCreate?) -> Bool {
+    precondition(MemoryLayout<BotlibImportDebugPolygonCreateBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: BotlibImportDebugPolygonCreateBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: BotlibImportDebugPolygonCreateBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: BotlibImportDebugPolygonCreate?, rhs: BotlibImportDebugPolygonCreate?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct BotlibImportFS_FOpenFileBits { var function: BotlibImportFS_FOpenFile? }
+
+public func == (lhs: BotlibImportFS_FOpenFile?, rhs: BotlibImportFS_FOpenFile?) -> Bool {
+    precondition(MemoryLayout<BotlibImportFS_FOpenFileBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: BotlibImportFS_FOpenFileBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: BotlibImportFS_FOpenFileBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: BotlibImportFS_FOpenFile?, rhs: BotlibImportFS_FOpenFile?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct BotlibImportFS_ReadBits { var function: BotlibImportFS_Read? }
+
+public func == (lhs: BotlibImportFS_Read?, rhs: BotlibImportFS_Read?) -> Bool {
+    precondition(MemoryLayout<BotlibImportFS_ReadBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: BotlibImportFS_ReadBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: BotlibImportFS_ReadBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: BotlibImportFS_Read?, rhs: BotlibImportFS_Read?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct BotlibImportFS_SeekBits { var function: BotlibImportFS_Seek? }
+
+public func == (lhs: BotlibImportFS_Seek?, rhs: BotlibImportFS_Seek?) -> Bool {
+    precondition(MemoryLayout<BotlibImportFS_SeekBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: BotlibImportFS_SeekBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: BotlibImportFS_SeekBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: BotlibImportFS_Seek?, rhs: BotlibImportFS_Seek?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct BotlibImportGetMemoryBits { var function: BotlibImportGetMemory? }
+
+public func == (lhs: BotlibImportGetMemory?, rhs: BotlibImportGetMemory?) -> Bool {
+    precondition(MemoryLayout<BotlibImportGetMemoryBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: BotlibImportGetMemoryBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: BotlibImportGetMemoryBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: BotlibImportGetMemory?, rhs: BotlibImportGetMemory?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ea_exportEA_GetInputBits { var function: Ea_exportEA_GetInput? }
+
+public func == (lhs: Ea_exportEA_GetInput?, rhs: Ea_exportEA_GetInput?) -> Bool {
+    precondition(MemoryLayout<Ea_exportEA_GetInputBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ea_exportEA_GetInputBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ea_exportEA_GetInputBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ea_exportEA_GetInput?, rhs: Ea_exportEA_GetInput?) -> Bool {
+    return !(lhs == rhs)
+}
+
+private struct Ea_exportEA_MoveBits { var function: Ea_exportEA_Move? }
+
+public func == (lhs: Ea_exportEA_Move?, rhs: Ea_exportEA_Move?) -> Bool {
+    precondition(MemoryLayout<Ea_exportEA_MoveBits>.size == MemoryLayout<UInt>.size)
+    return withUnsafeBytes(of: Ea_exportEA_MoveBits(function: lhs)) { $0.load(as: UInt.self) }
+        == withUnsafeBytes(of: Ea_exportEA_MoveBits(function: rhs)) { $0.load(as: UInt.self) }
+}
+
+public func != (lhs: Ea_exportEA_Move?, rhs: Ea_exportEA_Move?) -> Bool {
     return !(lhs == rhs)
 }

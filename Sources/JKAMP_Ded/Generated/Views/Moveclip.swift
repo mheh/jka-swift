@@ -73,73 +73,61 @@ public struct Moveclip: Hashable, HandleView {
         nonmutating set { self.raw.pointee.boxmaxs = tuple(of: newValue) }
     }
 
-    /// Source: oracle/codemp/server/sv_world.cpp:442
-    public var mins: OpaquePointer? {
-        get { OpaquePointer(self.raw.pointee.mins) }
-        nonmutating set { self.raw.pointee.mins = UnsafePointer(newValue) }
-    }
-
-    /// Raven's `mins[i]`, the vector the pointer holds. A NULL pointer traps with the field's name.
-    public var minsVector: JKAShared.vec3_t {
-        precondition(self.raw.pointee.mins != nil, "mins is NULL")
-        return JKAShared.vec3_t(self.raw.pointee.mins![0], self.raw.pointee.mins![1], self.raw.pointee.mins![2])
-    }
-
     /// Source: oracle/codemp/server/sv_world.cpp:443
-    public var maxs: OpaquePointer? {
-        get { OpaquePointer(self.raw.pointee.maxs) }
-        nonmutating set { self.raw.pointee.maxs = UnsafePointer(newValue) }
+    public var mins: JKAShared.vec3_t {
+        get { vec3(of: self.raw.pointee.mins) }
+        nonmutating set { self.raw.pointee.mins = tuple(of: newValue) }
     }
 
-    /// Raven's `maxs[i]`, the vector the pointer holds. A NULL pointer traps with the field's name.
-    public var maxsVector: JKAShared.vec3_t {
-        precondition(self.raw.pointee.maxs != nil, "maxs is NULL")
-        return JKAShared.vec3_t(self.raw.pointee.maxs![0], self.raw.pointee.maxs![1], self.raw.pointee.maxs![2])
+    /// Source: oracle/codemp/server/sv_world.cpp:444
+    public var maxs: JKAShared.vec3_t {
+        get { vec3(of: self.raw.pointee.maxs) }
+        nonmutating set { self.raw.pointee.maxs = tuple(of: newValue) }
     }
 
-    /// Source: oracle/codemp/server/sv_world.cpp:447
+    /// Source: oracle/codemp/server/sv_world.cpp:448
     public var start: JKAShared.vec3_t {
         get { vec3(of: self.raw.pointee.start) }
         nonmutating set { self.raw.pointee.start = tuple(of: newValue) }
     }
 
-    /// Source: oracle/codemp/server/sv_world.cpp:449
+    /// Source: oracle/codemp/server/sv_world.cpp:450
     public var end: JKAShared.vec3_t {
         get { vec3(of: self.raw.pointee.end) }
         nonmutating set { self.raw.pointee.end = tuple(of: newValue) }
     }
 
-    /// Source: oracle/codemp/server/sv_world.cpp:451
+    /// Source: oracle/codemp/server/sv_world.cpp:452
     public var passEntityNum: Int32 {
         get { self.raw.pointee.passEntityNum }
         nonmutating set { self.raw.pointee.passEntityNum = newValue }
     }
 
-    /// Source: oracle/codemp/server/sv_world.cpp:452
+    /// Source: oracle/codemp/server/sv_world.cpp:453
     public var contentmask: Int32 {
         get { self.raw.pointee.contentmask }
         nonmutating set { self.raw.pointee.contentmask = newValue }
     }
 
-    /// Source: oracle/codemp/server/sv_world.cpp:453
+    /// Source: oracle/codemp/server/sv_world.cpp:454
     public var capsule: Int32 {
         get { self.raw.pointee.capsule }
         nonmutating set { self.raw.pointee.capsule = newValue }
     }
 
-    /// Source: oracle/codemp/server/sv_world.cpp:455
+    /// Source: oracle/codemp/server/sv_world.cpp:456
     public var traceFlags: Int32 {
         get { self.raw.pointee.traceFlags }
         nonmutating set { self.raw.pointee.traceFlags = newValue }
     }
 
-    /// Source: oracle/codemp/server/sv_world.cpp:456
+    /// Source: oracle/codemp/server/sv_world.cpp:457
     public var useLod: Int32 {
         get { self.raw.pointee.useLod }
         nonmutating set { self.raw.pointee.useLod = newValue }
     }
 
-    /// Source: oracle/codemp/server/sv_world.cpp:457
+    /// Source: oracle/codemp/server/sv_world.cpp:458
     public var trace: JKAMP.Trace {
         get { JKAMP.Trace(handle: OpaquePointer(self.raw.pointer(to: \.trace)!)) }
         nonmutating set { self.raw.pointee.trace = UnsafeMutablePointer(newValue.handle).pointee }

@@ -10,9 +10,6 @@ public let MAX_FACETS = CJKAMP_Ded.MAX_FACETS
 /// Source: oracle/codemp/qcommon/cm_patch.h:43
 public let MAX_PATCH_PLANES = CJKAMP_Ded.MAX_PATCH_PLANES
 
-/// Source: oracle/codemp/qcommon/cm_patch.h:104
-public let MAX_GRID_SIZE = CJKAMP_Ded.MAX_GRID_SIZE
-
 /// Source: oracle/codemp/qcommon/cm_patch.h:119
 public let SUBDIVIDE_DISTANCE = CJKAMP_Ded.SUBDIVIDE_DISTANCE
 

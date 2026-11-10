@@ -15,10 +15,7 @@ let MASK_SOLID = JKAShared.CONTENTS_PLAYERCLIP
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:46
-// TODO: Port signature
-// Raven wrote: int AAS_UpdateEntity(int entnum, bot_entitystate_t *state)
-// No table row for `bot_entitystate_t * state`.
-func AAS_UpdateEntity() -> Never {
+func AAS_UpdateEntity(_ entnum: Int32, _ state: BotEntitystate) -> Int32 {
     // TODO: Port AAS_UpdateEntity
     portMissing("AAS_UpdateEntity", source: "oracle/codemp/botlib/be_aas_entity.cpp:46")
 }

@@ -5,7 +5,7 @@
 
 #include "CJKAMP_Ded_forward.h"
 #include "codemp/game/q_shared/qboolean.h"
-#include "codemp/qcommon/cm_patch/constants.h"
+#include "codemp/renderer/tr_local/constants.h"
 #include "shared/game/q_shared/vec3_t.h"
 
 // Source: oracle/codemp/qcommon/cm_patch.h:107

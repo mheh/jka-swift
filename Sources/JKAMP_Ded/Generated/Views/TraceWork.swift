@@ -116,10 +116,16 @@ public struct TraceWork: Hashable, HandleView {
     }
 
     /// Source: oracle/codemp/qcommon/cm_local.h:250
-    public var bounds: Slots<Slots<Float>> { Slots(rows: UnsafeMutableRawPointer(self.raw.pointer(to: \.bounds)!), count: 2, stride: 3 * MemoryLayout<Float>.stride) { Slots<Float>(scalars: $0, count: 3) } }
+    public var bounds: [JKAShared.vec3_t] {
+        get { [JKAShared.vec3_t(self.raw.pointee.bounds.0.0, self.raw.pointee.bounds.0.1, self.raw.pointee.bounds.0.2), JKAShared.vec3_t(self.raw.pointee.bounds.1.0, self.raw.pointee.bounds.1.1, self.raw.pointee.bounds.1.2)] }
+        nonmutating set { self.raw.pointee.bounds = ((newValue[0][0], newValue[0][1], newValue[0][2]), (newValue[1][0], newValue[1][1], newValue[1][2])) }
+    }
 
     /// Source: oracle/codemp/qcommon/cm_local.h:251
-    public var localBounds: Slots<Slots<Float>> { Slots(rows: UnsafeMutableRawPointer(self.raw.pointer(to: \.localBounds)!), count: 2, stride: 3 * MemoryLayout<Float>.stride) { Slots<Float>(scalars: $0, count: 3) } }
+    public var localBounds: [JKAShared.vec3_t] {
+        get { [JKAShared.vec3_t(self.raw.pointee.localBounds.0.0, self.raw.pointee.localBounds.0.1, self.raw.pointee.localBounds.0.2), JKAShared.vec3_t(self.raw.pointee.localBounds.1.0, self.raw.pointee.localBounds.1.1, self.raw.pointee.localBounds.1.2)] }
+        nonmutating set { self.raw.pointee.localBounds = ((newValue[0][0], newValue[0][1], newValue[0][2]), (newValue[1][0], newValue[1][1], newValue[1][2])) }
+    }
 
     /// Source: oracle/codemp/qcommon/cm_local.h:252
     public var baseEnterFrac: Float {

@@ -6,9 +6,11 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:16
-// TODO: Port global iICARUS
-// Raven wrote: ICARUS_Instance *iICARUS
-// No table row for `ICARUS_Instance *`.
+/// Raven's instance, a hand property of `EngineWorld`, by the HAND_VARS ruling.
+var iICARUS: ICARUS_Instance? {
+    get { world.iICARUS }
+    set { world.iICARUS = newValue }
+}
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:17
 // TODO: Port global ICARUS_BufferList
@@ -132,10 +134,7 @@ func ICARUS_InitEnt(_ ent: JKAMP.SharedEntity) {
 }
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:679
-// TODO: Port signature
-// Raven wrote: int ICARUS_LinkEntity( int entID, CSequencer *sequencer, CTaskManager *taskManager )
-// No table row for `CSequencer * sequencer`.
-func ICARUS_LinkEntity() -> Never {
+func ICARUS_LinkEntity(_ entID: Int32, _ sequencer: CSequencer?, _ taskManager: CTaskManager?) -> Int32 {
     // TODO: Port ICARUS_LinkEntity
     portMissing("ICARUS_LinkEntity", source: "oracle/codemp/icarus/GameInterface.cpp:679")
 }

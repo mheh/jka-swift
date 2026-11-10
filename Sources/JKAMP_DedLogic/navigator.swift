@@ -6,9 +6,8 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/server/NPCNav/navigator.cpp:32
-// TODO: Port global navigator
-// Raven wrote: CNavigator navigator
-// No view for `CNavigator` of `navigator.h`.
+/// Raven's instance, a hand property of `EngineWorld`, by the HAND_VARS ruling.
+var navigator: CNavigator { world.navigator }
 
 /// Source: oracle/codemp/server/NPCNav/navigator.cpp:36
 var d_altRoutes: JKAMP.Cvar? {

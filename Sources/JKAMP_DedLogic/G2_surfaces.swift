@@ -7,10 +7,7 @@ import JKAMP_Ded
 
 // find a particular surface in the surface override list
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:48
-// TODO: Port signature
-// Raven wrote: surfaceInfo_t *G2_FindOverrideSurface(int surfaceNum, surfaceInfo_v &surfaceList)
-// No table row for `surfaceInfo_v & surfaceList`.
-func G2_FindOverrideSurface() -> Never {
+func G2_FindOverrideSurface(_ surfaceNum: Int32, _ surfaceList: inout [surfaceInfo_t]) -> surfaceInfo_t? {
     // TODO: Port G2_FindOverrideSurface
     portMissing("G2_FindOverrideSurface", source: "oracle/codemp/ghoul2/G2_surfaces.cpp:48")
 }
@@ -39,111 +36,75 @@ func G2_IsSurfaceLegal(_ mod: OpaquePointer?, _ surfaceName: String, _ flags: in
 ```
 */
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:98
-// TODO: Port signature
-// Raven wrote: mdxmSurface_t *G2_FindSurface(CGhoul2Info *ghlInfo, surfaceInfo_v &slist, const char *surfaceName, int *surfIndex/*NULL*/)
-// No table row for `CGhoul2Info * ghlInfo`.
-private func G2_FindSurface() -> Never {
+private func G2_FindSurface(_ ghlInfo: CGhoul2Info?, _ slist: inout [surfaceInfo_t], _ surfaceName: String, _ surfIndex: inout Int32) -> MdxmSurface? {
     // TODO: Port G2_FindSurface
     portMissing("G2_FindSurface", source: "oracle/codemp/ghoul2/G2_surfaces.cpp:98")
 }
 
 // set a named surface offFlags - if it doesn't find a surface with this name in the list then it will add one.
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:148
-// TODO: Port signature
-// Raven wrote: qboolean G2_SetSurfaceOnOff (CGhoul2Info *ghlInfo, surfaceInfo_v &slist, const char *surfaceName, const int offFlags)
-// No table row for `CGhoul2Info * ghlInfo`.
-func G2_SetSurfaceOnOff() -> Never {
+func G2_SetSurfaceOnOff(_ ghlInfo: CGhoul2Info?, _ slist: inout [surfaceInfo_t], _ surfaceName: String, _ offFlags: Int32) -> Bool {
     // TODO: Port G2_SetSurfaceOnOff
     portMissing("G2_SetSurfaceOnOff", source: "oracle/codemp/ghoul2/G2_surfaces.cpp:148")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:201
-// TODO: Port signature
-// Raven wrote: void G2_SetSurfaceOnOffFromSkin (CGhoul2Info *ghlInfo, qhandle_t renderSkin)
-// No table row for `CGhoul2Info * ghlInfo`.
-func G2_SetSurfaceOnOffFromSkin() -> Never {
+func G2_SetSurfaceOnOffFromSkin(_ ghlInfo: CGhoul2Info?, _ renderSkin: JKAShared.qhandle_t) {
     // TODO: Port G2_SetSurfaceOnOffFromSkin
     portMissing("G2_SetSurfaceOnOffFromSkin", source: "oracle/codemp/ghoul2/G2_surfaces.cpp:201")
 }
 
 // return a named surfaces off flags - should tell you if this surface is on or off.
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:229
-// TODO: Port signature
-// Raven wrote: int G2_IsSurfaceOff (CGhoul2Info *ghlInfo, surfaceInfo_v &slist, const char *surfaceName)
-// No table row for `CGhoul2Info * ghlInfo`.
-func G2_IsSurfaceOff() -> Never {
+func G2_IsSurfaceOff(_ ghlInfo: CGhoul2Info?, _ slist: inout [surfaceInfo_t], _ surfaceName: String) -> Int32 {
     // TODO: Port G2_IsSurfaceOff
     portMissing("G2_IsSurfaceOff", source: "oracle/codemp/ghoul2/G2_surfaces.cpp:229")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:266
-// TODO: Port signature
-// Raven wrote: void G2_FindRecursiveSurface(model_t *currentModel, int surfaceNum, surfaceInfo_v &rootList, int *activeSurfaces)
-// No table row for `model_t * currentModel`.
-func G2_FindRecursiveSurface() -> Never {
+func G2_FindRecursiveSurface(_ currentModel: Model, _ surfaceNum: Int32, _ rootList: inout [surfaceInfo_t], _ activeSurfaces: Slots<Int32>) {
     // TODO: Port G2_FindRecursiveSurface
     portMissing("G2_FindRecursiveSurface", source: "oracle/codemp/ghoul2/G2_surfaces.cpp:266")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:306
-// TODO: Port signature
-// Raven wrote: void G2_RemoveRedundantGeneratedSurfaces(surfaceInfo_v &slist, int *activeSurfaces)
-// No table row for `surfaceInfo_v & slist`.
-func G2_RemoveRedundantGeneratedSurfaces() -> Never {
+func G2_RemoveRedundantGeneratedSurfaces(_ slist: inout [surfaceInfo_t], _ activeSurfaces: Slots<Int32>) {
     // TODO: Port G2_RemoveRedundantGeneratedSurfaces
     portMissing("G2_RemoveRedundantGeneratedSurfaces", source: "oracle/codemp/ghoul2/G2_surfaces.cpp:306")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:337
-// TODO: Port signature
-// Raven wrote: qboolean G2_SetRootSurface(CGhoul2Info_v &ghoul2, const int modelIndex, const char *surfaceName)
-// No table row for `CGhoul2Info_v & ghoul2`.
-func G2_SetRootSurface() -> Never {
+func G2_SetRootSurface(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ surfaceName: String) -> Bool {
     // TODO: Port G2_SetRootSurface
     portMissing("G2_SetRootSurface", source: "oracle/codemp/ghoul2/G2_surfaces.cpp:337")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:511
-// TODO: Port signature
-// Raven wrote: int G2_AddSurface(CGhoul2Info *ghoul2, int surfaceNumber, int polyNumber, float BarycentricI, float BarycentricJ, int lod )
-// No table row for `CGhoul2Info * ghoul2`.
-func G2_AddSurface() -> Never {
+func G2_AddSurface(_ ghoul2: CGhoul2Info?, _ surfaceNumber: Int32, _ polyNumber: Int32, _ BarycentricI: Float, _ BarycentricJ: Float, _ lod: Int32) -> Int32 {
     // TODO: Port G2_AddSurface
     portMissing("G2_AddSurface", source: "oracle/codemp/ghoul2/G2_surfaces.cpp:511")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:549
-// TODO: Port signature
-// Raven wrote: qboolean G2_RemoveSurface(surfaceInfo_v &slist, const int index)
-// No table row for `surfaceInfo_v & slist`.
-func G2_RemoveSurface() -> Never {
+func G2_RemoveSurface(_ slist: inout [surfaceInfo_t], _ index: Int32) -> Bool {
     // TODO: Port G2_RemoveSurface
     portMissing("G2_RemoveSurface", source: "oracle/codemp/ghoul2/G2_surfaces.cpp:549")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:588
-// TODO: Port signature
-// Raven wrote: int G2_GetParentSurface(CGhoul2Info *ghlInfo, const int index)
-// No table row for `CGhoul2Info * ghlInfo`.
-func G2_GetParentSurface() -> Never {
+func G2_GetParentSurface(_ ghlInfo: CGhoul2Info?, _ index: Int32) -> Int32 {
     // TODO: Port G2_GetParentSurface
     portMissing("G2_GetParentSurface", source: "oracle/codemp/ghoul2/G2_surfaces.cpp:588")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:603
-// TODO: Port signature
-// Raven wrote: int G2_GetSurfaceIndex(CGhoul2Info *ghlInfo, const char *surfaceName)
-// No table row for `CGhoul2Info * ghlInfo`.
-func G2_GetSurfaceIndex() -> Never {
+func G2_GetSurfaceIndex(_ ghlInfo: CGhoul2Info?, _ surfaceName: String) -> Int32 {
     // TODO: Port G2_GetSurfaceIndex
     portMissing("G2_GetSurfaceIndex", source: "oracle/codemp/ghoul2/G2_surfaces.cpp:603")
 }
 
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:611
-// TODO: Port signature
-// Raven wrote: int G2_IsSurfaceRendered(CGhoul2Info *ghlInfo, const char *surfaceName, surfaceInfo_v &slist)
-// No table row for `CGhoul2Info * ghlInfo`.
-func G2_IsSurfaceRendered() -> Never {
+func G2_IsSurfaceRendered(_ ghlInfo: CGhoul2Info?, _ surfaceName: String, _ slist: inout [surfaceInfo_t]) -> Int32 {
     // TODO: Port G2_IsSurfaceRendered
     portMissing("G2_IsSurfaceRendered", source: "oracle/codemp/ghoul2/G2_surfaces.cpp:611")
 }

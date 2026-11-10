@@ -11,14 +11,10 @@ import JKAMP_Ded
 // No view for `botlib_globals_s` of `be_interface.h`.
 
 /// Source: oracle/codemp/botlib/be_interface.cpp:41
-// TODO: Port global be_botlib_export
-// Raven wrote: botlib_export_t be_botlib_export
-// No view for `botlib_export_s` of `botlib.h`.
+var be_botlib_export: BotlibExport { world.storage.be_botlib_export }
 
 /// Source: oracle/codemp/botlib/be_interface.cpp:42
-// TODO: Port global botimport
-// Raven wrote: botlib_import_t botimport
-// No view for `botlib_import_s` of `botlib.h`.
+var botimport: BotlibImport { world.storage.botimport }
 
 /// Source: oracle/codemp/botlib/be_interface.cpp:44
 var bot_developer: Int32 {
@@ -159,10 +155,7 @@ func Export_BotLibLoadMap(_ mapname: String) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_interface.cpp:269
-// TODO: Port signature
-// Raven wrote: int Export_BotLibUpdateEntity(int ent, bot_entitystate_t *state)
-// No table row for `bot_entitystate_t * state`.
-func Export_BotLibUpdateEntity() -> Never {
+func Export_BotLibUpdateEntity(_ ent: Int32, _ state: BotEntitystate) -> Int32 {
     // TODO: Port Export_BotLibUpdateEntity
     portMissing("Export_BotLibUpdateEntity", source: "oracle/codemp/botlib/be_interface.cpp:269")
 }
@@ -181,10 +174,7 @@ Init_AAS_Export
 ```
 */
 /// Source: oracle/codemp/botlib/be_interface.cpp:639
-// TODO: Port signature
-// Raven wrote: static void Init_AAS_Export( aas_export_t *aas )
-// No table row for `aas_export_t * aas`.
-private func Init_AAS_Export() -> Never {
+private func Init_AAS_Export(_ aas: Aas_export) {
     // TODO: Port Init_AAS_Export
     portMissing("Init_AAS_Export", source: "oracle/codemp/botlib/be_interface.cpp:639")
 }
@@ -197,10 +187,7 @@ Init_EA_Export
 ```
 */
 /// Source: oracle/codemp/botlib/be_interface.cpp:694
-// TODO: Port signature
-// Raven wrote: static void Init_EA_Export( ea_export_t *ea )
-// No table row for `ea_export_t * ea`.
-private func Init_EA_Export() -> Never {
+private func Init_EA_Export(_ ea: Ea_export) {
     // TODO: Port Init_EA_Export
     portMissing("Init_EA_Export", source: "oracle/codemp/botlib/be_interface.cpp:694")
 }
@@ -213,10 +200,7 @@ Init_AI_Export
 ```
 */
 /// Source: oracle/codemp/botlib/be_interface.cpp:732
-// TODO: Port signature
-// Raven wrote: static void Init_AI_Export( ai_export_t *ai )
-// No table row for `ai_export_t * ai`.
-private func Init_AI_Export() -> Never {
+private func Init_AI_Export(_ ai: Ai_export) {
     // TODO: Port Init_AI_Export
     portMissing("Init_AI_Export", source: "oracle/codemp/botlib/be_interface.cpp:732")
 }
@@ -229,10 +213,39 @@ GetBotLibAPI
 ```
 */
 /// Source: oracle/codemp/botlib/be_interface.cpp:834
-// TODO: Port signature
-// Raven wrote: botlib_export_t *GetBotLibAPI(int apiVersion, botlib_import_t *import)
-// No table row for `botlib_import_t * import`.
-func GetBotLibAPI() -> Never {
+func GetBotLibAPI(_ apiVersion: Int32, _ `import`: BotlibImport) -> BotlibExport? {
     // TODO: Port GetBotLibAPI
     portMissing("GetBotLibAPI", source: "oracle/codemp/botlib/be_interface.cpp:834")
+}
+
+/// One static per function this file stores in a `BotlibExport` callback field, so each has one address for the life of the module.
+/// The thunks stand in this file, because the functions they call are private to it.
+private enum BotlibExportThunks {
+    /// Source: oracle/codemp/botlib/be_interface.cpp:302
+    // TODO: Port signature
+    static let BotExportTest: BotlibExportTest = { _, _, _, _ in portMissing("BotExportTest", source: "oracle/codemp/botlib/be_interface.cpp:302") }
+
+    /// Source: oracle/codemp/botlib/be_interface.cpp:239
+    // TODO: Port signature
+    static let Export_BotLibLoadMap: BotlibExportBotLibLoadMap = { _ in portMissing("Export_BotLibLoadMap", source: "oracle/codemp/botlib/be_interface.cpp:239") }
+
+    /// Source: oracle/codemp/botlib/be_interface.cpp:119
+    static let Export_BotLibSetup: BotlibExportBotLibSetup = { JKAMP_DedLogic.Export_BotLibSetup() }
+
+    /// Source: oracle/codemp/botlib/be_interface.cpp:159
+    static let Export_BotLibShutdown: BotlibExportBotLibShutdown = { JKAMP_DedLogic.Export_BotLibShutdown() }
+
+    /// Source: oracle/codemp/botlib/be_interface.cpp:228
+    static let Export_BotLibStartFrame: BotlibExportBotLibStartFrame = { JKAMP_DedLogic.Export_BotLibStartFrame($0) }
+
+    /// Source: oracle/codemp/botlib/be_interface.cpp:269
+    static let Export_BotLibUpdateEntity: BotlibExportBotLibUpdateEntity = { JKAMP_DedLogic.Export_BotLibUpdateEntity($0, BotEntitystate(handle: $1!)) }
+
+    /// Source: oracle/codemp/botlib/be_interface.cpp:213
+    // TODO: Port signature
+    static let Export_BotLibVarGet: BotlibExportBotLibVarGet = { _, _, _ in portMissing("Export_BotLibVarGet", source: "oracle/codemp/botlib/be_interface.cpp:213") }
+
+    /// Source: oracle/codemp/botlib/be_interface.cpp:202
+    // TODO: Port signature
+    static let Export_BotLibVarSet: BotlibExportBotLibVarSet = { _, _ in portMissing("Export_BotLibVarSet", source: "oracle/codemp/botlib/be_interface.cpp:202") }
 }

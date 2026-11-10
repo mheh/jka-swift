@@ -6,6 +6,30 @@ import JKAShared
 /// Raven's file-scope struct tables, struct records, and arrays of struct pointers, one zeroed allocation each, born and freed with `EngineWorld` under rule 3.
 /// A body reaches each one by Raven's name through the forwarder in the stub of the file that declared it.
 public final class EngineStorage {
+    /// Raven's `mdxaBone_t* ragBasepose[MAX_BONES_RAG]` of `G2_bones.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1214
+    public let ragBasepose: Slots<JKAMP.MdxaBone?>
+
+    /// Raven's `mdxaBone_t* ragBaseposeInv[MAX_BONES_RAG]` of `G2_bones.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1215
+    public let ragBaseposeInv: Slots<JKAMP.MdxaBone?>
+
+    /// Raven's `mdxaBone_t ragBones[MAX_BONES_RAG]` of `G2_bones.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1216
+    public let ragBones: Slots<JKAMP.MdxaBone>
+
+    /// Raven's `SRagEffector ragEffectors[MAX_BONES_RAG]` of `G2_bones.cpp`.
+    /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1217
+    public let ragEffectors: Slots<RagEffector>
+
+    /// Raven's `botlib_export_t be_botlib_export` of `be_interface.cpp`.
+    /// Source: oracle/codemp/botlib/be_interface.cpp:41
+    public let be_botlib_export: BotlibExport
+
+    /// Raven's `botlib_import_t botimport` of `be_interface.cpp`.
+    /// Source: oracle/codemp/botlib/be_interface.cpp:42
+    public let botimport: BotlibImport
+
     /// Raven's `clipMap_t cmg` of `cm_load.cpp`.
     /// Source: oracle/codemp/qcommon/cm_load.cpp:37
     public let cmg: ClipMap
@@ -33,6 +57,10 @@ public final class EngineStorage {
     /// Raven's `vec3_t newHullPoints[MAX_HULL_POINTS]` local of `AddWindingToConvexHull` in `cm_polylib.cpp`.
     /// Source: oracle/codemp/qcommon/cm_polylib.cpp:633
     public let newHullPoints: Slots<JKAShared.vec3_t>
+
+    /// Raven's `int leafs[MAX_POSITION_LEAFS]` local of `CM_PositionTest` in `cm_trace.cpp`.
+    /// Source: oracle/codemp/qcommon/cm_trace.cpp:449
+    public let cm_trace_leafs_CM_PositionTest: Slots<Int32>
 
     /// Raven's `cmd_t cmd_text` of `cmd_common.cpp`.
     /// Source: oracle/codemp/qcommon/cmd_common.cpp:17
@@ -156,7 +184,47 @@ public final class EngineStorage {
 
     /// Raven's `int leafs[MAX_TOTAL_ENT_LEAFS]` local of `SV_LinkEntity` in `sv_world.cpp`.
     /// Source: oracle/codemp/server/sv_world.cpp:191
-    public let leafs_SV_LinkEntity: Slots<Int32>
+    public let sv_world_leafs_SV_LinkEntity: Slots<Int32>
+
+    /// Raven's `int touchlist[MAX_GENTITIES]` local of `SV_ClipMoveToEntities` in `sv_world.cpp`.
+    /// Source: oracle/codemp/server/sv_world.cpp:523
+    public let touchlist_SV_ClipMoveToEntities: Slots<Int32>
+
+    /// Raven's `backEndState_t backEnd` of `tr_backend.cpp`.
+    /// Source: oracle/codemp/renderer/tr_backend.cpp:21
+    public let backEnd: BackEndState
+
+    /// Raven's `mdxaBone_t worldMatrix` of `tr_ghoul2.cpp`.
+    /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:136
+    public let worldMatrix: JKAMP.MdxaBone
+
+    /// Raven's `mdxaBone_t worldMatrixInv` of `tr_ghoul2.cpp`.
+    /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:137
+    public let worldMatrixInv: JKAMP.MdxaBone
+
+    /// Raven's `trGlobals_t tr` of `tr_main.cpp`.
+    /// Source: oracle/codemp/renderer/tr_main.cpp:15
+    public let tr: TrGlobals
+
+    /// Raven's `modelHash_t *mhHashTable[FILE_HASH_SIZE]` of `tr_model.cpp`.
+    /// Source: oracle/codemp/renderer/tr_model.cpp:36
+    public let mhHashTable: Slots<ModelHash?>
+
+    /// Raven's `shaderStage_t stages[MAX_SHADER_STAGES]` of `tr_shader.cpp`.
+    /// Source: oracle/codemp/renderer/tr_shader.cpp:100
+    public let stages: Slots<ShaderStage>
+
+    /// Raven's `shader_t shader` of `tr_shader.cpp`.
+    /// Source: oracle/codemp/renderer/tr_shader.cpp:101
+    public let shader: Shader
+
+    /// Raven's `texModInfo_t texMods[MAX_SHADER_STAGES][TR_MAX_TEXMODS]` of `tr_shader.cpp`.
+    /// Source: oracle/codemp/renderer/tr_shader.cpp:102
+    public let texMods: Slots<TexModInfo>
+
+    /// Raven's `shader_t* hashTable[FILE_HASH_SIZE]` of `tr_shader.cpp`.
+    /// Source: oracle/codemp/renderer/tr_shader.cpp:106
+    public let tr_shader_hashTable: Slots<Shader?>
 
     /// Raven's `vm_t vmTable[MAX_VM]` of `vm.cpp`.
     /// Source: oracle/codemp/qcommon/vm.cpp:29
@@ -199,6 +267,12 @@ public final class EngineStorage {
     public let TheZone: Zone
 
     public init() {
+        self.ragBasepose = EngineStorage.table(count: 256, of: JKAMP.MdxaBone.self)
+        self.ragBaseposeInv = EngineStorage.table(count: 256, of: JKAMP.MdxaBone.self)
+        self.ragBones = EngineStorage.records(count: 256, of: JKAMP.MdxaBone.self)
+        self.ragEffectors = EngineStorage.records(count: 256, of: RagEffector.self)
+        self.be_botlib_export = EngineStorage.record(of: BotlibExport.self)
+        self.botimport = EngineStorage.record(of: BotlibImport.self)
         self.cmg = EngineStorage.record(of: ClipMap.self)
         self.box_model = EngineStorage.record(of: Cmodel.self)
         self.SubBSP = EngineStorage.records(count: Int(JKAShared.MAX_SUB_BSP), of: ClipMap.self)
@@ -206,6 +280,7 @@ public final class EngineStorage {
         self.p = Slots(vectors: EngineStorage.bytes(count: Int(JKAMP_Ded.MAX_POINTS_ON_WINDING) * JKAShared.vec3_t.byteCount), count: Int(JKAMP_Ded.MAX_POINTS_ON_WINDING))
         self.hullPoints = Slots(vectors: EngineStorage.bytes(count: 128 * JKAShared.vec3_t.byteCount), count: 128)
         self.newHullPoints = Slots(vectors: EngineStorage.bytes(count: 128 * JKAShared.vec3_t.byteCount), count: 128)
+        self.cm_trace_leafs_CM_PositionTest = Slots(scalars: EngineStorage.bytes(count: 1024 * MemoryLayout<Int32>.stride), count: 1024)
         self.cmd_text = EngineStorage.record(of: Cmd.self)
         self.cmd_text_buf = Slots(scalars: EngineStorage.bytes(count: 16384), count: 16384)
         self.com_pushedEvents = EngineStorage.records(count: 1024, of: SysEvent.self)
@@ -236,7 +311,17 @@ public final class EngineStorage {
         self.msg_buf_SV_SendClientSnapshot = Slots(scalars: EngineStorage.bytes(count: Int(JKAMP_Ded.MAX_MSGLEN)), count: Int(JKAMP_Ded.MAX_MSGLEN))
         self.sv_worldSectors = EngineStorage.records(count: 64, of: WorldSector.self)
         self.touch_SV_PointContents = Slots(scalars: EngineStorage.bytes(count: Int(JKAShared.MAX_GENTITIES) * MemoryLayout<Int32>.stride), count: Int(JKAShared.MAX_GENTITIES))
-        self.leafs_SV_LinkEntity = Slots(scalars: EngineStorage.bytes(count: 128 * MemoryLayout<Int32>.stride), count: 128)
+        self.sv_world_leafs_SV_LinkEntity = Slots(scalars: EngineStorage.bytes(count: 128 * MemoryLayout<Int32>.stride), count: 128)
+        self.touchlist_SV_ClipMoveToEntities = Slots(scalars: EngineStorage.bytes(count: Int(JKAShared.MAX_GENTITIES) * MemoryLayout<Int32>.stride), count: Int(JKAShared.MAX_GENTITIES))
+        self.backEnd = EngineStorage.record(of: BackEndState.self)
+        self.worldMatrix = EngineStorage.record(of: JKAMP.MdxaBone.self)
+        self.worldMatrixInv = EngineStorage.record(of: JKAMP.MdxaBone.self)
+        self.tr = EngineStorage.record(of: TrGlobals.self)
+        self.mhHashTable = EngineStorage.table(count: 1024, of: ModelHash.self)
+        self.stages = EngineStorage.records(count: Int(JKAMP_Ded.MAX_SHADER_STAGES), of: ShaderStage.self)
+        self.shader = EngineStorage.record(of: Shader.self)
+        self.texMods = EngineStorage.records(count: Int(JKAMP_Ded.MAX_SHADER_STAGES), of: TexModInfo.self)
+        self.tr_shader_hashTable = EngineStorage.table(count: 1024, of: Shader.self)
         self.vmTable = EngineStorage.records(count: 3, of: Vm.self)
         self.nullSym_VM_ValueToFunctionSymbol = EngineStorage.record(of: VmSymbol.self)
         self.eventQue = EngineStorage.records(count: Int(JKAMP_Ded.MAX_QUED_EVENTS), of: SysEvent.self)
@@ -250,6 +335,12 @@ public final class EngineStorage {
     }
 
     deinit {
+        self.ragBasepose.base.deallocate()
+        self.ragBaseposeInv.base.deallocate()
+        self.ragBones.base.deallocate()
+        self.ragEffectors.base.deallocate()
+        UnsafeMutableRawPointer(self.be_botlib_export.handle).deallocate()
+        UnsafeMutableRawPointer(self.botimport.handle).deallocate()
         UnsafeMutableRawPointer(self.cmg.handle).deallocate()
         UnsafeMutableRawPointer(self.box_model.handle).deallocate()
         self.SubBSP.base.deallocate()
@@ -257,6 +348,7 @@ public final class EngineStorage {
         self.p.base.deallocate()
         self.hullPoints.base.deallocate()
         self.newHullPoints.base.deallocate()
+        self.cm_trace_leafs_CM_PositionTest.base.deallocate()
         UnsafeMutableRawPointer(self.cmd_text.handle).deallocate()
         self.cmd_text_buf.base.deallocate()
         self.com_pushedEvents.base.deallocate()
@@ -287,7 +379,17 @@ public final class EngineStorage {
         self.msg_buf_SV_SendClientSnapshot.base.deallocate()
         self.sv_worldSectors.base.deallocate()
         self.touch_SV_PointContents.base.deallocate()
-        self.leafs_SV_LinkEntity.base.deallocate()
+        self.sv_world_leafs_SV_LinkEntity.base.deallocate()
+        self.touchlist_SV_ClipMoveToEntities.base.deallocate()
+        UnsafeMutableRawPointer(self.backEnd.handle).deallocate()
+        UnsafeMutableRawPointer(self.worldMatrix.handle).deallocate()
+        UnsafeMutableRawPointer(self.worldMatrixInv.handle).deallocate()
+        UnsafeMutableRawPointer(self.tr.handle).deallocate()
+        self.mhHashTable.base.deallocate()
+        self.stages.base.deallocate()
+        UnsafeMutableRawPointer(self.shader.handle).deallocate()
+        self.texMods.base.deallocate()
+        self.tr_shader_hashTable.base.deallocate()
         self.vmTable.base.deallocate()
         UnsafeMutableRawPointer(self.nullSym_VM_ValueToFunctionSymbol.handle).deallocate()
         self.eventQue.base.deallocate()

@@ -6,6 +6,5 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/qcommon/RoffSystem.cpp:8
-// TODO: Port global theROFFSystem
-// Raven wrote: CROFFSystem theROFFSystem
-// No view for `CROFFSystem` of `RoffSystem.h`.
+/// Raven's instance, a hand property of `EngineWorld`, by the HAND_VARS ruling.
+var theROFFSystem: CROFFSystem { world.theROFFSystem }
