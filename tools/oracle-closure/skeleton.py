@@ -51,7 +51,7 @@ from fnsweep import binop_assign_op, rhs_function, root_var
 from overlay import MACROS, written_arguments
 from reexport import REPO, SOURCES
 from rulings import BYTE_STORAGE_LOCALS, BYTE_STORAGE_VARS, CXX_CLASSES, DEAD, HAND_MACROS, HAND_VARS, LIBC_FUNCTIONS, NEVER_NULL_VARS, NOT_PORTED, PUBLIC_NAMES, RETURNS, \
-    SCALAR_DATA_TABLES, TYPES
+    POINTER_SLOT_VARS, SCALAR_DATA_TABLES, TYPES
 from store import Store, combined, file_hash, named
 from table import Param, SourceFile, Table, swift_name
 
@@ -684,7 +684,7 @@ class Skeleton:
                 var.reason = (f"No view for `{' '.join(element.spelling.split())}` of `{header}`." if header
                               else f"No view for `{' '.join(element.spelling.split())}`, a struct Raven defines inside a .c file.")
                 return
-            if var.data and depth and self.holds_address(element):
+            if var.data and depth and self.holds_address(element) and not (C.HOST and self.fills_no_address(var, element)):
                 # C storage cannot hold the address of a Swift function or of a record the state object owns,
                 # so Raven's table is a hand array on the state object, one `<View>Row` per row, with his rows in his order.
                 var.reason = "hand_table"
@@ -746,6 +746,14 @@ class Skeleton:
                     var.reason = f"No table row for `{' '.join(t.spelling.split())}`."
                     return
                 inner = self.table.views.qualified_view(record, C_TARGET) + "?"
+                if not depth and var.name in POINTER_SLOT_VARS:
+                    # A POINTER_SLOT_VARS ruling makes the pointer one slot of storage, so a body takes its address, `&fs_searchpaths`.
+                    # The hand forward reads and writes slot 0 under Raven's name.
+                    var.reason = "pointer_table"
+                    var.swift = f"Slots<{inner}>"
+                    var.view = inner[:-1]
+                    var.count = 1
+                    return
                 if depth == 1:
                     # A file-scope array of struct pointers is C storage the engine may read, reached through a Slots of optional views.
                     var.reason = "pointer_table"
@@ -823,6 +831,20 @@ class Skeleton:
             if t.kind == TypeKind.POINTER and t.get_pointee().get_canonical().kind in (TypeKind.FUNCTIONPROTO, TypeKind.FUNCTIONNOPROTO, TypeKind.RECORD):
                 return True
         return False
+
+    def fills_no_address(self, var: Variable, record: ci.Type) -> bool:
+        """True when the record has no function pointer field and Raven's initializer takes no address, so C storage holds the rows.
+        The field tables of the botlib, `iteminfo_fields` of be_ai_goal.cpp:123, leave `substruct` NULL, row D19."""
+        for field in record.get_declaration().get_children():
+            if field.kind != CursorKind.FIELD_DECL:
+                continue
+            t = field.type.get_canonical()
+            if t.kind == TypeKind.POINTER and t.get_pointee().get_canonical().kind in (TypeKind.FUNCTIONPROTO, TypeKind.FUNCTIONNOPROTO):
+                return False
+        # A text, a character literal, or a comment is no address, `{"&&",P_LOGIC_AND, NULL}` of l_script.cpp:79.
+        literals = r'"(?:[^"\\]|\\.)*"|\'(?:[^\'\\]|\\.)*\'|//[^\n]*|/\*.*?\*/'
+        initializer = re.sub(literals, "", self.declaration_text(var).split("=", 1)[-1], flags=re.S)
+        return "&" not in initializer
 
     def zero_initializer(self, var: Variable) -> bool:
         """True when every value of Raven's initializer is C's zero, `{qfalse, 0, 0}` or `{0}`."""

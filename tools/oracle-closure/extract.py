@@ -42,7 +42,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import closure as C
 from rulings import C_STRUCT_CLASSES, HAND_FILES, HEADER_PRELUDES, PLATFORM_MACROS
-from clang.cindex import CursorKind, TypeKind
+from clang.cindex import CursorKind, TokenKind, TypeKind
 
 REPO = C.REPO
 ORACLE = C.ORACLE
@@ -134,7 +134,8 @@ def enumerator_values(cur) -> list[list[str | None]]:
     braces = 0
     parens = 0
     expect = False
-    for token in (t.spelling for t in cur.get_tokens()):
+    # A comment token is no part of an initializer, `GT_FFA, // free for all` of be_ai_goal.cpp:76.
+    for token in (t.spelling for t in cur.get_tokens() if t.kind != TokenKind.COMMENT):
         if token == "{":
             braces += 1
             expect = braces == 1

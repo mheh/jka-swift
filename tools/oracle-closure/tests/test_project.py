@@ -26,7 +26,8 @@ WINDED_OUT = {"codemp/qcommon/vm_x86.cpp"}
 # The renderer header joins the list for the records of row TR1 of the eighth ledger, and stringed_ingame.h for the constants of row S4.
 HOST_ENTRY = [f"codemp/{path}" for path in ("qcommon/qcommon.h", "qcommon/qfiles.h", "qcommon/cm_local.h", "qcommon/cm_patch.h", "qcommon/files.h",
                                              "qcommon/vm_local.h", "server/server.h", "win32/win_local.h", "win32/resource.h",
-                                             "renderer/tr_local.h", "qcommon/stringed_ingame.h")]
+                                             "renderer/tr_local.h", "qcommon/stringed_ingame.h", "icarus/Q3_Registers.h",
+                                             "server/NPCNav/navigator.h", "game/g_nav.h", "qcommon/RoffSystem.h")]
 # WinVars_t of win_local.h holds three Windows types, and the unit spells each of them after the defines of the old module file, then the guard of row S4.
 # WinDed's PATH_SEP and the Winsock SOCKET and INVALID_SOCKET follow, for the stores of files_common.cpp:282 and win_net.cpp:27 to :29.
 HOST_DEFINES = ["HINSTANCE", "HWND", "OSVERSIONINFO", "_SYS_SYSLIMITS_H_", "PATH_SEP", "SOCKET", "INVALID_SOCKET"]

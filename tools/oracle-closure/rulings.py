@@ -571,6 +571,9 @@ HAND_VARS = {
 # `int tempDependents[MAX_BONES_RAG]` of G2_bones.cpp:1219 goes to G2_GetBoneDependents at :4112 and :4355, which fills it and steps it, row R2.
 # An `int` array of the ruling is a Slots of Int32, the form of the `int` locals of BYTE_STORAGE_LOCALS.
 BYTE_STORAGE_VARS = {"gSharedBuffer", "cmd_text_buf", "sys_packetReceived", "tempDependents"}
+# File-scope record pointers whose address a body takes as a slot, a pointer table of one slot on the storage class, row F10 ratified 2026-11-10.
+# FS_ReorderPurePaks of files_pc.cpp:2458 walks `searchpath_t **p_insert_index = &fs_searchpaths` and stores through it.
+POINTER_SLOT_VARS = {"fs_searchpaths"}
 # Function locals that a ruling moves to the storage class as one zeroed byte allocation, each with the functions that declare it, first one first.
 # `byte seq[65536]` of Huff_Decompress and Huff_Compress goes to the `byte *` of Huff_transmit and to Com_Memcpy, so a body needs its base.
 # The two functions never run at once, and add_bit zeroes each byte before it writes, so one allocation serves both. Row R-A of the huffman round.
@@ -771,6 +774,8 @@ FIELD_NAMES = {
     ("vmCvar_t", "handle"): "cvarHandle",
     # Raven stores the zip handle at files_pc.cpp:1460 and reads it at :774, :1001, and :1058.
     ("pack_t", "handle"): "packHandle",
+    # Raven stores the model handle at tr_model.cpp:664 and reads it at :1040, :1213, and :1241, row TR12.
+    ("modelHash_t", "handle"): "modelHandle",
 }
 
 @dataclass(frozen=True)
@@ -844,6 +849,10 @@ TYPES = {
     "boneInfo_v": "[boneInfo_t]",
     "boltInfo_v": "[boltInfo_t]",
     "mdxaBone_v": "[(Int32, MdxaBone)]",
+    # The maps of Q3_Registers.h:16 and :17 are Swift dictionaries by name, the twin of the vectors above, ratified 2026-11-10.
+    # A non-const reference to one is inout, so `varFloat_m &fmap` of Q3_Registers.cpp:267 is `inout [String: Float]`.
+    "varString_m": "[String: String]",
+    "varFloat_m": "[String: Float]",
     # A file-scope `T **` that holds an allocated table of record pointers is a Slots of optional views or nil, row N3 of the ninth batch.
     # `define_t **globaldefines` of l_precomp.cpp:105 takes DEFINEHASHSIZE pointers at :3049, and `areareachability` of be_aas_reach.cpp:85 one per area at :4521.
     "globaldefines": "Slots<Define?>?",
