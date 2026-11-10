@@ -163,6 +163,96 @@ public final class EngineWorld {
     /// Source: oracle/codemp/server/sv_main.cpp:792
     var lastMod: Int32 = -1
 
+    // MARK: - sv_referee.cpp
+
+    /// The fork's `static cvar_t *sv_stepper` of `sv_referee.cpp`, the gate of SV_Frame.
+    /// Source: openjk/codemp/server/sv_referee.cpp:22
+    var sv_stepper: Cvar? = nil
+
+    /// The fork's `static cvar_t *sv_recordInputs` of `sv_referee.cpp`, the qpath of the record file.
+    /// Source: openjk/codemp/server/sv_referee.cpp:23
+    var sv_recordInputs: Cvar? = nil
+
+    /// The fork's `static cvar_t *sv_replayInputs` of `sv_referee.cpp`, the qpath of the replay file.
+    /// Source: openjk/codemp/server/sv_referee.cpp:24
+    var sv_replayInputs: Cvar? = nil
+
+    /// The fork's `static cvar_t *sv_refSeed` of `sv_referee.cpp`, the seed of GAME_INIT when nonzero.
+    /// Source: openjk/codemp/server/sv_referee.cpp:25
+    var sv_refSeed: Cvar? = nil
+
+    /// The fork's `static cvar_t *sv_refTrace` of `sv_referee.cpp`, the switch of the trace ring.
+    /// Source: openjk/codemp/server/sv_referee.cpp:26
+    var sv_refTrace: Cvar? = nil
+
+    /// The fork's `static int ref_pendingSteps` of `sv_referee.cpp`.
+    /// Source: openjk/codemp/server/sv_referee.cpp:28
+    var ref_pendingSteps: Int32 = 0
+
+    /// The fork's `static int ref_frameIndex` of `sv_referee.cpp`.
+    /// Source: openjk/codemp/server/sv_referee.cpp:29
+    var ref_frameIndex: Int32 = 0
+
+    /// The fork's `static int ref_lastSeed` of `sv_referee.cpp`.
+    /// Source: openjk/codemp/server/sv_referee.cpp:30
+    var ref_lastSeed: Int32 = 0
+
+    /// The fork's `static refTraceEnt_t *ref_traceBuf` of `sv_referee.cpp`, nil until the first trace.
+    /// Source: openjk/codemp/server/sv_referee.cpp:98
+    var ref_traceBuf: [refTraceEnt_t]? = nil
+
+    /// The fork's `static int ref_traceCount` of `sv_referee.cpp`.
+    /// Source: openjk/codemp/server/sv_referee.cpp:99
+    var ref_traceCount: Int32 = 0
+
+    /// The fork's `static qboolean ref_traceOverflow` of `sv_referee.cpp`.
+    /// Source: openjk/codemp/server/sv_referee.cpp:100
+    var ref_traceOverflow = false
+
+    /// The fork's `static fileHandle_t ref_recFile` of `sv_referee.cpp`.
+    /// Source: openjk/codemp/server/sv_referee.cpp:175
+    var ref_recFile: fileHandle_t = 0
+
+    /// The fork's `static qboolean ref_inReplayExec` of `sv_referee.cpp`.
+    /// Source: openjk/codemp/server/sv_referee.cpp:176
+    var ref_inReplayExec = false
+
+    /// The fork's `static qboolean ref_recSeen[MAX_CLIENTS]` of `sv_referee.cpp`.
+    /// Source: openjk/codemp/server/sv_referee.cpp:177
+    var ref_recSeen = [Bool](repeating: false, count: Int(MAX_CLIENTS))
+
+    /// The fork's `static byte *ref_rpBuf` of `sv_referee.cpp`, the bytes of the replay file.
+    /// Source: openjk/codemp/server/sv_referee.cpp:239
+    var ref_rpBuf: Slots<JKAShared.byte>? = nil
+
+    /// The fork's `static int ref_rpLen` of `sv_referee.cpp`.
+    /// Source: openjk/codemp/server/sv_referee.cpp:240
+    var ref_rpLen: Int32 = 0
+
+    /// The fork's `static int ref_rpBodyOfs` of `sv_referee.cpp`.
+    /// Source: openjk/codemp/server/sv_referee.cpp:241
+    var ref_rpBodyOfs: Int32 = 0
+
+    /// The fork's `static int ref_rpCursor` of `sv_referee.cpp`.
+    /// Source: openjk/codemp/server/sv_referee.cpp:242
+    var ref_rpCursor: Int32 = 0
+
+    /// The fork's `static int ref_rpSeed` of `sv_referee.cpp`.
+    /// Source: openjk/codemp/server/sv_referee.cpp:243
+    var ref_rpSeed: Int32 = 0
+
+    /// The fork's `static qboolean ref_rpLoaded` of `sv_referee.cpp`.
+    /// Source: openjk/codemp/server/sv_referee.cpp:244
+    var ref_rpLoaded = false
+
+    /// The fork's `static qboolean ref_rpActive` of `sv_referee.cpp`.
+    /// Source: openjk/codemp/server/sv_referee.cpp:245
+    var ref_rpActive = false
+
+    /// The fork's `static qboolean ref_fake[MAX_CLIENTS]` of `sv_referee.cpp`.
+    /// Source: openjk/codemp/server/sv_referee.cpp:246
+    var ref_fake = [Bool](repeating: false, count: Int(MAX_CLIENTS))
+
     // MARK: - sv_bot.cpp
 
     /// Raven's `static cvar_t *bot_debug` of `BotDrawDebugPolygons` in `sv_bot.cpp`.

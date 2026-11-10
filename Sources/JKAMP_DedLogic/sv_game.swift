@@ -404,9 +404,9 @@ func ConvertedEntity(_ ent: JKAMP.SharedEntity) -> JKAMP.SharedEntity? {
 }
 
 /// Source: oracle/codemp/server/sv_game.cpp:458
-// AI: Raven's function is file-scope. It is public, because the shell installs it as `GameSystemCalls` of the view target.
+// AI: Raven names the switch SV_GameSystemCalls. The fork's name SV_GameSystemCalls_Real takes it, and the trace wrapper of sv_referee.swift keeps the old name.
 // AI: Raven returns an `int`, which holds an address only on a 32-bit build. The function returns the pointer-wide word, the form of VM_Call, so each `int` result widens.
-public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
+func SV_GameSystemCalls_Real(_ args: Slots<Int32>) -> Int {
     // AI: Raven's VMA and VMF macros read the local `args`. Each macro is a method of `args` in the view target, `args.VMA(1)` and `args.VMF(1)`.
     switch args[0] {
     //rww - alright, DO NOT EVER add a GAME/CGAME/UI generic call without adding a trap to match, and
@@ -431,16 +431,16 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
         return args.VMA(1)
 
     case TRAP_SIN:
-        return Int(FloatAsInt(Float(sin(Double(args.VMF(1))))))
+        return Int(FloatAsInt(sin(args.VMF(1))))
 
     case TRAP_COS:
-        return Int(FloatAsInt(Float(cos(Double(args.VMF(1))))))
+        return Int(FloatAsInt(cos(args.VMF(1))))
 
     case TRAP_ATAN2:
-        return Int(FloatAsInt(Float(atan2(Double(args.VMF(1)), Double(args.VMF(2))))))
+        return Int(FloatAsInt(atan2(args.VMF(1), args.VMF(2))))
 
     case TRAP_SQRT:
-        return Int(FloatAsInt(Float(sqrt(Double(args.VMF(1))))))
+        return Int(FloatAsInt(sqrt(args.VMF(1))))
 
     case TRAP_MATRIXMULTIPLY:
         let in1: Slots<vec3_t> = args.VMA(1)
@@ -462,10 +462,10 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
         return 0
 
     case TRAP_FLOOR:
-        return Int(FloatAsInt(Float(floor(Double(args.VMF(1))))))
+        return Int(FloatAsInt(floor(args.VMF(1))))
 
     case TRAP_CEIL:
-        return Int(FloatAsInt(Float(ceil(Double(args.VMF(1))))))
+        return Int(FloatAsInt(ceil(args.VMF(1))))
 
     case TRAP_TESTPRINTINT:
         return 0
@@ -1159,9 +1159,9 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
         return Int(botlib_export!.aas.runAAS_VectorForBSPEpairKey(args[1], args.VMA(2), &v[0]))
 
     case BOTLIB_AAS_FLOAT_FOR_BSP_EPAIR_KEY:
-        // Port-note: Row X2. The run method takes the module's `float *` as one `inout vec3_t`, and Raven passes one float or a list of floats, so a copy of three floats is wrong.
-        // Raven wrote: return botlib_export->aas.AAS_FloatForBSPEpairKey( args[1], (char *)VMA(2), (float *)VMA(3) );
-        portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
+        // AI: Raven hands the module's float to the callee by address. The arm hands the slot of the Slots at the word.
+        let value: Slots<Float> = args.VMA(3)
+        return Int(botlib_export!.aas.runAAS_FloatForBSPEpairKey(args[1], args.VMA(2), &value[0]))
 
     case BOTLIB_AAS_INT_FOR_BSP_EPAIR_KEY:
         return Int(botlib_export!.aas.runAAS_IntForBSPEpairKey(args[1], args.VMA(2), args.VMA(3)))
@@ -1599,9 +1599,7 @@ public func SV_GameSystemCalls(_ args: Slots<Int32>) -> Int {
         return 0
 
     case BOTLIB_AI_GENETIC_PARENTS_AND_CHILD_SELECTION:
-        // Port-note: Row X2. The run method takes the module's `float *` as one `inout vec3_t`, and Raven passes one float or a list of floats, so a copy of three floats is wrong.
-        // Raven wrote: return botlib_export->ai.GeneticParentsAndChildSelection(args[1], (float *)VMA(2), (int *)VMA(3), (int *)VMA(4), (int *)VMA(5));
-        portMissing("SV_GameSystemCalls", source: "oracle/codemp/server/sv_game.cpp:458")
+        return Int(botlib_export!.ai.runGeneticParentsAndChildSelection(args[1], args.VMA(2), args.VMA(3), args.VMA(4), args.VMA(5)))
 
     case G_R_REGISTERSKIN:
         return Int(RE_RegisterServerSkin(args.VMA(1)))
@@ -1989,7 +1987,8 @@ private func SV_InitGameVM(_ restart: Bool) {
 
     // use the current msec count for a random seed
     // init for this gamestate
-    VM_Call(gvm!, GAME_INIT, svs.time, Com_Milliseconds(), restart)
+    // AI: Raven seeds GAME_INIT with Com_Milliseconds. The fork's SVRef_GameSeed replaces the seed with sv_refSeed or the seed of the replay header.
+    VM_Call(gvm!, GAME_INIT, svs.time, SVRef_GameSeed(Com_Milliseconds()), restart)
 
     // clear all gentity pointers that might still be set from
     // a previous level

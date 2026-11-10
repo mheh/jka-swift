@@ -848,7 +848,8 @@ private enum BotlibImportThunks {
     static let BotClientCommand: BotlibImportBotClientCommand = { JKAMP_DedLogic.BotClientCommand($0, text(at: $1!)) }
 
     /// Source: oracle/codemp/server/sv_bot.cpp:378
-    static let BotImport_BSPEntityData: BotlibImportBSPEntityData = { ringText(JKAMP_DedLogic.BotImport_BSPEntityData()) }
+    // The botlib reads the entity text through the pointer, so the thunk returns the pool's pointer, the one the clip map's field holds.
+    static let BotImport_BSPEntityData: BotlibImportBSPEntityData = { OpaquePointer(StringPool.shared.pointer(for: JKAMP_DedLogic.BotImport_BSPEntityData())) }
 
     /// Source: oracle/codemp/server/sv_bot.cpp:387
     static let BotImport_BSPModelMinsMaxsOrigin: BotlibImportBSPModelMinsMaxsOrigin = { modelnum, angles, outmins, outmaxs, origin in

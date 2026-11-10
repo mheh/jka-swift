@@ -2256,4 +2256,15 @@ typedef struct
 
 } rmAutomapSymbol_t;
 
+// The symmetry of RM_Headers.h, a header the host parse does not read, which CRMMission holds in `mSymmetric`, row 8 of docket 11.
+// Source: oracle/codemp/RMG/RM_Headers.h:29
+// on a symmetric map which corner is the first node
+typedef enum
+{
+	SYMMETRY_NONE,
+	SYMMETRY_TOPLEFT,
+	SYMMETRY_BOTTOMRIGHT
+
+} symmetry_t;
+
 #endif

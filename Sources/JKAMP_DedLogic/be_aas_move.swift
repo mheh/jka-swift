@@ -437,7 +437,7 @@ func AAS_ApplyFriction(_ vel: inout JKAShared.vec3_t, _ friction: Float, _ stops
     var newspeed: Float
 
     //horizontal speed
-    speed = Float(sqrt(Double(vel[0] * vel[0] + vel[1] * vel[1])))
+    speed = sqrt(vel[0] * vel[0] + vel[1] * vel[1])
     if speed != 0 {
         control = speed < stopspeed ? stopspeed : speed
         newspeed = speed - frametime * control * friction
@@ -1142,7 +1142,7 @@ func AAS_HorizontalVelocityForJump(_ zvel: Float, _ start: JKAShared.vec3_t, _ e
         return 0
     }
     //calculate horizontal speed
-    velocity = Float(sqrt(Double(dir[0] * dir[0] + dir[1] * dir[1])) / Double(t + zvel / phys_gravity))
+    velocity = sqrt(dir[0] * dir[0] + dir[1] * dir[1]) / (t + zvel / phys_gravity)
     //the horizontal speed must be lower than the max speed
     if velocity > phys_maxvelocity {
         velocity = phys_maxvelocity

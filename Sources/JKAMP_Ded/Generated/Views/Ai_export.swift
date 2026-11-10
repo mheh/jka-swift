@@ -1095,10 +1095,8 @@ public struct Ai_export: Hashable, HandleView {
     /// Calls the stored `GeneticParentsAndChildSelection` function through the C pointer, with the caller's arguments, as Raven's `pm->GeneticParentsAndChildSelection(...)` did.
     /// A NULL `GeneticParentsAndChildSelection` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runGeneticParentsAndChildSelection(_ numranks: Int32, _ ranks: inout JKAShared.vec3_t, _ parent1: OpaquePointer?, _ parent2: OpaquePointer?, _ child: OpaquePointer?) -> Int32 {
+    public func runGeneticParentsAndChildSelection(_ numranks: Int32, _ ranks: Slots<Float>, _ parent1: OpaquePointer?, _ parent2: OpaquePointer?, _ child: OpaquePointer?) -> Int32 {
         precondition(self.raw.pointee.GeneticParentsAndChildSelection != nil, "GeneticParentsAndChildSelection is NULL")
-        return withUnsafeMutablePointer(to: &ranks) { ranks in
-            self.GeneticParentsAndChildSelection!(numranks, OpaquePointer(ranks), parent1, parent2, child)
-        }
+        return self.GeneticParentsAndChildSelection!(numranks, OpaquePointer(ranks.base), parent1, parent2, child)
     }
 }

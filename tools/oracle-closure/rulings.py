@@ -1164,6 +1164,7 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #   opaque    an OpaquePointer? for a `byte *` buffer the body stores into a `byte *` field or hands on as a `void *`, the spelling of the field
 #   bytes     a Slots<byte> for a `void *` or `byte *` of a host function that the body hands on as bytes, the row a host `byte *` has
 #             A `void **` of kind `bytes` is the caller's `inout Slots<byte>?`, which the body sets to a byte buffer
+#             A `float *` of a stored function of kind `bytes`, keyed by "record.field", is the caller's Slots<Float> of a list with a count beside it
 #   word      an Int for an `int` that takes the pointer-wide word VM_Call returns
 #   callback  the optional callback typealias of a view field for a function pointer the body stores into that field, the form of a function-pointer return,
 #             given as ("callback", "record.field") with that field when another field has the same C signature
@@ -1467,6 +1468,10 @@ PARAMS = {
     ("botlib_import_t.FS_Read", "buffer"): "bytes",
     ("botlib_import_t.FS_Write", "buffer"): "bytes",
     ("botlib_import_t.DebugPolygonCreate", "points"): "table",
+    # AAS_FloatForBSPEpairKey of be_aas_bspq3.cpp:306 writes one float through `value`, the FS_FOpenFile row, row 3 of docket 11.
+    ("aas_export_t.AAS_FloatForBSPEpairKey", "value"): "float_mut",
+    # GeneticParentsAndChildSelection of be_ai_gen.cpp:73 reads `numranks` floats of `ranks`, the D16 list row with a float pointee, row 3 of docket 11.
+    ("ai_export_t.GeneticParentsAndChildSelection", "ranks"): "bytes",
     # BotImport_BotClientCommand of sv_bot.cpp:577 only reads `command`, and Raven left out the `const`, the trap rule of docs/transcription.md:105.
     # Row X1b of docket 10, ruled 2026-11-10.
     ("botlib_import_t.BotClientCommand", "command"): "text",
@@ -1526,6 +1531,10 @@ DEAD = {
     # of be_ai_weap.cpp:156 under DEBUG_AI_WEAP, which the build does not define, row X34 of docket 10.
     "WriteIndent": "WriteStructWithIndent is the one caller, and its one caller WriteStructure stands only under DEBUG_AI_WEAP, which the build does not define",
     "WriteFloat": "WriteStructWithIndent is the one caller, and its one caller WriteStructure stands only under DEBUG_AI_WEAP, which the build does not define",
+    # The body of RM_Manager.cpp:444 to :473 and both callers of RM_Mission.cpp:1508 and :1512 stand under `#ifndef DEDICATED`, row 8 of docket 11.
+    "ProcessAutomapSymbols": "Its body and its two callers in RM_Mission.cpp stand under `#ifndef DEDICATED`, so no caller builds in the dedicated host",
+    # tr_terrain.cpp:923 of the renderer and RM_CreateRandomModels of RM_Terrain.cpp:493 are the callers, and only cl_cgame.cpp:1707 calls the second, row 8 of docket 11.
+    "CM_TerrainPatchIterate": "The renderer's tr_terrain.cpp and RM_CreateRandomModels are the callers, and only the client calls RM_CreateRandomModels",
 }
 
 # Functions of the oracle the port leaves out. The stub carries the cite, Raven's line, and the reason, and no function.
@@ -1634,6 +1643,10 @@ CXX_CLASSES = {
     "CRMManager": "CRMManager", "CRMObjective": "CRMObjective",
     # The random terrain class of cm_randomterrain.h and the mission class of RM_Mission.h, which CCMLandScape and CRMManager hold, row X41 of docket 10.
     "CRandomTerrain": "CRandomTerrain", "CRMMission": "CRMMission",
+    # The path class of cm_randomterrain.h:15 that CRandomTerrain holds, and the area and path classes of RM_Area.h and RM_Path.h
+    # that CRMMission holds, row 8 of docket 11. CRMCell of RM_Path.h:113 is a struct Raven holds by value.
+    "CPathInfo": "CPathInfo", "CRMArea": "CRMArea", "CRMAreaManager": "CRMAreaManager",
+    "CRMNode": "CRMNode", "CRMLoc": "CRMLoc", "CRMCell": "CRMCell", "CRMPathManager": "CRMPathManager",
 }
 
 # C targets whose copied headers include a C library header, as CJKASyscall includes <stdint.h>.

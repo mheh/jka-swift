@@ -3,7 +3,8 @@
 # Usage: `tools/host-referee.sh <file.rec> <host A> <host B> [extra args to both hosts]`.
 # Host A and host B are paths to dedicated server binaries, for example `.build/openjk/openjkded.arm64` on both sides.
 # FRAMES=N grants N frames after the map load, 4000 by default. Set N above the last frame of the file.
-# The logs and the filtered streams go to /tmp/jka-referee/, and the script exits 0 when the run is green.
+# The logs and the filtered streams go to SCRATCH, /tmp/referee-scratch/ by default, and the script exits 0 when the run is green.
+# The script deletes SCRATCH at the start of a run, so SCRATCH must name a folder that holds nothing else.
 # notes/2026-11-03/dedicated-referee-docket.md section 3 gives the command lines and the green test.
 
 set -u
@@ -18,7 +19,7 @@ REC=$1
 HOST_A=$2
 HOST_B=$3
 shift 3
-SCRATCH=/tmp/jka-referee
+SCRATCH=${SCRATCH:-/tmp/referee-scratch}
 MOD=swift
 BASE_PATH="$HOME/Library/Application Support/Steam/steamapps/common/Jedi Academy/SWJKJA.app/Contents"
 FRAMES=${FRAMES:-4000}
@@ -79,6 +80,7 @@ run_host() {
     esac
     # A trap inside G_ShutdownGame can stop the engine's own exit, so an alarm ends the process.
     # FORK_ARGS stays unquoted, so each word is one argument.
+    # The fork registers g_maxForceRank with the default 7 and Raven with 6, so the line sets it on both hosts.
     perl -e 'alarm shift; exec @ARGV' "$ALARM" "$HOST" \
         +set fs_homepath "$SCRATCH/$SIDE" \
         +set fs_basepath "$BASE_PATH" \
@@ -90,6 +92,7 @@ run_host() {
         +set sv_maxclients 32 \
         +set g_gametype "$GAMETYPE" \
         +set bot_enable 0 \
+        +set g_maxForceRank 7 \
         +set sv_stepper 1 \
         +set sv_replayInputs "$(basename "$REC")" \
         "$@" \

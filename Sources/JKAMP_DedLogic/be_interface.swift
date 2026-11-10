@@ -596,8 +596,12 @@ private enum Aas_exportThunks {
     }
 
     /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:262
-    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
-    static let AAS_ValueForBSPEpairKey: Aas_exportAAS_ValueForBSPEpairKey = { _, _, _, _ in portMissing("AAS_ValueForBSPEpairKey", source: "oracle/codemp/botlib/be_aas_bspq3.cpp:262") }
+    static let AAS_ValueForBSPEpairKey: Aas_exportAAS_ValueForBSPEpairKey = { ent, key, value, size in
+        var buf = charBuf(at: UnsafeMutableRawPointer(value!), capacity: Int(size))
+        let found = JKAMP_DedLogic.AAS_ValueForBSPEpairKey(ent, text(at: key!), &buf, size)
+        store(buf, at: UnsafeMutableRawPointer(value!), capacity: Int(size))
+        return found
+    }
 
     /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:285
     static let AAS_VectorForBSPEpairKey: Aas_exportAAS_VectorForBSPEpairKey = { ent, key, v in
@@ -636,16 +640,13 @@ private enum Ai_exportThunks {
     static let BotChatLength: Ai_exportBotChatLength = { JKAMP_DedLogic.BotChatLength($0) }
 
     /// Source: oracle/codemp/botlib/be_ai_weap.cpp:387
-    // Port-note: Row X2. The `int *inventory` has no count beside it, so the thunk has no count for a Slots of the list.
-    static let BotChooseBestFightWeapon: Ai_exportBotChooseBestFightWeapon = { _, _ in portMissing("BotChooseBestFightWeapon", source: "oracle/codemp/botlib/be_ai_weap.cpp:387") }
+    static let BotChooseBestFightWeapon: Ai_exportBotChooseBestFightWeapon = { JKAMP_DedLogic.BotChooseBestFightWeapon($0, Slots<Int32>(scalars: $1!, count: Int.max / 4)) }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1268
-    // Port-note: Row X2. The `int *inventory` has no count beside it, so the thunk has no count for a Slots of the list.
-    static let BotChooseLTGItem: Ai_exportBotChooseLTGItem = { _, _, _, _ in portMissing("BotChooseLTGItem", source: "oracle/codemp/botlib/be_ai_goal.cpp:1268") }
+    static let BotChooseLTGItem: Ai_exportBotChooseLTGItem = { JKAMP_DedLogic.BotChooseLTGItem($0, vector(at: $1!), Slots<Int32>(scalars: $2!, count: Int.max / 4), $3) }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1435
-    // Port-note: Row X2. The `int *inventory` has no count beside it, so the thunk has no count for a Slots of the list.
-    static let BotChooseNBGItem: Ai_exportBotChooseNBGItem = { _, _, _, _, _, _ in portMissing("BotChooseNBGItem", source: "oracle/codemp/botlib/be_ai_goal.cpp:1435") }
+    static let BotChooseNBGItem: Ai_exportBotChooseNBGItem = { JKAMP_DedLogic.BotChooseNBGItem($0, vector(at: $1!), Slots<Int32>(scalars: $2!, count: Int.max / 4), $3, BotGoal(handle: $4!), $5) }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:702
     static let BotDumpAvoidGoals: Ai_exportBotDumpAvoidGoals = { JKAMP_DedLogic.BotDumpAvoidGoals($0) }
@@ -682,8 +683,11 @@ private enum Ai_exportThunks {
     static let BotFreeWeaponState: Ai_exportBotFreeWeaponState = { JKAMP_DedLogic.BotFreeWeaponState($0) }
 
     /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2804
-    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
-    static let BotGetChatMessage: Ai_exportBotGetChatMessage = { _, _, _ in portMissing("BotGetChatMessage", source: "oracle/codemp/botlib/be_ai_chat.cpp:2804") }
+    static let BotGetChatMessage: Ai_exportBotGetChatMessage = { chatstate, buf, size in
+        var message = charBuf(at: UnsafeMutableRawPointer(buf!), capacity: Int(size))
+        JKAMP_DedLogic.BotGetChatMessage(chatstate, &message, size)
+        store(message, at: UnsafeMutableRawPointer(buf!), capacity: Int(size))
+    }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:843
     static let BotGetLevelItemGoal: Ai_exportBotGetLevelItemGoal = { JKAMP_DedLogic.BotGetLevelItemGoal($0, text(at: $1!), BotGoal(handle: $2!)) }
@@ -704,8 +708,11 @@ private enum Ai_exportThunks {
     static let BotGetWeaponInfo: Ai_exportBotGetWeaponInfo = { JKAMP_DedLogic.BotGetWeaponInfo($0, $1, Weaponinfo(handle: $2!)) }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:663
-    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
-    static let BotGoalName: Ai_exportBotGoalName = { _, _, _ in portMissing("BotGoalName", source: "oracle/codemp/botlib/be_ai_goal.cpp:663") }
+    static let BotGoalName: Ai_exportBotGoalName = { number, name, size in
+        var buf = charBuf(at: UnsafeMutableRawPointer(name!), capacity: Int(size))
+        JKAMP_DedLogic.BotGoalName(number, &buf, size)
+        store(buf, at: UnsafeMutableRawPointer(name!), capacity: Int(size))
+    }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:521
     static let BotInitLevelItems: Ai_exportBotInitLevelItems = { JKAMP_DedLogic.BotInitLevelItems() }
@@ -723,24 +730,36 @@ private enum Ai_exportThunks {
     static let BotItemGoalInVisButNotVisible: Ai_exportBotItemGoalInVisButNotVisible = { JKAMP_DedLogic.BotItemGoalInVisButNotVisible($0, vector(at: $1!), vector(at: $2!), BotGoal(handle: $3!)) }
 
     /// Source: oracle/codemp/botlib/be_ai_char.cpp:551
-    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
-    static let BotLoadCharacter: Ai_exportBotLoadCharacter = { _, _ in portMissing("BotLoadCharacter", source: "oracle/codemp/botlib/be_ai_char.cpp:551") }
+    static let BotLoadCharacter: Ai_exportBotLoadCharacter = { charfile, skill in
+        var buf = CharBuf(text(at: charfile!))
+        return JKAMP_DedLogic.BotLoadCharacter(&buf, skill)
+    }
 
     /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2183
-    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
-    static let BotLoadChatFile: Ai_exportBotLoadChatFile = { _, _, _ in portMissing("BotLoadChatFile", source: "oracle/codemp/botlib/be_ai_chat.cpp:2183") }
+    static let BotLoadChatFile: Ai_exportBotLoadChatFile = { chatstate, chatfile, chatname in
+        var fileBuf = CharBuf(text(at: chatfile!))
+        var nameBuf = CharBuf(text(at: chatname!))
+        return JKAMP_DedLogic.BotLoadChatFile(chatstate, &fileBuf, &nameBuf)
+    }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1674
-    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
-    static let BotLoadItemWeights: Ai_exportBotLoadItemWeights = { _, _ in portMissing("BotLoadItemWeights", source: "oracle/codemp/botlib/be_ai_goal.cpp:1674") }
+    static let BotLoadItemWeights: Ai_exportBotLoadItemWeights = { goalstate, filename in
+        var buf = CharBuf(text(at: filename!))
+        return JKAMP_DedLogic.BotLoadItemWeights(goalstate, &buf)
+    }
 
     /// Source: oracle/codemp/botlib/be_ai_weap.cpp:347
-    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
-    static let BotLoadWeaponWeights: Ai_exportBotLoadWeaponWeights = { _, _ in portMissing("BotLoadWeaponWeights", source: "oracle/codemp/botlib/be_ai_weap.cpp:347") }
+    static let BotLoadWeaponWeights: Ai_exportBotLoadWeaponWeights = { weaponstate, filename in
+        var buf = CharBuf(text(at: filename!))
+        return JKAMP_DedLogic.BotLoadWeaponWeights(weaponstate, &buf)
+    }
 
     /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1451
-    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
-    static let BotMatchVariable: Ai_exportBotMatchVariable = { _, _, _, _ in portMissing("BotMatchVariable", source: "oracle/codemp/botlib/be_ai_chat.cpp:1451") }
+    static let BotMatchVariable: Ai_exportBotMatchVariable = { match, variable, buf, size in
+        var value = charBuf(at: UnsafeMutableRawPointer(buf!), capacity: Int(size))
+        JKAMP_DedLogic.BotMatchVariable(BotMatch(handle: match!), variable, &value, size)
+        store(value, at: UnsafeMutableRawPointer(buf!), capacity: Int(size))
+    }
 
     /// Source: oracle/codemp/botlib/be_ai_move.cpp:1214
     static let BotMoveInDirection: Ai_exportBotMoveInDirection = { JKAMP_DedLogic.BotMoveInDirection($0, vector(at: $1!), $2, $3) }
@@ -769,8 +788,10 @@ private enum Ai_exportThunks {
     static let BotNumConsoleMessages: Ai_exportBotNumConsoleMessages = { JKAMP_DedLogic.BotNumConsoleMessages($0) }
 
     /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2448
-    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
-    static let BotNumInitialChats: Ai_exportBotNumInitialChats = { _, _ in portMissing("BotNumInitialChats", source: "oracle/codemp/botlib/be_ai_chat.cpp:2448") }
+    static let BotNumInitialChats: Ai_exportBotNumInitialChats = { chatstate, type in
+        var buf = CharBuf(text(at: type!))
+        return JKAMP_DedLogic.BotNumInitialChats(chatstate, &buf)
+    }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1207
     static let BotPopGoal: Ai_exportBotPopGoal = { JKAMP_DedLogic.BotPopGoal($0) }
@@ -806,8 +827,23 @@ private enum Ai_exportThunks {
     static let BotReplaceSynonyms: Ai_exportBotReplaceSynonyms = { _, _ in portMissing("BotReplaceSynonyms", source: "oracle/codemp/botlib/be_ai_chat.cpp:744") }
 
     /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2597
-    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
-    static let BotReplyChat: Ai_exportBotReplyChat = { _, _, _, _, _, _, _, _, _, _, _, _ in portMissing("BotReplyChat", source: "oracle/codemp/botlib/be_ai_chat.cpp:2597") }
+    static let BotReplyChat: Ai_exportBotReplyChat = { chatstate, message, mcontext, vcontext, var0, var1, var2, var3, var4, var5, var6, var7 in
+        var buf = CharBuf(text(at: message!))
+        return JKAMP_DedLogic.BotReplyChat(
+            chatstate,
+            &buf,
+            mcontext,
+            vcontext,
+            var0.map(text(at:)),
+            var1.map(text(at:)),
+            var2.map(text(at:)),
+            var3.map(text(at:)),
+            var4.map(text(at:)),
+            var5.map(text(at:)),
+            var6.map(text(at:)),
+            var7.map(text(at:))
+        )
+    }
 
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:687
     static let BotResetAvoidGoals: Ai_exportBotResetAvoidGoals = { JKAMP_DedLogic.BotResetAvoidGoals($0) }
@@ -858,8 +894,11 @@ private enum Ai_exportThunks {
     static let Characteristic_Integer: Ai_exportCharacteristic_Integer = { JKAMP_DedLogic.Characteristic_Integer($0, $1) }
 
     /// Source: oracle/codemp/botlib/be_ai_char.cpp:733
-    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
-    static let Characteristic_String: Ai_exportCharacteristic_String = { _, _, _, _ in portMissing("Characteristic_String", source: "oracle/codemp/botlib/be_ai_char.cpp:733") }
+    static let Characteristic_String: Ai_exportCharacteristic_String = { character, index, buf, size in
+        var value = charBuf(at: UnsafeMutableRawPointer(buf!), capacity: Int(size))
+        JKAMP_DedLogic.Characteristic_String(character, index, &value, size)
+        store(value, at: UnsafeMutableRawPointer(buf!), capacity: Int(size))
+    }
 
     /// Source: oracle/codemp/botlib/be_ai_gen.cpp:73
     static let GeneticParentsAndChildSelection: Ai_exportGeneticParentsAndChildSelection = { numranks, ranks, parent1, parent2, child in
@@ -877,12 +916,17 @@ private enum Ai_exportThunks {
     }
 
     /// Source: oracle/codemp/botlib/be_ai_chat.cpp:447
-    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
-    static let StringContains: Ai_exportStringContains = { _, _, _ in portMissing("StringContains", source: "oracle/codemp/botlib/be_ai_chat.cpp:447") }
+    static let StringContains: Ai_exportStringContains = { str1, str2, casesensitive in
+        var buf = CharBuf(text(at: str1!))
+        return JKAMP_DedLogic.StringContains(&buf, text(at: str2!), casesensitive)
+    }
 
     /// Source: oracle/codemp/botlib/be_ai_chat.cpp:423
-    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
-    static let UnifyWhiteSpaces: Ai_exportUnifyWhiteSpaces = { _ in portMissing("UnifyWhiteSpaces", source: "oracle/codemp/botlib/be_ai_chat.cpp:423") }
+    static let UnifyWhiteSpaces: Ai_exportUnifyWhiteSpaces = { string in
+        var buf = CharBuf(text(at: string!))
+        JKAMP_DedLogic.UnifyWhiteSpaces(&buf)
+        store(buf, at: UnsafeMutableRawPointer(string!), capacity: buf.count)
+    }
 }
 
 /// One static per function this file stores in a `BotlibExport` callback field, so each has one address for the life of the module.
@@ -907,8 +951,12 @@ private enum BotlibExportThunks {
     static let Export_BotLibUpdateEntity: BotlibExportBotLibUpdateEntity = { JKAMP_DedLogic.Export_BotLibUpdateEntity($0, BotEntitystate(handle: $1!)) }
 
     /// Source: oracle/codemp/botlib/be_interface.cpp:213
-    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
-    static let Export_BotLibVarGet: BotlibExportBotLibVarGet = { _, _, _ in portMissing("Export_BotLibVarGet", source: "oracle/codemp/botlib/be_interface.cpp:213") }
+    static let Export_BotLibVarGet: BotlibExportBotLibVarGet = { var_name, value, size in
+        var buf = charBuf(at: UnsafeMutableRawPointer(value!), capacity: Int(size))
+        let error = JKAMP_DedLogic.Export_BotLibVarGet(text(at: var_name!), &buf, size)
+        store(buf, at: UnsafeMutableRawPointer(value!), capacity: Int(size))
+        return error
+    }
 
     /// Source: oracle/codemp/botlib/be_interface.cpp:202
     static let Export_BotLibVarSet: BotlibExportBotLibVarSet = { JKAMP_DedLogic.Export_BotLibVarSet(text(at: $0!), text(at: $1!)) }
@@ -932,8 +980,18 @@ private enum BotlibExportThunks {
     static let PC_RemoveAllGlobalDefines: BotlibExportPC_RemoveAllGlobalDefines = { JKAMP_DedLogic.PC_RemoveAllGlobalDefines() }
 
     /// Source: oracle/codemp/botlib/l_precomp.cpp:3280
-    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
-    static let PC_SourceFileAndLine: BotlibExportPC_SourceFileAndLine = { _, _, _ in portMissing("PC_SourceFileAndLine", source: "oracle/codemp/botlib/l_precomp.cpp:3280") }
+    static let PC_SourceFileAndLine: BotlibExportPC_SourceFileAndLine = { handle, filename, line in
+        var buf = CharBuf(1024)
+        let lineSlots = Slots<Int32>(scalars: line!, count: 1)
+        var lineValue = lineSlots[0]
+        let found = JKAMP_DedLogic.PC_SourceFileAndLine(handle, &buf, &lineValue)
+        // Raven's strcpy writes the text only for a valid handle, and the bound is the `char filename[1024]` of `source_t` at l_precomp.h:82.
+        if found != 0 {
+            store(String(buf), at: UnsafeMutableRawPointer(filename!), capacity: 1024)
+        }
+        lineSlots[0] = lineValue
+        return found
+    }
 }
 
 /// One static per function this file stores in a `Ea_export` callback field, so each has one address for the life of the module.
@@ -949,8 +1007,10 @@ private enum Ea_exportThunks {
     static let EA_Attack: Ea_exportEA_Attack = { JKAMP_DedLogic.EA_Attack($0) }
 
     /// Source: oracle/codemp/botlib/be_ea.cpp:119
-    // Port-note: Row X2. The Swift parameter is an `inout CharBuf` for a C `char *`, and the host has no thunk form that reads or writes a C buffer into a CharBuf.
-    static let EA_Command: Ea_exportEA_Command = { _, _ in portMissing("EA_Command", source: "oracle/codemp/botlib/be_ea.cpp:119") }
+    static let EA_Command: Ea_exportEA_Command = { client, command in
+        var buf = CharBuf(text(at: command!))
+        JKAMP_DedLogic.EA_Command(client, &buf)
+    }
 
     /// Source: oracle/codemp/botlib/be_ea.cpp:269
     static let EA_Crouch: Ea_exportEA_Crouch = { JKAMP_DedLogic.EA_Crouch($0) }

@@ -1010,6 +1010,8 @@ happen before SV_Frame is called
 */
 /// Source: oracle/codemp/server/sv_main.cpp:826
 func SV_Frame(_ msec: Int32) {
+    // The fork's gate assigns the `msec` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
+    var msec = msec
     let frameMsec: Int32
     let startTime: Int32
 
@@ -1021,6 +1023,11 @@ func SV_Frame(_ msec: Int32) {
     }
 
     if com_sv_running!.integer == 0 {
+        return
+    }
+
+    // AI: Raven runs each frame on the clock. The fork's stepper gate holds the frame until `ref_step` grants it, and then forces `msec`.
+    if !SVRef_FrameGate(&msec) {
         return
     }
 
@@ -1100,8 +1107,11 @@ func SV_Frame(_ msec: Int32) {
         sv.timeResidual -= frameMsec
         svs.time += frameMsec
 
+        // AI: Raven runs the game frame with no hook. The fork's referee replays the inputs of the frame before it and prints the REF STEP line after it.
+        SVRef_PreGameFrame()
         // let everything in the world think and move
         VM_Call(gvm!, GAME_RUN_FRAME, svs.time)
+        SVRef_PostGameFrame()
     }
 
     //rww - RAGDOLL_BEGIN

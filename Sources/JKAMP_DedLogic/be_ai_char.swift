@@ -310,7 +310,7 @@ func BotFindCachedCharacter(_ charfile: String, _ skill: Float) -> Int32 {
             continue
         }
         if strcmp(botcharacters[handle]!.filename, charfile) == 0 &&
-            (skill < 0 || abs(Double(botcharacters[handle]!.skill - skill)) < 0.01) {
+            (skill < 0 || Double(abs(botcharacters[handle]!.skill - skill)) < 0.01) {
             return handle
         }
         handle += 1
