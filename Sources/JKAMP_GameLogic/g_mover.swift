@@ -2158,7 +2158,7 @@ func SP_func_pendulum(_ ent: Entity) {
         length = 8
     }
 
-    freq = Float(1 / (M_PI * 2) * sqrt(Double(g_gravity.value / (3 * length))))
+    freq = Float(Double(1 / (JKAShared.M_PI * 2)) * sqrt(Double(g_gravity.value / (3 * length))))
 
     ent.s.pos.trDuration = Int32((1000 / freq))
 

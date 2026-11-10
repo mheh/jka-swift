@@ -4132,7 +4132,7 @@ func SeekerDroneUpdate(_ `self`: Entity) {
             elevated = `self`.client!.ps.origin
             elevated[2] += 40
 
-            angle = Float(Double((level.time / 12) & 255) * (M_PI * 2) / 255) //magical numbers make magic happen
+            angle = ((level.time / 12) & 255) * (JKAShared.M_PI * 2) / 255 //magical numbers make magic happen
             dir[0] = cos(angle) * 20
             dir[1] = sin(angle) * 20
             dir[2] = cos(angle) * 5
@@ -4171,7 +4171,7 @@ func SeekerDroneUpdate(_ `self`: Entity) {
 
             elevated[2] -= 55 - prefig
 
-            angle = Float(Double((level.time / 12) & 255) * (M_PI * 2) / 255) //magical numbers make magic happen
+            angle = ((level.time / 12) & 255) * (JKAShared.M_PI * 2) / 255 //magical numbers make magic happen
             dir[0] = cos(angle) * 20
             dir[1] = sin(angle) * 20
             dir[2] = cos(angle) * 5
@@ -4223,7 +4223,7 @@ func SeekerDroneUpdate(_ `self`: Entity) {
             elevated = `self`.client!.ps.origin
             elevated[2] += 40
 
-            angle = Float(Double((level.time / 12) & 255) * (M_PI * 2) / 255) //magical numbers make magic happen
+            angle = ((level.time / 12) & 255) * (JKAShared.M_PI * 2) / 255 //magical numbers make magic happen
             dir[0] = cos(angle) * 20
             dir[1] = sin(angle) * 20
             dir[2] = cos(angle) * 5

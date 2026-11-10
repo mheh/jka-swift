@@ -709,7 +709,7 @@ func CG_AddScorePlum(_ le: LocalEntity) {
     CrossProduct(dir, up, &vec)
     VectorNormalize(&vec)
 
-    _VectorMA(origin, Float(-10 + 20 * sin(Double(c * 2) * M_PI)), vec, &origin)
+    _VectorMA(origin, Float(-10 + 20 * sin(Double(c * 2 * JKAShared.M_PI))), vec, &origin)
 
     // if the view would be "inside" the sprite, kill the sprite
     // so it doesn't add too much overdraw

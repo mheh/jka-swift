@@ -345,8 +345,7 @@ public func RotatePointAroundVector(_ dst: inout vec3_t, _ dir: vec3_t, _ point:
     zrot[1][1] = 1.0
     zrot[2][2] = 1.0
 
-    // Raven's DEG2RAD multiplies by the double M_PI, so the angle runs in double and rounds once.
-    rad = Float(Double(degrees) * Double.pi / 180.0)
+    rad = DEG2RAD(degrees)
     zrot[0][0] = Float(cos(Double(rad)))
     zrot[0][1] = Float(sin(Double(rad)))
     zrot[1][0] = -Float(sin(Double(rad)))
@@ -406,9 +405,9 @@ public func vectoangles(_ value1: vec3_t, _ angles: inout vec3_t) {
             pitch = 270
         }
     } else {
-        // Raven's atan2 and sqrt are the double libm calls and M_PI is the double of math.h.
+        // Raven's atan2 and sqrt are the double libm calls, and the float M_PI widens to double at the divide.
         if value1[0] != 0 {
-            yaw = Float(atan2(Double(value1[1]), Double(value1[0])) * 180 / Double.pi)
+            yaw = Float(atan2(Double(value1[1]), Double(value1[0])) * 180 / Double(M_PI))
         } else if value1[1] > 0 {
             yaw = 90
         } else {
@@ -419,7 +418,7 @@ public func vectoangles(_ value1: vec3_t, _ angles: inout vec3_t) {
         }
 
         forward = Float(Double(value1[0] * value1[0] + value1[1] * value1[1]).squareRoot())
-        pitch = Float(atan2(Double(value1[2]), Double(forward)) * 180 / Double.pi)
+        pitch = Float(atan2(Double(value1[2]), Double(forward)) * 180 / Double(M_PI))
         if pitch < 0 {
             pitch += 360
         }
@@ -1035,14 +1034,15 @@ public func AngleVectors(_ angles: vec3_t, _ forward: inout vec3_t, _ right: ino
     // static to help MS compiler fp bugs
     // Raven marks the six temporaries static, and each is written before it is read, so a local holds the same value.
 
-    // M_PI is the double of math.h, so each angle runs in double and rounds once. sin and cos are the double libm calls.
-    angle = Float(Double(angles[YAW]) * (Double.pi * 2 / 360))
+    // Each angle runs in float with the float M_PI.
+    // sin and cos are the double libm calls.
+    angle = angles[YAW] * (M_PI * 2 / 360)
     sy = Float(sin(Double(angle)))
     cy = Float(cos(Double(angle)))
-    angle = Float(Double(angles[PITCH]) * (Double.pi * 2 / 360))
+    angle = angles[PITCH] * (M_PI * 2 / 360)
     sp = Float(sin(Double(angle)))
     cp = Float(cos(Double(angle)))
-    angle = Float(Double(angles[ROLL]) * (Double.pi * 2 / 360))
+    angle = angles[ROLL] * (M_PI * 2 / 360)
     sr = Float(sin(Double(angle)))
     cr = Float(cos(Double(angle)))
 
@@ -1122,14 +1122,13 @@ public func NormalToLatLong(_ normal: vec3_t, _ bytes: inout (byte, byte)) {
         var a: Int32
         var b: Int32
 
-        // Raven casts `atan2` to a float first, then `RAD2DEG` divides by the double `M_PI`, so the rest runs in double.
-        let scale = Double(Float(255.0) / Float(360.0))
+        // Raven casts `atan2` to a float, so `RAD2DEG` and the scale run in float.
         let atanValue = Float(atan2(Double(normal[1]), Double(normal[0])))
-        a = truncateToInt(Double(atanValue * 180.0) / Double.pi * scale)
+        a = truncateToInt(Double(RAD2DEG(atanValue) * (255.0 / 360.0)))
         a &= 0xff
 
         let acosValue = Float(acos(Double(normal[2])))
-        b = truncateToInt(Double(acosValue * 180.0) / Double.pi * scale)
+        b = truncateToInt(Double(RAD2DEG(acosValue) * (255.0 / 360.0)))
         b &= 0xff
 
         bytes.0 = byte(b)    // longitude
@@ -1276,7 +1275,7 @@ public func G_FindClosestPointOnLineSegment(_ start: vec3_t, _ end: vec3_t, _ fr
 
     //Get length of side from End2Result using sine of theta
     distEnd2From = VectorLength(vecEnd2From)//c
-    cos_theta = Float(cos(Double(theta) * Double.pi / 180.0))//cos(theta)
+    cos_theta = Float(cos(Double(DEG2RAD(theta))))//cos(theta)
     distEnd2Result = cos_theta * distEnd2From//b
 
     //Extrapolate to find result
@@ -1352,7 +1351,7 @@ public func G_PointDistFromLineSegment(_ start: vec3_t, _ end: vec3_t, _ from: v
     theta = 90 * (1 - dot)//theta
 
     //Get length of side from End2Result using sine of theta
-    cos_theta = Float(cos(Double(theta) * Double.pi / 180.0))//cos(theta)
+    cos_theta = Float(cos(Double(DEG2RAD(theta))))//cos(theta)
     distEnd2Result = cos_theta * distEnd2From//b
 
     //Extrapolate to find result

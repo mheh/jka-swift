@@ -1062,9 +1062,9 @@ func CG_CalcFOVFromX(_ fov_x: Float) -> Bool {
     var fov_y: Float
     let inwater: Bool
 
-    x = Float(Double(cg.refdef.width) / tan(Double(fov_x / 360) * M_PI))
+    x = Float(Double(cg.refdef.width) / tan(Double(fov_x / 360 * JKAShared.M_PI)))
     fov_y = Float(atan2(Double(cg.refdef.height), Double(x)))
-    fov_y = Float(Double(fov_y * 360) / M_PI)
+    fov_y = fov_y * 360 / JKAShared.M_PI
 
     // there's a problem with this, it only takes the leafbrushes into account, not the entity brushes,
     //	so if you give slime/water etc properties to a func_door area brush in order to move the whole water
@@ -1189,14 +1189,14 @@ private func CG_CalcFov() -> Int32 {
         }
     }
 
-    x = Float(Double(cg.refdef.width) / tan(Double(fov_x / 360) * M_PI))
+    x = Float(Double(cg.refdef.width) / tan(Double(fov_x / 360 * JKAShared.M_PI)))
     fov_y = Float(atan2(Double(cg.refdef.height), Double(x)))
-    fov_y = Float(Double(fov_y * 360) / M_PI)
+    fov_y = fov_y * 360 / JKAShared.M_PI
 
     // warp if underwater
     cg.refdef.viewContents = CG_PointContents(cg.refdef.vieworg, -1)
     if (cg.refdef.viewContents & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA)) != 0 {
-        phase = Float(Double(cg.time) / 1000.0 * WAVE_FREQUENCY * M_PI * 2)
+        phase = Float(Double(cg.time) / 1000.0 * WAVE_FREQUENCY * Double(JKAShared.M_PI) * 2)
         v = WAVE_AMPLITUDE * sin(phase)
         fov_x += v
         fov_y -= v
@@ -1482,7 +1482,7 @@ private func CG_CalcViewValues() -> Int32 {
     }
 
     cg.bobcycle = (ps!.bobCycle & 128) >> 7
-    cg.bobfracsin = Float(abs(sin(Double(ps!.bobCycle & 127) / 127.0 * M_PI)))
+    cg.bobfracsin = Float(abs(sin(Double(ps!.bobCycle & 127) / 127.0 * Double(JKAShared.M_PI))))
     cg.xyspeed = sqrt(ps!.velocity[0] * ps!.velocity[0] + ps!.velocity[1] * ps!.velocity[1])
 
     if cg.xyspeed > 270 {
@@ -1720,9 +1720,9 @@ func CG_DrawSkyBoxPortal(_ cstr: String) {
             }
         }
 
-        x = Float(Double(cg.refdef.width) / tan(Double(fov_x / 360) * M_PI))
+        x = Float(Double(cg.refdef.width) / tan(Double(fov_x / 360 * JKAShared.M_PI)))
         fov_y = Float(atan2(Double(cg.refdef.height), Double(x)))
-        fov_y = Float(Double(fov_y * 360) / M_PI)
+        fov_y = fov_y * 360 / JKAShared.M_PI
 
         cg.refdef.fov_x = fov_x
         cg.refdef.fov_y = fov_y

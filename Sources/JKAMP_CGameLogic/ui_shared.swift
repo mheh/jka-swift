@@ -5217,7 +5217,7 @@ func Item_Model_Paint(_ item: ItemDef) {
             origin[0] = Float(Double(len) / 0.268) // len / tan( fov/2 )
             //origin[0] = len / tan(w/2);
             refdef.fov_x = (modelPtr!.fov_x != 0) ? modelPtr!.fov_x : Float(Int32(Float(refdef.width) / 640.0 * 90.0))
-            refdef.fov_y = Float(Double(modelPtr!.fov_y) != 0 ? Double(modelPtr!.fov_y) : atan2(Double(refdef.height), Double(refdef.width) / tan(Double(refdef.fov_x / 360) * M_PI)) * (360 / M_PI))
+            refdef.fov_y = Float(Double(modelPtr!.fov_y) != 0 ? Double(modelPtr!.fov_y) : atan2(Double(refdef.height), Double(refdef.width) / tan(Double(refdef.fov_x / 360 * JKAShared.M_PI))) * Double(360 / JKAShared.M_PI))
 
             //refdef.fov_x = (int)((float)refdef.width / 640.0f * 90.0f);
             //refdef.fov_y = atan2( refdef.height, refdef.width / tan( refdef.fov_x / 360 * M_PI ) ) * ( 360 / M_PI );

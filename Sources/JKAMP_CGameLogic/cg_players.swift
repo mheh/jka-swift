@@ -7679,7 +7679,7 @@ func CG_Player(_ cent: Centity) {
 
                                 // Raven's one expression is two terms here, because the compiler cannot type-check it whole in reasonable time.
                                 let timeStep: Int32 = (cg.time / 12) & 255
-                                angle = Float(Double(timeStep) * (M_PI * 2) / 255)
+                                angle = timeStep * (JKAShared.M_PI * 2) / 255
                                 dir[0] = cos(angle) * 20
                                 dir[1] = sin(angle) * 20
                                 dir[2] = cos(angle) * 5
@@ -7700,7 +7700,7 @@ func CG_Player(_ cent: Centity) {
 
                                     // Raven's one expression is two terms here, because the compiler cannot type-check it whole in reasonable time.
                                     let timeStep: Int32 = (cg.time / 12) & 255
-                                    angle = Float(Double(timeStep) * (M_PI * 2) / 255)
+                                    angle = timeStep * (JKAShared.M_PI * 2) / 255
                                     dir[0] = cos(angle) * 20
                                     dir[1] = sin(angle) * 20
                                     dir[2] = cos(angle) * 5
@@ -7720,7 +7720,7 @@ func CG_Player(_ cent: Centity) {
                                     angles[0] = sin(angle) * 30
                                     // Raven's one expression is two terms here, because the compiler cannot type-check it whole in reasonable time.
                                     let degrees: Float = angle * 180
-                                    angles[1] = Float((Double(degrees) / M_PI) + 90)
+                                    angles[1] = (degrees / JKAShared.M_PI) + 90
                                     if angles[1] > 360 {
                                         angles[1] -= 360
                                     }
@@ -8247,7 +8247,7 @@ func CG_Player(_ cent: Centity) {
                                         if renderedHolos == 0 {
                                             // Raven's one expression is two terms here, because the compiler cannot type-check it whole in reasonable time.
                                             let timeStep: Int32 = (cg.time / 8) & 255
-                                            angle = Float(Double(timeStep) * (M_PI * 2) / 255)
+                                            angle = timeStep * (JKAShared.M_PI * 2) / 255
                                             dir[0] = cos(angle) * 20
                                             dir[1] = sin(angle) * 20
                                             dir[2] = cos(angle) * 20
@@ -8256,7 +8256,7 @@ func CG_Player(_ cent: Centity) {
                                             angles[0] = sin(angle) * 30
                                             // Raven's one expression is two terms here, because the compiler cannot type-check it whole in reasonable time.
                                             let degrees: Float = angle * 180
-                                            angles[1] = Float((Double(degrees) / M_PI) + 90)
+                                            angles[1] = (degrees / JKAShared.M_PI) + 90
                                             if angles[1] > 360 {
                                                 angles[1] -= 360
                                             }
@@ -8265,7 +8265,7 @@ func CG_Player(_ cent: Centity) {
                                         } else if renderedHolos == 1 {
                                             // Raven's one expression is two terms here, because the compiler cannot type-check it whole in reasonable time.
                                             let timeStep: Int32 = (cg.time / 8) & 255
-                                            angle = Float(Double(timeStep) * (M_PI * 2) / 255 + M_PI)
+                                            angle = timeStep * (JKAShared.M_PI * 2) / 255 + JKAShared.M_PI
                                             if Double(angle) > M_PI * 2 {
                                                 // JKAShared also declares a float `M_PI`, so the cast names the double constant by its type.
                                                 angle -= Float(M_PI as Double) * 2
@@ -8275,10 +8275,10 @@ func CG_Player(_ cent: Centity) {
                                             dir[2] = cos(angle) * 20
                                             holoRef.origin = elevated + dir
 
-                                            angles[0] = Float(cos(Double(angle) - 0.5 * M_PI) * 30)
+                                            angles[0] = Float(cos(Double(angle) - 0.5 * Double(JKAShared.M_PI)) * 30)
                                             // Raven's one expression is two terms here, because the compiler cannot type-check it whole in reasonable time.
                                             let degrees: Float = angle * 180
-                                            angles[1] = Float(360 - (Double(degrees) / M_PI))
+                                            angles[1] = 360 - (degrees / JKAShared.M_PI)
                                             if angles[1] > 360 {
                                                 angles[1] -= 360
                                             }
@@ -8287,7 +8287,7 @@ func CG_Player(_ cent: Centity) {
                                         } else {
                                             // Raven's one expression is two terms here, because the compiler cannot type-check it whole in reasonable time.
                                             let timeStep: Int32 = (cg.time / 6) & 255
-                                            angle = Float(Double(timeStep) * (M_PI * 2) / 255 + 0.5 * M_PI)
+                                            angle = Float(Double(timeStep * (JKAShared.M_PI * 2) / 255) + 0.5 * Double(JKAShared.M_PI))
                                             if Double(angle) > M_PI * 2 {
                                                 // JKAShared also declares a float `M_PI`, so the cast names the double constant by its type.
                                                 angle -= Float(M_PI as Double) * 2
