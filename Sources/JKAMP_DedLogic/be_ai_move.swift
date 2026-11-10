@@ -1310,7 +1310,7 @@ func BotCheckBlocked(_ ms: BotMovestate, _ dir: JKAShared.vec3_t, _ checkbottom:
         //test for entities obstructing the bot's path
         AAS_PresenceTypeBoundingBox(ms.presencetype, &mins, &maxs)
         //
-        if abs(Double(_DotProduct(dir, up))) < 0.7 {
+        if Double(abs(_DotProduct(dir, up))) < 0.7 {
             mins[2] += sv_maxstep!.value //if the bot can step on
             maxs[2] -= 10 //a little lower to avoid low ceiling
         }

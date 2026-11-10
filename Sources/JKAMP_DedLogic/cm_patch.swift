@@ -664,6 +664,8 @@ private func CM_EdgePlaneNum(_ grid: CGrid, _ gridPlanes: [[[Int32]]], _ i: Int3
     var up = vec3_t()
     var p: Int32
 
+    // Port-note: When CM_GridPlane returns -1, Raven reads `planes[-1]`, the record before the plane array, which C leaves undefined.
+    // The Slots subscript of each arm traps there.
     switch k {
     case 0:	// top border
         p1 = grid.points[i][j]
@@ -1675,7 +1677,7 @@ func CM_TraceThroughPatchCollide(_ tw: TraceWork, _ trace: JKAMP.Trace, _ pc: Pa
             } else {
                 // NOTE: this works even though the plane might be flipped because the bbox is centered
                 offset = _DotProduct(tw.offsets[planes.signbits], vec3_t(plane[0], plane[1], plane[2]))
-                plane[3] = Float(Double(plane[3]) + abs(Double(offset)))
+                plane[3] += abs(offset)
                 startp = tw.start
                 endp = tw.end
             }
@@ -1804,7 +1806,7 @@ func CM_PositionTestInPatchCollide(_ tw: TraceWork, _ pc: PatchCollide) -> Bool 
             } else {
                 // NOTE: this works even though the plane might be flipped because the bbox is centered
                 offset = _DotProduct(tw.offsets[planes.signbits], vec3_t(plane[0], plane[1], plane[2]))
-                plane[3] = Float(Double(plane[3]) + abs(Double(offset)))
+                plane[3] += abs(offset)
                 startp = tw.start
             }
 
