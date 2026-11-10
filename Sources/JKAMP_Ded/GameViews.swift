@@ -96,6 +96,13 @@ extension Slots where Element == Int32 {
         Slots<Int32>(scalars: self.word(x)!, count: Int.max / 4)
     }
 
+    /// Raven's `(int *)VMA(x)` of an `int` array that the module can pass as NULL, `(qhandle_t *)VMA(9)`, nil for Raven's NULL.
+    /// Source: oracle/codemp/server/sv_game.cpp:1372
+    // AI: Raven's macro reads the local `args` of the switch. The accessor is a method of `args`, and it gives the ints at the word or nil.
+    public func VMA(_ x: Int32) -> Slots<Int32>? {
+        self.word(x).map { Slots<Int32>(scalars: $0, count: Int.max / 4) }
+    }
+
     /// Raven's `(float *)VMA(x)` of a float that the callee writes, the floats at the word with the widest count.
     /// Source: oracle/codemp/server/sv_game.cpp:403
     // AI: Raven's macro reads the local `args` of the switch. The accessor is a method of `args`, and it gives the floats at the word.
