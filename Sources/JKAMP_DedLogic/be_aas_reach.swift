@@ -947,7 +947,7 @@ func AAS_ReachabilityExists(_ area1num: Int32, _ area2num: Int32) -> Bool {
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:787
 func AAS_NearbySolidOrGap(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) -> Int32 {
-    // Port-note: Raven calls this function from no file of either tree, so it is dead.
+    // Port-note: Raven calls this function only from comments, at be_aas_reach.cpp:978 and in the blocks of :1022 and :1366, so it is dead.
     // TODO: Port AAS_NearbySolidOrGap
     portMissing("AAS_NearbySolidOrGap", source: "oracle/codemp/botlib/be_aas_reach.cpp:787")
 }

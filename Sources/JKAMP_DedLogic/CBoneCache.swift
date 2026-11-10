@@ -122,8 +122,8 @@ final class CBoneCache {
 //rww - RAGDOLL_BEGIN
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:267
     private func SmoothLow(_ index: Int32) {
-        // Raven calls this method only from EvalRender, and each call of EvalRender stands under the undefined G2EVALRENDER, `#if 0`, or `_XBOX`.
-        // The calls stand at tr_ghoul2.cpp:3033, :3063, :3093, :3184, :4272, :4287, and :559, so the method is dead in the dedicated build.
+        // Raven calls this method only from EvalRender, and each call of EvalRender stands under the undefined G2EVALRENDER, `#if 0`, `_XBOX`, or `#ifndef DEDICATED`.
+        // The calls stand at tr_ghoul2.cpp:3033, :3063, :3093, :3184, :4272, :4287, and :559, and in RB_SurfaceGhoul at :4314 to :4368, so the method is dead in the dedicated build.
         // TODO: Port CBoneCache::SmoothLow
         portMissing("CBoneCache::SmoothLow", source: "oracle/codemp/renderer/tr_ghoul2.cpp:267")
     }

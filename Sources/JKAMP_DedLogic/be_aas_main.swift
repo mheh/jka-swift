@@ -45,7 +45,7 @@ func AAS_Error(_ fmt: String, _ args: any JKAShared.FormatArg...) {
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:56
 func AAS_StringFromIndex(_ indexname: inout JKAShared.CharBuf, _ stringindex: inout ArraySlice<String>, _ numindexes: Int32, _ index: Int32) -> String {
-    // Port-note: Raven calls this function from no file of either tree, so it is dead.
+    // Port-note: AAS_ModelFromIndex is the one caller, and no file of either tree calls it, so this function is dead.
     // TODO: Port AAS_StringFromIndex
     portMissing("AAS_StringFromIndex", source: "oracle/codemp/botlib/be_aas_main.cpp:56")
 }
@@ -58,7 +58,7 @@ func AAS_StringFromIndex(_ indexname: inout JKAShared.CharBuf, _ stringindex: in
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:84
 func AAS_IndexFromString(_ indexname: inout JKAShared.CharBuf, _ stringindex: inout ArraySlice<String>, _ numindexes: Int32, _ string: inout JKAShared.CharBuf) -> Int32 {
-    // Port-note: Raven calls this function from no file of either tree, so it is dead.
+    // Port-note: AAS_IndexFromModel is the one caller, and no file of either tree calls it, so this function is dead.
     // TODO: Port AAS_IndexFromString
     portMissing("AAS_IndexFromString", source: "oracle/codemp/botlib/be_aas_main.cpp:84")
 }

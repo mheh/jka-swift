@@ -244,7 +244,7 @@ func Sys_GetPhysicalMemory() -> Int32 {
 /// Source: oracle/codemp/win32/win_shared.cpp:338
 func Sys_GetCPUSpeedOld() -> Int32 {
     // Port-note: Raven times the x86 rdtsc counter against timeGetTime under a Win32 thread priority, row "CPU speed" of the win round.
-    // No file of the WinDed link set calls this function.
+    // Sys_GetCPUSpeed is the one caller, and it is dead, so this function is dead.
     // TODO: Port Sys_GetCPUSpeedOld
     portMissing("Sys_GetCPUSpeedOld", source: "oracle/codemp/win32/win_shared.cpp:338")
 }
@@ -252,7 +252,7 @@ func Sys_GetCPUSpeedOld() -> Int32 {
 /// Source: oracle/codemp/win32/win_shared.cpp:399
 func Sys_GetCPUSpeed() -> Int32 {
     // Port-note: Raven times the x86 rdtsc counter against the Win32 performance counter, row "CPU speed" of the win round.
-    // No file of the WinDed link set calls this function.
+    // The one caller is win32/win_main.cpp:1469, and WinDed links null/win_main.cpp, so this function is dead.
     // TODO: Port Sys_GetCPUSpeed
     portMissing("Sys_GetCPUSpeed", source: "oracle/codemp/win32/win_shared.cpp:399")
 }
