@@ -80,6 +80,7 @@ run_host() {
     esac
     # A trap inside G_ShutdownGame can stop the engine's own exit, so an alarm ends the process.
     # FORK_ARGS stays unquoted, so each word is one argument.
+    # The fork registers g_maxForceRank with the default 7 and Raven with 6, so the line sets it on both hosts.
     perl -e 'alarm shift; exec @ARGV' "$ALARM" "$HOST" \
         +set fs_homepath "$SCRATCH/$SIDE" \
         +set fs_basepath "$BASE_PATH" \
@@ -91,6 +92,7 @@ run_host() {
         +set sv_maxclients 32 \
         +set g_gametype "$GAMETYPE" \
         +set bot_enable 0 \
+        +set g_maxForceRank 7 \
         +set sv_stepper 1 \
         +set sv_replayInputs "$(basename "$REC")" \
         "$@" \
