@@ -658,9 +658,7 @@ func CMod_LoadPatches(_ surfs: JKAMP.Lump, _ verts: JKAMP.Lump, _ cm: ClipMap) {
         patch.surfaceFlags = cm.shadersSlots[shaderNum].surfaceFlags
 
         // create the internal facet structure
-        // Port-note: CM_GeneratePatchCollide takes `points` as one `inout vec3_t`, and Raven passes the array `vec3_t points[MAX_PATCH_VERTS]`.
-        // Raven wrote: patch->pc = CM_GeneratePatchCollide( width, height, points );
-        portMissing("CMod_LoadPatches", source: "oracle/codemp/qcommon/cm_load.cpp:483")
+        patch.pc = CM_GeneratePatchCollide(width, height, points)
         i += 1
     }
 }

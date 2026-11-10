@@ -808,9 +808,7 @@ func SV_Init() {
 
     // Only allocated once, no point in moving it around and fragmenting
     // create a heap for Ghoul2 to use for game side model vertex transforms used in collision detection
-    // Port-note: Row S1. G2VertSpaceServer and CMiniHeap_singleton of tr_init.cpp are a `CMiniHeap *` and a `CMiniHeap` of the C++ track, so the stem of stage E5 gives them no storage.
-    // Raven wrote: G2VertSpaceServer = &CMiniHeap_singleton
-    portMissing("SV_Init", source: "oracle/codemp/server/sv_init.cpp:803")
+    G2VertSpaceServer = CMiniHeap_singleton
 }
 
 /**

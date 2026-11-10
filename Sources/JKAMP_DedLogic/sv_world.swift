@@ -500,20 +500,17 @@ private func VectorDistance(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> F
 
 /// Source: oracle/codemp/server/sv_world.cpp:522
 private func SV_ClipMoveToEntities(_ clip: Moveclip) {
-    // Port-note: Row SV2. The static local `touchlist` has no storage, so SV_AreaEntities has no Slots to fill.
-    // Raven wrote: static int touchlist[MAX_GENTITIES];
-    let touchlist: Slots<Int32>
-    portMissing("SV_ClipMoveToEntities", source: "oracle/codemp/server/sv_world.cpp:522")
     let num: Int32
     var touch: SharedEntity?
     var passOwnerNum: Int32
-    var clipHandle: clipHandle_t
+    // The closures below capture these three locals, and Swift requires a value before a capture, so each starts at zero.
+    var clipHandle: clipHandle_t = 0
     // AI: Raven points `origin` and `angles` at vectors of the entity and only reads them. Each local holds a copy of the vector.
-    var origin: vec3_t
-    var angles: vec3_t
+    var origin = vec3_t()
+    var angles = vec3_t()
     var thisOwnerShared: Int32 = 1
 
-    num = SV_AreaEntities(clip.boxmins, clip.boxmaxs, touchlist, MAX_GENTITIES)
+    num = SV_AreaEntities(clip.boxmins, clip.boxmaxs, touchlist_SV_ClipMoveToEntities, MAX_GENTITIES)
 
     if clip.passEntityNum != ENTITYNUM_NONE {
         passOwnerNum = (SV_GentityNum(clip.passEntityNum))!.r.ownerNum
@@ -538,11 +535,11 @@ private func SV_ClipMoveToEntities(_ clip: Moveclip) {
                 if clip.trace.allsolid != 0 {
                     return
                 }
-                touch = SV_GentityNum(touchlist[i])
+                touch = SV_GentityNum(touchlist_SV_ClipMoveToEntities[i])
 
                 // see if we should ignore this entity
                 if clip.passEntityNum != ENTITYNUM_NONE {
-                    if touchlist[i] == clip.passEntityNum {
+                    if touchlist_SV_ClipMoveToEntities[i] == clip.passEntityNum {
                         i += 1
                         continue // don't clip against the pass entity
                     }

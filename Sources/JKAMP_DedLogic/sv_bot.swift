@@ -739,97 +739,57 @@ SV_BotInitBotLib
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:684
 func SV_BotInitBotLib() {
-    // Port-note: A local `botlib_import_t botlib_import`, the import table of the botlib, has no host type, row B1.
-    // Raven wrote: botlib_import_t botlib_import;
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
+    BotlibImport.scratch { botlib_import in
+        if debugpolygons != nil {
+            Z_Free(debugpolygons![0].handle)
+        }
+        bot_maxdebugpolys = Cvar_VariableIntegerValue("bot_maxdebugpolys")
+        debugpolygons = Slots<BotDebugpoly>(Z_Malloc(Int32(BotDebugpoly.byteCount) * bot_maxdebugpolys, TAG_BOTLIB, true), count: bot_maxdebugpolys)
 
-    // Port-note: The file-scope `bot_debugpoly_t *debugpolygons` has no table row, row B3.
-    // Raven wrote: if (debugpolygons) Z_Free(debugpolygons)
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    bot_maxdebugpolys = Cvar_VariableIntegerValue("bot_maxdebugpolys")
-    // Port-note: The file-scope `bot_debugpoly_t *debugpolygons` has no table row, row B3.
-    // Raven wrote: debugpolygons = (struct bot_debugpoly_s *)Z_Malloc(sizeof(bot_debugpoly_t) * bot_maxdebugpolys, TAG_BOTLIB, qtrue)
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
+        botlib_import.Print = BotlibImportThunks.BotImport_Print
+        botlib_import.Trace = BotlibImportThunks.BotImport_Trace
+        botlib_import.EntityTrace = BotlibImportThunks.BotImport_EntityTrace
+        botlib_import.PointContents = BotlibImportThunks.BotImport_PointContents
+        botlib_import.inPVS = BotlibImportThunks.BotImport_inPVS
+        botlib_import.BSPEntityData = BotlibImportThunks.BotImport_BSPEntityData
+        botlib_import.BSPModelMinsMaxsOrigin = BotlibImportThunks.BotImport_BSPModelMinsMaxsOrigin
+        botlib_import.BotClientCommand = BotlibImportThunks.BotClientCommand
 
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.Print = BotImport_Print
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.Trace = BotImport_Trace
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.EntityTrace = BotImport_EntityTrace
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.PointContents = BotImport_PointContents
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.inPVS = BotImport_inPVS
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.BSPEntityData = BotImport_BSPEntityData
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.BSPModelMinsMaxsOrigin = BotImport_BSPModelMinsMaxsOrigin
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.BotClientCommand = BotClientCommand
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
+        //memory management
+        botlib_import.GetMemory = BotlibImportThunks.BotImport_GetMemory
+        botlib_import.FreeMemory = BotlibImportThunks.BotImport_FreeMemory
+        botlib_import.AvailableMemory = BotlibImportThunks.bot_Z_AvailableMemory	//Z_AvailableMemory;
+        botlib_import.HunkAlloc = BotlibImportThunks.BotImport_HunkAlloc
 
-    //memory management
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.GetMemory = BotImport_GetMemory
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.FreeMemory = BotImport_FreeMemory
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.AvailableMemory = bot_Z_AvailableMemory
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.HunkAlloc = BotImport_HunkAlloc
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
+        // file system access
+        // Port-note: Row W3P1. The generated BotlibImportThunks holds no thunk for `FS_FOpenFileByMode` of files_pc.cpp, so the `FS_FOpenFile` field has no value to store.
+        // Raven wrote: botlib_import.FS_FOpenFile = FS_FOpenFileByMode
+        portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
+        // Port-note: Row W3P1. The generated BotlibImportThunks holds no thunk for `FS_Read2` of files_pc.cpp, so the `FS_Read` field has no value to store.
+        // Raven wrote: botlib_import.FS_Read = FS_Read2
+        portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
+        // Port-note: Row W3P1. The generated BotlibImportThunks holds no thunk for `FS_Write` of files_pc.cpp, so the `FS_Write` field has no value to store.
+        // Raven wrote: botlib_import.FS_Write = FS_Write
+        portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
+        // Port-note: Row W3P1. The generated BotlibImportThunks holds no thunk for `FS_FCloseFile` of files_pc.cpp, so the `FS_FCloseFile` field has no value to store.
+        // Raven wrote: botlib_import.FS_FCloseFile = FS_FCloseFile
+        portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
+        // Port-note: Row W3P1. The generated BotlibImportThunks holds no thunk for `FS_Seek` of files_pc.cpp, so the `FS_Seek` field has no value to store.
+        // Raven wrote: botlib_import.FS_Seek = FS_Seek
+        portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
 
-    // file system access
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.FS_FOpenFile = FS_FOpenFileByMode
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.FS_Read = FS_Read2
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.FS_Write = FS_Write
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.FS_FCloseFile = FS_FCloseFile
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.FS_Seek = FS_Seek
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
+        //debug lines
+        botlib_import.DebugLineCreate = BotlibImportThunks.BotImport_DebugLineCreate
+        botlib_import.DebugLineDelete = BotlibImportThunks.BotImport_DebugLineDelete
+        botlib_import.DebugLineShow = BotlibImportThunks.BotImport_DebugLineShow
 
-    //debug lines
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.DebugLineCreate = BotImport_DebugLineCreate
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.DebugLineDelete = BotImport_DebugLineDelete
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.DebugLineShow = BotImport_DebugLineShow
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
+        //debug polygons
+        botlib_import.DebugPolygonCreate = BotlibImportThunks.BotImport_DebugPolygonCreate
+        botlib_import.DebugPolygonDelete = BotlibImportThunks.BotImport_DebugPolygonDelete
 
-    //debug polygons
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.DebugPolygonCreate = BotImport_DebugPolygonCreate
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // Port-note: A store into the botlib import table `botlib_import`, row B1.
-    // Raven wrote: botlib_import.DebugPolygonDelete = BotImport_DebugPolygonDelete
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-
-    // Port-note: The host has no form for the botlib export table `botlib_export` or for `GetBotLibAPI`, row B1.
-    // Raven wrote: botlib_export = (botlib_export_t *)GetBotLibAPI( BOTLIB_API_VERSION, &botlib_import )
-    portMissing("SV_BotInitBotLib", source: "oracle/codemp/server/sv_bot.cpp:684")
-    // bk001129 - somehow we end up with a zero import.
+        botlib_export = GetBotLibAPI(BOTLIB_API_VERSION, botlib_import)
+        assert(botlib_export != nil) 	// bk001129 - somehow we end up with a zero import.
+    }
 }
 
 /**
@@ -880,4 +840,74 @@ func SV_BotGetSnapshotEntity(_ client: Int32, _ sequence: Int32) -> Int32 {
         return -1
     }
     return svs.snapshotEntitiesSlots[(frame!.first_entity + sequence) % svs.numSnapshotEntities].number
+}
+
+/// One static per function this file stores in a `BotlibImport` callback field, so each has one address for the life of the module.
+/// The thunks stand in this file, because the functions they call are private to it.
+private enum BotlibImportThunks {
+    /// Source: oracle/codemp/server/sv_bot.cpp:577
+    // TODO: Port signature
+    static let BotClientCommand: BotlibImportBotClientCommand = { _, _ in portMissing("BotClientCommand", source: "oracle/codemp/server/sv_bot.cpp:577") }
+
+    /// Source: oracle/codemp/server/sv_bot.cpp:378
+    // Port-note: Row W3P2. The thunk must hand the C caller a `char *` or a `void *`, and the logic target holds no Unsafe type, rule 11.
+    // TODO: Port signature
+    static let BotImport_BSPEntityData: BotlibImportBSPEntityData = { portMissing("BotImport_BSPEntityData", source: "oracle/codemp/server/sv_bot.cpp:378") }
+
+    /// Source: oracle/codemp/server/sv_bot.cpp:387
+    // TODO: Port signature
+    static let BotImport_BSPModelMinsMaxsOrigin: BotlibImportBSPModelMinsMaxsOrigin = { _, _, _, _, _ in portMissing("BotImport_BSPModelMinsMaxsOrigin", source: "oracle/codemp/server/sv_bot.cpp:387") }
+
+    /// Source: oracle/codemp/server/sv_bot.cpp:525
+    static let BotImport_DebugLineCreate: BotlibImportDebugLineCreate = { JKAMP_DedLogic.BotImport_DebugLineCreate() }
+
+    /// Source: oracle/codemp/server/sv_bot.cpp:535
+    static let BotImport_DebugLineDelete: BotlibImportDebugLineDelete = { JKAMP_DedLogic.BotImport_DebugLineDelete($0) }
+
+    /// Source: oracle/codemp/server/sv_bot.cpp:544
+    // TODO: Port signature
+    static let BotImport_DebugLineShow: BotlibImportDebugLineShow = { _, _, _, _ in portMissing("BotImport_DebugLineShow", source: "oracle/codemp/server/sv_bot.cpp:544") }
+
+    /// Source: oracle/codemp/server/sv_bot.cpp:471
+    // TODO: Port signature
+    static let BotImport_DebugPolygonCreate: BotlibImportDebugPolygonCreate = { _, _, _ in portMissing("BotImport_DebugPolygonCreate", source: "oracle/codemp/server/sv_bot.cpp:471") }
+
+    /// Source: oracle/codemp/server/sv_bot.cpp:514
+    static let BotImport_DebugPolygonDelete: BotlibImportDebugPolygonDelete = { JKAMP_DedLogic.BotImport_DebugPolygonDelete($0) }
+
+    /// Source: oracle/codemp/server/sv_bot.cpp:334
+    // TODO: Port signature
+    static let BotImport_EntityTrace: BotlibImportEntityTrace = { _, _, _, _, _, _, _ in portMissing("BotImport_EntityTrace", source: "oracle/codemp/server/sv_bot.cpp:334") }
+
+    /// Source: oracle/codemp/server/sv_bot.cpp:450
+    static let BotImport_FreeMemory: BotlibImportFreeMemory = { JKAMP_DedLogic.BotImport_FreeMemory($0) }
+
+    /// Source: oracle/codemp/server/sv_bot.cpp:438
+    // Port-note: Row W3P2. The thunk must hand the C caller a `char *` or a `void *`, and the logic target holds no Unsafe type, rule 11.
+    // TODO: Port signature
+    static let BotImport_GetMemory: BotlibImportGetMemory = { _ in portMissing("BotImport_GetMemory", source: "oracle/codemp/server/sv_bot.cpp:438") }
+
+    /// Source: oracle/codemp/server/sv_bot.cpp:459
+    // Port-note: Row W3P2. The thunk must hand the C caller a `char *` or a `void *`, and the logic target holds no Unsafe type, rule 11.
+    // TODO: Port signature
+    static let BotImport_HunkAlloc: BotlibImportHunkAlloc = { _ in portMissing("BotImport_HunkAlloc", source: "oracle/codemp/server/sv_bot.cpp:459") }
+
+    /// Source: oracle/codemp/server/sv_bot.cpp:360
+    // TODO: Port signature
+    static let BotImport_PointContents: BotlibImportPointContents = { _ in portMissing("BotImport_PointContents", source: "oracle/codemp/server/sv_bot.cpp:360") }
+
+    /// Source: oracle/codemp/server/sv_bot.cpp:267
+    // TODO: Port signature
+    static let BotImport_Print: BotlibImportPrint = { _, _ in portMissing("BotImport_Print", source: "oracle/codemp/server/sv_bot.cpp:267") }
+
+    /// Source: oracle/codemp/server/sv_bot.cpp:309
+    // TODO: Port signature
+    static let BotImport_Trace: BotlibImportTrace = { _, _, _, _, _, _, _ in portMissing("BotImport_Trace", source: "oracle/codemp/server/sv_bot.cpp:309") }
+
+    /// Source: oracle/codemp/server/sv_bot.cpp:369
+    // TODO: Port signature
+    static let BotImport_inPVS: BotlibImportInPVS = { _, _ in portMissing("BotImport_inPVS", source: "oracle/codemp/server/sv_bot.cpp:369") }
+
+    /// Source: oracle/codemp/server/sv_bot.cpp:673
+    static let bot_Z_AvailableMemory: BotlibImportAvailableMemory = { JKAMP_DedLogic.bot_Z_AvailableMemory() }
 }

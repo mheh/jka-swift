@@ -24,8 +24,11 @@ public enum SystemInflate {
     /// This allocates a system stream and starts it, a raw deflate stream with no zlib header when `raw` is true.
     /// The stream is nil when the start fails, and the status says why.
     public static func start(raw: Bool) -> (stream: OpaquePointer?, status: Int32) {
-        let stream = UnsafeMutablePointer<z_stream>.allocate(capacity: 1)
-        stream.initialize(to: z_stream())
+        // The runtime keeps one type record per C struct name, and Raven's `struct z_stream_s` of zip.h is 80 bytes against the 112 of the system.
+        // A generic allocate can take the size of Raven's record, so the block takes the size the compiler gives this module and starts at zero.
+        let block = UnsafeMutableRawPointer.allocate(byteCount: MemoryLayout<z_stream>.size, alignment: MemoryLayout<z_stream>.alignment)
+        block.initializeMemory(as: UInt8.self, repeating: 0, count: MemoryLayout<z_stream>.size)
+        let stream = block.bindMemory(to: z_stream.self, capacity: 1)
         let windowBits = raw ? -MAX_WBITS : MAX_WBITS
         let status = inflateInit2_(stream, windowBits, zlibVersion(), Int32(MemoryLayout<z_stream>.size))
         if status != Z_OK {
