@@ -28,3 +28,7 @@ This record holds the body round of set S8 of `notes/2026-11-10/docket-13.md`, o
 ## The notes
 
 The three terrain methods said that Raven calls them only from a client build. That is wrong: CRMPathManager calls CreatePath (`RM_Path.cpp:327`, `:416`, `:564`), and CRMMission calls GetPathInfo and Smooth (`RM_Mission.cpp:213`, `:1463`). Each note now says that the dedicated build never makes a CRandomTerrain, so it never calls the method. The note of Generate, outside this set, still holds the old reason.
+
+## The review note
+
+A review found that Smooth copies border bytes that no code writes. That is true at Raven's lines: the loop at `cm_randomterrain.cpp:664` writes only the inner bytes, and `Z_Malloc(mWidth * mHeight, TAG_RESAMPLE)` takes the default `bZeroit = qfalse` (`qcommon.h:787`), so the memcpy at `:709` puts unset bytes in the border of `mGrid`. The Swift Z_Malloc calls malloc for such a block, so it was not defined either. Under rule 19 the port asks for a zeroed block, so the border becomes 0, with a Port-note at the site. The note of Generate now says that the dedicated build never makes a CRandomTerrain, because its caller is CRMMission::Load (`RM_Mission.cpp:1417`). The build is clean, and the 156 tests pass.

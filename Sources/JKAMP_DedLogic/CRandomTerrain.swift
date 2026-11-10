@@ -131,7 +131,9 @@ final class CRandomTerrain {
             o += 1
         }
 
-        temp = Slots<JKAShared.byte>(scalars: Z_Malloc(self.mWidth * self.mHeight, TAG_RESAMPLE), count: Int(self.mWidth * self.mHeight))
+        // Port-note: Rule 19. The loop below never writes the border bytes of the block, and Raven's Z_Malloc does not zero it, so his memcpy puts unset bytes in the border of `mGrid`.
+        // The Swift Z_Malloc calls malloc for a block that is not zeroed, so the port asks for a zeroed block, and the border becomes 0.
+        temp = Slots<JKAShared.byte>(scalars: Z_Malloc(self.mWidth * self.mHeight, TAG_RESAMPLE, true), count: Int(self.mWidth * self.mHeight))
         var total: UInt32
         var count: UInt32
         x = 1
@@ -208,7 +210,7 @@ final class CRandomTerrain {
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:770
     func Generate(_ symmetric: Int32) {
-        // Raven calls this method only from a client build, so it is dead.
+        // The dedicated build never makes a CRandomTerrain, so it never calls this method.
         // TODO: Port CRandomTerrain::Generate
         portMissing("CRandomTerrain::Generate", source: "oracle/codemp/qcommon/cm_randomterrain.cpp:770")
     }
