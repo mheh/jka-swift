@@ -68,8 +68,10 @@ STATE = C.TARGETS["state"]
 C_TARGET = C.TARGETS["c_target"]
 BG = "JKAMP_BG"
 SHARED = "JKAShared"
-# The C integer kinds of a local or a parameter that a BYTE_STORAGE_LOCALS ruling holds as a Slots of its scalar.
-INT_ELEMENTS = (TypeKind.INT, TypeKind.UINT)
+# The C scalar kinds of a local or a parameter that a BYTE_STORAGE_LOCALS ruling holds as a Slots of its scalar.
+# A `float` local is a Slots of Float and an `unsigned short` local a Slots of UInt16, `rankings` of be_ai_gen.cpp:75
+# and `startareatraveltimes` of be_aas_route.cpp:1275, row X20 of docket 10.
+INT_ELEMENTS = (TypeKind.INT, TypeKind.UINT, TypeKind.FLOAT, TypeKind.USHORT)
 # The parameter kinds of an optional inout vector or axis, which a forward with the plain inout serves for the callers that pass one.
 OPTIONAL_INOUTS = ("vec3_mut_opt", "axis_mut_opt")
 # The C++ definitions of a host file that the skeleton skips, by kind, and the records whose bodies define them.
@@ -1503,7 +1505,9 @@ class Skeleton:
         lines = [f"    /// Source: {fn.cite}"]
         # A vector, a text, or a scalar output crosses as a C pointer with no view, and only a view target may read it under rule 11.
         # A thunk with such an argument keeps the marker, unless the function takes the pointer as it is.
-        raw = fn.mapped and any(self.raw_argument(arg, fn.params[i] if i < len(fn.params) else None)
+        # A host thunk reads a text and a vector the function takes by value through the readers of the view target, `text(at:)` and `vector(at:)`,
+        # the form of the cgame thunks of cg_main.swift, rows X1 and X2 of docket 10.
+        raw = fn.mapped and any(self.raw_argument(arg, fn.params[i] if i < len(fn.params) else None) and self.host_reader(fn.params[i] if i < len(fn.params) else None) is None
                                 for i, arg in enumerate(proto.argument_types()))
         if not fn.mapped or raw:
             self.counts["thunks over an unmapped signature"] += 1
@@ -1519,7 +1523,8 @@ class Skeleton:
             if canonical.kind == TypeKind.POINTER:
                 record = self.table.views.record_name(canonical.get_pointee())
                 view = self.table.views.qualified_view(record, C_TARGET) if record in self.table.views.views else None
-                args.append(f"{view}(handle: ${i}!)" if view else f"${i}")
+                reader = None if view else self.host_reader(fn.params[i] if i < len(fn.params) else None)
+                args.append(f"{view}(handle: ${i}!)" if view else reader.replace("{}", f"${i}") if reader else f"${i}")
             elif self.table.views.scalar(arg, C_TARGET) == "Bool":
                 args.append(f"${i} != 0")
             else:
@@ -1528,9 +1533,29 @@ class Skeleton:
         call = f"{target_of(fn.stem)}.{swift_name(fn.name)}({', '.join(args)})"
         if fn.returns == "Bool":
             call = f"{call} ? 1 : 0"
+        result = proto.get_result().get_canonical()
+        if C.HOST and result.kind == TypeKind.POINTER and fn.returns in ("String", "String?"):
+            # A host thunk hands the C caller the text in the ring of the view target, the `va` form, BotImport_BSPEntityData of sv_bot.cpp:378, row X1.
+            call = f"ringText({call})" if fn.returns == "String" else f"{call}.map(ringText)"
+        elif C.HOST and result.kind == TypeKind.POINTER and fn.returns in ("UnsafeMutableRawPointer", "UnsafeMutableRawPointer?"):
+            # A host thunk hands the C caller the block as the word, the form of `Z_Free(OpaquePointer(x.base))`, BotImport_GetMemory of sv_bot.cpp:438, row X1.
+            call = f"OpaquePointer({call})" if fn.returns == "UnsafeMutableRawPointer" else f"{call}.map(OpaquePointer.init)"
         lines.append(f"    static let {swift_name(fn.name)}: {alias} = {{ {call} }}")
         self.counts["thunks"] += 1
         return lines
+
+    def host_reader(self, param: Param | None) -> str | None:
+        """The reader of the view target that turns a host thunk's C word into the parameter, with `{}` for the word, or None.
+        A text is `text(at:)` and a vector by value is `vector(at:)`, the readers of ThunkReaders.swift, rows X1 and X2 of docket 10."""
+        if not C.HOST or param is None:
+            return None
+        if param.swift == "String":
+            return "text(at: {}!)"
+        if param.swift == "String?":
+            return "{}.map(text(at:))"
+        if param.swift == "JKAShared.vec3_t":
+            return "vector(at: {}!)"
+        return None
 
     def raw_argument(self, arg: ci.Type, param: Param | None) -> bool:
         """Whether a thunk argument is a C pointer that no view reads and that the stored function does not take as an `OpaquePointer?`."""

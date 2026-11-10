@@ -312,7 +312,9 @@ BG_FIELDS = {"s", "playerState", "m_pVehicle", "ghoul2", "localAnimIndex", "mode
 # The store kind of a cursor local set from the text a call returns, which names the call and no buffer.
 TEXT_CALL = ("", False)
 # `va_start` names the last fixed parameter to find the arguments after it and reads no byte of it, Log_Write of l_log.cpp:101, row D18.
-TEXT_READERS = {"Q_stricmp", "Q_stricmpn", "Q_strncmp", "strlen", "strcmp", "strncmp", "atoi", "atof", "Com_Printf", "__builtin_va_start"}
+# `vfprintf` and `fprintf` read the format and write no byte of it, Log_Write of l_log.cpp:121, row X35 of docket 10.
+TEXT_READERS = {"Q_stricmp", "Q_stricmpn", "Q_strncmp", "strlen", "strcmp", "strncmp", "atoi", "atof", "Com_Printf", "__builtin_va_start",
+                "vfprintf", "fprintf"}
 TEXT_TESTS = {"==", "!=", "<", ">", "<=", ">=", "&&", "||"}
 # A C comment of either form, which a reader of the source text between two nodes drops before it reads the operator there.
 COMMENT = re.compile(r"//[^\n]*|/\*.*?\*/", re.S)
@@ -2185,6 +2187,10 @@ class Table:
             return (self.views.qualified_view(self.views.record_name(cur.result_type), TARGET), "")
         if ruled == "bytes":
             # A row of a byte buffer the caller indexes, the return twin of the PARAMS kind.
+            # An `int *` of kind `bytes` is a Slots of Int32, the rule of the field and the parameter, WeaponWeightIndex of be_ai_weap.cpp, row X21.
+            pointee = cur.result_type.get_canonical().get_pointee().get_canonical()
+            if pointee.kind == TypeKind.INT:
+                return ("Slots<Int32>", "")
             return ("Slots<JKAShared.byte>", "")
         if ruled == "optional_bytes":
             return ("Slots<JKAShared.byte>?", "")

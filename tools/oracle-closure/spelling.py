@@ -142,8 +142,12 @@ class Types:
         if decl.kind == CursorKind.UNION_DECL:
             # A named union takes a view only where a root row names its typedef, `qfile_gut` of files.h:71.
             named = t.get_named_type() if t.kind == TypeKind.ELABORATED else t
-            return named.spelling if named.kind == TypeKind.TYPEDEF and named.spelling in self.views.records \
-                and self.views.records[named.spelling].kind == CursorKind.UNION_DECL else None
+            if named.kind == TypeKind.TYPEDEF and named.spelling in self.views.records and self.views.records[named.spelling].kind == CursorKind.UNION_DECL:
+                return named.spelling
+            # A union Raven named by its tag alone, `union cvalue` of be_ai_char.cpp:39, takes a view where a root row names the tag, row X22.
+            if decl.spelling in self.views.records and self.views.records[decl.spelling] == decl.get_definition():
+                return decl.spelling
+            return None
         if decl.kind == CursorKind.CLASS_DECL and decl.spelling in self.views.views:
             # A C++ class that C_STRUCT_CLASSES copies as a struct, `CCMShader` of cm_local.h:77, takes its view in the C++ parse of a body too.
             return decl.spelling
@@ -369,6 +373,13 @@ class Types:
                 declaration = canonical.get_pointee().get_canonical().get_pointee().get_canonical().get_declaration()
                 if declaration is not None and declaration.spelling in CXX_CLASSES:
                     return Answer(f"inout {CXX_CLASSES[declaration.spelling]}?", "out_opaque")
+            # A C++ reference to a record pointer, `mdxaBone_t *&retBasepose` of G2_GetBoneBasepose at tr_ghoul2.cpp:656, is the caller's
+            # optional view, inout, the form of a pointer to a struct pointer, row X14 G1c of docket 10.
+            if canonical.kind == TypeKind.LVALUEREFERENCE and canonical.get_pointee().get_canonical().kind == TypeKind.POINTER \
+                    and not canonical.get_pointee().is_const_qualified():
+                record = self.record_name(canonical.get_pointee().get_canonical().get_pointee())
+                if record and record in self.views.views:
+                    return Answer(f"inout {self.views.qualified_view(record, TARGET)}?", "out_view")
             # A C++ reference to a typedef of TYPES, `boneInfo_v &blist`, is the TYPES spelling, inout unless the reference is const.
             # The canonical type loses the name, so the rule reads the pointee as Raven spelled it.
             if canonical.kind == TypeKind.LVALUEREFERENCE and t.kind == TypeKind.LVALUEREFERENCE:
@@ -485,6 +496,10 @@ class Types:
                 if facts.traps:
                     # A `char *` Raven wrote without `const` into a trap is an input the engine reads, a String like `const char *`.
                     return Answer("String", "cstring")
+                if facts.ruled == "out_scalar":
+                    # A `char *` that holds one character the body writes, `ch` of PS_ReadEscapeCharacter at l_script.cpp:344,
+                    # is the caller's scalar, inout, the rule of a pointer to one scalar, row X32.
+                    return Answer("inout CChar", "out_scalar")
                 if facts.ruled is None and facts.readonly_text:
                     # The body only reads the text, so the parameter is a String, the spelling a `const char *` already has.
                     # A PARAMS row names the kind itself, so it wins over the sweep.
@@ -499,6 +514,10 @@ class Types:
                     return Answer(f"Slots<{self.views.qualified_view(record, TARGET)}>", "slots")
                 if facts.ruled == "table":
                     # Raven indexes the table through the pointer, so the Slots over it crosses, and its base is the word.
+                    # A caller that hands NULL makes the Slots optional, the form of the vector table of AAS_TraceAreas,
+                    # `avoidspots` of BotGetReachabilityToGoal at be_ai_move.cpp:731, row X19.
+                    if facts.nullable:
+                        return Answer(f"Slots<{self.views.qualified_view(record, TARGET)}>?", "slots_opt")
                     return Answer(f"Slots<{self.views.qualified_view(record, TARGET)}>", "slots")
                 if facts.indexed:
                     # Raven indexes the parameter, `animations[anim]`, so the Slots over the records crosses, and a one-record read spells `[0]`.
@@ -534,6 +553,10 @@ class Types:
                 if facts.ruled == "pointer_table" and record and record in self.views.views:
                     # The table's base crosses to the engine, and the body holds the Slots over the C storage.
                     return Answer(f"Slots<{self.views.qualified_view(record, TARGET)}?>", "slots")
+                if facts.ruled == "view_array" and record and record in self.views.views:
+                    # The caller's C array of struct pointers that the function fills, `token_t *parms[MAX_DEFINEPARMS]` of PC_ExpandDefine,
+                    # is the caller's array of optional views, the rule of a `T *name[N]` parameter, row X31.
+                    return Answer(f"inout [{self.views.qualified_view(record, TARGET)}?]", "view_array")
                 if record and record in self.views.views and not facts.traps:
                     return Answer(f"inout {self.views.qualified_view(record, TARGET)}?", "out_view")
             # The engine reads an array of model handles. The caller passes the view over `cgs.gameModels`, or nil.
@@ -566,7 +589,8 @@ class Types:
                 if swift is not None and self.known(swift):
                     return Answer(f"Slots<{swift}>", "slots")
             # A pointer to one scalar is an out-param, `inout`. A body that finds Raven walks it as an array writes a Port-note.
-            if not pointee.is_const_qualified() and (inner.kind in INT_KINDS or inner.kind in (TypeKind.FLOAT, TypeKind.ENUM)):
+            # A `double *` takes the rule of an `int *`, `floatvalue` of PC_Evaluate at l_precomp.cpp:2185, row D5 of the ninth batch.
+            if not pointee.is_const_qualified() and (inner.kind in INT_KINDS or inner.kind in (TypeKind.FLOAT, TypeKind.DOUBLE, TypeKind.ENUM)):
                 swift = self.fixed(t.get_pointee()) or self.scalar(pointee, TARGET)
                 if swift is not None and self.known(swift) and facts.null_reaches:
                     # An output a caller skips with NULL, at a direct call or one hop on, crosses as the pointer itself, so `nil` has a seat.
@@ -675,6 +699,12 @@ class Types:
             if declaration is not None and declaration.spelling in CXX_CLASSES:
                 swift = CXX_CLASSES[declaration.spelling]
                 return Answer(swift if canonical.kind == TypeKind.LVALUEREFERENCE else f"{swift}?")
+        if canonical.kind == TypeKind.LVALUEREFERENCE:
+            # A returned C++ reference to a record, `const mdxaBone_t &` of EvalBoneCache at tr_ghoul2.cpp:585, is the record's view,
+            # the parameter rule of a record reference, row X14 G1b of docket 10.
+            record = self.record_name(canonical.get_pointee())
+            if record and record in self.views.views:
+                return Answer(self.views.qualified_view(record, target))
         if canonical.kind == TypeKind.POINTER:
             pointee = canonical.get_pointee()
             if pointee.get_canonical().kind == TypeKind.FUNCTIONPROTO:
