@@ -534,9 +534,10 @@ final class CROFFSystem {
             if size != 0 {
                 if roff_ent.mIsClient {
                 } else {
-                    // Port-note: Row SV3. VM_Call reads only integer arguments, so it cannot pass the address of the text to the module.
-                    // Raven wrote: VM_Call( gvm, GAME_ROFF_NOTETRACK_CALLBACK, roff_ent->mEntID, temp );
-                    portMissing("CROFFSystem::ProcessNote", source: "oracle/codemp/qcommon/RoffSystem.cpp:927")
+                    // AI: Raven passes the address of the caller's text. The word holds the address of the buffer for the call, and the module only reads it.
+                    withTextWord(temp) { text in
+                        VM_Call(gvm!, GAME_ROFF_NOTETRACK_CALLBACK, roff_ent.mEntID, text)
+                    }
                 }
             }
         }
