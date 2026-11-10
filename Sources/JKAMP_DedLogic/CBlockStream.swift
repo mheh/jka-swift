@@ -239,10 +239,34 @@ final class CBlockStream {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:577
-    // Port-note: Rule 20. The callers of this function are in Interpreter.cpp, and WinDed does not link Interpreter.cpp, so the function keeps its marker.
+    // Port-note: Rule 20. The callers of this function are in Interpreter.cpp, and WinDed does not link Interpreter.cpp.
+    @discardableResult
     func WriteBlock(_ block: CBlock?) -> Int32 {
-        // TODO: Port CBlockStream::WriteBlock
-        portMissing("CBlockStream::WriteBlock", source: "oracle/codemp/icarus/BlockStream.cpp:577")
+        var bMember: CBlockMember?
+        let id: Int32 = block!.GetBlockID()
+        let numMembers: Int32 = block!.GetNumMembers()
+        // C converts the `int` flags to `unsigned char` by its low bits.
+        let flags = UInt8(truncatingIfNeeded: block!.GetFlags())
+        // AI: Raven writes each value through its address. The value goes into a CharBuf of its bytes, and the CharBuf is written.
+        var value = CharBuf(Int32.byteCount)
+
+        value.withMutableSlots { $0[int: 0] = id }
+        _ = FileBackend.fwrite(value, at: 0, Int32(Int32.byteCount), 1, self.m_fileHandle)
+        value.withMutableSlots { $0[int: 0] = numMembers }
+        _ = FileBackend.fwrite(value, at: 0, Int32(Int32.byteCount), 1, self.m_fileHandle)
+        value.withMutableSlots { $0[byte: 0] = flags }
+        _ = FileBackend.fwrite(value, at: 0, Int32(UInt8.byteCount), 1, self.m_fileHandle)
+
+        var i: Int32 = 0
+        while i < numMembers {
+            bMember = block!.GetMember(i)
+            bMember!.WriteMember(self.m_fileHandle)
+            i += 1
+        }
+
+        block!.Free()
+
+        return 1
     }
 
     /**
