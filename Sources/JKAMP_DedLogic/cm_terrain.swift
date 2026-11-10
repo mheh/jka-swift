@@ -60,8 +60,8 @@ func CM_GetAverage(_ work: Slots<UInt8>, _ lerp: Float, _ user: Slots<Int32>) {
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1106
 func CM_Smooth(_ work: Slots<UInt8>, _ lerp: Float, _ user: Slots<Int32>) {
-    // JKAShared's M_PI is the float of Raven's macro at q_shared.h:548, and the qualifier breaks the tie with the double of Foundation.
-    let smooth: Float = sin(JKAShared.M_PI / 2 * 3 + (1.0 - lerp) * (JKAShared.M_PI / 2)) + 1.0
+    // Foundation's M_PI is the double literal of Raven's macro, and the qualifier breaks the tie with the float constant of JKAShared.
+    let smooth: Float = Float(sin(Foundation.M_PI / 2 * 3 + Double(1.0 - lerp) * (Foundation.M_PI / 2)) + 1.0)
     //	float smooth = (1.0f - lerp);
 
     // C widens the unsigned byte to `int`, and the store into the byte truncates.
