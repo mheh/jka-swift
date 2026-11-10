@@ -190,8 +190,16 @@ VM_SymbolToValue
 /// Source: oracle/codemp/qcommon/vm.cpp:148
 // Port-note: Raven calls this function from no file of either tree, so it is dead.
 func VM_SymbolToValue(_ vm: Vm, _ symbol: String) -> Int32 {
-    // TODO: Port VM_SymbolToValue
-    portMissing("VM_SymbolToValue", source: "oracle/codemp/qcommon/vm.cpp:148")
+    var sym: VmSymbol?
+
+    sym = vm.symbols
+    while sym != nil {
+        if strcmp(symbol, sym!.symName) == 0 {
+            return sym!.symValue
+        }
+        sym = sym!.next
+    }
+    return 0
 }
 
 /**
@@ -204,8 +212,31 @@ VM_SymbolForCompiledPointer
 /// Source: oracle/codemp/qcommon/vm.cpp:165
 // Port-note: Raven calls this function from no file of either tree, so it is dead.
 func VM_SymbolForCompiledPointer(_ vm: Vm, _ code: OpaquePointer?) -> String {
-    // TODO: Port VM_SymbolForCompiledPointer
-    portMissing("VM_SymbolForCompiledPointer", source: "oracle/codemp/qcommon/vm.cpp:165")
+    var i: Int32
+
+    // C converts the pointers to addresses at the compare.
+    if UInt(bitPattern: code) < UInt(bitPattern: vm.codeBase) {
+        return "Before code block"
+    }
+    // C converts the pointers to addresses at the compare.
+    if UInt(bitPattern: code) >= UInt(bitPattern: vm.codeBase) &+ UInt(truncatingIfNeeded: vm.codeLength) {
+        return "After code block"
+    }
+
+    // find which original instruction it is after
+    i = 0
+    while i < vm.codeLength {
+        // In Raven's 32-bit build an `int` and a pointer are both 4 bytes, so the `int` bits are the address with no extension.
+        if UInt(UInt32(bitPattern: vm.instructionPointers![i])) > UInt(bitPattern: code) {
+            break
+        }
+        i += 1
+    }
+    i -= 1
+
+    // now look up the bytecode instruction pointer
+    VM_SetSymbolMap(vm)
+    return VM_ValueToSymbol(vm, i)
 }
 
 /**

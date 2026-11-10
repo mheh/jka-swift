@@ -62,10 +62,15 @@ final class CBlockStream {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:420
-    // Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
+    // Port-note: Rule 20. No file of oracle/codemp calls this function.
     private func GetUnsignedInteger() -> UInt32 {
-        // TODO: Port CBlockStream::GetUnsignedInteger
-        portMissing("CBlockStream::GetUnsignedInteger", source: "oracle/codemp/icarus/BlockStream.cpp:420")
+        var data: UInt32
+
+        // C converts the word bits to `unsigned`.
+        data = UInt32(bitPattern: self.m_stream.withSlots { $0[int: self.m_streamPos] })
+        self.m_streamPos += Int32(UInt32.byteCount)
+
+        return data
     }
 
     /**
@@ -93,10 +98,14 @@ final class CBlockStream {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:452
-    // Port-note: Rule 20. No file of oracle/codemp calls this function, so it keeps its marker.
+    // Port-note: Rule 20. No file of oracle/codemp calls this function.
     private func GetLong() -> Int32 {
-        // TODO: Port CBlockStream::GetLong
-        portMissing("CBlockStream::GetLong", source: "oracle/codemp/icarus/BlockStream.cpp:452")
+        var data: Int32
+
+        data = self.m_stream.withSlots { $0[int: self.m_streamPos] }
+        self.m_streamPos += Int32(Int32.byteCount)
+
+        return data
     }
 
     /**
@@ -170,11 +179,36 @@ final class CBlockStream {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:525
-    // Port-note: Rule 20. No file of either tree calls CBlockStream::Create, so the function keeps its marker.
+    // Port-note: Rule 20. No file of either tree calls CBlockStream::Create.
     @discardableResult
     func Create(_ filename: String) -> Int32 {
-        // TODO: Port CBlockStream::Create
-        portMissing("CBlockStream::Create", source: "oracle/codemp/icarus/BlockStream.cpp:525")
+        var newName = CharBuf(MAX_FILENAME_LENGTH)
+        let id_header = CharBuf(IBI_HEADER_ID)
+        // AI: Raven writes the float through its address. The value goes into a CharBuf of its bytes, and the CharBuf is written.
+        var version = CharBuf(Float.byteCount)
+        version.withMutableSlots { $0[float: 0] = IBI_VERSION }
+
+        //Clear the temp string
+        newName.zero()
+
+        //Strip the extension and add the BLOCK_EXT extension
+        strcpy(&self.m_fileName, filename)
+        self.StripExtension(String(self.m_fileName), &newName)
+        strcat(&newName, IBI_EXT)
+
+        //Recover that as the active filename
+        strcpy(&self.m_fileName, newName)
+
+        self.m_fileHandle = FileBackend.fopen(String(self.m_fileName), "wb")
+        if self.m_fileHandle == nil {
+            return 0
+        }
+
+        // Raven's `sizeof(id_header)` is the size of a pointer in his 32-bit build, 4, the length of the header text with its terminator.
+        _ = FileBackend.fwrite(id_header, at: 0, 1, strlen(IBI_HEADER_ID) + 1, self.m_fileHandle)
+        _ = FileBackend.fwrite(version, at: 0, 1, Int32(Float.byteCount), self.m_fileHandle)
+
+        return 1
     }
 
     /**

@@ -49,8 +49,7 @@ func EA_SayTeam(_ client: Int32, _ str: String) {
 /// Source: oracle/codemp/botlib/be_ea.cpp:55
 func EA_Tell(_ client: Int32, _ clientto: Int32, _ str: String) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port EA_Tell
-    portMissing("EA_Tell", source: "oracle/codemp/botlib/be_ea.cpp:55")
+    botimport.runBotClientCommand(client, va("tell %d, %s", clientto, str))
 }
 
 //===========================================================================
@@ -62,8 +61,7 @@ func EA_Tell(_ client: Int32, _ clientto: Int32, _ str: String) {
 /// Source: oracle/codemp/botlib/be_ea.cpp:65
 func EA_UseItem(_ client: Int32, _ it: String) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port EA_UseItem
-    portMissing("EA_UseItem", source: "oracle/codemp/botlib/be_ea.cpp:65")
+    botimport.runBotClientCommand(client, va("use %s", it))
 }
 
 //===========================================================================
@@ -75,8 +73,7 @@ func EA_UseItem(_ client: Int32, _ it: String) {
 /// Source: oracle/codemp/botlib/be_ea.cpp:75
 func EA_DropItem(_ client: Int32, _ it: String) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port EA_DropItem
-    portMissing("EA_DropItem", source: "oracle/codemp/botlib/be_ea.cpp:75")
+    botimport.runBotClientCommand(client, va("drop %s", it))
 }
 
 //===========================================================================
@@ -88,8 +85,7 @@ func EA_DropItem(_ client: Int32, _ it: String) {
 /// Source: oracle/codemp/botlib/be_ea.cpp:85
 func EA_UseInv(_ client: Int32, _ inv: String) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port EA_UseInv
-    portMissing("EA_UseInv", source: "oracle/codemp/botlib/be_ea.cpp:85")
+    botimport.runBotClientCommand(client, va("invuse %s", inv))
 }
 
 //===========================================================================
@@ -101,8 +97,7 @@ func EA_UseInv(_ client: Int32, _ inv: String) {
 /// Source: oracle/codemp/botlib/be_ea.cpp:95
 func EA_DropInv(_ client: Int32, _ inv: String) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port EA_DropInv
-    portMissing("EA_DropInv", source: "oracle/codemp/botlib/be_ea.cpp:95")
+    botimport.runBotClientCommand(client, va("invdrop %s", inv))
 }
 
 //===========================================================================

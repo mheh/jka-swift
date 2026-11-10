@@ -351,6 +351,12 @@ public final class EngineWorld {
     /// Source: oracle/codemp/botlib/be_aas_reach.cpp:4351
     var lastpercentage: Int32 = 0
 
+    // MARK: - be_aas_route.cpp
+
+    /// Raven's `static unsigned short int *hidetraveltimes` of `AAS_NearestHideArea` in `be_aas_route.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_route.cpp:2067
+    var hidetraveltimes: Slots<UInt16>? = nil
+
     // MARK: - be_aas_debug.cpp
 
     /// Raven's `static int index` of `AAS_ShowReachableAreas` in `be_aas_debug.cpp`.
