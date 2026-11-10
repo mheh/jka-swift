@@ -282,8 +282,16 @@ func G2Time_ReportTimers() {
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:112
 private func G2_Find_Bone_ByNum(_ mod: Model, _ blist: inout [boneInfo_t], _ boneNum: Int32) -> Int32 {
     // Raven's one call stands inside `#if 0` at tr_ghoul2.cpp:274, so the function is dead.
-    // TODO: Port G2_Find_Bone_ByNum
-    portMissing("G2_Find_Bone_ByNum", source: "oracle/codemp/renderer/tr_ghoul2.cpp:112")
+    var i: Int32 = 0
+
+    while i < blist.count {
+        if blist[i].boneNumber == boneNum {
+            return i
+        }
+        i += 1
+    }
+
+    return -1
 }
 
 /// The byte size of Raven's `CBoneCache` in the 32-bit build, which `g_Ghoul2Allocations` counts at each new and each delete.
@@ -392,8 +400,19 @@ func G2_GetBoneBasepose(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ retBasepose: 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:678
 func G2_GetBoneNameFromSkel(_ ghoul2: CGhoul2Info, _ boneNum: Int32) -> String? {
     // Raven declares it at G2_bones.cpp:2607 and calls it from no file of either tree, so it is dead.
-    // TODO: Port G2_GetBoneNameFromSkel
-    portMissing("G2_GetBoneNameFromSkel", source: "oracle/codemp/renderer/tr_ghoul2.cpp:678")
+    if ghoul2.mBoneCache == nil {
+        return nil
+    }
+    let boneCache = ghoul2.mBoneCache!
+    assert(boneCache.mod != nil)
+    assert(boneNum >= 0 && boneNum < boneCache.header!.numBones)
+
+    let skel: MdxaSkel
+    let offsets: MdxaSkelOffsets
+    offsets = MdxaSkelOffsets(boneCache.header!, byteOffset: MdxaHeader.byteCount)
+    skel = MdxaSkel(boneCache.header!, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[boneNum])
+
+    return skel.name
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:696
@@ -462,13 +481,26 @@ func G2_GetBoneMatrixLow(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ scale: JKASh
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:780
-// TODO: Port signature
-// Raven wrote: int G2_GetParentBoneMatrixLow(CGhoul2Info &ghoul2,int boneNum,const vec3_t scale,mdxaBone_t &retMatrix,mdxaBone_t *&retBasepose,mdxaBone_t *&retBaseposeInv)
-// No table row for `mdxaBone_t *& retBasepose`.
-func G2_GetParentBoneMatrixLow() -> Never {
+// AI: Raven takes `mdxaBone_t *&` for the two out pointers. The parameters are `inout MdxaBone?`, the form of a pointer to a record pointer.
+func G2_GetParentBoneMatrixLow(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ scale: JKAShared.vec3_t, _ retMatrix: JKAMP.MdxaBone, _ retBasepose: inout MdxaBone?, _ retBaseposeInv: inout MdxaBone?) -> Int32 {
     // Raven's one call stands in a comment at G2_bones.cpp:1339, so no file of either tree calls it, and it is dead.
-    // TODO: Port G2_GetParentBoneMatrixLow
-    portMissing("G2_GetParentBoneMatrixLow", source: "oracle/codemp/renderer/tr_ghoul2.cpp:780")
+    var parent: Int32 = -1
+    if ghoul2.mBoneCache != nil {
+        let boneCache = ghoul2.mBoneCache!
+        assert(boneCache.mod != nil)
+        assert(boneNum >= 0 && boneNum < boneCache.header!.numBones)
+        parent = boneCache.GetParent(boneNum)
+        if parent < 0 || parent >= boneCache.header!.numBones {
+            parent = -1
+            retMatrix.copy(from: identityMatrix)
+            // yikes
+            retBasepose = identityMatrix
+            retBaseposeInv = identityMatrix
+        } else {
+            G2_GetBoneMatrixLow(ghoul2, parent, scale, retMatrix, &retBasepose, &retBaseposeInv)
+        }
+    }
+    return parent
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:869
@@ -488,8 +520,37 @@ R_ACullModel
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:896
 private func R_GCullModel(_ ent: TrRefEntity) -> Int32 {
     // Raven's one call is in R_AddGhoulSurfaces under `#ifndef DEDICATED` at tr_ghoul2.cpp:3384, so the function is dead in the dedicated build.
-    // TODO: Port R_GCullModel
-    portMissing("R_GCullModel", source: "oracle/codemp/renderer/tr_ghoul2.cpp:896")
+    // scale the radius if need be
+    var largestScale: Float = ent.e.modelScale[0]
+
+    if ent.e.modelScale[1] > largestScale {
+        largestScale = ent.e.modelScale[1]
+    }
+    if ent.e.modelScale[2] > largestScale {
+        largestScale = ent.e.modelScale[2]
+    }
+    if largestScale == 0 {
+        largestScale = 1
+    }
+
+    // cull bounding sphere
+    switch R_CullLocalPointAndRadius(vec3_origin, ent.e.radius * largestScale) {
+    case CULL_OUT:
+        tr.pc.c_sphere_cull_md3_out += 1
+        return CULL_OUT
+
+    case CULL_IN:
+        tr.pc.c_sphere_cull_md3_in += 1
+        return CULL_IN
+
+    case CULL_CLIP:
+        tr.pc.c_sphere_cull_md3_clip += 1
+        return CULL_IN
+
+    default:
+        break
+    }
+    return CULL_IN
 }
 
 /**
@@ -503,30 +564,180 @@ R_AComputeFogNum
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:939
 private func R_GComputeFogNum(_ ent: TrRefEntity) -> Int32 {
     // Raven's one call is in R_AddGhoulSurfaces under `#ifndef DEDICATED` at tr_ghoul2.cpp:3384, so the function is dead in the dedicated build.
-    // TODO: Port R_GComputeFogNum
-    portMissing("R_GComputeFogNum", source: "oracle/codemp/renderer/tr_ghoul2.cpp:939")
+    var i: Int32
+    var j: Int32
+    var fog: Fog
+
+    if (tr.refdef.rdflags & RDF_NOWORLDMODEL) != 0 {
+        return 0
+    }
+
+    i = 1
+    while i < tr.world!.numfogs {
+        fog = tr.world!.fogsSlots[i]
+        j = 0
+        while j < 3 {
+            if ent.e.origin[j] - ent.e.radius >= fog.bounds[1][j] {
+                break
+            }
+            if ent.e.origin[j] + ent.e.radius <= fog.bounds[0][j] {
+                break
+            }
+            j += 1
+        }
+        if j == 3 {
+            return i
+        }
+        i += 1
+    }
+
+    return 0
 }
 
 // work out lod for this entity.
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:967
 private func G2_ComputeLOD(_ ent: TrRefEntity, _ currentModel: Model, _ lodBias: Int32) -> Int32 {
     // Raven's one call is in R_AddGhoulSurfaces under `#ifndef DEDICATED` at tr_ghoul2.cpp:3384, so the function is dead in the dedicated build.
-    // TODO: Port G2_ComputeLOD
-    portMissing("G2_ComputeLOD", source: "oracle/codemp/renderer/tr_ghoul2.cpp:967")
+    var lodBias = lodBias
+    var flod: Float
+    var lodscale: Float
+    var projectedRadius: Float
+    var lod: Int32
+
+    if currentModel.numLods < 2 {
+        // model has only 1 LOD level, skip computations and bias
+        return 0
+    }
+
+    if r_lodbias!.integer > lodBias {
+        lodBias = r_lodbias!.integer
+    }
+
+    // scale the radius if need be
+    var largestScale: Float = ent.e.modelScale[0]
+
+    if ent.e.modelScale[1] > largestScale {
+        largestScale = ent.e.modelScale[1]
+    }
+    if ent.e.modelScale[2] > largestScale {
+        largestScale = ent.e.modelScale[2]
+    }
+    if largestScale == 0 {
+        largestScale = 1
+    }
+
+    projectedRadius = ProjectRadius(Float(0.75 * Double(largestScale) * Double(ent.e.radius)), ent.e.origin)
+    if projectedRadius != 0 {	//we reduce the radius to make the LOD match other model types which use the actual bound box size
+        lodscale = (r_lodscale!.value + r_autolodscalevalue!.value)
+        if lodscale > 20 {
+            lodscale = 20
+        } else if lodscale < 0 {
+            lodscale = 0
+        }
+        flod = 1.0 - projectedRadius * lodscale
+    } else {
+        // object intersects near view plane, e.g. view weapon
+        flod = 0
+    }
+    flod *= currentModel.numLods
+    lod = Int32(flod)
+
+    if lod < 0 {
+        lod = 0
+    } else if lod >= currentModel.numLods {
+        lod = currentModel.numLods - 1
+    }
+
+    lod += lodBias
+
+    if lod >= currentModel.numLods {
+        lod = currentModel.numLods - 1
+    }
+    if lod < 0 {
+        lod = 0
+    }
+
+    return lod
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1048
 func G2_CreateQuaterion(_ mat: JKAMP.MdxaBone, _ quat: inout JKAShared.vec4_t) {
     // Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port G2_CreateQuaterion
-    portMissing("G2_CreateQuaterion", source: "oracle/codemp/renderer/tr_ghoul2.cpp:1048")
+    // this is revised for the 3x4 matrix we use in G2.
+    let t: Float = 1 + mat.matrix[0][0] + mat.matrix[1][1] + mat.matrix[2][2]
+    var s: Float
+
+    //If the trace of the matrix is greater than zero, then
+    //perform an "instant" calculation.
+    //Important note wrt. rouning errors:
+    //Test if ( T > 0.00000001 ) to avoid large distortions!
+    if Double(t) > 0.00000001 {
+        s = sqrt(t) * 2
+        quat[0] = (mat.matrix[1][2] - mat.matrix[2][1]) / s
+        quat[1] = (mat.matrix[2][0] - mat.matrix[0][2]) / s
+        quat[2] = (mat.matrix[0][1] - mat.matrix[1][0]) / s
+        quat[3] = Float(0.25 * Double(s))
+    } else {
+        //If the trace of the matrix is equal to zero then identify
+        //which major diagonal element has the greatest value.
+
+        //Depending on this, calculate the following:
+
+        if mat.matrix[0][0] > mat.matrix[1][1] && mat.matrix[0][0] > mat.matrix[2][2] {
+            // Column 0:
+            s = Float(sqrt(1.0 + Double(mat.matrix[0][0]) - Double(mat.matrix[1][1]) - Double(mat.matrix[2][2])) * 2)
+            quat[0] = Float(0.25 * Double(s))
+            quat[1] = (mat.matrix[0][1] + mat.matrix[1][0]) / s
+            quat[2] = (mat.matrix[2][0] + mat.matrix[0][2]) / s
+            quat[3] = (mat.matrix[1][2] - mat.matrix[2][1]) / s
+        } else if mat.matrix[1][1] > mat.matrix[2][2] {
+            // Column 1:
+            s = Float(sqrt(1.0 + Double(mat.matrix[1][1]) - Double(mat.matrix[0][0]) - Double(mat.matrix[2][2])) * 2)
+            quat[0] = (mat.matrix[0][1] + mat.matrix[1][0]) / s
+            quat[1] = Float(0.25 * Double(s))
+            quat[2] = (mat.matrix[1][2] + mat.matrix[2][1]) / s
+            quat[3] = (mat.matrix[2][0] - mat.matrix[0][2]) / s
+        } else {
+            // Column 2:
+            s = Float(sqrt(1.0 + Double(mat.matrix[2][2]) - Double(mat.matrix[0][0]) - Double(mat.matrix[1][1])) * 2)
+            quat[0] = (mat.matrix[2][0] + mat.matrix[0][2]) / s
+            quat[1] = (mat.matrix[1][2] + mat.matrix[2][1]) / s
+            quat[2] = Float(0.25 * Double(s))
+            quat[3] = (mat.matrix[0][1] - mat.matrix[1][0]) / s
+        }
+    }
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1097
 func G2_CreateMatrixFromQuaterion(_ mat: JKAMP.MdxaBone, _ quat: JKAShared.vec4_t) {
     // Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port G2_CreateMatrixFromQuaterion
-    portMissing("G2_CreateMatrixFromQuaterion", source: "oracle/codemp/renderer/tr_ghoul2.cpp:1097")
+    let xx: Float = quat[0] * quat[0]
+    let xy: Float = quat[0] * quat[1]
+    let xz: Float = quat[0] * quat[2]
+    let xw: Float = quat[0] * quat[3]
+
+    let yy: Float = quat[1] * quat[1]
+    let yz: Float = quat[1] * quat[2]
+    let yw: Float = quat[1] * quat[3]
+
+    let zz: Float = quat[2] * quat[2]
+    let zw: Float = quat[2] * quat[3]
+
+    mat.matrix[0][0] = 1 - 2 * (yy + zz)
+    mat.matrix[1][0] = 2 * (xy - zw)
+    mat.matrix[2][0] = 2 * (xz + yw)
+
+    mat.matrix[0][1] = 2 * (xy + zw)
+    mat.matrix[1][1] = 1 - 2 * (xx + zz)
+    mat.matrix[2][1] = 2 * (yz - xw)
+
+    mat.matrix[0][2] = 2 * (xz - yw)
+    mat.matrix[1][2] = 2 * (yz + xw)
+    mat.matrix[2][2] = 1 - 2 * (xx + yy)
+
+    mat.matrix[2][3] = 0
+    mat.matrix[1][3] = mat.matrix[2][3]
+    mat.matrix[0][3] = mat.matrix[1][3]
 }
 
 // nasty little matrix multiply going on here..
@@ -1219,8 +1430,19 @@ func G2_TransformBone(_ child: Int32, _ BC: CBoneCache) {
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2053
 func G2_SetUpBolts(_ header: MdxaHeader, _ ghoul2: CGhoul2Info, _ bonePtr: inout [(Int32, MdxaBone)], _ boltList: inout [boltInfo_t]) {
     // Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port G2_SetUpBolts
-    portMissing("G2_SetUpBolts", source: "oracle/codemp/renderer/tr_ghoul2.cpp:2053")
+    var skel: MdxaSkel
+    let offsets: MdxaSkelOffsets
+    offsets = MdxaSkelOffsets(header, byteOffset: MdxaHeader.byteCount)
+
+    var i: Int32 = 0
+    while i < boltList.count {
+        if boltList[i].boneNumber != -1 {
+            // figure out where the bone hirearchy info is
+            skel = MdxaSkel(header, byteOffset: Int32(MdxaHeader.byteCount) + offsets.offsets[boltList[i].boneNumber])
+            Multiply_3x4Matrix(boltList[i].position, bonePtr[boltList[i].boneNumber].1, skel.BasePoseMat)
+        }
+        i += 1
+    }
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2075
@@ -1364,24 +1586,289 @@ func G2_TransformGhoulBones(_ rootBoneList: inout [boneInfo_t], _ rootMatrix: JK
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2246
 func G2_ProcessSurfaceBolt(_ bonePtr: inout [(Int32, MdxaBone)], _ surface: MdxmSurface?, _ boltNum: Int32, _ boltList: inout [boltInfo_t], _ surfInfo: surfaceInfo_t?, _ mod: Model) {
     // Raven's two callers are G2_ProcessGeneratedSurfaceBolts and ProcessModelBoltSurfaces, which are both dead, so the function is dead too.
-    // TODO: Port G2_ProcessSurfaceBolt
-    portMissing("G2_ProcessSurfaceBolt", source: "oracle/codemp/renderer/tr_ghoul2.cpp:2246")
+    var v: MdxmVertex
+    var vert0: MdxmVertex
+    var vert1: MdxmVertex
+    var vert2: MdxmVertex
+    var axes = [vec3_t](repeating: vec3_t(), count: 3)
+    var sides = [vec3_t](repeating: vec3_t(), count: 3)
+    var pTri = [vec3_t](repeating: vec3_t(), count: 3)
+    var d: Float
+    var j: Int32
+    var k: Int32
+
+    // AI: Raven hands each row of four floats of a bone to DotProduct. Each call below reads the vector accessor of the row.
+
+    // now there are two types of tag surface - model ones and procedural generated types - lets decide which one we have here.
+    if surfInfo != nil && surfInfo!.offFlags == G2SURFACEFLAG_GENERATED {
+        let surfNumber: Int32 = surfInfo!.genPolySurfaceIndex & 0x0ffff
+        let polyNumber: Int32 = (surfInfo!.genPolySurfaceIndex >> 16) & 0x0ffff
+
+        // find original surface our original poly was in.
+        let originalSurf = G2_FindSurface(mod, surfNumber, surfInfo!.genLod)!
+        // AI: Raven casts the surface address plus `ofsTriangles` to a triangle pointer and indexes it with `polyNumber`.
+        // The view is the triangle at that offset plus `polyNumber` times the record size.
+        let originalTriangleIndexes = MdxmTriangle(originalSurf, byteOffset: originalSurf.ofsTriangles + polyNumber * Int32(MdxmTriangle.byteCount))
+
+        // get the original polys indexes
+        let index0: Int32 = originalTriangleIndexes.indexes[0]
+        let index1: Int32 = originalTriangleIndexes.indexes[1]
+        let index2: Int32 = originalTriangleIndexes.indexes[2]
+
+        // decide where the original verts are
+        // AI: Raven adds a vertex index to a vertex pointer. The view steps by that index times the record size.
+        vert0 = MdxmVertex(originalSurf, byteOffset: originalSurf.ofsVerts)
+        vert0 = MdxmVertex(vert0, byteOffset: index0 * Int32(MdxmVertex.byteCount))
+
+        vert1 = MdxmVertex(originalSurf, byteOffset: originalSurf.ofsVerts)
+        vert1 = MdxmVertex(vert1, byteOffset: index1 * Int32(MdxmVertex.byteCount))
+
+        vert2 = MdxmVertex(originalSurf, byteOffset: originalSurf.ofsVerts)
+        vert2 = MdxmVertex(vert2, byteOffset: index2 * Int32(MdxmVertex.byteCount))
+
+        // clear out the triangle verts to be
+        pTri[0] = vec3_t()
+        pTri[1] = vec3_t()
+        pTri[2] = vec3_t()
+
+//		mdxmWeight_t	*w;
+
+        let piBoneRefs = originalSurf.boneReferences
+
+        // now go and transform just the points we need from the surface that was hit originally
+//		w = vert0->weights;
+        var fTotalWeight: Float = 0.0
+        var iNumWeights: Int32 = G2_GetVertWeights(vert0)
+        k = 0
+        while k < iNumWeights {
+            let iBoneIndex: Int32 = G2_GetVertBoneIndex(vert0, k)
+            let fBoneWeight: Float = G2_GetVertBoneWeight(vert0, k, &fTotalWeight, iNumWeights)
+
+            pTri[0][0] += fBoneWeight * (_DotProduct(bonePtr[piBoneRefs[iBoneIndex]].1.matrix[0].vector, vert0.vertCoords) + bonePtr[piBoneRefs[iBoneIndex]].1.matrix[0][3])
+            pTri[0][1] += fBoneWeight * (_DotProduct(bonePtr[piBoneRefs[iBoneIndex]].1.matrix[1].vector, vert0.vertCoords) + bonePtr[piBoneRefs[iBoneIndex]].1.matrix[1][3])
+            pTri[0][2] += fBoneWeight * (_DotProduct(bonePtr[piBoneRefs[iBoneIndex]].1.matrix[2].vector, vert0.vertCoords) + bonePtr[piBoneRefs[iBoneIndex]].1.matrix[2][3])
+            k += 1
+        }
+//		w = vert1->weights;
+        fTotalWeight = 0.0
+        iNumWeights = G2_GetVertWeights(vert1)
+        k = 0
+        while k < iNumWeights {
+            let iBoneIndex: Int32 = G2_GetVertBoneIndex(vert1, k)
+            let fBoneWeight: Float = G2_GetVertBoneWeight(vert1, k, &fTotalWeight, iNumWeights)
+
+            pTri[1][0] += fBoneWeight * (_DotProduct(bonePtr[piBoneRefs[iBoneIndex]].1.matrix[0].vector, vert1.vertCoords) + bonePtr[piBoneRefs[iBoneIndex]].1.matrix[0][3])
+            pTri[1][1] += fBoneWeight * (_DotProduct(bonePtr[piBoneRefs[iBoneIndex]].1.matrix[1].vector, vert1.vertCoords) + bonePtr[piBoneRefs[iBoneIndex]].1.matrix[1][3])
+            pTri[1][2] += fBoneWeight * (_DotProduct(bonePtr[piBoneRefs[iBoneIndex]].1.matrix[2].vector, vert1.vertCoords) + bonePtr[piBoneRefs[iBoneIndex]].1.matrix[2][3])
+            k += 1
+        }
+//		w = vert2->weights;
+        fTotalWeight = 0.0
+        iNumWeights = G2_GetVertWeights(vert2)
+        k = 0
+        while k < iNumWeights {
+            let iBoneIndex: Int32 = G2_GetVertBoneIndex(vert2, k)
+            let fBoneWeight: Float = G2_GetVertBoneWeight(vert2, k, &fTotalWeight, iNumWeights)
+
+            pTri[2][0] += fBoneWeight * (_DotProduct(bonePtr[piBoneRefs[iBoneIndex]].1.matrix[0].vector, vert2.vertCoords) + bonePtr[piBoneRefs[iBoneIndex]].1.matrix[0][3])
+            pTri[2][1] += fBoneWeight * (_DotProduct(bonePtr[piBoneRefs[iBoneIndex]].1.matrix[1].vector, vert2.vertCoords) + bonePtr[piBoneRefs[iBoneIndex]].1.matrix[1][3])
+            pTri[2][2] += fBoneWeight * (_DotProduct(bonePtr[piBoneRefs[iBoneIndex]].1.matrix[2].vector, vert2.vertCoords) + bonePtr[piBoneRefs[iBoneIndex]].1.matrix[2][3])
+            k += 1
+        }
+
+        var normal = vec3_t()
+        var up = vec3_t()
+        var right = vec3_t()
+        var vec0 = vec3_t()
+        var vec1 = vec3_t()
+        // work out baryCentricK
+        let baryCentricK = Float(1.0 - Double(surfInfo!.genBarycentricI + surfInfo!.genBarycentricJ))
+
+        // now we have the model transformed into model space, now generate an origin.
+        boltList[boltNum].position.matrix[0][3] = (pTri[0][0] * surfInfo!.genBarycentricI) + (pTri[1][0] * surfInfo!.genBarycentricJ) + (pTri[2][0] * baryCentricK)
+        boltList[boltNum].position.matrix[1][3] = (pTri[0][1] * surfInfo!.genBarycentricI) + (pTri[1][1] * surfInfo!.genBarycentricJ) + (pTri[2][1] * baryCentricK)
+        boltList[boltNum].position.matrix[2][3] = (pTri[0][2] * surfInfo!.genBarycentricI) + (pTri[1][2] * surfInfo!.genBarycentricJ) + (pTri[2][2] * baryCentricK)
+
+        // generate a normal to this new triangle
+        _VectorSubtract(pTri[0], pTri[1], &vec0)
+        _VectorSubtract(pTri[2], pTri[1], &vec1)
+
+        CrossProduct(vec0, vec1, &normal)
+        _ = VectorNormalize(&normal)
+
+        // forward vector
+        boltList[boltNum].position.matrix[0][0] = normal[0]
+        boltList[boltNum].position.matrix[1][0] = normal[1]
+        boltList[boltNum].position.matrix[2][0] = normal[2]
+
+        // up will be towards point 0 of the original triangle.
+        // so lets work it out. Vector is hit point - point 0
+        up[0] = boltList[boltNum].position.matrix[0][3] - pTri[0][0]
+        up[1] = boltList[boltNum].position.matrix[1][3] - pTri[0][1]
+        up[2] = boltList[boltNum].position.matrix[2][3] - pTri[0][2]
+
+        // normalise it
+        _ = VectorNormalize(&up)
+
+        // that's the up vector
+        boltList[boltNum].position.matrix[0][1] = up[0]
+        boltList[boltNum].position.matrix[1][1] = up[1]
+        boltList[boltNum].position.matrix[2][1] = up[2]
+
+        // right is always straight
+
+        CrossProduct(normal, up, &right)
+        // that's the up vector
+        boltList[boltNum].position.matrix[0][2] = right[0]
+        boltList[boltNum].position.matrix[1][2] = right[1]
+        boltList[boltNum].position.matrix[2][2] = right[2]
+    }
+    // no, we are looking at a normal model tag
+    else {
+        let piBoneRefs = surface!.boneReferences
+
+        // whip through and actually transform each vertex
+        v = MdxmVertex(surface!, byteOffset: surface!.ofsVerts)
+        j = 0
+        while j < 3 {
+// 			mdxmWeight_t	*w;
+
+            pTri[j] = vec3_t()
+ //			w = v->weights;
+
+            let iNumWeights: Int32 = G2_GetVertWeights(v)
+            var fTotalWeight: Float = 0.0
+            k = 0
+            while k < iNumWeights {
+                let iBoneIndex: Int32 = G2_GetVertBoneIndex(v, k)
+                let fBoneWeight: Float = G2_GetVertBoneWeight(v, k, &fTotalWeight, iNumWeights)
+
+                //bone = bonePtr + piBoneRefs[w->boneIndex];
+                pTri[j][0] += fBoneWeight * (_DotProduct(bonePtr[piBoneRefs[iBoneIndex]].1.matrix[0].vector, v.vertCoords) + bonePtr[piBoneRefs[iBoneIndex]].1.matrix[0][3])
+                pTri[j][1] += fBoneWeight * (_DotProduct(bonePtr[piBoneRefs[iBoneIndex]].1.matrix[1].vector, v.vertCoords) + bonePtr[piBoneRefs[iBoneIndex]].1.matrix[1][3])
+                pTri[j][2] += fBoneWeight * (_DotProduct(bonePtr[piBoneRefs[iBoneIndex]].1.matrix[2].vector, v.vertCoords) + bonePtr[piBoneRefs[iBoneIndex]].1.matrix[2][3])
+                k += 1
+            }
+
+            // AI: Raven steps the vertex pointer by one record. The view steps by the record size.
+            v = MdxmVertex(v, byteOffset: MdxmVertex.byteCount)// = (mdxmVertex_t *)&v->weights[/*v->numWeights*/surface->maxVertBoneWeights];
+            j += 1
+        }
+
+        // clear out used arrays
+        axes.fill(vec3_t())
+        sides.fill(vec3_t())
+
+        // work out actual sides of the tag triangle
+        j = 0
+        while j < 3 {
+            sides[j][0] = pTri[(j + 1) % 3][0] - pTri[j][0]
+            sides[j][1] = pTri[(j + 1) % 3][1] - pTri[j][1]
+            sides[j][2] = pTri[(j + 1) % 3][2] - pTri[j][2]
+            j += 1
+        }
+
+        // do math trig to work out what the matrix will be from this triangle's translated position
+        _ = VectorNormalize2(sides[iG2_TRISIDE_LONGEST], &axes[0])
+        _ = VectorNormalize2(sides[iG2_TRISIDE_SHORTEST], &axes[1])
+
+        // project shortest side so that it is exactly 90 degrees to the longer side
+        d = _DotProduct(axes[0], axes[1])
+        _VectorMA(axes[0], -d, axes[1], &axes[0])
+        _ = VectorNormalize2(axes[0], &axes[0])
+
+        CrossProduct(sides[iG2_TRISIDE_LONGEST], sides[iG2_TRISIDE_SHORTEST], &axes[2])
+        _ = VectorNormalize2(axes[2], &axes[2])
+
+        // set up location in world space of the origin point in out going matrix
+        boltList[boltNum].position.matrix[0][3] = pTri[MDX_TAG_ORIGIN][0]
+        boltList[boltNum].position.matrix[1][3] = pTri[MDX_TAG_ORIGIN][1]
+        boltList[boltNum].position.matrix[2][3] = pTri[MDX_TAG_ORIGIN][2]
+
+        // copy axis to matrix - do some magic to orient minus Y to positive X and so on so bolt on stuff is oriented correctly
+        boltList[boltNum].position.matrix[0][0] = axes[1][0]
+        boltList[boltNum].position.matrix[0][1] = axes[0][0]
+        boltList[boltNum].position.matrix[0][2] = -axes[2][0]
+
+        boltList[boltNum].position.matrix[1][0] = axes[1][1]
+        boltList[boltNum].position.matrix[1][1] = axes[0][1]
+        boltList[boltNum].position.matrix[1][2] = -axes[2][1]
+
+        boltList[boltNum].position.matrix[2][0] = axes[1][2]
+        boltList[boltNum].position.matrix[2][1] = axes[0][2]
+        boltList[boltNum].position.matrix[2][2] = -axes[2][2]
+    }
 }
 
 // now go through all the generated surfaces that aren't included in the model surface hierarchy and create the correct bolt info for them
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2495
 func G2_ProcessGeneratedSurfaceBolts(_ ghoul2: CGhoul2Info, _ bonePtr: inout [(Int32, MdxaBone)], _ mod_t: Model) {
     // Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port G2_ProcessGeneratedSurfaceBolts
-    portMissing("G2_ProcessGeneratedSurfaceBolts", source: "oracle/codemp/renderer/tr_ghoul2.cpp:2495")
+    G2PerformanceTimer_G2_ProcessGeneratedSurfaceBolts.Start()
+    // look through the surfaces off the end of the pre-defined model surfaces
+    var i: Int32 = 0
+    while i < ghoul2.mSlist.count {
+        // only look for bolts if we are actually a generated surface, and not just an overriden one
+        if (ghoul2.mSlist[i].offFlags & G2SURFACEFLAG_GENERATED) != 0 {
+            // well alrighty then. Lets see if there is a bolt that is attempting to use it
+            let boltNum: Int32 = G2_Find_Bolt_Surface_Num(&ghoul2.mBltlist, i, G2SURFACEFLAG_GENERATED)
+            // yes - ok, processing time.
+            if boltNum != -1 {
+                G2_ProcessSurfaceBolt(&bonePtr, nil, boltNum, &ghoul2.mBltlist, ghoul2.mSlist[i], mod_t)
+            }
+        }
+        i += 1
+    }
+    G2Time_G2_ProcessGeneratedSurfaceBolts += G2PerformanceTimer_G2_ProcessGeneratedSurfaceBolts.End()
 }
 
 // Go through the model and deal with just the surfaces that are tagged as bolt on points - this is for the server side skeleton construction
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2739
 func ProcessModelBoltSurfaces(_ surfaceNum: Int32, _ rootSList: inout [surfaceInfo_t], _ bonePtr: inout [(Int32, MdxaBone)], _ currentModel: Model, _ lod: Int32, _ boltList: inout [boltInfo_t]) {
     // Raven's one call is its own recursion at tr_ghoul2.cpp:2786, and no other function calls it, so it is dead.
-    // TODO: Port ProcessModelBoltSurfaces
-    portMissing("ProcessModelBoltSurfaces", source: "oracle/codemp/renderer/tr_ghoul2.cpp:2739")
+    G2PerformanceTimer_ProcessModelBoltSurfaces.Start()
+    var i: Int32
+    var offFlags: Int32 = 0
+
+    // back track and get the surfinfo struct for this surface
+    let surface = G2_FindSurface(currentModel, surfaceNum, 0)!
+    let surfIndexes = MdxmHierarchyOffsets(currentModel.mdxm!, byteOffset: MdxmHeader.byteCount)
+    let surfInfo = MdxmSurfHierarchy(surfIndexes, byteOffset: surfIndexes.offsets[surface.thisSurfaceIndex])
+
+    // see if we have an override surface in the surface list
+    let surfOverride = G2_FindOverrideSurface(surfaceNum, &rootSList)
+
+    // really, we should use the default flags for this surface unless it's been overriden
+    offFlags = Int32(truncatingIfNeeded: surfInfo.flags)
+
+    // set the off flags if we have some
+    if surfOverride != nil {
+        offFlags = surfOverride!.offFlags
+    }
+
+    // is this surface considered a bolt surface?
+    if (Int32(truncatingIfNeeded: surfInfo.flags) & G2SURFACEFLAG_ISBOLT) != 0 {
+        // well alrighty then. Lets see if there is a bolt that is attempting to use it
+        let boltNum: Int32 = G2_Find_Bolt_Surface_Num(&boltList, surfaceNum, 0)
+        // yes - ok, processing time.
+        if boltNum != -1 {
+            G2_ProcessSurfaceBolt(&bonePtr, surface, boltNum, &boltList, surfOverride, currentModel)
+        }
+    }
+
+    // if we are turning off all descendants, then stop this recursion now
+    if (offFlags & G2SURFACEFLAG_NODESCENDANTS) != 0 {
+        return
+    }
+
+    // now recursively call for the children
+    i = 0
+    while i < surfInfo.numChildren {
+        ProcessModelBoltSurfaces(surfInfo.childIndexes[i], &rootSList, &bonePtr, currentModel, lod, &boltList)
+        i += 1
+    }
+
+    G2Time_ProcessModelBoltSurfaces += G2PerformanceTimer_ProcessModelBoltSurfaces.End()
 }
 
 // build the used bone list so when doing bone transforms we can determine if we need to do it or not
@@ -1905,8 +2392,11 @@ private func RootMatrix(_ ghoul2: CGhoul2Info_v, _ time: Int32, _ scale: JKAShar
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:3369
 private func bInShadowRange(_ location: JKAShared.vec3_t) -> Bool {
     // Raven's one call is in R_AddGhoulSurfaces under `#ifndef DEDICATED` at tr_ghoul2.cpp:3384, so the function is dead in the dedicated build.
-    // TODO: Port bInShadowRange
-    portMissing("bInShadowRange", source: "oracle/codemp/renderer/tr_ghoul2.cpp:3369")
+    let c: Float = _DotProduct(tr.viewParms.ori.axis[0], tr.viewParms.ori.origin)
+    let dist: Float = _DotProduct(tr.viewParms.ori.axis[0], location) - c
+
+//	return (dist < tr.distanceCull/1.5f);
+    return (dist < r_shadowRange!.value)
 }
 
 /**

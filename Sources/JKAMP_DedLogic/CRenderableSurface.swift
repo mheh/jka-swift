@@ -22,8 +22,13 @@ final class CRenderableSurface {
     @discardableResult
     func copy(_ src: CRenderableSurface) -> CRenderableSurface {
         // Raven's one use is in RenderSurfaces at tr_ghoul2.cpp:2661, under `#ifndef DEDICATED`, so the method is dead in the dedicated build.
-        // TODO: Port CRenderableSurface::operator=
-        portMissing("CRenderableSurface::operator=", source: "oracle/codemp/renderer/tr_local.h:2067")
+        self.ident = src.ident
+        self.boneCache = src.boneCache
+        self.surfaceData = src.surfaceData
+        self.alternateTex = src.alternateTex
+        self.goreChain = src.goreChain
+
+        return self
     }
 
     /// Source: oracle/codemp/renderer/tr_local.h:2079
@@ -38,7 +43,10 @@ final class CRenderableSurface {
     /// Source: oracle/codemp/renderer/tr_local.h:2092
     func Init() {
         // Raven's one call is in AllocRS at tr_ghoul2.cpp:872, which is dead in the dedicated build, so the method is dead too.
-        // TODO: Port CRenderableSurface::Init
-        portMissing("CRenderableSurface::Init", source: "oracle/codemp/renderer/tr_local.h:2092")
+        self.ident = SF_MDX
+        self.boneCache = nil
+        self.surfaceData = nil
+        self.alternateTex = nil
+        self.goreChain = nil
     }
 }
