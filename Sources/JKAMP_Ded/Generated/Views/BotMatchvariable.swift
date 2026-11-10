@@ -61,9 +61,9 @@ public struct BotMatchvariable: Hashable, HandleView {
     }
 
     /// Source: unknown:2
-    public var offset: CChar {
-        get { self.raw.pointee.offset }
-        nonmutating set { self.raw.pointee.offset = newValue }
+    public var offset: Int32 {
+        get { Int32(self.raw.pointee.offset) }
+        nonmutating set { self.raw.pointee.offset = CChar(truncatingIfNeeded: newValue) }
     }
 
     /// Source: unknown:3

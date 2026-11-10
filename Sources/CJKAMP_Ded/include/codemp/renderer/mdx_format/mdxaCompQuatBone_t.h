@@ -6,15 +6,11 @@
 #include "CJKAMP_Ded_forward.h"
 
 // Source: oracle/codemp/renderer/mdx_format.h:119
+// Raven declares mdxaCompQuatBone_t with a C++ method at oracle/codemp/renderer/mdx_format.h:119. C has no method, so the fields stand and the method stays out.
 struct mdxaCompQuatBone_t
-typedef struct
 {
 	unsigned char Comp[14];
-
-	// I'm defining this '<' operator so this struct can be used as an STL <map> key...
-	//
-	bool operator < (const mdxaCompQuatBone_t& _X) const {return (memcmp(Comp,_X.Comp,sizeof(Comp))<0);}
-}
+};
 // C++ names the tag without its keyword, and this typedef lets C do the same.
 typedef struct mdxaCompQuatBone_t mdxaCompQuatBone_t;
 

@@ -67,9 +67,9 @@ public struct BotGoalstate: Hashable, HandleView {
     }
 
     /// Source: unknown:3
-    public var itemweightindex: OpaquePointer? {
-        get { OpaquePointer(self.raw.pointee.itemweightindex) }
-        nonmutating set { self.raw.pointee.itemweightindex = UnsafeMutablePointer(newValue) }
+    public var itemweightindex: Slots<Int32>? {
+        get { self.raw.pointee.itemweightindex.map { Slots(scalars: UnsafeMutableRawPointer($0), count: Int.max) } }
+        nonmutating set { self.raw.pointee.itemweightindex = newValue?.base.assumingMemoryBound(to: Int32.self) }
     }
 
     /// Source: unknown:5

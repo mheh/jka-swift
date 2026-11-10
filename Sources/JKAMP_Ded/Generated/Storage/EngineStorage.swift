@@ -34,6 +34,10 @@ public final class EngineStorage {
     /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:70
     public let bspworld: Bsp
 
+    /// Raven's `bsp_trace_t bsptrace` local of `AAS_Trace` in `be_aas_bspq3.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:132
+    public let bsptrace_AAS_Trace: BspTrace
+
     /// Raven's `int connectedareas[MAX_PORTALAREAS], i` local of `AAS_ConnectedAreas` in `be_aas_cluster.cpp`.
     /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:708
     public let connectedareas_AAS_ConnectedAreas: Slots<Int32>
@@ -53,6 +57,10 @@ public final class EngineStorage {
     /// Raven's `vec3_t points[128]` local of `AAS_ShowFacePolygon` in `be_aas_debug.cpp`.
     /// Source: oracle/codemp/botlib/be_aas_debug.cpp:335
     public let be_aas_debug_points_AAS_ShowFacePolygon: Slots<JKAShared.vec3_t>
+
+    /// Raven's `aas_reachability_t reach` local of `AAS_ShowReachableAreas` in `be_aas_debug.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_debug.cpp:670
+    public let reach_AAS_ShowReachableAreas: AasReachability
 
     /// Raven's `aas_t aasworld` of `be_aas_main.cpp`.
     /// Source: oracle/codemp/botlib/be_aas_main.cpp:30
@@ -106,6 +114,14 @@ public final class EngineStorage {
     /// Source: oracle/codemp/botlib/be_aas_route.cpp:1128
     public let be_aas_route_areas_AAS_InitReachabilityAreas: Slots<Int32>
 
+    /// Raven's `unsigned short startareatraveltimes[128]` local of `AAS_UpdateAreaRoutingCache` in `be_aas_route.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_route.cpp:1275
+    public let startareatraveltimes_AAS_UpdateAreaRoutingCache: Slots<UInt16>
+
+    /// Raven's `aas_trace_t trace` local of `AAS_TraceClientBBox` in `be_aas_sample.cpp`.
+    /// Source: oracle/codemp/botlib/be_aas_sample.cpp:442
+    public let trace_AAS_TraceClientBBox: AasTrace
+
     /// Raven's `bot_character_t *botcharacters[MAX_CLIENTS + 1]` of `be_ai_char.cpp`.
     /// Source: oracle/codemp/botlib/be_ai_char.cpp:60
     public let botcharacters: Slots<BotCharacter?>
@@ -117,6 +133,10 @@ public final class EngineStorage {
     /// Raven's `bot_chatstate_t *botchatstates[MAX_CLIENTS+1]` of `be_ai_chat.cpp`.
     /// Source: oracle/codemp/botlib/be_ai_chat.cpp:183
     public let botchatstates: Slots<BotChatstate?>
+
+    /// Raven's `float rankings[256], max` local of `GeneticParentsAndChildSelection` in `be_ai_gen.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_gen.cpp:75
+    public let rankings_GeneticParentsAndChildSelection: Slots<Float>
 
     /// Raven's `bot_goalstate_t *botgoalstates[MAX_CLIENTS + 1]` of `be_ai_goal.cpp`.
     /// Source: oracle/codemp/botlib/be_ai_goal.cpp:163
@@ -137,6 +157,118 @@ public final class EngineStorage {
     /// Raven's `int areas[16]` local of `BotMoveToGoal` in `be_ai_move.cpp`.
     /// Source: oracle/codemp/botlib/be_ai_move.cpp:3385
     public let be_ai_move_areas_BotMoveToGoal: Slots<Int32>
+
+    /// Raven's `bot_moveresult_t result` local of `BotTravel_Walk` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:1332
+    public let result_BotTravel_Walk: BotMoveresult
+
+    /// Raven's `bot_moveresult_t result` local of `BotFinishTravel_Walk` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:1387
+    public let result_BotFinishTravel_Walk: BotMoveresult
+
+    /// Raven's `bot_moveresult_t result` local of `BotTravel_Crouch` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:1425
+    public let result_BotTravel_Crouch: BotMoveresult
+
+    /// Raven's `bot_moveresult_t result` local of `BotTravel_BarrierJump` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:1455
+    public let result_BotTravel_BarrierJump: BotMoveresult
+
+    /// Raven's `bot_moveresult_t result` local of `BotFinishTravel_BarrierJump` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:1490
+    public let result_BotFinishTravel_BarrierJump: BotMoveresult
+
+    /// Raven's `bot_moveresult_t result` local of `BotTravel_Swim` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:1518
+    public let result_BotTravel_Swim: BotMoveresult
+
+    /// Raven's `bot_moveresult_t result` local of `BotTravel_WaterJump` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:1545
+    public let result_BotTravel_WaterJump: BotMoveresult
+
+    /// Raven's `bot_moveresult_t result` local of `BotFinishTravel_WaterJump` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:1579
+    public let result_BotFinishTravel_WaterJump: BotMoveresult
+
+    /// Raven's `bot_moveresult_t result` local of `BotTravel_WalkOffLedge` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:1616
+    public let result_BotTravel_WalkOffLedge: BotMoveresult
+
+    /// Raven's `bot_moveresult_t result` local of `BotFinishTravel_WalkOffLedge` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:1716
+    public let result_BotFinishTravel_WalkOffLedge: BotMoveresult
+
+    /// Raven's `bot_moveresult_t result` local of `BotTravel_Jump` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:1877
+    public let result_BotTravel_Jump: BotMoveresult
+
+    /// Raven's `bot_moveresult_t result` local of `BotFinishTravel_Jump` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:1947
+    public let result_BotFinishTravel_Jump: BotMoveresult
+
+    /// Raven's `bot_moveresult_t result` local of `BotTravel_Ladder` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:1984
+    public let result_BotTravel_Ladder: BotMoveresult
+
+    /// Raven's `bot_moveresult_t result` local of `BotTravel_Teleport` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:2038
+    public let result_BotTravel_Teleport: BotMoveresult
+
+    /// Raven's `bot_moveresult_t result` local of `BotTravel_Elevator` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:2069
+    public let result_BotTravel_Elevator: BotMoveresult
+
+    /// Raven's `bot_moveresult_t result` local of `BotFinishTravel_Elevator` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:2219
+    public let result_BotFinishTravel_Elevator: BotMoveresult
+
+    /// Raven's `bot_moveresult_t result` local of `BotTravel_FuncBobbing` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:2308
+    public let result_BotTravel_FuncBobbing: BotMoveresult
+
+    /// Raven's `bot_moveresult_t result` local of `BotFinishTravel_FuncBobbing` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:2465
+    public let result_BotFinishTravel_FuncBobbing: BotMoveresult
+
+    /// Raven's `bot_moveresult_t result` local of `BotTravel_Grapple` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:2575
+    public let result_BotTravel_Grapple: BotMoveresult
+
+    /// Raven's `bot_moveresult_t result` local of `BotTravel_RocketJump` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:2731
+    public let result_BotTravel_RocketJump: BotMoveresult
+
+    /// Raven's `bot_moveresult_t result` local of `BotTravel_BFGJump` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:2796
+    public let result_BotTravel_BFGJump: BotMoveresult
+
+    /// Raven's `bot_moveresult_t result` local of `BotFinishTravel_WeaponJump` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:2857
+    public let result_BotFinishTravel_WeaponJump: BotMoveresult
+
+    /// Raven's `bot_moveresult_t result` local of `BotTravel_JumpPad` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:2897
+    public let result_BotTravel_JumpPad: BotMoveresult
+
+    /// Raven's `bot_moveresult_t result` local of `BotFinishTravel_JumpPad` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:2924
+    public let result_BotFinishTravel_JumpPad: BotMoveresult
+
+    /// Raven's `bot_moveresult_t result` local of `BotMoveInGoalArea` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:2983
+    public let result_BotMoveInGoalArea: BotMoveresult
+
+    /// Raven's `int avoidreach[MAX_AVOIDREACH]` local of `BotPredictVisiblePosition` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:899
+    public let avoidreach_BotPredictVisiblePosition: Slots<Int32>
+
+    /// Raven's `float avoidreachtimes[MAX_AVOIDREACH]` local of `BotPredictVisiblePosition` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:900
+    public let avoidreachtimes_BotPredictVisiblePosition: Slots<Float>
+
+    /// Raven's `int avoidreachtries[MAX_AVOIDREACH]` local of `BotPredictVisiblePosition` in `be_ai_move.cpp`.
+    /// Source: oracle/codemp/botlib/be_ai_move.cpp:901
+    public let avoidreachtries_BotPredictVisiblePosition: Slots<Int32>
 
     /// Raven's `bot_weaponstate_t *botweaponstates[MAX_CLIENTS+1]` of `be_ai_weap.cpp`.
     /// Source: oracle/codemp/botlib/be_ai_weap.cpp:111
@@ -185,6 +317,18 @@ public final class EngineStorage {
     /// Raven's `vec3_t newHullPoints[MAX_HULL_POINTS]` local of `AddWindingToConvexHull` in `cm_polylib.cpp`.
     /// Source: oracle/codemp/qcommon/cm_polylib.cpp:633
     public let newHullPoints: Slots<JKAShared.vec3_t>
+
+    /// Raven's `int height` parameter of `FlattenArea` in `cm_terrain.cpp`.
+    /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1312
+    public let height_FlattenArea: Slots<Int32>
+
+    /// Raven's `int height2` local of `FlattenArea` in `cm_terrain.cpp`.
+    /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1317
+    public let height2_FlattenArea: Slots<Int32>
+
+    /// Raven's `ivec3_t info` local of `FlattenArea` in `cm_terrain.cpp`.
+    /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1339
+    public let info_FlattenArea: Slots<Int32>
 
     /// Raven's `int leafs[MAX_POSITION_LEAFS]` local of `CM_PositionTest` in `cm_trace.cpp`.
     /// Source: oracle/codemp/qcommon/cm_trace.cpp:449
@@ -282,6 +426,14 @@ public final class EngineStorage {
     /// Source: oracle/codemp/server/sv_bot.cpp:23
     public let gWPArray: Slots<JKAMP.Wpobject?>
 
+    /// Raven's `vec3_t points[1]` local of `BotImport_DebugLineCreate` in `sv_bot.cpp`.
+    /// Source: oracle/codemp/server/sv_bot.cpp:526
+    public let sv_bot_points_BotImport_DebugLineCreate: Slots<JKAShared.vec3_t>
+
+    /// Raven's `vec3_t points[4], dir, cross, up` local of `BotImport_DebugLineShow` in `sv_bot.cpp`.
+    /// Source: oracle/codemp/server/sv_bot.cpp:545
+    public let sv_bot_points_BotImport_DebugLineShow: Slots<JKAShared.vec3_t>
+
     /// Raven's `byte msgBuffer[MAX_MSGLEN]` local of `SV_SendClientGameState` in `sv_client.cpp`.
     /// Source: oracle/codemp/server/sv_client.cpp:701
     public let msgBuffer_SV_SendClientGameState: Slots<JKAShared.byte>
@@ -289,6 +441,10 @@ public final class EngineStorage {
     /// Raven's `byte msgBuffer[MAX_MSGLEN]` local of `SV_SendClientMapChange` in `sv_client.cpp`.
     /// Source: oracle/codemp/server/sv_client.cpp:823
     public let msgBuffer_SV_SendClientMapChange: Slots<JKAShared.byte>
+
+    /// Raven's `unsigned char heightmap[15000]` local of `SV_SendClientGameState` in `sv_client.cpp`.
+    /// Source: oracle/codemp/server/sv_client.cpp:776
+    public let heightmap_SV_SendClientGameState: Slots<JKAShared.byte>
 
     /// Raven's `sharedEntity_t gLocalModifier` of `sv_game.cpp`.
     /// Source: oracle/codemp/server/sv_game.cpp:420
@@ -345,6 +501,10 @@ public final class EngineStorage {
     /// Raven's `int modelList[256]` local of `G2_ConstructGhoulSkeleton` in `tr_ghoul2.cpp`.
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:3579
     public let modelList_G2_ConstructGhoulSkeleton: Slots<Int32>
+
+    /// Raven's `mdxaBone_t tbone[6]` local of `G2_TransformBone` in `tr_ghoul2.cpp`.
+    /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1544
+    public let tbone_G2_TransformBone: Slots<JKAMP.MdxaBone>
 
     /// Raven's `trGlobals_t tr` of `tr_main.cpp`.
     /// Source: oracle/codemp/renderer/tr_main.cpp:15
@@ -418,11 +578,13 @@ public final class EngineStorage {
         self.tempDependents = Slots(scalars: EngineStorage.bytes(count: 256 * MemoryLayout<Int32>.stride), count: 256)
         self.GoreVerts = EngineStorage.records(count: 3000, of: VertexTemp.self)
         self.bspworld = EngineStorage.record(of: Bsp.self)
+        self.bsptrace_AAS_Trace = EngineStorage.record(of: BspTrace.self)
         self.connectedareas_AAS_ConnectedAreas = Slots(scalars: EngineStorage.bytes(count: 1024 * MemoryLayout<Int32>.stride), count: 1024)
         self.areanums_AAS_CheckAreaForPossiblePortals = Slots(scalars: EngineStorage.bytes(count: 1024 * MemoryLayout<Int32>.stride), count: 1024)
         self.frontareanums_AAS_CheckAreaForPossiblePortals = Slots(scalars: EngineStorage.bytes(count: 1024 * MemoryLayout<Int32>.stride), count: 1024)
         self.backareanums_AAS_CheckAreaForPossiblePortals = Slots(scalars: EngineStorage.bytes(count: 1024 * MemoryLayout<Int32>.stride), count: 1024)
         self.be_aas_debug_points_AAS_ShowFacePolygon = Slots(vectors: EngineStorage.bytes(count: 128 * JKAShared.vec3_t.byteCount), count: 128)
+        self.reach_AAS_ShowReachableAreas = EngineStorage.record(of: AasReachability.self)
         self.aasworld = EngineStorage.record(of: Aas.self)
         self.aassettings = EngineStorage.record(of: AasSettings.self)
         self.be_aas_move_points_AAS_ClientMovementPrediction = Slots(vectors: EngineStorage.bytes(count: 20 * JKAShared.vec3_t.byteCount), count: 20)
@@ -436,14 +598,45 @@ public final class EngineStorage {
         self.be_aas_reach_areas_AAS_Reachability_Grapple = Slots(scalars: EngineStorage.bytes(count: 20 * MemoryLayout<Int32>.stride), count: 20)
         self.be_aas_reach_areas_AAS_Reachability_WalkOffLedge = Slots(scalars: EngineStorage.bytes(count: 10 * MemoryLayout<Int32>.stride), count: 10)
         self.be_aas_route_areas_AAS_InitReachabilityAreas = Slots(scalars: EngineStorage.bytes(count: 32 * MemoryLayout<Int32>.stride), count: 32)
+        self.startareatraveltimes_AAS_UpdateAreaRoutingCache = Slots(scalars: EngineStorage.bytes(count: 128 * MemoryLayout<UInt16>.stride), count: 128)
+        self.trace_AAS_TraceClientBBox = EngineStorage.record(of: AasTrace.self)
         self.botcharacters = EngineStorage.table(count: 33, of: BotCharacter.self)
         self.ichatdata = EngineStorage.table(count: Int(JKAMP.MAX_CLIENTS), of: BotIchatdata.self)
         self.botchatstates = EngineStorage.table(count: 33, of: BotChatstate.self)
+        self.rankings_GeneticParentsAndChildSelection = Slots(scalars: EngineStorage.bytes(count: 256 * MemoryLayout<Float>.stride), count: 256)
         self.botgoalstates = EngineStorage.table(count: 33, of: BotGoalstate.self)
         self.botmovestates = EngineStorage.table(count: 33, of: BotMovestate.self)
         self.be_ai_move_points_BotFuzzyPointReachabilityArea = Slots(vectors: EngineStorage.bytes(count: 10 * JKAShared.vec3_t.byteCount), count: 10)
         self.be_ai_move_areas_BotFuzzyPointReachabilityArea = Slots(scalars: EngineStorage.bytes(count: 10 * MemoryLayout<Int32>.stride), count: 10)
         self.be_ai_move_areas_BotMoveToGoal = Slots(scalars: EngineStorage.bytes(count: 16 * MemoryLayout<Int32>.stride), count: 16)
+        self.result_BotTravel_Walk = EngineStorage.record(of: BotMoveresult.self)
+        self.result_BotFinishTravel_Walk = EngineStorage.record(of: BotMoveresult.self)
+        self.result_BotTravel_Crouch = EngineStorage.record(of: BotMoveresult.self)
+        self.result_BotTravel_BarrierJump = EngineStorage.record(of: BotMoveresult.self)
+        self.result_BotFinishTravel_BarrierJump = EngineStorage.record(of: BotMoveresult.self)
+        self.result_BotTravel_Swim = EngineStorage.record(of: BotMoveresult.self)
+        self.result_BotTravel_WaterJump = EngineStorage.record(of: BotMoveresult.self)
+        self.result_BotFinishTravel_WaterJump = EngineStorage.record(of: BotMoveresult.self)
+        self.result_BotTravel_WalkOffLedge = EngineStorage.record(of: BotMoveresult.self)
+        self.result_BotFinishTravel_WalkOffLedge = EngineStorage.record(of: BotMoveresult.self)
+        self.result_BotTravel_Jump = EngineStorage.record(of: BotMoveresult.self)
+        self.result_BotFinishTravel_Jump = EngineStorage.record(of: BotMoveresult.self)
+        self.result_BotTravel_Ladder = EngineStorage.record(of: BotMoveresult.self)
+        self.result_BotTravel_Teleport = EngineStorage.record(of: BotMoveresult.self)
+        self.result_BotTravel_Elevator = EngineStorage.record(of: BotMoveresult.self)
+        self.result_BotFinishTravel_Elevator = EngineStorage.record(of: BotMoveresult.self)
+        self.result_BotTravel_FuncBobbing = EngineStorage.record(of: BotMoveresult.self)
+        self.result_BotFinishTravel_FuncBobbing = EngineStorage.record(of: BotMoveresult.self)
+        self.result_BotTravel_Grapple = EngineStorage.record(of: BotMoveresult.self)
+        self.result_BotTravel_RocketJump = EngineStorage.record(of: BotMoveresult.self)
+        self.result_BotTravel_BFGJump = EngineStorage.record(of: BotMoveresult.self)
+        self.result_BotFinishTravel_WeaponJump = EngineStorage.record(of: BotMoveresult.self)
+        self.result_BotTravel_JumpPad = EngineStorage.record(of: BotMoveresult.self)
+        self.result_BotFinishTravel_JumpPad = EngineStorage.record(of: BotMoveresult.self)
+        self.result_BotMoveInGoalArea = EngineStorage.record(of: BotMoveresult.self)
+        self.avoidreach_BotPredictVisiblePosition = Slots(scalars: EngineStorage.bytes(count: Int(JKAMP_Ded.MAX_AVOIDREACH) * MemoryLayout<Int32>.stride), count: Int(JKAMP_Ded.MAX_AVOIDREACH))
+        self.avoidreachtimes_BotPredictVisiblePosition = Slots(scalars: EngineStorage.bytes(count: Int(JKAMP_Ded.MAX_AVOIDREACH) * MemoryLayout<Float>.stride), count: Int(JKAMP_Ded.MAX_AVOIDREACH))
+        self.avoidreachtries_BotPredictVisiblePosition = Slots(scalars: EngineStorage.bytes(count: Int(JKAMP_Ded.MAX_AVOIDREACH) * MemoryLayout<Int32>.stride), count: Int(JKAMP_Ded.MAX_AVOIDREACH))
         self.botweaponstates = EngineStorage.table(count: 33, of: BotWeaponstate.self)
         self.weightFileList = EngineStorage.table(count: 128, of: Weightconfig.self)
         self.botlibglobals = EngineStorage.record(of: BotlibGlobals.self)
@@ -456,6 +649,9 @@ public final class EngineStorage {
         self.p = Slots(vectors: EngineStorage.bytes(count: Int(JKAMP_Ded.MAX_POINTS_ON_WINDING) * JKAShared.vec3_t.byteCount), count: Int(JKAMP_Ded.MAX_POINTS_ON_WINDING))
         self.hullPoints = Slots(vectors: EngineStorage.bytes(count: 128 * JKAShared.vec3_t.byteCount), count: 128)
         self.newHullPoints = Slots(vectors: EngineStorage.bytes(count: 128 * JKAShared.vec3_t.byteCount), count: 128)
+        self.height_FlattenArea = Slots(scalars: EngineStorage.bytes(count: 1 * MemoryLayout<Int32>.stride), count: 1)
+        self.height2_FlattenArea = Slots(scalars: EngineStorage.bytes(count: 1 * MemoryLayout<Int32>.stride), count: 1)
+        self.info_FlattenArea = Slots(scalars: EngineStorage.bytes(count: 3 * MemoryLayout<Int32>.stride), count: 3)
         self.cm_trace_leafs_CM_PositionTest = Slots(scalars: EngineStorage.bytes(count: 1024 * MemoryLayout<Int32>.stride), count: 1024)
         self.cmd_text = EngineStorage.record(of: Cmd.self)
         self.cmd_text_buf = Slots(scalars: EngineStorage.bytes(count: 16384), count: 16384)
@@ -480,8 +676,11 @@ public final class EngineStorage {
         self.send_buf_Netchan_Transmit = Slots(scalars: EngineStorage.bytes(count: Int(JKAMP_Ded.MAX_PACKETLEN)), count: Int(JKAMP_Ded.MAX_PACKETLEN))
         self.string_NET_OutOfBandData = Slots(scalars: EngineStorage.bytes(count: 98304), count: 98304)
         self.gWPArray = EngineStorage.table(count: Int(JKAMP.MAX_WPARRAY_SIZE), of: JKAMP.Wpobject.self)
+        self.sv_bot_points_BotImport_DebugLineCreate = Slots(vectors: EngineStorage.bytes(count: 1 * JKAShared.vec3_t.byteCount), count: 1)
+        self.sv_bot_points_BotImport_DebugLineShow = Slots(vectors: EngineStorage.bytes(count: 4 * JKAShared.vec3_t.byteCount), count: 4)
         self.msgBuffer_SV_SendClientGameState = Slots(scalars: EngineStorage.bytes(count: Int(JKAMP_Ded.MAX_MSGLEN)), count: Int(JKAMP_Ded.MAX_MSGLEN))
         self.msgBuffer_SV_SendClientMapChange = Slots(scalars: EngineStorage.bytes(count: Int(JKAMP_Ded.MAX_MSGLEN)), count: Int(JKAMP_Ded.MAX_MSGLEN))
+        self.heightmap_SV_SendClientGameState = Slots(scalars: EngineStorage.bytes(count: 15000), count: 15000)
         self.gLocalModifier = EngineStorage.record(of: JKAMP.SharedEntity.self)
         self.sv_siegePersData = EngineStorage.record(of: JKAMP.SiegePers.self)
         self.svs = EngineStorage.record(of: ServerStatic.self)
@@ -496,6 +695,7 @@ public final class EngineStorage {
         self.worldMatrix = EngineStorage.record(of: JKAMP.MdxaBone.self)
         self.worldMatrixInv = EngineStorage.record(of: JKAMP.MdxaBone.self)
         self.modelList_G2_ConstructGhoulSkeleton = Slots(scalars: EngineStorage.bytes(count: 256 * MemoryLayout<Int32>.stride), count: 256)
+        self.tbone_G2_TransformBone = EngineStorage.records(count: 6, of: JKAMP.MdxaBone.self)
         self.tr = EngineStorage.record(of: TrGlobals.self)
         self.mhHashTable = EngineStorage.table(count: 1024, of: ModelHash.self)
         self.stages = EngineStorage.records(count: Int(JKAMP_Ded.MAX_SHADER_STAGES), of: ShaderStage.self)
@@ -522,11 +722,13 @@ public final class EngineStorage {
         self.tempDependents.base.deallocate()
         self.GoreVerts.base.deallocate()
         UnsafeMutableRawPointer(self.bspworld.handle).deallocate()
+        UnsafeMutableRawPointer(self.bsptrace_AAS_Trace.handle).deallocate()
         self.connectedareas_AAS_ConnectedAreas.base.deallocate()
         self.areanums_AAS_CheckAreaForPossiblePortals.base.deallocate()
         self.frontareanums_AAS_CheckAreaForPossiblePortals.base.deallocate()
         self.backareanums_AAS_CheckAreaForPossiblePortals.base.deallocate()
         self.be_aas_debug_points_AAS_ShowFacePolygon.base.deallocate()
+        UnsafeMutableRawPointer(self.reach_AAS_ShowReachableAreas.handle).deallocate()
         UnsafeMutableRawPointer(self.aasworld.handle).deallocate()
         UnsafeMutableRawPointer(self.aassettings.handle).deallocate()
         self.be_aas_move_points_AAS_ClientMovementPrediction.base.deallocate()
@@ -540,14 +742,45 @@ public final class EngineStorage {
         self.be_aas_reach_areas_AAS_Reachability_Grapple.base.deallocate()
         self.be_aas_reach_areas_AAS_Reachability_WalkOffLedge.base.deallocate()
         self.be_aas_route_areas_AAS_InitReachabilityAreas.base.deallocate()
+        self.startareatraveltimes_AAS_UpdateAreaRoutingCache.base.deallocate()
+        UnsafeMutableRawPointer(self.trace_AAS_TraceClientBBox.handle).deallocate()
         self.botcharacters.base.deallocate()
         self.ichatdata.base.deallocate()
         self.botchatstates.base.deallocate()
+        self.rankings_GeneticParentsAndChildSelection.base.deallocate()
         self.botgoalstates.base.deallocate()
         self.botmovestates.base.deallocate()
         self.be_ai_move_points_BotFuzzyPointReachabilityArea.base.deallocate()
         self.be_ai_move_areas_BotFuzzyPointReachabilityArea.base.deallocate()
         self.be_ai_move_areas_BotMoveToGoal.base.deallocate()
+        UnsafeMutableRawPointer(self.result_BotTravel_Walk.handle).deallocate()
+        UnsafeMutableRawPointer(self.result_BotFinishTravel_Walk.handle).deallocate()
+        UnsafeMutableRawPointer(self.result_BotTravel_Crouch.handle).deallocate()
+        UnsafeMutableRawPointer(self.result_BotTravel_BarrierJump.handle).deallocate()
+        UnsafeMutableRawPointer(self.result_BotFinishTravel_BarrierJump.handle).deallocate()
+        UnsafeMutableRawPointer(self.result_BotTravel_Swim.handle).deallocate()
+        UnsafeMutableRawPointer(self.result_BotTravel_WaterJump.handle).deallocate()
+        UnsafeMutableRawPointer(self.result_BotFinishTravel_WaterJump.handle).deallocate()
+        UnsafeMutableRawPointer(self.result_BotTravel_WalkOffLedge.handle).deallocate()
+        UnsafeMutableRawPointer(self.result_BotFinishTravel_WalkOffLedge.handle).deallocate()
+        UnsafeMutableRawPointer(self.result_BotTravel_Jump.handle).deallocate()
+        UnsafeMutableRawPointer(self.result_BotFinishTravel_Jump.handle).deallocate()
+        UnsafeMutableRawPointer(self.result_BotTravel_Ladder.handle).deallocate()
+        UnsafeMutableRawPointer(self.result_BotTravel_Teleport.handle).deallocate()
+        UnsafeMutableRawPointer(self.result_BotTravel_Elevator.handle).deallocate()
+        UnsafeMutableRawPointer(self.result_BotFinishTravel_Elevator.handle).deallocate()
+        UnsafeMutableRawPointer(self.result_BotTravel_FuncBobbing.handle).deallocate()
+        UnsafeMutableRawPointer(self.result_BotFinishTravel_FuncBobbing.handle).deallocate()
+        UnsafeMutableRawPointer(self.result_BotTravel_Grapple.handle).deallocate()
+        UnsafeMutableRawPointer(self.result_BotTravel_RocketJump.handle).deallocate()
+        UnsafeMutableRawPointer(self.result_BotTravel_BFGJump.handle).deallocate()
+        UnsafeMutableRawPointer(self.result_BotFinishTravel_WeaponJump.handle).deallocate()
+        UnsafeMutableRawPointer(self.result_BotTravel_JumpPad.handle).deallocate()
+        UnsafeMutableRawPointer(self.result_BotFinishTravel_JumpPad.handle).deallocate()
+        UnsafeMutableRawPointer(self.result_BotMoveInGoalArea.handle).deallocate()
+        self.avoidreach_BotPredictVisiblePosition.base.deallocate()
+        self.avoidreachtimes_BotPredictVisiblePosition.base.deallocate()
+        self.avoidreachtries_BotPredictVisiblePosition.base.deallocate()
         self.botweaponstates.base.deallocate()
         self.weightFileList.base.deallocate()
         UnsafeMutableRawPointer(self.botlibglobals.handle).deallocate()
@@ -560,6 +793,9 @@ public final class EngineStorage {
         self.p.base.deallocate()
         self.hullPoints.base.deallocate()
         self.newHullPoints.base.deallocate()
+        self.height_FlattenArea.base.deallocate()
+        self.height2_FlattenArea.base.deallocate()
+        self.info_FlattenArea.base.deallocate()
         self.cm_trace_leafs_CM_PositionTest.base.deallocate()
         UnsafeMutableRawPointer(self.cmd_text.handle).deallocate()
         self.cmd_text_buf.base.deallocate()
@@ -584,8 +820,11 @@ public final class EngineStorage {
         self.send_buf_Netchan_Transmit.base.deallocate()
         self.string_NET_OutOfBandData.base.deallocate()
         self.gWPArray.base.deallocate()
+        self.sv_bot_points_BotImport_DebugLineCreate.base.deallocate()
+        self.sv_bot_points_BotImport_DebugLineShow.base.deallocate()
         self.msgBuffer_SV_SendClientGameState.base.deallocate()
         self.msgBuffer_SV_SendClientMapChange.base.deallocate()
+        self.heightmap_SV_SendClientGameState.base.deallocate()
         UnsafeMutableRawPointer(self.gLocalModifier.handle).deallocate()
         UnsafeMutableRawPointer(self.sv_siegePersData.handle).deallocate()
         UnsafeMutableRawPointer(self.svs.handle).deallocate()
@@ -600,6 +839,7 @@ public final class EngineStorage {
         UnsafeMutableRawPointer(self.worldMatrix.handle).deallocate()
         UnsafeMutableRawPointer(self.worldMatrixInv.handle).deallocate()
         self.modelList_G2_ConstructGhoulSkeleton.base.deallocate()
+        self.tbone_G2_TransformBone.base.deallocate()
         UnsafeMutableRawPointer(self.tr.handle).deallocate()
         self.mhHashTable.base.deallocate()
         self.stages.base.deallocate()

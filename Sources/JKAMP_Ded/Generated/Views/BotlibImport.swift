@@ -68,9 +68,11 @@ public struct BotlibImport: Hashable, HandleView {
 
     /// Calls the stored `Print` function through the C pointer, with the caller's arguments, as Raven's `pm->Print(...)` did.
     /// A NULL `Print` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runPrint(_ type: Int32, _ fmt: OpaquePointer?) {
+    public func runPrint(_ type: Int32, _ fmt: String, _ args: any JKAShared.FormatArg...) {
         precondition(self.raw.pointee.Print != nil, "Print is NULL")
-        self.Print!(type, fmt)
+        withCString(JKAShared.format(fmt, args)) { fmt in
+            self.Print!(type, OpaquePointer(fmt))
+        }
     }
 
     /// Source: unknown:5
@@ -192,9 +194,11 @@ public struct BotlibImport: Hashable, HandleView {
 
     /// Calls the stored `BotClientCommand` function through the C pointer, with the caller's arguments, as Raven's `pm->BotClientCommand(...)` did.
     /// A NULL `BotClientCommand` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runBotClientCommand(_ client: Int32, _ command: OpaquePointer?) {
+    public func runBotClientCommand(_ client: Int32, _ command: String) {
         precondition(self.raw.pointee.BotClientCommand != nil, "BotClientCommand is NULL")
-        self.BotClientCommand!(client, command)
+        withCString(command) { command in
+            self.BotClientCommand!(client, OpaquePointer(command))
+        }
     }
 
     /// Source: unknown:19
@@ -205,9 +209,10 @@ public struct BotlibImport: Hashable, HandleView {
 
     /// Calls the stored `GetMemory` function through the C pointer, with the caller's arguments, as Raven's `pm->GetMemory(...)` did.
     /// A NULL `GetMemory` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runGetMemory(_ size: Int32) {
+    @discardableResult
+    public func runGetMemory(_ size: Int32) -> UnsafeMutableRawPointer {
         precondition(self.raw.pointee.GetMemory != nil, "GetMemory is NULL")
-        self.GetMemory!(size)
+        return UnsafeMutableRawPointer(self.GetMemory!(size)!)
     }
 
     /// Source: unknown:20
@@ -245,9 +250,10 @@ public struct BotlibImport: Hashable, HandleView {
 
     /// Calls the stored `HunkAlloc` function through the C pointer, with the caller's arguments, as Raven's `pm->HunkAlloc(...)` did.
     /// A NULL `HunkAlloc` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runHunkAlloc(_ size: Int32) {
+    @discardableResult
+    public func runHunkAlloc(_ size: Int32) -> UnsafeMutableRawPointer {
         precondition(self.raw.pointee.HunkAlloc != nil, "HunkAlloc is NULL")
-        self.HunkAlloc!(size)
+        return UnsafeMutableRawPointer(self.HunkAlloc!(size)!)
     }
 
     /// Source: unknown:24
@@ -259,10 +265,12 @@ public struct BotlibImport: Hashable, HandleView {
     /// Calls the stored `FS_FOpenFile` function through the C pointer, with the caller's arguments, as Raven's `pm->FS_FOpenFile(...)` did.
     /// A NULL `FS_FOpenFile` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runFS_FOpenFile(_ qpath: String, _ file: OpaquePointer?, _ mode: JKAShared.fsMode_t) -> Int32 {
+    public func runFS_FOpenFile(_ qpath: String, _ file: inout Int32, _ mode: JKAShared.fsMode_t) -> Int32 {
         precondition(self.raw.pointee.FS_FOpenFile != nil, "FS_FOpenFile is NULL")
         return withCString(qpath) { qpath in
-            self.FS_FOpenFile!(OpaquePointer(qpath), file, mode)
+            withUnsafeMutablePointer(to: &file) { file in
+                self.FS_FOpenFile!(OpaquePointer(qpath), OpaquePointer(file), mode)
+            }
         }
     }
 
@@ -275,9 +283,9 @@ public struct BotlibImport: Hashable, HandleView {
     /// Calls the stored `FS_Read` function through the C pointer, with the caller's arguments, as Raven's `pm->FS_Read(...)` did.
     /// A NULL `FS_Read` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runFS_Read(_ buffer: OpaquePointer?, _ len: Int32, _ f: Int32) -> Int32 {
+    public func runFS_Read(_ buffer: Slots<JKAShared.byte>, _ len: Int32, _ f: Int32) -> Int32 {
         precondition(self.raw.pointee.FS_Read != nil, "FS_Read is NULL")
-        return self.FS_Read!(buffer, len, f)
+        return self.FS_Read!(OpaquePointer(buffer.base), len, f)
     }
 
     /// Source: unknown:26
@@ -289,9 +297,9 @@ public struct BotlibImport: Hashable, HandleView {
     /// Calls the stored `FS_Write` function through the C pointer, with the caller's arguments, as Raven's `pm->FS_Write(...)` did.
     /// A NULL `FS_Write` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runFS_Write(_ buffer: OpaquePointer?, _ len: Int32, _ f: Int32) -> Int32 {
+    public func runFS_Write(_ buffer: Slots<JKAShared.byte>, _ len: Int32, _ f: Int32) -> Int32 {
         precondition(self.raw.pointee.FS_Write != nil, "FS_Write is NULL")
-        return self.FS_Write!(buffer, len, f)
+        return self.FS_Write!(OpaquePointer(buffer.base), len, f)
     }
 
     /// Source: unknown:27
@@ -374,9 +382,9 @@ public struct BotlibImport: Hashable, HandleView {
     /// Calls the stored `DebugPolygonCreate` function through the C pointer, with the caller's arguments, as Raven's `pm->DebugPolygonCreate(...)` did.
     /// A NULL `DebugPolygonCreate` traps with the field's name, as Raven's call through the pointer would crash.
     @discardableResult
-    public func runDebugPolygonCreate(_ color: Int32, _ numPoints: Int32, _ points: OpaquePointer?) -> Int32 {
+    public func runDebugPolygonCreate(_ color: Int32, _ numPoints: Int32, _ points: Slots<JKAShared.vec3_t>) -> Int32 {
         precondition(self.raw.pointee.DebugPolygonCreate != nil, "DebugPolygonCreate is NULL")
-        return self.DebugPolygonCreate!(color, numPoints, points)
+        return self.DebugPolygonCreate!(color, numPoints, OpaquePointer(points.base))
     }
 
     /// Source: unknown:35

@@ -61,12 +61,14 @@ public struct BotCharacteristic: Hashable, HandleView {
     }
 
     /// Source: unknown:2
-    public var type: CChar {
-        get { self.raw.pointee.type }
-        nonmutating set { self.raw.pointee.type = newValue }
+    public var type: Int32 {
+        get { Int32(self.raw.pointee.type) }
+        nonmutating set { self.raw.pointee.type = CChar(truncatingIfNeeded: newValue) }
     }
 
     /// Source: unknown:3
-    // TODO: Port bot_characteristic_t.value
-    // Raven wrote: union cvalue value
+    public var value: Cvalue {
+        get { Cvalue(handle: OpaquePointer(self.raw.pointer(to: \.value)!)) }
+        nonmutating set { self.raw.pointee.value = UnsafeMutablePointer(newValue.handle).pointee }
+    }
 }

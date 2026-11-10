@@ -4,6 +4,9 @@ internal import CJKAMP_Ded
 import JKAMP
 import JKAShared
 
+/// Source: oracle/codemp/game/botlib.h:16
+public let BOTLIB_API_VERSION = CJKAMP_Ded.BOTLIB_API_VERSION
+
 /// Source: oracle/codemp/game/botlib.h:40
 public let PRT_MESSAGE = CJKAMP_Ded.PRT_MESSAGE
 

@@ -559,6 +559,8 @@ _Static_assert(offsetof(weaponData_t, mAltMuzzleEffect) == 1456, "weaponData_t.m
 _Static_assert(offsetof(weaponData_t, mAltMuzzleEffectID) == 1520, "weaponData_t.mAltMuzzleEffectID");
 _Static_assert(sizeof(mdxaBone_t) == 48, "mdxaBone_t");
 _Static_assert(offsetof(mdxaBone_t, matrix) == 0, "mdxaBone_t.matrix");
+_Static_assert(sizeof(struct mdxaCompQuatBone_t) == 14, "struct mdxaCompQuatBone_t");
+_Static_assert(offsetof(struct mdxaCompQuatBone_t, Comp) == 0, "struct mdxaCompQuatBone_t.Comp");
 _Static_assert(sizeof(mdxaIndex_t) == 4, "mdxaIndex_t");
 _Static_assert(offsetof(mdxaIndex_t, iIndex) == 0, "mdxaIndex_t.iIndex");
 _Static_assert(sizeof(mdxaSkelOffsets_t) == 4, "mdxaSkelOffsets_t");
@@ -1193,6 +1195,8 @@ _Static_assert(offsetof(weaponData_t, mAltMuzzleEffect) == 1468, "weaponData_t.m
 _Static_assert(offsetof(weaponData_t, mAltMuzzleEffectID) == 1532, "weaponData_t.mAltMuzzleEffectID");
 _Static_assert(sizeof(mdxaBone_t) == 48, "mdxaBone_t");
 _Static_assert(offsetof(mdxaBone_t, matrix) == 0, "mdxaBone_t.matrix");
+_Static_assert(sizeof(struct mdxaCompQuatBone_t) == 14, "struct mdxaCompQuatBone_t");
+_Static_assert(offsetof(struct mdxaCompQuatBone_t, Comp) == 0, "struct mdxaCompQuatBone_t.Comp");
 _Static_assert(sizeof(mdxaIndex_t) == 4, "mdxaIndex_t");
 _Static_assert(offsetof(mdxaIndex_t, iIndex) == 0, "mdxaIndex_t.iIndex");
 _Static_assert(sizeof(mdxaSkelOffsets_t) == 4, "mdxaSkelOffsets_t");
@@ -1827,6 +1831,8 @@ _Static_assert(offsetof(weaponData_t, mAltMuzzleEffect) == 1468, "weaponData_t.m
 _Static_assert(offsetof(weaponData_t, mAltMuzzleEffectID) == 1532, "weaponData_t.mAltMuzzleEffectID");
 _Static_assert(sizeof(mdxaBone_t) == 48, "mdxaBone_t");
 _Static_assert(offsetof(mdxaBone_t, matrix) == 0, "mdxaBone_t.matrix");
+_Static_assert(sizeof(struct mdxaCompQuatBone_t) == 14, "struct mdxaCompQuatBone_t");
+_Static_assert(offsetof(struct mdxaCompQuatBone_t, Comp) == 0, "struct mdxaCompQuatBone_t.Comp");
 _Static_assert(sizeof(mdxaIndex_t) == 4, "mdxaIndex_t");
 _Static_assert(offsetof(mdxaIndex_t, iIndex) == 0, "mdxaIndex_t.iIndex");
 _Static_assert(sizeof(mdxaSkelOffsets_t) == 4, "mdxaSkelOffsets_t");
