@@ -104,3 +104,34 @@ func valueUnderHalfRoundsDown() {
 func percentSPrecisionTruncates() {
     #expect(format("%.3s", ["kyle"]) == "kyl")
 }
+
+@Test("a percent zero two d pads the integer with zeros")
+func percentZeroTwoDPadsWithZeros() {
+    #expect(format("%02d", [Int32(5)]) == "05")
+    #expect(format("%02d", [Int32(12)]) == "12")
+    #expect(format("%i:%02i", [Int32(1), Int32(5)]) == "1:05")
+}
+
+@Test("a percent zero three d pads the integer to three digits")
+func percentZeroThreeDPadsToThreeDigits() {
+    #expect(format("%03d", [Int32(7)]) == "007")
+    #expect(format("%03d", [Int32(1234)]) == "1234")
+}
+
+@Test("a percent zero three d puts the zeros after the sign of a negative integer")
+func percentZeroThreeDPadsAfterTheSign() {
+    #expect(format("%03d", [Int32(-5)]) == "-05")
+    #expect(format("%03d", [Int32(-12)]) == "-12")
+    #expect(format("%02i", [Int32(-5)]) == "-5")
+}
+
+@Test("a percent two d pads the integer with spaces")
+func percentTwoDPadsWithSpaces() {
+    #expect(format("%2d", [Int32(5)]) == " 5")
+}
+
+@Test("a percent minus two d pads the integer on the right")
+func percentMinusTwoDPadsOnTheRight() {
+    #expect(format("%-2d", [Int32(5)]) == "5 ")
+    #expect(format("%-2d", [Int32(-5)]) == "-5")
+}
