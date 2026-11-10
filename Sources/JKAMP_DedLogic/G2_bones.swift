@@ -1060,17 +1060,18 @@ func G2_Find_Bone_Rag(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ bo
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1318
+// AI: Raven passes ghoul2.mBlist again as blist. The function reads the list through ghoul2, because the bone cache reads the same list.
 @discardableResult
-private func G2_Set_Bone_Rag(_ mod_a: MdxaHeader, _ blist: inout [boneInfo_t], _ boneName: String, _ ghoul2: CGhoul2Info, _ scale: JKAShared.vec3_t, _ origin: JKAShared.vec3_t) -> Int32 {
+private func G2_Set_Bone_Rag(_ mod_a: MdxaHeader, _ boneName: String, _ ghoul2: CGhoul2Info, _ scale: JKAShared.vec3_t, _ origin: JKAShared.vec3_t) -> Int32 {
     // do not change the state of the skeleton here
-    var index: Int32 = G2_Find_Bone_Rag(ghoul2, &blist, boneName)
+    var index: Int32 = G2_Find_Bone_Rag(ghoul2, &ghoul2.mBlist, boneName)
 
     if index == -1 {
-        index = G2_Add_Bone(ghoul2.animModel!, &blist, boneName)
+        index = G2_Add_Bone(ghoul2.animModel!, &ghoul2.mBlist, boneName)
     }
 
     if index != -1 {
-        let bone = blist[index]
+        let bone = ghoul2.mBlist[index]
         bone.extraVec1 = origin
 
         G2_GetBoneMatrixLow(ghoul2, bone.boneNumber, scale, bone.originalTrueBoneMatrix, &bone.basepose, &bone.baseposeInv)
@@ -1329,32 +1330,32 @@ func G2_SetRagDoll(_ ghoul2V: CGhoul2Info_v, _ parms: CRagDollParams?) {
     G2_GenerateWorldMatrix(parms.angles, parms.position)
     G2_ConstructGhoulSkeleton(ghoul2V, curTime, false, parms.scale)
 
-    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "model_root", ghoul2, parms.scale, parms.position)
-    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "pelvis", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, "model_root", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, "pelvis", ghoul2, parms.scale, parms.position)
 
-    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "lower_lumbar", ghoul2, parms.scale, parms.position)
-    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "upper_lumbar", ghoul2, parms.scale, parms.position)
-    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "thoracic", ghoul2, parms.scale, parms.position)
-    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "cranium", ghoul2, parms.scale, parms.position)
-    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "rhumerus", ghoul2, parms.scale, parms.position)
-    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "lhumerus", ghoul2, parms.scale, parms.position)
-    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "rradius", ghoul2, parms.scale, parms.position)
-    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "lradius", ghoul2, parms.scale, parms.position)
-    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "rfemurYZ", ghoul2, parms.scale, parms.position)
-    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "lfemurYZ", ghoul2, parms.scale, parms.position)
-    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "rtibia", ghoul2, parms.scale, parms.position)
-    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "ltibia", ghoul2, parms.scale, parms.position)
-    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "rhand", ghoul2, parms.scale, parms.position)
-    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "lhand", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, "lower_lumbar", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, "upper_lumbar", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, "thoracic", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, "cranium", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, "rhumerus", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, "lhumerus", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, "rradius", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, "lradius", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, "rfemurYZ", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, "lfemurYZ", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, "rtibia", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, "ltibia", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, "rhand", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, "lhand", ghoul2, parms.scale, parms.position)
     //G2_Set_Bone_Rag(mod_a,blist,"rtarsal",ghoul2,parms->scale,parms->position);
     //G2_Set_Bone_Rag(mod_a,blist,"ltarsal",ghoul2,parms->scale,parms->position);
-    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "rtalus", ghoul2, parms.scale, parms.position)
-    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "ltalus", ghoul2, parms.scale, parms.position)
-    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "rradiusX", ghoul2, parms.scale, parms.position)
-    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "lradiusX", ghoul2, parms.scale, parms.position)
-    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "rfemurX", ghoul2, parms.scale, parms.position)
-    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "lfemurX", ghoul2, parms.scale, parms.position)
-    G2_Set_Bone_Rag(mod_a, &ghoul2.mBlist, "ceyebrow", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, "rtalus", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, "ltalus", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, "rradiusX", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, "lradiusX", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, "rfemurX", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, "lfemurX", ghoul2, parms.scale, parms.position)
+    G2_Set_Bone_Rag(mod_a, "ceyebrow", ghoul2, parms.scale, parms.position)
 
     //int startFrame = 3665, endFrame = 3665+1;
     let startFrame = parms.startFrame
@@ -3124,7 +3125,7 @@ func G2_SetBoneIKState(_ ghoul2: CGhoul2Info_v, _ time: Int32, _ boneName: Strin
     bone.ikSpeed = 0.4
     bone.ikPosition = vec3_t()
 
-    G2_Set_Bone_Rag(rmod_a!, &g2.mBlist, boneName!, g2, params!.scale, params!.origin)
+    G2_Set_Bone_Rag(rmod_a!, boneName!, g2, params!.scale, params!.origin)
 
     let startFrame = params!.startFrame
     let endFrame = params!.endFrame
