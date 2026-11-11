@@ -26,6 +26,11 @@ name: Build the game and cgame modules
 on:
   push:
     branches: [master]
+    # A push that changes only docs, notes, or Markdown files builds nothing new, so it starts no run.
+    paths-ignore:
+      - 'docs/**'
+      - 'notes/**'
+      - '**/*.md'
   workflow_dispatch:
 
 permissions:
