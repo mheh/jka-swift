@@ -20,7 +20,7 @@ A batch runs ten or more files in parallel.
 
 ### The read set
 
-Ruling of 2026-09-09. A transcriptor reads exactly this set, and nothing else:
+A transcriptor reads exactly this set, and nothing else:
 
 - the oracle slice for the row it is porting, by the manifest's line range
 - its own Swift stub file
@@ -46,7 +46,7 @@ When a needed fact sits outside the read set, the agent writes a Port-note and m
 
 ### The brief
 
-Every transcriptor, reviewer, and sweep brief carries the house-style and asd-ste100 invoke lines at the start. Every sentence the agent writes itself, a Port-note, a comment, or a doc line, follows both. Raven's own comments are copied as written and are exempt.
+An agent with a definition has the house-style and asd-ste100 skills preloaded. A brief for an agent with no definition carries the two invoke lines at the start. Every sentence the agent writes itself, a Port-note, a comment, or a doc line, follows both. Raven's own comments are copied as written and are exempt.
 
 ## 2. The Port-note
 
@@ -541,7 +541,7 @@ A body macro that names a local, such as `SLOPERECALCVAR`, is spelled as its exp
 
 ### A static in a bg file
 
-Ruling of 2026-09-09. `JKAMP_BG` cannot see `GameWorld`, and cgame links the same bg code with its own instance.
+`JKAMP_BG` cannot see `GameWorld`, and cgame links the same bg code with its own instance.
 A Raven static in a `bg_*.c` file lives on `final class BgState`, in the hand file `Sources/JKAMP_BG/bg_local.swift`, behind `nonisolated(unsafe) var bg = BgState()`, the same shape as `world`.
 A scalar static is a property of the generated `BgVariables`, which `BgState` owns, and the stub forwards it under Raven's name, so a body writes `pm_flying = FLY_NONE`. A struct static such as `pml` is one zeroed allocation on the generated `BgStorage`, which `BgState` owns, and a body reads `pml.forward` through the forwarder.
 A pointer static such as `pm` is the view of the caller's memory, set per call, and a body reads `pm.ps` with no bind. A test resets state with `bg = BgState()`.
@@ -584,6 +584,7 @@ A store, `ent.classname = "noclass"`, interns the text in the module's string po
 The pool copies each distinct text once, so a copy from one field to another, `ent.target = other.target`, stores the same pointer Raven's copy stored.
 A compare, `ent.classname == "noclass"`, compares the text, as Raven's `strcmp` did. Raven compares two `char *` fields by pointer nowhere a body reads.
 The String-to-bytes codec lives only in the two initializers of `CharBuf.swift`, `CharBuf(_ string:)` and `String(_ buf:)`, one byte for each scalar in both directions, and every other helper and view read works on bytes through `CharBuf`, as its C original does.
+No file other than `CharBuf.swift` writes `unicodeScalars.map`, `.utf8`, `String(cString:)`, or Foundation's `.isoLatin1`, and a trap template writes `CharBuf(string)` and no encode helper.
 
 ### A callback store
 
@@ -836,7 +837,7 @@ private func vector(at word: Int) -> vec3_t {
 
 ## 4. The gate
 
-Ruling of 2026-09-09. A transcriptor never runs `swift build`, not between functions and not at the end. It ports every row and stops. It never reads a compiler message, and it never fixes a build error.
+A transcriptor never runs `swift build`, not between functions and not at the end. It ports every row and stops. It never reads a compiler message, and it never fixes a build error.
 
 A reviewer runs `swift build` once, at the end of its own file. A body that fails to compile keeps its marker and gets a Port-note carrying the compiler's first line, never a guessed fix.
 
