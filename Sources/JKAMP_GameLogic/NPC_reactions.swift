@@ -254,7 +254,13 @@ public func NPC_ChoosePainAnimation(_ `self`: Entity, _ other: Entity, _ point: 
         self->painDebounceTime = level.time + 4000;
         }
         */
-        animLength = Int32(bgAllAnims[`self`.localAnimIndex].animsSlots[pain_anim].numFrames * abs(Float((bgHumanoidAnimations[pain_anim].frameLerp))))
+        // Port-note: When no pain animation is picked, Raven reads `anims[-1]` and `bgHumanoidAnimations[-1]`, the memory before the two arrays.
+        // The port gives that case the length 0.
+        if pain_anim == -1 {
+            animLength = 0
+        } else {
+            animLength = Int32(bgAllAnims[`self`.localAnimIndex].animsSlots[pain_anim].numFrames * abs(Float((bgHumanoidAnimations[pain_anim].frameLerp))))
+        }
 
         `self`.painDebounceTime = level.time + animLength
         `self`.client!.ps.weaponTime = 0
