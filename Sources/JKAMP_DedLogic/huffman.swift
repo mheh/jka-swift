@@ -40,7 +40,7 @@ Add a bit to the output file (buffered)
 ```
 */
 /// Source: oracle/codemp/qcommon/huffman.cpp:32
-private func add_bit(_ bit: CChar, _ fout: Slots<JKAShared.byte>) {
+private func add_bit(_ bit: Int32, _ fout: Slots<JKAShared.byte>) {
     if (bloc & 7) == 0 {
         fout[byte: (bloc >> 3)] = 0
     }
@@ -356,7 +356,7 @@ func Huff_transmit(_ huff: Huff, _ ch: Int32, _ fout: Slots<JKAShared.byte>) {
         Huff_transmit(huff, NYT, fout)
         i = 7
         while i >= 0 {
-            add_bit(CChar(((ch >> i) & 0x1)), fout)
+            add_bit(((ch >> i) & 0x1), fout)
             i -= 1
         }
     } else {

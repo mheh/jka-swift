@@ -10,7 +10,7 @@ Debug_Printf
 ```
 */
 /// Source: oracle/codemp/game/NPC_misc.c:10
-func Debug_Printf(_ cv: JKAMP.VmCvar, _ debugLevel: Int32, _ fmt: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg...) {
+func Debug_Printf(_ cv: JKAMP.VmCvar, _ debugLevel: Int32, _ fmt: String, _ args: any JKAShared.FormatArg...) {
     var color: String
     var msg = CharBuf(1024)
 
@@ -30,7 +30,7 @@ func Debug_Printf(_ cv: JKAMP.VmCvar, _ debugLevel: Int32, _ fmt: inout JKAShare
         color = S_COLOR_RED
     }
 
-    strcpy(&msg, JKAShared.format(String(fmt), args))
+    strcpy(&msg, JKAShared.format(fmt, args))
 
     Com_Printf("%s%5i:%s", color, level.time, msg)
 }
@@ -41,7 +41,7 @@ Debug_NPCPrintf
 ```
 */
 /// Source: oracle/codemp/game/NPC_misc.c:41
-func Debug_NPCPrintf(_ printNPC: Entity, _ cv: JKAMP.VmCvar, _ debugLevel: Int32, _ fmt: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg...) {
+func Debug_NPCPrintf(_ printNPC: Entity, _ cv: JKAMP.VmCvar, _ debugLevel: Int32, _ fmt: String, _ args: any JKAShared.FormatArg...) {
     var color: Int32
     var msg = CharBuf(1024)
 
@@ -66,7 +66,7 @@ func Debug_NPCPrintf(_ printNPC: Entity, _ cv: JKAMP.VmCvar, _ debugLevel: Int32
         color = COLOR_RED
     }
 
-    strcpy(&msg, JKAShared.format(String(fmt), args))
+    strcpy(&msg, JKAShared.format(fmt, args))
 
     Com_Printf("%c%c%5i (%s) %s", Q_COLOR_ESCAPE, color, level.time, printNPC.targetname!, msg)
 }

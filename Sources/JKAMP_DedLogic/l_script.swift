@@ -957,7 +957,7 @@ func PS_UnreadToken(_ script: Script, _ token: Token) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1085
-func PS_NextWhiteSpaceChar(_ script: Script) -> CChar {
+func PS_NextWhiteSpaceChar(_ script: Script) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     if script.whitespace_p != script.endwhitespace_p {
         defer { script.whitespace_p += 1 }

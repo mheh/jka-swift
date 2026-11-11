@@ -209,19 +209,19 @@ public func COM_Parse(_ data_p: inout JKAShared.TextCursor) -> String {
 }
 
 /// Source: oracle/codemp/game/q_shared.c:300
-public func COM_ParseError(_ format: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg...) {
+public func COM_ParseError(_ format: String, _ args: any JKAShared.FormatArg...) {
     var string = CharBuf(4096)
 
-    strcpy(&string, JKAShared.format(String(format), args))
+    strcpy(&string, JKAShared.format(format, args))
 
     Com_Printf("ERROR: %s, line %d: %s\n", com_parsename, com_lines, string)
 }
 
 /// Source: oracle/codemp/game/q_shared.c:312
-public func COM_ParseWarning(_ format: inout JKAShared.CharBuf, _ args: any JKAShared.FormatArg...) {
+public func COM_ParseWarning(_ format: String, _ args: any JKAShared.FormatArg...) {
     var string = CharBuf(4096)
 
-    strcpy(&string, JKAShared.format(String(format), args))
+    strcpy(&string, JKAShared.format(format, args))
 
     Com_Printf("WARNING: %s, line %d: %s\n", com_parsename, com_lines, string)
 }

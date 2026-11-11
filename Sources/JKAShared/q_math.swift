@@ -157,25 +157,25 @@ public func Q_crandom(_ seed: inout Int32) -> Float {
 //=======================================================
 
 /// Source: oracle/codemp/game/q_math.c:279
-public func ClampChar(_ i: Int32) -> Int8 {
+public func ClampChar(_ i: Int32) -> Int32 {
     if i < -128 {
         return -128
     }
     if i > 127 {
         return 127
     }
-    return Int8(i)
+    return i
 }
 
 /// Source: oracle/codemp/game/q_math.c:289
-public func ClampShort(_ i: Int32) -> Int16 {
+public func ClampShort(_ i: Int32) -> Int32 {
     if i < -32768 {
         return -32768
     }
     if i > 0x7fff {
         return 0x7fff
     }
-    return Int16(i)
+    return i
 }
 
 // this isn't a real cheap function to call!

@@ -262,7 +262,7 @@ func BotNumConsoleMessages(_ chatstate: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:384
-func IsWhiteSpace(_ c: CChar) -> Int32 {
+func IsWhiteSpace(_ c: Int32) -> Int32 {
     if (c >= Int32(ascii: "a") && c <= Int32(ascii: "z"))
         || (c >= Int32(ascii: "A") && c <= Int32(ascii: "Z"))
         || (c >= Int32(ascii: "0") && c <= Int32(ascii: "9"))

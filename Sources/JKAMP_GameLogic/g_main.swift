@@ -4,7 +4,7 @@ import JKAMP_Game
 import JKAMP_BG
 
 /// Source: oracle/codemp/game/g_main.c:9
-var level: Level { world.storage.level }
+public var level: Level { world.storage.level }
 
 /// Source: oracle/codemp/game/g_main.c:11
 var eventClearTime: Int32 {
