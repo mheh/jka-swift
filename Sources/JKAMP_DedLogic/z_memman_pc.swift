@@ -77,7 +77,7 @@ func Z_Malloc(_ iSize: Int32, _ eTag: JKAShared.memtag_t, _ bZeroit: Bool = fals
 
     // Add in tracking info
     //
-    let iRealSize: Int32 = (iSize + Int32(ZoneHeader.byteCount) + Int32(ZoneTail.byteCount))
+    let iRealSize: Int32 = (iSize &+ Int32(ZoneHeader.byteCount) &+ Int32(ZoneTail.byteCount))
 
     // Allocate a chunk...
     //

@@ -554,14 +554,15 @@ public func SkipBracedSection(_ program: inout JKAShared.TextCursor) {
     depth = 0
     repeat {
         token = COM_ParseExt(&program, true)
-        if CharBuf(token)[1] == 0 {
+        // AI: Raven's `token` points into `com_token`. The body reads byte 1 there, because the String of an empty token has no byte 1.
+        if com_token[1] == 0 {
             if CharBuf(token)[0] == Int32(ascii: "{") {
                 depth += 1
             } else if CharBuf(token)[0] == Int32(ascii: "}") {
                 depth -= 1
             }
         }
-    } while depth != 0 && program != nil
+    } while depth != 0 && !program.isNull
 }
 
 /**

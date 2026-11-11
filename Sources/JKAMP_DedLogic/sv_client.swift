@@ -917,7 +917,8 @@ func SV_WriteDownloadToClient(_ cl: Client, _ msg: Msg) {
         missionPack = (FS_idPak(cl.downloadName, "missionpack") ? 1 : 0)
         idPack = (missionPack != 0 || FS_idPak(cl.downloadName, "base") ? 1 : 0)
 
-        // Raven stores the file size inside his test, on the arm that runs when the first two tests fail, so the store runs on that arm here.
+        // AI: Raven stores the file size inside his test, on the arm that runs when the first two tests fail.
+        // The store is a statement on that arm, before the test of its value.
         var cannotDownload = sv_allowDownload!.integer == 0 || idPack != 0
         if !cannotDownload {
             cl.downloadSize = FS_SV_FOpenFileRead(cl.downloadName, &cl.download)
