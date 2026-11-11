@@ -205,6 +205,11 @@ public func SV_inPVS(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool {
     leafnum = CM_PointLeafnum(p2)
     cluster = CM_LeafCluster(leafnum)
     area2 = CM_LeafArea(leafnum)
+    // Port-note: For a second point in no cluster, Raven reads `mask[-1]`, the byte before the visibility data.
+    // The port treats that point as not in the PVS.
+    if cluster < 0 {
+        return false
+    }
     if (Int32(mask[cluster >> 3]) & (1 << (cluster & 7))) == 0 {
         return false
     }
@@ -240,6 +245,11 @@ public func SV_inPVSIgnorePortals(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t
     cluster = CM_LeafCluster(leafnum)
     area2 = CM_LeafArea(leafnum)
 
+    // Port-note: For a second point in no cluster, Raven reads `mask[-1]`, the byte before the visibility data.
+    // The port treats that point as not in the PVS.
+    if cluster < 0 {
+        return false
+    }
     if (Int32(mask[cluster >> 3]) & (1 << (cluster & 7))) == 0 {
         return false
     }
