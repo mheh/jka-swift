@@ -321,7 +321,7 @@ func Team_FragBonuses(_ targ: Entity, _ inflictor: Entity, _ attacker: Entity) {
     let otherteam: Int32
     let tokens: Int32
     var flag: Entity?
-    var carrierIndex: Int32 = 0
+    var carrier: Entity? = nil
     var c: String
     var v1 = vec3_t()
     var v2 = vec3_t()
@@ -438,11 +438,11 @@ func Team_FragBonuses(_ targ: Entity, _ inflictor: Entity, _ attacker: Entity) {
     // find attacker's team's flag carrier
     i = 0
     while i < g_maxclients.integer {
-        carrierIndex = i
-        if g_entities[carrierIndex].inuse && g_entities[carrierIndex].client!.ps.powerups[flag_pw] != 0 {
+        carrier = g_entities[i]
+        if carrier!.inuse && carrier!.client!.ps.powerups[flag_pw] != 0 {
             break
         }
-        carrierIndex = 0
+        carrier = nil
         i += 1
     }
     flag = nil
@@ -475,11 +475,11 @@ func Team_FragBonuses(_ targ: Entity, _ inflictor: Entity, _ attacker: Entity) {
         return
     }
 
-    if g_entities[carrierIndex] != nil && g_entities[carrierIndex] != attacker {
-        v1 = targ.r.currentOrigin - g_entities[carrierIndex].r.currentOrigin
-        v1 = attacker.r.currentOrigin - g_entities[carrierIndex].r.currentOrigin
+    if carrier != nil && carrier != attacker {
+        v1 = targ.r.currentOrigin - carrier!.r.currentOrigin
+        v1 = attacker.r.currentOrigin - carrier!.r.currentOrigin
 
-        if ((VectorLength(v1) < CTF_ATTACKER_PROTECT_RADIUS && trap_InPVS(g_entities[carrierIndex].r.currentOrigin, targ.r.currentOrigin)) || (VectorLength(v2) < CTF_ATTACKER_PROTECT_RADIUS && trap_InPVS(g_entities[carrierIndex].r.currentOrigin, attacker.r.currentOrigin))) && attacker.client!.sess.sessionTeam != targ.client!.sess.sessionTeam {
+        if ((VectorLength(v1) < CTF_ATTACKER_PROTECT_RADIUS && trap_InPVS(carrier!.r.currentOrigin, targ.r.currentOrigin)) || (VectorLength(v2) < CTF_ATTACKER_PROTECT_RADIUS && trap_InPVS(carrier!.r.currentOrigin, attacker.r.currentOrigin))) && attacker.client!.sess.sessionTeam != targ.client!.sess.sessionTeam {
             AddScore(attacker, targ.r.currentOrigin, CTF_CARRIER_PROTECT_BONUS)
             attacker.client!.pers.teamState.carrierdefense += 1
 
