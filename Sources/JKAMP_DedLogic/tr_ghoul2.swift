@@ -507,9 +507,12 @@ func G2_GetParentBoneMatrixLow(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ scale:
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:869
 func AllocRS() -> CRenderableSurface? {
-    // Raven's one call is in RenderSurfaces under `#ifndef DEDICATED` at tr_ghoul2.cpp:2520, so the function is dead in the dedicated build.
-    // TODO: Port AllocRS
-    portMissing("AllocRS", source: "oracle/codemp/renderer/tr_ghoul2.cpp:869")
+    // Raven's one call, tr_ghoul2.cpp:2660, is in RenderSurfaces under the `#ifndef DEDICATED` of :2520, so the function is dead in the dedicated build.
+    let ret: CRenderableSurface = RSStorage[NextRS]
+    ret.Init()
+    NextRS += 1
+    NextRS %= UInt32(MAX_RENDER_SURFACES)
+    return ret
 }
 
 /**

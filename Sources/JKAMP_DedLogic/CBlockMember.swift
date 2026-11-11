@@ -143,10 +143,22 @@ final class CBlockMember {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:133
-    // Port-note: Rule 20. The one caller is CBlockStream::WriteBlock, whose callers are in Interpreter.cpp, and WinDed does not link Interpreter.cpp, so the function keeps its marker.
+    // Port-note: Rule 20. The one caller is CBlockStream::WriteBlock, whose callers are in Interpreter.cpp, and WinDed does not link Interpreter.cpp.
+    @discardableResult
     func WriteMember(_ m_fileHandle: OpaquePointer?) -> Int32 {
-        // TODO: Port CBlockMember::WriteMember
-        portMissing("CBlockMember::WriteMember", source: "oracle/codemp/icarus/BlockStream.cpp:133")
+        // AI: Raven writes each value through its address. The value goes into a CharBuf of its bytes, and the CharBuf is written.
+        var value = CharBuf(Int32.byteCount)
+
+        value.withMutableSlots { $0[int: 0] = self.m_id }
+        _ = FileBackend.fwrite(value, at: 0, Int32(Int32.byteCount), 1, m_fileHandle)
+        value.withMutableSlots { $0[int: 0] = self.m_size }
+        _ = FileBackend.fwrite(value, at: 0, Int32(Int32.byteCount), 1, m_fileHandle)
+        // AI: Raven hands a NULL `m_data` with size 0 to `fwrite`, which writes nothing. The Swift skips the write for a nil `m_data`.
+        if self.m_data != nil {
+            _ = FileBackend.fwrite(self.m_data!, at: 0, self.m_size, 1, m_fileHandle)
+        }
+
+        return 1
     }
 
     /**

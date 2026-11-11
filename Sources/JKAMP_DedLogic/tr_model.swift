@@ -1298,9 +1298,42 @@ R_LerpTag
 */
 /// Source: oracle/codemp/renderer/tr_model.cpp:1768
 func R_LerpTag(_ tag: JKAShared.Orientation, _ handle: JKAShared.qhandle_t, _ startFrame: Int32, _ endFrame: Int32, _ frac: Float, _ tagName: String) -> Int32 {
-    // GetRefAPI is the one function that stores it, and the dedicated host does not link the client that calls GetRefAPI, so it is dead.
-    // TODO: Port R_LerpTag
-    portMissing("R_LerpTag", source: "oracle/codemp/renderer/tr_model.cpp:1768")
+    // GetRefAPI stores it only in its `#ifndef DEDICATED` arm at tr_init.cpp:1488, so no caller builds in the dedicated host, and it is dead.
+    let start: Md3Tag?, end: Md3Tag?
+    var i: Int32
+    let frontLerp: Float, backLerp: Float
+    let model: Model?
+
+    model = R_GetModelByHandle(handle)
+    if model!.md3[0] == nil {
+        AxisClear(tag.axis)
+        tag.origin = vec3_t()
+        return 0
+    }
+
+    start = R_GetTag(model!.md3[0]!, startFrame, tagName)
+    end = R_GetTag(model!.md3[0]!, endFrame, tagName)
+    if start == nil || end == nil {
+        AxisClear(tag.axis)
+        tag.origin = vec3_t()
+        return 0
+    }
+
+    frontLerp = frac
+    backLerp = 1.0 - frac
+
+    i = 0
+    while i < 3 {
+        tag.origin[i] = start!.origin[i] * backLerp + end!.origin[i] * frontLerp
+        tag.axis[0][i] = start!.axis[0][i] * backLerp + end!.axis[0][i] * frontLerp
+        tag.axis[1][i] = start!.axis[1][i] * backLerp + end!.axis[1][i] * frontLerp
+        tag.axis[2][i] = start!.axis[2][i] * backLerp + end!.axis[2][i] * frontLerp
+        i += 1
+    }
+    _ = VectorNormalize(&tag.axis[0])
+    _ = VectorNormalize(&tag.axis[1])
+    _ = VectorNormalize(&tag.axis[2])
+    return 1
 }
 
 /**

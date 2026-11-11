@@ -212,6 +212,13 @@ extension Slots where Element == byte {
         nonmutating set { self.storeWord(newValue, at: ofs) }
     }
 
+    /// The `Double` at a byte offset, Raven's `*(double *)((byte *)data + ofs)`.
+    // AI: Raven casts a byte pointer to a double pointer. The subscript reads and writes the double at the byte offset of the Slots.
+    public subscript(double ofs: some BinaryInteger) -> Double {
+        get { self.loadWord(at: ofs, as: Double.self) }
+        nonmutating set { self.storeWord(newValue, at: ofs) }
+    }
+
     /// The `unsigned short` at a byte offset, Raven's `*(unsigned short *)(msg->data + ofs)`.
     /// The getter zero-extends the two bytes as C does, and the setter truncates, as a narrow view field does.
     // AI: Raven casts a byte pointer to an `unsigned short` pointer. The subscript reads and writes the two bytes at the byte offset of the Slots.

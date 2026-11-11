@@ -19,8 +19,368 @@ var gServerSkinHack: Bool {
 /// Source: oracle/codemp/renderer/tr_image.cpp:1421
 func LoadTGA(_ name: String, _ pic: inout Slots<JKAShared.byte>?, _ width: inout Int32, _ height: inout Int32) {
     // Its two callers at tr_image.cpp:2252 and :2295 stand under `#ifndef DEDICATED`, so the function is dead in the dedicated build.
-    // TODO: Port LoadTGA
-    portMissing("LoadTGA", source: "oracle/codemp/renderer/tr_image.cpp:1421")
+    var sErrorString = CharBuf(1024)
+    var bFormatErrors = false
+
+    // these don't need to be declared or initialised until later, but the compiler whines that 'goto' skips them.
+    //
+    // AI: Raven walks `byte *` pointers over the zone block and the file. The walks are byte offsets into the Slots of each.
+    var pRGBA: Slots<JKAShared.byte>? = nil
+    var pOut: Int32 = 0
+    var pIn: Int32 = 0
+
+    pic = nil
+
+    // AI: Raven's TGA_FORMAT_ERROR calls sprintf with no size and jumps to TGADone.
+    // Each site calls Com_sprintf with the size of sErrorString and breaks out of the TGADone block.
+
+    //
+    // load the file
+    //
+    var pvLoadedData: OpaquePointer? = nil
+    let iLen = FS_ReadFile(name, &pvLoadedData)
+    // AI: Raven hands `pTempLoadedBuffer` to FS_ReadFile. The buffer is the Slots over the `iLen` bytes and the NUL that FS_ReadFile puts after them, or nil.
+    let pTempLoadedBuffer = ZipBackend.bytes(pvLoadedData, count: iLen + 1)
+    if pTempLoadedBuffer == nil {
+        return
+    }
+
+    let pHeader = TGAHeader(pTempLoadedBuffer!.base)
+
+    TGADone: do {
+        if pHeader.byColourmapType != 0 {
+            Com_sprintf(&sErrorString, Int32(sErrorString.count), "LoadTGA: colourmaps not supported\n")
+            bFormatErrors = true
+            break TGADone
+        }
+
+        if pHeader.byImageType != 2 && pHeader.byImageType != 3 && pHeader.byImageType != 10 {
+            Com_sprintf(&sErrorString, Int32(sErrorString.count), "LoadTGA: Only type 2 (RGB), 3 (gray), and 10 (RLE-RGB) images supported\n")
+            bFormatErrors = true
+            break TGADone
+        }
+
+        if pHeader.w1stColourMapEntry != 0 {
+            Com_sprintf(&sErrorString, Int32(sErrorString.count), "LoadTGA: colourmaps not supported\n")
+            bFormatErrors = true
+            break TGADone
+        }
+
+        if pHeader.wColourMapLength != 0 && pHeader.wColourMapLength != 256 {
+            Com_sprintf(&sErrorString, Int32(sErrorString.count), "LoadTGA: ColourMapLength must be either 0 or 256\n")
+            bFormatErrors = true
+            break TGADone
+        }
+
+        if pHeader.byColourMapEntrySize != 0 && pHeader.byColourMapEntrySize != 24 {
+            Com_sprintf(&sErrorString, Int32(sErrorString.count), "LoadTGA: ColourMapEntrySize must be either 0 or 24\n")
+            bFormatErrors = true
+            break TGADone
+        }
+
+        if (pHeader.byImagePlanes != 24 && pHeader.byImagePlanes != 32) && (pHeader.byImagePlanes != 8 && pHeader.byImageType != 3) {
+            Com_sprintf(&sErrorString, Int32(sErrorString.count), "LoadTGA: Only type 2 (RGB), 3 (gray), and 10 (RGB) TGA images supported\n")
+            bFormatErrors = true
+            break TGADone
+        }
+
+        if (pHeader.byScanLineOrder & 0x30) != 0x00 &&
+            (pHeader.byScanLineOrder & 0x30) != 0x10 &&
+            (pHeader.byScanLineOrder & 0x30) != 0x20 &&
+            (pHeader.byScanLineOrder & 0x30) != 0x30 {
+            Com_sprintf(&sErrorString, Int32(sErrorString.count), "LoadTGA: ScanLineOrder must be either 0x00,0x10,0x20, or 0x30\n")
+            bFormatErrors = true
+            break TGADone
+        }
+
+        // these last checks are so i can use ID's RLE-code. I don't dare fiddle with it or it'll probably break...
+        //
+        if pHeader.byImageType == 10 {
+            if (pHeader.byScanLineOrder & 0x30) != 0x00 {
+                Com_sprintf(&sErrorString, Int32(sErrorString.count), "LoadTGA: RLE-RGB Images (type 10) must be in bottom-to-top format\n")
+                bFormatErrors = true
+                break TGADone
+            }
+            if pHeader.byImagePlanes != 24 && pHeader.byImagePlanes != 32 { // probably won't happen, but avoids compressed greyscales?
+                Com_sprintf(&sErrorString, Int32(sErrorString.count), "LoadTGA: RLE-RGB Images (type 10) must be 24 or 32 bit\n")
+                bFormatErrors = true
+                break TGADone
+            }
+        }
+
+        // now read the actual bitmap in...
+        //
+        // Image descriptor bytes
+        // bits 0-3 = # attr bits (alpha chan)
+        // bits 4-5 = pixel order/dir
+        // bits 6-7 scan line interleave (00b=none,01b=2way interleave,10b=4way)
+        //
+        let iYStart: Int32, iXStart: Int32, iYStep: Int32, iXStep: Int32
+
+        // Swift puts the default arm last. Raven's default arm and his case 0x00 are one arm.
+        switch pHeader.byScanLineOrder & 0x30 {
+        case 0x10: //  right to left, bottom to top
+
+            iXStart = pHeader.wImageWidth - 1
+            iXStep = -1
+
+            iYStart = pHeader.wImageHeight - 1
+            iYStep = -1
+
+        case 0x20: //  left to right, top to bottom
+
+            iXStart = 0
+            iXStep = 1
+
+            iYStart = 0
+            iYStep = 1
+
+        case 0x30: //  right to left, top to bottom
+
+            iXStart = pHeader.wImageWidth - 1
+            iXStep = -1
+
+            iYStart = 0
+            iYStep = 1
+
+        default: // default case stops the compiler complaining about using uninitialised vars
+            // case 0x00: left to right, bottom to top
+
+            iXStart = 0
+            iXStep = 1
+
+            iYStart = pHeader.wImageHeight - 1
+            iYStep = -1
+        }
+
+        // feed back the results...
+        //
+        // AI: Raven tests `width` and `height` for NULL. The parameters are inout, so the stores have no test.
+        width = pHeader.wImageWidth
+        height = pHeader.wImageHeight
+
+        pRGBA = Slots<JKAShared.byte>(scalars: Z_Malloc(pHeader.wImageWidth * pHeader.wImageHeight * 4, TAG_TEMP_WORKSPACE, false), count: Int(pHeader.wImageWidth * pHeader.wImageHeight * 4))
+        pic = pRGBA
+        pOut = 0
+        pIn = Int32(TGAHeader.byteCount)
+
+        // I don't know if this ID-thing here is right, since comments that I've seen are at the end of the file,
+        //	with a zero in this field. However, may as well...
+        //
+        if pHeader.byIDFieldLength != 0 {
+            pIn += pHeader.byIDFieldLength // skip TARGA image comment
+        }
+
+        // Port-note: Raven reads past the file buffer when the file is shorter than its header says, undefined.
+        // The Slots subscript traps there, rule 19.
+        var red: JKAShared.byte, green: JKAShared.byte, blue: JKAShared.byte, alpha: JKAShared.byte
+
+        if pHeader.byImageType == 2 || pHeader.byImageType == 3 { // RGB or greyscale
+            var y = iYStart, iYCount: Int32 = 0
+            while iYCount < pHeader.wImageHeight {
+                pOut = y * pHeader.wImageWidth * 4
+                var x = iXStart, iXCount: Int32 = 0
+                while iXCount < pHeader.wImageWidth {
+                    switch pHeader.byImagePlanes {
+                    case 8:
+                        blue = pTempLoadedBuffer![pIn]
+                        pIn += 1
+                        green = blue
+                        red = blue
+                        pRGBA![pOut] = red
+                        pOut += 1
+                        pRGBA![pOut] = green
+                        pOut += 1
+                        pRGBA![pOut] = blue
+                        pOut += 1
+                        pRGBA![pOut] = 255
+                        pOut += 1
+
+                    case 24:
+                        blue = pTempLoadedBuffer![pIn]
+                        pIn += 1
+                        green = pTempLoadedBuffer![pIn]
+                        pIn += 1
+                        red = pTempLoadedBuffer![pIn]
+                        pIn += 1
+                        pRGBA![pOut] = red
+                        pOut += 1
+                        pRGBA![pOut] = green
+                        pOut += 1
+                        pRGBA![pOut] = blue
+                        pOut += 1
+                        pRGBA![pOut] = 255
+                        pOut += 1
+
+                    case 32:
+                        blue = pTempLoadedBuffer![pIn]
+                        pIn += 1
+                        green = pTempLoadedBuffer![pIn]
+                        pIn += 1
+                        red = pTempLoadedBuffer![pIn]
+                        pIn += 1
+                        alpha = pTempLoadedBuffer![pIn]
+                        pIn += 1
+                        pRGBA![pOut] = red
+                        pOut += 1
+                        pRGBA![pOut] = green
+                        pOut += 1
+                        pRGBA![pOut] = blue
+                        pOut += 1
+                        pRGBA![pOut] = alpha
+                        pOut += 1
+
+                    default:
+                        assert(false) // if we ever hit this, someone deleted a header check higher up
+                        Com_sprintf(&sErrorString, Int32(sErrorString.count), "LoadTGA: Image can only have 8, 24 or 32 planes for RGB/greyscale\n")
+                        bFormatErrors = true
+                        break TGADone
+                    }
+                    x += iXStep
+                    iXCount += 1
+                }
+                y += iYStep
+                iYCount += 1
+            }
+        } else if pHeader.byImageType == 10 { // RLE-RGB
+            // I've no idea if this stuff works, I normally reject RLE targas, but this is from ID's code
+            //	so maybe I should try and support it...
+            //
+            var packetHeader: JKAShared.byte, packetSize: JKAShared.byte, j: JKAShared.byte
+
+            var y = pHeader.wImageHeight - 1
+            while y >= 0 {
+                pOut = y * pHeader.wImageWidth * 4
+                var x: Int32 = 0
+                breakOut: while x < pHeader.wImageWidth {
+                    packetHeader = pTempLoadedBuffer![pIn]
+                    pIn += 1
+                    packetSize = 1 + (packetHeader & 0x7f)
+                    if (packetHeader & 0x80) != 0 { // run-length packet
+                        switch pHeader.byImagePlanes {
+                        case 24:
+
+                            blue = pTempLoadedBuffer![pIn]
+                            pIn += 1
+                            green = pTempLoadedBuffer![pIn]
+                            pIn += 1
+                            red = pTempLoadedBuffer![pIn]
+                            pIn += 1
+                            alpha = 255
+
+                        case 32:
+
+                            blue = pTempLoadedBuffer![pIn]
+                            pIn += 1
+                            green = pTempLoadedBuffer![pIn]
+                            pIn += 1
+                            red = pTempLoadedBuffer![pIn]
+                            pIn += 1
+                            alpha = pTempLoadedBuffer![pIn]
+                            pIn += 1
+
+                        default:
+                            assert(false) // if we ever hit this, someone deleted a header check higher up
+                            Com_sprintf(&sErrorString, Int32(sErrorString.count), "LoadTGA: RLE-RGB can only have 24 or 32 planes\n")
+                            bFormatErrors = true
+                            break TGADone
+                        }
+
+                        j = 0
+                        while j < packetSize {
+                            pRGBA![pOut] = red
+                            pOut += 1
+                            pRGBA![pOut] = green
+                            pOut += 1
+                            pRGBA![pOut] = blue
+                            pOut += 1
+                            pRGBA![pOut] = alpha
+                            pOut += 1
+                            x += 1
+                            if x == pHeader.wImageWidth { // run spans across rows
+                                x = 0
+                                if y > 0 {
+                                    y -= 1
+                                } else {
+                                    break breakOut
+                                }
+                                pOut = y * pHeader.wImageWidth * 4
+                            }
+                            j += 1
+                        }
+                    } else { // non run-length packet
+
+                        j = 0
+                        while j < packetSize {
+                            switch pHeader.byImagePlanes {
+                            case 24:
+
+                                blue = pTempLoadedBuffer![pIn]
+                                pIn += 1
+                                green = pTempLoadedBuffer![pIn]
+                                pIn += 1
+                                red = pTempLoadedBuffer![pIn]
+                                pIn += 1
+                                pRGBA![pOut] = red
+                                pOut += 1
+                                pRGBA![pOut] = green
+                                pOut += 1
+                                pRGBA![pOut] = blue
+                                pOut += 1
+                                pRGBA![pOut] = 255
+                                pOut += 1
+
+                            case 32:
+                                blue = pTempLoadedBuffer![pIn]
+                                pIn += 1
+                                green = pTempLoadedBuffer![pIn]
+                                pIn += 1
+                                red = pTempLoadedBuffer![pIn]
+                                pIn += 1
+                                alpha = pTempLoadedBuffer![pIn]
+                                pIn += 1
+                                pRGBA![pOut] = red
+                                pOut += 1
+                                pRGBA![pOut] = green
+                                pOut += 1
+                                pRGBA![pOut] = blue
+                                pOut += 1
+                                pRGBA![pOut] = alpha
+                                pOut += 1
+
+                            default:
+                                assert(false) // if we ever hit this, someone deleted a header check higher up
+                                Com_sprintf(&sErrorString, Int32(sErrorString.count), "LoadTGA: RLE-RGB can only have 24 or 32 planes\n")
+                                bFormatErrors = true
+                                break TGADone
+                            }
+                            x += 1
+                            if x == pHeader.wImageWidth { // pixel packet run spans across rows
+                                x = 0
+                                if y > 0 {
+                                    y -= 1
+                                } else {
+                                    break breakOut
+                                }
+                                pOut = y * pHeader.wImageWidth * 4
+                            }
+                            j += 1
+                        }
+                    }
+                }
+                // breakOut:
+                y -= 1
+            }
+        }
+    }
+
+    // TGADone:
+
+    FS_FreeFile(pTempLoadedBuffer!)
+
+    if bFormatErrors {
+        Com_Error(ERR_DROP, "%s( File: \"%s\" )\n", sErrorString, name)
+    }
 }
 
 /// Source: oracle/codemp/renderer/tr_image.cpp:2310

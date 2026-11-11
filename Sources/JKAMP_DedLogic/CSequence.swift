@@ -328,10 +328,53 @@ final class CSequence {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:320
-    // Port-note: Rule 20. The one caller is CSequence::Save, and Raven compiles that call out with `#if 0` at Sequence.cpp:365, so the function keeps its marker.
+    // Port-note: Rule 20. The one caller is CSequence::Save, and Raven compiles that call out with `#if 0` at Sequence.cpp:365.
     private func SaveCommand(_ block: CBlock?) -> Int32 {
-        // TODO: Port CSequence::SaveCommand
-        portMissing("CSequence::SaveCommand", source: "oracle/codemp/icarus/Sequence.cpp:320")
+        var flags: UInt8
+        var numMembers: Int32
+        var bID: Int32
+        var size: Int32
+        var bm: CBlockMember?
+        // AI: Raven writes each value through its address. The value goes into a CharBuf of its bytes, and the CharBuf is written.
+        // AI: Raven passes each chunk ID as a four-character constant. The body passes its value as hex, with the text in a trailing comment.
+        var value = CharBuf(Int32.byteCount)
+
+        //Save out the block ID
+        bID = block!.GetBlockID()
+        value.withMutableSlots { $0[int: 0] = bID }
+        _ = value.withSlots { (self.m_owner!.GetInterface())!.I_WriteSaveData!(0x424C_4944, $0, Int32(Int32.byteCount)) } // 'BLID'
+
+        //Save out the block's flags
+        // AI: Raven's `m_flags` and `GetFlags` are `unsigned char`. The Swift field is `Int32`, so the write takes the low byte.
+        flags = UInt8(truncatingIfNeeded: block!.GetFlags())
+        value.withMutableSlots { $0[byte: 0] = flags }
+        _ = value.withSlots { (self.m_owner!.GetInterface())!.I_WriteSaveData!(0x4246_4C47, $0, Int32(UInt8.byteCount)) } // 'BFLG'
+
+        //Save out the number of members to read
+        numMembers = block!.GetNumMembers()
+        value.withMutableSlots { $0[int: 0] = numMembers }
+        _ = value.withSlots { (self.m_owner!.GetInterface())!.I_WriteSaveData!(0x424E_554D, $0, Int32(Int32.byteCount)) } // 'BNUM'
+
+        var i: Int32 = 0
+        while i < numMembers {
+            bm = block!.GetMember(i)
+
+            //Save the block id
+            bID = bm!.GetID()
+            value.withMutableSlots { $0[int: 0] = bID }
+            _ = value.withSlots { (self.m_owner!.GetInterface())!.I_WriteSaveData!(0x424D_4944, $0, Int32(Int32.byteCount)) } // 'BMID'
+
+            //Save out the data size
+            size = bm!.GetSize()
+            value.withMutableSlots { $0[int: 0] = size }
+            _ = value.withSlots { (self.m_owner!.GetInterface())!.I_WriteSaveData!(0x4253_495A, $0, Int32(Int32.byteCount)) } // 'BSIZ'
+
+            //Save out the raw data
+            _ = (self.m_owner!.GetInterface())!.I_WriteSaveData!(0x424D_454D, bm!.GetData()!, size) // 'BMEM'
+            i += 1
+        }
+
+        return 1
     }
 
     /**

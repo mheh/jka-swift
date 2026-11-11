@@ -677,8 +677,21 @@ func CM_LumpChecksum(_ lump: JKAMP.Lump) -> UInt32 {
 /// Source: oracle/codemp/qcommon/cm_load.cpp:544
 func CM_Checksum(_ header: Dheader) -> UInt32 {
     // Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port CM_Checksum
-    portMissing("CM_Checksum", source: "oracle/codemp/qcommon/cm_load.cpp:544")
+    // AI: Raven declares `unsigned checksums[16]` on his stack. The body uses the zeroed allocation of the storage class through the `checksums_CM_Checksum` forward.
+    checksums_CM_Checksum[0] = CM_LumpChecksum(header.lumps[LUMP_SHADERS])
+    checksums_CM_Checksum[1] = CM_LumpChecksum(header.lumps[LUMP_LEAFS])
+    checksums_CM_Checksum[2] = CM_LumpChecksum(header.lumps[LUMP_LEAFBRUSHES])
+    checksums_CM_Checksum[3] = CM_LumpChecksum(header.lumps[LUMP_LEAFSURFACES])
+    checksums_CM_Checksum[4] = CM_LumpChecksum(header.lumps[LUMP_PLANES])
+    checksums_CM_Checksum[5] = CM_LumpChecksum(header.lumps[LUMP_BRUSHSIDES])
+    checksums_CM_Checksum[6] = CM_LumpChecksum(header.lumps[LUMP_BRUSHES])
+    checksums_CM_Checksum[7] = CM_LumpChecksum(header.lumps[LUMP_MODELS])
+    checksums_CM_Checksum[8] = CM_LumpChecksum(header.lumps[LUMP_NODES])
+    checksums_CM_Checksum[9] = CM_LumpChecksum(header.lumps[LUMP_SURFACES])
+    checksums_CM_Checksum[10] = CM_LumpChecksum(header.lumps[LUMP_DRAWVERTS])
+
+    // LittleLong of the WinDed arm is its argument.
+    return Com_BlockChecksum(checksums_CM_Checksum.bytes, 11 * 4)
 }
 
 // called in response to a "devmapbsp blah" or "devmapall blah" command, do NOT use inside CM_Load unless you pass in qtrue

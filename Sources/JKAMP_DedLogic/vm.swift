@@ -72,8 +72,8 @@ func VM_SetSymbolMap(_ vm: Vm) {
 /// Source: oracle/codemp/qcommon/vm.cpp:37
 // Raven calls this function from no file of either tree, so it is dead.
 func VM_VM2C(_ p: vmptr_t, _ length: Int32) -> OpaquePointer? {
-    // TODO: Port VM_VM2C
-    portMissing("VM_VM2C", source: "oracle/codemp/qcommon/vm.cpp:37")
+    // AI: Raven casts the `int` to `void *`. The return is the opaque pointer of that bit pattern, and nil for zero.
+    return OpaquePointer(bitPattern: Int(p))
 }
 
 /// Source: oracle/codemp/qcommon/vm.cpp:41
@@ -1025,8 +1025,14 @@ Insert calls to this while debugging the vm compiler
 /// Source: oracle/codemp/qcommon/vm.cpp:934
 // Port-note: Raven calls this function only from comments of vm_interpreted.cpp and vm_x86.cpp, so it is dead.
 func VM_LogSyscalls(_ args: Slots<Int32>) {
-    // TODO: Port VM_LogSyscalls
-    portMissing("VM_LogSyscalls", source: "oracle/codemp/qcommon/vm.cpp:934")
+    if f == nil {
+        f = FileBackend.fopen("syscalls.log", "w")
+    }
+    callnum += 1
+    // AI: Raven prints with fprintf to the stream. The text formats with JKAShared.format, and FileBackend.fwrite writes its bytes.
+    // AI: Raven subtracts two `int *` pointers. The difference is the byte offset of `args` in the data block, over the size of an `int`.
+    let text = CharBuf(JKAShared.format("%i: %i (%i) = %i %i %i %i\n", [callnum, currentVM!.dataBase!.offset(of: args.bytes) / Int32(Int32.byteCount), args[0], args[1], args[2], args[3], args[4]]))
+    _ = FileBackend.fwrite(text, at: 0, 1, strlen(text), f)
 }
 
 /// Source: oracle/codemp/qcommon/vm.cpp:949

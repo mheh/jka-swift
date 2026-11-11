@@ -908,13 +908,11 @@ func Cvar_Init() {
 }
 
 /// Source: oracle/codemp/qcommon/cvar.cpp:965
-// TODO: Port signature
 // Raven wrote: static void Cvar_Realloc(char **string, char *memPool, int &memPoolUsed)
 // Not ported: the string pool holds every cvar string, so the memory pool it copies into does not exist, and Cvar_Defrag is a no-op.
 
 //Turns many small allocation blocks into one big one.
 /// Source: oracle/codemp/qcommon/cvar.cpp:979
 func Cvar_Defrag() {
-    // TODO: Port Cvar_Defrag
     // AI: Raven copies every cvar string into one Z_Malloc block. The string pool holds every string, so the defrag is a no-op.
 }

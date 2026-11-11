@@ -587,10 +587,37 @@ final class CCMLandScape {
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:862
     // AI: Raven fills the caller's `vec3_t coords[8]`. The parameter is the Slots over the vectors, the PARAMS kind `table` of a `vec3_t *`.
-    func GetTerxelLocalCoords(_ x: Int32, _ y: Int32, _ coords: Slots<JKAShared.vec3_t>) {
+    func GetTerxelLocalCoords(_ x: Int32, _ y: Int32, _ localCoords: Slots<JKAShared.vec3_t>) {
         // Raven's one call is in the comment block of UpdatePatches at cm_terrain.cpp:948, and no file of either tree calls it, so the function is dead.
-        // TODO: Port CCMLandScape::GetTerxelLocalCoords
-        portMissing("CCMLandScape::GetTerxelLocalCoords", source: "oracle/codemp/qcommon/cm_terrain.cpp:862")
+        var realWidth: Int32
+        var coords: Slots<JKAShared.vec3_t>?
+        var offsets = [Int32](repeating: 0, count: 4)
+        var i: Int32
+
+        coords = self.GetCoords()
+        realWidth = self.GetRealWidth()
+
+        if ((x + y) & 1) != 0 {
+            offsets[0] = (y * realWidth) + x				// TL
+            offsets[1] = (y * realWidth) + x + 1			// TR
+            offsets[2] = ((y + 1) * realWidth) + x			// BL
+            offsets[3] = ((y + 1) * realWidth) + x + 1		// BR
+        } else {
+            offsets[2] = (y * realWidth) + x				// TL
+            offsets[0] = (y * realWidth) + x + 1			// TR
+            offsets[3] = ((y + 1) * realWidth) + x			// BL
+            offsets[1] = ((y + 1) * realWidth) + x + 1		// BR
+        }
+
+        i = 0
+        while i < 4 {
+            localCoords[i] = coords![offsets[i]]
+            localCoords[i + 4] = coords![offsets[i]]
+
+            // Set z of base of brush to bottom of landscape brush
+            localCoords[i + 4][2] = self.GetMins()[2]
+            i += 1
+        }
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:39
@@ -728,15 +755,199 @@ final class CCMLandScape {
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1133
     func CarveLine(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ depth: Int32, _ width: Int32) {
         // Raven's one call is in CarveBezierCurve, which is dead, so the function is dead too.
-        // TODO: Port CCMLandScape::CarveLine
-        portMissing("CCMLandScape::CarveLine", source: "oracle/codemp/qcommon/cm_terrain.cpp:1133")
+        var x: Int32
+        var x1: Int32
+        var x2: Int32
+        var deltax: Int32
+        var y: Int32
+        var y1: Int32
+        var y2: Int32
+        var deltay: Int32
+        var xinc1: Int32
+        var xinc2: Int32
+        var yinc1: Int32
+        var yinc2: Int32
+        var den: Int32
+        var num: Int32
+        var count: Int32
+        var add: Int32
+        var i: Int32
+        var heightStart: Float
+        var heightEnd: Float
+        var heightStep: Float
+
+        x1 = Int32(start[0])
+        y1 = Int32(start[1])
+        x2 = Int32(end[0])
+        y2 = Int32(end[1])
+
+        deltax = abs(x2 - x1)
+        deltay = abs(y2 - y1)
+        x = x1
+        y = y1
+
+        // The x-values are increasing
+        if x2 >= x1 {
+            xinc1 = 1
+            xinc2 = 1
+        }
+        // The x-values are decreasing
+        else {
+            xinc1 = -1
+            xinc2 = -1
+        }
+
+        // The y-values are increasing
+        if y2 >= y1 {
+            yinc1 = 1
+            yinc2 = 1
+        }
+        // The y-values are decreasing
+        else {
+            yinc1 = -1
+            yinc2 = -1
+        }
+
+        if deltax >= deltay {         // There is at least one x-value for every y-value
+            xinc1 = 0                  // Don't change the x when numerator >= denominator
+            yinc2 = 0                  // Don't change the y for every iteration
+            den = deltax
+            num = deltax / 2
+            add = deltay
+            count = deltax				// There are more x-values than y-values
+        } else {                          // There is at least one y-value for every x-value
+            xinc2 = 0                  // Don't change the x for every iteration
+            yinc1 = 0                  // Don't change the y when numerator >= denominator
+            den = deltay
+            num = deltay / 2
+            add = deltax
+            count = deltay         // There are more y-values than x-values
+        }
+
+        var pt = JKAShared.vec3_t()
+        let bounds: [JKAShared.vec3_t] = [JKAShared.vec3_t(-1, -1, -1), JKAShared.vec3_t(1, 1, 1)]
+
+        pt[0] = start[0]
+        pt[1] = start[1]
+        _ = self.GetWorldHeight(&pt, bounds, false)
+        heightStart = pt[2]
+
+        pt[0] = end[0]
+        pt[1] = end[1]
+        _ = self.GetWorldHeight(&pt, bounds, false)
+        heightEnd = pt[2]
+
+        heightStep = (heightEnd - heightStart) / count
+
+        i = 0
+        while i <= count {
+            // Flatten the current location
+            let area = CArea()
+
+            // C converts the `int` coordinates to `float` at the stores, and the `int` radius to the `float` parameter.
+            pt[0] = Float(x)
+            pt[1] = Float(y)
+            area.Init(pt, Float(width / 2 + (self.irand(0, width / 2))))
+            // C converts the `float` height to the `int` parameter.
+            // Port-note: Raven converts a NaN height to `int` when `count` is 0, because `heightStep` is then 0/0 or infinite times 0, undefined.
+            // The Int32 conversion traps there, rule 19.
+            self.FlattenArea(area, Int32(heightStart + (heightStep * i) - (depth / 2 - (self.irand(0, depth / 2)))), false, true, true)
+
+            // Increase the numerator by the top of the fraction
+            num += add
+
+            if num >= den {
+                // Calculate the new numerator value
+                num -= den
+
+                // Change the x and y as appropriate
+                x += xinc1
+                y += yinc1
+            }
+
+            // Change the x and y as appropriate
+            x += xinc2
+            y += yinc2
+            i += 1
+        }
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1245
     func CarveBezierCurve(_ numCtlPoints: Int32, _ ctlPoints: Slots<JKAShared.vec3_t>, _ steps: Int32, _ depth: Int32, _ size: Int32) {
         // Raven calls this method only from CM_CarveBezierCurve, and no file of either tree calls that function, so the method is dead.
-        // TODO: Port CCMLandScape::CarveBezierCurve
-        portMissing("CCMLandScape::CarveBezierCurve", source: "oracle/codemp/qcommon/cm_terrain.cpp:1245")
+        var i: Int32
+        var choose: Int32
+        var n: Int32
+        var u: Float
+        var t: Float
+        var tt: Float
+        var t1: Float
+        var step: Float
+        var pt = JKAShared.vec3_t()
+        var lastpt = JKAShared.vec3_t()
+        var b = [JKAShared.vec3_t](repeating: JKAShared.vec3_t(), count: 10)
+
+        n = numCtlPoints - 1
+        choose = 1
+
+        i = 1
+        while i <= n {
+            if i == 1 {
+                choose = n
+            } else {
+                choose = choose * (n - i + 1) / i
+            }
+
+            ctlPoints[i][0] *= choose
+            ctlPoints[i][1] *= choose
+            i += 1
+        }
+
+        // C converts the `int` step count to `float` by the cast.
+        step = 1.0 / Float(steps)
+        choose = 0
+        t = step
+        while t < 1 {
+            b[0][0] = ctlPoints[0][0]
+            b[0][1] = ctlPoints[0][1]
+
+            u = t
+            i = 1
+            while i <= n {
+                // Port-note: Raven writes past `b[10]` when `numCtlPoints` is 11 or more, undefined.
+                // The Array index traps there, rule 19.
+                b[i][0] = ctlPoints[i][0] * u
+                b[i][1] = ctlPoints[i][1] * u
+
+                u = u * t
+                i += 1
+            }
+
+            pt[0] = b[n][0]
+            pt[1] = b[n][1]
+
+            t1 = 1 - t
+            tt = t1
+
+            i = n - 1
+            while i >= 0 {
+                pt[0] += b[i][0] * tt
+                pt[1] += b[i][1] * tt
+
+                tt = tt * t1
+                i -= 1
+            }
+
+            if choose != 0 {
+                self.CarveLine(lastpt, pt, depth, size)
+            }
+
+            // Save this point for next time around
+            lastpt[0] = pt[0]
+            lastpt[1] = pt[1]
+            t += step
+            choose += 1
+        }
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1128
@@ -747,8 +958,40 @@ final class CCMLandScape {
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1379
     func FractionBelowLevel(_ area: CArea?, _ height: Int32) -> Float {
         // Raven calls this method only from CM_FractionBelowLevel, and no file of either tree calls that function, so the method is dead.
-        // TODO: Port CCMLandScape::FractionBelowLevel
-        portMissing("CCMLandScape::FractionBelowLevel", source: "oracle/codemp/qcommon/cm_terrain.cpp:1379")
+        var temp = JKAShared.vec3_t()
+        var icoords = [Int32](repeating: 0, count: 3)
+        var count: Int32
+        var level: Float
+
+        // Work out coords in the heightmap
+        temp = area!.GetPosition() - self.mBounds[0]
+        // Raven's VectorInverseScaleVector macro of q_shared.h expands here, because the port has no function for an `ivec3_t`.
+        // C converts each `float` quotient to the `int` slot at the store.
+        icoords[0] = Int32(temp[0] / self.mTerxelSize[0])
+        icoords[1] = Int32(temp[1] / self.mTerxelSize[1])
+        icoords[2] = Int32(temp[2] / self.mTerxelSize[2])
+
+        // Work out radius of area in heightmap entries
+        // C converts the `float` quotient to the `int` local at the store.
+        count = Int32(area!.GetRadius() / self.mTerxelSize[1])
+
+        // AI: Raven declares `ivec3_t info` on his stack. The body uses the zeroed allocation of the storage class through the `info_FractionBelowLevel` forward.
+        info_FractionBelowLevel[0] = 0
+        info_FractionBelowLevel[1] = 0
+
+        info_FractionBelowLevel[2] = height
+        if height < 0 {
+            info_FractionBelowLevel[2] = self.mBaseWaterHeight
+        }
+        CM_CircularIterate(self.mHeightMap!, self.GetRealWidth(), self.GetRealHeight(), icoords[0], icoords[1], 0, count, info_FractionBelowLevel, CM_BelowLevel)
+
+        level = 0.0
+        if info_FractionBelowLevel[1] != 0 {
+            // C converts the `int` count to `float` by the cast.
+            level = Float(info_FractionBelowLevel[0]) / info_FractionBelowLevel[1]
+        }
+
+        return (level)
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1488
@@ -816,15 +1059,38 @@ final class CCMLandScape {
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1422
     func GetFirstObjectiveArea() -> CArea? {
         // Raven calls this method only from CM_GetFirstObjectiveArea, and no file of either tree calls that function, so the method is dead.
-        // TODO: Port CCMLandScape::GetFirstObjectiveArea
-        portMissing("CCMLandScape::GetFirstObjectiveArea", source: "oracle/codemp/qcommon/cm_terrain.cpp:1422")
+        if self.mAreas.count == 0 {
+            return (nil)
+        }
+        self.mAreasIt = 0
+
+        while self.mAreasIt != self.mAreas.count {
+            // run through the areas to find the player area
+            if self.mAreas[self.mAreasIt]!.GetType() == AT_OBJECTIVE {
+                return (self.mAreas[self.mAreasIt])
+            }
+            self.mAreasIt += 1
+        }
+        return (nil)
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1442
     func GetPlayerArea() -> CArea? {
         // Raven calls this method only from CM_GetPlayerArea, and no file of either tree calls that function, so the method is dead.
-        // TODO: Port CCMLandScape::GetPlayerArea
-        portMissing("CCMLandScape::GetPlayerArea", source: "oracle/codemp/qcommon/cm_terrain.cpp:1442")
+        // do me
+        if self.mAreas.count == 0 {
+            return (nil)
+        }
+        self.mAreasIt = 0
+
+        while self.mAreasIt != self.mAreas.count {
+            // run through the areas to find the player area
+            if self.mAreas[self.mAreasIt]!.GetType() == AT_PLAYER {
+                return (self.mAreas[self.mAreasIt])
+            }
+            self.mAreasIt += 1
+        }
+        return (nil)
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1462
@@ -839,8 +1105,18 @@ final class CCMLandScape {
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1472
     func GetNextObjectiveArea() -> CArea? {
         // Raven calls this method only from CM_GetNextObjectiveArea, and no file of either tree calls that function, so the method is dead.
-        // TODO: Port CCMLandScape::GetNextObjectiveArea
-        portMissing("CCMLandScape::GetNextObjectiveArea", source: "oracle/codemp/qcommon/cm_terrain.cpp:1472")
+        // Port-note: Raven increments the end iterator of `mAreas` when the last call returned NULL, undefined.
+        // The Array index traps past the end there, rule 19.
+        self.mAreasIt += 1
+
+        while self.mAreasIt != self.mAreas.count {
+            // run through the areas to find the player area
+            if self.mAreas[self.mAreasIt]!.GetType() == AT_OBJECTIVE {
+                return (self.mAreas[self.mAreasIt])
+            }
+            self.mAreasIt += 1
+        }
+        return (nil)
     }
 
     // Accessors
