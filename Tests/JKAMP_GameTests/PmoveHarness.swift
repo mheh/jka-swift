@@ -1,20 +1,25 @@
 import Foundation
 import JKATestSupport
 @testable import JKAMP_BG
+@testable import JKAMP_GameLogic
 import JKAMP
+import JKAMP_Game
 import JKAShared
 
 /// This is one pmove dumper the harness copies.
 /// The cases share the world, the fixture grammar, the file stub, and the step loop, and they differ in the weapon and the pins.
 ///
 /// - `melee`: `main_pmove.c`, the player holds `WP_MELEE`, and the fixtures are in `fixtures/pmove`.
+/// - `saber`: `main_pmove_saber.c`, the player holds a lit `WP_SABER` in the medium style, and the fixtures are in `fixtures/pmove_saber`.
 enum PmoveSlice: Sendable {
     case melee
+    case saber
 }
 
 /// This type drives the ported `Pmove` over one scenario fixture, as the pmove dumpers drive Raven's `Pmove`.
-/// The world, the anim mirror, and `bg` are process globals, so a test runs the harness in a child process.
-/// The test target runs other suites at the same time, and some of them assign `bg`.
+/// The dumpers link Raven's game code with `-DQAGAME` and a zeroed `g_entities`, so the harness installs the game's bg channel over a fresh `GameWorld`.
+/// The test world, `bg`, `world`, and `rng` are process globals, so a test runs the harness in a child process.
+/// The test targets run other suites at the same time, and some of them assign `bg`.
 ///
 /// Source: jka-rust/tools/jampgame-oracle/main_pmove.c:322
 enum PmoveHarness {
@@ -23,13 +28,6 @@ enum PmoveHarness {
     /// The test world that the C trace and point functions of the `Pmove` read.
     /// A `@convention(c)` function captures nothing, so the world is a global.
     nonisolated(unsafe) static var world = PmoveWorld()
-
-    /// The legs anim of entity 0 from the frame before, which the restart check of `BG_StartLegsAnim` reads.
-    /// Source: jka-rust/tools/jampgame-oracle/main_pmove.c:25
-    nonisolated(unsafe) static var legsMirror: Int32 = 0
-
-    /// The torso anim of entity 0 from the frame before, which the restart check of `BG_StartTorsoAnim` reads.
-    nonisolated(unsafe) static var torsoMirror: Int32 = 0
 
     /// This line comes before the rebuilt text on the standard output of the child process.
     static let beginMarker = "<<pmove-harness-begin>>\n"
@@ -61,6 +59,9 @@ extension PmoveSlice {
         switch self {
         case .melee:
             return "pmove"
+
+        case .saber:
+            return "pmove_saber"
         }
     }
 
@@ -69,6 +70,9 @@ extension PmoveSlice {
         switch self {
         case .melee:
             return WP_MELEE
+
+        case .saber:
+            return WP_SABER
         }
     }
 }
@@ -76,16 +80,18 @@ extension PmoveSlice {
 // MARK: - The state of one scenario
 
 extension PmoveHarness {
-    /// This gives `bg`, `rng`, the world, and the mirror their first values, and installs the straps the `Pmove` path reaches.
+    /// This gives `bg`, `world`, `rng`, and the test world their first values, and installs the game's bg channel.
     /// The dumper runs one process for each scenario, so each scenario starts from a fresh state.
-    /// Every other strap and callback keeps its default, which traps as the dumper's `abort()` stubs do.
+    /// The game's channel reads the zeroed `g_entities` of the fresh `GameWorld`, as Raven's game code reads the dumper's zeroed array.
+    /// The harness then puts its own file stub and `trap_SnapVector` over the engine traps, as the dumper does.
+    /// Every other engine trap stays the game's, and it traps with no transport, as the dumper's `abort()` stubs do.
     /// Source: jka-rust/tools/jampgame-oracle/main_pmove.c:114
     static func install(_ slice: PmoveSlice) {
         bg = BgState(consumer: .game, maxPoolSize: 3_000_000)
+        JKAMP_GameLogic.world = GameWorld()
         rng = Rng()
         Self.world = PmoveWorld()
-        Self.legsMirror = 0
-        Self.torsoMirror = 0
+        installBgChannel()
 
         let files = FixtureFiles(folder: slice.folder)
         bg.straps.trap_FS_FOpenFile = { qpath, handle, mode in
@@ -101,8 +107,6 @@ extension PmoveHarness {
         bg.straps.trap_SnapVector = { v in
             v = v.rounded(.toNearestOrEven)
         }
-        bg.callbacks.bgEntityLegsAnim = { _ in Self.legsMirror }
-        bg.callbacks.bgEntityTorsoAnim = { _ in Self.torsoMirror }
         // The dumper's `Com_Printf` writes to standard error, and the standard output carries only the rebuilt text.
         bg.print = { _ in }
     }
@@ -137,6 +141,15 @@ extension PmoveHarness {
         ps.commandTime = 0
         ps.legsAnim = 0
         ps.torsoAnim = 0
+
+        guard slice == .saber else { return }
+        // The saber pins: one saber in the medium style, lit and in the hand.
+        // Source: jka-rust/tools/jampgame-oracle/main_pmove_saber.c:312
+        ps.fd.saberAnimLevel = SS_MEDIUM
+        ps.fd.saberAnimLevelBase = SS_MEDIUM
+        ps.saberEntityNum = 1 // nonzero, so PM_GetSaberStance gives a real stance
+        ps.saberHolstered = 0 // sabers on, so BG_SabersOff is false
+        ps.saberMove = 0 // LS_NONE, which settles to LS_READY on step 1
     }
 
     /// This applies one `ps` row, the field name and its values, through the override table of the dumper.
@@ -195,6 +208,29 @@ extension PmoveHarness {
         case "clientNum":
             ps.clientNum = int(0)
 
+        // The saber slice adds these fields to the table.
+        // Source: jka-rust/tools/jampgame-oracle/main_pmove_saber.c:264
+        case "saberEntityNum" where slice == .saber:
+            ps.saberEntityNum = int(0)
+
+        case "saberMove" where slice == .saber:
+            ps.saberMove = int(0)
+
+        case "saberHolstered" where slice == .saber:
+            ps.saberHolstered = int(0)
+
+        case "saberBlocked" where slice == .saber:
+            ps.saberBlocked = int(0)
+
+        case "saberInFlight" where slice == .saber:
+            ps.saberInFlight = int(0) != 0
+
+        case "saberAnimLevel" where slice == .saber:
+            ps.fd.saberAnimLevel = int(0)
+
+        case "saberAnimLevelBase" where slice == .saber:
+            ps.fd.saberAnimLevelBase = int(0)
+
         default:
             // The dumper ends with an error at a name that is not in its table.
             throw HarnessError.unknownField(tok[0])
@@ -218,18 +254,16 @@ extension PmoveHarness {
 
         let rows = try PmoveFixture.rows(OracleData.fixture("\(slice.folder)/\(name).txt"))
 
-        // The zeroed `playerState_t`, `pmove_t`, and `g_entities` of the dumper.
+        // The zeroed `playerState_t` and `pmove_t` of the dumper, and entity 0 of the zeroed `g_entities`.
         let psBlock = Self.zeroed(JKAMP.PlayerState.byteCount)
         let moveBlock = Self.zeroed(JKAMP.Pmove.byteCount)
-        let entityBlock = Self.zeroed(JKAMP.BgEntity.byteCount * Int(MAX_GENTITIES))
         defer {
             psBlock.deallocate()
             moveBlock.deallocate()
-            entityBlock.deallocate()
         }
         let ps = JKAMP.PlayerState(handle: OpaquePointer(psBlock))
         let move = JKAMP.Pmove(handle: OpaquePointer(moveBlock))
-        let entity = JKAMP.BgEntity(handle: OpaquePointer(entityBlock))
+        let entity = g_entities[0]
 
         Self.baseline(ps, slice)
 
@@ -249,8 +283,8 @@ extension PmoveHarness {
         }
         move.tracemask = Int32(MASK_PLAYERSOLID)
         move.animations = bgHumanoidAnimations[0]
-        move.baseEnt = entity
-        move.entSize = Int32(JKAMP.BgEntity.byteCount)
+        move.baseEnt = JKAMP.BgEntity(handle: entity.handle)
+        move.entSize = Int32(Entity.byteCount)
         move.gametype = 0
 
         var out = "-- scenario \(name) --\n"
@@ -309,11 +343,9 @@ extension PmoveHarness {
         return out
     }
 
-    /// This copies the legs and torso anims of the ps to the mirror and to entity 0.
+    /// This copies the legs and torso anims of the ps to entity 0, where the restart check of `BG_StartLegsAnim` reads them.
     /// Source: jka-rust/tools/jampgame-oracle/main_pmove.c:412
-    static func mirror(_ ps: JKAMP.PlayerState, _ entity: JKAMP.BgEntity) {
-        Self.legsMirror = ps.legsAnim
-        Self.torsoMirror = ps.torsoAnim
+    static func mirror(_ ps: JKAMP.PlayerState, _ entity: Entity) {
         entity.s.legsAnim = ps.legsAnim
         entity.s.torsoAnim = ps.torsoAnim
     }
