@@ -22,11 +22,9 @@ let SIDE_RED = 2 as Int32
 final class CRMMission {
     // AI: Raven declares a `list<CRMObjective *>`. The field is an Array of the optional class, rule 17.
     private var mObjectives: [CRMObjective?] = []
-    // TODO: Port mInstances
-    // Raven wrote: rmInstanceList_t		mInstances;
+    private var mInstances: rmInstanceList_t = []
 
-    // TODO: Port mInstanceFile
-    // Raven wrote: CRMInstanceFile			mInstanceFile;
+    private let mInstanceFile = CRMInstanceFile()
     private var mCurrentObjective: CRMObjective? = nil
 
     private var mValidNodes: Bool = false
@@ -126,9 +124,8 @@ final class CRMMission {
         self.mObjectives.removeAll()
 
         // Cleanup the instances
-        // Port-note: The class holds no `mInstances`, because CRMInstance has no Swift class, because the repo has no form for its virtual hierarchy.
-        // Raven wrote: for (iit = mInstances.begin(); iit != mInstances.end(); iit++) { delete (*iit); }
-        portMissing("CRMMission::~CRMMission", source: "oracle/codemp/RMG/RM_Mission.cpp:85")
+        // AI: Raven deletes each instance through the iterator. The clear of the Array releases each instance, and its deinit runs Raven's destructor.
+        self.mInstances.removeAll()
 
         // AI: Raven deletes the path manager and the area manager. Setting each field to nil frees it.
         self.mPathManager = nil
@@ -137,21 +134,201 @@ final class CRMMission {
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:1362
     func Load(_ mission: String, _ instances: String, _ difficulty: String) -> Bool {
-        // TODO: Port CRMMission::Load
-        portMissing("CRMMission::Load", source: "oracle/codemp/RMG/RM_Mission.cpp:1362")
+        let parser = CGenericParser2()
+        let root: CGPGroup?
+
+        // Create the parser for the mission file
+        if !Com_ParseTextFile(va("ext_data/rmg/%s.mission", mission), parser) {
+            if !Com_ParseTextFile(va("ext_data/arioche/%s.mission", mission), parser) {
+                Com_Printf("ERROR: Failed to open mission file '%s'\n", mission)
+                return false
+            }
+        }
+
+        // Grab the root parser groop and make sure its mission, otherwise this
+        // isnt a valid mission file
+        root = parser.GetBaseParseGroup().GetSubGroups()
+        // Port-note: Raven calls GetName through NULL when the file holds no root group, undefined.
+        // The unwrap traps there, rule 19.
+        if Q_stricmp(root!.GetName(), "mission") != 0 {
+            Com_Printf("ERROR: '%s' is not a valid mission file\n", mission)
+            parser.Clean()
+            return false
+        }
+
+        // Grab the mission description and set the cvar for it
+        self.mDescription = root!.FindPairValue("description", "<MISSION DESCRIPTION MISSING>")!
+        //	Cvar_Set("ar_obj_main0",mDescription.c_str(), CVAR_OBJECTIVE);
+        //	Cvar_Set("ar_obj_maincom0", "&OBJECTIVES_INPROGRESS&", CVAR_OBJECTIVE);
+        //	Cvar_SetValue ("ar_cur_objective", 0, CVAR_OBJECTIVE);
+
+        // AI: Raven reads the "info" pair into the local `mInfo` that no line reads. The local drops.
+        //	Cvar_Set("ar_obj_info0",mInfo.c_str(), CVAR_OBJECTIVE);
+
+        self.mExitScreen = root!.FindPairValue("exitScreen", "<EXIT SCREEN MISSING>")!
+        self.mTimeExpiredScreen = root!.FindPairValue("TimeExpiredScreen", "<TIME EXPIRED SCREEN MISSING>")!
+
+        // Open the instance file for the specified instances
+        if !self.mInstanceFile.Open(instances) {
+            Com_Printf("ERROR: Could not open instance file '%s'\n", instances)
+            return false
+        }
+
+        // Start at one and readjust each time we see and instance
+        // with a higher value
+        self.mMaxInstancePosition = 1
+
+        // Now parse the specified difficulty level
+        if !self.ParseDifficulty(root!.FindSubGroup(difficulty)) {
+            return false
+        }
+
+        // Generate the terrain now
+        self.mLandScape!.Generate(self.mSymmetric)
+
+        // Cleanup
+        parser.Clean()
+
+        return true
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:1438
     @discardableResult
     func Spawn(_ terrain: CRandomTerrain?, _ IsServer: Bool) -> Bool {
-        // TODO: Port CRMMission::Spawn
-        portMissing("CRMMission::Spawn", source: "oracle/codemp/RMG/RM_Mission.cpp:1438")
+        var areaIndex: Int32
+        var area: CRMArea?
+
+        if IsServer {
+            // Prespawn all instances, this is mainly for flattening
+            for instance in self.mInstances {
+                // Pre-Spawn
+                instance.PreSpawn(terrain, IsServer)
+
+                if self.mSymmetric != 0 {
+                    instance.SetMirror(1)
+                    instance.PreSpawn(terrain, IsServer)
+                    instance.SetMirror(0)
+                }
+            }
+
+            self.mLandScape!.Smooth()
+
+            // place bridges
+            self.PlaceBridges()
+        }
+        // Raven copies the height map, the flatten map, and the seed of the client here under `#ifndef DEDICATED`, so the dedicated build has no line.
+
+        self.mLandScape!.GetLandScape()!.UpdatePatches()
+
+        if IsServer {
+            // Spawn all instances
+            for instance in self.mInstances {
+                // Spawn
+                instance.Spawn(terrain, IsServer)
+                instance.PostSpawn(terrain, IsServer)
+
+                if self.mSymmetric != 0 {
+                    // spawn the mirror version
+                    instance.SetMirror(1)
+                    instance.Spawn(terrain, IsServer)
+                    instance.PostSpawn(terrain, IsServer)
+                    instance.SetMirror(0)
+                }
+            }
+        }
+
+        // create automap
+        if com_dedicated!.integer == 0 {
+            // Raven creates the automap here under `#ifndef DEDICATED`, so the dedicated build has no line.
+        }
+
+        // make sure to write out after the mirror happens so red side is displayed on map
+        if 1 == Cvar_VariableIntegerValue("rmg_saveautomap") {
+            // write out automap for test purposes
+            var seed = CharBuf(MAX_QPATH)
+            var terrainName = CharBuf(MAX_QPATH)
+            var missionName = CharBuf(MAX_QPATH)
+            Cvar_VariableStringBuffer("RMG_seed", &seed, MAX_QPATH)
+            Cvar_VariableStringBuffer("RMG_terrain", &terrainName, MAX_QPATH)
+            Cvar_VariableStringBuffer("RMG_mission", &missionName, MAX_QPATH)
+
+            // Raven draws each automap symbol and saves the automap image here under `#ifndef DEDICATED`, so the dedicated build has no line.
+            // Raven writes `return false` after this call, which `Com_Error` never reaches.
+            Com_Error(ERR_DROP, "RMG Automap written.")
+        }
+
+        //	// draw player start on automap
+        //	CEntity	*spot = NULL;
+        //	spot = entitySystem->GetEntityFromClassname( spot, "info_player_start");
+        //	if (spot)
+        //	{
+        //		gi.CM_TM_AddStart(spot->GetOrigin()[0], spot->GetOrigin()[1]);
+        //	}
+
+        // Spawn NPC triggers now
+        //	SpawnNPCTriggers ( mLandScape );
+
+        // Restory all the NPC's accuracies to the template accuracies times the
+        // multiplier
+        //	INPCEnt::RestoreTemplate ( mAccuracyMultiplier, mHealthMultiplier );
+
+        if IsServer {
+            // Little trick to set the current objective to the first in the list
+            self.CompleteObjective(nil)
+
+            // Iterate through the areas and add each to the landscapes list, this is sorta hacky
+            // but bridges the game / common gap
+            areaIndex = 0
+            area = self.mAreaManager!.EnumArea(areaIndex)
+            while nil != area {
+                // Dont bother adding it to the list if collision isnt enabled
+                if !area!.IsCollisionEnabled() {
+                    areaIndex += 1
+                    area = self.mAreaManager!.EnumArea(areaIndex)
+                    continue
+                }
+
+                let newarea = CArea()
+                newarea.Init(area!.GetOrigin(), area!.GetSpacingRadius(), 0, area!.IsFlattened() ? AT_FLAT : AT_NONE)
+                self.mLandScape!.GetLandScape()!.SaveArea(newarea)
+
+                if self.mSymmetric != 0 {
+                    let newarea = CArea()
+                    newarea.Init(area!.GetOrigin(), area!.GetSpacingRadius(), 0, area!.IsFlattened() ? AT_FLAT : AT_NONE)
+                    newarea.mPosition[0] = self.mLandScape!.GetBounds()[0][0] + self.mLandScape!.GetBounds()[1][0] - newarea.GetPosition()[0]
+                    newarea.mPosition[1] = self.mLandScape!.GetBounds()[0][1] + self.mLandScape!.GetBounds()[1][1] - newarea.GetPosition()[1]
+                    self.mLandScape!.GetLandScape()!.SaveArea(newarea)
+                }
+                areaIndex += 1
+                area = self.mAreaManager!.EnumArea(areaIndex)
+            }
+
+            self.mInstanceFile.Close()
+        }
+
+        return true
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:1711
     func Preview(_ from: JKAShared.vec3_t) {
-        // TODO: Port CRMMission::Preview
-        portMissing("CRMMission::Preview", source: "oracle/codemp/RMG/RM_Mission.cpp:1711")
+        // Look for settlements close to the player and put up some debug stuff
+        for instance in self.mInstances {
+            var a = JKAShared.vec3_t()
+            var b = JKAShared.vec3_t()
+
+            _VectorCopy(from, &a)
+            _VectorCopy(instance.GetOrigin(), &b)
+
+            a[2] = 0
+            b[2] = 0
+
+            // Skip stuff thats too far away
+            if Distance(a, b) > 2000 {
+                continue
+            }
+
+            instance.Preview(from)
+        }
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:128
@@ -356,6 +533,7 @@ final class CRMMission {
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:163
+    @discardableResult
     private func ParseOrigin(_ originGroup: CGPGroup?, _ origin: inout JKAShared.vec3_t, _ lookat: inout JKAShared.vec3_t, _ flattenHeight: inout Int32) -> Bool {
         let szNodeName: String
         var mins = JKAShared.vec3_t()
@@ -534,17 +712,105 @@ final class CRMMission {
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:379
     private func PlaceBridges() {
-        // TODO: Port CRMMission::PlaceBridges
-        portMissing("CRMMission::PlaceBridges", source: "oracle/codemp/RMG/RM_Mission.cpp:379")
+        if !self.mValidRivers || strlen(self.mPathManager!.GetBridgeName()) < 1 {
+            return
+        }
+
+        var max_bridges: Int32 = 0
+        var path: Int32
+        var t: Float
+        let river_depth = self.mLandScape!.GetLandScape()!.GetWaterHeight()
+        var pos = JKAShared.vec3_t()
+        var lastpos = JKAShared.vec3_t()
+        var bounds: [JKAShared.vec3_t] = [JKAShared.vec3_t(), JKAShared.vec3_t()]
+        bounds[0] = JKAShared.vec3_t(0, 0, 0)
+        bounds[1] = JKAShared.vec3_t(0, 0, 0)
+
+        // walk along paths looking for dips
+        path = 0
+        while path < self.mPathManager!.GetPathCount() {
+            var tmp_pt = JKAShared.vec4_t()
+            var tmp_dir = JKAShared.vec4_t()
+            var new_water = true
+
+            self.mLandScape!.GetPathInfo(path, 0, &tmp_pt, &tmp_dir)
+            lastpos[0] = self.mLandScape!.GetBounds()[0][0] + (self.mLandScape!.GetBounds()[1][0] - self.mLandScape!.GetBounds()[0][0]) * tmp_pt[0]
+            lastpos[1] = self.mLandScape!.GetBounds()[0][1] + (self.mLandScape!.GetBounds()[1][1] - self.mLandScape!.GetBounds()[0][1]) * tmp_pt[1]
+            lastpos[2] = self.mLandScape!.GetBounds()[0][2] + (self.mLandScape!.GetBounds()[1][2] - self.mLandScape!.GetBounds()[0][2]) * tmp_pt[2]
+            _ = self.mLandScape!.GetLandScape()!.GetWorldHeight(&lastpos, bounds, true)
+
+            let delta: Float = 0.05
+            t = delta
+            while t < 1.0 {
+                self.mLandScape!.GetPathInfo(path, t, &tmp_pt, &tmp_dir)
+                pos[0] = self.mLandScape!.GetBounds()[0][0] + (self.mLandScape!.GetBounds()[1][0] - self.mLandScape!.GetBounds()[0][0]) * tmp_pt[0]
+                pos[1] = self.mLandScape!.GetBounds()[0][1] + (self.mLandScape!.GetBounds()[1][1] - self.mLandScape!.GetBounds()[0][1]) * tmp_pt[1]
+                pos[2] = self.mLandScape!.GetBounds()[0][2] + (self.mLandScape!.GetBounds()[1][2] - self.mLandScape!.GetBounds()[0][2]) * tmp_pt[2]
+                _ = self.mLandScape!.GetLandScape()!.GetWorldHeight(&pos, bounds, true)
+
+                if new_water &&
+                    lastpos[2] < river_depth &&
+                    pos[2] < river_depth &&
+                    pos[2] > lastpos[2] {
+                    // add a bridge
+                    if max_bridges < 3 {
+                        let area: CRMArea?
+                        let instance: CRMInstance?
+
+                        max_bridges += 1
+
+                        // create a single bridge
+                        lastpos[2] = self.mLandScape!.GetBounds()[0][2] + (self.mLandScape!.GetBounds()[1][2] - self.mLandScape!.GetBounds()[0][2]) * self.mPathManager!.GetPathDepth()
+                        instance = self.mInstanceFile.CreateInstance(self.mPathManager!.GetBridgeName())
+
+                        if nil != instance {
+                            // Set the area
+                            // C converts the `int` padding to the `float` parameter.
+                            area = self.mAreaManager!.CreateArea(&lastpos, instance!.GetSpacingRadius(), instance!.GetSpacingLine(), Float(self.GetDefaultPadding()), 0, vec3_origin, pos, instance!.GetFlattenRadius() != 0 ? true : false, false, instance!.GetLockOrigin())
+                            area!.EnableLookAt(false)
+
+                            instance!.SetArea(self.mAreaManager, area)
+                            self.mInstances.append(instance!)
+                            new_water = false
+                        }
+                    }
+                } else if pos[2] > river_depth {
+                    // hit land again
+                    new_water = true
+                }
+                _VectorCopy(pos, &lastpos)
+                t += delta
+            }
+            path += 1
+        }
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:450
-    // TODO: Port signature
-    // Raven wrote: void CRMMission::PlaceWallInstance(CRMInstance*	instance, float xpos, float ypos, float zpos, int x, int y, float angle)
-    // No table row for `CRMInstance* instance`.
-    private func PlaceWallInstance() -> Never {
-        // TODO: Port CRMMission::PlaceWallInstance
-        portMissing("CRMMission::PlaceWallInstance", source: "oracle/codemp/RMG/RM_Mission.cpp:450")
+    private func PlaceWallInstance(_ instance: CRMInstance?, _ xpos: Float, _ ypos: Float, _ zpos: Float, _ x: Int32, _ y: Int32, _ angle: Float) {
+        if nil == instance {
+            return
+        }
+
+        let spacing = instance!.GetSpacingRadius()
+        let area: CRMArea?
+        var origin = JKAShared.vec3_t()
+
+        // C converts each `int` cell to `float` at the multiply.
+        origin[0] = xpos + spacing * Float(x)
+        origin[1] = ypos + spacing * Float(y)
+        origin[2] = zpos
+
+        // Set the area of position
+        // AI: Raven passes `origin` as the origin that CreateArea moves and as the look-at origin.
+        // The call passes a copy as the look-at origin, because the inout parameter cannot alias it, and MoveArea writes the origin only for a symmetric area.
+        let lookAtOrigin = origin
+        // C converts the `int` padding to the `float` parameter.
+        area = self.mAreaManager!.CreateArea(&origin, (spacing / 2.1), 0, Float(self.GetDefaultPadding()), 0, vec3_origin, lookAtOrigin, instance!.GetFlattenRadius() != 0 ? true : false, false, instance!.GetLockOrigin())
+        area!.EnableLookAt(false)
+        area!.SetAngle(angle)
+        instance!.SetArea(self.mAreaManager, area)
+
+        self.mInstances.append(instance!)
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:1236
@@ -794,8 +1060,70 @@ final class CRMMission {
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:886
     @discardableResult
     private func ParseInstance(_ group: CGPGroup?) -> Bool {
-        // TODO: Port CRMMission::ParseInstance
-        portMissing("CRMMission::ParseInstance", source: "oracle/codemp/RMG/RM_Mission.cpp:886")
+        let area: CRMArea?
+        let instance: CRMInstance?
+        let spacing: Float
+        var origin = JKAShared.vec3_t()
+        // Port-note: Raven reads `lookat` uninitialized below when the group has no "origin" sub group, because ParseOrigin then writes only `origin`, undefined.
+        // The local starts at zero, rule 19.
+        var lookat = JKAShared.vec3_t()
+        var flattenHeight: Int32 = 0
+
+        // create fences / walls
+
+        // Create the instance using the instance file helper class
+        instance = self.mInstanceFile.CreateInstance(group!.GetName())
+
+        // Failed to create, not good
+        if nil == instance {
+            return false
+        }
+
+        // If a spacing radius was specified then override the one thats
+        // in the instance
+        spacing = Float(atof(group!.FindPairValue("spacing", "0")!))
+        if spacing != 0 {
+            instance!.SetSpacingRadius(spacing)
+        }
+
+        instance!.SetFilter(group!.FindPairValue("filter", "")!)
+        instance!.SetTeamFilter(group!.FindPairValue("teamfilter", "")!)
+
+        if strstr(instance!.GetTeamFilter(), "red") != nil {
+            instance!.SetSide(SIDE_RED)
+        } else if strstr(instance!.GetTeamFilter(), "blue") != nil {
+            instance!.SetSide(SIDE_BLUE)
+        }
+
+        //	ParseWallRect(group, instance->GetSide());
+
+        // Get its origin now
+        self.ParseOrigin(group!.FindSubGroup("origin"), &origin, &lookat, &flattenHeight)
+        origin[0] = self.mLandScape!.GetBounds()[0][0] + (self.mLandScape!.GetBounds()[1][0] - self.mLandScape!.GetBounds()[0][0]) * origin[0]
+        origin[1] = self.mLandScape!.GetBounds()[0][1] + (self.mLandScape!.GetBounds()[1][1] - self.mLandScape!.GetBounds()[0][1]) * origin[1]
+        origin[2] = self.mLandScape!.GetBounds()[0][2] + (self.mLandScape!.GetBounds()[1][2] - self.mLandScape!.GetBounds()[0][2]) * origin[2]
+
+        lookat[0] = self.mLandScape!.GetBounds()[0][0] + (self.mLandScape!.GetBounds()[1][0] - self.mLandScape!.GetBounds()[0][0]) * lookat[0]
+        lookat[1] = self.mLandScape!.GetBounds()[0][1] + (self.mLandScape!.GetBounds()[1][1] - self.mLandScape!.GetBounds()[0][1]) * lookat[1]
+        lookat[2] = self.mLandScape!.GetBounds()[0][2] + (self.mLandScape!.GetBounds()[1][2] - self.mLandScape!.GetBounds()[0][2]) * lookat[2]
+
+        // Fixed height?  (used for bridges)
+        if atoi(group!.FindPairValue("nodrop", "0")!) == 0 {
+            origin[2] = self.mLandScape!.GetBounds()[1][2] + 100
+        }
+
+        // Set the area of position
+        // C converts the `int` padding to the `float` parameter.
+        area = self.mAreaManager!.CreateArea(&origin, instance!.GetSpacingRadius(), instance!.GetSpacingLine(), Float(self.GetDefaultPadding()), 0, vec3_origin, lookat, instance!.GetFlattenRadius() != 0 ? true : false, true, instance!.GetLockOrigin(), self.mSymmetric)
+        instance!.SetArea(self.mAreaManager, area)
+        instance!.SetFlattenHeight(flattenHeight)
+
+        self.mInstances.append(instance!)
+
+        // create defenses?
+        self.ParseInstancesOnPath(group)
+
+        return true
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:966
@@ -820,15 +1148,380 @@ final class CRMMission {
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:737
+    @discardableResult
     private func ParseInstancesOnPath(_ group: CGPGroup?) -> Bool {
-        // TODO: Port CRMMission::ParseInstancesOnPath
-        portMissing("CRMMission::ParseInstancesOnPath", source: "oracle/codemp/RMG/RM_Mission.cpp:737")
+        var defenseGroup: CGPGroup?
+        defenseGroup = group!.GetSubGroups()
+        while defenseGroup != nil {
+            if Q_stricmp(defenseGroup!.GetName(), "defenses") == 0 ||
+                Q_stricmp(defenseGroup!.GetName(), "instanceonpath") == 0 {
+                let defName = defenseGroup!.FindPairValue("instance", "")!
+                if strlen(defName) != 0 {
+                    let minpos: Float
+                    let maxpos: Float
+                    let mincount: Int32
+                    let maxcount: Int32
+
+                    // how far along path does this get placed?
+                    minpos = Float(atof(defenseGroup!.FindPairValue("minposition", "0.5")!))
+                    maxpos = Float(atof(defenseGroup!.FindPairValue("maxposition", "0.5")!))
+                    mincount = atoi(defenseGroup!.FindPairValue("mincount", "1")!)
+                    maxcount = atoi(defenseGroup!.FindPairValue("maxcount", "1")!)
+
+                    let nodename: String
+                    let originGroup = group!.FindSubGroup("origin")
+                    if originGroup != nil {
+                        nodename = originGroup!.FindPairValue("node", "")!
+                        if strlen(nodename) != 0 {
+                            let node: CRMNode?
+                            // Find the node being attached to
+                            node = self.mPathManager!.FindNodeByName(nodename)
+                            if node != nil {
+                                var dir: Int32
+                                // look at each connection from this node to others, if there is a path, create a defense
+                                dir = 0
+                                while dir < DIR_MAX {
+                                    if node!.PathExist(dir) != 0 {
+                                        // path leads out of this node
+                                        var area: CRMArea?
+                                        var instance: CRMInstance?
+                                        var spacing: Float
+                                        var origin = JKAShared.vec3_t()
+                                        var lookat = JKAShared.vec3_t()
+                                        var tmp_pt = JKAShared.vec4_t()
+                                        var tmp_dir = JKAShared.vec4_t()
+                                        var n: Int32
+                                        let num_insts = self.mLandScape!.irand(mincount, maxcount)
+                                        // C converts the `float` path id to the `int` local at the store.
+                                        let pathID = Int32(node!.GetPath(dir))
+
+                                        if 0 == num_insts {
+                                            dir += 1
+                                            continue
+                                        }
+
+                                        // C converts the `int` count to `float` at the divide.
+                                        let posdelta = (maxpos - minpos) / Float(num_insts)
+
+                                        n = 0
+                                        while n < num_insts {
+                                            instance = self.mInstanceFile.CreateInstance(defName)
+                                            // Failed to create, not good
+                                            if nil == instance {
+                                                n += 1
+                                                continue
+                                            }
+                                            // If a spacing radius was specified then override the one thats
+                                            // in the instance
+                                            spacing = Float(atof(defenseGroup!.FindPairValue("spacing", "0")!))
+                                            if spacing != 0 {
+                                                instance!.SetSpacingRadius(spacing)
+                                            }
+
+                                            instance!.SetFilter(group!.FindPairValue("filter", "")!)
+                                            instance!.SetTeamFilter(group!.FindPairValue("teamfilter", "")!)
+
+                                            if strstr(instance!.GetTeamFilter(), "red") != nil {
+                                                instance!.SetSide(SIDE_RED)
+                                            } else if strstr(instance!.GetTeamFilter(), "blue") != nil {
+                                                instance!.SetSide(SIDE_BLUE)
+                                            }
+
+                                            // C converts the `int` index to `float` at each multiply.
+                                            let pos_along_path = self.mLandScape!.flrand(minpos + posdelta * Float(n), minpos + posdelta * Float(n + 1))
+                                            let look_along_path = Float(atof(defenseGroup!.FindPairValue("pathalign", "1")!))
+                                            self.mLandScape!.GetPathInfo(pathID, pos_along_path, &tmp_pt, &tmp_dir)
+                                            origin[0] = tmp_pt[0]
+                                            origin[1] = tmp_pt[1]
+
+                                            self.mLandScape!.GetPathInfo(pathID, look_along_path, &tmp_dir, &tmp_pt)
+                                            lookat[0] = tmp_pt[0]
+                                            lookat[1] = tmp_pt[1]
+
+                                            origin[0] = self.mLandScape!.GetBounds()[0][0] + (self.mLandScape!.GetBounds()[1][0] - self.mLandScape!.GetBounds()[0][0]) * origin[0]
+                                            origin[1] = self.mLandScape!.GetBounds()[0][1] + (self.mLandScape!.GetBounds()[1][1] - self.mLandScape!.GetBounds()[0][1]) * origin[1]
+                                            origin[2] = self.mLandScape!.GetBounds()[0][2]
+
+                                            // look at a point along the path at this location
+                                            lookat[0] = self.mLandScape!.GetBounds()[0][0] + (self.mLandScape!.GetBounds()[1][0] - self.mLandScape!.GetBounds()[0][0]) * lookat[0]
+                                            lookat[1] = self.mLandScape!.GetBounds()[0][1] + (self.mLandScape!.GetBounds()[1][1] - self.mLandScape!.GetBounds()[0][1]) * lookat[1]
+                                            lookat[2] = 0
+
+                                            // Fixed height?  (used for bridges)
+                                            if atoi(group!.FindPairValue("nodrop", "0")!) == 0 {
+                                                origin[2] = self.mLandScape!.GetBounds()[1][2] + 100
+                                            }
+
+                                            // Set the area of position
+                                            // AI: Raven passes `origin` as the origin that CreateArea moves and as the confine origin.
+                                            // The call passes a copy as the confine origin, because the inout parameter cannot alias it, and the area copies the confine origin before MoveArea runs.
+                                            let confineOrigin = origin
+                                            // C converts the `int` padding to the `float` parameter.
+                                            area = self.mAreaManager!.CreateArea(&origin, instance!.GetSpacingRadius(), instance!.GetSpacingLine(), Float(self.GetDefaultPadding()), 0, confineOrigin, lookat, instance!.GetFlattenRadius() != 0 ? true : false, true, instance!.GetLockOrigin(), self.mSymmetric)
+                                            area!.EnableLookAt(false)
+
+                                            if node!.GetFlattenHeight() == -1 {
+                                                node!.SetFlattenHeight(66 + self.mLandScape!.irand(0, 40))
+                                            }
+                                            instance!.SetFlattenHeight(node!.GetFlattenHeight())
+
+                                            instance!.SetArea(self.mAreaManager, area)
+
+                                            self.mInstances.append(instance!)
+                                            n += 1
+                                        }
+                                    }
+                                    dir += 1
+                                }
+                            }
+                        }
+                    } else {
+                        return false
+                    }
+                } else {
+                    return false
+                }
+            }
+            defenseGroup = defenseGroup!.GetNext()
+        }
+
+        return true
     }
 
     /// Source: oracle/codemp/RMG/RM_Mission.cpp:485
     private func ParseWallRect(_ group: CGPGroup?, _ side: Int32) -> Bool {
-        // TODO: Port CRMMission::ParseWallRect
-        portMissing("CRMMission::ParseWallRect", source: "oracle/codemp/RMG/RM_Mission.cpp:485")
+        // Port-note: Raven calls FindSubGroup through `group` before its NULL test, undefined when `group` is NULL.
+        // The unwrap traps there, rule 19.
+        let wallGroup = group!.FindSubGroup("wallrect")
+
+        // If NULL that means this particular instance has no wall rect
+        if nil == group || nil == wallGroup {
+            return true
+        }
+
+        let wallName = wallGroup!.FindPairValue("wall_instance", "")
+        let cornerName = wallGroup!.FindPairValue("corner_instance", "")
+        let towerName = wallGroup!.FindPairValue("tower_instance", "")
+        let gateName = wallGroup!.FindPairValue("gate_instance", "")
+        let ripName = wallGroup!.FindPairValue("rip_instance", "")
+
+        if nil != wallName {
+            let xcount = atoi(wallGroup!.FindPairValue("xcount", "0")!)
+            let ycount = atoi(wallGroup!.FindPairValue("ycount", "0")!)
+
+            var gateCount = atoi(wallGroup!.FindPairValue("gate_count", "1")!)
+            let gateMin = atoi(wallGroup!.FindPairValue("gate_min", "0")!)
+            let gateMax = atoi(wallGroup!.FindPairValue("gate_max", "0")!)
+
+            var ripCount = atoi(wallGroup!.FindPairValue("rip_count", "0")!)
+            let ripMin = atoi(wallGroup!.FindPairValue("rip_min", "0")!)
+            let ripMax = atoi(wallGroup!.FindPairValue("rip_max", "0")!)
+
+            var towerCount = atoi(wallGroup!.FindPairValue("tower_count", "0")!)
+            let towerMin = atoi(wallGroup!.FindPairValue("tower_min", "0")!)
+            let towerMax = atoi(wallGroup!.FindPairValue("tower_max", "0")!)
+
+            if gateMin != gateMax {
+                gateCount = self.mLandScape!.irand(gateMin, gateMax)
+            }
+
+            if ripMin != ripMax {
+                ripCount = self.mLandScape!.irand(ripMin, ripMax)
+            }
+
+            if towerMin != towerMax {
+                towerCount = self.mLandScape!.irand(towerMin, towerMax)
+            }
+
+            if nil == gateName {
+                gateCount = 0
+            }
+
+            if nil == towerName {
+                towerCount = 0
+            }
+
+            if nil == ripName {
+                ripCount = 0
+            }
+
+            let nodename: String
+            let originGroup = group!.FindSubGroup("origin")
+            if originGroup != nil {
+                nodename = originGroup!.FindPairValue("node", "")!
+                if strlen(nodename) != 0 {
+                    let node: CRMNode?
+                    // Find the node being attached to
+                    node = self.mPathManager!.FindNodeByName(nodename)
+                    if node != nil {
+                        var instance: CRMInstance?
+                        var x: Int32
+                        var y: Int32
+                        let halfx = xcount / 2
+                        let halfy = ycount / 2
+                        let xpos = self.mLandScape!.GetBounds()[0][0] + (self.mLandScape!.GetBounds()[1][0] - self.mLandScape!.GetBounds()[0][0]) * node!.GetPos()[0]
+                        let ypos = self.mLandScape!.GetBounds()[0][1] + (self.mLandScape!.GetBounds()[1][1] - self.mLandScape!.GetBounds()[0][1]) * node!.GetPos()[1]
+                        let zpos = self.mLandScape!.GetBounds()[1][2] + 100
+                        var angle: Float = 0
+                        var lastGate: Int32 = 0
+                        var lastRip: Int32 = 0
+
+                        // Port-note: Raven calls SetSide through NULL when CreateInstance finds no instance of the name, undefined.
+                        // Each `instance!` before a PlaceWallInstance of this block traps there, rule 19.
+
+                        // corners
+                        x = -halfx
+                        y = -halfy
+                        if towerCount > 3 ||
+                            (towerCount > 0 && self.mLandScape!.irand(1, 2) == 1) {
+                            towerCount -= 1
+                            instance = self.mInstanceFile.CreateInstance(towerName!)
+                        } else {
+                            instance = self.mInstanceFile.CreateInstance(cornerName!)
+                        }
+                        angle = DEG2RAD(90)
+                        instance!.SetSide(side)
+                        self.PlaceWallInstance(instance, xpos, ypos, zpos, x, y, angle)
+
+                        x = halfx
+                        y = -halfy
+                        if towerCount > 3 ||
+                            (towerCount > 0 && self.mLandScape!.irand(1, 2) == 1) {
+                            towerCount -= 1
+                            instance = self.mInstanceFile.CreateInstance(towerName!)
+                        } else {
+                            instance = self.mInstanceFile.CreateInstance(cornerName!)
+                        }
+                        angle = DEG2RAD(180)
+                        instance!.SetSide(side)
+                        self.PlaceWallInstance(instance, xpos, ypos, zpos, x, y, angle)
+
+                        x = halfx
+                        y = halfy
+                        if towerCount > 3 ||
+                            (towerCount > 0 && self.mLandScape!.irand(1, 2) == 1) {
+                            towerCount -= 1
+                            instance = self.mInstanceFile.CreateInstance(towerName!)
+                        } else {
+                            instance = self.mInstanceFile.CreateInstance(cornerName!)
+                        }
+                        angle = DEG2RAD(270)
+                        instance!.SetSide(side)
+                        self.PlaceWallInstance(instance, xpos, ypos, zpos, x, y, angle)
+
+                        x = -halfx
+                        y = halfy
+                        if towerCount > 3 ||
+                            (towerCount > 0 && self.mLandScape!.irand(1, 2) == 1) {
+                            towerCount -= 1
+                            instance = self.mInstanceFile.CreateInstance(towerName!)
+                        } else {
+                            instance = self.mInstanceFile.CreateInstance(cornerName!)
+                        }
+                        angle = DEG2RAD(0)
+                        instance!.SetSide(side)
+                        self.PlaceWallInstance(instance, xpos, ypos, zpos, x, y, angle)
+
+                        // walls
+                        angle = DEG2RAD(0)
+                        x = -halfx + 1
+                        while x <= halfx - 1 {
+                            if lastGate < 1 && gateCount > 0 && self.mLandScape!.irand(1, (halfx + halfy) / gateCount) == 1 {
+                                // gate
+                                gateCount -= 1
+                                lastGate = 3
+                                instance = self.mInstanceFile.CreateInstance(gateName!)
+                            } else if lastRip < 1 && ripCount > 0 && self.mLandScape!.irand(1, (halfx + halfy) / ripCount) == 1 {
+                                // damaged fence
+                                ripCount -= 1
+                                lastRip = 3
+                                instance = self.mInstanceFile.CreateInstance(ripName!)
+                            } else {
+                                // just a wall
+                                instance = self.mInstanceFile.CreateInstance(wallName!)
+                                lastRip -= 1
+                                lastGate -= 1
+                            }
+                            instance!.SetSide(side)
+                            self.PlaceWallInstance(instance, xpos, ypos, zpos, x, -halfy, angle)
+                            x += 1
+                        }
+                        x = -halfx + 1
+                        while x <= halfx - 1 {
+                            if lastGate < 1 && gateCount > 0 && self.mLandScape!.irand(1, (halfx + halfy) / gateCount) == 1 {
+                                // gate
+                                gateCount -= 1
+                                lastGate = 3
+                                instance = self.mInstanceFile.CreateInstance(gateName!)
+                            } else if lastRip < 1 && ripCount > 0 && self.mLandScape!.irand(1, (halfx + halfy) / ripCount) == 1 {
+                                // damaged fence
+                                ripCount -= 1
+                                lastRip = 3
+                                instance = self.mInstanceFile.CreateInstance(ripName!)
+                            } else {
+                                // just a wall
+                                instance = self.mInstanceFile.CreateInstance(wallName!)
+                                lastRip -= 1
+                                lastGate -= 1
+                            }
+                            instance!.SetSide(side)
+                            self.PlaceWallInstance(instance, xpos, ypos, zpos, x, halfy, angle)
+                            x += 1
+                        }
+
+                        angle = DEG2RAD(90)
+                        y = -halfy + 1
+                        while y <= halfy - 1 {
+                            if lastGate < 1 && gateCount > 0 && self.mLandScape!.irand(1, (halfx + halfy) / gateCount) == 1 {
+                                // gate
+                                gateCount -= 1
+                                lastGate = 3
+                                instance = self.mInstanceFile.CreateInstance(gateName!)
+                            } else if lastRip < 1 && ripCount > 0 && self.mLandScape!.irand(1, (halfx + halfy) / ripCount) == 1 {
+                                // damaged fence
+                                ripCount -= 1
+                                lastRip = 3
+                                instance = self.mInstanceFile.CreateInstance(ripName!)
+                            } else {
+                                // just a wall
+                                instance = self.mInstanceFile.CreateInstance(wallName!)
+                                lastRip -= 1
+                                lastGate -= 1
+                            }
+                            instance!.SetSide(side)
+                            self.PlaceWallInstance(instance, xpos, ypos, zpos, -halfx, y, angle)
+                            y += 1
+                        }
+                        y = -halfy + 1
+                        while y <= halfy - 1 {
+                            if lastGate < 1 && gateCount > 0 && self.mLandScape!.irand(1, (halfx + halfy) / gateCount) == 1 {
+                                // gate
+                                gateCount -= 1
+                                lastGate = 3
+                                instance = self.mInstanceFile.CreateInstance(gateName!)
+                            } else if lastRip < 1 && ripCount > 0 && self.mLandScape!.irand(1, (halfx + halfy) / ripCount) == 1 {
+                                // damaged fence
+                                ripCount -= 1
+                                lastRip = 3
+                                instance = self.mInstanceFile.CreateInstance(ripName!)
+                            } else {
+                                // just a wall
+                                instance = self.mInstanceFile.CreateInstance(wallName!)
+                                lastRip -= 1
+                                lastGate -= 1
+                            }
+                            instance!.SetSide(side)
+                            self.PlaceWallInstance(instance, xpos, ypos, zpos, halfx, y, angle)
+                            y += 1
+                        }
+                    }
+                }
+            }
+        } else {
+            return false
+        }
+
+        return true
     }
 
     //	void			SpawnNPCTriggers		( CCMLandScape* landscape );
