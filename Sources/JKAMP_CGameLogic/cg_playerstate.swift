@@ -5,7 +5,7 @@ import JKAMP_CGame
 import JKAMP_BG
 
 /// Source: oracle/codemp/cgame/cg_playerstate.c:304
-var cgAnnouncerTime: Int32 {
+public var cgAnnouncerTime: Int32 {
     get { world.variables.cgAnnouncerTime }
     set { world.variables.cgAnnouncerTime = newValue }
 }
@@ -20,7 +20,7 @@ If the ammo has gone low enough to generate the warning, play a sound
 ```
 */
 /// Source: oracle/codemp/cgame/cg_playerstate.c:17
-func CG_CheckAmmo() {
+public func CG_CheckAmmo() {
     // see about how many seconds of ammo we have remaining
 
 
@@ -38,7 +38,7 @@ CG_DamageFeedback
 ```
 */
 /// Source: oracle/codemp/cgame/cg_playerstate.c:85
-func CG_DamageFeedback(_ yawByte: Int32, _ pitchByte: Int32, _ damage: Int32) {
+public func CG_DamageFeedback(_ yawByte: Int32, _ pitchByte: Int32, _ damage: Int32) {
     let left: Float
     var front: Float
     let up: Float
@@ -152,7 +152,7 @@ A respawn happened this snapshot
 ```
 */
 /// Source: oracle/codemp/cgame/cg_playerstate.c:199
-func CG_Respawn() {
+public func CG_Respawn() {
     // no error decay on player movement
     cg.thisFrameTeleport = true
 
@@ -171,7 +171,7 @@ CG_CheckPlayerstateEvents
 ```
 */
 /// Source: oracle/codemp/cgame/cg_playerstate.c:217
-func CG_CheckPlayerstateEvents(_ ps: JKAMP.PlayerState, _ ops: JKAMP.PlayerState) {
+public func CG_CheckPlayerstateEvents(_ ps: JKAMP.PlayerState, _ ops: JKAMP.PlayerState) {
     var i: Int32
     var event: Int32
     var cent: Centity?
@@ -212,7 +212,7 @@ CG_CheckChangedPredictableEvents
 ```
 */
 /// Source: oracle/codemp/cgame/cg_playerstate.c:257
-func CG_CheckChangedPredictableEvents(_ ps: JKAMP.PlayerState) {
+public func CG_CheckChangedPredictableEvents(_ ps: JKAMP.PlayerState) {
     var i: Int32
     var event: Int32
     var cent: Centity?
@@ -253,7 +253,7 @@ CG_CheckLocalSounds
 ```
 */
 /// Source: oracle/codemp/cgame/cg_playerstate.c:311
-func CG_CheckLocalSounds(_ ps: JKAMP.PlayerState, _ ops: JKAMP.PlayerState) {
+public func CG_CheckLocalSounds(_ ps: JKAMP.PlayerState, _ ops: JKAMP.PlayerState) {
     let highScore: Int32
     let health: Int32
     let armor: Int32
@@ -392,7 +392,7 @@ CG_TransitionPlayerState
 ```
 */
 /// Source: oracle/codemp/cgame/cg_playerstate.c:495
-func CG_TransitionPlayerState(_ ps: JKAMP.PlayerState, _ ops: JKAMP.PlayerState) {
+public func CG_TransitionPlayerState(_ ps: JKAMP.PlayerState, _ ops: JKAMP.PlayerState) {
     // check for changing follow mode
     if ps.clientNum != ops.clientNum {
         cg.thisFrameTeleport = true

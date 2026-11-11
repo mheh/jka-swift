@@ -22,7 +22,7 @@ Advance towards your captureGoal and shoot anyone you can along the way.
 ```
 */
 /// Source: oracle/codemp/game/NPC_behavior.c:29
-func NPC_BSAdvanceFight() {
+public func NPC_BSAdvanceFight() {
     //FIXME: IMPLEMENT
     //Head to Goal if I can
 
@@ -176,7 +176,7 @@ func NPC_BSAdvanceFight() {
 }
 
 /// Source: oracle/codemp/game/NPC_behavior.c:185
-func Disappear(_ `self`: Entity) {
+public func Disappear(_ `self`: Entity) {
     //	ClientDisconnect(self);
     `self`.s.eFlags |= EF_NODRAW
     `self`.think = nil
@@ -184,7 +184,7 @@ func Disappear(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_behavior.c:194
-func BeamOut(_ `self`: Entity) {
+public func BeamOut(_ `self`: Entity) {
     //	gentity_t *tent = G_Spawn();
 
     /*
@@ -204,7 +204,7 @@ func BeamOut(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_behavior.c:213
-func NPC_BSCinematic() {
+public func NPC_BSCinematic() {
     if (NPCInfo!.scriptFlags & SCF_FIRE_WEAPON) != 0 {
         WeaponThink(true)
     }
@@ -240,12 +240,12 @@ func NPC_BSCinematic() {
 }
 
 /// Source: oracle/codemp/game/NPC_behavior.c:246
-func NPC_BSWait() {
+public func NPC_BSWait() {
     NPC_UpdateAngles(true, true)
 }
 
 /// Source: oracle/codemp/game/NPC_behavior.c:252
-func NPC_BSInvestigate() {
+public func NPC_BSInvestigate() {
     /*
     //FIXME: maybe allow this to be set as a tempBState in a script?  Just specify the
     //investigateGoal, investigateDebounceTime and investigateCount? (Needs a macro)
@@ -402,7 +402,7 @@ func NPC_BSInvestigate() {
 }
 
 /// Source: oracle/codemp/game/NPC_behavior.c:409
-func NPC_CheckInvestigate(_ alertEventNum: Int32) -> Bool {
+public func NPC_CheckInvestigate(_ alertEventNum: Int32) -> Bool {
     let owner: Entity? = level.alertEvents[alertEventNum].owner
     let invAdd: Int32 = level.alertEvents[alertEventNum].level
     var soundPos = vec3_t()
@@ -483,7 +483,7 @@ void NPC_BSSleep( void )
 ```
 */
 /// Source: oracle/codemp/game/NPC_behavior.c:500
-func NPC_BSSleep() {
+public func NPC_BSSleep() {
     let alertEvent: Int32 = NPC_CheckAlertEvents(true, false, -1, false, AEL_MINOR)
 
     //There is an event to look at
@@ -505,7 +505,7 @@ func NPC_BSSleep() {
 }
 
 /// Source: oracle/codemp/game/NPC_behavior.c:524
-func NPC_BSFollowLeader() {
+public func NPC_BSFollowLeader() {
     var vec = vec3_t()
     let leaderDist: Float
     let leaderVis: visibility_t
@@ -685,7 +685,7 @@ func NPC_BSFollowLeader() {
 }
 
 /// Source: oracle/codemp/game/NPC_behavior.c:733
-func NPC_BSJump() {
+public func NPC_BSJump() {
     var dir = vec3_t()
     var angles = vec3_t()
     var p1 = vec3_t()
@@ -866,7 +866,7 @@ func NPC_BSJump() {
 }
 
 /// Source: oracle/codemp/game/NPC_behavior.c:921
-func NPC_BSRemove() {
+public func NPC_BSRemove() {
     NPC_UpdateAngles(true, true)
     if !trap_InPVS(NPC!.r.currentOrigin, g_entities[0].r.currentOrigin) {
         //rwwFIXMEFIXME: Care about all clients instead of just 0?
@@ -884,7 +884,7 @@ func NPC_BSRemove() {
 }
 
 /// Source: oracle/codemp/game/NPC_behavior.c:939
-func NPC_BSSearch() {
+public func NPC_BSSearch() {
     NPC_CheckEnemy(true, false, true)
     //Look for enemies, if find one:
     if NPC!.enemy != nil {
@@ -1047,7 +1047,7 @@ func NPC_BSSearch() {
 }
 
 /// Source: oracle/codemp/game/NPC_behavior.c:1132
-func NPC_BSSearchStart(_ homeWp: Int32, _ bState: bState_t) {
+public func NPC_BSSearchStart(_ homeWp: Int32, _ bState: bState_t) {
     // Raven assigns his own `homeWp` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var homeWp = homeWp
     //FIXME: Reimplement
@@ -1067,7 +1067,7 @@ func NPC_BSSearchStart(_ homeWp: Int32, _ bState: bState_t) {
 }
 
 /// Source: oracle/codemp/game/NPC_behavior.c:1160
-func NPC_BSNoClip() {
+public func NPC_BSNoClip() {
     if UpdateGoal() != nil {
         var dir = vec3_t()
         var forward = vec3_t()
@@ -1105,7 +1105,7 @@ func NPC_BSNoClip() {
 }
 
 /// Source: oracle/codemp/game/NPC_behavior.c:1193
-func NPC_BSWander() {
+public func NPC_BSWander() {
     //FIXME: don't actually go all the way to the next waypoint, just move in fits and jerks...?
     if NPCInfo!.investigateDebounceTime == 0 {
         //Starting out
@@ -1186,7 +1186,7 @@ func NPC_BSWander() {
 }
 
 /// Source: oracle/codemp/game/NPC_behavior.c:1317
-func NPC_Surrender() {
+public func NPC_Surrender() {
     //FIXME: say "don't shoot!" if we weren't already surrendering
     if NPC!.client!.ps.weaponTime != 0 || PM_InKnockDown(NPC!.client!.ps) {
         return
@@ -1207,7 +1207,7 @@ func NPC_Surrender() {
 }
 
 /// Source: oracle/codemp/game/NPC_behavior.c:1341
-func NPC_CheckSurrender() -> Bool {
+public func NPC_CheckSurrender() -> Bool {
     if !trap_ICARUS_TaskIDPending(NPC!, TID_MOVE_NAV) && NPC!.client!.ps.groundEntityNum != ENTITYNUM_NONE && NPC!.client!.ps.weaponTime == 0 && !PM_InKnockDown(NPC!.client!.ps) && NPC!.enemy != nil && NPC!.enemy!.client != nil && NPC!.enemy!.enemy == NPC && NPC!.enemy!.s.weapon != WP_NONE && NPC!.enemy!.s.weapon != WP_STUN_BATON && NPC!.enemy!.health > 20 && NPC!.enemy!.painDebounceTime < level.time - 3000 && NPC!.enemy!.client!.ps.fd.forcePowerDebounce[FP_SABER_DEFENSE] < level.time - 1000 {
         //don't surrender if scripted to run somewhere or if we're in the air or if we're busy or if we don't have an enemy or if the enemy is not mad at me or is hurt or not a threat or busy being attacked
         //FIXME: even if not in a group, don't surrender if there are other enemies in the PVS and within a certain range?
@@ -1300,7 +1300,7 @@ func NPC_CheckSurrender() -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_behavior.c:1444
-func NPC_BSFlee() {
+public func NPC_BSFlee() {
     //FIXME: keep checking for danger
     var goal: Entity?
 
@@ -1408,7 +1408,7 @@ func NPC_BSFlee() {
 }
 
 /// Source: oracle/codemp/game/NPC_behavior.c:1560
-func NPC_StartFlee(_ enemy: Entity, _ dangerPoint: JKAShared.vec3_t, _ dangerLevel: Int32, _ fleeTimeMin: Int32, _ fleeTimeMax: Int32) {
+public func NPC_StartFlee(_ enemy: Entity, _ dangerPoint: JKAShared.vec3_t, _ dangerLevel: Int32, _ fleeTimeMin: Int32, _ fleeTimeMax: Int32) {
     var cp: Int32 = -1
 
     if trap_ICARUS_TaskIDPending(NPC!, TID_MOVE_NAV) {
@@ -1475,7 +1475,7 @@ func NPC_StartFlee(_ enemy: Entity, _ dangerPoint: JKAShared.vec3_t, _ dangerLev
 }
 
 /// Source: oracle/codemp/game/NPC_behavior.c:1636
-func G_StartFlee(_ `self`: Entity, _ enemy: Entity, _ dangerPoint: JKAShared.vec3_t, _ dangerLevel: Int32, _ fleeTimeMin: Int32, _ fleeTimeMax: Int32) {
+public func G_StartFlee(_ `self`: Entity, _ enemy: Entity, _ dangerPoint: JKAShared.vec3_t, _ dangerLevel: Int32, _ fleeTimeMin: Int32, _ fleeTimeMax: Int32) {
     if `self`.NPC == nil {
         //player
         return
@@ -1489,7 +1489,7 @@ func G_StartFlee(_ `self`: Entity, _ enemy: Entity, _ dangerPoint: JKAShared.vec
 }
 
 /// Source: oracle/codemp/game/NPC_behavior.c:1650
-func NPC_BSEmplaced() {
+public func NPC_BSEmplaced() {
     var enemyLOS: Bool = false
     var enemyCS: Bool = false
     var faceEnemy: Bool = false

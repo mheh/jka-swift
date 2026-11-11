@@ -28,7 +28,7 @@ NPC_UnBlocked
 ```
 */
 /// Source: oracle/codemp/game/g_navnew.c:34
-func NPC_ClearBlocked(_ `self`: Entity) {
+public func NPC_ClearBlocked(_ `self`: Entity) {
     if `self`.NPC == nil {
         return
     }
@@ -38,7 +38,7 @@ func NPC_ClearBlocked(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_navnew.c:43
-func NPC_SetBlocked(_ `self`: Entity, _ blocker: Entity) {
+public func NPC_SetBlocked(_ `self`: Entity, _ blocker: Entity) {
     if `self`.NPC == nil {
         return
     }
@@ -87,7 +87,7 @@ NAVNEW_PushBlocker
 ```
 */
 /// Source: oracle/codemp/game/g_navnew.c:84
-func NAVNEW_PushBlocker(_ `self`: Entity, _ blocker: Entity, _ right: JKAShared.vec3_t, _ setBlockedInfo: Bool) {
+public func NAVNEW_PushBlocker(_ `self`: Entity, _ blocker: Entity, _ right: JKAShared.vec3_t, _ setBlockedInfo: Bool) {
     //try pushing blocker to one side
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
@@ -182,7 +182,7 @@ NAVNEW_DanceWithBlocker
 ```
 */
 /// Source: oracle/codemp/game/g_navnew.c:178
-func NAVNEW_DanceWithBlocker(_ `self`: Entity, _ blocker: Entity, _ movedir: inout JKAShared.vec3_t, _ right: JKAShared.vec3_t) -> Bool {
+public func NAVNEW_DanceWithBlocker(_ `self`: Entity, _ blocker: Entity, _ movedir: inout JKAShared.vec3_t, _ right: JKAShared.vec3_t) -> Bool {
     //sees if blocker has any lateral movement
     if blocker.client != nil && VectorCompare(blocker.client!.ps.velocity, vec3_origin) == 0 {
         var blocker_movedir = vec3_t()
@@ -227,7 +227,7 @@ NAVNEW_SidestepBlocker
 ```
 */
 /// Source: oracle/codemp/game/g_navnew.c:222
-func NAVNEW_SidestepBlocker(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: JKAShared.vec3_t, _ blocked_dist: Float, _ movedir: inout JKAShared.vec3_t, _ right: JKAShared.vec3_t) -> Bool {
+public func NAVNEW_SidestepBlocker(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: JKAShared.vec3_t, _ blocked_dist: Float, _ movedir: inout JKAShared.vec3_t, _ right: JKAShared.vec3_t) -> Bool {
     //trace to sides of blocker and see if either is clear
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
@@ -363,7 +363,7 @@ NAVNEW_Bypass
 ```
 */
 /// Source: oracle/codemp/game/g_navnew.c:347
-func NAVNEW_Bypass(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: JKAShared.vec3_t, _ blocked_dist: Float, _ movedir: inout JKAShared.vec3_t, _ setBlockedInfo: Bool) -> Bool {
+public func NAVNEW_Bypass(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: JKAShared.vec3_t, _ blocked_dist: Float, _ movedir: inout JKAShared.vec3_t, _ setBlockedInfo: Bool) -> Bool {
     var moveangles = vec3_t()
     var right = vec3_t()
 
@@ -403,7 +403,7 @@ NAVNEW_CheckDoubleBlock
 ```
 */
 /// Source: oracle/codemp/game/g_navnew.c:384
-func NAVNEW_CheckDoubleBlock(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: JKAShared.vec3_t) -> Bool {
+public func NAVNEW_CheckDoubleBlock(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: JKAShared.vec3_t) -> Bool {
     //Stop double waiting
     if blocker.NPC != nil && (blocker.NPC!.blockingEntNum == `self`.s.number) {
         return true
@@ -413,7 +413,7 @@ func NAVNEW_CheckDoubleBlock(_ `self`: Entity, _ blocker: Entity, _ blocked_dir:
 }
 
 /// Source: oracle/codemp/game/g_navnew.c:399
-func NAVNEW_ResolveEntityCollision(_ `self`: Entity, _ blocker: Entity, _ movedir: inout JKAShared.vec3_t, _ pathDir: JKAShared.vec3_t, _ setBlockedInfo: Bool) -> Bool {
+public func NAVNEW_ResolveEntityCollision(_ `self`: Entity, _ blocker: Entity, _ movedir: inout JKAShared.vec3_t, _ pathDir: JKAShared.vec3_t, _ setBlockedInfo: Bool) -> Bool {
     var blocked_dir = vec3_t()
     let blocked_dist: Float
 
@@ -459,7 +459,7 @@ NAVNEW_AvoidCollision
 ```
 */
 /// Source: oracle/codemp/game/g_navnew.c:442
-func NAVNEW_AvoidCollision(_ `self`: Entity, _ goal: Entity, _ info: NavInfo, _ setBlockedInfo: Bool, _ blockedMovesLimit: Int32) -> Bool {
+public func NAVNEW_AvoidCollision(_ `self`: Entity, _ goal: Entity, _ info: NavInfo, _ setBlockedInfo: Bool, _ blockedMovesLimit: Int32) -> Bool {
     var movedir = vec3_t()
     var movepos = vec3_t()
 
@@ -532,7 +532,7 @@ func NAVNEW_AvoidCollision(_ `self`: Entity, _ goal: Entity, _ info: NavInfo, _ 
 }
 
 /// Source: oracle/codemp/game/g_navnew.c:520
-func NAVNEW_TestNodeConnectionBlocked(_ wp1: Int32, _ wp2: Int32, _ ignoreEnt: Entity, _ goalEntNum: Int32, _ checkWorld: Bool, _ checkEnts: Bool) -> Bool {
+public func NAVNEW_TestNodeConnectionBlocked(_ wp1: Int32, _ wp2: Int32, _ ignoreEnt: Entity, _ goalEntNum: Int32, _ checkWorld: Bool, _ checkEnts: Bool) -> Bool {
     //see if the direct path between 2 nodes is blocked by architecture or an ent
     var pos1 = vec3_t()
     var pos2 = vec3_t()
@@ -589,7 +589,7 @@ NAVNEW_MoveToGoal
 ```
 */
 /// Source: oracle/codemp/game/g_navnew.c:578
-func NAVNEW_MoveToGoal(_ `self`: Entity, _ info: NavInfo) -> Int32 {
+public func NAVNEW_MoveToGoal(_ `self`: Entity, _ info: NavInfo) -> Int32 {
     var bestNode: Int32 = WAYPOINT_NONE
     var foundClearPath: Bool = false
     var origin = vec3_t()

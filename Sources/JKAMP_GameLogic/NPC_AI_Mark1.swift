@@ -67,7 +67,7 @@ NPC_Mark1_Precache
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:50
-func NPC_Mark1_Precache() {
+public func NPC_Mark1_Precache() {
     G_SoundIndex("sound/chars/mark1/misc/mark1_wakeup")
     G_SoundIndex("sound/chars/mark1/misc/shutdown")
     G_SoundIndex("sound/chars/mark1/misc/walk")
@@ -100,7 +100,7 @@ NPC_Mark1_Part_Explode
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:81
-func NPC_Mark1_Part_Explode(_ `self`: Entity, _ bolt: Int32) {
+public func NPC_Mark1_Part_Explode(_ `self`: Entity, _ bolt: Int32) {
     if bolt >= 0 {
         // Raven's record lives to the end of his block, so the block is the closure.
         MdxaBone.scratch { boltMatrix in
@@ -129,7 +129,7 @@ Mark1_Idle
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:109
-func Mark1_Idle() {
+public func Mark1_Idle() {
     NPC_BSIdle()
 
     NPC_SetAnim(NPC!, SETANIM_BOTH, BOTH_SLEEP1, SETANIM_FLAG_NORMAL)
@@ -144,7 +144,7 @@ Mark1Dead_FireRocket
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:123
-func Mark1Dead_FireRocket() {
+public func Mark1Dead_FireRocket() {
     // Raven's record lives to the end of his block, so the block is the closure.
     MdxaBone.scratch { boltMatrix in
         var muzzle1 = vec3_t()
@@ -193,7 +193,7 @@ Mark1Dead_FireBlaster
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:171
-func Mark1Dead_FireBlaster() {
+public func Mark1Dead_FireBlaster() {
     var muzzle1 = vec3_t()
     var muzzle_dir = vec3_t()
     var missile: Entity?
@@ -232,7 +232,7 @@ Mark1_die
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:209
-func Mark1_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32, _ dFlags: Int32, _ hitLoc: Int32) {
+public func Mark1_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32, _ dFlags: Int32, _ hitLoc: Int32) {
     /*
     int	anim;
 
@@ -272,7 +272,7 @@ Mark1_dying
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:250
-func Mark1_dying(_ `self`: Entity) {
+public func Mark1_dying(_ `self`: Entity) {
     var num: Int32
     let newBolt: Int32
 
@@ -335,7 +335,7 @@ NPC_Mark1_Pain
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:320
-func NPC_Mark1_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func NPC_Mark1_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     var newBolt: Int32
     var i: Int32
     let chance: Int32
@@ -408,7 +408,7 @@ Mark1_Hunt
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:404
-func Mark1_Hunt() {
+public func Mark1_Hunt() {
     if NPCInfo!.goalEntity == nil {
         NPCInfo!.goalEntity = NPC!.enemy
     }
@@ -428,7 +428,7 @@ Mark1_FireBlaster
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:424
-func Mark1_FireBlaster() {
+public func Mark1_FireBlaster() {
     var muzzle1 = vec3_t()
     var enemy_org1 = vec3_t()
     var delta1 = vec3_t()
@@ -494,7 +494,7 @@ Mark1_BlasterAttack
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:495
-func Mark1_BlasterAttack(_ advance: Bool) {
+public func Mark1_BlasterAttack(_ advance: Bool) {
     var chance: Int32
 
     if TIMER_Done(NPC!, "attackDelay") {
@@ -542,7 +542,7 @@ Mark1_FireRocket
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:555
-func Mark1_FireRocket() {
+public func Mark1_FireRocket() {
     // Raven's record lives to the end of his block, so the block is the closure.
     MdxaBone.scratch { boltMatrix in
         var muzzle1 = vec3_t()
@@ -598,7 +598,7 @@ Mark1_RocketAttack
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:606
-func Mark1_RocketAttack(_ advance: Bool) {
+public func Mark1_RocketAttack(_ advance: Bool) {
     if TIMER_Done(NPC!, "attackDelay") {
         TIMER_Set(NPC!, "attackDelay", Q_irand(1000, 3000))
         NPC_SetAnim(NPC!, SETANIM_TORSO, BOTH_ATTACK2, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD)
@@ -616,7 +616,7 @@ Mark1_AttackDecision
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:625
-func Mark1_AttackDecision() {
+public func Mark1_AttackDecision() {
     let blasterTest: Int32
     let rocketTest: Int32
     let distance: Float
@@ -687,7 +687,7 @@ Mark1_Patrol
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:711
-func Mark1_Patrol() {
+public func Mark1_Patrol() {
     if NPC_CheckPlayerTeamStealth() {
         G_Sound(NPC!, CHAN_AUTO, G_SoundIndex("sound/chars/mark1/misc/mark1_wakeup"))
         NPC_UpdateAngles(true, true)
@@ -720,7 +720,7 @@ NPC_BSMark1_Default
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark1.c:747
-func NPC_BSMark1_Default() {
+public func NPC_BSMark1_Default() {
     //NPC->e_DieFunc = dieF_Mark1_die;
 
     if NPC!.enemy != nil {

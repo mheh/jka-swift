@@ -29,7 +29,7 @@ private var enemyDist: Float {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Wampa.c:16
-func Wampa_SetBolts(_ `self`: Entity) {
+public func Wampa_SetBolts(_ `self`: Entity) {
     if `self`.client != nil {
         let ri: RenderInfo? = `self`.client!.renderInfo
         ri!.headBolt = trap_G2API_AddBolt(`self`.ghoul2, 0, "*head_eyes")
@@ -57,7 +57,7 @@ NPC_Wampa_Precache
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Wampa.c:43
-func NPC_Wampa_Precache() {
+public func NPC_Wampa_Precache() {
     /*
     int i;
     for ( i = 1; i < 4; i ++ )
@@ -81,7 +81,7 @@ Wampa_Idle
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Wampa.c:66
-func Wampa_Idle() {
+public func Wampa_Idle() {
     NPCInfo!.localState = LSTATE_CLEAR
 
     //If we have somewhere to go, then do that
@@ -92,7 +92,7 @@ func Wampa_Idle() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Wampa.c:78
-func Wampa_CheckRoar(_ `self`: Entity) -> Bool {
+public func Wampa_CheckRoar(_ `self`: Entity) -> Bool {
     if `self`.wait < level.time {
         `self`.wait = Float(level.time + Q_irand(5000, 20000))
         NPC_SetAnim(`self`, SETANIM_BOTH, Q_irand(BOTH_GESTURE1, BOTH_GESTURE2), (SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD))
@@ -110,7 +110,7 @@ Wampa_Patrol
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Wampa.c:94
-func Wampa_Patrol() {
+public func Wampa_Patrol() {
     NPCInfo!.localState = LSTATE_CLEAR
 
     //If we have somewhere to go, then do that
@@ -139,7 +139,7 @@ Wampa_Move
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Wampa.c:126
-func Wampa_Move(_ visible: Bool) {
+public func Wampa_Move(_ visible: Bool) {
     if NPCInfo!.localState != LSTATE_WAITING {
         NPCInfo!.goalEntity = NPC!.enemy
 
@@ -178,7 +178,7 @@ func Wampa_Move(_ visible: Bool) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Wampa.c:177
-func Wampa_Slash(_ boltIndex: Int32, _ backhand: Bool) {
+public func Wampa_Slash(_ boltIndex: Int32, _ backhand: Bool) {
     var radiusEntNums: [Int32] = [Int32](repeating: 0, count: 128)
     let numEnts: Int32
     let radius: Float = 88
@@ -268,7 +268,7 @@ func Wampa_Slash(_ boltIndex: Int32, _ backhand: Bool) {
 
 //------------------------------
 /// Source: oracle/codemp/game/NPC_AI_Wampa.c:267
-func Wampa_Attack(_ distance: Float, _ doCharge: Bool) {
+public func Wampa_Attack(_ distance: Float, _ doCharge: Bool) {
     if !TIMER_Exists(NPC!, "attacking") {
         if Q_irand(0, 2) != 0 && !doCharge {
             //double slash
@@ -346,7 +346,7 @@ func Wampa_Attack(_ distance: Float, _ doCharge: Bool) {
 
 //----------------------------------
 /// Source: oracle/codemp/game/NPC_AI_Wampa.c:344
-func Wampa_Combat() {
+public func Wampa_Combat() {
     // If we cannot see our target or we have somewhere to go, then do that
     if !NPC_ClearLOS(NPC!.r.currentOrigin, NPC!.enemy!.r.currentOrigin) {
         if Q_irand(0, 10) == 0 {
@@ -426,7 +426,7 @@ NPC_Wampa_Pain
 */
 //void NPC_Wampa_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, int mod,int hitLoc )
 /// Source: oracle/codemp/game/NPC_AI_Wampa.c:433
-func NPC_Wampa_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func NPC_Wampa_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     var hitByWampa: Bool = false
     if attacker.client != nil && attacker.client!.NPC_class == CLASS_WAMPA {
         hitByWampa = true
@@ -480,7 +480,7 @@ NPC_BSWampa_Default
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Wampa.c:506
-func NPC_BSWampa_Default() {
+public func NPC_BSWampa_Default() {
     NPC!.client!.ps.eFlags2 &= ~EF2_USE_ALT_ANIM
     //NORMAL ANIMS
     //	stand1 = normal stand

@@ -9,7 +9,7 @@ import JKAMP_BG
 var commands: [ConsoleCommandRow] { world.commands }
 
 /// Source: oracle/codemp/cgame/cg_consolecmds.c:13
-func CG_TargetCommand_f() {
+public func CG_TargetCommand_f() {
     let targetNum: Int32
     var test = CharBuf(4)
 
@@ -277,7 +277,7 @@ so it can perform tab completion
 ```
 */
 /// Source: oracle/codemp/cgame/cg_consolecmds.c:334
-func CG_InitConsoleCommands() {
+public func CG_InitConsoleCommands() {
     var i: Int32
 
     i = 0

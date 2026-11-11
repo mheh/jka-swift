@@ -8,37 +8,37 @@ import JKAMP_BG
 private let METROID_JUMP = 1 as Int32
 
 /// Source: oracle/codemp/game/w_force.c:24
-var speedLoopSound: Int32 {
+public var speedLoopSound: Int32 {
     get { world.variables.speedLoopSound }
     set { world.variables.speedLoopSound = newValue }
 }
 
 /// Source: oracle/codemp/game/w_force.c:26
-var rageLoopSound: Int32 {
+public var rageLoopSound: Int32 {
     get { world.variables.rageLoopSound }
     set { world.variables.rageLoopSound = newValue }
 }
 
 /// Source: oracle/codemp/game/w_force.c:28
-var protectLoopSound: Int32 {
+public var protectLoopSound: Int32 {
     get { world.variables.protectLoopSound }
     set { world.variables.protectLoopSound = newValue }
 }
 
 /// Source: oracle/codemp/game/w_force.c:30
-var absorbLoopSound: Int32 {
+public var absorbLoopSound: Int32 {
     get { world.variables.absorbLoopSound }
     set { world.variables.absorbLoopSound = newValue }
 }
 
 /// Source: oracle/codemp/game/w_force.c:32
-var seeLoopSound: Int32 {
+public var seeLoopSound: Int32 {
     get { world.variables.seeLoopSound }
     set { world.variables.seeLoopSound = newValue }
 }
 
 /// Source: oracle/codemp/game/w_force.c:34
-var ysalamiriLoopSound: Int32 {
+public var ysalamiriLoopSound: Int32 {
     get { world.variables.ysalamiriLoopSound }
     set { world.variables.ysalamiriLoopSound = newValue }
 }
@@ -48,7 +48,7 @@ let FORCE_VELOCITY_DAMAGE = 0 as Int32
 
 /// Source: oracle/codemp/game/w_force.c:51
 // Raven wrote: const int forcePowerMinRank[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS]
-let forcePowerMinRank: [[Int32]] = [
+public let forcePowerMinRank: [[Int32]] = [
     [
         999, //FP_HEAL,//instant
         999, //FP_LEVITATION,//hold/duration
@@ -137,7 +137,7 @@ let forcePowerMinRank: [[Int32]] = [
 
 /// Source: oracle/codemp/game/w_force.c:139
 // Raven wrote: const int mindTrickTime[NUM_FORCE_POWER_LEVELS]
-let mindTrickTime: [Int32] = [
+public let mindTrickTime: [Int32] = [
     0, //none
     5000,
     10000,
@@ -154,7 +154,7 @@ let forcePushPullRadius: [Float] = [
 ]
 
 /// Source: oracle/codemp/game/w_force.c:40
-func G_PreDefSound(_ org: JKAShared.vec3_t, _ pdSound: Int32) -> Entity? {
+public func G_PreDefSound(_ org: JKAShared.vec3_t, _ pdSound: Int32) -> Entity? {
     var te: Entity?
 
     te = G_TempEntity(org, EV_PREDEFSOUND)
@@ -165,7 +165,7 @@ func G_PreDefSound(_ org: JKAShared.vec3_t, _ pdSound: Int32) -> Entity? {
 }
 
 /// Source: oracle/codemp/game/w_force.c:147
-func WP_InitForcePowers(_ ent: Entity) {
+public func WP_InitForcePowers(_ ent: Entity) {
     var i: Int32
     var i_r: Int32
     var maxRank: Int32 = g_maxForceRank.integer
@@ -489,7 +489,7 @@ func WP_InitForcePowers(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:574
-func WP_SpawnInitForcePowers(_ ent: Entity) {
+public func WP_SpawnInitForcePowers(_ ent: Entity) {
     var i: Int32 = 0
 
     ent.client!.ps.saberAttackChainCount = 0
@@ -593,7 +593,7 @@ func WP_SpawnInitForcePowers(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:697
-func ForcePowerUsableOn(_ attacker: Entity, _ other: Entity, _ forcePower: JKAMP.forcePowers_t) -> Int32 {
+public func ForcePowerUsableOn(_ attacker: Entity, _ other: Entity, _ forcePower: JKAMP.forcePowers_t) -> Int32 {
     if other.client != nil && BG_HasYsalamiri(g_gametype.integer, other.client!.ps) {
         return 0
     }
@@ -651,7 +651,7 @@ func ForcePowerUsableOn(_ attacker: Entity, _ other: Entity, _ forcePower: JKAMP
 }
 
 /// Source: oracle/codemp/game/w_force.c:774
-func WP_ForcePowerAvailable(_ `self`: Entity, _ forcePower: JKAMP.forcePowers_t, _ overrideAmt: Int32) -> Bool {
+public func WP_ForcePowerAvailable(_ `self`: Entity, _ forcePower: JKAMP.forcePowers_t, _ overrideAmt: Int32) -> Bool {
     let drain: Int32 = overrideAmt != 0 ? overrideAmt : forcePowerNeeded[`self`.client!.ps.fd.forcePowerLevel[forcePower]][forcePower]
 
     if (`self`.client!.ps.fd.forcePowersActive & (1 << forcePower)) != 0 {
@@ -675,7 +675,7 @@ func WP_ForcePowerAvailable(_ `self`: Entity, _ forcePower: JKAMP.forcePowers_t,
 }
 
 /// Source: oracle/codemp/game/w_force.c:803
-func WP_ForcePowerInUse(_ `self`: Entity, _ forcePower: JKAMP.forcePowers_t) -> Bool {
+public func WP_ForcePowerInUse(_ `self`: Entity, _ forcePower: JKAMP.forcePowers_t) -> Bool {
     if (`self`.client!.ps.fd.forcePowersActive & (1 << forcePower)) != 0 {
         //already using this power
         return true
@@ -685,7 +685,7 @@ func WP_ForcePowerInUse(_ `self`: Entity, _ forcePower: JKAMP.forcePowers_t) -> 
 }
 
 /// Source: oracle/codemp/game/w_force.c:813
-func WP_ForcePowerUsable(_ `self`: Entity, _ forcePower: JKAMP.forcePowers_t) -> Bool {
+public func WP_ForcePowerUsable(_ `self`: Entity, _ forcePower: JKAMP.forcePowers_t) -> Bool {
     if BG_HasYsalamiri(g_gametype.integer, `self`.client!.ps) {
         return false
     }
@@ -788,7 +788,7 @@ func WP_ForcePowerUsable(_ `self`: Entity, _ forcePower: JKAMP.forcePowers_t) ->
 }
 
 /// Source: oracle/codemp/game/w_force.c:940
-func WP_AbsorbConversion(_ attacked: Entity, _ atdAbsLevel: Int32, _ attacker: Entity, _ atPower: Int32, _ atPowerLevel: Int32, _ atForceSpent: Int32) -> Int32 {
+public func WP_AbsorbConversion(_ attacked: Entity, _ atdAbsLevel: Int32, _ attacker: Entity, _ atPower: Int32, _ atPowerLevel: Int32, _ atForceSpent: Int32) -> Int32 {
     var getLevel: Int32 = 0
     var addTot: Int32 = 0
     var abSound: Entity?
@@ -839,7 +839,7 @@ func WP_AbsorbConversion(_ attacked: Entity, _ atdAbsLevel: Int32, _ attacker: E
 }
 
 /// Source: oracle/codemp/game/w_force.c:999
-func WP_ForcePowerRegenerate(_ `self`: Entity, _ overrideAmt: Int32) {
+public func WP_ForcePowerRegenerate(_ `self`: Entity, _ overrideAmt: Int32) {
     //called on a regular interval to regenerate force power.
     if `self`.client == nil {
         return
@@ -860,7 +860,7 @@ func WP_ForcePowerRegenerate(_ `self`: Entity, _ overrideAmt: Int32) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:1021
-func WP_ForcePowerStart(_ `self`: Entity, _ forcePower: JKAMP.forcePowers_t, _ overrideAmt: Int32) {
+public func WP_ForcePowerStart(_ `self`: Entity, _ forcePower: JKAMP.forcePowers_t, _ overrideAmt: Int32) {
     //activate the given force power
     var duration: Int32 = 0
     var hearable: Bool = false
@@ -1043,7 +1043,7 @@ func WP_ForcePowerStart(_ `self`: Entity, _ forcePower: JKAMP.forcePowers_t, _ o
 }
 
 /// Source: oracle/codemp/game/w_force.c:1236
-func ForceHeal(_ `self`: Entity) {
+public func ForceHeal(_ `self`: Entity) {
     if `self`.health <= 0 {
         return
     }
@@ -1090,7 +1090,7 @@ func ForceHeal(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:1294
-func WP_AddToClientBitflags(_ ent: Entity, _ entNum: Int32) {
+public func WP_AddToClientBitflags(_ ent: Entity, _ entNum: Int32) {
     if entNum > 47 {
         ent.s.trickedentindex4 |= (1 << (entNum - 48))
     } else if entNum > 31 {
@@ -1103,7 +1103,7 @@ func WP_AddToClientBitflags(_ ent: Entity, _ entNum: Int32) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:1319
-func ForceTeamHeal(_ `self`: Entity) {
+public func ForceTeamHeal(_ `self`: Entity) {
     var radius: Float = 256
     var i: Int32 = 0
     var ent: Entity?
@@ -1188,7 +1188,7 @@ func ForceTeamHeal(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:1424
-func ForceTeamForceReplenish(_ `self`: Entity) {
+public func ForceTeamForceReplenish(_ `self`: Entity) {
     var radius: Float = 256
     var i: Int32 = 0
     var ent: Entity?
@@ -1269,7 +1269,7 @@ func ForceTeamForceReplenish(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:1523
-func ForceGrip(_ `self`: Entity) {
+public func ForceGrip(_ `self`: Entity) {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = Trace.scratch { tr -> Bool in
@@ -1338,7 +1338,7 @@ func ForceGrip(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:1596
-func ForceSpeed(_ `self`: Entity, _ forceDuration: Int32) {
+public func ForceSpeed(_ `self`: Entity, _ forceDuration: Int32) {
     if `self`.health <= 0 {
         return
     }
@@ -1368,7 +1368,7 @@ func ForceSpeed(_ `self`: Entity, _ forceDuration: Int32) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:1631
-func ForceSeeing(_ `self`: Entity) {
+public func ForceSeeing(_ `self`: Entity) {
     if `self`.health <= 0 {
         return
     }
@@ -1391,7 +1391,7 @@ func ForceSeeing(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:1658
-func ForceProtect(_ `self`: Entity) {
+public func ForceProtect(_ `self`: Entity) {
     if `self`.health <= 0 {
         return
     }
@@ -1421,7 +1421,7 @@ func ForceProtect(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:1694
-func ForceAbsorb(_ `self`: Entity) {
+public func ForceAbsorb(_ `self`: Entity) {
     if `self`.health <= 0 {
         return
     }
@@ -1451,7 +1451,7 @@ func ForceAbsorb(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:1730
-func ForceRage(_ `self`: Entity) {
+public func ForceRage(_ `self`: Entity) {
     if `self`.health <= 0 {
         return
     }
@@ -1490,7 +1490,7 @@ func ForceRage(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:1777
-func ForceLightning(_ `self`: Entity) {
+public func ForceLightning(_ `self`: Entity) {
     if `self`.health <= 0 {
         return
     }
@@ -1521,7 +1521,7 @@ func ForceLightning(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:1812
-func ForceLightningDamage(_ `self`: Entity, _ traceEnt: Entity, _ dir: inout JKAShared.vec3_t, _ impactPoint: JKAShared.vec3_t) {
+public func ForceLightningDamage(_ `self`: Entity, _ traceEnt: Entity, _ dir: inout JKAShared.vec3_t, _ impactPoint: JKAShared.vec3_t) {
     `self`.client!.dangerTime = level.time
     `self`.client!.ps.eFlags &= ~EF_INVULNERABLE
     `self`.client!.invulnerableTimer = 0
@@ -1596,7 +1596,7 @@ func ForceLightningDamage(_ `self`: Entity, _ traceEnt: Entity, _ dir: inout JKA
 }
 
 /// Source: oracle/codemp/game/w_force.c:1902
-func ForceShootLightning(_ `self`: Entity) {
+public func ForceShootLightning(_ `self`: Entity) {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = Trace.scratch { tr -> Bool in
@@ -1751,7 +1751,7 @@ func ForceShootLightning(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:2022
-func ForceDrain(_ `self`: Entity) {
+public func ForceDrain(_ `self`: Entity) {
     if `self`.health <= 0 {
         return
     }
@@ -1783,7 +1783,7 @@ func ForceDrain(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:2058
-func ForceDrainDamage(_ `self`: Entity, _ traceEnt: Entity, _ dir: JKAShared.vec3_t, _ impactPoint: JKAShared.vec3_t) {
+public func ForceDrainDamage(_ `self`: Entity, _ traceEnt: Entity, _ dir: JKAShared.vec3_t, _ impactPoint: JKAShared.vec3_t) {
     var tent: Entity?
 
     `self`.client!.dangerTime = level.time
@@ -1888,7 +1888,7 @@ func ForceDrainDamage(_ `self`: Entity, _ traceEnt: Entity, _ dir: JKAShared.vec
 }
 
 /// Source: oracle/codemp/game/w_force.c:2184
-func ForceShootDrain(_ `self`: Entity) -> Int32 {
+public func ForceShootDrain(_ `self`: Entity) -> Int32 {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { tr -> Int32 in
@@ -2054,7 +2054,7 @@ func ForceShootDrain(_ `self`: Entity) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/w_force.c:2317
-func ForceJumpCharge(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
+public func ForceJumpCharge(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
     //I guess this is unused now. Was used for the "charge" jump type.
     let forceJumpChargeInterval: Float = forceJumpStrength[0] / (FORCE_JUMP_CHARGE_TIME / FRAMETIME)
 
@@ -2107,7 +2107,7 @@ func ForceJumpCharge(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:2377
-func WP_GetVelocityForForceJump(_ `self`: Entity, _ jumpVel: inout JKAShared.vec3_t, _ ucmd: JKAMP.Usercmd) -> Int32 {
+public func WP_GetVelocityForForceJump(_ `self`: Entity, _ jumpVel: inout JKAShared.vec3_t, _ ucmd: JKAMP.Usercmd) -> Int32 {
     var pushFwd: Float = 0
     var pushRt: Float = 0
     var view = vec3_t()
@@ -2172,7 +2172,7 @@ func WP_GetVelocityForForceJump(_ `self`: Entity, _ jumpVel: inout JKAShared.vec
 }
 
 /// Source: oracle/codemp/game/w_force.c:2462
-func ForceJump(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
+public func ForceJump(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
     let forceJumpChargeInterval: Float
     var jumpVel = vec3_t()
 
@@ -2208,7 +2208,7 @@ func ForceJump(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:2502
-func WP_AddAsMindtricked(_ fd: JKAMP.Forcedata, _ entNum: Int32) {
+public func WP_AddAsMindtricked(_ fd: JKAMP.Forcedata, _ entNum: Int32) {
     if entNum > 47 {
         fd.forceMindtrickTargetIndex4 |= (1 << (entNum - 48))
     } else if entNum > 31 {
@@ -2221,7 +2221,7 @@ func WP_AddAsMindtricked(_ fd: JKAMP.Forcedata, _ entNum: Int32) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:2527
-func ForceTelepathyCheckDirectNPCTarget(_ `self`: Entity, _ tr: JKAMP.Trace, _ tookPower: inout Bool) -> Bool {
+public func ForceTelepathyCheckDirectNPCTarget(_ `self`: Entity, _ tr: JKAMP.Trace, _ tookPower: inout Bool) -> Bool {
     var traceEnt: Entity?
     var targetLive: Bool = false
     var mindTrickDone: Bool = false
@@ -2401,7 +2401,7 @@ func ForceTelepathyCheckDirectNPCTarget(_ `self`: Entity, _ tr: JKAMP.Trace, _ t
 }
 
 /// Source: oracle/codemp/game/w_force.c:2723
-func ForceTelepathy(_ `self`: Entity) {
+public func ForceTelepathy(_ `self`: Entity) {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = Trace.scratch { tr -> Bool in
@@ -2554,12 +2554,12 @@ func ForceTelepathy(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:2895
-func GEntity_UseFunc(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func GEntity_UseFunc(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     GlobalUse(`self`, other, activator)
 }
 
 /// Source: oracle/codemp/game/w_force.c:2900
-func CanCounterThrow(_ `self`: Entity, _ thrower: Entity, _ pull: Bool) -> Bool {
+public func CanCounterThrow(_ `self`: Entity, _ thrower: Entity, _ pull: Bool) -> Bool {
     var powerUse: Int32 = 0
 
     if `self`.client!.ps.forceHandExtend != HANDEXTEND_NONE {
@@ -2618,7 +2618,7 @@ func CanCounterThrow(_ `self`: Entity, _ thrower: Entity, _ pull: Bool) -> Bool 
 }
 
 /// Source: oracle/codemp/game/w_force.c:2970
-func G_InGetUpAnim(_ ps: JKAMP.PlayerState) -> Bool {
+public func G_InGetUpAnim(_ ps: JKAMP.PlayerState) -> Bool {
     switch (ps.legsAnim) {
     case BOTH_GETUP1, BOTH_GETUP2, BOTH_GETUP3, BOTH_GETUP4, BOTH_GETUP5, BOTH_FORCE_GETUP_F1, BOTH_FORCE_GETUP_F2, BOTH_FORCE_GETUP_B1, BOTH_FORCE_GETUP_B2, BOTH_FORCE_GETUP_B3, BOTH_FORCE_GETUP_B4, BOTH_FORCE_GETUP_B5, BOTH_GETUP_BROLL_B, BOTH_GETUP_BROLL_F, BOTH_GETUP_BROLL_L, BOTH_GETUP_BROLL_R, BOTH_GETUP_FROLL_B, BOTH_GETUP_FROLL_F, BOTH_GETUP_FROLL_L, BOTH_GETUP_FROLL_R:
         return true
@@ -2639,7 +2639,7 @@ func G_InGetUpAnim(_ ps: JKAMP.PlayerState) -> Bool {
 }
 
 /// Source: oracle/codemp/game/w_force.c:3025
-func G_LetGoOfWall(_ ent: Entity) {
+public func G_LetGoOfWall(_ ent: Entity) {
     if ent.client == nil {
         return
     }
@@ -2653,7 +2653,7 @@ func G_LetGoOfWall(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:3054
-func ForceThrow(_ `self`: Entity, _ pull: Bool) {
+public func ForceThrow(_ `self`: Entity, _ pull: Bool) {
     //shove things in front of you away
     var dist: Float = 0
     var ent: Entity?
@@ -3340,7 +3340,7 @@ func ForceThrow(_ `self`: Entity, _ pull: Bool) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:3822
-func WP_ForcePowerStop(_ `self`: Entity, _ forcePower: JKAMP.forcePowers_t) {
+public func WP_ForcePowerStop(_ `self`: Entity, _ forcePower: JKAMP.forcePowers_t) {
     let wasActive: Int32 = `self`.client!.ps.fd.forcePowersActive
 
     `self`.client!.ps.fd.forcePowersActive &= ~(1 << forcePower)
@@ -3449,7 +3449,7 @@ func WP_ForcePowerStop(_ `self`: Entity, _ forcePower: JKAMP.forcePowers_t) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:3948
-func DoGripAction(_ `self`: Entity, _ forcePower: JKAMP.forcePowers_t) {
+public func DoGripAction(_ `self`: Entity, _ forcePower: JKAMP.forcePowers_t) {
     var gripEnt: Entity?
     var gripLevel: Int32 = 0
     // Raven's record lives to the end of his block, so the block is the closure.
@@ -3653,7 +3653,7 @@ func DoGripAction(_ `self`: Entity, _ forcePower: JKAMP.forcePowers_t) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:4164
-func G_IsMindTricked(_ fd: JKAMP.Forcedata, _ client: Int32) -> Bool {
+public func G_IsMindTricked(_ fd: JKAMP.Forcedata, _ client: Int32) -> Bool {
     var checkIn: Int32
     let trickIndex1: Int32
     let trickIndex2: Int32
@@ -3918,7 +3918,7 @@ private func WP_ForcePowerRun(_ `self`: Entity, _ forcePower: JKAMP.forcePowers_
 }
 
 /// Source: oracle/codemp/game/w_force.c:4508
-func WP_DoSpecificPower(_ `self`: Entity, _ ucmd: JKAMP.Usercmd, _ forcepower: JKAMP.forcePowers_t) -> Int32 {
+public func WP_DoSpecificPower(_ `self`: Entity, _ ucmd: JKAMP.Usercmd, _ forcepower: JKAMP.forcePowers_t) -> Int32 {
     var powerSucceeded: Int32
 
     powerSucceeded = 1
@@ -4077,7 +4077,7 @@ func WP_DoSpecificPower(_ `self`: Entity, _ ucmd: JKAMP.Usercmd, _ forcepower: J
 }
 
 /// Source: oracle/codemp/game/w_force.c:4673
-func FindGenericEnemyIndex(_ `self`: Entity) {
+public func FindGenericEnemyIndex(_ `self`: Entity) {
     //Find another client that would be considered a threat.
     var i: Int32 = 0
     var tlen: Float
@@ -4110,7 +4110,7 @@ func FindGenericEnemyIndex(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:4711
-func SeekerDroneUpdate(_ `self`: Entity) {
+public func SeekerDroneUpdate(_ `self`: Entity) {
     var org = vec3_t()
     var elevated = vec3_t()
     var dir = vec3_t()
@@ -4252,7 +4252,7 @@ func SeekerDroneUpdate(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:4870
-func HolocronUpdate(_ `self`: Entity) {
+public func HolocronUpdate(_ `self`: Entity) {
     //keep holocron status updated in holocron mode
     var i: Int32 = 0
     var noHRank: Int32 = 0
@@ -4321,7 +4321,7 @@ func HolocronUpdate(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:4958
-func JediMasterUpdate(_ `self`: Entity) {
+public func JediMasterUpdate(_ `self`: Entity) {
     //keep jedi master status updated for JM gametype
     var i: Int32 = 0
 
@@ -4367,7 +4367,7 @@ func JediMasterUpdate(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:5013
-func WP_HasForcePowers(_ ps: JKAMP.PlayerState) -> Bool {
+public func WP_HasForcePowers(_ ps: JKAMP.PlayerState) -> Bool {
     var i: Int32
     i = 0
     while i < NUM_FORCE_POWERS {
@@ -4385,7 +4385,7 @@ func WP_HasForcePowers(_ ps: JKAMP.PlayerState) -> Bool {
 
 //try a special roll getup move
 /// Source: oracle/codemp/game/w_force.c:5037
-func G_SpecialRollGetup(_ `self`: Entity) -> Bool {
+public func G_SpecialRollGetup(_ `self`: Entity) -> Bool {
     //fixme: currently no knockdown will actually land you on your front... so froll's are pretty useless at the moment.
     var rolled: Bool = false
 
@@ -4425,7 +4425,7 @@ func G_SpecialRollGetup(_ `self`: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/w_force.c:5094
-func WP_ForcePowersUpdate(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
+public func WP_ForcePowersUpdate(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
     var usingForce: Bool = false
     var i: Int32
     var holo: Int32
@@ -4868,7 +4868,7 @@ func WP_ForcePowersUpdate(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
 }
 
 /// Source: oracle/codemp/game/w_force.c:5673
-func Jedi_DodgeEvasion(_ `self`: Entity, _ shooter: Entity, _ tr: JKAMP.Trace, _ hitLoc: Int32) -> Bool {
+public func Jedi_DodgeEvasion(_ `self`: Entity, _ shooter: Entity, _ tr: JKAMP.Trace, _ hitLoc: Int32) -> Bool {
     var dodgeAnim: Int32 = -1
 
     if `self`.client == nil || `self`.health <= 0 {

@@ -4,7 +4,7 @@
 #define JKA_CODEMP_UI_UI_SHARED_TEXTSCROLLDEF_T_H
 
 #include "CJKAMP_CGame_forward.h"
-#include "codemp/ui/ui_shared/constants.h"
+#include "constants.h"
 
 // Source: oracle/codemp/ui/ui_shared.h:226
 typedef struct textScrollDef_s 

@@ -21,7 +21,7 @@ FX_ClearLightStyles
 ```
 */
 /// Source: oracle/codemp/cgame/cg_light.c:15
-func CG_ClearLightStyles() {
+public func CG_ClearLightStyles() {
     var i: Int32
 
     cl_lightstyle.zero()
@@ -42,7 +42,7 @@ FX_RunLightStyles
 ```
 */
 /// Source: oracle/codemp/cgame/cg_light.c:33
-func CG_RunLightStyles() {
+public func CG_RunLightStyles() {
     let ofs: Int32
     var i: Int32
     var lsIndex: Int32 = 0
@@ -80,7 +80,7 @@ func CG_RunLightStyles() {
 }
 
 /// Source: oracle/codemp/cgame/cg_light.c:68
-func CG_SetLightstyle(_ i: Int32) {
+public func CG_SetLightstyle(_ i: Int32) {
     let s: CharBuf
     let j: Int32
     var k: Int32

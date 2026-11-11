@@ -5,7 +5,7 @@ import JKAMP_Game
 import JKAMP_BG
 
 /// Source: oracle/codemp/game/NPC_AI_Default.c:18
-func NPC_LostEnemyDecideChase() {
+public func NPC_LostEnemyDecideChase() {
     switch NPCInfo!.behaviorState {
     case BS_HUNT_AND_KILL:
         //We were chasing him and lost him, so try to find him
@@ -22,7 +22,7 @@ func NPC_LostEnemyDecideChase() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Default.c:42
-func NPC_StandIdle() {
+public func NPC_StandIdle() {
     /*
     //Must be done with any other animations
     if ( NPC->client->ps.legsAnimTimer != 0 )
@@ -67,7 +67,7 @@ func NPC_StandIdle() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Default.c:87
-func NPC_StandTrackAndShoot(_ NPC: Entity, _ canDuck: Bool) -> Bool {
+public func NPC_StandTrackAndShoot(_ NPC: Entity, _ canDuck: Bool) -> Bool {
     var attack_ok: Bool = false
     var duck_ok: Bool = false
     var faced: Bool = false
@@ -132,7 +132,7 @@ func NPC_StandTrackAndShoot(_ NPC: Entity, _ canDuck: Bool) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Default.c:161
-func NPC_BSIdle() {
+public func NPC_BSIdle() {
     //FIXME if there is no nav data, we need to do something else
     // if we're stuck, try to move around it
     if UpdateGoal() != nil {
@@ -148,7 +148,7 @@ func NPC_BSIdle() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Default.c:179
-func NPC_BSRun() {
+public func NPC_BSRun() {
     //FIXME if there is no nav data, we need to do something else
     // if we're stuck, try to move around it
     if UpdateGoal() != nil {
@@ -159,7 +159,7 @@ func NPC_BSRun() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Default.c:191
-func NPC_BSStandGuard() {
+public func NPC_BSStandGuard() {
     //FIXME: Use Snapshot info
     if NPC!.enemy == nil {
         //Possible to pick one up by being shot
@@ -189,7 +189,7 @@ func NPC_BSStandGuard() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Default.c:232
-func NPC_BSHuntAndKill() {
+public func NPC_BSHuntAndKill() {
     var turned: Bool = false
     var vec = vec3_t()
     let enemyDist: Float
@@ -253,7 +253,7 @@ func NPC_BSHuntAndKill() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Default.c:306
-func NPC_BSStandAndShoot() {
+public func NPC_BSStandAndShoot() {
     //FIXME:
     //When our numbers outnumber enemies 3 to 1, or only one of them,
     //go into hunt and kill mode
@@ -335,7 +335,7 @@ func NPC_BSStandAndShoot() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Default.c:394
-func NPC_BSRunAndShoot() {
+public func NPC_BSRunAndShoot() {
     /*if(NPC->playerTeam && NPC->enemyTeam)
     {
     //FIXME: don't realize this right away- or else enemies show up and we're standing around
@@ -421,7 +421,7 @@ func NPC_BSRunAndShoot() {
 
 //Simply turn until facing desired angles
 /// Source: oracle/codemp/game/NPC_AI_Default.c:490
-func NPC_BSFace() {
+public func NPC_BSFace() {
     //FIXME: once you stop sending turning info, they reset to whatever their delta_angles was last????
     //Once this is over, it snaps back to what it was facing before- WHY???
     if NPC_UpdateAngles(true, true) {
@@ -435,7 +435,7 @@ func NPC_BSFace() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Default.c:505
-func NPC_BSPointShoot(_ shoot: Bool) {
+public func NPC_BSPointShoot(_ shoot: Bool) {
     //FIXME: doesn't check for clear shot...
     var muzzle = vec3_t()
     var dir = vec3_t()
@@ -550,7 +550,7 @@ Move in a direction, face another
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Default.c:616
-func NPC_BSMove() {
+public func NPC_BSMove() {
     var goal: Entity? = nil
 
     NPC_CheckEnemy(true, false, true)
@@ -569,7 +569,7 @@ func NPC_BSMove() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Default.c:644
-func NPC_BSShoot() {
+public func NPC_BSShoot() {
     //	NPC_BSMove();
 
     enemyVisibility = VIS_SHOOT
@@ -590,7 +590,7 @@ void NPC_BSPatrol( void )
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Default.c:664
-func NPC_BSPatrol() {
+public func NPC_BSPatrol() {
     //int	alertEventNum;
 
     if level.time > NPCInfo!.enemyCheckDebounceTime {
@@ -629,7 +629,7 @@ func NPC_BSPatrol() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Default.c:712
-func NPC_BSDefault() {
+public func NPC_BSDefault() {
     //	vec3_t		enemyDir;
     //	float		enemyDist;
     //	float		shootDist;

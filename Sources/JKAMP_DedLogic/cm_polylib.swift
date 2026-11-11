@@ -4,31 +4,31 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:12
-var c_active_windings: Int32 {
+public var c_active_windings: Int32 {
     get { world.variables.c_active_windings }
     set { world.variables.c_active_windings = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:13
-var c_peak_windings: Int32 {
+public var c_peak_windings: Int32 {
     get { world.variables.c_peak_windings }
     set { world.variables.c_peak_windings = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:14
-var c_winding_allocs: Int32 {
+public var c_winding_allocs: Int32 {
     get { world.variables.c_winding_allocs }
     set { world.variables.c_winding_allocs = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:15
-var c_winding_points: Int32 {
+public var c_winding_points: Int32 {
     get { world.variables.c_winding_points }
     set { world.variables.c_winding_points = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:62
-var c_removed: Int32 {
+public var c_removed: Int32 {
     get { world.variables.c_removed }
     set { world.variables.c_removed = newValue }
 }
@@ -49,7 +49,7 @@ var hullPoints: Slots<JKAShared.vec3_t> { world.storage.hullPoints }
 var newHullPoints: Slots<JKAShared.vec3_t> { world.storage.newHullPoints }
 
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:17
-func pw(_ w: Winding) {
+public func pw(_ w: Winding) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     var i: Int32
     i = 0
@@ -68,7 +68,7 @@ AllocWinding
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:30
-func AllocWinding(_ points: Int32) -> Winding? {
+public func AllocWinding(_ points: Int32) -> Winding? {
     var w: Winding?
     let s: Int32
 
@@ -86,7 +86,7 @@ func AllocWinding(_ points: Int32) -> Winding? {
 }
 
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:47
-func FreeWinding(_ w: Winding) {
+public func FreeWinding(_ w: Winding) {
     if w.numpoints == Int32(bitPattern: 0xdeaddead) {
         Com_Error(ERR_FATAL, "FreeWinding: freed a freed winding")
     }
@@ -98,7 +98,7 @@ func FreeWinding(_ w: Winding) {
 }
 
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:64
-func RemoveColinearPoints(_ w: Winding) {
+public func RemoveColinearPoints(_ w: Winding) {
     var i: Int32
     var j: Int32
     var k: Int32
@@ -140,7 +140,7 @@ WindingPlane
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:100
-func WindingPlane(_ w: Winding, _ normal: inout JKAShared.vec3_t, _ dist: inout Float) {
+public func WindingPlane(_ w: Winding, _ normal: inout JKAShared.vec3_t, _ dist: inout Float) {
     var v1 = vec3_t()
     var v2 = vec3_t()
 
@@ -159,7 +159,7 @@ WindingArea
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:117
-func WindingArea(_ w: Winding) -> Float {
+public func WindingArea(_ w: Winding) -> Float {
     var i: Int32
     var d1 = vec3_t()
     var d2 = vec3_t()
@@ -179,7 +179,7 @@ func WindingArea(_ w: Winding) -> Float {
 }
 
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:134
-func WindingBounds(_ w: Winding, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t) {
+public func WindingBounds(_ w: Winding, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t) {
     var v: Float
     var i: Int32
     var j: Int32
@@ -216,7 +216,7 @@ WindingCenter
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:160
-func WindingCenter(_ w: Winding, _ center: inout JKAShared.vec3_t) {
+public func WindingCenter(_ w: Winding, _ center: inout JKAShared.vec3_t) {
     var i: Int32
     let scale: Float
 
@@ -239,7 +239,7 @@ BaseWindingForPlane
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:178
-func BaseWindingForPlane(_ normal: JKAShared.vec3_t, _ dist: Float) -> Winding? {
+public func BaseWindingForPlane(_ normal: JKAShared.vec3_t, _ dist: Float) -> Winding? {
     var i: Int32
     var x: Int32
     var max: Float
@@ -317,7 +317,7 @@ CopyWinding
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:249
-func CopyWinding(_ w: Winding) -> Winding? {
+public func CopyWinding(_ w: Winding) -> Winding? {
     var size: Int32
     var c: Winding?
 
@@ -335,7 +335,7 @@ ReverseWinding
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:265
-func ReverseWinding(_ w: Winding) -> Winding? {
+public func ReverseWinding(_ w: Winding) -> Winding? {
     var i: Int32
     var c: Winding?
 
@@ -357,7 +357,7 @@ ClipWindingEpsilon
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:285
-func ClipWindingEpsilon(_ `in`: Winding, _ normal: JKAShared.vec3_t, _ dist: Float, _ epsilon: Float, _ front: inout Winding?, _ back: inout Winding?) {
+public func ClipWindingEpsilon(_ `in`: Winding, _ normal: JKAShared.vec3_t, _ dist: Float, _ epsilon: Float, _ front: inout Winding?, _ back: inout Winding?) {
     var dists: [Float] = [Float](repeating: 0, count: 68)
     var sides: [Int32] = [Int32](repeating: 0, count: 68)
     var counts: [Int32] = [Int32](repeating: 0, count: 3)
@@ -476,7 +476,7 @@ ChopWindingInPlace
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:397
-func ChopWindingInPlace(_ `inout`: inout Winding?, _ normal: JKAShared.vec3_t, _ dist: Float, _ epsilon: Float) {
+public func ChopWindingInPlace(_ `inout`: inout Winding?, _ normal: JKAShared.vec3_t, _ dist: Float, _ epsilon: Float) {
     var `in`: Winding?
     var dists: [Float] = [Float](repeating: 0, count: 68)
     var sides: [Int32] = [Int32](repeating: 0, count: 68)
@@ -588,7 +588,7 @@ of the cliping plane.  The original is freed.
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:502
-func ChopWinding(_ `in`: Winding, _ normal: JKAShared.vec3_t, _ dist: Float) -> Winding? {
+public func ChopWinding(_ `in`: Winding, _ normal: JKAShared.vec3_t, _ dist: Float) -> Winding? {
     var f: Winding?
     var b: Winding?
 
@@ -609,7 +609,7 @@ CheckWinding
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:520
-func CheckWinding(_ w: Winding) {
+public func CheckWinding(_ w: Winding) {
     var i: Int32
     var j: Int32
     var d: Float
@@ -686,7 +686,7 @@ WindingOnPlaneSide
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:583
-func WindingOnPlaneSide(_ w: Winding, _ normal: JKAShared.vec3_t, _ dist: Float) -> Int32 {
+public func WindingOnPlaneSide(_ w: Winding, _ normal: JKAShared.vec3_t, _ dist: Float) -> Int32 {
     var front: Bool
     var back: Bool
     var i: Int32
@@ -726,7 +726,7 @@ func WindingOnPlaneSide(_ w: Winding, _ normal: JKAShared.vec3_t, _ dist: Float)
 }
 
 /// Source: oracle/codemp/qcommon/cm_polylib.cpp:626
-func AddWindingToConvexHull(_ w: Winding, _ hull: inout Winding?, _ normal: JKAShared.vec3_t) {
+public func AddWindingToConvexHull(_ w: Winding, _ hull: inout Winding?, _ normal: JKAShared.vec3_t) {
     var i: Int32
     var j: Int32
     var k: Int32

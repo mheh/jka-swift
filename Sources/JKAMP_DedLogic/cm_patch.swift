@@ -10,7 +10,7 @@ private let EN_BOTTOM: Int32 = 2
 private let EN_LEFT: Int32 = 3
 
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:85
-var c_totalPatchBlocks: Int32 {
+public var c_totalPatchBlocks: Int32 {
     get { world.variables.c_totalPatchBlocks }
     set { world.variables.c_totalPatchBlocks = newValue }
 }
@@ -79,7 +79,7 @@ CM_ClearLevelPatches
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:108
-func CM_ClearLevelPatches() {
+public func CM_ClearLevelPatches() {
     debugPatchCollide = nil
     debugFacet = nil
 }
@@ -1312,7 +1312,7 @@ Points is packed as concatenated rows.
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:1163
-func CM_GeneratePatchCollide(_ width: Int32, _ height: Int32, _ points: [JKAShared.vec3_t]) -> PatchCollide? {
+public func CM_GeneratePatchCollide(_ width: Int32, _ height: Int32, _ points: [JKAShared.vec3_t]) -> PatchCollide? {
     return CGrid.scratch { grid -> PatchCollide? in
         let pf: PatchCollide
         var i: Int32
@@ -1575,7 +1575,7 @@ CM_TraceThroughPatchCollide
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:1392
-func CM_TraceThroughPatchCollide(_ tw: TraceWork, _ trace: JKAMP.Trace, _ pc: PatchCollide) {
+public func CM_TraceThroughPatchCollide(_ tw: TraceWork, _ trace: JKAMP.Trace, _ pc: PatchCollide) {
     var i: Int32
     var j: Int32
     var hit: Int32 = 0
@@ -1735,7 +1735,7 @@ Modifies tr->tr if any of the facets effect the trace
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:1545
-func CM_PositionTestInPatchCollide(_ tw: TraceWork, _ pc: PatchCollide) -> Bool {
+public func CM_PositionTestInPatchCollide(_ tw: TraceWork, _ pc: PatchCollide) -> Bool {
     var i: Int32
     var j: Int32
     var offset: Float
@@ -1846,7 +1846,7 @@ var v_CM_DrawDebugSurface: Slots<JKAShared.vec3_t> { world.storage.v_CM_DrawDebu
 
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:1651
 // AI: Raven passes the points to `drawPoly` as a `float *`. The closure takes the Slots of the vectors, row N-CLOSURE.
-func CM_DrawDebugSurface(_ drawPoly: ((Int32, Int32, Slots<JKAShared.vec3_t>) -> Void)?) {
+public func CM_DrawDebugSurface(_ drawPoly: ((Int32, Int32, Slots<JKAShared.vec3_t>) -> Void)?) {
     // The renderer's R_DebugGraphics is the one caller, and the dedicated build never draws, so it is dead.
     let pc: PatchCollide
     var facet: Facet

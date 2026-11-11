@@ -10,7 +10,7 @@ import JKAMP_Ded
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_gen.cpp:35
-func GeneticSelection(_ numranks: Int32, _ rankings: Slots<Float>) -> Int32 {
+public func GeneticSelection(_ numranks: Int32, _ rankings: Slots<Float>) -> Int32 {
     var sum: Float, select: Float
     var i: Int32, index: Int32
 
@@ -61,7 +61,7 @@ func GeneticSelection(_ numranks: Int32, _ rankings: Slots<Float>) -> Int32 {
 var rankings_GeneticParentsAndChildSelection: Slots<Float> { world.storage.rankings_GeneticParentsAndChildSelection }
 
 /// Source: oracle/codemp/botlib/be_ai_gen.cpp:73
-func GeneticParentsAndChildSelection(_ numranks: Int32, _ ranks: Slots<Float>, _ parent1: inout Int32, _ parent2: inout Int32, _ child: inout Int32) -> Int32 {
+public func GeneticParentsAndChildSelection(_ numranks: Int32, _ ranks: Slots<Float>, _ parent1: inout Int32, _ parent2: inout Int32, _ child: inout Int32) -> Int32 {
     var max: Float
     var i: Int32
 

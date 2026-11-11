@@ -26,7 +26,7 @@ private let STACK_MASK = (MAX_STACK - 1)
 
 
 /// Source: oracle/codemp/qcommon/vm_interpreted.cpp:113
-func VM_Indent(_ vm: Vm) -> String {
+public func VM_Indent(_ vm: Vm) -> String {
     // AI: Raven keeps the text in a static pointer. No statement writes the text and the returned String is a copy, so the port holds it in a local.
     let string: CharBuf = "                                        "
     if vm.callLevel > 20 {
@@ -37,7 +37,7 @@ func VM_Indent(_ vm: Vm) -> String {
 }
 
 /// Source: oracle/codemp/qcommon/vm_interpreted.cpp:121
-func VM_StackTrace(_ vm: Vm, _ programCounter: Int32, _ programStack: Int32) {
+public func VM_StackTrace(_ vm: Vm, _ programCounter: Int32, _ programStack: Int32) {
     var count: Int32
     // Raven assigns his own `programCounter` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var programCounter = programCounter
@@ -67,7 +67,7 @@ VM_PrepareInterpreter
 ```
 */
 /// Source: oracle/codemp/qcommon/vm_interpreted.cpp:139
-func VM_PrepareInterpreter(_ vm: Vm, _ header: VmHeader) {
+public func VM_PrepareInterpreter(_ vm: Vm, _ header: VmHeader) {
     var op: Int32
     var pc: Int32
     var code: UnsafeMutableRawPointer
@@ -148,7 +148,7 @@ func VM_PrepareInterpreter(_ vm: Vm, _ header: VmHeader) {
 }
 
 /// Source: oracle/codemp/qcommon/vm_interpreted.cpp:296
-func VM_CallInterpreted(_ vm: Vm, _ args: [Int32]?) -> Int32 {
+public func VM_CallInterpreted(_ vm: Vm, _ args: [Int32]?) -> Int32 {
     // Port-note: Raven writes past the end of `stack` when the opStack overflows, and the Swift array traps there.
     var stack = [Int32](repeating: 0, count: Int(MAX_STACK))
     var opStack: Int32

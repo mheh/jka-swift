@@ -25,79 +25,79 @@ let INSIDEUNITS_WATERJUMP = 15 as Int32
 let AREA_WEAPONJUMP = 8192 as Int32
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:48
-var reach_swim: Int32 {
+public var reach_swim: Int32 {
     get { world.variables.reach_swim }
     set { world.variables.reach_swim = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:49
-var reach_equalfloor: Int32 {
+public var reach_equalfloor: Int32 {
     get { world.variables.reach_equalfloor }
     set { world.variables.reach_equalfloor = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:50
-var reach_step: Int32 {
+public var reach_step: Int32 {
     get { world.variables.reach_step }
     set { world.variables.reach_step = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:51
-var reach_walk: Int32 {
+public var reach_walk: Int32 {
     get { world.variables.reach_walk }
     set { world.variables.reach_walk = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:52
-var reach_barrier: Int32 {
+public var reach_barrier: Int32 {
     get { world.variables.reach_barrier }
     set { world.variables.reach_barrier = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:53
-var reach_waterjump: Int32 {
+public var reach_waterjump: Int32 {
     get { world.variables.reach_waterjump }
     set { world.variables.reach_waterjump = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:54
-var reach_walkoffledge: Int32 {
+public var reach_walkoffledge: Int32 {
     get { world.variables.reach_walkoffledge }
     set { world.variables.reach_walkoffledge = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:55
-var reach_jump: Int32 {
+public var reach_jump: Int32 {
     get { world.variables.reach_jump }
     set { world.variables.reach_jump = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:56
-var reach_ladder: Int32 {
+public var reach_ladder: Int32 {
     get { world.variables.reach_ladder }
     set { world.variables.reach_ladder = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:57
-var reach_teleport: Int32 {
+public var reach_teleport: Int32 {
     get { world.variables.reach_teleport }
     set { world.variables.reach_teleport = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:58
-var reach_elevator: Int32 {
+public var reach_elevator: Int32 {
     get { world.variables.reach_elevator }
     set { world.variables.reach_elevator = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:59
-var reach_funcbob: Int32 {
+public var reach_funcbob: Int32 {
     get { world.variables.reach_funcbob }
     set { world.variables.reach_funcbob = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:60
-var reach_grapple: Int32 {
+public var reach_grapple: Int32 {
     get { world.variables.reach_grapple }
     set { world.variables.reach_grapple = newValue }
 }
@@ -115,7 +115,7 @@ let reach_rampjump: Int32 = 0
 let reach_strafejump: Int32 = 0
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:64
-var reach_rocketjump: Int32 {
+public var reach_rocketjump: Int32 {
     get { world.variables.reach_rocketjump }
     set { world.variables.reach_rocketjump = newValue }
 }
@@ -125,37 +125,37 @@ var reach_rocketjump: Int32 {
 let reach_bfgjump: Int32 = 0
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:66
-var reach_jumppad: Int32 {
+public var reach_jumppad: Int32 {
     get { world.variables.reach_jumppad }
     set { world.variables.reach_jumppad = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:68
-var calcgrapplereach: Int32 {
+public var calcgrapplereach: Int32 {
     get { world.variables.calcgrapplereach }
     set { world.variables.calcgrapplereach = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:83
-var reachabilityheap: Slots<AasLreachability>? {
+public var reachabilityheap: Slots<AasLreachability>? {
     get { world.variables.reachabilityheap }
     set { world.variables.reachabilityheap = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:84
-var nextreachability: AasLreachability? {
+public var nextreachability: AasLreachability? {
     get { world.variables.nextreachability }
     set { world.variables.nextreachability = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:85
-var areareachability: Slots<AasLreachability?>? {
+public var areareachability: Slots<AasLreachability?>? {
     get { world.variables.areareachability }
     set { world.variables.areareachability = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:86
-var numlreachabilities: Int32 {
+public var numlreachabilities: Int32 {
     get { world.variables.numlreachabilities }
     set { world.variables.numlreachabilities = newValue }
 }
@@ -200,7 +200,7 @@ private var areas_AAS_Reachability_WalkOffLedge: Slots<Int32> { world.storage.be
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:95
-func AAS_FaceArea(_ face: AasFace) -> Float {
+public func AAS_FaceArea(_ face: AasFace) -> Float {
     var i: Int32, edgenum: Int32, side: Int32
     var total: Float
     let v: vec3_t
@@ -235,7 +235,7 @@ func AAS_FaceArea(_ face: AasFace) -> Float {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:128
-func AAS_AreaVolume(_ areanum: Int32) -> Float {
+public func AAS_AreaVolume(_ areanum: Int32) -> Float {
     var i: Int32, edgenum: Int32, facenum: Int32, side: Int32
     var d: vec_t, a: vec_t, volume: vec_t
     var corner = vec3_t()
@@ -277,7 +277,7 @@ func AAS_AreaVolume(_ areanum: Int32) -> Float {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:168
-func AAS_BestReachableLinkArea(_ areas: AasLink?) -> Int32 {
+public func AAS_BestReachableLinkArea(_ areas: AasLink?) -> Int32 {
     var link: AasLink?
 
     link = areas
@@ -308,7 +308,7 @@ func AAS_BestReachableLinkArea(_ areas: AasLink?) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:196
-func AAS_GetJumpPadInfo(_ ent: Int32, _ areastart: inout JKAShared.vec3_t, _ absmins: inout JKAShared.vec3_t, _ absmaxs: inout JKAShared.vec3_t, _ velocity: inout JKAShared.vec3_t) -> Int32 {
+public func AAS_GetJumpPadInfo(_ ent: Int32, _ areastart: inout JKAShared.vec3_t, _ absmins: inout JKAShared.vec3_t, _ absmaxs: inout JKAShared.vec3_t, _ velocity: inout JKAShared.vec3_t) -> Int32 {
     return AasTrace.scratch { trace -> Int32 in
         var modelnum: Int32, ent2: Int32
         var speed: Float = 0, height: Float, gravity: Float, time: Float, dist: Float, forward: Float
@@ -390,7 +390,7 @@ func AAS_GetJumpPadInfo(_ ent: Int32, _ areastart: inout JKAShared.vec3_t, _ abs
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:273
-func AAS_BestReachableFromJumpPadArea(_ origin: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) -> Int32 {
+public func AAS_BestReachableFromJumpPadArea(_ origin: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) -> Int32 {
     return AasClientmove.scratch { move -> Int32 in
         var area2num: Int32, ent: Int32, bot_visualizejumppads: Int32, bestareanum: Int32
         var volume: Float, bestareavolume: Float
@@ -470,7 +470,7 @@ func AAS_BestReachableFromJumpPadArea(_ origin: JKAShared.vec3_t, _ mins: JKASha
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:343
-func AAS_BestReachableArea(_ origin: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ goalorigin: inout JKAShared.vec3_t) -> Int32 {
+public func AAS_BestReachableArea(_ origin: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ goalorigin: inout JKAShared.vec3_t) -> Int32 {
     return AasTrace.scratch { trace -> Int32 in
         var areanum: Int32, i: Int32, j: Int32, k: Int32, l: Int32
         var areas: AasLink?
@@ -560,7 +560,7 @@ func AAS_BestReachableArea(_ origin: JKAShared.vec3_t, _ mins: JKAShared.vec3_t,
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:439
-func AAS_SetupReachabilityHeap() {
+public func AAS_SetupReachabilityHeap() {
     var i: Int32
 
     reachabilityheap = Slots<AasLreachability>(GetClearedMemory(AAS_MAX_REACHABILITYSIZE * Int32(AasLreachability.byteCount)), count: AAS_MAX_REACHABILITYSIZE)
@@ -581,7 +581,7 @@ func AAS_SetupReachabilityHeap() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:459
-func AAS_ShutDownReachabilityHeap() {
+public func AAS_ShutDownReachabilityHeap() {
     FreeMemory(OpaquePointer(reachabilityheap!.base))
     numlreachabilities = 0
 }
@@ -594,7 +594,7 @@ func AAS_ShutDownReachabilityHeap() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:471
-func AAS_AllocReachability() -> AasLreachability? {
+public func AAS_AllocReachability() -> AasLreachability? {
     var r: AasLreachability?
 
     if nextreachability == nil { return nil }
@@ -615,7 +615,7 @@ func AAS_AllocReachability() -> AasLreachability? {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:491
-func AAS_FreeReachability(_ lreach: AasLreachability) {
+public func AAS_FreeReachability(_ lreach: AasLreachability) {
     lreach.clear()
 
     lreach.next = nextreachability
@@ -631,7 +631,7 @@ func AAS_FreeReachability(_ lreach: AasLreachability) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:506
-func AAS_AreaReachability(_ areanum: Int32) -> Int32 {
+public func AAS_AreaReachability(_ areanum: Int32) -> Int32 {
     if areanum < 0 || areanum >= aasworld.numareas {
         AAS_Error("AAS_AreaReachability: areanum %d out of range", areanum)
         return 0
@@ -647,7 +647,7 @@ func AAS_AreaReachability(_ areanum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:522
-func AAS_AreaGroundFaceArea(_ areanum: Int32) -> Float {
+public func AAS_AreaGroundFaceArea(_ areanum: Int32) -> Float {
     var i: Int32
     var total: Float
     var area: AasArea
@@ -677,7 +677,7 @@ func AAS_AreaGroundFaceArea(_ areanum: Int32) -> Float {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:547
-func AAS_FaceCenter(_ facenum: Int32, _ center: inout JKAShared.vec3_t) {
+public func AAS_FaceCenter(_ facenum: Int32, _ center: inout JKAShared.vec3_t) {
     var i: Int32
     var scale: Float
     var face: AasFace
@@ -706,7 +706,7 @@ func AAS_FaceCenter(_ facenum: Int32, _ center: inout JKAShared.vec3_t) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:574
-func AAS_FallDamageDistance() -> Int32 {
+public func AAS_FallDamageDistance() -> Int32 {
     var maxzvelocity: Float, gravity: Float, t: Float
 
     maxzvelocity = sqrt(Float(30 * 10000))
@@ -725,7 +725,7 @@ func AAS_FallDamageDistance() -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:592
-func AAS_FallDelta(_ distance: Float) -> Float {
+public func AAS_FallDelta(_ distance: Float) -> Float {
     var t: Float, delta: Float, gravity: Float
 
     gravity = aassettings.phys_gravity
@@ -741,7 +741,7 @@ func AAS_FallDelta(_ distance: Float) -> Float {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:607
-func AAS_MaxJumpHeight(_ phys_jumpvel: Float) -> Float {
+public func AAS_MaxJumpHeight(_ phys_jumpvel: Float) -> Float {
     var phys_gravity: Float
 
     phys_gravity = aassettings.phys_gravity
@@ -757,7 +757,7 @@ func AAS_MaxJumpHeight(_ phys_jumpvel: Float) -> Float {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:622
-func AAS_MaxJumpDistance(_ phys_jumpvel: Float) -> Float {
+public func AAS_MaxJumpDistance(_ phys_jumpvel: Float) -> Float {
     var phys_gravity: Float, phys_maxvelocity: Float, t: Float
 
     phys_gravity = aassettings.phys_gravity
@@ -776,7 +776,7 @@ func AAS_MaxJumpDistance(_ phys_jumpvel: Float) -> Float {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:640
-func AAS_AreaCrouch(_ areanum: Int32) -> Int32 {
+public func AAS_AreaCrouch(_ areanum: Int32) -> Int32 {
     if (aasworld.areasettingsSlots[areanum].presencetype & PRESENCE_NORMAL) == 0 {
         return 1
     } else {
@@ -792,7 +792,7 @@ func AAS_AreaCrouch(_ areanum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:652
-func AAS_AreaSwim(_ areanum: Int32) -> Int32 {
+public func AAS_AreaSwim(_ areanum: Int32) -> Int32 {
     if (aasworld.areasettingsSlots[areanum].areaflags & AREA_LIQUID) != 0 {
         return 1
     } else {
@@ -808,7 +808,7 @@ func AAS_AreaSwim(_ areanum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:664
-func AAS_AreaLiquid(_ areanum: Int32) -> Int32 {
+public func AAS_AreaLiquid(_ areanum: Int32) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     if (aasworld.areasettingsSlots[areanum].areaflags & AREA_LIQUID) != 0 { return 1 }
     else { return 0 }
@@ -821,7 +821,7 @@ func AAS_AreaLiquid(_ areanum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:675
-func AAS_AreaLava(_ areanum: Int32) -> Int32 {
+public func AAS_AreaLava(_ areanum: Int32) -> Int32 {
     return (aasworld.areasettingsSlots[areanum].contents & AREACONTENTS_LAVA)
 }
 
@@ -832,7 +832,7 @@ func AAS_AreaLava(_ areanum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:685
-func AAS_AreaSlime(_ areanum: Int32) -> Int32 {
+public func AAS_AreaSlime(_ areanum: Int32) -> Int32 {
     return (aasworld.areasettingsSlots[areanum].contents & AREACONTENTS_SLIME)
 }
 
@@ -844,7 +844,7 @@ func AAS_AreaSlime(_ areanum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:696
-func AAS_AreaGrounded(_ areanum: Int32) -> Int32 {
+public func AAS_AreaGrounded(_ areanum: Int32) -> Int32 {
     return (aasworld.areasettingsSlots[areanum].areaflags & AREA_GROUNDED)
 }
 
@@ -856,7 +856,7 @@ func AAS_AreaGrounded(_ areanum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:707
-func AAS_AreaLadder(_ areanum: Int32) -> Int32 {
+public func AAS_AreaLadder(_ areanum: Int32) -> Int32 {
     return (aasworld.areasettingsSlots[areanum].areaflags & AREA_LADDER)
 }
 
@@ -867,7 +867,7 @@ func AAS_AreaLadder(_ areanum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:717
-func AAS_AreaJumpPad(_ areanum: Int32) -> Int32 {
+public func AAS_AreaJumpPad(_ areanum: Int32) -> Int32 {
     return (aasworld.areasettingsSlots[areanum].contents & AREACONTENTS_JUMPPAD)
 }
 
@@ -878,7 +878,7 @@ func AAS_AreaJumpPad(_ areanum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:727
-func AAS_AreaTeleporter(_ areanum: Int32) -> Int32 {
+public func AAS_AreaTeleporter(_ areanum: Int32) -> Int32 {
     return (aasworld.areasettingsSlots[areanum].contents & AREACONTENTS_TELEPORTER)
 }
 
@@ -889,7 +889,7 @@ func AAS_AreaTeleporter(_ areanum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:737
-func AAS_AreaClusterPortal(_ areanum: Int32) -> Int32 {
+public func AAS_AreaClusterPortal(_ areanum: Int32) -> Int32 {
     return (aasworld.areasettingsSlots[areanum].contents & AREACONTENTS_CLUSTERPORTAL)
 }
 
@@ -900,7 +900,7 @@ func AAS_AreaClusterPortal(_ areanum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:747
-func AAS_AreaDoNotEnter(_ areanum: Int32) -> Int32 {
+public func AAS_AreaDoNotEnter(_ areanum: Int32) -> Int32 {
     return (aasworld.areasettingsSlots[areanum].contents & AREACONTENTS_DONOTENTER)
 }
 
@@ -912,7 +912,7 @@ func AAS_AreaDoNotEnter(_ areanum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:758
-func AAS_BarrierJumpTravelTime() -> Int32 {
+public func AAS_BarrierJumpTravelTime() -> Int32 {
     // Port-note: Raven calls this function only from a comment, at be_aas_reach.cpp:1471, so it is dead.
     return Int32(UInt16(truncatingIfNeeded: Int32(Double(aassettings.phys_jumpvel) / (Double(aassettings.phys_gravity) * 0.1))))
 }
@@ -925,7 +925,7 @@ func AAS_BarrierJumpTravelTime() -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:769
-func AAS_ReachabilityExists(_ area1num: Int32, _ area2num: Int32) -> Bool {
+public func AAS_ReachabilityExists(_ area1num: Int32, _ area2num: Int32) -> Bool {
     var r: AasLreachability?
 
     r = areareachability![area1num]
@@ -945,7 +945,7 @@ func AAS_ReachabilityExists(_ area1num: Int32, _ area2num: Int32) -> Bool {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:787
-func AAS_NearbySolidOrGap(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) -> Int32 {
+public func AAS_NearbySolidOrGap(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) -> Int32 {
     // Port-note: Raven calls this function only from comments, at be_aas_reach.cpp:978 and in the blocks of :1022 and :1366, so it is dead.
     var dir = vec3_t(), testpoint = vec3_t()
     var areanum: Int32
@@ -977,7 +977,7 @@ func AAS_NearbySolidOrGap(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) ->
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:819
-func AAS_Reachability_Swim(_ area1num: Int32, _ area2num: Int32) -> Int32 {
+public func AAS_Reachability_Swim(_ area1num: Int32, _ area2num: Int32) -> Int32 {
     var i: Int32, j: Int32, face1num: Int32, face2num: Int32, side1: Int32
     var area1: AasArea, area2: AasArea
     var areasettings: AasAreasettings
@@ -1057,7 +1057,7 @@ func AAS_Reachability_Swim(_ area1num: Int32, _ area2num: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:896
-func AAS_Reachability_EqualFloorHeight(_ area1num: Int32, _ area2num: Int32) -> Int32 {
+public func AAS_Reachability_EqualFloorHeight(_ area1num: Int32, _ area2num: Int32) -> Int32 {
     return AasLreachability.scratch { lr -> Int32 in
         var i: Int32, j: Int32, edgenum: Int32, edgenum1: Int32, edgenum2: Int32, foundreach: Int32, side: Int32
         var height: Float, bestheight: Float, length: Float, bestlength: Float
@@ -1213,7 +1213,7 @@ func AAS_Reachability_EqualFloorHeight(_ area1num: Int32, _ area2num: Int32) -> 
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:1042
-func AAS_Reachability_Step_Barrier_WaterJump_WalkOffLedge(_ area1num: Int32, _ area2num: Int32) -> Int32 {
+public func AAS_Reachability_Step_Barrier_WaterJump_WalkOffLedge(_ area1num: Int32, _ area2num: Int32) -> Int32 {
     return AasTrace.scratch { trace -> Int32 in
         // AI: Raven declares `int areas[10]` on his stack.
         // The body uses the zeroed allocation of the storage class through the `areas_AAS_Reachability_Step_Barrier_WaterJump_WalkOffLedge` forward.
@@ -1785,7 +1785,7 @@ private func VectorDistance(_ v1: JKAShared.vec3_t, _ v2: JKAShared.vec3_t) -> F
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:1607
-func VectorBetweenVectors(_ v: JKAShared.vec3_t, _ v1: JKAShared.vec3_t, _ v2: JKAShared.vec3_t) -> Int32 {
+public func VectorBetweenVectors(_ v: JKAShared.vec3_t, _ v1: JKAShared.vec3_t, _ v2: JKAShared.vec3_t) -> Int32 {
     var dir1 = vec3_t(), dir2 = vec3_t()
 
     dir1 = v - v1
@@ -1801,13 +1801,13 @@ func VectorBetweenVectors(_ v: JKAShared.vec3_t, _ v1: JKAShared.vec3_t, _ v2: J
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:1622
-func VectorMiddle(_ v1: JKAShared.vec3_t, _ v2: JKAShared.vec3_t, _ middle: inout JKAShared.vec3_t) {
+public func VectorMiddle(_ v1: JKAShared.vec3_t, _ v2: JKAShared.vec3_t, _ middle: inout JKAShared.vec3_t) {
     middle = v1 + v2
     middle = middle * 0.5
 }
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:1814
-func AAS_ClosestEdgePoints(_ v1: JKAShared.vec3_t, _ v2: JKAShared.vec3_t, _ v3: JKAShared.vec3_t, _ v4: JKAShared.vec3_t, _ plane1: AasPlane, _ plane2: AasPlane, _ beststart1: inout JKAShared.vec3_t, _ bestend1: inout JKAShared.vec3_t, _ beststart2: inout JKAShared.vec3_t, _ bestend2: inout JKAShared.vec3_t, _ bestdist: Float) -> Float {
+public func AAS_ClosestEdgePoints(_ v1: JKAShared.vec3_t, _ v2: JKAShared.vec3_t, _ v3: JKAShared.vec3_t, _ v4: JKAShared.vec3_t, _ plane1: AasPlane, _ plane2: AasPlane, _ beststart1: inout JKAShared.vec3_t, _ bestend1: inout JKAShared.vec3_t, _ beststart2: inout JKAShared.vec3_t, _ bestend2: inout JKAShared.vec3_t, _ bestdist: Float) -> Float {
     var bestdist = bestdist
     var dir1 = vec3_t(), dir2 = vec3_t(), p1 = vec3_t(), p2 = vec3_t(), p3 = vec3_t(), p4 = vec3_t()
     var a1: Float, a2: Float, b1: Float, b2: Float, dist: Float, dist1: Float, dist2: Float
@@ -2047,7 +2047,7 @@ func AAS_ClosestEdgePoints(_ v1: JKAShared.vec3_t, _ v2: JKAShared.vec3_t, _ v3:
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:2092
-func AAS_Reachability_Jump(_ area1num: Int32, _ area2num: Int32) -> Int32 {
+public func AAS_Reachability_Jump(_ area1num: Int32, _ area2num: Int32) -> Int32 {
     return AasTrace.scratch { trace -> Int32 in
         return AasClientmove.scratch { move -> Int32 in
             // AI: Raven declares `int areas[10]` on his stack.
@@ -2330,7 +2330,7 @@ func AAS_Reachability_Jump(_ area1num: Int32, _ area2num: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:2363
-func AAS_Reachability_Ladder(_ area1num: Int32, _ area2num: Int32) -> Int32 {
+public func AAS_Reachability_Ladder(_ area1num: Int32, _ area2num: Int32) -> Int32 {
     return AasTrace.scratch { trace -> Int32 in
         var area2num = area2num
         var i: Int32, j: Int32, k: Int32, l: Int32, edge1num: Int32, edge2num: Int32, sharededgenum: Int32, lowestedgenum: Int32
@@ -2666,7 +2666,7 @@ func AAS_Reachability_Ladder(_ area1num: Int32, _ area2num: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:2706
-func AAS_TravelFlagsForTeam(_ ent: Int32) -> Int32 {
+public func AAS_TravelFlagsForTeam(_ ent: Int32) -> Int32 {
     var notteam: Int32 = 0
 
     if AAS_IntForBSPEpairKey(ent, "bot_notteam", &notteam) == 0 {
@@ -2700,7 +2700,7 @@ func AAS_TravelFlagsForTeam(_ ent: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:2736
-func AAS_Reachability_Teleport() {
+public func AAS_Reachability_Teleport() {
     AasTrace.scratch { trace -> Void in
         AasClientmove.scratch { move -> Void in
             var area1num: Int32, area2num: Int32
@@ -2903,7 +2903,7 @@ func AAS_Reachability_Teleport() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:2930
-func AAS_Reachability_Elevator() {
+public func AAS_Reachability_Elevator() {
     AasTrace.scratch { trace -> Void in
         var area1num: Int32 = 0, area2num: Int32, modelnum: Int32, i: Int32, j: Int32, k: Int32, l: Int32, n: Int32, p: Int32
         var lip: Float = 0, height: Float = 0, speed: Float = 0
@@ -3170,7 +3170,7 @@ func AAS_Reachability_Elevator() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:3145
-func AAS_FindFaceReachabilities(_ facepoints: Slots<JKAShared.vec3_t>, _ numpoints: Int32, _ plane: AasPlane, _ towardsface: Int32) -> AasLreachability? {
+public func AAS_FindFaceReachabilities(_ facepoints: Slots<JKAShared.vec3_t>, _ numpoints: Int32, _ plane: AasPlane, _ towardsface: Int32) -> AasLreachability? {
     var i: Int32, j: Int32, k: Int32, l: Int32
     var facenum: Int32, edgenum: Int32, bestfacenum: Int32
     var v1 = vec3_t(), v2 = vec3_t(), v3 = vec3_t(), v4 = vec3_t()
@@ -3317,7 +3317,7 @@ func AAS_FindFaceReachabilities(_ facepoints: Slots<JKAShared.vec3_t>, _ numpoin
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:3268
-func AAS_Reachability_FuncBobbing() {
+public func AAS_Reachability_FuncBobbing() {
     AasPlane.scratch { start_plane -> Void in
         AasPlane.scratch { end_plane -> Void in
             // AI: Raven declares `int areas[10]` on his stack.
@@ -3570,7 +3570,7 @@ func AAS_Reachability_FuncBobbing() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:3482
-func AAS_Reachability_JumpPad() {
+public func AAS_Reachability_JumpPad() {
     AasClientmove.scratch { move -> Void in
         var face2num: Int32, i: Int32, ret: Int32, area2num: Int32, visualize: Int32, ent: Int32, bot_visualizejumppads: Int32
         //int modelnum, ent2;
@@ -3893,7 +3893,7 @@ func AAS_Reachability_JumpPad() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:3776
-func AAS_Reachability_Grapple(_ area1num: Int32, _ area2num: Int32) -> Int32 {
+public func AAS_Reachability_Grapple(_ area1num: Int32, _ area2num: Int32) -> Int32 {
     return BspTrace.scratch { bsptrace -> Int32 in
         return AasTrace.scratch { trace -> Int32 in
             // AI: Raven declares `int areas[20]` on his stack.
@@ -4086,7 +4086,7 @@ func AAS_Reachability_Grapple(_ area1num: Int32, _ area2num: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:3917
-func AAS_SetWeaponJumpAreaFlags() {
+public func AAS_SetWeaponJumpAreaFlags() {
     var ent: Int32, i: Int32
     let mins = vec3_t(-15, -15, -15), maxs = vec3_t(15, 15, 15)
     var origin = vec3_t()
@@ -4152,7 +4152,7 @@ func AAS_SetWeaponJumpAreaFlags() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:3984
-func AAS_Reachability_WeaponJump(_ area1num: Int32, _ area2num: Int32) -> Int32 {
+public func AAS_Reachability_WeaponJump(_ area1num: Int32, _ area2num: Int32) -> Int32 {
     return AasTrace.scratch { trace -> Int32 in
         return AasClientmove.scratch { move -> Int32 in
             var face2num: Int32, i: Int32, n: Int32, ret: Int32, visualize: Int32
@@ -4284,7 +4284,7 @@ func AAS_Reachability_WeaponJump(_ area1num: Int32, _ area2num: Int32) -> Int32 
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:4109
-func AAS_Reachability_WalkOffLedge(_ areanum: Int32) {
+public func AAS_Reachability_WalkOffLedge(_ areanum: Int32) {
     AasTrace.scratch { trace -> Void in
         // AI: Raven declares `int areas[10]` on his stack.
         // The body uses the zeroed allocation of the storage class through the `areas_AAS_Reachability_WalkOffLedge` forward.
@@ -4479,7 +4479,7 @@ func AAS_Reachability_WalkOffLedge(_ areanum: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:4290
-func AAS_StoreReachability() {
+public func AAS_StoreReachability() {
     var i: Int32
     var areasettings: AasAreasettings
     var lreach: AasLreachability?
@@ -4559,7 +4559,7 @@ var lastpercentage: Int32 {
 }
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:4347
-func AAS_ContinueInitReachability(_ time: Float) -> Int32 {
+public func AAS_ContinueInitReachability(_ time: Float) -> Int32 {
     var i: Int32, j: Int32, todo: Int32
     let start_time: Int32
 
@@ -4715,7 +4715,7 @@ func AAS_ContinueInitReachability(_ time: Float) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:4494
-func AAS_InitReachability() {
+public func AAS_InitReachability() {
     if aasworld.loaded == 0 { return }
 
     if aasworld.reachabilitysize != 0 {

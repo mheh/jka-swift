@@ -213,7 +213,7 @@ public let bg_parryDebounce: [Int32] = [
 ]
 
 /// Source: oracle/codemp/game/bg_saber.c:10
-func PM_irand_timesync(_ val1: Int32, _ val2: Int32) -> Int32 {
+public func PM_irand_timesync(_ val1: Int32, _ val2: Int32) -> Int32 {
     var i: Int32
 
     i = Int32((val1 - 1) + (Q_random(&pm.cmd.serverTime) * (val2 - val1)) + 1)
@@ -287,7 +287,7 @@ public func BG_ForcePowerDrain(_ ps: JKAMP.PlayerState, _ forcePower: JKAMP.forc
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:102
-func BG_EnoughForcePowerForMove(_ cost: Int32) -> Bool {
+public func BG_EnoughForcePowerForMove(_ cost: Int32) -> Bool {
     if pm.ps.fd.forcePower < cost {
         PM_AddEvent(EV_NOAMMO)
         return false
@@ -297,7 +297,7 @@ func BG_EnoughForcePowerForMove(_ cost: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:392
-func PM_AttackMoveForQuad(_ quad: Int32) -> JKAMP.saberMoveName_t {
+public func PM_AttackMoveForQuad(_ quad: Int32) -> JKAMP.saberMoveName_t {
     switch quad {
     case Q_B, Q_BR:
         return LS_A_BR2TL
@@ -327,7 +327,7 @@ func PM_AttackMoveForQuad(_ quad: Int32) -> JKAMP.saberMoveName_t {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:424
-func PM_SaberAnimTransitionAnim(_ curmove: Int32, _ newmove: Int32) -> Int32 {
+public func PM_SaberAnimTransitionAnim(_ curmove: Int32, _ newmove: Int32) -> Int32 {
     var retmove: Int32 = newmove
     if curmove == LS_READY {
         //just standing there
@@ -414,7 +414,7 @@ func PM_SaberAnimTransitionAnim(_ curmove: Int32, _ newmove: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:584
-func PM_CheckStabDown() -> JKAMP.saberMoveName_t {
+public func PM_CheckStabDown() -> JKAMP.saberMoveName_t {
     var faceFwd = vec3_t()
     var facingAngles = vec3_t()
     var fwd = vec3_t()
@@ -476,7 +476,7 @@ func PM_CheckStabDown() -> JKAMP.saberMoveName_t {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:650
-func PM_SaberMoveQuadrantForMovement(_ ucmd: JKAMP.Usercmd) -> Int32 {
+public func PM_SaberMoveQuadrantForMovement(_ ucmd: JKAMP.Usercmd) -> Int32 {
     if ucmd.rightmove > 0 {
         //moving right
         if ucmd.forwardmove > 0 {
@@ -529,7 +529,7 @@ public func PM_SaberInBounce(_ move: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:783
-func PM_SaberAttackChainAngle(_ move1: Int32, _ move2: Int32) -> Int32 {
+public func PM_SaberAttackChainAngle(_ move1: Int32, _ move2: Int32) -> Int32 {
     if move1 == -1 || move2 == -1 {
         return -1
     }
@@ -537,7 +537,7 @@ func PM_SaberAttackChainAngle(_ move1: Int32, _ move2: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:792
-func PM_SaberKataDone(_ curmove: Int32, _ newmove: Int32) -> Bool {
+public func PM_SaberKataDone(_ curmove: Int32, _ newmove: Int32) -> Bool {
     if pm.ps.m_iVehicleNum != 0 {
         //never continue kata on vehicle
         if pm.ps.saberAttackChainCount > 0 {
@@ -604,12 +604,12 @@ func PM_SaberKataDone(_ curmove: Int32, _ newmove: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:886
-func PM_SetAnimFrame(_ gent: JKAMP.PlayerState, _ frame: Int32, _ torso: Bool, _ legs: Bool) {
+public func PM_SetAnimFrame(_ gent: JKAMP.PlayerState, _ frame: Int32, _ torso: Bool, _ legs: Bool) {
     gent.saberLockFrame = frame
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:891
-func PM_SaberLockWinAnim(_ victory: Bool, _ superBreak: Bool) -> Int32 {
+public func PM_SaberLockWinAnim(_ victory: Bool, _ superBreak: Bool) -> Int32 {
     var winAnim: Int32 = -1
     switch pm.ps.torsoAnim {
     /*
@@ -681,7 +681,7 @@ func PM_SaberLockWinAnim(_ victory: Bool, _ superBreak: Bool) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:1000
-func PM_SaberLockLoseAnim(_ genemy: JKAMP.PlayerState, _ victory: Bool, _ superBreak: Bool) -> Int32 {
+public func PM_SaberLockLoseAnim(_ genemy: JKAMP.PlayerState, _ victory: Bool, _ superBreak: Bool) -> Int32 {
     var loseAnim: Int32 = -1
     switch genemy.torsoAnim {
     /*
@@ -782,7 +782,7 @@ func PM_SaberLockLoseAnim(_ genemy: JKAMP.PlayerState, _ victory: Bool, _ superB
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:1128
-func PM_SaberLockResultAnim(_ duelist: JKAMP.PlayerState, _ superBreak: Bool, _ won: Bool) -> Int32 {
+public func PM_SaberLockResultAnim(_ duelist: JKAMP.PlayerState, _ superBreak: Bool, _ won: Bool) -> Int32 {
     var baseAnim: Int32 = duelist.torsoAnim
     switch baseAnim {
     case BOTH_LK_S_S_S_L_2: //lock if I'm using single vs. a single and other intitiated
@@ -872,7 +872,7 @@ func PM_SaberLockResultAnim(_ duelist: JKAMP.PlayerState, _ superBreak: Bool, _ 
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:1234
-func PM_SaberLockBreak(_ genemy: JKAMP.PlayerState, _ victory: Bool, _ strength: Int32) {
+public func PM_SaberLockBreak(_ genemy: JKAMP.PlayerState, _ victory: Bool, _ strength: Int32) {
     var winAnim: Int32 = BOTH_STAND1
     var loseAnim: Int32 = BOTH_STAND1
     //qboolean punishLoser = qfalse;
@@ -1027,7 +1027,7 @@ public func BG_CheckIncrementLockAnim(_ anim: Int32, _ winOrLose: Int32) -> Bool
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:1401
-func PM_SaberLocked() {
+public func PM_SaberLocked() {
     var remaining: Int32 = 0
     var genemy: PlayerState?
     let eGenemy: BgEntity? = PM_BGEntForNum(pm.ps.saberLockEnemy)
@@ -1186,7 +1186,7 @@ public func PM_SaberInBrokenParry(_ move: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:1597
-func PM_BrokenParryForParry(_ move: Int32) -> Int32 {
+public func PM_BrokenParryForParry(_ move: Int32) -> Int32 {
     switch move {
     case LS_PARRY_UP:
         return LS_H1_T_
@@ -1213,7 +1213,7 @@ func PM_BrokenParryForParry(_ move: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:1625
-func PM_CanBackstab() -> Bool {
+public func PM_CanBackstab() -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { tr -> Bool in
@@ -1251,7 +1251,7 @@ func PM_CanBackstab() -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:1657
-func PM_SaberFlipOverAttackMove() -> JKAMP.saberMoveName_t {
+public func PM_SaberFlipOverAttackMove() -> JKAMP.saberMoveName_t {
     var fwdAngles = vec3_t()
     var jumpFwd = vec3_t()
     //	float zDiff = 0;
@@ -1345,7 +1345,7 @@ func PM_SaberFlipOverAttackMove() -> JKAMP.saberMoveName_t {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:1755
-func PM_SaberBackflipAttackMove() -> Int32 {
+public func PM_SaberBackflipAttackMove() -> Int32 {
     let saber1: SaberInfo? = BG_MySaber(pm.ps.clientNum, 0)
     let saber2: SaberInfo? = BG_MySaber(pm.ps.clientNum, 1)
     //see if we have an overridden (or cancelled) lunge move
@@ -1373,7 +1373,7 @@ func PM_SaberBackflipAttackMove() -> Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:1793
-func PM_SaberDualJumpAttackMove() -> Int32 {
+public func PM_SaberDualJumpAttackMove() -> Int32 {
     //FIXME: to make this move easier to execute, should be allowed to do it
     //		after you've already started your jump... but jump is delayed in
     //		this anim, so how do we undo the jump?
@@ -1382,7 +1382,7 @@ func PM_SaberDualJumpAttackMove() -> Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:1804
-func PM_SomeoneInFront(_ tr: JKAMP.Trace) -> Bool {
+public func PM_SomeoneInFront(_ tr: JKAMP.Trace) -> Bool {
     //Also a very simplified version of the sp counterpart
     var flatAng = vec3_t()
     var fwd = vec3_t()
@@ -1417,7 +1417,7 @@ func PM_SomeoneInFront(_ tr: JKAMP.Trace) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:1835
-func PM_SaberLungeAttackMove(_ noSpecials: Bool) -> JKAMP.saberMoveName_t {
+public func PM_SaberLungeAttackMove(_ noSpecials: Bool) -> JKAMP.saberMoveName_t {
     var fwdAngles = vec3_t()
     var jumpFwd = vec3_t()
     let saber1: SaberInfo? = BG_MySaber(pm.ps.clientNum, 0)
@@ -1464,7 +1464,7 @@ func PM_SaberLungeAttackMove(_ noSpecials: Bool) -> JKAMP.saberMoveName_t {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:1891
-func PM_SaberJumpAttackMove2() -> JKAMP.saberMoveName_t {
+public func PM_SaberJumpAttackMove2() -> JKAMP.saberMoveName_t {
     let saber1: SaberInfo? = BG_MySaber(pm.ps.clientNum, 0)
     let saber2: SaberInfo? = BG_MySaber(pm.ps.clientNum, 1)
     //see if we have an overridden (or cancelled) lunge move
@@ -1507,7 +1507,7 @@ func PM_SaberJumpAttackMove2() -> JKAMP.saberMoveName_t {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:1947
-func PM_SaberJumpAttackMove() -> JKAMP.saberMoveName_t {
+public func PM_SaberJumpAttackMove() -> JKAMP.saberMoveName_t {
     var fwdAngles = vec3_t()
     var jumpFwd = vec3_t()
     let saber1: SaberInfo? = BG_MySaber(pm.ps.clientNum, 0)
@@ -1551,7 +1551,7 @@ func PM_SaberJumpAttackMove() -> JKAMP.saberMoveName_t {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:1995
-func PM_GroundDistance() -> Float {
+public func PM_GroundDistance() -> Float {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { tr -> Float in
@@ -1570,7 +1570,7 @@ func PM_GroundDistance() -> Float {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:2011
-func PM_WalkableGroundDistance() -> Float {
+public func PM_WalkableGroundDistance() -> Float {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { tr -> Float in
@@ -1687,7 +1687,7 @@ private func PM_CheckEnemyPresence(_ dir: Int32, _ radius: Float) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:2117
-func PM_CheckPullAttack() -> JKAMP.saberMoveName_t {
+public func PM_CheckPullAttack() -> JKAMP.saberMoveName_t {
     //&& (pm->ps->clientNum < MAX_CLIENTS||PM_ControlledByPlayer())//PLAYER ONLY
     //&& G_TryingPullAttack( pm->gent, &pm->cmd, qfalse )
     //&& pm->ps->fd.forcePowerLevel[FP_PULL]
@@ -1764,7 +1764,7 @@ func PM_CheckPullAttack() -> JKAMP.saberMoveName_t {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:2228
-func PM_InSecondaryStyle() -> Bool {
+public func PM_InSecondaryStyle() -> Bool {
     if pm.ps.fd.saberAnimLevelBase == SS_STAFF || pm.ps.fd.saberAnimLevelBase == SS_DUAL {
         if pm.ps.fd.saberAnimLevel != pm.ps.fd.saberAnimLevelBase {
             return true
@@ -1774,7 +1774,7 @@ func PM_InSecondaryStyle() -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:2241
-func PM_SaberAttackForMovement(_ curmove: JKAMP.saberMoveName_t) -> JKAMP.saberMoveName_t {
+public func PM_SaberAttackForMovement(_ curmove: JKAMP.saberMoveName_t) -> JKAMP.saberMoveName_t {
     var newmove: saberMoveName_t = LS_NONE
     let noSpecials: Bool = PM_InSecondaryStyle()
     var allowCartwheels: Bool = true
@@ -2030,7 +2030,7 @@ func PM_SaberAttackForMovement(_ curmove: JKAMP.saberMoveName_t) -> JKAMP.saberM
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:2620
-func PM_KickMoveForConditions() -> Int32 {
+public func PM_KickMoveForConditions() -> Int32 {
     var kickMove: Int32 = -1
 
     //FIXME: only if FP_SABER_OFFENSE >= 3
@@ -2095,7 +2095,7 @@ func PM_KickMoveForConditions() -> Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:2696
-func PM_SaberMoveOkayForKata() -> Bool {
+public func PM_SaberMoveOkayForKata() -> Bool {
     if pm.ps.saberMove == LS_READY || PM_SaberInStart(pm.ps.saberMove) {
         return true
     } else {
@@ -2104,7 +2104,7 @@ func PM_SaberMoveOkayForKata() -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:2709
-func PM_CanDoKata() -> Bool {
+public func PM_CanDoKata() -> Bool {
     if PM_InSecondaryStyle() {
         return false
     }
@@ -2127,7 +2127,7 @@ func PM_CanDoKata() -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:2750
-func PM_CheckAltKickAttack() -> Bool {
+public func PM_CheckAltKickAttack() -> Bool {
     if pm.ps.weapon == WP_SABER {
         var saber: SaberInfo? = BG_MySaber(pm.ps.clientNum, 0)
         if saber != nil && (saber!.saberFlags & SFL_NO_KICKS) != 0 {
@@ -2145,7 +2145,7 @@ func PM_CheckAltKickAttack() -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:2785
-func PM_SaberPowerCheck() -> Bool {
+public func PM_SaberPowerCheck() -> Bool {
     if pm.ps.saberInFlight {
         //so we don't keep doing stupid force out thing while guiding saber.
         if pm.ps.fd.forcePower > forcePowerNeeded[pm.ps.fd.forcePowerLevel[FP_SABERTHROW]][FP_SABERTHROW] {
@@ -2159,7 +2159,7 @@ func PM_SaberPowerCheck() -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:2802
-func PM_CanDoRollStab() -> Bool {
+public func PM_CanDoRollStab() -> Bool {
     if pm.ps.weapon == WP_SABER {
         var saber: SaberInfo? = BG_MySaber(pm.ps.clientNum, 0)
         if saber != nil && (saber!.saberFlags & SFL_NO_ROLL_STAB) != 0 {
@@ -2174,7 +2174,7 @@ func PM_CanDoRollStab() -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:2836
-func PM_WeaponLightsaber() {
+public func PM_WeaponLightsaber() {
     var addTime: Int32 = 0
     var amount: Int32 = 0
     let delayed_fire: Bool = false
@@ -2957,7 +2957,7 @@ func PM_WeaponLightsaber() {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:3802
-func PM_SetSaberMove(_ newMove: Int32) {
+public func PM_SetSaberMove(_ newMove: Int32) {
     var setflags: UInt32 = saberMoveData[newMove].animSetFlags
     var anim: Int32 = saberMoveData[newMove].animToUse
     var parts: Int32 = SETANIM_TORSO
@@ -3159,7 +3159,7 @@ func PM_SetSaberMove(_ newMove: Int32) {
 }
 
 /// Source: oracle/codemp/game/bg_saber.c:4100
-func BG_MySaber(_ clientNum: Int32, _ saberNum: Int32) -> JKAMP.SaberInfo? {
+public func BG_MySaber(_ clientNum: Int32, _ saberNum: Int32) -> JKAMP.SaberInfo? {
     //returns a pointer to the requested saberNum
     switch bg.consumer {
     case .game:

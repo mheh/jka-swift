@@ -4,11 +4,11 @@
 #define JKA_CODEMP_UI_UI_SHARED_DISPLAYCONTEXTDEF_T_H
 
 #include "CJKAMP_CGame_forward.h"
+#include "cachedAssets_t.h"
 #include "codemp/cgame/tr_types/glconfig_t.h"
 #include "codemp/cgame/tr_types/refEntity_t.h"
 #include "codemp/cgame/tr_types/refdef_t.h"
 #include "codemp/game/q_shared/qboolean.h"
-#include "codemp/ui/ui_shared/cachedAssets_t.h"
 #include "shared/game/q_shared/qhandle_t.h"
 #include "shared/game/q_shared/sfxHandle_t.h"
 #include "shared/game/q_shared/vec3_t.h"

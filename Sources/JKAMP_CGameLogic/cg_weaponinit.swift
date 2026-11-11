@@ -14,7 +14,7 @@ The server says this item is used on this level
 ```
 */
 /// Source: oracle/codemp/cgame/cg_weaponinit.c:14
-func CG_RegisterWeapon(_ weaponNum: Int32) {
+public func CG_RegisterWeapon(_ weaponNum: Int32) {
     var weaponInfo: WeaponInfo?
     var itemIndex: Int32
     var ammoIndex: Int32

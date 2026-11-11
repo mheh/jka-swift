@@ -8,7 +8,7 @@ import JKAMP_BG
 let MISSILE_PRESTEP_TIME = 50 as Int32
 
 /// Source: oracle/codemp/game/g_missile.c:24
-func G_ReflectMissile(_ ent: Entity, _ missile: Entity, _ forward: JKAShared.vec3_t) {
+public func G_ReflectMissile(_ ent: Entity, _ missile: Entity, _ forward: JKAShared.vec3_t) {
     var bounce_dir = vec3_t()
     var i: Int32
     var speed: Float
@@ -72,7 +72,7 @@ func G_ReflectMissile(_ ent: Entity, _ missile: Entity, _ forward: JKAShared.vec
 }
 
 /// Source: oracle/codemp/game/g_missile.c:91
-func G_DeflectMissile(_ ent: Entity, _ missile: Entity, _ forward: JKAShared.vec3_t) {
+public func G_DeflectMissile(_ ent: Entity, _ missile: Entity, _ forward: JKAShared.vec3_t) {
     var bounce_dir = vec3_t()
     var i: Int32
     let speed: Float
@@ -132,7 +132,7 @@ G_BounceMissile
 ```
 */
 /// Source: oracle/codemp/game/g_missile.c:148
-func G_BounceMissile(_ ent: Entity, _ trace: JKAMP.Trace) {
+public func G_BounceMissile(_ ent: Entity, _ trace: JKAMP.Trace) {
     var velocity = vec3_t()
     let dot: Float
     let hitTime: Int32
@@ -191,7 +191,7 @@ Explode a missile without an impact
 ```
 */
 /// Source: oracle/codemp/game/g_missile.c:215
-func G_ExplodeMissile(_ ent: Entity) {
+public func G_ExplodeMissile(_ ent: Entity) {
     var dir = vec3_t()
     var origin = vec3_t()
 
@@ -230,7 +230,7 @@ func G_ExplodeMissile(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_missile.c:259
-func G_RunStuckMissile(_ ent: Entity) {
+public func G_RunStuckMissile(_ ent: Entity) {
     if ent.takedamage {
         if ent.s.groundEntityNum >= 0 && ent.s.groundEntityNum < ENTITYNUM_WORLD {
             let other: Entity? = g_entities[ent.s.groundEntityNum]
@@ -255,7 +255,7 @@ G_BounceProjectile
 ```
 */
 /// Source: oracle/codemp/game/g_missile.c:284
-func G_BounceProjectile(_ start: JKAShared.vec3_t, _ impact: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ endout: inout JKAShared.vec3_t) {
+public func G_BounceProjectile(_ start: JKAShared.vec3_t, _ impact: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ endout: inout JKAShared.vec3_t) {
     var v = vec3_t()
     var newv = vec3_t()
     let dot: Float
@@ -270,7 +270,7 @@ func G_BounceProjectile(_ start: JKAShared.vec3_t, _ impact: JKAShared.vec3_t, _
 
 //-----------------------------------------------------------------------------
 /// Source: oracle/codemp/game/g_missile.c:298
-func CreateMissile(_ org: inout JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ vel: Float, _ life: Int32, _ owner: Entity, _ altFire: Bool) -> Entity? {
+public func CreateMissile(_ org: inout JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ vel: Float, _ life: Int32, _ owner: Entity, _ altFire: Bool) -> Entity? {
     var missile: Entity?
 
     missile = G_Spawn()
@@ -300,7 +300,7 @@ func CreateMissile(_ org: inout JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ vel
 }
 
 /// Source: oracle/codemp/game/g_missile.c:331
-func G_MissileBounceEffect(_ ent: Entity, _ org: JKAShared.vec3_t, _ dir: JKAShared.vec3_t) {
+public func G_MissileBounceEffect(_ ent: Entity, _ org: JKAShared.vec3_t, _ dir: JKAShared.vec3_t) {
     //FIXME: have an EV_BOUNCE_MISSILE event that checks the s.weapon and does the appropriate effect
     switch ent.s.weapon {
     case WP_BOWCASTER:
@@ -322,7 +322,7 @@ func G_MissileBounceEffect(_ ent: Entity, _ org: JKAShared.vec3_t, _ dir: JKASha
 }
 
 /// Source: oracle/codemp/game/g_missile.c:362
-func G_MissileImpact(_ ent: Entity, _ trace: JKAMP.Trace) {
+public func G_MissileImpact(_ ent: Entity, _ trace: JKAMP.Trace) {
     var other: Entity?
     var hitClient: Bool = false
     var isKnockedSaber: Bool = false
@@ -656,7 +656,7 @@ G_RunMissile
 ```
 */
 /// Source: oracle/codemp/game/g_missile.c:808
-func G_RunMissile(_ ent: Entity) {
+public func G_RunMissile(_ ent: Entity) {
     var origin = vec3_t()
     var groundSpot = vec3_t()
     // Raven's record lives to the end of his block, so the block is the closure.

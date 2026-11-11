@@ -39,7 +39,7 @@ let SEEKER_SEEK_RADIUS = 1024 as Int32
 
 //------------------------------------
 /// Source: oracle/codemp/game/NPC_AI_Seeker.c:26
-func NPC_Seeker_Precache() {
+public func NPC_Seeker_Precache() {
     G_SoundIndex("sound/chars/seeker/misc/fire.wav")
     G_SoundIndex("sound/chars/seeker/misc/hiss.wav")
     G_EffectIndex("env/small_explode")
@@ -47,7 +47,7 @@ func NPC_Seeker_Precache() {
 
 //------------------------------------
 /// Source: oracle/codemp/game/NPC_AI_Seeker.c:34
-func NPC_Seeker_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func NPC_Seeker_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     if !((`self`.NPC!.aiFlags & NPCAI_CUSTOM_GRAVITY) != 0) {
         //void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, int mod, int hitLoc=HL_NONE );
         // G_Damage may write `dir`, so the call passes a copy of `vec3_origin`.
@@ -64,7 +64,7 @@ func NPC_Seeker_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 
 //------------------------------------
 /// Source: oracle/codemp/game/NPC_AI_Seeker.c:49
-func Seeker_MaintainHeight() {
+public func Seeker_MaintainHeight() {
     var dif: Float
 
     // Update our angles regardless
@@ -144,7 +144,7 @@ func Seeker_MaintainHeight() {
 
 //------------------------------------
 /// Source: oracle/codemp/game/NPC_AI_Seeker.c:151
-func Seeker_Strafe() {
+public func Seeker_Strafe() {
     var side: Int32 = 0
     var end = vec3_t()
     var right = vec3_t()
@@ -240,7 +240,7 @@ func Seeker_Strafe() {
 
 //------------------------------------
 /// Source: oracle/codemp/game/NPC_AI_Seeker.c:242
-func Seeker_Hunt(_ visible: Bool, _ advance: Bool) {
+public func Seeker_Hunt(_ visible: Bool, _ advance: Bool) {
     var distance: Float = 0
     let speed: Float
     var forward = vec3_t()
@@ -282,7 +282,7 @@ func Seeker_Hunt(_ visible: Bool, _ advance: Bool) {
 
 //------------------------------------
 /// Source: oracle/codemp/game/NPC_AI_Seeker.c:290
-func Seeker_Fire() {
+public func Seeker_Fire() {
     var dir = vec3_t()
     var enemy_org = vec3_t()
     var muzzle = vec3_t()
@@ -313,7 +313,7 @@ func Seeker_Fire() {
 
 //------------------------------------
 /// Source: oracle/codemp/game/NPC_AI_Seeker.c:320
-func Seeker_Ranged(_ visible: Bool, _ advance: Bool) {
+public func Seeker_Ranged(_ visible: Bool, _ advance: Bool) {
     if NPC!.client!.NPC_class != CLASS_BOBAFETT {
         if NPC!.count > 0 {
             if TIMER_Done(NPC!, "attackDelay") {
@@ -338,7 +338,7 @@ func Seeker_Ranged(_ visible: Bool, _ advance: Bool) {
 
 //------------------------------------
 /// Source: oracle/codemp/game/NPC_AI_Seeker.c:350
-func Seeker_Attack() {
+public func Seeker_Attack() {
     let distance: Float
     let visible: Bool
     var advance: Bool
@@ -368,7 +368,7 @@ func Seeker_Attack() {
 
 //------------------------------------
 /// Source: oracle/codemp/game/NPC_AI_Seeker.c:383
-func Seeker_FindEnemy() {
+public func Seeker_FindEnemy() {
     let numFound: Int32
     var dis: Float
     var bestDis: Float = Float(SEEKER_SEEK_RADIUS * SEEKER_SEEK_RADIUS + 1)
@@ -424,7 +424,7 @@ func Seeker_FindEnemy() {
 
 //------------------------------------
 /// Source: oracle/codemp/game/NPC_AI_Seeker.c:439
-func Seeker_FollowOwner() {
+public func Seeker_FollowOwner() {
     let dis: Float
     var minDistSqr: Float
     var pt = vec3_t()
@@ -495,7 +495,7 @@ func Seeker_FollowOwner() {
 
 //------------------------------------
 /// Source: oracle/codemp/game/NPC_AI_Seeker.c:523
-func NPC_BSSeeker_Default() {
+public func NPC_BSSeeker_Default() {
     /*
     if ( in_camera )
     {

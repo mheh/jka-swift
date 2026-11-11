@@ -63,7 +63,7 @@ sent to that ip.
 ```
 */
 /// Source: oracle/codemp/server/sv_client.cpp:31
-func SV_GetChallenge(_ from: Netadr) {
+public func SV_GetChallenge(_ from: Netadr) {
     var i: Int32
     var oldest: Int32
     var oldestTime: Int32
@@ -131,7 +131,7 @@ func SV_GetChallenge(_ from: Netadr) {
 }
 
 /// Source: oracle/codemp/server/sv_client.cpp:142
-func SV_AuthorizeIpPacket(_ from: Netadr) {
+public func SV_AuthorizeIpPacket(_ from: Netadr) {
     let challenge: Int32
     var i: Int32
     let s: String
@@ -204,7 +204,7 @@ A "connect" OOB command has been received
 ```
 */
 /// Source: oracle/codemp/server/sv_client.cpp:221
-func SV_DirectConnect(_ from: Netadr) {
+public func SV_DirectConnect(_ from: Netadr) {
     var userinfo = CharBuf(MAX_INFO_STRING)
     var i: Int32 = 0
     var cl: Client?
@@ -482,7 +482,7 @@ or crashing -- SV_FinalMessage() will handle that
 ```
 */
 /// Source: oracle/codemp/server/sv_client.cpp:580
-func SV_DropClient(_ drop: Client, _ reason: String) {
+public func SV_DropClient(_ drop: Client, _ reason: String) {
     var i: Int32
     var challenge: Slots<Challenge>
 
@@ -557,7 +557,7 @@ func SV_DropClient(_ drop: Client, _ reason: String) {
 }
 
 /// Source: oracle/codemp/server/sv_client.cpp:668
-func SV_WriteRMGAutomapSymbols(_ msg: Msg) {
+public func SV_WriteRMGAutomapSymbols(_ msg: Msg) {
     let count = TheRandomMissionManager!.GetAutomapSymbolCount()
     var i: Int32
 
@@ -589,7 +589,7 @@ the wrong gamestate.
 ```
 */
 /// Source: oracle/codemp/server/sv_client.cpp:697
-func SV_SendClientGameState(_ client: Client) {
+public func SV_SendClientGameState(_ client: Client) {
     var start: Int32 = 0
     var base: EntityState?
     // Raven's records live to the end of his block, so the block is the two closures.
@@ -719,7 +719,7 @@ func SV_SendClientGameState(_ client: Client) {
 }
 
 /// Source: oracle/codemp/server/sv_client.cpp:820
-func SV_SendClientMapChange(_ client: Client) {
+public func SV_SendClientMapChange(_ client: Client) {
     // Raven's record lives to the end of his block, so the block is the closure.
     Msg.scratch { msg in
         MSG_Init(msg, msgBuffer_SV_SendClientMapChange, Int32(msgBuffer_SV_SendClientMapChange.count))
@@ -750,7 +750,7 @@ SV_ClientEnterWorld
 ```
 */
 /// Source: oracle/codemp/server/sv_client.cpp:943
-func SV_ClientEnterWorld(_ client: Client, _ cmd: JKAMP.Usercmd) {
+public func SV_ClientEnterWorld(_ client: Client, _ cmd: JKAMP.Usercmd) {
     let clientNum: Int32
     var ent: SharedEntity?
 
@@ -811,7 +811,7 @@ Abort a download if in progress
 ```
 */
 /// Source: oracle/codemp/server/sv_client.cpp:1015
-func SV_StopDownload_f(_ cl: Client) {
+public func SV_StopDownload_f(_ cl: Client) {
     if cl.downloadNameBuffer[0] != 0 {
         Com_DPrintf("clientDownload: %d : file \"%s\" aborted\n", svs.clientsSlots.index(of: cl), cl.downloadName)
     }
@@ -829,7 +829,7 @@ Downloads are finished
 ```
 */
 /// Source: oracle/codemp/server/sv_client.cpp:1029
-func SV_DoneDownload_f(_ cl: Client) {
+public func SV_DoneDownload_f(_ cl: Client) {
     Com_DPrintf("clientDownload: %s Done\n", cl.name)
     // resend the game state to update any clients that entered during the download
     SV_SendClientGameState(cl)
@@ -846,7 +846,7 @@ the same as cl->downloadClientBlock
 ```
 */
 /// Source: oracle/codemp/server/sv_client.cpp:1043
-func SV_NextDownload_f(_ cl: Client) {
+public func SV_NextDownload_f(_ cl: Client) {
     let block: Int32 = atoi(Cmd_Argv(1))
 
     if block == cl.downloadClientBlock {
@@ -877,7 +877,7 @@ SV_BeginDownload_f
 ```
 */
 /// Source: oracle/codemp/server/sv_client.cpp:1072
-func SV_BeginDownload_f(_ cl: Client) {
+public func SV_BeginDownload_f(_ cl: Client) {
     // Kill any existing download
     SV_CloseDownload(cl)
 
@@ -897,7 +897,7 @@ Fill up msg with data
 ```
 */
 /// Source: oracle/codemp/server/sv_client.cpp:1090
-func SV_WriteDownloadToClient(_ cl: Client, _ msg: Msg) {
+public func SV_WriteDownloadToClient(_ cl: Client, _ msg: Msg) {
     var curindex: Int32
     var rate: Int32
     var blockspersnap: Int32
@@ -1286,7 +1286,7 @@ into a more C friendly form.
 ```
 */
 /// Source: oracle/codemp/server/sv_client.cpp:1452
-func SV_UserinfoChanged(_ cl: Client) {
+public func SV_UserinfoChanged(_ cl: Client) {
     var val: String
     var i: Int32
 
@@ -1369,7 +1369,7 @@ Also called by bot code
 ```
 */
 /// Source: oracle/codemp/server/sv_client.cpp:1564
-func SV_ExecuteClientCommand(_ cl: Client, _ s: String, _ clientOK: Bool) {
+public func SV_ExecuteClientCommand(_ cl: Client, _ s: String, _ clientOK: Bool) {
     var uIndex: Int32 = 0
 
     Cmd_TokenizeString(s)
@@ -1457,7 +1457,7 @@ Also called by bot code
 ```
 */
 /// Source: oracle/codemp/server/sv_client.cpp:1652
-func SV_ClientThink(_ cl: Client, _ cmd: JKAMP.Usercmd) {
+public func SV_ClientThink(_ cl: Client, _ cmd: JKAMP.Usercmd) {
     // AI: Raven records no input. The fork's recorder writes the usercmd record of the client first.
     SVRef_OnClientThink(cl, cmd)
     cl.lastUsercmd = cmd
@@ -1597,7 +1597,7 @@ Parse a client packet
 ```
 */
 /// Source: oracle/codemp/server/sv_client.cpp:1773
-func SV_ExecuteClientMessage(_ cl: Client, _ msg: Msg) {
+public func SV_ExecuteClientMessage(_ cl: Client, _ msg: Msg) {
     var c: Int32
     let serverId: Int32
 

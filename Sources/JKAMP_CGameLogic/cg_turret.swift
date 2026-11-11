@@ -5,7 +5,7 @@ import JKAMP_CGame
 import JKAMP_BG
 
 /// Source: oracle/codemp/cgame/cg_turret.c:7
-func CreepToPosition(_ ideal: inout JKAShared.vec3_t, _ current: inout JKAShared.vec3_t) {
+public func CreepToPosition(_ ideal: inout JKAShared.vec3_t, _ current: inout JKAShared.vec3_t) {
     let max_degree_switch: Float = 90
     var degrees_negative: Int32 = 0
     var degrees_positive: Int32 = 0
@@ -100,7 +100,7 @@ func CreepToPosition(_ ideal: inout JKAShared.vec3_t, _ current: inout JKAShared
 }
 
 /// Source: oracle/codemp/cgame/cg_turret.c:125
-func TurretClientRun(_ ent: Centity) {
+public func TurretClientRun(_ ent: Centity) {
     if ent.ghoul2 == nil {
         var weaponInfo: WeaponInfo?
 

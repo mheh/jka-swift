@@ -9,7 +9,7 @@ private let START_DIS = 15 as Int32
 
 //------------------------------------------------------------------------------------------------------------
 /// Source: oracle/codemp/game/g_turret.c:11
-func TurretPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func TurretPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     if `self`.target_ent != nil {
         `self`.target_ent!.health = `self`.health
         if `self`.target_ent!.maxHealth != 0 {
@@ -30,7 +30,7 @@ func TurretPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 
 //------------------------------------------------------------------------------------------------------------
 /// Source: oracle/codemp/game/g_turret.c:35
-func TurretBasePain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func TurretBasePain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     if `self`.target_ent != nil {
         `self`.target_ent!.health = `self`.health
         if `self`.target_ent!.maxHealth != 0 {
@@ -43,7 +43,7 @@ func TurretBasePain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 
 //------------------------------------------------------------------------------------------------------------
 /// Source: oracle/codemp/game/g_turret.c:51
-func auto_turret_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ meansOfDeath: Int32) {
+public func auto_turret_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ meansOfDeath: Int32) {
     var forward = vec3_t(0, 0, 1)
     var pos = vec3_t()
 
@@ -93,7 +93,7 @@ func auto_turret_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, 
 
 //------------------------------------------------------------------------------------------------------------
 /// Source: oracle/codemp/game/g_turret.c:112
-func bottom_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ meansOfDeath: Int32) {
+public func bottom_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ meansOfDeath: Int32) {
     if `self`.target_ent != nil && `self`.target_ent!.health > 0 {
         `self`.target_ent!.health = `self`.health
         if `self`.target_ent!.maxHealth != 0 {
@@ -153,7 +153,7 @@ private func turret_fire(_ ent: Entity, _ start: JKAShared.vec3_t, _ dir: JKASha
 
 //-----------------------------------------------------
 /// Source: oracle/codemp/game/g_turret.c:179
-func turret_head_think(_ `self`: Entity) {
+public func turret_head_think(_ `self`: Entity) {
     let top: Entity? = g_entities[`self`.r.ownerNum]
     if top == nil {
         return
@@ -455,7 +455,7 @@ private func turret_find_enemies(_ `self`: Entity) -> Bool {
 
 //-----------------------------------------------------
 /// Source: oracle/codemp/game/g_turret.c:505
-func turret_base_think(_ `self`: Entity) {
+public func turret_base_think(_ `self`: Entity) {
     var turnOff: Bool = true
     var enemyDist: Float = 0
     var enemyDir = vec3_t()
@@ -537,7 +537,7 @@ func turret_base_think(_ `self`: Entity) {
 
 //-----------------------------------------------------------------------------
 /// Source: oracle/codemp/game/g_turret.c:604
-func turret_base_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func turret_base_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     // Toggle on and off
     `self`.spawnflags = (`self`.spawnflags ^ 1)
 
@@ -597,7 +597,7 @@ Large 2-piece turbolaser turret
 */
 //-----------------------------------------------------
 /// Source: oracle/codemp/game/g_turret.c:663
-func SP_misc_turret(_ base: Entity) {
+public func SP_misc_turret(_ base: Entity) {
     var s: String = ""
 
     base.s.modelindex2 = G_ModelIndex("models/map_objects/hoth/turret_bottom.md3")
@@ -637,7 +637,7 @@ func SP_misc_turret(_ base: Entity) {
 
 //-----------------------------------------------------
 /// Source: oracle/codemp/game/g_turret.c:706
-func turret_base_spawn_top(_ base: Entity) -> Bool {
+public func turret_base_spawn_top(_ base: Entity) -> Bool {
     var org = vec3_t()
     var t: Int32 = 0
 

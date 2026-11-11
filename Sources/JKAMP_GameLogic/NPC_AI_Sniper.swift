@@ -82,7 +82,7 @@ var enemyDist2: Float {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Sniper.c:44
-func Sniper_ClearTimers(_ ent: Entity) {
+public func Sniper_ClearTimers(_ ent: Entity) {
     TIMER_Set(ent, "chatter", 0)
     TIMER_Set(ent, "duck", 0)
     TIMER_Set(ent, "stand", 0)
@@ -98,7 +98,7 @@ func Sniper_ClearTimers(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Sniper.c:60
-func NPC_Sniper_PlayConfusionSound(_ `self`: Entity) {
+public func NPC_Sniper_PlayConfusionSound(_ `self`: Entity) {
     //FIXME: make this a custom sound in sound set
     if `self`.health > 0 {
         G_AddVoiceEvent(`self`, Q_irand(EV_CONFUSE1, EV_CONFUSE3), 2000)
@@ -116,7 +116,7 @@ func NPC_Sniper_PlayConfusionSound(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Sniper.c:85
-func NPC_Sniper_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func NPC_Sniper_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     `self`.NPC!.localState = LSTATE_UNDERFIRE
 
     TIMER_Set(`self`, "duck", -1)
@@ -198,7 +198,7 @@ private func Sniper_Move() -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Sniper.c:185
-func NPC_BSSniper_Patrol() {
+public func NPC_BSSniper_Patrol() {
     //FIXME: pick up on bodies of dead buddies?
     NPC!.count = 0
 
@@ -438,7 +438,7 @@ private func Sniper_CheckFireState() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Sniper.c:488
-func Sniper_EvaluateShot(_ hit: Int32) -> Bool {
+public func Sniper_EvaluateShot(_ hit: Int32) -> Bool {
     var hitEnt: Entity?
 
     if NPC!.enemy == nil {
@@ -454,7 +454,7 @@ func Sniper_EvaluateShot(_ hit: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Sniper.c:508
-func Sniper_FaceEnemy() {
+public func Sniper_FaceEnemy() {
     //FIXME: the ones behind kill holes are facing some arbitrary direction and not firing
     //FIXME: If actually trying to hit enemy, don't fire unless enemy is at least in front of me?
     //FIXME: need to give designers option to make them not miss first few shots
@@ -549,7 +549,7 @@ func Sniper_FaceEnemy() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Sniper.c:605
-func Sniper_UpdateEnemyPos() {
+public func Sniper_UpdateEnemyPos() {
     var index: Int32
     var i: Int32
 
@@ -567,7 +567,7 @@ func Sniper_UpdateEnemyPos() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Sniper.c:631
-func Sniper_StartHide() {
+public func Sniper_StartHide() {
     let duckTime: Int32 = Q_irand(2000, 5000)
 
     TIMER_Set(NPC!, "duck", duckTime)
@@ -576,7 +576,7 @@ func Sniper_StartHide() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Sniper.c:640
-func NPC_BSSniper_Attack() {
+public func NPC_BSSniper_Attack() {
     //Don't do anything if we're hurt
     if NPC!.painDebounceTime > level.time {
         NPC_UpdateAngles(true, true)
@@ -776,7 +776,7 @@ func NPC_BSSniper_Attack() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Sniper.c:854
-func NPC_BSSniper_Default() {
+public func NPC_BSSniper_Default() {
     if NPC!.enemy == nil {
         //don't have an enemy, look for one
         NPC_BSSniper_Patrol()

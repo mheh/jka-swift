@@ -5,7 +5,7 @@ import JKAMP_Game
 import JKAMP_BG
 
 /// Source: oracle/codemp/game/g_team.c:18
-var teamgame: Teamgame { world.storage.teamgame }
+public var teamgame: Teamgame { world.storage.teamgame }
 
 /// Source: oracle/codemp/game/g_team.c:279
 // Raven wrote: static char ctfFlagStatusRemap[] = { '0', '1', '*', '*', '2' }
@@ -15,7 +15,7 @@ nonisolated(unsafe) let ctfFlagStatusRemap: JKAShared.CharBuf = CharBuf(bytes: [
 let MAX_TEAM_SPAWN_POINTS = 32 as Int32
 
 /// Source: oracle/codemp/game/g_team.c:22
-func Team_InitGame() {
+public func Team_InitGame() {
     teamgame.clear()
 
     switch g_gametype.integer {
@@ -31,7 +31,7 @@ func Team_InitGame() {
 }
 
 /// Source: oracle/codemp/game/g_team.c:37
-func OtherTeam(_ team: Int32) -> Int32 {
+public func OtherTeam(_ team: Int32) -> Int32 {
     if team == TEAM_RED {
         return TEAM_BLUE
     } else if team == TEAM_BLUE {
@@ -41,7 +41,7 @@ func OtherTeam(_ team: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_team.c:45
-func TeamName(_ team: Int32) -> String {
+public func TeamName(_ team: Int32) -> String {
     if team == TEAM_RED {
         return "RED"
     } else if team == TEAM_BLUE {
@@ -53,7 +53,7 @@ func TeamName(_ team: Int32) -> String {
 }
 
 /// Source: oracle/codemp/game/g_team.c:55
-func OtherTeamName(_ team: Int32) -> String {
+public func OtherTeamName(_ team: Int32) -> String {
     if team == TEAM_RED {
         return "BLUE"
     } else if team == TEAM_BLUE {
@@ -65,7 +65,7 @@ func OtherTeamName(_ team: Int32) -> String {
 }
 
 /// Source: oracle/codemp/game/g_team.c:65
-func TeamColorString(_ team: Int32) -> String {
+public func TeamColorString(_ team: Int32) -> String {
     if team == TEAM_RED {
         return S_COLOR_RED
     } else if team == TEAM_BLUE {
@@ -79,7 +79,7 @@ func TeamColorString(_ team: Int32) -> String {
 //plIndex used to print pl->client->pers.netname
 //teamIndex used to print team name
 /// Source: oracle/codemp/game/g_team.c:100
-func PrintCTFMessage(_ plIndex: Int32, _ teamIndex: Int32, _ ctfMessage: Int32) {
+public func PrintCTFMessage(_ plIndex: Int32, _ teamIndex: Int32, _ ctfMessage: Int32) {
     var te: Entity?
     // Raven assigns his own `plIndex` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var plIndex = plIndex
@@ -119,7 +119,7 @@ AddTeamScore
 ```
 */
 /// Source: oracle/codemp/game/g_team.c:142
-func AddTeamScore(_ origin: JKAShared.vec3_t, _ team: Int32, _ score: Int32) {
+public func AddTeamScore(_ origin: JKAShared.vec3_t, _ team: Int32, _ score: Int32) {
     var te: Entity?
 
     te = G_TempEntity(origin, EV_GLOBAL_TEAM_SOUND)
@@ -152,7 +152,7 @@ func AddTeamScore(_ origin: JKAShared.vec3_t, _ team: Int32, _ score: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_team.c:187
-func OnSameTeam(_ ent1: Entity, _ ent2: Entity) -> Bool {
+public func OnSameTeam(_ ent1: Entity, _ ent2: Entity) -> Bool {
     if ent1.client == nil || ent2.client == nil {
         return false
     }
@@ -218,7 +218,7 @@ func OnSameTeam(_ ent1: Entity, _ ent2: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_team.c:281
-func Team_SetFlagStatus(_ team: Int32, _ status: JKAMP.flagStatus_t) {
+public func Team_SetFlagStatus(_ team: Int32, _ status: JKAMP.flagStatus_t) {
     var modified: Bool = false
 
     switch team {
@@ -258,7 +258,7 @@ func Team_SetFlagStatus(_ team: Int32, _ status: JKAMP.flagStatus_t) {
 }
 
 /// Source: oracle/codemp/game/g_team.c:320
-func Team_CheckDroppedItem(_ dropped: Entity) {
+public func Team_CheckDroppedItem(_ dropped: Entity) {
     if dropped.item!.giTag == PW_REDFLAG {
         Team_SetFlagStatus(TEAM_RED, FLAG_DROPPED)
     } else if dropped.item!.giTag == PW_BLUEFLAG {
@@ -276,7 +276,7 @@ Team_ForceGesture
 ```
 */
 /// Source: oracle/codemp/game/g_team.c:337
-func Team_ForceGesture(_ team: Int32) {
+public func Team_ForceGesture(_ team: Int32) {
     var i: Int32
     var ent: Entity?
 
@@ -313,7 +313,7 @@ order.
 ```
 */
 /// Source: oracle/codemp/game/g_team.c:363
-func Team_FragBonuses(_ targ: Entity, _ inflictor: Entity, _ attacker: Entity) {
+public func Team_FragBonuses(_ targ: Entity, _ inflictor: Entity, _ attacker: Entity) {
     var i: Int32
     var entIndex: Int32 = 0
     let flag_pw: Int32
@@ -502,7 +502,7 @@ carrier defense.
 ```
 */
 /// Source: oracle/codemp/game/g_team.c:544
-func Team_CheckHurtCarrier(_ targ: Entity, _ attacker: Entity) {
+public func Team_CheckHurtCarrier(_ targ: Entity, _ attacker: Entity) {
     let flag_pw: Int32
 
     if targ.client == nil || attacker.client == nil {
@@ -527,7 +527,7 @@ func Team_CheckHurtCarrier(_ targ: Entity, _ attacker: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_team.c:568
-func Team_ResetFlag(_ team: Int32) -> Entity? {
+public func Team_ResetFlag(_ team: Int32) -> Entity? {
     var c: String
     var ent: Entity?
     var rent: Entity? = nil
@@ -563,7 +563,7 @@ func Team_ResetFlag(_ team: Int32) -> Entity? {
 }
 
 /// Source: oracle/codemp/game/g_team.c:601
-func Team_ResetFlags() {
+public func Team_ResetFlags() {
     if g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTY {
         Team_ResetFlag(TEAM_RED)
         Team_ResetFlag(TEAM_BLUE)
@@ -571,7 +571,7 @@ func Team_ResetFlags() {
 }
 
 /// Source: oracle/codemp/game/g_team.c:608
-func Team_ReturnFlagSound(_ ent: Entity, _ team: Int32) {
+public func Team_ReturnFlagSound(_ ent: Entity, _ team: Int32) {
     var te: Entity?
 
     if ent == nil {
@@ -589,7 +589,7 @@ func Team_ReturnFlagSound(_ ent: Entity, _ team: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_team.c:626
-func Team_TakeFlagSound(_ ent: Entity, _ team: Int32) {
+public func Team_TakeFlagSound(_ ent: Entity, _ team: Int32) {
     var te: Entity?
 
     if ent == nil {
@@ -630,7 +630,7 @@ func Team_TakeFlagSound(_ ent: Entity, _ team: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_team.c:664
-func Team_CaptureFlagSound(_ ent: Entity, _ team: Int32) {
+public func Team_CaptureFlagSound(_ ent: Entity, _ team: Int32) {
     var te: Entity?
 
     if ent == nil {
@@ -648,7 +648,7 @@ func Team_CaptureFlagSound(_ ent: Entity, _ team: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_team.c:682
-func Team_ReturnFlag(_ team: Int32) {
+public func Team_ReturnFlag(_ team: Int32) {
     Team_ReturnFlagSound(Team_ResetFlag(team)!, team)
     if team == TEAM_FREE {
         //PrintMsg(NULL, "The flag has returned!\n" );
@@ -660,7 +660,7 @@ func Team_ReturnFlag(_ team: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_team.c:693
-func Team_FreeEntity(_ ent: Entity) {
+public func Team_FreeEntity(_ ent: Entity) {
     if ent.item!.giTag == PW_REDFLAG {
         Team_ReturnFlag(TEAM_RED)
     } else if ent.item!.giTag == PW_BLUEFLAG {
@@ -682,7 +682,7 @@ Flags are unique in that if they are dropped, the base flag must be respawned wh
 ```
 */
 /// Source: oracle/codemp/game/g_team.c:714
-func Team_DroppedFlagThink(_ ent: Entity) {
+public func Team_DroppedFlagThink(_ ent: Entity) {
     var team: Int32 = TEAM_FREE
 
     if ent.item!.giTag == PW_REDFLAG {
@@ -705,7 +705,7 @@ Team_DroppedFlagThink
 ```
 */
 /// Source: oracle/codemp/game/g_team.c:737
-func Team_TouchOurFlag(_ ent: Entity, _ other: Entity, _ team: Int32) -> Int32 {
+public func Team_TouchOurFlag(_ ent: Entity, _ other: Entity, _ team: Int32) -> Int32 {
     var i: Int32
     var player: Entity?
     let cl: Client? = other.client
@@ -797,7 +797,7 @@ func Team_TouchOurFlag(_ ent: Entity, _ other: Entity, _ team: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_team.c:827
-func Team_TouchEnemyFlag(_ ent: Entity, _ other: Entity, _ team: Int32) -> Int32 {
+public func Team_TouchEnemyFlag(_ ent: Entity, _ other: Entity, _ team: Int32) -> Int32 {
     let cl: Client? = other.client
 
     //PrintMsg (NULL, "%s" S_COLOR_WHITE " got the %s flag!\n",
@@ -820,7 +820,7 @@ func Team_TouchEnemyFlag(_ ent: Entity, _ other: Entity, _ team: Int32) -> Int32
 }
 
 /// Source: oracle/codemp/game/g_team.c:848
-func Pickup_Team(_ ent: Entity, _ other: Entity) -> Int32 {
+public func Pickup_Team(_ ent: Entity, _ other: Entity) -> Int32 {
     var team: Int32
     let cl: Client? = other.client
 
@@ -852,7 +852,7 @@ Report a location for the player. Uses placed nearby target_location entities
 ```
 */
 /// Source: oracle/codemp/game/g_team.c:880
-func Team_GetLocation(_ ent: Entity) -> Entity? {
+public func Team_GetLocation(_ ent: Entity) -> Entity? {
     var eloc: Entity?
     var best: Entity?
     var bestlen: Float
@@ -896,7 +896,7 @@ Report a location for the player. Uses placed nearby target_location entities
 ```
 */
 /// Source: oracle/codemp/game/g_team.c:919
-func Team_GetLocationMsg(_ ent: Entity, _ loc: inout JKAShared.CharBuf, _ loclen: Int32) -> Bool {
+public func Team_GetLocationMsg(_ ent: Entity, _ loc: inout JKAShared.CharBuf, _ loclen: Int32) -> Bool {
     var best: Entity?
 
     best = Team_GetLocation(ent)
@@ -921,7 +921,7 @@ func Team_GetLocationMsg(_ ent: Entity, _ loc: inout JKAShared.CharBuf, _ loclen
 }
 
 /// Source: oracle/codemp/game/g_team.c:951
-func SelectRandomTeamSpawnPoint(_ teamstate: Int32, _ team: JKAMP.team_t, _ siegeClass: Int32) -> Entity? {
+public func SelectRandomTeamSpawnPoint(_ teamstate: Int32, _ team: JKAMP.team_t, _ siegeClass: Int32) -> Entity? {
     var spot: Entity?
     var count: Int32
     var selection: Int32
@@ -1020,7 +1020,7 @@ SelectCTFSpawnPoint
 ```
 */
 /// Source: oracle/codemp/game/g_team.c:1049
-func SelectCTFSpawnPoint(_ team: JKAMP.team_t, _ teamstate: Int32, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) -> Entity? {
+public func SelectCTFSpawnPoint(_ team: JKAMP.team_t, _ teamstate: Int32, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) -> Entity? {
     var spot: Entity?
 
     spot = SelectRandomTeamSpawnPoint(teamstate, team, -1)
@@ -1045,7 +1045,7 @@ SelectSiegeSpawnPoint
 ```
 */
 /// Source: oracle/codemp/game/g_team.c:1071
-func SelectSiegeSpawnPoint(_ siegeClass: Int32, _ team: JKAMP.team_t, _ teamstate: Int32, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) -> Entity? {
+public func SelectSiegeSpawnPoint(_ siegeClass: Int32, _ team: JKAMP.team_t, _ teamstate: Int32, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) -> Entity? {
     var spot: Entity?
 
     spot = SelectRandomTeamSpawnPoint(teamstate, team, siegeClass)
@@ -1078,7 +1078,7 @@ Format:
 ```
 */
 /// Source: oracle/codemp/game/g_team.c:1103
-func TeamplayInfoMessage(_ ent: Entity) {
+public func TeamplayInfoMessage(_ ent: Entity) {
     var entry = CharBuf(1024)
     var string = CharBuf(8192)
     var stringlength: Int32
@@ -1145,7 +1145,7 @@ func TeamplayInfoMessage(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_team.c:1161
-func CheckTeamStatus() {
+public func CheckTeamStatus() {
     var i: Int32
     var loc: Entity?
     var entIndex: Int32 = 0
@@ -1202,7 +1202,7 @@ Only in CTF games.  Red players spawn here at game start.
 ```
 */
 /// Source: oracle/codemp/game/g_team.c:1209
-func SP_team_CTF_redplayer(_ ent: Entity) {
+public func SP_team_CTF_redplayer(_ ent: Entity) {
 }
 
 /**
@@ -1212,7 +1212,7 @@ Only in CTF games.  Blue players spawn here at game start.
 ```
 */
 /// Source: oracle/codemp/game/g_team.c:1216
-func SP_team_CTF_blueplayer(_ ent: Entity) {
+public func SP_team_CTF_blueplayer(_ ent: Entity) {
 }
 
 /**
@@ -1223,7 +1223,7 @@ Targets will be fired when someone spawns in on them.
 ```
 */
 /// Source: oracle/codemp/game/g_team.c:1224
-func SP_team_CTF_redspawn(_ ent: Entity) {
+public func SP_team_CTF_redspawn(_ ent: Entity) {
 }
 
 /**
@@ -1234,5 +1234,5 @@ Targets will be fired when someone spawns in on them.
 ```
 */
 /// Source: oracle/codemp/game/g_team.c:1231
-func SP_team_CTF_bluespawn(_ ent: Entity) {
+public func SP_team_CTF_bluespawn(_ ent: Entity) {
 }

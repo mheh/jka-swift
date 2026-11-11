@@ -9,7 +9,7 @@ let MAX_IMPACT_TURN_ANGLE = 45.0 as Float
 let MAX_CLIP_PLANES = 5 as Int32
 
 /// Source: oracle/codemp/game/bg_slidemove.c:49
-func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
+public func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
     // See if the vehicle has crashed into the ground.
     let pSelfVeh: Vehicle? = pEnt.m_pVehicle
     let selfVehicle = pSelfVeh!
@@ -427,7 +427,7 @@ func PM_VehicleImpact(_ pEnt: JKAMP.BgEntity, _ trace: JKAMP.Trace) {
 }
 
 /// Source: oracle/codemp/game/bg_slidemove.c:559
-func PM_GroundSlideOkay(_ zNormal: Float) -> Bool {
+public func PM_GroundSlideOkay(_ zNormal: Float) -> Bool {
     if zNormal > 0 {
         if pm.ps.velocity[2] > 0 {
             if pm.ps.legsAnim == BOTH_WALL_RUN_RIGHT || pm.ps.legsAnim == BOTH_WALL_RUN_LEFT || pm.ps.legsAnim == BOTH_WALL_RUN_RIGHT_STOP || pm.ps.legsAnim == BOTH_WALL_RUN_LEFT_STOP || pm.ps.legsAnim == BOTH_FORCEWALLRUNFLIP_START || pm.ps.legsAnim == BOTH_FORCELONGLEAP_START || pm.ps.legsAnim == BOTH_FORCELONGLEAP_ATTACK || pm.ps.legsAnim == BOTH_FORCELONGLEAP_LAND || BG_InReboundJump(pm.ps.legsAnim) {
@@ -439,7 +439,7 @@ func PM_GroundSlideOkay(_ zNormal: Float) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_slidemove.c:590
-func PM_ClientImpact(_ trace: JKAMP.Trace) -> Bool {
+public func PM_ClientImpact(_ trace: JKAMP.Trace) -> Bool {
     //don't try to predict this
     var traceEnt: BgEntity?
     let otherEntityNum: Int32 = trace.entityNum
@@ -467,7 +467,7 @@ func PM_ClientImpact(_ trace: JKAMP.Trace) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_slidemove.c:634
-func PM_SlideMove(_ gravity: Bool) -> Bool {
+public func PM_SlideMove(_ gravity: Bool) -> Bool {
     var bumpcount: Int32 = 0
     var numbumps: Int32 = 0
     var dir = vec3_t()
@@ -727,7 +727,7 @@ PM_StepSlideMove
 ```
 */
 /// Source: oracle/codemp/game/bg_slidemove.c:861
-func PM_StepSlideMove(_ gravity: Bool) {
+public func PM_StepSlideMove(_ gravity: Bool) {
     var start_o = vec3_t()
     var start_v = vec3_t()
     var down_o = vec3_t()

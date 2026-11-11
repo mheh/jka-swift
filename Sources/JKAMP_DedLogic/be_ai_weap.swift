@@ -35,7 +35,7 @@ var weaponconfig: Weaponconfig? {
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:120
-func BotValidWeaponNumber(_ weaponnum: Int32) -> Int32 {
+public func BotValidWeaponNumber(_ weaponnum: Int32) -> Int32 {
     if weaponnum <= 0 || weaponnum > weaponconfig!.numweapons {
         botimport.runPrint(PRT_ERROR, "weapon number out of range\n")
         return 0
@@ -50,7 +50,7 @@ func BotValidWeaponNumber(_ weaponnum: Int32) -> Int32 {
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:135
-func BotWeaponStateFromHandle(_ handle: Int32) -> BotWeaponstate? {
+public func BotWeaponStateFromHandle(_ handle: Int32) -> BotWeaponstate? {
     if handle <= 0 || handle > MAX_CLIENTS {
         botimport.runPrint(PRT_FATAL, "move state handle %d out of range\n", handle)
         return nil
@@ -69,7 +69,7 @@ func BotWeaponStateFromHandle(_ handle: Int32) -> BotWeaponstate? {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:181
-func LoadWeaponConfig(_ filename: String) -> Weaponconfig? {
+public func LoadWeaponConfig(_ filename: String) -> Weaponconfig? {
     var max_weaponinfo: Int32, max_projectileinfo: Int32
     var path = CharBuf(MAX_PATH)
     var i: Int32, j: Int32
@@ -195,7 +195,7 @@ func LoadWeaponConfig(_ filename: String) -> Weaponconfig? {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:313
-func WeaponWeightIndex(_ wwc: Weightconfig, _ wc: Weaponconfig) -> Slots<Int32> {
+public func WeaponWeightIndex(_ wwc: Weightconfig, _ wc: Weaponconfig) -> Slots<Int32> {
     var index: Slots<Int32>, i: Int32
 
     //initialize item weight index
@@ -216,7 +216,7 @@ func WeaponWeightIndex(_ wwc: Weightconfig, _ wc: Weaponconfig) -> Slots<Int32> 
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:332
-func BotFreeWeaponWeights(_ weaponstate: Int32) {
+public func BotFreeWeaponWeights(_ weaponstate: Int32) {
     guard let ws = BotWeaponStateFromHandle(weaponstate) else { return }
     if ws.weaponweightconfig != nil { FreeWeightConfig(ws.weaponweightconfig!) }
     if ws.weaponweightindex != nil { FreeMemory(OpaquePointer(ws.weaponweightindex!.base)) }
@@ -229,7 +229,7 @@ func BotFreeWeaponWeights(_ weaponstate: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:347
-func BotLoadWeaponWeights(_ weaponstate: Int32, _ filename: inout JKAShared.CharBuf) -> Int32 {
+public func BotLoadWeaponWeights(_ weaponstate: Int32, _ filename: inout JKAShared.CharBuf) -> Int32 {
     guard let ws = BotWeaponStateFromHandle(weaponstate) else { return BLERR_CANNOTLOADWEAPONWEIGHTS }
     BotFreeWeaponWeights(weaponstate)
     //
@@ -250,7 +250,7 @@ func BotLoadWeaponWeights(_ weaponstate: Int32, _ filename: inout JKAShared.Char
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:371
-func BotGetWeaponInfo(_ weaponstate: Int32, _ weapon: Int32, _ weaponinfo: Weaponinfo) {
+public func BotGetWeaponInfo(_ weaponstate: Int32, _ weapon: Int32, _ weaponinfo: Weaponinfo) {
     if BotValidWeaponNumber(weapon) == 0 { return }
     if BotWeaponStateFromHandle(weaponstate) == nil { return }
     if weaponconfig == nil { return }
@@ -264,7 +264,7 @@ func BotGetWeaponInfo(_ weaponstate: Int32, _ weapon: Int32, _ weaponinfo: Weapo
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:387
-func BotChooseBestFightWeapon(_ weaponstate: Int32, _ inventory: Slots<Int32>) -> Int32 {
+public func BotChooseBestFightWeapon(_ weaponstate: Int32, _ inventory: Slots<Int32>) -> Int32 {
     var i: Int32, index: Int32, bestweapon: Int32
     var weight: Float, bestweight: Float
     let wc: Weaponconfig?
@@ -306,7 +306,7 @@ func BotChooseBestFightWeapon(_ weaponstate: Int32, _ inventory: Slots<Int32>) -
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:424
-func BotResetWeaponState(_ weaponstate: Int32) {
+public func BotResetWeaponState(_ weaponstate: Int32) {
     let weaponweightconfig: Weightconfig?
     let weaponweightindex: Slots<Int32>?
 
@@ -326,7 +326,7 @@ func BotResetWeaponState(_ weaponstate: Int32) {
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:445
-func BotAllocWeaponState() -> Int32 {
+public func BotAllocWeaponState() -> Int32 {
     var i: Int32
 
     i = 1
@@ -347,7 +347,7 @@ func BotAllocWeaponState() -> Int32 {
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:465
-func BotFreeWeaponState(_ handle: Int32) {
+public func BotFreeWeaponState(_ handle: Int32) {
     if handle <= 0 || handle > MAX_CLIENTS {
         botimport.runPrint(PRT_FATAL, "move state handle %d out of range\n", handle)
         return
@@ -368,7 +368,7 @@ func BotFreeWeaponState(_ handle: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:487
-func BotSetupWeaponAI() -> Int32 {
+public func BotSetupWeaponAI() -> Int32 {
     let file: String
 
     file = LibVarString("weaponconfig", "weapons.c")
@@ -389,7 +389,7 @@ func BotSetupWeaponAI() -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weap.cpp:511
-func BotShutdownWeaponAI() {
+public func BotShutdownWeaponAI() {
     var i: Int32
 
     if weaponconfig != nil { FreeMemory(weaponconfig!.handle) }

@@ -5,79 +5,79 @@ import JKAMP_Game
 import JKAMP_BG
 
 /// Source: oracle/codemp/game/g_nav.c:1597
-var navCalculatePaths: Bool {
+public var navCalculatePaths: Bool {
     get { world.variables.navCalculatePaths }
     set { world.variables.navCalculatePaths = newValue }
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1599
-var NAVDEBUG_showNodes: Bool {
+public var NAVDEBUG_showNodes: Bool {
     get { world.variables.NAVDEBUG_showNodes }
     set { world.variables.NAVDEBUG_showNodes = newValue }
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1600
-var NAVDEBUG_showRadius: Bool {
+public var NAVDEBUG_showRadius: Bool {
     get { world.variables.NAVDEBUG_showRadius }
     set { world.variables.NAVDEBUG_showRadius = newValue }
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1601
-var NAVDEBUG_showEdges: Bool {
+public var NAVDEBUG_showEdges: Bool {
     get { world.variables.NAVDEBUG_showEdges }
     set { world.variables.NAVDEBUG_showEdges = newValue }
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1602
-var NAVDEBUG_showTestPath: Bool {
+public var NAVDEBUG_showTestPath: Bool {
     get { world.variables.NAVDEBUG_showTestPath }
     set { world.variables.NAVDEBUG_showTestPath = newValue }
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1603
-var NAVDEBUG_showEnemyPath: Bool {
+public var NAVDEBUG_showEnemyPath: Bool {
     get { world.variables.NAVDEBUG_showEnemyPath }
     set { world.variables.NAVDEBUG_showEnemyPath = newValue }
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1604
-var NAVDEBUG_showCombatPoints: Bool {
+public var NAVDEBUG_showCombatPoints: Bool {
     get { world.variables.NAVDEBUG_showCombatPoints }
     set { world.variables.NAVDEBUG_showCombatPoints = newValue }
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1605
-var NAVDEBUG_showNavGoals: Bool {
+public var NAVDEBUG_showNavGoals: Bool {
     get { world.variables.NAVDEBUG_showNavGoals }
     set { world.variables.NAVDEBUG_showNavGoals = newValue }
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1606
-var NAVDEBUG_showCollision: Bool {
+public var NAVDEBUG_showCollision: Bool {
     get { world.variables.NAVDEBUG_showCollision }
     set { world.variables.NAVDEBUG_showCollision = newValue }
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1607
-var NAVDEBUG_curGoal: Int32 {
+public var NAVDEBUG_curGoal: Int32 {
     get { world.variables.NAVDEBUG_curGoal }
     set { world.variables.NAVDEBUG_curGoal = newValue }
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1615
-var fatalErrors: Int32 {
+public var fatalErrors: Int32 {
     get { world.variables.fatalErrors }
     set { world.variables.fatalErrors = newValue }
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1616
-var fatalErrorPointer: Int32? {
+public var fatalErrorPointer: Int32? {
     get { world.variables.fatalErrorPointer }
     set { world.variables.fatalErrorPointer = newValue }
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1617
-var fatalErrorString: JKAShared.CharBuf {
+public var fatalErrorString: JKAShared.CharBuf {
     get { world.variables.fatalErrorString }
     set { world.variables.fatalErrorString = newValue }
 }
@@ -94,35 +94,35 @@ var tempWaypointList: Slots<WaypointData> { world.storage.tempWaypointList }
 //For debug graphics
 //rwwFIXMEFIXME: Write these at some point for the sake of being able to debug visually
 /// Source: oracle/codemp/game/g_nav.c:11
-func G_Line(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ color: JKAShared.vec3_t, _ alpha: Float) {
+public func G_Line(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ color: JKAShared.vec3_t, _ alpha: Float) {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:16
-func G_Cube(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ color: JKAShared.vec3_t, _ alpha: Float) {
+public func G_Cube(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ color: JKAShared.vec3_t, _ alpha: Float) {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:21
-func G_CubeOutline(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ time: Int32, _ color: UInt32, _ alpha: Float) {
+public func G_CubeOutline(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ time: Int32, _ color: UInt32, _ alpha: Float) {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:26
-func G_DrawEdge(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ type: Int32) {
+public func G_DrawEdge(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ type: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:31
-func G_DrawNode(_ origin: JKAShared.vec3_t, _ type: Int32) {
+public func G_DrawNode(_ origin: JKAShared.vec3_t, _ type: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:36
-func G_DrawCombatPoint(_ origin: JKAShared.vec3_t, _ type: Int32) {
+public func G_DrawCombatPoint(_ origin: JKAShared.vec3_t, _ type: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:41
-func TAG_ShowTags(_ flags: Int32) {
+public func TAG_ShowTags(_ flags: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:46
-func FlyingCreature(_ ent: Entity) -> Bool {
+public func FlyingCreature(_ ent: Entity) -> Bool {
     if ent.client != nil && ent.client!.ps.gravity <= 0 {
         return true
     }
@@ -130,7 +130,7 @@ func FlyingCreature(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:68
-func NPC_Blocked(_ `self`: Entity, _ blocker: Entity) {
+public func NPC_Blocked(_ `self`: Entity, _ blocker: Entity) {
     if `self`.NPC == nil {
         return
     }
@@ -168,7 +168,7 @@ func NPC_Blocked(_ `self`: Entity, _ blocker: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:112
-func NPC_SetMoveGoal(_ ent: Entity, _ point: JKAShared.vec3_t, _ radius: Int32, _ isNavGoal: Bool, _ combatPoint: Int32, _ targetEnt: Entity?) {
+public func NPC_SetMoveGoal(_ ent: Entity, _ point: JKAShared.vec3_t, _ radius: Int32, _ isNavGoal: Bool, _ combatPoint: Int32, _ targetEnt: Entity?) {
     //Must be an NPC
     if ent.NPC == nil {
         return
@@ -211,7 +211,7 @@ func NPC_SetMoveGoal(_ ent: Entity, _ point: JKAShared.vec3_t, _ radius: Int32, 
 }
 
 /// Source: oracle/codemp/game/g_nav.c:167
-func NAV_HitNavGoal(_ point: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ dest: JKAShared.vec3_t, _ radius: Int32, _ flying: Bool) -> Bool {
+public func NAV_HitNavGoal(_ point: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ dest: JKAShared.vec3_t, _ radius: Int32, _ flying: Bool) -> Bool {
     var dmins = vec3_t()
     var dmaxs = vec3_t()
     var pmins = vec3_t()
@@ -372,13 +372,13 @@ public func NAV_ClearPathToPoint(_ `self`: Entity, _ pmins: JKAShared.vec3_t, _ 
 }
 
 /// Source: oracle/codemp/game/g_nav.c:352
-func NAV_FindClosestWaypointForEnt(_ ent: Entity, _ targWp: Int32) -> Int32 {
+public func NAV_FindClosestWaypointForEnt(_ ent: Entity, _ targWp: Int32) -> Int32 {
     //FIXME: Take the target into account
     return trap_Nav_GetNearestNode(ent, ent.waypoint, NF_CLEAR_PATH, targWp)
 }
 
 /// Source: oracle/codemp/game/g_nav.c:358
-func NAV_FindClosestWaypointForPoint(_ ent: Entity, _ point: inout JKAShared.vec3_t) -> Int32 {
+public func NAV_FindClosestWaypointForPoint(_ ent: Entity, _ point: inout JKAShared.vec3_t) -> Int32 {
     let bestWP: Int32
     //FIXME: can we make this a static ent?
     let marker: Entity? = G_Spawn()
@@ -403,7 +403,7 @@ func NAV_FindClosestWaypointForPoint(_ ent: Entity, _ point: inout JKAShared.vec
 }
 
 /// Source: oracle/codemp/game/g_nav.c:384
-func NAV_FindClosestWaypointForPoint2(_ point: inout JKAShared.vec3_t) -> Int32 {
+public func NAV_FindClosestWaypointForPoint2(_ point: inout JKAShared.vec3_t) -> Int32 {
     let bestWP: Int32
     //FIXME: can we make this a static ent?
     let marker: Entity? = G_Spawn()
@@ -428,19 +428,19 @@ func NAV_FindClosestWaypointForPoint2(_ point: inout JKAShared.vec3_t) -> Int32 
 }
 
 /// Source: oracle/codemp/game/g_nav.c:416
-func NAV_ClearBlockedInfo(_ `self`: Entity) {
+public func NAV_ClearBlockedInfo(_ `self`: Entity) {
     `self`.NPC!.aiFlags &= ~NPCAI_BLOCKED
     `self`.NPC!.blockingEntNum = ENTITYNUM_WORLD
 }
 
 /// Source: oracle/codemp/game/g_nav.c:428
-func NAV_SetBlockedInfo(_ `self`: Entity, _ entId: Int32) {
+public func NAV_SetBlockedInfo(_ `self`: Entity, _ entId: Int32) {
     `self`.NPC!.aiFlags |= NPCAI_BLOCKED
     `self`.NPC!.blockingEntNum = entId
 }
 
 /// Source: oracle/codemp/game/g_nav.c:440
-func NAV_Steer(_ `self`: Entity, _ dir: JKAShared.vec3_t, _ distance: Float) -> Int32 {
+public func NAV_Steer(_ `self`: Entity, _ dir: JKAShared.vec3_t, _ distance: Float) -> Int32 {
     var right_test = vec3_t()
     var left_test = vec3_t()
     var deviation = vec3_t()
@@ -497,7 +497,7 @@ func NAV_Steer(_ `self`: Entity, _ dir: JKAShared.vec3_t, _ distance: Float) -> 
 }
 
 /// Source: oracle/codemp/game/g_nav.c:494
-func NAV_CheckAhead(_ `self`: Entity, _ end: JKAShared.vec3_t, _ trace: JKAMP.Trace, _ clipmask: Int32) -> Bool {
+public func NAV_CheckAhead(_ `self`: Entity, _ end: JKAShared.vec3_t, _ trace: JKAMP.Trace, _ clipmask: Int32) -> Bool {
     var mins = vec3_t()
     let radius: Float
     let dist: Float
@@ -588,7 +588,7 @@ private func NAV_TestBypass(_ `self`: Entity, _ yaw: Float, _ blocked_dist: Floa
 }
 
 /// Source: oracle/codemp/game/g_nav.c:589
-func NAV_Bypass(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: JKAShared.vec3_t, _ blocked_dist: Float, _ movedir: inout JKAShared.vec3_t) -> Bool {
+public func NAV_Bypass(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: JKAShared.vec3_t, _ blocked_dist: Float, _ movedir: inout JKAShared.vec3_t) -> Bool {
     var dot: Float = 0
     var yaw: Float = 0
     var avoidRadius: Float = 0
@@ -676,7 +676,7 @@ func NAV_Bypass(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: JKAShared.ve
 }
 
 /// Source: oracle/codemp/game/g_nav.c:669
-func NAV_MoveBlocker(_ `self`: Entity, _ shove_dir: JKAShared.vec3_t) -> Bool {
+public func NAV_MoveBlocker(_ `self`: Entity, _ shove_dir: JKAShared.vec3_t) -> Bool {
     //FIXME: This is a temporary method for making blockers move
 
     //FIXME: This will, of course, push blockers off of cliffs, into walls and all over the place
@@ -701,7 +701,7 @@ func NAV_MoveBlocker(_ `self`: Entity, _ shove_dir: JKAShared.vec3_t) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:696
-func NAV_ResolveBlock(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: JKAShared.vec3_t) -> Bool {
+public func NAV_ResolveBlock(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: JKAShared.vec3_t) -> Bool {
     //Stop double waiting
     if blocker.NPC != nil && (blocker.NPC!.blockingEntNum == `self`.s.number) {
         return true
@@ -715,7 +715,7 @@ func NAV_ResolveBlock(_ `self`: Entity, _ blocker: Entity, _ blocked_dir: JKASha
 }
 
 /// Source: oracle/codemp/game/g_nav.c:715
-func NAV_TrueCollision(_ `self`: Entity, _ blocker: Entity, _ movedir: JKAShared.vec3_t, _ blocked_dir: inout JKAShared.vec3_t) -> Bool {
+public func NAV_TrueCollision(_ `self`: Entity, _ blocker: Entity, _ movedir: JKAShared.vec3_t, _ blocked_dir: inout JKAShared.vec3_t) -> Bool {
     var velocityDir = vec3_t()
     let speed: Float
     let dot: Float
@@ -757,7 +757,7 @@ func NAV_TrueCollision(_ `self`: Entity, _ blocker: Entity, _ movedir: JKAShared
 }
 
 /// Source: oracle/codemp/game/g_nav.c:758
-func NAV_StackedCanyon(_ `self`: Entity, _ blocker: Entity, _ pathDir: JKAShared.vec3_t) -> Bool {
+public func NAV_StackedCanyon(_ `self`: Entity, _ blocker: Entity, _ pathDir: JKAShared.vec3_t) -> Bool {
     var perp = vec3_t()
     var cross = vec3_t()
     var test = vec3_t()
@@ -823,7 +823,7 @@ func NAV_StackedCanyon(_ `self`: Entity, _ blocker: Entity, _ pathDir: JKAShared
 }
 
 /// Source: oracle/codemp/game/g_nav.c:824
-func NAV_ResolveEntityCollision(_ `self`: Entity, _ blocker: Entity, _ movedir: inout JKAShared.vec3_t, _ pathDir: JKAShared.vec3_t) -> Bool {
+public func NAV_ResolveEntityCollision(_ `self`: Entity, _ blocker: Entity, _ movedir: inout JKAShared.vec3_t, _ pathDir: JKAShared.vec3_t) -> Bool {
     var blocked_dir = vec3_t()
     let blocked_dist: Float
 
@@ -865,7 +865,7 @@ func NAV_ResolveEntityCollision(_ `self`: Entity, _ blocker: Entity, _ movedir: 
 }
 
 /// Source: oracle/codemp/game/g_nav.c:873
-func NAV_TestForBlocked(_ `self`: Entity, _ goal: Entity, _ blocker: Entity, _ distance: Float, _ flags: inout Int32) -> Bool {
+public func NAV_TestForBlocked(_ `self`: Entity, _ goal: Entity, _ blocker: Entity, _ distance: Float, _ flags: inout Int32) -> Bool {
     if goal == nil {
         return false
     }
@@ -888,7 +888,7 @@ func NAV_TestForBlocked(_ `self`: Entity, _ goal: Entity, _ blocker: Entity, _ d
 }
 
 /// Source: oracle/codemp/game/g_nav.c:902
-func NAV_AvoidCollision(_ `self`: Entity, _ goal: Entity, _ info: NavInfo) -> Bool {
+public func NAV_AvoidCollision(_ `self`: Entity, _ goal: Entity, _ info: NavInfo) -> Bool {
     var movedir = vec3_t()
     var movepos = vec3_t()
 
@@ -952,7 +952,7 @@ func NAV_AvoidCollision(_ `self`: Entity, _ goal: Entity, _ info: NavInfo) -> Bo
 }
 
 /// Source: oracle/codemp/game/g_nav.c:971
-func NAV_TestBestNode(_ `self`: Entity, _ startID: Int32, _ endID: Int32, _ failEdge: Bool) -> Int32 {
+public func NAV_TestBestNode(_ `self`: Entity, _ startID: Int32, _ endID: Int32, _ failEdge: Bool) -> Int32 {
     //check only against architectrure
     var end = vec3_t()
     // Raven's record lives to the end of his block, so the block is the closure.
@@ -1047,12 +1047,12 @@ func NAV_TestBestNode(_ `self`: Entity, _ startID: Int32, _ endID: Int32, _ fail
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1083
-func NAV_GetNearestNode(_ `self`: Entity, _ lastNode: Int32) -> Int32 {
+public func NAV_GetNearestNode(_ `self`: Entity, _ lastNode: Int32) -> Int32 {
     return trap_Nav_GetNearestNode(`self`, lastNode, NF_CLEAR_PATH, WAYPOINT_NONE)
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1094
-func NAV_MicroError(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) -> Bool {
+public func NAV_MicroError(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) -> Bool {
     if VectorCompare(start, end) != 0 {
         if DistanceSquared(NPC!.r.currentOrigin, start) < (8 * 8) {
             return true
@@ -1063,7 +1063,7 @@ func NAV_MicroError(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) -> Bool 
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1113
-func NAV_MoveToGoal(_ `self`: Entity, _ info: NavInfo) -> Int32 {
+public func NAV_MoveToGoal(_ `self`: Entity, _ info: NavInfo) -> Int32 {
     var bestNode: Int32
     var origin = vec3_t()
     var end = vec3_t()
@@ -1165,7 +1165,7 @@ func NAV_MoveToGoal(_ `self`: Entity, _ info: NavInfo) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1220
-func waypoint_testDirection(_ origin: JKAShared.vec3_t, _ yaw: Float, _ minDist: UInt32) -> UInt32 {
+public func waypoint_testDirection(_ origin: JKAShared.vec3_t, _ yaw: Float, _ minDist: UInt32) -> UInt32 {
     var trace_dir = vec3_t()
     var test_pos = vec3_t()
     var maxs = vec3_t()
@@ -1198,7 +1198,7 @@ func waypoint_testDirection(_ origin: JKAShared.vec3_t, _ yaw: Float, _ minDist:
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1251
-func waypoint_getRadius(_ ent: Entity) -> UInt32 {
+public func waypoint_getRadius(_ ent: Entity) -> UInt32 {
     var minDist: UInt32 = UInt32(bitPattern: MAX_RADIUS_CHECK + 1) // (unsigned int) -1;
     var dist: UInt32
     var i: Int32
@@ -1227,7 +1227,7 @@ radius is automatically calculated in-world.
 ```
 */
 /// Source: oracle/codemp/game/g_nav.c:1275
-func SP_waypoint(_ ent: Entity) {
+public func SP_waypoint(_ ent: Entity) {
     if navCalculatePaths {
         let radius: UInt32
 
@@ -1270,7 +1270,7 @@ SOLID_OK - only use if placing inside solid is unavoidable in map, but may be cl
 ```
 */
 /// Source: oracle/codemp/game/g_nav.c:1318
-func SP_waypoint_small(_ ent: Entity) {
+public func SP_waypoint_small(_ ent: Entity) {
     if navCalculatePaths {
         ent.r.mins = vec3_t(-2, -2, Float(DEFAULT_MINS_2))
         ent.r.maxs = vec3_t(2, 2, Float(DEFAULT_MAXS_2))
@@ -1302,7 +1302,7 @@ func SP_waypoint_small(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1370
-func SP_waypoint_navgoal(_ ent: Entity) {
+public func SP_waypoint_navgoal(_ ent: Entity) {
     let radius: Int32 = ent.radius != 0 ? ((Int32(ent.radius)) | NAVGOAL_USE_RADIUS) : 12
 
     ent.r.mins = vec3_t(-16, -16, -24)
@@ -1335,7 +1335,7 @@ You CANNOT set a radius on these navgoals, they are touch-reach ONLY
 ```
 */
 /// Source: oracle/codemp/game/g_nav.c:1402
-func SP_waypoint_navgoal_8(_ ent: Entity) {
+public func SP_waypoint_navgoal_8(_ ent: Entity) {
     ent.r.mins = vec3_t(-8, -8, -24)
     ent.r.maxs = vec3_t(8, 8, 32)
     ent.s.origin[2] = Float(Double(ent.s.origin[2]) + 0.125)
@@ -1367,7 +1367,7 @@ You CANNOT set a radius on these navgoals, they are touch-reach ONLY
 ```
 */
 /// Source: oracle/codemp/game/g_nav.c:1433
-func SP_waypoint_navgoal_4(_ ent: Entity) {
+public func SP_waypoint_navgoal_4(_ ent: Entity) {
     ent.r.mins = vec3_t(-4, -4, -24)
     ent.r.maxs = vec3_t(4, 4, 32)
     ent.s.origin[2] = Float(Double(ent.s.origin[2]) + 0.125)
@@ -1399,7 +1399,7 @@ You CANNOT set a radius on these navgoals, they are touch-reach ONLY
 ```
 */
 /// Source: oracle/codemp/game/g_nav.c:1464
-func SP_waypoint_navgoal_2(_ ent: Entity) {
+public func SP_waypoint_navgoal_2(_ ent: Entity) {
     ent.r.mins = vec3_t(-2, -2, -24)
     ent.r.maxs = vec3_t(2, 2, 32)
     ent.s.origin[2] = Float(Double(ent.s.origin[2]) + 0.125)
@@ -1431,7 +1431,7 @@ You CANNOT set a radius on these navgoals, they are touch-reach ONLY
 ```
 */
 /// Source: oracle/codemp/game/g_nav.c:1495
-func SP_waypoint_navgoal_1(_ ent: Entity) {
+public func SP_waypoint_navgoal_1(_ ent: Entity) {
     ent.r.mins = vec3_t(-1, -1, -24)
     ent.r.maxs = vec3_t(1, 1, 32)
     ent.s.origin[2] = Float(Double(ent.s.origin[2]) + 0.125)
@@ -1446,7 +1446,7 @@ func SP_waypoint_navgoal_1(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1518
-func Svcmd_Nav_f() {
+public func Svcmd_Nav_f() {
     var cmd = CharBuf(1024)
     strcpy(&cmd, trap_Argv(1, 1024))
 
@@ -1500,7 +1500,7 @@ func Svcmd_Nav_f() {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1618
-func NAV_WaypointsTooFar(_ wp1: Entity, _ wp2: Entity) -> Bool {
+public func NAV_WaypointsTooFar(_ wp1: Entity, _ wp2: Entity) -> Bool {
     if Distance(wp1.r.currentOrigin, wp2.r.currentOrigin) > 1024 {
         var temp = CharBuf(1024)
         let len: Int32
@@ -1529,12 +1529,12 @@ func NAV_WaypointsTooFar(_ wp1: Entity, _ wp2: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1663
-func NAV_ClearStoredWaypoints() {
+public func NAV_ClearStoredWaypoints() {
     numStoredWaypoints = 0
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1669
-func NAV_StoreWaypoint(_ ent: Entity) {
+public func NAV_StoreWaypoint(_ ent: Entity) {
     /*
     if ( !tempWaypointList )
     {
@@ -1572,7 +1572,7 @@ func NAV_StoreWaypoint(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1713
-func NAV_GetStoredWaypoint(_ targetname: String) -> Int32 {
+public func NAV_GetStoredWaypoint(_ targetname: String) -> Int32 {
     var i: Int32
 
     if targetname.isEmpty {
@@ -1591,7 +1591,7 @@ func NAV_GetStoredWaypoint(_ targetname: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1734
-func NAV_CalculatePaths(_ filename: String, _ checksum: Int32) {
+public func NAV_CalculatePaths(_ filename: String, _ checksum: Int32) {
     var target: Int32 = -1
     var i: Int32
 
@@ -1675,12 +1675,12 @@ func NAV_CalculatePaths(_ filename: String, _ checksum: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1846
-func NAV_Shutdown() {
+public func NAV_Shutdown() {
     trap_Nav_Free()
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1857
-func NAV_ShowDebugInfo() {
+public func NAV_ShowDebugInfo() {
     var i: Int32
 
     if NAVDEBUG_showNodes {
@@ -1725,6 +1725,6 @@ func NAV_ShowDebugInfo() {
 }
 
 /// Source: oracle/codemp/game/g_nav.c:1911
-func NAV_FindPlayerWaypoint(_ clNum: Int32) {
+public func NAV_FindPlayerWaypoint(_ clNum: Int32) {
     g_entities[clNum].waypoint = trap_Nav_GetNearestNode(g_entities[clNum], g_entities[clNum].lastWaypoint, NF_CLEAR_PATH, WAYPOINT_NONE)
 }

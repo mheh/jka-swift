@@ -383,18 +383,18 @@ let EMPLACED_CANRESPAWN = 1 as Int32
 let EMPLACED_GUN_HEALTH = 800 as Int32
 
 /// Source: oracle/codemp/game/g_weapon.c:165
-func touch_NULL(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+public func touch_NULL(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
 }
 
 //We should really organize weapon data into tables or parse from the ext data so we have accurate info for this,
 /// Source: oracle/codemp/game/g_weapon.c:176
-func WP_SpeedOfMissileForWeapon(_ wp: Int32, _ alt_fire: Bool) -> Float {
+public func WP_SpeedOfMissileForWeapon(_ wp: Int32, _ alt_fire: Bool) -> Float {
     return 500
 }
 
 //-----------------------------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:182
-func W_TraceSetStart(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) {
+public func W_TraceSetStart(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) {
     //make sure our start point isn't on the other side of a wall
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
@@ -484,7 +484,7 @@ private func WP_FireBryarPistol(_ ent: Entity, _ altFire: Bool) {
 
 //---------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:304
-func WP_FireTurretMissile(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ altFire: Bool, _ damage: Int32, _ velocity: Int32, _ mod: Int32, _ ignore: Entity) {
+public func WP_FireTurretMissile(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ altFire: Bool, _ damage: Int32, _ velocity: Int32, _ mod: Int32, _ ignore: Entity) {
     var missile: Entity?
 
     missile = CreateMissile(&start, dir, Float(velocity), 10000, ent, altFire)
@@ -505,7 +505,7 @@ func WP_FireTurretMissile(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir:
 
 //---------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:331
-func WP_FireGenericBlasterMissile(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ altFire: Bool, _ damage: Int32, _ velocity: Int32, _ mod: Int32) {
+public func WP_FireGenericBlasterMissile(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ altFire: Bool, _ damage: Int32, _ velocity: Int32, _ mod: Int32) {
     var missile: Entity?
 
     missile = CreateMissile(&start, dir, Float(velocity), 10000, ent, altFire)
@@ -524,7 +524,7 @@ func WP_FireGenericBlasterMissile(_ ent: Entity, _ start: inout JKAShared.vec3_t
 
 //---------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:359
-func WP_FireBlasterMissile(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ altFire: Bool) {
+public func WP_FireBlasterMissile(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ altFire: Bool) {
     let velocity: Int32 = BLASTER_VELOCITY
     var damage: Int32 = BLASTER_DAMAGE
     var missile: Entity?
@@ -550,7 +550,7 @@ func WP_FireBlasterMissile(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir
 
 //---------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:386
-func WP_FireTurboLaserMissile(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir: JKAShared.vec3_t) {
+public func WP_FireTurboLaserMissile(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir: JKAShared.vec3_t) {
     let velocity: Int32 = Int32(ent.mass)
     var missile: Entity?
 
@@ -585,7 +585,7 @@ func WP_FireTurboLaserMissile(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ 
 
 //---------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:422
-func WP_FireEmplacedMissile(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ altFire: Bool, _ ignore: Entity) {
+public func WP_FireEmplacedMissile(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ altFire: Bool, _ ignore: Entity) {
     let velocity: Int32 = BLASTER_VELOCITY
     let damage: Int32 = BLASTER_DAMAGE
     var missile: Entity?
@@ -774,7 +774,7 @@ private func WP_DisruptorMainFire(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:624
-func G_CanDisruptify(_ ent: Entity) -> Bool {
+public func G_CanDisruptify(_ ent: Entity) -> Bool {
     if !ent.inuse || ent.client == nil || ent.s.eType != ET_NPC || ent.s.NPC_class != CLASS_VEHICLE || ent.m_pVehicle == nil {
         //not vehicle
         return true
@@ -791,7 +791,7 @@ func G_CanDisruptify(_ ent: Entity) -> Bool {
 
 //---------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:642
-func WP_DisruptorAltFire(_ ent: Entity) {
+public func WP_DisruptorAltFire(_ ent: Entity) {
     var damage: Int32 = 0
     var skip: Int32 = 0
     var render_impact: Bool = true
@@ -1236,7 +1236,7 @@ private func WP_DEMP2_MainFire(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:1164
-func DEMP2_AltRadiusDamage(_ ent: Entity) {
+public func DEMP2_AltRadiusDamage(_ ent: Entity) {
     var frac: Float = (level.time - ent.genericValue5) / 800.0
     var dist: Float
     var radius: Float
@@ -1373,7 +1373,7 @@ func DEMP2_AltRadiusDamage(_ ent: Entity) {
 
 //---------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:1310
-func DEMP2_AltDetonate(_ ent: Entity) {
+public func DEMP2_AltDetonate(_ ent: Entity) {
     var efEnt: Entity?
 
     G_SetOrigin(ent, &ent.r.currentOrigin)
@@ -1523,7 +1523,7 @@ private func WP_FlechetteMainFire(_ ent: Entity) {
 
 //---------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:1470
-func prox_mine_think(_ ent: Entity) {
+public func prox_mine_think(_ ent: Entity) {
     let count: Int32
     var i: Int32
     var blow: Bool = false
@@ -1592,13 +1592,13 @@ private func WP_TraceSetStart(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ 
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:1543
-func WP_ExplosiveDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
+public func WP_ExplosiveDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
     laserTrapExplode(`self`)
 }
 
 //----------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:1549
-func WP_flechette_alt_blow(_ ent: Entity) {
+public func WP_flechette_alt_blow(_ ent: Entity) {
     ent.s.pos.trDelta[0] = 1
     ent.s.pos.trDelta[1] = 0
     ent.s.pos.trDelta[2] = 0
@@ -1693,7 +1693,7 @@ private func WP_FireFlechette(_ ent: Entity, _ altFire: Bool) {
 
 //---------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:1651
-func rocketThink(_ ent: Entity) {
+public func rocketThink(_ ent: Entity) {
     var newdir = vec3_t()
     var targetdir = vec3_t()
     var up = vec3_t(0, 0, 1)
@@ -1843,7 +1843,7 @@ func rocketThink(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:1814
-func RocketDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
+public func RocketDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
     `self`.die = nil
     `self`.r.contents = 0
 
@@ -1931,7 +1931,7 @@ private func WP_FireRocket(_ ent: Entity, _ altFire: Bool) {
 
 //---------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:1936
-func thermalDetonatorExplode(_ ent: Entity) {
+public func thermalDetonatorExplode(_ ent: Entity) {
     if ent.count == 0 {
         G_Sound(ent, CHAN_WEAPON, G_SoundIndex("sound/weapons/thermal/warning.wav"))
         ent.count = 1
@@ -1961,7 +1961,7 @@ func thermalDetonatorExplode(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:1972
-func thermalThinkStandard(_ ent: Entity) {
+public func thermalThinkStandard(_ ent: Entity) {
     if ent.genericValue5 < level.time {
         ent.think = Think.thermalDetonatorExplode
         ent.nextthink = level.time
@@ -1974,7 +1974,7 @@ func thermalThinkStandard(_ ent: Entity) {
 
 //---------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:1986
-func WP_FireThermalDetonator(_ ent: Entity, _ altFire: Bool) -> Entity? {
+public func WP_FireThermalDetonator(_ ent: Entity, _ altFire: Bool) -> Entity? {
     var bolt: Entity?
     var dir = vec3_t()
     var start = vec3_t()
@@ -2056,14 +2056,14 @@ func WP_FireThermalDetonator(_ ent: Entity, _ altFire: Bool) -> Entity? {
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:2074
-func WP_DropThermal(_ ent: Entity) -> Entity? {
+public func WP_DropThermal(_ ent: Entity) -> Entity? {
     AngleVectors(ent.client!.ps.viewangles, &forward, &vright, &up)
     return (WP_FireThermalDetonator(ent, false))
 }
 
 //---------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:2082
-func WP_LobFire(_ `self`: Entity, _ start: JKAShared.vec3_t, _ target: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ clipmask: Int32, _ velocity: inout JKAShared.vec3_t, _ tracePath: Bool, _ ignoreEntNum: Int32, _ enemyNum: Int32, _ minSpeed: Float, _ maxSpeed: Float, _ idealSpeed: Float, _ mustHit: Bool) -> Bool {
+public func WP_LobFire(_ `self`: Entity, _ start: JKAShared.vec3_t, _ target: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ clipmask: Int32, _ velocity: inout JKAShared.vec3_t, _ tracePath: Bool, _ ignoreEntNum: Int32, _ enemyNum: Int32, _ minSpeed: Float, _ maxSpeed: Float, _ idealSpeed: Float, _ mustHit: Bool) -> Bool {
     //for the galak mech NPC
     var targetDist: Float = 0
     var shotSpeed: Float = 0
@@ -2218,7 +2218,7 @@ func WP_LobFire(_ `self`: Entity, _ start: JKAShared.vec3_t, _ target: JKAShared
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:2244
-func laserTrapExplode(_ `self`: Entity) {
+public func laserTrapExplode(_ `self`: Entity) {
     var v = vec3_t()
     `self`.takedamage = false
 
@@ -2250,7 +2250,7 @@ func laserTrapExplode(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:2282
-func laserTrapDelayedExplode(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ meansOfDeath: Int32) {
+public func laserTrapDelayedExplode(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ meansOfDeath: Int32) {
     `self`.enemy = attacker
     `self`.think = Think.laserTrapExplode
     `self`.nextthink = level.time + FRAMETIME
@@ -2263,7 +2263,7 @@ func laserTrapDelayedExplode(_ `self`: Entity, _ inflictor: Entity, _ attacker: 
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:2296
-func touchLaserTrap(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+public func touchLaserTrap(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     if other.s.number < ENTITYNUM_WORLD {
         //just explode if we hit any entity. This way we don't have things happening like tripmines floating
         //in the air after getting stuck to a moving door
@@ -2283,7 +2283,7 @@ func touchLaserTrap(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:2320
-func proxMineThink(_ ent: Entity) {
+public func proxMineThink(_ ent: Entity) {
     var i: Int32 = 0
     var cl: Entity?
     var owner: Entity? = nil
@@ -2321,7 +2321,7 @@ func proxMineThink(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:2367
-func laserTrapThink(_ ent: Entity) {
+public func laserTrapThink(_ ent: Entity) {
     var traceEnt: Entity?
     var end = vec3_t()
     // Raven's record lives to the end of his block, so the block is the closure.
@@ -2357,7 +2357,7 @@ func laserTrapThink(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:2402
-func laserTrapStick(_ ent: Entity, _ endpos: inout JKAShared.vec3_t, _ normal: JKAShared.vec3_t) {
+public func laserTrapStick(_ ent: Entity, _ endpos: inout JKAShared.vec3_t, _ normal: JKAShared.vec3_t) {
     G_SetOrigin(ent, &endpos)
     ent.pos1 = normal
 
@@ -2424,14 +2424,14 @@ func laserTrapStick(_ ent: Entity, _ endpos: inout JKAShared.vec3_t, _ normal: J
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:2471
-func TrapThink(_ ent: Entity) {
+public func TrapThink(_ ent: Entity) {
     //laser trap think
     ent.nextthink = level.time + 50
     G_RunObject(ent)
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:2477
-func CreateLaserTrap(_ laserTrap: Entity, _ start: JKAShared.vec3_t, _ owner: Entity) {
+public func CreateLaserTrap(_ laserTrap: Entity, _ start: JKAShared.vec3_t, _ owner: Entity) {
     //create a laser trap entity
     laserTrap.classname = "laserTrap"
     laserTrap.flags |= FL_BOUNCE_HALF
@@ -2491,7 +2491,7 @@ func CreateLaserTrap(_ laserTrap: Entity, _ start: JKAShared.vec3_t, _ owner: En
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:2533
-func WP_PlaceLaserTrap(_ ent: Entity, _ alt_fire: Bool) {
+public func WP_PlaceLaserTrap(_ ent: Entity, _ alt_fire: Bool) {
     var laserTrap: Entity?
     var found: Entity? = nil
     var dir = vec3_t()
@@ -2586,7 +2586,7 @@ DET PACK
 ```
 */
 /// Source: oracle/codemp/game/g_weapon.c:2636
-func VectorNPos(_ `in`: JKAShared.vec3_t, _ out: inout JKAShared.vec3_t) {
+public func VectorNPos(_ `in`: JKAShared.vec3_t, _ out: inout JKAShared.vec3_t) {
     if `in`[0] < 0 {
         out[0] = -`in`[0]
     } else {
@@ -2605,7 +2605,7 @@ func VectorNPos(_ `in`: JKAShared.vec3_t, _ out: inout JKAShared.vec3_t) {
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:2645
-func charge_stick(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+public func charge_stick(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     var tent: Entity?
 
     if (other.flags & FL_BBRUSH) != 0 && other.s.pos.trType == TR_STATIONARY && other.s.apos.trType == TR_STATIONARY {
@@ -2691,7 +2691,7 @@ func charge_stick(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:2740
-func DetPackBlow(_ `self`: Entity) {
+public func DetPackBlow(_ `self`: Entity) {
     var v = vec3_t()
 
     `self`.pain = nil
@@ -2718,21 +2718,21 @@ func DetPackBlow(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:2768
-func DetPackPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func DetPackPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     `self`.think = Think.DetPackBlow
     `self`.nextthink = level.time + Q_irand(50, 100)
     `self`.takedamage = false
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:2775
-func DetPackDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
+public func DetPackDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
     `self`.think = Think.DetPackBlow
     `self`.nextthink = level.time + Q_irand(50, 100)
     `self`.takedamage = false
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:2782
-func drop_charge(_ `self`: Entity, _ start: inout JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t) {
+public func drop_charge(_ `self`: Entity, _ start: inout JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t) {
     var bolt: Entity?
 
     VectorNormalize(&dir)
@@ -2804,7 +2804,7 @@ func drop_charge(_ `self`: Entity, _ start: inout JKAShared.vec3_t, _ dir: inout
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:2851
-func BlowDetpacks(_ ent: Entity) {
+public func BlowDetpacks(_ ent: Entity) {
     var found: Entity? = nil
 
     if ent.client!.ps.hasDetPackPlanted {
@@ -2823,7 +2823,7 @@ func BlowDetpacks(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:2871
-func CheatsOn() -> Bool {
+public func CheatsOn() -> Bool {
     if g_cheats.integer == 0 {
         return false
     }
@@ -2831,7 +2831,7 @@ func CheatsOn() -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:2880
-func WP_DropDetPack(_ ent: Entity, _ alt_fire: Bool) {
+public func WP_DropDetPack(_ ent: Entity, _ alt_fire: Bool) {
     var found: Entity? = nil
     var trapcount: Int32 = 0
     var foundDetPacks: [Int32] = [ENTITYNUM_NONE, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -3194,7 +3194,7 @@ private func WP_FireConcussion(_ ent: Entity) {
 // FireStunBaton
 //---------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:3282
-func WP_FireStunBaton(_ ent: Entity, _ alt_fire: Bool) {
+public func WP_FireStunBaton(_ ent: Entity, _ alt_fire: Bool) {
     var tr_ent: Entity?
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
@@ -3269,7 +3269,7 @@ func WP_FireStunBaton(_ ent: Entity, _ alt_fire: Bool) {
 // FireMelee
 //---------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:3363
-func WP_FireMelee(_ ent: Entity, _ alt_fire: Bool) {
+public func WP_FireMelee(_ ent: Entity, _ alt_fire: Bool) {
     var tr_ent: Entity?
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
@@ -3363,7 +3363,7 @@ into a wall.
 ```
 */
 /// Source: oracle/codemp/game/g_weapon.c:3464
-func SnapVectorTowards(_ v: inout JKAShared.vec3_t, _ to: JKAShared.vec3_t) {
+public func SnapVectorTowards(_ v: inout JKAShared.vec3_t, _ to: JKAShared.vec3_t) {
     var i: Int32
 
     i = 0
@@ -3385,7 +3385,7 @@ LogAccuracyHit
 ```
 */
 /// Source: oracle/codemp/game/g_weapon.c:3485
-func LogAccuracyHit(_ target: Entity, _ attacker: Entity) -> Bool {
+public func LogAccuracyHit(_ target: Entity, _ attacker: Entity) -> Bool {
     if !target.takedamage {
         return false
     }
@@ -3428,7 +3428,7 @@ first person perspective.
 ```
 */
 /// Source: oracle/codemp/game/g_weapon.c:3530
-func CalcMuzzlePoint(_ ent: Entity, _ forward: JKAShared.vec3_t, _ right: JKAShared.vec3_t, _ up: JKAShared.vec3_t, _ muzzlePoint: inout JKAShared.vec3_t) {
+public func CalcMuzzlePoint(_ ent: Entity, _ forward: JKAShared.vec3_t, _ right: JKAShared.vec3_t, _ up: JKAShared.vec3_t, _ muzzlePoint: inout JKAShared.vec3_t) {
     let weapontype: Int32
     var muzzleOffPoint = vec3_t()
 
@@ -3461,7 +3461,7 @@ set muzzle location relative to pivoting eye
 ```
 */
 /// Source: oracle/codemp/game/g_weapon.c:3560
-func CalcMuzzlePointOrigin(_ ent: Entity, _ origin: JKAShared.vec3_t, _ forward: JKAShared.vec3_t, _ right: JKAShared.vec3_t, _ up: JKAShared.vec3_t, _ muzzlePoint: inout JKAShared.vec3_t) {
+public func CalcMuzzlePointOrigin(_ ent: Entity, _ origin: JKAShared.vec3_t, _ forward: JKAShared.vec3_t, _ right: JKAShared.vec3_t, _ up: JKAShared.vec3_t, _ muzzlePoint: inout JKAShared.vec3_t) {
     muzzlePoint = ent.s.pos.trBase
     muzzlePoint[2] += ent.client!.ps.viewheight
     _VectorMA(muzzlePoint, 14, forward, &muzzlePoint)
@@ -3470,7 +3470,7 @@ func CalcMuzzlePointOrigin(_ ent: Entity, _ origin: JKAShared.vec3_t, _ forward:
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:3569
-func WP_TouchVehMissile(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+public func WP_TouchVehMissile(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     // Raven's record lives to the end of his block, so the block is the closure.
     Trace.scratch { myTrace in
         myTrace.copy(from: trace)
@@ -3480,7 +3480,7 @@ func WP_TouchVehMissile(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:3580
-func WP_CalcVehMuzzle(_ ent: Entity, _ muzzleNum: Int32) {
+public func WP_CalcVehMuzzle(_ ent: Entity, _ muzzleNum: Int32) {
     let pVeh: Vehicle? = ent.m_pVehicle
     // Raven's record lives to the end of his block, so the block is the closure.
     MdxaBone.scratch { boltMatrix in
@@ -3507,7 +3507,7 @@ func WP_CalcVehMuzzle(_ ent: Entity, _ muzzleNum: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:3610
-func WP_VehWeapSetSolidToOwner(_ `self`: Entity) {
+public func WP_VehWeapSetSolidToOwner(_ `self`: Entity) {
     `self`.r.svFlags |= SVF_OWNERNOTSHARED
     if `self`.genericValue1 != 0 {
         //expire after a time
@@ -3523,7 +3523,7 @@ func WP_VehWeapSetSolidToOwner(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:3628
-func WP_FireVehicleWeapon(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ vehWeapon: JKAMP.VehWeaponInfo, _ alt_fire: Bool, _ isTurretWeap: Bool) -> Entity? {
+public func WP_FireVehicleWeapon(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ vehWeapon: JKAMP.VehWeaponInfo, _ alt_fire: Bool, _ isTurretWeap: Bool) -> Entity? {
     var missile: Entity? = nil
 
     //FIXME: add some randomness...?  Inherent inaccuracy stat of weapon?  Pilot skill?
@@ -3732,7 +3732,7 @@ func WP_FireVehicleWeapon(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir:
 
 //custom routine to not waste tempents horribly -rww
 /// Source: oracle/codemp/game/g_weapon.c:3851
-func G_VehMuzzleFireFX(_ ent: Entity, _ broadcaster: Entity, _ muzzlesFired: Int32) {
+public func G_VehMuzzleFireFX(_ ent: Entity, _ broadcaster: Entity, _ muzzlesFired: Int32) {
     let pVeh: Vehicle? = ent.m_pVehicle
     var b: Entity?
 
@@ -3755,7 +3755,7 @@ func G_VehMuzzleFireFX(_ ent: Entity, _ broadcaster: Entity, _ muzzlesFired: Int
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:3883
-func G_EstimateCamPos(_ viewAngles: JKAShared.vec3_t, _ cameraFocusLoc: inout JKAShared.vec3_t, _ viewheight: Float, _ thirdPersonRange: Float, _ thirdPersonHorzOffset: Float, _ vertOffset: Float, _ pitchOffset: Float, _ ignoreEntNum: Int32, _ camPos: inout JKAShared.vec3_t) {
+public func G_EstimateCamPos(_ viewAngles: JKAShared.vec3_t, _ cameraFocusLoc: inout JKAShared.vec3_t, _ viewheight: Float, _ thirdPersonRange: Float, _ thirdPersonHorzOffset: Float, _ vertOffset: Float, _ pitchOffset: Float, _ ignoreEntNum: Int32, _ camPos: inout JKAShared.vec3_t) {
     let MASK_CAMERACLIP: Int32 = (MASK_SOLID | CONTENTS_PLAYERCLIP)
     let CAMERA_SIZE: Float = 4
     var cameramins = vec3_t()
@@ -3833,7 +3833,7 @@ func G_EstimateCamPos(_ viewAngles: JKAShared.vec3_t, _ cameraFocusLoc: inout JK
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:3961
-func WP_GetVehicleCamPos(_ ent: Entity, _ pilot: Entity, _ camPos: inout JKAShared.vec3_t) {
+public func WP_GetVehicleCamPos(_ ent: Entity, _ pilot: Entity, _ camPos: inout JKAShared.vec3_t) {
     var thirdPersonHorzOffset: Float = ent.m_pVehicle!.m_pVehicleInfo!.cameraHorzOffset
     var thirdPersonRange: Float = ent.m_pVehicle!.m_pVehicleInfo!.cameraRange
     var pitchOffset: Float = ent.m_pVehicle!.m_pVehicleInfo!.cameraPitchOffset
@@ -3878,7 +3878,7 @@ func WP_GetVehicleCamPos(_ ent: Entity, _ pilot: Entity, _ camPos: inout JKAShar
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:4022
-func WP_VehLeadCrosshairVeh(_ camTraceEnt: Entity, _ newEnd: inout JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ shotStart: JKAShared.vec3_t, _ shotDir: inout JKAShared.vec3_t) {
+public func WP_VehLeadCrosshairVeh(_ camTraceEnt: Entity, _ newEnd: inout JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ shotStart: JKAShared.vec3_t, _ shotDir: inout JKAShared.vec3_t) {
     if g_vehAutoAimLead.integer != 0 {
         if camTraceEnt.client != nil && camTraceEnt.client!.NPC_class == CLASS_VEHICLE {
             //if the crosshair is on a vehicle, lead it
@@ -3904,7 +3904,7 @@ func WP_VehLeadCrosshairVeh(_ camTraceEnt: Entity, _ newEnd: inout JKAShared.vec
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:4052
-func WP_VehCheckTraceFromCamPos(_ ent: Entity, _ shotStart: JKAShared.vec3_t, _ shotDir: inout JKAShared.vec3_t) -> Bool {
+public func WP_VehCheckTraceFromCamPos(_ ent: Entity, _ shotStart: JKAShared.vec3_t, _ shotDir: inout JKAShared.vec3_t) -> Bool {
     //FIXME: only if dynamicCrosshair and dynamicCrosshairPrecision is on!
     if ent.m_pVehicle == nil || ent.m_pVehicle!.m_pVehicleInfo == nil || ent.m_pVehicle!.m_pPilot == nil || (ent.m_pVehicle!.m_pPilot.map { Entity($0) })!.client == nil || (ent.m_pVehicle!.m_pPilot!.s.number >= MAX_CLIENTS) {
         return false
@@ -3976,7 +3976,7 @@ func WP_VehCheckTraceFromCamPos(_ ent: Entity, _ shotStart: JKAShared.vec3_t, _ 
 
 //---------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:4116
-func FireVehicleWeapon(_ ent: Entity, _ alt_fire: Bool) {
+public func FireVehicleWeapon(_ ent: Entity, _ alt_fire: Bool) {
     let pVeh: Vehicle? = ent.m_pVehicle
     var muzzlesFired: Int32 = 0
     var missile: Entity? = nil
@@ -4269,7 +4269,7 @@ func FireVehicleWeapon(_ ent: Entity, _ alt_fire: Bool) {
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:4424
-func FireWeapon(_ ent: Entity, _ altFire: Bool) {
+public func FireWeapon(_ ent: Entity, _ altFire: Bool) {
     if ent.client!.ps.powerups[PW_QUAD] != 0 {
         s_quadFactor = g_quadfactor.value
     } else {
@@ -4476,7 +4476,7 @@ private func WP_FireEmplaced(_ ent: Entity, _ altFire: Bool) {
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:4691
-func emplaced_gun_use(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace?) {
+public func emplaced_gun_use(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace?) {
     var fwd1 = vec3_t()
     var fwd2 = vec3_t()
     var dot: Float
@@ -4596,13 +4596,13 @@ func emplaced_gun_use(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace?) 
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:4804
-func emplaced_gun_realuse(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func emplaced_gun_realuse(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     emplaced_gun_use(`self`, other, nil)
 }
 
 //----------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:4810
-func emplaced_gun_pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func emplaced_gun_pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     `self`.s.health = `self`.health
 
     if `self`.health <= 0 {
@@ -4615,7 +4615,7 @@ func emplaced_gun_pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 
 //----------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:4828
-func emplaced_gun_update(_ `self`: Entity) {
+public func emplaced_gun_update(_ `self`: Entity) {
     var smokeOrg = vec3_t()
     var puffAngle = vec3_t()
     let oldWeap: Int32
@@ -4712,7 +4712,7 @@ func emplaced_gun_update(_ `self`: Entity) {
 
 //----------------------------------------------------------
 /// Source: oracle/codemp/game/g_weapon.c:4930
-func emplaced_gun_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
+public func emplaced_gun_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
     //set us up to flash and then explode
     if `self`.genericValue4 != 0 {
         return
@@ -4726,7 +4726,7 @@ func emplaced_gun_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity,
 }
 
 /// Source: oracle/codemp/game/g_weapon.c:4944
-func SP_emplaced_gun(_ ent: Entity) {
+public func SP_emplaced_gun(_ ent: Entity) {
     let name: String = "models/map_objects/mp/turret_chair.glm"
     var down = vec3_t()
     // Raven's record lives to the end of his block, so the block is the closure.

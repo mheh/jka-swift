@@ -5,7 +5,7 @@ import JKAMP_Game
 import JKAMP_BG
 
 /// Source: oracle/codemp/game/NPC_goal.c:10
-func SetGoal(_ goal: Entity?, _ rating: Float) {
+public func SetGoal(_ goal: Entity?, _ rating: Float) {
     NPCInfo!.goalEntity = goal
     //	NPCInfo->goalEntityNeed = rating;
     NPCInfo!.goalTime = level.time
@@ -18,7 +18,7 @@ func SetGoal(_ goal: Entity?, _ rating: Float) {
 }
 
 /// Source: oracle/codemp/game/NPC_goal.c:31
-func NPC_SetGoal(_ goal: Entity, _ rating: Float) {
+public func NPC_SetGoal(_ goal: Entity, _ rating: Float) {
     if goal == NPCInfo!.goalEntity {
         return
     }
@@ -39,7 +39,7 @@ func NPC_SetGoal(_ goal: Entity, _ rating: Float) {
 }
 
 /// Source: oracle/codemp/game/NPC_goal.c:65
-func NPC_ClearGoal() {
+public func NPC_ClearGoal() {
     var goal: Entity?
 
     if NPCInfo!.lastGoalEntity == nil {
@@ -60,7 +60,7 @@ func NPC_ClearGoal() {
 }
 
 /// Source: oracle/codemp/game/NPC_goal.c:94
-func G_BoundsOverlap(_ mins1: JKAShared.vec3_t, _ maxs1: JKAShared.vec3_t, _ mins2: JKAShared.vec3_t, _ maxs2: JKAShared.vec3_t) -> Bool {
+public func G_BoundsOverlap(_ mins1: JKAShared.vec3_t, _ maxs1: JKAShared.vec3_t, _ mins2: JKAShared.vec3_t, _ maxs2: JKAShared.vec3_t) -> Bool {
     //NOTE: flush up against counts as overlapping
     if mins1[0] > maxs2[0] {
         return false
@@ -90,7 +90,7 @@ func G_BoundsOverlap(_ mins1: JKAShared.vec3_t, _ maxs1: JKAShared.vec3_t, _ min
 }
 
 /// Source: oracle/codemp/game/NPC_goal.c:117
-func NPC_ReachedGoal() {
+public func NPC_ReachedGoal() {
     //	Debug_NPCPrintf( NPC, debugNPCAI, DEBUG_LEVEL_INFO, "UpdateGoal: reached goal entity\n" );
     NPC_ClearGoal()
     NPCInfo!.goalTime = level.time
@@ -112,7 +112,7 @@ id removed checks against waypoints and is now checking surfaces
 */
 //qboolean NAV_HitNavGoal( vec3_t point, vec3_t mins, vec3_t maxs, gentity_t *goal, qboolean flying );
 /// Source: oracle/codemp/game/NPC_goal.c:136
-func ReachedGoal(_ goal: Entity) -> Bool {
+public func ReachedGoal(_ goal: Entity) -> Bool {
     //FIXME: For script waypoints, need a special check
     /*
     int		goalWpNum;
@@ -208,7 +208,7 @@ func ReachedGoal(_ goal: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_goal.c:243
-func UpdateGoal() -> Entity? {
+public func UpdateGoal() -> Entity? {
     var goal: Entity?
 
     if NPCInfo!.goalEntity == nil {

@@ -91,7 +91,7 @@ var impactPos4: JKAShared.vec3_t {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_GalakMech.c:42
-func NPC_GalakMech_Precache() {
+public func NPC_GalakMech_Precache() {
     G_SoundIndex("sound/weapons/galak/skewerhit.wav")
     G_SoundIndex("sound/weapons/galak/lasercharge.wav")
     G_SoundIndex("sound/weapons/galak/lasercutting.wav")
@@ -108,7 +108,7 @@ func NPC_GalakMech_Precache() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_GalakMech.c:59
-func NPC_GalakMech_Init(_ ent: Entity) {
+public func NPC_GalakMech_Init(_ ent: Entity) {
     if ent.NPC!.behaviorState != BS_CINEMATIC {
         ent.client!.ps.stats[STAT_ARMOR] = GALAK_SHIELD_HEALTH
         ent.NPC!.investigateDebounceTime = 0
@@ -169,7 +169,7 @@ private func GM_CreateExplosion(_ `self`: Entity, _ boltID: Int32, _ doSmall: Bo
 }
 
 /// Source: oracle/codemp/game/NPC_AI_GalakMech.c:133
-func GM_Dying(_ `self`: Entity) {
+public func GM_Dying(_ `self`: Entity) {
     if level.time - `self`.s.time < 4000 {
         //FIXME: need a real effect
         //self->s.powerups |= ( 1 << PW_SHOCKED );
@@ -258,7 +258,7 @@ func GM_Dying(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_GalakMech.c:238
-func NPC_GM_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func NPC_GM_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     var point = vec3_t()
     let inflictor: Entity? = attacker
     let hitLoc: Int32 = 1
@@ -407,7 +407,7 @@ private func GM_Move() -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_GalakMech.c:416
-func NPC_BSGM_Patrol() {
+public func NPC_BSGM_Patrol() {
     if NPC_CheckPlayerTeamStealth() {
         NPC_UpdateAngles(true, true)
         return
@@ -533,7 +533,7 @@ private func GM_CheckFireState() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_GalakMech.c:558
-func NPC_GM_StartLaser() {
+public func NPC_GM_StartLaser() {
     if NPC!.lockCount == 0 {
         //haven't already started a laser attack
         //warm up for the beam attack
@@ -547,7 +547,7 @@ func NPC_GM_StartLaser() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_GalakMech.c:575
-func GM_StartGloat() {
+public func GM_StartGloat() {
     NPC!.wait = 0
     NPC_SetSurfaceOnOff(NPC!, "torso_galakface", TURN_ON)
     NPC_SetSurfaceOnOff(NPC!, "torso_galakhead", TURN_ON)
@@ -561,7 +561,7 @@ func GM_StartGloat() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_GalakMech.c:594
-func NPC_BSGM_Attack() {
+public func NPC_BSGM_Attack() {
     //Don't do anything if we're hurt
     if NPC!.painDebounceTime > level.time {
         NPC_UpdateAngles(true, true)
@@ -1033,7 +1033,7 @@ func NPC_BSGM_Attack() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_GalakMech.c:1231
-func NPC_BSGM_Default() {
+public func NPC_BSGM_Default() {
     if (NPCInfo!.scriptFlags & SCF_FIRE_WEAPON) != 0 {
         WeaponThink(true)
     }

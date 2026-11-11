@@ -23,7 +23,7 @@ private let LSTATE_CLEAR = 0 as Int32
 private let LSTATE_WAITING = 1 as Int32
 
 /// Source: oracle/codemp/game/NPC_AI_Rancor.c:19
-func Rancor_SetBolts(_ `self`: Entity) {
+public func Rancor_SetBolts(_ `self`: Entity) {
     if `self`.client != nil {
         let ri: RenderInfo? = `self`.client!.renderInfo
         ri!.handRBolt = trap_G2API_AddBolt(`self`.ghoul2, 0, "*r_hand")
@@ -41,7 +41,7 @@ NPC_Rancor_Precache
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Rancor.c:36
-func NPC_Rancor_Precache() {
+public func NPC_Rancor_Precache() {
     var i: Int32
     i = 1
     while i < 3 {
@@ -60,7 +60,7 @@ Rancor_Idle
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Rancor.c:53
-func Rancor_Idle() {
+public func Rancor_Idle() {
     NPCInfo!.localState = LSTATE_CLEAR
 
     //If we have somewhere to go, then do that
@@ -71,7 +71,7 @@ func Rancor_Idle() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Rancor.c:66
-func Rancor_CheckRoar(_ `self`: Entity) -> Bool {
+public func Rancor_CheckRoar(_ `self`: Entity) -> Bool {
     if `self`.wait == 0 {
         //haven't ever gotten mad yet
         `self`.wait = 1 //do this only once
@@ -91,7 +91,7 @@ Rancor_Patrol
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Rancor.c:83
-func Rancor_Patrol() {
+public func Rancor_Patrol() {
     NPCInfo!.localState = LSTATE_CLEAR
 
     //If we have somewhere to go, then do that
@@ -120,7 +120,7 @@ Rancor_Move
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Rancor.c:115
-func Rancor_Move(_ visible: Bool) {
+public func Rancor_Move(_ visible: Bool) {
     if NPCInfo!.localState != LSTATE_WAITING {
         NPCInfo!.goalEntity = NPC!.enemy
         if !NPC_MoveToGoal(true) {
@@ -133,7 +133,7 @@ func Rancor_Move(_ visible: Bool) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Rancor.c:140
-func Rancor_DropVictim(_ `self`: Entity) {
+public func Rancor_DropVictim(_ `self`: Entity) {
     //FIXME: if Rancor dies, it should drop its victim.
     //FIXME: if Rancor is removed, it must remove its victim.
     if `self`.activator != nil {
@@ -183,7 +183,7 @@ func Rancor_DropVictim(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Rancor.c:196
-func Rancor_Swing(_ tryGrab: Bool) {
+public func Rancor_Swing(_ tryGrab: Bool) {
     var radiusEntNums: [Int32] = [Int32](repeating: 0, count: 128)
     let numEnts: Int32
     let radius: Float = 88
@@ -282,7 +282,7 @@ func Rancor_Swing(_ tryGrab: Bool) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Rancor.c:308
-func Rancor_Smash() {
+public func Rancor_Smash() {
     var radiusEntNums: [Int32] = [Int32](repeating: 0, count: 128)
     let numEnts: Int32
     let radius: Float = 128
@@ -343,7 +343,7 @@ func Rancor_Smash() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Rancor.c:369
-func Rancor_Bite() {
+public func Rancor_Bite() {
     var radiusEntNums: [Int32] = [Int32](repeating: 0, count: 128)
     let numEnts: Int32
     let radius: Float = 100
@@ -406,7 +406,7 @@ func Rancor_Bite() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Rancor.c:431
-func Rancor_Attack(_ distance: Float, _ doCharge: Bool) {
+public func Rancor_Attack(_ distance: Float, _ doCharge: Bool) {
     if !TIMER_Exists(NPC!, "attacking") {
         if NPC!.count == 2 && NPC!.activator != nil {
         } else if NPC!.count == 1 && NPC!.activator != nil {
@@ -583,7 +583,7 @@ func Rancor_Attack(_ distance: Float, _ doCharge: Bool) {
 
 //----------------------------------
 /// Source: oracle/codemp/game/NPC_AI_Rancor.c:617
-func Rancor_Combat() {
+public func Rancor_Combat() {
     if NPC!.count != 0 {
         //holding my enemy
         if TIMER_Done2(NPC!, "takingPain", true) {
@@ -656,7 +656,7 @@ NPC_Rancor_Pain
 */
 //void NPC_Rancor_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, int mod,int hitLoc )
 /// Source: oracle/codemp/game/NPC_AI_Rancor.c:703
-func NPC_Rancor_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func NPC_Rancor_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     var hitByRancor: Bool = false
     if attacker.client != nil && attacker.client!.NPC_class == CLASS_RANCOR {
         hitByRancor = true
@@ -716,7 +716,7 @@ func NPC_Rancor_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Rancor.c:784
-func Rancor_CheckDropVictim() {
+public func Rancor_CheckDropVictim() {
     var mins = vec3_t()
     var maxs = vec3_t()
     var start = vec3_t()
@@ -738,7 +738,7 @@ func Rancor_CheckDropVictim() {
 
 //if he's stepping on things then crush them -rww
 /// Source: oracle/codemp/game/NPC_AI_Rancor.c:805
-func Rancor_Crush() {
+public func Rancor_Crush() {
     var crush: Entity?
 
     if NPC == nil || NPC!.client == nil || NPC!.client!.ps.groundEntityNum >= ENTITYNUM_WORLD {
@@ -762,7 +762,7 @@ NPC_BSRancor_Default
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Rancor.c:828
-func NPC_BSRancor_Default() {
+public func NPC_BSRancor_Default() {
     AddSightEvent(NPC!, NPC!.r.currentOrigin, 1024, AEL_DANGER_GREAT, 50)
 
     Rancor_Crush()

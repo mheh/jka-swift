@@ -10,7 +10,7 @@ private let ON_EPSILON = 0.005 as Double
 private let MAX_BSPENTITIES = 2048 as Int32
 
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:70
-var bspworld: Bsp { world.storage.bspworld }
+public var bspworld: Bsp { world.storage.bspworld }
 
 //===========================================================================
 // traces axial boxes of any size through the world
@@ -24,7 +24,7 @@ var bspworld: Bsp { world.storage.bspworld }
 var bsptrace_AAS_Trace: BspTrace { world.storage.bsptrace_AAS_Trace }
 
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:130
-func AAS_Trace(_ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ end: JKAShared.vec3_t, _ passent: Int32, _ contentmask: Int32) -> BspTrace {
+public func AAS_Trace(_ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ end: JKAShared.vec3_t, _ passent: Int32, _ contentmask: Int32) -> BspTrace {
     let bsptrace = bsptrace_AAS_Trace
     // The engine only reads the four vectors, at sv_bot.cpp:312, so the copies are behavior-equal.
     // SV_Trace reads a NULL `mins` or `maxs` as the zero vector, so a scratch zero vector stands for NULL.
@@ -41,7 +41,7 @@ func AAS_Trace(_ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKA
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:143
-func AAS_PointContents(_ point: JKAShared.vec3_t) -> Int32 {
+public func AAS_PointContents(_ point: JKAShared.vec3_t) -> Int32 {
     // The engine only reads the point, at sv_bot.cpp:360, so the copy is behavior-equal.
     var point = point
     return botimport.runPointContents(&point)
@@ -54,7 +54,7 @@ func AAS_PointContents(_ point: JKAShared.vec3_t) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:153
-func AAS_EntityCollision(_ entnum: Int32, _ start: JKAShared.vec3_t, _ boxmins: JKAShared.vec3_t, _ boxmaxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ contentmask: Int32, _ trace: BspTrace) -> Bool {
+public func AAS_EntityCollision(_ entnum: Int32, _ start: JKAShared.vec3_t, _ boxmins: JKAShared.vec3_t, _ boxmaxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ contentmask: Int32, _ trace: BspTrace) -> Bool {
     return BspTrace.scratch { enttrace -> Bool in
         // The engine only reads the four vectors, at sv_bot.cpp:334, so the copies are behavior-equal.
         var start = start, boxmins = boxmins, boxmaxs = boxmaxs, end = end
@@ -75,7 +75,7 @@ func AAS_EntityCollision(_ entnum: Int32, _ start: JKAShared.vec3_t, _ boxmins: 
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:174
-func AAS_inPVS(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool {
+public func AAS_inPVS(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     // The engine only reads the two points, at sv_bot.cpp:370, so the copies are behavior-equal.
     var p1 = p1, p2 = p2
@@ -90,7 +90,7 @@ func AAS_inPVS(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:185
-func AAS_inPHS(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool {
+public func AAS_inPHS(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     return true
 }
@@ -102,7 +102,7 @@ func AAS_inPHS(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:195
-func AAS_BSPModelMinsMaxsOrigin(_ modelnum: Int32, _ angles: JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ origin: inout JKAShared.vec3_t) {
+public func AAS_BSPModelMinsMaxsOrigin(_ modelnum: Int32, _ angles: JKAShared.vec3_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t, _ origin: inout JKAShared.vec3_t) {
     // The engine only reads the angles, at sv_bot.cpp:396, so the copy is behavior-equal.
     var angles = angles
     botimport.runBSPModelMinsMaxsOrigin(modelnum, &angles, &mins, &maxs, &origin)
@@ -116,7 +116,7 @@ func AAS_BSPModelMinsMaxsOrigin(_ modelnum: Int32, _ angles: JKAShared.vec3_t, _
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:206
-func AAS_UnlinkFromBSPLeaves(_ leaves: BspLink?) {
+public func AAS_UnlinkFromBSPLeaves(_ leaves: BspLink?) {
 }
 
 //===========================================================================
@@ -126,7 +126,7 @@ func AAS_UnlinkFromBSPLeaves(_ leaves: BspLink?) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:215
-func AAS_BSPLinkEntity(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _ entnum: Int32, _ modelnum: Int32) -> BspLink? {
+public func AAS_BSPLinkEntity(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _ entnum: Int32, _ modelnum: Int32) -> BspLink? {
     return nil
 }
 
@@ -137,7 +137,7 @@ func AAS_BSPLinkEntity(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t,
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:225
-func AAS_BoxEntities(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _ list: Slots<Int32>, _ maxcount: Int32) -> Int32 {
+public func AAS_BoxEntities(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _ list: Slots<Int32>, _ maxcount: Int32) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     return 0
 }
@@ -149,7 +149,7 @@ func AAS_BoxEntities(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:235
-func AAS_NextBSPEntity(_ ent: Int32) -> Int32 {
+public func AAS_NextBSPEntity(_ ent: Int32) -> Int32 {
     var ent = ent
     ent += 1
     if ent >= 1 && ent < bspworld.numentities { return ent }
@@ -163,7 +163,7 @@ func AAS_NextBSPEntity(_ ent: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:247
-func AAS_BSPEntityInRange(_ ent: Int32) -> Int32 {
+public func AAS_BSPEntityInRange(_ ent: Int32) -> Int32 {
     if ent <= 0 || ent >= bspworld.numentities {
         botimport.runPrint(PRT_MESSAGE, "bsp entity out of range\n")
         return 0
@@ -178,7 +178,7 @@ func AAS_BSPEntityInRange(_ ent: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:262
-func AAS_ValueForBSPEpairKey(_ ent: Int32, _ key: String, _ value: inout JKAShared.CharBuf, _ size: Int32) -> Int32 {
+public func AAS_ValueForBSPEpairKey(_ ent: Int32, _ key: String, _ value: inout JKAShared.CharBuf, _ size: Int32) -> Int32 {
     var epair: BspEpair?
 
     value[0] = 0
@@ -202,7 +202,7 @@ func AAS_ValueForBSPEpairKey(_ ent: Int32, _ key: String, _ value: inout JKAShar
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:285
-func AAS_VectorForBSPEpairKey(_ ent: Int32, _ key: String, _ v: inout JKAShared.vec3_t) -> Int32 {
+public func AAS_VectorForBSPEpairKey(_ ent: Int32, _ key: String, _ v: inout JKAShared.vec3_t) -> Int32 {
     var buf = CharBuf(MAX_EPAIRKEY)
     var v1: Double, v2: Double, v3: Double
 
@@ -226,7 +226,7 @@ func AAS_VectorForBSPEpairKey(_ ent: Int32, _ key: String, _ v: inout JKAShared.
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:306
-func AAS_FloatForBSPEpairKey(_ ent: Int32, _ key: String, _ value: inout Float) -> Int32 {
+public func AAS_FloatForBSPEpairKey(_ ent: Int32, _ key: String, _ value: inout Float) -> Int32 {
     var buf = CharBuf(MAX_EPAIRKEY)
 
     value = 0
@@ -242,7 +242,7 @@ func AAS_FloatForBSPEpairKey(_ ent: Int32, _ key: String, _ value: inout Float) 
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:321
-func AAS_IntForBSPEpairKey(_ ent: Int32, _ key: String, _ value: inout Int32) -> Int32 {
+public func AAS_IntForBSPEpairKey(_ ent: Int32, _ key: String, _ value: inout Int32) -> Int32 {
     var buf = CharBuf(MAX_EPAIRKEY)
 
     value = 0
@@ -258,7 +258,7 @@ func AAS_IntForBSPEpairKey(_ ent: Int32, _ key: String, _ value: inout Int32) ->
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:336
-func AAS_FreeBSPEntities() {
+public func AAS_FreeBSPEntities() {
     var i: Int32
     var ent: BspEntity
     var epair: BspEpair?, nextepair: BspEpair?
@@ -286,7 +286,7 @@ func AAS_FreeBSPEntities() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:362
-func AAS_ParseBSPEntities() {
+public func AAS_ParseBSPEntities() {
     let script: Script
 
     script = LoadScriptMemory(bspworld.dentdata!, bspworld.entdatasize, "entdata")!
@@ -355,7 +355,7 @@ func AAS_ParseBSPEntities() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:433
-func AAS_BSPTraceLight(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ endpos: JKAShared.vec3_t, _ red: inout Int32, _ green: inout Int32, _ blue: inout Int32) -> Int32 {
+public func AAS_BSPTraceLight(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ endpos: JKAShared.vec3_t, _ red: inout Int32, _ green: inout Int32, _ blue: inout Int32) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     return 0
 }
@@ -367,7 +367,7 @@ func AAS_BSPTraceLight(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ end
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:443
-func AAS_DumpBSPData() {
+public func AAS_DumpBSPData() {
     AAS_FreeBSPEntities()
 
     // AI: Raven frees the entity text here. The view pools every string, so the free goes.
@@ -386,7 +386,7 @@ func AAS_DumpBSPData() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_bspq3.cpp:461
-func AAS_LoadBSPFile() -> Int32 {
+public func AAS_LoadBSPFile() -> Int32 {
     AAS_DumpBSPData()
     bspworld.entdatasize = strlen(botimport.runBSPEntityData()!) + 1
     // AI: Raven copies the entity text into the GetClearedHunkMemory block. The call stays for the hunk count, and the field takes the text.

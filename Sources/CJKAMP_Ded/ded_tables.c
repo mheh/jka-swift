@@ -1059,6 +1059,9 @@ mdxaBone_t id_G2_Set_Bone_Angles_IK = {
 				0.0f, 0.0f, 1.0f, 0.0f
 			};
 
+// The host's table takes the link name `_BSTable_ded`, so it does not collide with the game's `BSTable` of g_tables.c in one link.
+// ded_tables.h declares the table with the same link name, and the definition below takes the name of this declaration.
+extern stringID_table_t BSTable[11] __asm("_BSTable_ded");
 // Source: oracle/codemp/icarus/GameInterface.cpp:592-606
 stringID_table_t BSTable[] =
 {

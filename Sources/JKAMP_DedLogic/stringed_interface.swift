@@ -4,7 +4,7 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/qcommon/stringed_interface.cpp:131
-var giFilesFound: Int32 {
+public var giFilesFound: Int32 {
     get { world.variables.giFilesFound }
     set { world.variables.giFilesFound = newValue }
 }
@@ -14,7 +14,7 @@ var giFilesFound: Int32 {
 //  returns either char * of loaded file, else NULL for failed-to-open...
 //
 /// Source: oracle/codemp/qcommon/stringed_interface.cpp:41
-func SE_LoadFileData(_ psFileName: String, _ piLoadedLength: inout Int32) -> Slots<JKAShared.byte>? {
+public func SE_LoadFileData(_ psFileName: String, _ piLoadedLength: inout Int32) -> Slots<JKAShared.byte>? {
     var psReturn: Slots<JKAShared.byte>? = nil
     // Raven's `if ( piLoadedLength )` test has no path here, because an `inout` length is never NULL.
     piLoadedLength = 0
@@ -36,7 +36,7 @@ func SE_LoadFileData(_ psFileName: String, _ piLoadedLength: inout Int32) -> Slo
 // called by main SGE code after loaded data has been parsedinto internal structures...
 //
 /// Source: oracle/codemp/qcommon/stringed_interface.cpp:109
-func SE_FreeFileDataAfterLoad(_ psLoadedFile: Slots<UInt8>) {
+public func SE_FreeFileDataAfterLoad(_ psLoadedFile: Slots<UInt8>) {
     // Raven's `if ( psLoadedFile )` test has no path here, because the Slots is never NULL.
     FS_FreeFile(psLoadedFile)
 }
@@ -106,7 +106,7 @@ private func SE_R_ListFiles(_ psExtension: String, _ psDir: String, _ strResults
 //
 /// Source: oracle/codemp/qcommon/stringed_interface.cpp:192
 @discardableResult
-func SE_BuildFileList(_ psStartDir: String, _ strResults: inout String) -> Int32 {
+public func SE_BuildFileList(_ psStartDir: String, _ strResults: inout String) -> Int32 {
     giFilesFound = 0
     strResults = ""
 

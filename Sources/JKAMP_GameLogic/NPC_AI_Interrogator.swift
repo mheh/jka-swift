@@ -33,7 +33,7 @@ NPC_Interrogator_Precache
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Interrogator.c:20
-func NPC_Interrogator_Precache(_ `self`: Entity?) {
+public func NPC_Interrogator_Precache(_ `self`: Entity?) {
     G_SoundIndex("sound/chars/interrogator/misc/torture_droid_lp")
     G_SoundIndex("sound/chars/mark1/misc/anger.wav")
     G_SoundIndex("sound/chars/probe/misc/talk")
@@ -50,7 +50,7 @@ Interrogator_die
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Interrogator.c:34
-func Interrogator_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32, _ dFlags: Int32, _ hitLoc: Int32) {
+public func Interrogator_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32, _ dFlags: Int32, _ hitLoc: Int32) {
     `self`.client!.ps.velocity[2] = -100
     /*
     self->locationDamage[HL_NONE] += damage;
@@ -82,7 +82,7 @@ Interrogator_PartsMove
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Interrogator.c:64
-func Interrogator_PartsMove() {
+public func Interrogator_PartsMove() {
     // Syringe
     if TIMER_Done(NPC!, "syringeDelay") {
         NPC!.pos1[1] = AngleNormalize360(NPC!.pos1[1])
@@ -141,7 +141,7 @@ Interrogator_MaintainHeight
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Interrogator.c:137
-func Interrogator_MaintainHeight() {
+public func Interrogator_MaintainHeight() {
     var dif: Float
     //	vec3_t	endPos;
     //	trace_t	trace;
@@ -221,7 +221,7 @@ Interrogator_Strafe
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Interrogator.c:238
-func Interrogator_Strafe() {
+public func Interrogator_Strafe() {
     var dir: Int32 = 0
     var end = vec3_t()
     var right = vec3_t()
@@ -268,7 +268,7 @@ func Interrogator_Strafe() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Interrogator.c:290
-func Interrogator_Hunt(_ visible: Bool, _ advance: Bool) {
+public func Interrogator_Hunt(_ visible: Bool, _ advance: Bool) {
     var distance: Float = 0
     let speed: Float
     var forward = vec3_t()
@@ -321,7 +321,7 @@ Interrogator_Melee
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Interrogator.c:345
-func Interrogator_Melee(_ visible: Bool, _ advance: Bool) {
+public func Interrogator_Melee(_ visible: Bool, _ advance: Bool) {
     if TIMER_Done(NPC!, "attackDelay") {
         // Make sure that we are within the height range before we allow any damage to happen
         if NPC!.r.currentOrigin[2] >= NPC!.enemy!.r.currentOrigin[2] + NPC!.enemy!.r.mins[2] && NPC!.r.currentOrigin[2] + NPC!.r.mins[2] + 8 < NPC!.enemy!.r.currentOrigin[2] + NPC!.enemy!.r.maxs[2] {
@@ -357,7 +357,7 @@ Interrogator_Attack
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Interrogator.c:381
-func Interrogator_Attack() {
+public func Interrogator_Attack() {
     let distance: Float
     let visible: Bool
     var advance: Bool
@@ -407,7 +407,7 @@ Interrogator_Idle
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Interrogator.c:435
-func Interrogator_Idle() {
+public func Interrogator_Idle() {
     if NPC_CheckPlayerTeamStealth() {
         G_SoundOnEnt(NPC!, CHAN_AUTO, "sound/chars/mark1/misc/anger.wav")
         NPC_UpdateAngles(true, true)
@@ -427,7 +427,7 @@ NPC_BSInterrogator_Default
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Interrogator.c:454
-func NPC_BSInterrogator_Default() {
+public func NPC_BSInterrogator_Default() {
     //NPC->e_DieFunc = dieF_Interrogator_die;
 
     if NPC!.enemy != nil {

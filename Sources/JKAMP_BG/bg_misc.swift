@@ -159,20 +159,20 @@ public var WeaponReadyAnim: [Int32] {
 
 /// Source: oracle/codemp/game/bg_misc.c:268
 /// Raven's data table, a hand property of `BgState`.
-var WeaponReadyLegsAnim: [Int32] {
+public var WeaponReadyLegsAnim: [Int32] {
     get { bg.WeaponReadyLegsAnim }
     set { bg.WeaponReadyLegsAnim = newValue }
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:294
 /// Raven's data table, a hand property of `BgState`.
-var WeaponAttackAnim: [Int32] {
+public var WeaponAttackAnim: [Int32] {
     get { bg.WeaponAttackAnim }
     set { bg.WeaponAttackAnim = newValue }
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:319
-func BG_FileExists(_ fileName: String) -> Bool {
+public func BG_FileExists(_ fileName: String) -> Bool {
     // Raven also tests `fileName` for NULL here. A String is never NULL, so that half of the guard has no Swift form.
     if !fileName.isEmpty {
         var fh: Int32 = 0
@@ -1686,7 +1686,7 @@ public func BG_PlayerStateToEntityStateExtraPolate(_ ps: JKAMP.PlayerState, _ s:
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3200
-func BG_ModelCache(_ modelName: String, _ skinName: String?) -> Int32 {
+public func BG_ModelCache(_ modelName: String, _ skinName: String?) -> Int32 {
     if bg.consumer == .game {
         var g2: OpaquePointer? = nil
 
@@ -1747,7 +1747,7 @@ public func BG_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3343
-func BG_AllocUnaligned(_ size: Int32) -> UnsafeMutableRawPointer {
+public func BG_AllocUnaligned(_ size: Int32) -> UnsafeMutableRawPointer {
     if bg_poolSize + size > bg_poolTail {
         // Raven writes `return 0` after this call, which `Com_Error` never reaches.
         Com_Error(ERR_DROP, "BG_AllocUnaligned: buffer exceeded tail (\(bg_poolSize + size) > \(bg_poolTail))")
@@ -1830,12 +1830,12 @@ public func BG_TempFree(_ size: Int32) {
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3383
-func BG_StringAlloc(_ source: String) -> String {
+public func BG_StringAlloc(_ source: String) -> String {
     // Raven copies the text into the bg pool. A `char *` field setter interns the text under rule 9, so the text itself is the result.
     return source
 }
 
 /// Source: oracle/codemp/game/bg_misc.c:3392
-func BG_OutOfMemory() -> Bool {
+public func BG_OutOfMemory() -> Bool {
     return bg_poolSize >= MAX_POOL_SIZE
 }

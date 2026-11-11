@@ -4,7 +4,7 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/renderer/tr_mesh.cpp:12
-func ProjectRadius(_ r: Float, _ location: JKAShared.vec3_t) -> Float {
+public func ProjectRadius(_ r: Float, _ location: JKAShared.vec3_t) -> Float {
     var pr: Float
     var dist: Float
     var c: Float

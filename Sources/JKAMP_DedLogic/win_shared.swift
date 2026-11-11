@@ -60,7 +60,7 @@ Sys_SnapVector
 ```
 */
 /// Source: oracle/codemp/win32/win_shared.cpp:41
-func Sys_SnapVector(_ v: inout JKAShared.vec3_t) {
+public func Sys_SnapVector(_ v: inout JKAShared.vec3_t) {
     // AI: Raven stores each float through an `int` with the x87 `fld` and `fistp`, so a negative zero comes back as a positive zero.
     // The body takes the `nearbyintf` form of the fork at openjk/shared/sys/snapvector.cpp:59, which rounds to even on a tie and keeps the sign of a zero.
     v[0] = v[0].rounded(.toNearestOrEven)
@@ -191,12 +191,12 @@ private func IsMMX() -> Int32 {
 }
 
 /// Source: oracle/codemp/win32/win_shared.cpp:241
-func Sys_GetProcessorId() -> Int32 {
+public func Sys_GetProcessorId() -> Int32 {
     return CPUID_GENERIC
 }
 
 /// Source: oracle/codemp/win32/win_shared.cpp:293
-func Sys_GetCurrentUser() -> String {
+public func Sys_GetCurrentUser() -> String {
     // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
     var s_userName = CharBuf(1024)
 
@@ -215,17 +215,17 @@ func Sys_GetCurrentUser() -> String {
 }
 
 /// Source: oracle/codemp/win32/win_shared.cpp:314
-func Sys_DefaultHomePath() -> String? {
+public func Sys_DefaultHomePath() -> String? {
     return nil
 }
 
 /// Source: oracle/codemp/win32/win_shared.cpp:318
-func Sys_DefaultInstallPath() -> String {
+public func Sys_DefaultInstallPath() -> String {
     return Sys_Cwd()
 }
 
 /// Source: oracle/codemp/win32/win_shared.cpp:323
-func Sys_GetPhysicalMemory() -> Int32 {
+public func Sys_GetPhysicalMemory() -> Int32 {
     // AI: Raven filled a MEMORYSTATUS with the Win32 GlobalMemoryStatus. The backend gives its `dwTotalPhys` from the page count of the platform.
     let dwTotalPhys = SysBackend.GlobalMemoryStatus()
 
@@ -233,7 +233,7 @@ func Sys_GetPhysicalMemory() -> Int32 {
 }
 
 /// Source: oracle/codemp/win32/win_shared.cpp:338
-func Sys_GetCPUSpeedOld() -> Int32 {
+public func Sys_GetCPUSpeedOld() -> Int32 {
     // Port-note: Sys_GetCPUSpeed is the one caller, and it is dead, so this function is dead.
     SysBackend.timeBeginPeriod(1)
 
@@ -279,7 +279,7 @@ func Sys_GetCPUSpeedOld() -> Int32 {
 }
 
 /// Source: oracle/codemp/win32/win_shared.cpp:399
-func Sys_GetCPUSpeed() -> Int32 {
+public func Sys_GetCPUSpeed() -> Int32 {
     // Port-note: The one caller is win32/win_main.cpp:1469, and WinDed links null/win_main.cpp, so this function is dead.
     var raw_freq: UInt32 // Raw frequency of CPU in MHz
     var norm_freq: UInt32 // Normalized frequency of CPU in MHz.

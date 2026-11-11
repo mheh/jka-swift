@@ -6,7 +6,7 @@ import JKAMP_BG
 
 /// Source: oracle/codemp/cgame/cg_event.c:1429
 /// Raven's data table, a hand property of `CGameWorld`.
-var cg_stringEdVoiceChatTable: [String?] { world.cg_stringEdVoiceChatTable }
+public var cg_stringEdVoiceChatTable: [String?] { world.cg_stringEdVoiceChatTable }
 
 /**
 ```
@@ -18,7 +18,7 @@ Also called by scoreboard drawing
 ```
 */
 /// Source: oracle/codemp/cgame/cg_event.c:45
-func CG_PlaceString(_ rank: Int32) -> String {
+public func CG_PlaceString(_ rank: Int32) -> String {
     // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
     var str = CharBuf(64)
     var s: String
@@ -487,7 +487,7 @@ private func CG_Obituary(_ ent: JKAMP.EntityState) {
 }
 
 /// Source: oracle/codemp/cgame/cg_event.c:611
-func CG_ToggleBinoculars(_ cent: Centity, _ forceZoom: Int32) {
+public func CG_ToggleBinoculars(_ cent: Centity, _ forceZoom: Int32) {
     if cent.currentState.number != cg.snap!.ps.clientNum {
         return
     }
@@ -520,7 +520,7 @@ func CG_ToggleBinoculars(_ cent: Centity, _ forceZoom: Int32) {
 }
 
 /// Source: oracle/codemp/cgame/cg_event.c:656
-func CG_LocalTimingBar(_ startTime: Int32, _ duration: Int32) {
+public func CG_LocalTimingBar(_ startTime: Int32, _ duration: Int32) {
     cg_genericTimerBar = startTime + duration
     cg_genericTimerDur = duration
 
@@ -696,7 +696,7 @@ Also called by playerstate transition
 ```
 */
 /// Source: oracle/codemp/cgame/cg_event.c:842
-func CG_PainEvent(_ cent: Centity, _ health: Int32) {
+public func CG_PainEvent(_ cent: Centity, _ health: Int32) {
     var snd: String
 
     // don't do more than two pain sounds a second
@@ -721,7 +721,7 @@ func CG_PainEvent(_ cent: Centity, _ health: Int32) {
 }
 
 /// Source: oracle/codemp/cgame/cg_event.c:868
-func CG_ReattachLimb(_ source: Centity) {
+public func CG_ReattachLimb(_ source: Centity) {
     var ci: ClientInfo? = nil
 
     if source.currentState.number >= MAX_CLIENTS {
@@ -794,7 +794,7 @@ func CG_ReattachLimb(_ source: Centity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_event.c:945
-func CG_TeamName(_ team: Int32) -> String {
+public func CG_TeamName(_ team: Int32) -> String {
     if team == TEAM_RED {
         return "RED"
     } else if team == TEAM_BLUE {
@@ -806,7 +806,7 @@ func CG_TeamName(_ team: Int32) -> String {
 }
 
 /// Source: oracle/codemp/cgame/cg_event.c:956
-func CG_PrintCTFMessage(_ ci: ClientInfo, _ teamName: String, _ ctfMessage: Int32) {
+public func CG_PrintCTFMessage(_ ci: ClientInfo, _ teamName: String, _ ctfMessage: Int32) {
     var printMsg = CharBuf(1024)
     var refName: String? = nil
     var psStringEDString: String? = nil
@@ -877,7 +877,7 @@ func CG_PrintCTFMessage(_ ci: ClientInfo, _ teamName: String, _ ctfMessage: Int3
 }
 
 /// Source: oracle/codemp/cgame/cg_event.c:1044
-func CG_GetCTFMessageEvent(_ es: JKAMP.EntityState) {
+public func CG_GetCTFMessageEvent(_ es: JKAMP.EntityState) {
     let clIndex: Int32 = es.trickedentindex
     let teamIndex: Int32 = es.trickedentindex2
     var ci: ClientInfo? = nil
@@ -899,7 +899,7 @@ func CG_GetCTFMessageEvent(_ es: JKAMP.EntityState) {
 }
 
 /// Source: oracle/codemp/cgame/cg_event.c:1078
-func DoFall(_ cent: Centity, _ es: JKAMP.EntityState, _ clientNum: Int32) {
+public func DoFall(_ cent: Centity, _ es: JKAMP.EntityState, _ clientNum: Int32) {
     let delta: Int32 = es.eventParm
 
     if (cent.currentState.eFlags & EF_DEAD) != 0 {
@@ -948,7 +948,7 @@ func DoFall(_ cent: Centity, _ es: JKAMP.EntityState, _ clientNum: Int32) {
 }
 
 /// Source: oracle/codemp/cgame/cg_event.c:1170
-func CG_InClientBitflags(_ ent: JKAMP.EntityState, _ client: Int32) -> Int32 {
+public func CG_InClientBitflags(_ ent: JKAMP.EntityState, _ client: Int32) -> Int32 {
     var checkIn: Int32
     var sub: Int32 = 0
 
@@ -973,7 +973,7 @@ func CG_InClientBitflags(_ ent: JKAMP.EntityState, _ client: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/cgame/cg_event.c:1206
-func CG_TryPlayCustomSound(_ origin: JKAShared.vec3_t?, _ entityNum: Int32, _ channel: Int32, _ soundName: String) {
+public func CG_TryPlayCustomSound(_ origin: JKAShared.vec3_t?, _ entityNum: Int32, _ channel: Int32, _ soundName: String) {
     let cSound: sfxHandle_t = CG_CustomSound(entityNum, soundName)
 
     if cSound <= 0 {
@@ -984,7 +984,7 @@ func CG_TryPlayCustomSound(_ origin: JKAShared.vec3_t?, _ entityNum: Int32, _ ch
 }
 
 /// Source: oracle/codemp/cgame/cg_event.c:1218
-func CG_G2MarkEvent(_ es: JKAMP.EntityState) {
+public func CG_G2MarkEvent(_ es: JKAMP.EntityState) {
     //es->origin should be the hit location of the projectile,
     //whereas es->origin2 is the predicted position of the
     //projectile. (based on the trajectory upon impact) -rww
@@ -1097,7 +1097,7 @@ func CG_G2MarkEvent(_ es: JKAMP.EntityState) {
 }
 
 /// Source: oracle/codemp/cgame/cg_event.c:1350
-func CG_CalcVehMuzzle(_ pVeh: JKAMP.Vehicle, _ ent: Centity, _ muzzleNum: Int32) {
+public func CG_CalcVehMuzzle(_ pVeh: JKAMP.Vehicle, _ ent: Centity, _ muzzleNum: Int32) {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = MdxaBone.scratch { boltMatrix -> Bool in
@@ -1132,7 +1132,7 @@ func CG_CalcVehMuzzle(_ pVeh: JKAMP.Vehicle, _ ent: Centity, _ muzzleNum: Int32)
 
 //corresponds to G_VehMuzzleFireFX -rww
 /// Source: oracle/codemp/cgame/cg_event.c:1384
-func CG_VehMuzzleFireFX(_ veh: Centity, _ broadcaster: JKAMP.EntityState) {
+public func CG_VehMuzzleFireFX(_ veh: Centity, _ broadcaster: JKAMP.EntityState) {
     let pVeh: Vehicle? = veh.m_pVehicle
     var curMuz: Int32 = 0
     var muzFX: Int32 = 0
@@ -1179,7 +1179,7 @@ func CG_VehMuzzleFireFX(_ veh: Centity, _ broadcaster: JKAMP.EntityState) {
 
 //stupid way of figuring out what string to use for voice chats
 /// Source: oracle/codemp/cgame/cg_event.c:1464
-func CG_GetStringForVoiceSound(_ s: String) -> String {
+public func CG_GetStringForVoiceSound(_ s: String) -> String {
     var i: Int32 = 0
     while i < MAX_CUSTOM_SIEGE_SOUNDS {
         if bg_customSiegeSoundNames[i] != nil && Q_stricmp(bg_customSiegeSoundNames[i], s) == 0 {
@@ -1193,7 +1193,7 @@ func CG_GetStringForVoiceSound(_ s: String) -> String {
 }
 
 /// Source: oracle/codemp/cgame/cg_event.c:1491
-func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
+public func CG_EntityEvent(_ cent: Centity, _ position: JKAShared.vec3_t) {
     var es: EntityState?
     var event: Int32 = 0
     var dir = vec3_t()
@@ -3315,7 +3315,7 @@ CG_CheckEvents
 ```
 */
 /// Source: oracle/codemp/cgame/cg_event.c:3700
-func CG_CheckEvents(_ cent: Centity) {
+public func CG_CheckEvents(_ cent: Centity) {
     // check for event-only entities
     if cent.currentState.eType > ET_EVENTS {
         if cent.previousEvent != 0 {

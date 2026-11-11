@@ -3,6 +3,7 @@
 #ifndef JKA_CODEMP_UI_UI_LOCAL_UIINFO_T_H
 #define JKA_CODEMP_UI_UI_LOCAL_UIINFO_T_H
 
+#include "../ui_shared/displayContextDef_t.h"
 #include "CJKAMP_UI_forward.h"
 #include "codemp/game/q_shared/constants.h"
 #include "codemp/game/q_shared/qboolean.h"
@@ -17,7 +18,6 @@
 #include "codemp/ui/ui_local/serverStatus_t.h"
 #include "codemp/ui/ui_local/teamInfo.h"
 #include "codemp/ui/ui_local/tierInfo.h"
-#include "codemp/ui/ui_shared/displayContextDef_t.h"
 #include "shared/game/q_shared/constants.h"
 #include "shared/game/q_shared/qhandle_t.h"
 #include "shared/game/q_shared/sfxHandle_t.h"

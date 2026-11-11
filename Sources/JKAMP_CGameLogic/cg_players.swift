@@ -16,19 +16,19 @@ var cg_customSoundNames: [String?] { world.cg_customSoundNames }
 
 /// Source: oracle/codemp/cgame/cg_players.c:47
 /// Raven's data table, a hand property of `CGameWorld`.
-var cg_customCombatSoundNames: [String?] { world.cg_customCombatSoundNames }
+public var cg_customCombatSoundNames: [String?] { world.cg_customCombatSoundNames }
 
 /// Source: oracle/codemp/cgame/cg_players.c:71
 /// Raven's data table, a hand property of `CGameWorld`.
-var cg_customExtraSoundNames: [String?] { world.cg_customExtraSoundNames }
+public var cg_customExtraSoundNames: [String?] { world.cg_customExtraSoundNames }
 
 /// Source: oracle/codemp/cgame/cg_players.c:114
 /// Raven's data table, a hand property of `CGameWorld`.
-var cg_customJediSoundNames: [String?] { world.cg_customJediSoundNames }
+public var cg_customJediSoundNames: [String?] { world.cg_customJediSoundNames }
 
 /// Source: oracle/codemp/cgame/cg_players.c:142
 /// Raven's data table, a hand property of `CGameWorld`.
-var cg_customDuelSoundNames: [String?] { world.cg_customDuelSoundNames }
+public var cg_customDuelSoundNames: [String?] { world.cg_customDuelSoundNames }
 
 /// Source: oracle/codemp/cgame/cg_players.c:313
 let MAX_SURF_LIST_SIZE = 1024 as Int32
@@ -40,7 +40,7 @@ let DEFAULT_FEMALE_SOUNDPATH = "chars/mp_generic_female/misc"
 let DEFAULT_MALE_SOUNDPATH = "chars/mp_generic_male/misc"
 
 /// Source: oracle/codemp/cgame/cg_players.c:1945
-var cgQueueLoad: Bool {
+public var cgQueueLoad: Bool {
     get { world.variables.cgQueueLoad }
     set { world.variables.cgQueueLoad = newValue }
 }
@@ -87,7 +87,7 @@ private let FX_USE_ALPHA = 0x08000000 as Int32
 let SPEED_TRAIL_DISTANCE = 6 as Int32
 
 /// Source: oracle/codemp/cgame/cg_players.c:7887
-var cg_g2JetpackInstance: OpaquePointer? {
+public var cg_g2JetpackInstance: OpaquePointer? {
     get { world.variables.cg_g2JetpackInstance }
     set { world.variables.cg_g2JetpackInstance = newValue }
 }
@@ -115,7 +115,7 @@ var lastFlyBySound: [Int32] {
 let FLYBYSOUNDTIME = 2000 as Int32
 
 /// Source: oracle/codemp/cgame/cg_players.c:7980
-var cg_lastHyperSpaceEffectTime: Int32 {
+public var cg_lastHyperSpaceEffectTime: Int32 {
     get { world.variables.cg_lastHyperSpaceEffectTime }
     set { world.variables.cg_lastHyperSpaceEffectTime = newValue }
 }
@@ -135,7 +135,7 @@ CG_CustomSound
 ```
 */
 /// Source: oracle/codemp/cgame/cg_players.c:170
-func CG_CustomSound(_ clientNum: Int32, _ soundName: String) -> JKAShared.sfxHandle_t {
+public func CG_CustomSound(_ clientNum: Int32, _ soundName: String) -> JKAShared.sfxHandle_t {
     var ci: ClientInfo?
     var i: Int32
     var numCSounds: Int32 = 0
@@ -260,7 +260,7 @@ func CG_CustomSound(_ clientNum: Int32, _ soundName: String) -> JKAShared.sfxHan
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:314
-func CG_ParseSurfsFile(_ modelName: String, _ skinName: String, _ surfOff: inout JKAShared.CharBuf, _ surfOn: inout JKAShared.CharBuf) -> Bool {
+public func CG_ParseSurfsFile(_ modelName: String, _ skinName: String, _ surfOff: inout JKAShared.CharBuf, _ surfOn: inout JKAShared.CharBuf) -> Bool {
     var text_p = TextCursor()
     let len: Int32
     var token: String
@@ -657,7 +657,7 @@ private func CG_ColorFromInt(_ val: Int32, _ color: inout JKAShared.vec3_t) {
 
 //load anim info
 /// Source: oracle/codemp/cgame/cg_players.c:749
-func CG_G2SkelForModel(_ g2: OpaquePointer?) -> Int32 {
+public func CG_G2SkelForModel(_ g2: OpaquePointer?) -> Int32 {
     var animIndex: Int32 = -1
     var GLAName = CharBuf(64)
     var slash: Int32? = nil
@@ -677,7 +677,7 @@ func CG_G2SkelForModel(_ g2: OpaquePointer?) -> Int32 {
 
 //get the appropriate anim events file index
 /// Source: oracle/codemp/cgame/cg_players.c:770
-func CG_G2EvIndexForModel(_ g2: OpaquePointer?, _ animIndex: Int32) -> Int32 {
+public func CG_G2EvIndexForModel(_ g2: OpaquePointer?, _ animIndex: Int32) -> Int32 {
     var evtIndex: Int32 = -1
     var GLAName = CharBuf(64)
     var slash: Int32? = nil
@@ -701,7 +701,7 @@ func CG_G2EvIndexForModel(_ g2: OpaquePointer?, _ animIndex: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:799
-func CG_LoadCISounds(_ ci: ClientInfo, _ modelloaded: Bool) {
+public func CG_LoadCISounds(_ ci: ClientInfo, _ modelloaded: Bool) {
     var f: fileHandle_t = 0
     var isFemale: Bool = false
     var i: Int32 = 0
@@ -880,7 +880,7 @@ This will usually be deferred to a safe time
 ```
 */
 /// Source: oracle/codemp/cgame/cg_players.c:1006
-func CG_LoadClientInfo(_ ci: ClientInfo) {
+public func CG_LoadClientInfo(_ ci: ClientInfo) {
     var modelloaded: Bool = false
     var clientNum: Int32 = 0
     var i: Int32 = 0
@@ -1374,7 +1374,7 @@ private func CG_SetDeferredClientInfo(_ ci: ClientInfo) {
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:1503
-func CG_NewClientInfo(_ clientNum: Int32, _ entitiesInitialized: Bool) {
+public func CG_NewClientInfo(_ clientNum: Int32, _ entitiesInitialized: Bool) {
     var ci: ClientInfo?
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
@@ -1786,7 +1786,7 @@ Called at the beginning of CG_Player if cgQueueLoad is set.
 ```
 */
 /// Source: oracle/codemp/cgame/cg_players.c:1953
-func CG_ActualLoadDeferredPlayers() {
+public func CG_ActualLoadDeferredPlayers() {
     var i: Int32
     var ciIndex: Int32
 
@@ -1815,7 +1815,7 @@ so deferred players can be loaded
 ```
 */
 /// Source: oracle/codemp/cgame/cg_players.c:1976
-func CG_LoadDeferredPlayers() {
+public func CG_LoadDeferredPlayers() {
     cgQueueLoad = true
 }
 
@@ -2022,7 +2022,7 @@ private func CG_PlayerFootsteps(_ cent: Centity, _ footStepType: JKAShared.foots
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:2237
-func CG_PlayerAnimEventDo(_ cent: Centity, _ animEvent: JKAMP.Animevent) {
+public func CG_PlayerAnimEventDo(_ cent: Centity, _ animEvent: JKAMP.Animevent) {
     var channel: soundChannel_t = CHAN_AUTO
     var client: ClientInfo? = nil
     var swingSound: qhandle_t = 0
@@ -2154,7 +2154,7 @@ This func is called once for legs and once for torso
 ```
 */
 /// Source: oracle/codemp/cgame/cg_players.c:2461
-func CG_PlayerAnimEvents(_ animFileIndex: Int32, _ eventFileIndex: Int32, _ torso: Bool, _ oldFrame: Int32, _ frame: Int32, _ entNum: Int32) {
+public func CG_PlayerAnimEvents(_ animFileIndex: Int32, _ eventFileIndex: Int32, _ torso: Bool, _ oldFrame: Int32, _ frame: Int32, _ entNum: Int32) {
     var i: Int32
     var firstFrame: Int32 = 0
     var lastFrame: Int32 = 0
@@ -2341,7 +2341,7 @@ func CG_PlayerAnimEvents(_ animFileIndex: Int32, _ eventFileIndex: Int32, _ tors
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:2676
-func CG_TriggerAnimSounds(_ cent: Centity) {
+public func CG_TriggerAnimSounds(_ cent: Centity) {
     //this also sets the lerp frames, so I suggest you keep calling it regardless of if you want anim sounds.
     var curFrame: Int32 = 0
     var currentFrame: Float = 0
@@ -2379,7 +2379,7 @@ func CG_TriggerAnimSounds(_ cent: Centity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:2721
-func CG_InRoll(_ cent: Centity) -> Bool {
+public func CG_InRoll(_ cent: Centity) -> Bool {
     switch (cent.currentState.legsAnim) {
     case BOTH_GETUP_BROLL_B, BOTH_GETUP_BROLL_F, BOTH_GETUP_BROLL_L, BOTH_GETUP_BROLL_R, BOTH_GETUP_FROLL_B, BOTH_GETUP_FROLL_F, BOTH_GETUP_FROLL_L, BOTH_GETUP_FROLL_R, BOTH_ROLL_F, BOTH_ROLL_B, BOTH_ROLL_R, BOTH_ROLL_L:
         if cent.pe.legs.animationTime > cg.time {
@@ -2393,7 +2393,7 @@ func CG_InRoll(_ cent: Centity) -> Bool {
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:2746
-func CG_InRollAnim(_ cent: Centity) -> Bool {
+public func CG_InRollAnim(_ cent: Centity) -> Bool {
     switch (cent.currentState.legsAnim) {
     case BOTH_ROLL_F, BOTH_ROLL_B, BOTH_ROLL_R, BOTH_ROLL_L:
         return true
@@ -2787,7 +2787,7 @@ private func CG_PlayerAnimation(_ cent: Centity, _ legsOld: inout Int32, _ legs:
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:3365
-func CG_G2SetBoneAngles(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boneName: String, _ angles: JKAShared.vec3_t, _ flags: Int32, _ up: Int32, _ right: Int32, _ forward: Int32, _ modelList: Slots<qhandle_t>?, _ blendTime: Int32, _ currentTime: Int32) {
+public func CG_G2SetBoneAngles(_ ghoul2: OpaquePointer?, _ modelIndex: Int32, _ boneName: String, _ angles: JKAShared.vec3_t, _ flags: Int32, _ up: Int32, _ right: Int32, _ forward: Int32, _ modelList: Slots<qhandle_t>?, _ blendTime: Int32, _ currentTime: Int32) {
     //we want to hold off on setting the bone angles until the end of the frame, because every time we set
     //them the entire skeleton has to be reconstructed.
     //This function should ONLY be called from CG_Player() or a function that is called only within CG_Player().
@@ -2812,7 +2812,7 @@ But I don't want to slow it down..
 ```
 */
 /// Source: oracle/codemp/cgame/cg_players.c:3407
-func CG_Rag_Trace(_ result: JKAMP.Trace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ end: JKAShared.vec3_t, _ skipNumber: Int32, _ mask: Int32) {
+public func CG_Rag_Trace(_ result: JKAMP.Trace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ end: JKAShared.vec3_t, _ skipNumber: Int32, _ mask: Int32) {
     trap_CM_BoxTrace(result, start, end, mins, maxs, 0, mask)
     result.entityNum = Double(result.fraction) != 1.0 ? ENTITYNUM_WORLD : ENTITYNUM_NONE
 }
@@ -2846,7 +2846,7 @@ private func CG_RagAnimForPositioning(_ cent: Centity) -> Int32 {
 //rww - cgame interface for the ragdoll stuff.
 //Returns qtrue if the entity is now in a ragdoll state, otherwise qfalse.
 /// Source: oracle/codemp/cgame/cg_players.c:3486
-func CG_RagDoll(_ cent: Centity, _ forcedAngles: JKAShared.vec3_t) -> Bool {
+public func CG_RagDoll(_ cent: Centity, _ forcedAngles: JKAShared.vec3_t) -> Bool {
     var usedOrg = vec3_t()
     var inSomething: Bool = false
     var ragAnim: Int32 = 0
@@ -3216,7 +3216,7 @@ func CG_RagDoll(_ cent: Centity, _ forcedAngles: JKAShared.vec3_t) -> Bool {
 
 //set the bone angles of this client entity based on data from the server -rww
 /// Source: oracle/codemp/cgame/cg_players.c:3914
-func CG_G2ServerBoneAngles(_ cent: Centity) {
+public func CG_G2ServerBoneAngles(_ cent: Centity) {
     var i: Int32 = 0
     var bone: Int32 = cent.currentState.boneIndex1
     var flags: Int32
@@ -3356,7 +3356,7 @@ private func CG_G2SetHeadAnim(_ cent: Centity, _ anim: Int32) {
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:4059
-func CG_G2PlayerHeadAnims(_ cent: Centity) -> Bool {
+public func CG_G2PlayerHeadAnims(_ cent: Centity) -> Bool {
     var ci: ClientInfo? = nil
     var anim: Int32 = -1
     var voiceVolume: Int32 = 0
@@ -4227,7 +4227,7 @@ Also called by CG_Missile for quad rockets, but nobody can tell...
 ```
 */
 /// Source: oracle/codemp/cgame/cg_players.c:5059
-func CG_AddRefEntityWithPowerups(_ ent: JKAMP.RefEntity, _ state: JKAMP.EntityState, _ team: Int32) {
+public func CG_AddRefEntityWithPowerups(_ ent: JKAMP.RefEntity, _ state: JKAMP.EntityState, _ team: Int32) {
     if CG_IsMindTricked(state.trickedentindex, state.trickedentindex2, state.trickedentindex3, state.trickedentindex4, cg.snap!.ps.clientNum) != 0 {
         return //this entity is mind-tricking the current client, so don't render it
     }
@@ -4236,7 +4236,7 @@ func CG_AddRefEntityWithPowerups(_ ent: JKAMP.RefEntity, _ state: JKAMP.EntitySt
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:5077
-func CG_PlayerShieldHit(_ entitynum: Int32, _ dir: inout JKAShared.vec3_t, _ amount: Int32) {
+public func CG_PlayerShieldHit(_ entitynum: Int32, _ dir: inout JKAShared.vec3_t, _ amount: Int32) {
     var cent: Centity?
     let time: Int32
 
@@ -4260,7 +4260,7 @@ func CG_PlayerShieldHit(_ entitynum: Int32, _ dir: inout JKAShared.vec3_t, _ amo
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:5107
-func CG_DrawPlayerShield(_ cent: Centity, _ origin: JKAShared.vec3_t) {
+public func CG_DrawPlayerShield(_ cent: Centity, _ origin: JKAShared.vec3_t) {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = RefEntity.scratch { ent -> Bool in
@@ -4305,7 +4305,7 @@ func CG_DrawPlayerShield(_ cent: Centity, _ origin: JKAShared.vec3_t) {
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:5145
-func CG_PlayerHitFX(_ cent: Centity) {
+public func CG_PlayerHitFX(_ cent: Centity) {
     // only do the below fx if the cent in question is...uh...me, and it's first person.
     if cent.currentState.clientNum != cg.predictedPlayerState.clientNum || cg.renderingThirdPerson {
         if cent.damageTime > cg.time && cent.currentState.NPC_class != CLASS_VEHICLE {
@@ -4324,7 +4324,7 @@ CG_LightVerts
 ```
 */
 /// Source: oracle/codemp/cgame/cg_players.c:5167
-func CG_LightVerts(_ normal: JKAShared.vec3_t, _ numVerts: Int32, _ verts: Slots<JKAMP.PolyVert>) -> Int32 {
+public func CG_LightVerts(_ normal: JKAShared.vec3_t, _ numVerts: Int32, _ verts: Slots<JKAMP.PolyVert>) -> Int32 {
     var i: Int32
     var j: Int32
     var incoming: Float
@@ -4484,7 +4484,7 @@ private func CG_DoSaberLight(_ saber: JKAMP.SaberInfo) {
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:5320
-func CG_DoSaber(_ origin: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ length: Float, _ lengthMax: Float, _ radius: Float, _ color: JKAMP.saber_colors_t, _ rfx: Int32, _ doLight: Bool) {
+public func CG_DoSaber(_ origin: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ length: Float, _ lengthMax: Float, _ radius: Float, _ color: JKAMP.saber_colors_t, _ rfx: Int32, _ doLight: Bool) {
     var mid = vec3_t()
     var blade: qhandle_t = 0
     var glow: qhandle_t = 0
@@ -4613,7 +4613,7 @@ func CG_DoSaber(_ origin: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ length: F
 // Can pass in NULL for the axis
 //--------------------------------------------------------------
 /// Source: oracle/codemp/cgame/cg_players.c:5437
-func CG_GetTagWorldPosition(_ model: JKAMP.RefEntity, _ tag: String, _ pos: inout JKAShared.vec3_t, _ axis: inout [JKAShared.vec3_t]) {
+public func CG_GetTagWorldPosition(_ model: JKAMP.RefEntity, _ tag: String, _ pos: inout JKAShared.vec3_t, _ axis: inout [JKAShared.vec3_t]) {
     // Raven's record lives to the end of his block, so the block is the closure.
     Orientation.scratch { orientation in
         var i: Int32 = 0
@@ -4633,7 +4633,7 @@ func CG_GetTagWorldPosition(_ model: JKAMP.RefEntity, _ tag: String, _ pos: inou
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:5462
-func CG_CreateSaberMarks(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ normal: JKAShared.vec3_t) {
+public func CG_CreateSaberMarks(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ normal: JKAShared.vec3_t) {
     //	byte			colors[4];
     var i: Int32 = 0
     var j: Int32 = 0
@@ -4848,7 +4848,7 @@ func CG_CreateSaberMarks(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ n
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:5632
-func CG_G2TraceCollide(_ tr: JKAMP.Trace, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ lastValidStart: JKAShared.vec3_t, _ lastValidEnd: JKAShared.vec3_t) -> Bool {
+public func CG_G2TraceCollide(_ tr: JKAMP.Trace, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ lastValidStart: JKAShared.vec3_t, _ lastValidEnd: JKAShared.vec3_t) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return CollisionRecord.scratch(count: 16) { G2Trace -> Bool in
@@ -4899,7 +4899,7 @@ func CG_G2TraceCollide(_ tr: JKAMP.Trace, _ mins: JKAShared.vec3_t?, _ maxs: JKA
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:5691
-func CG_G2SaberEffects(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ owner: Centity) {
+public func CG_G2SaberEffects(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ owner: Centity) {
     // Raven's record lives to the end of his block, so the block is the closure.
     Trace.scratch { trace in
         var startTr = vec3_t()
@@ -4939,7 +4939,7 @@ func CG_G2SaberEffects(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ own
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:5738
-func CG_AddGhoul2Mark(_ shader: Int32, _ size: Float, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ entnum: Int32, _ entposition: JKAShared.vec3_t, _ entangle: Float, _ ghoul2: OpaquePointer?, _ scale: inout JKAShared.vec3_t, _ lifeTime: Int32) {
+public func CG_AddGhoul2Mark(_ shader: Int32, _ size: Float, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ entnum: Int32, _ entposition: JKAShared.vec3_t, _ entangle: Float, _ ghoul2: OpaquePointer?, _ scale: inout JKAShared.vec3_t, _ lifeTime: Int32) {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = SkinGoreData.scratch { goreSkin -> Bool in
@@ -5000,7 +5000,7 @@ func CG_AddGhoul2Mark(_ shader: Int32, _ size: Float, _ start: JKAShared.vec3_t,
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:5798
-func CG_SaberCompWork(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ owner: Centity, _ saberNum: Int32, _ bladeNum: Int32) {
+public func CG_SaberCompWork(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ owner: Centity, _ saberNum: Int32, _ bladeNum: Int32) {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = Trace.scratch { trace -> Bool in
@@ -5163,7 +5163,7 @@ func CG_SaberCompWork(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ owne
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:5993
-func CG_AddSaberBlade(_ cent: Centity, _ scent: Centity, _ saber: JKAMP.RefEntity?, _ renderfx: Int32, _ modelIndex: Int32, _ saberNum: Int32, _ bladeNum: Int32, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t, _ fromSaber: Bool, _ dontDraw: Bool) {
+public func CG_AddSaberBlade(_ cent: Centity, _ scent: Centity, _ saber: JKAMP.RefEntity?, _ renderfx: Int32, _ modelIndex: Int32, _ saberNum: Int32, _ bladeNum: Int32, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t, _ fromSaber: Bool, _ dontDraw: Bool) {
     var org_ = vec3_t()
     var end = vec3_t()
     var v = vec3_t()
@@ -5558,7 +5558,7 @@ func CG_AddSaberBlade(_ cent: Centity, _ scent: Centity, _ saber: JKAMP.RefEntit
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:6482
-func CG_IsMindTricked(_ trickIndex1: Int32, _ trickIndex2: Int32, _ trickIndex3: Int32, _ trickIndex4: Int32, _ client: Int32) -> Int32 {
+public func CG_IsMindTricked(_ trickIndex1: Int32, _ trickIndex2: Int32, _ trickIndex3: Int32, _ trickIndex4: Int32, _ client: Int32) -> Int32 {
     var checkIn: Int32
     var sub: Int32 = 0
 
@@ -5587,7 +5587,7 @@ func CG_IsMindTricked(_ trickIndex1: Int32, _ trickIndex2: Int32, _ trickIndex3:
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:6522
-func CG_DrawPlayerSphere(_ cent: Centity, _ origin: JKAShared.vec3_t, _ scale: Float, _ shader: Int32) {
+public func CG_DrawPlayerSphere(_ cent: Centity, _ origin: JKAShared.vec3_t, _ scale: Float, _ shader: Int32) {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = RefEntity.scratch { ent -> Bool in
@@ -5691,7 +5691,7 @@ func CG_DrawPlayerSphere(_ cent: Centity, _ origin: JKAShared.vec3_t, _ scale: F
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:6628
-func CG_AddLightningBeam(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) {
+public func CG_AddLightningBeam(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) {
     var dir = vec3_t()
     var chaos = vec3_t()
     var c1 = vec3_t()
@@ -5765,7 +5765,7 @@ func CG_AddLightningBeam(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) {
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:6699
-func CG_AddRandomLightning(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) {
+public func CG_AddRandomLightning(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) {
     var inOrg = vec3_t()
     var outOrg = vec3_t()
 
@@ -5803,7 +5803,7 @@ func CG_AddRandomLightning(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) {
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:6744
-func CG_ThereIsAMaster() -> Bool {
+public func CG_ThereIsAMaster() -> Bool {
     var i: Int32 = 0
     var cent: Centity?
 
@@ -5824,7 +5824,7 @@ func CG_ThereIsAMaster() -> Bool {
 //If so, it terminates the model string correctly, parses the skin name out, and returns
 //the handle of the registered skin.
 /// Source: oracle/codemp/cgame/cg_players.c:6817
-func CG_HandleAppendedSkin(_ modelName: inout JKAShared.CharBuf) -> Int32 {
+public func CG_HandleAppendedSkin(_ modelName: inout JKAShared.CharBuf) -> Int32 {
     var skinName = CharBuf(64)
     var skinID: qhandle_t = 0
     var i: Int32 = 0
@@ -5870,7 +5870,7 @@ func CG_HandleAppendedSkin(_ modelName: inout JKAShared.CharBuf) -> Int32 {
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:6876
-func CG_CacheG2AnimInfo(_ modelName: String) {
+public func CG_CacheG2AnimInfo(_ modelName: String) {
     var g2: OpaquePointer? = nil
     var slash: Int32? = nil
     var useModel = CharBuf(64)
@@ -5976,7 +5976,7 @@ private func CG_RegisterVehicleAssets(_ pVeh: JKAMP.Vehicle) {
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:6998
-func CG_G2AnimEntModelLoad(_ cent: Centity) {
+public func CG_G2AnimEntModelLoad(_ cent: Centity) {
     let cModelName: String = CG_ConfigString(CS_MODELS + cent.currentState.modelindex)
 
     if cent.npcClient == nil {
@@ -6355,7 +6355,7 @@ private func CG_CreateSurfaceSmoke(_ cent: Centity, _ shipSurf: Int32, _ fxID: I
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:7415
-func CG_VehicleShouldDrawShields(_ vehCent: Centity) -> Bool {
+public func CG_VehicleShouldDrawShields(_ vehCent: Centity) -> Bool {
     if vehCent.damageTime > cg.time && vehCent.currentState.NPC_class == CLASS_VEHICLE && vehCent.m_pVehicle != nil && vehCent.m_pVehicle!.m_pVehicleInfo != nil {
         return true
     }
@@ -6371,7 +6371,7 @@ extern void BG_VehicleAdjustBBoxForOrientation( Vehicle_t *veh, vec3_t origin, v
 ```
 */
 /// Source: oracle/codemp/cgame/cg_players.c:7433
-func CG_VehicleAttachDroidUnit(_ droidCent: Centity, _ legs: JKAMP.RefEntity) -> Bool {
+public func CG_VehicleAttachDroidUnit(_ droidCent: Centity, _ legs: JKAMP.RefEntity) -> Bool {
     if droidCent.currentState.owner != 0 && droidCent.currentState.clientNum >= MAX_CLIENTS {
         //the only NPCs that can ride a vehicle are droids...???
         let vehCent: Centity? = cg_entities[droidCent.currentState.owner]
@@ -6399,7 +6399,7 @@ func CG_VehicleAttachDroidUnit(_ droidCent: Centity, _ legs: JKAMP.RefEntity) ->
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:7463
-func CG_G2Animated(_ cent: Centity) {
+public func CG_G2Animated(_ cent: Centity) {
     let angSmoothFactor: Float = 0.7
 
 
@@ -6510,13 +6510,13 @@ func CG_G2Animated(_ cent: Centity) {
 //and don't stomp over it, as it is dynamic memory from the
 //exe.
 /// Source: oracle/codemp/cgame/cg_players.c:7695
-func CG_CreateNPCClient(_ ci: inout ClientInfo?) {
+public func CG_CreateNPCClient(_ ci: inout ClientInfo?) {
     //trap_TrueMalloc((void **)ci, sizeof(clientInfo_t));
     ci = ClientInfo(BG_Alloc(Int32(ClientInfo.byteCount)))
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:7701
-func CG_DestroyNPCClient(_ ci: inout ClientInfo?) {
+public func CG_DestroyNPCClient(_ ci: inout ClientInfo?) {
     ci!.clear()
     //trap_TrueFree((void **)ci);
 }
@@ -6697,7 +6697,7 @@ private func CG_ForceElectrocution(_ cent: Centity, _ origin: JKAShared.vec3_t, 
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:7891
-func CG_InitJetpackGhoul2() {
+public func CG_InitJetpackGhoul2() {
     if cg_g2JetpackInstance != nil {
         return
     }
@@ -6716,7 +6716,7 @@ func CG_InitJetpackGhoul2() {
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:7913
-func CG_CleanJetpackGhoul2() {
+public func CG_CleanJetpackGhoul2() {
     if cg_g2JetpackInstance != nil {
         trap_G2API_CleanGhoul2Models(&cg_g2JetpackInstance)
         cg_g2JetpackInstance = nil
@@ -7030,7 +7030,7 @@ private func CG_VehicleEffects(_ cent: Centity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:8316
-func CG_RadiusForCent(_ cent: Centity) -> Float {
+public func CG_RadiusForCent(_ cent: Centity) -> Float {
     if cent.currentState.eType == ET_NPC {
         if cent.currentState.NPC_class == CLASS_VEHICLE && cent.m_pVehicle != nil && cent.m_pVehicle!.m_pVehicleInfo!.g2radius != 0 {
             //has override
@@ -7045,7 +7045,7 @@ func CG_RadiusForCent(_ cent: Centity) -> Float {
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:8341
-func CG_CheckThirdPersonAlpha(_ cent: Centity, _ legs: JKAMP.RefEntity) {
+public func CG_CheckThirdPersonAlpha(_ cent: Centity, _ legs: JKAMP.RefEntity) {
     var alpha: Float = 1.0
     var setFlags: Int32 = 0
 
@@ -7115,7 +7115,7 @@ func CG_CheckThirdPersonAlpha(_ cent: Centity, _ legs: JKAMP.RefEntity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_players.c:8423
-func CG_Player(_ cent: Centity) {
+public func CG_Player(_ cent: Centity) {
     var ci: ClientInfo?
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
@@ -9418,7 +9418,7 @@ A player just came into view or teleported, so reset all animation info
 ```
 */
 /// Source: oracle/codemp/cgame/cg_players.c:11119
-func CG_ResetPlayerEntity(_ cent: Centity) {
+public func CG_ResetPlayerEntity(_ cent: Centity) {
     var ci: ClientInfo?
     var i: Int32 = 0
     var j: Int32 = 0

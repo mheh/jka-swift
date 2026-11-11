@@ -34,30 +34,30 @@ import JKAMP_Ded
 // No table row for `void (*)()`.
 
 /// Source: oracle/codemp/null/null_glimp.cpp:52
-func GLimp_EndFrame() {
+public func GLimp_EndFrame() {
 }
 
 /// Source: oracle/codemp/null/null_glimp.cpp:55
-func GLimp_Init() {
+public func GLimp_Init() {
 }
 
 /// Source: oracle/codemp/null/null_glimp.cpp:59
-func GLimp_Shutdown() {
+public func GLimp_Shutdown() {
 }
 
 /// Source: oracle/codemp/null/null_glimp.cpp:62
-func GLimp_EnableLogging(_ enable: Bool) {
+public func GLimp_EnableLogging(_ enable: Bool) {
 }
 
 /// Source: oracle/codemp/null/null_glimp.cpp:65
-func GLimp_LogComment(_ comment: String) {
+public func GLimp_LogComment(_ comment: String) {
 }
 
 /// Source: oracle/codemp/null/null_glimp.cpp:68
-func QGL_Init(_ dllname: String) -> Bool {
+public func QGL_Init(_ dllname: String) -> Bool {
     return true
 }
 
 /// Source: oracle/codemp/null/null_glimp.cpp:72
-func QGL_Shutdown() {
+public func QGL_Shutdown() {
 }

@@ -22,7 +22,7 @@ R2D2_PartsMove
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:24
-func R2D2_PartsMove() {
+public func R2D2_PartsMove() {
     // Front 'eye' lense
     if TIMER_Done(NPC!, "eyeDelay") {
         NPC!.pos1[1] = AngleNormalize360(NPC!.pos1[1])
@@ -52,7 +52,7 @@ NPC_BSDroid_Idle
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:53
-func Droid_Idle() {
+public func Droid_Idle() {
     //	VectorCopy( NPCInfo->investigateGoal, lookPos );
 
     //	NPC_FacePosition( lookPos );
@@ -66,7 +66,7 @@ R2D2_TurnAnims
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:65
-func R2D2_TurnAnims() {
+public func R2D2_TurnAnims() {
     let turndelta: Float
     let anim: Int32
 
@@ -96,7 +96,7 @@ Droid_Patrol
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:102
-func Droid_Patrol() {
+public func Droid_Patrol() {
     NPC!.pos1[1] = AngleNormalize360(NPC!.pos1[1])
 
     if NPC!.client != nil && NPC!.client!.NPC_class != CLASS_GONK {
@@ -157,7 +157,7 @@ Droid_Run
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:175
-func Droid_Run() {
+public func Droid_Run() {
     R2D2_PartsMove()
 
     if NPCInfo!.localState == LSTATE_BACKINGUP {
@@ -186,7 +186,7 @@ void Droid_Spin( void )
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:207
-func Droid_Spin() {
+public func Droid_Spin() {
     var dir = vec3_t(0, 0, 1)
 
     R2D2_TurnAnims()
@@ -238,7 +238,7 @@ NPC_BSDroid_Pain
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:273
-func NPC_Droid_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func NPC_Droid_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     let other: Entity? = attacker
     var anim: Int32
     let mod: Int32 = gPainMOD
@@ -377,7 +377,7 @@ Droid_Pain
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:442
-func Droid_Pain() {
+public func Droid_Pain() {
     if TIMER_Done(NPC!, "droidpain") {
         NPCInfo!.localState = LSTATE_NONE
     }
@@ -391,7 +391,7 @@ NPC_Mouse_Precache
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:455
-func NPC_Mouse_Precache() {
+public func NPC_Mouse_Precache() {
     var i: Int32
 
     i = 1
@@ -413,7 +413,7 @@ NPC_R5D2_Precache
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:474
-func NPC_R5D2_Precache() {
+public func NPC_R5D2_Precache() {
     var i: Int32
 
     i = 1
@@ -439,7 +439,7 @@ NPC_R2D2_Precache
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:497
-func NPC_R2D2_Precache() {
+public func NPC_R2D2_Precache() {
     var i: Int32
 
     i = 1
@@ -465,7 +465,7 @@ NPC_Gonk_Precache
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:520
-func NPC_Gonk_Precache() {
+public func NPC_Gonk_Precache() {
     G_SoundIndex("sound/chars/gonk/misc/gonktalk1.wav")
     G_SoundIndex("sound/chars/gonk/misc/gonktalk2.wav")
 
@@ -484,7 +484,7 @@ NPC_Protocol_Precache
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:537
-func NPC_Protocol_Precache() {
+public func NPC_Protocol_Precache() {
     G_SoundIndex("sound/chars/mark2/misc/mark2_explo")
     G_EffectIndex("env/med_explode")
 }
@@ -497,7 +497,7 @@ NPC_BSDroid_Default
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Droid.c:597
-func NPC_BSDroid_Default() {
+public func NPC_BSDroid_Default() {
     if NPCInfo!.localState == LSTATE_SPINNING {
         Droid_Spin()
     } else if NPCInfo!.localState == LSTATE_PAIN {

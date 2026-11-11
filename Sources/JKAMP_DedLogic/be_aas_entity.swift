@@ -21,7 +21,7 @@ private let ET_MOVER = 4 as Int32
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:46
-func AAS_UpdateEntity(_ entnum: Int32, _ state: BotEntitystate) -> Int32 {
+public func AAS_UpdateEntity(_ entnum: Int32, _ state: BotEntitystate) -> Int32 {
     var relink: Int32
     let ent: AasEntity
     var absmins = vec3_t(), absmaxs = vec3_t()
@@ -112,7 +112,7 @@ func AAS_UpdateEntity(_ entnum: Int32, _ state: BotEntitystate) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:154
-func AAS_EntityInfo(_ entnum: Int32, _ info: AasEntityinfo) {
+public func AAS_EntityInfo(_ entnum: Int32, _ info: AasEntityinfo) {
     if aasworld.initialized == 0 {
         botimport.runPrint(PRT_FATAL, "AAS_EntityInfo: aasworld not initialized\n")
         info.clear()
@@ -135,7 +135,7 @@ func AAS_EntityInfo(_ entnum: Int32, _ info: AasEntityinfo) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:178
-func AAS_EntityOrigin(_ entnum: Int32, _ origin: inout JKAShared.vec3_t) {
+public func AAS_EntityOrigin(_ entnum: Int32, _ origin: inout JKAShared.vec3_t) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     if entnum < 0 || entnum >= aasworld.maxentities {
         botimport.runPrint(PRT_FATAL, "AAS_EntityOrigin: entnum %d out of range\n", entnum)
@@ -153,7 +153,7 @@ func AAS_EntityOrigin(_ entnum: Int32, _ origin: inout JKAShared.vec3_t) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:195
-func AAS_EntityModelindex(_ entnum: Int32) -> Int32 {
+public func AAS_EntityModelindex(_ entnum: Int32) -> Int32 {
     if entnum < 0 || entnum >= aasworld.maxentities {
         botimport.runPrint(PRT_FATAL, "AAS_EntityModelindex: entnum %d out of range\n", entnum)
         return 0
@@ -168,7 +168,7 @@ func AAS_EntityModelindex(_ entnum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:210
-func AAS_EntityType(_ entnum: Int32) -> Int32 {
+public func AAS_EntityType(_ entnum: Int32) -> Int32 {
     if aasworld.initialized == 0 { return 0 }
 
     if entnum < 0 || entnum >= aasworld.maxentities {
@@ -185,7 +185,7 @@ func AAS_EntityType(_ entnum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:227
-func AAS_EntityModelNum(_ entnum: Int32) -> Int32 {
+public func AAS_EntityModelNum(_ entnum: Int32) -> Int32 {
     if aasworld.initialized == 0 { return 0 }
 
     if entnum < 0 || entnum >= aasworld.maxentities {
@@ -202,7 +202,7 @@ func AAS_EntityModelNum(_ entnum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:244
-func AAS_OriginOfMoverWithModelNum(_ modelnum: Int32, _ origin: inout JKAShared.vec3_t) -> Int32 {
+public func AAS_OriginOfMoverWithModelNum(_ modelnum: Int32, _ origin: inout JKAShared.vec3_t) -> Int32 {
     var i: Int32
     var ent: AasEntity
 
@@ -227,7 +227,7 @@ func AAS_OriginOfMoverWithModelNum(_ modelnum: Int32, _ origin: inout JKAShared.
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:269
-func AAS_EntitySize(_ entnum: Int32, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t) {
+public func AAS_EntitySize(_ entnum: Int32, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     let ent: AasEntity
 
@@ -250,7 +250,7 @@ func AAS_EntitySize(_ entnum: Int32, _ mins: inout JKAShared.vec3_t, _ maxs: ino
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:291
-func AAS_EntityBSPData(_ entnum: Int32, _ entdata: BspEntdata) {
+public func AAS_EntityBSPData(_ entnum: Int32, _ entdata: BspEntdata) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     let ent: AasEntity
 
@@ -270,7 +270,7 @@ func AAS_EntityBSPData(_ entnum: Int32, _ entdata: BspEntdata) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:309
-func AAS_ResetEntityLinks() {
+public func AAS_ResetEntityLinks() {
     var i: Int32
     i = 0
     while i < aasworld.maxentities {
@@ -287,7 +287,7 @@ func AAS_ResetEntityLinks() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:324
-func AAS_InvalidateEntities() {
+public func AAS_InvalidateEntities() {
     var i: Int32
     i = 0
     while i < aasworld.maxentities {
@@ -304,7 +304,7 @@ func AAS_InvalidateEntities() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:339
-func AAS_UnlinkInvalidEntities() {
+public func AAS_UnlinkInvalidEntities() {
     var i: Int32
     var ent: AasEntity
 
@@ -328,7 +328,7 @@ func AAS_UnlinkInvalidEntities() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:362
-func AAS_NearestEntity(_ origin: JKAShared.vec3_t, _ modelindex: Int32) -> Int32 {
+public func AAS_NearestEntity(_ origin: JKAShared.vec3_t, _ modelindex: Int32) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     var i: Int32, bestentnum: Int32
     var dist: Float, bestdist: Float
@@ -366,7 +366,7 @@ func AAS_NearestEntity(_ origin: JKAShared.vec3_t, _ modelindex: Int32) -> Int32
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:397
-func AAS_BestReachableEntityArea(_ entnum: Int32) -> Int32 {
+public func AAS_BestReachableEntityArea(_ entnum: Int32) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     let ent: AasEntity
 
@@ -381,7 +381,7 @@ func AAS_BestReachableEntityArea(_ entnum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_entity.cpp:410
-func AAS_NextEntity(_ entnum: Int32) -> Int32 {
+public func AAS_NextEntity(_ entnum: Int32) -> Int32 {
     var entnum = entnum
     if aasworld.loaded == 0 { return 0 }
 

@@ -30,7 +30,7 @@ FX_BryarProjectileThink
 ```
 */
 /// Source: oracle/codemp/cgame/fx_bryarpistol.c:15
-func FX_BryarProjectileThink(_ cent: Centity, _ weapon: WeaponInfo) {
+public func FX_BryarProjectileThink(_ cent: Centity, _ weapon: WeaponInfo) {
     var forward = vec3_t()
 
     if VectorNormalize2(cent.currentState.pos.trDelta, &forward) == 0.0 {
@@ -48,7 +48,7 @@ FX_BryarHitWall
 ```
 */
 /// Source: oracle/codemp/cgame/fx_bryarpistol.c:32
-func FX_BryarHitWall(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t) {
+public func FX_BryarHitWall(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t) {
     trap_FX_PlayEffectID(cgs.effects.bryarWallImpactEffect, origin, normal, -1, -1)
 }
 
@@ -60,7 +60,7 @@ FX_BryarHitPlayer
 ```
 */
 /// Source: oracle/codemp/cgame/fx_bryarpistol.c:42
-func FX_BryarHitPlayer(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ humanoid: Bool) {
+public func FX_BryarHitPlayer(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ humanoid: Bool) {
     if humanoid {
         trap_FX_PlayEffectID(cgs.effects.bryarFleshImpactEffect, origin, normal, -1, -1)
     } else {
@@ -80,7 +80,7 @@ FX_BryarAltProjectileThink
 ```
 */
 /// Source: oracle/codemp/cgame/fx_bryarpistol.c:64
-func FX_BryarAltProjectileThink(_ cent: Centity, _ weapon: WeaponInfo) {
+public func FX_BryarAltProjectileThink(_ cent: Centity, _ weapon: WeaponInfo) {
     var forward = vec3_t()
     var t: Int32
 
@@ -109,7 +109,7 @@ FX_BryarAltHitWall
 ```
 */
 /// Source: oracle/codemp/cgame/fx_bryarpistol.c:91
-func FX_BryarAltHitWall(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ power: Int32) {
+public func FX_BryarAltHitWall(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ power: Int32) {
     switch power {
     case 4, 5:
         trap_FX_PlayEffectID(cgs.effects.bryarWallImpactEffect3, origin, normal, -1, -1)
@@ -130,7 +130,7 @@ FX_BryarAltHitPlayer
 ```
 */
 /// Source: oracle/codemp/cgame/fx_bryarpistol.c:116
-func FX_BryarAltHitPlayer(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ humanoid: Bool) {
+public func FX_BryarAltHitPlayer(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ humanoid: Bool) {
     if humanoid {
         trap_FX_PlayEffectID(cgs.effects.bryarFleshImpactEffect, origin, normal, -1, -1)
     } else {
@@ -147,7 +147,7 @@ FX_TurretProjectileThink
 ```
 */
 /// Source: oracle/codemp/cgame/fx_bryarpistol.c:135
-func FX_TurretProjectileThink(_ cent: Centity, _ weapon: WeaponInfo) {
+public func FX_TurretProjectileThink(_ cent: Centity, _ weapon: WeaponInfo) {
     var forward = vec3_t()
 
     if VectorNormalize2(cent.currentState.pos.trDelta, &forward) == 0.0 {
@@ -165,7 +165,7 @@ FX_TurretHitWall
 ```
 */
 /// Source: oracle/codemp/cgame/fx_bryarpistol.c:152
-func FX_TurretHitWall(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t) {
+public func FX_TurretHitWall(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t) {
     trap_FX_PlayEffectID(cgs.effects.bryarWallImpactEffect, origin, normal, -1, -1)
 }
 
@@ -177,7 +177,7 @@ FX_TurretHitPlayer
 ```
 */
 /// Source: oracle/codemp/cgame/fx_bryarpistol.c:162
-func FX_TurretHitPlayer(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ humanoid: Bool) {
+public func FX_TurretHitPlayer(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ humanoid: Bool) {
     if humanoid {
         trap_FX_PlayEffectID(cgs.effects.bryarFleshImpactEffect, origin, normal, -1, -1)
     } else {
@@ -194,7 +194,7 @@ FX_ConcussionHitWall
 ```
 */
 /// Source: oracle/codemp/cgame/fx_bryarpistol.c:182
-func FX_ConcussionHitWall(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t) {
+public func FX_ConcussionHitWall(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t) {
     trap_FX_PlayEffectID(cgs.effects.concussionImpactEffect, origin, normal, -1, -1)
 }
 
@@ -206,7 +206,7 @@ FX_ConcussionHitPlayer
 ```
 */
 /// Source: oracle/codemp/cgame/fx_bryarpistol.c:192
-func FX_ConcussionHitPlayer(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ humanoid: Bool) {
+public func FX_ConcussionHitPlayer(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ humanoid: Bool) {
     trap_FX_PlayEffectID(cgs.effects.concussionImpactEffect, origin, normal, -1, -1)
 }
 
@@ -218,7 +218,7 @@ FX_ConcussionProjectileThink
 ```
 */
 /// Source: oracle/codemp/cgame/fx_bryarpistol.c:202
-func FX_ConcussionProjectileThink(_ cent: Centity, _ weapon: WeaponInfo) {
+public func FX_ConcussionProjectileThink(_ cent: Centity, _ weapon: WeaponInfo) {
     var forward = vec3_t()
 
     if VectorNormalize2(cent.currentState.pos.trDelta, &forward) == 0.0 {
@@ -229,7 +229,7 @@ func FX_ConcussionProjectileThink(_ cent: Centity, _ weapon: WeaponInfo) {
 }
 
 /// Source: oracle/codemp/cgame/fx_bryarpistol.c:222
-func FX_ConcAltShot(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) {
+public func FX_ConcAltShot(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) {
     //"concussion/beam"
     trap_FX_AddLine(start, end, 0.1, 10.0, 0.0, 1.0, 0.0, 0.0, WHITE, WHITE, 0.0, 175, trap_R_RegisterShader("gfx/effects/blueLine"), FX_SIZE_LINEAR | FX_ALPHA_LINEAR)
 

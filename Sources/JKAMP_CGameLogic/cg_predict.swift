@@ -26,16 +26,16 @@ var cg_numTriggerEntities: Int32 {
 var cg_triggerEntities: Slots<Centity?> { world.storage.cg_triggerEntities }
 
 /// Source: oracle/codemp/cgame/cg_predict.c:853
-var cgSendPSPool: Slots<JKAMP.PlayerState> { world.storage.cgSendPSPool }
+public var cgSendPSPool: Slots<JKAMP.PlayerState> { world.storage.cgSendPSPool }
 
 /// Source: oracle/codemp/cgame/cg_predict.c:856
-var cgSendPS: Slots<JKAMP.PlayerState?> { world.storage.cgSendPS }
+public var cgSendPS: Slots<JKAMP.PlayerState?> { world.storage.cgSendPS }
 
 /// Source: oracle/codemp/cgame/cg_predict.c:959
-var cg_vehPmove: JKAMP.Pmove { world.storage.cg_vehPmove }
+public var cg_vehPmove: JKAMP.Pmove { world.storage.cg_vehPmove }
 
 /// Source: oracle/codemp/cgame/cg_predict.c:960
-var cg_vehPmoveSet: Bool {
+public var cg_vehPmoveSet: Bool {
     get { world.variables.cg_vehPmoveSet }
     set { world.variables.cg_vehPmoveSet = newValue }
 }
@@ -71,7 +71,7 @@ efficient collision detection
 ```
 */
 /// Source: oracle/codemp/cgame/cg_predict.c:46
-func CG_BuildSolidList() {
+public func CG_BuildSolidList() {
     var i: Int32
     var cent: Centity?
     var snap: Snapshot?
@@ -384,7 +384,7 @@ CG_Trace
 ```
 */
 /// Source: oracle/codemp/cgame/cg_predict.c:359
-func CG_Trace(_ result: JKAMP.Trace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ end: JKAShared.vec3_t, _ skipNumber: Int32, _ mask: Int32) {
+public func CG_Trace(_ result: JKAMP.Trace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ end: JKAShared.vec3_t, _ skipNumber: Int32, _ mask: Int32) {
     // Raven's record lives to the end of his block, so the block is the closure.
     Trace.scratch { t in
 
@@ -405,7 +405,7 @@ CG_G2Trace
 ```
 */
 /// Source: oracle/codemp/cgame/cg_predict.c:376
-func CG_G2Trace(_ result: JKAMP.Trace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ end: JKAShared.vec3_t, _ skipNumber: Int32, _ mask: Int32) {
+public func CG_G2Trace(_ result: JKAMP.Trace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ end: JKAShared.vec3_t, _ skipNumber: Int32, _ mask: Int32) {
     // Raven's record lives to the end of his block, so the block is the closure.
     Trace.scratch { t in
 
@@ -426,7 +426,7 @@ CG_PointContents
 ```
 */
 /// Source: oracle/codemp/cgame/cg_predict.c:393
-func CG_PointContents(_ point: JKAShared.vec3_t, _ passEntityNum: Int32) -> Int32 {
+public func CG_PointContents(_ point: JKAShared.vec3_t, _ passEntityNum: Int32) -> Int32 {
     var i: Int32
     var ent: EntityState?
     var cent: Centity?
@@ -786,7 +786,7 @@ private func CG_TouchTriggerPrediction() {
 //so that we can access playerstate stuff in bg code (and then translate
 //it back to entitystate data)
 /// Source: oracle/codemp/cgame/cg_predict.c:884
-func CG_PmoveClientPointerUpdate() {
+public func CG_PmoveClientPointerUpdate() {
     var i: Int32
 
     cgSendPSPool.zero()
@@ -812,7 +812,7 @@ func CG_PmoveClientPointerUpdate() {
 
 //check if local client is on an eweb
 /// Source: oracle/codemp/cgame/cg_predict.c:920
-func CG_UsingEWeb() -> Bool {
+public func CG_UsingEWeb() -> Bool {
     if cg.predictedPlayerState.weapon == WP_EMPLACED_GUN && cg.predictedPlayerState.emplacedIndex != 0 && cg_entities[cg.predictedPlayerState.emplacedIndex].currentState.weapon == WP_NONE {
         return true
     }
@@ -821,7 +821,7 @@ func CG_UsingEWeb() -> Bool {
 }
 
 /// Source: oracle/codemp/cgame/cg_predict.c:963
-func CG_PredictPlayerState() {
+public func CG_PredictPlayerState() {
     var cmdNum: Int32 = 0
     var current: Int32 = 0
     var i: Int32 = 0

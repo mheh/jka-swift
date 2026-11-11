@@ -19,25 +19,25 @@ let CACHE_REFRESHTIME = 15.0 as Float
 let MAX_FRAMEROUTINGUPDATES = 10 as Int32
 
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:63
-var numareacacheupdates: Int32 {
+public var numareacacheupdates: Int32 {
     get { world.variables.numareacacheupdates }
     set { world.variables.numareacacheupdates = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:64
-var numportalcacheupdates: Int32 {
+public var numportalcacheupdates: Int32 {
     get { world.variables.numportalcacheupdates }
     set { world.variables.numportalcacheupdates = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:67
-var routingcachesize: Int32 {
+public var routingcachesize: Int32 {
     get { world.variables.routingcachesize }
     set { world.variables.routingcachesize = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:68
-var max_routingcachesize: Int32 {
+public var max_routingcachesize: Int32 {
     get { world.variables.max_routingcachesize }
     set { world.variables.max_routingcachesize = newValue }
 }
@@ -56,7 +56,7 @@ let MAX_REACHABILITYPASSAREAS = 32 as Int32
 private var areas_AAS_InitReachabilityAreas: Slots<Int32> { world.storage.be_aas_route_areas_AAS_InitReachabilityAreas }
 
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:77
-func AAS_RoutingInfo() {
+public func AAS_RoutingInfo() {
     botimport.runPrint(PRT_MESSAGE, "%d area cache updates\n", numareacacheupdates)
     botimport.runPrint(PRT_MESSAGE, "%d portal cache updates\n", numportalcacheupdates)
     botimport.runPrint(PRT_MESSAGE, "%d bytes routing cache\n", routingcachesize)
@@ -71,7 +71,7 @@ func AAS_RoutingInfo() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:92
-func AAS_ClusterAreaNum(_ cluster: Int32, _ areanum: Int32) -> Int32 {
+public func AAS_ClusterAreaNum(_ cluster: Int32, _ areanum: Int32) -> Int32 {
     var side: Int32
     var areacluster: Int32
 
@@ -99,7 +99,7 @@ func AAS_ClusterAreaNum(_ cluster: Int32, _ areanum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:118
-func AAS_InitTravelFlagFromType() {
+public func AAS_InitTravelFlagFromType() {
     var i: Int32
 
     i = 0
@@ -135,7 +135,7 @@ func AAS_InitTravelFlagFromType() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:152
-func AAS_TravelFlagForType_inline(_ traveltype: Int32) -> Int32 {
+public func AAS_TravelFlagForType_inline(_ traveltype: Int32) -> Int32 {
     // Raven assigns his own `traveltype` parameter. A Swift parameter is immutable, so the body takes a mutable copy.
     var traveltype = traveltype
     var tfl: Int32
@@ -162,7 +162,7 @@ func AAS_TravelFlagForType_inline(_ traveltype: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:173
-func AAS_TravelFlagForType(_ traveltype: Int32) -> Int32 {
+public func AAS_TravelFlagForType(_ traveltype: Int32) -> Int32 {
     return AAS_TravelFlagForType_inline(traveltype)
 }
 
@@ -173,7 +173,7 @@ func AAS_TravelFlagForType(_ traveltype: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:183
-func AAS_UnlinkCache(_ cache: AasRoutingcache) {
+public func AAS_UnlinkCache(_ cache: AasRoutingcache) {
     if cache.time_next != nil {
         cache.time_next!.time_prev = cache.time_prev
     } else {
@@ -195,7 +195,7 @@ func AAS_UnlinkCache(_ cache: AasRoutingcache) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:198
-func AAS_LinkCache(_ cache: AasRoutingcache) {
+public func AAS_LinkCache(_ cache: AasRoutingcache) {
     if aasworld.newestcache != nil {
         aasworld.newestcache!.time_next = cache
         cache.time_prev = aasworld.newestcache
@@ -215,7 +215,7 @@ func AAS_LinkCache(_ cache: AasRoutingcache) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:219
-func AAS_FreeRoutingCache(_ cache: AasRoutingcache) {
+public func AAS_FreeRoutingCache(_ cache: AasRoutingcache) {
     AAS_UnlinkCache(cache)
     routingcachesize -= cache.size
     FreeMemory(cache.handle)
@@ -228,7 +228,7 @@ func AAS_FreeRoutingCache(_ cache: AasRoutingcache) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:231
-func AAS_RemoveRoutingCacheInCluster(_ clusternum: Int32) {
+public func AAS_RemoveRoutingCacheInCluster(_ clusternum: Int32) {
     var i: Int32
     var cache: AasRoutingcache?
     var nextcache: AasRoutingcache?
@@ -260,7 +260,7 @@ func AAS_RemoveRoutingCacheInCluster(_ clusternum: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:256
-func AAS_RemoveRoutingCacheUsingArea(_ areanum: Int32) {
+public func AAS_RemoveRoutingCacheUsingArea(_ areanum: Int32) {
     var i: Int32
     var clusternum: Int32
     var cache: AasRoutingcache?
@@ -298,7 +298,7 @@ func AAS_RemoveRoutingCacheUsingArea(_ areanum: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:291
-func AAS_EnableRoutingArea(_ areanum: Int32, _ enable: Int32) -> Int32 {
+public func AAS_EnableRoutingArea(_ areanum: Int32, _ enable: Int32) -> Int32 {
     var flags: Int32
 
     if areanum <= 0 || areanum >= aasworld.numareas {
@@ -332,7 +332,7 @@ func AAS_EnableRoutingArea(_ areanum: Int32, _ enable: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:325
-func AAS_RoutingTime() -> Float {
+public func AAS_RoutingTime() -> Float {
     return AAS_Time()
 }
 
@@ -343,7 +343,7 @@ func AAS_RoutingTime() -> Float {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:335
-func AAS_GetAreaContentsTravelFlags(_ areanum: Int32) -> Int32 {
+public func AAS_GetAreaContentsTravelFlags(_ areanum: Int32) -> Int32 {
     var contents: Int32
     var tfl: Int32
 
@@ -380,7 +380,7 @@ func AAS_GetAreaContentsTravelFlags(_ areanum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:365
-func AAS_AreaContentsTravelFlags_inline(_ areanum: Int32) -> Int32 {
+public func AAS_AreaContentsTravelFlags_inline(_ areanum: Int32) -> Int32 {
     return aasworld.areacontentstravelflags![areanum]
 }
 
@@ -391,7 +391,7 @@ func AAS_AreaContentsTravelFlags_inline(_ areanum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:375
-func AAS_AreaContentsTravelFlags(_ areanum: Int32) -> Int32 {
+public func AAS_AreaContentsTravelFlags(_ areanum: Int32) -> Int32 {
     return aasworld.areacontentstravelflags![areanum]
 }
 
@@ -402,7 +402,7 @@ func AAS_AreaContentsTravelFlags(_ areanum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:385
-func AAS_InitAreaContentsTravelFlags() {
+public func AAS_InitAreaContentsTravelFlags() {
     var i: Int32
 
     if aasworld.areacontentstravelflags != nil {
@@ -424,7 +424,7 @@ func AAS_InitAreaContentsTravelFlags() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:402
-func AAS_CreateReversedReachability() {
+public func AAS_CreateReversedReachability() {
     var i: Int32
     var n: Int32
     var revlink: AasReversedlink
@@ -478,7 +478,7 @@ func AAS_CreateReversedReachability() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:457
-func AAS_AreaTravelTime(_ areanum: Int32, _ start: JKAShared.vec3_t?, _ end: JKAShared.vec3_t) -> Int32 {
+public func AAS_AreaTravelTime(_ areanum: Int32, _ start: JKAShared.vec3_t?, _ end: JKAShared.vec3_t) -> Int32 {
     var intdist: Int32
     var dist: Float
     var dir = vec3_t()
@@ -513,7 +513,7 @@ func AAS_AreaTravelTime(_ areanum: Int32, _ start: JKAShared.vec3_t?, _ end: JKA
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:483
-func AAS_CalculateAreaTravelTimes() {
+public func AAS_CalculateAreaTravelTimes() {
     var i: Int32
     var l: Int32
     var n: Int32
@@ -590,7 +590,7 @@ func AAS_CalculateAreaTravelTimes() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:549
-func AAS_PortalMaxTravelTime(_ portalnum: Int32) -> Int32 {
+public func AAS_PortalMaxTravelTime(_ portalnum: Int32) -> Int32 {
     var l: Int32
     var n: Int32
     var t: Int32
@@ -632,7 +632,7 @@ func AAS_PortalMaxTravelTime(_ portalnum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:583
-func AAS_InitPortalMaxTravelTimes() {
+public func AAS_InitPortalMaxTravelTimes() {
     var i: Int32
 
     if aasworld.portalmaxtraveltimes != nil {
@@ -733,7 +733,7 @@ int AAS_FreeOldestCache(void)
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:678
-func AAS_FreeOldestCache() -> Int32 {
+public func AAS_FreeOldestCache() -> Int32 {
     var clusterareanum: Int32
     var cache: AasRoutingcache?
 
@@ -785,7 +785,7 @@ func AAS_FreeOldestCache() -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:717
-func AAS_AllocRoutingCache(_ numtraveltimes: Int32) -> AasRoutingcache? {
+public func AAS_AllocRoutingCache(_ numtraveltimes: Int32) -> AasRoutingcache? {
     var cache: AasRoutingcache
     var size: Int32
 
@@ -811,7 +811,7 @@ func AAS_AllocRoutingCache(_ numtraveltimes: Int32) -> AasRoutingcache? {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:741
-func AAS_FreeAllClusterAreaCache() {
+public func AAS_FreeAllClusterAreaCache() {
     var i: Int32
     var j: Int32
     var cache: AasRoutingcache?
@@ -853,7 +853,7 @@ func AAS_FreeAllClusterAreaCache() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:773
-func AAS_InitClusterAreaCache() {
+public func AAS_InitClusterAreaCache() {
     var i: Int32
     var size: Int32
 
@@ -887,7 +887,7 @@ func AAS_InitClusterAreaCache() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:802
-func AAS_FreeAllPortalCache() {
+public func AAS_FreeAllPortalCache() {
     var i: Int32
     var cache: AasRoutingcache?
     var nextcache: AasRoutingcache?
@@ -919,7 +919,7 @@ func AAS_FreeAllPortalCache() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:828
-func AAS_InitPortalCache() {
+public func AAS_InitPortalCache() {
     //
     aasworld.portalcache = Slots(pointers: GetClearedMemory(
                                 aasworld.numareas * Int32(OpaquePointer.byteCount)), count: Int(aasworld.numareas))
@@ -932,7 +932,7 @@ func AAS_InitPortalCache() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:840
-func AAS_InitRoutingUpdate() {
+public func AAS_InitRoutingUpdate() {
     var i: Int32
     var maxreachabilityareas: Int32
 
@@ -969,7 +969,7 @@ func AAS_InitRoutingUpdate() {
 //===========================================================================
 // Port-note: Raven calls this function from no file of either tree, so it is dead.
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:870
-func AAS_CreateAllRoutingCache() {
+public func AAS_CreateAllRoutingCache() {
     var i: Int32
     var j: Int32
     var t: Int32
@@ -1002,7 +1002,7 @@ func AAS_CreateAllRoutingCache() {
 }
 
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:917
-func AAS_WriteRouteCache() {
+public func AAS_WriteRouteCache() {
     var i: Int32
     var j: Int32
     var numportalcache: Int32
@@ -1116,7 +1116,7 @@ func AAS_WriteRouteCache() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1014
-func AAS_ReadCache(_ fp: JKAShared.fileHandle_t) -> AasRoutingcache? {
+public func AAS_ReadCache(_ fp: JKAShared.fileHandle_t) -> AasRoutingcache? {
     let size: Int32
     var cache: AasRoutingcache
 
@@ -1142,7 +1142,7 @@ func AAS_ReadCache(_ fp: JKAShared.fileHandle_t) -> AasRoutingcache? {
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1033
 @discardableResult
-func AAS_ReadRouteCache() -> Int32 {
+public func AAS_ReadRouteCache() -> Int32 {
     var i: Int32 = 0
     var clusterareanum: Int32 = 0 //, size;
     var fp: fileHandle_t = 0
@@ -1236,7 +1236,7 @@ func AAS_ReadRouteCache() -> Int32 {
 }
 
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1126
-func AAS_InitReachabilityAreas() {
+public func AAS_InitReachabilityAreas() {
     var i: Int32
     var j: Int32
     var numareas: Int32
@@ -1314,7 +1314,7 @@ func AAS_InitReachabilityAreas() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1198
-func AAS_InitRouting() {
+public func AAS_InitRouting() {
     AAS_InitTravelFlagFromType()
     //
     AAS_InitAreaContentsTravelFlags()
@@ -1349,7 +1349,7 @@ func AAS_InitRouting() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1234
-func AAS_FreeRoutingCaches() {
+public func AAS_FreeRoutingCaches() {
     // free all the existing cluster area cache
     AAS_FreeAllClusterAreaCache()
     // free all the existing portal cache
@@ -1407,7 +1407,7 @@ func AAS_FreeRoutingCaches() {
 var startareatraveltimes_AAS_UpdateAreaRoutingCache: Slots<UInt16> { world.storage.startareatraveltimes_AAS_UpdateAreaRoutingCache }
 
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1271
-func AAS_UpdateAreaRoutingCache(_ areacache: AasRoutingcache) {
+public func AAS_UpdateAreaRoutingCache(_ areacache: AasRoutingcache) {
     var i: Int32
     var nextareanum: Int32
     var cluster: Int32
@@ -1554,7 +1554,7 @@ func AAS_UpdateAreaRoutingCache(_ areacache: AasRoutingcache) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1382
-func AAS_GetAreaRoutingCache(_ clusternum: Int32, _ areanum: Int32, _ travelflags: Int32) -> AasRoutingcache? {
+public func AAS_GetAreaRoutingCache(_ clusternum: Int32, _ areanum: Int32, _ travelflags: Int32) -> AasRoutingcache? {
     var clusterareanum: Int32
     var cache: AasRoutingcache?
     var clustercache: AasRoutingcache?
@@ -1607,7 +1607,7 @@ func AAS_GetAreaRoutingCache(_ clusternum: Int32, _ areanum: Int32, _ travelflag
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1428
-func AAS_UpdatePortalRoutingCache(_ portalcache: AasRoutingcache) {
+public func AAS_UpdatePortalRoutingCache(_ portalcache: AasRoutingcache) {
     var i: Int32
     var portalnum: Int32
     var clusterareanum: Int32
@@ -1720,7 +1720,7 @@ func AAS_UpdatePortalRoutingCache(_ portalcache: AasRoutingcache) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1526
-func AAS_GetPortalRoutingCache(_ clusternum: Int32, _ areanum: Int32, _ travelflags: Int32) -> AasRoutingcache? {
+public func AAS_GetPortalRoutingCache(_ clusternum: Int32, _ areanum: Int32, _ travelflags: Int32) -> AasRoutingcache? {
     var cache: AasRoutingcache?
 
     //find the cached portal routing if existing
@@ -1766,7 +1766,7 @@ func AAS_GetPortalRoutingCache(_ clusternum: Int32, _ areanum: Int32, _ travelfl
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1568
-func AAS_AreaRouteToGoalArea(_ areanum: Int32, _ origin: JKAShared.vec3_t?, _ goalareanum: Int32, _ travelflags: Int32, _ traveltime: inout Int32, _ reachnum: inout Int32) -> Int32 {
+public func AAS_AreaRouteToGoalArea(_ areanum: Int32, _ origin: JKAShared.vec3_t?, _ goalareanum: Int32, _ travelflags: Int32, _ traveltime: inout Int32, _ reachnum: inout Int32) -> Int32 {
     // Raven assigns his own `travelflags` parameter. A Swift parameter is immutable, so the body takes a mutable copy.
     var travelflags = travelflags
     var clusternum: Int32
@@ -1958,7 +1958,7 @@ func AAS_AreaRouteToGoalArea(_ areanum: Int32, _ origin: JKAShared.vec3_t?, _ go
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1750
-func AAS_AreaTravelTimeToGoalArea(_ areanum: Int32, _ origin: JKAShared.vec3_t?, _ goalareanum: Int32, _ travelflags: Int32) -> Int32 {
+public func AAS_AreaTravelTimeToGoalArea(_ areanum: Int32, _ origin: JKAShared.vec3_t?, _ goalareanum: Int32, _ travelflags: Int32) -> Int32 {
     var traveltime: Int32 = 0
     var reachnum: Int32 = 0
 
@@ -1975,7 +1975,7 @@ func AAS_AreaTravelTimeToGoalArea(_ areanum: Int32, _ origin: JKAShared.vec3_t?,
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1766
-func AAS_AreaReachabilityToGoalArea(_ areanum: Int32, _ origin: JKAShared.vec3_t, _ goalareanum: Int32, _ travelflags: Int32) -> Int32 {
+public func AAS_AreaReachabilityToGoalArea(_ areanum: Int32, _ origin: JKAShared.vec3_t, _ goalareanum: Int32, _ travelflags: Int32) -> Int32 {
     var traveltime: Int32 = 0
     var reachnum: Int32 = 0
 
@@ -1993,7 +1993,7 @@ func AAS_AreaReachabilityToGoalArea(_ areanum: Int32, _ origin: JKAShared.vec3_t
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1783
-func AAS_PredictRoute(_ route: AasPredictroute, _ areanum: Int32, _ origin: JKAShared.vec3_t, _ goalareanum: Int32, _ travelflags: Int32, _ maxareas: Int32, _ maxtime: Int32, _ stopevent: Int32, _ stopcontents: Int32, _ stoptfl: Int32, _ stopareanum: Int32) -> Int32 {
+public func AAS_PredictRoute(_ route: AasPredictroute, _ areanum: Int32, _ origin: JKAShared.vec3_t, _ goalareanum: Int32, _ travelflags: Int32, _ maxareas: Int32, _ maxtime: Int32, _ stopevent: Int32, _ stopcontents: Int32, _ stoptfl: Int32, _ stopareanum: Int32) -> Int32 {
     var curareanum: Int32
     var reachnum: Int32
     var i: Int32
@@ -2103,7 +2103,7 @@ func AAS_PredictRoute(_ route: AasPredictroute, _ areanum: Int32, _ origin: JKAS
 //===========================================================================
 // Port-note: Raven calls this function from no file of either tree, so it is dead.
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1892
-func AAS_BridgeWalkable(_ areanum: Int32) -> Int32 {
+public func AAS_BridgeWalkable(_ areanum: Int32) -> Int32 {
     return 0
 }
 
@@ -2114,7 +2114,7 @@ func AAS_BridgeWalkable(_ areanum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1902
-func AAS_ReachabilityFromNum(_ num: Int32, _ reach: AasReachability) {
+public func AAS_ReachabilityFromNum(_ num: Int32, _ reach: AasReachability) {
     if aasworld.initialized == 0 {
         reach.clear()
         return
@@ -2133,7 +2133,7 @@ func AAS_ReachabilityFromNum(_ num: Int32, _ reach: AasReachability) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1922
-func AAS_NextAreaReachability(_ areanum: Int32, _ reachnum: Int32) -> Int32 {
+public func AAS_NextAreaReachability(_ areanum: Int32, _ reachnum: Int32) -> Int32 {
     // Raven assigns his own `reachnum` parameter. A Swift parameter is immutable, so the body takes a mutable copy.
     var reachnum = reachnum
     var settings: AasAreasettings
@@ -2169,7 +2169,7 @@ func AAS_NextAreaReachability(_ areanum: Int32, _ reachnum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1957
-func AAS_NextModelReachability(_ num: Int32, _ modelnum: Int32) -> Int32 {
+public func AAS_NextModelReachability(_ num: Int32, _ modelnum: Int32) -> Int32 {
     // Raven assigns his own `num` parameter. A Swift parameter is immutable, so the body takes a mutable copy.
     var num = num
     var i: Int32
@@ -2206,7 +2206,7 @@ func AAS_NextModelReachability(_ num: Int32, _ modelnum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:1984
-func AAS_RandomGoalArea(_ areanum: Int32, _ travelflags: Int32, _ goalareanum: inout Int32, _ goalorigin: inout JKAShared.vec3_t) -> Int32 {
+public func AAS_RandomGoalArea(_ areanum: Int32, _ travelflags: Int32, _ goalareanum: inout Int32, _ goalorigin: inout JKAShared.vec3_t) -> Int32 {
     var i: Int32
     var n: Int32
     var t: Int32
@@ -2273,7 +2273,7 @@ func AAS_RandomGoalArea(_ areanum: Int32, _ travelflags: Int32, _ goalareanum: i
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:2039
-func AAS_AreaVisible(_ srcarea: Int32, _ destarea: Int32) -> Int32 {
+public func AAS_AreaVisible(_ srcarea: Int32, _ destarea: Int32) -> Int32 {
     return 0
 }
 
@@ -2285,7 +2285,7 @@ func AAS_AreaVisible(_ srcarea: Int32, _ destarea: Int32) -> Int32 {
 //===========================================================================
 // Port-note: Raven calls this function from no file of either tree, so it is dead.
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:2049
-func DistancePointToLine(_ v1: JKAShared.vec3_t, _ v2: JKAShared.vec3_t, _ point: JKAShared.vec3_t) -> Float {
+public func DistancePointToLine(_ v1: JKAShared.vec3_t, _ v2: JKAShared.vec3_t, _ point: JKAShared.vec3_t) -> Float {
     var vec = vec3_t(), p2 = vec3_t()
 
     AAS_ProjectPointOntoVector(point, v1, v2, &p2)
@@ -2308,7 +2308,7 @@ var hidetraveltimes: Slots<UInt16>? {
 //===========================================================================
 // Port-note: Raven calls this function from no file of either tree, so it is dead.
 /// Source: oracle/codemp/botlib/be_aas_route.cpp:2063
-func AAS_NearestHideArea(_ srcnum: Int32, _ origin: JKAShared.vec3_t, _ areanum: Int32, _ enemynum: Int32, _ enemyorigin: JKAShared.vec3_t, _ enemyareanum: Int32, _ travelflags: Int32) -> Int32 {
+public func AAS_NearestHideArea(_ srcnum: Int32, _ origin: JKAShared.vec3_t, _ areanum: Int32, _ enemynum: Int32, _ enemyorigin: JKAShared.vec3_t, _ enemyareanum: Int32, _ travelflags: Int32) -> Int32 {
     var i: Int32
     var j: Int32
     var nextareanum: Int32

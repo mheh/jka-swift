@@ -15,10 +15,10 @@ private let CS_MODELS = (CS_SCORES + MAX_CLIENTS) as Int32
 private let CS_SOUNDS = (CS_MODELS + MAX_MODELS) as Int32
 
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:30
-var aasworld: Aas { world.storage.aasworld }
+public var aasworld: Aas { world.storage.aasworld }
 
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:32
-var saveroutingcache: Libvar? {
+public var saveroutingcache: Libvar? {
     get { world.variables.saveroutingcache }
     set { world.variables.saveroutingcache = newValue }
 }
@@ -30,7 +30,7 @@ var saveroutingcache: Libvar? {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:40
-func AAS_Error(_ fmt: String, _ args: any JKAShared.FormatArg...) {
+public func AAS_Error(_ fmt: String, _ args: any JKAShared.FormatArg...) {
     var str = CharBuf(1024)
 
     strcpy(&str, JKAShared.format(fmt, args))
@@ -44,7 +44,7 @@ func AAS_Error(_ fmt: String, _ args: any JKAShared.FormatArg...) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:56
-func AAS_StringFromIndex(_ indexname: inout JKAShared.CharBuf, _ stringindex: Slots<String?>, _ numindexes: Int32, _ index: Int32) -> String {
+public func AAS_StringFromIndex(_ indexname: inout JKAShared.CharBuf, _ stringindex: Slots<String?>, _ numindexes: Int32, _ index: Int32) -> String {
     // Port-note: AAS_ModelFromIndex is the one caller, and no file of either tree calls it, so this function is dead.
     if aasworld.indexessetup == 0 {
         botimport.runPrint(PRT_ERROR, "%s: index %d not setup\n", String(indexname), index)
@@ -70,7 +70,7 @@ func AAS_StringFromIndex(_ indexname: inout JKAShared.CharBuf, _ stringindex: Sl
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:84
-func AAS_IndexFromString(_ indexname: inout JKAShared.CharBuf, _ stringindex: Slots<String?>, _ numindexes: Int32, _ string: inout JKAShared.CharBuf) -> Int32 {
+public func AAS_IndexFromString(_ indexname: inout JKAShared.CharBuf, _ stringindex: Slots<String?>, _ numindexes: Int32, _ string: inout JKAShared.CharBuf) -> Int32 {
     // Port-note: AAS_IndexFromModel is the one caller, and no file of either tree calls it, so this function is dead.
     var i: Int32
     if aasworld.indexessetup == 0 {
@@ -96,7 +96,7 @@ func AAS_IndexFromString(_ indexname: inout JKAShared.CharBuf, _ stringindex: Sl
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:105
-func AAS_ModelFromIndex(_ index: Int32) -> String {
+public func AAS_ModelFromIndex(_ index: Int32) -> String {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     var indexname = CharBuf("ModelFromIndex")
     return AAS_StringFromIndex(&indexname, aasworld.configstrings.suffix(from: CS_MODELS), MAX_MODELS, index)
@@ -109,7 +109,7 @@ func AAS_ModelFromIndex(_ index: Int32) -> String {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:115
-func AAS_IndexFromModel(_ modelname: inout JKAShared.CharBuf) -> Int32 {
+public func AAS_IndexFromModel(_ modelname: inout JKAShared.CharBuf) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     var indexname = CharBuf("IndexFromModel")
     return AAS_IndexFromString(&indexname, aasworld.configstrings.suffix(from: CS_MODELS), MAX_MODELS, &modelname)
@@ -122,7 +122,7 @@ func AAS_IndexFromModel(_ modelname: inout JKAShared.CharBuf) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:125
-func AAS_UpdateStringIndexes(_ numconfigstrings: Int32, _ configstrings: Slots<String?>) {
+public func AAS_UpdateStringIndexes(_ numconfigstrings: Int32, _ configstrings: Slots<String?>) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     var i: Int32
     //set string pointers and copy the strings
@@ -146,7 +146,7 @@ func AAS_UpdateStringIndexes(_ numconfigstrings: Int32, _ configstrings: Slots<S
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:146
-func AAS_Loaded() -> Int32 {
+public func AAS_Loaded() -> Int32 {
     return aasworld.loaded
 }
 
@@ -157,7 +157,7 @@ func AAS_Loaded() -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:156
-func AAS_Initialized() -> Int32 {
+public func AAS_Initialized() -> Int32 {
     return aasworld.initialized
 }
 
@@ -168,7 +168,7 @@ func AAS_Initialized() -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:166
-func AAS_SetInitialized() {
+public func AAS_SetInitialized() {
     aasworld.initialized = 1
     botimport.runPrint(PRT_MESSAGE, "AAS initialized.\n")
 }
@@ -180,7 +180,7 @@ func AAS_SetInitialized() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:183
-func AAS_ContinueInit(_ time: Float) {
+public func AAS_ContinueInit(_ time: Float) {
     //if no AAS file loaded
     if aasworld.loaded == 0 { return }
     //if AAS is already initialized
@@ -216,7 +216,7 @@ func AAS_ContinueInit(_ time: Float) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:221
-func AAS_StartFrame(_ time: Float) -> Int32 {
+public func AAS_StartFrame(_ time: Float) -> Int32 {
     aasworld.time = time
     //unlink all entities that were not updated last frame
     AAS_UnlinkInvalidEntities()
@@ -258,7 +258,7 @@ func AAS_StartFrame(_ time: Float) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:267
-func AAS_Time() -> Float {
+public func AAS_Time() -> Float {
     return aasworld.time
 }
 
@@ -269,7 +269,7 @@ func AAS_Time() -> Float {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:277
-func AAS_ProjectPointOntoVector(_ point: JKAShared.vec3_t, _ vStart: JKAShared.vec3_t, _ vEnd: JKAShared.vec3_t, _ vProj: inout JKAShared.vec3_t) {
+public func AAS_ProjectPointOntoVector(_ point: JKAShared.vec3_t, _ vStart: JKAShared.vec3_t, _ vEnd: JKAShared.vec3_t, _ vProj: inout JKAShared.vec3_t) {
     var pVec = vec3_t(), vec = vec3_t()
 
     pVec = point - vStart
@@ -286,7 +286,7 @@ func AAS_ProjectPointOntoVector(_ point: JKAShared.vec3_t, _ vStart: JKAShared.v
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:293
-func AAS_LoadFiles(_ mapname: String) -> Int32 {
+public func AAS_LoadFiles(_ mapname: String) -> Int32 {
     var errnum: Int32
     var aasfile = CharBuf(MAX_PATH)
 //	char bspfile[MAX_PATH];
@@ -319,7 +319,7 @@ func AAS_LoadFiles(_ mapname: String) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:324
-func AAS_LoadMap(_ mapname: String) -> Int32 {
+public func AAS_LoadMap(_ mapname: String) -> Int32 {
     var errnum: Int32
 
     //if no mapname is provided then the string indexes are updated
@@ -357,7 +357,7 @@ func AAS_LoadMap(_ mapname: String) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:366
-func AAS_Setup() -> Int32 {
+public func AAS_Setup() -> Int32 {
     aasworld.maxclients = Int32(LibVarValue("maxclients", "128"))
     aasworld.maxentities = Int32(LibVarValue("maxentities", "1024"))
     // as soon as it's set to 1 the routing cache will be saved
@@ -381,7 +381,7 @@ func AAS_Setup() -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:389
-func AAS_Shutdown() {
+public func AAS_Shutdown() {
     AAS_ShutdownAlternativeRouting()
     //
     AAS_DumpBSPData()

@@ -62,19 +62,19 @@ private let APEX_HEIGHT = 200.0 as Float
 private let JUMP_SPEED = 200.0 as Float
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:16
-func G_StartMatrixEffect(_ ent: Entity) {
+public func G_StartMatrixEffect(_ ent: Entity) {
     //perhaps write this at some point?
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:103
-func NPC_ShadowTrooper_Precache() {
+public func NPC_ShadowTrooper_Precache() {
     RegisterItem(BG_FindItemForAmmo(AMMO_FORCE)!)
     G_SoundIndex("sound/chars/shadowtrooper/cloak.wav")
     G_SoundIndex("sound/chars/shadowtrooper/decloak.wav")
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:110
-func Jedi_ClearTimers(_ ent: Entity) {
+public func Jedi_ClearTimers(_ ent: Entity) {
     TIMER_Set(ent, "roamTime", 0)
     TIMER_Set(ent, "chatter", 0)
     TIMER_Set(ent, "strafeLeft", 0)
@@ -101,7 +101,7 @@ func Jedi_ClearTimers(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:137
-func Jedi_PlayBlockedPushSound(_ `self`: Entity) {
+public func Jedi_PlayBlockedPushSound(_ `self`: Entity) {
     if `self`.s.number == 0 {
         G_AddVoiceEvent(`self`, EV_PUSHFAIL, 3000)
     } else if `self`.health > 0 && `self`.NPC != nil && `self`.NPC!.blockedSpeechDebounceTime < level.time {
@@ -111,7 +111,7 @@ func Jedi_PlayBlockedPushSound(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:150
-func Jedi_PlayDeflectSound(_ `self`: Entity) {
+public func Jedi_PlayDeflectSound(_ `self`: Entity) {
     if `self`.s.number == 0 {
         G_AddVoiceEvent(`self`, Q_irand(EV_DEFLECT1, EV_DEFLECT3), 3000)
     } else if `self`.health > 0 && `self`.NPC != nil && `self`.NPC!.blockedSpeechDebounceTime < level.time {
@@ -121,7 +121,7 @@ func Jedi_PlayDeflectSound(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:163
-func NPC_Jedi_PlayConfusionSound(_ `self`: Entity) {
+public func NPC_Jedi_PlayConfusionSound(_ `self`: Entity) {
     if `self`.health > 0 {
         if `self`.client != nil && (`self`.client!.NPC_class == CLASS_TAVION || `self`.client!.NPC_class == CLASS_DESANN) {
             G_AddVoiceEvent(`self`, Q_irand(EV_CONFUSE1, EV_CONFUSE3), 2000)
@@ -134,7 +134,7 @@ func NPC_Jedi_PlayConfusionSound(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:182
-func Boba_Precache() {
+public func Boba_Precache() {
     G_SoundIndex("sound/boba/jeton.wav")
     G_SoundIndex("sound/boba/jethover.wav")
     G_SoundIndex("sound/effects/combustfire.mp3")
@@ -143,7 +143,7 @@ func Boba_Precache() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:193
-func Boba_ChangeWeapon(_ wp: Int32) {
+public func Boba_ChangeWeapon(_ wp: Int32) {
     if NPC!.s.weapon == wp {
         return
     }
@@ -152,7 +152,7 @@ func Boba_ChangeWeapon(_ wp: Int32) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:203
-func WP_ResistForcePush(_ `self`: Entity, _ pusher: Entity, _ noPenalty: Bool) {
+public func WP_ResistForcePush(_ `self`: Entity, _ pusher: Entity, _ noPenalty: Bool) {
     let parts: Int32
     var runningResist: Bool = false
 
@@ -205,7 +205,7 @@ func WP_ResistForcePush(_ `self`: Entity, _ pusher: Entity, _ noPenalty: Bool) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:272
-func Boba_StopKnockdown(_ `self`: Entity, _ pusher: Entity, _ pushDir: JKAShared.vec3_t, _ forceKnockdown: Bool) -> Bool {
+public func Boba_StopKnockdown(_ `self`: Entity, _ pusher: Entity, _ pushDir: JKAShared.vec3_t, _ forceKnockdown: Bool) -> Bool {
     var pDir = vec3_t()
     var fwd = vec3_t()
     var right = vec3_t()
@@ -275,7 +275,7 @@ func Boba_StopKnockdown(_ `self`: Entity, _ pusher: Entity, _ pushDir: JKAShared
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:345
-func Boba_FlyStart(_ `self`: Entity) {
+public func Boba_FlyStart(_ `self`: Entity) {
     //switch to seeker AI for a while
     if TIMER_Done(`self`, "jetRecharge") {
         `self`.client!.ps.gravity = 0
@@ -295,7 +295,7 @@ func Boba_FlyStart(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:367
-func Boba_FlyStop(_ `self`: Entity) {
+public func Boba_FlyStop(_ `self`: Entity) {
     `self`.client!.ps.gravity = Int32(g_gravity.value)
     if `self`.NPC != nil {
         `self`.NPC!.aiFlags &= ~NPCAI_CUSTOM_GRAVITY
@@ -312,12 +312,12 @@ func Boba_FlyStop(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:386
-func Boba_Flying(_ `self`: Entity) -> Bool {
+public func Boba_Flying(_ `self`: Entity) -> Bool {
     return (`self`.client!.ps.eFlags2 & EF2_FLYING) != 0
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:391
-func Boba_FireFlameThrower(_ `self`: Entity) {
+public func Boba_FireFlameThrower(_ `self`: Entity) {
     let damage: Int32 = Q_irand(20, 30)
     // Raven's record lives to the end of his block, so the block is the closure.
     Trace.scratch { tr in
@@ -350,7 +350,7 @@ func Boba_FireFlameThrower(_ `self`: Entity) {
 
 //extern void SP_fx_explosion_trail( gentity_t *ent );
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:419
-func Boba_StartFlameThrower(_ `self`: Entity) {
+public func Boba_StartFlameThrower(_ `self`: Entity) {
     let flameTime: Int32 = 4000
     // Raven's record lives to the end of his block, so the block is the closure.
     MdxaBone.scratch { boltMatrix in
@@ -403,7 +403,7 @@ func Boba_StartFlameThrower(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:471
-func Boba_DoFlameThrower(_ `self`: Entity) {
+public func Boba_DoFlameThrower(_ `self`: Entity) {
     NPC_SetAnim(`self`, SETANIM_TORSO, BOTH_FORCELIGHTNING_HOLD, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD)
     if TIMER_Done(`self`, "nextAttackDelay") && TIMER_Done(`self`, "flameTime") {
         Boba_StartFlameThrower(`self`)
@@ -412,7 +412,7 @@ func Boba_DoFlameThrower(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:481
-func Boba_FireDecide() {
+public func Boba_FireDecide() {
     var enemyLOS: Bool = false
     var enemyCS: Bool = false
     var enemyInFOV: Bool = false
@@ -684,7 +684,7 @@ func Boba_FireDecide() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:799
-func Jedi_Cloak(_ `self`: Entity) {
+public func Jedi_Cloak(_ `self`: Entity) {
     `self`.flags |= FL_NOTARGET
     if `self`.client != nil {
         if `self`.client!.ps.powerups[PW_CLOAKED] == 0 {
@@ -699,7 +699,7 @@ func Jedi_Cloak(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:818
-func Jedi_Decloak(_ `self`: Entity) {
+public func Jedi_Decloak(_ `self`: Entity) {
     `self`.flags &= ~FL_NOTARGET
     if `self`.client != nil {
         if `self`.client!.ps.powerups[PW_CLOAKED] != 0 {
@@ -712,7 +712,7 @@ func Jedi_Decloak(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:835
-func Jedi_CheckCloak() {
+public func Jedi_CheckCloak() {
     if NPC != nil && NPC!.client != nil && NPC!.client!.NPC_class == CLASS_SHADOWTROOPER {
         if NPC!.client!.ps.saberHolstered == 0 || NPC!.health <= 0 || NPC!.client!.ps.saberInFlight || NPC!.painDebounceTime > level.time {
             //can't be cloaked if saber is on, or dead or saber in flight or taking pain or being gripped
@@ -777,7 +777,7 @@ private func Jedi_AggressionErosion(_ amt: Int32) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:914
-func NPC_Jedi_RateNewEnemy(_ `self`: Entity, _ enemy: Entity) {
+public func NPC_Jedi_RateNewEnemy(_ `self`: Entity, _ enemy: Entity) {
     var healthAggression: Float
     var weaponAggression: Float
     let newAggression: Int32
@@ -824,7 +824,7 @@ private func Jedi_Rage() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:966
-func Jedi_RageStop(_ `self`: Entity) {
+public func Jedi_RageStop(_ `self`: Entity) {
     if `self`.NPC != nil {
         //calm down and back off
         TIMER_Set(`self`, "roamTime", 0)
@@ -935,7 +935,7 @@ private func Jedi_ClearPathToSpot(_ dest: JKAShared.vec3_t, _ impactEntNum: Int3
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:1079
-func NPC_MoveDirClear(_ forwardmove: Int32, _ rightmove: Int32, _ reset: Bool) -> Bool {
+public func NPC_MoveDirClear(_ forwardmove: Int32, _ rightmove: Int32, _ reset: Bool) -> Bool {
     var forward = vec3_t()
     var right = vec3_t()
     var testPos = vec3_t()
@@ -1623,7 +1623,7 @@ private func Jedi_Strafe(_ strafeTimeMin: Int32, _ strafeTimeMax: Int32, _ nextS
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:1969
-func Jedi_CheckFlipEvasions(_ `self`: Entity, _ rightdot: Float, _ zdiff: Float) -> JKAMP.evasionType_t {
+public func Jedi_CheckFlipEvasions(_ `self`: Entity, _ rightdot: Float, _ zdiff: Float) -> JKAMP.evasionType_t {
     if `self`.NPC != nil && (`self`.NPC!.scriptFlags & SCF_NO_ACROBATICS) != 0 {
         return EVASION_NONE
     }
@@ -1928,7 +1928,7 @@ func Jedi_CheckFlipEvasions(_ `self`: Entity, _ rightdot: Float, _ zdiff: Float)
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:2305
-func Jedi_ReCalcParryTime(_ `self`: Entity, _ evasionType: JKAMP.evasionType_t) -> Int32 {
+public func Jedi_ReCalcParryTime(_ `self`: Entity, _ evasionType: JKAMP.evasionType_t) -> Int32 {
     if `self`.client == nil {
         return 0
     }
@@ -2025,7 +2025,7 @@ func Jedi_ReCalcParryTime(_ `self`: Entity, _ evasionType: JKAMP.evasionType_t) 
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:2443
-func Jedi_QuickReactions(_ `self`: Entity) -> Bool {
+public func Jedi_QuickReactions(_ `self`: Entity) -> Bool {
     if (`self`.client!.NPC_class == CLASS_JEDI && NPCInfo!.rank == RANK_COMMANDER) || `self`.client!.NPC_class == CLASS_TAVION || (`self`.client!.ps.fd.forcePowerLevel[FP_SABER_DEFENSE] > FORCE_LEVEL_1 && g_spskill.integer > 1) || (`self`.client!.ps.fd.forcePowerLevel[FP_SABER_DEFENSE] > FORCE_LEVEL_2 && g_spskill.integer > 0) {
         return true
     }
@@ -2033,7 +2033,7 @@ func Jedi_QuickReactions(_ `self`: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:2455
-func Jedi_SaberBusy(_ `self`: Entity) -> Bool {
+public func Jedi_SaberBusy(_ `self`: Entity) -> Bool {
     if `self`.client!.ps.torsoTimer > 300 && ((BG_SaberInAttack(`self`.client!.ps.saberMove) && `self`.client!.ps.fd.saberAnimLevel == FORCE_LEVEL_3) || BG_SpinningSaberAnim(`self`.client!.ps.torsoAnim) || BG_SaberInSpecialAttack(`self`.client!.ps.torsoAnim) || PM_SaberInBrokenParry(`self`.client!.ps.saberMove) || BG_FlippingAnim(`self`.client!.ps.torsoAnim) || PM_RollingAnim(`self`.client!.ps.torsoAnim)) {
         //my saber is not in a parrying position
         return true
@@ -2042,7 +2042,7 @@ func Jedi_SaberBusy(_ `self`: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:2485
-func Jedi_SaberBlockGo(_ `self`: Entity, _ cmd: JKAMP.Usercmd, _ pHitloc: JKAShared.vec3_t?, _ phitDir: JKAShared.vec3_t?, _ incoming: Entity?, _ dist: Float) -> JKAMP.evasionType_t {
+public func Jedi_SaberBlockGo(_ `self`: Entity, _ cmd: JKAMP.Usercmd, _ pHitloc: JKAShared.vec3_t?, _ phitDir: JKAShared.vec3_t?, _ incoming: Entity?, _ dist: Float) -> JKAMP.evasionType_t {
     var hitloc = vec3_t()
     var hitdir = vec3_t()
     var diff = vec3_t()
@@ -3000,7 +3000,7 @@ INTERNAL AI ROUTINES
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:3686
-func Jedi_FindEnemyInCone(_ `self`: Entity, _ fallback: Entity, _ minDot: Float) -> Entity? {
+public func Jedi_FindEnemyInCone(_ `self`: Entity, _ fallback: Entity, _ minDot: Float) -> Entity? {
     var forward = vec3_t()
     var mins = vec3_t()
     var maxs = vec3_t()
@@ -4551,7 +4551,7 @@ private func Jedi_Combat() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:5358
-func NPC_Jedi_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func NPC_Jedi_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     let other: Entity? = attacker
     var point = vec3_t()
 
@@ -4634,7 +4634,7 @@ func NPC_Jedi_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:5446
-func Jedi_CheckDanger() -> Bool {
+public func Jedi_CheckDanger() -> Bool {
     let alertEvent: Int32 = NPC_CheckAlertEvents(true, true, -1, false, AEL_MINOR)
     if level.alertEvents[alertEvent].level >= AEL_DANGER {
         //run away!
@@ -4651,7 +4651,7 @@ func Jedi_CheckDanger() -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:5465
-func Jedi_CheckAmbushPlayer() -> Bool {
+public func Jedi_CheckAmbushPlayer() -> Bool {
     var i: Int32 = 0
     var player: Entity?
     var target_dist: Float
@@ -4732,7 +4732,7 @@ func Jedi_CheckAmbushPlayer() -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:5547
-func Jedi_Ambush(_ `self`: Entity) {
+public func Jedi_Ambush(_ `self`: Entity) {
     `self`.client!.noclip = false
     //	self->client->ps.pm_flags |= PMF_JUMPING|PMF_SLOW_MO_FALL;
     NPC_SetAnim(`self`, SETANIM_BOTH, BOTH_CEILING_DROP, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD)
@@ -4745,7 +4745,7 @@ func Jedi_Ambush(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:5561
-func Jedi_WaitingAmbush(_ `self`: Entity) -> Bool {
+public func Jedi_WaitingAmbush(_ `self`: Entity) -> Bool {
     if (`self`.spawnflags & JSF_AMBUSH) != 0 && `self`.client!.noclip {
         return true
     }
@@ -4894,7 +4894,7 @@ private func Jedi_Patrol() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:5730
-func Jedi_CanPullBackSaber(_ `self`: Entity) -> Bool {
+public func Jedi_CanPullBackSaber(_ `self`: Entity) -> Bool {
     if `self`.client!.ps.saberBlocked == BLOCKED_PARRY_BROKEN && !TIMER_Done(`self`, "parryTime") {
         return false
     }
@@ -4918,7 +4918,7 @@ NPC_BSJedi_FollowLeader
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:5758
-func NPC_BSJedi_FollowLeader() {
+public func NPC_BSJedi_FollowLeader() {
     NPC!.client!.ps.saberBlocked = BLOCKED_NONE
     if NPC!.enemy == nil {
         //Com_Printf( "(%d) drop agg - no enemy (follow)\n", level.time );
@@ -5269,7 +5269,7 @@ private func Jedi_Attack() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Jedi.c:6170
-func NPC_BSJedi_Default() {
+public func NPC_BSJedi_Default() {
     Jedi_CheckCloak()
     if NPC!.enemy == nil {
         //don't have an enemy, look for one

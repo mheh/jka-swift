@@ -8,13 +8,13 @@ import JKAMP_Ded
 var navigator: CNavigator { world.navigator }
 
 /// Source: oracle/codemp/server/NPCNav/navigator.cpp:36
-var d_altRoutes: JKAMP.Cvar? {
+public var d_altRoutes: JKAMP.Cvar? {
     get { world.variables.d_altRoutes }
     set { world.variables.d_altRoutes = newValue }
 }
 
 /// Source: oracle/codemp/server/NPCNav/navigator.cpp:37
-var d_patched: JKAMP.Cvar? {
+public var d_patched: JKAMP.Cvar? {
     get { world.variables.d_patched }
     set { world.variables.d_patched = newValue }
 }
@@ -66,12 +66,12 @@ let CHECK_FAILED_EDGE_INTERVAL = 1000 as Int32
 let CHECK_FAILED_EDGE_INTITIAL = 5000 as Int32
 
 /// Source: oracle/codemp/server/NPCNav/navigator.cpp:39
-func NAV_CvarInit() {
+public func NAV_CvarInit() {
     d_altRoutes = Cvar_Get("d_altRoutes", "0", CVAR_CHEAT)
     d_patched = Cvar_Get("d_patched", "0", CVAR_CHEAT)
 }
 
 /// Source: oracle/codemp/server/NPCNav/navigator.cpp:45
-func NAV_Free() {
+public func NAV_Free() {
     navigator.Free()
 }

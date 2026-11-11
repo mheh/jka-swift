@@ -10,19 +10,19 @@ let MAX_DEBUGLINES = 1024 as Int32
 let MAX_DEBUGPOLYGONS = 8192 as Int32
 
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:31
-var debuglines: [Int32] {
+public var debuglines: [Int32] {
     get { world.variables.debuglines }
     set { world.variables.debuglines = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:32
-var debuglinevisible: [Int32] {
+public var debuglinevisible: [Int32] {
     get { world.variables.debuglinevisible }
     set { world.variables.debuglinevisible = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:33
-var numdebuglines: Int32 {
+public var numdebuglines: Int32 {
     get { world.variables.numdebuglines }
     set { world.variables.numdebuglines = newValue }
 }
@@ -44,7 +44,7 @@ private var points_AAS_ShowFacePolygon: Slots<JKAShared.vec3_t> { world.storage.
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:43
-func AAS_ClearShownPolygons() {
+public func AAS_ClearShownPolygons() {
     var i: Int32
 //*
     i = 0
@@ -70,7 +70,7 @@ func AAS_ClearShownPolygons() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:67
-func AAS_ShowPolygon(_ color: Int32, _ numpoints: Int32, _ points: Slots<JKAShared.vec3_t>) {
+public func AAS_ShowPolygon(_ color: Int32, _ numpoints: Int32, _ points: Slots<JKAShared.vec3_t>) {
     var i: Int32
 
     i = 0
@@ -90,7 +90,7 @@ func AAS_ShowPolygon(_ color: Int32, _ numpoints: Int32, _ points: Slots<JKAShar
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:86
-func AAS_ClearShownDebugLines() {
+public func AAS_ClearShownDebugLines() {
     var i: Int32
 
     //make all lines invisible
@@ -113,7 +113,7 @@ func AAS_ClearShownDebugLines() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:108
-func AAS_DebugLine(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ color: Int32) {
+public func AAS_DebugLine(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ color: Int32) {
     var line: Int32
 
     line = 0
@@ -141,7 +141,7 @@ func AAS_DebugLine(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ color: 
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:134
-func AAS_PermanentLine(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ color: Int32) {
+public func AAS_PermanentLine(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ color: Int32) {
     var line: Int32
 
     line = botimport.runDebugLineCreate()
@@ -157,7 +157,7 @@ func AAS_PermanentLine(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ col
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:147
-func AAS_DrawPermanentCross(_ origin: JKAShared.vec3_t, _ size: Float, _ color: Int32) {
+public func AAS_DrawPermanentCross(_ origin: JKAShared.vec3_t, _ size: Float, _ color: Int32) {
     var i: Int32, debugline: Int32
     var start = vec3_t(), end = vec3_t()
 
@@ -181,7 +181,7 @@ func AAS_DrawPermanentCross(_ origin: JKAShared.vec3_t, _ size: Float, _ color: 
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:169
-func AAS_DrawPlaneCross(_ point: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ dist: Float, _ type: Int32, _ color: Int32) {
+public func AAS_DrawPlaneCross(_ point: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ dist: Float, _ type: Int32, _ color: Int32) {
     var n0: Int32, n1: Int32, n2: Int32, j: Int32, line: Int32
     var lines = [Int32](repeating: 0, count: 2)
     var start1 = vec3_t(), end1 = vec3_t(), start2 = vec3_t(), end2 = vec3_t()
@@ -241,7 +241,7 @@ func AAS_DrawPlaneCross(_ point: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:225
-func AAS_ShowBoundingBox(_ origin: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) {
+public func AAS_ShowBoundingBox(_ origin: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) {
     var bboxcorners = [vec3_t](repeating: vec3_t(), count: 8)
     var lines = [Int32](repeating: 0, count: 3)
     var i: Int32, j: Int32, line: Int32
@@ -313,7 +313,7 @@ func AAS_ShowBoundingBox(_ origin: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:285
-func AAS_ShowFace(_ facenum: Int32) {
+public func AAS_ShowFace(_ facenum: Int32) {
     var i: Int32, color: Int32, edgenum: Int32
     var edge: AasEdge
     let face: AasFace
@@ -360,7 +360,7 @@ func AAS_ShowFace(_ facenum: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:332
-func AAS_ShowFacePolygon(_ facenum: Int32, _ color: Int32, _ flip: Int32) {
+public func AAS_ShowFacePolygon(_ facenum: Int32, _ color: Int32, _ flip: Int32) {
     var i: Int32, edgenum: Int32, numpoints: Int32
     // AI: Raven declares `vec3_t points[128]` on the stack. The body uses the storage forward points_AAS_ShowFacePolygon.
     var edge: AasEdge
@@ -405,7 +405,7 @@ func AAS_ShowFacePolygon(_ facenum: Int32, _ color: Int32, _ flip: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:377
-func AAS_ShowArea(_ areanum: Int32, _ groundfacesonly: Int32) {
+public func AAS_ShowArea(_ areanum: Int32, _ groundfacesonly: Int32) {
     var areaedges = [Int32](repeating: 0, count: Int(MAX_DEBUGLINES))
     var numareaedges: Int32, i: Int32, j: Int32, n: Int32, color: Int32 = 0, line: Int32
     var facenum: Int32, edgenum: Int32
@@ -498,7 +498,7 @@ func AAS_ShowArea(_ areanum: Int32, _ groundfacesonly: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:469
-func AAS_ShowAreaPolygons(_ areanum: Int32, _ color: Int32, _ groundfacesonly: Int32) {
+public func AAS_ShowAreaPolygons(_ areanum: Int32, _ color: Int32, _ groundfacesonly: Int32) {
     var i: Int32, facenum: Int32
     let area: AasArea
     var face: AasFace
@@ -535,7 +535,7 @@ func AAS_ShowAreaPolygons(_ areanum: Int32, _ color: Int32, _ groundfacesonly: I
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:508
-func AAS_DrawCross(_ origin: JKAShared.vec3_t, _ size: Float, _ color: Int32) {
+public func AAS_DrawCross(_ origin: JKAShared.vec3_t, _ size: Float, _ color: Int32) {
     var i: Int32
     var start = vec3_t(), end = vec3_t()
 
@@ -557,7 +557,7 @@ func AAS_DrawCross(_ origin: JKAShared.vec3_t, _ size: Float, _ color: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:528
-func AAS_PrintTravelType(_ traveltype: Int32) {
+public func AAS_PrintTravelType(_ traveltype: Int32) {
 }
 
 //===========================================================================
@@ -567,7 +567,7 @@ func AAS_PrintTravelType(_ traveltype: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:562
-func AAS_DrawArrow(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ linecolor: Int32, _ arrowcolor: Int32) {
+public func AAS_DrawArrow(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ linecolor: Int32, _ arrowcolor: Int32) {
     var dir = vec3_t(), cross = vec3_t(), p1 = vec3_t(), p2 = vec3_t(), up = vec3_t(0, 0, 1)
     var dot: Float
 
@@ -594,7 +594,7 @@ func AAS_DrawArrow(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ linecol
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:588
-func AAS_ShowReachability(_ reach: AasReachability) {
+public func AAS_ShowReachability(_ reach: AasReachability) {
     var dir = vec3_t(), cmdmove = vec3_t(), velocity = vec3_t()
     var speed: Float = 0, zvel: Float = 0
 
@@ -696,7 +696,7 @@ var lasttime_AAS_ShowReachableAreas: Float {
 }
 
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:667
-func AAS_ShowReachableAreas(_ areanum: Int32) {
+public func AAS_ShowReachableAreas(_ areanum: Int32) {
     // Raven's static locals `reach` and `lasttime` take the function name as a suffix here.
     let settings: AasAreasettings
 
@@ -721,7 +721,7 @@ func AAS_ShowReachableAreas(_ areanum: Int32) {
 }
 
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:696
-func AAS_FloodAreas_r(_ areanum: Int32, _ cluster: Int32, _ done: Slots<Int32>) {
+public func AAS_FloodAreas_r(_ areanum: Int32, _ cluster: Int32, _ done: Slots<Int32>) {
     var nextareanum: Int32, i: Int32, facenum: Int32
     let area: AasArea
     var face: AasFace
@@ -796,7 +796,7 @@ func AAS_FloodAreas_r(_ areanum: Int32, _ cluster: Int32, _ done: Slots<Int32>) 
 }
 
 /// Source: oracle/codemp/botlib/be_aas_debug.cpp:752
-func AAS_FloodAreas(_ origin: JKAShared.vec3_t) {
+public func AAS_FloodAreas(_ origin: JKAShared.vec3_t) {
     var areanum: Int32, cluster: Int32
     let done: Slots<Int32>
 

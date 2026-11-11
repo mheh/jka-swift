@@ -14,7 +14,7 @@ Coordinates are 640*480 virtual values
 ```
 */
 /// Source: oracle/codemp/cgame/cg_drawtools.c:24
-func CG_DrawRect(_ x: Float, _ y: Float, _ width: Float, _ height: Float, _ size: Float, _ color: JKAShared.vec4_t?) {
+public func CG_DrawRect(_ x: Float, _ y: Float, _ width: Float, _ height: Float, _ size: Float, _ color: JKAShared.vec4_t?) {
     trap_R_SetColor(color)
 
     CG_DrawTopBottom(x, y, width, height, size)
@@ -31,7 +31,7 @@ CG_GetColorForHealth
 ```
 */
 /// Source: oracle/codemp/cgame/cg_drawtools.c:40
-func CG_GetColorForHealth(_ health: Int32, _ armor: Int32, _ hcolor: inout JKAShared.vec4_t) {
+public func CG_GetColorForHealth(_ health: Int32, _ armor: Int32, _ hcolor: inout JKAShared.vec4_t) {
     var count: Int32
     let max: Int32
     // Raven assigns his own `health` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
@@ -84,7 +84,7 @@ Coords are virtual 640x480
 ```
 */
 /// Source: oracle/codemp/cgame/cg_drawtools.c:85
-func CG_DrawSides(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ size: Float) {
+public func CG_DrawSides(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ size: Float) {
     // Raven assigns his own `size` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var size = size
     size *= cgs.screenXScale
@@ -93,7 +93,7 @@ func CG_DrawSides(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ size: Float)
 }
 
 /// Source: oracle/codemp/cgame/cg_drawtools.c:91
-func CG_DrawTopBottom(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ size: Float) {
+public func CG_DrawTopBottom(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ size: Float) {
     // Raven assigns his own `size` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var size = size
     size *= cgs.screenYScale
@@ -110,7 +110,7 @@ real coords
 ```
 */
 /// Source: oracle/codemp/cgame/cg_drawtools.c:103
-func CG_FillRect2(_ x: Float, _ y: Float, _ width: Float, _ height: Float, _ color: JKAShared.vec4_t?) {
+public func CG_FillRect2(_ x: Float, _ y: Float, _ width: Float, _ height: Float, _ color: JKAShared.vec4_t?) {
     trap_R_SetColor(color)
     trap_R_DrawStretchPic(x, y, width, height, 0, 0, 0, 0, cgs.media.whiteShader)
     trap_R_SetColor(nil)
@@ -126,7 +126,7 @@ Coordinates are 640*480 virtual values
 ```
 */
 /// Source: oracle/codemp/cgame/cg_drawtools.c:116
-func CG_FillRect(_ x: Float, _ y: Float, _ width: Float, _ height: Float, _ color: JKAShared.vec4_t?) {
+public func CG_FillRect(_ x: Float, _ y: Float, _ width: Float, _ height: Float, _ color: JKAShared.vec4_t?) {
     trap_R_SetColor(color)
 
     trap_R_DrawStretchPic(x, y, width, height, 0, 0, 0, 0, cgs.media.whiteShader)
@@ -145,7 +145,7 @@ A width of 0 will draw with the original image width
 ```
 */
 /// Source: oracle/codemp/cgame/cg_drawtools.c:133
-func CG_DrawPic(_ x: Float, _ y: Float, _ width: Float, _ height: Float, _ hShader: JKAShared.qhandle_t) {
+public func CG_DrawPic(_ x: Float, _ y: Float, _ width: Float, _ height: Float, _ hShader: JKAShared.qhandle_t) {
     trap_R_DrawStretchPic(x, y, width, height, 0, 0, 1, 1, hShader)
 }
 
@@ -161,7 +161,7 @@ rotates around the upper right corner of the passed in point
 ```
 */
 /// Source: oracle/codemp/cgame/cg_drawtools.c:146
-func CG_DrawRotatePic(_ x: Float, _ y: Float, _ width: Float, _ height: Float, _ angle: Float, _ hShader: JKAShared.qhandle_t) {
+public func CG_DrawRotatePic(_ x: Float, _ y: Float, _ width: Float, _ height: Float, _ angle: Float, _ hShader: JKAShared.qhandle_t) {
     trap_R_DrawRotatePic(x, y, width, height, 0, 0, 1, 1, angle, hShader)
 }
 
@@ -177,7 +177,7 @@ Actually rotates around the center point of the passed in coordinates
 ```
 */
 /// Source: oracle/codemp/cgame/cg_drawtools.c:159
-func CG_DrawRotatePic2(_ x: Float, _ y: Float, _ width: Float, _ height: Float, _ angle: Float, _ hShader: JKAShared.qhandle_t) {
+public func CG_DrawRotatePic2(_ x: Float, _ y: Float, _ width: Float, _ height: Float, _ angle: Float, _ hShader: JKAShared.qhandle_t) {
     trap_R_DrawRotatePic2(x, y, width, height, 0, 0, 1, 1, angle, hShader)
 }
 
@@ -191,7 +191,7 @@ Coordinates and size in 640*480 virtual screen size
 ```
 */
 /// Source: oracle/codemp/cgame/cg_drawtools.c:170
-func CG_DrawChar(_ x: Int32, _ y: Int32, _ width: Int32, _ height: Int32, _ ch: Int32) {
+public func CG_DrawChar(_ x: Int32, _ y: Int32, _ width: Int32, _ height: Int32, _ ch: Int32) {
     let row: Int32
     let col: Int32
     let frow: Float
@@ -228,7 +228,7 @@ func CG_DrawChar(_ x: Int32, _ y: Int32, _ width: Int32, _ height: Int32, _ ch: 
 }
 
 /// Source: oracle/codemp/cgame/cg_drawtools.c:212
-func CG_DrawStringExt(_ x: Int32, _ y: Int32, _ string: String, _ setColor: JKAShared.vec4_t?, _ forceColor: Bool, _ shadow: Bool, _ charWidth: Int32, _ charHeight: Int32, _ maxChars: Int32) {
+public func CG_DrawStringExt(_ x: Int32, _ y: Int32, _ string: String, _ setColor: JKAShared.vec4_t?, _ forceColor: Bool, _ shadow: Bool, _ charWidth: Int32, _ charHeight: Int32, _ maxChars: Int32) {
     if trap_Language_IsAsian() {
         // hack-a-doodle-do (post-release quick fix code)...
         //
@@ -285,7 +285,7 @@ func CG_DrawStringExt(_ x: Int32, _ y: Int32, _ string: String, _ setColor: JKAS
 }
 
 /// Source: oracle/codemp/cgame/cg_drawtools.c:276
-func CG_DrawBigString(_ x: Int32, _ y: Int32, _ s: String, _ alpha: Float) {
+public func CG_DrawBigString(_ x: Int32, _ y: Int32, _ s: String, _ alpha: Float) {
     var color: [Float] = [Float](repeating: 0, count: 4)
 
     color[2] = 1.0
@@ -296,12 +296,12 @@ func CG_DrawBigString(_ x: Int32, _ y: Int32, _ s: String, _ alpha: Float) {
 }
 
 /// Source: oracle/codemp/cgame/cg_drawtools.c:284
-func CG_DrawBigStringColor(_ x: Int32, _ y: Int32, _ s: String, _ color: JKAShared.vec4_t) {
+public func CG_DrawBigStringColor(_ x: Int32, _ y: Int32, _ s: String, _ color: JKAShared.vec4_t) {
     CG_DrawStringExt(x, y, s, color, true, true, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0)
 }
 
 /// Source: oracle/codemp/cgame/cg_drawtools.c:288
-func CG_DrawSmallString(_ x: Int32, _ y: Int32, _ s: String, _ alpha: Float) {
+public func CG_DrawSmallString(_ x: Int32, _ y: Int32, _ s: String, _ alpha: Float) {
     var color: [Float] = [Float](repeating: 0, count: 4)
 
     color[2] = 1.0
@@ -312,7 +312,7 @@ func CG_DrawSmallString(_ x: Int32, _ y: Int32, _ s: String, _ alpha: Float) {
 }
 
 /// Source: oracle/codemp/cgame/cg_drawtools.c:296
-func CG_DrawSmallStringColor(_ x: Int32, _ y: Int32, _ s: String, _ color: JKAShared.vec4_t) {
+public func CG_DrawSmallStringColor(_ x: Int32, _ y: Int32, _ s: String, _ color: JKAShared.vec4_t) {
     CG_DrawStringExt(x, y, s, color, true, false, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0)
 }
 
@@ -326,7 +326,7 @@ Returns character count, skiping color escape codes
 ```
 */
 /// Source: oracle/codemp/cgame/cg_drawtools.c:307
-func CG_DrawStrlen(_ str: String) -> Int32 {
+public func CG_DrawStrlen(_ str: String) -> Int32 {
     // Raven steps a pointer through the bytes of `str`, so the body reads a CharBuf copy of them.
     let str = CharBuf(str)
     var s: Int32 = 0
@@ -378,7 +378,7 @@ Clear around a sized down screen
 ```
 */
 /// Source: oracle/codemp/cgame/cg_drawtools.c:350
-func CG_TileClear() {
+public func CG_TileClear() {
     let top: Int32
     let bottom: Int32
     let left: Int32
@@ -419,7 +419,7 @@ CG_FadeColor
 ```
 */
 /// Source: oracle/codemp/cgame/cg_drawtools.c:387
-func CG_FadeColor(_ startMsec: Int32, _ totalMsec: Int32) -> JKAShared.vec4_t? {
+public func CG_FadeColor(_ startMsec: Int32, _ totalMsec: Int32) -> JKAShared.vec4_t? {
     // AI: Raven returns the address of a static `vec4_t`. The function returns the vector by value, so the static is a local the body fills whole.
     var color = vec4_t()
     let t: Int32
@@ -455,7 +455,7 @@ CG_ColorForHealth
 ```
 */
 /// Source: oracle/codemp/cgame/cg_drawtools.c:418
-func CG_ColorForGivenHealth(_ hcolor: inout JKAShared.vec4_t, _ health: Int32) {
+public func CG_ColorForGivenHealth(_ hcolor: inout JKAShared.vec4_t, _ health: Int32) {
     // set the color based on health
     hcolor[0] = 1.0
     if health >= 100 {
@@ -483,7 +483,7 @@ CG_ColorForHealth
 ```
 */
 /// Source: oracle/codemp/cgame/cg_drawtools.c:454
-func CG_ColorForHealth(_ hcolor: inout JKAShared.vec4_t) {
+public func CG_ColorForHealth(_ hcolor: inout JKAShared.vec4_t) {
     var health: Int32
     var count: Int32
     let max: Int32
@@ -523,7 +523,7 @@ Take x,y positions as if 640 x 480 and scales them to the proper resolution
 ```
 */
 /// Source: oracle/codemp/cgame/cg_drawtools.c:491
-func CG_DrawNumField(_ x: Int32, _ y: Int32, _ width: Int32, _ value: Int32, _ charWidth: Int32, _ charHeight: Int32, _ style: Int32, _ zeroFill: Bool) {
+public func CG_DrawNumField(_ x: Int32, _ y: Int32, _ width: Int32, _ value: Int32, _ charWidth: Int32, _ charHeight: Int32, _ style: Int32, _ zeroFill: Bool) {
     var num = CharBuf(16)
     var ptr = TextCursor()
     var l: Int32
@@ -632,7 +632,7 @@ func CG_DrawNumField(_ x: Int32, _ y: Int32, _ width: Int32, _ value: Int32, _ c
 }
 
 /// Source: oracle/codemp/cgame/cg_drawtools.c:603
-func UI_DrawProportionalString(_ x: Int32, _ y: Int32, _ str: String, _ style: Int32, _ color: JKAShared.vec4_t) {
+public func UI_DrawProportionalString(_ x: Int32, _ y: Int32, _ str: String, _ style: Int32, _ color: JKAShared.vec4_t) {
     // having all these different style defines (1 for UI, one for CG, and now one for the re->font stuff)
     //	is dumb, but for now...
     //
@@ -668,7 +668,7 @@ func UI_DrawProportionalString(_ x: Int32, _ y: Int32, _ str: String, _ style: I
 }
 
 /// Source: oracle/codemp/cgame/cg_drawtools.c:646
-func UI_DrawScaledProportionalString(_ x: Int32, _ y: Int32, _ str: String, _ style: Int32, _ color: JKAShared.vec4_t, _ scale: Float) {
+public func UI_DrawScaledProportionalString(_ x: Int32, _ y: Int32, _ str: String, _ style: Int32, _ color: JKAShared.vec4_t, _ scale: Float) {
     // having all these different style defines (1 for UI, one for CG, and now one for the re->font stuff)
     //	is dumb, but for now...
     //

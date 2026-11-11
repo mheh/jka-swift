@@ -33,7 +33,7 @@ NPC_ATST_Precache
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Atst.c:20
-func NPC_ATST_Precache() {
+public func NPC_ATST_Precache() {
     G_SoundIndex("sound/chars/atst/atst_damaged1")
     G_SoundIndex("sound/chars/atst/atst_damaged2")
 
@@ -49,7 +49,7 @@ func NPC_ATST_Precache() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Atst.c:66
-func G_ATSTCheckPain(_ `self`: Entity, _ other: Entity, _ damage: Int32) {
+public func G_ATSTCheckPain(_ `self`: Entity, _ other: Entity, _ damage: Int32) {
     //int newBolt;
     //int hitLoc = gPainHitLoc;
 
@@ -103,7 +103,7 @@ NPC_ATST_Pain
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Atst.c:119
-func NPC_ATST_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func NPC_ATST_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     G_ATSTCheckPain(`self`, attacker, damage)
     NPC_Pain(`self`, attacker, damage)
 }
@@ -116,7 +116,7 @@ ATST_Hunt
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Atst.c:130
-func ATST_Hunt(_ visible: Bool, _ advance: Bool) {
+public func ATST_Hunt(_ visible: Bool, _ advance: Bool) {
     if NPCInfo!.goalEntity == nil {
         //hunt
         NPCInfo!.goalEntity = NPC!.enemy
@@ -135,7 +135,7 @@ ATST_Ranged
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Atst.c:149
-func ATST_Ranged(_ visible: Bool, _ advance: Bool, _ altAttack: Bool) {
+public func ATST_Ranged(_ visible: Bool, _ advance: Bool, _ altAttack: Bool) {
     if TIMER_Done(NPC!, "atkDelay") && visible {
         TIMER_Set(NPC!, "atkDelay", Q_irand(500, 3000))
 
@@ -159,7 +159,7 @@ ATST_Attack
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Atst.c:177
-func ATST_Attack() {
+public func ATST_Attack() {
     var altAttack: Bool = false
     let blasterTest: Int32
     let chargerTest: Int32
@@ -238,7 +238,7 @@ ATST_Patrol
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Atst.c:271
-func ATST_Patrol() {
+public func ATST_Patrol() {
     if NPC_CheckPlayerTeamStealth() {
         NPC_UpdateAngles(true, true)
         return
@@ -262,7 +262,7 @@ ATST_Idle
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Atst.c:297
-func ATST_Idle() {
+public func ATST_Idle() {
     NPC_BSIdle()
 
     NPC_SetAnim(NPC!, SETANIM_BOTH, BOTH_STAND1, SETANIM_FLAG_NORMAL)
@@ -276,7 +276,7 @@ NPC_BSDroid_Default
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Atst.c:310
-func NPC_BSATST_Default() {
+public func NPC_BSATST_Default() {
     if NPC!.enemy != nil {
         if (NPCInfo!.scriptFlags & SCF_CHASE_ENEMIES) != 0 {
             NPCInfo!.goalEntity = NPC!.enemy

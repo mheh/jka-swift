@@ -286,13 +286,13 @@ private func ProcessOrientCommands(_ pVeh: JKAMP.Vehicle) {
 }
 
 /// Source: oracle/codemp/game/AnimalNPC.c:467
-func AnimalProcessOri(_ pVeh: JKAMP.Vehicle) {
+public func AnimalProcessOri(_ pVeh: JKAMP.Vehicle) {
     ProcessOrientCommands(pVeh)
 }
 
 //on the client this function will only set up the process command funcs
 /// Source: oracle/codemp/game/AnimalNPC.c:857
-func G_SetAnimalVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
+public func G_SetAnimalVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
     //	pVehInfo->ValidateBoard				=		ValidateBoard;
     //	pVehInfo->SetParent					=		SetParent;
     //	pVehInfo->SetPilot					=		SetPilot;
@@ -318,7 +318,7 @@ func G_SetAnimalVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
 // Create/Allocate a new Animal Vehicle (initializing it as well).
 //this is a BG function too in MP so don't un-bg-compatibilify it -rww
 /// Source: oracle/codemp/game/AnimalNPC.c:904
-func G_CreateAnimalNPC(_ pVeh: inout JKAMP.Vehicle?, _ strAnimalType: String) {
+public func G_CreateAnimalNPC(_ pVeh: inout JKAMP.Vehicle?, _ strAnimalType: String) {
     // Allocate the Vehicle.
     //these will remain on entities on the client once allocated because the pointer is
     //never stomped. on the server, however, when an ent is freed, the entity struct is

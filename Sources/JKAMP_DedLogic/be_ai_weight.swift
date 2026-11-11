@@ -10,7 +10,7 @@ let MAX_INVENTORYVALUE = 999999 as Int32
 let MAX_WEIGHT_FILES = 128 as Int32
 
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:34
-var weightFileList: Slots<Weightconfig?> { world.storage.weightFileList }
+public var weightFileList: Slots<Weightconfig?> { world.storage.weightFileList }
 
 //===========================================================================
 //
@@ -19,7 +19,7 @@ var weightFileList: Slots<Weightconfig?> { world.storage.weightFileList }
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:42
-func ReadValue(_ source: Source, _ value: inout Float) -> Int32 {
+public func ReadValue(_ source: Source, _ value: inout Float) -> Int32 {
     Token.scratch { token -> Int32 in
         if PC_ExpectAnyToken(source, token) == 0 { return 0 }
         if strcmp(token.string, "-") == 0 {
@@ -42,7 +42,7 @@ func ReadValue(_ source: Source, _ value: inout Float) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:66
-func ReadFuzzyWeight(_ source: Source, _ fs: Fuzzyseperator) -> Int32 {
+public func ReadFuzzyWeight(_ source: Source, _ fs: Fuzzyseperator) -> Int32 {
     if PC_CheckTokenString(source, "balance") != 0 {
         fs.type = WT_BALANCE
         if PC_ExpectTokenString(source, "(") == 0 { return 0 }
@@ -69,7 +69,7 @@ func ReadFuzzyWeight(_ source: Source, _ fs: Fuzzyseperator) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:95
-func FreeFuzzySeperators_r(_ fs: Fuzzyseperator?) {
+public func FreeFuzzySeperators_r(_ fs: Fuzzyseperator?) {
     if fs == nil { return }
     if fs!.child != nil { FreeFuzzySeperators_r(fs!.child) }
     if fs!.next != nil { FreeFuzzySeperators_r(fs!.next) }
@@ -83,7 +83,7 @@ func FreeFuzzySeperators_r(_ fs: Fuzzyseperator?) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:108
-func FreeWeightConfig2(_ config: Weightconfig) {
+public func FreeWeightConfig2(_ config: Weightconfig) {
     var i: Int32
 
     i = 0
@@ -102,7 +102,7 @@ func FreeWeightConfig2(_ config: Weightconfig) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:125
-func FreeWeightConfig(_ config: Weightconfig) {
+public func FreeWeightConfig(_ config: Weightconfig) {
     if LibVarGetValue("bot_reloadcharacters") == 0 { return }
     FreeWeightConfig2(config)
 }
@@ -114,7 +114,7 @@ func FreeWeightConfig(_ config: Weightconfig) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:136
-func ReadFuzzySeperators_r(_ source: Source) -> Fuzzyseperator? {
+public func ReadFuzzySeperators_r(_ source: Source) -> Fuzzyseperator? {
     var founddefault: Bool
     var lastfs: Fuzzyseperator?, firstfs: Fuzzyseperator?
 
@@ -230,7 +230,7 @@ func ReadFuzzySeperators_r(_ source: Source) -> Fuzzyseperator? {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:262
-func ReadWeightConfig(_ filename: inout JKAShared.CharBuf) -> Weightconfig? {
+public func ReadWeightConfig(_ filename: inout JKAShared.CharBuf) -> Weightconfig? {
     var avail: Int32 = 0, n: Int32
     var fs: Fuzzyseperator?
     var config: Weightconfig? = nil
@@ -366,7 +366,7 @@ func ReadWeightConfig(_ filename: inout JKAShared.CharBuf) -> Weightconfig? {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:540
-func FindFuzzyWeight(_ wc: Weightconfig, _ name: String) -> Int32 {
+public func FindFuzzyWeight(_ wc: Weightconfig, _ name: String) -> Int32 {
     var i: Int32
 
     i = 0
@@ -386,7 +386,7 @@ func FindFuzzyWeight(_ wc: Weightconfig, _ name: String) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:559
-func FuzzyWeight_r(_ inventory: Slots<Int32>, _ fs: Fuzzyseperator) -> Float {
+public func FuzzyWeight_r(_ inventory: Slots<Int32>, _ fs: Fuzzyseperator) -> Float {
     var scale: Float, w1: Float, w2: Float
 
     if inventory[fs.index] < fs.value {
@@ -426,7 +426,7 @@ func FuzzyWeight_r(_ inventory: Slots<Int32>, _ fs: Fuzzyseperator) -> Float {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:593
-func FuzzyWeightUndecided_r(_ inventory: Slots<Int32>, _ fs: Fuzzyseperator) -> Float {
+public func FuzzyWeightUndecided_r(_ inventory: Slots<Int32>, _ fs: Fuzzyseperator) -> Float {
     var scale: Float, w1: Float, w2: Float
 
     if inventory[fs.index] < fs.value {
@@ -466,7 +466,7 @@ func FuzzyWeightUndecided_r(_ inventory: Slots<Int32>, _ fs: Fuzzyseperator) -> 
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:627
-func FuzzyWeight(_ inventory: Slots<Int32>, _ wc: Weightconfig, _ weightnum: Int32) -> Float {
+public func FuzzyWeight(_ inventory: Slots<Int32>, _ wc: Weightconfig, _ weightnum: Int32) -> Float {
     return FuzzyWeight_r(inventory, wc.weights[weightnum].firstseperator!)
 }
 
@@ -477,7 +477,7 @@ func FuzzyWeight(_ inventory: Slots<Int32>, _ wc: Weightconfig, _ weightnum: Int
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:658
-func FuzzyWeightUndecided(_ inventory: Slots<Int32>, _ wc: Weightconfig, _ weightnum: Int32) -> Float {
+public func FuzzyWeightUndecided(_ inventory: Slots<Int32>, _ wc: Weightconfig, _ weightnum: Int32) -> Float {
     return FuzzyWeightUndecided_r(inventory, wc.weights[weightnum].firstseperator!)
 }
 
@@ -488,7 +488,7 @@ func FuzzyWeightUndecided(_ inventory: Slots<Int32>, _ wc: Weightconfig, _ weigh
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:689
-func EvolveFuzzySeperator_r(_ fs: Fuzzyseperator) {
+public func EvolveFuzzySeperator_r(_ fs: Fuzzyseperator) {
     if fs.child != nil {
         EvolveFuzzySeperator_r(fs.child!)
     } else if fs.type == WT_BALANCE {
@@ -515,7 +515,7 @@ func EvolveFuzzySeperator_r(_ fs: Fuzzyseperator) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:712
-func EvolveWeightConfig(_ config: Weightconfig) {
+public func EvolveWeightConfig(_ config: Weightconfig) {
     var i: Int32
 
     i = 0
@@ -532,7 +532,7 @@ func EvolveWeightConfig(_ config: Weightconfig) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:727
-func ScaleFuzzySeperator_r(_ fs: Fuzzyseperator, _ scale: Float) {
+public func ScaleFuzzySeperator_r(_ fs: Fuzzyseperator, _ scale: Float) {
     if fs.child != nil {
         ScaleFuzzySeperator_r(fs.child!, scale)
     } else if fs.type == WT_BALANCE {
@@ -555,7 +555,7 @@ func ScaleFuzzySeperator_r(_ fs: Fuzzyseperator, _ scale: Float) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:749
-func ScaleWeight(_ config: Weightconfig, _ name: String, _ scale: Float) {
+public func ScaleWeight(_ config: Weightconfig, _ name: String, _ scale: Float) {
     var scale = scale
     var i: Int32
 
@@ -581,7 +581,7 @@ func ScaleWeight(_ config: Weightconfig, _ name: String, _ scale: Float) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:770
-func ScaleFuzzySeperatorBalanceRange_r(_ fs: Fuzzyseperator, _ scale: Float) {
+public func ScaleFuzzySeperatorBalanceRange_r(_ fs: Fuzzyseperator, _ scale: Float) {
     if fs.child != nil {
         ScaleFuzzySeperatorBalanceRange_r(fs.child!, scale)
     } else if fs.type == WT_BALANCE {
@@ -603,7 +603,7 @@ func ScaleFuzzySeperatorBalanceRange_r(_ fs: Fuzzyseperator, _ scale: Float) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:795
-func ScaleFuzzyBalanceRange(_ config: Weightconfig, _ scale: Float) {
+public func ScaleFuzzyBalanceRange(_ config: Weightconfig, _ scale: Float) {
     var scale = scale
     var i: Int32
 
@@ -626,7 +626,7 @@ func ScaleFuzzyBalanceRange(_ config: Weightconfig, _ scale: Float) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:812
-func InterbreedFuzzySeperator_r(_ fs1: Fuzzyseperator, _ fs2: Fuzzyseperator, _ fsout: Fuzzyseperator) -> Int32 {
+public func InterbreedFuzzySeperator_r(_ fs1: Fuzzyseperator, _ fs2: Fuzzyseperator, _ fsout: Fuzzyseperator) -> Int32 {
     if fs1.child != nil {
         if fs2.child == nil || fsout.child == nil {
             botimport.runPrint(PRT_ERROR, "cannot interbreed weight configs, unequal child\n")
@@ -664,7 +664,7 @@ func InterbreedFuzzySeperator_r(_ fs1: Fuzzyseperator, _ fs2: Fuzzyseperator, _ 
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:859
-func InterbreedWeightConfigs(_ config1: Weightconfig, _ config2: Weightconfig, _ configout: Weightconfig) {
+public func InterbreedWeightConfigs(_ config1: Weightconfig, _ config2: Weightconfig, _ configout: Weightconfig) {
     var i: Int32
 
     if config1.numweights != config2.numweights ||
@@ -686,7 +686,7 @@ func InterbreedWeightConfigs(_ config1: Weightconfig, _ config2: Weightconfig, _
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_weight.cpp:883
-func BotShutdownWeights() {
+public func BotShutdownWeights() {
     var i: Int32
 
     i = 0

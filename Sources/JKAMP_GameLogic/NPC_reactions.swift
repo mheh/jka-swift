@@ -93,7 +93,7 @@ private func NPC_CheckAttacker(_ other: Entity, _ mod: Int32) {
 }
 
 /// Source: oracle/codemp/game/NPC_reactions.c:133
-func NPC_SetPainEvent(_ `self`: Entity) {
+public func NPC_SetPainEvent(_ `self`: Entity) {
     if `self`.NPC == nil || !((`self`.NPC!.aiFlags & NPCAI_DIE_ON_IMPACT) != 0) {
         // no more borg
         //	if( self->client->playerTeam != TEAM_BORG )
@@ -109,7 +109,7 @@ func NPC_SetPainEvent(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_reactions.c:157
-func NPC_GetPainChance(_ `self`: Entity, _ damage: Int32) -> Float {
+public func NPC_GetPainChance(_ `self`: Entity, _ damage: Int32) -> Float {
     var pain_chance: Float
     if `self`.enemy == nil {
         //surprised, always take pain
@@ -142,7 +142,7 @@ func NPC_GetPainChance(_ `self`: Entity, _ damage: Int32) -> Float {
 }
 
 /// Source: oracle/codemp/game/NPC_reactions.c:207
-func NPC_ChoosePainAnimation(_ `self`: Entity, _ other: Entity, _ point: JKAShared.vec3_t, _ damage: Int32, _ mod: Int32, _ hitLoc: Int32, _ voiceEvent: Int32) {
+public func NPC_ChoosePainAnimation(_ `self`: Entity, _ other: Entity, _ point: JKAShared.vec3_t, _ damage: Int32, _ mod: Int32, _ hitLoc: Int32, _ voiceEvent: Int32) {
     var pain_anim: Int32 = -1
     var pain_chance: Float
 
@@ -269,7 +269,7 @@ NPC_Pain
 ```
 */
 /// Source: oracle/codemp/game/NPC_reactions.c:363
-func NPC_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func NPC_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     var otherTeam: team_t = TEAM_FREE
     var voiceEvent: Int32 = -1
     let other: Entity? = attacker
@@ -412,7 +412,7 @@ func NPC_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 }
 
 /// Source: oracle/codemp/game/NPC_reactions.c:537
-func NPC_Touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+public func NPC_Touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     if `self`.NPC == nil {
         return
     }
@@ -524,7 +524,7 @@ func NPC_Touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
 }
 
 /// Source: oracle/codemp/game/NPC_reactions.c:661
-func NPC_TempLookTarget(_ `self`: Entity, _ lookEntNum: Int32, _ minLookTime: Int32, _ maxLookTime: Int32) {
+public func NPC_TempLookTarget(_ `self`: Entity, _ lookEntNum: Int32, _ minLookTime: Int32, _ maxLookTime: Int32) {
     // Raven assigns his own `minLookTime` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var minLookTime = minLookTime
     // Raven assigns his own `maxLookTime` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
@@ -554,7 +554,7 @@ func NPC_TempLookTarget(_ `self`: Entity, _ lookEntNum: Int32, _ minLookTime: In
 }
 
 /// Source: oracle/codemp/game/NPC_reactions.c:690
-func NPC_Respond(_ `self`: Entity, _ userNum: Int32) {
+public func NPC_Respond(_ `self`: Entity, _ userNum: Int32) {
     var event: Int32 = -1
     /*
 
@@ -729,7 +729,7 @@ func NPC_Respond(_ `self`: Entity, _ userNum: Int32) {
 }
 
 /// Source: oracle/codemp/game/NPC_reactions.c:950
-func NPC_UseResponse(_ `self`: Entity, _ user: Entity, _ useWhenDone: Bool) {
+public func NPC_UseResponse(_ `self`: Entity, _ user: Entity, _ useWhenDone: Bool) {
     if `self`.NPC == nil || `self`.client == nil {
         return
     }
@@ -774,7 +774,7 @@ func NPC_UseResponse(_ `self`: Entity, _ user: Entity, _ useWhenDone: Bool) {
 }
 
 /// Source: oracle/codemp/game/NPC_reactions.c:1008
-func NPC_Use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func NPC_Use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     if `self`.client!.ps.pm_type == PM_DEAD {
         //or just remove ->pain in player_die?
         return
@@ -845,7 +845,7 @@ func NPC_Use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_reactions.c:1095
-func NPC_CheckPlayerAim() {
+public func NPC_CheckPlayerAim() {
     //FIXME: need appropriate dialogue
     /*
     gentity_t *player = &g_entities[0];
@@ -863,7 +863,7 @@ func NPC_CheckPlayerAim() {
 }
 
 /// Source: oracle/codemp/game/NPC_reactions.c:1113
-func NPC_CheckAllClear() {
+public func NPC_CheckAllClear() {
     //FIXME: need to make this happen only once after losing enemies, not over and over again
     /*
     if ( NPC->client && !NPC->enemy && level.time - teamLastEnemyTime[NPC->client->playerTeam] > 10000 )

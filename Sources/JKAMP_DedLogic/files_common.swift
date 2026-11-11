@@ -4,68 +4,68 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:183
-var fs_gamedir: JKAShared.CharBuf {
+public var fs_gamedir: JKAShared.CharBuf {
     get { world.variables.fs_gamedir }
     set { world.variables.fs_gamedir = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:184
-var fs_debug: JKAMP.Cvar? {
+public var fs_debug: JKAMP.Cvar? {
     get { world.variables.fs_debug }
     set { world.variables.fs_debug = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:185
-var fs_homepath: JKAMP.Cvar? {
+public var fs_homepath: JKAMP.Cvar? {
     get { world.variables.fs_homepath }
     set { world.variables.fs_homepath = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:186
-var fs_basepath: JKAMP.Cvar? {
+public var fs_basepath: JKAMP.Cvar? {
     get { world.variables.fs_basepath }
     set { world.variables.fs_basepath = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:187
-var fs_basegame: JKAMP.Cvar? {
+public var fs_basegame: JKAMP.Cvar? {
     get { world.variables.fs_basegame }
     set { world.variables.fs_basegame = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:188
-var fs_cdpath: JKAMP.Cvar? {
+public var fs_cdpath: JKAMP.Cvar? {
     get { world.variables.fs_cdpath }
     set { world.variables.fs_cdpath = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:189
-var fs_copyfiles: JKAMP.Cvar? {
+public var fs_copyfiles: JKAMP.Cvar? {
     get { world.variables.fs_copyfiles }
     set { world.variables.fs_copyfiles = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:190
-var fs_gamedirvar: JKAMP.Cvar? {
+public var fs_gamedirvar: JKAMP.Cvar? {
     get { world.variables.fs_gamedirvar }
     set { world.variables.fs_gamedirvar = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:191
-var fs_restrict: JKAMP.Cvar? {
+public var fs_restrict: JKAMP.Cvar? {
     get { world.variables.fs_restrict }
     set { world.variables.fs_restrict = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:192
-var fs_dirbeforepak: JKAMP.Cvar? {
+public var fs_dirbeforepak: JKAMP.Cvar? {
     get { world.variables.fs_dirbeforepak }
     set { world.variables.fs_dirbeforepak = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:193
 // AI: Raven takes the address of the pointer in FS_ReorderPurePaks. The pointer is slot 0 of a storage slot, and the forward keeps Raven's name.
-var fs_searchpaths: Searchpath? {
+public var fs_searchpaths: Searchpath? {
     get { world.storage.fs_searchpaths[0] }
     set { world.storage.fs_searchpaths[0] = newValue }
 }
@@ -75,94 +75,94 @@ var fs_searchpaths: Searchpath? {
 var fs_searchpathsSlot: Slots<Searchpath?> { world.storage.fs_searchpaths }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:194
-var fs_readCount: Int32 {
+public var fs_readCount: Int32 {
     get { world.variables.fs_readCount }
     set { world.variables.fs_readCount = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:195
-var fs_loadCount: Int32 {
+public var fs_loadCount: Int32 {
     get { world.variables.fs_loadCount }
     set { world.variables.fs_loadCount = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:196
-var fs_loadStack: Int32 {
+public var fs_loadStack: Int32 {
     get { world.variables.fs_loadStack }
     set { world.variables.fs_loadStack = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:197
-var fs_packFiles: Int32 {
+public var fs_packFiles: Int32 {
     get { world.variables.fs_packFiles }
     set { world.variables.fs_packFiles = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:199
-var fs_fakeChkSum: Int32 {
+public var fs_fakeChkSum: Int32 {
     get { world.variables.fs_fakeChkSum }
     set { world.variables.fs_fakeChkSum = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:200
-var fs_checksumFeed: Int32 {
+public var fs_checksumFeed: Int32 {
     get { world.variables.fs_checksumFeed }
     set { world.variables.fs_checksumFeed = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:202
-var fsh: Slots<FileHandleData> { world.storage.fsh }
+public var fsh: Slots<FileHandleData> { world.storage.fsh }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:206
-var fs_numServerPaks: Int32 {
+public var fs_numServerPaks: Int32 {
     get { world.variables.fs_numServerPaks }
     set { world.variables.fs_numServerPaks = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:207
-var fs_serverPaks: [Int32] {
+public var fs_serverPaks: [Int32] {
     get { world.variables.fs_serverPaks }
     set { world.variables.fs_serverPaks = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:208
-var fs_serverPakNames: [String] {
+public var fs_serverPakNames: [String] {
     get { world.variables.fs_serverPakNames }
     set { world.variables.fs_serverPakNames = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:212
-var fs_numServerReferencedPaks: Int32 {
+public var fs_numServerReferencedPaks: Int32 {
     get { world.variables.fs_numServerReferencedPaks }
     set { world.variables.fs_numServerReferencedPaks = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:213
-var fs_serverReferencedPaks: [Int32] {
+public var fs_serverReferencedPaks: [Int32] {
     get { world.variables.fs_serverReferencedPaks }
     set { world.variables.fs_serverReferencedPaks = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:214
-var fs_serverReferencedPakNames: [String] {
+public var fs_serverReferencedPakNames: [String] {
     get { world.variables.fs_serverReferencedPakNames }
     set { world.variables.fs_serverReferencedPakNames = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:217
-var lastValidBase: JKAShared.CharBuf {
+public var lastValidBase: JKAShared.CharBuf {
     get { world.variables.lastValidBase }
     set { world.variables.lastValidBase = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:218
-var lastValidGame: JKAShared.CharBuf {
+public var lastValidGame: JKAShared.CharBuf {
     get { world.variables.lastValidGame }
     set { world.variables.lastValidGame = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:224
-var initialized: Bool {
+public var initialized: Bool {
     get { world.variables.initialized }
     set { world.variables.initialized = newValue }
 }
@@ -177,14 +177,14 @@ private let MAXPRINTMSG = 4096 as Int32
 ```
 */
 /// Source: oracle/codemp/qcommon/files_common.cpp:229
-func FS_CheckInit() {
+public func FS_CheckInit() {
     if !initialized {
         Com_Error(ERR_FATAL, "Filesystem call made without initialization\n")
     }
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:243
-func FS_Initialized() -> Bool {
+public func FS_Initialized() -> Bool {
     return (fs_searchpaths != nil)
 }
 
@@ -197,12 +197,12 @@ return load stack
 ```
 */
 /// Source: oracle/codemp/qcommon/files_common.cpp:253
-func FS_LoadStack() -> Int32 {
+public func FS_LoadStack() -> Int32 {
     return fs_loadStack
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:258
-func FS_HandleForFile() -> JKAShared.fileHandle_t {
+public func FS_HandleForFile() -> JKAShared.fileHandle_t {
     var i: Int32
 
     i = 1
@@ -226,7 +226,7 @@ Fix things up differently for win/unix/mac
 ```
 */
 /// Source: oracle/codemp/qcommon/files_common.cpp:277
-func FS_ReplaceSeparators(_ path: inout JKAShared.CharBuf) {
+public func FS_ReplaceSeparators(_ path: inout JKAShared.CharBuf) {
     var s: Int32
 
     s = 0
@@ -248,7 +248,7 @@ Qpath may have either forward or backwards slashes
 ```
 */
 /// Source: oracle/codemp/qcommon/files_common.cpp:294
-func FS_BuildOSPath(_ qpath: String) -> String {
+public func FS_BuildOSPath(_ qpath: String) -> String {
     var temp = CharBuf(MAX_OSPATH)
     // Raven's ring of static buffers keeps one result valid across a later call, and a returned `String` is already a copy.
     var ospath = CharBuf(MAX_OSPATH)
@@ -271,7 +271,7 @@ func FS_BuildOSPath(_ qpath: String) -> String {
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:317
-func FS_BuildOSPath(_ base: String, _ game: String, _ qpath: String) -> String {
+public func FS_BuildOSPath(_ base: String, _ game: String, _ qpath: String) -> String {
     var temp = CharBuf(MAX_OSPATH)
     // Raven's ring of static buffers keeps one result valid across a later call, and a returned `String` is already a copy.
     var ospath = CharBuf(MAX_OSPATH)
@@ -303,7 +303,7 @@ Ignore case and seprator char distinctions
 ```
 */
 /// Source: oracle/codemp/qcommon/files_common.cpp:345
-func FS_FilenameCompare(_ s1: String, _ s2: String) -> Bool {
+public func FS_FilenameCompare(_ s1: String, _ s2: String) -> Bool {
     var c1: Int32
     var c2: Int32
     // Raven steps his own `s1` parameter through its bytes, so the body walks a TextCursor over a copy of them.
@@ -341,7 +341,7 @@ func FS_FilenameCompare(_ s1: String, _ s2: String) -> Bool {
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:375
-func FS_Printf(_ h: JKAShared.fileHandle_t, _ fmt: String, _ args: any JKAShared.FormatArg...) {
+public func FS_Printf(_ h: JKAShared.fileHandle_t, _ fmt: String, _ args: any JKAShared.FormatArg...) {
     var msg = CharBuf(MAXPRINTMSG)
 
     strcpy(&msg, JKAShared.format(fmt, args))
@@ -359,7 +359,7 @@ Filename are reletive to the quake search path
 ```
 */
 /// Source: oracle/codemp/qcommon/files_common.cpp:401
-func FS_WriteFile(_ qpath: String, _ buffer: Slots<JKAShared.byte>, _ size: Int32) {
+public func FS_WriteFile(_ qpath: String, _ buffer: Slots<JKAShared.byte>, _ size: Int32) {
     let f: fileHandle_t
 
     if fs_searchpaths == nil {
@@ -391,7 +391,7 @@ Frees all resources and closes all files
 ```
 */
 /// Source: oracle/codemp/qcommon/files_common.cpp:430
-func FS_Shutdown(_ closemfp: Bool) {
+public func FS_Shutdown(_ closemfp: Bool) {
     var p: Searchpath?
     var next: Searchpath?
     var i: Int32
@@ -442,7 +442,7 @@ is resetting due to a game change
 ```
 */
 /// Source: oracle/codemp/qcommon/files_common.cpp:480
-func FS_InitFilesystem() {
+public func FS_InitFilesystem() {
     // allow command line parms to override our defaults
     // we have to specially handle this, because normal command
     // line variable sets don't happen until after the filesystem

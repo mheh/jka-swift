@@ -5,13 +5,13 @@ import JKAMP_CGame
 import JKAMP_BG
 
 /// Source: oracle/codemp/cgame/cg_saga.c:15
-var cgSiegeRoundState: Int32 {
+public var cgSiegeRoundState: Int32 {
     get { world.variables.cgSiegeRoundState }
     set { world.variables.cgSiegeRoundState = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_saga.c:16
-var cgSiegeRoundTime: Int32 {
+public var cgSiegeRoundTime: Int32 {
     get { world.variables.cgSiegeRoundTime }
     set { world.variables.cgSiegeRoundTime = newValue }
 }
@@ -29,25 +29,25 @@ var team2: JKAShared.CharBuf {
 }
 
 /// Source: oracle/codemp/cgame/cg_saga.c:21
-var team1Timed: Int32 {
+public var team1Timed: Int32 {
     get { world.variables.team1Timed }
     set { world.variables.team1Timed = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_saga.c:22
-var team2Timed: Int32 {
+public var team2Timed: Int32 {
     get { world.variables.team2Timed }
     set { world.variables.team2Timed = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_saga.c:24
-var cgSiegeTeam1PlShader: Int32 {
+public var cgSiegeTeam1PlShader: Int32 {
     get { world.variables.cgSiegeTeam1PlShader }
     set { world.variables.cgSiegeTeam1PlShader = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_saga.c:25
-var cgSiegeTeam2PlShader: Int32 {
+public var cgSiegeTeam2PlShader: Int32 {
     get { world.variables.cgSiegeTeam2PlShader }
     set { world.variables.cgSiegeTeam2PlShader = newValue }
 }
@@ -59,10 +59,10 @@ var cgParseObjectives: JKAShared.CharBuf {
 }
 
 /// Source: oracle/codemp/cgame/cg_saga.c:984
-var cg_siegeExtendedData: Slots<SiegeExtended> { world.storage.cg_siegeExtendedData }
+public var cg_siegeExtendedData: Slots<SiegeExtended> { world.storage.cg_siegeExtendedData }
 
 /// Source: oracle/codemp/cgame/cg_saga.c:35
-func CG_PrecacheSiegeObjectiveAssetsForTeam(_ myTeam: Int32) {
+public func CG_PrecacheSiegeObjectiveAssetsForTeam(_ myTeam: Int32) {
     var teamstr = CharBuf(64)
     var objstr = CharBuf(256)
     var foundobjective = CharBuf(16384)
@@ -115,7 +115,7 @@ func CG_PrecacheSiegeObjectiveAssetsForTeam(_ myTeam: Int32) {
 }
 
 /// Source: oracle/codemp/cgame/cg_saga.c:101
-func CG_PrecachePlayersForSiegeTeam(_ team: Int32) {
+public func CG_PrecachePlayersForSiegeTeam(_ team: Int32) {
     var stm: SiegeTeam?
     var i: Int32 = 0
 
@@ -154,7 +154,7 @@ func CG_PrecachePlayersForSiegeTeam(_ team: Int32) {
 }
 
 /// Source: oracle/codemp/cgame/cg_saga.c:143
-func CG_InitSiegeMode() {
+public func CG_InitSiegeMode() {
     var levelname = CharBuf(64)
     var btime = CharBuf(1024)
     var teams = CharBuf(2048)
@@ -412,7 +412,7 @@ private func CG_SiegeObjectiveBuffer(_ team: Int32, _ objective: Int32) -> Strin
 }
 
 /// Source: oracle/codemp/cgame/cg_saga.c:458
-func CG_ParseSiegeObjectiveStatus(_ str: String) {
+public func CG_ParseSiegeObjectiveStatus(_ str: String) {
     var i: Int32 = 0
     var team: Int32 = SIEGETEAM_TEAM1
     var cvarName: String
@@ -499,7 +499,7 @@ func CG_ParseSiegeObjectiveStatus(_ str: String) {
 }
 
 /// Source: oracle/codemp/cgame/cg_saga.c:568
-func CG_SiegeRoundOver(_ ent: Centity, _ won: Int32) {
+public func CG_SiegeRoundOver(_ ent: Centity, _ won: Int32) {
     let myTeam: Int32
     var teamstr = CharBuf(64)
     var appstring = CharBuf(1024)
@@ -579,7 +579,7 @@ func CG_SiegeRoundOver(_ ent: Centity, _ won: Int32) {
 }
 
 /// Source: oracle/codemp/cgame/cg_saga.c:667
-func CG_SiegeGetObjectiveDescription(_ team: Int32, _ objective: Int32, _ buffer: inout JKAShared.CharBuf) {
+public func CG_SiegeGetObjectiveDescription(_ team: Int32, _ objective: Int32, _ buffer: inout JKAShared.CharBuf) {
     var teamstr = CharBuf(1024)
     var objectiveStr = CharBuf(8192)
     var bufferIndex: Int32 = 0
@@ -603,7 +603,7 @@ func CG_SiegeGetObjectiveDescription(_ team: Int32, _ objective: Int32, _ buffer
 }
 
 /// Source: oracle/codemp/cgame/cg_saga.c:693
-func CG_SiegeGetObjectiveFinal(_ team: Int32, _ objective: Int32) -> Int32 {
+public func CG_SiegeGetObjectiveFinal(_ team: Int32, _ objective: Int32) -> Int32 {
     var finalStr = CharBuf(64)
     var teamstr = CharBuf(1024)
     var objectiveStr = CharBuf(8192)
@@ -627,7 +627,7 @@ func CG_SiegeGetObjectiveFinal(_ team: Int32, _ objective: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/cgame/cg_saga.c:720
-func CG_SiegeBriefingDisplay(_ team: Int32, _ dontshow: Int32) {
+public func CG_SiegeBriefingDisplay(_ team: Int32, _ dontshow: Int32) {
     var teamstr = CharBuf(64)
     var briefing = CharBuf(8192)
     var properValue = CharBuf(1024)
@@ -756,7 +756,7 @@ func CG_SiegeBriefingDisplay(_ team: Int32, _ dontshow: Int32) {
 }
 
 /// Source: oracle/codemp/cgame/cg_saga.c:878
-func CG_SiegeObjectiveCompleted(_ ent: Centity, _ won: Int32, _ objectivenum: Int32) {
+public func CG_SiegeObjectiveCompleted(_ ent: Centity, _ won: Int32, _ objectivenum: Int32) {
     let myTeam: Int32
     var teamstr = CharBuf(64)
     var objstr = CharBuf(256)
@@ -843,7 +843,7 @@ func CG_SiegeObjectiveCompleted(_ ent: Centity, _ won: Int32, _ objectivenum: In
 
 //parse a single extended siege data entry
 /// Source: oracle/codemp/cgame/cg_saga.c:987
-func CG_ParseSiegeExtendedDataEntry(_ conStr: String) {
+public func CG_ParseSiegeExtendedDataEntry(_ conStr: String) {
     var s = CharBuf(1024)
     var str = TextCursor(CharBuf(conStr))
     var argParses: Int32 = 0
@@ -918,7 +918,7 @@ func CG_ParseSiegeExtendedDataEntry(_ conStr: String) {
 
 //parse incoming siege data, see counterpart in g_saga.c
 /// Source: oracle/codemp/cgame/cg_saga.c:1063
-func CG_ParseSiegeExtendedData() {
+public func CG_ParseSiegeExtendedData() {
     let numEntries: Int32 = trap_Argc()
     var i: Int32 = 0
 
@@ -933,7 +933,7 @@ func CG_ParseSiegeExtendedData() {
 }
 
 /// Source: oracle/codemp/cgame/cg_saga.c:1081
-func CG_SetSiegeTimerCvar(_ msec: Int32) {
+public func CG_SetSiegeTimerCvar(_ msec: Int32) {
     var seconds: Int32
     let mins: Int32
     let tens: Int32

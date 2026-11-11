@@ -18,7 +18,7 @@ import JKAMP_BG
 
 /// Source: oracle/codemp/game/NPC_stats.c:133
 /// Raven's data table, a hand property of `GameWorld`.
-var TeamNames: [String] {
+public var TeamNames: [String] {
     get { world.TeamNames }
     set { world.TeamNames = newValue }
 }
@@ -87,19 +87,19 @@ let ClassNames: [String] = [
 let MAX_NPC_DATA_SIZE = 0x20000 as Int32
 
 /// Source: oracle/codemp/game/NPC_stats.c:237
-var NPCParms: JKAShared.CharBuf {
+public var NPCParms: JKAShared.CharBuf {
     get { world.variables.NPCParms }
     set { world.variables.NPCParms = newValue }
 }
 
 /// Source: oracle/codemp/game/NPC_stats.c:238
-var NPCFile: JKAShared.CharBuf {
+public var NPCFile: JKAShared.CharBuf {
     get { world.variables.NPCFile }
     set { world.variables.NPCFile = newValue }
 }
 
 /// Source: oracle/codemp/game/NPC_stats.c:3238
-var npcParseBuffer: JKAShared.CharBuf {
+public var npcParseBuffer: JKAShared.CharBuf {
     get { world.variables.npcParseBuffer }
     set { world.variables.npcParseBuffer = newValue }
 }
@@ -111,7 +111,7 @@ NPC_ReactionTime
 */
 //FIXME use grandom in here
 /// Source: oracle/codemp/game/NPC_stats.c:220
-func NPC_ReactionTime() -> Int32 {
+public func NPC_ReactionTime() -> Int32 {
     return 200 * (6 - NPCInfo!.stats.reactions)
 }
 
@@ -172,7 +172,7 @@ private func TranslateRankName(_ name: String) -> rank_t {
 }
 
 /// Source: oracle/codemp/game/NPC_stats.c:424
-func G_ParseAnimFileSet(_ filename: String, _ animCFG: String, _ animFileIndex: inout Int32) -> Bool {
+public func G_ParseAnimFileSet(_ filename: String, _ animCFG: String, _ animFileIndex: inout Int32) -> Bool {
     animFileIndex = BG_ParseAnimationFile(filename, nil, false)
     //if it's humanoid we should have it cached and return it, if it is not it will be loaded (unless it's also cached already)
 
@@ -186,7 +186,7 @@ func G_ParseAnimFileSet(_ filename: String, _ animCFG: String, _ animFileIndex: 
 }
 
 /// Source: oracle/codemp/game/NPC_stats.c:439
-func NPC_PrecacheAnimationCFG(_ NPC_type: String) {
+public func NPC_PrecacheAnimationCFG(_ NPC_type: String) {
     // look for the right NPC
 
 
@@ -232,7 +232,7 @@ func NPC_PrecacheAnimationCFG(_ NPC_type: String) {
 }
 
 /// Source: oracle/codemp/game/NPC_stats.c:551
-func NPC_PrecacheWeapons(_ playerTeam: JKAMP.team_t, _ spawnflags: Int32, _ NPCtype: String) {
+public func NPC_PrecacheWeapons(_ playerTeam: JKAMP.team_t, _ spawnflags: Int32, _ NPCtype: String) {
     let weapons: Int32 = NPC_WeaponsForTeam(playerTeam, spawnflags, NPCtype)
     var curWeap: Int32
 
@@ -255,7 +255,7 @@ Precaches NPC skins, tgas and md3s.
 ```
 */
 /// Source: oracle/codemp/game/NPC_stats.c:599
-func NPC_Precache(_ spawner: Entity) {
+public func NPC_Precache(_ spawner: Entity) {
     var playerTeam: npcteam_t = NPCTEAM_FREE
     var token: String
     var value: String = ""
@@ -493,7 +493,7 @@ func NPC_Precache(_ spawner: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_stats.c:974
-func NPC_ParseParms(_ NPCName: String, _ NPC: Entity) -> Bool {
+public func NPC_ParseParms(_ NPCName: String, _ NPC: Entity) -> Bool {
     var token: String
     var value: String = ""
     var p = TextCursor()
@@ -2408,7 +2408,7 @@ func NPC_ParseParms(_ NPCName: String, _ NPC: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_stats.c:3241
-func NPC_LoadParms() {
+public func NPC_LoadParms() {
     var len: Int32
     var totallen: Int32
     var npcExtFNLen: Int32

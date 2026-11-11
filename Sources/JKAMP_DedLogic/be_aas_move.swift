@@ -4,7 +4,7 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:29
-var aassettings: AasSettings { world.storage.aassettings }
+public var aassettings: AasSettings { world.storage.aassettings }
 
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:213
 /// Raven's data table, a hand property of `EngineWorld`.
@@ -43,7 +43,7 @@ private var points_AAS_ClientMovementPrediction: Slots<JKAShared.vec3_t> { world
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:39
-func AAS_DropToFloor(_ origin: inout JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) -> Int32 {
+public func AAS_DropToFloor(_ origin: inout JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) -> Int32 {
     var end: vec3_t
 
     end = origin
@@ -65,7 +65,7 @@ func AAS_DropToFloor(_ origin: inout JKAShared.vec3_t, _ mins: JKAShared.vec3_t,
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:57
-func AAS_InitSettings() {
+public func AAS_InitSettings() {
     aassettings.phys_gravitydirection[0] = 0
     aassettings.phys_gravitydirection[1] = 0
     aassettings.phys_gravitydirection[2] = -1
@@ -115,7 +115,7 @@ func AAS_InitSettings() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:106
-func AAS_AgainstLadder(_ origin: JKAShared.vec3_t) -> Int32 {
+public func AAS_AgainstLadder(_ origin: JKAShared.vec3_t) -> Int32 {
     var areanum: Int32
     var i: Int32
     var facenum: Int32
@@ -188,7 +188,7 @@ func AAS_AgainstLadder(_ origin: JKAShared.vec3_t) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:168
-func AAS_OnGround(_ origin: JKAShared.vec3_t, _ presencetype: Int32, _ passent: Int32) -> Int32 {
+public func AAS_OnGround(_ origin: JKAShared.vec3_t, _ presencetype: Int32, _ passent: Int32) -> Int32 {
     var end: vec3_t
     let up = vec3_t(0, 0, 1)
 
@@ -230,7 +230,7 @@ func AAS_OnGround(_ origin: JKAShared.vec3_t, _ presencetype: Int32, _ passent: 
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:198
-func AAS_Swimming(_ origin: JKAShared.vec3_t) -> Int32 {
+public func AAS_Swimming(_ origin: JKAShared.vec3_t) -> Int32 {
     var testorg: vec3_t
 
     testorg = origin
@@ -242,7 +242,7 @@ func AAS_Swimming(_ origin: JKAShared.vec3_t) -> Int32 {
 }
 
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:218
-func AAS_SetMovedir(_ angles: JKAShared.vec3_t, _ movedir: inout JKAShared.vec3_t) {
+public func AAS_SetMovedir(_ angles: JKAShared.vec3_t, _ movedir: inout JKAShared.vec3_t) {
     // Port-note: Raven calls this function only from a comment, at be_aas_reach.cpp:3516, so it is dead.
     if VectorCompare(angles, VEC_UP) != 0 {
         movedir = MOVEDIR_UP
@@ -265,7 +265,7 @@ func AAS_SetMovedir(_ angles: JKAShared.vec3_t, _ movedir: inout JKAShared.vec3_
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:239
-func AAS_JumpReachRunStart(_ reach: AasReachability, _ runstart: inout JKAShared.vec3_t) {
+public func AAS_JumpReachRunStart(_ reach: AasReachability, _ runstart: inout JKAShared.vec3_t) {
     var hordir = vec3_t()
     var start: vec3_t
     let cmdmove: vec3_t
@@ -299,7 +299,7 @@ func AAS_JumpReachRunStart(_ reach: AasReachability, _ runstart: inout JKAShared
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:273
-func AAS_WeaponJumpZVelocity(_ origin: JKAShared.vec3_t, _ radiusdamage: Float) -> Float {
+public func AAS_WeaponJumpZVelocity(_ origin: JKAShared.vec3_t, _ radiusdamage: Float) -> Float {
     var start: vec3_t
     var end = vec3_t()
     var forward = vec3_t()
@@ -371,7 +371,7 @@ func AAS_WeaponJumpZVelocity(_ origin: JKAShared.vec3_t, _ radiusdamage: Float) 
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:324
-func AAS_RocketJumpZVelocity(_ origin: JKAShared.vec3_t) -> Float {
+public func AAS_RocketJumpZVelocity(_ origin: JKAShared.vec3_t) -> Float {
     //rocket radius damage is 120 (p_weapon.c: Weapon_RocketLauncher_Fire)
     return AAS_WeaponJumpZVelocity(origin, 120)
 }
@@ -383,7 +383,7 @@ func AAS_RocketJumpZVelocity(_ origin: JKAShared.vec3_t) -> Float {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:335
-func AAS_BFGJumpZVelocity(_ origin: JKAShared.vec3_t) -> Float {
+public func AAS_BFGJumpZVelocity(_ origin: JKAShared.vec3_t) -> Float {
     //bfg radius damage is 1000 (p_weapon.c: weapon_bfg_fire)
     return AAS_WeaponJumpZVelocity(origin, 120)
 }
@@ -396,7 +396,7 @@ func AAS_BFGJumpZVelocity(_ origin: JKAShared.vec3_t) -> Float {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:347
-func AAS_Accelerate(_ velocity: inout JKAShared.vec3_t, _ frametime: Float, _ wishdir: JKAShared.vec3_t, _ wishspeed: Float, _ accel: Float) {
+public func AAS_Accelerate(_ velocity: inout JKAShared.vec3_t, _ frametime: Float, _ wishdir: JKAShared.vec3_t, _ wishspeed: Float, _ accel: Float) {
     // q2 style
     var i: Int32
     let addspeed: Float
@@ -427,7 +427,7 @@ func AAS_Accelerate(_ velocity: inout JKAShared.vec3_t, _ frametime: Float, _ wi
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:373
-func AAS_AirControl(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ velocity: JKAShared.vec3_t, _ cmdmove: JKAShared.vec3_t) {
+public func AAS_AirControl(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ velocity: JKAShared.vec3_t, _ cmdmove: JKAShared.vec3_t) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     var dir = vec3_t()
 
@@ -442,7 +442,7 @@ func AAS_AirControl(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ veloci
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:386
-func AAS_ApplyFriction(_ vel: inout JKAShared.vec3_t, _ friction: Float, _ stopspeed: Float, _ frametime: Float) {
+public func AAS_ApplyFriction(_ vel: inout JKAShared.vec3_t, _ friction: Float, _ stopspeed: Float, _ frametime: Float) {
     let speed: Float
     let control: Float
     var newspeed: Float
@@ -468,7 +468,7 @@ func AAS_ApplyFriction(_ vel: inout JKAShared.vec3_t, _ friction: Float, _ stops
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:409
-func AAS_ClipToBBox(_ trace: AasTrace, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ presencetype: Int32, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) -> Int32 {
+public func AAS_ClipToBBox(_ trace: AasTrace, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ presencetype: Int32, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) -> Int32 {
     var i: Int32
     var j: Int32
     var side: Int32
@@ -572,7 +572,7 @@ func AAS_ClipToBBox(_ trace: AasTrace, _ start: JKAShared.vec3_t, _ end: JKAShar
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:488
-func AAS_ClientMovementPrediction(_ move: AasClientmove, _ entnum: Int32, _ origin: JKAShared.vec3_t, _ presencetype: Int32, _ onground: Int32, _ velocity: JKAShared.vec3_t, _ cmdmove: JKAShared.vec3_t, _ cmdframes: Int32, _ maxframes: Int32, _ frametime: Float, _ stopevent: Int32, _ stopareanum: Int32, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ visualize: Int32) -> Int32 {
+public func AAS_ClientMovementPrediction(_ move: AasClientmove, _ entnum: Int32, _ origin: JKAShared.vec3_t, _ presencetype: Int32, _ onground: Int32, _ velocity: JKAShared.vec3_t, _ cmdmove: JKAShared.vec3_t, _ cmdframes: Int32, _ maxframes: Int32, _ frametime: Float, _ stopevent: Int32, _ stopareanum: Int32, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ visualize: Int32) -> Int32 {
     // Raven assigns his own `presencetype`, `onground`, and `frametime` parameters.
     // A Swift parameter is immutable, so the body takes mutable copies of them.
     var presencetype = presencetype
@@ -1075,7 +1075,7 @@ func AAS_ClientMovementPrediction(_ move: AasClientmove, _ entnum: Int32, _ orig
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:977
-func AAS_PredictClientMovement(_ move: AasClientmove, _ entnum: Int32, _ origin: JKAShared.vec3_t, _ presencetype: Int32, _ onground: Int32, _ velocity: JKAShared.vec3_t, _ cmdmove: JKAShared.vec3_t, _ cmdframes: Int32, _ maxframes: Int32, _ frametime: Float, _ stopevent: Int32, _ stopareanum: Int32, _ visualize: Int32) -> Int32 {
+public func AAS_PredictClientMovement(_ move: AasClientmove, _ entnum: Int32, _ origin: JKAShared.vec3_t, _ presencetype: Int32, _ onground: Int32, _ velocity: JKAShared.vec3_t, _ cmdmove: JKAShared.vec3_t, _ cmdframes: Int32, _ maxframes: Int32, _ frametime: Float, _ stopevent: Int32, _ stopareanum: Int32, _ visualize: Int32) -> Int32 {
     // Port-note: Raven passes `mins` and `maxs` uninitialized, and the callee reads them only for SE_HITBOUNDINGBOX.
     // No caller of this function sets that event.
     // The locals are zero.
@@ -1091,7 +1091,7 @@ func AAS_PredictClientMovement(_ move: AasClientmove, _ entnum: Int32, _ origin:
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:997
-func AAS_ClientMovementHitBBox(_ move: AasClientmove, _ entnum: Int32, _ origin: JKAShared.vec3_t, _ presencetype: Int32, _ onground: Int32, _ velocity: JKAShared.vec3_t, _ cmdmove: JKAShared.vec3_t, _ cmdframes: Int32, _ maxframes: Int32, _ frametime: Float, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ visualize: Int32) -> Int32 {
+public func AAS_ClientMovementHitBBox(_ move: AasClientmove, _ entnum: Int32, _ origin: JKAShared.vec3_t, _ presencetype: Int32, _ onground: Int32, _ velocity: JKAShared.vec3_t, _ cmdmove: JKAShared.vec3_t, _ cmdframes: Int32, _ maxframes: Int32, _ frametime: Float, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ visualize: Int32) -> Int32 {
     return AAS_ClientMovementPrediction(move, entnum, origin, presencetype, onground, velocity, cmdmove, cmdframes, maxframes, frametime, SE_HITBOUNDINGBOX, 0, mins, maxs, visualize)
 }
 
@@ -1102,7 +1102,7 @@ func AAS_ClientMovementHitBBox(_ move: AasClientmove, _ entnum: Int32, _ origin:
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:1016
-func AAS_TestMovementPrediction(_ entnum: Int32, _ origin: JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t) {
+public func AAS_TestMovementPrediction(_ entnum: Int32, _ origin: JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t) {
     // Port-note: Raven calls this function only from a comment of BotExportTest, so it is dead.
     var velocity = vec3_t(), cmdmove = vec3_t()
 
@@ -1133,7 +1133,7 @@ func AAS_TestMovementPrediction(_ entnum: Int32, _ origin: JKAShared.vec3_t, _ d
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_move.cpp:1045
-func AAS_HorizontalVelocityForJump(_ zvel: Float, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ velocity: inout Float) -> Int32 {
+public func AAS_HorizontalVelocityForJump(_ zvel: Float, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ velocity: inout Float) -> Int32 {
     let phys_gravity: Float
     let phys_maxvelocity: Float
     let maxjump: Float

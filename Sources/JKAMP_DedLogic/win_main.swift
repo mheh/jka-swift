@@ -60,7 +60,7 @@ private let MAX_QUED_EVENTS = 256 as Int32
 private let MASK_QUED_EVENTS = (JKAMP_Ded.MAX_QUED_EVENTS - 1)
 
 /// Source: oracle/codemp/null/win_main.cpp:1113
-var eventQue: Slots<SysEvent> { world.storage.eventQue }
+public var eventQue: Slots<SysEvent> { world.storage.eventQue }
 
 /// Source: oracle/codemp/null/win_main.cpp:1114
 var eventHead: Int32 {
@@ -75,7 +75,7 @@ var eventTail: Int32 {
 }
 
 /// Source: oracle/codemp/null/win_main.cpp:1116
-var sys_packetReceived: Slots<JKAShared.byte> { world.storage.sys_packetReceived }
+public var sys_packetReceived: Slots<JKAShared.byte> { world.storage.sys_packetReceived }
 
 /// Source: oracle/codemp/null/win_main.cpp:1162
 // AI: Raven declares `ev` on the stack of Sys_GetEvent. The function uses one zeroed allocation on the storage class.
@@ -88,12 +88,12 @@ let OSR2_BUILD_NUMBER = 1111 as Int32
 let WIN98_BUILD_NUMBER = 1998 as Int32
 
 /// Source: oracle/codemp/null/win_main.cpp:30
-func Sys_GetBotAIAPI(_ parms: OpaquePointer?) -> OpaquePointer? {
+public func Sys_GetBotAIAPI(_ parms: OpaquePointer?) -> OpaquePointer? {
     return nil
 }
 
 /// Source: oracle/codemp/null/win_main.cpp:34
-func Conbuf_AppendText(_ pMsg: String) {
+public func Conbuf_AppendText(_ pMsg: String) {
     var msg = CharBuf(4096)
     strcpy(&msg, pMsg)
     Q_CleanStr(&msg)
@@ -105,7 +105,7 @@ func Conbuf_AppendText(_ pMsg: String) {
 }
 
 /// Source: oracle/codemp/null/win_main.cpp:48
-func Sys_LowPhysicalMemory() -> Bool {
+public func Sys_LowPhysicalMemory() -> Bool {
     // AI: Raven filled a MEMORYSTATUS with the Win32 GlobalMemoryStatus. The backend gives its `dwTotalPhys` from the page count of the platform.
     let dwTotalPhys = SysBackend.GlobalMemoryStatus()
     return (dwTotalPhys <= MEM_THRESHOLD) ? true : false
@@ -119,7 +119,7 @@ Sys_FunctionCmp
 ```
 */
 /// Source: oracle/codemp/null/win_main.cpp:59
-func Sys_FunctionCmp(_ f1: OpaquePointer?, _ f2: OpaquePointer?) -> Int32 {
+public func Sys_FunctionCmp(_ f1: OpaquePointer?, _ f2: OpaquePointer?) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     // AI: Raven scanned the x86 opcodes of the function body. The host runs no x86 code, so the body takes Raven's unix return.
     return 1
@@ -133,7 +133,7 @@ Sys_FunctionCheckSum
 ```
 */
 /// Source: oracle/codemp/null/win_main.cpp:128
-func Sys_FunctionCheckSum(_ f1: OpaquePointer?) -> Int32 {
+public func Sys_FunctionCheckSum(_ f1: OpaquePointer?) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     // AI: Raven scanned the x86 opcodes of the function body. The host runs no x86 code, so the body takes Raven's unix return.
     return 0
@@ -147,7 +147,7 @@ Sys_MonkeyShouldBeSpanked
 ```
 */
 /// Source: oracle/codemp/null/win_main.cpp:171
-func Sys_MonkeyShouldBeSpanked() -> Int32 {
+public func Sys_MonkeyShouldBeSpanked() -> Int32 {
     return sys_monkeySpank
 }
 
@@ -159,7 +159,7 @@ Sys_VerifyCodeChecksum
 ```
 */
 /// Source: oracle/codemp/null/win_main.cpp:181
-func Sys_VerifyCodeChecksum(_ codeBase: OpaquePointer?) {
+public func Sys_VerifyCodeChecksum(_ codeBase: OpaquePointer?) {
 }
 
 /// Source: oracle/codemp/null/win_main.cpp:193
@@ -184,7 +184,7 @@ var bPendingExtended: Bool {
 
 //qboolean stdin_active = qtrue;
 /// Source: oracle/codemp/null/win_main.cpp:200
-func Sys_ConsoleInput() -> String? {
+public func Sys_ConsoleInput() -> String? {
     let ClearLine = CharBuf("\r                                                                               \r")
 
     // AI: Raven called the conio kbhit. The backend polls standard input with no wait.
@@ -299,7 +299,7 @@ Sys_BeginProfiling
 ```
 */
 /// Source: oracle/codemp/null/win_main.cpp:309
-func Sys_BeginProfiling() {
+public func Sys_BeginProfiling() {
     // this is just used on the mac build
 }
 
@@ -317,7 +317,7 @@ Show the early console as an error dialog
 ```
 */
 /// Source: oracle/codemp/null/win_main.cpp:324
-func Sys_Error(_ error: String, _ args: any JKAShared.FormatArg...) {
+public func Sys_Error(_ error: String, _ args: any JKAShared.FormatArg...) {
     var text = CharBuf(4096)
 
     strcpy(&text, JKAShared.format(error, args))
@@ -351,7 +351,7 @@ Sys_Quit
 ```
 */
 /// Source: oracle/codemp/null/win_main.cpp:363
-func Sys_Quit() {
+public func Sys_Quit() {
     // AI: Raven called the Win32 timeEndPeriod for the timer resolution of Sys_Init. A POSIX host has no such resolution, so the call drops.
     IN_Shutdown()
     //	Sys_DestroyConsole();
@@ -369,7 +369,7 @@ Sys_Print
 ```
 */
 /// Source: oracle/codemp/null/win_main.cpp:378
-func Sys_Print(_ msg: String) {
+public func Sys_Print(_ msg: String) {
     Conbuf_AppendText(msg)
 }
 
@@ -381,7 +381,7 @@ Sys_Mkdir
 ```
 */
 /// Source: oracle/codemp/null/win_main.cpp:388
-func Sys_Mkdir(_ path: String) {
+public func Sys_Mkdir(_ path: String) {
     // AI: Raven called the Win32 _mkdir. The backend calls the POSIX mkdir with every permission bit, which the umask narrows.
     SysBackend._mkdir(path)
 }
@@ -394,7 +394,7 @@ Sys_Cwd
 ```
 */
 /// Source: oracle/codemp/null/win_main.cpp:397
-func Sys_Cwd() -> String {
+public func Sys_Cwd() -> String {
     // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
     var cwd = CharBuf(MAX_OSPATH)
 
@@ -413,7 +413,7 @@ Sys_DefaultCDPath
 ```
 */
 /// Source: oracle/codemp/null/win_main.cpp:411
-func Sys_DefaultCDPath() -> String {
+public func Sys_DefaultCDPath() -> String {
     return ""
 }
 
@@ -425,12 +425,12 @@ Sys_DefaultBasePath
 ```
 */
 /// Source: oracle/codemp/null/win_main.cpp:420
-func Sys_DefaultBasePath() -> String {
+public func Sys_DefaultBasePath() -> String {
     return Sys_Cwd()
 }
 
 /// Source: oracle/codemp/null/win_main.cpp:434
-func Sys_ListFilteredFiles(_ basedir: String, _ subdirs: inout JKAShared.CharBuf, _ filter: String?, _ psList: inout ArraySlice<String>, _ numfiles: inout Int32) {
+public func Sys_ListFilteredFiles(_ basedir: String, _ subdirs: inout JKAShared.CharBuf, _ filter: String?, _ psList: inout ArraySlice<String>, _ numfiles: inout Int32) {
     var search = CharBuf(MAX_OSPATH)
     var newsubdirs = CharBuf(MAX_OSPATH)
     var filename = CharBuf(MAX_OSPATH)
@@ -506,7 +506,7 @@ private func strgtr(_ s0: String, _ s1: String) -> Bool {
 }
 
 /// Source: oracle/codemp/null/win_main.cpp:502
-func Sys_ListFiles(_ directory: String, _ `extension`: String?, _ filter: String?, _ numfiles: inout Int32, _ wantsubs: Bool) -> [String] {
+public func Sys_ListFiles(_ directory: String, _ `extension`: String?, _ filter: String?, _ numfiles: inout Int32, _ wantsubs: Bool) -> [String] {
     var search = CharBuf(MAX_OSPATH)
     var nfiles: Int32
     var listCopy: [String]
@@ -612,7 +612,7 @@ func Sys_ListFiles(_ directory: String, _ `extension`: String?, _ filter: String
 }
 
 /// Source: oracle/codemp/null/win_main.cpp:597
-func Sys_FreeFileList(_ psList: [String]) {
+public func Sys_FreeFileList(_ psList: [String]) {
     // AI: Raven frees each CopyString text and the Z_Malloc table. The list is a Swift array that frees itself, so the function frees nothing.
 }
 
@@ -626,7 +626,7 @@ Return true if the proper CD is in the drive
 ```
 */
 /// Source: oracle/codemp/null/win_main.cpp:672
-func Sys_CheckCD() -> Bool {
+public func Sys_CheckCD() -> Bool {
     //	return Sys_ScanForCD();
     return true
 }
@@ -640,7 +640,7 @@ Sys_GetClipboardData
 ```
 */
 /// Source: oracle/codemp/null/win_main.cpp:687
-func Sys_GetClipboardData() -> String {
+public func Sys_GetClipboardData() -> String {
     // AI: Raven copied the Win32 clipboard text into a Z_Malloc block.
     // A dedicated POSIX host has no clipboard, so the function returns an empty text.
     return ""
@@ -655,7 +655,7 @@ Sys_UnloadDll
 ```
 */
 /// Source: oracle/codemp/null/win_main.cpp:723
-func Sys_UnloadDll(_ dllHandle: OpaquePointer?) {
+public func Sys_UnloadDll(_ dllHandle: OpaquePointer?) {
     if dllHandle == nil {
         return
     }
@@ -670,7 +670,7 @@ func Sys_UnloadDll(_ dllHandle: OpaquePointer?) {
 //fails then the dll is probably not in the pk3 and we are running
 //a pure server -rww
 /// Source: oracle/codemp/null/win_main.cpp:735
-func Sys_UnpackDLL(_ name: String) -> Bool {
+public func Sys_UnpackDLL(_ name: String) -> Bool {
     // AI: Raven reads the dll into a `void *` block of the zone. The read takes the CharBuf form of FS_ReadFile, whose bytes the CharBuf FS_Write takes.
     // The buffer starts as an empty CharBuf, because Raven hands FS_ReadFile the address `&data`, and a nil buffer is his NULL, which asks for the length alone.
     var data: CharBuf? = CharBuf(0)
@@ -712,7 +712,7 @@ func Sys_UnpackDLL(_ name: String) -> Bool {
 }
 
 /// Source: oracle/codemp/null/win_main.cpp:784
-func Sys_LoadDll(_ name: String, _ entryPoint: UnsafeMutableRawPointer, _ systemcalls: OpaquePointer?) -> OpaquePointer? {
+public func Sys_LoadDll(_ name: String, _ entryPoint: UnsafeMutableRawPointer, _ systemcalls: OpaquePointer?) -> OpaquePointer? {
     var libHandle: OpaquePointer?
     let basepath: String
     let homepath: String
@@ -777,24 +777,24 @@ public func Sys_InitStreamThread() {
 }
 
 /// Source: oracle/codemp/null/win_main.cpp:852
-func Sys_ShutdownStreamThread() {
+public func Sys_ShutdownStreamThread() {
 }
 
 /// Source: oracle/codemp/null/win_main.cpp:855
-func Sys_BeginStreamedFile(_ f: JKAShared.fileHandle_t, _ readAhead: Int32) {
+public func Sys_BeginStreamedFile(_ f: JKAShared.fileHandle_t, _ readAhead: Int32) {
 }
 
 /// Source: oracle/codemp/null/win_main.cpp:858
-func Sys_EndStreamedFile(_ f: JKAShared.fileHandle_t) {
+public func Sys_EndStreamedFile(_ f: JKAShared.fileHandle_t) {
 }
 
 /// Source: oracle/codemp/null/win_main.cpp:861
-func Sys_StreamedRead(_ buffer: Slots<JKAShared.byte>, _ size: Int32, _ count: Int32, _ f: JKAShared.fileHandle_t) -> Int32 {
+public func Sys_StreamedRead(_ buffer: Slots<JKAShared.byte>, _ size: Int32, _ count: Int32, _ f: JKAShared.fileHandle_t) -> Int32 {
     return FS_Read(buffer, size * count, f)
 }
 
 /// Source: oracle/codemp/null/win_main.cpp:865
-func Sys_StreamSeek(_ f: JKAShared.fileHandle_t, _ offset: Int32, _ origin: Int32) {
+public func Sys_StreamSeek(_ f: JKAShared.fileHandle_t, _ offset: Int32, _ origin: Int32) {
     FS_Seek(f, CLong(offset), origin)
 }
 
@@ -810,7 +810,7 @@ be freed by the game later.
 ```
 */
 /// Source: oracle/codemp/null/win_main.cpp:1127
-func Sys_QueEvent(_ time: Int32, _ type: sysEventType_t, _ value: Int32, _ value2: Int32, _ ptrLength: Int32, _ ptr: UnsafeMutableRawPointer) {
+public func Sys_QueEvent(_ time: Int32, _ type: sysEventType_t, _ value: Int32, _ value2: Int32, _ ptrLength: Int32, _ ptr: UnsafeMutableRawPointer) {
     let ev: SysEvent
     // Raven assigns his own `time` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var time = time
@@ -849,7 +849,7 @@ Sys_GetEvent
 ```
 */
 /// Source: oracle/codemp/null/win_main.cpp:1160
-func Sys_GetEvent() -> SysEvent {
+public func Sys_GetEvent() -> SysEvent {
     let ev = ev_Sys_GetEvent
     let s: String?
 
@@ -918,7 +918,7 @@ Restart the input subsystem
 ```
 */
 /// Source: oracle/codemp/null/win_main.cpp:1236
-func Sys_In_Restart_f() {
+public func Sys_In_Restart_f() {
     IN_Shutdown()
     IN_Init()
 }
@@ -933,12 +933,12 @@ Restart the network subsystem
 ```
 */
 /// Source: oracle/codemp/null/win_main.cpp:1249
-func Sys_Net_Restart_f() {
+public func Sys_Net_Restart_f() {
     NET_Restart()
 }
 
 /// Source: oracle/codemp/null/win_main.cpp:1265
-func Sys_Init() {
+public func Sys_Init() {
     var cpuid: Int32
 
     // make sure the timer is high precision, otherwise

@@ -7,7 +7,7 @@ import JKAMP_BG
 public var level: Level { world.storage.level }
 
 /// Source: oracle/codemp/game/g_main.c:11
-var eventClearTime: Int32 {
+public var eventClearTime: Int32 {
     get { world.variables.eventClearTime }
     set { world.variables.eventClearTime = newValue }
 }
@@ -19,7 +19,7 @@ var navCalcPathTime: Int32 {
 }
 
 /// Source: oracle/codemp/game/g_main.c:15
-var killPlayerTimer: Int32 {
+public var killPlayerTimer: Int32 {
     get { world.variables.killPlayerTimer }
     set { world.variables.killPlayerTimer = newValue }
 }
@@ -28,433 +28,433 @@ var killPlayerTimer: Int32 {
 public var g_entities: Slots<Entity> { world.storage.g_entities }
 
 /// Source: oracle/codemp/game/g_main.c:28
-var g_clients: Slots<Client> { world.storage.g_clients }
+public var g_clients: Slots<Client> { world.storage.g_clients }
 
 /// Source: oracle/codemp/game/g_main.c:30
-var gDuelExit: Bool {
+public var gDuelExit: Bool {
     get { world.variables.gDuelExit }
     set { world.variables.gDuelExit = newValue }
 }
 
 /// Source: oracle/codemp/game/g_main.c:32
-var g_trueJedi: JKAMP.VmCvar { world.storage.g_trueJedi }
+public var g_trueJedi: JKAMP.VmCvar { world.storage.g_trueJedi }
 
 /// Source: oracle/codemp/game/g_main.c:34
-var g_gametype: JKAMP.VmCvar { world.storage.g_gametype }
+public var g_gametype: JKAMP.VmCvar { world.storage.g_gametype }
 
 /// Source: oracle/codemp/game/g_main.c:35
-var g_MaxHolocronCarry: JKAMP.VmCvar { world.storage.g_MaxHolocronCarry }
+public var g_MaxHolocronCarry: JKAMP.VmCvar { world.storage.g_MaxHolocronCarry }
 
 /// Source: oracle/codemp/game/g_main.c:36
-var g_ff_objectives: JKAMP.VmCvar { world.storage.g_ff_objectives }
+public var g_ff_objectives: JKAMP.VmCvar { world.storage.g_ff_objectives }
 
 /// Source: oracle/codemp/game/g_main.c:37
-var g_autoMapCycle: JKAMP.VmCvar { world.storage.g_autoMapCycle }
+public var g_autoMapCycle: JKAMP.VmCvar { world.storage.g_autoMapCycle }
 
 /// Source: oracle/codemp/game/g_main.c:38
-var g_dmflags: JKAMP.VmCvar { world.storage.g_dmflags }
+public var g_dmflags: JKAMP.VmCvar { world.storage.g_dmflags }
 
 /// Source: oracle/codemp/game/g_main.c:39
-var g_maxForceRank: JKAMP.VmCvar { world.storage.g_maxForceRank }
+public var g_maxForceRank: JKAMP.VmCvar { world.storage.g_maxForceRank }
 
 /// Source: oracle/codemp/game/g_main.c:40
-var g_forceBasedTeams: JKAMP.VmCvar { world.storage.g_forceBasedTeams }
+public var g_forceBasedTeams: JKAMP.VmCvar { world.storage.g_forceBasedTeams }
 
 /// Source: oracle/codemp/game/g_main.c:41
-var g_privateDuel: JKAMP.VmCvar { world.storage.g_privateDuel }
+public var g_privateDuel: JKAMP.VmCvar { world.storage.g_privateDuel }
 
 /// Source: oracle/codemp/game/g_main.c:43
-var g_allowNPC: JKAMP.VmCvar { world.storage.g_allowNPC }
+public var g_allowNPC: JKAMP.VmCvar { world.storage.g_allowNPC }
 
 /// Source: oracle/codemp/game/g_main.c:45
-var g_armBreakage: JKAMP.VmCvar { world.storage.g_armBreakage }
+public var g_armBreakage: JKAMP.VmCvar { world.storage.g_armBreakage }
 
 /// Source: oracle/codemp/game/g_main.c:47
-var g_saberLocking: JKAMP.VmCvar { world.storage.g_saberLocking }
+public var g_saberLocking: JKAMP.VmCvar { world.storage.g_saberLocking }
 
 /// Source: oracle/codemp/game/g_main.c:48
-var g_saberLockFactor: JKAMP.VmCvar { world.storage.g_saberLockFactor }
+public var g_saberLockFactor: JKAMP.VmCvar { world.storage.g_saberLockFactor }
 
 /// Source: oracle/codemp/game/g_main.c:49
-var g_saberTraceSaberFirst: JKAMP.VmCvar { world.storage.g_saberTraceSaberFirst }
+public var g_saberTraceSaberFirst: JKAMP.VmCvar { world.storage.g_saberTraceSaberFirst }
 
 /// Source: oracle/codemp/game/g_main.c:51
-var d_saberKickTweak: JKAMP.VmCvar { world.storage.d_saberKickTweak }
+public var d_saberKickTweak: JKAMP.VmCvar { world.storage.d_saberKickTweak }
 
 /// Source: oracle/codemp/game/g_main.c:53
-var d_powerDuelPrint: JKAMP.VmCvar { world.storage.d_powerDuelPrint }
+public var d_powerDuelPrint: JKAMP.VmCvar { world.storage.d_powerDuelPrint }
 
 /// Source: oracle/codemp/game/g_main.c:55
-var d_saberGhoul2Collision: JKAMP.VmCvar { world.storage.d_saberGhoul2Collision }
+public var d_saberGhoul2Collision: JKAMP.VmCvar { world.storage.d_saberGhoul2Collision }
 
 /// Source: oracle/codemp/game/g_main.c:56
-var g_saberBladeFaces: JKAMP.VmCvar { world.storage.g_saberBladeFaces }
+public var g_saberBladeFaces: JKAMP.VmCvar { world.storage.g_saberBladeFaces }
 
 /// Source: oracle/codemp/game/g_main.c:57
-var d_saberAlwaysBoxTrace: JKAMP.VmCvar { world.storage.d_saberAlwaysBoxTrace }
+public var d_saberAlwaysBoxTrace: JKAMP.VmCvar { world.storage.d_saberAlwaysBoxTrace }
 
 /// Source: oracle/codemp/game/g_main.c:58
-var d_saberBoxTraceSize: JKAMP.VmCvar { world.storage.d_saberBoxTraceSize }
+public var d_saberBoxTraceSize: JKAMP.VmCvar { world.storage.d_saberBoxTraceSize }
 
 /// Source: oracle/codemp/game/g_main.c:60
-var d_siegeSeekerNPC: JKAMP.VmCvar { world.storage.d_siegeSeekerNPC }
+public var d_siegeSeekerNPC: JKAMP.VmCvar { world.storage.d_siegeSeekerNPC }
 
 /// Source: oracle/codemp/game/g_main.c:62
-var g_debugMelee: JKAMP.VmCvar { world.storage.g_debugMelee }
+public var g_debugMelee: JKAMP.VmCvar { world.storage.g_debugMelee }
 
 /// Source: oracle/codemp/game/g_main.c:63
-var g_stepSlideFix: JKAMP.VmCvar { world.storage.g_stepSlideFix }
+public var g_stepSlideFix: JKAMP.VmCvar { world.storage.g_stepSlideFix }
 
 /// Source: oracle/codemp/game/g_main.c:65
-var g_noSpecMove: JKAMP.VmCvar { world.storage.g_noSpecMove }
+public var g_noSpecMove: JKAMP.VmCvar { world.storage.g_noSpecMove }
 
 /// Source: oracle/codemp/game/g_main.c:71
-var d_perPlayerGhoul2: JKAMP.VmCvar { world.storage.d_perPlayerGhoul2 }
+public var d_perPlayerGhoul2: JKAMP.VmCvar { world.storage.d_perPlayerGhoul2 }
 
 /// Source: oracle/codemp/game/g_main.c:73
-var d_projectileGhoul2Collision: JKAMP.VmCvar { world.storage.d_projectileGhoul2Collision }
+public var d_projectileGhoul2Collision: JKAMP.VmCvar { world.storage.d_projectileGhoul2Collision }
 
 /// Source: oracle/codemp/game/g_main.c:75
-var g_g2TraceLod: JKAMP.VmCvar { world.storage.g_g2TraceLod }
+public var g_g2TraceLod: JKAMP.VmCvar { world.storage.g_g2TraceLod }
 
 /// Source: oracle/codemp/game/g_main.c:77
-var g_optvehtrace: JKAMP.VmCvar { world.storage.g_optvehtrace }
+public var g_optvehtrace: JKAMP.VmCvar { world.storage.g_optvehtrace }
 
 /// Source: oracle/codemp/game/g_main.c:79
-var g_locationBasedDamage: JKAMP.VmCvar { world.storage.g_locationBasedDamage }
+public var g_locationBasedDamage: JKAMP.VmCvar { world.storage.g_locationBasedDamage }
 
 /// Source: oracle/codemp/game/g_main.c:81
-var g_allowHighPingDuelist: JKAMP.VmCvar { world.storage.g_allowHighPingDuelist }
+public var g_allowHighPingDuelist: JKAMP.VmCvar { world.storage.g_allowHighPingDuelist }
 
 /// Source: oracle/codemp/game/g_main.c:83
-var g_logClientInfo: JKAMP.VmCvar { world.storage.g_logClientInfo }
+public var g_logClientInfo: JKAMP.VmCvar { world.storage.g_logClientInfo }
 
 /// Source: oracle/codemp/game/g_main.c:85
-var g_slowmoDuelEnd: JKAMP.VmCvar { world.storage.g_slowmoDuelEnd }
+public var g_slowmoDuelEnd: JKAMP.VmCvar { world.storage.g_slowmoDuelEnd }
 
 /// Source: oracle/codemp/game/g_main.c:87
-var g_saberDamageScale: JKAMP.VmCvar { world.storage.g_saberDamageScale }
+public var g_saberDamageScale: JKAMP.VmCvar { world.storage.g_saberDamageScale }
 
 /// Source: oracle/codemp/game/g_main.c:89
-var g_useWhileThrowing: JKAMP.VmCvar { world.storage.g_useWhileThrowing }
+public var g_useWhileThrowing: JKAMP.VmCvar { world.storage.g_useWhileThrowing }
 
 /// Source: oracle/codemp/game/g_main.c:91
-var g_RMG: JKAMP.VmCvar { world.storage.g_RMG }
+public var g_RMG: JKAMP.VmCvar { world.storage.g_RMG }
 
 /// Source: oracle/codemp/game/g_main.c:93
-var g_svfps: JKAMP.VmCvar { world.storage.g_svfps }
+public var g_svfps: JKAMP.VmCvar { world.storage.g_svfps }
 
 /// Source: oracle/codemp/game/g_main.c:95
-var g_forceRegenTime: JKAMP.VmCvar { world.storage.g_forceRegenTime }
+public var g_forceRegenTime: JKAMP.VmCvar { world.storage.g_forceRegenTime }
 
 /// Source: oracle/codemp/game/g_main.c:96
-var g_spawnInvulnerability: JKAMP.VmCvar { world.storage.g_spawnInvulnerability }
+public var g_spawnInvulnerability: JKAMP.VmCvar { world.storage.g_spawnInvulnerability }
 
 /// Source: oracle/codemp/game/g_main.c:97
-var g_forcePowerDisable: JKAMP.VmCvar { world.storage.g_forcePowerDisable }
+public var g_forcePowerDisable: JKAMP.VmCvar { world.storage.g_forcePowerDisable }
 
 /// Source: oracle/codemp/game/g_main.c:98
-var g_weaponDisable: JKAMP.VmCvar { world.storage.g_weaponDisable }
+public var g_weaponDisable: JKAMP.VmCvar { world.storage.g_weaponDisable }
 
 /// Source: oracle/codemp/game/g_main.c:99
-var g_duelWeaponDisable: JKAMP.VmCvar { world.storage.g_duelWeaponDisable }
+public var g_duelWeaponDisable: JKAMP.VmCvar { world.storage.g_duelWeaponDisable }
 
 /// Source: oracle/codemp/game/g_main.c:100
-var g_allowDuelSuicide: JKAMP.VmCvar { world.storage.g_allowDuelSuicide }
+public var g_allowDuelSuicide: JKAMP.VmCvar { world.storage.g_allowDuelSuicide }
 
 /// Source: oracle/codemp/game/g_main.c:101
-var g_fraglimitVoteCorrection: JKAMP.VmCvar { world.storage.g_fraglimitVoteCorrection }
+public var g_fraglimitVoteCorrection: JKAMP.VmCvar { world.storage.g_fraglimitVoteCorrection }
 
 /// Source: oracle/codemp/game/g_main.c:102
-var g_fraglimit: JKAMP.VmCvar { world.storage.g_fraglimit }
+public var g_fraglimit: JKAMP.VmCvar { world.storage.g_fraglimit }
 
 /// Source: oracle/codemp/game/g_main.c:103
-var g_duel_fraglimit: JKAMP.VmCvar { world.storage.g_duel_fraglimit }
+public var g_duel_fraglimit: JKAMP.VmCvar { world.storage.g_duel_fraglimit }
 
 /// Source: oracle/codemp/game/g_main.c:104
-var g_timelimit: JKAMP.VmCvar { world.storage.g_timelimit }
+public var g_timelimit: JKAMP.VmCvar { world.storage.g_timelimit }
 
 /// Source: oracle/codemp/game/g_main.c:105
-var g_capturelimit: JKAMP.VmCvar { world.storage.g_capturelimit }
+public var g_capturelimit: JKAMP.VmCvar { world.storage.g_capturelimit }
 
 /// Source: oracle/codemp/game/g_main.c:106
-var d_saberInterpolate: JKAMP.VmCvar { world.storage.d_saberInterpolate }
+public var d_saberInterpolate: JKAMP.VmCvar { world.storage.d_saberInterpolate }
 
 /// Source: oracle/codemp/game/g_main.c:107
-var g_friendlyFire: JKAMP.VmCvar { world.storage.g_friendlyFire }
+public var g_friendlyFire: JKAMP.VmCvar { world.storage.g_friendlyFire }
 
 /// Source: oracle/codemp/game/g_main.c:108
-var g_friendlySaber: JKAMP.VmCvar { world.storage.g_friendlySaber }
+public var g_friendlySaber: JKAMP.VmCvar { world.storage.g_friendlySaber }
 
 /// Source: oracle/codemp/game/g_main.c:109
-var g_password: JKAMP.VmCvar { world.storage.g_password }
+public var g_password: JKAMP.VmCvar { world.storage.g_password }
 
 /// Source: oracle/codemp/game/g_main.c:110
-var g_needpass: JKAMP.VmCvar { world.storage.g_needpass }
+public var g_needpass: JKAMP.VmCvar { world.storage.g_needpass }
 
 /// Source: oracle/codemp/game/g_main.c:111
-var g_maxclients: JKAMP.VmCvar { world.storage.g_maxclients }
+public var g_maxclients: JKAMP.VmCvar { world.storage.g_maxclients }
 
 /// Source: oracle/codemp/game/g_main.c:112
-var g_maxGameClients: JKAMP.VmCvar { world.storage.g_maxGameClients }
+public var g_maxGameClients: JKAMP.VmCvar { world.storage.g_maxGameClients }
 
 /// Source: oracle/codemp/game/g_main.c:113
-var g_dedicated: JKAMP.VmCvar { world.storage.g_dedicated }
+public var g_dedicated: JKAMP.VmCvar { world.storage.g_dedicated }
 
 /// Source: oracle/codemp/game/g_main.c:114
-var g_developer: JKAMP.VmCvar { world.storage.g_developer }
+public var g_developer: JKAMP.VmCvar { world.storage.g_developer }
 
 /// Source: oracle/codemp/game/g_main.c:115
-var g_speed: JKAMP.VmCvar { world.storage.g_speed }
+public var g_speed: JKAMP.VmCvar { world.storage.g_speed }
 
 /// Source: oracle/codemp/game/g_main.c:116
-var g_gravity: JKAMP.VmCvar { world.storage.g_gravity }
+public var g_gravity: JKAMP.VmCvar { world.storage.g_gravity }
 
 /// Source: oracle/codemp/game/g_main.c:117
-var g_cheats: JKAMP.VmCvar { world.storage.g_cheats }
+public var g_cheats: JKAMP.VmCvar { world.storage.g_cheats }
 
 /// Source: oracle/codemp/game/g_main.c:118
-var g_knockback: JKAMP.VmCvar { world.storage.g_knockback }
+public var g_knockback: JKAMP.VmCvar { world.storage.g_knockback }
 
 /// Source: oracle/codemp/game/g_main.c:119
-var g_quadfactor: JKAMP.VmCvar { world.storage.g_quadfactor }
+public var g_quadfactor: JKAMP.VmCvar { world.storage.g_quadfactor }
 
 /// Source: oracle/codemp/game/g_main.c:120
-var g_forcerespawn: JKAMP.VmCvar { world.storage.g_forcerespawn }
+public var g_forcerespawn: JKAMP.VmCvar { world.storage.g_forcerespawn }
 
 /// Source: oracle/codemp/game/g_main.c:121
-var g_siegeRespawn: JKAMP.VmCvar { world.storage.g_siegeRespawn }
+public var g_siegeRespawn: JKAMP.VmCvar { world.storage.g_siegeRespawn }
 
 /// Source: oracle/codemp/game/g_main.c:122
-var g_inactivity: JKAMP.VmCvar { world.storage.g_inactivity }
+public var g_inactivity: JKAMP.VmCvar { world.storage.g_inactivity }
 
 /// Source: oracle/codemp/game/g_main.c:123
-var g_debugMove: JKAMP.VmCvar { world.storage.g_debugMove }
+public var g_debugMove: JKAMP.VmCvar { world.storage.g_debugMove }
 
 /// Source: oracle/codemp/game/g_main.c:125
-var g_debugDamage: JKAMP.VmCvar { world.storage.g_debugDamage }
+public var g_debugDamage: JKAMP.VmCvar { world.storage.g_debugDamage }
 
 /// Source: oracle/codemp/game/g_main.c:127
-var g_debugAlloc: JKAMP.VmCvar { world.storage.g_debugAlloc }
+public var g_debugAlloc: JKAMP.VmCvar { world.storage.g_debugAlloc }
 
 /// Source: oracle/codemp/game/g_main.c:128
-var g_debugServerSkel: JKAMP.VmCvar { world.storage.g_debugServerSkel }
+public var g_debugServerSkel: JKAMP.VmCvar { world.storage.g_debugServerSkel }
 
 /// Source: oracle/codemp/game/g_main.c:129
-var g_weaponRespawn: JKAMP.VmCvar { world.storage.g_weaponRespawn }
+public var g_weaponRespawn: JKAMP.VmCvar { world.storage.g_weaponRespawn }
 
 /// Source: oracle/codemp/game/g_main.c:130
-var g_weaponTeamRespawn: JKAMP.VmCvar { world.storage.g_weaponTeamRespawn }
+public var g_weaponTeamRespawn: JKAMP.VmCvar { world.storage.g_weaponTeamRespawn }
 
 /// Source: oracle/codemp/game/g_main.c:131
-var g_adaptRespawn: JKAMP.VmCvar { world.storage.g_adaptRespawn }
+public var g_adaptRespawn: JKAMP.VmCvar { world.storage.g_adaptRespawn }
 
 /// Source: oracle/codemp/game/g_main.c:132
-var g_motd: JKAMP.VmCvar { world.storage.g_motd }
+public var g_motd: JKAMP.VmCvar { world.storage.g_motd }
 
 /// Source: oracle/codemp/game/g_main.c:133
-var g_synchronousClients: JKAMP.VmCvar { world.storage.g_synchronousClients }
+public var g_synchronousClients: JKAMP.VmCvar { world.storage.g_synchronousClients }
 
 /// Source: oracle/codemp/game/g_main.c:134
-var g_warmup: JKAMP.VmCvar { world.storage.g_warmup }
+public var g_warmup: JKAMP.VmCvar { world.storage.g_warmup }
 
 /// Source: oracle/codemp/game/g_main.c:135
-var g_doWarmup: JKAMP.VmCvar { world.storage.g_doWarmup }
+public var g_doWarmup: JKAMP.VmCvar { world.storage.g_doWarmup }
 
 /// Source: oracle/codemp/game/g_main.c:136
-var g_restarted: JKAMP.VmCvar { world.storage.g_restarted }
+public var g_restarted: JKAMP.VmCvar { world.storage.g_restarted }
 
 /// Source: oracle/codemp/game/g_main.c:137
-var g_log: JKAMP.VmCvar { world.storage.g_log }
+public var g_log: JKAMP.VmCvar { world.storage.g_log }
 
 /// Source: oracle/codemp/game/g_main.c:138
-var g_logSync: JKAMP.VmCvar { world.storage.g_logSync }
+public var g_logSync: JKAMP.VmCvar { world.storage.g_logSync }
 
 /// Source: oracle/codemp/game/g_main.c:139
-var g_statLog: JKAMP.VmCvar { world.storage.g_statLog }
+public var g_statLog: JKAMP.VmCvar { world.storage.g_statLog }
 
 /// Source: oracle/codemp/game/g_main.c:140
-var g_statLogFile: JKAMP.VmCvar { world.storage.g_statLogFile }
+public var g_statLogFile: JKAMP.VmCvar { world.storage.g_statLogFile }
 
 /// Source: oracle/codemp/game/g_main.c:141
-var g_blood: JKAMP.VmCvar { world.storage.g_blood }
+public var g_blood: JKAMP.VmCvar { world.storage.g_blood }
 
 /// Source: oracle/codemp/game/g_main.c:142
-var g_podiumDist: JKAMP.VmCvar { world.storage.g_podiumDist }
+public var g_podiumDist: JKAMP.VmCvar { world.storage.g_podiumDist }
 
 /// Source: oracle/codemp/game/g_main.c:143
-var g_podiumDrop: JKAMP.VmCvar { world.storage.g_podiumDrop }
+public var g_podiumDrop: JKAMP.VmCvar { world.storage.g_podiumDrop }
 
 /// Source: oracle/codemp/game/g_main.c:144
-var g_allowVote: JKAMP.VmCvar { world.storage.g_allowVote }
+public var g_allowVote: JKAMP.VmCvar { world.storage.g_allowVote }
 
 /// Source: oracle/codemp/game/g_main.c:145
-var g_allowTeamVote: JKAMP.VmCvar { world.storage.g_allowTeamVote }
+public var g_allowTeamVote: JKAMP.VmCvar { world.storage.g_allowTeamVote }
 
 /// Source: oracle/codemp/game/g_main.c:146
-var g_teamAutoJoin: JKAMP.VmCvar { world.storage.g_teamAutoJoin }
+public var g_teamAutoJoin: JKAMP.VmCvar { world.storage.g_teamAutoJoin }
 
 /// Source: oracle/codemp/game/g_main.c:147
-var g_teamForceBalance: JKAMP.VmCvar { world.storage.g_teamForceBalance }
+public var g_teamForceBalance: JKAMP.VmCvar { world.storage.g_teamForceBalance }
 
 /// Source: oracle/codemp/game/g_main.c:148
-var g_banIPs: JKAMP.VmCvar { world.storage.g_banIPs }
+public var g_banIPs: JKAMP.VmCvar { world.storage.g_banIPs }
 
 /// Source: oracle/codemp/game/g_main.c:149
-var g_filterBan: JKAMP.VmCvar { world.storage.g_filterBan }
+public var g_filterBan: JKAMP.VmCvar { world.storage.g_filterBan }
 
 /// Source: oracle/codemp/game/g_main.c:150
-var g_debugForward: JKAMP.VmCvar { world.storage.g_debugForward }
+public var g_debugForward: JKAMP.VmCvar { world.storage.g_debugForward }
 
 /// Source: oracle/codemp/game/g_main.c:151
-var g_debugRight: JKAMP.VmCvar { world.storage.g_debugRight }
+public var g_debugRight: JKAMP.VmCvar { world.storage.g_debugRight }
 
 /// Source: oracle/codemp/game/g_main.c:152
-var g_debugUp: JKAMP.VmCvar { world.storage.g_debugUp }
+public var g_debugUp: JKAMP.VmCvar { world.storage.g_debugUp }
 
 /// Source: oracle/codemp/game/g_main.c:153
-var g_smoothClients: JKAMP.VmCvar { world.storage.g_smoothClients }
+public var g_smoothClients: JKAMP.VmCvar { world.storage.g_smoothClients }
 
 /// Source: oracle/codemp/game/g_main.c:156
-var pmove_fixed: JKAMP.VmCvar { world.storage.pmove_fixed }
+public var pmove_fixed: JKAMP.VmCvar { world.storage.pmove_fixed }
 
 /// Source: oracle/codemp/game/g_main.c:157
-var pmove_msec: JKAMP.VmCvar { world.storage.pmove_msec }
+public var pmove_msec: JKAMP.VmCvar { world.storage.pmove_msec }
 
 /// Source: oracle/codemp/game/g_main.c:160
-var g_listEntity: JKAMP.VmCvar { world.storage.g_listEntity }
+public var g_listEntity: JKAMP.VmCvar { world.storage.g_listEntity }
 
 /// Source: oracle/codemp/game/g_main.c:163
-var g_singlePlayer: JKAMP.VmCvar { world.storage.g_singlePlayer }
+public var g_singlePlayer: JKAMP.VmCvar { world.storage.g_singlePlayer }
 
 /// Source: oracle/codemp/game/g_main.c:164
-var g_enableBreath: JKAMP.VmCvar { world.storage.g_enableBreath }
+public var g_enableBreath: JKAMP.VmCvar { world.storage.g_enableBreath }
 
 /// Source: oracle/codemp/game/g_main.c:165
-var g_dismember: JKAMP.VmCvar { world.storage.g_dismember }
+public var g_dismember: JKAMP.VmCvar { world.storage.g_dismember }
 
 /// Source: oracle/codemp/game/g_main.c:166
-var g_forceDodge: JKAMP.VmCvar { world.storage.g_forceDodge }
+public var g_forceDodge: JKAMP.VmCvar { world.storage.g_forceDodge }
 
 /// Source: oracle/codemp/game/g_main.c:167
-var g_timeouttospec: JKAMP.VmCvar { world.storage.g_timeouttospec }
+public var g_timeouttospec: JKAMP.VmCvar { world.storage.g_timeouttospec }
 
 /// Source: oracle/codemp/game/g_main.c:169
-var g_saberDmgVelocityScale: JKAMP.VmCvar { world.storage.g_saberDmgVelocityScale }
+public var g_saberDmgVelocityScale: JKAMP.VmCvar { world.storage.g_saberDmgVelocityScale }
 
 /// Source: oracle/codemp/game/g_main.c:170
-var g_saberDmgDelay_Idle: JKAMP.VmCvar { world.storage.g_saberDmgDelay_Idle }
+public var g_saberDmgDelay_Idle: JKAMP.VmCvar { world.storage.g_saberDmgDelay_Idle }
 
 /// Source: oracle/codemp/game/g_main.c:171
-var g_saberDmgDelay_Wound: JKAMP.VmCvar { world.storage.g_saberDmgDelay_Wound }
+public var g_saberDmgDelay_Wound: JKAMP.VmCvar { world.storage.g_saberDmgDelay_Wound }
 
 /// Source: oracle/codemp/game/g_main.c:173
-var g_saberDebugPrint: JKAMP.VmCvar { world.storage.g_saberDebugPrint }
+public var g_saberDebugPrint: JKAMP.VmCvar { world.storage.g_saberDebugPrint }
 
 /// Source: oracle/codemp/game/g_main.c:175
-var g_siegeTeamSwitch: JKAMP.VmCvar { world.storage.g_siegeTeamSwitch }
+public var g_siegeTeamSwitch: JKAMP.VmCvar { world.storage.g_siegeTeamSwitch }
 
 /// Source: oracle/codemp/game/g_main.c:177
-var bg_fighterAltControl: JKAMP.VmCvar { world.storage.bg_fighterAltControl }
+public var bg_fighterAltControl: JKAMP.VmCvar { world.storage.bg_fighterAltControl }
 
 /// Source: oracle/codemp/game/g_main.c:178
-var g_vehAutoAimLead: JKAMP.VmCvar { world.storage.g_vehAutoAimLead }
+public var g_vehAutoAimLead: JKAMP.VmCvar { world.storage.g_vehAutoAimLead }
 
 /// Source: oracle/codemp/game/g_main.c:179
-var g_autoKickKillSpammers: JKAMP.VmCvar { world.storage.g_autoKickKillSpammers }
+public var g_autoKickKillSpammers: JKAMP.VmCvar { world.storage.g_autoKickKillSpammers }
 
 /// Source: oracle/codemp/game/g_main.c:180
-var g_autoBanKillSpammers: JKAMP.VmCvar { world.storage.g_autoBanKillSpammers }
+public var g_autoBanKillSpammers: JKAMP.VmCvar { world.storage.g_autoBanKillSpammers }
 
 /// Source: oracle/codemp/game/g_main.c:181
-var g_autoKickTKSpammers: JKAMP.VmCvar { world.storage.g_autoKickTKSpammers }
+public var g_autoKickTKSpammers: JKAMP.VmCvar { world.storage.g_autoKickTKSpammers }
 
 /// Source: oracle/codemp/game/g_main.c:182
-var g_autoBanTKSpammers: JKAMP.VmCvar { world.storage.g_autoBanTKSpammers }
+public var g_autoBanTKSpammers: JKAMP.VmCvar { world.storage.g_autoBanTKSpammers }
 
 /// Source: oracle/codemp/game/g_main.c:185
-var g_saberDebugBox: JKAMP.VmCvar { world.storage.g_saberDebugBox }
+public var g_saberDebugBox: JKAMP.VmCvar { world.storage.g_saberDebugBox }
 
 /// Source: oracle/codemp/game/g_main.c:189
-var d_altRoutes: JKAMP.VmCvar { world.storage.d_altRoutes }
+public var d_altRoutes: JKAMP.VmCvar { world.storage.d_altRoutes }
 
 /// Source: oracle/codemp/game/g_main.c:190
-var d_patched: JKAMP.VmCvar { world.storage.d_patched }
+public var d_patched: JKAMP.VmCvar { world.storage.d_patched }
 
 /// Source: oracle/codemp/game/g_main.c:192
-var g_saberRealisticCombat: JKAMP.VmCvar { world.storage.g_saberRealisticCombat }
+public var g_saberRealisticCombat: JKAMP.VmCvar { world.storage.g_saberRealisticCombat }
 
 /// Source: oracle/codemp/game/g_main.c:193
-var g_saberRestrictForce: JKAMP.VmCvar { world.storage.g_saberRestrictForce }
+public var g_saberRestrictForce: JKAMP.VmCvar { world.storage.g_saberRestrictForce }
 
 /// Source: oracle/codemp/game/g_main.c:194
-var d_saberSPStyleDamage: JKAMP.VmCvar { world.storage.d_saberSPStyleDamage }
+public var d_saberSPStyleDamage: JKAMP.VmCvar { world.storage.d_saberSPStyleDamage }
 
 /// Source: oracle/codemp/game/g_main.c:195
-var g_debugSaberLocks: JKAMP.VmCvar { world.storage.g_debugSaberLocks }
+public var g_debugSaberLocks: JKAMP.VmCvar { world.storage.g_debugSaberLocks }
 
 /// Source: oracle/codemp/game/g_main.c:196
-var g_saberLockRandomNess: JKAMP.VmCvar { world.storage.g_saberLockRandomNess }
+public var g_saberLockRandomNess: JKAMP.VmCvar { world.storage.g_saberLockRandomNess }
 
 /// Source: oracle/codemp/game/g_main.c:198
-var g_saberWallDamageScale: JKAMP.VmCvar { world.storage.g_saberWallDamageScale }
+public var g_saberWallDamageScale: JKAMP.VmCvar { world.storage.g_saberWallDamageScale }
 
 /// Source: oracle/codemp/game/g_main.c:200
-var d_saberStanceDebug: JKAMP.VmCvar { world.storage.d_saberStanceDebug }
+public var d_saberStanceDebug: JKAMP.VmCvar { world.storage.d_saberStanceDebug }
 
 /// Source: oracle/codemp/game/g_main.c:202
-var debugNPCAI: JKAMP.VmCvar { world.storage.debugNPCAI }
+public var debugNPCAI: JKAMP.VmCvar { world.storage.debugNPCAI }
 
 /// Source: oracle/codemp/game/g_main.c:203
-var debugNPCFreeze: JKAMP.VmCvar { world.storage.debugNPCFreeze }
+public var debugNPCFreeze: JKAMP.VmCvar { world.storage.debugNPCFreeze }
 
 /// Source: oracle/codemp/game/g_main.c:204
-var debugNPCAimingBeam: JKAMP.VmCvar { world.storage.debugNPCAimingBeam }
+public var debugNPCAimingBeam: JKAMP.VmCvar { world.storage.debugNPCAimingBeam }
 
 /// Source: oracle/codemp/game/g_main.c:205
-var debugBreak: JKAMP.VmCvar { world.storage.debugBreak }
+public var debugBreak: JKAMP.VmCvar { world.storage.debugBreak }
 
 /// Source: oracle/codemp/game/g_main.c:206
-var debugNoRoam: JKAMP.VmCvar { world.storage.debugNoRoam }
+public var debugNoRoam: JKAMP.VmCvar { world.storage.debugNoRoam }
 
 /// Source: oracle/codemp/game/g_main.c:207
-var d_saberCombat: JKAMP.VmCvar { world.storage.d_saberCombat }
+public var d_saberCombat: JKAMP.VmCvar { world.storage.d_saberCombat }
 
 /// Source: oracle/codemp/game/g_main.c:208
-var d_JediAI: JKAMP.VmCvar { world.storage.d_JediAI }
+public var d_JediAI: JKAMP.VmCvar { world.storage.d_JediAI }
 
 /// Source: oracle/codemp/game/g_main.c:209
-var d_noGroupAI: JKAMP.VmCvar { world.storage.d_noGroupAI }
+public var d_noGroupAI: JKAMP.VmCvar { world.storage.d_noGroupAI }
 
 /// Source: oracle/codemp/game/g_main.c:210
-var d_asynchronousGroupAI: JKAMP.VmCvar { world.storage.d_asynchronousGroupAI }
+public var d_asynchronousGroupAI: JKAMP.VmCvar { world.storage.d_asynchronousGroupAI }
 
 /// Source: oracle/codemp/game/g_main.c:211
-var d_slowmodeath: JKAMP.VmCvar { world.storage.d_slowmodeath }
+public var d_slowmodeath: JKAMP.VmCvar { world.storage.d_slowmodeath }
 
 /// Source: oracle/codemp/game/g_main.c:212
-var d_noIntermissionWait: JKAMP.VmCvar { world.storage.d_noIntermissionWait }
+public var d_noIntermissionWait: JKAMP.VmCvar { world.storage.d_noIntermissionWait }
 
 /// Source: oracle/codemp/game/g_main.c:214
-var g_spskill: JKAMP.VmCvar { world.storage.g_spskill }
+public var g_spskill: JKAMP.VmCvar { world.storage.g_spskill }
 
 /// Source: oracle/codemp/game/g_main.c:217
-var g_siegeTeam1: JKAMP.VmCvar { world.storage.g_siegeTeam1 }
+public var g_siegeTeam1: JKAMP.VmCvar { world.storage.g_siegeTeam1 }
 
 /// Source: oracle/codemp/game/g_main.c:218
-var g_siegeTeam2: JKAMP.VmCvar { world.storage.g_siegeTeam2 }
+public var g_siegeTeam2: JKAMP.VmCvar { world.storage.g_siegeTeam2 }
 
 /// Source: oracle/codemp/game/g_main.c:220
-var g_austrian: JKAMP.VmCvar { world.storage.g_austrian }
+public var g_austrian: JKAMP.VmCvar { world.storage.g_austrian }
 
 /// Source: oracle/codemp/game/g_main.c:222
-var g_powerDuelStartHealth: JKAMP.VmCvar { world.storage.g_powerDuelStartHealth }
+public var g_powerDuelStartHealth: JKAMP.VmCvar { world.storage.g_powerDuelStartHealth }
 
 /// Source: oracle/codemp/game/g_main.c:223
-var g_powerDuelEndHealth: JKAMP.VmCvar { world.storage.g_powerDuelEndHealth }
+public var g_powerDuelEndHealth: JKAMP.VmCvar { world.storage.g_powerDuelEndHealth }
 
 /// Source: oracle/codemp/game/g_main.c:227
-var g_showDuelHealths: JKAMP.VmCvar { world.storage.g_showDuelHealths }
+public var g_showDuelHealths: JKAMP.VmCvar { world.storage.g_showDuelHealths }
 
 /// Source: oracle/codemp/game/g_main.c:230
 /// Raven's data table, a hand property of `GameWorld`.
@@ -471,73 +471,73 @@ var gameCvarTableSize: Int32 { Int32(world.gameCvarTable.count) }
 public var gSharedBuffer: UnsafeMutableRawPointer { world.storage.gSharedBuffer }
 
 /// Source: oracle/codemp/game/g_main.c:1427
-var g_dontFrickinCheck: Bool {
+public var g_dontFrickinCheck: Bool {
     get { world.variables.g_dontFrickinCheck }
     set { world.variables.g_dontFrickinCheck = newValue }
 }
 
 /// Source: oracle/codemp/game/g_main.c:1691
-var gQueueScoreMessage: Bool {
+public var gQueueScoreMessage: Bool {
     get { world.variables.gQueueScoreMessage }
     set { world.variables.gQueueScoreMessage = newValue }
 }
 
 /// Source: oracle/codemp/game/g_main.c:1692
-var gQueueScoreMessageTime: Int32 {
+public var gQueueScoreMessageTime: Int32 {
     get { world.variables.gQueueScoreMessageTime }
     set { world.variables.gQueueScoreMessageTime = newValue }
 }
 
 /// Source: oracle/codemp/game/g_main.c:1717
-var g_noPDuelCheck: Bool {
+public var g_noPDuelCheck: Bool {
     get { world.variables.g_noPDuelCheck }
     set { world.variables.g_noPDuelCheck = newValue }
 }
 
 /// Source: oracle/codemp/game/g_main.c:2305
-var gDidDuelStuff: Bool {
+public var gDidDuelStuff: Bool {
     get { world.variables.gDidDuelStuff }
     set { world.variables.gDidDuelStuff = newValue }
 }
 
 /// Source: oracle/codemp/game/g_main.c:2587
-var g_endPDuel: Bool {
+public var g_endPDuel: Bool {
     get { world.variables.g_endPDuel }
     set { world.variables.g_endPDuel = newValue }
 }
 
 /// Source: oracle/codemp/game/g_main.c:2947
-var g_duelPrintTimer: Int32 {
+public var g_duelPrintTimer: Int32 {
     get { world.variables.g_duelPrintTimer }
     set { world.variables.g_duelPrintTimer = newValue }
 }
 
 /// Source: oracle/codemp/game/g_main.c:3514
-var g_LastFrameTime: Int32 {
+public var g_LastFrameTime: Int32 {
     get { world.variables.g_LastFrameTime }
     set { world.variables.g_LastFrameTime = newValue }
 }
 
 /// Source: oracle/codemp/game/g_main.c:3515
-var g_TimeSinceLastFrame: Int32 {
+public var g_TimeSinceLastFrame: Int32 {
     get { world.variables.g_TimeSinceLastFrame }
     set { world.variables.g_TimeSinceLastFrame = newValue }
 }
 
 /// Source: oracle/codemp/game/g_main.c:3517
-var gDoSlowMoDuel: Bool {
+public var gDoSlowMoDuel: Bool {
     get { world.variables.gDoSlowMoDuel }
     set { world.variables.gDoSlowMoDuel = newValue }
 }
 
 /// Source: oracle/codemp/game/g_main.c:3518
-var gSlowMoDuelTime: Int32 {
+public var gSlowMoDuelTime: Int32 {
     get { world.variables.gSlowMoDuelTime }
     set { world.variables.gSlowMoDuelTime = newValue }
 }
 
 /// Source: oracle/codemp/game/g_main.c:3580
-var g_siegeRespawnCheck: Int32 {
+public var g_siegeRespawnCheck: Int32 {
     get { world.variables.g_siegeRespawnCheck }
     set { world.variables.g_siegeRespawnCheck = newValue }
 }
@@ -547,12 +547,12 @@ var g_siegeRespawnCheck: Int32 {
 // Not ported: the shell's vmMain in Sources/jampgame/jampgame.swift decodes the command words and calls the bare functions, under rule 11 and ruling F5.
 
 /// Source: oracle/codemp/game/g_main.c:703
-func G_Printf(_ fmt: String, _ args: any JKAShared.FormatArg...) {
+public func G_Printf(_ fmt: String, _ args: any JKAShared.FormatArg...) {
     trap_Printf(format(fmt, args))
 }
 
 /// Source: oracle/codemp/game/g_main.c:714
-func G_Error(_ fmt: String, _ args: any JKAShared.FormatArg...) -> Never {
+public func G_Error(_ fmt: String, _ args: any JKAShared.FormatArg...) -> Never {
     trap_Error(format(fmt, args))
 }
 
@@ -570,7 +570,7 @@ All but the last will have the teamchain field set to the next one
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:736
-func G_FindTeams() {
+public func G_FindTeams() {
     var eIndex: Int32 = 0
     var e2Index: Int32 = 0
     var i: Int32
@@ -648,7 +648,7 @@ func G_FindTeams() {
 }
 
 /// Source: oracle/codemp/game/g_main.c:783
-func G_RemapTeamShaders() {
+public func G_RemapTeamShaders() {
 }
 
 /**
@@ -659,7 +659,7 @@ G_RegisterCvars
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:803
-func G_RegisterCvars() {
+public func G_RegisterCvars() {
     var i: Int32
     var cvIndex: Int32 = 0
     var remapped: Bool = false
@@ -709,7 +709,7 @@ G_UpdateCvars
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:852
-func G_UpdateCvars() {
+public func G_UpdateCvars() {
     var i: Int32
     var cvIndex: Int32 = 0
     var remapped: Bool = false
@@ -1043,7 +1043,7 @@ spectator in the game and restart
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:1248
-func AddTournamentPlayer() {
+public func AddTournamentPlayer() {
     var i: Int32
     var client: Client?
     var nextInLine: Client?
@@ -1107,7 +1107,7 @@ Make the loser a spectator at the back of the line
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:1304
-func RemoveTournamentLoser() {
+public func RemoveTournamentLoser() {
     let clientNum: Int32
 
     if level.numPlayingClients != 2 {
@@ -1125,7 +1125,7 @@ func RemoveTournamentLoser() {
 }
 
 /// Source: oracle/codemp/game/g_main.c:1321
-func G_PowerDuelCount(_ loners: inout Int32, _ doubles: inout Int32, _ countSpec: Bool) {
+public func G_PowerDuelCount(_ loners: inout Int32, _ doubles: inout Int32, _ countSpec: Bool) {
     var i: Int32 = 0
     var cl: Client?
 
@@ -1144,7 +1144,7 @@ func G_PowerDuelCount(_ loners: inout Int32, _ doubles: inout Int32, _ countSpec
 }
 
 /// Source: oracle/codemp/game/g_main.c:1346
-func AddPowerDuelPlayers() {
+public func AddPowerDuelPlayers() {
     var i: Int32
     var loners: Int32 = 0
     var doubles: Int32 = 0
@@ -1228,7 +1228,7 @@ func AddPowerDuelPlayers() {
 }
 
 /// Source: oracle/codemp/game/g_main.c:1429
-func RemovePowerDuelLosers() {
+public func RemovePowerDuelLosers() {
     var remClients: [Int32] = [Int32](repeating: 0, count: 3)
     var remNum: Int32 = 0
     var i: Int32 = 0
@@ -1269,7 +1269,7 @@ func RemovePowerDuelLosers() {
 }
 
 /// Source: oracle/codemp/game/g_main.c:1473
-func RemoveDuelDrawLoser() {
+public func RemoveDuelDrawLoser() {
     var clFirst: Int32 = 0
     var clSec: Int32 = 0
     var clFailure: Int32 = 0
@@ -1308,7 +1308,7 @@ RemoveTournamentWinner
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:1519
-func RemoveTournamentWinner() {
+public func RemoveTournamentWinner() {
     let clientNum: Int32
 
     if level.numPlayingClients != 2 {
@@ -1333,7 +1333,7 @@ AdjustTournamentScores
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:1541
-func AdjustTournamentScores() {
+public func AdjustTournamentScores() {
     var clientNum: Int32
 
     if level.clientsSlots[level.sortedClients[0]].ps.persistant[PERS_SCORE] == level.clientsSlots[level.sortedClients[1]].ps.persistant[PERS_SCORE] && level.clientsSlots[level.sortedClients[0]].pers.connected == CON_CONNECTED && level.clientsSlots[level.sortedClients[1]].pers.connected == CON_CONNECTED {
@@ -1405,7 +1405,7 @@ SortRanks
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:1624
-func SortRanks(_ a: Int32, _ b: Int32) -> Int32 {
+public func SortRanks(_ a: Int32, _ b: Int32) -> Int32 {
     let ca: Client
     let cb: Client
 
@@ -1470,7 +1470,7 @@ func SortRanks(_ a: Int32, _ b: Int32) -> Int32 {
 
 //A new duel started so respawn everyone and make sure their stats are reset
 /// Source: oracle/codemp/game/g_main.c:1695
-func G_CanResetDuelists() -> Bool {
+public func G_CanResetDuelists() -> Bool {
     var i: Int32
     var ent: Entity?
 
@@ -1489,7 +1489,7 @@ func G_CanResetDuelists() -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_main.c:1718
-func G_ResetDuelists() {
+public func G_ResetDuelists() {
     var i: Int32
     var ent: Entity?
     var tent: Entity?
@@ -1523,7 +1523,7 @@ and team change.
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:1751
-func CalculateRanks() {
+public func CalculateRanks() {
     var i: Int32
     var rank: Int32
     var score: Int32
@@ -1692,7 +1692,7 @@ due to enters/exits/forced team changes
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:1925
-func SendScoreboardMessageToAllClients() {
+public func SendScoreboardMessageToAllClients() {
     var i: Int32
 
     i = 0
@@ -1715,7 +1715,7 @@ If a new client connects, this will be called after the spawn function.
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:1943
-func MoveClientToIntermission(_ ent: Entity) {
+public func MoveClientToIntermission(_ ent: Entity) {
     // take out of follow mode if needed
     if ent.client!.sess.spectatorState == SPECTATOR_FOLLOW {
         StopFollowing(ent)
@@ -1742,7 +1742,7 @@ func MoveClientToIntermission(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_main.c:1979
-func FindIntermissionPoint() {
+public func FindIntermissionPoint() {
     var ent: Entity? = nil
     var target: Entity?
     var dir = vec3_t()
@@ -1789,7 +1789,7 @@ BeginIntermission
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:2035
-func BeginIntermission() {
+public func BeginIntermission() {
     var i: Int32
     var clientIndex: Int32 = 0
 
@@ -1846,7 +1846,7 @@ func BeginIntermission() {
 }
 
 /// Source: oracle/codemp/game/g_main.c:2094
-func DuelLimitHit() -> Bool {
+public func DuelLimitHit() -> Bool {
     var i: Int32
     var cl: Client?
 
@@ -1868,7 +1868,7 @@ func DuelLimitHit() -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_main.c:2114
-func DuelResetWinsLosses() {
+public func DuelResetWinsLosses() {
     var i: Int32
     var cl: Client?
 
@@ -1887,7 +1887,7 @@ func DuelResetWinsLosses() {
 }
 
 /// Source: oracle/codemp/game/g_main.c:2141
-func ExitLevel() {
+public func ExitLevel() {
     var i: Int32
     var cl: Client?
 
@@ -1960,7 +1960,7 @@ Print to the logfile with a time stamp if it is open
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:2213
-func G_LogPrintf(_ fmt: String, _ args: any JKAShared.FormatArg...) {
+public func G_LogPrintf(_ fmt: String, _ args: any JKAShared.FormatArg...) {
     var string = CharBuf(1024)
     let min: Int32
     let tens: Int32
@@ -1998,7 +1998,7 @@ Append information about this game to the log file
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:2249
-func LogExit(_ string: String) {
+public func LogExit(_ string: String) {
     var i: Int32
     var numSorted: Int32
     var cl: Client?
@@ -2071,7 +2071,7 @@ wait 10 seconds before going on.
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:2317
-func CheckIntermissionExit() {
+public func CheckIntermissionExit() {
     var ready: Int32
     var notReady: Int32
     var i: Int32
@@ -2266,7 +2266,7 @@ ScoreIsTied
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:2561
-func ScoreIsTied() -> Bool {
+public func ScoreIsTied() -> Bool {
     let a: Int32
     let b: Int32
 
@@ -2285,7 +2285,7 @@ func ScoreIsTied() -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_main.c:2588
-func CheckExitRules() {
+public func CheckExitRules() {
     var i: Int32
     var cl: Client?
     var sKillLimit: String
@@ -2581,7 +2581,7 @@ func CheckExitRules() {
 }
 
 /// Source: oracle/codemp/game/g_main.c:2923
-func G_RemoveDuelist(_ team: Int32) {
+public func G_RemoveDuelist(_ team: Int32) {
     var i: Int32 = 0
     var ent: Entity?
     while i < MAX_CLIENTS {
@@ -2595,7 +2595,7 @@ func G_RemoveDuelist(_ team: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_main.c:2948
-func CheckTournament() {
+public func CheckTournament() {
     // check because we run 3 game frames before calling Connect and/or ClientBegin
     // for clients on a map_restart
     //	if ( level.numPlayingClients == 0 && (g_gametype.integer != GT_POWERDUEL) ) {
@@ -2794,7 +2794,7 @@ func CheckTournament() {
 }
 
 /// Source: oracle/codemp/game/g_main.c:3218
-func G_KickAllBots() {
+public func G_KickAllBots() {
     var i: Int32
     var netname = CharBuf(36)
     var cl: Client?
@@ -2825,7 +2825,7 @@ CheckVote
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:3246
-func CheckVote() {
+public func CheckVote() {
     if level.voteExecuteTime != 0 && level.voteExecuteTime < level.time {
         level.voteExecuteTime = 0
         trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString))
@@ -2907,7 +2907,7 @@ PrintTeam
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:3333
-func PrintTeam(_ team: Int32, _ message: String) {
+public func PrintTeam(_ team: Int32, _ message: String) {
     var i: Int32
 
     i = 0
@@ -2929,7 +2929,7 @@ SetLeader
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:3348
-func SetLeader(_ team: Int32, _ client: Int32) {
+public func SetLeader(_ team: Int32, _ client: Int32) {
     var i: Int32
 
     if level.clientsSlots[client].pers.connected == CON_DISCONNECTED {
@@ -2965,7 +2965,7 @@ CheckTeamLeader
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:3377
-func CheckTeamLeader(_ team: Int32) {
+public func CheckTeamLeader(_ team: Int32) {
     var i: Int32
 
     i = 0
@@ -3013,7 +3013,7 @@ CheckTeamVote
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:3409
-func CheckTeamVote(_ team: Int32) {
+public func CheckTeamVote(_ team: Int32) {
     var cs_offset: Int32
 
     if team == TEAM_RED {
@@ -3067,7 +3067,7 @@ CheckCvars
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:3455
-func CheckCvars() {
+public func CheckCvars() {
     if g_password.modificationCount != lastMod {
         var password = CharBuf(MAX_INFO_STRING)
         var c: Int32 = 0
@@ -3100,7 +3100,7 @@ Runs thinking code for this frame if necessary
 ```
 */
 /// Source: oracle/codemp/game/g_main.c:3489
-func G_RunThink(_ ent: Entity) {
+public func G_RunThink(_ ent: Entity) {
     let thinktime: Float
 
     runicarus: do {
@@ -3126,7 +3126,7 @@ func G_RunThink(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_main.c:3522
-func NAV_CheckCalcPaths() {
+public func NAV_CheckCalcPaths() {
     if navCalcPathTime != 0 && navCalcPathTime < level.time {
         //first time we've ever loaded this map...
         // Raven's record lives to the end of his block, so the block is the closure.
@@ -3157,7 +3157,7 @@ func NAV_CheckCalcPaths() {
 }
 
 /// Source: oracle/codemp/game/g_main.c:3559
-func BG_GetTime() -> Int32 {
+public func BG_GetTime() -> Int32 {
     return level.time
 }
 
@@ -3611,7 +3611,7 @@ var text: CharBuf {
 }
 
 /// Source: oracle/codemp/game/g_main.c:4104
-func G_GetStringEdString(_ refSection: String, _ refName: String) -> String {
+public func G_GetStringEdString(_ refSection: String, _ refName: String) -> String {
     /*
     static char text[1024]={0};
     trap_SP_GetStringTextString(va("%s_%s", refSection, refName), text, sizeof(text));

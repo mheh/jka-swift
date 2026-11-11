@@ -5,16 +5,16 @@ import JKAMP_CGame
 import JKAMP_BG
 
 /// Source: oracle/codemp/cgame/cg_marks.c:16
-var cg_activeMarkPolys: MarkPoly { world.storage.cg_activeMarkPolys }
+public var cg_activeMarkPolys: MarkPoly { world.storage.cg_activeMarkPolys }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:17
-var cg_freeMarkPolys: MarkPoly? {
+public var cg_freeMarkPolys: MarkPoly? {
     get { world.variables.cg_freeMarkPolys }
     set { world.variables.cg_freeMarkPolys = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:18
-var cg_markPolys: Slots<MarkPoly> { world.storage.cg_markPolys }
+public var cg_markPolys: Slots<MarkPoly> { world.storage.cg_markPolys }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:19
 var markTotal: Int32 {
@@ -77,68 +77,68 @@ let PARTICLE_GRAVITY = 40 as Int32
 let MAX_PARTICLES = 1024 as Int32
 
 /// Source: oracle/codemp/cgame/cg_marks.c:380
-var active_particles: Cparticle? {
+public var active_particles: Cparticle? {
     get { world.variables.active_particles }
     set { world.variables.active_particles = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:380
-var free_particles: Cparticle? {
+public var free_particles: Cparticle? {
     get { world.variables.free_particles }
     set { world.variables.free_particles = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:381
-var particles: Slots<Cparticle> { world.storage.particles }
+public var particles: Slots<Cparticle> { world.storage.particles }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:382
 /// Raven's initialized variable, a hand property of `CGameWorld`.
 var cl_numparticles: Int32 { world.cl_numparticles }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:384
-var initparticles: Bool {
+public var initparticles: Bool {
     get { world.variables.initparticles }
     set { world.variables.initparticles = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:385
-var pvforward: JKAShared.vec3_t {
+public var pvforward: JKAShared.vec3_t {
     get { world.variables.pvforward }
     set { world.variables.pvforward = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:385
-var pvright: JKAShared.vec3_t {
+public var pvright: JKAShared.vec3_t {
     get { world.variables.pvright }
     set { world.variables.pvright = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:385
-var pvup: JKAShared.vec3_t {
+public var pvup: JKAShared.vec3_t {
     get { world.variables.pvup }
     set { world.variables.pvup = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:386
-var rforward: JKAShared.vec3_t {
+public var rforward: JKAShared.vec3_t {
     get { world.variables.rforward }
     set { world.variables.rforward = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:386
-var rright: JKAShared.vec3_t {
+public var rright: JKAShared.vec3_t {
     get { world.variables.rright }
     set { world.variables.rright = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:386
-var rup: JKAShared.vec3_t {
+public var rup: JKAShared.vec3_t {
     get { world.variables.rup }
     set { world.variables.rup = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:388
-var oldtime: Float {
+public var oldtime: Float {
     get { world.variables.oldtime }
     set { world.variables.oldtime = newValue }
 }
@@ -168,7 +168,7 @@ This is called at startup and for tournement restarts
 ```
 */
 /// Source: oracle/codemp/cgame/cg_marks.c:28
-func CG_InitMarkPolys() {
+public func CG_InitMarkPolys() {
     var i: Int32
 
     cg_markPolys.zero()
@@ -191,7 +191,7 @@ CG_FreeMarkPoly
 ```
 */
 /// Source: oracle/codemp/cgame/cg_marks.c:47
-func CG_FreeMarkPoly(_ le: MarkPoly) {
+public func CG_FreeMarkPoly(_ le: MarkPoly) {
     if le.prevMark == nil {
         CG_Error("CG_FreeLocalEntity: not active")
     }
@@ -215,7 +215,7 @@ Will allways succeed, even if it requires freeing an old active mark
 ```
 */
 /// Source: oracle/codemp/cgame/cg_marks.c:68
-func CG_AllocMark() -> MarkPoly? {
+public func CG_AllocMark() -> MarkPoly? {
     var le: MarkPoly?
     let time: Int32
 
@@ -242,7 +242,7 @@ func CG_AllocMark() -> MarkPoly? {
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:110
-func CG_ImpactMark(_ markShader: JKAShared.qhandle_t, _ origin: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ orientation: Float, _ red: Float, _ green: Float, _ blue: Float, _ alpha: Float, _ alphaFade: Bool, _ radius: Float, _ temporary: Bool) {
+public func CG_ImpactMark(_ markShader: JKAShared.qhandle_t, _ origin: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ orientation: Float, _ red: Float, _ green: Float, _ blue: Float, _ alpha: Float, _ alphaFade: Bool, _ radius: Float, _ temporary: Bool) {
     var axis = [vec3_t](repeating: vec3_t(), count: 3)
     var texCoordScale: Float = 0
     var originalPoints = [vec3_t](repeating: vec3_t(), count: 4)
@@ -365,7 +365,7 @@ func CG_ImpactMark(_ markShader: JKAShared.qhandle_t, _ origin: JKAShared.vec3_t
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:221
-func CG_AddMarks() {
+public func CG_AddMarks() {
     var j: Int32
     var mp: MarkPoly?
     var next: MarkPoly?
@@ -452,7 +452,7 @@ CL_ClearParticles
 ```
 */
 /// Source: oracle/codemp/cgame/cg_marks.c:395
-func CG_ClearParticles() {
+public func CG_ClearParticles() {
     var i: Int32
 
     particles.zero()
@@ -496,7 +496,7 @@ CG_AddParticleToScene
 ```
 */
 /// Source: oracle/codemp/cgame/cg_marks.c:436
-func CG_AddParticleToScene(_ p: Cparticle, _ org: JKAShared.vec3_t, _ alpha: Float) {
+public func CG_AddParticleToScene(_ p: Cparticle, _ org: JKAShared.vec3_t, _ alpha: Float) {
     var point = vec3_t()
     // Raven assigns his own `alpha` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var alpha = alpha
@@ -1128,7 +1128,7 @@ CG_AddParticles
 ```
 */
 /// Source: oracle/codemp/cgame/cg_marks.c:1081
-func CG_AddParticles() {
+public func CG_AddParticles() {
     var p: Cparticle?
     var next: Cparticle?
     var alpha: Float
@@ -1266,7 +1266,7 @@ CG_AddParticles
 ```
 */
 /// Source: oracle/codemp/cgame/cg_marks.c:1215
-func CG_ParticleSnowFlurry(_ pshader: JKAShared.qhandle_t, _ cent: Centity) {
+public func CG_ParticleSnowFlurry(_ pshader: JKAShared.qhandle_t, _ cent: Centity) {
     var p: Cparticle?
     let turb: Bool = true
 
@@ -1336,7 +1336,7 @@ func CG_ParticleSnowFlurry(_ pshader: JKAShared.qhandle_t, _ cent: Centity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:1283
-func CG_ParticleSnow(_ pshader: JKAShared.qhandle_t, _ origin: JKAShared.vec3_t, _ origin2: JKAShared.vec3_t, _ turb: Int32, _ range: Float, _ snum: Int32) {
+public func CG_ParticleSnow(_ pshader: JKAShared.qhandle_t, _ origin: JKAShared.vec3_t, _ origin2: JKAShared.vec3_t, _ turb: Int32, _ range: Float, _ snum: Int32) {
     var p: Cparticle?
 
     if pshader == 0 {
@@ -1393,7 +1393,7 @@ func CG_ParticleSnow(_ pshader: JKAShared.qhandle_t, _ origin: JKAShared.vec3_t,
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:1340
-func CG_ParticleBubble(_ pshader: JKAShared.qhandle_t, _ origin: JKAShared.vec3_t, _ origin2: JKAShared.vec3_t, _ turb: Int32, _ range: Float, _ snum: Int32) {
+public func CG_ParticleBubble(_ pshader: JKAShared.qhandle_t, _ origin: JKAShared.vec3_t, _ origin2: JKAShared.vec3_t, _ turb: Int32, _ range: Float, _ snum: Int32) {
     var p: Cparticle?
     let randsize: Float
 
@@ -1454,7 +1454,7 @@ func CG_ParticleBubble(_ pshader: JKAShared.qhandle_t, _ origin: JKAShared.vec3_
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:1401
-func CG_ParticleSmoke(_ pshader: JKAShared.qhandle_t, _ cent: Centity) {
+public func CG_ParticleSmoke(_ pshader: JKAShared.qhandle_t, _ cent: Centity) {
     // using cent->density = enttime
     //		 cent->frame = startfade
     var p: Cparticle?
@@ -1506,7 +1506,7 @@ func CG_ParticleSmoke(_ pshader: JKAShared.qhandle_t, _ cent: Centity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:1449
-func CG_ParticleBulletDebris(_ org: JKAShared.vec3_t, _ vel: JKAShared.vec3_t, _ duration: Int32) {
+public func CG_ParticleBulletDebris(_ org: JKAShared.vec3_t, _ vel: JKAShared.vec3_t, _ duration: Int32) {
     var p: Cparticle?
 
     if free_particles == nil {
@@ -1548,7 +1548,7 @@ func CG_ParticleBulletDebris(_ org: JKAShared.vec3_t, _ vel: JKAShared.vec3_t, _
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:1496
-func CG_ParticleExplosion(_ animStr: String, _ origin: JKAShared.vec3_t, _ vel: JKAShared.vec3_t, _ duration: Int32, _ sizeStart: Int32, _ sizeEnd: Int32) {
+public func CG_ParticleExplosion(_ animStr: String, _ origin: JKAShared.vec3_t, _ vel: JKAShared.vec3_t, _ duration: Int32, _ sizeStart: Int32, _ sizeEnd: Int32) {
     // Raven calls this function from no file of either tree, so it is dead.
     var duration = duration
     var p: Cparticle?
@@ -1607,12 +1607,12 @@ func CG_ParticleExplosion(_ animStr: String, _ origin: JKAShared.vec3_t, _ vel: 
 
 // Rafael Shrapnel
 /// Source: oracle/codemp/cgame/cg_marks.c:1550
-func CG_AddParticleShrapnel(_ le: LocalEntity) {
+public func CG_AddParticleShrapnel(_ le: LocalEntity) {
     return
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:1556
-func CG_NewParticleArea(_ num: Int32) -> Int32 {
+public func CG_NewParticleArea(_ num: Int32) -> Int32 {
     // const char *str;
     var str = TextCursor()
     var token: String
@@ -1690,7 +1690,7 @@ func CG_NewParticleArea(_ num: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:1629
-func CG_SnowLink(_ cent: Centity, _ particleOn: Bool) {
+public func CG_SnowLink(_ cent: Centity, _ particleOn: Bool) {
     var p: Cparticle?
     var next: Cparticle?
     let id: Int32
@@ -1715,7 +1715,7 @@ func CG_SnowLink(_ cent: Centity, _ particleOn: Bool) {
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:1654
-func CG_ParticleImpactSmokePuff(_ pshader: JKAShared.qhandle_t, _ origin: JKAShared.vec3_t) {
+public func CG_ParticleImpactSmokePuff(_ pshader: JKAShared.qhandle_t, _ origin: JKAShared.vec3_t) {
     var p: Cparticle?
 
     if pshader == 0 {
@@ -1759,7 +1759,7 @@ func CG_ParticleImpactSmokePuff(_ pshader: JKAShared.qhandle_t, _ origin: JKASha
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:1694
-func CG_Particle_Bleed(_ pshader: JKAShared.qhandle_t, _ start: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ fleshEntityNum: Int32, _ duration: Int32) {
+public func CG_Particle_Bleed(_ pshader: JKAShared.qhandle_t, _ start: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ fleshEntityNum: Int32, _ duration: Int32) {
     var p: Cparticle?
 
     if pshader == 0 {
@@ -1813,7 +1813,7 @@ func CG_Particle_Bleed(_ pshader: JKAShared.qhandle_t, _ start: JKAShared.vec3_t
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:1744
-func CG_Particle_OilParticle(_ pshader: JKAShared.qhandle_t, _ cent: Centity) {
+public func CG_Particle_OilParticle(_ pshader: JKAShared.qhandle_t, _ cent: Centity) {
     var p: Cparticle?
 
     let time: Int32
@@ -1878,7 +1878,7 @@ func CG_Particle_OilParticle(_ pshader: JKAShared.qhandle_t, _ cent: Centity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:1808
-func CG_Particle_OilSlick(_ pshader: JKAShared.qhandle_t, _ cent: Centity) {
+public func CG_Particle_OilSlick(_ pshader: JKAShared.qhandle_t, _ cent: Centity) {
     var p: Cparticle?
 
     if pshader == 0 {
@@ -1944,7 +1944,7 @@ func CG_Particle_OilSlick(_ pshader: JKAShared.qhandle_t, _ cent: Centity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:1874
-func CG_OilSlickRemove(_ cent: Centity) {
+public func CG_OilSlickRemove(_ cent: Centity) {
     var p: Cparticle?
     var next: Cparticle?
     let id: Int32
@@ -1971,7 +1971,7 @@ func CG_OilSlickRemove(_ cent: Centity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:1902
-func ValidBloodPool(_ start: JKAShared.vec3_t) -> Bool {
+public func ValidBloodPool(_ start: JKAShared.vec3_t) -> Bool {
     var angles = vec3_t()
     var right = vec3_t()
     var up = vec3_t()
@@ -2029,7 +2029,7 @@ func ValidBloodPool(_ start: JKAShared.vec3_t) -> Bool {
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:1948
-func CG_BloodPool(_ le: LocalEntity, _ pshader: JKAShared.qhandle_t, _ tr: JKAMP.Trace) {
+public func CG_BloodPool(_ le: LocalEntity, _ pshader: JKAShared.qhandle_t, _ tr: JKAMP.Trace) {
     var p: Cparticle?
     let legit: Bool
     var start = vec3_t()
@@ -2094,7 +2094,7 @@ func CG_BloodPool(_ le: LocalEntity, _ pshader: JKAShared.qhandle_t, _ tr: JKAMP
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:2011
-func CG_ParticleBloodCloud(_ cent: Centity, _ origin: JKAShared.vec3_t, _ dir: JKAShared.vec3_t) {
+public func CG_ParticleBloodCloud(_ cent: Centity, _ origin: JKAShared.vec3_t, _ dir: JKAShared.vec3_t) {
     let length: Float
     var dist: Float
     let crittersize: Float
@@ -2177,7 +2177,7 @@ func CG_ParticleBloodCloud(_ cent: Centity, _ origin: JKAShared.vec3_t, _ dir: J
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:2088
-func CG_ParticleSparks(_ org: JKAShared.vec3_t, _ vel: JKAShared.vec3_t, _ duration: Int32, _ x: Float, _ y: Float, _ speed: Float) {
+public func CG_ParticleSparks(_ org: JKAShared.vec3_t, _ vel: JKAShared.vec3_t, _ duration: Int32, _ x: Float, _ y: Float, _ speed: Float) {
     var p: Cparticle?
 
     if free_particles == nil {
@@ -2227,7 +2227,7 @@ func CG_ParticleSparks(_ org: JKAShared.vec3_t, _ vel: JKAShared.vec3_t, _ durat
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:2136
-func CG_ParticleDust(_ cent: Centity, _ origin: JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t) {
+public func CG_ParticleDust(_ cent: Centity, _ origin: JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t) {
     let length: Float
     var dist: Float
     let crittersize: Float
@@ -2330,7 +2330,7 @@ func CG_ParticleDust(_ cent: Centity, _ origin: JKAShared.vec3_t, _ dir: inout J
 }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:2232
-func CG_ParticleMisc(_ pshader: JKAShared.qhandle_t, _ origin: JKAShared.vec3_t, _ size: Int32, _ duration: Int32, _ alpha: Float) {
+public func CG_ParticleMisc(_ pshader: JKAShared.qhandle_t, _ origin: JKAShared.vec3_t, _ size: Int32, _ duration: Int32, _ alpha: Float) {
     var p: Cparticle?
 
     if pshader == 0 {

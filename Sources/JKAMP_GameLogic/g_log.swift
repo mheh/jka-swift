@@ -5,67 +5,67 @@ import JKAMP_Game
 import JKAMP_BG
 
 /// Source: oracle/codemp/game/g_log.c:19
-var G_WeaponLogPickups: [[Int32]] {
+public var G_WeaponLogPickups: [[Int32]] {
     get { world.variables.G_WeaponLogPickups }
     set { world.variables.G_WeaponLogPickups = newValue }
 }
 
 /// Source: oracle/codemp/game/g_log.c:20
-var G_WeaponLogFired: [[Int32]] {
+public var G_WeaponLogFired: [[Int32]] {
     get { world.variables.G_WeaponLogFired }
     set { world.variables.G_WeaponLogFired = newValue }
 }
 
 /// Source: oracle/codemp/game/g_log.c:21
-var G_WeaponLogDamage: [[Int32]] {
+public var G_WeaponLogDamage: [[Int32]] {
     get { world.variables.G_WeaponLogDamage }
     set { world.variables.G_WeaponLogDamage = newValue }
 }
 
 /// Source: oracle/codemp/game/g_log.c:22
-var G_WeaponLogKills: [[Int32]] {
+public var G_WeaponLogKills: [[Int32]] {
     get { world.variables.G_WeaponLogKills }
     set { world.variables.G_WeaponLogKills = newValue }
 }
 
 /// Source: oracle/codemp/game/g_log.c:23
-var G_WeaponLogDeaths: [[Int32]] {
+public var G_WeaponLogDeaths: [[Int32]] {
     get { world.variables.G_WeaponLogDeaths }
     set { world.variables.G_WeaponLogDeaths = newValue }
 }
 
 /// Source: oracle/codemp/game/g_log.c:24
-var G_WeaponLogFrags: [[Int32]] {
+public var G_WeaponLogFrags: [[Int32]] {
     get { world.variables.G_WeaponLogFrags }
     set { world.variables.G_WeaponLogFrags = newValue }
 }
 
 /// Source: oracle/codemp/game/g_log.c:25
-var G_WeaponLogTime: [[Int32]] {
+public var G_WeaponLogTime: [[Int32]] {
     get { world.variables.G_WeaponLogTime }
     set { world.variables.G_WeaponLogTime = newValue }
 }
 
 /// Source: oracle/codemp/game/g_log.c:26
-var G_WeaponLogLastTime: [Int32] {
+public var G_WeaponLogLastTime: [Int32] {
     get { world.variables.G_WeaponLogLastTime }
     set { world.variables.G_WeaponLogLastTime = newValue }
 }
 
 /// Source: oracle/codemp/game/g_log.c:27
-var G_WeaponLogClientTouch: [Bool] {
+public var G_WeaponLogClientTouch: [Bool] {
     get { world.variables.G_WeaponLogClientTouch }
     set { world.variables.G_WeaponLogClientTouch = newValue }
 }
 
 /// Source: oracle/codemp/game/g_log.c:28
-var G_WeaponLogPowerups: [[Int32]] {
+public var G_WeaponLogPowerups: [[Int32]] {
     get { world.variables.G_WeaponLogPowerups }
     set { world.variables.G_WeaponLogPowerups = newValue }
 }
 
 /// Source: oracle/codemp/game/g_log.c:29
-var G_WeaponLogItems: [[Int32]] {
+public var G_WeaponLogItems: [[Int32]] {
     get { world.variables.G_WeaponLogItems }
     set { world.variables.G_WeaponLogItems = newValue }
 }
@@ -117,7 +117,7 @@ let weaponFromMOD: [Int32] = [
 
 /// Source: oracle/codemp/game/g_log.c:79
 /// Raven's data table, a hand property of `GameWorld`.
-var weaponNameFromIndex: [String] {
+public var weaponNameFromIndex: [String] {
     get { world.weaponNameFromIndex }
     set { world.weaponNameFromIndex = newValue }
 }
@@ -133,7 +133,7 @@ G_LogWeaponInit
 ```
 */
 /// Source: oracle/codemp/game/g_log.c:108
-func G_LogWeaponInit() {
+public func G_LogWeaponInit() {
     G_WeaponLogPickups.fill(0)
     G_WeaponLogFired.fill(0)
     G_WeaponLogDamage.fill(0)
@@ -147,7 +147,7 @@ func G_LogWeaponInit() {
 }
 
 /// Source: oracle/codemp/game/g_log.c:123
-func G_LogWeaponPickup(_ client: Int32, _ weaponid: Int32) {
+public func G_LogWeaponPickup(_ client: Int32, _ weaponid: Int32) {
     // Raven has no test here and writes past a `MAX_CLIENTS` table for an NPC, which is undefined.
     // The eight guards of this file are OpenJK's at g_log.c:144.
     if client >= MAX_CLIENTS {
@@ -158,7 +158,7 @@ func G_LogWeaponPickup(_ client: Int32, _ weaponid: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_log.c:131
-func G_LogWeaponFire(_ client: Int32, _ weaponid: Int32) {
+public func G_LogWeaponFire(_ client: Int32, _ weaponid: Int32) {
     let dur: Int32
 
     if client >= MAX_CLIENTS {
@@ -176,7 +176,7 @@ func G_LogWeaponFire(_ client: Int32, _ weaponid: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_log.c:147
-func G_LogWeaponDamage(_ client: Int32, _ mod: Int32, _ amount: Int32) {
+public func G_LogWeaponDamage(_ client: Int32, _ mod: Int32, _ amount: Int32) {
     if client >= MAX_CLIENTS {
         return
     }
@@ -188,7 +188,7 @@ func G_LogWeaponDamage(_ client: Int32, _ mod: Int32, _ amount: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_log.c:157
-func G_LogWeaponKill(_ client: Int32, _ mod: Int32) {
+public func G_LogWeaponKill(_ client: Int32, _ mod: Int32) {
     if client >= MAX_CLIENTS {
         return
     }
@@ -200,7 +200,7 @@ func G_LogWeaponKill(_ client: Int32, _ mod: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_log.c:167
-func G_LogWeaponFrag(_ attacker: Int32, _ deadguy: Int32) {
+public func G_LogWeaponFrag(_ attacker: Int32, _ deadguy: Int32) {
     if attacker >= MAX_CLIENTS || deadguy >= MAX_CLIENTS {
         return
     }
@@ -212,7 +212,7 @@ func G_LogWeaponFrag(_ attacker: Int32, _ deadguy: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_log.c:177
-func G_LogWeaponDeath(_ client: Int32, _ weaponid: Int32) {
+public func G_LogWeaponDeath(_ client: Int32, _ weaponid: Int32) {
     if client >= MAX_CLIENTS {
         return
     }
@@ -224,7 +224,7 @@ func G_LogWeaponDeath(_ client: Int32, _ weaponid: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_log.c:187
-func G_LogWeaponPowerup(_ client: Int32, _ powerupid: Int32) {
+public func G_LogWeaponPowerup(_ client: Int32, _ powerupid: Int32) {
     if client >= MAX_CLIENTS {
         return
     }
@@ -236,7 +236,7 @@ func G_LogWeaponPowerup(_ client: Int32, _ powerupid: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_log.c:197
-func G_LogWeaponItem(_ client: Int32, _ itemid: Int32) {
+public func G_LogWeaponItem(_ client: Int32, _ itemid: Int32) {
     if client >= MAX_CLIENTS {
         return
     }
@@ -248,7 +248,7 @@ func G_LogWeaponItem(_ client: Int32, _ itemid: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_log.c:227
-func G_LogWeaponOutput() {
+public func G_LogWeaponOutput() {
     var i: Int32
     var j: Int32
     var curwp: Int32
@@ -852,7 +852,7 @@ func G_LogWeaponOutput() {
 
 // did this player earn the efficiency award?
 /// Source: oracle/codemp/game/g_log.c:824
-func CalculateEfficiency(_ ent: Entity, _ efficiency: inout Int32) -> Bool {
+public func CalculateEfficiency(_ ent: Entity, _ efficiency: inout Int32) -> Bool {
     var fAccuracyRatio: Float = 0
     var fBestRatio: Float = 0
     var i: Int32 = 0
@@ -896,7 +896,7 @@ func CalculateEfficiency(_ ent: Entity, _ efficiency: inout Int32) -> Bool {
 
 // did this player earn the sharpshooter award?
 /// Source: oracle/codemp/game/g_log.c:866
-func CalculateSharpshooter(_ ent: Entity, _ frags: inout Int32) -> Bool {
+public func CalculateSharpshooter(_ ent: Entity, _ frags: inout Int32) -> Bool {
     var i: Int32 = 0
     var nBestPlayer: Int32 = -1
     var nKills: Int32 = 0
@@ -936,7 +936,7 @@ func CalculateSharpshooter(_ ent: Entity, _ frags: inout Int32) -> Bool {
 
 // did this player earn the untouchable award?
 /// Source: oracle/codemp/game/g_log.c:906
-func CalculateUntouchable(_ ent: Entity) -> Bool {
+public func CalculateUntouchable(_ ent: Entity) -> Bool {
     let playTime: Int32
     playTime = (level.time - ent.client!.pers.enterTime) / 60000
 
@@ -961,7 +961,7 @@ func CalculateUntouchable(_ ent: Entity) -> Bool {
 
 // did this player earn the logistics award?
 /// Source: oracle/codemp/game/g_log.c:931
-func CalculateLogistics(_ ent: Entity, _ stuffUsed: inout Int32) -> Bool {
+public func CalculateLogistics(_ ent: Entity, _ stuffUsed: inout Int32) -> Bool {
     var i: Int32 = 0
     var j: Int32 = 0
     var nBestPlayer: Int32 = -1
@@ -1017,7 +1017,7 @@ func CalculateLogistics(_ ent: Entity, _ stuffUsed: inout Int32) -> Bool {
 
 // did this player earn the tactician award?
 /// Source: oracle/codemp/game/g_log.c:988
-func CalculateTactician(_ ent: Entity, _ kills: inout Int32) -> Bool {
+public func CalculateTactician(_ ent: Entity, _ kills: inout Int32) -> Bool {
     var i: Int32 = 0
     var nBestPlayer: Int32 = -1
     var nKills: Int32 = 0
@@ -1128,7 +1128,7 @@ func CalculateTactician(_ ent: Entity, _ kills: inout Int32) -> Bool {
 
 // did this player earn the demolitionist award?
 /// Source: oracle/codemp/game/g_log.c:1087
-func CalculateDemolitionist(_ ent: Entity, _ kills: inout Int32) -> Bool {
+public func CalculateDemolitionist(_ ent: Entity, _ kills: inout Int32) -> Bool {
     var i: Int32 = 0
     var nBestPlayer: Int32 = -1
     var nKills: Int32 = 0
@@ -1178,13 +1178,13 @@ func CalculateDemolitionist(_ ent: Entity, _ kills: inout Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_log.c:1136
-func CalculateStreak(_ ent: Entity) -> Int32 {
+public func CalculateStreak(_ ent: Entity) -> Int32 {
     //No streak calculation, at least for now.
     return 0
 }
 
 /// Source: oracle/codemp/game/g_log.c:1160
-func CalculateTeamMVP(_ ent: Entity) -> Bool {
+public func CalculateTeamMVP(_ ent: Entity) -> Bool {
     var i: Int32 = 0
     var nBestPlayer: Int32 = -1
     var nScore: Int32 = 0
@@ -1217,7 +1217,7 @@ func CalculateTeamMVP(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_log.c:1190
-func CalculateTeamMVPByRank(_ ent: Entity) -> Bool {
+public func CalculateTeamMVPByRank(_ ent: Entity) -> Bool {
     var i: Int32 = 0
     var nBestPlayer: Int32 = -1
     var nScore: Int32 = 0
@@ -1271,7 +1271,7 @@ func CalculateTeamMVPByRank(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_log.c:1242
-func CalculateTeamDefender(_ ent: Entity) -> Bool {
+public func CalculateTeamDefender(_ ent: Entity) -> Bool {
     var i: Int32 = 0
     var nBestPlayer: Int32 = -1
     var nScore: Int32 = 0
@@ -1310,7 +1310,7 @@ func CalculateTeamDefender(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_log.c:1278
-func CalculateTeamWarrior(_ ent: Entity) -> Bool {
+public func CalculateTeamWarrior(_ ent: Entity) -> Bool {
     var i: Int32 = 0
     var nBestPlayer: Int32 = -1
     var nScore: Int32 = 0
@@ -1349,7 +1349,7 @@ func CalculateTeamWarrior(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_log.c:1314
-func CalculateTeamCarrier(_ ent: Entity) -> Bool {
+public func CalculateTeamCarrier(_ ent: Entity) -> Bool {
     var i: Int32 = 0
     var nBestPlayer: Int32 = -1
     var nScore: Int32 = 0
@@ -1388,7 +1388,7 @@ func CalculateTeamCarrier(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_log.c:1350
-func CalculateTeamInterceptor(_ ent: Entity) -> Bool {
+public func CalculateTeamInterceptor(_ ent: Entity) -> Bool {
     var i: Int32 = 0
     var nBestPlayer: Int32 = -1
     var nScore: Int32 = 0
@@ -1429,7 +1429,7 @@ func CalculateTeamInterceptor(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_log.c:1388
-func CalculateTeamRedShirt(_ ent: Entity) -> Bool {
+public func CalculateTeamRedShirt(_ ent: Entity) -> Bool {
     var i: Int32 = 0
     var nBestPlayer: Int32 = -1
     var nScore: Int32 = 0
@@ -1470,7 +1470,7 @@ func CalculateTeamRedShirt(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_log.c:1451
-func CalculateTeamAward(_ ent: Entity) -> Int32 {
+public func CalculateTeamAward(_ ent: Entity) -> Int32 {
     var teamAwards: Int32 = 0
 
     if CalculateTeamMVP(ent) {
@@ -1498,7 +1498,7 @@ func CalculateTeamAward(_ ent: Entity) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_log.c:1486
-func CalculateSection31Award(_ ent: Entity) -> Bool {
+public func CalculateSection31Award(_ ent: Entity) -> Bool {
     var i: Int32 = 0
     var frags: Int32 = 0
     var efficiency: Int32 = 0
@@ -1530,7 +1530,7 @@ func CalculateSection31Award(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_log.c:1518
-func CalculateAwards(_ ent: Entity, _ msg: inout JKAShared.CharBuf) {
+public func CalculateAwards(_ ent: Entity, _ msg: inout JKAShared.CharBuf) {
     var buf1 = CharBuf(256)
     var buf2 = CharBuf(256)
     var awardFlags: Int32 = 0
@@ -1595,7 +1595,7 @@ func CalculateAwards(_ ent: Entity, _ msg: inout JKAShared.CharBuf) {
 }
 
 /// Source: oracle/codemp/game/g_log.c:1589
-func GetMaxDeathsForClient(_ nClient: Int32) -> Int32 {
+public func GetMaxDeathsForClient(_ nClient: Int32) -> Int32 {
     var i: Int32 = 0
     var nMostDeaths: Int32 = 0
 
@@ -1613,7 +1613,7 @@ func GetMaxDeathsForClient(_ nClient: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_log.c:1607
-func GetMaxKillsForClient(_ nClient: Int32) -> Int32 {
+public func GetMaxKillsForClient(_ nClient: Int32) -> Int32 {
     var i: Int32 = 0
     var nMostKills: Int32 = 0
 
@@ -1631,7 +1631,7 @@ func GetMaxKillsForClient(_ nClient: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_log.c:1625
-func GetFavoriteTargetForClient(_ nClient: Int32) -> Int32 {
+public func GetFavoriteTargetForClient(_ nClient: Int32) -> Int32 {
     var i: Int32 = 0
     var nMostKills: Int32 = 0
     var nFavoriteTarget: Int32 = -1
@@ -1651,7 +1651,7 @@ func GetFavoriteTargetForClient(_ nClient: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_log.c:1644
-func GetWorstEnemyForClient(_ nClient: Int32) -> Int32 {
+public func GetWorstEnemyForClient(_ nClient: Int32) -> Int32 {
     var i: Int32 = 0
     var nMostDeaths: Int32 = 0
     var nWorstEnemy: Int32 = -1
@@ -1675,7 +1675,7 @@ func GetWorstEnemyForClient(_ nClient: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_log.c:1668
-func GetFavoriteWeaponForClient(_ nClient: Int32) -> Int32 {
+public func GetFavoriteWeaponForClient(_ nClient: Int32) -> Int32 {
     var i: Int32 = 0
     var nMostKills: Int32 = 0
     var fav: Int32 = 0
@@ -1718,7 +1718,7 @@ func GetFavoriteWeaponForClient(_ nClient: Int32) -> Int32 {
 
 // kef -- if a client leaves the game, clear out all counters he may have set
 /// Source: oracle/codemp/game/g_log.c:1705
-func G_ClearClientLog(_ client: Int32) {
+public func G_ClearClientLog(_ client: Int32) {
     var i: Int32 = 0
 
     i = 0

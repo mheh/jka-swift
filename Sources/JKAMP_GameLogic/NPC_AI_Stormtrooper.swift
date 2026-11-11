@@ -106,7 +106,7 @@ var impactPos: JKAShared.vec3_t {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:50
-var groupSpeechDebounceTime: [Int32] {
+public var groupSpeechDebounceTime: [Int32] {
     get { world.variables.groupSpeechDebounceTime }
     set { world.variables.groupSpeechDebounceTime = newValue }
 }
@@ -115,7 +115,7 @@ var groupSpeechDebounceTime: [Int32] {
 private let MAX_CHECK_THRESHOLD = 1 as Int32
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:60
-func ST_AggressionAdjust(_ `self`: Entity, _ change: Int32) {
+public func ST_AggressionAdjust(_ `self`: Entity, _ change: Int32) {
     let upper_threshold: Int32
     let lower_threshold: Int32
 
@@ -140,7 +140,7 @@ func ST_AggressionAdjust(_ `self`: Entity, _ change: Int32) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:88
-func ST_ClearTimers(_ ent: Entity) {
+public func ST_ClearTimers(_ ent: Entity) {
     TIMER_Set(ent, "chatter", 0)
     TIMER_Set(ent, "duck", 0)
     TIMER_Set(ent, "stand", 0)
@@ -258,7 +258,7 @@ private func ST_Speech(_ `self`: Entity, _ speechType: Int32, _ failChance: Floa
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:227
-func ST_MarkToCover(_ `self`: Entity) {
+public func ST_MarkToCover(_ `self`: Entity) {
     if `self`.NPC == nil {
         return
     }
@@ -271,7 +271,7 @@ func ST_MarkToCover(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:242
-func ST_StartFlee(_ `self`: Entity, _ enemy: Entity, _ dangerPoint: JKAShared.vec3_t, _ dangerLevel: Int32, _ minTime: Int32, _ maxTime: Int32) {
+public func ST_StartFlee(_ `self`: Entity, _ enemy: Entity, _ dangerPoint: JKAShared.vec3_t, _ dangerLevel: Int32, _ minTime: Int32, _ maxTime: Int32) {
     if `self`.NPC == nil {
         return
     }
@@ -282,7 +282,7 @@ func ST_StartFlee(_ `self`: Entity, _ enemy: Entity, _ dangerPoint: JKAShared.ve
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:260
-func NPC_ST_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func NPC_ST_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     `self`.NPC!.localState = LSTATE_UNDERFIRE
 
     TIMER_Set(`self`, "duck", -1)
@@ -319,7 +319,7 @@ private func ST_HoldPosition() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:304
-func NPC_ST_SayMovementSpeech() {
+public func NPC_ST_SayMovementSpeech() {
     if NPCInfo!.movementSpeech == 0 {
         return
     }
@@ -336,7 +336,7 @@ func NPC_ST_SayMovementSpeech() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:327
-func NPC_ST_StoreMovementSpeech(_ speech: Int32, _ chance: Float) {
+public func NPC_ST_StoreMovementSpeech(_ speech: Int32, _ chance: Float) {
     NPCInfo!.movementSpeech = speech
     NPCInfo!.movementSpeechChance = chance
 }
@@ -434,7 +434,7 @@ private func NPC_ST_SleepShuffle() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:447
-func NPC_BSST_Sleep() {
+public func NPC_BSST_Sleep() {
     let alertEvent: Int32 = NPC_CheckAlertEvents(false, true, -1, false, AEL_MINOR)
 
     //There is an event we heard
@@ -455,7 +455,7 @@ func NPC_BSST_Sleep() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:476
-func NPC_CheckEnemyStealth(_ target: Entity) -> Bool {
+public func NPC_CheckEnemyStealth(_ target: Entity) -> Bool {
     var target_dist: Float
     var minDist: Float = 40
     var maxViewDist: Float
@@ -691,7 +691,7 @@ func NPC_CheckEnemyStealth(_ target: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:727
-func NPC_CheckPlayerTeamStealth() -> Bool {
+public func NPC_CheckPlayerTeamStealth() -> Bool {
     /*
     //NOTENOTE: For now, all stealh checks go against the player, since
     //			he is the main focus.  Squad members and rivals do not
@@ -888,7 +888,7 @@ private func ST_LookAround() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:978
-func NPC_BSST_Investigate() {
+public func NPC_BSST_Investigate() {
     //get group- mainly for group speech debouncing, but may use for group scouting/investigating AI, too
     AI_GetGroup(NPC!)
 
@@ -969,7 +969,7 @@ func NPC_BSST_Investigate() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:1077
-func NPC_BSST_Patrol() {
+public func NPC_BSST_Patrol() {
     //FIXME: pick up on bodies of dead buddies?
 
     //get group- mainly for group speech debouncing, but may use for group scouting/investigating AI, too
@@ -1184,7 +1184,7 @@ private func ST_CheckMoveState() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:1360
-func ST_ResolveBlockedShot(_ hit: Int32) {
+public func ST_ResolveBlockedShot(_ hit: Int32) {
     let stuckTime: Int32
     //figure out how long we intend to stand here, max
     if TIMER_Get(NPC!, "roamTime") > TIMER_Get(NPC!, "stick") {
@@ -1335,7 +1335,7 @@ private func ST_CheckFireState() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:1536
-func ST_TrackEnemy(_ `self`: Entity, _ enemyPos: JKAShared.vec3_t) {
+public func ST_TrackEnemy(_ `self`: Entity, _ enemyPos: JKAShared.vec3_t) {
     //clear timers
     TIMER_Set(`self`, "attackDelay", Q_irand(1000, 2000))
     //TIMER_Set( self, "duck", -1 );
@@ -1349,7 +1349,7 @@ func ST_TrackEnemy(_ `self`: Entity, _ enemyPos: JKAShared.vec3_t) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:1550
-func ST_ApproachEnemy(_ `self`: Entity) -> Int32 {
+public func ST_ApproachEnemy(_ `self`: Entity) -> Int32 {
     TIMER_Set(`self`, "attackDelay", Q_irand(250, 500))
     //TIMER_Set( self, "duck", -1 );
     TIMER_Set(`self`, "stick", Q_irand(1000, 2000))
@@ -1362,7 +1362,7 @@ func ST_ApproachEnemy(_ `self`: Entity) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:1563
-func ST_HuntEnemy(_ `self`: Entity) {
+public func ST_HuntEnemy(_ `self`: Entity) {
     //TIMER_Set( NPC, "attackDelay", Q_irand( 250, 500 ) );//Disabled this for now, guys who couldn't hunt would never attack
     //TIMER_Set( NPC, "duck", -1 );
     TIMER_Set(NPC!, "stick", Q_irand(250, 1000))
@@ -1377,7 +1377,7 @@ func ST_HuntEnemy(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:1579
-func ST_TransferTimers(_ `self`: Entity, _ other: Entity) {
+public func ST_TransferTimers(_ `self`: Entity, _ other: Entity) {
     TIMER_Set(other, "attackDelay", TIMER_Get(`self`, "attackDelay") - level.time)
     TIMER_Set(other, "duck", TIMER_Get(`self`, "duck") - level.time)
     TIMER_Set(other, "stick", TIMER_Get(`self`, "stick") - level.time)
@@ -1393,7 +1393,7 @@ func ST_TransferTimers(_ `self`: Entity, _ other: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:1595
-func ST_TransferMoveGoal(_ `self`: Entity, _ other: Entity) {
+public func ST_TransferMoveGoal(_ `self`: Entity, _ other: Entity) {
     if trap_ICARUS_TaskIDPending(`self`, TID_MOVE_NAV) {
         //can't transfer movegoal when a script we're running is waiting to complete
         return
@@ -1423,7 +1423,7 @@ func ST_TransferMoveGoal(_ `self`: Entity, _ other: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:1628
-func ST_GetCPFlags() -> Int32 {
+public func ST_GetCPFlags() -> Int32 {
     var cpFlags: Int32 = 0
     if NPC != nil && NPCInfo!.group != nil {
         if NPC == NPCInfo!.group!.commander && NPC!.client!.NPC_class == CLASS_IMPERIAL {
@@ -1509,7 +1509,7 @@ FIXME: work in pairs?
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:1724
-func ST_Commander() {
+public func ST_Commander() {
     var i: Int32
     var j: Int32
     var cp: Int32
@@ -2128,7 +2128,7 @@ func ST_Commander() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:2409
-func NPC_BSST_Attack() {
+public func NPC_BSST_Attack() {
     var enemyDir = vec3_t()
     var shootDir = vec3_t()
     let dot: Float
@@ -2385,7 +2385,7 @@ func NPC_BSST_Attack() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Stormtrooper.c:2726
-func NPC_BSST_Default() {
+public func NPC_BSST_Default() {
     if (NPCInfo!.scriptFlags & SCF_FIRE_WEAPON) != 0 {
         WeaponThink(true)
     }

@@ -23,13 +23,13 @@ let FX_RUNNER_RESERVED = 0x800000 as Int32
 let FX_ENT_RADIUS = 32 as Int32
 
 /// Source: oracle/codemp/game/g_misc.c:2540
-var gEscaping: Bool {
+public var gEscaping: Bool {
     get { world.variables.gEscaping }
     set { world.variables.gEscaping = newValue }
 }
 
 /// Source: oracle/codemp/game/g_misc.c:2541
-var gEscapeTime: Int32 {
+public var gEscapeTime: Int32 {
     get { world.variables.gEscapeTime }
     set { world.variables.gEscapeTime = newValue }
 }
@@ -44,7 +44,7 @@ let MAX_TAGS = 256 as Int32
 let MAX_TAG_OWNERS = 16 as Int32
 
 /// Source: oracle/codemp/game/g_misc.c:2886
-var refTagOwnerMap: Slots<TagOwner> { world.storage.refTagOwnerMap }
+public var refTagOwnerMap: Slots<TagOwner> { world.storage.refTagOwnerMap }
 
 /// Source: oracle/codemp/game/g_misc.c:3345
 let MAX_SHOOTERS = 16 as Int32
@@ -65,7 +65,7 @@ Used as a positional target for calculations in the utilities (spotlights, etc),
 ```
 */
 /// Source: oracle/codemp/game/g_misc.c:25
-func SP_info_camp(_ `self`: Entity) {
+public func SP_info_camp(_ `self`: Entity) {
     G_SetOrigin(`self`, &`self`.s.origin)
 }
 
@@ -76,7 +76,7 @@ Used as a positional target for calculations in the utilities (spotlights, etc),
 ```
 */
 /// Source: oracle/codemp/game/g_misc.c:33
-func SP_info_null(_ `self`: Entity) {
+public func SP_info_null(_ `self`: Entity) {
     G_FreeEntity(`self`)
 }
 
@@ -88,7 +88,7 @@ target_position does the same thing
 ```
 */
 /// Source: oracle/codemp/game/g_misc.c:42
-func SP_info_notnull(_ `self`: Entity) {
+public func SP_info_notnull(_ `self`: Entity) {
     G_SetOrigin(`self`, &`self`.s.origin)
 }
 
@@ -167,7 +167,7 @@ private func misc_lightstyle_set(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:134
-func misc_dlight_use(_ ent: Entity, _ other: Entity, _ activator: Entity) {
+public func misc_dlight_use(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     G_ActivateBehavior(ent, BSET_USE)
 
     ent.alt_fire = !ent.alt_fire //toggle
@@ -175,7 +175,7 @@ func misc_dlight_use(_ ent: Entity, _ other: Entity, _ activator: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:142
-func SP_light(_ `self`: Entity) {
+public func SP_light(_ `self`: Entity) {
     if `self`.targetname == nil {
         //if i don't have a light style switch, the i go away
         G_FreeEntity(`self`)
@@ -202,7 +202,7 @@ func SP_light(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:177
-func TeleportPlayer(_ player: Entity, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t) {
+public func TeleportPlayer(_ player: Entity, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t) {
     var tent: Entity?
     var isNPC: Bool = false
     if player.s.eType == ET_NPC {
@@ -268,7 +268,7 @@ an info_notnull
 ```
 */
 /// Source: oracle/codemp/game/g_misc.c:239
-func SP_misc_teleporter_dest(_ ent: Entity) {
+public func SP_misc_teleporter_dest(_ ent: Entity) {
 }
 
 /**
@@ -279,7 +279,7 @@ turns into map triangles - not solid
 ```
 */
 /// Source: oracle/codemp/game/g_misc.c:249
-func SP_misc_model(_ ent: Entity) {
+public func SP_misc_model(_ ent: Entity) {
     G_FreeEntity(ent)
 }
 
@@ -300,7 +300,7 @@ bsp space!
 ```
 */
 /// Source: oracle/codemp/game/g_misc.c:277
-func SP_misc_model_static(_ ent: Entity) {
+public func SP_misc_model_static(_ ent: Entity) {
     G_FreeEntity(ent)
 }
 
@@ -311,7 +311,7 @@ QUAKED misc_G2model (1 0 0) (-16 -16 -16) (16 16 16)
 ```
 */
 /// Source: oracle/codemp/game/g_misc.c:285
-func SP_misc_G2model(_ ent: Entity) {
+public func SP_misc_G2model(_ ent: Entity) {
     //	VectorSet (ent->r.mins, -16, -16, -16);
     //	VectorSet (ent->r.maxs, 16, 16, 16);
 
@@ -319,7 +319,7 @@ func SP_misc_G2model(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:305
-func locateCamera(_ ent: Entity) {
+public func locateCamera(_ ent: Entity) {
     var dir = vec3_t()
     var target: Entity?
     var owner: Entity?
@@ -372,7 +372,7 @@ This must be within 64 world units of the surface!
 ```
 */
 /// Source: oracle/codemp/game/g_misc.c:355
-func SP_misc_portal_surface(_ ent: Entity) {
+public func SP_misc_portal_surface(_ ent: Entity) {
     ent.r.mins = vec3_t()
     ent.r.maxs = vec3_t()
     trap_LinkEntity(ent)
@@ -396,7 +396,7 @@ The target for a misc_portal_director.  You can set either angles or target anot
 ```
 */
 /// Source: oracle/codemp/game/g_misc.c:375
-func SP_misc_portal_camera(_ ent: Entity) {
+public func SP_misc_portal_camera(_ ent: Entity) {
     var roll: Float = 0
 
     ent.r.mins = vec3_t()
@@ -415,7 +415,7 @@ QUAKED misc_bsp (1 0 0) (-16 -16 -16) (16 16 16)
 ```
 */
 /// Source: oracle/codemp/game/g_misc.c:390
-func SP_misc_bsp(_ ent: Entity) {
+public func SP_misc_bsp(_ ent: Entity) {
     var temp = CharBuf(64)
     var out: String = ""
     var newAngle: Float = 0
@@ -488,7 +488,7 @@ func SP_misc_bsp(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:484
-func SP_terrain(_ ent: Entity) {
+public func SP_terrain(_ ent: Entity) {
     var temp = CharBuf(1024)
     var final = CharBuf(64)
     var seed = CharBuf(64)
@@ -641,7 +641,7 @@ func SP_terrain(_ ent: Entity) {
 //flagging portal entities, but too many entities like to reset their eFlags.
 //Note that this was not part of the original wolf sky portal stuff.
 /// Source: oracle/codemp/game/g_misc.c:638
-func G_PortalifyEntities(_ ent: Entity) {
+public func G_PortalifyEntities(_ ent: Entity) {
     var i: Int32 = 0
     var scan: Entity? = nil
 
@@ -680,7 +680,7 @@ to the regular view position.
 ```
 */
 /// Source: oracle/codemp/game/g_misc.c:675
-func SP_misc_skyportal_orient(_ ent: Entity) {
+public func SP_misc_skyportal_orient(_ ent: Entity) {
     G_FreeEntity(ent)
 }
 
@@ -701,7 +701,7 @@ will explode.
 ```
 */
 /// Source: oracle/codemp/game/g_misc.c:694
-func SP_misc_skyportal(_ ent: Entity) {
+public func SP_misc_skyportal(_ ent: Entity) {
     var fov: String = ""
     var fogv = vec3_t()
     var fogn: Int32 = 0
@@ -724,12 +724,12 @@ func SP_misc_skyportal(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:760
-func HolocronRespawn(_ `self`: Entity) {
+public func HolocronRespawn(_ `self`: Entity) {
     `self`.s.modelindex = (`self`.count - 128)
 }
 
 /// Source: oracle/codemp/game/g_misc.c:765
-func HolocronPopOut(_ `self`: Entity) {
+public func HolocronPopOut(_ `self`: Entity) {
     if Q_irand(1, 10) < 5 {
         `self`.s.pos.trDelta[0] = Float(150 + Q_irand(1, 100))
     } else {
@@ -744,7 +744,7 @@ func HolocronPopOut(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:786
-func HolocronTouch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+public func HolocronTouch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     var i: Int32 = 0
     var othercarrying: Int32 = 0
     var time_lowest: Float = 0
@@ -850,7 +850,7 @@ func HolocronTouch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:907
-func HolocronThink(_ ent: Entity) {
+public func HolocronThink(_ ent: Entity) {
     justthink: do {
         if ent.pos2[0] != 0 && (ent.enemy == nil || ent.enemy!.client == nil || ent.enemy!.health < 1) {
             if ent.enemy != nil && ent.enemy!.client != nil {
@@ -928,7 +928,7 @@ func HolocronThink(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:993
-func SP_misc_holocron(_ ent: Entity) {
+public func SP_misc_holocron(_ ent: Entity) {
     var dest = vec3_t()
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
@@ -1029,7 +1029,7 @@ func SP_misc_holocron(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:1107
-func Use_Shooter(_ ent: Entity, _ other: Entity, _ activator: Entity) {
+public func Use_Shooter(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     var dir = vec3_t()
     var deg: Float
     var up = vec3_t()
@@ -1074,7 +1074,7 @@ func InitShooter_Finish(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:1148
-func InitShooter(_ ent: Entity, _ weapon: Int32) {
+public func InitShooter(_ ent: Entity, _ weapon: Int32) {
     ent.use = Use.Use_Shooter
     ent.s.weapon = weapon
 
@@ -1102,12 +1102,12 @@ Fires at either the target or the current direction.
 ```
 */
 /// Source: oracle/codemp/game/g_misc.c:1172
-func SP_shooter_blaster(_ ent: Entity) {
+public func SP_shooter_blaster(_ ent: Entity) {
     InitShooter(ent, WP_BLASTER)
 }
 
 /// Source: oracle/codemp/game/g_misc.c:1176
-func check_recharge(_ ent: Entity) {
+public func check_recharge(_ ent: Entity) {
     if ent.fly_sound_debounce_time < level.time || ent.activator == nil || ent.activator!.client == nil || !((ent.activator!.client!.pers.cmd.buttons & BUTTON_USE) != 0) {
         if ent.activator != nil {
             G_Sound(ent, CHAN_AUTO, ent.genericValue7)
@@ -1139,7 +1139,7 @@ EnergyShieldStationSettings
 ```
 */
 /// Source: oracle/codemp/game/g_misc.c:1213
-func EnergyShieldStationSettings(_ ent: Entity) {
+public func EnergyShieldStationSettings(_ ent: Entity) {
     G_SpawnInt("count", "200", &ent.count)
 
     G_SpawnInt("chargerate", "0", &ent.genericValue5)
@@ -1157,7 +1157,7 @@ shield_power_converter_use
 ```
 */
 /// Source: oracle/codemp/game/g_misc.c:1230
-func shield_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func shield_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     let dif: Int32
     var add: Int32
     var stop: Int32 = 1
@@ -1233,7 +1233,7 @@ func shield_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: 
 
 //dispense generic ammo
 /// Source: oracle/codemp/game/g_misc.c:1331
-func ammo_generic_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func ammo_generic_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     var add: Int32
     //int ammoType;
     var stop: Int32 = 1
@@ -1395,7 +1395,7 @@ Gives generic ammo when used
 ```
 */
 /// Source: oracle/codemp/game/g_misc.c:1515
-func SP_misc_ammo_floor_unit(_ ent: Entity) {
+public func SP_misc_ammo_floor_unit(_ ent: Entity) {
     var dest = vec3_t()
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
@@ -1489,7 +1489,7 @@ Gives shield energy when used.
 ```
 */
 /// Source: oracle/codemp/game/g_misc.c:1602
-func SP_misc_shield_floor_unit(_ ent: Entity) {
+public func SP_misc_shield_floor_unit(_ ent: Entity) {
     var dest = vec3_t()
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
@@ -1587,7 +1587,7 @@ Gives shield energy when used.
 */
 //------------------------------------------------------------
 /// Source: oracle/codemp/game/g_misc.c:1697
-func SP_misc_model_shield_power_converter(_ ent: Entity) {
+public func SP_misc_model_shield_power_converter(_ ent: Entity) {
     if ent.health == 0 {
         ent.health = 60
     }
@@ -1634,7 +1634,7 @@ EnergyAmmoShieldStationSettings
 ```
 */
 /// Source: oracle/codemp/game/g_misc.c:1743
-func EnergyAmmoStationSettings(_ ent: Entity) {
+public func EnergyAmmoStationSettings(_ ent: Entity) {
     G_SpawnInt("count", "200", &ent.count)
 }
 
@@ -1646,7 +1646,7 @@ ammo_power_converter_use
 ```
 */
 /// Source: oracle/codemp/game/g_misc.c:1753
-func ammo_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func ammo_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     var add: Int32 = 0 //,highest;
     let overcharge: Bool
     //	int			difBlaster,difPowerCell,difMetalBolts;
@@ -1749,7 +1749,7 @@ Gives ammo energy when used.
 */
 //------------------------------------------------------------
 /// Source: oracle/codemp/game/g_misc.c:1864
-func SP_misc_model_ammo_power_converter(_ ent: Entity) {
+public func SP_misc_model_ammo_power_converter(_ ent: Entity) {
     if ent.health == 0 {
         ent.health = 60
     }
@@ -1797,7 +1797,7 @@ EnergyHealthStationSettings
 ```
 */
 /// Source: oracle/codemp/game/g_misc.c:1911
-func EnergyHealthStationSettings(_ ent: Entity) {
+public func EnergyHealthStationSettings(_ ent: Entity) {
     G_SpawnInt("count", "200", &ent.count)
 }
 
@@ -1809,7 +1809,7 @@ health_power_converter_use
 ```
 */
 /// Source: oracle/codemp/game/g_misc.c:1921
-func health_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func health_power_converter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     let dif: Int32
     var add: Int32
     var stop: Int32 = 1
@@ -1864,7 +1864,7 @@ Gives ammo energy when used.
 */
 //------------------------------------------------------------
 /// Source: oracle/codemp/game/g_misc.c:1982
-func SP_misc_model_health_power_converter(_ ent: Entity) {
+public func SP_misc_model_health_power_converter(_ ent: Entity) {
     if ent.health == 0 {
         ent.health = 60
     }
@@ -1911,7 +1911,7 @@ func SP_misc_model_health_power_converter(_ ent: Entity) {
 
 //----------------------------------------------------------
 /// Source: oracle/codemp/game/g_misc.c:2266
-func fx_runner_think(_ ent: Entity) {
+public func fx_runner_think(_ ent: Entity) {
     BG_EvaluateTrajectory(ent.s.pos, level.time, &ent.r.currentOrigin)
     BG_EvaluateTrajectory(ent.s.apos, level.time, &ent.r.currentAngles)
 
@@ -1951,7 +1951,7 @@ func fx_runner_think(_ ent: Entity) {
 
 //----------------------------------------------------------
 /// Source: oracle/codemp/game/g_misc.c:2313
-func fx_runner_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func fx_runner_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     if `self`.s.isPortalEnt {
         //rww - mark it as broadcast upon first use if it's within the area of a skyportal
         `self`.r.svFlags |= SVF_BROADCAST
@@ -2014,7 +2014,7 @@ func fx_runner_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
 
 //----------------------------------------------------------
 /// Source: oracle/codemp/game/g_misc.c:2387
-func fx_runner_link(_ ent: Entity) {
+public func fx_runner_link(_ ent: Entity) {
     var dir = vec3_t()
 
     if ent.target != nil && !ent.target!.isEmpty {
@@ -2072,7 +2072,7 @@ func fx_runner_link(_ ent: Entity) {
 
 //----------------------------------------------------------
 /// Source: oracle/codemp/game/g_misc.c:2456
-func SP_fx_runner(_ ent: Entity) {
+public func SP_fx_runner(_ ent: Entity) {
     var fxFile: String = ""
 
     G_SpawnString("fxFile", "", &fxFile)
@@ -2126,7 +2126,7 @@ This world effect will spawn space dust globally into the level.
 */
 //----------------------------------------------------------
 /// Source: oracle/codemp/game/g_misc.c:2509
-func SP_CreateSpaceDust(_ ent: Entity) {
+public func SP_CreateSpaceDust(_ ent: Entity) {
     G_EffectIndex(va("*spacedust %i", ent.count))
     //G_EffectIndex("*constantwind ( 10 -10 0 )");
 }
@@ -2141,7 +2141,7 @@ This world effect will spawn snow globally into the level.
 */
 //----------------------------------------------------------
 /// Source: oracle/codemp/game/g_misc.c:2522
-func SP_CreateSnow(_ ent: Entity) {
+public func SP_CreateSnow(_ ent: Entity) {
     G_EffectIndex("*snow")
     G_EffectIndex("*fog")
     G_EffectIndex("*constantwind (100 100 -100)")
@@ -2157,12 +2157,12 @@ This world effect will spawn rain globally into the level.
 */
 //----------------------------------------------------------
 /// Source: oracle/codemp/game/g_misc.c:2535
-func SP_CreateRain(_ ent: Entity) {
+public func SP_CreateRain(_ ent: Entity) {
     G_EffectIndex(va("*rain init %i", ent.count))
 }
 
 /// Source: oracle/codemp/game/g_misc.c:2543
-func Use_Target_Screenshake(_ ent: Entity, _ other: Entity, _ activator: Entity) {
+public func Use_Target_Screenshake(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     var bGlobal: Bool = false
 
     if ent.genericValue6 != 0 {
@@ -2173,7 +2173,7 @@ func Use_Target_Screenshake(_ ent: Entity, _ other: Entity, _ activator: Entity)
 }
 
 /// Source: oracle/codemp/game/g_misc.c:2555
-func SP_target_screenshake(_ ent: Entity) {
+public func SP_target_screenshake(_ ent: Entity) {
     G_SpawnFloat("intensity", "10", &ent.speed)
     //intensity of the shake
     G_SpawnInt("duration", "800", &ent.genericValue5)
@@ -2185,7 +2185,7 @@ func SP_target_screenshake(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:2569
-func Use_Target_Escapetrig(_ ent: Entity, _ other: Entity, _ activator: Entity) {
+public func Use_Target_Escapetrig(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     if ent.genericValue6 == 0 {
         gEscaping = true
         gEscapeTime = level.time + ent.genericValue5
@@ -2209,7 +2209,7 @@ func Use_Target_Escapetrig(_ ent: Entity, _ other: Entity, _ activator: Entity) 
 }
 
 /// Source: oracle/codemp/game/g_misc.c:2599
-func SP_target_escapetrig(_ ent: Entity) {
+public func SP_target_escapetrig(_ ent: Entity) {
     if g_gametype.integer != GT_SINGLE_PLAYER {
         G_FreeEntity(ent)
         return
@@ -2235,7 +2235,7 @@ NOTE: place these half-way in the door to make it flush with the door's surface.
 ```
 */
 /// Source: oracle/codemp/game/g_misc.c:2623
-func maglock_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
+public func maglock_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
     //unlock our door if we're the last lock pointed at the door
     if `self`.activator != nil {
         `self`.activator!.lockCount -= 1
@@ -2252,7 +2252,7 @@ func maglock_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ da
 }
 
 /// Source: oracle/codemp/game/g_misc.c:2645
-func SP_misc_maglock(_ `self`: Entity) {
+public func SP_misc_maglock(_ `self`: Entity) {
     //NOTE: May have to make these only work on doors that are either untargeted
     //		or are targeted by a trigger, not doors fired off by scripts, counters
     //		or other such things?
@@ -2267,7 +2267,7 @@ func SP_misc_maglock(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:2659
-func maglock_link(_ `self`: Entity) {
+public func maglock_link(_ `self`: Entity) {
     //find what we're supposed to be attached to
     var forward = vec3_t()
     var start = vec3_t()
@@ -2346,7 +2346,7 @@ func maglock_link(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:2730
-func faller_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+public func faller_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     if `self`.epVelocity[2] < -100 && `self`.genericValue7 < level.time {
         let r: Int32 = Q_irand(1, 3)
 
@@ -2368,7 +2368,7 @@ func faller_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:2758
-func faller_think(_ ent: Entity) {
+public func faller_think(_ ent: Entity) {
     let gravity: Float = 3.0
     let mass: Float = 0.09
     let bounce: Float = 1.1
@@ -2394,7 +2394,7 @@ func faller_think(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:2789
-func misc_faller_create(_ ent: Entity, _ other: Entity, _ activator: Entity) {
+public func misc_faller_create(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     let faller: Entity? = G_Spawn()
 
     faller!.genericValue10 = G_SoundIndex("sound/player/fallsplat")
@@ -2435,7 +2435,7 @@ func misc_faller_create(_ ent: Entity, _ other: Entity, _ activator: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:2830
-func misc_faller_think(_ ent: Entity) {
+public func misc_faller_think(_ ent: Entity) {
     misc_faller_create(ent, ent, ent)
     ent.nextthink = level.time + ent.genericValue1 + Q_irand(0, ent.genericValue2)
 }
@@ -2452,7 +2452,7 @@ fudgefactor	- milliseconds between 0 and this number randomly added to interval
 ```
 */
 /// Source: oracle/codemp/game/g_misc.c:2844
-func SP_misc_faller(_ ent: Entity) {
+public func SP_misc_faller(_ ent: Entity) {
     G_ModelIndex("models/players/stormtrooper/model.glm")
     G_SoundIndex("sound/chars/stofficer1/misc/pain25")
     G_SoundIndex("sound/chars/stofficer1/misc/pain50")
@@ -2472,7 +2472,7 @@ func SP_misc_faller(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:2888
-func FirstFreeTagOwner() -> TagOwner? {
+public func FirstFreeTagOwner() -> TagOwner? {
     var i: Int32 = 0
 
     while i < MAX_TAG_OWNERS {
@@ -2487,7 +2487,7 @@ func FirstFreeTagOwner() -> TagOwner? {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:2905
-func FirstFreeRefTag(_ tagOwner: TagOwner) -> ReferenceTag? {
+public func FirstFreeRefTag(_ tagOwner: TagOwner) -> ReferenceTag? {
     var i: Int32 = 0
 
 
@@ -2503,7 +2503,7 @@ func FirstFreeRefTag(_ tagOwner: TagOwner) -> ReferenceTag? {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:2930
-func TAG_Init() {
+public func TAG_Init() {
     var i: Int32 = 0
     var x: Int32 = 0
 
@@ -2518,7 +2518,7 @@ func TAG_Init() {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:2953
-func TAG_FindOwner(_ owner: String) -> TagOwner? {
+public func TAG_FindOwner(_ owner: String) -> TagOwner? {
     var i: Int32 = 0
 
     while i < MAX_TAG_OWNERS {
@@ -2532,7 +2532,7 @@ func TAG_FindOwner(_ owner: String) -> TagOwner? {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:2975
-func TAG_Find(_ owner: String?, _ name: String) -> ReferenceTag? {
+public func TAG_Find(_ owner: String?, _ name: String) -> ReferenceTag? {
     var tagOwner: TagOwner? = nil
     var i: Int32 = 0
 
@@ -2578,7 +2578,7 @@ func TAG_Find(_ owner: String?, _ name: String) -> ReferenceTag? {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:3036
-func TAG_Add(_ name: String, _ owner: String?, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t, _ radius: Int32, _ flags: Int32) -> ReferenceTag? {
+public func TAG_Add(_ name: String, _ owner: String?, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t, _ radius: Int32, _ flags: Int32) -> ReferenceTag? {
     var tag: ReferenceTag? = nil
     var tagOwner: TagOwner? = nil
     // Raven assigns his own `owner` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
@@ -2642,7 +2642,7 @@ func TAG_Add(_ name: String, _ owner: String?, _ origin: JKAShared.vec3_t, _ ang
 }
 
 /// Source: oracle/codemp/game/g_misc.c:3112
-func TAG_GetOrigin(_ owner: String?, _ name: String, _ origin: inout JKAShared.vec3_t) -> Int32 {
+public func TAG_GetOrigin(_ owner: String?, _ name: String, _ origin: inout JKAShared.vec3_t) -> Int32 {
     let tag: ReferenceTag? = TAG_Find(owner, name)
 
     if tag == nil {
@@ -2656,7 +2656,7 @@ func TAG_GetOrigin(_ owner: String?, _ name: String, _ origin: inout JKAShared.v
 }
 
 /// Source: oracle/codemp/game/g_misc.c:3134
-func TAG_GetOrigin2(_ owner: String?, _ name: String, _ origin: inout JKAShared.vec3_t) -> Int32 {
+public func TAG_GetOrigin2(_ owner: String?, _ name: String, _ origin: inout JKAShared.vec3_t) -> Int32 {
     let tag: ReferenceTag? = TAG_Find(owner, name)
 
     if tag == nil {
@@ -2669,7 +2669,7 @@ func TAG_GetOrigin2(_ owner: String?, _ name: String, _ origin: inout JKAShared.
 }
 
 /// Source: oracle/codemp/game/g_misc.c:3153
-func TAG_GetAngles(_ owner: String?, _ name: String, _ angles: inout JKAShared.vec3_t) -> Int32 {
+public func TAG_GetAngles(_ owner: String?, _ name: String, _ angles: inout JKAShared.vec3_t) -> Int32 {
     let tag: ReferenceTag? = TAG_Find(owner, name)
 
     if tag == nil {
@@ -2682,7 +2682,7 @@ func TAG_GetAngles(_ owner: String?, _ name: String, _ angles: inout JKAShared.v
 }
 
 /// Source: oracle/codemp/game/g_misc.c:3174
-func TAG_GetRadius(_ owner: String?, _ name: String) -> Int32 {
+public func TAG_GetRadius(_ owner: String?, _ name: String) -> Int32 {
     let tag: ReferenceTag? = TAG_Find(owner, name)
 
     if tag == nil {
@@ -2693,7 +2693,7 @@ func TAG_GetRadius(_ owner: String?, _ name: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:3193
-func TAG_GetFlags(_ owner: String?, _ name: String) -> Int32 {
+public func TAG_GetFlags(_ owner: String?, _ name: String) -> Int32 {
     let tag: ReferenceTag? = TAG_Find(owner, name)
 
     if tag == nil {
@@ -2704,7 +2704,7 @@ func TAG_GetFlags(_ owner: String?, _ name: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:3267
-func ref_link(_ ent: Entity) {
+public func ref_link(_ ent: Entity) {
     var tag: ReferenceTag?
 
     if ent.target != nil {
@@ -2733,7 +2733,7 @@ func ref_link(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:3300
-func SP_reference_tag(_ ent: Entity) {
+public func SP_reference_tag(_ ent: Entity) {
     if ent.target != nil {
         //Init cannot occur until all entities have been spawned
         ent.think = Think.ref_link
@@ -2744,7 +2744,7 @@ func SP_reference_tag(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:3354
-func G_ClientForShooter() -> Client? {
+public func G_ClientForShooter() -> Client? {
     var i: Int32 = 0
 
     if !g_shooterClientInit {
@@ -2765,7 +2765,7 @@ func G_ClientForShooter() -> Client? {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:3377
-func G_FreeClientForShooter(_ cl: Client) {
+public func G_FreeClientForShooter(_ cl: Client) {
     var i: Int32 = 0
     while i < MAX_SHOOTERS {
         if g_shooterClients[i].cl == cl {
@@ -2777,7 +2777,7 @@ func G_FreeClientForShooter(_ cl: Client) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:3391
-func misc_weapon_shooter_fire(_ `self`: Entity) {
+public func misc_weapon_shooter_fire(_ `self`: Entity) {
     FireWeapon(`self`, (`self`.spawnflags & 1) != 0)
     if (`self`.spawnflags & 2) != 0 {
         //repeat
@@ -2787,7 +2787,7 @@ func misc_weapon_shooter_fire(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:3401
-func misc_weapon_shooter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func misc_weapon_shooter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     if `self`.think == Think.misc_weapon_shooter_fire {
         //repeating fire, stop
         /*
@@ -2803,7 +2803,7 @@ func misc_weapon_shooter_use(_ `self`: Entity, _ other: Entity, _ activator: Ent
 }
 
 /// Source: oracle/codemp/game/g_misc.c:3417
-func misc_weapon_shooter_aim(_ `self`: Entity) {
+public func misc_weapon_shooter_aim(_ `self`: Entity) {
     //update my aim
     if `self`.target != nil {
         let targ: Entity? = G_Find(nil, \.targetname, `self`.target)
@@ -2822,7 +2822,7 @@ func misc_weapon_shooter_aim(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_misc.c:3444
-func SP_misc_weapon_shooter(_ `self`: Entity) {
+public func SP_misc_weapon_shooter(_ `self`: Entity) {
     var s: String = ""
 
     //alloc a client just for the weapon code to use
@@ -2874,6 +2874,6 @@ Determines a region to check for weather contents - will significantly reduce lo
 ```
 */
 /// Source: oracle/codemp/game/g_misc.c:3491
-func SP_misc_weather_zone(_ ent: Entity) {
+public func SP_misc_weather_zone(_ ent: Entity) {
     G_FreeEntity(ent)
 }

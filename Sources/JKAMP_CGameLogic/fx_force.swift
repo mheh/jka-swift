@@ -13,7 +13,7 @@ FX_ForceDrained
 */
 // This effect is not generic because of possible enhancements
 /// Source: oracle/codemp/cgame/fx_force.c:11
-func FX_ForceDrained(_ origin: JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t) {
+public func FX_ForceDrained(_ origin: JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t) {
     dir = dir * -1.0
     trap_FX_PlayEffectID(cgs.effects.forceDrained, origin, dir, -1, -1)
 }

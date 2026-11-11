@@ -10,10 +10,10 @@ let AREA_DEPTH = 4 as Int32
 let AREA_NODES = 64 as Int32
 
 /// Source: oracle/codemp/server/sv_world.cpp:58
-var sv_worldSectors: Slots<WorldSector> { world.storage.sv_worldSectors }
+public var sv_worldSectors: Slots<WorldSector> { world.storage.sv_worldSectors }
 
 /// Source: oracle/codemp/server/sv_world.cpp:59
-var sv_numworldSectors: Int32 {
+public var sv_numworldSectors: Int32 {
     get { world.variables.sv_numworldSectors }
     set { world.variables.sv_numworldSectors = newValue }
 }
@@ -48,7 +48,7 @@ be returned, otherwise a custom box tree will be constructed.
 ```
 */
 /// Source: oracle/codemp/server/sv_world.cpp:19
-func SV_ClipHandleForEntity(_ ent: JKAMP.SharedEntity) -> JKAShared.clipHandle_t {
+public func SV_ClipHandleForEntity(_ ent: JKAMP.SharedEntity) -> JKAShared.clipHandle_t {
     if ent.r.bmodel {
         // explicit hulls in the BSP model
         return CM_InlineModel(ent.s.modelindex)
@@ -70,7 +70,7 @@ SV_SectorList_f
 ```
 */
 /// Source: oracle/codemp/server/sv_world.cpp:67
-func SV_SectorList_f() {
+public func SV_SectorList_f() {
     var i: Int32
     var c: Int32
     var sec: WorldSector
@@ -101,7 +101,7 @@ Builds a uniformly subdivided tree for the given world size
 ```
 */
 /// Source: oracle/codemp/server/sv_world.cpp:90
-func SV_CreateworldSector(_ depth: Int32, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) -> WorldSector? {
+public func SV_CreateworldSector(_ depth: Int32, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) -> WorldSector? {
     let anode: WorldSector
     var size = vec3_t()
     var mins1 = vec3_t()
@@ -150,7 +150,7 @@ SV_ClearWorld
 ```
 */
 /// Source: oracle/codemp/server/sv_world.cpp:131
-func SV_ClearWorld() {
+public func SV_ClearWorld() {
     let h: clipHandle_t
     var mins = vec3_t()
     var maxs = vec3_t()
@@ -173,7 +173,7 @@ SV_UnlinkEntity
 ```
 */
 /// Source: oracle/codemp/server/sv_world.cpp:151
-func SV_UnlinkEntity(_ gEnt: JKAMP.SharedEntity) {
+public func SV_UnlinkEntity(_ gEnt: JKAMP.SharedEntity) {
     var ent: SvEntity?
     var scan: SvEntity?
     let ws: WorldSector?
@@ -206,7 +206,7 @@ func SV_UnlinkEntity(_ gEnt: JKAMP.SharedEntity) {
 }
 
 /// Source: oracle/codemp/server/sv_world.cpp:189
-func SV_LinkEntity(_ gEnt: JKAMP.SharedEntity) {
+public func SV_LinkEntity(_ gEnt: JKAMP.SharedEntity) {
     var node: WorldSector
     var cluster: Int32
     let num_leafs: Int32
@@ -382,7 +382,7 @@ SV_AreaEntities_r
 ```
 */
 /// Source: oracle/codemp/server/sv_world.cpp:373
-func SV_AreaEntities_r(_ node: Slots<WorldSector>, _ ap: AreaParms) {
+public func SV_AreaEntities_r(_ node: Slots<WorldSector>, _ ap: AreaParms) {
     var check: SvEntity?
     var next: SvEntity?
     var gcheck: SharedEntity?
@@ -434,7 +434,7 @@ SV_AreaEntities
 ```
 */
 /// Source: oracle/codemp/server/sv_world.cpp:421
-func SV_AreaEntities(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ entityList: Slots<Int32>, _ maxcount: Int32) -> Int32 {
+public func SV_AreaEntities(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ entityList: Slots<Int32>, _ maxcount: Int32) -> Int32 {
     return AreaParms.scratch { ap in
         // AI: Raven stores the address of the caller's vector. The record holds a copy of the vector, which the body only reads.
         ap.mins = mins
@@ -458,7 +458,7 @@ SV_ClipToEntity
 ```
 */
 /// Source: oracle/codemp/server/sv_world.cpp:470
-func SV_ClipToEntity(_ trace: JKAMP.Trace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ entityNum: Int32, _ contentmask: Int32, _ capsule: Int32) {
+public func SV_ClipToEntity(_ trace: JKAMP.Trace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ entityNum: Int32, _ contentmask: Int32, _ capsule: Int32) {
     var touch: SharedEntity?
     let clipHandle: clipHandle_t
     // AI: Raven points `origin` and `angles` at vectors of the entity and only reads them. Each local holds a copy of the vector.
@@ -728,7 +728,7 @@ Ghoul2 Insert Start
 ```
 */
 /// Source: oracle/codemp/server/sv_world.cpp:803
-func SV_Trace(_ results: JKAMP.Trace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ end: JKAShared.vec3_t, _ passEntityNum: Int32, _ contentmask: Int32, _ capsule: Int32, _ traceFlags: Int32, _ useLod: Int32) {
+public func SV_Trace(_ results: JKAMP.Trace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ end: JKAShared.vec3_t, _ passEntityNum: Int32, _ contentmask: Int32, _ capsule: Int32, _ traceFlags: Int32, _ useLod: Int32) {
     /*
     Ghoul2 Insert End
     */
@@ -805,7 +805,7 @@ SV_PointContents
 ```
 */
 /// Source: oracle/codemp/server/sv_world.cpp:871
-func SV_PointContents(_ p: JKAShared.vec3_t, _ passEntityNum: Int32) -> Int32 {
+public func SV_PointContents(_ p: JKAShared.vec3_t, _ passEntityNum: Int32) -> Int32 {
     var hit: SharedEntity?
     var i: Int32
     let num: Int32

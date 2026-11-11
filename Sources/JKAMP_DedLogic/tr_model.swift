@@ -30,14 +30,14 @@ var giRegisterMedia_CurrentLevel: Int32 {
 }
 
 /// Source: oracle/codemp/renderer/tr_model.cpp:1406
-var gbInsideRegisterModel: Bool {
+public var gbInsideRegisterModel: Bool {
     get { world.variables.gbInsideRegisterModel }
     set { world.variables.gbInsideRegisterModel = newValue }
 }
 
 /// Source: oracle/codemp/renderer/tr_model.cpp:70
 // AI: Raven takes two pointers into the disk image and subtracts its base. The parameters are the byte offsets into the image, the pointer-into-a-buffer rule.
-func RE_RegisterModels_StoreShaderRequest(_ psModelFileName: String, _ psShaderName: Int32, _ piShaderIndexPoke: Int32) {
+public func RE_RegisterModels_StoreShaderRequest(_ psModelFileName: String, _ psShaderName: Int32, _ piShaderIndexPoke: Int32) {
     var sModelName = CharBuf(MAX_QPATH)
 
     Q_strncpyz(&sModelName, psModelFileName, Int32(sModelName.count))
@@ -65,7 +65,7 @@ func RE_RegisterModels_StoreShaderRequest(_ psModelFileName: String, _ psShaderN
 // don't use ri.xxx functions in case running on dedicated...
 //
 /// Source: oracle/codemp/renderer/tr_model.cpp:125
-func RE_RegisterModels_GetDiskFile(_ psModelFileName: String, _ ppvBuffer: inout Slots<JKAShared.byte>?, _ pqbAlreadyCached: inout Bool) -> Bool {
+public func RE_RegisterModels_GetDiskFile(_ psModelFileName: String, _ ppvBuffer: inout Slots<JKAShared.byte>?, _ pqbAlreadyCached: inout Bool) -> Bool {
     var sModelName = CharBuf(MAX_QPATH)
 
     Q_strncpyz(&sModelName, psModelFileName, Int32(sModelName.count))
@@ -116,7 +116,7 @@ func RE_RegisterModels_GetDiskFile(_ psModelFileName: String, _ ppvBuffer: inout
 }
 
 /// Source: oracle/codemp/renderer/tr_model.cpp:179
-func RE_RegisterModels_Malloc(_ iSize: Int32, _ pvDiskBufferIfJustLoaded: Slots<JKAShared.byte>, _ psModelFileName: String, _ pqbAlreadyFound: inout Bool, _ eTag: JKAShared.memtag_t) -> Slots<JKAShared.byte> {
+public func RE_RegisterModels_Malloc(_ iSize: Int32, _ pvDiskBufferIfJustLoaded: Slots<JKAShared.byte>, _ psModelFileName: String, _ pqbAlreadyFound: inout Bool, _ eTag: JKAShared.memtag_t) -> Slots<JKAShared.byte> {
     var sModelName = CharBuf(MAX_QPATH)
 
     Q_strncpyz(&sModelName, psModelFileName, Int32(sModelName.count))
@@ -160,7 +160,7 @@ func RE_RegisterModels_Malloc(_ iSize: Int32, _ pvDiskBufferIfJustLoaded: Slots<
 // Unfortunately the dedicated server also hates shader loading. So we need an alternate of this func.
 //
 /// Source: oracle/codemp/renderer/tr_model.cpp:253
-func RE_RegisterServerModels_Malloc(_ iSize: Int32, _ pvDiskBufferIfJustLoaded: Slots<JKAShared.byte>, _ psModelFileName: String, _ pqbAlreadyFound: inout Bool, _ eTag: JKAShared.memtag_t) -> Slots<JKAShared.byte> {
+public func RE_RegisterServerModels_Malloc(_ iSize: Int32, _ pvDiskBufferIfJustLoaded: Slots<JKAShared.byte>, _ psModelFileName: String, _ pqbAlreadyFound: inout Bool, _ eTag: JKAShared.memtag_t) -> Slots<JKAShared.byte> {
     var sModelName = CharBuf(MAX_QPATH)
 
     Q_strncpyz(&sModelName, psModelFileName, Int32(sModelName.count))
@@ -213,7 +213,7 @@ private func GetModelDataAllocSize() -> Int32 {
 }
 
 /// Source: oracle/codemp/renderer/tr_model.cpp:337
-func RE_RegisterModels_LevelLoadEnd(_ bDeleteEverythingNotUsedThisLevel: Bool = false) -> Bool {
+public func RE_RegisterModels_LevelLoadEnd(_ bDeleteEverythingNotUsedThisLevel: Bool = false) -> Bool {
     var bAtLeastoneModelFreed = false
 
     Com_DPrintf(S_COLOR_RED + "RE_RegisterModels_LevelLoadEnd():\n")
@@ -302,7 +302,7 @@ private func RE_RegisterModels_DumpNonPure() {
 }
 
 /// Source: oracle/codemp/renderer/tr_model.cpp:467
-func RE_RegisterModels_Info_f() {
+public func RE_RegisterModels_Info_f() {
     var iTotalBytes: Int32 = 0
     if CachedModels == nil {
         Com_Printf("%d bytes total (%.2fMB)\n", iTotalBytes, Float(iTotalBytes) / 1024.0 / 1024.0)
@@ -351,7 +351,7 @@ var sPrevMapName: CharBuf {
 }
 
 /// Source: oracle/codemp/renderer/tr_model.cpp:522
-func RE_RegisterMedia_LevelLoadBegin(_ psMapName: String, _ eForceReload: JKAMP.ForceReload_e) {
+public func RE_RegisterMedia_LevelLoadBegin(_ psMapName: String, _ eForceReload: JKAMP.ForceReload_e) {
     // for development purposes we may want to ditch certain media just before loading a map...
     //
     let bDeleteModels = eForceReload == eForceReload_MODELS || eForceReload == eForceReload_ALL
@@ -381,12 +381,12 @@ func RE_RegisterMedia_LevelLoadBegin(_ psMapName: String, _ eForceReload: JKAMP.
 }
 
 /// Source: oracle/codemp/renderer/tr_model.cpp:568
-func RE_RegisterMedia_GetLevel() -> Int32 {
+public func RE_RegisterMedia_GetLevel() -> Int32 {
     return giRegisterMedia_CurrentLevel
 }
 
 /// Source: oracle/codemp/renderer/tr_model.cpp:577
-func RE_RegisterMedia_LevelLoadEnd() {
+public func RE_RegisterMedia_LevelLoadEnd() {
     RE_RegisterModels_LevelLoadEnd(false)
 }
 
@@ -396,7 +396,7 @@ func RE_RegisterMedia_LevelLoadEnd() {
 ```
 */
 /// Source: oracle/codemp/renderer/tr_model.cpp:593
-func R_GetModelByHandle(_ index: JKAShared.qhandle_t) -> Model? {
+public func R_GetModelByHandle(_ index: JKAShared.qhandle_t) -> Model? {
     var mod: Model?
 
     // out of range gets the defualt model
@@ -415,7 +415,7 @@ func R_GetModelByHandle(_ index: JKAShared.qhandle_t) -> Model? {
 ```
 */
 /// Source: oracle/codemp/renderer/tr_model.cpp:611
-func R_AllocModel() -> Model? {
+public func R_AllocModel() -> Model? {
     var mod: Model
 
     if tr.numModels == MAX_MOD_KNOWN {
@@ -466,7 +466,7 @@ private func generateHashValue(_ fname: String, _ size: Int32) -> CLong {
 }
 
 /// Source: oracle/codemp/renderer/tr_model.cpp:653
-func RE_InsertModelIntoHash(_ name: String, _ mod: Model) {
+public func RE_InsertModelIntoHash(_ name: String, _ mod: Model) {
     var hash: Int32
     var mh: ModelHash
 
@@ -489,7 +489,7 @@ ServerLoadMDXA - load a Ghoul 2 animation file
 ```
 */
 /// Source: oracle/codemp/renderer/tr_model.cpp:683
-func ServerLoadMDXA(_ mod: Model, _ buffer: Slots<JKAShared.byte>, _ mod_name: String, _ bAlreadyCached: inout Bool) -> Bool {
+public func ServerLoadMDXA(_ mod: Model, _ buffer: Slots<JKAShared.byte>, _ mod_name: String, _ bAlreadyCached: inout Bool) -> Bool {
     var pinmodel: MdxaHeader
     var mdxa: MdxaHeader
     var version: Int32
@@ -550,7 +550,7 @@ ServerLoadMDXM - load a Ghoul 2 Mesh file
 ```
 */
 /// Source: oracle/codemp/renderer/tr_model.cpp:799
-func ServerLoadMDXM(_ mod: Model, _ buffer: Slots<JKAShared.byte>, _ mod_name: String, _ bAlreadyCached: inout Bool) -> Bool {
+public func ServerLoadMDXM(_ mod: Model, _ buffer: Slots<JKAShared.byte>, _ mod_name: String, _ bAlreadyCached: inout Bool) -> Bool {
     var i: Int32
     var l: Int32
     var pinmodel: MdxmHeader
@@ -678,7 +678,7 @@ Same as RE_RegisterModel, except used by the server to handle ghoul2 instance mo
 ```
 */
 /// Source: oracle/codemp/renderer/tr_model.cpp:1003
-func RE_RegisterServerModel(_ name: String) -> JKAShared.qhandle_t {
+public func RE_RegisterServerModel(_ name: String) -> JKAShared.qhandle_t {
     var mod: Model?
     var buf: Slots<JKAShared.byte>? = nil
     var lod: Int32
@@ -1063,7 +1063,7 @@ private func RE_RegisterModel_Actual(_ name: String) -> JKAShared.qhandle_t {
 }
 
 /// Source: oracle/codemp/renderer/tr_model.cpp:1407
-func RE_RegisterModel(_ name: String) -> JKAShared.qhandle_t {
+public func RE_RegisterModel(_ name: String) -> JKAShared.qhandle_t {
     let bWhatitwas = gbInsideRegisterModel
     gbInsideRegisterModel = true // !!!!!!!!!!!!!!
 
@@ -1177,7 +1177,7 @@ private func R_LoadMD3(_ mod: Model, _ lod: Int32, _ buffer: Slots<JKAShared.byt
 }
 
 /// Source: oracle/codemp/renderer/tr_model.cpp:1655
-func R_SVModelInit() {
+public func R_SVModelInit() {
     R_ModelInit()
 }
 
@@ -1189,7 +1189,7 @@ R_ModelInit
 ```
 */
 /// Source: oracle/codemp/renderer/tr_model.cpp:1665
-func R_ModelInit() {
+public func R_ModelInit() {
     var mod: Model?
 
     if CachedModels == nil {
@@ -1205,7 +1205,7 @@ func R_ModelInit() {
 }
 
 /// Source: oracle/codemp/renderer/tr_model.cpp:1683
-func R_HunkClearCrap() {
+public func R_HunkClearCrap() {
     //get your dirty sticky assets off me, you damn dirty hunk!
     KillTheShaderHashTable()
     tr.numModels = 0
@@ -1215,7 +1215,7 @@ func R_HunkClearCrap() {
 }
 
 /// Source: oracle/codemp/renderer/tr_model.cpp:1692
-func R_ModelFree() {
+public func R_ModelFree() {
     if CachedModels != nil {
         RE_RegisterModels_DeleteAll()
         CachedModels = nil
@@ -1230,7 +1230,7 @@ R_Modellist_f
 ```
 */
 /// Source: oracle/codemp/renderer/tr_model.cpp:1708
-func R_Modellist_f() {
+public func R_Modellist_f() {
     var i: Int32
     var j: Int32
     var mod: Model
@@ -1297,7 +1297,7 @@ R_LerpTag
 ```
 */
 /// Source: oracle/codemp/renderer/tr_model.cpp:1768
-func R_LerpTag(_ tag: JKAShared.Orientation, _ handle: JKAShared.qhandle_t, _ startFrame: Int32, _ endFrame: Int32, _ frac: Float, _ tagName: String) -> Int32 {
+public func R_LerpTag(_ tag: JKAShared.Orientation, _ handle: JKAShared.qhandle_t, _ startFrame: Int32, _ endFrame: Int32, _ frac: Float, _ tagName: String) -> Int32 {
     // GetRefAPI stores it only in its `#ifndef DEDICATED` arm at tr_init.cpp:1488, so no caller builds in the dedicated host, and it is dead.
     let start: Md3Tag?, end: Md3Tag?
     var i: Int32
@@ -1344,7 +1344,7 @@ R_ModelBounds
 ```
 */
 /// Source: oracle/codemp/renderer/tr_model.cpp:1811
-func R_ModelBounds(_ handle: JKAShared.qhandle_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t) {
+public func R_ModelBounds(_ handle: JKAShared.qhandle_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t) {
     var model: Model
     var header: Md3Header
     var frame: Md3Frame

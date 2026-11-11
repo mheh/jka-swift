@@ -14,7 +14,7 @@ Called on game shutdown
 ```
 */
 /// Source: oracle/codemp/game/g_session.c:23
-func G_WriteClientSessionData(_ client: Client) {
+public func G_WriteClientSessionData(_ client: Client) {
     let s: String
     let `var`: String
     var i: Int32 = 0
@@ -95,7 +95,7 @@ Called on a reconnect
 ```
 */
 /// Source: oracle/codemp/game/g_session.c:105
-func G_ReadSessionData(_ client: Client) {
+public func G_ReadSessionData(_ client: Client) {
     var s = CharBuf(1024)
     let `var`: String
     var i: Int32 = 0
@@ -187,7 +187,7 @@ Called on a first-time connect
 ```
 */
 /// Source: oracle/codemp/game/g_session.c:187
-func G_InitSessionData(_ client: Client, _ userinfo: String, _ isBot: Bool) {
+public func G_InitSessionData(_ client: Client, _ userinfo: String, _ isBot: Bool) {
     var sess: ClientSession?
     var value: CharBuf
 
@@ -277,7 +277,7 @@ G_InitWorldSession
 ```
 */
 /// Source: oracle/codemp/game/g_session.c:291
-func G_InitWorldSession() {
+public func G_InitWorldSession() {
     var s = CharBuf(1024)
     let gt: Int32
 
@@ -301,7 +301,7 @@ G_WriteSessionData
 ```
 */
 /// Source: oracle/codemp/game/g_session.c:312
-func G_WriteSessionData() {
+public func G_WriteSessionData() {
     var i: Int32
 
     trap_Cvar_Set("session", va("%i", g_gametype.integer))

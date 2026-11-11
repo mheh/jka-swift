@@ -5,55 +5,55 @@ import JKAMP_Game
 import JKAMP_BG
 
 /// Source: oracle/codemp/game/ai_wpnav.c:6
-var gWPRenderTime: Float {
+public var gWPRenderTime: Float {
     get { world.variables.gWPRenderTime }
     set { world.variables.gWPRenderTime = newValue }
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:7
-var gDeactivated: Float {
+public var gDeactivated: Float {
     get { world.variables.gDeactivated }
     set { world.variables.gDeactivated = newValue }
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:8
-var gBotEdit: Float {
+public var gBotEdit: Float {
     get { world.variables.gBotEdit }
     set { world.variables.gBotEdit = newValue }
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:9
-var gWPRenderedFrame: Int32 {
+public var gWPRenderedFrame: Int32 {
     get { world.variables.gWPRenderedFrame }
     set { world.variables.gWPRenderedFrame = newValue }
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:12
-var gWPArray: Slots<JKAMP.Wpobject?> { world.storage.gWPArray }
+public var gWPArray: Slots<JKAMP.Wpobject?> { world.storage.gWPArray }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:13
-var gWPNum: Int32 {
+public var gWPNum: Int32 {
     get { world.variables.gWPNum }
     set { world.variables.gWPNum = newValue }
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:16
-var gLastPrintedIndex: Int32 {
+public var gLastPrintedIndex: Int32 {
     get { world.variables.gLastPrintedIndex }
     set { world.variables.gLastPrintedIndex = newValue }
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:19
-var nodetable: Slots<Nodeobject> { world.storage.nodetable }
+public var nodetable: Slots<Nodeobject> { world.storage.nodetable }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:20
-var nodenum: Int32 {
+public var nodenum: Int32 {
     get { world.variables.nodenum }
     set { world.variables.nodenum = newValue }
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:23
-var gLevelFlags: Int32 {
+public var gLevelFlags: Int32 {
     get { world.variables.gLevelFlags }
     set { world.variables.gLevelFlags = newValue }
 }
@@ -89,16 +89,16 @@ let botGlobalNavWeaponWeights: [Float] = [
 let MAX_SPAWNPOINT_ARRAY = 64 as Int32
 
 /// Source: oracle/codemp/game/ai_wpnav.c:2506
-var gSpawnPointNum: Int32 {
+public var gSpawnPointNum: Int32 {
     get { world.variables.gSpawnPointNum }
     set { world.variables.gSpawnPointNum = newValue }
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:2507
-var gSpawnPoints: Slots<Entity?> { world.storage.gSpawnPoints }
+public var gSpawnPoints: Slots<Entity?> { world.storage.gSpawnPoints }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:25
-func GetFlagStr(_ flags: Int32) -> String {
+public func GetFlagStr(_ flags: Int32) -> String {
     var flagstr = CharBuf(128)
     var i: Int32
 
@@ -266,7 +266,7 @@ func GetFlagStr(_ flags: Int32) -> String {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:212
-func G_TestLine(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ color: Int32, _ time: Int32) {
+public func G_TestLine(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ color: Int32, _ time: Int32) {
     var te: Entity?
 
     te = G_TempEntity(start, EV_TESTLINE)
@@ -278,7 +278,7 @@ func G_TestLine(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ color: Int
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:224
-func BotWaypointRender() {
+public func BotWaypointRender() {
     var i: Int32
     var n: Int32
     let inc_checker: Int32
@@ -388,7 +388,7 @@ func BotWaypointRender() {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:349
-func TransferWPData(_ from: Int32, _ to: Int32) {
+public func TransferWPData(_ from: Int32, _ to: Int32) {
     if gWPArray[to] == nil {
         gWPArray[to] = Wpobject(B_Alloc(Int32(Wpobject.byteCount)))
     }
@@ -408,7 +408,7 @@ func TransferWPData(_ from: Int32, _ to: Int32) {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:371
-func CreateNewWP(_ origin: JKAShared.vec3_t, _ flags: Int32) {
+public func CreateNewWP(_ origin: JKAShared.vec3_t, _ flags: Int32) {
     if gWPNum >= MAX_WPARRAY_SIZE {
         if g_RMG.integer == 0 {
             G_Printf(S_COLOR_YELLOW + "Warning: Waypoint limit hit (%i)\n", MAX_WPARRAY_SIZE)
@@ -436,7 +436,7 @@ func CreateNewWP(_ origin: JKAShared.vec3_t, _ flags: Int32) {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:403
-func CreateNewWP_FromObject(_ wp: JKAMP.Wpobject) {
+public func CreateNewWP_FromObject(_ wp: JKAMP.Wpobject) {
     var i: Int32
 
     if gWPNum >= MAX_WPARRAY_SIZE {
@@ -482,7 +482,7 @@ func CreateNewWP_FromObject(_ wp: JKAMP.Wpobject) {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:456
-func RemoveWP() {
+public func RemoveWP() {
     if gWPNum <= 0 {
         return
     }
@@ -508,14 +508,14 @@ func RemoveWP() {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:484
-func RemoveAllWP() {
+public func RemoveAllWP() {
     while gWPNum != 0 {
         RemoveWP()
     }
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:491
-func RemoveWP_InTrail(_ afterindex: Int32) {
+public func RemoveWP_InTrail(_ afterindex: Int32) {
     var foundindex: Int32
     var foundanindex: Int32
     var didchange: Int32
@@ -579,7 +579,7 @@ func RemoveWP_InTrail(_ afterindex: Int32) {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:559
-func CreateNewWP_InTrail(_ origin: JKAShared.vec3_t, _ flags: Int32, _ afterindex: Int32) -> Int32 {
+public func CreateNewWP_InTrail(_ origin: JKAShared.vec3_t, _ flags: Int32, _ afterindex: Int32) -> Int32 {
     var foundindex: Int32
     var foundanindex: Int32
     var i: Int32
@@ -646,7 +646,7 @@ func CreateNewWP_InTrail(_ origin: JKAShared.vec3_t, _ flags: Int32, _ afterinde
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:637
-func CreateNewWP_InsertUnder(_ origin: JKAShared.vec3_t, _ flags: Int32, _ afterindex: Int32) -> Int32 {
+public func CreateNewWP_InsertUnder(_ origin: JKAShared.vec3_t, _ flags: Int32, _ afterindex: Int32) -> Int32 {
     var foundindex: Int32
     var foundanindex: Int32
     var i: Int32
@@ -714,7 +714,7 @@ func CreateNewWP_InsertUnder(_ origin: JKAShared.vec3_t, _ flags: Int32, _ after
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:716
-func TeleportToWP(_ pl: Entity, _ afterindex: Int32) {
+public func TeleportToWP(_ pl: Entity, _ afterindex: Int32) {
     var foundindex: Int32
     var foundanindex: Int32
     var i: Int32
@@ -753,7 +753,7 @@ func TeleportToWP(_ pl: Entity, _ afterindex: Int32) {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:760
-func WPFlagsModify(_ wpnum: Int32, _ flags: Int32) {
+public func WPFlagsModify(_ wpnum: Int32, _ flags: Int32) {
     if wpnum < 0 || wpnum >= gWPNum || gWPArray[wpnum] == nil || gWPArray[wpnum]!.inuse == 0 {
         G_Printf(S_COLOR_YELLOW + "WPFlagsModify: Waypoint %i does not exist\n", wpnum)
         return
@@ -776,7 +776,7 @@ private func NotWithinRange(_ base: Int32, _ extent: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:787
-func NodeHere(_ spot: JKAShared.vec3_t) -> Int32 {
+public func NodeHere(_ spot: JKAShared.vec3_t) -> Int32 {
     var i: Int32
 
     i = 0
@@ -794,7 +794,7 @@ func NodeHere(_ spot: JKAShared.vec3_t) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:812
-func CanGetToVector(_ org1: JKAShared.vec3_t, _ org2: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) -> Int32 {
+public func CanGetToVector(_ org1: JKAShared.vec3_t, _ org2: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) -> Int32 {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { tr -> Int32 in
@@ -810,7 +810,7 @@ func CanGetToVector(_ org1: JKAShared.vec3_t, _ org2: JKAShared.vec3_t, _ mins: 
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:883
-func CanGetToVectorTravel(_ org1: JKAShared.vec3_t, _ moveTo: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) -> Int32 {
+public func CanGetToVectorTravel(_ org1: JKAShared.vec3_t, _ moveTo: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) -> Int32 {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { tr -> Int32 in
@@ -922,7 +922,7 @@ func CanGetToVectorTravel(_ org1: JKAShared.vec3_t, _ moveTo: JKAShared.vec3_t, 
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:1000
-func ConnectTrail(_ startindex: Int32, _ endindex: Int32, _ behindTheScenes: Bool) -> Int32 {
+public func ConnectTrail(_ startindex: Int32, _ endindex: Int32, _ behindTheScenes: Bool) -> Int32 {
     var foundit: Int32 = 0
     var cancontinue: Int32 = 0
     var i: Int32 = 0
@@ -1282,7 +1282,7 @@ func ConnectTrail(_ startindex: Int32, _ endindex: Int32, _ behindTheScenes: Boo
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:1402
-func OpposingEnds(_ start: Int32, _ end: Int32) -> Int32 {
+public func OpposingEnds(_ start: Int32, _ end: Int32) -> Int32 {
     if gWPArray[start] == nil || gWPArray[start]!.inuse == 0 || gWPArray[end] == nil || gWPArray[end]!.inuse == 0 {
         return 0
     }
@@ -1295,7 +1295,7 @@ func OpposingEnds(_ start: Int32, _ end: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:1418
-func DoorBlockingSection(_ start: Int32, _ end: Int32) -> Int32 {
+public func DoorBlockingSection(_ start: Int32, _ end: Int32) -> Int32 {
     //if a door blocks the trail, we'll just have to assume the points on each side are in visibility when it's open
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
@@ -1340,7 +1340,7 @@ func DoorBlockingSection(_ start: Int32, _ end: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:1466
-func RepairPaths(_ behindTheScenes: Bool) -> Int32 {
+public func RepairPaths(_ behindTheScenes: Bool) -> Int32 {
     var i: Int32
     var preAmount: Int32 = 0
     var ctRet: Int32
@@ -1389,7 +1389,7 @@ func RepairPaths(_ behindTheScenes: Bool) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:1526
-func OrgVisibleCurve(_ org1: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ org2: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
+public func OrgVisibleCurve(_ org1: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ org2: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { tr -> Int32 in
@@ -1413,7 +1413,7 @@ func OrgVisibleCurve(_ org1: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs:
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:1549
-func CanForceJumpTo(_ baseindex: Int32, _ testingindex: Int32, _ distance: Float) -> Int32 {
+public func CanForceJumpTo(_ baseindex: Int32, _ testingindex: Int32, _ distance: Float) -> Int32 {
     let heightdif: Float
     var xy_base = vec3_t()
     var xy_test = vec3_t()
@@ -1479,7 +1479,7 @@ func CanForceJumpTo(_ baseindex: Int32, _ testingindex: Int32, _ distance: Float
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:1623
-func CalculatePaths() {
+public func CalculatePaths() {
     var i: Int32
     var c: Int32
     var forceJumpable: Int32
@@ -1555,7 +1555,7 @@ func CalculatePaths() {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:1715
-func GetObjectThatTargets(_ ent: Entity) -> Entity? {
+public func GetObjectThatTargets(_ ent: Entity) -> Entity? {
     var next: Entity? = nil
 
     if ent.targetname == nil {
@@ -1572,7 +1572,7 @@ func GetObjectThatTargets(_ ent: Entity) -> Entity? {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:1734
-func CalculateSiegeGoals() {
+public func CalculateSiegeGoals() {
     var i: Int32 = 0
     var looptracker: Int32 = 0
     var wpindex: Int32 = 0
@@ -1630,7 +1630,7 @@ func CalculateSiegeGoals() {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:1817
-func GetNearestVisibleWPToItem(_ org: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
+public func GetNearestVisibleWPToItem(_ org: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
     var i: Int32
     var bestdist: Float
     var flLen: Float
@@ -1668,7 +1668,7 @@ func GetNearestVisibleWPToItem(_ org: JKAShared.vec3_t, _ ignore: Int32) -> Int3
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:1858
-func CalculateWeightGoals() {
+public func CalculateWeightGoals() {
     //set waypoint weights depending on weapon and item placement
     var i: Int32 = 0
     var wpindex: Int32 = 0
@@ -1739,7 +1739,7 @@ func CalculateWeightGoals() {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:1953
-func CalculateJumpRoutes() {
+public func CalculateJumpRoutes() {
     var i: Int32 = 0
     var nheightdif: Float = 0
     var pheightdif: Float = 0
@@ -1783,7 +1783,7 @@ func CalculateJumpRoutes() {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:2007
-func LoadPathData(_ filename: String) -> Int32 {
+public func LoadPathData(_ filename: String) -> Int32 {
     var f: fileHandle_t = 0
     var fileString = CharBuf(524288)
     var currentVar = CharBuf(2048)
@@ -2010,7 +2010,7 @@ func LoadPathData(_ filename: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:2252
-func FlagObjects() {
+public func FlagObjects() {
     var i: Int32 = 0
     var bestindex: Int32 = 0
     var found: Int32 = 0
@@ -2124,7 +2124,7 @@ func FlagObjects() {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:2372
-func SavePathData(_ filename: String) -> Int32 {
+public func SavePathData(_ filename: String) -> Int32 {
     var f: fileHandle_t = 0
     var fileString = CharBuf(524288)
     var storeString = CharBuf(4096)
@@ -2238,7 +2238,7 @@ func SavePathData(_ filename: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:2510
-func G_NearestNodeToPoint(_ point: JKAShared.vec3_t) -> Int32 {
+public func G_NearestNodeToPoint(_ point: JKAShared.vec3_t) -> Int32 {
     //gets the node on the entire grid which is nearest to the specified coordinates.
     var vSub = vec3_t()
     var bestIndex: Int32 = -1
@@ -2269,7 +2269,7 @@ func G_NearestNodeToPoint(_ point: JKAShared.vec3_t) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:2545
-func G_NodeClearForNext() {
+public func G_NodeClearForNext() {
     //reset nodes for the next trail connection.
     var i: Int32 = 0
 
@@ -2282,7 +2282,7 @@ func G_NodeClearForNext() {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:2558
-func G_NodeClearFlags() {
+public func G_NodeClearFlags() {
     //only clear out flags so nodes can be reused.
     var i: Int32 = 0
 
@@ -2294,7 +2294,7 @@ func G_NodeClearFlags() {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:2570
-func G_NodeMatchingXY(_ x: Float, _ y: Float) -> Int32 {
+public func G_NodeMatchingXY(_ x: Float, _ y: Float) -> Int32 {
     //just get the first unflagged node with the matching x,y coordinates.
     var i: Int32 = 0
 
@@ -2310,7 +2310,7 @@ func G_NodeMatchingXY(_ x: Float, _ y: Float) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:2589
-func G_NodeMatchingXY_BA(_ x: Int32, _ y: Int32, _ final: Int32) -> Int32 {
+public func G_NodeMatchingXY_BA(_ x: Int32, _ y: Int32, _ final: Int32) -> Int32 {
     //return the node with the lowest weight that matches the specified x,y coordinates.
     var i: Int32 = 0
     var bestindex: Int32 = -1
@@ -2332,7 +2332,7 @@ func G_NodeMatchingXY_BA(_ x: Int32, _ y: Int32, _ final: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:2616
-func G_RecursiveConnection(_ start: Int32, _ end: Int32, _ weight: Int32, _ traceCheck: Bool, _ baseHeight: Float) -> Int32 {
+public func G_RecursiveConnection(_ start: Int32, _ end: Int32, _ weight: Int32, _ traceCheck: Bool, _ baseHeight: Float) -> Int32 {
     var indexDirections: [Int32] = [Int32](repeating: 0, count: 4)
     var recursiveIndex: Int32 = -1
     var i: Int32 = 0
@@ -2407,7 +2407,7 @@ func G_RecursiveConnection(_ start: Int32, _ end: Int32, _ weight: Int32, _ trac
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:2981
-func G_BackwardAttachment(_ start: Int32, _ finalDestination: Int32, _ insertAfter: Int32) -> Bool {
+public func G_BackwardAttachment(_ start: Int32, _ finalDestination: Int32, _ insertAfter: Int32) -> Bool {
     //After creating a node path between 2 points, this function links the 2 points with actual waypoint data.
     var indexDirections: [Int32] = [Int32](repeating: 0, count: 4)
     var i: Int32 = 0
@@ -2468,7 +2468,7 @@ func G_BackwardAttachment(_ start: Int32, _ finalDestination: Int32, _ insertAft
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:3055
-func G_RMGPathing() {
+public func G_RMGPathing() {
     //Generate waypoint information on-the-fly for the random mission.
     var placeX: Float = 0
     var placeY: Float = 0
@@ -2611,7 +2611,7 @@ func G_RMGPathing() {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:3254
-func BeginAutoPathRoutine() {
+public func BeginAutoPathRoutine() {
     //Called for RMG levels.
     var i: Int32 = 0
     var ent: Entity? = nil
@@ -2666,7 +2666,7 @@ func BeginAutoPathRoutine() {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:3347
-func LoadPath_ThisLevel() {
+public func LoadPath_ThisLevel() {
     // Raven's record lives to the end of his block, so the block is the closure.
     VmCvar.scratch { mapname in
         var i: Int32 = 0
@@ -2725,7 +2725,7 @@ func LoadPath_ThisLevel() {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:3425
-func GetClosestSpawn(_ ent: Entity) -> Entity? {
+public func GetClosestSpawn(_ ent: Entity) -> Entity? {
     var spawn: Entity?
     var closestSpawn: Entity? = nil
     var closestDist: Float = -1
@@ -2756,7 +2756,7 @@ func GetClosestSpawn(_ ent: Entity) -> Entity? {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:3459
-func GetNextSpawnInIndex(_ currentSpawn: Entity) -> Entity? {
+public func GetNextSpawnInIndex(_ currentSpawn: Entity) -> Entity? {
     var spawn: Entity?
     var nextSpawn: Entity? = nil
     var i: Int32 = currentSpawn.s.number + 1
@@ -2794,7 +2794,7 @@ func GetNextSpawnInIndex(_ currentSpawn: Entity) -> Entity? {
 }
 
 /// Source: oracle/codemp/game/ai_wpnav.c:3501
-func AcceptBotCommand(_ cmd: String, _ pl: Entity) -> Int32 {
+public func AcceptBotCommand(_ cmd: String, _ pl: Entity) -> Int32 {
     var OptionalArgument: Int32 = 0
     var i: Int32 = 0
     var FlagsFromArgument: Int32 = 0

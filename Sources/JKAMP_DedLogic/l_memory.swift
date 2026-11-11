@@ -22,7 +22,7 @@ let totalmemorysize: Int32 = 0
 let numblocks: Int32 = 0
 
 /// Source: oracle/codemp/botlib/l_memory.cpp:325
-func GetMemory(_ size: UInt32) -> UnsafeMutableRawPointer? {
+public func GetMemory(_ size: UInt32) -> UnsafeMutableRawPointer? {
     let memid: Slots<UInt32>
 
     let ptr = botimport.runGetMemory(Int32(bitPattern: size + UInt32(UInt32.byteCount)))
@@ -33,7 +33,7 @@ func GetMemory(_ size: UInt32) -> UnsafeMutableRawPointer? {
 }
 
 /// Source: oracle/codemp/botlib/l_memory.cpp:346
-func GetClearedMemory(_ size: UInt32) -> UnsafeMutableRawPointer {
+public func GetClearedMemory(_ size: UInt32) -> UnsafeMutableRawPointer {
     let ptr = GetMemory(size)
     // AI: Raven clears the block through its `void *`. The call clears a Slots of bytes over the block.
     Com_Memset(Slots<byte>(scalars: ptr!, count: Int(size)), 0, size)
@@ -41,7 +41,7 @@ func GetClearedMemory(_ size: UInt32) -> UnsafeMutableRawPointer {
 }
 
 /// Source: oracle/codemp/botlib/l_memory.cpp:367
-func GetHunkMemory(_ size: UInt32) -> UnsafeMutableRawPointer? {
+public func GetHunkMemory(_ size: UInt32) -> UnsafeMutableRawPointer? {
     let memid: Slots<UInt32>
 
     let ptr = botimport.runHunkAlloc(Int32(bitPattern: size + UInt32(UInt32.byteCount)))
@@ -52,7 +52,7 @@ func GetHunkMemory(_ size: UInt32) -> UnsafeMutableRawPointer? {
 }
 
 /// Source: oracle/codemp/botlib/l_memory.cpp:388
-func GetClearedHunkMemory(_ size: UInt32) -> UnsafeMutableRawPointer {
+public func GetClearedHunkMemory(_ size: UInt32) -> UnsafeMutableRawPointer {
     let ptr = GetHunkMemory(size)
     // AI: Raven clears the block through its `void *`. The call clears a Slots of bytes over the block.
     Com_Memset(Slots<byte>(scalars: ptr!, count: Int(size)), 0, size)
@@ -61,25 +61,25 @@ func GetClearedHunkMemory(_ size: UInt32) -> UnsafeMutableRawPointer {
 
 /// Source: oracle/codemp/botlib/l_memory.cpp:325
 /// This overload is the guide's form for an `int` argument to an `unsigned long` parameter, and it converts the value once.
-func GetMemory(_ size: Int32) -> UnsafeMutableRawPointer? {
+public func GetMemory(_ size: Int32) -> UnsafeMutableRawPointer? {
     GetMemory(UInt32(bitPattern: size))
 }
 
 /// Source: oracle/codemp/botlib/l_memory.cpp:346
 /// This overload is the guide's form for an `int` argument to an `unsigned long` parameter, and it converts the value once.
-func GetClearedMemory(_ size: Int32) -> UnsafeMutableRawPointer {
+public func GetClearedMemory(_ size: Int32) -> UnsafeMutableRawPointer {
     GetClearedMemory(UInt32(bitPattern: size))
 }
 
 /// Source: oracle/codemp/botlib/l_memory.cpp:367
 /// This overload is the guide's form for an `int` argument to an `unsigned long` parameter, and it converts the value once.
-func GetHunkMemory(_ size: Int32) -> UnsafeMutableRawPointer? {
+public func GetHunkMemory(_ size: Int32) -> UnsafeMutableRawPointer? {
     GetHunkMemory(UInt32(bitPattern: size))
 }
 
 /// Source: oracle/codemp/botlib/l_memory.cpp:388
 /// This overload is the guide's form for an `int` argument to an `unsigned long` parameter, and it converts the value once.
-func GetClearedHunkMemory(_ size: Int32) -> UnsafeMutableRawPointer {
+public func GetClearedHunkMemory(_ size: Int32) -> UnsafeMutableRawPointer {
     GetClearedHunkMemory(UInt32(bitPattern: size))
 }
 
@@ -90,7 +90,7 @@ func GetClearedHunkMemory(_ size: Int32) -> UnsafeMutableRawPointer {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_memory.cpp:406
-func FreeMemory(_ ptr: OpaquePointer?) {
+public func FreeMemory(_ ptr: OpaquePointer?) {
     let memid: Slots<UInt32>
 
     memid = Slots<UInt32>(wordBefore: ptr!)
@@ -108,7 +108,7 @@ func FreeMemory(_ ptr: OpaquePointer?) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_memory.cpp:423
-func AvailableMemory() -> Int32 {
+public func AvailableMemory() -> Int32 {
     return botimport.runAvailableMemory()
 }
 
@@ -119,7 +119,7 @@ func AvailableMemory() -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_memory.cpp:433
-func PrintUsedMemorySize() {
+public func PrintUsedMemorySize() {
 }
 
 //===========================================================================
@@ -129,5 +129,5 @@ func PrintUsedMemorySize() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_memory.cpp:442
-func PrintMemoryLabels() {
+public func PrintMemoryLabels() {
 }

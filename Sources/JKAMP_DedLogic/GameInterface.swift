@@ -45,7 +45,7 @@ var ICARUS_EntList: entlist_t {
 let ICARUS_entFilter: Int32 = -1
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:33
-func ICARUS_GetScript(_ name: String, _ buf: inout JKAShared.TextCursor) -> Int32 {
+public func ICARUS_GetScript(_ name: String, _ buf: inout JKAShared.TextCursor) -> Int32 {
     //Make sure the caller is valid
 
     //Attempt to retrieve a precached script
@@ -81,7 +81,7 @@ Runs the script by the given name
 ```
 */
 /// Source: oracle/codemp/icarus/GameInterface.cpp:69
-func ICARUS_RunScript(_ ent: JKAMP.SharedEntity, _ name: String) -> Int32 {
+public func ICARUS_RunScript(_ ent: JKAMP.SharedEntity, _ name: String) -> Int32 {
     var buf = TextCursor()
     let len: Int32
 
@@ -108,7 +108,7 @@ func ICARUS_RunScript(_ ent: JKAMP.SharedEntity, _ name: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:143
-func ICARUS_Init() {
+public func ICARUS_Init() {
     //Link all interface functions
     Interface_Init(interface_export)
 
@@ -121,7 +121,7 @@ func ICARUS_Init() {
 }
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:166
-func ICARUS_Shutdown() {
+public func ICARUS_Shutdown() {
     var ent = SV_GentityNum(0)
 
     //Release all ICARUS resources from the entities
@@ -169,7 +169,7 @@ FIXME: shouldn't ICARUS handle this internally?
 ```
 */
 /// Source: oracle/codemp/icarus/GameInterface.cpp:220
-func ICARUS_FreeEnt(_ ent: JKAMP.SharedEntity) {
+public func ICARUS_FreeEnt(_ ent: JKAMP.SharedEntity) {
     assert(iICARUS != nil)
 
     if ent.s.number >= MAX_GENTITIES ||
@@ -204,7 +204,7 @@ func ICARUS_FreeEnt(_ ent: JKAMP.SharedEntity) {
 }
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:268
-func ICARUS_ValidEnt(_ ent: JKAMP.SharedEntity) -> Bool {
+public func ICARUS_ValidEnt(_ ent: JKAMP.SharedEntity) -> Bool {
     var i: Int32
 
     //Targeted by a script
@@ -235,7 +235,7 @@ func ICARUS_ValidEnt(_ ent: JKAMP.SharedEntity) -> Bool {
 }
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:307
-func ICARUS_AssociateEnt(_ ent: JKAMP.SharedEntity) {
+public func ICARUS_AssociateEnt(_ ent: JKAMP.SharedEntity) {
     var temp = CharBuf(1024)
 
     if VALIDSTRING(ent.script_targetname) == false {
@@ -251,7 +251,7 @@ func ICARUS_AssociateEnt(_ ent: JKAMP.SharedEntity) {
 }
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:328
-func ICARUS_RegisterScript(_ name: String, _ bCalledDuringInterrogate: Bool = false) -> Bool {
+public func ICARUS_RegisterScript(_ name: String, _ bCalledDuringInterrogate: Bool = false) -> Bool {
     var pscript: pscript_t
     var newname = CharBuf(MAX_FILENAME_LENGTH)
     var buffer = CharBuf(0)	// lose compiler warning about uninitialised vars
@@ -305,7 +305,7 @@ func ICARUS_RegisterScript(_ name: String, _ bCalledDuringInterrogate: Bool = fa
 }
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:400
-func ICARUS_SoundPrecache(_ filename: String) {
+public func ICARUS_SoundPrecache(_ filename: String) {
     let sharedMem = IcarusSoundIndex(sv.mSharedMemoryBytes!.base)
 
     sharedMem.filename = filename
@@ -314,7 +314,7 @@ func ICARUS_SoundPrecache(_ filename: String) {
 }
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:409
-func ICARUS_GetIDForString(_ string: String) -> Int32 {
+public func ICARUS_GetIDForString(_ string: String) -> Int32 {
     let sharedMem = IcarusGetSetIDForString(sv.mSharedMemoryBytes!.base)
 
     sharedMem.string = string
@@ -325,7 +325,7 @@ func ICARUS_GetIDForString(_ string: String) -> Int32 {
 // at this point the filename should have had the "scripts" (Q3_SCRIPT_DIR) added to it (but not the IBI extension)
 //
 /// Source: oracle/codemp/icarus/GameInterface.cpp:426
-func ICARUS_InterrogateScript(_ filename: String) {
+public func ICARUS_InterrogateScript(_ filename: String) {
     let stream = CBlockStream()
     var blockMember: CBlockMember?
     let block = CBlock()
@@ -490,7 +490,7 @@ func ICARUS_InterrogateScript(_ filename: String) {
 }
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:617
-func ICARUS_PrecacheEnt(_ ent: JKAMP.SharedEntity) {
+public func ICARUS_PrecacheEnt(_ ent: JKAMP.SharedEntity) {
     var newname = CharBuf(MAX_FILENAME_LENGTH)
     var i: Int32
 
@@ -513,7 +513,7 @@ func ICARUS_PrecacheEnt(_ ent: JKAMP.SharedEntity) {
 }
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:646
-func ICARUS_InitEnt(_ ent: JKAMP.SharedEntity) {
+public func ICARUS_InitEnt(_ ent: JKAMP.SharedEntity) {
     //Make sure this is a fresh ent
     if gSequencers[ent.s.number] != nil {
         return
@@ -554,7 +554,7 @@ func ICARUS_LinkEntity(_ entID: Int32, _ sequencer: CSequencer?, _ taskManager: 
 }
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:700
-func Svcmd_ICARUS_f() {
+public func Svcmd_ICARUS_f() {
     //rwwFIXMEFIXME: Do something with this for debugging purposes at some point.
     /*
     char	*cmd = Cmd_Argv( 1 );

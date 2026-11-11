@@ -36,7 +36,7 @@ var GoreTagsTemp: [[Int32]: Int32] {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:38
-var goreModelIndex: Int32 {
+public var goreModelIndex: Int32 {
     get { world.variables.goreModelIndex }
     set { world.variables.goreModelIndex = newValue }
 }
@@ -117,7 +117,7 @@ private func DestroyGoreTexCoordinates(_ tag: Int32) {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:58
-func AllocGoreRecord() -> Int32 {
+public func AllocGoreRecord() -> Int32 {
     while GoreRecords.count > MAX_GORE_RECORDS {
         // AI: Raven reads the first record of an ordered map. The Dictionary has no order, so the body takes the least tag.
         let tagHigh = GoreRecords.keys.min()! & GORE_TAG_MASK
@@ -144,7 +144,7 @@ func AllocGoreRecord() -> Int32 {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:96
-func ResetGoreTag() {
+public func ResetGoreTag() {
     GoreTagsTemp.removeAll()
     CurrentTag = CurrentTagUpper
     CurrentTagUpper += GORE_TAG_UPPER
@@ -166,7 +166,7 @@ func G2_GetGoreRecord(_ tag: Int32) -> GoreTextureCoordinates? {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:118
-func DeleteGoreRecord(_ tag: Int32) {
+public func DeleteGoreRecord(_ tag: Int32) {
     DestroyGoreTexCoordinates(tag)
     GoreRecords[tag] = nil
 }
@@ -189,7 +189,7 @@ func NewGoreSet() -> CGoreSet? {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:153
-func DeleteGoreSet(_ goreSetTag: Int32) {
+public func DeleteGoreSet(_ goreSetTag: Int32) {
     if let f = GoreSets[goreSetTag] {
         if f.mRefCount == 0 || f.mRefCount - 1 == 0 {
             // AI: Raven deletes the set and then erases its entry. The body erases the entry, and the deinit runs when the last reference goes.
@@ -203,7 +203,7 @@ func DeleteGoreSet(_ goreSetTag: Int32) {
 // assorted Ghoul 2 functions.
 // list all surfaces associated with a model
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:279
-func G2_List_Model_Surfaces(_ fileName: String) {
+public func G2_List_Model_Surfaces(_ fileName: String) {
     var i: Int32
     var x: Int32
     let mod_m = R_GetModelByHandle(RE_RegisterModel(fileName))
@@ -233,7 +233,7 @@ func G2_List_Model_Surfaces(_ fileName: String) {
 
 // list all bones associated with a model
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:307
-func G2_List_Model_Bones(_ fileName: String, _ frame: Int32) {
+public func G2_List_Model_Bones(_ fileName: String, _ frame: Int32) {
     var x: Int32
     var i: Int32
     var skel: MdxaSkel
@@ -287,7 +287,7 @@ func G2_List_Model_Bones(_ fileName: String, _ frame: Int32) {
 ```
 */
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:356
-func G2_GetAnimFileName(_ fileName: String, _ filename: inout JKAShared.TextCursor) -> Bool {
+public func G2_GetAnimFileName(_ fileName: String, _ filename: inout JKAShared.TextCursor) -> Bool {
     // find the model we want
     let mod = R_GetModelByHandle(RE_RegisterModel(fileName))
 
@@ -617,7 +617,7 @@ private func G2_BuildHitPointST(_ A: JKAShared.vec3_t, _ SA: Float, _ TA: Float,
 
 // routine that works out given a ray whether or not it hits a poly
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:709
-func G2_SegmentTriangleTest(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ A: JKAShared.vec3_t, _ B: JKAShared.vec3_t, _ C: JKAShared.vec3_t, _ backFaces: Bool, _ frontFaces: Bool, _ returnedPoint: inout JKAShared.vec3_t, _ returnedNormal: inout JKAShared.vec3_t, _ denom: inout Float) -> Bool {
+public func G2_SegmentTriangleTest(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ A: JKAShared.vec3_t, _ B: JKAShared.vec3_t, _ C: JKAShared.vec3_t, _ backFaces: Bool, _ frontFaces: Bool, _ returnedPoint: inout JKAShared.vec3_t, _ returnedNormal: inout JKAShared.vec3_t, _ denom: inout Float) -> Bool {
     let tiny: Float = 1E-10
     var returnedNormalT = JKAShared.vec3_t()
     var edgeAC = JKAShared.vec3_t()
@@ -1406,7 +1406,7 @@ func G2_TraceModels(_ ghoul2: CGhoul2Info_v, _ rayStart: JKAShared.vec3_t, _ ray
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1613
-func TransformPoint(_ `in`: JKAShared.vec3_t, _ out: inout JKAShared.vec3_t, _ mat: JKAMP.MdxaBone) {
+public func TransformPoint(_ `in`: JKAShared.vec3_t, _ out: inout JKAShared.vec3_t, _ mat: JKAMP.MdxaBone) {
     var i: Int32 = 0
     while i < 3 {
         out[i] = `in`[0] * mat.matrix[i][0] + `in`[1] * mat.matrix[i][1] + `in`[2] * mat.matrix[i][2]
@@ -1415,7 +1415,7 @@ func TransformPoint(_ `in`: JKAShared.vec3_t, _ out: inout JKAShared.vec3_t, _ m
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1620
-func TransformAndTranslatePoint(_ `in`: JKAShared.vec3_t, _ out: inout JKAShared.vec3_t, _ mat: JKAMP.MdxaBone) {
+public func TransformAndTranslatePoint(_ `in`: JKAShared.vec3_t, _ out: inout JKAShared.vec3_t, _ mat: JKAMP.MdxaBone) {
 
     var i: Int32 = 0
     while i < 3 {
@@ -1426,7 +1426,7 @@ func TransformAndTranslatePoint(_ `in`: JKAShared.vec3_t, _ out: inout JKAShared
 
 // create a matrix using a set of angles
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1630
-func Create_Matrix(_ angle: JKAShared.vec3_t, _ matrix: JKAMP.MdxaBone) {
+public func Create_Matrix(_ angle: JKAShared.vec3_t, _ matrix: JKAMP.MdxaBone) {
     var axis = [vec3_t](repeating: vec3_t(), count: 3)
 
     // convert angles to axis
@@ -1452,7 +1452,7 @@ func Create_Matrix(_ angle: JKAShared.vec3_t, _ matrix: JKAMP.MdxaBone) {
 
 // given a matrix, generate the inverse of that matrix
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1656
-func Inverse_Matrix(_ src: JKAMP.MdxaBone, _ dest: JKAMP.MdxaBone) {
+public func Inverse_Matrix(_ src: JKAMP.MdxaBone, _ dest: JKAMP.MdxaBone) {
     var i: Int32
     var j: Int32
 
@@ -1479,7 +1479,7 @@ func Inverse_Matrix(_ src: JKAMP.MdxaBone, _ dest: JKAMP.MdxaBone) {
 
 // generate the world matrix for a given set of angles and origin - called from lots of places
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1678
-func G2_GenerateWorldMatrix(_ angles: JKAShared.vec3_t, _ origin: JKAShared.vec3_t) {
+public func G2_GenerateWorldMatrix(_ angles: JKAShared.vec3_t, _ origin: JKAShared.vec3_t) {
     Create_Matrix(angles, worldMatrix)
     worldMatrix.matrix[0][3] = origin[0]
     worldMatrix.matrix[1][3] = origin[1]
@@ -1754,12 +1754,12 @@ func G2_SaveGhoul2Models(_ ghoul2: CGhoul2Info_v, _ buffer: inout Slots<JKAShare
 
 // have to free space malloced in the save system here because the game DLL can't.
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1812
-func G2_FreeSaveBuffer(_ buffer: Slots<JKAShared.byte>) {
+public func G2_FreeSaveBuffer(_ buffer: Slots<JKAShared.byte>) {
     Z_Free(OpaquePointer(buffer.base))
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1817
-func G2_FindConfigStringSpace(_ name: String, _ start: Int32, _ max: Int32) -> Int32 {
+public func G2_FindConfigStringSpace(_ name: String, _ start: Int32, _ max: Int32) -> Int32 {
     var s = CharBuf(MAX_STRING_CHARS)
     var i: Int32
     i = 1

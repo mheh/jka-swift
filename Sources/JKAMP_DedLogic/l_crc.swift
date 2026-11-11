@@ -56,7 +56,7 @@ let crctable: [UInt16] = [
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_crc.cpp:75
-func CRC_Init(_ crcvalue: inout UInt16) {
+public func CRC_Init(_ crcvalue: inout UInt16) {
     crcvalue = UInt16(truncatingIfNeeded: CRC_INIT_VALUE)
 }
 
@@ -67,7 +67,7 @@ func CRC_Init(_ crcvalue: inout UInt16) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_crc.cpp:85
-func CRC_ProcessByte(_ crcvalue: inout UInt16, _ data: Int32) {
+public func CRC_ProcessByte(_ crcvalue: inout UInt16, _ data: Int32) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     crcvalue = UInt16(truncatingIfNeeded: (Int32(crcvalue) << 8) ^ Int32(crctable[(Int32(crcvalue) >> 8) ^ data]))
 }
@@ -79,7 +79,7 @@ func CRC_ProcessByte(_ crcvalue: inout UInt16, _ data: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_crc.cpp:95
-func CRC_Value(_ crcvalue: Int32) -> Int32 {
+public func CRC_Value(_ crcvalue: Int32) -> Int32 {
     return crcvalue ^ CRC_XOR_VALUE
 }
 
@@ -90,7 +90,7 @@ func CRC_Value(_ crcvalue: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_crc.cpp:105
-func CRC_ProcessString(_ data: Slots<UInt8>, _ length: Int32) -> Int32 {
+public func CRC_ProcessString(_ data: Slots<UInt8>, _ length: Int32) -> Int32 {
     var crcvalue: UInt16 = 0
     var i: Int32, ind: Int32
 
@@ -113,7 +113,7 @@ func CRC_ProcessString(_ data: Slots<UInt8>, _ length: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_crc.cpp:126
-func CRC_ContinueProcessString(_ crc: inout UInt16, _ data: Slots<JKAShared.byte>, _ length: Int32) {
+public func CRC_ContinueProcessString(_ crc: inout UInt16, _ data: Slots<JKAShared.byte>, _ length: Int32) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     var i: Int32
 

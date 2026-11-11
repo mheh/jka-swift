@@ -25,20 +25,20 @@ var defaultStyles: [[String]] {
 }
 
 /// Source: oracle/codemp/game/g_spawn.c:1234
-var precachedKyle: OpaquePointer? {
+public var precachedKyle: OpaquePointer? {
     get { world.variables.precachedKyle }
     set { world.variables.precachedKyle = newValue }
 }
 
 /// Source: oracle/codemp/game/g_spawn.c:1258
-var g_cullDistance: Float {
+public var g_cullDistance: Float {
     get { world.variables.g_cullDistance }
     set { world.variables.g_cullDistance = newValue }
 }
 
 /// Source: oracle/codemp/game/g_spawn.c:6
 @discardableResult
-func G_SpawnString(_ key: String, _ defaultString: String?, _ out: inout String) -> Bool {
+public func G_SpawnString(_ key: String, _ defaultString: String?, _ out: inout String) -> Bool {
     var i: Int32
 
     if !level.spawning {
@@ -61,7 +61,7 @@ func G_SpawnString(_ key: String, _ defaultString: String?, _ out: inout String)
 
 /// Source: oracle/codemp/game/g_spawn.c:25
 @discardableResult
-func G_SpawnFloat(_ key: String, _ defaultString: String, _ out: inout Float) -> Bool {
+public func G_SpawnFloat(_ key: String, _ defaultString: String, _ out: inout Float) -> Bool {
     var s: String = ""
     let present: Bool
 
@@ -72,7 +72,7 @@ func G_SpawnFloat(_ key: String, _ defaultString: String, _ out: inout Float) ->
 
 /// Source: oracle/codemp/game/g_spawn.c:34
 @discardableResult
-func G_SpawnInt(_ key: String, _ defaultString: String, _ out: inout Int32) -> Bool {
+public func G_SpawnInt(_ key: String, _ defaultString: String, _ out: inout Int32) -> Bool {
     var s: String = ""
     let present: Bool
 
@@ -83,7 +83,7 @@ func G_SpawnInt(_ key: String, _ defaultString: String, _ out: inout Int32) -> B
 
 /// Source: oracle/codemp/game/g_spawn.c:43
 @discardableResult
-func G_SpawnVector(_ key: String, _ defaultString: String, _ out: inout JKAShared.vec3_t) -> Bool {
+public func G_SpawnVector(_ key: String, _ defaultString: String, _ out: inout JKAShared.vec3_t) -> Bool {
     var s: String = ""
     let present: Bool
 
@@ -93,11 +93,11 @@ func G_SpawnVector(_ key: String, _ defaultString: String, _ out: inout JKAShare
 }
 
 /// Source: oracle/codemp/game/g_spawn.c:368
-func SP_item_botroam(_ ent: Entity) {
+public func SP_item_botroam(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_spawn.c:372
-func SP_gametype_item(_ ent: Entity) {
+public func SP_gametype_item(_ ent: Entity) {
     var item: Gitem? = nil
     var value: String = ""
     var team: Int32 = -1
@@ -152,7 +152,7 @@ returning qfalse if not found
 ```
 */
 /// Source: oracle/codemp/game/g_spawn.c:683
-func G_CallSpawn(_ ent: Entity) -> Bool {
+public func G_CallSpawn(_ ent: Entity) -> Bool {
     var sIndex: Int32 = 0
     var itemIndex: Int32 = 0
 
@@ -199,7 +199,7 @@ so message texts can be multi-line
 ```
 */
 /// Source: oracle/codemp/game/g_spawn.c:724
-func G_NewString(_ string: String) -> String {
+public func G_NewString(_ string: String) -> String {
     let string = CharBuf(string)
     let newb: UnsafeMutableRawPointer
     var new_p: Int32
@@ -330,7 +330,7 @@ G_AddSpawnVarToken
 ```
 */
 /// Source: oracle/codemp/game/g_spawn.c:851
-func G_AddSpawnVarToken(_ string: String) -> String {
+public func G_AddSpawnVarToken(_ string: String) -> String {
     let l: Int32
     let dest: Int32
 
@@ -348,7 +348,7 @@ func G_AddSpawnVarToken(_ string: String) -> String {
 }
 
 /// Source: oracle/codemp/game/g_spawn.c:868
-func AddSpawnField(_ field: String, _ value: String) {
+public func AddSpawnField(_ field: String, _ value: String) {
     var i: Int32
 
     i = 0
@@ -542,7 +542,7 @@ public func G_ParseSpawnVars(_ inSubBSP: Bool) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_spawn.c:1259
-func SP_worldspawn() {
+public func SP_worldspawn() {
     var text: String = ""
     var temp = CharBuf(32)
     var i: Int32
@@ -670,12 +670,12 @@ func SP_worldspawn() {
 
 //rww - Planning on having something here?
 /// Source: oracle/codemp/game/g_spawn.c:1389
-func SP_bsp_worldspawn() -> Bool {
+public func SP_bsp_worldspawn() -> Bool {
     return true
 }
 
 /// Source: oracle/codemp/game/g_spawn.c:1394
-func G_PrecacheSoundsets() {
+public func G_PrecacheSoundsets() {
     var ent: Entity? = nil
     var i: Int32
     var countedSets: Int32 = 0
@@ -706,7 +706,7 @@ Parses textual entity definitions out of an entstring and spawns gentities.
 ```
 */
 /// Source: oracle/codemp/game/g_spawn.c:1424
-func G_SpawnEntitiesFromString(_ inSubBSP: Bool) {
+public func G_SpawnEntitiesFromString(_ inSubBSP: Bool) {
     // allow calls to G_Spawn*()
     level.spawning = true
     level.numSpawnVars = 0

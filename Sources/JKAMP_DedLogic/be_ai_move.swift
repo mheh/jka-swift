@@ -34,73 +34,73 @@ let MODELTYPE_FUNC_DOOR = 3 as Int32
 let MODELTYPE_FUNC_STATIC = 4 as Int32
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:89
-var sv_maxstep: Libvar? {
+public var sv_maxstep: Libvar? {
     get { world.variables.sv_maxstep }
     set { world.variables.sv_maxstep = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:90
-var sv_maxbarrier: Libvar? {
+public var sv_maxbarrier: Libvar? {
     get { world.variables.sv_maxbarrier }
     set { world.variables.sv_maxbarrier = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:91
-var sv_gravity: Libvar? {
+public var sv_gravity: Libvar? {
     get { world.variables.sv_gravity }
     set { world.variables.sv_gravity = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:92
-var weapindex_rocketlauncher: Libvar? {
+public var weapindex_rocketlauncher: Libvar? {
     get { world.variables.weapindex_rocketlauncher }
     set { world.variables.weapindex_rocketlauncher = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:93
-var weapindex_bfg10k: Libvar? {
+public var weapindex_bfg10k: Libvar? {
     get { world.variables.weapindex_bfg10k }
     set { world.variables.weapindex_bfg10k = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:94
-var weapindex_grapple: Libvar? {
+public var weapindex_grapple: Libvar? {
     get { world.variables.weapindex_grapple }
     set { world.variables.weapindex_grapple = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:95
-var entitytypemissile: Libvar? {
+public var entitytypemissile: Libvar? {
     get { world.variables.entitytypemissile }
     set { world.variables.entitytypemissile = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:96
-var offhandgrapple: Libvar? {
+public var offhandgrapple: Libvar? {
     get { world.variables.offhandgrapple }
     set { world.variables.offhandgrapple = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:97
-var cmd_grappleoff: Libvar? {
+public var cmd_grappleoff: Libvar? {
     get { world.variables.cmd_grappleoff }
     set { world.variables.cmd_grappleoff = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:98
-var cmd_grappleon: Libvar? {
+public var cmd_grappleon: Libvar? {
     get { world.variables.cmd_grappleon }
     set { world.variables.cmd_grappleon = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:100
-var modeltypes: [Int32] {
+public var modeltypes: [Int32] {
     get { world.variables.modeltypes }
     set { world.variables.modeltypes = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:102
-var botmovestates: Slots<BotMovestate?> { world.storage.botmovestates }
+public var botmovestates: Slots<BotMovestate?> { world.storage.botmovestates }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:227
 // AI: Raven declares `areas` on the stack of BotFuzzyPointReachabilityArea. The function uses one zeroed allocation on the storage class.
@@ -121,7 +121,7 @@ private var areas_BotMoveToGoal: Slots<Int32> { world.storage.be_ai_move_areas_B
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:110
-func BotAllocMoveState() -> Int32 {
+public func BotAllocMoveState() -> Int32 {
     var i: Int32
 
     i = 1
@@ -142,7 +142,7 @@ func BotAllocMoveState() -> Int32 {
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:130
-func BotFreeMoveState(_ handle: Int32) {
+public func BotFreeMoveState(_ handle: Int32) {
     if handle <= 0 || handle > MAX_CLIENTS {
         botimport.runPrint(PRT_FATAL, "move state handle %d out of range\n", handle)
         return
@@ -162,7 +162,7 @@ func BotFreeMoveState(_ handle: Int32) {
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:151
-func BotMoveStateFromHandle(_ handle: Int32) -> BotMovestate? {
+public func BotMoveStateFromHandle(_ handle: Int32) -> BotMovestate? {
     if handle <= 0 || handle > MAX_CLIENTS {
         botimport.runPrint(PRT_FATAL, "move state handle %d out of range\n", handle)
         return nil
@@ -181,7 +181,7 @@ func BotMoveStateFromHandle(_ handle: Int32) -> BotMovestate? {
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:171
-func BotInitMoveState(_ handle: Int32, _ initmove: BotInitmove) {
+public func BotInitMoveState(_ handle: Int32, _ initmove: BotInitmove) {
     guard let ms = BotMoveStateFromHandle(handle) else { return }
     ms.origin = initmove.origin
     ms.velocity = initmove.velocity
@@ -211,7 +211,7 @@ func BotInitMoveState(_ handle: Int32, _ initmove: BotInitmove) {
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:203
-func AngleDiff(_ ang1: Float, _ ang2: Float) -> Float {
+public func AngleDiff(_ ang1: Float, _ ang2: Float) -> Float {
     var diff: Float
 
     diff = ang1 - ang2
@@ -230,7 +230,7 @@ func AngleDiff(_ ang1: Float, _ ang2: Float) -> Float {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:224
-func BotFuzzyPointReachabilityArea(_ origin: JKAShared.vec3_t) -> Int32 {
+public func BotFuzzyPointReachabilityArea(_ origin: JKAShared.vec3_t) -> Int32 {
     var firstareanum: Int32, j: Int32, x: Int32, y: Int32, z: Int32
     // AI: Raven declares `int areas[10]` and `vec3_t points[10]` on the stack.
     // The body reads the forwards `areas_BotFuzzyPointReachabilityArea` and `points_BotFuzzyPointReachabilityArea`.
@@ -295,7 +295,7 @@ func BotFuzzyPointReachabilityArea(_ origin: JKAShared.vec3_t) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:284
-func BotReachabilityArea(_ origin: JKAShared.vec3_t, _ client: Int32) -> Int32 {
+public func BotReachabilityArea(_ origin: JKAShared.vec3_t, _ client: Int32) -> Int32 {
     var org = vec3_t(), end = vec3_t(), mins = vec3_t(), maxs = vec3_t()
     let up = vec3_t(0, 0, 1)
 
@@ -438,7 +438,7 @@ int BotReachabilityArea(vec3_t origin, int testground)
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:425
-func BotOnMover(_ origin: JKAShared.vec3_t, _ entnum: Int32, _ reach: AasReachability) -> Int32 {
+public func BotOnMover(_ origin: JKAShared.vec3_t, _ entnum: Int32, _ reach: AasReachability) -> Int32 {
     var mins = vec3_t(), maxs = vec3_t(), modelorigin = vec3_t(), org = vec3_t(), end = vec3_t()
     let angles = vec3_t(0, 0, 0)
     let boxmins = vec3_t(-16, -16, -8), boxmaxs = vec3_t(16, 16, 8)
@@ -486,7 +486,7 @@ func BotOnMover(_ origin: JKAShared.vec3_t, _ entnum: Int32, _ reach: AasReachab
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:471
-func MoverDown(_ reach: AasReachability) -> Int32 {
+public func MoverDown(_ reach: AasReachability) -> Int32 {
     var modelnum: Int32
     var mins = vec3_t(), maxs = vec3_t(), origin = vec3_t()
     let angles = vec3_t(0, 0, 0)
@@ -511,7 +511,7 @@ func MoverDown(_ reach: AasReachability) -> Int32 {
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:496
-func BotSetBrushModelTypes() {
+public func BotSetBrushModelTypes() {
     var ent: Int32, modelnum: Int32
     var classname = CharBuf(MAX_EPAIRKEY), model = CharBuf(MAX_EPAIRKEY)
 
@@ -561,7 +561,7 @@ func BotSetBrushModelTypes() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:532
-func BotOnTopOfEntity(_ ms: BotMovestate) -> Int32 {
+public func BotOnTopOfEntity(_ ms: BotMovestate) -> Int32 {
     var mins = vec3_t(), maxs = vec3_t(), end = vec3_t()
     let up = vec3_t(0, 0, 1)
 
@@ -583,7 +583,7 @@ func BotOnTopOfEntity(_ ms: BotMovestate) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:552
-func BotValidTravel(_ origin: JKAShared.vec3_t, _ reach: AasReachability, _ travelflags: Int32) -> Int32 {
+public func BotValidTravel(_ origin: JKAShared.vec3_t, _ reach: AasReachability, _ travelflags: Int32) -> Int32 {
     //if the reachability uses an unwanted travel type
     if (AAS_TravelFlagForType(reach.traveltype) & ~travelflags) != 0 { return 0 }
     //don't go into areas with bad travel types
@@ -598,7 +598,7 @@ func BotValidTravel(_ origin: JKAShared.vec3_t, _ reach: AasReachability, _ trav
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:566
-func BotAddToAvoidReach(_ ms: BotMovestate, _ number: Int32, _ avoidtime: Float) {
+public func BotAddToAvoidReach(_ ms: BotMovestate, _ number: Int32, _ avoidtime: Float) {
     var i: Int32
 
     i = 0
@@ -634,7 +634,7 @@ func BotAddToAvoidReach(_ ms: BotMovestate, _ number: Int32, _ avoidtime: Float)
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:598
-func DistanceFromLineSquared(_ p: JKAShared.vec3_t, _ lp1: JKAShared.vec3_t, _ lp2: JKAShared.vec3_t) -> Float {
+public func DistanceFromLineSquared(_ p: JKAShared.vec3_t, _ lp1: JKAShared.vec3_t, _ lp2: JKAShared.vec3_t) -> Float {
     var proj = vec3_t(), dir = vec3_t()
     var j: Int32
 
@@ -666,7 +666,7 @@ func DistanceFromLineSquared(_ p: JKAShared.vec3_t, _ lp1: JKAShared.vec3_t, _ l
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:624
-func VectorDistanceSquared(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Float {
+public func VectorDistanceSquared(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Float {
     var dir = vec3_t()
     dir = p2 - p1
     return VectorLengthSquared(dir)
@@ -679,7 +679,7 @@ func VectorDistanceSquared(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Fl
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:636
-func BotAvoidSpots(_ origin: JKAShared.vec3_t, _ reach: AasReachability, _ avoidspots: Slots<BotAvoidspot>?, _ numavoidspots: Int32) -> Int32 {
+public func BotAvoidSpots(_ origin: JKAShared.vec3_t, _ reach: AasReachability, _ avoidspots: Slots<BotAvoidspot>?, _ numavoidspots: Int32) -> Int32 {
     var checkbetween: Int32, i: Int32, type: Int32
     var squareddist: Float, squaredradius: Float
 
@@ -741,7 +741,7 @@ func BotAvoidSpots(_ origin: JKAShared.vec3_t, _ reach: AasReachability, _ avoid
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:702
-func BotAddAvoidSpot(_ movestate: Int32, _ origin: JKAShared.vec3_t, _ radius: Float, _ type: Int32) {
+public func BotAddAvoidSpot(_ movestate: Int32, _ origin: JKAShared.vec3_t, _ radius: Float, _ type: Int32) {
     guard let ms = BotMoveStateFromHandle(movestate) else { return }
     if type == AVOID_CLEAR {
         ms.numavoidspots = 0
@@ -764,7 +764,7 @@ func BotAddAvoidSpot(_ movestate: Int32, _ origin: JKAShared.vec3_t, _ radius: F
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:727
-func BotGetReachabilityToGoal(_ origin: JKAShared.vec3_t, _ areanum: Int32, _ lastgoalareanum: Int32, _ lastareanum: Int32, _ avoidreach: Slots<Int32>, _ avoidreachtimes: Slots<Float>, _ avoidreachtries: Slots<Int32>, _ goal: BotGoal, _ travelflags: Int32, _ movetravelflags: Int32, _ avoidspots: Slots<BotAvoidspot>?, _ numavoidspots: Int32, _ flags: UnsafeMutablePointer<Int32>?) -> Int32 {
+public func BotGetReachabilityToGoal(_ origin: JKAShared.vec3_t, _ areanum: Int32, _ lastgoalareanum: Int32, _ lastareanum: Int32, _ avoidreach: Slots<Int32>, _ avoidreachtimes: Slots<Float>, _ avoidreachtries: Slots<Int32>, _ goal: BotGoal, _ travelflags: Int32, _ movetravelflags: Int32, _ avoidspots: Slots<BotAvoidspot>?, _ numavoidspots: Int32, _ flags: UnsafeMutablePointer<Int32>?) -> Int32 {
     // Raven assigns his own `travelflags` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var travelflags = travelflags
     // Raven assigns his own `movetravelflags` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
@@ -845,7 +845,7 @@ func BotGetReachabilityToGoal(_ origin: JKAShared.vec3_t, _ areanum: Int32, _ la
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:805
-func BotAddToTarget(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ maxdist: Float, _ dist: inout Float, _ target: inout JKAShared.vec3_t) -> Int32 {
+public func BotAddToTarget(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ maxdist: Float, _ dist: inout Float, _ target: inout JKAShared.vec3_t) -> Int32 {
     var dir = vec3_t()
     var curdist: Float
 
@@ -863,7 +863,7 @@ func BotAddToTarget(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ maxdis
 }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:826
-func BotMovementViewTarget(_ movestate: Int32, _ goal: BotGoal, _ travelflags: Int32, _ lookahead: Float, _ target: inout JKAShared.vec3_t) -> Int32 {
+public func BotMovementViewTarget(_ movestate: Int32, _ goal: BotGoal, _ travelflags: Int32, _ lookahead: Float, _ target: inout JKAShared.vec3_t) -> Int32 {
     var end = vec3_t()
 
     return AasReachability.scratch { reach -> Int32 in
@@ -915,7 +915,7 @@ func BotMovementViewTarget(_ movestate: Int32, _ goal: BotGoal, _ travelflags: I
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:881
-func BotVisible(_ ent: Int32, _ eye: JKAShared.vec3_t, _ target: JKAShared.vec3_t) -> Int32 {
+public func BotVisible(_ ent: Int32, _ eye: JKAShared.vec3_t, _ target: JKAShared.vec3_t) -> Int32 {
     return BspTrace.scratch { trace -> Int32 in
         trace.copy(from: AAS_Trace(eye, nil, nil, target, ent, CONTENTS_SOLID | CONTENTS_PLAYERCLIP))
         if trace.fraction >= 1 { return 1 }
@@ -942,7 +942,7 @@ var avoidreachtimes_BotPredictVisiblePosition: Slots<Float> { world.storage.avoi
 var avoidreachtries_BotPredictVisiblePosition: Slots<Int32> { world.storage.avoidreachtries_BotPredictVisiblePosition }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:895
-func BotPredictVisiblePosition(_ origin: JKAShared.vec3_t, _ areanum: Int32, _ goal: BotGoal, _ travelflags: Int32, _ target: inout JKAShared.vec3_t) -> Int32 {
+public func BotPredictVisiblePosition(_ origin: JKAShared.vec3_t, _ areanum: Int32, _ goal: BotGoal, _ travelflags: Int32, _ target: inout JKAShared.vec3_t) -> Int32 {
     var end = vec3_t()
     // Raven assigns his own `areanum` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var areanum = areanum
@@ -999,7 +999,7 @@ func BotPredictVisiblePosition(_ origin: JKAShared.vec3_t, _ areanum: Int32, _ g
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:958
-func MoverBottomCenter(_ reach: AasReachability, _ bottomcenter: inout JKAShared.vec3_t) {
+public func MoverBottomCenter(_ reach: AasReachability, _ bottomcenter: inout JKAShared.vec3_t) {
     var modelnum: Int32
     var mins = vec3_t(), maxs = vec3_t(), origin = vec3_t(), mids = vec3_t()
     let angles = vec3_t(0, 0, 0)
@@ -1026,7 +1026,7 @@ func MoverBottomCenter(_ reach: AasReachability, _ bottomcenter: inout JKAShared
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:983
-func BotGapDistance(_ origin: JKAShared.vec3_t, _ hordir: JKAShared.vec3_t, _ entnum: Int32) -> Float {
+public func BotGapDistance(_ origin: JKAShared.vec3_t, _ hordir: JKAShared.vec3_t, _ entnum: Int32) -> Float {
     var start = vec3_t(), end = vec3_t()
 
     return AasTrace.scratch { trace -> Float in
@@ -1076,7 +1076,7 @@ func BotGapDistance(_ origin: JKAShared.vec3_t, _ hordir: JKAShared.vec3_t, _ en
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1032
-func BotCheckBarrierJump(_ ms: BotMovestate, _ dir: JKAShared.vec3_t, _ speed: Float) -> Int32 {
+public func BotCheckBarrierJump(_ ms: BotMovestate, _ dir: JKAShared.vec3_t, _ speed: Float) -> Int32 {
     var start = vec3_t(), hordir = vec3_t(), end = vec3_t()
 
     return AasTrace.scratch { trace -> Int32 in
@@ -1130,7 +1130,7 @@ func BotCheckBarrierJump(_ ms: BotMovestate, _ dir: JKAShared.vec3_t, _ speed: F
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1082
-func BotSwimInDirection(_ ms: BotMovestate, _ dir: JKAShared.vec3_t, _ speed: Float, _ type: Int32) -> Int32 {
+public func BotSwimInDirection(_ ms: BotMovestate, _ dir: JKAShared.vec3_t, _ speed: Float, _ type: Int32) -> Int32 {
     var normdir = vec3_t()
 
     normdir = dir
@@ -1146,7 +1146,7 @@ func BotSwimInDirection(_ ms: BotMovestate, _ dir: JKAShared.vec3_t, _ speed: Fl
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1097
-func BotWalkInDirection(_ ms: BotMovestate, _ dir: JKAShared.vec3_t, _ speed: Float, _ type: Int32) -> Int32 {
+public func BotWalkInDirection(_ ms: BotMovestate, _ dir: JKAShared.vec3_t, _ speed: Float, _ type: Int32) -> Int32 {
     var hordir = vec3_t(), cmdmove = vec3_t(), velocity = vec3_t(), tmpdir = vec3_t(), origin = vec3_t()
     // Raven assigns his own `type` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var type = type
@@ -1258,7 +1258,7 @@ func BotWalkInDirection(_ ms: BotMovestate, _ dir: JKAShared.vec3_t, _ speed: Fl
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1214
-func BotMoveInDirection(_ movestate: Int32, _ dir: JKAShared.vec3_t, _ speed: Float, _ type: Int32) -> Int32 {
+public func BotMoveInDirection(_ movestate: Int32, _ dir: JKAShared.vec3_t, _ speed: Float, _ type: Int32) -> Int32 {
     guard let ms = BotMoveStateFromHandle(movestate) else { return 0 }
     //if swimming
     if AAS_Swimming(ms.origin) != 0 {
@@ -1275,7 +1275,7 @@ func BotMoveInDirection(_ movestate: Int32, _ dir: JKAShared.vec3_t, _ speed: Fl
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1236
-func Intersection(_ p1: JKAShared.vec2_t, _ p2: JKAShared.vec2_t, _ p3: JKAShared.vec2_t, _ p4: JKAShared.vec2_t, _ out: inout JKAShared.vec2_t) -> Int32 {
+public func Intersection(_ p1: JKAShared.vec2_t, _ p2: JKAShared.vec2_t, _ p3: JKAShared.vec2_t, _ p4: JKAShared.vec2_t, _ out: inout JKAShared.vec2_t) -> Int32 {
     var x1: Float, dx1: Float, dy1: Float, x2: Float, dx2: Float, dy2: Float, d: Float
 
     dx1 = p2[0] - p1[0]
@@ -1302,7 +1302,7 @@ func Intersection(_ p1: JKAShared.vec2_t, _ p2: JKAShared.vec2_t, _ p3: JKAShare
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1265
-func BotCheckBlocked(_ ms: BotMovestate, _ dir: JKAShared.vec3_t, _ checkbottom: Int32, _ result: BotMoveresult) {
+public func BotCheckBlocked(_ ms: BotMovestate, _ dir: JKAShared.vec3_t, _ checkbottom: Int32, _ result: BotMoveresult) {
     var mins = vec3_t(), maxs = vec3_t(), end = vec3_t()
     let up = vec3_t(0, 0, 1)
 
@@ -1343,7 +1343,7 @@ func BotCheckBlocked(_ ms: BotMovestate, _ dir: JKAShared.vec3_t, _ checkbottom:
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1313
-func BotClearMoveResult(_ moveresult: BotMoveresult) {
+public func BotClearMoveResult(_ moveresult: BotMoveresult) {
     moveresult.failure = 0
     moveresult.type = 0
     moveresult.blocked = 0
@@ -1363,7 +1363,7 @@ func BotClearMoveResult(_ moveresult: BotMoveresult) {
 var result_BotTravel_Walk: BotMoveresult { world.storage.result_BotTravel_Walk }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1328
-func BotTravel_Walk(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+public func BotTravel_Walk(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
     var dist: Float, speed: Float
     var hordir = vec3_t()
     let result = result_BotTravel_Walk
@@ -1425,7 +1425,7 @@ func BotTravel_Walk(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresu
 var result_BotFinishTravel_Walk: BotMoveresult { world.storage.result_BotFinishTravel_Walk }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1383
-func BotFinishTravel_Walk(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+public func BotFinishTravel_Walk(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
     var hordir = vec3_t()
     var dist: Float, speed: Float
     let result = result_BotFinishTravel_Walk
@@ -1459,7 +1459,7 @@ func BotFinishTravel_Walk(_ ms: BotMovestate, _ reach: AasReachability) -> BotMo
 var result_BotTravel_Crouch: BotMoveresult { world.storage.result_BotTravel_Crouch }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1421
-func BotTravel_Crouch(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+public func BotTravel_Crouch(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
     let speed: Float
     var hordir = vec3_t()
     let result = result_BotTravel_Crouch
@@ -1494,7 +1494,7 @@ func BotTravel_Crouch(_ ms: BotMovestate, _ reach: AasReachability) -> BotMovere
 var result_BotTravel_BarrierJump: BotMoveresult { world.storage.result_BotTravel_BarrierJump }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1451
-func BotTravel_BarrierJump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+public func BotTravel_BarrierJump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
     var dist: Float, speed: Float
     var hordir = vec3_t()
     let result = result_BotTravel_BarrierJump
@@ -1532,7 +1532,7 @@ func BotTravel_BarrierJump(_ ms: BotMovestate, _ reach: AasReachability) -> BotM
 var result_BotFinishTravel_BarrierJump: BotMoveresult { world.storage.result_BotFinishTravel_BarrierJump }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1486
-func BotFinishTravel_BarrierJump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+public func BotFinishTravel_BarrierJump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
     var hordir = vec3_t()
     let result = result_BotFinishTravel_BarrierJump
 
@@ -1564,7 +1564,7 @@ func BotFinishTravel_BarrierJump(_ ms: BotMovestate, _ reach: AasReachability) -
 var result_BotTravel_Swim: BotMoveresult { world.storage.result_BotTravel_Swim }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1515
-func BotTravel_Swim(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+public func BotTravel_Swim(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
     var dir = vec3_t()
     let result = result_BotTravel_Swim
 
@@ -1595,7 +1595,7 @@ func BotTravel_Swim(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresu
 var result_BotTravel_WaterJump: BotMoveresult { world.storage.result_BotTravel_WaterJump }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1541
-func BotTravel_WaterJump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+public func BotTravel_WaterJump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
     var dir = vec3_t(), hordir = vec3_t()
     let dist: Float
     let result = result_BotTravel_WaterJump
@@ -1634,7 +1634,7 @@ func BotTravel_WaterJump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMov
 var result_BotFinishTravel_WaterJump: BotMoveresult { world.storage.result_BotFinishTravel_WaterJump }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1575
-func BotFinishTravel_WaterJump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+public func BotFinishTravel_WaterJump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
     var dir = vec3_t(), pnt = vec3_t()
     let result = result_BotFinishTravel_WaterJump
 
@@ -1675,7 +1675,7 @@ func BotFinishTravel_WaterJump(_ ms: BotMovestate, _ reach: AasReachability) -> 
 var result_BotTravel_WalkOffLedge: BotMoveresult { world.storage.result_BotTravel_WalkOffLedge }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1612
-func BotTravel_WalkOffLedge(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+public func BotTravel_WalkOffLedge(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
     var hordir = vec3_t(), dir = vec3_t()
     var dist: Float, speed: Float = 0
     let reachhordist: Float
@@ -1734,7 +1734,7 @@ func BotTravel_WalkOffLedge(_ ms: BotMovestate, _ reach: AasReachability) -> Bot
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1675
-func BotAirControl(_ origin: JKAShared.vec3_t, _ velocity: JKAShared.vec3_t, _ goal: JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t, _ speed: inout Float) -> Int32 {
+public func BotAirControl(_ origin: JKAShared.vec3_t, _ velocity: JKAShared.vec3_t, _ goal: JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t, _ speed: inout Float) -> Int32 {
     var org = vec3_t(), vel = vec3_t()
     var dist: Float
     var i: Int32
@@ -1776,7 +1776,7 @@ func BotAirControl(_ origin: JKAShared.vec3_t, _ velocity: JKAShared.vec3_t, _ g
 var result_BotFinishTravel_WalkOffLedge: BotMoveresult { world.storage.result_BotFinishTravel_WalkOffLedge }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1712
-func BotFinishTravel_WalkOffLedge(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+public func BotFinishTravel_WalkOffLedge(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
     var dir = vec3_t(), hordir = vec3_t(), end = vec3_t(), v = vec3_t()
     let dist: Float
     var speed: Float = 0
@@ -1950,7 +1950,7 @@ bot_moveresult_t BotTravel_Jump(bot_movestate_t *ms, aas_reachability_t *reach)
 var result_BotTravel_Jump: BotMoveresult { world.storage.result_BotTravel_Jump }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1872
-func BotTravel_Jump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+public func BotTravel_Jump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
     var hordir = vec3_t(), dir1 = vec3_t(), dir2 = vec3_t(), start = vec3_t(), end = vec3_t(), runstart = vec3_t()
     //	vec3_t runstart, dir1, dir2, hordir;
     var dist1: Float, dist2: Float, speed: Float
@@ -2087,7 +2087,7 @@ func BotTravel_Jump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresu
 var result_BotFinishTravel_Jump: BotMoveresult { world.storage.result_BotFinishTravel_Jump }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1943
-func BotFinishTravel_Jump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+public func BotFinishTravel_Jump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
     var hordir = vec3_t(), hordir2 = vec3_t()
     let speed: Float, dist: Float
     let result = result_BotFinishTravel_Jump
@@ -2127,7 +2127,7 @@ func BotFinishTravel_Jump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMo
 var result_BotTravel_Ladder: BotMoveresult { world.storage.result_BotTravel_Ladder }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:1978
-func BotTravel_Ladder(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+public func BotTravel_Ladder(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
     //float dist, speed;
     var dir = vec3_t(), viewdir = vec3_t() //, hordir;
     let origin = vec3_t(0, 0, 0)
@@ -2171,7 +2171,7 @@ func BotTravel_Ladder(_ ms: BotMovestate, _ reach: AasReachability) -> BotMovere
 var result_BotTravel_Teleport: BotMoveresult { world.storage.result_BotTravel_Teleport }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2034
-func BotTravel_Teleport(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+public func BotTravel_Teleport(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
     var hordir = vec3_t()
     let dist: Float
     let result = result_BotTravel_Teleport
@@ -2210,7 +2210,7 @@ func BotTravel_Teleport(_ ms: BotMovestate, _ reach: AasReachability) -> BotMove
 var result_BotTravel_Elevator: BotMoveresult { world.storage.result_BotTravel_Elevator }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2065
-func BotTravel_Elevator(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+public func BotTravel_Elevator(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
     var dir = vec3_t(), dir1 = vec3_t(), dir2 = vec3_t(), hordir = vec3_t(), bottomcenter = vec3_t()
     var dist: Float, dist1: Float, dist2: Float, speed: Float
     let result = result_BotTravel_Elevator
@@ -2333,7 +2333,7 @@ func BotTravel_Elevator(_ ms: BotMovestate, _ reach: AasReachability) -> BotMove
 var result_BotFinishTravel_Elevator: BotMoveresult { world.storage.result_BotFinishTravel_Elevator }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2216
-func BotFinishTravel_Elevator(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+public func BotFinishTravel_Elevator(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
     var bottomcenter = vec3_t(), bottomdir = vec3_t(), topdir = vec3_t()
     let result = result_BotFinishTravel_Elevator
 
@@ -2362,7 +2362,7 @@ func BotFinishTravel_Elevator(_ ms: BotMovestate, _ reach: AasReachability) -> B
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2246
-func BotFuncBobStartEnd(_ reach: AasReachability, _ start: inout JKAShared.vec3_t, _ end: inout JKAShared.vec3_t, _ origin: inout JKAShared.vec3_t) {
+public func BotFuncBobStartEnd(_ reach: AasReachability, _ start: inout JKAShared.vec3_t, _ end: inout JKAShared.vec3_t, _ origin: inout JKAShared.vec3_t) {
     var spawnflags: Int32, modelnum: Int32
     var mins = vec3_t(), maxs = vec3_t(), mid = vec3_t()
     let angles = vec3_t(0, 0, 0)
@@ -2426,7 +2426,7 @@ func BotFuncBobStartEnd(_ reach: AasReachability, _ start: inout JKAShared.vec3_
 var result_BotTravel_FuncBobbing: BotMoveresult { world.storage.result_BotTravel_FuncBobbing }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2304
-func BotTravel_FuncBobbing(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+public func BotTravel_FuncBobbing(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
     var dir = vec3_t(), dir1 = vec3_t(), dir2 = vec3_t(), hordir = vec3_t(), bottomcenter = vec3_t(), bob_start = vec3_t(), bob_end = vec3_t(), bob_origin = vec3_t()
     var dist: Float, dist1: Float, dist2: Float, speed: Float
     let result = result_BotTravel_FuncBobbing
@@ -2552,7 +2552,7 @@ func BotTravel_FuncBobbing(_ ms: BotMovestate, _ reach: AasReachability) -> BotM
 var result_BotFinishTravel_FuncBobbing: BotMoveresult { world.storage.result_BotFinishTravel_FuncBobbing }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2462
-func BotFinishTravel_FuncBobbing(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+public func BotFinishTravel_FuncBobbing(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
     var bob_origin = vec3_t(), bob_start = vec3_t(), bob_end = vec3_t(), dir = vec3_t(), hordir = vec3_t(), bottomcenter = vec3_t()
     let result = result_BotFinishTravel_FuncBobbing
     var dist: Float, speed: Float
@@ -2605,7 +2605,7 @@ func BotFinishTravel_FuncBobbing(_ ms: BotMovestate, _ reach: AasReachability) -
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2517
-func GrappleState(_ ms: BotMovestate, _ reach: AasReachability) -> Int32 {
+public func GrappleState(_ ms: BotMovestate, _ reach: AasReachability) -> Int32 {
     return AasEntityinfo.scratch { entinfo -> Int32 in
         var i: Int32
 
@@ -2637,7 +2637,7 @@ func GrappleState(_ ms: BotMovestate, _ reach: AasReachability) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2547
-func BotResetGrapple(_ ms: BotMovestate) {
+public func BotResetGrapple(_ ms: BotMovestate) {
     AasReachability.scratch { reach in
         AAS_ReachabilityFromNum(ms.lastreachnum, reach)
         //if not using the grapple hook reachability anymore
@@ -2665,7 +2665,7 @@ func BotResetGrapple(_ ms: BotMovestate) {
 var result_BotTravel_Grapple: BotMoveresult { world.storage.result_BotTravel_Grapple }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2573
-func BotTravel_Grapple(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+public func BotTravel_Grapple(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
     let result = result_BotTravel_Grapple
     var dist: Float, speed: Float
     var dir = vec3_t(), viewdir = vec3_t(), org = vec3_t()
@@ -2801,7 +2801,7 @@ func BotTravel_Grapple(_ ms: BotMovestate, _ reach: AasReachability) -> BotMover
 var result_BotTravel_RocketJump: BotMoveresult { world.storage.result_BotTravel_RocketJump }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2727
-func BotTravel_RocketJump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+public func BotTravel_RocketJump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
     var hordir = vec3_t()
     var dist: Float, speed: Float
     let result = result_BotTravel_RocketJump
@@ -2869,7 +2869,7 @@ func BotTravel_RocketJump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMo
 var result_BotTravel_BFGJump: BotMoveresult { world.storage.result_BotTravel_BFGJump }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2792
-func BotTravel_BFGJump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+public func BotTravel_BFGJump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
     var hordir = vec3_t()
     var dist: Float, speed: Float
     let result = result_BotTravel_BFGJump
@@ -2933,7 +2933,7 @@ func BotTravel_BFGJump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMover
 var result_BotFinishTravel_WeaponJump: BotMoveresult { world.storage.result_BotFinishTravel_WeaponJump }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2853
-func BotFinishTravel_WeaponJump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+public func BotFinishTravel_WeaponJump(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
     var hordir = vec3_t()
     var speed: Float = 0
     let result = result_BotFinishTravel_WeaponJump
@@ -2967,7 +2967,7 @@ func BotFinishTravel_WeaponJump(_ ms: BotMovestate, _ reach: AasReachability) ->
 var result_BotTravel_JumpPad: BotMoveresult { world.storage.result_BotTravel_JumpPad }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2893
-func BotTravel_JumpPad(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+public func BotTravel_JumpPad(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
     let speed: Float
     var hordir = vec3_t()
     let result = result_BotTravel_JumpPad
@@ -2999,7 +2999,7 @@ func BotTravel_JumpPad(_ ms: BotMovestate, _ reach: AasReachability) -> BotMover
 var result_BotFinishTravel_JumpPad: BotMoveresult { world.storage.result_BotFinishTravel_JumpPad }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2920
-func BotFinishTravel_JumpPad(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
+public func BotFinishTravel_JumpPad(_ ms: BotMovestate, _ reach: AasReachability) -> BotMoveresult {
     var speed: Float = 0
     var hordir = vec3_t()
     let result = result_BotFinishTravel_JumpPad
@@ -3028,7 +3028,7 @@ func BotFinishTravel_JumpPad(_ ms: BotMovestate, _ reach: AasReachability) -> Bo
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2949
-func BotReachabilityTime(_ reach: AasReachability) -> Int32 {
+public func BotReachabilityTime(_ reach: AasReachability) -> Int32 {
     switch reach.traveltype & TRAVELTYPE_MASK {
     case TRAVEL_WALK: return 5
     case TRAVEL_CROUCH: return 5
@@ -3062,7 +3062,7 @@ func BotReachabilityTime(_ reach: AasReachability) -> Int32 {
 var result_BotMoveInGoalArea: BotMoveresult { world.storage.result_BotMoveInGoalArea }
 
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:2981
-func BotMoveInGoalArea(_ ms: BotMovestate, _ goal: BotGoal) -> BotMoveresult {
+public func BotMoveInGoalArea(_ ms: BotMovestate, _ goal: BotGoal) -> BotMoveresult {
     let result = result_BotMoveInGoalArea
     var dir = vec3_t()
     var dist: Float, speed: Float
@@ -3112,7 +3112,7 @@ func BotMoveInGoalArea(_ ms: BotMovestate, _ goal: BotGoal) -> BotMoveresult {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:3038
-func BotMoveToGoal(_ result: BotMoveresult, _ movestate: Int32, _ goal: BotGoal, _ travelflags: Int32) {
+public func BotMoveToGoal(_ result: BotMoveresult, _ movestate: Int32, _ goal: BotGoal, _ travelflags: Int32) {
     AasReachability.scratch { reach in
         AasReachability.scratch { lastreach in
             var reachnum: Int32, lastreachnum: Int32, foundjumppad: Int32, ent: Int32, resultflags: Int32
@@ -3451,7 +3451,7 @@ func BotMoveToGoal(_ result: BotMoveresult, _ movestate: Int32, _ goal: BotGoal,
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:3498
-func BotResetAvoidReach(_ movestate: Int32) {
+public func BotResetAvoidReach(_ movestate: Int32) {
     guard let ms = BotMoveStateFromHandle(movestate) else { return }
     ms.avoidreach.fill(0)
     ms.avoidreachtimes.fill(0)
@@ -3465,7 +3465,7 @@ func BotResetAvoidReach(_ movestate: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:3514
-func BotResetLastAvoidReach(_ movestate: Int32) {
+public func BotResetLastAvoidReach(_ movestate: Int32) {
     var i: Int32, latest: Int32
     var latesttime: Float
 
@@ -3495,7 +3495,7 @@ func BotResetLastAvoidReach(_ movestate: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:3544
-func BotResetMoveState(_ movestate: Int32) {
+public func BotResetMoveState(_ movestate: Int32) {
     guard let ms = BotMoveStateFromHandle(movestate) else { return }
     ms.clear()
 }
@@ -3507,7 +3507,7 @@ func BotResetMoveState(_ movestate: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:3558
-func BotSetupMoveAI() -> Int32 {
+public func BotSetupMoveAI() -> Int32 {
     BotSetBrushModelTypes()
     sv_maxstep = LibVar("sv_step", "18")
     sv_maxbarrier = LibVar("sv_maxbarrier", "32")
@@ -3529,7 +3529,7 @@ func BotSetupMoveAI() -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:3579
-func BotShutdownMoveAI() {
+public func BotShutdownMoveAI() {
     var i: Int32
 
     i = 1

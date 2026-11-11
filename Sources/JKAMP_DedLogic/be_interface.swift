@@ -4,22 +4,22 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/botlib/be_interface.cpp:39
-var botlibglobals: BotlibGlobals { world.storage.botlibglobals }
+public var botlibglobals: BotlibGlobals { world.storage.botlibglobals }
 
 /// Source: oracle/codemp/botlib/be_interface.cpp:41
-var be_botlib_export: BotlibExport { world.storage.be_botlib_export }
+public var be_botlib_export: BotlibExport { world.storage.be_botlib_export }
 
 /// Source: oracle/codemp/botlib/be_interface.cpp:42
-var botimport: BotlibImport { world.storage.botimport }
+public var botimport: BotlibImport { world.storage.botimport }
 
 /// Source: oracle/codemp/botlib/be_interface.cpp:44
-var bot_developer: Int32 {
+public var bot_developer: Int32 {
     get { world.variables.bot_developer }
     set { world.variables.bot_developer = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_interface.cpp:46
-var botlibsetup: Int32 {
+public var botlibsetup: Int32 {
     get { world.variables.botlibsetup }
     set { world.variables.botlibsetup = newValue }
 }
@@ -31,7 +31,7 @@ var botlibsetup: Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_interface.cpp:60
-func Sys_MilliSeconds() -> Int32 {
+public func Sys_MilliSeconds() -> Int32 {
     // AI: Raven returns the 32-bit `long` quotient as his `int`. The host quotient is 64 bits, and the return keeps its low 32 bits.
     return Int32(truncatingIfNeeded: SysBackend.clock() * 1000 / SysBackend.CLOCKS_PER_SEC)
 }
@@ -43,7 +43,7 @@ func Sys_MilliSeconds() -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_interface.cpp:70
-func ValidClientNumber(_ num: Int32, _ str: inout JKAShared.CharBuf) -> Bool {
+public func ValidClientNumber(_ num: Int32, _ str: inout JKAShared.CharBuf) -> Bool {
     if num < 0 || num > botlibglobals.maxclients {
         //weird: the disabled stuff results in a crash
         botimport.runPrint(PRT_ERROR, "%s: invalid client number %d, [0, %d]\n", str, num, botlibglobals.maxclients)
@@ -59,7 +59,7 @@ func ValidClientNumber(_ num: Int32, _ str: inout JKAShared.CharBuf) -> Bool {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_interface.cpp:87
-func ValidEntityNumber(_ num: Int32, _ str: inout JKAShared.CharBuf) -> Bool {
+public func ValidEntityNumber(_ num: Int32, _ str: inout JKAShared.CharBuf) -> Bool {
     if num < 0 || num > botlibglobals.maxentities {
         botimport.runPrint(PRT_ERROR, "%s: invalid entity number %d, [0, %d]\n", str, num, botlibglobals.maxentities)
         return false
@@ -74,7 +74,7 @@ func ValidEntityNumber(_ num: Int32, _ str: inout JKAShared.CharBuf) -> Bool {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_interface.cpp:103
-func BotLibSetup(_ str: inout JKAShared.CharBuf) -> Bool {
+public func BotLibSetup(_ str: inout JKAShared.CharBuf) -> Bool {
     if botlibglobals.botlibsetup == 0 {
         botimport.runPrint(PRT_ERROR, "%s: bot library used before being setup\n", str)
         return false
@@ -89,7 +89,7 @@ func BotLibSetup(_ str: inout JKAShared.CharBuf) -> Bool {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_interface.cpp:119
-func Export_BotLibSetup() -> Int32 {
+public func Export_BotLibSetup() -> Int32 {
     var errnum: Int32
 
     bot_developer = Int32(LibVarGetValue("bot_developer"))
@@ -131,7 +131,7 @@ func Export_BotLibSetup() -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_interface.cpp:159
-func Export_BotLibShutdown() -> Int32 {
+public func Export_BotLibShutdown() -> Int32 {
     var str = CharBuf("BotLibShutdown")
     if !BotLibSetup(&str) { return BLERR_LIBRARYNOTSETUP }
     //DumpFileCRCs();
@@ -171,7 +171,7 @@ func Export_BotLibShutdown() -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_interface.cpp:202
-func Export_BotLibVarSet(_ var_name: String, _ value: String) -> Int32 {
+public func Export_BotLibVarSet(_ var_name: String, _ value: String) -> Int32 {
     LibVarSet(var_name, value)
     return BLERR_NOERROR
 }
@@ -183,7 +183,7 @@ func Export_BotLibVarSet(_ var_name: String, _ value: String) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_interface.cpp:213
-func Export_BotLibVarGet(_ var_name: String, _ value: inout JKAShared.CharBuf, _ size: Int32) -> Int32 {
+public func Export_BotLibVarGet(_ var_name: String, _ value: inout JKAShared.CharBuf, _ size: Int32) -> Int32 {
     let varvalue: String
 
     varvalue = LibVarGetString(var_name)
@@ -199,7 +199,7 @@ func Export_BotLibVarGet(_ var_name: String, _ value: inout JKAShared.CharBuf, _
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_interface.cpp:228
-func Export_BotLibStartFrame(_ time: Float) -> Int32 {
+public func Export_BotLibStartFrame(_ time: Float) -> Int32 {
     var str = CharBuf("BotStartFrame")
     if !BotLibSetup(&str) { return BLERR_LIBRARYNOTSETUP }
     return AAS_StartFrame(time)
@@ -212,7 +212,7 @@ func Export_BotLibStartFrame(_ time: Float) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_interface.cpp:239
-func Export_BotLibLoadMap(_ mapname: String) -> Int32 {
+public func Export_BotLibLoadMap(_ mapname: String) -> Int32 {
     var errnum: Int32
 
     var str = CharBuf("BotLoadMap")
@@ -238,7 +238,7 @@ func Export_BotLibLoadMap(_ mapname: String) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_interface.cpp:269
-func Export_BotLibUpdateEntity(_ ent: Int32, _ state: BotEntitystate) -> Int32 {
+public func Export_BotLibUpdateEntity(_ ent: Int32, _ state: BotEntitystate) -> Int32 {
     var str = CharBuf("BotUpdateEntity")
     if !BotLibSetup(&str) { return BLERR_LIBRARYNOTSETUP }
     if !ValidEntityNumber(ent, &str) { return BLERR_INVALIDENTITYNUMBER }
@@ -247,7 +247,7 @@ func Export_BotLibUpdateEntity(_ ent: Int32, _ state: BotEntitystate) -> Int32 {
 }
 
 /// Source: oracle/codemp/botlib/be_interface.cpp:302
-func BotExportTest(_ parm0: Int32, _ parm1: String, _ parm2: JKAShared.vec3_t, _ parm3: JKAShared.vec3_t) -> Int32 {
+public func BotExportTest(_ parm0: Int32, _ parm1: String, _ parm2: JKAShared.vec3_t, _ parm3: JKAShared.vec3_t) -> Int32 {
 
 //	return AAS_PointLight(parm2, NULL, NULL, NULL);
 
@@ -463,7 +463,7 @@ GetBotLibAPI
 ```
 */
 /// Source: oracle/codemp/botlib/be_interface.cpp:834
-func GetBotLibAPI(_ apiVersion: Int32, _ `import`: BotlibImport) -> BotlibExport? {
+public func GetBotLibAPI(_ apiVersion: Int32, _ `import`: BotlibImport) -> BotlibExport? {
     // Raven asserts `import` here, and a view parameter is never NULL. // bk001129 - this wasn't set for base/
     botimport.copy(from: `import`)
     assert(botimport.Print != nil)   // bk001129 - pars pro toto

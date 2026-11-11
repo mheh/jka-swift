@@ -137,13 +137,13 @@ SV_Netchan_TransmitNextFragment
 ```
 */
 /// Source: oracle/codemp/server/sv_net_chan.cpp:126
-func SV_Netchan_TransmitNextFragment(_ chan: Netchan) {
+public func SV_Netchan_TransmitNextFragment(_ chan: Netchan) {
     Netchan_TransmitNextFragment(chan)
 }
 
 //extern byte chksum[65536];
 /// Source: oracle/codemp/server/sv_net_chan.cpp:138
-func SV_Netchan_Transmit(_ client: Client, _ msg: Msg) {
+public func SV_Netchan_Transmit(_ client: Client, _ msg: Msg) {
     //int length, const byte *data ) {
     //	int i;
     MSG_WriteByte(msg, svc_EOF)
@@ -163,7 +163,7 @@ Netchan_SV_Process
 ```
 */
 /// Source: oracle/codemp/server/sv_net_chan.cpp:154
-func SV_Netchan_Process(_ client: Client, _ msg: Msg) -> Bool {
+public func SV_Netchan_Process(_ client: Client, _ msg: Msg) -> Bool {
     let ret: Int32
     //	int i;
     ret = (Netchan_Process(client.netchan, msg) ? 1 : 0)

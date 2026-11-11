@@ -8,13 +8,13 @@ import JKAMP_BG
 let MAX_SHADER_REMAPS = 128 as Int32
 
 /// Source: oracle/codemp/game/g_utils.c:17
-var remapCount: Int32 {
+public var remapCount: Int32 {
     get { world.variables.remapCount }
     set { world.variables.remapCount = newValue }
 }
 
 /// Source: oracle/codemp/game/g_utils.c:18
-var remappedShaders: Slots<ShaderRemap> { world.storage.remappedShaders }
+public var remappedShaders: Slots<ShaderRemap> { world.storage.remappedShaders }
 
 /// Source: oracle/codemp/game/g_utils.c:384
 let MAX_VEHICLES_AT_A_TIME = 128 as Int32
@@ -35,7 +35,7 @@ var g_vehiclePoolInit: Bool {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:428
-var gClPtrs: Slots<Client?> { world.storage.gClPtrs }
+public var gClPtrs: Slots<Client?> { world.storage.gClPtrs }
 
 /// Source: oracle/codemp/game/g_utils.c:519
 let MAXCHOICES = 32 as Int32
@@ -44,13 +44,13 @@ let MAXCHOICES = 32 as Int32
 let MAX_G2_KILL_QUEUE = 256 as Int32
 
 /// Source: oracle/codemp/game/g_utils.c:877
-var gG2KillIndex: [Int32] {
+public var gG2KillIndex: [Int32] {
     get { world.variables.gG2KillIndex }
     set { world.variables.gG2KillIndex = newValue }
 }
 
 /// Source: oracle/codemp/game/g_utils.c:878
-var gG2KillNum: Int32 {
+public var gG2KillNum: Int32 {
     get { world.variables.gG2KillNum }
     set { world.variables.gG2KillNum = newValue }
 }
@@ -73,7 +73,7 @@ private var playerMaxs: JKAShared.vec3_t {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:20
-func AddRemap(_ oldShader: String, _ newShader: String, _ timeOffset: Float) {
+public func AddRemap(_ oldShader: String, _ newShader: String, _ timeOffset: Float) {
     var i: Int32
 
     i = 0
@@ -102,7 +102,7 @@ var buff: CharBuf {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:39
-func BuildShaderStateConfig() -> String {
+public func BuildShaderStateConfig() -> String {
     var out = CharBuf(133)
     var i: Int32
 
@@ -159,12 +159,12 @@ private func G_FindConfigstringIndex(_ name: String, _ start: Int32, _ max: Int3
 }
 
 /// Source: oracle/codemp/game/g_utils.c:101
-func G_BoneIndex(_ name: String) -> Int32 {
+public func G_BoneIndex(_ name: String) -> Int32 {
     return G_FindConfigstringIndex(name, CS_G2BONES, MAX_G2BONES, true)
 }
 
 /// Source: oracle/codemp/game/g_utils.c:108
-func G_ModelIndex(_ name: String) -> Int32 {
+public func G_ModelIndex(_ name: String) -> Int32 {
     //debug to see if we are shoving data into configstrings for models that don't exist, and if
     //so, where we are doing it from -rww
 
@@ -173,7 +173,7 @@ func G_ModelIndex(_ name: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:132
-func G_IconIndex(_ name: String) -> Int32 {
+public func G_IconIndex(_ name: String) -> Int32 {
     return G_FindConfigstringIndex(name, CS_ICONS, MAX_ICONS, true)
 }
 
@@ -183,23 +183,23 @@ public func G_SoundIndex(_ name: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:143
-func G_SoundSetIndex(_ name: String) -> Int32 {
+public func G_SoundSetIndex(_ name: String) -> Int32 {
     return G_FindConfigstringIndex(name, CS_AMBIENT_SET, MAX_AMBIENT_SETS, true)
 }
 
 /// Source: oracle/codemp/game/g_utils.c:148
-func G_EffectIndex(_ name: String) -> Int32 {
+public func G_EffectIndex(_ name: String) -> Int32 {
     return G_FindConfigstringIndex(name, CS_EFFECTS, MAX_FX, true)
 }
 
 /// Source: oracle/codemp/game/g_utils.c:153
-func G_BSPIndex(_ name: String) -> Int32 {
+public func G_BSPIndex(_ name: String) -> Int32 {
     return G_FindConfigstringIndex(name, CS_BSP_MODELS, MAX_SUB_BSP, true)
 }
 
 //see if we can or should allow this guy to use a custom skeleton -rww
 /// Source: oracle/codemp/game/g_utils.c:162
-func G_PlayerHasCustomSkeleton(_ ent: Entity) -> Bool {
+public func G_PlayerHasCustomSkeleton(_ ent: Entity) -> Bool {
     /*
     siegeClass_t *scl;
 
@@ -236,7 +236,7 @@ Broadcasts a command to only a specific team
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:197
-func G_TeamCommand(_ team: JKAMP.team_t, _ cmd: String) {
+public func G_TeamCommand(_ team: JKAMP.team_t, _ cmd: String) {
     var i: Int32
 
     i = 0
@@ -265,7 +265,7 @@ NULL will be returned if the end of the list is reached.
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:222
-func G_Find(_ from: Entity?, _ fieldofs: KeyPath<Entity, String?>, _ match: String?) -> Entity? {
+public func G_Find(_ from: Entity?, _ fieldofs: KeyPath<Entity, String?>, _ match: String?) -> Entity? {
     var s: String?
     // Raven walks his own `from` parameter over `g_entities`, so the body walks the index of its slot, as for a walked local.
     var fromIndex: Int32 = 0
@@ -303,7 +303,7 @@ G_RadiusList - given an origin and a radius, return all entities that are in use
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:252
-func G_RadiusList(_ origin: JKAShared.vec3_t, _ radius: Float, _ ignore: Entity, _ takeDamage: Bool, _ ent_list: inout [Entity?]) -> Int32 {
+public func G_RadiusList(_ origin: JKAShared.vec3_t, _ radius: Float, _ ignore: Entity, _ takeDamage: Bool, _ ent_list: inout [Entity?]) -> Int32 {
     var dist: Float
     var ent: Entity?
     var entityList: [Int32] = [Int32](repeating: 0, count: 1024)
@@ -369,7 +369,7 @@ func G_RadiusList(_ origin: JKAShared.vec3_t, _ radius: Float, _ ignore: Entity,
 
 /// A caller that passes a file-scope table for `ent_list` reaches `G_RadiusList` through this forward, `prox_mine_think` of `g_weapon.c`.
 /// It writes back slots `0..<count` alone, because Raven's body writes no other slot.
-func G_RadiusList(_ origin: JKAShared.vec3_t, _ radius: Float, _ ignore: Entity, _ takeDamage: Bool, _ ent_list: Slots<Entity?>) -> Int32 {
+public func G_RadiusList(_ origin: JKAShared.vec3_t, _ radius: Float, _ ignore: Entity, _ takeDamage: Bool, _ ent_list: Slots<Entity?>) -> Int32 {
     var list = Array(ent_list)
     let count = G_RadiusList(origin, radius, ignore, takeDamage, &list)
     for i in 0 ..< Int(count) {
@@ -380,7 +380,7 @@ func G_RadiusList(_ origin: JKAShared.vec3_t, _ radius: Float, _ ignore: Entity,
 
 //----------------------------------------------------------
 /// Source: oracle/codemp/game/g_utils.c:315
-func G_Throw(_ targ: Entity, _ newDir: JKAShared.vec3_t, _ push: Float) {
+public func G_Throw(_ targ: Entity, _ newDir: JKAShared.vec3_t, _ push: Float) {
     var kvel = vec3_t()
     let mass: Float
 
@@ -428,7 +428,7 @@ func G_Throw(_ targ: Entity, _ newDir: JKAShared.vec3_t, _ push: Float) {
 //it is left around you will have a memory leak, because true dynamic memory is
 //allocated by the exe.
 /// Source: oracle/codemp/game/g_utils.c:376
-func G_FreeFakeClient(_ cl: inout Client?) {
+public func G_FreeFakeClient(_ cl: inout Client?) {
     //or not, the dynamic stuff is busted somehow at the moment. Yet it still works in the test.
     //I think something is messed up in being able to cast the memory to stuff to modify it,
     //while modifying it directly seems to work fine.
@@ -436,7 +436,7 @@ func G_FreeFakeClient(_ cl: inout Client?) {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:388
-func G_AllocateVehicleObject(_ pVeh: inout JKAMP.Vehicle?) {
+public func G_AllocateVehicleObject(_ pVeh: inout JKAMP.Vehicle?) {
     var i: Int32 = 0
 
     if !g_vehiclePoolInit {
@@ -459,7 +459,7 @@ func G_AllocateVehicleObject(_ pVeh: inout JKAMP.Vehicle?) {
 
 //free the pointer, sort of a lame method
 /// Source: oracle/codemp/game/g_utils.c:413
-func G_FreeVehicleObject(_ pVeh: JKAMP.Vehicle) {
+public func G_FreeVehicleObject(_ pVeh: JKAMP.Vehicle) {
     var i: Int32 = 0
     while i < MAX_VEHICLES_AT_A_TIME {
         if g_vehiclePoolOccupied[i] && g_vehiclePool[i] == pVeh {
@@ -472,7 +472,7 @@ func G_FreeVehicleObject(_ pVeh: JKAMP.Vehicle) {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:430
-func G_CreateFakeClient(_ entNum: Int32, _ cl: inout Client?) {
+public func G_CreateFakeClient(_ entNum: Int32, _ cl: inout Client?) {
     //trap_TrueMalloc((void **)cl, sizeof(gclient_t));
     if gClPtrs[entNum] == nil {
         gClPtrs[entNum] = Client(BG_Alloc(Int32(Client.byteCount)))
@@ -482,7 +482,7 @@ func G_CreateFakeClient(_ entNum: Int32, _ cl: inout Client?) {
 
 //call this on game shutdown to run through and get rid of all the lingering client pointers.
 /// Source: oracle/codemp/game/g_utils.c:450
-func G_CleanAllFakeClients() {
+public func G_CleanAllFakeClients() {
     var i: Int32 = MAX_CLIENTS
     var ent: Entity?
 
@@ -497,13 +497,13 @@ func G_CleanAllFakeClients() {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:479
-func G_SetAnim(_ ent: Entity, _ ucmd: JKAMP.Usercmd?, _ setAnimParts: Int32, _ anim: Int32, _ setAnimFlags: Int32, _ blendTime: Int32) {
+public func G_SetAnim(_ ent: Entity, _ ucmd: JKAMP.Usercmd?, _ setAnimParts: Int32, _ anim: Int32, _ setAnimFlags: Int32, _ blendTime: Int32) {
     //don't need to bother with ghoul2 stuff, it's not even used in PM_SetAnim.
     BG_SetAnim(ent.client!.ps, bgAllAnims[ent.localAnimIndex].animsSlots, setAnimParts, anim, setAnimFlags, blendTime)
 }
 
 /// Source: oracle/codemp/game/g_utils.c:521
-func G_PickTarget(_ targetname: String) -> Entity? {
+public func G_PickTarget(_ targetname: String) -> Entity? {
     var ent: Entity? = nil
     var num_choices: Int32 = 0
     var choice = [Entity?](repeating: nil, count: Int(MAXCHOICES))
@@ -530,7 +530,7 @@ func G_PickTarget(_ targetname: String) -> Entity? {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:552
-func GlobalUse(_ `self`: Entity, _ other: Entity, _ activator: Entity?) {
+public func GlobalUse(_ `self`: Entity, _ other: Entity, _ activator: Entity?) {
     if (`self`.flags & FL_INACTIVE) != 0 {
         return
     }
@@ -542,7 +542,7 @@ func GlobalUse(_ `self`: Entity, _ other: Entity, _ activator: Entity?) {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:566
-func G_UseTargets2(_ ent: Entity?, _ activator: Entity?, _ string: String?) {
+public func G_UseTargets2(_ ent: Entity?, _ activator: Entity?, _ string: String?) {
     var t: Entity?
 
     if ent == nil {
@@ -590,7 +590,7 @@ match (string)self.target and call their .use function
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:609
-func G_UseTargets(_ ent: Entity?, _ activator: Entity?) {
+public func G_UseTargets(_ ent: Entity?, _ activator: Entity?) {
     if ent == nil {
         return
     }
@@ -608,7 +608,7 @@ for making temporary vectors for function calls
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:627
-func tv(_ x: Float, _ y: Float, _ z: Float) -> JKAShared.vec3_t {
+public func tv(_ x: Float, _ y: Float, _ z: Float) -> JKAShared.vec3_t {
     vec3_t(x, y, z)
 }
 
@@ -623,7 +623,7 @@ for printing vectors
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:653
-func vtos(_ v: JKAShared.vec3_t) -> String {
+public func vtos(_ v: JKAShared.vec3_t) -> String {
     // Raven's ring of eight buffers keeps one result valid across a later call, and a returned `String` is already a copy.
     var s = CharBuf(32)
 
@@ -646,7 +646,7 @@ instead of an orientation.
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:678
-func G_SetMovedir(_ angles: inout JKAShared.vec3_t, _ movedir: inout JKAShared.vec3_t) {
+public func G_SetMovedir(_ angles: inout JKAShared.vec3_t, _ movedir: inout JKAShared.vec3_t) {
     var VEC_UP = vec3_t(0, -1, 0)
     var MOVEDIR_UP = vec3_t(0, 0, 1)
     var VEC_DOWN = vec3_t(0, -2, 0)
@@ -666,7 +666,7 @@ func G_SetMovedir(_ angles: inout JKAShared.vec3_t, _ movedir: inout JKAShared.v
 }
 
 /// Source: oracle/codemp/game/g_utils.c:694
-func G_InitGentity(_ e: Entity) {
+public func G_InitGentity(_ e: Entity) {
     e.inuse = true
     e.classname = "noclass"
     e.s.number = g_entities.index(of: e)
@@ -752,7 +752,7 @@ angles and bad trails.
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:804
-func G_Spawn() -> Entity? {
+public func G_Spawn() -> Entity? {
     var i: Int32
     var force: Int32
     var eIndex: Int32 = 0
@@ -819,7 +819,7 @@ G_EntitiesFree
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:860
-func G_EntitiesFree() -> Bool {
+public func G_EntitiesFree() -> Bool {
     var i: Int32
     var eIndex: Int32 = 0
 
@@ -840,7 +840,7 @@ func G_EntitiesFree() -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:880
-func G_SendG2KillQueue() {
+public func G_SendG2KillQueue() {
     var g2KillString = CharBuf(1024)
     var i: Int32 = 0
 
@@ -867,7 +867,7 @@ func G_SendG2KillQueue() {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:909
-func G_KillG2Queue(_ entNum: Int32) {
+public func G_KillG2Queue(_ entNum: Int32) {
     if gG2KillNum >= MAX_G2_KILL_QUEUE {
         //This would be considered a Bad Thing.
         //Since we're out of queue slots, just send it now as a seperate command (eats more bandwidth, but we have no choice)
@@ -889,7 +889,7 @@ Marks the entity as free
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:932
-func G_FreeEntity(_ ed: Entity) {
+public func G_FreeEntity(_ ed: Entity) {
     //gentity_t *te;
 
     if ed.isSaberEntity {
@@ -998,7 +998,7 @@ must be taken if the origin is right on a surface (snap towards start vector fir
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:1054
-func G_TempEntity(_ origin: JKAShared.vec3_t, _ event: Int32) -> Entity? {
+public func G_TempEntity(_ origin: JKAShared.vec3_t, _ event: Int32) -> Entity? {
     var e: Entity?
     var snapped = vec3_t()
 
@@ -1033,7 +1033,7 @@ Special event entity that keeps sound trackers in mind
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:1087
-func G_SoundTempEntity(_ origin: JKAShared.vec3_t, _ event: Int32, _ channel: Int32) -> Entity? {
+public func G_SoundTempEntity(_ origin: JKAShared.vec3_t, _ event: Int32, _ channel: Int32) -> Entity? {
     var e: Entity?
     var snapped = vec3_t()
 
@@ -1058,7 +1058,7 @@ func G_SoundTempEntity(_ origin: JKAShared.vec3_t, _ event: Int32, _ channel: In
 
 //scale health down below 1024 to fit in health bits
 /// Source: oracle/codemp/game/g_utils.c:1112
-func G_ScaleNetHealth(_ `self`: Entity) {
+public func G_ScaleNetHealth(_ `self`: Entity) {
     let maxHealth: Int32 = `self`.maxHealth
 
     if maxHealth < 1000 {
@@ -1099,7 +1099,7 @@ of ent.  Ent should be unlinked before calling this!
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:1162
-func G_KillBox(_ ent: Entity) {
+public func G_KillBox(_ ent: Entity) {
     var i: Int32
     let num: Int32
     var touch: [Int32] = [Int32](repeating: 0, count: 1024)
@@ -1150,7 +1150,7 @@ Adds an event+parm and twiddles the event counter
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:1206
-func G_AddPredictableEvent(_ ent: Entity, _ event: Int32, _ eventParm: Int32) {
+public func G_AddPredictableEvent(_ ent: Entity, _ event: Int32, _ eventParm: Int32) {
     if ent.client == nil {
         return
     }
@@ -1167,7 +1167,7 @@ Adds an event+parm and twiddles the event counter
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:1221
-func G_AddEvent(_ ent: Entity, _ event: Int32, _ eventParm: Int32) {
+public func G_AddEvent(_ ent: Entity, _ event: Int32, _ eventParm: Int32) {
     var bits: Int32
 
     if event == 0 {
@@ -1199,7 +1199,7 @@ G_PlayEffect
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:1250
-func G_PlayEffect(_ fxID: Int32, _ org: JKAShared.vec3_t, _ ang: JKAShared.vec3_t) -> Entity? {
+public func G_PlayEffect(_ fxID: Int32, _ org: JKAShared.vec3_t, _ ang: JKAShared.vec3_t) -> Entity? {
     var te: Entity?
 
     te = G_TempEntity(org, EV_PLAY_EFFECT)
@@ -1218,7 +1218,7 @@ G_PlayEffectID
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:1267
-func G_PlayEffectID(_ fxID: Int32, _ org: JKAShared.vec3_t, _ ang: JKAShared.vec3_t) -> Entity? {
+public func G_PlayEffectID(_ fxID: Int32, _ org: JKAShared.vec3_t, _ ang: JKAShared.vec3_t) -> Entity? {
     //play an effect by the G_EffectIndex'd ID instead of a predefined effect ID
     var te: Entity?
 
@@ -1243,7 +1243,7 @@ G_ScreenShake
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:1291
-func G_ScreenShake(_ org: JKAShared.vec3_t, _ target: Entity?, _ intensity: Float, _ duration: Int32, _ global: Bool) -> Entity? {
+public func G_ScreenShake(_ org: JKAShared.vec3_t, _ target: Entity?, _ intensity: Float, _ duration: Int32, _ global: Bool) -> Entity? {
     var te: Entity?
 
     te = G_TempEntity(org, EV_SCREENSHAKE)
@@ -1272,7 +1272,7 @@ G_MuteSound
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:1322
-func G_MuteSound(_ entnum: Int32, _ channel: Int32) {
+public func G_MuteSound(_ entnum: Int32, _ channel: Int32) {
     var te: Entity?
     var e: Entity?
 
@@ -1297,7 +1297,7 @@ G_Sound
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:1345
-func G_Sound(_ ent: Entity, _ channel: Int32, _ soundIndex: Int32) {
+public func G_Sound(_ ent: Entity, _ channel: Int32, _ soundIndex: Int32) {
     var te: Entity?
 
 
@@ -1330,7 +1330,7 @@ G_SoundAtLoc
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:1379
-func G_SoundAtLoc(_ loc: JKAShared.vec3_t, _ channel: Int32, _ soundIndex: Int32) {
+public func G_SoundAtLoc(_ loc: JKAShared.vec3_t, _ channel: Int32, _ soundIndex: Int32) {
     var te: Entity?
 
     te = G_TempEntity(loc, EV_GENERAL_SOUND)
@@ -1346,7 +1346,7 @@ G_EntitySound
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:1392
-func G_EntitySound(_ ent: Entity, _ channel: Int32, _ soundIndex: Int32) {
+public func G_EntitySound(_ ent: Entity, _ channel: Int32, _ soundIndex: Int32) {
     var te: Entity?
 
     te = G_TempEntity(ent.r.currentOrigin, EV_ENTITY_SOUND)
@@ -1357,7 +1357,7 @@ func G_EntitySound(_ ent: Entity, _ channel: Int32, _ soundIndex: Int32) {
 
 //To make porting from SP easier.
 /// Source: oracle/codemp/game/g_utils.c:1402
-func G_SoundOnEnt(_ ent: Entity, _ channel: Int32, _ soundPath: String) {
+public func G_SoundOnEnt(_ ent: Entity, _ channel: Int32, _ soundPath: String) {
     var te: Entity?
 
     te = G_TempEntity(ent.r.currentOrigin, EV_ENTITY_SOUND)
@@ -1376,7 +1376,7 @@ Returns whether or not the targeted entity is useable
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:1453
-func ValidUseTarget(_ ent: Entity) -> Bool {
+public func ValidUseTarget(_ ent: Entity) -> Bool {
     if ent.use == nil {
         return false
     }
@@ -1396,7 +1396,7 @@ func ValidUseTarget(_ ent: Entity) -> Bool {
 
 //use an ammo/health dispenser on another client
 /// Source: oracle/codemp/game/g_utils.c:1474
-func G_UseDispenserOn(_ ent: Entity, _ dispType: Int32, _ target: Entity) {
+public func G_UseDispenserOn(_ ent: Entity, _ dispType: Int32, _ target: Entity) {
     if dispType == HI_HEALTHDISP {
         target.client!.ps.stats[STAT_HEALTH] += 4
 
@@ -1426,7 +1426,7 @@ func G_UseDispenserOn(_ ent: Entity, _ dispType: Int32, _ target: Entity) {
 
 //see if this guy needs servicing from a specific type of dispenser
 /// Source: oracle/codemp/game/g_utils.c:1508
-func G_CanUseDispOn(_ ent: Entity, _ dispType: Int32) -> Int32 {
+public func G_CanUseDispOn(_ ent: Entity, _ dispType: Int32) -> Int32 {
     if ent.client == nil || !ent.inuse || ent.health < 1 || ent.client!.ps.stats[STAT_HEALTH] < 1 {
         //dead or invalid
         return 0
@@ -1460,7 +1460,7 @@ func G_CanUseDispOn(_ ent: Entity, _ dispType: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:1546
-func TryHeal(_ ent: Entity, _ target: Entity) -> Bool {
+public func TryHeal(_ ent: Entity, _ target: Entity) -> Bool {
     if g_gametype.integer == GT_SIEGE && ent.client!.siegeClass != -1 && target.inuse && target.maxHealth != 0 && target.healingclass != nil && !target.healingclass!.isEmpty && target.health > 0 && target.health < target.maxHealth {
         //it's not dead yet...
         let scl: SiegeClass? = bgSiegeClasses[ent.client!.siegeClass]
@@ -1509,7 +1509,7 @@ func TryHeal(_ ent: Entity, _ target: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:1618
-func TryUse(_ ent: Entity) {
+public func TryUse(_ ent: Entity) {
     var target: Entity?
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
@@ -1707,7 +1707,7 @@ func TryUse(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:1877
-func G_PointInBounds(_ point: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) -> Bool {
+public func G_PointInBounds(_ point: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) -> Bool {
     var i: Int32
 
     i = 0
@@ -1725,7 +1725,7 @@ func G_PointInBounds(_ point: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs
 }
 
 /// Source: oracle/codemp/game/g_utils.c:1896
-func G_BoxInBounds(_ point: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ boundsMins: JKAShared.vec3_t, _ boundsMaxs: JKAShared.vec3_t) -> Bool {
+public func G_BoxInBounds(_ point: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ boundsMins: JKAShared.vec3_t, _ boundsMaxs: JKAShared.vec3_t) -> Bool {
     var boxMins = vec3_t()
     var boxMaxs = vec3_t()
 
@@ -1761,14 +1761,14 @@ func G_BoxInBounds(_ point: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: 
 }
 
 /// Source: oracle/codemp/game/g_utils.c:1927
-func G_SetAngles(_ ent: Entity, _ angles: JKAShared.vec3_t) {
+public func G_SetAngles(_ ent: Entity, _ angles: JKAShared.vec3_t) {
     ent.r.currentAngles = angles
     ent.s.angles = angles
     ent.s.apos.trBase = angles
 }
 
 /// Source: oracle/codemp/game/g_utils.c:1934
-func G_ClearTrace(_ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ ignore: Int32, _ clipmask: Int32) -> Bool {
+public func G_ClearTrace(_ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ ignore: Int32, _ clipmask: Int32) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { tr -> Bool in
@@ -1793,7 +1793,7 @@ Sets the pos trajectory for a fixed position
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:1955
-func G_SetOrigin(_ ent: Entity, _ origin: inout JKAShared.vec3_t) {
+public func G_SetOrigin(_ ent: Entity, _ origin: inout JKAShared.vec3_t) {
     ent.s.pos.trBase = origin
     ent.s.pos.trType = TR_STATIONARY
     ent.s.pos.trTime = 0
@@ -1804,7 +1804,7 @@ func G_SetOrigin(_ ent: Entity, _ origin: inout JKAShared.vec3_t) {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:1965
-func G_CheckInSolid(_ `self`: Entity, _ fix: Bool) -> Bool {
+public func G_CheckInSolid(_ `self`: Entity, _ fix: Bool) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { trace -> Bool in
@@ -1852,7 +1852,7 @@ DebugLine
 ```
 */
 /// Source: oracle/codemp/game/g_utils.c:2011
-func DebugLine(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ color: Int32) -> Int32 {
+public func DebugLine(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ color: Int32) -> Int32 {
     var points = [vec3_t](repeating: vec3_t(), count: 4)
     var dir = vec3_t()
     var cross = vec3_t()
@@ -1921,12 +1921,12 @@ public func G_ROFF_NotetrackCallback(_ cent: Entity, _ notetrack: String) {
 }
 
 /// Source: oracle/codemp/game/g_utils.c:2082
-func G_SpeechEvent(_ `self`: Entity, _ event: Int32) {
+public func G_SpeechEvent(_ `self`: Entity, _ event: Int32) {
     G_AddEvent(`self`, event, 0)
 }
 
 /// Source: oracle/codemp/game/g_utils.c:2087
-func G_ExpandPointToBBox(_ point: inout JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ ignore: Int32, _ clipmask: Int32) -> Bool {
+public func G_ExpandPointToBBox(_ point: inout JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ ignore: Int32, _ clipmask: Int32) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { tr -> Bool in
@@ -1969,7 +1969,7 @@ func G_ExpandPointToBBox(_ point: inout JKAShared.vec3_t, _ mins: JKAShared.vec3
 }
 
 /// Source: oracle/codemp/game/g_utils.c:2131
-func ShortestLineSegBewteen2LineSegs(_ start1: JKAShared.vec3_t, _ end1: JKAShared.vec3_t, _ start2: JKAShared.vec3_t, _ end2: JKAShared.vec3_t, _ close_pnt1: inout JKAShared.vec3_t, _ close_pnt2: inout JKAShared.vec3_t) -> Float {
+public func ShortestLineSegBewteen2LineSegs(_ start1: JKAShared.vec3_t, _ end1: JKAShared.vec3_t, _ start2: JKAShared.vec3_t, _ end2: JKAShared.vec3_t, _ close_pnt1: inout JKAShared.vec3_t, _ close_pnt2: inout JKAShared.vec3_t) -> Float {
     var current_dist: Float
     var new_dist: Float
     var new_pnt = vec3_t()
@@ -2142,7 +2142,7 @@ func ShortestLineSegBewteen2LineSegs(_ start1: JKAShared.vec3_t, _ end1: JKAShar
 }
 
 /// Source: oracle/codemp/game/g_utils.c:2309
-func GetAnglesForDirection(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t, _ out: inout JKAShared.vec3_t) {
+public func GetAnglesForDirection(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t, _ out: inout JKAShared.vec3_t) {
     var v = vec3_t()
 
     v = p2 - p1

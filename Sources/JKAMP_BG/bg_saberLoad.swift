@@ -29,7 +29,7 @@ var bgSaberParseTBuffer: JKAShared.CharBuf {
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:32
-func BG_SoundIndex(_ sound: String) -> Int32 {
+public func BG_SoundIndex(_ sound: String) -> Int32 {
     switch bg.consumer {
     case .game:
         return G_SoundIndex(sound)
@@ -90,7 +90,7 @@ public func TranslateSaberColor(_ name: String) -> JKAMP.saber_colors_t {
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:182
-func TranslateSaberStyle(_ name: String) -> JKAShared.saber_styles_t {
+public func TranslateSaberStyle(_ name: String) -> JKAShared.saber_styles_t {
     if Q_stricmp(name, "fast") == 0 {
         return SS_FAST
     }
@@ -336,7 +336,7 @@ public func WP_SaberCanTurnOffSomeBlades(_ saber: JKAMP.SaberInfo) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:488
-func WP_SaberSetDefaults(_ saber: JKAMP.SaberInfo) {
+public func WP_SaberSetDefaults(_ saber: JKAMP.SaberInfo) {
     var i: Int32
 
     //Set defaults so that, if it fails, there's at least something there
@@ -2108,7 +2108,7 @@ public func WP_SaberParseParms(_ SaberName: String, _ saber: JKAMP.SaberInfo) ->
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:2574
-func WP_SaberParseParm(_ saberName: String, _ parmname: String, _ saberData: inout JKAShared.CharBuf) -> Bool {
+public func WP_SaberParseParm(_ saberName: String, _ parmname: String, _ saberData: inout JKAShared.CharBuf) -> Bool {
     var token: String
     var value: String = ""
     var p = TextCursor()
@@ -2170,7 +2170,7 @@ func WP_SaberParseParm(_ saberName: String, _ parmname: String, _ saberData: ino
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:2647
-func WP_SaberValidForPlayerInMP(_ saberName: String) -> Bool {
+public func WP_SaberValidForPlayerInMP(_ saberName: String) -> Bool {
     var allowed = CharBuf(8)
     if !WP_SaberParseParm(saberName, "notInMP", &allowed) {
         //not defined, default is yes
@@ -2246,7 +2246,7 @@ public func WP_SetSaber(_ entNum: Int32, _ sabers: Slots<JKAMP.SaberInfo>, _ sab
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:2727
-func WP_SaberSetColor(_ sabers: Slots<JKAMP.SaberInfo>, _ saberNum: Int32, _ bladeNum: Int32, _ colorName: String) {
+public func WP_SaberSetColor(_ sabers: Slots<JKAMP.SaberInfo>, _ saberNum: Int32, _ bladeNum: Int32, _ colorName: String) {
     sabers[saberNum].blade[bladeNum].color = TranslateSaberColor(colorName)
 }
 
@@ -2314,20 +2314,20 @@ public func WP_SaberLoadParms() {
 
 //---------------------------------------
 /// Source: oracle/codemp/game/bg_saberLoad.c:2803
-func BG_BLADE_ActivateTrail(_ blade: JKAMP.BladeInfo, _ duration: Float) {
+public func BG_BLADE_ActivateTrail(_ blade: JKAMP.BladeInfo, _ duration: Float) {
     blade.trail.inAction = 1
     blade.trail.duration = Int32(duration)
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:2809
-func BG_BLADE_DeactivateTrail(_ blade: JKAMP.BladeInfo, _ duration: Float) {
+public func BG_BLADE_DeactivateTrail(_ blade: JKAMP.BladeInfo, _ duration: Float) {
     blade.trail.inAction = 0
     blade.trail.duration = Int32(duration)
 }
 
 //---------------------------------------
 /// Source: oracle/codemp/game/bg_saberLoad.c:2815
-func BG_SI_Activate(_ saber: JKAMP.SaberInfo) {
+public func BG_SI_Activate(_ saber: JKAMP.SaberInfo) {
     var i: Int32
 
     i = 0
@@ -2338,7 +2338,7 @@ func BG_SI_Activate(_ saber: JKAMP.SaberInfo) {
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:2825
-func BG_SI_Deactivate(_ saber: JKAMP.SaberInfo) {
+public func BG_SI_Deactivate(_ saber: JKAMP.SaberInfo) {
     var i: Int32
 
     i = 0
@@ -2354,7 +2354,7 @@ func BG_SI_Deactivate(_ saber: JKAMP.SaberInfo) {
 //	[in]		bool bActive	Whether to activate it (default true), or deactivate it (false).
 //	[return]	void
 /// Source: oracle/codemp/game/bg_saberLoad.c:2840
-func BG_SI_BladeActivate(_ saber: JKAMP.SaberInfo, _ iBlade: Int32, _ bActive: Bool) {
+public func BG_SI_BladeActivate(_ saber: JKAMP.SaberInfo, _ iBlade: Int32, _ bActive: Bool) {
     // Validate blade ID/Index.
     if iBlade < 0 || iBlade >= saber.numBlades {
         return
@@ -2364,7 +2364,7 @@ func BG_SI_BladeActivate(_ saber: JKAMP.SaberInfo, _ iBlade: Int32, _ bActive: B
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:2849
-func BG_SI_Active(_ saber: JKAMP.SaberInfo) -> Bool {
+public func BG_SI_Active(_ saber: JKAMP.SaberInfo) -> Bool {
     var i: Int32
 
     i = 0
@@ -2467,7 +2467,7 @@ public func BG_SI_SetLengthGradual(_ saber: JKAMP.SaberInfo, _ time: Int32) {
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:2959
-func BG_SI_Length(_ saber: JKAMP.SaberInfo) -> Float {
+public func BG_SI_Length(_ saber: JKAMP.SaberInfo) -> Float {
     //return largest length
     var len1: Int32 = 0
     var i: Int32
@@ -2483,7 +2483,7 @@ func BG_SI_Length(_ saber: JKAMP.SaberInfo) -> Float {
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:2974
-func BG_SI_LengthMax(_ saber: JKAMP.SaberInfo) -> Float {
+public func BG_SI_LengthMax(_ saber: JKAMP.SaberInfo) -> Float {
     var len1: Int32 = 0
     var i: Int32
 
@@ -2498,7 +2498,7 @@ func BG_SI_LengthMax(_ saber: JKAMP.SaberInfo) -> Float {
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:2989
-func BG_SI_ActivateTrail(_ saber: JKAMP.SaberInfo, _ duration: Float) {
+public func BG_SI_ActivateTrail(_ saber: JKAMP.SaberInfo, _ duration: Float) {
     var i: Int32
 
     i = 0
@@ -2510,7 +2510,7 @@ func BG_SI_ActivateTrail(_ saber: JKAMP.SaberInfo, _ duration: Float) {
 }
 
 /// Source: oracle/codemp/game/bg_saberLoad.c:3000
-func BG_SI_DeactivateTrail(_ saber: JKAMP.SaberInfo, _ duration: Float) {
+public func BG_SI_DeactivateTrail(_ saber: JKAMP.SaberInfo, _ duration: Float) {
     var i: Int32
 
     i = 0

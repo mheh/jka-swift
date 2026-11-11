@@ -39,7 +39,7 @@ Ghoul2 Insert Start
 */
 // set up the appropriate ghoul2 info to a refent
 /// Source: oracle/codemp/cgame/cg_weapons.c:15
-func CG_SetGhoul2InfoRef(_ ent: JKAMP.RefEntity, _ s1: JKAMP.RefEntity) {
+public func CG_SetGhoul2InfoRef(_ ent: JKAMP.RefEntity, _ s1: JKAMP.RefEntity) {
     ent.ghoul2 = s1.ghoul2
     ent.modelScale = s1.modelScale
     ent.radius = s1.radius
@@ -56,7 +56,7 @@ The server says this item is used on this level
 ```
 */
 /// Source: oracle/codemp/cgame/cg_weapons.c:34
-func CG_RegisterItemVisuals(_ itemNum: Int32) {
+public func CG_RegisterItemVisuals(_ itemNum: Int32) {
     var itemInfo: ItemInfo?
     var item: Gitem?
     let handle: Int32
@@ -382,7 +382,7 @@ sound should only be done on the world model case.
 ```
 */
 /// Source: oracle/codemp/cgame/cg_weapons.c:404
-func CG_AddPlayerWeapon(_ parent: JKAMP.RefEntity, _ ps: JKAMP.PlayerState?, _ cent: Centity, _ team: Int32, _ newAngles: JKAShared.vec3_t, _ thirdPerson: Bool) {
+public func CG_AddPlayerWeapon(_ parent: JKAMP.RefEntity, _ ps: JKAMP.PlayerState?, _ cent: Centity, _ team: Int32, _ newAngles: JKAShared.vec3_t, _ thirdPerson: Bool) {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = RefEntity.scratch { gun -> Bool in
@@ -743,7 +743,7 @@ Add the weapon, and flash for the player's view
 ```
 */
 /// Source: oracle/codemp/cgame/cg_weapons.c:766
-func CG_AddViewWeapon(_ ps: JKAMP.PlayerState) {
+public func CG_AddViewWeapon(_ ps: JKAMP.PlayerState) {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = RefEntity.scratch { hand -> Bool in
@@ -860,7 +860,7 @@ func CG_AddViewWeapon(_ ps: JKAMP.PlayerState) {
 }
 
 /// Source: oracle/codemp/cgame/cg_weapons.c:895
-func CG_DrawIconBackground() {
+public func CG_DrawIconBackground() {
     let height: Int32
     let xAdd: Int32
     let x2: Int32
@@ -973,7 +973,7 @@ func CG_DrawIconBackground() {
 }
 
 /// Source: oracle/codemp/cgame/cg_weapons.c:1024
-func CG_WeaponCheck(_ weap: Int32) -> Bool {
+public func CG_WeaponCheck(_ weap: Int32) -> Bool {
     if cg.snap!.ps.ammo[weaponData[weap].ammoIndex] < weaponData[weap].energyPerShot && cg.snap!.ps.ammo[weaponData[weap].ammoIndex] < weaponData[weap].altEnergyPerShot {
         return false
     }
@@ -1013,7 +1013,7 @@ private func CG_WeaponSelectable(_ i: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/cgame/cg_weapons.c:1076
-func CG_DrawWeaponSelect() {
+public func CG_DrawWeaponSelect() {
     var i: Int32
     let bits: Int32
     var count: Int32
@@ -1277,7 +1277,7 @@ CG_NextWeapon_f
 ```
 */
 /// Source: oracle/codemp/cgame/cg_weapons.c:1379
-func CG_NextWeapon_f() {
+public func CG_NextWeapon_f() {
     var i: Int32
     let original: Int32
 
@@ -1337,7 +1337,7 @@ CG_PrevWeapon_f
 ```
 */
 /// Source: oracle/codemp/cgame/cg_weapons.c:1445
-func CG_PrevWeapon_f() {
+public func CG_PrevWeapon_f() {
     var i: Int32
     let original: Int32
 
@@ -1397,7 +1397,7 @@ CG_Weapon_f
 ```
 */
 /// Source: oracle/codemp/cgame/cg_weapons.c:1511
-func CG_Weapon_f() {
+public func CG_Weapon_f() {
     var num: Int32
 
     if cg.snap == nil {
@@ -1498,7 +1498,7 @@ func CG_Weapon_f() {
 //Version of the above which doesn't add +2 to a weapon.  The above can't
 //triger WP_MELEE or WP_STUN_BATON.  Derogatory comments go here.
 /// Source: oracle/codemp/cgame/cg_weapons.c:1634
-func CG_WeaponClean_f() {
+public func CG_WeaponClean_f() {
     var num: Int32
 
     if cg.snap == nil {
@@ -1602,7 +1602,7 @@ The current weapon has just run out of ammo
 ```
 */
 /// Source: oracle/codemp/cgame/cg_weapons.c:1756
-func CG_OutOfAmmoChange(_ oldWeapon: Int32) {
+public func CG_OutOfAmmoChange(_ oldWeapon: Int32) {
     var i: Int32
 
     cg.weaponSelectTime = cg.time
@@ -1630,7 +1630,7 @@ func CG_OutOfAmmoChange(_ oldWeapon: Int32) {
 }
 
 /// Source: oracle/codemp/cgame/cg_weapons.c:1795
-func CG_GetClientWeaponMuzzleBoltPoint(_ clIndex: Int32, _ to: inout JKAShared.vec3_t) {
+public func CG_GetClientWeaponMuzzleBoltPoint(_ clIndex: Int32, _ to: inout JKAShared.vec3_t) {
     var cent: Centity?
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
@@ -1665,7 +1665,7 @@ Caused by an EV_FIRE_WEAPON event
 ```
 */
 /// Source: oracle/codemp/cgame/cg_weapons.c:1824
-func CG_FireWeapon(_ cent: Centity, _ altFire: Bool) {
+public func CG_FireWeapon(_ cent: Centity, _ altFire: Bool) {
     var ent: EntityState?
     var c: Int32
     var weap: WeaponInfo?
@@ -1772,7 +1772,7 @@ func CG_FireWeapon(_ cent: Centity, _ altFire: Bool) {
 }
 
 /// Source: oracle/codemp/cgame/cg_weapons.c:1951
-func CG_VehicleWeaponImpact(_ cent: Centity) -> Bool {
+public func CG_VehicleWeaponImpact(_ cent: Centity) -> Bool {
     //see if this is a missile entity that's owned by a vehicle and should do a special, overridden impact effect
     if (cent.currentState.eFlags & EF_JETPACK_ACTIVE) != 0 && cent.currentState.otherEntityNum2 != 0 && g_vehWeaponInfo[cent.currentState.otherEntityNum2].iImpactFX != 0 {
         //missile is from a special vehWeapon
@@ -1795,7 +1795,7 @@ Caused by an EV_MISSILE_MISS event, or directly by local bullet tracing
 ```
 */
 /// Source: oracle/codemp/cgame/cg_weapons.c:1973
-func CG_MissileHitWall(_ weapon: Int32, _ clientNum: Int32, _ origin: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ soundType: impactSound_t, _ altFire: Bool, _ charge: Int32) {
+public func CG_MissileHitWall(_ weapon: Int32, _ clientNum: Int32, _ origin: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ soundType: impactSound_t, _ altFire: Bool, _ charge: Int32) {
     var parm: Int32
     var up = vec3_t(0, 0, 1)
 
@@ -1879,7 +1879,7 @@ CG_MissileHitPlayer
 ```
 */
 /// Source: oracle/codemp/cgame/cg_weapons.c:2081
-func CG_MissileHitPlayer(_ weapon: Int32, _ origin: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ entityNum: Int32, _ altFire: Bool) {
+public func CG_MissileHitPlayer(_ weapon: Int32, _ origin: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ entityNum: Int32, _ altFire: Bool) {
     let humanoid: Bool = true
     var up = vec3_t(0, 0, 1)
 
@@ -1981,7 +1981,7 @@ CG_CalcMuzzlePoint
 ```
 */
 /// Source: oracle/codemp/cgame/cg_weapons.c:2215
-func CG_CalcMuzzlePoint(_ entityNum: Int32, _ muzzle: inout JKAShared.vec3_t) -> Bool {
+public func CG_CalcMuzzlePoint(_ entityNum: Int32, _ muzzle: inout JKAShared.vec3_t) -> Bool {
     var forward = vec3_t()
     var right = vec3_t()
     var gunpoint = vec3_t()
@@ -2076,7 +2076,7 @@ func CG_CalcMuzzlePoint(_ entityNum: Int32, _ muzzle: inout JKAShared.vec3_t) ->
 }
 
 /// Source: oracle/codemp/cgame/cg_weapons.c:2324
-func CG_InitG2Weapons() {
+public func CG_InitG2Weapons() {
     var i: Int32 = 0
     var itemIndex: Int32
     g2WeaponInstances.fill(nil)
@@ -2109,7 +2109,7 @@ func CG_InitG2Weapons() {
 
 // clean out any g2 models we instanciated for copying purposes
 /// Source: oracle/codemp/cgame/cg_weapons.c:2364
-func CG_ShutDownG2Weapons() {
+public func CG_ShutDownG2Weapons() {
     var i: Int32
     i = 0
     while i < MAX_WEAPONS {
@@ -2119,7 +2119,7 @@ func CG_ShutDownG2Weapons() {
 }
 
 /// Source: oracle/codemp/cgame/cg_weapons.c:2373
-func CG_G2WeaponInstance(_ cent: Centity, _ weapon: Int32) -> OpaquePointer? {
+public func CG_G2WeaponInstance(_ cent: Centity, _ weapon: Int32) -> OpaquePointer? {
     var ci: ClientInfo? = nil
 
     if weapon != WP_SABER {
@@ -2151,7 +2151,7 @@ func CG_G2WeaponInstance(_ cent: Centity, _ weapon: Int32) -> OpaquePointer? {
 
 // what ghoul2 model do we want to copy ?
 /// Source: oracle/codemp/cgame/cg_weapons.c:2414
-func CG_CopyG2WeaponInstance(_ cent: Centity, _ weaponNum: Int32, _ toGhoul2: OpaquePointer?) {
+public func CG_CopyG2WeaponInstance(_ cent: Centity, _ weaponNum: Int32, _ toGhoul2: OpaquePointer?) {
     // Raven assigns his own `toGhoul2` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var toGhoul2 = toGhoul2
     //rww - the -1 is because there is no "weapon" for WP_NONE
@@ -2214,7 +2214,7 @@ func CG_CopyG2WeaponInstance(_ cent: Centity, _ weaponNum: Int32, _ toGhoul2: Op
 }
 
 /// Source: oracle/codemp/cgame/cg_weapons.c:2494
-func CG_CheckPlayerG2Weapons(_ ps: JKAMP.PlayerState, _ cent: Centity) {
+public func CG_CheckPlayerG2Weapons(_ ps: JKAMP.PlayerState, _ cent: Centity) {
     if (ps.pm_flags & PMF_FOLLOW) != 0 {
         return
     }

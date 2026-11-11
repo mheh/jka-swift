@@ -16,30 +16,30 @@ nonisolated(unsafe) let cinematicSkipScript: JKAShared.CharBuf = JKAShared.CharB
 let player_locked: Bool = false
 
 /// Source: oracle/codemp/game/g_ICARUScb.c:4933
-var textcolor_caption: JKAShared.vec4_t {
+public var textcolor_caption: JKAShared.vec4_t {
     get { world.variables.textcolor_caption }
     set { world.variables.textcolor_caption = newValue }
 }
 
 /// Source: oracle/codemp/game/g_ICARUScb.c:4934
-var textcolor_center: JKAShared.vec4_t {
+public var textcolor_center: JKAShared.vec4_t {
     get { world.variables.textcolor_center }
     set { world.variables.textcolor_center = newValue }
 }
 
 /// Source: oracle/codemp/game/g_ICARUScb.c:4935
-var textcolor_scroll: JKAShared.vec4_t {
+public var textcolor_scroll: JKAShared.vec4_t {
     get { world.variables.textcolor_scroll }
     set { world.variables.textcolor_scroll = newValue }
 }
 
 /// Source: oracle/codemp/game/g_ICARUScb.c:270
-func Q3_TaskIDClear(_ taskID: inout Int32) {
+public func Q3_TaskIDClear(_ taskID: inout Int32) {
     taskID = -1
 }
 
 /// Source: oracle/codemp/game/g_ICARUScb.c:275
-func G_DebugPrint(_ level: Int32, _ format: String, _ args: any JKAShared.FormatArg...) {
+public func G_DebugPrint(_ level: Int32, _ format: String, _ args: any JKAShared.FormatArg...) {
     var text = CharBuf(1024)
 
     //Don't print messages they don't want to see
@@ -322,7 +322,7 @@ Utility function
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:569
-func anglerCallback(_ ent: Entity) {
+public func anglerCallback(_ ent: Entity) {
     //Complete the task
     trap_ICARUS_TaskIDComplete(ent, TID_ANGLE_FACE)
 
@@ -354,7 +354,7 @@ Utility function
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:603
-func moverCallback(_ ent: Entity) {
+public func moverCallback(_ ent: Entity) {
     //complete the task
     trap_ICARUS_TaskIDComplete(ent, TID_MOVE_NAV)
 
@@ -385,7 +385,7 @@ func moverCallback(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_ICARUScb.c:635
-func Blocked_Mover(_ ent: Entity, _ other: Entity) {
+public func Blocked_Mover(_ ent: Entity, _ other: Entity) {
     // remove anything other than a client -- no longer the case
 
     // don't remove security keys or goodie keys
@@ -417,7 +417,7 @@ Utility function
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:667
-func moveAndRotateCallback(_ ent: Entity) {
+public func moveAndRotateCallback(_ ent: Entity) {
     //stop turning
     anglerCallback(ent)
     //stop moving
@@ -790,7 +790,7 @@ Q3_RemoveEnt
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:1062
-func Q3_RemoveEnt(_ victim: Entity) {
+public func Q3_RemoveEnt(_ victim: Entity) {
     if victim.client != nil {
         if victim.s.eType != ET_NPC {
             G_DebugPrint(WL_WARNING, "Q3_RemoveEnt: You can't remove clients in MP!\n")
@@ -1470,7 +1470,7 @@ public func Q3_GetString(_ entID: Int32, _ type: Int32, _ name: String, _ value:
 }
 
 /// Source: oracle/codemp/game/g_ICARUScb.c:1865
-func MoveOwner(_ `self`: Entity) {
+public func MoveOwner(_ `self`: Entity) {
     let owner: Entity? = g_entities[`self`.r.ownerNum]
 
     `self`.nextthink = level.time + FRAMETIME
@@ -2578,7 +2578,7 @@ private func Q3_SetWatchTarget(_ entID: Int32, _ name: String) {
 }
 
 /// Source: oracle/codemp/game/g_ICARUScb.c:3031
-func Q3_SetLoopSound(_ entID: Int32, _ name: String) {
+public func Q3_SetLoopSound(_ entID: Int32, _ name: String) {
     let index: sfxHandle_t
     let `self`: Entity? = g_entities[entID]
 
@@ -2599,7 +2599,7 @@ func Q3_SetLoopSound(_ entID: Int32, _ name: String) {
 }
 
 /// Source: oracle/codemp/game/g_ICARUScb.c:3056
-func Q3_SetICARUSFreeze(_ entID: Int32, _ name: String, _ freeze: Bool) {
+public func Q3_SetICARUSFreeze(_ entID: Int32, _ name: String, _ freeze: Bool) {
     var `self`: Entity?
     if `self` == nil {
         //hmm, targetname failed, try script_targetname?
@@ -2629,7 +2629,7 @@ Q3_SetViewEntity
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3089
-func Q3_SetViewEntity(_ entID: Int32, _ name: String) {
+public func Q3_SetViewEntity(_ entID: Int32, _ name: String) {
     G_DebugPrint(WL_WARNING, "Q3_SetViewEntity currently unsupported in MP, ask if you need it.\n")
 }
 
@@ -3178,7 +3178,7 @@ Q3_SetParm
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:3651
-func Q3_SetParm(_ entID: Int32, _ parmNum: Int32, _ parmValue: String) {
+public func Q3_SetParm(_ entID: Int32, _ parmNum: Int32, _ parmValue: String) {
     let ent: Entity? = g_entities[entID]
     var val: Float
 
@@ -3854,7 +3854,7 @@ SolidifyOwner
 ```
 */
 /// Source: oracle/codemp/game/g_ICARUScb.c:4271
-func SolidifyOwner(_ `self`: Entity) {
+public func SolidifyOwner(_ `self`: Entity) {
     let oldContents: Int32
     let owner: Entity? = g_entities[`self`.r.ownerNum]
 

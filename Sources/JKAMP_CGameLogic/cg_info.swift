@@ -22,7 +22,7 @@ CG_LoadingString
 ```
 */
 /// Source: oracle/codemp/cgame/cg_info.c:21
-func CG_LoadingString(_ s: String) {
+public func CG_LoadingString(_ s: String) {
     Q_strncpyz(&cg.infoScreenTextBuffer, s, 1024)
 
     trap_UpdateScreen()
@@ -36,7 +36,7 @@ CG_LoadingItem
 ```
 */
 /// Source: oracle/codemp/cgame/cg_info.c:32
-func CG_LoadingItem(_ itemNum: Int32) {
+public func CG_LoadingItem(_ itemNum: Int32) {
     var item: Gitem?
     var upperKey = CharBuf(1024)
 
@@ -60,7 +60,7 @@ CG_LoadingClient
 ```
 */
 /// Source: oracle/codemp/cgame/cg_info.c:53
-func CG_LoadingClient(_ clientNum: Int32) {
+public func CG_LoadingClient(_ clientNum: Int32) {
     let info: String
     var personality = CharBuf(64)
 
@@ -108,7 +108,7 @@ func CG_LoadingClient(_ clientNum: Int32) {
 }
 
 /// Source: oracle/codemp/cgame/cg_info.c:110
-func CG_DrawInformation() {
+public func CG_DrawInformation() {
     var s: String
     let info: String
     let sysInfo: String
@@ -382,7 +382,7 @@ CG_LoadBar
 ```
 */
 /// Source: oracle/codemp/cgame/cg_info.c:439
-func CG_LoadBar() {
+public func CG_LoadBar() {
     let numticks: Int32 = 9
     let tickwidth: Int32 = 40
     let tickheight: Int32 = 8

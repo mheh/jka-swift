@@ -5,23 +5,23 @@ import JKAMP_Game
 import JKAMP_BG
 
 /// Source: oracle/codemp/game/ai_util.c:12
-var gBotChatBuffer: [JKAShared.CharBuf] {
+public var gBotChatBuffer: [JKAShared.CharBuf] {
     get { world.variables.gBotChatBuffer }
     set { world.variables.gBotChatBuffer = newValue }
 }
 
 /// Source: oracle/codemp/game/ai_util.c:14
-func B_TempAlloc(_ size: Int32) -> UnsafeMutableRawPointer {
+public func B_TempAlloc(_ size: Int32) -> UnsafeMutableRawPointer {
     return BG_TempAlloc(size)
 }
 
 /// Source: oracle/codemp/game/ai_util.c:19
-func B_TempFree(_ size: Int32) {
+public func B_TempFree(_ size: Int32) {
     BG_TempFree(size)
 }
 
 /// Source: oracle/codemp/game/ai_util.c:25
-func B_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
+public func B_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
     //If this happens we'll have to rely on this chunk being freed manually with B_Free, which it hopefully will be
 
 
@@ -29,21 +29,21 @@ func B_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
 }
 
 /// Source: oracle/codemp/game/ai_util.c:82
-func B_Free(_ ptr: OpaquePointer?) {
+public func B_Free(_ ptr: OpaquePointer?) {
     //Likely because the limit was exceeded and we're now freeing the chunk manually as we hoped would happen
 }
 
 /// Source: oracle/codemp/game/ai_util.c:133
-func B_InitAlloc() {
+public func B_InitAlloc() {
     gWPArray.zero()
 }
 
 /// Source: oracle/codemp/game/ai_util.c:142
-func B_CleanupAlloc() {
+public func B_CleanupAlloc() {
 }
 
 /// Source: oracle/codemp/game/ai_util.c:160
-func GetValueGroup(_ buf: inout JKAShared.CharBuf, _ group: String, _ outbuf: inout JKAShared.CharBuf) -> Int32 {
+public func GetValueGroup(_ buf: inout JKAShared.CharBuf, _ group: String, _ outbuf: inout JKAShared.CharBuf) -> Int32 {
     var place: Int32?
     var placesecond: Int32?
     let iplace: Int32
@@ -114,7 +114,7 @@ func GetValueGroup(_ buf: inout JKAShared.CharBuf, _ group: String, _ outbuf: in
 }
 
 /// Source: oracle/codemp/game/ai_util.c:236
-func GetPairedValue(_ buf: inout JKAShared.CharBuf, _ key: String, _ outbuf: inout JKAShared.CharBuf) -> Int32 {
+public func GetPairedValue(_ buf: inout JKAShared.CharBuf, _ key: String, _ outbuf: inout JKAShared.CharBuf) -> Int32 {
     var place: Int32?
     var placesecond: Int32?
     var startpoint: Int32
@@ -204,7 +204,7 @@ func GetPairedValue(_ buf: inout JKAShared.CharBuf, _ key: String, _ outbuf: ino
 }
 
 /// Source: oracle/codemp/game/ai_util.c:328
-func BotDoChat(_ bs: BotState, _ section: String, _ always: Int32) -> Int32 {
+public func BotDoChat(_ bs: BotState, _ section: String, _ always: Int32) -> Int32 {
     var chatgroup = CharBuf(MAX_CHAT_BUFFER_SIZE)
     let rVal: Int32
     var inc_1: Int32
@@ -369,7 +369,7 @@ func BotDoChat(_ bs: BotState, _ section: String, _ always: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_util.c:517
-func ParseEmotionalAttachments(_ bs: BotState, _ buf: String) {
+public func ParseEmotionalAttachments(_ bs: BotState, _ buf: String) {
     let buf = CharBuf(buf)
     var i: Int32 = 0
     var i_c: Int32 = 0
@@ -418,7 +418,7 @@ func ParseEmotionalAttachments(_ bs: BotState, _ buf: String) {
 }
 
 /// Source: oracle/codemp/game/ai_util.c:574
-func ReadChatGroups(_ bs: BotState, _ buf: inout JKAShared.CharBuf) -> Int32 {
+public func ReadChatGroups(_ bs: BotState, _ buf: inout JKAShared.CharBuf) -> Int32 {
     var cgroupbegin: Int32?
     var cgbplace: Int32
     var i: Int32
@@ -456,7 +456,7 @@ func ReadChatGroups(_ bs: BotState, _ buf: inout JKAShared.CharBuf) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_util.c:614
-func BotUtilizePersonality(_ bs: BotState) {
+public func BotUtilizePersonality(_ bs: BotState) {
     var f: fileHandle_t = 0
     var len: Int32
     let rlen: Int32

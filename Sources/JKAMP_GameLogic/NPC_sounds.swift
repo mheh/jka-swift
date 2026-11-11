@@ -5,7 +5,7 @@ import JKAMP_Game
 import JKAMP_BG
 
 /// Source: oracle/codemp/game/NPC_sounds.c:23
-func G_AddVoiceEvent(_ `self`: Entity, _ event: Int32, _ speakDebounceTime: Int32) {
+public func G_AddVoiceEvent(_ `self`: Entity, _ event: Int32, _ speakDebounceTime: Int32) {
     if `self`.NPC == nil {
         return
     }
@@ -42,7 +42,7 @@ func G_AddVoiceEvent(_ `self`: Entity, _ event: Int32, _ speakDebounceTime: Int3
 }
 
 /// Source: oracle/codemp/game/NPC_sounds.c:66
-func NPC_PlayConfusionSound(_ `self`: Entity) {
+public func NPC_PlayConfusionSound(_ `self`: Entity) {
     if `self`.health > 0 {
         if `self`.enemy != nil || !TIMER_Done(`self`, "enemyLastVisible") || `self`.client!.renderInfo.lookTarget == 0 {
             `self`.NPC!.blockedSpeechDebounceTime = 0 //make sure we say this

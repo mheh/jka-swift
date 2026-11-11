@@ -26,7 +26,7 @@ Cmd_AddCommand
 ```
 */
 /// Source: oracle/codemp/qcommon/cmd_pc.cpp:19
-func Cmd_AddCommand(_ cmd_name: String, _ function: (() -> Void)?) {
+public func Cmd_AddCommand(_ cmd_name: String, _ function: (() -> Void)?) {
     // fail if the command already exists
     for cmd in cmd_functions {
         if strcmp(cmd_name, cmd.name) == 0 {
@@ -52,7 +52,7 @@ Cmd_RemoveCommand
 ```
 */
 /// Source: oracle/codemp/qcommon/cmd_pc.cpp:46
-func Cmd_RemoveCommand(_ cmd_name: String) {
+public func Cmd_RemoveCommand(_ cmd_name: String) {
     // AI: Raven walks the list through the address of each link. The body walks the Array by index.
     var back = 0
     while true {
@@ -78,7 +78,7 @@ Cmd_CommandCompletion
 ```
 */
 /// Source: oracle/codemp/qcommon/cmd_pc.cpp:75
-func Cmd_CommandCompletion(_ callback: ((String) -> Void)?) {
+public func Cmd_CommandCompletion(_ callback: ((String) -> Void)?) {
     for cmd in cmd_functions {
         callback!(cmd.name)
     }
@@ -94,7 +94,7 @@ A complete command line has been parsed, so try to execute it
 ```
 */
 /// Source: oracle/codemp/qcommon/cmd_pc.cpp:91
-func Cmd_ExecuteString(_ text: String) {
+public func Cmd_ExecuteString(_ text: String) {
     // execute the command line
     Cmd_TokenizeString(text)
     if Cmd_Argc() == 0 {
@@ -159,7 +159,7 @@ Cmd_List_f
 ```
 */
 /// Source: oracle/codemp/qcommon/cmd_pc.cpp:153
-func Cmd_List_f() {
+public func Cmd_List_f() {
     var i: Int32
     var match: String?
 

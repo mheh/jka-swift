@@ -5,7 +5,7 @@ import JKAMP_CGame
 import JKAMP_BG
 
 /// Source: oracle/codemp/cgame/fx_rocketlauncher.c:11
-func FX_RocketProjectileThink(_ cent: Centity, _ weapon: WeaponInfo) {
+public func FX_RocketProjectileThink(_ cent: Centity, _ weapon: WeaponInfo) {
     var forward = vec3_t()
 
     if VectorNormalize2(cent.currentState.pos.trDelta, &forward) == 0.0 {
@@ -16,17 +16,17 @@ func FX_RocketProjectileThink(_ cent: Centity, _ weapon: WeaponInfo) {
 }
 
 /// Source: oracle/codemp/cgame/fx_rocketlauncher.c:29
-func FX_RocketHitWall(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t) {
+public func FX_RocketHitWall(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t) {
     trap_FX_PlayEffectID(cgs.effects.rocketExplosionEffect, origin, normal, -1, -1)
 }
 
 /// Source: oracle/codemp/cgame/fx_rocketlauncher.c:40
-func FX_RocketHitPlayer(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ humanoid: Bool) {
+public func FX_RocketHitPlayer(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ humanoid: Bool) {
     trap_FX_PlayEffectID(cgs.effects.rocketExplosionEffect, origin, normal, -1, -1)
 }
 
 /// Source: oracle/codemp/cgame/fx_rocketlauncher.c:51
-func FX_RocketAltProjectileThink(_ cent: Centity, _ weapon: WeaponInfo) {
+public func FX_RocketAltProjectileThink(_ cent: Centity, _ weapon: WeaponInfo) {
     var forward = vec3_t()
 
     if VectorNormalize2(cent.currentState.pos.trDelta, &forward) == 0.0 {

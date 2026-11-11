@@ -8,7 +8,7 @@
 #include "codemp/ui/ui_shared/Rectangle.h"
 #include "codemp/ui/ui_shared/Window.h"
 #include "codemp/ui/ui_shared/colorRangeDef_t.h"
-#include "codemp/ui/ui_shared/constants.h"
+#include "constants.h"
 #include "shared/game/q_shared/qhandle_t.h"
 #include "shared/game/q_shared/sfxHandle_t.h"
 

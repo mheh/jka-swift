@@ -59,25 +59,25 @@ let NUM_DEBRIS_MODELS_CHUNKS = 3 as Int32
 let NUM_DEBRIS_MODELS_ROCKS = 4 as Int32
 
 /// Source: oracle/codemp/cgame/cg_effects.c:766
-var dbModels_Glass: [Int32] {
+public var dbModels_Glass: [Int32] {
     get { world.variables.dbModels_Glass }
     set { world.variables.dbModels_Glass = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_effects.c:767
-var dbModels_Wood: [Int32] {
+public var dbModels_Wood: [Int32] {
     get { world.variables.dbModels_Wood }
     set { world.variables.dbModels_Wood = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_effects.c:768
-var dbModels_Chunks: [Int32] {
+public var dbModels_Chunks: [Int32] {
     get { world.variables.dbModels_Chunks }
     set { world.variables.dbModels_Chunks = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_effects.c:769
-var dbModels_Rocks: [Int32] {
+public var dbModels_Rocks: [Int32] {
     get { world.variables.dbModels_Rocks }
     set { world.variables.dbModels_Rocks = newValue }
 }
@@ -101,7 +101,7 @@ Bullets shot underwater
 ```
 */
 /// Source: oracle/codemp/cgame/cg_effects.c:15
-func CG_BubbleTrail(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ spacing: Float) {
+public func CG_BubbleTrail(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ spacing: Float) {
     var move = vec3_t()
     var vec = vec3_t()
     let len: Float
@@ -177,7 +177,7 @@ Adds a smoke puff or blood trail localEntity.
 ```
 */
 /// Source: oracle/codemp/cgame/cg_effects.c:78
-func CG_SmokePuff(_ p: JKAShared.vec3_t, _ vel: JKAShared.vec3_t, _ radius: Float, _ r: Float, _ g: Float, _ b: Float, _ a: Float, _ duration: Float, _ startTime: Int32, _ fadeInTime: Int32, _ leFlags: Int32, _ hShader: JKAShared.qhandle_t) -> LocalEntity? {
+public func CG_SmokePuff(_ p: JKAShared.vec3_t, _ vel: JKAShared.vec3_t, _ radius: Float, _ r: Float, _ g: Float, _ b: Float, _ a: Float, _ duration: Float, _ startTime: Int32, _ fadeInTime: Int32, _ leFlags: Int32, _ hShader: JKAShared.qhandle_t) -> LocalEntity? {
     var le: LocalEntity?
     var re: RefEntity?
     //	int fadeInTime = startTime + duration / 2;
@@ -226,7 +226,7 @@ func CG_SmokePuff(_ p: JKAShared.vec3_t, _ vel: JKAShared.vec3_t, _ radius: Floa
 }
 
 /// Source: oracle/codemp/cgame/cg_effects.c:135
-func CGDEBUG_SaberColor(_ saberColor: Int32) -> Int32 {
+public func CGDEBUG_SaberColor(_ saberColor: Int32) -> Int32 {
     switch Int32((saberColor)) {
     case SABER_RED:
         return 0x000000ff
@@ -252,7 +252,7 @@ func CGDEBUG_SaberColor(_ saberColor: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/cgame/cg_effects.c:163
-func CG_TestLine(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ time: Int32, _ color: UInt32, _ radius: Int32) {
+public func CG_TestLine(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ time: Int32, _ color: UInt32, _ radius: Int32) {
     var le: LocalEntity?
     var re: RefEntity?
     // Raven assigns his own `color` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
@@ -306,7 +306,7 @@ CG_ThrowChunk
 ```
 */
 /// Source: oracle/codemp/cgame/cg_effects.c:211
-func CG_ThrowChunk(_ origin: JKAShared.vec3_t, _ velocity: JKAShared.vec3_t, _ hModel: JKAShared.qhandle_t, _ optionalSound: Int32, _ startalpha: Int32) {
+public func CG_ThrowChunk(_ origin: JKAShared.vec3_t, _ velocity: JKAShared.vec3_t, _ hModel: JKAShared.qhandle_t, _ optionalSound: Int32, _ startalpha: Int32) {
     var le: LocalEntity?
     var re: RefEntity?
 
@@ -508,7 +508,7 @@ private func CG_CalcHeightWidth(_ verts: [JKAShared.vec3_t], _ height: inout Flo
 }
 
 /// Source: oracle/codemp/cgame/cg_effects.c:430
-func CG_InitGlass() {
+public func CG_InitGlass() {
     var i: Int32
     var t: Int32
 
@@ -527,13 +527,13 @@ func CG_InitGlass() {
 }
 
 /// Source: oracle/codemp/cgame/cg_effects.c:446
-func Vector2Set(_ a: inout JKAShared.vec2_t, _ b: Float, _ c: Float) {
+public func Vector2Set(_ a: inout JKAShared.vec2_t, _ b: Float, _ c: Float) {
     a[0] = b
     a[1] = c
 }
 
 /// Source: oracle/codemp/cgame/cg_effects.c:456
-func CG_DoGlass(_ verts: [JKAShared.vec3_t], _ normal: JKAShared.vec3_t, _ dmgPt: JKAShared.vec3_t, _ dmgDir: JKAShared.vec3_t, _ dmgRadius: Float, _ maxShards: Int32) {
+public func CG_DoGlass(_ verts: [JKAShared.vec3_t], _ normal: JKAShared.vec3_t, _ dmgPt: JKAShared.vec3_t, _ dmgDir: JKAShared.vec3_t, _ dmgRadius: Float, _ maxShards: Int32) {
     var i: Int32
     var t: Int32
     var mxHeight: Int32
@@ -714,7 +714,7 @@ Break glass with fancy method
 ```
 */
 /// Source: oracle/codemp/cgame/cg_effects.c:656
-func CG_GlassShatter(_ entnum: Int32, _ dmgPt: JKAShared.vec3_t, _ dmgDir: JKAShared.vec3_t, _ dmgRadius: Float, _ maxShards: Int32) {
+public func CG_GlassShatter(_ entnum: Int32, _ dmgPt: JKAShared.vec3_t, _ dmgDir: JKAShared.vec3_t, _ dmgRadius: Float, _ maxShards: Int32) {
     var verts = [vec3_t](repeating: vec3_t(), count: 4)
     var normal = vec3_t()
 
@@ -734,7 +734,7 @@ Throws glass shards from within a given bounding box in the world
 ```
 */
 /// Source: oracle/codemp/cgame/cg_effects.c:674
-func CG_GlassShatter_Old(_ entnum: Int32, _ org: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) {
+public func CG_GlassShatter_Old(_ entnum: Int32, _ org: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t) {
     var velocity = vec3_t()
     var a = vec3_t()
     var shardorg = vec3_t()
@@ -801,7 +801,7 @@ func CG_GlassShatter_Old(_ entnum: Int32, _ org: JKAShared.vec3_t, _ mins: JKASh
 }
 
 /// Source: oracle/codemp/cgame/cg_effects.c:771
-func CG_CreateDebris(_ entnum: Int32, _ org: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ debrissound: Int32, _ debrismodel: Int32) {
+public func CG_CreateDebris(_ entnum: Int32, _ org: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ debrissound: Int32, _ debrismodel: Int32) {
     var velocity = vec3_t()
     var a = vec3_t()
     var shardorg = vec3_t()
@@ -919,7 +919,7 @@ func CG_CreateDebris(_ entnum: Int32, _ org: JKAShared.vec3_t, _ mins: JKAShared
 }
 
 /// Source: oracle/codemp/cgame/cg_effects.c:919
-func CG_ExplosionEffects(_ origin: JKAShared.vec3_t, _ intensity: Float, _ radius: Int32, _ time: Int32) {
+public func CG_ExplosionEffects(_ origin: JKAShared.vec3_t, _ intensity: Float, _ radius: Int32, _ time: Int32) {
     //FIXME: When exactly is the vieworg calculated in relation to the rest of the frame?s
 
     var dir = vec3_t()
@@ -943,7 +943,7 @@ func CG_ExplosionEffects(_ origin: JKAShared.vec3_t, _ intensity: Float, _ radiu
 }
 
 /// Source: oracle/codemp/cgame/cg_effects.c:949
-func CG_MiscModelExplosion(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ size: Int32, _ chunkType: JKAMP.material_t) {
+public func CG_MiscModelExplosion(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ size: Int32, _ chunkType: JKAMP.material_t) {
     var ct: Int32 = 13
     var r: Float
     var org = vec3_t()
@@ -1044,7 +1044,7 @@ func CG_MiscModelExplosion(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _
 }
 
 /// Source: oracle/codemp/cgame/cg_effects.c:1061
-func CG_Chunks(_ owner: Int32, _ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ speed: Float, _ numChunks: Int32, _ chunkType: JKAMP.material_t, _ customChunk: Int32, _ baseScale: Float) {
+public func CG_Chunks(_ owner: Int32, _ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ speed: Float, _ numChunks: Int32, _ chunkType: JKAMP.material_t, _ customChunk: Int32, _ baseScale: Float) {
     var le: LocalEntity?
     var re: RefEntity?
     var dir = vec3_t()
@@ -1249,7 +1249,7 @@ CG_ScorePlum
 ```
 */
 /// Source: oracle/codemp/cgame/cg_effects.c:1261
-func CG_ScorePlum(_ client: Int32, _ org: JKAShared.vec3_t, _ score: Int32) {
+public func CG_ScorePlum(_ client: Int32, _ org: JKAShared.vec3_t, _ score: Int32) {
     var le: LocalEntity?
     var re: RefEntity?
     var angles = vec3_t()
@@ -1300,7 +1300,7 @@ CG_MakeExplosion
 ```
 */
 /// Source: oracle/codemp/cgame/cg_effects.c:1306
-func CG_MakeExplosion(_ origin: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ hModel: JKAShared.qhandle_t, _ numFrames: Int32, _ shader: JKAShared.qhandle_t, _ msec: Int32, _ isSprite: Bool, _ scale: Float, _ flags: Int32) -> LocalEntity? {
+public func CG_MakeExplosion(_ origin: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ hModel: JKAShared.qhandle_t, _ numFrames: Int32, _ shader: JKAShared.qhandle_t, _ msec: Int32, _ isSprite: Bool, _ scale: Float, _ flags: Int32) -> LocalEntity? {
     var ang: Float = 0
     var ex: LocalEntity?
     let offset: Int32
@@ -1372,7 +1372,7 @@ func CG_MakeExplosion(_ origin: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ hMo
 }
 
 /// Source: oracle/codemp/cgame/cg_effects.c:1388
-func CG_SurfaceExplosion(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ radius: Float, _ shake_speed: Float, _ smoke: Bool) {
+public func CG_SurfaceExplosion(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ radius: Float, _ shake_speed: Float, _ smoke: Bool) {
     var le: LocalEntity?
     //FXTrail			*particle;
     var direction = vec3_t()
@@ -1486,7 +1486,7 @@ This is the spurt of blood when a character gets hit
 ```
 */
 /// Source: oracle/codemp/cgame/cg_effects.c:1489
-func CG_Bleed(_ origin: JKAShared.vec3_t, _ entityNum: Int32) {
+public func CG_Bleed(_ origin: JKAShared.vec3_t, _ entityNum: Int32) {
     var ex: LocalEntity?
 
     if cg_blood.integer == 0 {
@@ -1521,7 +1521,7 @@ CG_LaunchGib
 ```
 */
 /// Source: oracle/codemp/cgame/cg_effects.c:1522
-func CG_LaunchGib(_ origin: JKAShared.vec3_t, _ velocity: JKAShared.vec3_t, _ hModel: JKAShared.qhandle_t) {
+public func CG_LaunchGib(_ origin: JKAShared.vec3_t, _ velocity: JKAShared.vec3_t, _ hModel: JKAShared.qhandle_t) {
     var le: LocalEntity?
     var re: RefEntity?
 

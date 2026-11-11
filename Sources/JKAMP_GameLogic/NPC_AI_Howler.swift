@@ -30,7 +30,7 @@ NPC_Howler_Precache
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Howler.c:18
-func NPC_Howler_Precache() {
+public func NPC_Howler_Precache() {
 }
 
 /**
@@ -41,7 +41,7 @@ Howler_Idle
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Howler.c:28
-func Howler_Idle() {
+public func Howler_Idle() {
 }
 
 /**
@@ -52,7 +52,7 @@ Howler_Patrol
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Howler.c:38
-func Howler_Patrol() {
+public func Howler_Patrol() {
     var dif = vec3_t()
 
     NPCInfo!.localState = LSTATE_CLEAR
@@ -88,7 +88,7 @@ Howler_Move
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Howler.c:78
-func Howler_Move(_ visible: Bool) {
+public func Howler_Move(_ visible: Bool) {
     if NPCInfo!.localState != LSTATE_WAITING {
         NPCInfo!.goalEntity = NPC!.enemy
         NPC_MoveToGoal(true)
@@ -98,7 +98,7 @@ func Howler_Move(_ visible: Bool) {
 
 //---------------------------------------------------------
 /// Source: oracle/codemp/game/NPC_AI_Howler.c:89
-func Howler_TryDamage(_ enemy: Entity, _ damage: Int32) {
+public func Howler_TryDamage(_ enemy: Entity, _ damage: Int32) {
     var end = vec3_t()
     var dir = vec3_t()
     // Raven's record lives to the end of his block, so the block is the closure.
@@ -127,7 +127,7 @@ func Howler_TryDamage(_ enemy: Entity, _ damage: Int32) {
 
 //------------------------------
 /// Source: oracle/codemp/game/NPC_AI_Howler.c:112
-func Howler_Attack() {
+public func Howler_Attack() {
     if !TIMER_Exists(NPC!, "attacking") {
         // Going to do ATTACK1
         // The SDK also declares `random`, so the call names the bg module.
@@ -148,7 +148,7 @@ func Howler_Attack() {
 
 //----------------------------------
 /// Source: oracle/codemp/game/NPC_AI_Howler.c:134
-func Howler_Combat() {
+public func Howler_Combat() {
     let distance: Float
     let advance: Bool
 
@@ -187,7 +187,7 @@ NPC_Howler_Pain
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Howler.c:178
-func NPC_Howler_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func NPC_Howler_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     if damage >= 10 {
         TIMER_Remove(`self`, "attacking")
         TIMER_Set(`self`, "takingPain", 2900)
@@ -210,7 +210,7 @@ NPC_BSHowler_Default
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Howler.c:202
-func NPC_BSHowler_Default() {
+public func NPC_BSHowler_Default() {
     if NPC!.enemy != nil {
         Howler_Combat()
     } else if (NPCInfo!.scriptFlags & SCF_LOOK_FOR_ENEMIES) != 0 {

@@ -25,19 +25,19 @@ public var pm_entSelf: JKAMP.BgEntity? {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:34
-var pm_entVeh: JKAMP.BgEntity? {
+public var pm_entVeh: JKAMP.BgEntity? {
     get { bg.variables.pm_entVeh }
     set { bg.variables.pm_entVeh = newValue }
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:36
-var gPMDoSlowFall: Bool {
+public var gPMDoSlowFall: Bool {
     get { bg.variables.gPMDoSlowFall }
     set { bg.variables.gPMDoSlowFall = newValue }
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:38
-var pm_cancelOutZoom: Bool {
+public var pm_cancelOutZoom: Bool {
     get { bg.variables.pm_cancelOutZoom }
     set { bg.variables.pm_cancelOutZoom = newValue }
 }
@@ -73,7 +73,7 @@ let pm_flightfriction: Float = 3.0
 let pm_spectatorfriction: Float = 5.0
 
 /// Source: oracle/codemp/game/bg_pmove.c:57
-var c_pmove: Int32 {
+public var c_pmove: Int32 {
     get { bg.variables.c_pmove }
     set { bg.variables.c_pmove = newValue }
 }
@@ -189,7 +189,7 @@ public func BG_KnockDownable(_ ps: JKAMP.PlayerState) -> Bool {
 
 //hacky assumption check, assume any client non-humanoid is a rocket trooper
 /// Source: oracle/codemp/game/bg_pmove.c:247
-func PM_IsRocketTrooper() -> Bool {
+public func PM_IsRocketTrooper() -> Bool {
     /*
     if (pm->ps->clientNum < MAX_CLIENTS &&
         pm->gametype == GT_SIEGE &&
@@ -203,7 +203,7 @@ func PM_IsRocketTrooper() -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:261
-func PM_GetSaberStance() -> Int32 {
+public func PM_GetSaberStance() -> Int32 {
     let ps = pm.ps
     var anim = BOTH_STAND2
     let saber1 = BG_MySaber(ps.clientNum, 0)
@@ -258,7 +258,7 @@ func PM_GetSaberStance() -> Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:321
-func PM_DoSlowFall() -> Bool {
+public func PM_DoSlowFall() -> Bool {
     let ps = pm.ps
     if ((ps.legsAnim) == BOTH_WALL_RUN_RIGHT || (ps.legsAnim) == BOTH_WALL_RUN_LEFT) && ps.legsTimer > 500 {
         return true
@@ -268,7 +268,7 @@ func PM_DoSlowFall() -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:346
-func PM_pitch_roll_for_slope(_ forwhom: JKAMP.BgEntity, _ pass_slope: JKAShared.vec3_t?, _ storeAngles: inout JKAShared.vec3_t) {
+public func PM_pitch_roll_for_slope(_ forwhom: JKAMP.BgEntity, _ pass_slope: JKAShared.vec3_t?, _ storeAngles: inout JKAShared.vec3_t) {
     var slope = vec3_t()
     var nvf = vec3_t()
     var ovf = vec3_t()
@@ -368,7 +368,7 @@ var pm_flying: Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:447
-func PM_SetSpecialMoveValues() {
+public func PM_SetSpecialMoveValues() {
     let ps = pm.ps
     let pEnt: BgEntity?
 
@@ -541,7 +541,7 @@ private func PM_SetVehicleAngles(_ normal: JKAShared.vec3_t?) {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:641
-func BG_ExternThisSoICanRecompileInDebug(_ pVeh: JKAMP.Vehicle, _ riderPS: JKAMP.PlayerState) {
+public func BG_ExternThisSoICanRecompileInDebug(_ pVeh: JKAMP.Vehicle, _ riderPS: JKAMP.PlayerState) {
 /*
 	float pitchSubtract, pitchDelta, yawDelta;
 	//Com_Printf( S_COLOR_RED"PITCH: %4.2f, YAW: %4.2f, ROLL: %4.2f\n", riderPS->viewangles[0],riderPS->viewangles[1],riderPS->viewangles[2]);
@@ -600,7 +600,7 @@ public func BG_VehicleTurnRateForSpeed(_ pVeh: JKAMP.Vehicle, _ speed: Float, _ 
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:719
-func PM_HoverTrace() {
+public func PM_HoverTrace() {
     var pVeh: Vehicle?
     let hoverHeight: Float
     var point = vec3_t()
@@ -789,13 +789,13 @@ PM_AddEvent
 ```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:910
-func PM_AddEvent(_ newEvent: Int32) {
+public func PM_AddEvent(_ newEvent: Int32) {
     let ps = pm.ps
     BG_AddPredictableEventToPlayerstate(newEvent, 0, ps)
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:914
-func PM_AddEventWithParm(_ newEvent: Int32, _ parm: Int32) {
+public func PM_AddEventWithParm(_ newEvent: Int32, _ parm: Int32) {
     let ps = pm.ps
     BG_AddPredictableEventToPlayerstate(newEvent, parm, ps)
 }
@@ -808,7 +808,7 @@ PM_AddTouchEnt
 ```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:924
-func PM_AddTouchEnt(_ entityNum: Int32) {
+public func PM_AddTouchEnt(_ entityNum: Int32) {
     var i: Int32
 
     if entityNum == ENTITYNUM_WORLD {
@@ -842,7 +842,7 @@ Slide off of the impacting surface
 ```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:954
-func PM_ClipVelocity(_ `in`: inout JKAShared.vec3_t, _ normal: inout JKAShared.vec3_t, _ out: inout JKAShared.vec3_t, _ overbounce: Float) {
+public func PM_ClipVelocity(_ `in`: inout JKAShared.vec3_t, _ normal: inout JKAShared.vec3_t, _ out: inout JKAShared.vec3_t, _ overbounce: Float) {
     var backoff: Float
     var change: Float
     let oldInZ: Float
@@ -1158,7 +1158,7 @@ private func PM_SetMovementDir() {
 private let METROID_JUMP = 1 as Int32
 
 /// Source: oracle/codemp/game/bg_pmove.c:1266
-func PM_ForceJumpingUp() -> Bool {
+public func PM_ForceJumpingUp() -> Bool {
     let ps = pm.ps
     if (ps.fd.forcePowersActive & (1 << FP_LEVITATION)) == 0 && ps.fd.forceJumpCharge != 0 {
         //already jumped and let go
@@ -1221,7 +1221,7 @@ private func PM_JumpForDir() {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:1342
-func PM_SetPMViewAngle(_ ps: JKAMP.PlayerState, _ angle: inout JKAShared.vec3_t, _ ucmd: JKAMP.Usercmd) {
+public func PM_SetPMViewAngle(_ ps: JKAMP.PlayerState, _ angle: inout JKAShared.vec3_t, _ ucmd: JKAMP.Usercmd) {
     var i: Int32
 
     i = 0
@@ -1237,7 +1237,7 @@ func PM_SetPMViewAngle(_ ps: JKAMP.PlayerState, _ angle: inout JKAShared.vec3_t,
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:1356
-func PM_AdjustAngleForWallRun(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, _ doMove: Bool) -> Bool {
+public func PM_AdjustAngleForWallRun(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, _ doMove: Bool) -> Bool {
     if ((ps.legsAnim) == BOTH_WALL_RUN_RIGHT || (ps.legsAnim) == BOTH_WALL_RUN_LEFT) && ps.legsTimer > 500 {
         //wall-running and not at end of anim
         //stick to wall, if there is one
@@ -1350,7 +1350,7 @@ func PM_AdjustAngleForWallRun(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, _ 
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:1464
-func PM_AdjustAnglesForWallRunUpFlipAlt(_ ucmd: JKAMP.Usercmd) -> Bool {
+public func PM_AdjustAnglesForWallRunUpFlipAlt(_ ucmd: JKAMP.Usercmd) -> Bool {
 //	ucmd->angles[PITCH] = ANGLE2SHORT( pm->ps->viewangles[PITCH] ) - pm->ps->delta_angles[PITCH];
 //	ucmd->angles[YAW] = ANGLE2SHORT( pm->ps->viewangles[YAW] ) - pm->ps->delta_angles[YAW];
     let ps = pm.ps
@@ -1359,7 +1359,7 @@ func PM_AdjustAnglesForWallRunUpFlipAlt(_ ucmd: JKAMP.Usercmd) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:1472
-func PM_AdjustAngleForWallRunUp(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, _ doMove: Bool) -> Bool {
+public func PM_AdjustAngleForWallRunUp(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, _ doMove: Bool) -> Bool {
     if ps.legsAnim == BOTH_FORCEWALLRUNFLIP_START {
         //wall-running up
         //stick to wall, if there is one
@@ -1517,7 +1517,7 @@ private func BG_ForceWallJumpStrength() -> Float {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:1607
-func PM_AdjustAngleForWallJump(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, _ doMove: Bool) -> Bool {
+public func PM_AdjustAngleForWallJump(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, _ doMove: Bool) -> Bool {
     if ((BG_InReboundJump(ps.legsAnim) || BG_InReboundHold(ps.legsAnim))
             && (BG_InReboundJump(ps.torsoAnim) || BG_InReboundHold(ps.torsoAnim)))
         || (pm.ps.pm_flags & PMF_STUCK_TO_WALL) != 0 {
@@ -1677,7 +1677,7 @@ func PM_AdjustAngleForWallJump(_ ps: JKAMP.PlayerState, _ ucmd: JKAMP.Usercmd, _
 
 //Set the height for when a force jump was started. If it's 0, nuge it up (slight hack to prevent holding jump over slopes)
 /// Source: oracle/codemp/game/bg_pmove.c:1759
-func PM_SetForceJumpZStart(_ value: Float) {
+public func PM_SetForceJumpZStart(_ value: Float) {
     let ps = pm.ps
     ps.fd.forceJumpZStart = value
     if ps.fd.forceJumpZStart == 0 {
@@ -1686,7 +1686,7 @@ func PM_SetForceJumpZStart(_ value: Float) {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:1776
-func PM_GrabWallForJump(_ anim: Int32) {
+public func PM_GrabWallForJump(_ anim: Int32) {
     //NOTE!!! assumes an appropriate anim is being passed in!!!
     let ps = pm.ps
     PM_SetAnim(SETANIM_BOTH, anim, SETANIM_FLAG_RESTART | SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0)
@@ -4004,7 +4004,7 @@ private func PM_SetWaterLevel() {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:4322
-func PM_CheckDualForwardJumpDuck() -> Bool {
+public func PM_CheckDualForwardJumpDuck() -> Bool {
     var resized = false
     let ps = pm.ps
     if ps.legsAnim == BOTH_JUMPATTACK6 {
@@ -4023,7 +4023,7 @@ func PM_CheckDualForwardJumpDuck() -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:4341
-func PM_CheckFixMins() {
+public func PM_CheckFixMins() {
     let ps = pm.ps
     if (ps.pm_flags & PMF_FIX_MINS) != 0 {// pm->mins[2] > DEFAULT_MINS_2 )
         //drop the mins back down
@@ -4209,7 +4209,7 @@ private func PM_CheckDuck() {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:4559
-func PM_Use() {
+public func PM_Use() {
     let ps = pm.ps
     if ps.useTime > 0 {
         ps.useTime -= 100//pm->cmd.msec;
@@ -4273,7 +4273,7 @@ public func PM_RunningAnim(_ anim: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:4622
-func PM_SwimmingAnim(_ anim: Int32) -> Bool {
+public func PM_SwimmingAnim(_ anim: Int32) -> Bool {
     switch anim {
     case BOTH_SWIM_IDLE1, //# Swimming Idle 1
          BOTH_SWIMFORWARD, //# Swim forward loop
@@ -4300,7 +4300,7 @@ public func PM_RollingAnim(_ anim: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:4649
-func PM_AnglesForSlope(_ yaw: Float, _ slope: JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) {
+public func PM_AnglesForSlope(_ yaw: Float, _ slope: JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) {
     var nvf = vec3_t()
     var ovf = vec3_t()
     var ovr = vec3_t()
@@ -4338,7 +4338,7 @@ func PM_AnglesForSlope(_ yaw: Float, _ slope: JKAShared.vec3_t, _ angles: inout 
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:4677
-func PM_FootSlopeTrace(_ pDiff: inout Float, _ pInterval: inout Float) {
+public func PM_FootSlopeTrace(_ pDiff: inout Float, _ pInterval: inout Float) {
     var footLOrg = vec3_t(), footROrg = vec3_t(), footLBot = vec3_t(), footRBot = vec3_t()
     var footLPoint = vec3_t(), footRPoint = vec3_t()
     var footMins = vec3_t(), footMaxs = vec3_t()
@@ -4396,7 +4396,7 @@ func PM_FootSlopeTrace(_ pDiff: inout Float, _ pInterval: inout Float) {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:4742
-func BG_InSlopeAnim(_ anim: Int32) -> Bool {
+public func BG_InSlopeAnim(_ anim: Int32) -> Bool {
     switch anim {
     case LEGS_LEFTUP1, //# On a slope with left foot 4 higher than right
          LEGS_LEFTUP2, //# On a slope with left foot 8 higher than right
@@ -4456,7 +4456,7 @@ func BG_InSlopeAnim(_ anim: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:4804
-func PM_AdjustStandAnimForSlope() -> Bool {
+public func PM_AdjustStandAnimForSlope() -> Bool {
     var diff: Float = 0
     var interval: Float = 0
     var destAnim: Int32
@@ -4680,7 +4680,7 @@ func PM_AdjustStandAnimForSlope() -> Bool {
 
 
 /// Source: oracle/codemp/game/bg_pmove.c:5107
-func PM_LegsSlopeBackTransition(_ desiredAnim: Int32) -> Int32 {
+public func PM_LegsSlopeBackTransition(_ desiredAnim: Int32) -> Int32 {
     let ps = pm.ps
     let anim = ps.legsAnim
     var resultingAnim = desiredAnim
@@ -5207,7 +5207,7 @@ PM_BeginWeaponChange
 ```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:5766
-func PM_BeginWeaponChange(_ weapon: Int32) {
+public func PM_BeginWeaponChange(_ weapon: Int32) {
     let ps = pm.ps
     if weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS {
         return
@@ -5244,7 +5244,7 @@ PM_FinishWeaponChange
 ```
 */
 /// Source: oracle/codemp/game/bg_pmove.c:5801
-func PM_FinishWeaponChange() {
+public func PM_FinishWeaponChange() {
     var weapon: Int32
     let ps = pm.ps
     weapon = pm.cmd.weapon
@@ -5313,7 +5313,7 @@ public func BG_VehTraceFromCamPos(_ camTrace: JKAMP.Trace, _ bgEnt: JKAMP.BgEnti
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:5874
-func PM_RocketLock(_ lockDist: Float, _ vehicleLock: Bool) {
+public func PM_RocketLock(_ lockDist: Float, _ vehicleLock: Bool) {
     // Not really a charge weapon, but we still want to delay fire until the button comes up so that we can
     //	implement our alt-fire locking stuff
     var ang = vec3_t()
@@ -5589,7 +5589,7 @@ private let BOWCASTER_CHARGE_UNIT = 200.0 as Float
 private let BRYAR_CHARGE_UNIT = 200.0 as Float
 
 /// Source: oracle/codemp/game/bg_pmove.c:6239
-func PM_ItemUsable(_ ps: JKAMP.PlayerState, _ forcedUse: Int32) -> Int32 {
+public func PM_ItemUsable(_ ps: JKAMP.PlayerState, _ forcedUse: Int32) -> Int32 {
     var fwd = vec3_t(), fwdorg = vec3_t(), dest = vec3_t(), pos = vec3_t()
     var yawonly = vec3_t()
     var mins = vec3_t(), maxs = vec3_t()
@@ -5735,7 +5735,7 @@ func PM_ItemUsable(_ ps: JKAMP.PlayerState, _ forcedUse: Int32) -> Int32 {
 
 //cheesy vehicle weapon hackery
 /// Source: oracle/codemp/game/bg_pmove.c:6369
-func PM_CanSetWeaponAnims() -> Bool {
+public func PM_CanSetWeaponAnims() -> Bool {
     let ps = pm.ps
     if ps.m_iVehicleNum != 0 {
         return false
@@ -5746,7 +5746,7 @@ func PM_CanSetWeaponAnims() -> Bool {
 
 //perform player anim overrides while on vehicle.
 /// Source: oracle/codemp/game/bg_pmove.c:6381
-func PM_VehicleWeaponAnimate() {
+public func PM_VehicleWeaponAnimate() {
     var iFlags: Int32 = 0, iBlend: Int32 = 0, Anim: Int32 = -1
     let ps = pm.ps
     guard let veh = pm_entVeh,
@@ -6863,7 +6863,7 @@ public func PM_UpdateViewAngles(_ ps: JKAMP.PlayerState, _ cmd: JKAMP.Usercmd) {
 
 //-------------------------------------------
 /// Source: oracle/codemp/game/bg_pmove.c:8031
-func PM_AdjustAttackStates(_ pm: JKAMP.Pmove) {
+public func PM_AdjustAttackStates(_ pm: JKAMP.Pmove) {
     var amount: Int32
     let ps = pm.ps
     if pm_entSelf!.s.NPC_class != CLASS_VEHICLE
@@ -6991,7 +6991,7 @@ func PM_AdjustAttackStates(_ pm: JKAMP.Pmove) {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:8201
-func BG_CmdForRoll(_ ps: JKAMP.PlayerState, _ anim: Int32, _ pCmd: JKAMP.Usercmd) {
+public func BG_CmdForRoll(_ ps: JKAMP.PlayerState, _ anim: Int32, _ pCmd: JKAMP.Usercmd) {
     // Port-note: Raven's `pCmd->forwardmove = pCmd->rightmove = 0` chain is written as two stores here.
     switch (anim) {
     case BOTH_ROLL_F:
@@ -7108,7 +7108,7 @@ func BG_CmdForRoll(_ ps: JKAMP.PlayerState, _ anim: Int32, _ pCmd: JKAMP.Usercmd
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:8331
-func BG_AdjustClientSpeed(_ ps: JKAMP.PlayerState, _ cmd: JKAMP.Usercmd, _ svTime: Int32) {
+public func BG_AdjustClientSpeed(_ ps: JKAMP.PlayerState, _ cmd: JKAMP.Usercmd, _ svTime: Int32) {
     var saber: SaberInfo?
     let pmPS = pm.ps
     if ps.clientNum >= MAX_CLIENTS {
@@ -7247,7 +7247,7 @@ func BG_AdjustClientSpeed(_ ps: JKAMP.PlayerState, _ cmd: JKAMP.Usercmd, _ svTim
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:8512
-func BG_InRollAnim(_ cent: JKAMP.EntityState) -> Bool {
+public func BG_InRollAnim(_ cent: JKAMP.EntityState) -> Bool {
     switch (cent.legsAnim) {
     case BOTH_ROLL_F,
          BOTH_ROLL_B,
@@ -7297,7 +7297,7 @@ public func BG_InKnockDown(_ anim: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:8562
-func BG_InRollES(_ ps: JKAMP.EntityState, _ anim: Int32) -> Bool {
+public func BG_InRollES(_ ps: JKAMP.EntityState, _ anim: Int32) -> Bool {
     switch (anim) {
     case BOTH_ROLL_F,
          BOTH_ROLL_B,
@@ -7466,7 +7466,7 @@ public func BG_IK_MoveArm(_ ghoul2: OpaquePointer?, _ lHandBolt: Int32, _ time: 
 
 //Adjust the head/neck desired angles
 /// Source: oracle/codemp/game/bg_pmove.c:8733
-func BG_UpdateLookAngles(_ lookingDebounceTime: Int32, _ lastHeadAngles: inout JKAShared.vec3_t, _ time: Int32, _ lookAngles: inout JKAShared.vec3_t, _ lookSpeed: Float, _ minPitch: Float, _ maxPitch: Float, _ minYaw: Float, _ maxYaw: Float, _ minRoll: Float, _ maxRoll: Float) {
+public func BG_UpdateLookAngles(_ lookingDebounceTime: Int32, _ lastHeadAngles: inout JKAShared.vec3_t, _ time: Int32, _ lookAngles: inout JKAShared.vec3_t, _ lookSpeed: Float, _ minPitch: Float, _ maxPitch: Float, _ minYaw: Float, _ maxYaw: Float, _ minRoll: Float, _ maxRoll: Float) {
     let fFrameInter: Float = 0.1
     var oldLookAngles = vec3_t()
     var lookAnglesDiff = vec3_t()
@@ -7736,7 +7736,7 @@ private func BG_SwingAngles(_ destination: Float, _ swingTolerance: Float, _ cla
 
 //I apologize for this function
 /// Source: oracle/codemp/game/bg_pmove.c:9058
-func BG_InRoll2(_ es: JKAMP.EntityState) -> Bool {
+public func BG_InRoll2(_ es: JKAMP.EntityState) -> Bool {
     switch (es.legsAnim) {
     case BOTH_GETUP_BROLL_B,
          BOTH_GETUP_BROLL_F,
@@ -8261,7 +8261,7 @@ private func PM_CmdForSaberMoves(_ ucmd: JKAMP.Usercmd) {
 
 //constrain him based on the angles of his vehicle and the caps
 /// Source: oracle/codemp/game/bg_pmove.c:9642
-func PM_VehicleViewAngles(_ ps: JKAMP.PlayerState, _ veh: JKAMP.BgEntity, _ ucmd: JKAMP.Usercmd) {
+public func PM_VehicleViewAngles(_ ps: JKAMP.PlayerState, _ veh: JKAMP.BgEntity, _ ucmd: JKAMP.Usercmd) {
     // Port-note: Raven leaves `clampMin` and `clampMax` uninitialized on the turret path, so this port zeroes them, rule 19.
     let pVeh = veh.m_pVehicle
     var setAngles = true
@@ -8355,7 +8355,7 @@ void PM_VehicleViewAngles(playerState_t *ps, bgEntity_t *veh, usercmd_t *ucmd)
 */
 //see if a weapon is ok to use on a vehicle
 /// Source: oracle/codemp/game/bg_pmove.c:9745
-func PM_WeaponOkOnVehicle(_ weapon: Int32) -> Bool {
+public func PM_WeaponOkOnVehicle(_ weapon: Int32) -> Bool {
     //FIXME: check g_vehicleInfo for our vehicle?
     switch weapon {
     //case WP_NONE:
@@ -8372,7 +8372,7 @@ func PM_WeaponOkOnVehicle(_ weapon: Int32) -> Bool {
 
 //do we have a weapon that's ok for using on the vehicle?
 /// Source: oracle/codemp/game/bg_pmove.c:9762
-func PM_GetOkWeaponForVehicle() -> Int32 {
+public func PM_GetOkWeaponForVehicle() -> Int32 {
     var i: Int32 = 0
     let ps = pm.ps
     while i < WP_NUM_WEAPONS {
@@ -8392,7 +8392,7 @@ func PM_GetOkWeaponForVehicle() -> Int32 {
 
 //force the vehicle to turn and travel to its forced destination point
 /// Source: oracle/codemp/game/bg_pmove.c:9783
-func PM_VehForcedTurning(_ veh: JKAMP.BgEntity) {
+public func PM_VehForcedTurning(_ veh: JKAMP.BgEntity) {
     var pitchD: Float, yawD: Float
     var dir = vec3_t()
     let ps = pm.ps
@@ -8430,7 +8430,7 @@ func PM_VehForcedTurning(_ veh: JKAMP.BgEntity) {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:9916
-func PM_VehFaceHyperspacePoint(_ veh: JKAMP.BgEntity) {
+public func PM_VehFaceHyperspacePoint(_ veh: JKAMP.BgEntity) {
     if veh.m_pVehicle == nil {
         return
     } else {
@@ -8581,7 +8581,7 @@ public func BG_VehicleAdjustBBoxForOrientation(_ veh: JKAMP.Vehicle, _ origin: i
 let JETPACK_HOVER_HEIGHT = 64 as Int32
 
 /// Source: oracle/codemp/game/bg_pmove.c:10092
-func PM_MoveForKata(_ ucmd: JKAMP.Usercmd) {
+public func PM_MoveForKata(_ ucmd: JKAMP.Usercmd) {
     let ps = pm.ps
     if ps.legsAnim == BOTH_A7_SOULCAL
         && ps.saberMove == LS_STAFF_SOULCAL {
@@ -8646,7 +8646,7 @@ func PM_MoveForKata(_ ucmd: JKAMP.Usercmd) {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:10174
-func PmoveSingle(_ pmove: JKAMP.Pmove) {
+public func PmoveSingle(_ pmove: JKAMP.Pmove) {
     var stiffenedUp: Bool = false
     var gDist: Float = 0
     var noAnimate: Bool = false

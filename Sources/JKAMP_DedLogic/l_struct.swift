@@ -22,7 +22,7 @@ private func Minimum(_ x: Int32, _ y: Float) -> Float {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_struct.cpp:43
-func FindField(_ defs: Slots<Fielddef>, _ name: String) -> Fielddef? {
+public func FindField(_ defs: Slots<Fielddef>, _ name: String) -> Fielddef? {
     var i: Int32
 
     i = 0
@@ -40,7 +40,7 @@ func FindField(_ defs: Slots<Fielddef>, _ name: String) -> Fielddef? {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_struct.cpp:59
-func ReadNumber(_ source: Source, _ fd: Fielddef, _ p: UnsafeMutableRawPointer) -> Bool {
+public func ReadNumber(_ source: Source, _ fd: Fielddef, _ p: UnsafeMutableRawPointer) -> Bool {
     return Token.scratch { token -> Bool in
         var negative = false
         var intval: Int32, intmin: Int32 = 0, intmax: Int32 = 0
@@ -140,7 +140,7 @@ func ReadNumber(_ source: Source, _ fd: Fielddef, _ p: UnsafeMutableRawPointer) 
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_struct.cpp:174
-func ReadChar(_ source: Source, _ fd: Fielddef, _ p: UnsafeMutableRawPointer) -> Bool {
+public func ReadChar(_ source: Source, _ fd: Fielddef, _ p: UnsafeMutableRawPointer) -> Bool {
     return Token.scratch { token -> Bool in
         if PC_ExpectAnyToken(source, token) == 0 { return false }
 
@@ -164,7 +164,7 @@ func ReadChar(_ source: Source, _ fd: Fielddef, _ p: UnsafeMutableRawPointer) ->
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_struct.cpp:199
-func ReadString(_ source: Source, _ fd: Fielddef, _ p: UnsafeMutableRawPointer) -> Int32 {
+public func ReadString(_ source: Source, _ fd: Fielddef, _ p: UnsafeMutableRawPointer) -> Int32 {
     return Token.scratch { token -> Int32 in
         if PC_ExpectTokenType(source, TT_STRING, 0, token) == 0 { return 0 }
         //remove the double quotes
@@ -185,7 +185,7 @@ func ReadString(_ source: Source, _ fd: Fielddef, _ p: UnsafeMutableRawPointer) 
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_struct.cpp:219
-func ReadStructure(_ source: Source, _ def: Structdef, _ structure: UnsafeMutableRawPointer) -> Int32 {
+public func ReadStructure(_ source: Source, _ def: Structdef, _ structure: UnsafeMutableRawPointer) -> Int32 {
     return Token.scratch { token -> Int32 in
         var fd: Fielddef?
         var num: Int32
@@ -258,7 +258,7 @@ func ReadStructure(_ source: Source, _ def: Structdef, _ structure: UnsafeMutabl
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_struct.cpp:313
-func WriteIndent(_ fp: OpaquePointer?, _ indent: Int32) -> Int32 {
+public func WriteIndent(_ fp: OpaquePointer?, _ indent: Int32) -> Int32 {
     // WriteStructWithIndent is the one live caller, and its one caller WriteStructure stands only under DEBUG_AI_WEAP.
     // The build does not define DEBUG_AI_WEAP, and the calls of be_ai_weight.cpp:433 to :525 stand under `#if 0`, so this function is dead.
     // Raven assigns his own `indent` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
@@ -281,7 +281,7 @@ func WriteIndent(_ fp: OpaquePointer?, _ indent: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_struct.cpp:327
-func WriteFloat(_ fp: OpaquePointer?, _ value: Float) -> Int32 {
+public func WriteFloat(_ fp: OpaquePointer?, _ value: Float) -> Int32 {
     // WriteStructWithIndent is the one live caller, and its one caller WriteStructure stands only under DEBUG_AI_WEAP.
     // The build does not define DEBUG_AI_WEAP, and the calls of be_ai_weight.cpp:433 to :525 stand under `#if 0`, so this function is dead.
     var buf = CharBuf(128)
@@ -314,7 +314,7 @@ func WriteFloat(_ fp: OpaquePointer?, _ value: Float) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_struct.cpp:355
-func WriteStructWithIndent(_ fp: OpaquePointer?, _ def: Structdef, _ structure: UnsafeMutableRawPointer, _ indent: Int32) -> Int32 {
+public func WriteStructWithIndent(_ fp: OpaquePointer?, _ def: Structdef, _ structure: UnsafeMutableRawPointer, _ indent: Int32) -> Int32 {
     // Port-note: Raven calls this function only from WriteStructure, which no file of either tree calls, so it is dead.
     // Raven assigns his own `indent` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var indent = indent
@@ -398,7 +398,7 @@ func WriteStructWithIndent(_ fp: OpaquePointer?, _ def: Structdef, _ structure: 
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_struct.cpp:441
-func WriteStructure(_ fp: OpaquePointer?, _ def: Structdef, _ structure: UnsafeMutableRawPointer) -> Int32 {
+public func WriteStructure(_ fp: OpaquePointer?, _ def: Structdef, _ structure: UnsafeMutableRawPointer) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     return WriteStructWithIndent(fp, def, structure, 0)
 }

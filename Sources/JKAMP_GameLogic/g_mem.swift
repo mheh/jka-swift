@@ -18,7 +18,7 @@ var allocPoint: Int32 {
 }
 
 /// Source: oracle/codemp/game/g_mem.c:16
-func G_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
+public func G_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
     let p: UnsafeMutableRawPointer
 
     if g_debugAlloc.integer != 0 {
@@ -39,11 +39,11 @@ func G_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
 }
 
 /// Source: oracle/codemp/game/g_mem.c:35
-func G_InitMemory() {
+public func G_InitMemory() {
     allocPoint = 0
 }
 
 /// Source: oracle/codemp/game/g_mem.c:39
-func Svcmd_GameMem_f() {
+public func Svcmd_GameMem_f() {
     G_Printf("Game memory status: %i out of %i bytes allocated\n", allocPoint, POOLSIZE)
 }

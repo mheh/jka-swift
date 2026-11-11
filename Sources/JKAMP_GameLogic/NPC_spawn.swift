@@ -8,7 +8,7 @@ import JKAMP_BG
 let NSF_DROP_TO_FLOOR = 16 as Int32
 
 /// Source: oracle/codemp/game/NPC_spawn.c:1276
-var gNPCPtrs: Slots<GNPC?> { world.storage.gNPCPtrs }
+public var gNPCPtrs: Slots<GNPC?> { world.storage.gNPCPtrs }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:1810
 let SHY_THINK_TIME = 1000 as Int32
@@ -20,19 +20,19 @@ let SHY_SPAWN_DISTANCE = 128 as Int32
 let SHY_SPAWN_DISTANCE_SQR = (SHY_SPAWN_DISTANCE * SHY_SPAWN_DISTANCE)
 
 /// Source: oracle/codemp/game/NPC_spawn.c:4182
-var showBBoxes: Bool {
+public var showBBoxes: Bool {
     get { world.variables.showBBoxes }
     set { world.variables.showBBoxes = newValue }
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:90
-func WP_SetSaberModel(_ client: Client?, _ npcClass: JKAMP.class_t) -> Int32 {
+public func WP_SetSaberModel(_ client: Client?, _ npcClass: JKAMP.class_t) -> Int32 {
     //rwwFIXMEFIXME: Do something here, need to let the client know.
     return 1
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:103
-func NPC_PainFunc(_ ent: Entity) -> EntityPain? {
+public func NPC_PainFunc(_ ent: Entity) -> EntityPain? {
     var `func`: EntityPain? = nil
 
     if ent.client!.ps.weapon == WP_SABER {
@@ -102,7 +102,7 @@ func NPC_PainFunc(_ ent: Entity) -> EntityPain? {
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:199
-func NPC_TouchFunc(_ ent: Entity) -> EntityTouch? {
+public func NPC_TouchFunc(_ ent: Entity) -> EntityTouch? {
     var `func`: EntityTouch? = nil
 
     `func` = Touch.NPC_Touch
@@ -111,7 +111,7 @@ func NPC_TouchFunc(_ ent: Entity) -> EntityTouch? {
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:215
-func NPC_SetMiscDefaultData(_ ent: Entity) {
+public func NPC_SetMiscDefaultData(_ ent: Entity) {
     if (ent.spawnflags & SFB_CINEMATIC) != 0 {
         //if a cinematic guy, default us to wait bState
         ent.NPC!.behaviorState = BS_CINEMATIC
@@ -358,7 +358,7 @@ func NPC_SetMiscDefaultData(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:509
-func NPC_WeaponsForTeam(_ team: JKAMP.team_t, _ spawnflags: Int32, _ NPC_type: String) -> Int32 {
+public func NPC_WeaponsForTeam(_ team: JKAMP.team_t, _ spawnflags: Int32, _ NPC_type: String) -> Int32 {
     //*** not sure how to handle this, should I pass in class instead of team and go from there? - dmv
     switch team {
     // no longer exists
@@ -548,7 +548,7 @@ func NPC_WeaponsForTeam(_ team: JKAMP.team_t, _ spawnflags: Int32, _ NPC_type: S
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:759
-func NPC_SetWeapons(_ ent: Entity) {
+public func NPC_SetWeapons(_ ent: Entity) {
     var bestWeap: Int32 = WP_NONE
     var curWeap: Int32
     let weapons: Int32 = NPC_WeaponsForTeam(ent.client!.playerTeam, ent.spawnflags, ent.NPC_type!)
@@ -586,7 +586,7 @@ func NPC_SetWeapons(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:808
-func NPC_SpawnEffect(_ ent: Entity) {
+public func NPC_SpawnEffect(_ ent: Entity) {
 }
 
 //--------------------------------------------------------------
@@ -595,7 +595,7 @@ func NPC_SpawnEffect(_ ent: Entity) {
 // Set up any special parms for spawn effects
 //--------------------------------------------------------------
 /// Source: oracle/codemp/game/NPC_spawn.c:817
-func NPC_SetFX_SpawnStates(_ ent: Entity) {
+public func NPC_SetFX_SpawnStates(_ ent: Entity) {
     if !((ent.NPC!.aiFlags & NPCAI_CUSTOM_GRAVITY) != 0) {
         ent.client!.ps.gravity = Int32(g_gravity.value)
     }
@@ -610,7 +610,7 @@ NPC_SpotWouldTelefrag
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:831
-func NPC_SpotWouldTelefrag(_ npc: Entity) -> Bool {
+public func NPC_SpotWouldTelefrag(_ npc: Entity) -> Bool {
     var i: Int32
     let num: Int32
     var touch: [Int32] = [Int32](repeating: 0, count: 1024)
@@ -637,7 +637,7 @@ func NPC_SpotWouldTelefrag(_ npc: Entity) -> Bool {
 
 //--------------------------------------------------------------
 /// Source: oracle/codemp/game/NPC_spawn.c:862
-func NPC_Begin(_ ent: Entity) {
+public func NPC_Begin(_ ent: Entity) {
     var spawn_origin = vec3_t()
     var spawn_angles = vec3_t()
     var client: Client?
@@ -1013,7 +1013,7 @@ func NPC_Begin(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:1278
-func New_NPC_t(_ entNum: Int32) -> GNPC? {
+public func New_NPC_t(_ entNum: Int32) -> GNPC? {
     var ptr: GNPC?
 
     if gNPCPtrs[entNum] == nil {
@@ -1084,7 +1084,7 @@ qboolean NPC_StasisSpawn_Go( gentity_t *ent )
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:1356
-func NPC_DefaultScriptFlags(_ ent: Entity) {
+public func NPC_DefaultScriptFlags(_ ent: Entity) {
     if ent.NPC == nil {
         return
     }
@@ -1093,7 +1093,7 @@ func NPC_DefaultScriptFlags(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:1377
-func NPC_Spawn_Do(_ ent: Entity) -> Entity? {
+public func NPC_Spawn_Do(_ ent: Entity) -> Entity? {
     var newent: Entity? = nil
     var index: Int32 = 0
     var saveOrg = vec3_t()
@@ -1449,12 +1449,12 @@ func NPC_Spawn_Do(_ ent: Entity) -> Entity? {
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:1765
-func NPC_Spawn_Go(_ ent: Entity) {
+public func NPC_Spawn_Go(_ ent: Entity) {
     NPC_Spawn_Do(ent)
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:1814
-func NPC_ShySpawn(_ ent: Entity) {
+public func NPC_ShySpawn(_ ent: Entity) {
     ent.nextthink = level.time + SHY_THINK_TIME
     ent.think = Think.NPC_ShySpawn
 
@@ -1476,7 +1476,7 @@ func NPC_ShySpawn(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:1839
-func NPC_Spawn(_ ent: Entity, _ other: Entity, _ activator: Entity) {
+public func NPC_Spawn(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     //delay before spawning NPC
     if ent.delay != 0 {
         /*		//Stasis does an extra step
@@ -1503,7 +1503,7 @@ func NPC_Spawn(_ ent: Entity, _ other: Entity, _ activator: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:1961
-func NPC_PrecacheType(_ NPC_type: inout JKAShared.CharBuf) {
+public func NPC_PrecacheType(_ NPC_type: inout JKAShared.CharBuf) {
     let fakespawner: Entity? = G_Spawn()
     if fakespawner != nil {
         fakespawner!.NPC_type = String(NPC_type)
@@ -1514,7 +1514,7 @@ func NPC_PrecacheType(_ NPC_type: inout JKAShared.CharBuf) {
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:1973
-func SP_NPC_spawner(_ `self`: Entity) {
+public func SP_NPC_spawner(_ `self`: Entity) {
     var t: Int32 = 0
 
     if g_allowNPC.integer == 0 {
@@ -1634,7 +1634,7 @@ teamnodmg - team that NPC does not take damage from (turrets and other auto-defe
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2103
-func NPC_VehiclePrecache(_ spawner: Entity) -> Bool {
+public func NPC_VehiclePrecache(_ spawner: Entity) -> Bool {
     var droidNPCType: String? = nil
     //This will precache the vehicle
     var pVehInfo: VehicleInfo?
@@ -1695,7 +1695,7 @@ func NPC_VehiclePrecache(_ spawner: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:2175
-func NPC_VehicleSpawnUse(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func NPC_VehicleSpawnUse(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     if `self`.delay != 0 {
         `self`.think = Think.G_VehicleSpawn
         `self`.nextthink = level.time + `self`.delay
@@ -1705,7 +1705,7 @@ func NPC_VehicleSpawnUse(_ `self`: Entity, _ other: Entity, _ activator: Entity)
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:2188
-func SP_NPC_Vehicle(_ `self`: Entity) {
+public func SP_NPC_Vehicle(_ `self`: Entity) {
     var dropTime: Float = 0
     var t: Int32 = 0
     if `self`.NPC_type == nil {
@@ -1768,7 +1768,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2338
-func SP_NPC_Kyle(_ `self`: Entity) {
+public func SP_NPC_Kyle(_ `self`: Entity) {
     `self`.NPC_type = "Kyle"
 
     WP_SetSaberModel(nil, CLASS_KYLE)
@@ -1787,7 +1787,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2354
-func SP_NPC_Lando(_ `self`: Entity) {
+public func SP_NPC_Lando(_ `self`: Entity) {
     `self`.NPC_type = "Lando"
 
     SP_NPC_spawner(`self`)
@@ -1804,7 +1804,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2368
-func SP_NPC_Jan(_ `self`: Entity) {
+public func SP_NPC_Jan(_ `self`: Entity) {
     `self`.NPC_type = "Jan"
 
     SP_NPC_spawner(`self`)
@@ -1821,7 +1821,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2382
-func SP_NPC_Luke(_ `self`: Entity) {
+public func SP_NPC_Luke(_ `self`: Entity) {
     `self`.NPC_type = "Luke"
 
     WP_SetSaberModel(nil, CLASS_LUKE)
@@ -1840,7 +1840,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2398
-func SP_NPC_MonMothma(_ `self`: Entity) {
+public func SP_NPC_MonMothma(_ `self`: Entity) {
     `self`.NPC_type = "MonMothma"
 
     SP_NPC_spawner(`self`)
@@ -1857,7 +1857,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2412
-func SP_NPC_Tavion(_ `self`: Entity) {
+public func SP_NPC_Tavion(_ `self`: Entity) {
     `self`.NPC_type = "Tavion"
 
     WP_SetSaberModel(nil, CLASS_TAVION)
@@ -1880,7 +1880,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2432
-func SP_NPC_Tavion_New(_ `self`: Entity) {
+public func SP_NPC_Tavion_New(_ `self`: Entity) {
     if (`self`.spawnflags & 1) != 0 {
         `self`.NPC_type = "tavion_scepter"
     } else if (`self`.spawnflags & 2) != 0 {
@@ -1906,7 +1906,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2460
-func SP_NPC_Alora(_ `self`: Entity) {
+public func SP_NPC_Alora(_ `self`: Entity) {
     if (`self`.spawnflags & 1) != 0 {
         `self`.NPC_type = "alora_dual"
     } else {
@@ -1933,7 +1933,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2487
-func SP_NPC_Reborn_New(_ `self`: Entity) {
+public func SP_NPC_Reborn_New(_ `self`: Entity) {
     if `self`.NPC_type == nil {
         if (`self`.spawnflags & 4) != 0 {
             //weaker guys
@@ -1978,7 +1978,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2542
-func SP_NPC_Cultist_Saber(_ `self`: Entity) {
+public func SP_NPC_Cultist_Saber(_ `self`: Entity) {
     if `self`.NPC_type == nil {
         if (`self`.spawnflags & 1) != 0 {
             if (`self`.spawnflags & 8) != 0 {
@@ -2030,7 +2030,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2611
-func SP_NPC_Cultist_Saber_Powers(_ `self`: Entity) {
+public func SP_NPC_Cultist_Saber_Powers(_ `self`: Entity) {
     if `self`.NPC_type == nil {
         if (`self`.spawnflags & 1) != 0 {
             if (`self`.spawnflags & 8) != 0 {
@@ -2081,7 +2081,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2679
-func SP_NPC_Cultist(_ `self`: Entity) {
+public func SP_NPC_Cultist(_ `self`: Entity) {
     if `self`.NPC_type == nil {
         if (`self`.spawnflags & 1) != 0 {
             `self`.NPC_type = nil
@@ -2133,7 +2133,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2737
-func SP_NPC_Cultist_Commando(_ `self`: Entity) {
+public func SP_NPC_Cultist_Commando(_ `self`: Entity) {
     if `self`.NPC_type == nil {
         `self`.NPC_type = "cultistcommando"
     }
@@ -2154,7 +2154,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2755
-func SP_NPC_Cultist_Destroyer(_ `self`: Entity) {
+public func SP_NPC_Cultist_Destroyer(_ `self`: Entity) {
     `self`.NPC_type = "cultist" //"cultist_explode";
     SP_NPC_spawner(`self`)
 }
@@ -2170,7 +2170,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2768
-func SP_NPC_Reelo(_ `self`: Entity) {
+public func SP_NPC_Reelo(_ `self`: Entity) {
     `self`.NPC_type = "Reelo"
 
     SP_NPC_spawner(`self`)
@@ -2189,7 +2189,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2784
-func SP_NPC_Galak(_ `self`: Entity) {
+public func SP_NPC_Galak(_ `self`: Entity) {
     if (`self`.spawnflags & 1) != 0 {
         `self`.NPC_type = "Galak_Mech"
         NPC_GalakMech_Precache()
@@ -2211,7 +2211,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2806
-func SP_NPC_Desann(_ `self`: Entity) {
+public func SP_NPC_Desann(_ `self`: Entity) {
     `self`.NPC_type = "Desann"
 
     WP_SetSaberModel(nil, CLASS_DESANN)
@@ -2230,7 +2230,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2822
-func SP_NPC_Bartender(_ `self`: Entity) {
+public func SP_NPC_Bartender(_ `self`: Entity) {
     `self`.NPC_type = "Bartender"
 
     SP_NPC_spawner(`self`)
@@ -2247,7 +2247,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2836
-func SP_NPC_MorganKatarn(_ `self`: Entity) {
+public func SP_NPC_MorganKatarn(_ `self`: Entity) {
     `self`.NPC_type = "MorganKatarn"
 
     SP_NPC_spawner(`self`)
@@ -2267,7 +2267,7 @@ Ally Jedi NPC Buddy - tags along with player
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2857
-func SP_NPC_Jedi(_ `self`: Entity) {
+public func SP_NPC_Jedi(_ `self`: Entity) {
     if `self`.NPC_type == nil {
         if (`self`.spawnflags & 1) != 0 {
             `self`.NPC_type = "jeditrainer"
@@ -2303,7 +2303,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2896
-func SP_NPC_Prisoner(_ `self`: Entity) {
+public func SP_NPC_Prisoner(_ `self`: Entity) {
     if `self`.NPC_type == nil {
         if Q_irand(0, 1) != 0 {
             `self`.NPC_type = "Prisoner"
@@ -2326,7 +2326,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2920
-func SP_NPC_Rebel(_ `self`: Entity) {
+public func SP_NPC_Rebel(_ `self`: Entity) {
     if `self`.NPC_type == nil {
         if Q_irand(0, 1) != 0 {
             `self`.NPC_type = "Rebel"
@@ -2356,7 +2356,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:2955
-func SP_NPC_Stormtrooper(_ `self`: Entity) {
+public func SP_NPC_Stormtrooper(_ `self`: Entity) {
     if (`self`.spawnflags & 8) != 0 {
         //rocketer
         `self`.NPC_type = "rockettrooper"
@@ -2382,7 +2382,7 @@ func SP_NPC_Stormtrooper(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:2987
-func SP_NPC_StormtrooperOfficer(_ `self`: Entity) {
+public func SP_NPC_StormtrooperOfficer(_ `self`: Entity) {
     `self`.spawnflags |= 1
     SP_NPC_Stormtrooper(`self`)
 }
@@ -2400,7 +2400,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3001
-func SP_NPC_Snowtrooper(_ `self`: Entity) {
+public func SP_NPC_Snowtrooper(_ `self`: Entity) {
     `self`.NPC_type = "snowtrooper"
 
     SP_NPC_spawner(`self`)
@@ -2419,7 +2419,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3016
-func SP_NPC_Tie_Pilot(_ `self`: Entity) {
+public func SP_NPC_Tie_Pilot(_ `self`: Entity) {
     `self`.NPC_type = "stormpilot"
 
     SP_NPC_spawner(`self`)
@@ -2436,7 +2436,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3030
-func SP_NPC_Ugnaught(_ `self`: Entity) {
+public func SP_NPC_Ugnaught(_ `self`: Entity) {
     if `self`.NPC_type == nil {
         if Q_irand(0, 1) != 0 {
             `self`.NPC_type = "Ugnaught"
@@ -2461,7 +2461,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3056
-func SP_NPC_Jawa(_ `self`: Entity) {
+public func SP_NPC_Jawa(_ `self`: Entity) {
     if `self`.NPC_type == nil {
         if (`self`.spawnflags & 1) != 0 {
             `self`.NPC_type = "jawa_armed"
@@ -2488,7 +2488,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3084
-func SP_NPC_Gran(_ `self`: Entity) {
+public func SP_NPC_Gran(_ `self`: Entity) {
     if `self`.NPC_type == nil {
         if (`self`.spawnflags & 1) != 0 {
             `self`.NPC_type = "granshooter"
@@ -2519,7 +2519,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3121
-func SP_NPC_Rodian(_ `self`: Entity) {
+public func SP_NPC_Rodian(_ `self`: Entity) {
     if `self`.NPC_type == nil {
         if (`self`.spawnflags & 1) != 0 {
             `self`.NPC_type = "rodian2"
@@ -2542,7 +2542,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3145
-func SP_NPC_Weequay(_ `self`: Entity) {
+public func SP_NPC_Weequay(_ `self`: Entity) {
     if `self`.NPC_type == nil {
         switch Q_irand(0, 3) {
         case 0:
@@ -2576,7 +2576,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3176
-func SP_NPC_Trandoshan(_ `self`: Entity) {
+public func SP_NPC_Trandoshan(_ `self`: Entity) {
     if `self`.NPC_type == nil {
         `self`.NPC_type = "Trandoshan"
     }
@@ -2595,7 +2595,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3193
-func SP_NPC_Tusken(_ `self`: Entity) {
+public func SP_NPC_Tusken(_ `self`: Entity) {
     if `self`.NPC_type == nil {
         if (`self`.spawnflags & 1) != 0 {
             `self`.NPC_type = "tuskensniper"
@@ -2618,7 +2618,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3217
-func SP_NPC_Noghri(_ `self`: Entity) {
+public func SP_NPC_Noghri(_ `self`: Entity) {
     if `self`.NPC_type == nil {
         `self`.NPC_type = "noghri"
     }
@@ -2638,7 +2638,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3235
-func SP_NPC_SwampTrooper(_ `self`: Entity) {
+public func SP_NPC_SwampTrooper(_ `self`: Entity) {
     if `self`.NPC_type == nil {
         if (`self`.spawnflags & 1) != 0 {
             `self`.NPC_type = "SwampTrooper2"
@@ -2669,7 +2669,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3267
-func SP_NPC_Imperial(_ `self`: Entity) {
+public func SP_NPC_Imperial(_ `self`: Entity) {
     if `self`.NPC_type == nil {
         if (`self`.spawnflags & 1) != 0 {
             `self`.NPC_type = "ImpOfficer"
@@ -2709,7 +2709,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3310
-func SP_NPC_ImpWorker(_ `self`: Entity) {
+public func SP_NPC_ImpWorker(_ `self`: Entity) {
     if `self`.NPC_type == nil {
         if Q_irand(0, 2) == 0 {
             `self`.NPC_type = "ImpWorker"
@@ -2734,7 +2734,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3338
-func SP_NPC_BespinCop(_ `self`: Entity) {
+public func SP_NPC_BespinCop(_ `self`: Entity) {
     if `self`.NPC_type == nil {
         if Q_irand(0, 1) == 0 {
             `self`.NPC_type = "BespinCop"
@@ -2767,7 +2767,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3372
-func SP_NPC_Reborn(_ `self`: Entity) {
+public func SP_NPC_Reborn(_ `self`: Entity) {
     if `self`.NPC_type == nil {
         if (`self`.spawnflags & 1) != 0 {
             `self`.NPC_type = "rebornforceuser"
@@ -2797,7 +2797,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3409
-func SP_NPC_ShadowTrooper(_ `self`: Entity) {
+public func SP_NPC_ShadowTrooper(_ `self`: Entity) {
     if `self`.NPC_type == nil {
         if Q_irand(0, 1) == 0 {
             `self`.NPC_type = "ShadowTrooper"
@@ -2823,7 +2823,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3439
-func SP_NPC_Monster_Murjj(_ `self`: Entity) {
+public func SP_NPC_Monster_Murjj(_ `self`: Entity) {
     `self`.NPC_type = "Murjj"
 
     SP_NPC_spawner(`self`)
@@ -2840,7 +2840,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3453
-func SP_NPC_Monster_Swamp(_ `self`: Entity) {
+public func SP_NPC_Monster_Swamp(_ `self`: Entity) {
     `self`.NPC_type = "Swamp"
 
     SP_NPC_spawner(`self`)
@@ -2857,7 +2857,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3467
-func SP_NPC_Monster_Howler(_ `self`: Entity) {
+public func SP_NPC_Monster_Howler(_ `self`: Entity) {
     `self`.NPC_type = "howler"
 
     SP_NPC_spawner(`self`)
@@ -2874,7 +2874,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3481
-func SP_NPC_MineMonster(_ `self`: Entity) {
+public func SP_NPC_MineMonster(_ `self`: Entity) {
     `self`.NPC_type = "minemonster"
 
     SP_NPC_spawner(`self`)
@@ -2892,7 +2892,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3496
-func SP_NPC_Monster_Claw(_ `self`: Entity) {
+public func SP_NPC_Monster_Claw(_ `self`: Entity) {
     `self`.NPC_type = "Claw"
 
     SP_NPC_spawner(`self`)
@@ -2909,7 +2909,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3510
-func SP_NPC_Monster_Glider(_ `self`: Entity) {
+public func SP_NPC_Monster_Glider(_ `self`: Entity) {
     `self`.NPC_type = "Glider"
 
     SP_NPC_spawner(`self`)
@@ -2926,7 +2926,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3524
-func SP_NPC_Monster_Flier2(_ `self`: Entity) {
+public func SP_NPC_Monster_Flier2(_ `self`: Entity) {
     `self`.NPC_type = "Flier2"
 
     SP_NPC_spawner(`self`)
@@ -2943,7 +2943,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3538
-func SP_NPC_Monster_Lizard(_ `self`: Entity) {
+public func SP_NPC_Monster_Lizard(_ `self`: Entity) {
     `self`.NPC_type = "Lizard"
 
     SP_NPC_spawner(`self`)
@@ -2960,7 +2960,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3552
-func SP_NPC_Monster_Fish(_ `self`: Entity) {
+public func SP_NPC_Monster_Fish(_ `self`: Entity) {
     `self`.NPC_type = "Fish"
 
     SP_NPC_spawner(`self`)
@@ -2979,7 +2979,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3568
-func SP_NPC_Monster_Wampa(_ `self`: Entity) {
+public func SP_NPC_Monster_Wampa(_ `self`: Entity) {
     `self`.NPC_type = "wampa"
 
     NPC_Wampa_Precache()
@@ -2998,7 +2998,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3584
-func SP_NPC_Monster_Rancor(_ `self`: Entity) {
+public func SP_NPC_Monster_Rancor(_ `self`: Entity) {
     `self`.NPC_type = "rancor"
 
     SP_NPC_spawner(`self`)
@@ -3015,7 +3015,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3602
-func SP_NPC_Droid_Interrogator(_ `self`: Entity) {
+public func SP_NPC_Droid_Interrogator(_ `self`: Entity) {
     `self`.NPC_type = "interrogator"
 
     SP_NPC_spawner(`self`)
@@ -3036,7 +3036,7 @@ Imperial Probe Droid - the multilegged floating droid that Han and Chewie shot o
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3620
-func SP_NPC_Droid_Probe(_ `self`: Entity) {
+public func SP_NPC_Droid_Probe(_ `self`: Entity) {
     `self`.NPC_type = "probe"
 
     SP_NPC_spawner(`self`)
@@ -3057,7 +3057,7 @@ Big walking droid
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3639
-func SP_NPC_Droid_Mark1(_ `self`: Entity) {
+public func SP_NPC_Droid_Mark1(_ `self`: Entity) {
     `self`.NPC_type = "mark1"
 
     SP_NPC_spawner(`self`)
@@ -3078,7 +3078,7 @@ Small rolling droid with one gun.
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3658
-func SP_NPC_Droid_Mark2(_ `self`: Entity) {
+public func SP_NPC_Droid_Mark2(_ `self`: Entity) {
     `self`.NPC_type = "mark2"
 
     SP_NPC_spawner(`self`)
@@ -3097,7 +3097,7 @@ SHY - Spawner is shy
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3674
-func SP_NPC_Droid_ATST(_ `self`: Entity) {
+public func SP_NPC_Droid_ATST(_ `self`: Entity) {
     if (`self`.spawnflags & 1) != 0 {
         `self`.NPC_type = "atst_vehicle"
     } else {
@@ -3122,7 +3122,7 @@ Remote Droid - the floating round droid used by Obi Wan to train Luke about the 
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3699
-func SP_NPC_Droid_Remote(_ `self`: Entity) {
+public func SP_NPC_Droid_Remote(_ `self`: Entity) {
     `self`.NPC_type = "remote"
 
     SP_NPC_spawner(`self`)
@@ -3143,7 +3143,7 @@ Seeker Droid - floating round droids that shadow troopers spawn
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3717
-func SP_NPC_Droid_Seeker(_ `self`: Entity) {
+public func SP_NPC_Droid_Seeker(_ `self`: Entity) {
     `self`.NPC_type = "seeker"
 
     SP_NPC_spawner(`self`)
@@ -3164,7 +3164,7 @@ Sentry Droid - Large, armored floating Imperial droids with 3 forward-facing gun
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3735
-func SP_NPC_Droid_Sentry(_ `self`: Entity) {
+public func SP_NPC_Droid_Sentry(_ `self`: Entity) {
     `self`.NPC_type = "sentry"
 
     SP_NPC_spawner(`self`)
@@ -3187,7 +3187,7 @@ NOTARGET by default
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3755
-func SP_NPC_Droid_Gonk(_ `self`: Entity) {
+public func SP_NPC_Droid_Gonk(_ `self`: Entity) {
     `self`.NPC_type = "gonk"
 
     SP_NPC_spawner(`self`)
@@ -3211,7 +3211,7 @@ NOTARGET by default
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3776
-func SP_NPC_Droid_Mouse(_ `self`: Entity) {
+public func SP_NPC_Droid_Mouse(_ `self`: Entity) {
     `self`.NPC_type = "mouse"
 
     SP_NPC_spawner(`self`)
@@ -3235,7 +3235,7 @@ NOTARGET by default
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3798
-func SP_NPC_Droid_R2D2(_ `self`: Entity) {
+public func SP_NPC_Droid_R2D2(_ `self`: Entity) {
     if (`self`.spawnflags & 1) != 0 {
         //imperial skin
         `self`.NPC_type = "r2d2_imp"
@@ -3264,7 +3264,7 @@ NOTARGET by default
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3826
-func SP_NPC_Droid_R5D2(_ `self`: Entity) {
+public func SP_NPC_Droid_R5D2(_ `self`: Entity) {
     if (`self`.spawnflags & 1) != 0 {
         //imperial skin
         `self`.NPC_type = "r5d2_imp"
@@ -3290,7 +3290,7 @@ NOTARGET by default
 ```
 */
 /// Source: oracle/codemp/game/NPC_spawn.c:3851
-func SP_NPC_Droid_Protocol(_ `self`: Entity) {
+public func SP_NPC_Droid_Protocol(_ `self`: Entity) {
     if (`self`.spawnflags & 1) != 0 {
         //imperial skin
         `self`.NPC_type = "protocol_imp"
@@ -3303,7 +3303,7 @@ func SP_NPC_Droid_Protocol(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:3872
-func NPC_SpawnType(_ ent: Entity, _ npc_type: String?, _ targetname: String?, _ isVehicle: Bool) -> Entity? {
+public func NPC_SpawnType(_ ent: Entity, _ npc_type: String?, _ targetname: String?, _ isVehicle: Bool) -> Entity? {
     let NPCspawner: Entity? = G_Spawn()
     var forward = vec3_t()
     var end = vec3_t()
@@ -3418,7 +3418,7 @@ func NPC_SpawnType(_ ent: Entity, _ npc_type: String?, _ targetname: String?, _ 
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:4020
-func NPC_Spawn_f(_ ent: Entity) {
+public func NPC_Spawn_f(_ ent: Entity) {
     var npc_type = CharBuf(1024)
     var targetname = CharBuf(1024)
     var isVehicle: Bool = false
@@ -3436,7 +3436,7 @@ func NPC_Spawn_f(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:4045
-func NPC_Kill_f() {
+public func NPC_Kill_f() {
     var n: Int32
     var player: Entity?
     var name = CharBuf(1024)
@@ -3545,12 +3545,12 @@ func NPC_Kill_f() {
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:4172
-func NPC_PrintScore(_ ent: Entity) {
+public func NPC_PrintScore(_ ent: Entity) {
     Com_Printf("%s: %d\n", ent.targetname!, ent.client!.ps.persistant[PERS_SCORE])
 }
 
 /// Source: oracle/codemp/game/NPC_spawn.c:4183
-func Cmd_NPC_f(_ ent: Entity) {
+public func Cmd_NPC_f(_ ent: Entity) {
     var cmd = CharBuf(1024)
     // Raven assigns his own `ent` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var ent = ent

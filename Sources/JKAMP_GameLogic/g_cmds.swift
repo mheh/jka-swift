@@ -5,13 +5,13 @@ import JKAMP_Game
 import JKAMP_BG
 
 /// Source: oracle/codemp/game/g_cmds.c:750
-var g_dontPenalizeTeam: Bool {
+public var g_dontPenalizeTeam: Bool {
     get { world.variables.g_dontPenalizeTeam }
     set { world.variables.g_dontPenalizeTeam = newValue }
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:751
-var g_preventTeamBegin: Bool {
+public var g_preventTeamBegin: Bool {
     get { world.variables.g_preventTeamBegin }
     set { world.variables.g_preventTeamBegin = newValue }
 }
@@ -49,7 +49,7 @@ DeathmatchScoreboardMessage
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:25
-func DeathmatchScoreboardMessage(_ ent: Entity) {
+public func DeathmatchScoreboardMessage(_ ent: Entity) {
     var entry = CharBuf(1024)
     var string = CharBuf(1400)
     var stringlength: Int32
@@ -117,7 +117,7 @@ Request current scoreboard information
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:98
-func Cmd_Score_f(_ ent: Entity) {
+public func Cmd_Score_f(_ ent: Entity) {
     DeathmatchScoreboardMessage(ent)
 }
 
@@ -129,7 +129,7 @@ CheatsOk
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:109
-func CheatsOk(_ ent: Entity) -> Bool {
+public func CheatsOk(_ ent: Entity) -> Bool {
     if g_cheats.integer == 0 {
         trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCHEATS")))
         return false
@@ -149,7 +149,7 @@ ConcatArgs
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:127
-func ConcatArgs(_ start: Int32) -> String {
+public func ConcatArgs(_ start: Int32) -> String {
     var i: Int32
     let c: Int32
     var tlen: Int32
@@ -189,7 +189,7 @@ Remove case and control characters
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:161
-func SanitizeString(_ `in`: inout JKAShared.CharBuf, _ out: inout JKAShared.CharBuf) {
+public func SanitizeString(_ `in`: inout JKAShared.CharBuf, _ out: inout JKAShared.CharBuf) {
     var inIndex: Int32 = 0
     var outIndex: Int32 = 0
 
@@ -221,7 +221,7 @@ Returns -1 if invalid
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:185
-func ClientNumberFromString(_ to: Entity, _ s: inout JKAShared.CharBuf) -> Int32 {
+public func ClientNumberFromString(_ to: Entity, _ s: inout JKAShared.CharBuf) -> Int32 {
     var clIndex: Int32
     var idnum: Int32
     var s2 = CharBuf(1024)
@@ -275,7 +275,7 @@ Give items to a client
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:230
-func Cmd_Give_f(_ cmdent: Entity, _ baseArg: Int32) {
+public func Cmd_Give_f(_ cmdent: Entity, _ baseArg: Int32) {
     var name = CharBuf(1024)
     var ent: Entity?
     var it: Gitem?
@@ -450,7 +450,7 @@ argv(0) god
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:403
-func Cmd_God_f(_ ent: Entity) {
+public func Cmd_God_f(_ ent: Entity) {
     let msg: String
 
     if !CheatsOk(ent) {
@@ -479,7 +479,7 @@ argv(0) notarget
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:430
-func Cmd_Notarget_f(_ ent: Entity) {
+public func Cmd_Notarget_f(_ ent: Entity) {
     let msg: String
 
     if !CheatsOk(ent) {
@@ -506,7 +506,7 @@ argv(0) noclip
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:454
-func Cmd_Noclip_f(_ ent: Entity) {
+public func Cmd_Noclip_f(_ ent: Entity) {
     let msg: String
 
     if !CheatsOk(ent) {
@@ -536,7 +536,7 @@ hide the scoreboard, and take a special screenshot
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:482
-func Cmd_LevelShot_f(_ ent: Entity) {
+public func Cmd_LevelShot_f(_ ent: Entity) {
     if !CheatsOk(ent) {
         return
     }
@@ -561,7 +561,7 @@ From TA.
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:506
-func Cmd_TeamTask_f(_ ent: Entity) {
+public func Cmd_TeamTask_f(_ ent: Entity) {
     var userinfo = CharBuf(1024)
     var arg = CharBuf(1024)
     let task: Int32
@@ -580,7 +580,7 @@ func Cmd_TeamTask_f(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:527
-func G_CheckTKAutoKickBan(_ ent: Entity) {
+public func G_CheckTKAutoKickBan(_ ent: Entity) {
     if ent.client == nil || ent.s.number >= MAX_CLIENTS {
         return
     }
@@ -619,7 +619,7 @@ func G_CheckTKAutoKickBan(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:583
-func Cmd_Kill_f(_ ent: Entity) {
+public func Cmd_Kill_f(_ ent: Entity) {
     if ent.client!.sess.sessionTeam == TEAM_SPECTATOR {
         return
     }
@@ -672,7 +672,7 @@ func Cmd_Kill_f(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:645
-func G_GetDuelWinner(_ client: Client) -> Entity? {
+public func G_GetDuelWinner(_ client: Client) -> Entity? {
     var wCl: Client?
     var i: Int32
 
@@ -699,7 +699,7 @@ Let everyone know about a team change
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:670
-func BroadcastTeamChange(_ client: Client, _ oldTeam: Int32) {
+public func BroadcastTeamChange(_ client: Client, _ oldTeam: Int32) {
     client.ps.fd.forceDoInit = 1 //every time we change teams make sure our force powers are set right
 
     if g_gametype.integer == GT_SIEGE {
@@ -739,7 +739,7 @@ func BroadcastTeamChange(_ client: Client, _ oldTeam: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:720
-func G_PowerDuelCheckFail(_ ent: Entity) -> Bool {
+public func G_PowerDuelCheckFail(_ ent: Entity) -> Bool {
     var loners: Int32 = 0
     var doubles: Int32 = 0
 
@@ -761,7 +761,7 @@ func G_PowerDuelCheckFail(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:752
-func SetTeam(_ ent: Entity, _ s: String) {
+public func SetTeam(_ ent: Entity, _ s: String) {
     var team: Int32
     let oldTeam: Int32
     var client: Client?
@@ -1025,7 +1025,7 @@ to free floating spectator mode
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1032
-func StopFollowing(_ ent: Entity) {
+public func StopFollowing(_ ent: Entity) {
     ent.client!.ps.persistant[PERS_TEAM] = TEAM_SPECTATOR
     ent.client!.sess.sessionTeam = TEAM_SPECTATOR
     ent.client!.sess.spectatorState = SPECTATOR_FREE
@@ -1054,7 +1054,7 @@ Cmd_Team_f
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1058
-func Cmd_Team_f(_ ent: Entity) {
+public func Cmd_Team_f(_ ent: Entity) {
     let oldTeam: Int32
     var s = CharBuf(1024)
 
@@ -1119,7 +1119,7 @@ Cmd_DuelTeam_f
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1119
-func Cmd_DuelTeam_f(_ ent: Entity) {
+public func Cmd_DuelTeam_f(_ ent: Entity) {
     var oldTeam: Int32
     var s = CharBuf(1024)
 
@@ -1199,7 +1199,7 @@ func Cmd_DuelTeam_f(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:1206
-func G_TeamForSiegeClass(_ clName: String) -> Int32 {
+public func G_TeamForSiegeClass(_ clName: String) -> Int32 {
     var i: Int32 = 0
     var team: Int32 = SIEGETEAM_TEAM1
     var stm: SiegeTeam? = BG_SiegeFindThemeForTeam(team)
@@ -1240,7 +1240,7 @@ Cmd_SiegeClass_f
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1251
-func Cmd_SiegeClass_f(_ ent: Entity) {
+public func Cmd_SiegeClass_f(_ ent: Entity) {
     var className = CharBuf(64)
     var team: Int32 = 0
     let preScore: Int32
@@ -1336,7 +1336,7 @@ Cmd_ForceChanged_f
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1355
-func Cmd_ForceChanged_f(_ ent: Entity) {
+public func Cmd_ForceChanged_f(_ ent: Entity) {
     var fpChStr = CharBuf(1024)
     let buf: String
     //	Cmd_Kill_f(ent);
@@ -1375,7 +1375,7 @@ func Cmd_ForceChanged_f(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:1396
-func G_SetSaber(_ ent: Entity, _ saberNum: Int32, _ saberName: String, _ siegeOverride: Bool) -> Bool {
+public func G_SetSaber(_ ent: Entity, _ saberNum: Int32, _ saberName: String, _ siegeOverride: Bool) -> Bool {
     let saberName = CharBuf(saberName)
     var truncSaberName = CharBuf(64)
     var i: Int32 = 0
@@ -1430,7 +1430,7 @@ Cmd_Follow_f
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1462
-func Cmd_Follow_f(_ ent: Entity) {
+public func Cmd_Follow_f(_ ent: Entity) {
     let i: Int32
     var arg = CharBuf(1024)
 
@@ -1480,7 +1480,7 @@ Cmd_FollowCycle_f
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1510
-func Cmd_FollowCycle_f(_ ent: Entity, _ dir: Int32) {
+public func Cmd_FollowCycle_f(_ ent: Entity, _ dir: Int32) {
     var clientnum: Int32
     let original: Int32
 
@@ -1566,7 +1566,7 @@ private func G_SayTo(_ ent: Entity, _ other: Entity, _ mode: Int32, _ color: Int
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:1618
-func G_Say(_ ent: Entity, _ target: Entity?, _ mode: Int32, _ chatText: String) {
+public func G_Say(_ ent: Entity, _ target: Entity?, _ mode: Int32, _ chatText: String) {
     var j: Int32
     var other: Entity?
     var color: Int32
@@ -1748,7 +1748,7 @@ private func Cmd_VoiceCommand_f(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:1822
-func Cmd_GameCommand_f(_ ent: Entity) {
+public func Cmd_GameCommand_f(_ ent: Entity) {
     let player: Int32
     let order: Int32
     var str = CharBuf(1024)
@@ -1777,7 +1777,7 @@ Cmd_Where_f
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1847
-func Cmd_Where_f(_ ent: Entity) {
+public func Cmd_Where_f(_ ent: Entity) {
     trap_SendServerCommand(ent.s.number, va("print \"%s\n\"", vtos(ent.s.origin)))
 }
 
@@ -1791,7 +1791,7 @@ Finds the client number of the client with the given name
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1871
-func G_ClientNumberFromName(_ name: String) -> Int32 {
+public func G_ClientNumberFromName(_ name: String) -> Int32 {
     var s2 = CharBuf(1024)
     var n2 = CharBuf(1024)
     var i: Int32
@@ -1824,7 +1824,7 @@ Rich's revised version of SanitizeString
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1899
-func SanitizeString2(_ `in`: String, _ out: inout JKAShared.CharBuf) {
+public func SanitizeString2(_ `in`: String, _ out: inout JKAShared.CharBuf) {
     let `in` = CharBuf(`in`)
     var i: Int32 = 0
     var r: Int32 = 0
@@ -1869,7 +1869,7 @@ Same as above, but strips special characters out of the names before comparing.
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:1946
-func G_ClientNumberFromStrippedName(_ name: String) -> Int32 {
+public func G_ClientNumberFromStrippedName(_ name: String) -> Int32 {
     var s2 = CharBuf(1024)
     var n2 = CharBuf(1024)
     var i: Int32
@@ -1892,7 +1892,7 @@ func G_ClientNumberFromStrippedName(_ name: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:1974
-func Cmd_CallVote_f(_ ent: Entity) {
+public func Cmd_CallVote_f(_ ent: Entity) {
     var i: Int32
     var arg1 = CharBuf(1024)
     var arg2 = CharBuf(1024)
@@ -2066,7 +2066,7 @@ Cmd_Vote_f
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:2163
-func Cmd_Vote_f(_ ent: Entity) {
+public func Cmd_Vote_f(_ ent: Entity) {
     var msg = CharBuf(64)
 
     if level.voteTime == 0 {
@@ -2110,7 +2110,7 @@ Cmd_CallTeamVote_f
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:2206
-func Cmd_CallTeamVote_f(_ ent: Entity) {
+public func Cmd_CallTeamVote_f(_ ent: Entity) {
     var i: Int32
     var targetClientNum: Int32 = ENTITYNUM_NONE
     let team: Int32
@@ -2298,7 +2298,7 @@ Cmd_TeamVote_f
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:2370
-func Cmd_TeamVote_f(_ ent: Entity) {
+public func Cmd_TeamVote_f(_ ent: Entity) {
     let team: Int32
     var cs_offset: Int32
     var msg = CharBuf(64)
@@ -2351,7 +2351,7 @@ Cmd_SetViewpos_f
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:2419
-func Cmd_SetViewpos_f(_ ent: Entity) {
+public func Cmd_SetViewpos_f(_ ent: Entity) {
     var origin = vec3_t()
     var angles = vec3_t()
     var buffer = CharBuf(1024)
@@ -2388,7 +2388,7 @@ Cmd_Stats_f
 ```
 */
 /// Source: oracle/codemp/game/g_cmds.c:2452
-func Cmd_Stats_f(_ ent: Entity) {
+public func Cmd_Stats_f(_ ent: Entity) {
     /*
     int max, n, i;
 
@@ -2406,7 +2406,7 @@ func Cmd_Stats_f(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:2469
-func G_ItemUsable(_ ps: JKAMP.PlayerState, _ forcedUse: Int32) -> Int32 {
+public func G_ItemUsable(_ ps: JKAMP.PlayerState, _ forcedUse: Int32) -> Int32 {
     var fwd = vec3_t()
     var fwdorg = vec3_t()
     var dest = vec3_t()
@@ -2542,7 +2542,7 @@ func G_ItemUsable(_ ps: JKAMP.PlayerState, _ forcedUse: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:2595
-func Cmd_ToggleSaber_f(_ ent: Entity) {
+public func Cmd_ToggleSaber_f(_ ent: Entity) {
     if ent.client!.ps.fd.forceGripCripple != 0 {
         //if they are being gripped, don't let them unholster their saber
         if ent.client!.ps.saberHolstered != 0 {
@@ -2604,7 +2604,7 @@ func Cmd_ToggleSaber_f(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:2675
-func Cmd_SaberAttackCycle_f(_ ent: Entity) {
+public func Cmd_SaberAttackCycle_f(_ ent: Entity) {
     var selectLevel: Int32 = 0
     var usingSiegeStyle: Bool = false
 
@@ -2776,7 +2776,7 @@ func Cmd_SaberAttackCycle_f(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:2875
-func G_OtherPlayersDueling() -> Bool {
+public func G_OtherPlayersDueling() -> Bool {
     var i: Int32 = 0
     var ent: Entity?
 
@@ -2793,7 +2793,7 @@ func G_OtherPlayersDueling() -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:2894
-func Cmd_EngageDuel_f(_ ent: Entity) {
+public func Cmd_EngageDuel_f(_ ent: Entity) {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = Trace.scratch { tr -> Bool in
@@ -2930,7 +2930,7 @@ func Cmd_EngageDuel_f(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:3047
-func Cmd_DebugSetSaberMove_f(_ `self`: Entity) {
+public func Cmd_DebugSetSaberMove_f(_ `self`: Entity) {
     let argNum: Int32 = trap_Argc()
     var arg = CharBuf(1024)
 
@@ -2955,7 +2955,7 @@ func Cmd_DebugSetSaberMove_f(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:3075
-func Cmd_DebugSetBodyAnim_f(_ `self`: Entity, _ flags: Int32) {
+public func Cmd_DebugSetBodyAnim_f(_ `self`: Entity, _ flags: Int32) {
     let argNum: Int32 = trap_Argc()
     var arg = CharBuf(1024)
     var i: Int32 = 0
@@ -2988,7 +2988,7 @@ func Cmd_DebugSetBodyAnim_f(_ `self`: Entity, _ flags: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:3114
-func StandardSetBodyAnim(_ `self`: Entity, _ anim: Int32, _ flags: Int32) {
+public func StandardSetBodyAnim(_ `self`: Entity, _ anim: Int32, _ flags: Int32) {
     G_SetAnim(`self`, nil, SETANIM_BOTH, anim, flags, 0)
 }
 
@@ -3010,7 +3010,7 @@ private func G_ClientNumFromNetname(_ name: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_cmds.c:3148
-func TryGrapple(_ ent: Entity) -> Bool {
+public func TryGrapple(_ ent: Entity) -> Bool {
     if ent.client!.ps.weaponTime > 0 {
         //weapon busy
         return false

@@ -201,7 +201,7 @@ public func crandom() -> Double {
 // Not ported: the VM's, which computes in float, and the DLL build links the C library's `atof`, which `JKAShared` holds.
 
 /// Source: oracle/codemp/game/bg_lib.c:841
-func _atof(_ stringPtr: inout JKAShared.TextCursor) -> Double {
+public func _atof(_ stringPtr: inout JKAShared.TextCursor) -> Double {
     var string: TextCursor
     var sign: Float
     var value: Float

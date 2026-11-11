@@ -5,7 +5,7 @@
 
 #include "CJKAMP_CGame_forward.h"
 #include "codemp/game/q_shared/qboolean.h"
-#include "codemp/ui/ui_shared/constants.h"
+#include "constants.h"
 
 // Source: oracle/codemp/ui/ui_shared.h:200
 typedef struct multiDef_s {

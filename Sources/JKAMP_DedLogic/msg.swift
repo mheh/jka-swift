@@ -18,26 +18,26 @@ var msgInit: Bool {
 // No table row for `FILE *`.
 
 /// Source: oracle/codemp/qcommon/msg.cpp:34
-var gLastBitIndex: Int32 {
+public var gLastBitIndex: Int32 {
     get { world.variables.gLastBitIndex }
     set { world.variables.gLastBitIndex = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:37
 // Port-note: Raven's `int` counter only grows, so each `oldsize +=` can overflow, which C leaves undefined. The port wraps at 32 bits.
-var oldsize: Int32 {
+public var oldsize: Int32 {
     get { world.variables.oldsize }
     set { world.variables.oldsize = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:40
-var g_nOverrideChecked: Bool {
+public var g_nOverrideChecked: Bool {
     get { world.variables.g_nOverrideChecked }
     set { world.variables.g_nOverrideChecked = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:126
-var overflows: Int32 {
+public var overflows: Int32 {
     get { world.variables.overflows }
     set { world.variables.overflows = newValue }
 }
@@ -408,7 +408,7 @@ var string_MSG_ReadStringLine: CharBuf {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:46
-func MSG_Init(_ buf: Msg, _ data: Slots<JKAShared.byte>, _ length: Int32) {
+public func MSG_Init(_ buf: Msg, _ data: Slots<JKAShared.byte>, _ length: Int32) {
     if !g_nOverrideChecked {
         //Check for netf overrides
         MSG_CheckNETFPSFOverrides(false)
@@ -429,7 +429,7 @@ func MSG_Init(_ buf: Msg, _ data: Slots<JKAShared.byte>, _ length: Int32) {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:70
-func MSG_InitOOB(_ buf: Msg, _ data: Slots<JKAShared.byte>, _ length: Int32) {
+public func MSG_InitOOB(_ buf: Msg, _ data: Slots<JKAShared.byte>, _ length: Int32) {
     if !g_nOverrideChecked {
         //Check for netf overrides
         MSG_CheckNETFPSFOverrides(false)
@@ -450,26 +450,26 @@ func MSG_InitOOB(_ buf: Msg, _ data: Slots<JKAShared.byte>, _ length: Int32) {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:94
-func MSG_Clear(_ buf: Msg) {
+public func MSG_Clear(_ buf: Msg) {
     buf.cursize = 0
     buf.overflowed = false
     buf.bit = 0					//<- in bits
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:101
-func MSG_Bitstream(_ buf: Msg) {
+public func MSG_Bitstream(_ buf: Msg) {
     buf.oob = false
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:105
-func MSG_BeginReading(_ msg: Msg) {
+public func MSG_BeginReading(_ msg: Msg) {
     msg.readcount = 0
     msg.bit = 0
     msg.oob = false
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:111
-func MSG_BeginReadingOOB(_ msg: Msg) {
+public func MSG_BeginReadingOOB(_ msg: Msg) {
     msg.readcount = 0
     msg.bit = 0
     msg.oob = true
@@ -477,7 +477,7 @@ func MSG_BeginReadingOOB(_ msg: Msg) {
 
 // negative bit values include signs
 /// Source: oracle/codemp/qcommon/msg.cpp:129
-func MSG_WriteBits(_ msg: Msg, _ value: Int32, _ bits: Int32) {
+public func MSG_WriteBits(_ msg: Msg, _ value: Int32, _ bits: Int32) {
     var value = value
     var bits = bits
     var i: Int32
@@ -561,7 +561,7 @@ func MSG_WriteBits(_ msg: Msg, _ value: Int32, _ bits: Int32) {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:211
-func MSG_ReadBits(_ msg: Msg, _ bits: Int32) -> Int32 {
+public func MSG_ReadBits(_ msg: Msg, _ bits: Int32) -> Int32 {
     var bits = bits
     var value: Int32
     var get: Int32 = 0
@@ -625,17 +625,17 @@ func MSG_ReadBits(_ msg: Msg, _ bits: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:280
-func MSG_WriteChar(_ sb: Msg, _ c: Int32) {
+public func MSG_WriteChar(_ sb: Msg, _ c: Int32) {
     MSG_WriteBits(sb, c, 8)
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:289
-func MSG_WriteByte(_ sb: Msg, _ c: Int32) {
+public func MSG_WriteByte(_ sb: Msg, _ c: Int32) {
     MSG_WriteBits(sb, c, 8)
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:298
-func MSG_WriteData(_ buf: Msg, _ data: Slots<JKAShared.byte>, _ length: Int32) {
+public func MSG_WriteData(_ buf: Msg, _ data: Slots<JKAShared.byte>, _ length: Int32) {
     var i: Int32
     // AI: Raven casts `void *data` to a byte pointer. The parameter is a Slots of bytes, and the byte subscript reads it at the index.
     i = 0
@@ -648,7 +648,7 @@ func MSG_WriteData(_ buf: Msg, _ data: Slots<JKAShared.byte>, _ length: Int32) {
 /// Source: oracle/codemp/qcommon/msg.cpp:298
 // Port-note: The overload of the MSG_WriteData row, for the text and the char buffers Raven hands to `const void *data`, msg.cpp:330 to :358.
 // AI: Raven casts every caller's `char *` to `const void *`. A CharBuf overload takes the text, and the string literals type to it.
-func MSG_WriteData(_ buf: Msg, _ data: CharBuf, _ length: Int32) {
+public func MSG_WriteData(_ buf: Msg, _ data: CharBuf, _ length: Int32) {
     var i: Int32 = 0
     while i < length {
         // Raven reads `((byte *)data)[i]`, unsigned, so a byte of 0x80 or more does not count as an overflow at msg.cpp:147.
@@ -658,23 +658,23 @@ func MSG_WriteData(_ buf: Msg, _ data: CharBuf, _ length: Int32) {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:305
-func MSG_WriteShort(_ sb: Msg, _ c: Int32) {
+public func MSG_WriteShort(_ sb: Msg, _ c: Int32) {
     MSG_WriteBits(sb, c, 16)
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:314
-func MSG_WriteLong(_ sb: Msg, _ c: Int32) {
+public func MSG_WriteLong(_ sb: Msg, _ c: Int32) {
     MSG_WriteBits(sb, c, 32)
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:318
-func MSG_WriteFloat(_ sb: Msg, _ f: Float) {
+public func MSG_WriteFloat(_ sb: Msg, _ f: Float) {
     // Raven's union `dat` reads the float's bits as an int, and the bit pattern is that read.
     MSG_WriteBits(sb, Int32(bitPattern: f.bitPattern), 32)
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:328
-func MSG_WriteString(_ sb: Msg, _ s: String) {
+public func MSG_WriteString(_ sb: Msg, _ s: String) {
     // Raven also tests `s` for NULL here. A String is never NULL, so that arm has no Swift form.
     var l: Int32
     var string = CharBuf(MAX_STRING_CHARS)
@@ -700,7 +700,7 @@ func MSG_WriteString(_ sb: Msg, _ s: String) {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:356
-func MSG_WriteBigString(_ sb: Msg, _ s: String) {
+public func MSG_WriteBigString(_ sb: Msg, _ s: String) {
     // Raven also tests `s` for NULL here. A String is never NULL, so that arm has no Swift form.
     var l: Int32
     var string = CharBuf(BIG_INFO_STRING)
@@ -727,18 +727,18 @@ func MSG_WriteBigString(_ sb: Msg, _ s: String) {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:385
-func MSG_WriteAngle(_ sb: Msg, _ f: Float) {
+public func MSG_WriteAngle(_ sb: Msg, _ f: Float) {
     MSG_WriteByte(sb, Int32(f * 256 / 360) & 255)
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:389
-func MSG_WriteAngle16(_ sb: Msg, _ f: Float) {
+public func MSG_WriteAngle16(_ sb: Msg, _ f: Float) {
     MSG_WriteShort(sb, ANGLE2SHORT(f))
 }
 
 // returns -1 if no more characters are available
 /// Source: oracle/codemp/qcommon/msg.cpp:401
-func MSG_ReadChar(_ msg: Msg) -> Int32 {
+public func MSG_ReadChar(_ msg: Msg) -> Int32 {
     var c: Int32
 
     c = Int32(Int8(truncatingIfNeeded: MSG_ReadBits(msg, 8)))
@@ -750,7 +750,7 @@ func MSG_ReadChar(_ msg: Msg) -> Int32 {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:412
-func MSG_ReadByte(_ msg: Msg) -> Int32 {
+public func MSG_ReadByte(_ msg: Msg) -> Int32 {
     var c: Int32
 
     c = Int32(UInt8(truncatingIfNeeded: MSG_ReadBits(msg, 8)))
@@ -762,7 +762,7 @@ func MSG_ReadByte(_ msg: Msg) -> Int32 {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:422
-func MSG_ReadShort(_ msg: Msg) -> Int32 {
+public func MSG_ReadShort(_ msg: Msg) -> Int32 {
     var c: Int32
 
     c = Int32(Int16(truncatingIfNeeded: MSG_ReadBits(msg, 16)))
@@ -774,7 +774,7 @@ func MSG_ReadShort(_ msg: Msg) -> Int32 {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:433
-func MSG_ReadLong(_ msg: Msg) -> Int32 {
+public func MSG_ReadLong(_ msg: Msg) -> Int32 {
     var c: Int32
 
     c = MSG_ReadBits(msg, 32)
@@ -786,7 +786,7 @@ func MSG_ReadLong(_ msg: Msg) -> Int32 {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:444
-func MSG_ReadFloat(_ msg: Msg) -> Float {
+public func MSG_ReadFloat(_ msg: Msg) -> Float {
     // Raven's union `dat` reads the int's bits as a float, and the bit pattern is that read.
     var dat: Float
 
@@ -799,7 +799,7 @@ func MSG_ReadFloat(_ msg: Msg) -> Float {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:459
-func MSG_ReadString(_ msg: Msg) -> String {
+public func MSG_ReadString(_ msg: Msg) -> String {
     // Raven's static local `string` is `string_MSG_ReadString`, because three functions of the file share the name.
     var l: Int32
     var c: Int32
@@ -836,7 +836,7 @@ func MSG_ReadString(_ msg: Msg) -> String {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:497
-func MSG_ReadBigString(_ msg: Msg) -> String {
+public func MSG_ReadBigString(_ msg: Msg) -> String {
     // Raven's static local `string` is `string_MSG_ReadBigString`, because three functions of the file share the name.
     var l: Int32
     var c: Int32
@@ -862,7 +862,7 @@ func MSG_ReadBigString(_ msg: Msg) -> String {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:521
-func MSG_ReadStringLine(_ msg: Msg) -> String {
+public func MSG_ReadStringLine(_ msg: Msg) -> String {
     // Raven's static local `string` is `string_MSG_ReadStringLine`, because three functions of the file share the name.
     var l: Int32
     var c: Int32
@@ -887,12 +887,12 @@ func MSG_ReadStringLine(_ msg: Msg) -> String {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:544
-func MSG_ReadAngle16(_ msg: Msg) -> Float {
+public func MSG_ReadAngle16(_ msg: Msg) -> Float {
     return SHORT2ANGLE(MSG_ReadShort(msg))
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:548
-func MSG_ReadData(_ msg: Msg, _ data: Slots<JKAShared.byte>, _ len: Int32) {
+public func MSG_ReadData(_ msg: Msg, _ data: Slots<JKAShared.byte>, _ len: Int32) {
     var i: Int32
 
     // AI: Raven casts `void *data` to a byte pointer. The parameter is a Slots of bytes, and the byte subscript writes it at the index.
@@ -904,7 +904,7 @@ func MSG_ReadData(_ msg: Msg, _ data: Slots<JKAShared.byte>, _ len: Int32) {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:567
-func MSG_WriteDelta(_ msg: Msg, _ oldV: Int32, _ newV: Int32, _ bits: Int32) {
+public func MSG_WriteDelta(_ msg: Msg, _ oldV: Int32, _ newV: Int32, _ bits: Int32) {
     if oldV == newV {
         MSG_WriteBits(msg, 0, 1)
         return
@@ -914,7 +914,7 @@ func MSG_WriteDelta(_ msg: Msg, _ oldV: Int32, _ newV: Int32, _ bits: Int32) {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:576
-func MSG_ReadDelta(_ msg: Msg, _ oldV: Int32, _ bits: Int32) -> Int32 {
+public func MSG_ReadDelta(_ msg: Msg, _ oldV: Int32, _ bits: Int32) -> Int32 {
     if MSG_ReadBits(msg, 1) != 0 {
         return MSG_ReadBits(msg, bits)
     }
@@ -922,7 +922,7 @@ func MSG_ReadDelta(_ msg: Msg, _ oldV: Int32, _ bits: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:583
-func MSG_WriteDeltaFloat(_ msg: Msg, _ oldV: Float, _ newV: Float) {
+public func MSG_WriteDeltaFloat(_ msg: Msg, _ oldV: Float, _ newV: Float) {
     if oldV == newV {
         MSG_WriteBits(msg, 0, 1)
         return
@@ -932,7 +932,7 @@ func MSG_WriteDeltaFloat(_ msg: Msg, _ oldV: Float, _ newV: Float) {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:592
-func MSG_ReadDeltaFloat(_ msg: Msg, _ oldV: Float) -> Float {
+public func MSG_ReadDeltaFloat(_ msg: Msg, _ oldV: Float) -> Float {
     if MSG_ReadBits(msg, 1) != 0 {
         let newV: Float
 
@@ -943,7 +943,7 @@ func MSG_ReadDeltaFloat(_ msg: Msg, _ oldV: Float) -> Float {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:621
-func MSG_WriteDeltaKey(_ msg: Msg, _ key: Int32, _ oldV: Int32, _ newV: Int32, _ bits: Int32) {
+public func MSG_WriteDeltaKey(_ msg: Msg, _ key: Int32, _ oldV: Int32, _ newV: Int32, _ bits: Int32) {
     if oldV == newV {
         MSG_WriteBits(msg, 0, 1)
         return
@@ -953,7 +953,7 @@ func MSG_WriteDeltaKey(_ msg: Msg, _ key: Int32, _ oldV: Int32, _ newV: Int32, _
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:632
-func MSG_ReadDeltaKey(_ msg: Msg, _ key: Int32, _ oldV: Int32, _ bits: Int32) -> Int32 {
+public func MSG_ReadDeltaKey(_ msg: Msg, _ key: Int32, _ oldV: Int32, _ bits: Int32) -> Int32 {
     if MSG_ReadBits(msg, 1) != 0 {
         return MSG_ReadBits(msg, bits) ^ (key & kbitmask[bits])
     }
@@ -961,7 +961,7 @@ func MSG_ReadDeltaKey(_ msg: Msg, _ key: Int32, _ oldV: Int32, _ bits: Int32) ->
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:639
-func MSG_WriteDeltaKeyFloat(_ msg: Msg, _ key: Int32, _ oldV: Float, _ newV: Float) {
+public func MSG_WriteDeltaKeyFloat(_ msg: Msg, _ key: Int32, _ oldV: Float, _ newV: Float) {
     if oldV == newV {
         MSG_WriteBits(msg, 0, 1)
         return
@@ -971,7 +971,7 @@ func MSG_WriteDeltaKeyFloat(_ msg: Msg, _ key: Int32, _ oldV: Float, _ newV: Flo
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:648
-func MSG_ReadDeltaKeyFloat(_ msg: Msg, _ key: Int32, _ oldV: Float) -> Float {
+public func MSG_ReadDeltaKeyFloat(_ msg: Msg, _ key: Int32, _ oldV: Float) -> Float {
     if MSG_ReadBits(msg, 1) != 0 {
         let newV: Float
 
@@ -989,7 +989,7 @@ MSG_WriteDeltaUsercmd
 ```
 */
 /// Source: oracle/codemp/qcommon/msg.cpp:685
-func MSG_WriteDeltaUsercmd(_ msg: Msg, _ from: JKAMP.Usercmd, _ to: JKAMP.Usercmd) {
+public func MSG_WriteDeltaUsercmd(_ msg: Msg, _ from: JKAMP.Usercmd, _ to: JKAMP.Usercmd) {
     if to.serverTime - from.serverTime < 256 {
         MSG_WriteBits(msg, 1, 1)
         MSG_WriteBits(msg, to.serverTime - from.serverTime, 8)
@@ -1020,7 +1020,7 @@ MSG_ReadDeltaUsercmd
 ```
 */
 /// Source: oracle/codemp/qcommon/msg.cpp:714
-func MSG_ReadDeltaUsercmd(_ msg: Msg, _ from: JKAMP.Usercmd, _ to: JKAMP.Usercmd) {
+public func MSG_ReadDeltaUsercmd(_ msg: Msg, _ from: JKAMP.Usercmd, _ to: JKAMP.Usercmd) {
     if MSG_ReadBits(msg, 1) != 0 {
         // Port-note: Raven's `int` sum overflows, which C leaves undefined. The port wraps at 32 bits.
         to.serverTime = from.serverTime &+ MSG_ReadBits(msg, 8)
@@ -1050,7 +1050,7 @@ MSG_WriteDeltaUsercmd
 ```
 */
 /// Source: oracle/codemp/qcommon/msg.cpp:740
-func MSG_WriteDeltaUsercmdKey(_ msg: Msg, _ key: Int32, _ from: JKAMP.Usercmd, _ to: JKAMP.Usercmd) {
+public func MSG_WriteDeltaUsercmdKey(_ msg: Msg, _ key: Int32, _ from: JKAMP.Usercmd, _ to: JKAMP.Usercmd) {
     var key = key
     if to.serverTime - from.serverTime < 256 {
         MSG_WriteBits(msg, 1, 1)
@@ -1099,7 +1099,7 @@ MSG_ReadDeltaUsercmd
 ```
 */
 /// Source: oracle/codemp/qcommon/msg.cpp:786
-func MSG_ReadDeltaUsercmdKey(_ msg: Msg, _ key: Int32, _ from: JKAMP.Usercmd, _ to: JKAMP.Usercmd) {
+public func MSG_ReadDeltaUsercmdKey(_ msg: Msg, _ key: Int32, _ from: JKAMP.Usercmd, _ to: JKAMP.Usercmd) {
     var key = key
     if MSG_ReadBits(msg, 1) != 0 {
         // Port-note: Raven's `int` sum overflows, which C leaves undefined. The port wraps at 32 bits.
@@ -1153,7 +1153,7 @@ identical, under the assumption that the in-order delta code will catch it.
 ```
 */
 /// Source: oracle/codemp/qcommon/msg.cpp:1069
-func MSG_WriteDeltaEntity(_ msg: Msg, _ from: JKAMP.EntityState, _ to: JKAMP.EntityState?, _ force: Bool) {
+public func MSG_WriteDeltaEntity(_ msg: Msg, _ from: JKAMP.EntityState, _ to: JKAMP.EntityState?, _ force: Bool) {
     var i: Int32
     var lc: Int32
     var numFields: Int32
@@ -1268,7 +1268,7 @@ func MSG_WriteDeltaEntity(_ msg: Msg, _ from: JKAMP.EntityState, _ to: JKAMP.Ent
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:1228
-func MSG_ReadDeltaEntity(_ msg: Msg, _ from: JKAMP.EntityState, _ to: JKAMP.EntityState, _ number: Int32) {
+public func MSG_ReadDeltaEntity(_ msg: Msg, _ from: JKAMP.EntityState, _ to: JKAMP.EntityState, _ number: Int32) {
     var i: Int32
     var lc: Int32
     var numFields: Int32
@@ -1386,7 +1386,7 @@ func MSG_ReadDeltaEntity(_ msg: Msg, _ from: JKAMP.EntityState, _ to: JKAMP.Enti
 
 //rww - Check the overrides files to see if the mod wants anything changed
 /// Source: oracle/codemp/qcommon/msg.cpp:2006
-func MSG_CheckNETFPSFOverrides(_ psfOverrides: Bool) {
+public func MSG_CheckNETFPSFOverrides(_ psfOverrides: Bool) {
     var fileName: String
     var numFields: Int32
 
@@ -1572,7 +1572,7 @@ func MSG_CheckNETFPSFOverrides(_ psfOverrides: Bool) {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:2213
-func MSG_WriteDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState?, _ to: JKAMP.PlayerState, _ isVehiclePS: Bool = false) {
+public func MSG_WriteDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState?, _ to: JKAMP.PlayerState, _ isVehiclePS: Bool = false) {
     var from = from
 
     PlayerState.scratch { dummy in
@@ -1789,7 +1789,7 @@ MSG_ReadDeltaPlayerstate
 ```
 */
 /// Source: oracle/codemp/qcommon/msg.cpp:2455
-func MSG_ReadDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState?, _ to: JKAMP.PlayerState, _ isVehiclePS: Bool = false) {
+public func MSG_ReadDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState?, _ to: JKAMP.PlayerState, _ isVehiclePS: Bool = false) {
     var from = from
 
     PlayerState.scratch { dummy in
@@ -1966,7 +1966,7 @@ func MSG_ReadDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState?, _ to: JKAM
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:3219
-func MSG_initHuffman() {
+public func MSG_initHuffman() {
     var i: Int32
     var j: Int32
 
@@ -1985,7 +1985,7 @@ func MSG_initHuffman() {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:3274
-func MSG_shutdownHuffman() {
+public func MSG_shutdownHuffman() {
 }
 
 /**
@@ -1998,7 +1998,7 @@ Prints out a table from the current statistics for copying to code
 ```
 */
 /// Source: oracle/codemp/qcommon/msg.cpp:3291
-func MSG_ReportChangeVectors_f() {
+public func MSG_ReportChangeVectors_f() {
     var numFields: Int32
     var i: Int32
     var field: NetField
