@@ -705,7 +705,7 @@ class Statements:
                 return kept + [f"{pad}return" + self.trailing(cur)]
             if self.is_null(kids[0]) and self.fn.returns and self.fn.returns.endswith("?"):
                 return [f"{pad}return nil" + self.trailing(cur)]
-            if self.is_null(kids[0]) and self.fn.returns and not self.fn.returns.endswith("?") and self.fn.returns not in ("Int32", "Float", "Double", "Bool"):
+            if self.is_null(kids[0]) and self.fn.returns and not self.fn.returns.endswith("?") and self.fn.returns not in ("Int32", "Int", "Float", "Double", "Bool"):
                 if self.after_com_error:
                     return [f"{pad}// Raven writes `return 0` after this call, which `Com_Error` never reaches."]
                 raise Hole(f"Raven returns NULL, and the function returns a `{self.fn.returns}`.")
