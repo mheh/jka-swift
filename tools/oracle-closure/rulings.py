@@ -1651,6 +1651,10 @@ NOT_PORTED = {
     "GPV_GetList": "C3 makes the value list an Array, so the chain does not exist",
 }
 
+# Functions whose Swift signature differs from the signature the table gives, by a ledger row, function -> (unit, the ledger row).
+# sigcheck.py prints each one with its row, and it fails on a difference that the table does not name and on an entry that no longer differs.
+SIGNATURE_EXCEPTIONS: dict[str, tuple[str, str]] = {}
+
 # Game functions and globals the shell's `vmMain` names, which cross the module line, so each is public. Rule 11 and ruling E1.
 # The shell decodes the words of a command and calls the bare function, so the callee is public in its own logic file.
 PUBLIC_NAMES = {
