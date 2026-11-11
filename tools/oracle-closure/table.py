@@ -941,6 +941,21 @@ class Table:
             return None
         if cur.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
             base = self.unwrapped(list(cur.get_children())[0])
+            if base.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
+                # A write through an axis subscript, `transpose[i][j] = x` of g_mover.c:132, writes a row of the caller's axis.
+                # Only a parameter of an array of arrays counts, so a store through `argv[i][j]` of a `char **` keeps its form.
+                # Clang gives the reference the declared type, `vec3_t[3]`, and not the decayed pointer.
+                root = self.unwrapped(list(base.get_children())[0])
+                canonical = root.type.get_canonical()
+                if root.kind != CursorKind.DECL_REF_EXPR or root.referenced is None or root.referenced.kind != CursorKind.PARM_DECL:
+                    return None
+                if canonical.kind == TypeKind.POINTER:
+                    row = canonical.get_pointee()
+                elif canonical.kind in (TypeKind.CONSTANTARRAY, TypeKind.INCOMPLETEARRAY):
+                    row = canonical.element_type
+                else:
+                    return None
+                return root.spelling if row.get_canonical().kind == TypeKind.CONSTANTARRAY else None
             if base.kind == CursorKind.DECL_REF_EXPR and base.referenced is not None \
                     and base.referenced.kind == CursorKind.PARM_DECL:
                 return base.spelling
