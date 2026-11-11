@@ -220,9 +220,9 @@ func VM_CallInterpreted(_ vm: Vm, _ args: [Int32]?) -> Int32 {
         var r1: Int32
 //		unsigned int	r2;
 
+        // Port-note: Raven's `stack` is not initialized, so the first read of `r0` is indeterminate, and the port reads 0 from the filled array.
+        // Raven reads `r1` from the word before `stack` when opStack is at the free spot, memory outside the array, and the port reads 0 there.
         r0 = stack[opStack]
-        // Port-note: Raven reads the word before `stack` when opStack is at the free spot, memory outside the array.
-        // The port reads 0 there.
         r1 = opStack > 0 ? stack[opStack - 1] : 0
         nextInstruction2: while true {
             opcode = codeImage[programCounter]
@@ -272,7 +272,7 @@ func VM_CallInterpreted(_ vm: Vm, _ args: [Int32]?) -> Int32 {
             case OP_LOCAL:
                 opStack += 1
                 r1 = r0
-                stack[opStack] = codeImage[programCounter] + programStack
+                stack[opStack] = codeImage[programCounter] &+ programStack
                 r0 = stack[opStack]
 
                 programCounter += 4
@@ -329,8 +329,8 @@ func VM_CallInterpreted(_ vm: Vm, _ args: [Int32]?) -> Int32 {
                     // MrE: copy range check
                     srci = r0 & dataMask
                     desti = r1 & dataMask
-                    count = ((srci + count) & dataMask) - srci
-                    count = ((desti + count) & dataMask) - desti
+                    count = ((srci &+ count) & dataMask) &- srci
+                    count = ((desti &+ count) & dataMask) &- desti
 
                     src = r0 & dataMask
                     dest = r1 & dataMask
@@ -416,7 +416,7 @@ func VM_CallInterpreted(_ vm: Vm, _ args: [Int32]?) -> Int32 {
                 v1 = codeImage[programCounter]
 
                 programCounter += 4
-                programStack -= v1
+                programStack &-= v1
                 if com_vmdebug!.integer > 1 {
                     // save old stack frame for debugging traces
                     image[int: programStack + 4] = programStack + v1
@@ -436,7 +436,7 @@ func VM_CallInterpreted(_ vm: Vm, _ args: [Int32]?) -> Int32 {
                 // remove our stack frame
                 v1 = codeImage[programCounter]
 
-                programStack += v1
+                programStack &+= v1
 
                 // grab the saved program counter
                 programCounter = image[int: programStack]
