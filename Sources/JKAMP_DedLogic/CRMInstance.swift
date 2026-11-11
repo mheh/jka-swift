@@ -31,25 +31,25 @@ let AUTOMAP_WALL = 7 as Int32
 // AI: Raven declares a `list<CRMInstance*>`. The type is an Array, by rule 17, and a for-in loop takes the place of `rmInstanceIter_t`.
 typealias rmInstanceList_t = [CRMInstance]
 
+/// The subclass of Raven's instance, with the fields that the subclass adds.
+///
+/// - `bsp`: a `CRMBSPInstance`, a bsp model that the server spawns.
+/// - `group`: a `CRMGroupInstance`, a list of child instances that the group places around its origin.
+/// - `random`: a `CRMRandomInstance`, one child instance that the constructor picks from a weighted list.
+/// - `void`: a `CRMVoidInstance`, an area with no collision that spaces the other instances.
+enum CRMInstanceKind {
+    case bsp(CRMBSPInstance)
+    case group(CRMGroupInstance)
+    case random(CRMRandomInstance)
+    case void
+}
+
 /// Raven's instance of a random mission, a bsp, a group, a random choice, or a void that the mission places in an area of the landscape.
 /// `CRMInstanceFile.CreateInstance` makes one by the name of its group in the instance file.
 /// Source: oracle/codemp/RMG/RM_Instance.h:25
 // AI: Raven's CRMInstance is the base of a closed virtual hierarchy. The class holds the base fields, and `kind` holds the fields each subclass adds, rule 17.
 // AI: Raven's protected fields are internal, because the extension of each subclass file reads them.
 final class CRMInstance {
-    /// The subclass of Raven's instance, with the fields that the subclass adds.
-    ///
-    /// - `bsp`: a `CRMBSPInstance`, a bsp model that the server spawns.
-    /// - `group`: a `CRMGroupInstance`, a list of child instances that the group places around its origin.
-    /// - `random`: a `CRMRandomInstance`, one child instance that the constructor picks from a weighted list.
-    /// - `void`: a `CRMVoidInstance`, an area with no collision that spaces the other instances.
-    enum Kind {
-        case bsp(CRMBSPInstance)
-        case group(CRMGroupInstance)
-        case random(CRMRandomInstance)
-        case void
-    }
-
     var mFilter = CharBuf(MAX_QPATH)			// filter of entities inside of this
     var mTeamFilter = CharBuf(MAX_QPATH)		// team specific filter
 
@@ -81,7 +81,7 @@ final class CRMInstance {
 
     var mFlattenHeight: Int32 = 0	// height to flatten land
 
-    var kind: Kind
+    var kind: CRMInstanceKind
 
     /**
     ```
@@ -100,7 +100,7 @@ final class CRMInstance {
     */
     /// Source: oracle/codemp/RMG/RM_Instance.cpp:18
     // AI: Raven's constructor of each subclass runs this one first. The `kind` parameter is the subclass that the convenience initializer of its file makes.
-    init(_ instGroup: CGPGroup?, _ instFile: CRMInstanceFile, _ kind: Kind) {
+    init(_ instGroup: CGPGroup?, _ instFile: CRMInstanceFile, _ kind: CRMInstanceKind) {
         self.kind = kind
 
         self.mObjective = nil
