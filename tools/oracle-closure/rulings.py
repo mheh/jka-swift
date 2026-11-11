@@ -738,6 +738,9 @@ BYTE_STORAGE_LOCALS = {
     # CM_Checksum hands `unsigned checksums[16]` to the `const void *` of Com_BlockChecksum at cm_load.cpp:558, the `digest` row, row G6 of docket 13.
     ("info", "FractionBelowLevel"): ("FractionBelowLevel",),
     ("checksums", "CM_Checksum"): ("CM_Checksum",),
+    # CM_DrawDebugSurface hands its `vec3_t v[3]` of cm_patch.cpp:1772 to the `vec3_t *` of `drawPoly` at :1777 and :1782, the `hullPoints` rule.
+    # The second `v` of :1786 stands under `#if 0`, so one local has the name. Row R1 of batch 14.
+    ("v", "CM_DrawDebugSurface"): ("CM_DrawDebugSurface",),
     # GetRefAPI returns the address of its `static refexport_t re` at tr_init.cpp:1460 and :1530, the `nullSym` row, row G16 of docket 13.
     ("re", "GetRefAPI"): ("GetRefAPI",),
 }
@@ -1568,6 +1571,12 @@ PARAMS = {
     # the rows of Com_BlockChecksum and RE_RegisterModels_GetDiskFile, row G11.
     ("CRC_ContinueProcessString", "data"): "bytes",
     ("LoadTGA", "pic"): "bytes",
+    # G2_LoadGhoul2Model of G2_misc.cpp:1841 reads the save block of G2_SaveGhoul2Models at its 32-bit offsets, and G2_FreeSaveBuffer of :1812
+    # hands the block to Z_Free. The G2API wrappers of G2_API.cpp:2477 and :2482 pass it on. The ServerLoadMDXA row, row R3 of batch 14.
+    ("G2_LoadGhoul2Model", "buffer"): "bytes",
+    ("G2_FreeSaveBuffer", "buffer"): "bytes",
+    ("G2API_LoadGhoul2Models", "buffer"): "bytes",
+    ("G2API_FreeSaveBuffer", "buffer"): "bytes",
     # MC_Compress and MC_UnCompress of matcomp.c:50 and :163 read and write the `matrix` of an `mdxaBone_t`, the MC_UnCompressQuat row, row G13.
     ("MC_Compress", "mat"): ("view", "mdxaBone_t"),
     ("MC_UnCompress", "mat"): ("view", "mdxaBone_t"),
@@ -1589,10 +1598,8 @@ PARAMS = {
 # A row here names a stub that has no body yet.
 # The stub prints the reason as that note, and the draft keeps the stub.
 # The row goes out in the commit of the body.
-# CG_ParticleExplosion of cg_marks.c:1496 is the one cgame stub of the rule, row R10 of ledger 13.
-DEAD = {
-    "CG_ParticleExplosion": "Raven calls this function from no file of either tree",
-}
+# Every function of the rule has its body, so the table is empty.
+DEAD: dict[str, str] = {}
 
 # Functions of the oracle the port leaves out. The stub carries the cite, Raven's line, and the reason, and no function.
 NOT_PORTED = {
@@ -1724,6 +1731,9 @@ CXX_CLASSES = {
     # that CRMMission holds, row 8 of docket 11. CRMCell of RM_Path.h:113 is a struct Raven holds by value.
     "CPathInfo": "CPathInfo", "CRMArea": "CRMArea", "CRMAreaManager": "CRMAreaManager",
     "CRMNode": "CRMNode", "CRMLoc": "CRMLoc", "CRMCell": "CRMCell", "CRMPathManager": "CRMPathManager",
+    # The instance base class of RM_Instance.h:25 and the instance file class of RM_InstanceFile.h:11, which CRMMission holds, row R2 of batch 14.
+    # The four subclasses of RM_Instance_*.h are the payloads of `CRMInstance.Kind`, so no pointer to one crosses a signature.
+    "CRMInstance": "CRMInstance", "CRMInstanceFile": "CRMInstanceFile",
 }
 
 # C targets whose copied headers include a C library header, as CJKASyscall includes <stdint.h>.
