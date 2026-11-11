@@ -105,6 +105,8 @@ extension CRMInstance {
         self.mBounds[1][1] = 0
 
         // C converts the `float` variance to the `int` parameter of irand.
+        // Port-note: Raven converts a NaN or an out-of-range float to `int` here, undefined.
+        // The Int32 conversion traps there, rule 19.
         bsp.mBaseAngle += (TheRandomMissionManager!.GetLandScape()!.irand(0, Int32(bsp.mAngleVariance)) - bsp.mAngleVariance / 2)
 
         self.kind = .bsp(bsp)
@@ -160,6 +162,8 @@ extension CRMInstance {
         }
 
         // Align the instance to the center of a terxel
+        // Port-note: Raven converts a NaN or an out-of-range float to `int` here, undefined.
+        // The Int32 conversion traps there, rule 19.
         self.mArea!.mOrigin[0] = bounds[0][0] + Int32((self.GetOrigin()[0] - bounds[0][0] + terxelSize[0] / 2) / terxelSize[0]) * terxelSize[0]
         self.mArea!.mOrigin[1] = bounds[0][1] + Int32((self.GetOrigin()[1] - bounds[0][1] + terxelSize[1] / 2) / terxelSize[1]) * terxelSize[1]
 
@@ -287,6 +291,8 @@ extension CRMInstance {
         */
 
         // Spawn in the bsp model
+        // Port-note: Raven converts a NaN or an out-of-range radius to `int` at the two `(int)` arguments, undefined.
+        // The Int32 conversion traps there, rule 19.
         // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of temp.
         Com_sprintf(
             &temp,

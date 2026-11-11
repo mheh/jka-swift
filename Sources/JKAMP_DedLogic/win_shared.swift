@@ -261,6 +261,7 @@ func Sys_GetCPUSpeedOld() -> Int32 {
     var end: UInt32
 
     // AI: Raven reads the x86 time-stamp counter with an inline `rdtsc` block. The backend reads the monotonic clock of the platform in milliseconds.
+    // With this clock, `coarse` is 0 and the function returns 0.
     start = UInt32(bitPattern: SysBackend.timeGetTime())
 
     while UInt32(bitPattern: SysBackend.timeGetTime()) < clockEnd { // loop for 1 tenth of a second
@@ -340,6 +341,7 @@ func Sys_GetCPUSpeed() -> Int32 {
             // Loop until 50 ticks have passed since last read of hi-res counter. This accounts for overhead later.
             SysBackend.QueryPerformanceCounter(&t1)
             // AI: Raven reads the x86 time-stamp counter with an inline `rdtsc` block. The backend reads the monotonic clock of the platform in milliseconds.
+            // With this clock, each `freq` is 0 and the function returns 0.
             stamp0 = UInt32(bitPattern: SysBackend.timeGetTime())
         }
 

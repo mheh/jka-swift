@@ -95,6 +95,8 @@ extension CRMInstance {
             }
 
             // For each count create and add the instance
+            // Port-note: With `mincount` below 0 and `maxcount` not above it, Raven decrements `count` through INT_MIN, undefined.
+            // The Swift decrement traps there, rule 19.
             while count != 0 {
                 defer { count -= 1 }
 

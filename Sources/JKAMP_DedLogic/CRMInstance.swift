@@ -193,6 +193,8 @@ final class CRMInstance {
         let bounds = terrain!.GetLandScape()!.GetBounds()
 
         // Align the instance to the center of a terxel
+        // Port-note: Raven converts a NaN or an out-of-range float to `int` here, undefined.
+        // The Int32 conversion traps there, rule 19.
         origin[0] = bounds[0][0] + Int32((origin[0] - bounds[0][0] + terxelSize[0] / 2) / terxelSize[0]) * terxelSize[0]
         origin[1] = bounds[0][1] + Int32((origin[1] - bounds[0][1] + terxelSize[1] / 2) / terxelSize[1]) * terxelSize[1]
 

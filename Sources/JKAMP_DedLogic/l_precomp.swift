@@ -2515,9 +2515,11 @@ func PC_SetIncludePath(_ source: Source, _ path: String) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     strncpy(&source.includepathBuffer, path, MAX_PATH)
     //add trailing path seperator
-    // Port-note: Rule 19. With an empty path Raven reads the byte before `includepath`, and the Swift index traps there.
-    if source.includepathBuffer[strlen(source.includepathBuffer) - 1] != Int32(ascii: "\\") &&
-        source.includepathBuffer[strlen(source.includepathBuffer) - 1] != Int32(ascii: "/") {
+    // AI: Raven reads `filename[1023]`, the byte before `includepath`, for an empty path, and that byte is always 0.
+    // The empty test gives the same append of the separator.
+    if strlen(source.includepathBuffer) == 0 ||
+        (source.includepathBuffer[strlen(source.includepathBuffer) - 1] != Int32(ascii: "\\") &&
+        source.includepathBuffer[strlen(source.includepathBuffer) - 1] != Int32(ascii: "/")) {
         strcat(&source.includepathBuffer, PATHSEPERATOR_STR)
     } //end if
 }

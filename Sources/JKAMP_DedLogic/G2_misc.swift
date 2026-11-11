@@ -1624,7 +1624,7 @@ func G2_SaveGhoul2Models(_ ghoul2: CGhoul2Info_v, _ buffer: inout Slots<JKAShare
         x = 0
         while x < ghoul2[i].mBlist.count {
             // AI: Raven copies each `boneInfo_t` whole with memcpy. The body writes each member at its offset in the 32-bit build.
-            // Port-note: Raven copies the padding at 658 and 685 uninitialized. The zeroed block keeps those bytes zero.
+            // Port-note: Raven copies the padding bytes 658 to 659 and 685 to 687 uninitialized. The zeroed block keeps those bytes zero.
             let bone = ghoul2[i].mBlist[x]
             tempBuffer[int: 0] = bone.boneNumber
             Com_Memcpy(tempBuffer.suffix(from: 4), bone.matrix.matrix.bytes, 48)
