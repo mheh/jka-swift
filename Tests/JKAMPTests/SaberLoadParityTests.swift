@@ -13,8 +13,14 @@ struct SaberLoadParityTests {
     @Test("the whole golden text matches")
     func goldenMatches() async throws {
         // given the fixture sabers behind the file system traps, when the child process loads and parses them
-        let result = await #expect(processExitsWith: .success, observing: [\.standardOutputContent]) {
+        let stderrPath = ChildStandardError.newPath()
+        let result = await #expect(processExitsWith: .success, observing: [\.standardOutputContent]) { [stderrPath = stderrPath as String] in
+            ChildStandardError.redirect(to: stderrPath)
             try SaberLoadDump.writeDump()
+        }
+        let childError = ChildStandardError.take(stderrPath)
+        if result == nil {
+            Issue.record("The child process did not exit with success. Its standard error:\n\(childError)")
         }
 
         // then its standard output is the golden text
@@ -22,6 +28,9 @@ struct SaberLoadParityTests {
         let golden = try OracleData.golden("saberload")
         #expect(GoldenFormat.mismatch("saberload", got: got, golden: golden) == nil)
         #expect(got == golden)
+        if result != nil && got != golden {
+            Issue.record("The text differs from the golden. The standard error of the child process:\n\(childError)")
+        }
     }
 }
 

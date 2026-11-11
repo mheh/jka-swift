@@ -11,15 +11,24 @@ import JKAShared
 struct PmoveSaberParityTests {
     @Test("the whole golden text matches")
     func goldenMatches() async throws {
-        let result = await #expect(processExitsWith: .success, observing: [\.standardOutputContent]) {
+        let stderrPath = ChildStandardError.newPath()
+        let result = await #expect(processExitsWith: .success, observing: [\.standardOutputContent]) { [stderrPath = stderrPath as String] in
+            ChildStandardError.redirect(to: stderrPath)
             try PmoveHarness.emit(.saber, scenarios: PmoveSaberDump.scenarios, dump: PmoveSaberDump.line)
         }
-        guard let result else { return }
+        let childError = ChildStandardError.take(stderrPath)
+        guard let result else {
+            Issue.record("The child process did not exit with success. Its standard error:\n\(childError)")
+            return
+        }
         let got = try PmoveHarness.extract(result.standardOutputContent)
 
         let golden = try OracleData.golden("pmove_saber")
         #expect(GoldenFormat.mismatch("pmove_saber", got: got, golden: golden) == nil)
         #expect(got == golden)
+        if got != golden {
+            Issue.record("The text differs from the golden. The standard error of the child process:\n\(childError)")
+        }
     }
 }
 
