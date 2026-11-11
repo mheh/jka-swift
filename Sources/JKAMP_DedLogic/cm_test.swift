@@ -489,8 +489,9 @@ func CM_WriteAreaBits(_ buffer: Slots<UInt8>, _ area: Int32) -> Int32 {
 /// One static per function this file stores in a `LeafList` callback field, so each has one address for the life of the module.
 /// The thunks stand in this file, because the functions they call are private to it.
 private enum LeafListThunks {
-    /// Source: oracle/codemp/qcommon/cm_test.cpp:63
-    static let CM_StoreLeafs: LeafListStoreLeafs = { JKAMP_DedLogic.CM_StoreLeafs(LeafList(handle: $0!), $1) }
     /// Source: oracle/codemp/qcommon/cm_test.cpp:80
     static let CM_StoreBrushes: LeafListStoreLeafs = { JKAMP_DedLogic.CM_StoreBrushes(LeafList(handle: $0!), $1) }
+
+    /// Source: oracle/codemp/qcommon/cm_test.cpp:63
+    static let CM_StoreLeafs: LeafListStoreLeafs = { JKAMP_DedLogic.CM_StoreLeafs(LeafList(handle: $0!), $1) }
 }
