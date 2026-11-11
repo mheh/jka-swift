@@ -278,6 +278,8 @@ class Decl:
         self.override: str | None = None
         self.strip_defaults = False
         self.system: set[str] = set()
+        # True when another declaration of the folder has a name that is equal when lowercased, see `mark_case_clashes`.
+        self.clash = False
 
     @property
     def cite(self) -> str:
@@ -288,6 +290,8 @@ class Decl:
         # A .c file's own enum stands beside its own macros, in the constants file of that .c file.
         if self.kind in ("macro", "c_enum"):
             return f"{self.reldir}/constants.h"
+        if self.name and self.clash:
+            return f"{self.reldir}/{self.name}_{self.start.line}.h"
         if self.name:
             return f"{self.reldir}/{self.name}.h"
         # Raven writes `enum { FP_FIRST, ... };` and then `typedef int forcePowers_t;`, so an anonymous enum is a constant group.
@@ -467,6 +471,19 @@ def name_records(decls: list[Decl]) -> None:
     for decl in decls:
         if decl.kind in ("struct", "union", "class", "enum") and decl.cur.canonical.hash in typedef_for:
             decl.name = typedef_for[decl.cur.canonical.hash]
+
+
+def mark_case_clashes(decls: list[Decl]) -> None:
+    """Two names of one folder that are equal when lowercased, `uiimport_t` and `uiImport_t` of code/ui/ui_public.h, clash by case.
+    Each declaration of a clash takes its line in its file name, the form of `anonymous_{line}.h`.
+    The names are then the same on a file system that folds case and on one that does not."""
+    names: dict[tuple[str, str], set[str]] = defaultdict(set)
+    for decl in decls:
+        if decl.kind not in ("macro", "c_enum") and decl.name and not decl.forward_only:
+            names[(decl.reldir, decl.name.lower())].add(decl.name)
+    for decl in decls:
+        if decl.kind not in ("macro", "c_enum") and decl.name and not decl.forward_only:
+            decl.clash = len(names[(decl.reldir, decl.name.lower())]) > 1
 
 
 def link(decls: list[Decl], macro_names: dict[str, Decl]) -> None:
@@ -938,6 +955,7 @@ def emit(module: str, out_dir: Path, check: bool, triples: list[str]) -> int:
     for d in clashing:
         NOTES.append(f"{d.cite} macro {d.name} stays in its header, because an enum of an included header names {d.name}")
     decls = [d for d in decls if d not in clashing]
+    mark_case_clashes(decls)
     for d in decls:
         if d.kind in ("class", "struct", "typedef") and C_STRUCT_CLASSES.get(d.name, ("",))[0] == "fields":
             # The struct holds the fields alone, each in Raven's text with `struct` in the place of `class` and `_Bool` in the place of `bool`.
