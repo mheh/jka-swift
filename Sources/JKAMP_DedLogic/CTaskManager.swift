@@ -1552,7 +1552,7 @@ final class CTaskManager {
         _ = value.withSlots { (self.m_owner!.GetInterface())!.I_WriteSaveData!(0x424C_4944, $0, Int32(Int32.byteCount)) } // 'BLID'
 
         //Save out the block's flags
-        // C converts the `int` flags to `unsigned char` by its low bits.
+        // AI: Raven's `m_flags` and `GetFlags` are `unsigned char`. The Swift field is `Int32`, so the write takes the low byte.
         flags = UInt8(truncatingIfNeeded: block!.GetFlags())
         value.withMutableSlots { $0[byte: 0] = flags }
         _ = value.withSlots { (self.m_owner!.GetInterface())!.I_WriteSaveData!(0x4246_4C47, $0, Int32(UInt8.byteCount)) } // 'BFLG'

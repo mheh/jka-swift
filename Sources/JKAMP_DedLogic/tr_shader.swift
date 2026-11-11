@@ -1459,6 +1459,8 @@ private func ParseStage(_ stage: ShaderStage, _ text: inout JKAShared.TextCursor
 
                 _ = ParseVector(&text, 3, &color)
                 // C converts each float product to the byte at the store.
+                // Port-note: Raven converts a product outside 0 to 255 to `byte`, undefined.
+                // The Swift keeps the low byte, and the Int32 conversion traps on a NaN or a value past Int32, rule 19.
                 stage.constantColor[0] = UInt8(truncatingIfNeeded: Int32(255 * color[0]))
                 stage.constantColor[1] = UInt8(truncatingIfNeeded: Int32(255 * color[1]))
                 stage.constantColor[2] = UInt8(truncatingIfNeeded: Int32(255 * color[2]))
@@ -1509,6 +1511,8 @@ private func ParseStage(_ stage: ShaderStage, _ text: inout JKAShared.TextCursor
             } else if Q_stricmp(token, "const") == 0 {
                 token = COM_ParseExt(&text, false)
                 // C multiplies in `double`, because `atof` returns a double, and converts the product to the byte at the store.
+                // Port-note: Raven converts a product outside 0 to 255 to `byte`, undefined.
+                // The Swift keeps the low byte, and the Int32 conversion traps on a NaN or a value past Int32, rule 19.
                 stage.constantColor[3] = UInt8(truncatingIfNeeded: Int32(255 * atof(token)))
                 stage.alphaGen = AGEN_CONST
             } else if Q_stricmp(token, "identity") == 0 {

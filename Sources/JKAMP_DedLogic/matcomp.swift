@@ -156,6 +156,8 @@ func MC_Compress(_ mat: JKAMP.MdxaBone?, _ _comp: Slots<UInt8>) {
         i += 1
     }
 
+    // Port-note: Raven converts a NaN or an out-of-range float to `int` at each `(int)` of this function, undefined.
+    // The Int32 conversion traps there, rule 19.
     val = Int32(mat!.matrix[0][3] / MC_SCALE_X)
     val += 1 << (MC_BITS_X - 1)
     if val >= (1 << MC_BITS_X) {

@@ -338,12 +338,12 @@ final class CGPGroup {
         self.mNext
     }
 
-    /// Source: oracle/codemp/qcommon/GenericParser2.h:57
+    /// Source: oracle/codemp/qcommon/GenericParser2.h:58
     func GetInOrderNext() -> CGPGroup? {
         self.mInOrderNext
     }
 
-    /// Source: oracle/codemp/qcommon/GenericParser2.h:59
+    /// Source: oracle/codemp/qcommon/GenericParser2.h:60
     func GetInOrderPrevious() -> CGPGroup? {
         self.mInOrderPrevious
     }

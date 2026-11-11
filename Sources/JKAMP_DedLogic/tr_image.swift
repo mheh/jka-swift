@@ -171,6 +171,8 @@ func LoadTGA(_ name: String, _ pic: inout Slots<JKAShared.byte>?, _ width: inout
             pIn += pHeader.byIDFieldLength // skip TARGA image comment
         }
 
+        // Port-note: Raven reads past the file buffer when the file is shorter than its header says, undefined.
+        // The Slots subscript traps there, rule 19.
         var red: JKAShared.byte, green: JKAShared.byte, blue: JKAShared.byte, alpha: JKAShared.byte
 
         if pHeader.byImageType == 2 || pHeader.byImageType == 3 { // RGB or greyscale

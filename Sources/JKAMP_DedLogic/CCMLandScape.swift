@@ -849,6 +849,8 @@ final class CCMLandScape {
             pt[1] = Float(y)
             area.Init(pt, Float(width / 2 + (self.irand(0, width / 2))))
             // C converts the `float` height to the `int` parameter.
+            // Port-note: Raven converts a NaN height to `int` when `count` is 0, because `heightStep` is then 0/0 or infinite times 0, undefined.
+            // The Int32 conversion traps there, rule 19.
             self.FlattenArea(area, Int32(heightStart + (heightStep * i) - (depth / 2 - (self.irand(0, depth / 2)))), false, true, true)
 
             // Increase the numerator by the top of the fraction
@@ -912,6 +914,8 @@ final class CCMLandScape {
             u = t
             i = 1
             while i <= n {
+                // Port-note: Raven writes past `b[10]` when `numCtlPoints` is 11 or more, undefined.
+                // The Array index traps there, rule 19.
                 b[i][0] = ctlPoints[i][0] * u
                 b[i][1] = ctlPoints[i][1] * u
 
@@ -1101,6 +1105,8 @@ final class CCMLandScape {
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1472
     func GetNextObjectiveArea() -> CArea? {
         // Raven calls this method only from CM_GetNextObjectiveArea, and no file of either tree calls that function, so the method is dead.
+        // Port-note: Raven increments the end iterator of `mAreas` when the last call returned NULL, undefined.
+        // The Array index traps past the end there, rule 19.
         self.mAreasIt += 1
 
         while self.mAreasIt != self.mAreas.count {

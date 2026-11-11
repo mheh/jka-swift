@@ -424,7 +424,8 @@ final class ICARUS_Instance {
             _ = value.withMutableSlots { self.m_interface!.I_ReadSaveData!(0x5349_4723, $0, Int32(Int32.byteCount)) } // 'SIG#'
             length = value.withSlots { $0[int: 0] }
 
-            assert(length < buffer.count)
+            // C converts the `int` length to the unsigned `size_t` of `sizeof` for the compare.
+            assert(UInt32(bitPattern: length) < buffer.count)
 
             //Get the string
             _ = buffer.withMutableSlots { self.m_interface!.I_ReadSaveData!(0x5349_474E, $0, length) } // 'SIGN'

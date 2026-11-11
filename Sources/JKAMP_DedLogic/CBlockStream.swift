@@ -245,7 +245,7 @@ final class CBlockStream {
         var bMember: CBlockMember?
         let id: Int32 = block!.GetBlockID()
         let numMembers: Int32 = block!.GetNumMembers()
-        // C converts the `int` flags to `unsigned char` by its low bits.
+        // AI: Raven's `m_flags` and `GetFlags` are `unsigned char`. The Swift field is `Int32`, so the write takes the low byte.
         let flags = UInt8(truncatingIfNeeded: block!.GetFlags())
         // AI: Raven writes each value through its address. The value goes into a CharBuf of its bytes, and the CharBuf is written.
         var value = CharBuf(Int32.byteCount)
