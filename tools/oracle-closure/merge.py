@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import shutil
 import sys
@@ -640,6 +641,7 @@ class Output:
         self.source: dict[str, str] = {}                               # rel path -> the oracle header its first Source: line cites
         self.cxx: dict[str, list[str]] = defaultdict(list)
         self.units: dict[str, str] = {}                                # target -> the <Target>.c translation unit
+        self.copies: set[tuple[str, str]] = set()                      # (target, rel path) of each per-module copy
 
     def path_for(self, target: str, tree: str | None, identity: str) -> str:
         if target == SHARED:
@@ -652,6 +654,14 @@ class Output:
             if key in self.location:
                 return self.location[key][1]
         return None
+
+    def spelled(self, target: str, rel: str, included: str) -> str:
+        """The include text of `included` in the file `rel` of `target`.
+        Two targets can hold a per-module copy at one path, and a client that imports both finds the first one on its include path.
+        So a file below the include root names a per-module copy of its own target relative to its own folder, and the copy keeps its path."""
+        if (target, included) not in self.copies or "/" not in rel:
+            return included
+        return os.path.relpath(included, os.path.dirname(rel))
 
 
 def emit(out_dir: Path, mp_modules: list[str], sp_modules: list[str]) -> int:
@@ -676,6 +686,7 @@ def emit(out_dir: Path, mp_modules: list[str], sp_modules: list[str]) -> int:
             rel = f"{TREE_PREFIX[tree]}{p.identity}"
             if p.conflict:
                 out.location[f"{p.identity}@{p.conflict}"] = (p.target, rel)
+                out.copies.add((p.target, rel))
             else:
                 out.location[f"{p.identity}@{tree}"] = (p.target, rel)
                 out.location.setdefault(p.identity, (p.target, rel))
@@ -734,7 +745,7 @@ def emit(out_dir: Path, mp_modules: list[str], sp_modules: list[str]) -> int:
             if is_shared:
                 sources += [s for s in sp[p.identity].header.sources if s not in sources]
             body = sources + [h.body, ""]
-            out.files[target][rel] = wrap(rel, sorted(includes), h.system, body)
+            out.files[target][rel] = wrap(rel, sorted(out.spelled(target, rel, inc) for inc in includes), h.system, body)
             if not h.c:
                 out.cxx[target].append(rel)
                 continue
