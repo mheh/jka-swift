@@ -350,11 +350,15 @@ public enum SysBackend {
     /// Raven's `getch` of `conio.h`, one key from the console with no echo.
     /// Source: oracle/codemp/null/win_main.cpp:211
     // AI: Raven called the conio getch. The backend reads one byte from standard input, after kbhit gave the terminal its key mode.
+    // The conio getch gives `\r` for the Enter key, so the backend gives `\r` for the `\n` of a pipe, the line end of the fork at openjk/shared/sys/con_tty.cpp:374.
     public static func getch() -> Int32 {
         var key: UInt8 = 0
         // An end of file gives 0, which Raven's switch reads as the first byte of a function key, so the console prints nothing.
         if read(STDIN_FILENO, &key, 1) != 1 {
             return 0
+        }
+        if key == 10 {
+            return 13
         }
         return Int32(key)
     }
