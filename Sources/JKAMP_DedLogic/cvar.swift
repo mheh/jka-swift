@@ -554,8 +554,13 @@ func Cvar_Set_f() {
     combined[0] = 0
     l = 0
     for i in 2..<c {
-        // Port-note: Raven takes strlen of `Cmd_Argv(i) + 1`, one byte past the start, so len is the length less one. An empty argument reads past its NUL in C, and here it gives -1.
-        len = strlen(Cmd_Argv(i)) - 1
+        // AI: Raven takes strlen at `Cmd_Argv(i) + 1`, one byte past the start of the argument in cmd_tokenized.
+        // The argument is a String here, so the body finds its start in cmd_tokenized from the lengths of the arguments before it.
+        var start: Int32 = 0
+        for j in 0..<i {
+            start += strlen(Cmd_Argv(j)) + 1
+        }
+        len = strlen(cmd_tokenized[(start + 1)...])
         if l + len >= MAX_STRING_TOKENS - 2 {
             break
         }
