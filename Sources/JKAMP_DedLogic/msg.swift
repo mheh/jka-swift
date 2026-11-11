@@ -1789,7 +1789,7 @@ MSG_ReadDeltaPlayerstate
 ```
 */
 /// Source: oracle/codemp/qcommon/msg.cpp:2455
-func MSG_ReadDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState, _ to: JKAMP.PlayerState, _ isVehiclePS: Bool = false) {
+func MSG_ReadDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState?, _ to: JKAMP.PlayerState, _ isVehiclePS: Bool = false) {
     var i: Int32
     var lc: Int32
     var bits: Int32
@@ -1803,7 +1803,7 @@ func MSG_ReadDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState, _ to: JKAMP
     var toF: Slots<JKAShared.byte>
     var trunc: Int32
 
-    to.copy(from: from)
+    to.copy(from: from!)
 
     if msg.bit == 0 {
         startBit = msg.readcount * 8 - GENTITYNUM_BITS
@@ -1841,7 +1841,7 @@ func MSG_ReadDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState, _ to: JKAMP
     i = 0
     while i < lc {
         field = PSFields[i]
-        fromF = Slots(record: from).bytes.suffix(from: field.offset)
+        fromF = Slots(record: from!).bytes.suffix(from: field.offset)
         toF = Slots(record: to).bytes.suffix(from: field.offset)
 
         if MSG_ReadBits(msg, 1) == 0 {
@@ -1879,7 +1879,7 @@ func MSG_ReadDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState, _ to: JKAMP
     i = lc
     while i < numFields {
         field = PSFields[i]
-        fromF = Slots(record: from).bytes.suffix(from: field.offset)
+        fromF = Slots(record: from!).bytes.suffix(from: field.offset)
         toF = Slots(record: to).bytes.suffix(from: field.offset)
         // no change
         toF[int: 0] = fromF[int: 0]
