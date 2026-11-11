@@ -50,6 +50,10 @@ var g_G2AllocTrack: [CGhoul2Info_v?] {
     set { world.g_G2AllocTrack = newValue }
 }
 
+/// Source: oracle/codemp/ghoul2/G2_API.cpp:553
+// AI: Raven takes `sizeof` of a pointer to `CGhoul2Info_v`. The constant holds the pointer size of the 32-bit build.
+private let sizeofCGhoul2Info_vPtr = 4 as Int32
+
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:159
 private let NUM_G2T_TIME = (2) as Int32
 
@@ -259,13 +263,13 @@ func G2API_CleanGhoul2Models(_ ghoul2Ptr: inout CGhoul2Info_v?) {
         // AI: Raven calls the destructor by hand. The body calls clear, whose body is the destructor's one call to Free.
         ghoul2.clear()
 
-        // Raven's `sizeof(*ghoul2Ptr)` is the size of a pointer, the size of `UInt` on every Swift target.
+        // Raven's `sizeof(*ghoul2Ptr)` is the size of a pointer, 4 bytes in Raven's 32-bit build.
         if g_G2AllocServer != 0 {
-            g_G2ServerAlloc -= Int32(UInt.byteCount)
+            g_G2ServerAlloc -= sizeofCGhoul2Info_vPtr
         } else {
-            g_G2ClientAlloc -= Int32(UInt.byteCount)
+            g_G2ClientAlloc -= sizeofCGhoul2Info_vPtr
         }
-        g_Ghoul2Allocations -= Int32(UInt.byteCount)
+        g_Ghoul2Allocations -= sizeofCGhoul2Info_vPtr
         G2_DEBUG_RemovePtrFromTracker(ghoul2Ptr)
 
         // AI: Raven deletes the instance. The table drops its reference, so the deinit frees the item, row Z6 of docket 10.
@@ -520,13 +524,13 @@ func G2API_RemoveGhoul2Model(_ ghlRemove: inout CGhoul2Info_v?, _ modelIndex: In
 
         // if we are not using any space, just delete the ghoul2 vector entirely
         if ghlInfo.size() == 0 {
-            // Raven's `sizeof(*ghlRemove)` is the size of a pointer, the size of `UInt` on every Swift target.
+            // Raven's `sizeof(*ghlRemove)` is the size of a pointer, 4 bytes in Raven's 32-bit build.
             if g_G2AllocServer != 0 {
-                g_G2ServerAlloc -= Int32(UInt.byteCount)
+                g_G2ServerAlloc -= sizeofCGhoul2Info_vPtr
             } else {
-                g_G2ClientAlloc -= Int32(UInt.byteCount)
+                g_G2ClientAlloc -= sizeofCGhoul2Info_vPtr
             }
-            g_Ghoul2Allocations -= Int32(UInt.byteCount)
+            g_Ghoul2Allocations -= sizeofCGhoul2Info_vPtr
             // AI: Raven deletes the instance, and its destructor calls Free. The body calls clear, whose body is the same call, then drops the reference.
             ghlRemove!.clear()
             // AI: The table drops its reference to the deleted instance, row Z6 of docket 10.
@@ -600,13 +604,13 @@ func G2API_RemoveGhoul2Models(_ ghlRemove: inout CGhoul2Info_v?) -> Bool {
 
     // if we are not using any space, just delete the ghoul2 vector entirely
     if ghlInfo.size() == 0 {
-        // Raven's `sizeof(*ghlRemove)` is the size of a pointer, the size of `UInt` on every Swift target.
+        // Raven's `sizeof(*ghlRemove)` is the size of a pointer, 4 bytes in Raven's 32-bit build.
         if g_G2AllocServer != 0 {
-            g_G2ServerAlloc -= Int32(UInt.byteCount)
+            g_G2ServerAlloc -= sizeofCGhoul2Info_vPtr
         } else {
-            g_G2ClientAlloc -= Int32(UInt.byteCount)
+            g_G2ClientAlloc -= sizeofCGhoul2Info_vPtr
         }
-        g_Ghoul2Allocations -= Int32(UInt.byteCount)
+        g_Ghoul2Allocations -= sizeofCGhoul2Info_vPtr
         // AI: Raven deletes the instance, and its destructor calls Free. The body calls clear, whose body is the same call, then drops the reference.
         ghlRemove!.clear()
         // AI: The table drops its reference to the deleted instance, row Z6 of docket 10.
