@@ -1311,15 +1311,13 @@ func NPC_PickEnemy(_ closestTo: Entity, _ enemyTeam: Int32, _ checkVis: Bool, _ 
                                                 //I'm not looking in the right dir toward them to see them
                                                 failed = true
                                             } else {
-                                                var fmt = CharBuf("%s saw %s trying to hide - hiddenDir %s targetDir %s dot %f\n")
-                                                Debug_Printf(debugNPCAI, DEBUG_LEVEL_INFO, &fmt, NPC!.targetname ?? "(null)", newenemy!.targetname ?? "(null)", vtos(newenemy!.client!.hiddenDir), vtos(diff), dot)
+                                                Debug_Printf(debugNPCAI, DEBUG_LEVEL_INFO, "%s saw %s trying to hide - hiddenDir %s targetDir %s dot %f\n", NPC!.targetname ?? "(null)", newenemy!.targetname ?? "(null)", vtos(newenemy!.client!.hiddenDir), vtos(diff), dot)
                                             }
                                         } else {
                                             failed = true
                                         }
                                     } else {
-                                        var fmt = CharBuf("%s saw %s trying to hide - hiddenDist %f\n")
-                                        Debug_Printf(debugNPCAI, DEBUG_LEVEL_INFO, &fmt, NPC!.targetname ?? "(null)", newenemy!.targetname ?? "(null)", newenemy!.client!.hiddenDist)
+                                        Debug_Printf(debugNPCAI, DEBUG_LEVEL_INFO, "%s saw %s trying to hide - hiddenDist %f\n", NPC!.targetname ?? "(null)", newenemy!.targetname ?? "(null)", newenemy!.client!.hiddenDist)
                                     }
                                 }
 
@@ -1430,16 +1428,14 @@ func NPC_PickEnemy(_ closestTo: Entity, _ enemyTeam: Int32, _ checkVis: Bool, _ 
                                         entNum += 1
                                         continue
                                     } else {
-                                        var fmt = CharBuf("%s saw %s trying to hide - hiddenDir %s targetDir %s dot %f\n")
-                                        Debug_Printf(debugNPCAI, DEBUG_LEVEL_INFO, &fmt, NPC!.targetname ?? "(null)", newenemy!.targetname ?? "(null)", vtos(newenemy!.client!.hiddenDir), vtos(diff), dot)
+                                        Debug_Printf(debugNPCAI, DEBUG_LEVEL_INFO, "%s saw %s trying to hide - hiddenDir %s targetDir %s dot %f\n", NPC!.targetname ?? "(null)", newenemy!.targetname ?? "(null)", vtos(newenemy!.client!.hiddenDir), vtos(diff), dot)
                                     }
                                 } else {
                                     entNum += 1
                                     continue
                                 }
                             } else {
-                                var fmt = CharBuf("%s saw %s trying to hide - hiddenDist %f\n")
-                                Debug_Printf(debugNPCAI, DEBUG_LEVEL_INFO, &fmt, NPC!.targetname ?? "(null)", newenemy!.targetname ?? "(null)", newenemy!.client!.hiddenDist)
+                                Debug_Printf(debugNPCAI, DEBUG_LEVEL_INFO, "%s saw %s trying to hide - hiddenDist %f\n", NPC!.targetname ?? "(null)", newenemy!.targetname ?? "(null)", newenemy!.client!.hiddenDist)
                             }
                         }
 

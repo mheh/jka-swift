@@ -61,20 +61,11 @@ Sys_SnapVector
 */
 /// Source: oracle/codemp/win32/win_shared.cpp:41
 func Sys_SnapVector(_ v: inout JKAShared.vec3_t) {
-    var i: Int32
-    var f: Float
-
-    // AI: Raven loads each float and stores it with the x87 `fld` and `fistp`, which round to the nearest integer and an even one on a tie.
-    // The body rounds each component the same way with `rounded(.toNearestOrEven)`.
-    f = v[0]
-    i = Int32(f.rounded(.toNearestOrEven))
-    v[0] = Float(i)
-    f = v[1]
-    i = Int32(f.rounded(.toNearestOrEven))
-    v[1] = Float(i)
-    f = v[2]
-    i = Int32(f.rounded(.toNearestOrEven))
-    v[2] = Float(i)
+    // AI: Raven stores each float through an `int` with the x87 `fld` and `fistp`, so a negative zero comes back as a positive zero.
+    // The body takes the `nearbyintf` form of the fork at openjk/shared/sys/snapvector.cpp:59, which rounds to even on a tie and keeps the sign of a zero.
+    v[0] = v[0].rounded(.toNearestOrEven)
+    v[1] = v[1].rounded(.toNearestOrEven)
+    v[2] = v[2].rounded(.toNearestOrEven)
     /*
     *v = myftol(*v);
     v++;

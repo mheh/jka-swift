@@ -383,8 +383,9 @@ def write(target: str, files: dict[str, list[str]]) -> int:
     return count
 
 
-def probe() -> set[tuple[str, str]]:
-    """The view target and the name of each generated declaration a build rejects, whatever the error, read from the failing lines."""
+def probe() -> tuple[set[tuple[str, str]], str | None]:
+    """The view target and the name of each generated declaration a build rejects, whatever the error, read from the failing lines.
+    The second value is the first error line of a build that fails, and None for a build that passes."""
     run = subprocess.run(["swift", "build"], cwd=REPO, capture_output=True, text=True)
     # The compiler colours `error:` even with no terminal, and the escapes sit between the location and the word.
     log = ANSI.sub("", run.stdout + run.stderr)
@@ -398,7 +399,10 @@ def probe() -> set[tuple[str, str]]:
         if m:
             # Two view targets can spell one name, and the importer can take it in one and refuse it in the other.
             names.add((Path(path).parent.parent.name, m.group(1)))
-    return names
+    if run.returncode == 0:
+        return names, None
+    first = next((line for line in log.splitlines() if "error:" in line), "no error line")
+    return names, first
 
 
 def main() -> int:
@@ -443,7 +447,11 @@ def main() -> int:
             print(f"{VIEW_OF[target]:12} {count:5} declarations from {target}")
         if args.no_probe:
             return 0
-        found = probe()
+        found, failure = probe()
+        if not found and failure is not None:
+            # The build fails for a reason that names no generated declaration, so no rung can fix it and the files stay unproven.
+            print(f"reexport.py: the build fails and names no generated declaration: {failure}", file=sys.stderr)
+            return 1
         if not found:
             print(f"{len(unimportable)} macros spelled as Swift expressions, {len(narrowed)} of them narrowed to Int32, "
                   f"{len(typed - unexpressible)} reached the cast rung, {len(unexpressible)} marked TODO: Port")

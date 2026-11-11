@@ -142,9 +142,7 @@ func CM_BoxLeafnums_r(_ ll: LeafList, _ nodenum: Int32) {
 
         plane = node.plane!
 
-        // AI: Raven hands the `cplane_t *` to BoxOnPlaneSide. The value function of q_math takes the plane read out of the slot.
-        var planeValue = plane.plane
-        s = BoxOnPlaneSide(ll.bounds[0], ll.bounds[1], &planeValue)
+        s = BoxOnPlaneSide(ll.bounds[0], ll.bounds[1], plane)
         if s == 1 {
             nodenum = node.children[0]
         } else if s == 2 {

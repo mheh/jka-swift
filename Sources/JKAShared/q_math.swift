@@ -157,25 +157,25 @@ public func Q_crandom(_ seed: inout Int32) -> Float {
 //=======================================================
 
 /// Source: oracle/codemp/game/q_math.c:279
-public func ClampChar(_ i: Int32) -> Int8 {
+public func ClampChar(_ i: Int32) -> Int32 {
     if i < -128 {
         return -128
     }
     if i > 127 {
         return 127
     }
-    return Int8(i)
+    return i
 }
 
 /// Source: oracle/codemp/game/q_math.c:289
-public func ClampShort(_ i: Int32) -> Int16 {
+public func ClampShort(_ i: Int32) -> Int32 {
     if i < -32768 {
         return -32768
     }
     if i > 0x7fff {
         return 0x7fff
     }
-    return Int16(i)
+    return i
 }
 
 // this isn't a real cheap function to call!
@@ -714,7 +714,7 @@ SetPlaneSignbits
 ```
 */
 /// Source: oracle/codemp/game/q_math.c:751
-public func SetPlaneSignbits(_ out: inout Plane) {
+public func SetPlaneSignbits(_ out: Cplane) {
     var bits: Int32
 
     // for fast box on planeside test
@@ -737,7 +737,7 @@ Returns 1, 2, or 1 + 2
 ```
 */
 /// Source: oracle/codemp/game/q_math.c:809
-public func BoxOnPlaneSide(_ emins: vec3_t, _ emaxs: vec3_t, _ p: inout Plane) -> Int32 {
+public func BoxOnPlaneSide(_ emins: vec3_t, _ emaxs: vec3_t, _ p: Cplane) -> Int32 {
     var dist1: Float
     var dist2: Float
     var sides: Int32

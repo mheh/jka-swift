@@ -115,11 +115,17 @@ extension VmHeader {
     }
 }
 
-/// Raven's `LoadLibrary`, `GetProcAddress`, and `dllEntry( systemcalls )` of Sys_LoadDll, which the shell installs at its entry.
-/// It loads the library at the path, stores the module's vmMain through the slot, and returns the library handle or nil.
-/// Source: oracle/codemp/null/win_main.cpp:784
-// AI: Raven calls the Win32 loader in Sys_LoadDll. The logic target cannot import CJKAHost, so the shell installs a closure over `jka_load_dll`, the form of `sharedChannel`.
-public nonisolated(unsafe) var LoadLibrary: ((String, UnsafeMutableRawPointer) -> OpaquePointer?)? = nil
+/// Raven's `LoadLibrary` of Sys_LoadDll, which the shell installs at its entry.
+/// It opens the library at the path and returns the library handle or nil.
+/// Source: oracle/codemp/null/win_main.cpp:803
+// AI: Raven calls the Win32 LoadLibrary in Sys_LoadDll. The logic target cannot import CJKAHost, so the shell installs a closure over `jka_load_library`, the form of `sharedChannel`.
+public nonisolated(unsafe) var LoadLibrary: ((String) -> OpaquePointer?)? = nil
+
+/// Raven's two `GetProcAddress` calls and `dllEntry( systemcalls )` of Sys_LoadDll, which the shell installs at its entry.
+/// It stores the module's vmMain through the slot and returns false when a lookup fails, before it calls dllEntry.
+/// Source: oracle/codemp/null/win_main.cpp:827
+// AI: Raven calls the Win32 GetProcAddress in Sys_LoadDll. The logic target cannot import CJKAHost, so the shell installs a closure over `jka_dll_entry`, the form of `LoadLibrary`.
+public nonisolated(unsafe) var GetProcAddress: ((OpaquePointer, UnsafeMutableRawPointer) -> Bool)? = nil
 
 /// The tail of the module library name of Sys_LoadDll, the arch and the library extension of the build, so `jampgame` loads `jampgamearm64.dylib` on Apple arm64.
 /// Source: oracle/codemp/null/win_main.cpp:795

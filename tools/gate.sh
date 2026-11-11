@@ -1,7 +1,7 @@
 #!/bin/bash
 # This script runs the full gate of a worktree and prints one result line for each step, 40 lines at most.
 # Usage: `tools/gate.sh [--only a,b,c] [--skip a,b,c] [--snap-out] [--out DIR] [--jobs N] [--rec FILE] [--referee-args "<+set args>"]`, from a worktree root.
-# The steps are build, release, test, tooltests, snap-game, snap-cgame, snap-ded, linux, referee, and stubs.
+# The steps are build, release, test, tooltests, snap-game, snap-cgame, snap-ded, sigs, linux, referee, and stubs.
 # The full output of a step goes to `$OUT/<step>.txt`, and the summary goes to stdout and to `$OUT/summary.txt`.
 # OUT is `/tmp/gate-<branch>-<short head>` by default.
 # A failed step does not stop the later steps, and the script exits 1 at the end if a step failed.
@@ -13,7 +13,7 @@
 
 set -u
 
-STEPS="build release test tooltests snap-game snap-cgame snap-ded linux referee stubs"
+STEPS="build release test tooltests snap-game snap-cgame snap-ded sigs linux referee stubs"
 ONLY=""
 SKIP=""
 SNAP_OUT=0
@@ -181,6 +181,23 @@ result_snap() {
     NEW=""
     [ -d "$OUT/$3" ] && NEW=", new snapshot: $OUT/$3"
     echo "$COUNT files differ: $SHOWN$MORE$NEW"
+}
+
+# The check reads the signature rows of each store, so the step saves the rows again from the stubs on disk first.
+# `skeleton.py --signatures` writes the store alone and no file of the worktree.
+run_sigs() {
+    cd "$CLOSURE" || return 2
+    for UNIT in mp-game mp-cgame mp-engine-ded; do
+        echo "---- signatures $UNIT"
+        .venv/bin/python skeleton.py --signatures --unit "$UNIT" || return 2
+    done
+    .venv/bin/python sigcheck.py
+}
+
+# sigcheck.py prints one count line on standard error, and the step keeps standard error in its file.
+result_sigs() {
+    COUNTS=$(sed -n 's/^sigcheck.py: //p' "$1" | tail -n 1)
+    echo "${COUNTS:-found no count line, last: $(tail -n 1 "$1" | cut -c 1-100)}"
 }
 
 # `tools/linux-check.sh` uses a different image and also runs the tests on two platforms, so this step calls docker directly.

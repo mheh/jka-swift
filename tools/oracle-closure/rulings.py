@@ -1074,6 +1074,8 @@ RETURNS = {
     "Sys_LoadDll": "opaque",
     # The module's vmMain returns a pointer-wide word, and GAME_CLIENT_CONNECT returns the address of the denial text, so VM_Call returns the whole word.
     "VM_Call": "word",
+    # SV_GameSystemCalls returns an address in its `int`, `(int)strncpy(...)` of sv_game.cpp:471, so the dispatcher returns the whole word.
+    "SV_GameSystemCalls": "word",
     # Raven returns a sysEvent_t by value at common.cpp:789 and :881 and win_main.cpp:1160.
     # The body returns the view of a record that lives past the call, the storage record of its local `ev` or a slot of the ring.
     "Com_GetRealEvent": "record",
@@ -1205,6 +1207,7 @@ CHARBUF_ALLOCS = {"B_TempAlloc", "BG_TempAlloc"}
 #   view_array  an inout [View?] for a `T **` that is the caller's C array of struct pointers the function fills, the rule of a `T *name[N]` parameter
 #   out_scalar  an inout CChar for a `char *` that holds one character the body writes, the rule of a pointer to one scalar
 #   text      a String for a `char *` of a stored function that the filler only reads, Raven's missing `const`, keyed by "record.field"
+#             A `char *` of a function that the body only reads, where the text sweep cannot see the read, is the same String
 #   keyword_buckets  the bucket table of row indices and the row table beside it, form A of R53, for `keywordHash_t *table[]`
 #   keyword_buckets_mut  the same pair inout, for the function that links a row into the buckets
 #   row_index  an Int32 row index for a `keywordHash_t *` row pointer, form A of R53
@@ -1551,6 +1554,10 @@ PARAMS = {
     ("PC_ReadDefineParms", "parms"): "view_array",
     # PS_ReadEscapeCharacter writes one character through `ch`, l_script.cpp:344, and the callers pass `&token->string[len]` at :446 and :735, row X32.
     ("PS_ReadEscapeCharacter", "ch"): "out_scalar",
+    # Log_Write and Log_WriteTimeStamped only read `fmt` through vfprintf, l_log.cpp:102 and :126.
+    # The unity parse binds `logfile` to the `fileHandle_t logfile` of common.cpp:33, so the vfprintf call has no callee, and the text sweep cannot read it.
+    ("Log_Write", "fmt"): "text",
+    ("Log_WriteTimeStamped", "fmt"): "text",
     # CM_CircularIterate hands the caller's `ivec3_t` or `int` to each callback as `int *user`, cm_terrain.cpp:1067 to :1114, the `int *` list rule, row X42 R5.
     ("CM_CircularIterate", "user"): "bytes",
     ("CM_ForceHeight", "user"): "bytes",
@@ -1605,6 +1612,13 @@ PARAMS = {
     ("AAS_StringFromIndex", "stringindex"): "string_slots",
     ("AAS_IndexFromString", "stringindex"): "string_slots",
     ("AAS_UpdateStringIndexes", "configstrings"): "string_slots",
+    # The rows of the signature batch, notes/2026-11-11/signature-batch-ledger.md.
+    # CG_DrawChatBox hands its `chatBoxItem_t *drawThese[MAX_CHATBOX_ITEMS]` at cg_draw.c:7645 and :7676, and the body fills it at :7639, row SG12.
+    ("CG_ChatBox_ArrayInsert", "array"): "view_array",
+    # CCMLandScape::GetWorldHeight writes `origin[2]` at cm_terrain.cpp:1054, and CM_GetWorldHeight hands it `origin` at :1635, row SG19.
+    ("CM_GetWorldHeight", "origin"): "vec3_mut",
+    # CM_AreaCollision hands `areaTypes` to CCMLandScape::AreaCollision at cm_terrain.cpp:1660, which reads `areaTypeCount` types, row SG20.
+    ("CM_AreaCollision", "areaTypes"): "int_array",
 }
 
 # Rule 20: a function with no caller in either tree gets its real body like any other function,
@@ -1651,7 +1665,26 @@ NOT_PORTED = {
     "GPV_GetList": "C3 makes the value list an Array, so the chain does not exist",
 }
 
+# Functions whose Swift signature differs from the signature the table gives, by a ledger row, function -> (unit, the ledger row).
+# sigcheck.py prints each one with its row, and it fails on a difference that the table does not name and on an entry that no longer differs.
+LEDGER = "notes/2026-11-11/signature-batch-ledger.md"
+SIGNATURE_EXCEPTIONS: dict[str, tuple[str, str]] = {
+    # The table gives a `vec3_t name[3]` axis that the body only reads the inout of a written axis, q_math.c:550 and :603.
+    # The store sweep does not see a write through an axis, `transpose[i][j] = ...` of G_TransposeMatrix at g_mover.c:132,
+    # so a by-value axis would also take the axes that a body writes.
+    "AxisCopy": ("mp-game", f"row SG6 of {LEDGER}"),
+    "VectorRotate": ("mp-game", f"row SG7 of {LEDGER}"),
+    # The body reads the bone list through `ghoul2.mBlist` under an AI line and takes no `blist`, G2_bones.cpp:1318.
+    # An `inout` of `ghoul2.mBlist` beside the class in one call fails the exclusivity check of Swift at run time.
+    "G2_Set_Bone_Rag": ("mp-engine-ded", f"row SG14 of {LEDGER}"),
+    # The executable's top-level code in Sources/jampded/main.swift is the entry, so no Swift function has the name, win_main.cpp:1410.
+    "main": ("mp-engine-ded", f"row SG30 of {LEDGER}"),
+    # The hand function of the view target returns the tail record, which is never NULL, z_memman_pc.cpp:45.
+    "ZoneTailFromHeader": ("mp-engine-ded", f"row SG31 of {LEDGER}"),
+}
+
 # Game functions and globals the shell's `vmMain` names, which cross the module line, so each is public. Rule 11 and ruling E1.
+# The state singletons of rule 25 are public too, so a fork can add a target that reaches them.
 # The shell decodes the words of a command and calls the bare function, so the callee is public in its own logic file.
 PUBLIC_NAMES = {
     # The commands of Raven's vmMain at g_main.c:515, in the order of the switch.
@@ -1664,6 +1697,8 @@ PUBLIC_NAMES = {
     "CP_FindCombatPointWaypoints", "BG_GetItemIndexByTag",
     # The globals the decode reads: the entity table and the ICARUS shared buffer. `world` is hand code in g_local.swift.
     "g_entities", "gSharedBuffer",
+    # Rule 25 makes each state singleton public, `level` of g_main.c:9 and `cg` and `cgs` of cg_main.c:691 and :692.
+    "level", "cg", "cgs",
 }
 
 # C library functions a .c file aliases, `#define sqrtf sqrt`, with the Swift signature the forwarder takes.

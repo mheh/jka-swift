@@ -539,7 +539,10 @@ class Skeleton:
         extract.py writes the list into its manifest, and each one becomes private constants at the top of its stub."""
         path = Path(__file__).resolve().parent / "out" / "extract" / C.UNIT / "extract.json"
         found: dict[str, list[tuple[int, list[str]]]] = defaultdict(list)
-        rows = json.loads(path.read_text()).get("file_enums", []) if path.exists() else []
+        # Every run of extract.py that is not a check writes the file, so an absent file is a missing step and not an empty list.
+        if not path.exists():
+            raise SystemExit(f"skeleton.py: missing {path}. Run extract.py {C.UNIT} first.")
+        rows = json.loads(path.read_text()).get("file_enums", [])
         if C.HOST:
             # A host's .cpp file has no constants header, so its enums come from the parse, as its macros do, `edgeName_t` of cm_patch.cpp.
             # An enum with a name that a macro of the module also has stays out, because the stub's `let` would declare the name twice.

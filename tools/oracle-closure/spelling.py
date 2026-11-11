@@ -522,9 +522,10 @@ class Types:
                     # A `char *` that holds one character the body writes, `ch` of PS_ReadEscapeCharacter at l_script.cpp:344,
                     # is the caller's scalar, inout, the rule of a pointer to one scalar, row X32.
                     return Answer("inout CChar", "out_scalar")
-                if facts.ruled is None and facts.readonly_text:
+                if facts.ruled == "text" or (facts.ruled is None and facts.readonly_text):
                     # The body only reads the text, so the parameter is a String, the spelling a `const char *` already has.
                     # A PARAMS row names the kind itself, so it wins over the sweep.
+                    # A row of kind `text` names a read that the sweep cannot see, the form of a stored function's missing `const`.
                     # A NULL the sweep reaches at a call or one hop on makes it a String?, the way the vector rules read the same sets.
                     return Answer("String?" if facts.null_reaches else "String", "cstring_opt" if facts.null_reaches else "cstring")
                 # A body reads and rewrites the caller's buffer in place, so the caller's CharBuf crosses with `&`.
@@ -780,7 +781,8 @@ class Types:
         have = self.number_kind(t)
         if have == "Double" and facts.float_valued:
             have = "Float"
-        if want in ("Float", "Int32") and facts.is_bool:
+        # The pointer-wide word of RETURNS kind `word` folds a Bool the same way, `CM_AreasConnected` of SV_GameSystemCalls at sv_game.cpp:628.
+        if want in ("Float", "Int32", "Int") and facts.is_bool:
             return Answer(want, "bool_to_number")
         if want in ("Float", "Int32", "Double") and have is not None and have != want and not facts.is_literal:
             return Answer(want, "convert", crossing=want + "({text})")

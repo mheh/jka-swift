@@ -84,7 +84,10 @@ The draft lines that no hand line matches count on standard error, and so does e
 | `align.py` | aligned | | the store or the line rows are missing or stale |
 | `compare.py` | nothing differs | a line or a function differs | the store, the alignment, or the snapshot is missing or stale |
 | `lookup.py` | answered | no answer for the name | no question, or a question of the wrong form |
+| `sigcheck.py` | every difference is named | a difference that no entry names, or an entry that no longer differs | a store is missing or stale |
 
 ### The snapshot gate
 
 `snapshot.py --out <folder>` writes the text of every generator that reads the table, one file each, the drafts of every stem of the bg, game, and shared targets among them, and `snapshot.py --check <folder>` writes a new snapshot and compares the two by `diff -r`. A change to a tool module passes this check, unless it means to move a printed byte. A warm check reads the stored lowered rows, so it tests the lowered key as much as the drafter. Every module the drafter imports is in one of the two module lists of `project.toml`. A drafter import outside both lists would leave stale rows under an unchanged key, and the check would pass on them. The check compares the generators with the snapshot and not with the committed tree, so a committed generated file that no run has written again can be stale under a green check.
+
+The `sigs` step of `tools/gate.sh` runs `sigcheck.py` over the three units. An adopted file keeps its own signature lines, so the step compares each one with the signature the table gives today. `SIGNATURE_EXCEPTIONS` of `rulings.py` names each difference that a ledger row keeps, and a new difference fails the gate.

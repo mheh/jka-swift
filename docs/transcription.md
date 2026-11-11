@@ -92,9 +92,9 @@ An enum of that last kind is `private let` constants of type `Int32` at the top 
 | Raven | Swift |
 |---|---|
 | a non-const `vec3_t` parameter | `inout JKAShared.vec3_t`, and a call site writes `&v`. A `const vec3_t` stays by value. A non-const `vec4_t` or `vec2_t` parameter is `inout JKAShared.vec4_t` or `inout JKAShared.vec2_t` by the same rule, and a `const vec4_t` or `const vec2_t` also stays by value. A vector parameter that the body never writes stays by value in a game stub, as `table.py` gives it. |
-| a `vec3_t name[3]` parameter | `inout [vec3_t]`, the type `AnglesToAxis`, `AxisClear`, and `AxisCopy` take in `q_math.swift` |
+| a `vec3_t name[3]` parameter | `inout [vec3_t]`, the type `AnglesToAxis`, `AxisClear`, and `AxisCopy` take in `q_math.swift`. |
 | a `vec2_t name[N]` parameter | `inout [vec2_t]`, the form of the axis row, `uv` of `CG_CalcBiLerp` |
-| a non-const `char *` parameter of a function that is not a trap, with or without a size parameter beside it | `String` when the text sweep reads every use, `String?` when the NULL sweep also reaches it, and `inout CharBuf` otherwise, where the caller passes its own buffer with `&`. A `const char *` stays `String`. |
+| a non-const `char *` parameter of a function that is not a trap, with or without a size parameter beside it | `String` when the text sweep reads every use, `String?` when the NULL sweep also reaches it, and `inout CharBuf` otherwise, where the caller passes its own buffer with `&`. A `const char *` stays `String`. A read that the sweep cannot see takes the PARAMS kind `text`, `fmt` of `Log_Write`. |
 | a function-pointer parameter | an optional Swift closure, whose parameters go through these same rows |
 | a `void *` return | `UnsafeMutableRawPointer` for `BG_Alloc`, `BG_AllocUnaligned`, and `BG_TempAlloc`, and also for `B_Alloc`, `B_TempAlloc`, `G_Alloc`, and `CG_StrPool_Alloc`. `BG_StringAlloc`, `G_NewString`, and `CG_NewString` return `String`, the text a `char *` field takes. A `void *` handle that is not an allocation, `CG_G2WeaponInstance`, returns `OpaquePointer?`, RETURNS kind `opaque`. |
 | a pointer parameter Raven fills as a fixed set of floats, such as `float *colors` of `BG_ValidateSkinForTeam` | `inout vec3_t` |
@@ -111,7 +111,7 @@ An enum of that last kind is `private let` constants of type `Int32` at the top 
 | a `vec3_t *` parameter of a trap with a count beside it | `[JKAShared.vec3_t]` by value. |
 | a `float *` return out of a static ring of temporaries, such as `tv` | `JKAShared.vec3_t` by value, RETURNS kind `vec3`. |
 | a `float *` return out of a static `vec4_t` or NULL, such as `CG_FadeColor` | `JKAShared.vec4_t?` by value, RETURNS kind `vec4`. |
-| a pointer to a table of records the body indexes, such as `stringID_table_t *table` | `Slots<View>`, PARAMS kind `table`, and a caller passes the table by name. |
+| a pointer to a table of records the body indexes, such as `stringID_table_t *table` | `Slots<View>`, PARAMS kind `table`, and a caller passes the table by name. A return of the first record of a table that the caller indexes, `BG_AnimsetAlloc`, is `Slots<View>`, RETURNS kind `table`. |
 | a struct pointer parameter the body indexes, such as `animation_t *animations` where Raven writes `animations[anim]` | `Slots<View>`, by the subscript sweep of `table.py`, and `Slots<View>?` where the NULL sweep makes it optional. A one-record read of the same parameter, `sabers->x`, spells `sabers[0].x`. |
 | a non-const `char **` the function sets once to a string it owns, such as `G_SpawnString` | `inout String`, PARAMS kind `out_string`, and the text a body assigns is a copy. |
 | a C array of struct pointers the function fills, such as `gentity_t *ent_list[MAX_GENTITIES]` | `inout [View?]`, and the caller declares `var entity_list = [Entity?](repeating: nil, count: Int(MAX_GENTITIES))` where Raven declared the local. |
@@ -129,7 +129,7 @@ An enum of that last kind is `private let` constants of type `Int32` at the top 
 | a C++ `T **` parameter with a default, such as `clipMap_t **clipMap = NULL` of `CM_ClipHandleToModel` | `inout View?` with no default, because Swift gives an `inout` parameter none, and a caller that omits the argument passes a scratch optional. |
 | a pointer to a C++ class that `C_STRUCT_CLASSES` copies as a struct, such as `CCMShader *` | the class's view, `CmShader`. |
 | a record Raven returns by value, such as `sysEvent_t Com_GetEvent( void )` | the record's view, RETURNS kind `record`. The body returns the storage record of its local, `ev_Com_GetRealEvent`, or a slot of a table, and the caller copies it, `ev.copy(from: Com_GetEvent())`. |
-| the return of `VM_Call` and the `int intValue` of `VM_ExplicitArgPtr` | `Int`, RETURNS and PARAMS kind `word`, the pointer-wide word of the module's vmMain, so the denial text of GAME_CLIENT_CONNECT keeps its address on a 64-bit host. |
+| the return of `VM_Call` and the `int intValue` of `VM_ExplicitArgPtr` | `Int`, RETURNS and PARAMS kind `word`, the pointer-wide word of the module's vmMain, so the denial text of GAME_CLIENT_CONNECT keeps its address on a 64-bit host. The return of `SV_GameSystemCalls` is the same word, because the dispatcher returns an address, `(int)strncpy(...)`, and an integer `return` stays the value. |
 | a function pointer the body stores into a view field, such as `systemCalls` of `VM_Create` | the field's callback typealias, optional, PARAMS kind `callback`, so `vm->systemCall = systemCalls` reads `vm!.systemCall = systemCalls`. |
 | the `void *` buffer of `FS_Read`, `FS_Read2`, `FS_Write`, `FS_WriteFile`, `Sys_StreamedRead`, and `unzReadCurrentFile` | `Slots<JKAShared.byte>`, PARAMS kind `bytes`. A caller with a zone block hands `Slots(scalars: buf, count: Int(len) + 1)`, and a record's bytes pass as `Slots(record: ev).bytes`. |
 | a `char **` list of zone texts with `int *numfiles` beside it, such as the return of `FS_ListFiles` and `Sys_ListFiles` | `[String]`, RETURNS kind `string_list`, nil-free, and `numfiles` stays `inout Int32`. A list the body reads or frees is `[String]`, PARAMS kind `string_list`, and `FS_FreeFileList` and `Sys_FreeFileList` free nothing. A list the body reorders, `FS_SortFileList`, is `inout [String]`, PARAMS kind `string_list_mut`. |
@@ -259,6 +259,7 @@ A vector or axis parameter the NULL sweep reaches and the body only reads crosse
 The body's NULL test keeps its form, `normal == nil`, and every other read of the parameter is the force unwrap, `normal!`.
 The sweep reaches a parameter at a direct `NULL`, through a local the caller sets to `NULL`, and through a parameter of the caller the sweep already reached.
 A scalar output that the sweep reaches by the same three paths crosses as the pointer, `UnsafeMutablePointer<Int32>?`, and a body that writes through it keeps Raven's NULL test, as `crazySmoothFactor` of `BG_G2PlayerAngles` does.
+A botlib `long *` output takes the same pointer at the width of WinDed, `intvalue` of `PC_Evaluate`.
 A body writes a vector parameter through a store, a vector macro's written position, or a callee that writes its own parameter, and that parameter keeps `inout` and the caller's scratch.
 When the callee's NULL arm only skips the write to that parameter, the call site carries a plain comment that names the NULL outputs, and no Port-note and no `portMissing` marker.
 When a NULL test of the parameter does more than skip that write, for example the two tests of the NULL `dir` in `G_Damage`, the written vector crosses as an optional inout, `inout JKAShared.vec3_t?`, and a written axis as `inout [JKAShared.vec3_t]?`, `out_axis` of `BG_AttachToRancor`.
@@ -835,7 +836,9 @@ A transcriptor that finds it needs one stops and writes a Port-note instead.
 
 ### A pointer word in the shell
 
-`Sys_LoadDll` loads the module through `LoadLibrary`, the closure of `Sources/JKAMP_Ded/VmEntry.swift` that the shell installs over `jka_load_dll` of `CJKAHost`, in the shape of `sharedChannel`, because the logic target cannot import `CJKAHost`.
+`Sys_LoadDll` opens the module through `LoadLibrary`, the closure of `Sources/JKAMP_Ded/VmEntry.swift` that the shell installs over `jka_load_library` of `CJKAHost`, in the shape of `sharedChannel`, because the logic target cannot import `CJKAHost`.
+After the path search, `Sys_LoadDll` calls `GetProcAddress`, the closure over `jka_dll_entry`, which looks for `dllEntry` and `vmMain` and calls `dllEntry`.
+When a lookup fails, `Sys_LoadDll` calls `FreeLibrary` and returns nil, in Raven's order.
 `VM_Create` hands it `vm!.entryPointAddress`, the address of the `entryPoint` field in the view target, and the library name takes `DLL_SUFFIX`, `jampgamearm64.dylib` on Apple arm64.
 
 Rule 11 names the shell's `vmMain` as a pointer place, so the decode of a pointer word lives in `Sources/jampgame/jampgame.swift`.

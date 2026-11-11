@@ -169,7 +169,7 @@ func CM_GetNextObjectiveArea(_ landscape: CCMLandScape?) -> CArea? {
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1688
-func CreateRandomTerrain(_ config: String, _ landscape: CCMLandScape?, _ heightmap: Slots<JKAShared.byte>?, _ width: Int32, _ height: Int32) -> CRandomTerrain? {
+func CreateRandomTerrain(_ config: String, _ landscape: CCMLandScape?, _ heightmap: Slots<JKAShared.byte>, _ width: Int32, _ height: Int32) -> CRandomTerrain? {
     var RandomTerrain: CRandomTerrain? = nil
 
     var ptr: Int32 = 0

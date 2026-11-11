@@ -248,8 +248,11 @@ def load_tree(tree: str, modules: list[str]) -> tuple[dict[str, dict[str, Header
         root = EXTRACT / module
         if not root.exists():
             sys.exit(f"missing {root}. Run extract.py {module} first.")
+        # A check run of extract.py makes the folder and writes no manifest, so the folder alone does not say that the extract ran.
+        if not (root / "extract.json").exists():
+            sys.exit(f"missing {root / 'extract.json'}. Run extract.py {module} first.")
         headers[module] = {}
-        manifest = json.loads((root / "extract.json").read_text()).get("files", {}) if (root / "extract.json").exists() else {}
+        manifest = json.loads((root / "extract.json").read_text()).get("files", {})
         for path in root.rglob("*.h"):
             if path.name in ("forward.h", "platform.h", "all.h", "layout_asserts.h"):
                 continue

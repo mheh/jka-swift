@@ -2070,6 +2070,9 @@ class Table:
         if width is not None:
             # The botlib's `long` is the 32 bits of WinDed, the ded_types.h copy of `token_t`, so a pointer to one is that scalar inout.
             pointer = cur.type.get_canonical().kind == TypeKind.POINTER
+            if pointer and facts.null_reaches:
+                # An output a caller skips with NULL crosses as the pointer itself, the rule of spelling.py for a pointer to one scalar.
+                return Param(name, f"UnsafeMutablePointer<{width}>?", "bare")
             return Param(name, f"inout {width}" if pointer else width, "out_scalar" if pointer else "bare")
         answer = self.types.answer("parameter", cur.type, facts)
         if answer is None:
@@ -2206,6 +2209,10 @@ class Table:
             declaration = cur.result_type.get_canonical().get_pointee().get_canonical().get_declaration()
             if declaration is not None and declaration.spelling in CXX_CLASSES:
                 return (f"{CXX_CLASSES[declaration.spelling]}?", "")
+        if ruled == "table" and cur.result_type.get_canonical().kind == TypeKind.POINTER:
+            # A pointer to the first record of a table the caller indexes is the Slots over the records, the return twin of the PARAMS kind.
+            record = self.views.record_name(cur.result_type.get_canonical().get_pointee())
+            return (f"Slots<{self.views.qualified_view(record, TARGET)}>", "")
         if ruled == "slot":
             # The address of one record pointer slot is the Slots of one optional view over it, the form of a `node_t **` field.
             record = self.views.record_name(cur.result_type.get_canonical().get_pointee().get_canonical().get_pointee())

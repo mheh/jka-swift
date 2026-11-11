@@ -72,7 +72,7 @@ else
 fi
 
 # Only `extract.py <unit>` makes `out/extract/<unit>/extract.json`, and git ignores `out/`, so a new worktree has none.
-# `skeleton.py` reads the `.c` enums of a stub from that file, and it reads an absent file as an empty list.
+# `skeleton.py` reads the `.c` enums of a stub from that file, and it stops when the file is absent.
 # The full output of an extract goes to `out/extract/<unit>.log`.
 for UNIT in mp-game mp-cgame mp-engine-ded; do
     if [ -f "$CLOSURE/out/extract/$UNIT/extract.json" ]; then

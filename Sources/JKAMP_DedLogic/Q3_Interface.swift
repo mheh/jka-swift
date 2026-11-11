@@ -558,13 +558,13 @@ func CGCam_Anything() {
 
 //These are useless for MP. Just taking it for now since I don't want to remove all calls to this in ICARUS.
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:695
-func AppendToSaveGame(_ chid: CUnsignedLong, _ data: Slots<JKAShared.byte>, _ length: Int32) -> Int32 {
+func AppendToSaveGame(_ chid: UInt32, _ data: Slots<JKAShared.byte>, _ length: Int32) -> Int32 {
     return 1
 }
 
 // Changed by BTO (VV) - Visual C++ 7.1 doesn't allow default args on funcion pointers
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:701
-func ReadFromSaveGame(_ chid: CUnsignedLong, _ pvAddress: Slots<JKAShared.byte>, _ iLength: Int32) -> Int32 {
+func ReadFromSaveGame(_ chid: UInt32, _ pvAddress: Slots<JKAShared.byte>, _ iLength: Int32) -> Int32 {
     return 1
 }
 

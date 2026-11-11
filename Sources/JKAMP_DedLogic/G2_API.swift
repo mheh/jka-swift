@@ -992,7 +992,7 @@ func G2API_RagPCJGradientSpeed(_ ghoul2: CGhoul2Info_v, _ boneName: String, _ sp
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1538
-func G2API_RagEffectorGoal(_ ghoul2: CGhoul2Info_v, _ boneName: String, _ pos: JKAShared.vec3_t? = nil) -> Bool {
+func G2API_RagEffectorGoal(_ ghoul2: CGhoul2Info_v, _ boneName: String, _ pos: JKAShared.vec3_t?) -> Bool {
     let bone = G2_GetRagBoneConveniently(ghoul2, boneName)
 
     if bone == nil {

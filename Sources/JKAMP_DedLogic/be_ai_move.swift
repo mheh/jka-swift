@@ -679,7 +679,7 @@ func VectorDistanceSquared(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Fl
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_move.cpp:636
-func BotAvoidSpots(_ origin: JKAShared.vec3_t, _ reach: AasReachability, _ avoidspots: Slots<BotAvoidspot>, _ numavoidspots: Int32) -> Int32 {
+func BotAvoidSpots(_ origin: JKAShared.vec3_t, _ reach: AasReachability, _ avoidspots: Slots<BotAvoidspot>?, _ numavoidspots: Int32) -> Int32 {
     var checkbetween: Int32, i: Int32, type: Int32
     var squareddist: Float, squaredradius: Float
 
@@ -705,25 +705,25 @@ func BotAvoidSpots(_ origin: JKAShared.vec3_t, _ reach: AasReachability, _ avoid
     type = AVOID_CLEAR
     i = 0
     while i < numavoidspots {
-        squaredradius = Square(avoidspots[i].radius)
-        squareddist = DistanceFromLineSquared(avoidspots[i].origin, origin, reach.start)
+        squaredradius = Square(avoidspots![i].radius)
+        squareddist = DistanceFromLineSquared(avoidspots![i].origin, origin, reach.start)
         // if moving towards the avoid spot
         if squareddist < squaredradius &&
-            VectorDistanceSquared(avoidspots[i].origin, origin) > squareddist {
-            type = avoidspots[i].type
+            VectorDistanceSquared(avoidspots![i].origin, origin) > squareddist {
+            type = avoidspots![i].type
         } else if checkbetween != 0 {
-            squareddist = DistanceFromLineSquared(avoidspots[i].origin, reach.start, reach.end)
+            squareddist = DistanceFromLineSquared(avoidspots![i].origin, reach.start, reach.end)
             // if moving towards the avoid spot
             if squareddist < squaredradius &&
-                VectorDistanceSquared(avoidspots[i].origin, reach.start) > squareddist {
-                type = avoidspots[i].type
+                VectorDistanceSquared(avoidspots![i].origin, reach.start) > squareddist {
+                type = avoidspots![i].type
             }
         } else {
-            _ = VectorDistanceSquared(avoidspots[i].origin, reach.end)
+            _ = VectorDistanceSquared(avoidspots![i].origin, reach.end)
             // if the reachability leads closer to the avoid spot
             if squareddist < squaredradius &&
-                VectorDistanceSquared(avoidspots[i].origin, reach.start) > squareddist {
-                type = avoidspots[i].type
+                VectorDistanceSquared(avoidspots![i].origin, reach.start) > squareddist {
+                type = avoidspots![i].type
             }
         }
         if type == AVOID_ALWAYS {
@@ -817,7 +817,7 @@ func BotGetReachabilityToGoal(_ origin: JKAShared.vec3_t, _ areanum: Int32, _ la
                 continue
             }
             //if the bot should not use this reachability to avoid bad spots
-            if BotAvoidSpots(origin, reach, avoidspots!, numavoidspots) != 0 {
+            if BotAvoidSpots(origin, reach, avoidspots, numavoidspots) != 0 {
                 if flags != nil {
                     flags!.pointee |= MOVERESULT_BLOCKEDBYAVOIDSPOT
                 }

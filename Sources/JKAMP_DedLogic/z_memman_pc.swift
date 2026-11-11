@@ -83,6 +83,11 @@ func Z_Malloc(_ iSize: Int32, _ eTag: JKAShared.memtag_t, _ bZeroit: Bool = fals
     //
     var pMemory: ZoneHeader? = nil
     while pMemory == nil {
+        // AI: Raven calls the Win32 Sleep under `#ifdef _WIN32`. The port calls the fork's Sys_Sleep on every platform, as openjk/codemp/qcommon/z_memman_pc.cpp:195 does.
+        if gbMemFreeupOccured {
+            SysBackend.Sys_Sleep(1000)	// sleep for a second, so Windows has a chance to shuffle mem to de-swiss-cheese it
+        }
+
         if bZeroit {
             pMemory = ZoneBackend.calloc(iRealSize, 1)
         } else {
@@ -400,8 +405,8 @@ func CopyString(_ `in`: String) -> String {
         }
     }
 
-    // AI: Raven copies the text into the S_Malloc block and returns the block. The call stays for the zone count, and the function returns the text.
-    _ = S_Malloc(strlen(`in`) + 1)
+    // AI: Raven copies the text into an S_Malloc block and returns the block.
+    // The port holds the text in the string pool, so the zone counts no block for it.
     return `in`
 }
 
