@@ -2,7 +2,7 @@
 import PackageDescription
 
 // C targets hold Raven's copied headers and nothing else. A Swift view target imports exactly one of them with internal import.
-// A logic target imports its view target and no C module. The shell target holds dllEntry and vmMain and becomes the product.
+// A logic target imports its view target and no C module, and it has a library product. The shell target holds dllEntry and vmMain and becomes the module or the executable.
 let package = Package(
     name: "jka-swift",
     platforms: [.macOS(.v15)],
@@ -10,6 +10,12 @@ let package = Package(
         .library(name: "jampgame", type: .dynamic, targets: ["jampgame"]),
         .library(name: "cgame", type: .dynamic, targets: ["cgame"]),
         .executable(name: "jampded", targets: ["jampded"]),
+        // One library product for each logic target, so that another package can import the logic and own the game.
+        // Each product also names the view targets that its logic target reaches, because a client needs their types.
+        .library(name: "JKAMP_BG", targets: ["JKAMP_BG", "JKAMP", "JKAShared"]),
+        .library(name: "JKAMP_GameLogic", targets: ["JKAMP_GameLogic", "JKAMP_BG", "JKAMP_Game", "JKAMP", "JKAShared"]),
+        .library(name: "JKAMP_CGameLogic", targets: ["JKAMP_CGameLogic", "JKAMP_BG", "JKAMP_CGame", "JKAMP", "JKAShared"]),
+        .library(name: "JKAMP_DedLogic", targets: ["JKAMP_DedLogic", "JKAMP_Ded", "JKAMP", "JKAShared"]),
     ],
     targets: [
         // MARK: - C, the syscall shim
