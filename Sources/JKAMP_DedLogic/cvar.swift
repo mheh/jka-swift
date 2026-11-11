@@ -521,6 +521,7 @@ func Cvar_Toggle_f() {
         return
     }
 
+    // Port-note: C is undefined when the value is outside the Int32 range, and Swift traps there.
     v = Int32(Cvar_VariableValue(Cmd_Argv(1)))
     v = v == 0 ? 1 : 0
 
@@ -558,6 +559,8 @@ func Cvar_Set_f() {
         if l + len >= MAX_STRING_TOKENS - 2 {
             break
         }
+        // Port-note: Raven calls strcat with no size, and a long list of arguments writes past the end of `combined`, which C leaves undefined.
+        // The body calls Q_strcat with the size of `combined`, so the text stops at the end of the buffer.
         Q_strcat(&combined, MAX_STRING_TOKENS, Cmd_Argv(i))
         if i != c - 1 {
             Q_strcat(&combined, MAX_STRING_TOKENS, " ")
