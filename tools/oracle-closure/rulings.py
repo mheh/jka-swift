@@ -1669,11 +1669,6 @@ NOT_PORTED = {
 # sigcheck.py prints each one with its row, and it fails on a difference that the table does not name and on an entry that no longer differs.
 LEDGER = "notes/2026-11-11/signature-batch-ledger.md"
 SIGNATURE_EXCEPTIONS: dict[str, tuple[str, str]] = {
-    # The table gives a `vec3_t name[3]` axis that the body only reads the inout of a written axis, q_math.c:550 and :603.
-    # The store sweep does not see a write through an axis, `transpose[i][j] = ...` of G_TransposeMatrix at g_mover.c:132,
-    # so a by-value axis would also take the axes that a body writes.
-    "AxisCopy": ("mp-game", f"row SG6 of {LEDGER}"),
-    "VectorRotate": ("mp-game", f"row SG7 of {LEDGER}"),
     # The body reads the bone list through `ghoul2.mBlist` under an AI line and takes no `blist`, G2_bones.cpp:1318.
     # An `inout` of `ghoul2.mBlist` beside the class in one call fails the exclusivity check of Swift at run time.
     "G2_Set_Bone_Rag": ("mp-engine-ded", f"row SG14 of {LEDGER}"),

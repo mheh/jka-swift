@@ -47,6 +47,28 @@ def stores(function: ci.Cursor, data: bytes) -> set[str]:
     return out
 
 
+HANDOFF = b"""
+typedef float vec3_t[3];
+void MatrixMultiply(float in1[3][3], float in2[3][3], float out[3][3]) { out[0][0] = in1[0][0] * in2[0][0]; }
+void Tag(vec3_t axis[3]) { float m[3][3]; MatrixMultiply(m, m, axis); }
+void Read(vec3_t axis[3]) { float m[3][3]; MatrixMultiply(axis, m, m); }
+"""
+
+
+def handoff_stores() -> set[tuple[str, str]]:
+    """The written parameters of the store sweep over one file, with no NULL fact and no adopted stub."""
+    import table as T
+
+    folder = Path(tempfile.mkdtemp())
+    path = folder / "handoff.c"
+    path.write_bytes(HANDOFF)
+    tu = ci.Index.create().parse(str(path), args=["-x", "c", "-std=gnu11"])
+    t = T.Table.__new__(T.Table)
+    t.nullable, t.hopped, t.stores_through = set(), set(), set()
+    t.sweep_stores(tu, path.resolve().parent)
+    return t.stores_through
+
+
 class AxisRows(unittest.TestCase):
     def setUp(self) -> None:
         self.functions, self.data = functions()
@@ -63,6 +85,15 @@ class AxisRows(unittest.TestCase):
         # given `argv[0][0] = 0` through a `char **`
         # then the store sweep keeps its old answer for the parameter
         self.assertEqual(stores(self.functions["Clear"], self.data), set())
+
+    def test_an_axis_handed_to_a_written_array_of_arrays_is_written(self) -> None:
+        # given `MatrixMultiply( orientation.axis, model->axis, axis )` of cg_players.c:5454, and `float out[3][3]` of q_math.c:1293
+        written = handoff_stores()
+
+        # then the axis handed to `out` is written, and the axis handed to `in1` is not
+        self.assertIn(("Tag", "axis"), written)
+        self.assertIn(("MatrixMultiply", "out"), written)
+        self.assertNotIn(("Read", "axis"), written)
 
     def test_an_axis_the_body_never_writes_crosses_by_value(self) -> None:
         # given `vec3_t matrix[3]` of G_TransposeMatrix, which the store sweep walked and saw no write through
