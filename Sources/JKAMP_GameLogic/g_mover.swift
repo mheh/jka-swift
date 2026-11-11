@@ -157,7 +157,7 @@ G_TransposeMatrix
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:128
-func G_TransposeMatrix(_ matrix: inout [JKAShared.vec3_t], _ transpose: inout [JKAShared.vec3_t]) {
+func G_TransposeMatrix(_ matrix: [JKAShared.vec3_t], _ transpose: inout [JKAShared.vec3_t]) {
     var i: Int32
     var j: Int32
     i = 0
@@ -179,7 +179,7 @@ G_RotatePoint
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:142
-func G_RotatePoint(_ point: inout JKAShared.vec3_t, _ matrix: inout [JKAShared.vec3_t]) {
+func G_RotatePoint(_ point: inout JKAShared.vec3_t, _ matrix: [JKAShared.vec3_t]) {
     var tvec = vec3_t()
 
     tvec = point
@@ -238,14 +238,14 @@ func G_TryPushingEntity(_ check: Entity, _ pusher: Entity, _ move: JKAShared.vec
     // try moving the contacted entity
     // figure movement due to the pusher's amove
     G_CreateRotationMatrix(amove, &transpose)
-    G_TransposeMatrix(&transpose, &matrix)
+    G_TransposeMatrix(transpose, &matrix)
     if check.client != nil {
         org = check.client!.ps.origin - pusher.r.currentOrigin
     } else {
         org = check.s.pos.trBase - pusher.r.currentOrigin
     }
     org2 = org
-    G_RotatePoint(&org2, &matrix)
+    G_RotatePoint(&org2, matrix)
     move2 = org2 - org
     // add movement
     check.s.pos.trBase = check.s.pos.trBase + move

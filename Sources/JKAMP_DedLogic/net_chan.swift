@@ -4,7 +4,7 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:33
-let MAX_PACKETLEN = 1400 as Int32
+private let MAX_PACKETLEN = 1400 as Int32
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:34
 let FRAGMENT_SIZE = (JKAMP_Ded.MAX_PACKETLEN - 100)
@@ -55,7 +55,7 @@ var send_buf_Netchan_TransmitNextFragment: Slots<JKAShared.byte> { world.storage
 var send_buf_Netchan_Transmit: Slots<JKAShared.byte> { world.storage.send_buf_Netchan_Transmit }
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:474
-let MAX_LOOPBACK = 16 as Int32
+private let MAX_LOOPBACK = 16 as Int32
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:486
 var loopbacks: Slots<Loopback> { world.storage.loopbacks }

@@ -92,7 +92,7 @@ An enum of that last kind is `private let` constants of type `Int32` at the top 
 | Raven | Swift |
 |---|---|
 | a non-const `vec3_t` parameter | `inout JKAShared.vec3_t`, and a call site writes `&v`. A `const vec3_t` stays by value. A non-const `vec4_t` or `vec2_t` parameter is `inout JKAShared.vec4_t` or `inout JKAShared.vec2_t` by the same rule, and a `const vec4_t` or `const vec2_t` also stays by value. A vector parameter that the body never writes stays by value in a game stub, as `table.py` gives it. |
-| a `vec3_t name[3]` parameter | `inout [vec3_t]`, the type `AnglesToAxis`, `AxisClear`, and `AxisCopy` take in `q_math.swift`. |
+| a `vec3_t name[N]` parameter | `inout [vec3_t]` when the body writes it, the type `AnglesToAxis`, `AxisClear`, and the `out` of `AxisCopy` take in `q_math.swift`, and `[vec3_t]` by value when the body only reads it, the `in` of `AxisCopy` and `verts` of `CG_DoGlass`. |
 | a `vec2_t name[N]` parameter | `inout [vec2_t]`, the form of the axis row, `uv` of `CG_CalcBiLerp` |
 | a non-const `char *` parameter of a function that is not a trap, with or without a size parameter beside it | `String` when the text sweep reads every use, `String?` when the NULL sweep also reaches it, and `inout CharBuf` otherwise, where the caller passes its own buffer with `&`. A `const char *` stays `String`. A read that the sweep cannot see takes the PARAMS kind `text`, `fmt` of `Log_Write`. |
 | a function-pointer parameter | an optional Swift closure, whose parameters go through these same rows |

@@ -1789,170 +1789,179 @@ MSG_ReadDeltaPlayerstate
 ```
 */
 /// Source: oracle/codemp/qcommon/msg.cpp:2455
-func MSG_ReadDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState, _ to: JKAMP.PlayerState, _ isVehiclePS: Bool = false) {
-    var i: Int32
-    var lc: Int32
-    var bits: Int32
-    var field: NetField
-    var PSFields = playerStateFields
-    var numFields: Int32
-    var startBit: Int32
-    var endBit: Int32
-    var print: Int32
-    var fromF: Slots<JKAShared.byte>
-    var toF: Slots<JKAShared.byte>
-    var trunc: Int32
+func MSG_ReadDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState?, _ to: JKAMP.PlayerState, _ isVehiclePS: Bool = false) {
+    var from = from
 
-    to.copy(from: from)
+    PlayerState.scratch { dummy in
+        var i: Int32
+        var lc: Int32
+        var bits: Int32
+        var field: NetField
+        var PSFields = playerStateFields
+        var numFields: Int32
+        var startBit: Int32
+        var endBit: Int32
+        var print: Int32
+        var fromF: Slots<JKAShared.byte>
+        var toF: Slots<JKAShared.byte>
+        var trunc: Int32
 
-    if msg.bit == 0 {
-        startBit = msg.readcount * 8 - GENTITYNUM_BITS
-    } else {
-        startBit = (msg.readcount - 1) * 8 + msg.bit - GENTITYNUM_BITS
-    }
-
-    // shownet 2/3 will interleave with other printed info, -2 will
-    // just print the delta records
-    if cl_shownet!.integer >= 2 || cl_shownet!.integer == -2 {
-        print = 1
-        Com_Printf("%3i: playerstate ", msg.readcount)
-    } else {
-        print = 0
-    }
-
-//=====_OPTIMIZED_VEHICLE_NETWORKING=======================================================================
-    if isVehiclePS {//a vehicle playerstate
-        numFields = Int32(vehPlayerStateFields.count)
-        PSFields = vehPlayerStateFields
-    } else {
-        let isPilot: Int32 = MSG_ReadBits(msg, 1)
-        if isPilot != 0 {//pilot riding *inside* a vehicle!
-            numFields = Int32(pilotPlayerStateFields.count) - 82
-            PSFields = pilotPlayerStateFields
-        } else {//normal client
-            numFields = Int32(playerStateFields.count)
+        if from == nil {
+            from = dummy
+            dummy.clear()
         }
-    }
+
+        to.copy(from: from!)
+
+        if msg.bit == 0 {
+            startBit = msg.readcount * 8 - GENTITYNUM_BITS
+        } else {
+            startBit = (msg.readcount - 1) * 8 + msg.bit - GENTITYNUM_BITS
+        }
+
+        // shownet 2/3 will interleave with other printed info, -2 will
+        // just print the delta records
+        if cl_shownet!.integer >= 2 || cl_shownet!.integer == -2 {
+            print = 1
+            Com_Printf("%3i: playerstate ", msg.readcount)
+        } else {
+            print = 0
+        }
+
+//=====_OPTIMIZED_VEHICLE_NETWORKING=======================================================================
+        if isVehiclePS {//a vehicle playerstate
+            numFields = Int32(vehPlayerStateFields.count)
+            PSFields = vehPlayerStateFields
+        } else {
+            let isPilot: Int32 = MSG_ReadBits(msg, 1)
+            if isPilot != 0 {//pilot riding *inside* a vehicle!
+                numFields = Int32(pilotPlayerStateFields.count) - 82
+                PSFields = pilotPlayerStateFields
+            } else {//normal client
+                numFields = Int32(playerStateFields.count)
+            }
+        }
 //=====_OPTIMIZED_VEHICLE_NETWORKING=======================================================================
 
-    lc = MSG_ReadByte(msg)
+        lc = MSG_ReadByte(msg)
 
-    // AI: Raven casts the record to a byte pointer and adds the field offset. The bytes of the record view give the Slots tail from that offset.
-    i = 0
-    while i < lc {
-        field = PSFields[i]
-        fromF = Slots(record: from).bytes.suffix(from: field.offset)
-        toF = Slots(record: to).bytes.suffix(from: field.offset)
+        // AI: Raven casts the record to a byte pointer and adds the field offset. The bytes of the record view give the Slots tail from that offset.
+        i = 0
+        while i < lc {
+            field = PSFields[i]
+            fromF = Slots(record: from!).bytes.suffix(from: field.offset)
+            toF = Slots(record: to).bytes.suffix(from: field.offset)
 
-        if MSG_ReadBits(msg, 1) == 0 {
-            // no change
-            toF[int: 0] = fromF[int: 0]
-        } else {
-            if field.bits == 0 {
-                // float
-                if MSG_ReadBits(msg, 1) == 0 {
-                    // integral float
-                    trunc = MSG_ReadBits(msg, FLOAT_INT_BITS)
-                    // bias to allow equal parts positive and negative
-                    trunc -= FLOAT_INT_BIAS
-                    toF[float: 0] = Float(trunc)
-                    if print != 0 {
-                        Com_Printf("%s:%i ", field.name ?? "(null)", trunc)
+            if MSG_ReadBits(msg, 1) == 0 {
+                // no change
+                toF[int: 0] = fromF[int: 0]
+            } else {
+                if field.bits == 0 {
+                    // float
+                    if MSG_ReadBits(msg, 1) == 0 {
+                        // integral float
+                        trunc = MSG_ReadBits(msg, FLOAT_INT_BITS)
+                        // bias to allow equal parts positive and negative
+                        trunc -= FLOAT_INT_BIAS
+                        toF[float: 0] = Float(trunc)
+                        if print != 0 {
+                            Com_Printf("%s:%i ", field.name ?? "(null)", trunc)
+                        }
+                    } else {
+                        // full floating point value
+                        toF[int: 0] = MSG_ReadBits(msg, 32)
+                        if print != 0 {
+                            Com_Printf("%s:%f ", field.name ?? "(null)", toF[float: 0])
+                        }
                     }
                 } else {
-                    // full floating point value
-                    toF[int: 0] = MSG_ReadBits(msg, 32)
+                    // integer
+                    toF[int: 0] = MSG_ReadBits(msg, field.bits)
                     if print != 0 {
-                        Com_Printf("%s:%f ", field.name ?? "(null)", toF[float: 0])
+                        Com_Printf("%s:%i ", field.name ?? "(null)", toF[int: 0])
                     }
                 }
+            }
+            i += 1
+        }
+        i = lc
+        while i < numFields {
+            field = PSFields[i]
+            fromF = Slots(record: from!).bytes.suffix(from: field.offset)
+            toF = Slots(record: to).bytes.suffix(from: field.offset)
+            // no change
+            toF[int: 0] = fromF[int: 0]
+            i += 1
+        }
+
+        // read the arrays
+        if MSG_ReadBits(msg, 1) != 0 {
+            // parse stats
+            if MSG_ReadBits(msg, 1) != 0 {
+                // Raven's `LOG(x)` macro of this file expands at each site, because the stub has no function for it.
+                if cl_shownet!.integer == 4 { Com_Printf("%s ", "PS_STATS") }
+                bits = MSG_ReadShort(msg)
+                i = 0
+                while i < 16 {
+                    if (bits & (1 << i)) != 0 {
+                        if i == STAT_WEAPONS { //ugly.. but we're gonna need it anyway -rww
+                            to.stats[i] = MSG_ReadBits(msg, MAX_WEAPONS)
+                        } else {
+                            to.stats[i] = MSG_ReadShort(msg)
+                        }
+                    }
+                    i += 1
+                }
+            }
+
+            // parse persistant stats
+            if MSG_ReadBits(msg, 1) != 0 {
+                if cl_shownet!.integer == 4 { Com_Printf("%s ", "PS_PERSISTANT") }
+                bits = MSG_ReadShort(msg)
+                i = 0
+                while i < 16 {
+                    if (bits & (1 << i)) != 0 {
+                        to.persistant[i] = MSG_ReadShort(msg)
+                    }
+                    i += 1
+                }
+            }
+
+            // parse ammo
+            if MSG_ReadBits(msg, 1) != 0 {
+                if cl_shownet!.integer == 4 { Com_Printf("%s ", "PS_AMMO") }
+                bits = MSG_ReadShort(msg)
+                i = 0
+                while i < 16 {
+                    if (bits & (1 << i)) != 0 {
+                        to.ammo[i] = MSG_ReadShort(msg)
+                    }
+                    i += 1
+                }
+            }
+
+            // parse powerups
+            if MSG_ReadBits(msg, 1) != 0 {
+                if cl_shownet!.integer == 4 { Com_Printf("%s ", "PS_POWERUPS") }
+                bits = MSG_ReadShort(msg)
+                i = 0
+                while i < 16 {
+                    if (bits & (1 << i)) != 0 {
+                        to.powerups[i] = MSG_ReadLong(msg)
+                    }
+                    i += 1
+                }
+            }
+        }
+
+        if print != 0 {
+            if msg.bit == 0 {
+                endBit = msg.readcount * 8 - GENTITYNUM_BITS
             } else {
-                // integer
-                toF[int: 0] = MSG_ReadBits(msg, field.bits)
-                if print != 0 {
-                    Com_Printf("%s:%i ", field.name ?? "(null)", toF[int: 0])
-                }
+                endBit = (msg.readcount - 1) * 8 + msg.bit - GENTITYNUM_BITS
             }
+            Com_Printf(" (%i bits)\n", endBit - startBit)
         }
-        i += 1
-    }
-    i = lc
-    while i < numFields {
-        field = PSFields[i]
-        fromF = Slots(record: from).bytes.suffix(from: field.offset)
-        toF = Slots(record: to).bytes.suffix(from: field.offset)
-        // no change
-        toF[int: 0] = fromF[int: 0]
-        i += 1
-    }
-
-    // read the arrays
-    if MSG_ReadBits(msg, 1) != 0 {
-        // parse stats
-        if MSG_ReadBits(msg, 1) != 0 {
-            // Raven's `LOG(x)` macro of this file expands at each site, because the stub has no function for it.
-            if cl_shownet!.integer == 4 { Com_Printf("%s ", "PS_STATS") }
-            bits = MSG_ReadShort(msg)
-            i = 0
-            while i < 16 {
-                if (bits & (1 << i)) != 0 {
-                    if i == STAT_WEAPONS { //ugly.. but we're gonna need it anyway -rww
-                        to.stats[i] = MSG_ReadBits(msg, MAX_WEAPONS)
-                    } else {
-                        to.stats[i] = MSG_ReadShort(msg)
-                    }
-                }
-                i += 1
-            }
-        }
-
-        // parse persistant stats
-        if MSG_ReadBits(msg, 1) != 0 {
-            if cl_shownet!.integer == 4 { Com_Printf("%s ", "PS_PERSISTANT") }
-            bits = MSG_ReadShort(msg)
-            i = 0
-            while i < 16 {
-                if (bits & (1 << i)) != 0 {
-                    to.persistant[i] = MSG_ReadShort(msg)
-                }
-                i += 1
-            }
-        }
-
-        // parse ammo
-        if MSG_ReadBits(msg, 1) != 0 {
-            if cl_shownet!.integer == 4 { Com_Printf("%s ", "PS_AMMO") }
-            bits = MSG_ReadShort(msg)
-            i = 0
-            while i < 16 {
-                if (bits & (1 << i)) != 0 {
-                    to.ammo[i] = MSG_ReadShort(msg)
-                }
-                i += 1
-            }
-        }
-
-        // parse powerups
-        if MSG_ReadBits(msg, 1) != 0 {
-            if cl_shownet!.integer == 4 { Com_Printf("%s ", "PS_POWERUPS") }
-            bits = MSG_ReadShort(msg)
-            i = 0
-            while i < 16 {
-                if (bits & (1 << i)) != 0 {
-                    to.powerups[i] = MSG_ReadLong(msg)
-                }
-                i += 1
-            }
-        }
-    }
-
-    if print != 0 {
-        if msg.bit == 0 {
-            endBit = msg.readcount * 8 - GENTITYNUM_BITS
-        } else {
-            endBit = (msg.readcount - 1) * 8 + msg.bit - GENTITYNUM_BITS
-        }
-        Com_Printf(" (%i bits)\n", endBit - startBit)
     }
 }
 

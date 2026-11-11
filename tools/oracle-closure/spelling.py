@@ -500,6 +500,9 @@ class Types:
                 if facts.null_reaches and facts.stores_through and facts.null_arm:
                     # A written axis a caller skips with NULL is an optional inout, with the same forward as a written vector.
                     return Answer("inout [JKAShared.vec3_t]?", "axis_mut_opt")
+                if facts.store_swept and not facts.stores_through and not facts.null_reaches:
+                    # The body never writes the axis, so it crosses by value as a read-only vector does, `AxisCopy(in, out)`.
+                    return Answer("[JKAShared.vec3_t]", "bare")
                 return Answer("inout [JKAShared.vec3_t]", "vec3_axis")
             if inner.kind == TypeKind.CHAR_S:
                 if pointee.is_const_qualified():
@@ -630,6 +633,9 @@ class Types:
             if facts.null_reaches and facts.stores_through and facts.null_arm:
                 # A written axis a caller skips with NULL is an optional inout, with the same forward as a written vector.
                 return Answer("inout [JKAShared.vec3_t]?", "axis_mut_opt")
+            if facts.store_swept and not facts.stores_through and not facts.null_reaches:
+                # The body never writes the axis, so it crosses by value as a read-only vector does.
+                return Answer("[JKAShared.vec3_t]", "bare")
             return Answer("inout [JKAShared.vec3_t]", "vec3_axis")
         if canonical.kind == TypeKind.CONSTANTARRAY and "vec2_t" in t.spelling and not facts.traps:
             # `vec2_t uv[4]` is the caller's array of texture coordinates, so it crosses as the axis does, `CG_CalcBiLerp(..., uv)`.

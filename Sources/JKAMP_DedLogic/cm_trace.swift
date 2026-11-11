@@ -21,7 +21,7 @@ RotatePoint
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:43
-func RotatePoint(_ point: inout JKAShared.vec3_t, _ matrix: inout [JKAShared.vec3_t]) {
+func RotatePoint(_ point: inout JKAShared.vec3_t, _ matrix: [JKAShared.vec3_t]) {
     // bk: FIXME
     var tvec = vec3_t()
 
@@ -39,7 +39,7 @@ TransposeMatrix
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:57
-func TransposeMatrix(_ matrix: inout [JKAShared.vec3_t], _ transpose: inout [JKAShared.vec3_t]) {
+func TransposeMatrix(_ matrix: [JKAShared.vec3_t], _ transpose: inout [JKAShared.vec3_t]) {
     // bk: FIXME
     var i: Int32
     var j: Int32
@@ -1744,8 +1744,8 @@ func CM_TransformedBoxTrace(_ trace: JKAMP.Trace, _ start: JKAShared.vec3_t, _ e
             //		 bevels invalid.
             //		 However this is correct for capsules since a capsule itself is rotated too.
             CreateRotationMatrix(angles, &matrix)
-            RotatePoint(&start_l, &matrix)
-            RotatePoint(&end_l, &matrix)
+            RotatePoint(&start_l, matrix)
+            RotatePoint(&end_l, matrix)
             // rotated sphere offset for capsule
             sphere.offset[0] = matrix[0][2] * t
             sphere.offset[1] = -matrix[1][2] * t
@@ -1760,8 +1760,8 @@ func CM_TransformedBoxTrace(_ trace: JKAMP.Trace, _ start: JKAShared.vec3_t, _ e
         // if the bmodel was rotated and there was a collision
         if rotated && Double(trace.fraction) != 1.0 {
             // rotation of bmodel collision plane
-            TransposeMatrix(&matrix, &transpose)
-            RotatePoint(&trace.plane.normal, &transpose)
+            TransposeMatrix(matrix, &transpose)
+            RotatePoint(&trace.plane.normal, transpose)
         }
 
         // re-calculate the end position of the trace because the trace.endpos
@@ -1773,7 +1773,7 @@ func CM_TransformedBoxTrace(_ trace: JKAMP.Trace, _ start: JKAShared.vec3_t, _ e
 }
 
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:1947
-func CM_CullBox(_ frustum: JKAShared.Cplane, _ transformed: inout [JKAShared.vec3_t]) -> Bool {
+func CM_CullBox(_ frustum: JKAShared.Cplane, _ transformed: [JKAShared.vec3_t]) -> Bool {
     var i: Int32
     var j: Int32
 
@@ -1811,7 +1811,7 @@ func CM_CullWorldBox(_ frustum: JKAShared.Cplane, _ bounds: [JKAShared.vec3_t]) 
         i += 1
     }
 
-    return (CM_CullBox(frustum, &transformed))
+    return (CM_CullBox(frustum, transformed))
 }
 
 /// One static per function this file stores in a `LeafList` callback field, so each has one address for the life of the module.

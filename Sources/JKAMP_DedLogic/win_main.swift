@@ -54,10 +54,10 @@ var g_consoleField2: JKAShared.CharBuf {
 private let MAX_FOUND_FILES = 0x1000 as Int32
 
 /// Source: oracle/codemp/null/win_main.cpp:1110
-let MAX_QUED_EVENTS = 256 as Int32
+private let MAX_QUED_EVENTS = 256 as Int32
 
 /// Source: oracle/codemp/null/win_main.cpp:1111
-let MASK_QUED_EVENTS = (JKAMP_Ded.MAX_QUED_EVENTS - 1)
+private let MASK_QUED_EVENTS = (JKAMP_Ded.MAX_QUED_EVENTS - 1)
 
 /// Source: oracle/codemp/null/win_main.cpp:1113
 var eventQue: Slots<SysEvent> { world.storage.eventQue }

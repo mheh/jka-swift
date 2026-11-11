@@ -740,7 +740,8 @@ class Table:
     def sweep_stores(self, tu: ci.TranslationUnit, folder: Path) -> None:
         """Every pointer parameter a body of the folder writes through, `*p = x` or `p[i] = x`, by the function's name.
         A vector parameter handed to a vector macro's written position is written too, and one handed to a callee's non-const vector
-        parameter is written when the callee writes its own parameter, which the sweep closes to a fixed point over the folder.
+        or array of arrays is written when the callee writes its own parameter, which the sweep closes to a fixed point over the folder.
+        A store through an axis subscript, `axis[i][j] = x`, writes the axis.
         A callee outside the folder writes every non-const vector it takes, because no proof of it exists.
 
         The table reads it beside `nullable`: a scalar output the body always writes keeps the `inout` spelling, and the caller's NULL
@@ -782,7 +783,11 @@ class Table:
                                 self.stores_through.add((cur.spelling, root))
                         elif i < len(params):
                             spelled = params[i].type.spelling
-                            if "const" not in spelled and ("vec3_t" in spelled or "vec4_t" in spelled):
+                            # A callee parameter of an array of arrays, `float out[3][3]` of MatrixMultiply at q_math.c:1293, takes an axis too.
+                            canonical = params[i].type.get_canonical()
+                            rows = canonical.kind == TypeKind.POINTER and canonical.get_pointee().get_canonical().kind == TypeKind.CONSTANTARRAY \
+                                or canonical.kind == TypeKind.CONSTANTARRAY and canonical.element_type.get_canonical().kind == TypeKind.CONSTANTARRAY
+                            if "const" not in spelled and ("vec3_t" in spelled or "vec4_t" in spelled or rows):
                                 edges.append(((cur.spelling, root), (callee, params[i].spelling)))
                     continue
                 if node.kind not in (CursorKind.BINARY_OPERATOR, CursorKind.COMPOUND_ASSIGNMENT_OPERATOR):
@@ -941,6 +946,21 @@ class Table:
             return None
         if cur.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
             base = self.unwrapped(list(cur.get_children())[0])
+            if base.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR:
+                # A write through an axis subscript, `transpose[i][j] = x` of g_mover.c:132, writes a row of the caller's axis.
+                # Only a parameter of an array of arrays counts, so a store through `argv[i][j]` of a `char **` keeps its form.
+                # Clang gives the reference the declared type, `vec3_t[3]`, and not the decayed pointer.
+                root = self.unwrapped(list(base.get_children())[0])
+                canonical = root.type.get_canonical()
+                if root.kind != CursorKind.DECL_REF_EXPR or root.referenced is None or root.referenced.kind != CursorKind.PARM_DECL:
+                    return None
+                if canonical.kind == TypeKind.POINTER:
+                    row = canonical.get_pointee()
+                elif canonical.kind in (TypeKind.CONSTANTARRAY, TypeKind.INCOMPLETEARRAY):
+                    row = canonical.element_type
+                else:
+                    return None
+                return root.spelling if row.get_canonical().kind == TypeKind.CONSTANTARRAY else None
             if base.kind == CursorKind.DECL_REF_EXPR and base.referenced is not None \
                     and base.referenced.kind == CursorKind.PARM_DECL:
                 return base.spelling

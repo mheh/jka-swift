@@ -65,7 +65,7 @@
 #include "code/qcommon/qfiles/vmHeader_t.h"
 #include "code/ui/ui_public/constants.h"
 #include "code/ui/ui_public/dpTypes_t.h"
-#include "code/ui/ui_public/uiImport_t.h"
+#include "code/ui/ui_public/uiImport_t_151.h"
 #include "code/client/keycodes/constants.h"
 #include "code/client/keycodes/fakeAscii_t.h"
 #include "code/ui/ui_shared/constants.h"

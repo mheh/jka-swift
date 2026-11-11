@@ -51,7 +51,7 @@ var g_G2AllocTrack: [CGhoul2Info_v?] {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:159
-let NUM_G2T_TIME = (2) as Int32
+private let NUM_G2T_TIME = (2) as Int32
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:160
 var G2TimeBases: [Int32] {
