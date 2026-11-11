@@ -170,13 +170,9 @@ final class CRMInstanceFile {
                 group = group!.GetNext()
                 continue
             } else if stricmp(group!.GetName(), "group") == 0 {
-                // Port-note: Set R1b ports CRMGroupInstance, the `group` kind of CRMInstance.
-                // Raven wrote: instance = new CRMGroupInstance ( group, *this );
-                portMissing("CRMInstanceFile::CreateInstance", source: "oracle/codemp/RMG/RM_InstanceFile.cpp:138")
+                instance = CRMInstance(group: group, self)
             } else if stricmp(group!.GetName(), "random") == 0 {
-                // Port-note: Set R1b ports CRMRandomInstance, the `random` kind of CRMInstance.
-                // Raven wrote: instance = new CRMRandomInstance ( group, *this );
-                portMissing("CRMInstanceFile::CreateInstance", source: "oracle/codemp/RMG/RM_InstanceFile.cpp:138")
+                instance = CRMInstance(random: group, self)
             } else if stricmp(group!.GetName(), "void") == 0 {
                 instance = CRMInstance(void: group, self)
             } else {

@@ -27,19 +27,26 @@ let AUTOMAP_FRIEND = 6 as Int32
 /// Source: oracle/codemp/RMG/RM_Instance.h:22
 let AUTOMAP_WALL = 7 as Int32
 
+/// Source: oracle/codemp/RMG/RM_Instance.h:120
+// AI: Raven declares a `list<CRMInstance*>`. The type is an Array, by rule 17, and a for-in loop takes the place of `rmInstanceIter_t`.
+typealias rmInstanceList_t = [CRMInstance]
+
 /// Raven's instance of a random mission, a bsp, a group, a random choice, or a void that the mission places in an area of the landscape.
 /// `CRMInstanceFile.CreateInstance` makes one by the name of its group in the instance file.
 /// Source: oracle/codemp/RMG/RM_Instance.h:25
 // AI: Raven's CRMInstance is the base of a closed virtual hierarchy. The class holds the base fields, and `kind` holds the fields each subclass adds, rule 17.
 // AI: Raven's protected fields are internal, because the extension of each subclass file reads them.
-// AI: Raven's destructor at RM_Instance.h:62 has an empty body. The class has no deinit.
 final class CRMInstance {
     /// The subclass of Raven's instance, with the fields that the subclass adds.
     ///
     /// - `bsp`: a `CRMBSPInstance`, a bsp model that the server spawns.
+    /// - `group`: a `CRMGroupInstance`, a list of child instances that the group places around its origin.
+    /// - `random`: a `CRMRandomInstance`, one child instance that the constructor picks from a weighted list.
     /// - `void`: a `CRMVoidInstance`, an area with no collision that spaces the other instances.
     enum Kind {
         case bsp(CRMBSPInstance)
+        case group(CRMGroupInstance)
+        case random(CRMRandomInstance)
         case void
     }
 
@@ -112,11 +119,29 @@ final class CRMInstance {
         self.mLockOrigin = false
     }
 
+    /// Source: oracle/codemp/RMG/RM_Instance.h:62
+    // AI: Raven's virtual destructor runs the destructor of the subclass and then the empty body of the base. The deinit runs the arm of the subclass.
+    deinit {
+        switch self.kind {
+        case .bsp, .void:
+            break
+
+        case .group:
+            self.CRMGroupInstance_deinit()
+
+        case .random:
+            self.CRMRandomInstance_deinit()
+        }
+    }
+
     /// Source: oracle/codemp/RMG/RM_Instance.h:64
     func IsValid() -> Bool {
         switch self.kind {
-        case .bsp, .void:
+        case .bsp, .group, .void:
             return true
+
+        case .random(let random):
+            return self.CRMRandomInstance_IsValid(random)
         }
     }
 
@@ -126,6 +151,12 @@ final class CRMInstance {
         switch self.kind {
         case .bsp, .void:
             return self.CRMInstance_PreSpawn(terrain, IsServer)
+
+        case .group(let group):
+            return self.CRMGroupInstance_PreSpawn(group, terrain, IsServer)
+
+        case .random(let random):
+            return self.CRMRandomInstance_PreSpawn(random, terrain, IsServer)
         }
     }
 
@@ -187,6 +218,12 @@ final class CRMInstance {
         case .bsp(let bsp):
             return self.CRMBSPInstance_Spawn(bsp, terrain, IsServer)
 
+        case .group(let group):
+            return self.CRMGroupInstance_Spawn(group, terrain, IsServer)
+
+        case .random(let random):
+            return self.CRMRandomInstance_Spawn(random, terrain, IsServer)
+
         case .void:
             return false
         }
@@ -212,7 +249,7 @@ final class CRMInstance {
     @discardableResult
     func PostSpawn(_ terrain: CRandomTerrain?, _ IsServer: Bool) -> Bool {
         switch self.kind {
-        case .bsp, .void:
+        case .bsp, .group, .random, .void:
             if self.mObjective != nil {
                 return self.mObjective!.Link()
             }
@@ -224,8 +261,11 @@ final class CRMInstance {
     /// Source: oracle/codemp/RMG/RM_Instance.h:70
     func Preview(_ from: JKAShared.vec3_t) {
         switch self.kind {
-        case .bsp, .void:
+        case .bsp, .random, .void:
             self.CRMInstance_Preview(from)
+
+        case .group(let group):
+            self.CRMGroupInstance_Preview(group, from)
         }
     }
 
@@ -287,6 +327,12 @@ final class CRMInstance {
         case .bsp:
             self.CRMInstance_SetArea(amanager, area)
 
+        case .group(let group):
+            self.CRMGroupInstance_SetArea(group, amanager, area)
+
+        case .random(let random):
+            self.CRMRandomInstance_SetArea(random, amanager, area)
+
         case .void:
             self.CRMVoidInstance_SetArea(amanager, area)
         }
@@ -303,6 +349,12 @@ final class CRMInstance {
         switch self.kind {
         case .bsp, .void:
             self.CRMInstance_SetFilter(filter)
+
+        case .group(let group):
+            self.CRMGroupInstance_SetFilter(group, filter)
+
+        case .random(let random):
+            self.CRMRandomInstance_SetFilter(random, filter)
         }
     }
 
@@ -317,6 +369,12 @@ final class CRMInstance {
         switch self.kind {
         case .bsp, .void:
             self.CRMInstance_SetTeamFilter(teamFilter)
+
+        case .group(let group):
+            self.CRMGroupInstance_SetTeamFilter(group, teamFilter)
+
+        case .random(let random):
+            self.CRMRandomInstance_SetTeamFilter(random, teamFilter)
         }
     }
 
@@ -440,6 +498,12 @@ final class CRMInstance {
         switch self.kind {
         case .bsp, .void:
             self.CRMInstance_SetMirror(mirror)
+
+        case .group(let group):
+            self.CRMGroupInstance_SetMirror(group, mirror)
+
+        case .random(let random):
+            self.CRMRandomInstance_SetMirror(random, mirror)
         }
     }
 
@@ -457,7 +521,7 @@ final class CRMInstance {
     /// Source: oracle/codemp/RMG/RM_Instance.h:96
     func GetSurfaceSprites() -> Bool {
         switch self.kind {
-        case .bsp, .void:
+        case .bsp, .group, .random, .void:
             return self.mSurfaceSprites
         }
     }
@@ -465,16 +529,22 @@ final class CRMInstance {
     /// Source: oracle/codemp/RMG/RM_Instance.h:98
     func GetLockOrigin() -> Bool {
         switch self.kind {
-        case .bsp, .void:
+        case .bsp, .group, .void:
             return self.mLockOrigin
+
+        case .random(let random):
+            return self.CRMRandomInstance_GetLockOrigin(random)
         }
     }
 
     /// Source: oracle/codemp/RMG/RM_Instance.h:99
     func GetSpacingLine() -> Int32 {
         switch self.kind {
-        case .bsp, .void:
+        case .bsp, .group, .void:
             return self.mSpacingLine
+
+        case .random(let random):
+            return self.CRMRandomInstance_GetSpacingLine(random)
         }
     }
 
@@ -483,6 +553,12 @@ final class CRMInstance {
         switch self.kind {
         case .bsp:
             return self.CRMBSPInstance_GetPreviewColor()
+
+        case .group:
+            return self.CRMGroupInstance_GetPreviewColor()
+
+        case .random(let random):
+            return self.CRMRandomInstance_GetPreviewColor(random)
 
         case .void:
             return 0
@@ -494,6 +570,12 @@ final class CRMInstance {
         switch self.kind {
         case .bsp, .void:
             return self.mSpacingRadius
+
+        case .group:
+            return self.CRMGroupInstance_GetSpacingRadius()
+
+        case .random(let random):
+            return self.CRMRandomInstance_GetSpacingRadius(random)
         }
     }
 
@@ -502,6 +584,12 @@ final class CRMInstance {
         switch self.kind {
         case .bsp, .void:
             return self.mFlattenRadius
+
+        case .group:
+            return self.CRMGroupInstance_GetFlattenRadius()
+
+        case .random(let random):
+            return self.CRMRandomInstance_GetFlattenRadius(random)
         }
     }
 
