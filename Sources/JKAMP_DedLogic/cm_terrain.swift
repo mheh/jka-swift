@@ -107,10 +107,9 @@ func CM_InitTerrain(_ configstring: String, _ terrainId: JKAShared.thandle_t, _ 
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1628
-// AI: Raven passes a `void *userdata` on to TerrainPatchIterate. The parameter is gone, and the caller's closure captures the value, row N-USERDATA.
-func CM_TerrainPatchIterate(_ landscape: CCMLandScape?, _ IterateFunc: ((CCMPatch?) -> Void)?) {
+func CM_TerrainPatchIterate(_ landscape: CCMLandScape?, _ IterateFunc: ((CCMPatch?, OpaquePointer?) -> Void)?, _ userdata: OpaquePointer?) {
     // Its callers are tr_terrain.cpp:923 of the renderer and RM_CreateRandomModels, which only the client calls, so the function is dead in the dedicated build.
-    landscape!.TerrainPatchIterate(IterateFunc)
+    landscape!.TerrainPatchIterate(IterateFunc, userdata)
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1633
