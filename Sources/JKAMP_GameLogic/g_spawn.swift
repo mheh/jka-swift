@@ -9,7 +9,10 @@ import JKAMP_BG
 
 /// Source: oracle/codemp/game/g_spawn.c:435
 /// Raven's data table, a hand property of `GameWorld`.
-var spawns: [SpawnRow] { world.spawns }
+public var spawns: [SpawnRow] {
+    get { world.spawns }
+    set { world.spawns = newValue }
+}
 
 /// Source: oracle/codemp/game/g_spawn.c:886
 let NOVALUE = "novalue"
