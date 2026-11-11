@@ -515,17 +515,23 @@ private func SV_ClipMoveToEntities(_ clip: Moveclip) {
 
     num = SV_AreaEntities(clip.boxmins, clip.boxmaxs, touchlist_SV_ClipMoveToEntities, MAX_GENTITIES)
 
-    if clip.passEntityNum != ENTITYNUM_NONE {
-        passOwnerNum = (SV_GentityNum(clip.passEntityNum))!.r.ownerNum
-        if passOwnerNum == ENTITYNUM_NONE {
+    // Port-note: For a pass entity number below 0, Raven reads `r.ownerNum` and `r.svFlags` from the memory before the entity array.
+    // The port treats that number as no entity, so `passOwnerNum` is -1 and `thisOwnerShared` stays 1.
+    if clip.passEntityNum < 0 {
+        passOwnerNum = -1
+    } else {
+        if clip.passEntityNum != ENTITYNUM_NONE {
+            passOwnerNum = (SV_GentityNum(clip.passEntityNum))!.r.ownerNum
+            if passOwnerNum == ENTITYNUM_NONE {
+                passOwnerNum = -1
+            }
+        } else {
             passOwnerNum = -1
         }
-    } else {
-        passOwnerNum = -1
-    }
 
-    if (SV_GentityNum(clip.passEntityNum)!.r.svFlags & SVF_OWNERNOTSHARED) != 0 {
-        thisOwnerShared = 0
+        if (SV_GentityNum(clip.passEntityNum)!.r.svFlags & SVF_OWNERNOTSHARED) != 0 {
+            thisOwnerShared = 0
+        }
     }
 
     // Raven's two records live to the end of the function, so the rest of the body is the closures.
