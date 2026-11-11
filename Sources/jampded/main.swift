@@ -18,9 +18,12 @@ world = EngineWorld()
 // The host installs the shared channel here, in the shape of the cgame's dllEntry.
 sharedChannel.error = { level, text in JKAMP_DedLogic.Com_Error(level, text) }
 sharedChannel.print = { text in JKAMP_DedLogic.Com_Printf(text) }
-// The host installs the module loader of Sys_LoadDll here, over jka_load_dll of CJKAHost, which the logic target cannot import.
-LoadLibrary = { path, entryPoint in
-    jka_load_dll(path, entryPoint.assumingMemoryBound(to: jka_vmmain_fn?.self)).map { OpaquePointer($0) }
+// The host installs the module loader of Sys_LoadDll here, over jka_load_library and jka_dll_entry of CJKAHost, which the logic target cannot import.
+LoadLibrary = { path in
+    jka_load_library(path).map { OpaquePointer($0) }
+}
+GetProcAddress = { libHandle, entryPoint in
+    jka_dll_entry(UnsafeMutableRawPointer(libHandle), entryPoint.assumingMemoryBound(to: jka_vmmain_fn?.self)) != 0
 }
 // The host installs SV_GameSystemCalls here for the thunk of the view target, which cannot see the logic target.
 GameSystemCalls = SV_GameSystemCalls

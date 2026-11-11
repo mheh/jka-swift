@@ -729,8 +729,8 @@ func Sys_LoadDll(_ name: String, _ entryPoint: UnsafeMutableRawPointer, _ system
     }
 
     // rjr disable for final release #ifndef NDEBUG
-    // AI: Raven calls the Win32 LoadLibrary. The call is the loader closure that the shell installs over jka_load_dll.
-    libHandle = LoadLibrary!(String(filename), entryPoint)
+    // AI: Raven calls the Win32 LoadLibrary. The call is the loader closure that the shell installs over jka_load_library.
+    libHandle = LoadLibrary!(String(filename))
     if libHandle == nil {
         //#endif
         basepath = Cvar_VariableString("fs_basepath")
@@ -740,17 +740,17 @@ func Sys_LoadDll(_ name: String, _ entryPoint: UnsafeMutableRawPointer, _ system
 
         // AI: Raven looks under fs_basepath and fs_cdpath. The lookup looks under fs_homepath first, as the fork's loader does, so one mod folder serves both hosts.
         fn = FS_BuildOSPath(homepath, gamedir, String(filename))
-        libHandle = LoadLibrary!(fn, entryPoint)
+        libHandle = LoadLibrary!(fn)
 
         if libHandle == nil {
             fn = FS_BuildOSPath(basepath, gamedir, String(filename))
-            libHandle = LoadLibrary!(fn, entryPoint)
+            libHandle = LoadLibrary!(fn)
         }
 
         if libHandle == nil {
             if !cdpath.isEmpty {
                 fn = FS_BuildOSPath(cdpath, gamedir, String(filename))
-                libHandle = LoadLibrary!(fn, entryPoint)
+                libHandle = LoadLibrary!(fn)
             }
 
             if libHandle == nil {
@@ -761,8 +761,14 @@ func Sys_LoadDll(_ name: String, _ entryPoint: UnsafeMutableRawPointer, _ system
     }
     //#endif
 
-    // AI: Raven reads dllEntry and vmMain with GetProcAddress, frees the library when one is missing, and hands `systemcalls` to dllEntry.
-    // The loader closure does these steps in jka_load_dll, which hands the module the C VM_DllSyscall.
+    // AI: Raven reads dllEntry and vmMain with GetProcAddress, and hands `systemcalls` to dllEntry.
+    // The call is the closure that the shell installs over jka_dll_entry, which hands the module the C VM_DllSyscall.
+    if !GetProcAddress!(libHandle!, entryPoint) {
+        // AI: Raven called the Win32 FreeLibrary. The backend calls the POSIX dlclose.
+        _ = SysBackend.FreeLibrary(libHandle!)
+        return nil
+    }
+
     return libHandle
 }
 
