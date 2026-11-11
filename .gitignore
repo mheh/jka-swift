@@ -11,6 +11,7 @@ __pycache__/
 /tools/oracle-closure/out/
 /tools/oracle-closure/table.sqlite*
 .claude/worktrees/
+.claude/
 
 # The graphify knowledge graph is a generated, machine-local artifact.
 /graphify-out/
