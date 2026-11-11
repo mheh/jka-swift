@@ -2041,9 +2041,10 @@ class Table:
         return f"No table row for {spelled}."
 
     def param(self, cur: ci.Cursor, following: ci.Cursor | None, traps: bool = True, owner: str | None = None,
-              preceding: ci.Cursor | None = None) -> Param | None:
-        """The table row of one parameter. The sweeps and the rulings of this cursor go to spelling.py, which owns the shape."""
-        name = cur.spelling
+              preceding: ci.Cursor | None = None, label: str | None = None) -> Param | None:
+        """The table row of one parameter. The sweeps and the rulings of this cursor go to spelling.py, which owns the shape.
+        A prototype parameter of a closure has no name when Raven gives none, so the caller passes the label `p<i>` that the rows use."""
+        name = label if label is not None else cur.spelling
         ruled = PARAMS.get((owner, name))
         capacity = None
         if isinstance(ruled, tuple):
@@ -2075,7 +2076,7 @@ class Table:
             return None
         if answer.kind == "closure":
             # A function-pointer parameter, whose own prototype parameters cross by these rows in turn.
-            return self.closure(cur, name)
+            return self.closure(cur, name, owner)
         return Param(name, answer.swift, answer.kind, size=answer.size)
 
     @staticmethod
@@ -2126,13 +2127,14 @@ class Table:
 
         return walk(definition, None) and uses > 0
 
-    def closure(self, cur: ci.Cursor, name: str) -> Param | None:
-        """A function-pointer parameter as an optional Swift closure, each prototype parameter through the same rows."""
+    def closure(self, cur: ci.Cursor, name: str, owner: str | None = None) -> Param | None:
+        """A function-pointer parameter as an optional Swift closure, each prototype parameter through the same rows.
+        A PARAMS row keys a prototype parameter as `("<function>.<parameter>", label)`, the key of a stored function of a view."""
         protos = [c for c in cur.get_children() if c.kind == CursorKind.PARM_DECL]
         types: list[str] = []
         for i, p in enumerate(protos):
             following = protos[i + 1] if i + 1 < len(protos) else None
-            m = self.param(p, following, traps=False)
+            m = self.param(p, following, traps=False, owner=f"{owner}.{name}" if owner else None, label=p.spelling or f"p{i}")
             if m is None or m.swift is None:
                 return None
             types.append(m.swift)
@@ -2211,6 +2213,11 @@ class Table:
         if isinstance(ruled, tuple) and ruled[0] == "view":
             # Every return is the record or NULL, so the function returns that record's optional view.
             return (f"{self.views.qualified_view(ruled[1], TARGET)}?", "")
+        if isinstance(ruled, tuple) and ruled[0] == "class_ref":
+            # Every return is an instance of the class named beside the kind or NULL, behind a `void *` that has no declaration to read.
+            # So the function returns that hand Swift class, optional, the class twin of `("view", record)`, row S2.
+            from rulings import CXX_CLASSES
+            return (f"{CXX_CLASSES[ruled[1]]}?", "")
         width = self.msvc_width(cur.result_type, cur)
         if width is not None and cur.result_type.get_canonical().kind != TypeKind.POINTER:
             # The botlib's `long` return is the 32 bits of WinDed, ReadSignedInt of l_script.cpp, the parameter rule above.

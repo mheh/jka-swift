@@ -1011,7 +1011,8 @@ ENUM_TYPEDEFS = {"memtag_t"}
 #   optional_bytes  a Slots<byte>?, the same for a function that returns NULL on one path
 #   optional_raw   an UnsafeMutableRawPointer?, the `raw` return of a function that returns NULL on one path
 #   string_list    a [String], for a `char **` list of zone texts with its count beside it, the file lists of files_pc.cpp and win_main.cpp
-#   class_ref      the Swift class of a C++ class of CXX_CLASSES, optional, for a pointer to an instance Raven returns or NULL
+#   class_ref      the Swift class of a C++ class of CXX_CLASSES, optional, for a pointer to an instance Raven returns or NULL,
+#                  and ("class_ref", class) names the class of a `void *` return of that instance or NULL
 #   int32          an Int32, for an `unsigned` mask Raven returns into an `int` of every caller
 # A key `record.field` names the stored function of a view field, and its run method takes the kind, `botlib_import_t.GetMemory`.
 RETURNS = {
@@ -1101,6 +1102,8 @@ RETURNS = {
     "SE_LoadLanguage": "optional_string",
     # Com_ParseTextFile of common.cpp:2209 returns a `new CGenericParser2` or NULL.
     "Com_ParseTextFile": "class_ref",
+    # G2_GetGoreRecord of G2_misc.cpp:113 returns the `GoreTextureCoordinates *` or NULL of FindGoreRecord at :103 as a `void *`, row S2.
+    "G2_GetGoreRecord": ("class_ref", "GoreTextureCoordinates"),
     # ICARUS_Malloc of icarus/Memory.cpp:8 returns the Z_Malloc block, the row of S_Malloc and row B5, row FC4.
     "ICARUS_Malloc": "raw",
     # The botlib allocators of l_memory.cpp, row D12. GetMemory and GetHunkMemory return NULL when the import does, :332 and :374,
@@ -1513,6 +1516,13 @@ PARAMS = {
     ("botlib_import_t.FS_Read", "buffer"): "bytes",
     ("botlib_import_t.FS_Write", "buffer"): "bytes",
     ("botlib_import_t.DebugPolygonCreate", "points"): "table",
+    # A key "function.parameter" names a closure parameter, and the label names its prototype parameter, `p<i>` when Raven gives no name.
+    # The `drawPoly` of CM_DrawDebugSurface at cm_patch.cpp:1651 and of BotDrawDebugPolygons at sv_bot.cpp:227 is R_DebugPolygon,
+    # which reads `numPoints` vectors of `points` at tr_main.cpp:1550, row S4.
+    ("CM_DrawDebugSurface.drawPoly", "points"): "table",
+    ("BotDrawDebugPolygons.drawPoly", "points"): "table",
+    # The `callback` of CM_CircularIterate at cm_terrain.cpp:1067 takes the `int *user`, the CM_ForceHeight row, row S4.
+    ("CM_CircularIterate.callback", "p2"): "bytes",
     # AAS_FloatForBSPEpairKey of be_aas_bspq3.cpp:306 writes one float through `value`, the FS_FOpenFile row, row 3 of docket 11.
     ("aas_export_t.AAS_FloatForBSPEpairKey", "value"): "float_mut",
     # GeneticParentsAndChildSelection of be_ai_gen.cpp:73 reads `numranks` floats of `ranks`, the D16 list row with a float pointee, row 3 of docket 11.
@@ -1577,6 +1587,10 @@ PARAMS = {
     ("G2_FreeSaveBuffer", "buffer"): "bytes",
     ("G2API_LoadGhoul2Models", "buffer"): "bytes",
     ("G2API_FreeSaveBuffer", "buffer"): "bytes",
+    # G2_SaveGhoul2Models of G2_misc.cpp:1719 sets `*buffer` to a Z_Malloc block at :1725 that the caller owns,
+    # and G2API_SaveGhoul2Models of G2_API.cpp:2472 passes it on, the ppvBuffer row, row S1.
+    ("G2_SaveGhoul2Models", "buffer"): "bytes",
+    ("G2API_SaveGhoul2Models", "buffer"): "bytes",
     # MC_Compress and MC_UnCompress of matcomp.c:50 and :163 read and write the `matrix` of an `mdxaBone_t`, the MC_UnCompressQuat row, row G13.
     ("MC_Compress", "mat"): ("view", "mdxaBone_t"),
     ("MC_UnCompress", "mat"): ("view", "mdxaBone_t"),
