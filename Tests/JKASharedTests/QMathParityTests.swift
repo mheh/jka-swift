@@ -168,15 +168,16 @@ enum QMathDump {
         for i in 0 ..< count {
             let n = vectors[i]
             for ty in 0 ... 3 {
-                var p = Plane()
-                p.normal = n
-                p.dist = n[0]
-                p.type = Int32(ty)
-                SetPlaneSignbits(&p)
-                let j = (i + 1) % count
-                let k = (i + 2) % count
-                let side = BoxOnPlaneSide(vectors[j], vectors[k], &p)
-                out += "plane \(i) ty \(ty) sb \(p.signbits) side \(side)\n"
+                out += Cplane.scratch { p in
+                    p.normal = n
+                    p.dist = n[0]
+                    p.type = Int32(ty)
+                    SetPlaneSignbits(p)
+                    let j = (i + 1) % count
+                    let k = (i + 2) % count
+                    let side = BoxOnPlaneSide(vectors[j], vectors[k], p)
+                    return "plane \(i) ty \(ty) sb \(p.signbits) side \(side)\n"
+                }
             }
         }
         return out

@@ -714,7 +714,7 @@ SetPlaneSignbits
 ```
 */
 /// Source: oracle/codemp/game/q_math.c:751
-public func SetPlaneSignbits(_ out: inout Plane) {
+public func SetPlaneSignbits(_ out: Cplane) {
     var bits: Int32
 
     // for fast box on planeside test
@@ -737,7 +737,7 @@ Returns 1, 2, or 1 + 2
 ```
 */
 /// Source: oracle/codemp/game/q_math.c:809
-public func BoxOnPlaneSide(_ emins: vec3_t, _ emaxs: vec3_t, _ p: inout Plane) -> Int32 {
+public func BoxOnPlaneSide(_ emins: vec3_t, _ emaxs: vec3_t, _ p: Cplane) -> Int32 {
     var dist1: Float
     var dist2: Float
     var sides: Int32

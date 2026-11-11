@@ -180,10 +180,7 @@ final class CCMPatch {
 
         plane!.dist = _DotProduct(p0, plane!.normal)
         plane!.type = PlaneTypeForNormal(plane!.normal)
-        // AI: Raven hands the `cplane_t *` to SetPlaneSignbits. The value function of q_math takes the plane read out of the slot, and `apply` writes it back.
-        var signPlane = plane!.plane
-        SetPlaneSignbits(&signPlane)
-        plane!.apply(signPlane)
+        SetPlaneSignbits(plane!)
 
         side!.plane = plane
     }

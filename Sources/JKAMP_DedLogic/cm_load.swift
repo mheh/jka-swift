@@ -1076,10 +1076,7 @@ func CM_InitBoxHull() {
         p!.normal = vec3_t()
         p!.normal[i >> 1] = -1
 
-        // AI: Raven hands the `cplane_t *` to SetPlaneSignbits. The value function of q_math takes the plane read out of the slot, and `apply` writes it back.
-        var plane = p!.plane
-        SetPlaneSignbits(&plane)
-        p!.apply(plane)
+        SetPlaneSignbits(p!)
         i += 1
     }
 }
