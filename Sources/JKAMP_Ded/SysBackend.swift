@@ -219,6 +219,23 @@ public enum SysBackend {
     // AI: Raven called the Win32 timeEndPeriod. The POSIX monotonic clock has a fixed resolution, so the backend does nothing.
     public static func timeEndPeriod(_ uPeriod: UInt32) {}
 
+    /// The fork's `Sys_Sleep`, which stops the calling thread for `msec` milliseconds and returns at once for 0.
+    /// Source: openjk/shared/sys/sys_unix.cpp:391
+    // AI: Raven called the Win32 Sleep only on Windows. The backend takes the fork's Sys_Sleep without its wait on standard input, and calls the POSIX usleep.
+    public static func Sys_Sleep(_ msec: Int32) {
+        var msec = msec
+        if msec == 0 {
+            return
+        }
+
+        // With nothing to select() on, we can't wait indefinitely
+        if msec < 0 {
+            msec = 10
+        }
+
+        usleep(UInt32(msec) * 1000)
+    }
+
     /// Raven's `GetCurrentThread`, the handle of the calling thread.
     /// Source: oracle/codemp/win32/win_shared.cpp:344
     // AI: Raven called the Win32 GetCurrentThread. The backend reads the POSIX pthread_self.

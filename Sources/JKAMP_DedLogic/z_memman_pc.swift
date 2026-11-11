@@ -83,6 +83,11 @@ func Z_Malloc(_ iSize: Int32, _ eTag: JKAShared.memtag_t, _ bZeroit: Bool = fals
     //
     var pMemory: ZoneHeader? = nil
     while pMemory == nil {
+        // AI: Raven calls the Win32 Sleep under `#ifdef _WIN32`. The port calls the fork's Sys_Sleep on every platform, as openjk/codemp/qcommon/z_memman_pc.cpp:195 does.
+        if gbMemFreeupOccured {
+            SysBackend.Sys_Sleep(1000)	// sleep for a second, so Windows has a chance to shuffle mem to de-swiss-cheese it
+        }
+
         if bZeroit {
             pMemory = ZoneBackend.calloc(iRealSize, 1)
         } else {
