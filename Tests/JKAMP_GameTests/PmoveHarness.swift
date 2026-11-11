@@ -10,8 +10,10 @@ import JKAShared
 /// The cases share the world, the fixture grammar, the file stub, and the step loop, and they differ in the weapon and the pins.
 ///
 /// - `melee`: `main_pmove.c`, the player holds `WP_MELEE`, and the fixtures are in `fixtures/pmove`.
+/// - `saber`: `main_pmove_saber.c`, the player holds a lit `WP_SABER` in the medium style, and the fixtures are in `fixtures/pmove_saber`.
 enum PmoveSlice: Sendable {
     case melee
+    case saber
 }
 
 /// This type drives the ported `Pmove` over one scenario fixture, as the pmove dumpers drive Raven's `Pmove`.
@@ -57,6 +59,9 @@ extension PmoveSlice {
         switch self {
         case .melee:
             return "pmove"
+
+        case .saber:
+            return "pmove_saber"
         }
     }
 
@@ -65,6 +70,9 @@ extension PmoveSlice {
         switch self {
         case .melee:
             return WP_MELEE
+
+        case .saber:
+            return WP_SABER
         }
     }
 }
@@ -133,6 +141,15 @@ extension PmoveHarness {
         ps.commandTime = 0
         ps.legsAnim = 0
         ps.torsoAnim = 0
+
+        guard slice == .saber else { return }
+        // The saber pins: one saber in the medium style, lit and in the hand.
+        // Source: jka-rust/tools/jampgame-oracle/main_pmove_saber.c:312
+        ps.fd.saberAnimLevel = SS_MEDIUM
+        ps.fd.saberAnimLevelBase = SS_MEDIUM
+        ps.saberEntityNum = 1 // nonzero, so PM_GetSaberStance gives a real stance
+        ps.saberHolstered = 0 // sabers on, so BG_SabersOff is false
+        ps.saberMove = 0 // LS_NONE, which settles to LS_READY on step 1
     }
 
     /// This applies one `ps` row, the field name and its values, through the override table of the dumper.
@@ -190,6 +207,29 @@ extension PmoveHarness {
 
         case "clientNum":
             ps.clientNum = int(0)
+
+        // The saber slice adds these fields to the table.
+        // Source: jka-rust/tools/jampgame-oracle/main_pmove_saber.c:264
+        case "saberEntityNum" where slice == .saber:
+            ps.saberEntityNum = int(0)
+
+        case "saberMove" where slice == .saber:
+            ps.saberMove = int(0)
+
+        case "saberHolstered" where slice == .saber:
+            ps.saberHolstered = int(0)
+
+        case "saberBlocked" where slice == .saber:
+            ps.saberBlocked = int(0)
+
+        case "saberInFlight" where slice == .saber:
+            ps.saberInFlight = int(0) != 0
+
+        case "saberAnimLevel" where slice == .saber:
+            ps.fd.saberAnimLevel = int(0)
+
+        case "saberAnimLevelBase" where slice == .saber:
+            ps.fd.saberAnimLevelBase = int(0)
 
         default:
             // The dumper ends with an error at a name that is not in its table.
