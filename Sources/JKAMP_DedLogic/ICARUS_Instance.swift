@@ -365,12 +365,35 @@ final class ICARUS_Instance {
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:422
     // Port-note: Rule 20. No file of oracle/codemp calls this function.
-    // Port-note: Raven writes the `double` ICARUS_VERSION through its address, 8 bytes.
-    // Slots<byte> has no `double` subscript beside `[float:]` of Slots.swift:210, so the function keeps its marker.
     @discardableResult
     func Save() -> Int32 {
-        // TODO: Port ICARUS_Instance::Save
-        portMissing("ICARUS_Instance::Save", source: "oracle/codemp/icarus/Instance.cpp:422")
+        // AI: Raven writes each value through its address. The value goes into a CharBuf of its bytes, and the CharBuf is written.
+        // AI: Raven passes each chunk ID as a four-character constant. The body passes its value as hex, with the text in a trailing comment.
+        var value = CharBuf(Double.byteCount)
+
+        //Save out a ICARUS save block header with the ICARUS version
+        let version: Double = ICARUS_VERSION
+        value.withMutableSlots { $0[double: 0] = version }
+        _ = value.withSlots { self.m_interface!.I_WriteSaveData!(0x4943_4152, $0, Int32(Double.byteCount)) } // 'ICAR'
+
+        //Save out the signals
+        if self.SaveSignals() == 0 {
+            return 0
+        }
+
+        //Save out the sequences
+        if self.SaveSequences() == 0 {
+            return 0
+        }
+
+        //Save out the sequencers
+        if self.SaveSequencers() == 0 {
+            return 0
+        }
+
+        _ = value.withSlots { self.m_interface!.I_WriteSaveData!(0x4945_4E44, $0, Int32(Double.byteCount)) } // 'IEND'
+
+        return 1
     }
 
     /**
@@ -541,12 +564,48 @@ final class ICARUS_Instance {
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:575
     // Port-note: Rule 20. No file of oracle/codemp calls this function.
-    // Port-note: Raven reads the `double` ICARUS_VERSION through its address, 8 bytes.
-    // Slots<byte> has no `double` subscript beside `[float:]` of Slots.swift:210, so the function keeps its marker.
     @discardableResult
     func Load() -> Int32 {
-        // TODO: Port ICARUS_Instance::Load
-        portMissing("ICARUS_Instance::Load", source: "oracle/codemp/icarus/Instance.cpp:575")
+        // AI: Raven reads each value through its address. The read fills a CharBuf of the value's bytes, and the body takes the value from it.
+        // AI: Raven passes each chunk ID as a four-character constant. The body passes its value as hex, with the text in a trailing comment.
+        var value = CharBuf(Double.byteCount)
+
+        //Clear out any old information
+        self.Free()
+
+        //Check to make sure we're at the ICARUS save block
+        let version: Double
+        // Port-note: Rule 19. ReadFromSaveGame of MP fills nothing, so Raven reads an unset local. The CharBuf starts at zero.
+        _ = value.withMutableSlots { self.m_interface!.I_ReadSaveData!(0x4943_4152, $0, Int32(Double.byteCount)) } // 'ICAR'
+        version = value.withSlots { $0[double: 0] }
+
+        //Versions must match!
+        if version != ICARUS_VERSION {
+            self.m_interface!.I_DPrintf!(WL_ERROR, "save game data contains outdated ICARUS version information!\n")
+            return 0
+        }
+
+        //Load all signals
+        if self.LoadSignals() == 0 {
+            self.m_interface!.I_DPrintf!(WL_ERROR, "failed to load signals from save game!\n")
+            return 0
+        }
+
+        //Load in all sequences
+        if self.LoadSequences() == 0 {
+            self.m_interface!.I_DPrintf!(WL_ERROR, "failed to load sequences from save game!\n")
+            return 0
+        }
+
+        //Load in all sequencers
+        if self.LoadSequencers() == 0 {
+            self.m_interface!.I_DPrintf!(WL_ERROR, "failed to load sequencers from save game!\n")
+            return 0
+        }
+
+        _ = value.withMutableSlots { self.m_interface!.I_ReadSaveData!(0x4945_4E44, $0, Int32(Double.byteCount)) } // 'IEND'
+
+        return 1
     }
 
     /**

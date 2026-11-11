@@ -914,6 +914,5 @@ func Cvar_Init() {
 //Turns many small allocation blocks into one big one.
 /// Source: oracle/codemp/qcommon/cvar.cpp:979
 func Cvar_Defrag() {
-    // TODO: Port Cvar_Defrag
     // AI: Raven copies every cvar string into one Z_Malloc block. The string pool holds every string, so the defrag is a no-op.
 }

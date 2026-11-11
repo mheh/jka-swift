@@ -38,3 +38,14 @@ Ten of twelve bodies landed.
 ## The checks
 
 `swift build -j 2` completes with no warning in the five files. `swift test --no-parallel -j 2` passes 162 tests, the count of the base.
+
+## The double subscript and the two last bodies
+
+The fix pass on the branch `dedicated-integration-15` closes the two open functions.
+
+- The ruling, by the existing pattern: `Slots<byte>` gets `subscript(double:) -> Double` directly after `[float:]` in `Sources/JKAShared/Views/Slots.swift`, in the same form. It has one doc line with Raven's cast form, one `// AI:` line, and `loadWord` and `storeWord` as its getter and setter. Both helpers are generic over the type and use `MemoryLayout<T>.size`, so the 8 bytes of a `Double` go through them with no change.
+- ICARUS_Instance::Save (Instance.cpp:422) and ICARUS_Instance::Load (Instance.cpp:575) are landed. Each puts the version into a CharBuf of `Double.byteCount` bytes, 8, Raven's size of `double`. The chunk IDs are `0x4943_4152` for 'ICAR' and `0x4945_4E44` for 'IEND'. Load carries the rule 19 note at its first read, as the other three Load functions do.
+- The two Port-notes that named the missing subscript are removed. Twelve of twelve bodies of the set are landed.
+- Cvar_Defrag (`cvar.swift`) loses its stale `// TODO: Port Cvar_Defrag` line. Its body is the ruled form of `notes/2026-11-03/dedicated-round-cvar.md`, a callable no-op with one `// AI:` line.
+
+`swift build -j 6` completes. `swift test --no-parallel -j 6` passes 162 tests, the count of the base.
