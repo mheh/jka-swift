@@ -219,6 +219,23 @@ public enum SysBackend {
     // AI: Raven called the Win32 timeEndPeriod. The POSIX monotonic clock has a fixed resolution, so the backend does nothing.
     public static func timeEndPeriod(_ uPeriod: UInt32) {}
 
+    /// The fork's `Sys_Sleep`, which stops the calling thread for `msec` milliseconds and returns at once for 0.
+    /// Source: openjk/shared/sys/sys_unix.cpp:391
+    // AI: Raven called the Win32 Sleep only on Windows. The backend takes the fork's Sys_Sleep without its wait on standard input, and calls the POSIX usleep.
+    public static func Sys_Sleep(_ msec: Int32) {
+        var msec = msec
+        if msec == 0 {
+            return
+        }
+
+        // With nothing to select() on, we can't wait indefinitely
+        if msec < 0 {
+            msec = 10
+        }
+
+        usleep(UInt32(msec) * 1000)
+    }
+
     /// Raven's `GetCurrentThread`, the handle of the calling thread.
     /// Source: oracle/codemp/win32/win_shared.cpp:344
     // AI: Raven called the Win32 GetCurrentThread. The backend reads the POSIX pthread_self.
@@ -333,11 +350,15 @@ public enum SysBackend {
     /// Raven's `getch` of `conio.h`, one key from the console with no echo.
     /// Source: oracle/codemp/null/win_main.cpp:211
     // AI: Raven called the conio getch. The backend reads one byte from standard input, after kbhit gave the terminal its key mode.
+    // The conio getch gives `\r` for the Enter key, so the backend gives `\r` for the `\n` of a pipe, the line end of the fork at openjk/shared/sys/con_tty.cpp:374.
     public static func getch() -> Int32 {
         var key: UInt8 = 0
         // An end of file gives 0, which Raven's switch reads as the first byte of a function key, so the console prints nothing.
         if read(STDIN_FILENO, &key, 1) != 1 {
             return 0
+        }
+        if key == 10 {
+            return 13
         }
         return Int32(key)
     }

@@ -25,24 +25,21 @@ intptr_t VM_DllSyscall( intptr_t arg, ... ) {
 	return jka_systemCall( args );
 }
 
-// Source: oracle/codemp/null/win_main.cpp:784
-void *jka_load_dll( const char *path, jka_vmmain_fn *entryPoint ) {
-	void	*libHandle;
+// Source: oracle/codemp/null/win_main.cpp:803
+void *jka_load_library( const char *path ) {
+	return dlopen( path, RTLD_NOW | RTLD_LOCAL );
+}
+
+// Source: oracle/codemp/null/win_main.cpp:827-833
+int jka_dll_entry( void *libHandle, jka_vmmain_fn *entryPoint ) {
 	void	(*dllEntry)( jka_syscall_fn syscallptr );
 
-	libHandle = dlopen( path, RTLD_NOW | RTLD_LOCAL );
-	if ( !libHandle ) {
-		return NULL;
-	}
-
-	// Source: oracle/codemp/null/win_main.cpp:827-828
 	dllEntry = ( void (*)( jka_syscall_fn ) )dlsym( libHandle, "dllEntry" );
 	*entryPoint = ( jka_vmmain_fn )dlsym( libHandle, "vmMain" );
 	if ( !*entryPoint || !dllEntry ) {
-		dlclose( libHandle );
-		return NULL;
+		return 0;
 	}
 	dllEntry( VM_DllSyscall );
 
-	return libHandle;
+	return 1;
 }

@@ -1236,17 +1236,18 @@ func MSG_WriteDeltaEntity(_ msg: Msg, _ from: JKAMP.EntityState, _ to: JKAMP.Ent
         if field.bits == 0 {
             // float
             fullFloat = toF[float: 0]
-            trunc = Int32(fullFloat)
+            // Port-note: Raven's `(int)` of a NaN or a float outside the int range is undefined, and the x86 build gives INT_MIN.
+            trunc = Int32(exactly: fullFloat.rounded(.towardZero)) ?? Int32.min
 
             if fullFloat == 0.0 {
                 MSG_WriteBits(msg, 0, 1)
                 oldsize &+= FLOAT_INT_BITS
             } else {
                 MSG_WriteBits(msg, 1, 1)
-                if trunc == fullFloat && trunc + FLOAT_INT_BIAS >= 0 && trunc + FLOAT_INT_BIAS < (1 << FLOAT_INT_BITS) {
+                if trunc == fullFloat && trunc &+ FLOAT_INT_BIAS >= 0 && trunc &+ FLOAT_INT_BIAS < (1 << FLOAT_INT_BITS) {
                     // send as small integer
                     MSG_WriteBits(msg, 0, 1)
-                    MSG_WriteBits(msg, trunc + FLOAT_INT_BIAS, FLOAT_INT_BITS)
+                    MSG_WriteBits(msg, trunc &+ FLOAT_INT_BIAS, FLOAT_INT_BITS)
                 } else {
                     // send as full floating point value
                     MSG_WriteBits(msg, 1, 1)
@@ -1650,12 +1651,13 @@ func MSG_WriteDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState?, _ to: JKA
             if field.bits == 0 {
                 // float
                 fullFloat = toF[float: 0]
-                trunc = Int32(fullFloat)
+                // Port-note: Raven's `(int)` of a NaN or a float outside the int range is undefined, and the x86 build gives INT_MIN.
+                trunc = Int32(exactly: fullFloat.rounded(.towardZero)) ?? Int32.min
 
-                if trunc == fullFloat && trunc + FLOAT_INT_BIAS >= 0 && trunc + FLOAT_INT_BIAS < (1 << FLOAT_INT_BITS) {
+                if trunc == fullFloat && trunc &+ FLOAT_INT_BIAS >= 0 && trunc &+ FLOAT_INT_BIAS < (1 << FLOAT_INT_BITS) {
                     // send as small integer
                     MSG_WriteBits(msg, 0, 1)
-                    MSG_WriteBits(msg, trunc + FLOAT_INT_BIAS, FLOAT_INT_BITS)
+                    MSG_WriteBits(msg, trunc &+ FLOAT_INT_BIAS, FLOAT_INT_BITS)
                 } else {
                     // send as full floating point value
                     MSG_WriteBits(msg, 1, 1)

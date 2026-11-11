@@ -43,10 +43,14 @@ typedef intptr_t (*jka_vmmain_fn)(
 // Source: oracle/codemp/qcommon/vm.cpp:363
 intptr_t VM_DllSyscall(intptr_t arg, ...);
 
-// This loads the module library at the path, gives it VM_DllSyscall through dllEntry, and stores its vmMain in entryPoint.
-// It returns the library handle, or NULL when the load or a lookup fails.
+// This opens the module library at the path, Raven's LoadLibrary, and returns the library handle or NULL.
 // The path search of Sys_LoadDll is not here, because it reads the fs_* cvars.
-// Source: oracle/codemp/null/win_main.cpp:784
-void *jka_load_dll(const char *path, jka_vmmain_fn *entryPoint);
+// Source: oracle/codemp/null/win_main.cpp:803
+void *jka_load_library(const char *path);
+
+// This looks for dllEntry and vmMain in the library, stores vmMain in entryPoint, and gives the module VM_DllSyscall through dllEntry.
+// It returns 0 when a lookup fails, and Sys_LoadDll then frees the library.
+// Source: oracle/codemp/null/win_main.cpp:827-833
+int jka_dll_entry(void *libHandle, jka_vmmain_fn *entryPoint);
 
 #endif

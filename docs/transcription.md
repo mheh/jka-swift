@@ -836,7 +836,9 @@ A transcriptor that finds it needs one stops and writes a Port-note instead.
 
 ### A pointer word in the shell
 
-`Sys_LoadDll` loads the module through `LoadLibrary`, the closure of `Sources/JKAMP_Ded/VmEntry.swift` that the shell installs over `jka_load_dll` of `CJKAHost`, in the shape of `sharedChannel`, because the logic target cannot import `CJKAHost`.
+`Sys_LoadDll` opens the module through `LoadLibrary`, the closure of `Sources/JKAMP_Ded/VmEntry.swift` that the shell installs over `jka_load_library` of `CJKAHost`, in the shape of `sharedChannel`, because the logic target cannot import `CJKAHost`.
+After the path search, `Sys_LoadDll` calls `GetProcAddress`, the closure over `jka_dll_entry`, which looks for `dllEntry` and `vmMain` and calls `dllEntry`.
+When a lookup fails, `Sys_LoadDll` calls `FreeLibrary` and returns nil, in Raven's order.
 `VM_Create` hands it `vm!.entryPointAddress`, the address of the `entryPoint` field in the view target, and the library name takes `DLL_SUFFIX`, `jampgamearm64.dylib` on Apple arm64.
 
 Rule 11 names the shell's `vmMain` as a pointer place, so the decode of a pointer word lives in `Sources/jampgame/jampgame.swift`.

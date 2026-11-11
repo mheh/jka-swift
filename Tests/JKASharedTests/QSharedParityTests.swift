@@ -3,14 +3,19 @@ import JKAShared
 import JKATestSupport
 import Testing
 
+/// The golden records that the Swift signatures cannot produce, which the comparison leaves out by key.
+/// Each entry gives the key of the record, Raven's line, and the argument that the Swift form does not take.
+private let skippedRecords: [(key: String, raven: String, argument: String)] = [
+    ("stricmpn_null", "oracle/codemp/game/q_shared.c:846", "a NULL `s1` or `s2`, which the String form of Q_stricmpn cannot hold"),
+    ("pslen_null", "oracle/codemp/game/q_shared.c:944", "a NULL `string`, which the String form of Q_PrintStrlen cannot hold"),
+    ("va1b", "oracle/codemp/game/q_shared.c:1019", "the first pointer into the two static buffers, which the String return of va does not keep"),
+]
+
 /// The differential test of rule 18.
 /// It rebuilds the sections of `Oracle/golden/qshared.txt` from the ported functions and compares each section as exact text.
 /// The dumper it copies is `jka-rust/tools/jampgame-oracle/main_qshared.c`, token for token, and the sections run in the dumper's order.
 ///
 /// The parse line counter of `COM_BeginParseSession` is one global, so the suite runs serialized and every section runs in one test.
-/// Two sections are not rebuilt, because the Swift signatures cannot give the values that the dumper prints:
-/// - `strhelpers`: `Q_stricmpn` and `Q_PrintStrlen` take no NULL argument, and the dumper prints `stricmpn_null` and `pslen_null`.
-/// - `va`: `va` returns a `String` copy and keeps no rotating buffer, and the dumper prints `va1b "third-literal"` through the first pointer.
 @Suite("q_shared reproduces the qshared golden", .serialized)
 struct QSharedParityTests {
     @Test("the rebuilt sections match the golden")
@@ -27,6 +32,8 @@ struct QSharedParityTests {
         let compress = try QSharedDump.compress()
         let braced = QSharedDump.braced()
         let skipline = QSharedDump.skipline()
+        let strhelpers = QSharedDump.strhelpers()
+        let va = QSharedDump.va()
         let sprintf = QSharedDump.sprintf()
         let info = try QSharedDump.info()
         let got: [(name: String, text: String)] = [
@@ -35,12 +42,18 @@ struct QSharedParityTests {
             ("compress", compress),
             ("braced", braced),
             ("skipline", skipline),
+            ("strhelpers", strhelpers),
+            ("va", va),
             ("sprintf", sprintf),
             ("info", info),
         ]
 
         for section in got {
-            let goldenText = want.first { $0.name == section.name }?.text ?? ""
+            let lines = (want.first { $0.name == section.name }?.text ?? "").split(separator: "\n", omittingEmptySubsequences: false)
+            let kept = lines.filter { line in
+                !skippedRecords.contains { line == $0.key || line.hasPrefix($0.key + " ") }
+            }
+            let goldenText = kept.joined(separator: "\n")
             #expect(GoldenFormat.mismatch("qshared \(section.name)", got: section.text, golden: goldenText) == nil)
             #expect(section.text == goldenText)
         }
@@ -221,6 +234,147 @@ enum QSharedDump {
             let off = p.offset.map { Int($0) } ?? -1
             out += "sl \(i) off \(off) line \(COM_GetCurrentParseLine())\n"
         }
+        return out
+    }
+
+    /// The records of `skippedRecords` have no call here.
+    /// Source: jka-rust/tools/jampgame-oracle/main_qshared.c:188
+    static func strhelpers() -> String {
+        var out = "== strhelpers ==\n"
+
+        // isXXX predicates over signed-char edges.
+        let ic: [Int32] = [-1, 0, 0x1f, 0x20, 0x40, 0x5a, 0x61, 0x7a, 0x7e, 0x7f, 0x80, 0xff]
+        for c in ic {
+            out += "is \(c) p \(Q_isprint(c)) l \(Q_islower(c)) u \(Q_isupper(c)) a \(Q_isalpha(c))\n"
+        }
+
+        // COM_StripExtension.
+        let sx = ["", "file", "file.ext", "a.b.c", ".hidden", "no_dot", "path/to/file.tga"]
+        for input in sx {
+            var stripped = CharBuf(64)
+            COM_StripExtension(input, &stripped)
+            out += "strip \(Self.qstr(input)) -> \(Self.qstr(String(stripped)))\n"
+        }
+
+        // COM_DefaultExtension (non-empty paths; empty path reads path[-1] = UB).
+        let dx: [(p: String, e: String)] = [
+            ("file", ".tga"),
+            ("file.bmp", ".tga"),
+            ("path/to/file", ".md3"),
+            ("path/to/file.ext", ".md3"),
+            ("noext", ".cfg"),
+            ("dir.x/name", ".wav"),
+        ]
+        for entry in dx {
+            var path = CharBuf(128)
+            strcpy(&path, entry.p)
+            COM_DefaultExtension(&path, Int32(path.count), entry.e)
+            out += "defext \(Self.qstr(entry.p)) \(Self.qstr(entry.e)) -> \(Self.qstr(String(path)))\n"
+        }
+
+        // Q_strncpyz (24-byte window filled with 0xAA to observe zero-padding).
+        let ncz = ["", "hi", "exactfit", "longerthanthebuffer.....", "abc"]
+        let nsz: [Int32] = [1, 2, 4, 8, 16]
+        for (i, src) in ncz.enumerated() {
+            for size in nsz {
+                var b = CharBuf(bytes: [CChar](repeating: CChar(truncatingIfNeeded: 0xAA), count: 24))
+                Q_strncpyz(&b, src, size)
+                out += "ncpyz \(i) \(size) \(Self.hex(b))\n"
+            }
+        }
+
+        // Q_strcat (skip combos the C would Com_Error-abort on: strlen(init) >= size).
+        let catI = ["", "foo", "12345"]
+        let catS = ["", "bar", "appendmelong"]
+        let catSz: [Int32] = [4, 8, 16]
+        for (a, initial) in catI.enumerated() {
+            for (b, src) in catS.enumerated() {
+                for size in catSz {
+                    if strlen(initial) >= size {
+                        continue
+                    }
+                    var buf = CharBuf(bytes: [CChar](repeating: CChar(truncatingIfNeeded: 0xAA), count: 24))
+                    strcpy(&buf, initial)
+                    Q_strcat(&buf, size, src)
+                    out += "cat \(a) \(b) \(size) \(Self.hex(buf))\n"
+                }
+            }
+        }
+
+        // Q_stricmp / Q_stricmpn / Q_strncmp over case/prefix/high-bit pairs.
+        let cmpA = ["", "a", "a", "abc", "abc", "Hello", "hello", "abc", "ab", "zoo", "Test123", "\u{80}x", "a\u{80}", "MixedCase"]
+        let cmpB = ["", "a", "A", "abd", "abc", "hello", "HELLO", "ab", "abc", "zoon", "test123", "\u{80}x", "a\u{7f}", "mixedcase"]
+        let cmpN: [Int32] = [0, 1, 2, 3, 5, 99999]
+        for i in 0 ..< cmpA.count {
+            out += "stricmp \(i) \(Q_stricmp(cmpA[i], cmpB[i]))\n"
+            for n in cmpN {
+                out += "stricmpn \(i) \(n) \(Q_stricmpn(cmpA[i], cmpB[i], n))\n"
+            }
+            for n in cmpN {
+                out += "strncmp \(i) \(n) \(Q_strncmp(cmpA[i], cmpB[i], n))\n"
+            }
+        }
+        // Q_stricmp / Q_stricmpn NULL handling.
+        let none: String? = nil
+        out += "stricmp_null \(Q_stricmp(none, "x")) \(Q_stricmp("x", none)) \(Q_stricmp(none, none))\n"
+
+        // Q_strlwr / Q_strupr (ASCII only; libc tolower/toupper on signed high-bit is UB).
+        let lu = ["", "Hello World", "ALLCAPS", "already lower", "MiXeD123!@#"]
+        for input in lu {
+            var lower = CharBuf(64)
+            var upper = CharBuf(64)
+            strcpy(&lower, input)
+            strcpy(&upper, input)
+            Q_strlwr(&lower)
+            Q_strupr(&upper)
+            out += "lwr \(Self.qstr(String(lower))) upr \(Self.qstr(String(upper)))\n"
+        }
+
+        // Q_PrintStrlen / Q_CleanStr over color/control-byte strings.
+        let col = [
+            "",
+            "hello",
+            "^1red",
+            "^1r^2g^3b",
+            "^^literal",
+            "^8notcolor",
+            "trailing^",
+            "^",
+            "a\u{01}b\u{1f}c\u{7f}d\u{80}e",
+            "^7white^0black^",
+            "plain text 123",
+        ]
+        for (i, input) in col.enumerated() {
+            out += "pslen \(i) \(Q_PrintStrlen(input))\n"
+            var clean = CharBuf(64)
+            strcpy(&clean, input)
+            Q_CleanStr(&clean)
+            out += "clean \(i) \(Self.qstr(String(clean)))\n"
+        }
+
+        // Q_strrchr: dump offset of the found char (or -1).
+        let rc = ["", "a", "hello", "abracadabra", "a/b/c/d", "trailing/", "^1color"]
+        let rcc: [Int32] = [Int32(ascii: "a"), Int32(ascii: "/"), Int32(ascii: "z"), 0, Int32(ascii: "r")]
+        for (i, input) in rc.enumerated() {
+            for c in rcc {
+                let off = Q_strrchr(input, c).map { Int($0) } ?? -1
+                out += "rrchr \(i) \(c) \(off)\n"
+            }
+        }
+        return out
+    }
+
+    /// The record `va1b` reads the first pointer after the third call, so it has no line here.
+    /// Source: jka-rust/tools/jampgame-oracle/main_qshared.c:293
+    static func va() -> String {
+        var out = "== va ==\n"
+        let p1 = JKAShared.va("first-literal")
+        let p2 = JKAShared.va("second-literal")
+        out += "va1 \(Self.qstr(p1))\n"
+        out += "va2 \(Self.qstr(p2))\n"
+        let p3 = JKAShared.va("third-literal")
+        out += "va2b \(Self.qstr(p2))\n"
+        out += "va3 \(Self.qstr(p3))\n"
         return out
     }
 

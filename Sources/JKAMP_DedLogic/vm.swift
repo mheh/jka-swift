@@ -593,6 +593,10 @@ func VM_Create(_ module: String, _ systemCalls: VmSystemCall?, _ interpret: vmIn
         return nil
     }
 
+    // AI: Raven falls back to the QVM image of the game module and runs it in the interpreter or the compiler.
+    // The port stops with ERR_FATAL here, because its system calls have no form for a 32-bit image.
+    Com_Error(ERR_FATAL, "VM_Create: the port cannot run the QVM image %s", filename)
+
     // byte swap the header
     i = 0
     while i < Int32(VmHeader.byteCount) / 4 {

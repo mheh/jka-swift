@@ -4,6 +4,12 @@ import Testing
 @testable import JKAMP_BG
 import JKAMP
 
+/// The golden records that the Swift signatures cannot produce, which the comparison leaves out by key.
+/// Each entry gives the key of the record, Raven's line, and the argument that the Swift form does not take.
+private let skippedRecords: [(key: String, raven: String, argument: String)] = [
+    ("grab nullps", "oracle/codemp/game/bg_misc.c:2201", "a NULL `ps`, which the non-optional PlayerState view cannot hold"),
+]
+
 /// The differential test of rule 18 for the seven sections of `Oracle/golden/bgmisc.txt` after `trajectory`.
 /// Each test rebuilds one section from the ported tables and functions and compares the section text.
 /// The dumper it copies is `jka-rust/tools/jampgame-oracle/main_bgmisc.c`, token for token.
@@ -44,10 +50,15 @@ struct BGMiscParityTests {
         try Self.check("ps2esxp", got: BGMiscDump.ps2esxpSection())
     }
 
-    /// This compares one rebuilt section with the same section of the golden, exact text.
+    /// This compares one rebuilt section with the same section of the golden, exact text, less the records of `skippedRecords`.
     private static func check(_ name: String, got: String) throws {
         let golden = try OracleData.golden("bgmisc")
-        let expected = try #require(BGMiscDump.section(name, of: golden))
+        let section = try #require(BGMiscDump.section(name, of: golden))
+        let lines = section.split(separator: "\n", omittingEmptySubsequences: false)
+        let kept = lines.filter { line in
+            !skippedRecords.contains { line == $0.key || line.hasPrefix($0.key + " ") }
+        }
+        let expected = kept.joined(separator: "\n")
         #expect(GoldenFormat.mismatch("bgmisc", got: got, golden: expected) == nil)
         #expect(got == expected)
     }
@@ -204,14 +215,11 @@ extension BGMiscDump {
                         Self.psSet(ps, Array(tok.dropFirst()))
 
                     case "run":
-                        let grabbed: Bool
-                        if havePs {
-                            grabbed = BG_CanItemBeGrabbed(gametype, ent, ps)
-                        } else {
-                            // The port takes a non-optional view, so a NULL `ps` has no Swift call.
-                            // Raven's safety return for a NULL `ps` is `qfalse`, at oracle/codemp/game/bg_misc.c:2232-2235.
-                            grabbed = false
+                        // A NULL `ps` has no Swift call, so its record is in `skippedRecords`.
+                        if !havePs {
+                            break
                         }
+                        let grabbed = BG_CanItemBeGrabbed(gametype, ent, ps)
                         out += "grab \(tok[1]) \(grabbed ? 1 : 0)\n"
 
                     default:
