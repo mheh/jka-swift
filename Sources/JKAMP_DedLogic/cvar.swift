@@ -908,7 +908,6 @@ func Cvar_Init() {
 }
 
 /// Source: oracle/codemp/qcommon/cvar.cpp:965
-// TODO: Port signature
 // Raven wrote: static void Cvar_Realloc(char **string, char *memPool, int &memPoolUsed)
 // Not ported: the string pool holds every cvar string, so the memory pool it copies into does not exist, and Cvar_Defrag is a no-op.
 
