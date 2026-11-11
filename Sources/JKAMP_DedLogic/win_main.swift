@@ -121,8 +121,8 @@ Sys_FunctionCmp
 /// Source: oracle/codemp/null/win_main.cpp:59
 func Sys_FunctionCmp(_ f1: OpaquePointer?, _ f2: OpaquePointer?) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port Sys_FunctionCmp
-    portMissing("Sys_FunctionCmp", source: "oracle/codemp/null/win_main.cpp:59")
+    // AI: Raven scanned the x86 opcodes of the function body. The host runs no x86 code, so the body takes Raven's unix return.
+    return 1
 }
 
 /**
@@ -135,8 +135,8 @@ Sys_FunctionCheckSum
 /// Source: oracle/codemp/null/win_main.cpp:128
 func Sys_FunctionCheckSum(_ f1: OpaquePointer?) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port Sys_FunctionCheckSum
-    portMissing("Sys_FunctionCheckSum", source: "oracle/codemp/null/win_main.cpp:128")
+    // AI: Raven scanned the x86 opcodes of the function body. The host runs no x86 code, so the body takes Raven's unix return.
+    return 0
 }
 
 /**

@@ -56,6 +56,37 @@ public struct FILETIME {
     public init() {}
 }
 
+/// Raven's `LARGE_INTEGER` of `winnt.h`, a 64-bit count split into two 32-bit halves.
+/// Source: oracle/codemp/win32/win_shared.cpp:403
+// AI: Raven read the Win32 union. The value keeps its two halves, and SysBackend.QueryPerformanceCounter fills them from the POSIX monotonic clock.
+public struct LARGE_INTEGER {
+    public var LowPart: UInt32 = 0
+    public var HighPart: Int32 = 0
+
+    public init() {}
+}
+
+/// Raven's `HANDLE` of `winnt.h` for a thread, the value of GetCurrentThread.
+/// Source: oracle/codemp/win32/win_shared.cpp:344
+// AI: Raven read the Win32 pseudo handle of the current thread. The value holds the POSIX thread of pthread_self.
+public struct HANDLE {
+    fileprivate var thread: pthread_t
+
+    fileprivate init(_ thread: pthread_t) {
+        self.thread = thread
+    }
+}
+
+/// Raven's `THREAD_PRIORITY_ERROR_RETURN` of `winbase.h`, the result of a failed GetThreadPriority.
+/// Source: oracle/codemp/win32/win_shared.cpp:347
+// AI: Raven read the Win32 value MAXLONG. The backend gives the same value when the POSIX call fails.
+public let THREAD_PRIORITY_ERROR_RETURN: Int32 = 0x7FFF_FFFF
+
+/// Raven's `THREAD_PRIORITY_TIME_CRITICAL` of `winbase.h`, the highest priority of a thread.
+/// Source: oracle/codemp/win32/win_shared.cpp:349
+// AI: Raven read the Win32 value 15. The backend sets the highest POSIX priority of the scheduling policy for this value.
+public let THREAD_PRIORITY_TIME_CRITICAL: Int32 = 15
+
 /// Raven's `_A_SUBDIR` of `io.h`, the attribute bit of a directory entry.
 /// Source: oracle/codemp/null/win_main.cpp:457
 // AI: Raven read the Win32 CRT value. The backend sets this bit for an entry that the POSIX stat names a directory.
@@ -176,6 +207,75 @@ public enum SysBackend {
         clock_gettime(CLOCK_MONOTONIC, &now)
         let milliseconds = Int64(now.tv_sec) * 1000 + Int64(now.tv_nsec) / 1_000_000
         return Int32(truncatingIfNeeded: milliseconds)
+    }
+
+    /// Raven's `timeBeginPeriod`, which asks for a timer resolution in milliseconds.
+    /// Source: oracle/codemp/win32/win_shared.cpp:340
+    // AI: Raven called the Win32 timeBeginPeriod. The POSIX monotonic clock has a fixed resolution, so the backend does nothing.
+    public static func timeBeginPeriod(_ uPeriod: UInt32) {}
+
+    /// Raven's `timeEndPeriod`, which ends the request of timeBeginPeriod.
+    /// Source: oracle/codemp/win32/win_shared.cpp:383
+    // AI: Raven called the Win32 timeEndPeriod. The POSIX monotonic clock has a fixed resolution, so the backend does nothing.
+    public static func timeEndPeriod(_ uPeriod: UInt32) {}
+
+    /// Raven's `GetCurrentThread`, the handle of the calling thread.
+    /// Source: oracle/codemp/win32/win_shared.cpp:344
+    // AI: Raven called the Win32 GetCurrentThread. The backend reads the POSIX pthread_self.
+    public static func GetCurrentThread() -> HANDLE {
+        HANDLE(pthread_self())
+    }
+
+    /// Raven's `GetThreadPriority`, the priority of a thread, or THREAD_PRIORITY_ERROR_RETURN when the call fails.
+    /// The value is the POSIX priority less the highest priority of the policy, so it is zero or less and never equals THREAD_PRIORITY_TIME_CRITICAL.
+    /// Source: oracle/codemp/win32/win_shared.cpp:346
+    // AI: Raven called the Win32 GetThreadPriority. The backend reads the POSIX scheduling parameters of the thread.
+    public static func GetThreadPriority(_ hThread: HANDLE) -> Int32 {
+        var policy: Int32 = 0
+        var param = sched_param()
+        if pthread_getschedparam(hThread.thread, &policy, &param) != 0 {
+            return THREAD_PRIORITY_ERROR_RETURN
+        }
+        return param.sched_priority - sched_get_priority_max(policy)
+    }
+
+    /// Raven's `SetThreadPriority`, false when the call fails.
+    /// THREAD_PRIORITY_TIME_CRITICAL sets the highest priority of the policy, and any other value is a value of GetThreadPriority.
+    /// Source: oracle/codemp/win32/win_shared.cpp:349
+    // AI: Raven called the Win32 SetThreadPriority. The backend sets the POSIX scheduling priority of the thread in its current policy.
+    @discardableResult
+    public static func SetThreadPriority(_ hThread: HANDLE, _ nPriority: Int32) -> Bool {
+        var policy: Int32 = 0
+        var param = sched_param()
+        if pthread_getschedparam(hThread.thread, &policy, &param) != 0 {
+            return false
+        }
+        let highest = sched_get_priority_max(policy)
+        param.sched_priority = nPriority == THREAD_PRIORITY_TIME_CRITICAL ? highest : max(highest + nPriority, sched_get_priority_min(policy))
+        return pthread_setschedparam(hThread.thread, policy, &param) == 0
+    }
+
+    /// Raven's `QueryPerformanceFrequency`, the ticks of QueryPerformanceCounter in one second.
+    /// Source: oracle/codemp/win32/win_shared.cpp:424
+    // AI: Raven called the Win32 QueryPerformanceFrequency. The backend counts nanoseconds, so the frequency is 1000000000.
+    public static func QueryPerformanceFrequency(_ lpFrequency: inout LARGE_INTEGER) -> Bool {
+        let frequency: UInt64 = 1_000_000_000
+        lpFrequency.LowPart = UInt32(truncatingIfNeeded: frequency)
+        lpFrequency.HighPart = Int32(truncatingIfNeeded: frequency >> 32)
+        return true
+    }
+
+    /// Raven's `QueryPerformanceCounter`, the ticks of the high-resolution counter.
+    /// Source: oracle/codemp/win32/win_shared.cpp:443
+    // AI: Raven called the Win32 QueryPerformanceCounter. The backend reads the monotonic clock of the platform in nanoseconds.
+    @discardableResult
+    public static func QueryPerformanceCounter(_ lpPerformanceCount: inout LARGE_INTEGER) -> Bool {
+        var now = timespec()
+        clock_gettime(CLOCK_MONOTONIC, &now)
+        let nanoseconds = UInt64(now.tv_sec) * 1_000_000_000 + UInt64(now.tv_nsec)
+        lpPerformanceCount.LowPart = UInt32(truncatingIfNeeded: nanoseconds)
+        lpPerformanceCount.HighPart = Int32(truncatingIfNeeded: nanoseconds >> 32)
+        return true
     }
 
     /// Raven's `CLOCKS_PER_SEC` of `time.h`, the ticks of `clock` in one second.
