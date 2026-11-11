@@ -1876,6 +1876,8 @@ NULLABLE = {
     ("Com_RealTime", "qtime"),
     # SV_WriteSnapshotToClient passes a NULL `oldframe` on a retransmit or a first snapshot, sv_snapshot.cpp:115 to :131, and the body tests `!from` at :43.
     ("SV_EmitPacketEntities", "from"),
+    # CL_ParseSnapshot passes NULL for `from` when no old snapshot is valid, cl_parse.cpp:278 and :281, and the body tests `!from` at msg.cpp:2470.
+    ("MSG_ReadDeltaPlayerstate", "from"),
     # unzGoToFirstFile and the three callers of unzip.cpp pass NULL for the info and the two text buffers, :737 to :827, and the body tests each one.
     ("unzlocal_GetCurrentFileInfoInternal", "pfile_info"),
     ("unzlocal_GetCurrentFileInfoInternal", "pfile_info_internal"),
