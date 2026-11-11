@@ -1550,8 +1550,59 @@ func CG_ParticleBulletDebris(_ org: JKAShared.vec3_t, _ vel: JKAShared.vec3_t, _
 /// Source: oracle/codemp/cgame/cg_marks.c:1496
 func CG_ParticleExplosion(_ animStr: String, _ origin: JKAShared.vec3_t, _ vel: JKAShared.vec3_t, _ duration: Int32, _ sizeStart: Int32, _ sizeEnd: Int32) {
     // Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port CG_ParticleExplosion
-    portMissing("CG_ParticleExplosion", source: "oracle/codemp/cgame/cg_marks.c:1496")
+    var duration = duration
+    var p: Cparticle?
+    var anim: Int32
+
+    // Port-note: Raven compares the pointer `animStr` with `(char *)10` to catch an index passed as a string, which C leaves undefined.
+    // A Swift String cannot hold an index, so the port has no test.
+
+    // find the animation string
+    anim = 0
+    while shaderAnimNames[anim] != nil {
+        if Q_stricmp(animStr, shaderAnimNames[anim]) == 0 {
+            break
+        }
+        anim += 1
+    }
+    if shaderAnimNames[anim] == nil {
+        CG_Error("CG_ParticleExplosion: unknown animation string: %s\n", animStr)
+        return
+    }
+
+    if free_particles == nil {
+        return
+    }
+    p = free_particles
+    free_particles = p!.next
+    p!.next = active_particles
+    active_particles = p
+    p!.time = Float(cg.time)
+    p!.alpha = 0.5
+    p!.alphavel = 0
+
+    if duration < 0 {
+        duration *= -1
+        p!.roll = 0
+    } else {
+        p!.roll = Int32(crandom() * 179)
+    }
+
+    p!.shaderAnim = anim
+
+    p!.width = Float(sizeStart)
+    p!.height = Float(sizeStart) * shaderAnimSTRatio[anim] // for sprites that are stretch in either direction
+
+    p!.endheight = Float(sizeEnd)
+    p!.endwidth = Float(sizeEnd) * shaderAnimSTRatio[anim]
+
+    p!.endtime = Float(cg.time + duration)
+
+    p!.type = P_ANIM
+
+    p!.org = origin
+    p!.vel = vel
+    p!.accel = vec3_t()
 }
 
 // Rafael Shrapnel
