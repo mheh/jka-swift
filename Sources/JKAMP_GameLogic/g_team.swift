@@ -20,9 +20,11 @@ public func Team_InitGame() {
 
     switch g_gametype.integer {
     case GT_CTF, GT_CTY:
-        teamgame.blueStatus = -1 // Invalid to force update
-        teamgame.redStatus = teamgame.blueStatus // Invalid to force update
+        // Port-note: Raven sets both statuses to -1 first, so his first call reads `ctfFlagStatusRemap[-1]` for the blue status.
+        // The port takes the order of OpenJK, which sets each status just before its call.
+        teamgame.redStatus = -1 // Invalid to force update
         Team_SetFlagStatus(TEAM_RED, FLAG_ATBASE)
+        teamgame.blueStatus = -1 // Invalid to force update
         Team_SetFlagStatus(TEAM_BLUE, FLAG_ATBASE)
 
     default:
