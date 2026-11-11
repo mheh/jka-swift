@@ -46,8 +46,21 @@ func AAS_Error(_ fmt: String, _ args: any JKAShared.FormatArg...) {
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:56
 func AAS_StringFromIndex(_ indexname: inout JKAShared.CharBuf, _ stringindex: Slots<String?>, _ numindexes: Int32, _ index: Int32) -> String {
     // Port-note: AAS_ModelFromIndex is the one caller, and no file of either tree calls it, so this function is dead.
-    // TODO: Port AAS_StringFromIndex
-    portMissing("AAS_StringFromIndex", source: "oracle/codemp/botlib/be_aas_main.cpp:56")
+    if aasworld.indexessetup == 0 {
+        botimport.runPrint(PRT_ERROR, "%s: index %d not setup\n", String(indexname), index)
+        return ""
+    } //end if
+    if index < 0 || index >= numindexes {
+        botimport.runPrint(PRT_ERROR, "%s: index %d out of range\n", String(indexname), index)
+        return ""
+    } //end if
+    if stringindex[index] == nil {
+        if index != 0 {
+            botimport.runPrint(PRT_ERROR, "%s: reference to unused index %d\n", String(indexname), index)
+        } //end if
+        return ""
+    } //end if
+    return stringindex[index]!
 }
 
 //===========================================================================
@@ -59,8 +72,21 @@ func AAS_StringFromIndex(_ indexname: inout JKAShared.CharBuf, _ stringindex: Sl
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:84
 func AAS_IndexFromString(_ indexname: inout JKAShared.CharBuf, _ stringindex: Slots<String?>, _ numindexes: Int32, _ string: inout JKAShared.CharBuf) -> Int32 {
     // Port-note: AAS_IndexFromModel is the one caller, and no file of either tree calls it, so this function is dead.
-    // TODO: Port AAS_IndexFromString
-    portMissing("AAS_IndexFromString", source: "oracle/codemp/botlib/be_aas_main.cpp:84")
+    var i: Int32
+    if aasworld.indexessetup == 0 {
+        botimport.runPrint(PRT_ERROR, "%s: index not setup \"%s\"\n", String(indexname), String(string))
+        return 0
+    } //end if
+    i = 0
+    while i < numindexes {
+        if stringindex[i] == nil {
+            i += 1
+            continue
+        }
+        if Q_stricmp(stringindex[i]!, String(string)) == 0 { return i }
+        i += 1
+    } //end for
+    return 0
 }
 
 //===========================================================================
@@ -72,8 +98,8 @@ func AAS_IndexFromString(_ indexname: inout JKAShared.CharBuf, _ stringindex: Sl
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:105
 func AAS_ModelFromIndex(_ index: Int32) -> String {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port AAS_ModelFromIndex
-    portMissing("AAS_ModelFromIndex", source: "oracle/codemp/botlib/be_aas_main.cpp:105")
+    var indexname = CharBuf("ModelFromIndex")
+    return AAS_StringFromIndex(&indexname, aasworld.configstrings.suffix(from: CS_MODELS), MAX_MODELS, index)
 }
 
 //===========================================================================
@@ -85,8 +111,8 @@ func AAS_ModelFromIndex(_ index: Int32) -> String {
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:115
 func AAS_IndexFromModel(_ modelname: inout JKAShared.CharBuf) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port AAS_IndexFromModel
-    portMissing("AAS_IndexFromModel", source: "oracle/codemp/botlib/be_aas_main.cpp:115")
+    var indexname = CharBuf("IndexFromModel")
+    return AAS_IndexFromString(&indexname, aasworld.configstrings.suffix(from: CS_MODELS), MAX_MODELS, &modelname)
 }
 
 //===========================================================================
@@ -98,8 +124,19 @@ func AAS_IndexFromModel(_ modelname: inout JKAShared.CharBuf) -> Int32 {
 /// Source: oracle/codemp/botlib/be_aas_main.cpp:125
 func AAS_UpdateStringIndexes(_ numconfigstrings: Int32, _ configstrings: Slots<String?>) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port AAS_UpdateStringIndexes
-    portMissing("AAS_UpdateStringIndexes", source: "oracle/codemp/botlib/be_aas_main.cpp:125")
+    var i: Int32
+    //set string pointers and copy the strings
+    i = 0
+    while i < numconfigstrings {
+        if configstrings[i] != nil {
+            //if (aasworld.configstrings[i]) FreeMemory(aasworld.configstrings[i]);
+            // AI: Raven copies the text into the GetMemory block. The call stays for the memory count, and the slot takes the text.
+            _ = GetMemory(strlen(configstrings[i]!) + 1)
+            aasworld.configstrings[i] = configstrings[i]
+        } //end if
+        i += 1
+    } //end for
+    aasworld.indexessetup = 1
 }
 
 //===========================================================================

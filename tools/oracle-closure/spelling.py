@@ -326,9 +326,10 @@ class Types:
                 return Answer(f"{alias}?", "bare")
         if facts.ruled == "bytes" and canonical.kind == TypeKind.POINTER:
             pointee = canonical.get_pointee().get_canonical()
-            if pointee.kind == TypeKind.POINTER and pointee.get_pointee().get_canonical().kind in (TypeKind.VOID, TypeKind.UCHAR):
+            if pointee.kind == TypeKind.POINTER and pointee.get_pointee().get_canonical().kind in (TypeKind.VOID, TypeKind.UCHAR, TypeKind.CHAR_S):
                 # A `void **` the body sets to a byte buffer, `ppvBuffer` of RE_RegisterModels_GetDiskFile, is the caller's optional Slots of bytes,
                 # inout, the shape a `void **` handle has, row TR13. A `byte **`, `pic` of LoadTGA at tr_image.cpp:1421, is the same, row G11 of docket 13.
+                # A `char **`, `buffer` of G2_SaveGhoul2Models at G2_misc.cpp:1719, is the same, because the body sets it to a Z_Malloc block, row S1.
                 return Answer("inout Slots<JKAShared.byte>?", "out_opaque")
             if canonical.get_pointee().get_canonical().kind == TypeKind.INT:
                 # An `int *` list the body fills, `int *entityList` of SV_AreaEntities, is the caller's Slots of Int32, the rule of the field kind.
@@ -370,6 +371,10 @@ class Types:
                 # A caller hands NULL, `AAS_TraceAreas(start, end, areas, NULL, 10)` of be_aas_reach.cpp:1542, so the Slots is optional,
                 # the form of the `modelList` row.
                 return Answer("Slots<JKAShared.vec3_t>?", "slots_opt")
+            return Answer("Slots<JKAShared.vec3_t>", "slots")
+        if facts.ruled == "table" and canonical.kind == TypeKind.POINTER and canonical.get_pointee().get_canonical().kind == TypeKind.FLOAT:
+            # A `float *` that a row rules as a table holds three floats for each vector, `points` of the `drawPoly` closure of CM_DrawDebugSurface
+            # at cm_patch.cpp:1651, which R_DebugPolygon reads as `points + i * 3` at tr_main.cpp:1550. So the Slots of vectors crosses, row S4.
             return Answer("Slots<JKAShared.vec3_t>", "slots")
         if canonical.kind in (TypeKind.LVALUEREFERENCE, TypeKind.POINTER) and not facts.traps:
             # A C++ class of CXX_CLASSES is the hand Swift class of the same name, a reference by itself and a pointer optional, rule 17.

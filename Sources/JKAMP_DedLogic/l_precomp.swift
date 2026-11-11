@@ -586,8 +586,29 @@ func PC_FreeDefine(_ define: Define) {
 /// Source: oracle/codemp/botlib/l_precomp.cpp:665
 func PC_AddBuiltinDefines(_ source: Source) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port PC_AddBuiltinDefines
-    portMissing("PC_AddBuiltinDefines", source: "oracle/codemp/botlib/l_precomp.cpp:665")
+    var i: Int32
+    var define: Define
+    // AI: Raven declares a local struct table with a `{ NULL, 0 }` end row. The table is a local array of labeled tuples, and the walk stops at its count.
+    let builtin: [(string: String, mBuiltin: Int32)] = [ // bk001204 - brackets
+        ("__LINE__", BUILTIN_LINE),
+        ("__FILE__", BUILTIN_FILE),
+        ("__DATE__", BUILTIN_DATE),
+        ("__TIME__", BUILTIN_TIME),
+//		{ "__STDC__", BUILTIN_STDC },
+    ]
+
+    i = 0
+    while i < builtin.count {
+        // AI: Raven points the name at the bytes after the record. The setter keeps the text in the string pool, so those bytes stay unused.
+        define = Define(GetMemory(Int32(Define.byteCount) + strlen(builtin[i].string) + 1)!)
+        define.clear()
+        define.name = builtin[i].string
+        define.flags |= DEFINE_FIXED
+        define.builtin = builtin[i].mBuiltin
+        //add the define to the source
+        PC_AddDefineToHash(define, source.definehash!)
+        i += 1
+    } //end for
 }
 
 //============================================================================
@@ -2492,8 +2513,15 @@ func PC_UnreadToken(_ source: Source, _ token: Token) {
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3013
 func PC_SetIncludePath(_ source: Source, _ path: String) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port PC_SetIncludePath
-    portMissing("PC_SetIncludePath", source: "oracle/codemp/botlib/l_precomp.cpp:3013")
+    strncpy(&source.includepathBuffer, path, MAX_PATH)
+    //add trailing path seperator
+    // AI: Raven reads `filename[1023]`, the byte before `includepath`, for an empty path, and that byte is always 0.
+    // The empty test gives the same append of the separator.
+    if strlen(source.includepathBuffer) == 0 ||
+        (source.includepathBuffer[strlen(source.includepathBuffer) - 1] != Int32(ascii: "\\") &&
+        source.includepathBuffer[strlen(source.includepathBuffer) - 1] != Int32(ascii: "/")) {
+        strcat(&source.includepathBuffer, PATHSEPERATOR_STR)
+    } //end if
 }
 
 //============================================================================

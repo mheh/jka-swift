@@ -430,9 +430,9 @@ final class CROFFSystem {
         }
 
         if roff_ent.mIsClient {
-            // Port-note: The dedicated build drops Raven's client arm, so the trajectories stay uninitialized and SetLerp reads them.
-            // No caller of WinDed sets mIsClient, because sv_game.cpp:725 passes qfalse and WinDed does not link cl_cgame.cpp:1279.
-            portMissing("CROFFSystem::ApplyROFF", source: "oracle/codemp/qcommon/RoffSystem.cpp:820")
+            // Port-note: Rule 19. The dedicated build drops Raven's client arm, so SetLerp then writes through uninitialized trajectory pointers.
+            // No WinDed caller sets mIsClient (sv_game.cpp:725 passes qfalse), and the arm takes the function's "bad stuff" return.
+            return false
         } else {
             // Find the entity to apply the roff to
             ent = SV_GentityNum(roff_ent.mEntID)
@@ -596,9 +596,9 @@ final class CROFFSystem {
         let angle: JKAShared.vec3_t
 
         if roff_ent.mIsClient {
-            // Port-note: The dedicated build drops Raven's client arm, so the trajectories stay uninitialized and SetLerp reads them.
-            // No caller of WinDed sets mIsClient, because sv_game.cpp:725 passes qfalse and WinDed does not link cl_cgame.cpp:1279.
-            portMissing("CROFFSystem::ClearLerp", source: "oracle/codemp/qcommon/RoffSystem.cpp:973")
+            // Port-note: Rule 19. The dedicated build drops Raven's client arm, so SetLerp then writes through uninitialized trajectory pointers.
+            // No WinDed caller sets mIsClient (sv_game.cpp:725 passes qfalse), and the arm takes the function's "bad stuff" return.
+            return false
         } else {
             // Find the entity to apply the roff to
             ent = SV_GentityNum(roff_ent.mEntID)

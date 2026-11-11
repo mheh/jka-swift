@@ -738,6 +738,9 @@ BYTE_STORAGE_LOCALS = {
     # CM_Checksum hands `unsigned checksums[16]` to the `const void *` of Com_BlockChecksum at cm_load.cpp:558, the `digest` row, row G6 of docket 13.
     ("info", "FractionBelowLevel"): ("FractionBelowLevel",),
     ("checksums", "CM_Checksum"): ("CM_Checksum",),
+    # CM_DrawDebugSurface hands its `vec3_t v[3]` of cm_patch.cpp:1772 to the `vec3_t *` of `drawPoly` at :1777 and :1782, the `hullPoints` rule.
+    # The second `v` of :1786 stands under `#if 0`, so one local has the name. Row R1 of batch 14.
+    ("v", "CM_DrawDebugSurface"): ("CM_DrawDebugSurface",),
     # GetRefAPI returns the address of its `static refexport_t re` at tr_init.cpp:1460 and :1530, the `nullSym` row, row G16 of docket 13.
     ("re", "GetRefAPI"): ("GetRefAPI",),
 }
@@ -1008,7 +1011,8 @@ ENUM_TYPEDEFS = {"memtag_t"}
 #   optional_bytes  a Slots<byte>?, the same for a function that returns NULL on one path
 #   optional_raw   an UnsafeMutableRawPointer?, the `raw` return of a function that returns NULL on one path
 #   string_list    a [String], for a `char **` list of zone texts with its count beside it, the file lists of files_pc.cpp and win_main.cpp
-#   class_ref      the Swift class of a C++ class of CXX_CLASSES, optional, for a pointer to an instance Raven returns or NULL
+#   class_ref      the Swift class of a C++ class of CXX_CLASSES, optional, for a pointer to an instance Raven returns or NULL,
+#                  and ("class_ref", class) names the class of a `void *` return of that instance or NULL
 #   int32          an Int32, for an `unsigned` mask Raven returns into an `int` of every caller
 # A key `record.field` names the stored function of a view field, and its run method takes the kind, `botlib_import_t.GetMemory`.
 RETURNS = {
@@ -1098,6 +1102,8 @@ RETURNS = {
     "SE_LoadLanguage": "optional_string",
     # Com_ParseTextFile of common.cpp:2209 returns a `new CGenericParser2` or NULL.
     "Com_ParseTextFile": "class_ref",
+    # G2_GetGoreRecord of G2_misc.cpp:113 returns the `GoreTextureCoordinates *` or NULL of FindGoreRecord at :103 as a `void *`, row S2.
+    "G2_GetGoreRecord": ("class_ref", "GoreTextureCoordinates"),
     # ICARUS_Malloc of icarus/Memory.cpp:8 returns the Z_Malloc block, the row of S_Malloc and row B5, row FC4.
     "ICARUS_Malloc": "raw",
     # The botlib allocators of l_memory.cpp, row D12. GetMemory and GetHunkMemory return NULL when the import does, :332 and :374,
@@ -1510,6 +1516,13 @@ PARAMS = {
     ("botlib_import_t.FS_Read", "buffer"): "bytes",
     ("botlib_import_t.FS_Write", "buffer"): "bytes",
     ("botlib_import_t.DebugPolygonCreate", "points"): "table",
+    # A key "function.parameter" names a closure parameter, and the label names its prototype parameter, `p<i>` when Raven gives no name.
+    # The `drawPoly` of CM_DrawDebugSurface at cm_patch.cpp:1651 and of BotDrawDebugPolygons at sv_bot.cpp:227 is R_DebugPolygon,
+    # which reads `numPoints` vectors of `points` at tr_main.cpp:1550, row S4.
+    ("CM_DrawDebugSurface.drawPoly", "points"): "table",
+    ("BotDrawDebugPolygons.drawPoly", "points"): "table",
+    # The `callback` of CM_CircularIterate at cm_terrain.cpp:1067 takes the `int *user`, the CM_ForceHeight row, row S4.
+    ("CM_CircularIterate.callback", "p2"): "bytes",
     # AAS_FloatForBSPEpairKey of be_aas_bspq3.cpp:306 writes one float through `value`, the FS_FOpenFile row, row 3 of docket 11.
     ("aas_export_t.AAS_FloatForBSPEpairKey", "value"): "float_mut",
     # GeneticParentsAndChildSelection of be_ai_gen.cpp:73 reads `numranks` floats of `ranks`, the D16 list row with a float pointee, row 3 of docket 11.
@@ -1568,6 +1581,16 @@ PARAMS = {
     # the rows of Com_BlockChecksum and RE_RegisterModels_GetDiskFile, row G11.
     ("CRC_ContinueProcessString", "data"): "bytes",
     ("LoadTGA", "pic"): "bytes",
+    # G2_LoadGhoul2Model of G2_misc.cpp:1841 reads the save block of G2_SaveGhoul2Models at its 32-bit offsets, and G2_FreeSaveBuffer of :1812
+    # hands the block to Z_Free. The G2API wrappers of G2_API.cpp:2477 and :2482 pass it on. The ServerLoadMDXA row, row R3 of batch 14.
+    ("G2_LoadGhoul2Model", "buffer"): "bytes",
+    ("G2_FreeSaveBuffer", "buffer"): "bytes",
+    ("G2API_LoadGhoul2Models", "buffer"): "bytes",
+    ("G2API_FreeSaveBuffer", "buffer"): "bytes",
+    # G2_SaveGhoul2Models of G2_misc.cpp:1719 sets `*buffer` to a Z_Malloc block at :1725 that the caller owns,
+    # and G2API_SaveGhoul2Models of G2_API.cpp:2472 passes it on, the ppvBuffer row, row S1.
+    ("G2_SaveGhoul2Models", "buffer"): "bytes",
+    ("G2API_SaveGhoul2Models", "buffer"): "bytes",
     # MC_Compress and MC_UnCompress of matcomp.c:50 and :163 read and write the `matrix` of an `mdxaBone_t`, the MC_UnCompressQuat row, row G13.
     ("MC_Compress", "mat"): ("view", "mdxaBone_t"),
     ("MC_UnCompress", "mat"): ("view", "mdxaBone_t"),
@@ -1589,10 +1612,8 @@ PARAMS = {
 # A row here names a stub that has no body yet.
 # The stub prints the reason as that note, and the draft keeps the stub.
 # The row goes out in the commit of the body.
-# CG_ParticleExplosion of cg_marks.c:1496 is the one cgame stub of the rule, row R10 of ledger 13.
-DEAD = {
-    "CG_ParticleExplosion": "Raven calls this function from no file of either tree",
-}
+# Every function of the rule has its body, so the table is empty.
+DEAD: dict[str, str] = {}
 
 # Functions of the oracle the port leaves out. The stub carries the cite, Raven's line, and the reason, and no function.
 NOT_PORTED = {
@@ -1724,6 +1745,9 @@ CXX_CLASSES = {
     # that CRMMission holds, row 8 of docket 11. CRMCell of RM_Path.h:113 is a struct Raven holds by value.
     "CPathInfo": "CPathInfo", "CRMArea": "CRMArea", "CRMAreaManager": "CRMAreaManager",
     "CRMNode": "CRMNode", "CRMLoc": "CRMLoc", "CRMCell": "CRMCell", "CRMPathManager": "CRMPathManager",
+    # The instance base class of RM_Instance.h:25 and the instance file class of RM_InstanceFile.h:11, which CRMMission holds, row R2 of batch 14.
+    # The four subclasses of RM_Instance_*.h are the payloads of `CRMInstance.Kind`, so no pointer to one crosses a signature.
+    "CRMInstance": "CRMInstance", "CRMInstanceFile": "CRMInstanceFile",
 }
 
 # C targets whose copied headers include a C library header, as CJKASyscall includes <stdint.h>.

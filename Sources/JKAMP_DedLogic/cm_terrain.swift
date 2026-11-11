@@ -107,13 +107,9 @@ func CM_InitTerrain(_ configstring: String, _ terrainId: JKAShared.thandle_t, _ 
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1628
-// TODO: Port signature
-// Raven wrote: void CM_TerrainPatchIterate(const class CCMLandScape *landscape, void (*IterateFunc)( CCMPatch *, void * ), void *userdata)
-// No table row for `void (*)( CCMPatch *, void * )` and `void *userdata`.
-func CM_TerrainPatchIterate() -> Never {
+func CM_TerrainPatchIterate(_ landscape: CCMLandScape?, _ IterateFunc: ((CCMPatch?, OpaquePointer?) -> Void)?, _ userdata: OpaquePointer?) {
     // Its callers are tr_terrain.cpp:923 of the renderer and RM_CreateRandomModels, which only the client calls, so the function is dead in the dedicated build.
-    // TODO: Port CM_TerrainPatchIterate
-    portMissing("CM_TerrainPatchIterate", source: "oracle/codemp/qcommon/cm_terrain.cpp:1628")
+    landscape!.TerrainPatchIterate(IterateFunc, userdata)
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1633

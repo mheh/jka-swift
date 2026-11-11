@@ -274,6 +274,20 @@ A caller of a trap or strap function writes `nil` where Raven wrote `NULL` for a
 The pointer stays inside generated code under rule 11, and no ported body indexes it.
 An `int *` or `float *` parameter whose pointee is `qhandle_t` is not an `inout` scalar.
 
+### A closed C++ class hierarchy
+
+A closed virtual hierarchy of Raven's C++ classes has one form, and `CRMInstance` with its four subclasses is the example.
+
+1. The base is one `final class` with Raven's name, `CRMInstance`, which holds the base fields and a field `kind`.
+2. The type of `kind` is a top-level `enum <Base>Kind`, `enum CRMInstanceKind`, which the base class's file declares directly above the class. Each subclass has one case, and a subclass that adds no field has a case with no payload, `void`.
+3. Each subclass that adds fields is a `struct` with Raven's class name, `CRMBSPInstance`, which holds only the fields that the subclass adds. It is the payload of its case, `.bsp(CRMBSPInstance)`.
+4. Each subclass constructor is a labeled `convenience init` of the base, `convenience init(bsp instGroup: CGPGroup?, _ instFile: CRMInstanceFile)`, which calls the base constructor with its kind, `self.init(instGroup, instFile, .bsp(CRMBSPInstance()))`.
+5. Each virtual method is one method of the base with a `switch self.kind`, `PreSpawn`. An override is a method of the base named `<RavenClass>_<Method>`, `CRMGroupInstance_PreSpawn`, and the base body that a subclass calls by its qualified name is `CRMInstance_PreSpawn`.
+6. Each Raven class has one file. The file of a subclass holds its struct and an `extension CRMInstance` with its constructor and its overrides.
+7. The base has a `deinit` with a `switch self.kind` when a subclass destructor has a body. Each such arm calls `<RavenClass>_deinit`, `CRMGroupInstance_deinit`.
+
+No type is nested unless Raven nests it.
+
 ### Vectors and the vector macros
 
 `vec3_t` is `SIMD3<Float>`, defined at `Sources/JKAShared/Views/Vectors.swift`.
