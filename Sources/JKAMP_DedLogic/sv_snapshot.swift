@@ -7,7 +7,7 @@ import JKAMP_Ded
 private let MAX_SNAPSHOT_ENTITIES = 1024 as Int32
 
 /// Source: oracle/codemp/server/sv_snapshot.cpp:300
-var g_svCullDist: Float {
+public var g_svCullDist: Float {
     get { world.variables.g_svCullDist }
     set { world.variables.g_svCullDist = newValue }
 }
@@ -204,7 +204,7 @@ SV_UpdateServerCommandsToClient
 ```
 */
 /// Source: oracle/codemp/server/sv_snapshot.cpp:225
-func SV_UpdateServerCommandsToClient(_ client: Client, _ msg: Msg) {
+public func SV_UpdateServerCommandsToClient(_ client: Client, _ msg: Msg) {
     var i: Int32
 
     // write any unacknowledged serverCommands
@@ -617,7 +617,7 @@ Called by SV_SendClientSnapshot and SV_SendClientGameState
 ```
 */
 /// Source: oracle/codemp/server/sv_snapshot.cpp:652
-func SV_SendMessageToClient(_ msg: Msg, _ client: Client) {
+public func SV_SendMessageToClient(_ msg: Msg, _ client: Client) {
     var rateMsec: Int32
 
     // MW - my attempt to fix illegible server message errors caused by
@@ -670,7 +670,7 @@ func SV_SendMessageToClient(_ msg: Msg, _ client: Client) {
 }
 
 /// Source: oracle/codemp/server/sv_snapshot.cpp:719
-func SV_SendClientSnapshot(_ client: Client) {
+public func SV_SendClientSnapshot(_ client: Client) {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = Msg.scratch { msg -> Bool in
@@ -762,7 +762,7 @@ SV_SendClientMessages
 ```
 */
 /// Source: oracle/codemp/server/sv_snapshot.cpp:806
-func SV_SendClientMessages() {
+public func SV_SendClientMessages() {
     var i: Int32
     var c: Slots<Client>
 

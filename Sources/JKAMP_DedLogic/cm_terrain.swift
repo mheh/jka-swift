@@ -23,7 +23,7 @@ var info_FlattenArea: Slots<Int32> { world.storage.info_FlattenArea }
 var info_FractionBelowLevel: Slots<Int32> { world.storage.info_FractionBelowLevel }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1067
-func CM_CircularIterate(_ data: Slots<UInt8>, _ width: Int32, _ height: Int32, _ xo: Int32, _ yo: Int32, _ insideRadius: Int32, _ outsideRadius: Int32, _ user: Slots<Int32>, _ callback: ((Slots<UInt8>, Float, Slots<Int32>) -> Void)?) {
+public func CM_CircularIterate(_ data: Slots<UInt8>, _ width: Int32, _ height: Int32, _ xo: Int32, _ yo: Int32, _ insideRadius: Int32, _ outsideRadius: Int32, _ user: Slots<Int32>, _ callback: ((Slots<UInt8>, Float, Slots<Int32>) -> Void)?) {
     var x: Int32
     var y: Int32
     var offset: Int32
@@ -51,19 +51,19 @@ func CM_CircularIterate(_ data: Slots<UInt8>, _ width: Int32, _ height: Int32, _
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1094
-func CM_ForceHeight(_ work: Slots<UInt8>, _ lerp: Float, _ user: Slots<Int32>) {
+public func CM_ForceHeight(_ work: Slots<UInt8>, _ lerp: Float, _ user: Slots<Int32>) {
     work[0] = UInt8(Com_Clamp(0, 255, Float(Int32(user[0]))))
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1100
-func CM_GetAverage(_ work: Slots<UInt8>, _ lerp: Float, _ user: Slots<Int32>) {
+public func CM_GetAverage(_ work: Slots<UInt8>, _ lerp: Float, _ user: Slots<Int32>) {
     // C widens the unsigned byte to `int` at the add.
     user[0] += Int32(work[0])
     user[1] += 1
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1106
-func CM_Smooth(_ work: Slots<UInt8>, _ lerp: Float, _ user: Slots<Int32>) {
+public func CM_Smooth(_ work: Slots<UInt8>, _ lerp: Float, _ user: Slots<Int32>) {
     // JKAShared's M_PI is the float of Raven's macro at q_shared.h:548, and the qualifier breaks the tie with the double of Foundation.
     // C++ takes the float overload of sin, so the whole expression runs in float.
     let smooth: Float = sin(JKAShared.M_PI / 2 * 3 + (1.0 - lerp) * (JKAShared.M_PI / 2)) + 1.0
@@ -74,7 +74,7 @@ func CM_Smooth(_ work: Slots<UInt8>, _ lerp: Float, _ user: Slots<Int32>) {
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1114
-func CM_MakeAverage(_ work: Slots<UInt8>, _ lerp: Float, _ user: Slots<Int32>) {
+public func CM_MakeAverage(_ work: Slots<UInt8>, _ lerp: Float, _ user: Slots<Int32>) {
     var height: Int32
     var diff: Int32
 
@@ -88,7 +88,7 @@ func CM_MakeAverage(_ work: Slots<UInt8>, _ lerp: Float, _ user: Slots<Int32>) {
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1370
-func CM_BelowLevel(_ data: Slots<UInt8>, _ lerp: Float, _ info: Slots<Int32>) {
+public func CM_BelowLevel(_ data: Slots<UInt8>, _ lerp: Float, _ info: Slots<Int32>) {
     info[1] += 1
     // C widens the unsigned byte to `int` at the compare.
     if Int32(data[0]) < info[2] {

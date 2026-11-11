@@ -61,7 +61,8 @@ extern mdxaBone_t id_G2_Set_Bone_Angles_Rag;
 extern mdxaBone_t id_G2_Set_Bone_Angles_IK;
 
 // The behavior state names of ICARUS_PrecacheEnt, row 2 of the icarus round.
+// The link name keeps the host's table apart from the game's `BSTable` of g_tables.h in a client that links both units.
 // Source: oracle/codemp/icarus/GameInterface.cpp:592
-extern stringID_table_t BSTable[11];
+extern stringID_table_t BSTable[11] __asm("_BSTable_ded");
 
 #endif

@@ -4,8 +4,8 @@
 Reads the mp-game unity parse and writes one Swift file per Raven .c file, Sources/JKAMP_GameLogic/g_mover.swift for
 g_mover.c and Sources/JKAMP_BG/bg_pmove.swift for bg_pmove.c. g_syscalls.c is traps.py's and is skipped. Each stub keeps
 Raven's order, Raven's block above it as a /** */ comment, a /// Source: line, Raven's signature by the table of
-abi-stubs.md row 2, and a body of the marker pair of rule 14. Raven's static is dropped, because Swift module scope
-already hides the function and the thunks below must reach it. A signature the table cannot map carries
+abi-stubs.md row 2, and a body of the marker pair of rule 14. Raven's static is private, except for a function a thunk below
+must reach, and every other function is public. A signature the table cannot map carries
 `TODO: Port signature` with Raven's C text above a stub that takes no arguments.
 
 The second output is Sources/JKAMP_GameLogic/Generated/Callbacks.swift: one enum per callback field of gentity_t,
@@ -21,15 +21,15 @@ A run that writes the stubs also writes the signature row of every function and 
 the rows that manifest.py prints and lookup.py reads.
 The generation of the rows stands under the input key of the table and the hash of every stub the rows read.
 
-A bg function or file-scope variable that a game file names is public, because it crosses the module line. The writer leaves an
-adopted bg file alone, so --publish applies that rule to the adopted bg files: it puts `public` on each declaration the rule names
-and changes no other text.
+Access follows Raven's linkage. A function or a global that Raven declares without `static` is public, and a global is a `var` where he wrote no `const`.
+The writer leaves an adopted file alone, so --publish applies that rule to the adopted logic and bg files.
+It puts `public` on each declaration that the rule names and changes no other text.
 
 Usage:
   .venv/bin/python skeleton.py                 # writes every file and prints the counts
   .venv/bin/python skeleton.py --only g_mover  # prints one file to stdout, writes nothing
   .venv/bin/python skeleton.py --signatures    # saves the signature rows from the stubs on disk, writes no file
-  .venv/bin/python skeleton.py --publish       # the public rule on the adopted bg files, nothing else written
+  .venv/bin/python skeleton.py --publish       # Raven's linkage on the adopted logic and bg files, nothing else written
 """
 
 from __future__ import annotations
@@ -163,6 +163,8 @@ class Variable:
         # Raven's `static` keeps the name to his file. Two files that share a name keep two variables, and the struct's field carries the stem.
         self.static = cur.storage_class == ci.StorageClass.STATIC
         self.shared = False
+        # True when Raven's declaration before the initializer holds `const`, `const char *bgToggleableSurfaces[]` of bg_g2_utils.c.
+        self.const = False
         # The table Raven walks the pointer over, for a file-scope walk pointer, which the port holds as the index of its slot.
         self.walk: tuple[str, str] | None = None
         # The functions that declare the local, for a local that a BYTE_STORAGE_LOCALS ruling moves to the storage class.
@@ -192,8 +194,13 @@ class Variable:
     @property
     def access(self) -> str:
         """`private ` for a name another file declares too, the rule shared function names take, because Swift file-scope names share one module.
-        `Skeleton.variable_access` adds `public ` for a bg variable a game file names."""
+        `Skeleton.variable_access` adds `public ` for a global that Raven declares without `static`."""
         return "private " if self.shared else ""
+
+    @property
+    def linked(self) -> bool:
+        """True for a global with Raven's external linkage, a file-scope variable he declares without `static` in one file alone."""
+        return not self.local and not self.static and not self.shared
 
     @property
     def cite(self) -> str:
@@ -324,8 +331,7 @@ class Skeleton:
         self.stores = self.collect_stores()
         self.stored_names = {fn.name for pairs in self.stores.values() for _, fn in pairs}
         self.record_stores = self.collect_record_stores()
-        self.game_calls = self.collect_game_calls()
-        self.outside_calls = self.collect_outside_calls()
+        self.shared_public = self.collect_shared_public()
         self.never_names = self.collect_never()
         # SpeederNPC.c defines `Update` without static, and four other files define it with. Every copy of a shared name is private.
         owners: dict[str, set[str]] = defaultdict(set)
@@ -447,6 +453,7 @@ class Skeleton:
             text = self.declaration_text(var)
             # The map reads whether Raven wrote an initializer, so the flag is set before the map.
             var.data = "=" in text and "{" in text.split("=", 1)[1]
+            var.const = re.search(r"\bconst\b", text.split("=", 1)[0]) is not None
             self.map_variable(var)
             self.variables[path.stem].append(var)
             by_name[var.name].append(var)
@@ -959,13 +966,25 @@ class Skeleton:
         return literal
 
     def variable_access(self, var: Variable) -> str:
-        """A bg variable a game file names crosses the module line, so it is public, the same as a bg function a game file calls."""
-        if not var.shared and target_of(var.stem) == BG and var.name in self.game_calls:
-            return "public "
+        """Raven's linkage gives the access: a global he declares without `static` is public, and a `var` where he wrote no `const`.
+        A file-scope `let` of a global with no `const` cannot be a `var`, because rule 6 allows no other static, so it keeps its access."""
         # A global the shell's `vmMain` reads is public by ruling E1, `g_entities` and `gSharedBuffer`.
-        if not var.shared and target_of(var.stem) == LOGIC and var.name in PUBLIC_NAMES:
+        if not var.shared and var.name in PUBLIC_NAMES:
             return "public "
-        return var.access
+        if not var.linked or (var.kind == "let" and not var.const):
+            return var.access
+        # A forward whose type is internal to its target cannot be public, `theROFFSystem` of the hand class `CROFFSystem`.
+        if self.names_internal(var.swift or HAND_VARS.get(var.name) or "", target_of(var.stem)):
+            return var.access
+        return "public "
+
+    def names_internal(self, text: str, target: str) -> bool:
+        """True when a Swift spelling names a type that the target declares without `public`."""
+        if not hasattr(self, "_internal"):
+            self._internal: dict[str, set[str]] = {}
+        if target not in self._internal:
+            self._internal[target] = self.internal_types(target)
+        return bool(set(re.findall(r"\b[A-Za-z_]\w*\b", text)) & self._internal[target])
 
     def let_prefix(self, var: Variable) -> str:
         """A view and a CharBuf are not Sendable, so their let says so, and a shared static is private to its file."""
@@ -1050,13 +1069,14 @@ class Skeleton:
             home = "BgState" if target_of(var.stem) == BG else f"{STATE}World"
             spelled = "bg" if target_of(var.stem) == BG else "world"
             lines = [f"/// Source: {var.cite}", f"/// Raven's data table, a hand property of `{home}`."]
-            if var.written:
+            if var.written or (var.linked and not var.const):
+                # A public global with no `const` is a `var`, so its forward has a setter, `spawns` of g_spawn.c.
                 lines += [f"{self.variable_access(var)}var {var.name}: {var.swift} {{",
                           f"    get {{ {spelled}.{var.field} }}",
                           f"    set {{ {spelled}.{var.field} = newValue }}",
                           "}"]
             else:
-                # Raven never writes the table, so the hand property is a `let` and the forward has no setter.
+                # Raven never writes the table and declares it `static` or `const`, so the hand property is a `let` and the forward has no setter.
                 lines.append(f"{self.variable_access(var)}var {var.name}: {var.swift} {{ {spelled}.{var.field} }}")
         elif kind == "storage_data":
             # tables.py serves the table from C storage, so the stub carries no marker.
@@ -1212,48 +1232,10 @@ class Skeleton:
             lines += ["}", ""]
         return lines
 
-    def collect_game_calls(self) -> set[str]:
-        """Every bg function and bg file-scope variable a game or cgame file names, by Raven's name, so the bg declaration is public for those modules.
-        A libc name the shared module already holds in public, `atof` of CString.swift, is the game's, so bg's copy stays internal.
-        A variable counts only when the name resolves to a file-scope declaration, because a game body has its own locals named `pm`."""
-        shared = {m.group(1) for path in (SOURCES / SHARED).rglob("*.swift") for m in re.finditer(r"^public func `?(\w+)", path.read_text(), re.M)}
-        bg_names = {fn.name for stem, fns in self.files.items() if target_of(stem) == BG for fn in fns} - shared
-        bg_variables = {var.name for stem, variables in self.variables.items() if target_of(stem) == BG for var in variables}
-        called: set[str] = set()
-        bodies = [fn.cur for stem, fns in self.files.items() if target_of(stem) == LOGIC for fn in fns]
-        if self.cgame_tu is not None:
-            # A bg name only the cgame names, `BG_SI_SetDesiredLength` of cg_players.c, crosses the module line the same way.
-            cgame = (C.ORACLE / CGAME_DIR).resolve()
-            bodies += [cur for cur in self.cgame_tu.cursor.get_children()
-                       if cur.kind == CursorKind.FUNCTION_DECL and cur.is_definition() and cur.location.file
-                       and Path(cur.location.file.name).resolve().parent == cgame]
-        for body in bodies:
-            for node in body.walk_preorder():
-                if node.kind != CursorKind.DECL_REF_EXPR:
-                    continue
-                if node.spelling in bg_names:
-                    called.add(node.spelling)
-                elif node.spelling in bg_variables and node.referenced is not None and node.referenced.kind == CursorKind.VAR_DECL \
-                        and node.referenced.semantic_parent.kind == CursorKind.TRANSLATION_UNIT:
-                    called.add(node.spelling)
-        return called
-
-    def collect_outside_calls(self) -> set[str]:
-        """Every game function a Swift file of another source target calls, by Raven's name, so the game declaration is public for that target.
-        The shell's `bg.error` closure calls `Com_Error` of g_main, and the hand port gives it `public` for that call.
-        A test target imports the game with `@testable`, so it reaches an internal function, and the scan reads the source targets alone."""
-        game_names = {fn.name for stem, fns in self.files.items() if target_of(stem) == LOGIC for fn in fns}
-        called: set[str] = set()
-        for root, path in ((root, path) for root in C.READ_ROOTS for path in root.rglob("*.swift")):
-            if path.relative_to(root).parts[0] == LOGIC:
-                continue
-            text = path.read_text()
-            if not re.search(rf"^import {LOGIC}$", text, re.M):
-                continue
-            # A comment and a string literal name a function without a call, `portMissing("G_RunFrame", ...)`.
-            code = re.sub(r'//[^\n]*|"(?:[^"\\\n]|\\.)*"', "", text)
-            called |= {m.group(1) for m in re.finditer(r"(?<!func )\b(\w+)\(", code)} & game_names
-        return called
+    def collect_shared_public(self) -> set[str]:
+        """Every function the shared module holds in public, by name, `atof` of CString.swift.
+        A bg function of that name stays internal, so a game file that imports both modules reads one `atof`."""
+        return {m.group(1) for path in (SOURCES / SHARED).rglob("*.swift") for m in re.finditer(r"^public func `?(\w+)", path.read_text(), re.M)}
 
     def collect_never(self) -> set[str]:
         """Every Raven function that never returns, by Raven's name, so its declaration returns `Never` as a Swift caller expects.
@@ -1283,40 +1265,92 @@ class Skeleton:
                         grew = True
         return never
 
-    def published(self) -> list[tuple[str, str]]:
-        """The bg declarations the public rule names, as (stem, Swift name): each function of `access` and each variable of `variable_access`
-        whose stub carries a declaration line."""
-        out: list[tuple[str, str]] = []
+    def published(self) -> list[tuple[str, str, Variable | None]]:
+        """The declarations that Raven's linkage makes public in the logic and bg files of the run, as (stem, Swift name, variable).
+        The variable is None for a function, and an overload of one name gives one entry."""
+        out: list[tuple[str, str, Variable | None]] = []
         for stem in sorted(set(self.files) | set(self.variables)):
-            if target_of(stem) != BG:
+            if target_of(stem) == SHARED:
                 continue
-            out += [(stem, swift_name(fn.name)) for fn in self.files.get(stem, []) if self.access(fn) == "public " and fn.raven_name not in NOT_PORTED]
-            out += [(stem, var.name) for var in self.variables.get(stem, [])
-                    if self.variable_access(var) == "public " and var.kind in ("let", "state", "state_data", "storage", "pointer_table", "byte_storage")]
+            names = dict.fromkeys(swift_name(fn.name) for fn in self.files.get(stem, []) if self.linkage(fn) == "public " and fn.raven_name not in NOT_PORTED)
+            out += [(stem, name, None) for name in names]
+            out += [(stem, var.spelled, var) for var in self.variables.get(stem, []) if var.linked or (not var.shared and var.name in PUBLIC_NAMES)]
         return out
 
+    def internal_types(self, target: str) -> set[str]:
+        """Every type name that a Swift file of the target declares without `public`, `SpawnRow` of g_local.swift before row 7."""
+        pattern = re.compile(r"^\s*((?:(?:public|open|private|fileprivate|internal|final|indirect) )*)(?:struct|class|enum|protocol|typealias|actor) (\w+)", re.M)
+        names: set[str] = set()
+        for root in C.READ_ROOTS:
+            for path in (root / target).rglob("*.swift"):
+                names |= {m.group(2) for m in pattern.finditer(path.read_text()) if not re.search(r"\b(public|open)\b", m.group(1))}
+        return names
+
+    @staticmethod
+    def declaration_block(lines: list[str], i: int) -> tuple[str, str]:
+        """The head of the declaration at line `i` through its `{` or `=`, and the body through the brace at column 0 that closes it."""
+        head: list[str] = []
+        j = i
+        # A function head runs to the brace of its body over the lines of its parameters, and a variable head is one line.
+        function = re.match(r"(?:nonisolated\(unsafe\) )?func ", lines[i]) is not None
+        while j < len(lines):
+            head.append(lines[j])
+            if not function or lines[j].rstrip().endswith("{"):
+                break
+            j += 1
+        j = min(j, len(lines) - 1)
+        text = " ".join(head)
+        if not lines[j].rstrip().endswith("{"):
+            return text, text
+        k = j + 1
+        while k < len(lines) and lines[k] != "}":
+            k += 1
+        return text, "\n".join(lines[i:k + 1])
+
+    def kept(self, var: Variable | None, lines: list[str], i: int, internal: set[str]) -> str | None:
+        """Why the declaration at line `i` keeps its access, or None when it takes `public`."""
+        head, block = self.declaration_block(lines, i)
+        # A parameter label is a name and not a type, so the scan drops each word before a colon.
+        signature = re.sub(r"\b\w+\s*:", " ", head.split("=", 1)[0] if var is not None else head)
+        types = sorted(set(re.findall(r"\b[A-Za-z_]\w*\b", signature)) & internal)
+        if types:
+            return f"its declaration names the internal type {', '.join(types)}"
+        if var is None or var.const:
+            return None
+        if re.match(r"(?:nonisolated\(unsafe\) )?let ", lines[i]):
+            return "Raven declares it without `const`, and a file-scope `let` cannot be a `var` under rule 6"
+        # A forward over C storage or over a hand class returns a reference, so a body writes through it with no setter.
+        if var.kind not in ("storage", "pointer_table", "byte_storage", "hand") and "{" in head and not re.search(r"\bset\b", block):
+            return "Raven declares it without `const`, and its forward has no setter"
+        return None
+
     def publish(self) -> tuple[int, list[str]]:
-        """The public rule applied to the adopted bg files, which the writer leaves alone.
-        Each declaration the rule names takes `public` in front of its line, and no other text of the file changes.
-        A name with no file-scope declaration line, or with an access keyword already, is reported and left as it is."""
+        """Raven's linkage applied to the adopted logic and bg files, which the writer leaves alone.
+        Each declaration that the rule names takes `public` in front of its line, and no other text of the file changes.
+        A name with no file-scope declaration line, or a declaration that cannot take the form, is reported and left as it is."""
         changed = 0
         report: list[str] = []
-        by_stem: dict[str, list[str]] = defaultdict(list)
-        for stem, name in self.published():
-            by_stem[stem].append(name)
-        for stem, names in sorted(by_stem.items()):
+        by_stem: dict[str, list[tuple[str, Variable | None]]] = defaultdict(list)
+        for stem, name, var in self.published():
+            by_stem[stem].append((name, var))
+        internal = {target: self.internal_types(target) for target in {target_of(stem) for stem in by_stem}}
+        for stem, entries in sorted(by_stem.items()):
             path = stub_path(stem)
             if not path.exists() or path.read_text().split("\n", 1)[0] == header_line(stem):
                 continue
             lines = path.read_text().split("\n")
-            for name in names:
-                pattern = re.compile(rf"^((?:nonisolated\(unsafe\) )?(?:func|var|let) {re.escape(name)}(?!\w))")
+            for name, var in entries:
+                pattern = re.compile(rf"^((?:nonisolated\(unsafe\) )?(?:func|var|let) {re.escape(name)}(?![\w`]))")
                 hits = [i for i, line in enumerate(lines) if pattern.match(line)]
                 if not hits:
-                    if not any(re.match(rf"^(public|private|fileprivate|internal) .*\b(func|var|let) {re.escape(name)}(?!\w)", line) for line in lines):
+                    if not any(re.match(rf"^(public|private|fileprivate|internal) .*\b(func|var|let) {re.escape(name)}(?![\w`])", line) for line in lines):
                         report.append(f"{path.relative_to(REPO)}: no file-scope declaration of {name}")
                     continue
                 for i in hits:
+                    reason = self.kept(var, lines, i, internal[target_of(stem)])
+                    if reason is not None:
+                        report.append(f"{path.relative_to(REPO)}:{i + 1}: {name} keeps its access, because {reason}")
+                        continue
                     lines[i] = "public " + lines[i]
                     changed += 1
             path.write_text("\n".join(lines))
@@ -1325,22 +1359,22 @@ class Skeleton:
     # MARK: - Emission
 
     def access(self, fn: Function) -> str:
+        """The access of a stub: the access of Raven's linkage, or internal for a signature that names an internal type."""
+        access = self.linkage(fn)
+        # A signature that names a type internal to its target cannot be public, so the function keeps internal access.
+        if access == "public " and self.names_internal(" ".join([p.swift or "" for p in fn.params] + [fn.returns or ""]), target_of(fn.stem)):
+            return ""
+        return access
+
+    def linkage(self, fn: Function) -> str:
+        """Raven's linkage gives the access: a function he declares without `static` is public in its target, so a client target reaches it."""
         # Raven's static is file scope, and five vehicle files each define `Update`, so a static stub is private.
         # A static function the oracle stores in a field stays internal, because its thunk names it from another file.
-        hidden = fn.static or fn.name in self.shared_names
-        if hidden and fn.name not in self.stored_names:
-            return "private "
-        # A function of the shared module is called from every other module, so it is public, the same as the hand-ported q_math.
-        # A bg function a game file calls crosses the module line the same way, so it is public too.
-        if target_of(fn.stem) == BG and fn.name in self.game_calls:
-            return "public "
-        # A game function a Swift file of another source target calls crosses the module line too, `Com_Error` from the shell.
-        if target_of(fn.stem) == LOGIC and fn.name in self.outside_calls:
-            return "public "
-        # A function the shell's `vmMain` calls is public by ruling E1, before the shell names it.
-        if target_of(fn.stem) in (LOGIC, BG) and fn.name in PUBLIC_NAMES:
-            return "public "
-        return "public " if target_of(fn.stem) == SHARED else ""
+        if fn.static or fn.name in self.shared_names:
+            return "" if fn.name in self.stored_names else "private "
+        if target_of(fn.stem) == BG and fn.name in self.shared_public:
+            return ""
+        return "public "
 
     def cxx_default(self, cur: ci.Cursor, i: int, swift: str | None) -> str | None:
         """The C++ default of a parameter, from the definition or the first declaration, in the Swift spelling of the parameter.
@@ -1860,7 +1894,7 @@ def main() -> None:
     C.unit_argument(ap)
     ap.add_argument("--rebuild", action="store_true", help="sweep every fact of the table again and write the store anew")
     ap.add_argument("--only", help="one Raven file stem, printed to stdout, nothing written")
-    ap.add_argument("--publish", action="store_true", help="put `public` on the declarations the public rule names in the adopted bg files, nothing else")
+    ap.add_argument("--publish", action="store_true", help="put `public` on the declarations Raven's linkage names in the adopted logic and bg files, nothing else")
     ap.add_argument("--signatures", action="store_true", help="save the signature rows from the stubs on disk into the store, no file written")
     args = ap.parse_args()
     import table
@@ -1870,7 +1904,7 @@ def main() -> None:
     if args.publish:
         changed, report = gen.publish()
         gen.save_signatures()
-        print(f"skeleton.py --publish: {changed} declarations in the adopted bg files gained public")
+        print(f"skeleton.py --publish: {changed} declarations in the adopted logic and bg files gained public")
         for line in report:
             print(f"  {line}")
         return

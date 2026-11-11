@@ -1995,7 +1995,7 @@ private func G2_RagDollCurrentPosition(_ ghoul2V: CGhoul2Info_v, _ g2Index: Int3
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:2683
-func Rag_Trace(_ results: JKAMP.Trace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ passEntityNum: Int32, _ contentmask: Int32, _ eG2TraceType: EG2_Collision, _ useLod: Int32) {
+public func Rag_Trace(_ results: JKAMP.Trace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ passEntityNum: Int32, _ contentmask: Int32, _ eG2TraceType: EG2_Collision, _ useLod: Int32) {
     results.entityNum = ENTITYNUM_NONE
     //SV_Trace(results, start, mins, maxs, end, passEntityNum, contentmask, eG2TraceType, useLod);
     CM_BoxTrace(results, start, end, mins, maxs, 0, contentmask, 0)

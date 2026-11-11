@@ -6,7 +6,7 @@
 #include "CJKAMP_CGame_forward.h"
 #include "codemp/game/q_shared/qboolean.h"
 #include "codemp/ui/ui_shared/Window.h"
-#include "codemp/ui/ui_shared/constants.h"
+#include "constants.h"
 #include "shared/game/q_shared/vec4_t.h"
 
 // Source: oracle/codemp/ui/ui_shared.h:307

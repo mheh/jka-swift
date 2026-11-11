@@ -21,7 +21,7 @@ RotatePoint
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:43
-func RotatePoint(_ point: inout JKAShared.vec3_t, _ matrix: [JKAShared.vec3_t]) {
+public func RotatePoint(_ point: inout JKAShared.vec3_t, _ matrix: [JKAShared.vec3_t]) {
     // bk: FIXME
     var tvec = vec3_t()
 
@@ -39,7 +39,7 @@ TransposeMatrix
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:57
-func TransposeMatrix(_ matrix: [JKAShared.vec3_t], _ transpose: inout [JKAShared.vec3_t]) {
+public func TransposeMatrix(_ matrix: [JKAShared.vec3_t], _ transpose: inout [JKAShared.vec3_t]) {
     // bk: FIXME
     var i: Int32
     var j: Int32
@@ -62,7 +62,7 @@ CreateRotationMatrix
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:71
-func CreateRotationMatrix(_ angles: JKAShared.vec3_t, _ matrix: inout [JKAShared.vec3_t]) {
+public func CreateRotationMatrix(_ angles: JKAShared.vec3_t, _ matrix: inout [JKAShared.vec3_t]) {
     do {
         var matrix0 = matrix[0]
         var matrix1 = matrix[1]
@@ -83,7 +83,7 @@ CM_ProjectPointOntoVector
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:81
-func CM_ProjectPointOntoVector(_ point: JKAShared.vec3_t, _ vStart: JKAShared.vec3_t, _ vDir: JKAShared.vec3_t, _ vProj: inout JKAShared.vec3_t) {
+public func CM_ProjectPointOntoVector(_ point: JKAShared.vec3_t, _ vStart: JKAShared.vec3_t, _ vDir: JKAShared.vec3_t, _ vProj: inout JKAShared.vec3_t) {
     var pVec = vec3_t()
 
     pVec = point - vStart
@@ -99,7 +99,7 @@ CM_DistanceFromLineSquared
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:95
-func CM_DistanceFromLineSquared(_ p: JKAShared.vec3_t, _ lp1: JKAShared.vec3_t, _ lp2: JKAShared.vec3_t, _ dir: JKAShared.vec3_t) -> Float {
+public func CM_DistanceFromLineSquared(_ p: JKAShared.vec3_t, _ lp1: JKAShared.vec3_t, _ lp2: JKAShared.vec3_t, _ dir: JKAShared.vec3_t) -> Float {
     var proj = vec3_t()
     var t = vec3_t()
     var j: Int32
@@ -132,7 +132,7 @@ CM_VectorDistanceSquared
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:120
-func CM_VectorDistanceSquared(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Float {
+public func CM_VectorDistanceSquared(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Float {
     var dir = vec3_t()
 
     dir = p2 - p1
@@ -147,7 +147,7 @@ SquareRootFloat
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:132
-func SquareRootFloat(_ number: Float) -> Float {
+public func SquareRootFloat(_ number: Float) -> Float {
     var i: CLong
     let x: Float
     var y: Float
@@ -173,7 +173,7 @@ CM_TestBoxInBrush
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:161
-func CM_TestBoxInBrush(_ tw: TraceWork, _ trace: JKAMP.Trace, _ brush: Cbrush) {
+public func CM_TestBoxInBrush(_ tw: TraceWork, _ trace: JKAMP.Trace, _ brush: Cbrush) {
     var i: Int32
     var plane: JKAShared.Cplane
     var dist: Float
@@ -258,7 +258,7 @@ CM_TestInLeaf
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:262
-func CM_TestInLeaf(_ tw: TraceWork, _ trace: JKAMP.Trace, _ leaf: CLeaf, _ local: ClipMap) {
+public func CM_TestInLeaf(_ tw: TraceWork, _ trace: JKAMP.Trace, _ leaf: CLeaf, _ local: ClipMap) {
     var k: Int32
     var brushnum: Int32
     var b: Cbrush
@@ -349,7 +349,7 @@ capsule inside capsule check
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:342
-func CM_TestCapsuleInCapsule(_ tw: TraceWork, _ trace: JKAMP.Trace, _ model: JKAShared.clipHandle_t) {
+public func CM_TestCapsuleInCapsule(_ tw: TraceWork, _ trace: JKAMP.Trace, _ model: JKAShared.clipHandle_t) {
     var i: Int32
     var mins = vec3_t()
     var maxs = vec3_t()
@@ -437,7 +437,7 @@ bounding box inside capsule check
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:411
-func CM_TestBoundingBoxInCapsule(_ tw: TraceWork, _ trace: JKAMP.Trace, _ model: JKAShared.clipHandle_t) {
+public func CM_TestBoundingBoxInCapsule(_ tw: TraceWork, _ trace: JKAMP.Trace, _ model: JKAShared.clipHandle_t) {
     var mins = vec3_t()
     var maxs = vec3_t()
     var offset = vec3_t()
@@ -476,7 +476,7 @@ func CM_TestBoundingBoxInCapsule(_ tw: TraceWork, _ trace: JKAMP.Trace, _ model:
 }
 
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:448
-func CM_PositionTest(_ tw: TraceWork, _ trace: JKAMP.Trace) {
+public func CM_PositionTest(_ tw: TraceWork, _ trace: JKAMP.Trace) {
     LeafList.scratch { ll in
         var i: Int32
 
@@ -517,7 +517,7 @@ func CM_PositionTest(_ tw: TraceWork, _ trace: JKAMP.Trace) {
 }
 
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:500
-func CM_TraceThroughPatch(_ tw: TraceWork, _ trace: JKAMP.Trace, _ patch: CPatch) {
+public func CM_TraceThroughPatch(_ tw: TraceWork, _ trace: JKAMP.Trace, _ patch: CPatch) {
     let oldFrac: Float
 
     c_patch_traces += 1
@@ -533,7 +533,7 @@ func CM_TraceThroughPatch(_ tw: TraceWork, _ trace: JKAMP.Trace, _ patch: CPatch
 }
 
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:523
-func CM_PlaneCollision(_ tw: TraceWork, _ side: Cbrushside) -> Bool {
+public func CM_PlaneCollision(_ tw: TraceWork, _ side: Cbrushside) -> Bool {
     let dist: Float
     var f: Float
     let d1: Float
@@ -604,7 +604,7 @@ CM_TraceThroughBrush
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:607
-func CM_TraceThroughBrush(_ tw: TraceWork, _ trace: JKAMP.Trace, _ brush: Cbrush, _ infoOnly: Bool) {
+public func CM_TraceThroughBrush(_ tw: TraceWork, _ trace: JKAMP.Trace, _ brush: Cbrush, _ infoOnly: Bool) {
     var i: Int32
     var side: Cbrushside
 
@@ -680,7 +680,7 @@ func CM_TraceThroughBrush(_ tw: TraceWork, _ trace: JKAMP.Trace, _ brush: Cbrush
 }
 
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:703
-func CM_TraceThroughTerrain(_ tw: TraceWork, _ trace: JKAMP.Trace, _ brush: Cbrush) {
+public func CM_TraceThroughTerrain(_ tw: TraceWork, _ trace: JKAMP.Trace, _ brush: Cbrush) {
     let landscape: CCMLandScape?
     var tBegin = vec3_t()
     var tEnd = vec3_t()
@@ -815,7 +815,7 @@ func CM_HandlePatchCollision(_ tw: TraceWork, _ trace: JKAMP.Trace, _ tStart: JK
 }
 
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:952
-func CM_GenericBoxCollide(_ abounds: [JKAShared.vec3_t], _ bbounds: [JKAShared.vec3_t]) -> Bool {
+public func CM_GenericBoxCollide(_ abounds: [JKAShared.vec3_t], _ bbounds: [JKAShared.vec3_t]) -> Bool {
     var i: Int32
 
     // Check for completely no intersection
@@ -840,7 +840,7 @@ CM_TraceThroughLeaf
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:976
-func CM_TraceThroughLeaf(_ tw: TraceWork, _ trace: JKAMP.Trace, _ local: ClipMap, _ leaf: CLeaf) {
+public func CM_TraceThroughLeaf(_ tw: TraceWork, _ trace: JKAMP.Trace, _ local: ClipMap, _ leaf: CLeaf) {
     var k: Int32
     var brushnum: Int32
     var b: Cbrush
@@ -928,7 +928,7 @@ get the first intersection of the ray with the sphere
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:1058
-func CM_TraceThroughSphere(_ tw: TraceWork, _ trace: JKAMP.Trace, _ origin: JKAShared.vec3_t, _ radius: Float, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) {
+public func CM_TraceThroughSphere(_ tw: TraceWork, _ trace: JKAMP.Trace, _ origin: JKAShared.vec3_t, _ radius: Float, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) {
     var l1: Float
     let l2: Float
     let length: Float
@@ -1021,7 +1021,7 @@ the cylinder extends halfheight above and below the origin
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:1146
-func CM_TraceThroughVerticalCylinder(_ tw: TraceWork, _ trace: JKAMP.Trace, _ origin: JKAShared.vec3_t, _ radius: Float, _ halfheight: Float, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) {
+public func CM_TraceThroughVerticalCylinder(_ tw: TraceWork, _ trace: JKAMP.Trace, _ origin: JKAShared.vec3_t, _ radius: Float, _ halfheight: Float, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) {
     let length: Float
     let scale: Float
     var fraction: Float
@@ -1132,7 +1132,7 @@ capsule vs. capsule collision (not rotated)
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:1249
-func CM_TraceCapsuleThroughCapsule(_ tw: TraceWork, _ trace: JKAMP.Trace, _ model: JKAShared.clipHandle_t) {
+public func CM_TraceCapsuleThroughCapsule(_ tw: TraceWork, _ trace: JKAMP.Trace, _ model: JKAShared.clipHandle_t) {
     var i: Int32
     var mins = vec3_t()
     var maxs = vec3_t()
@@ -1209,7 +1209,7 @@ bounding box vs. capsule collision
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:1311
-func CM_TraceBoundingBoxThroughCapsule(_ tw: TraceWork, _ trace: JKAMP.Trace, _ model: JKAShared.clipHandle_t) {
+public func CM_TraceBoundingBoxThroughCapsule(_ tw: TraceWork, _ trace: JKAMP.Trace, _ model: JKAShared.clipHandle_t) {
     var mins = vec3_t()
     var maxs = vec3_t()
     var offset = vec3_t()
@@ -1255,7 +1255,7 @@ CM_TraceToLeaf
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:1349
-func CM_TraceToLeaf(_ tw: TraceWork, _ trace: JKAMP.Trace, _ leaf: CLeaf, _ local: ClipMap) {
+public func CM_TraceToLeaf(_ tw: TraceWork, _ trace: JKAMP.Trace, _ leaf: CLeaf, _ local: ClipMap) {
     var k: Int32
     var brushnum: Int32
     var b: Cbrush
@@ -1343,7 +1343,7 @@ a smaller intercept fraction.
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:1431
-func CM_TraceThroughTree(_ tw: TraceWork, _ trace: JKAMP.Trace, _ local: ClipMap, _ num: Int32, _ p1f: Float, _ p2f: Float, _ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) {
+public func CM_TraceThroughTree(_ tw: TraceWork, _ trace: JKAMP.Trace, _ local: ClipMap, _ num: Int32, _ p1f: Float, _ p2f: Float, _ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) {
     let node: CmNode
     let plane: JKAShared.Cplane
     let t1: Float
@@ -1450,7 +1450,7 @@ func CM_TraceThroughTree(_ tw: TraceWork, _ trace: JKAMP.Trace, _ local: ClipMap
 }
 
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:1550
-func CM_CalcExtents(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ tw: TraceWork, _ bounds: inout [JKAShared.vec3_t]) {
+public func CM_CalcExtents(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ tw: TraceWork, _ bounds: inout [JKAShared.vec3_t]) {
     var i: Int32
 
     i = 0
@@ -1474,7 +1474,7 @@ CM_Trace
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:1577
-func CM_Trace(_ trace: JKAMP.Trace, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ model: JKAShared.clipHandle_t, _ origin: JKAShared.vec3_t, _ brushmask: Int32, _ capsule: Int32, _ sphere: Sphere?) {
+public func CM_Trace(_ trace: JKAMP.Trace, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ model: JKAShared.clipHandle_t, _ origin: JKAShared.vec3_t, _ brushmask: Int32, _ capsule: Int32, _ sphere: Sphere?) {
     // Raven assigns his own `mins` and `maxs` parameters. A Swift parameter is immutable, so the body takes a mutable copy of each.
     var mins = mins
     var maxs = maxs
@@ -1675,7 +1675,7 @@ CM_BoxTrace
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:1836
-func CM_BoxTrace(_ results: JKAMP.Trace, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ model: JKAShared.clipHandle_t, _ brushmask: Int32, _ capsule: Int32) {
+public func CM_BoxTrace(_ results: JKAMP.Trace, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ model: JKAShared.clipHandle_t, _ brushmask: Int32, _ capsule: Int32) {
     CM_Trace(results, start, end, mins, maxs, model, vec3_origin, brushmask, capsule, nil)
 }
 
@@ -1690,7 +1690,7 @@ rotating entities
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:1850
-func CM_TransformedBoxTrace(_ trace: JKAMP.Trace, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ model: JKAShared.clipHandle_t, _ brushmask: Int32, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t, _ capsule: Int32) {
+public func CM_TransformedBoxTrace(_ trace: JKAMP.Trace, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ model: JKAShared.clipHandle_t, _ brushmask: Int32, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t, _ capsule: Int32) {
     Sphere.scratch { sphere in
         var start_l = vec3_t()
         var end_l = vec3_t()
@@ -1773,7 +1773,7 @@ func CM_TransformedBoxTrace(_ trace: JKAMP.Trace, _ start: JKAShared.vec3_t, _ e
 }
 
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:1947
-func CM_CullBox(_ frustum: JKAShared.Cplane, _ transformed: [JKAShared.vec3_t]) -> Bool {
+public func CM_CullBox(_ frustum: JKAShared.Cplane, _ transformed: [JKAShared.vec3_t]) -> Bool {
     var i: Int32
     var j: Int32
 
@@ -1799,7 +1799,7 @@ func CM_CullBox(_ frustum: JKAShared.Cplane, _ transformed: [JKAShared.vec3_t]) 
 }
 
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:1979
-func CM_CullWorldBox(_ frustum: JKAShared.Cplane, _ bounds: [JKAShared.vec3_t]) -> Bool {
+public func CM_CullWorldBox(_ frustum: JKAShared.Cplane, _ bounds: [JKAShared.vec3_t]) -> Bool {
     var i: Int32
     var transformed = [vec3_t](repeating: vec3_t(), count: 8)
 

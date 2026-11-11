@@ -70,7 +70,7 @@ let STRAFERAM_DURATION = 8 as Int32
 let STRAFERAM_ANGLE = 8 as Int32
 
 /// Source: oracle/codemp/game/SpeederNPC.c:140
-func VEH_StartStrafeRam(_ pVeh: JKAMP.Vehicle, _ Right: Bool, _ Duration: Int32) -> Bool {
+public func VEH_StartStrafeRam(_ pVeh: JKAMP.Vehicle, _ Right: Bool, _ Duration: Int32) -> Bool {
     return false
 }
 
@@ -261,7 +261,7 @@ private func ProcessOrientCommands(_ pVeh: JKAMP.Vehicle) {
 //would be nice to have proper prediction of animations. -rww
 // This function makes sure that the rider's in this vehicle are properly animated.
 /// Source: oracle/codemp/game/SpeederNPC.c:630
-func AnimateRiders(_ pVeh: JKAMP.Vehicle) {
+public func AnimateRiders(_ pVeh: JKAMP.Vehicle) {
     var Anim: animNumber_t = BOTH_VS_IDLE
     let fSpeedPercToMax: Float
     var iFlags: Int32 = SETANIM_FLAG_NORMAL
@@ -550,7 +550,7 @@ func AnimateRiders(_ pVeh: JKAMP.Vehicle) {
 }
 
 /// Source: oracle/codemp/game/SpeederNPC.c:1044
-func G_SetSpeederVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
+public func G_SetSpeederVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
     //	pVehInfo->ValidateBoard				=		ValidateBoard;
     //	pVehInfo->SetParent					=		SetParent;
     //	pVehInfo->SetPilot					=		SetPilot;
@@ -578,7 +578,7 @@ func G_SetSpeederVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
 
 // Create/Allocate a new Animal Vehicle (initializing it as well).
 /// Source: oracle/codemp/game/SpeederNPC.c:1092
-func G_CreateSpeederNPC(_ pVeh: inout JKAMP.Vehicle?, _ strType: String) {
+public func G_CreateSpeederNPC(_ pVeh: inout JKAMP.Vehicle?, _ strType: String) {
     //these will remain on entities on the client once allocated because the pointer is
     //never stomped. on the server, however, when an ent is freed, the entity struct is
     //memset to 0, so this memory would be lost..

@@ -13,7 +13,7 @@ private let ON_EPSILON = 0 as Int32
 let TRACEPLANE_EPSILON = 0.125 as Double
 
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:48
-var numaaslinks: Int32 {
+public var numaaslinks: Int32 {
     get { world.variables.numaaslinks }
     set { world.variables.numaaslinks = newValue }
 }
@@ -25,7 +25,7 @@ var numaaslinks: Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:56
-func AAS_PresenceTypeBoundingBox(_ presencetype: Int32, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t) {
+public func AAS_PresenceTypeBoundingBox(_ presencetype: Int32, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t) {
     let index: Int32
     //bounding box size for each presence type
     let boxmins: [vec3_t] = [vec3_t(0, 0, 0), vec3_t(-15, -15, -24), vec3_t(-15, -15, -24)]
@@ -50,7 +50,7 @@ func AAS_PresenceTypeBoundingBox(_ presencetype: Int32, _ mins: inout JKAShared.
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:79
-func AAS_InitAASLinkHeap() {
+public func AAS_InitAASLinkHeap() {
     var i: Int32
     var max_aaslinks: Int32
 
@@ -88,7 +88,7 @@ func AAS_InitAASLinkHeap() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:117
-func AAS_FreeAASLinkHeap() {
+public func AAS_FreeAASLinkHeap() {
     if aasworld.linkheap != nil {
         FreeMemory(aasworld.linkheap?.handle)
     }
@@ -103,7 +103,7 @@ func AAS_FreeAASLinkHeap() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:129
-func AAS_AllocAASLink() -> AasLink? {
+public func AAS_AllocAASLink() -> AasLink? {
     let link: AasLink?
 
     link = aasworld.freelinks
@@ -130,7 +130,7 @@ func AAS_AllocAASLink() -> AasLink? {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:155
-func AAS_DeAllocAASLink(_ link: AasLink) {
+public func AAS_DeAllocAASLink(_ link: AasLink) {
     if aasworld.freelinks != nil {
         aasworld.freelinks!.prev_ent = link
     }
@@ -149,7 +149,7 @@ func AAS_DeAllocAASLink(_ link: AasLink) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:171
-func AAS_InitAASLinkedEntities() {
+public func AAS_InitAASLinkedEntities() {
     if aasworld.loaded == 0 {
         return
     }
@@ -167,7 +167,7 @@ func AAS_InitAASLinkedEntities() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:184
-func AAS_FreeAASLinkedEntities() {
+public func AAS_FreeAASLinkedEntities() {
     if aasworld.arealinkedentities != nil {
         FreeMemory(OpaquePointer(aasworld.arealinkedentities!.base))
     }
@@ -182,7 +182,7 @@ func AAS_FreeAASLinkedEntities() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:196
-func AAS_PointAreaNum(_ point: JKAShared.vec3_t) -> Int32 {
+public func AAS_PointAreaNum(_ point: JKAShared.vec3_t) -> Int32 {
     var nodenum: Int32
     var dist: vec_t
     var node: AasNode
@@ -219,7 +219,7 @@ func AAS_PointAreaNum(_ point: JKAShared.vec3_t) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:249
-func AAS_PointReachabilityAreaIndex(_ origin: JKAShared.vec3_t) -> Int32 {
+public func AAS_PointReachabilityAreaIndex(_ origin: JKAShared.vec3_t) -> Int32 {
     var areanum: Int32
     var cluster: Int32
     var i: Int32
@@ -259,7 +259,7 @@ func AAS_PointReachabilityAreaIndex(_ origin: JKAShared.vec3_t) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:291
-func AAS_AreaCluster(_ areanum: Int32) -> Int32 {
+public func AAS_AreaCluster(_ areanum: Int32) -> Int32 {
     if areanum <= 0 || areanum >= aasworld.numareas {
         botimport.runPrint(PRT_ERROR, "AAS_AreaCluster: invalid area number\n")
         return 0
@@ -275,7 +275,7 @@ func AAS_AreaCluster(_ areanum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:307
-func AAS_AreaPresenceType(_ areanum: Int32) -> Int32 {
+public func AAS_AreaPresenceType(_ areanum: Int32) -> Int32 {
     if aasworld.loaded == 0 {
         return 0
     }
@@ -294,7 +294,7 @@ func AAS_AreaPresenceType(_ areanum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:324
-func AAS_PointPresenceType(_ point: JKAShared.vec3_t) -> Int32 {
+public func AAS_PointPresenceType(_ point: JKAShared.vec3_t) -> Int32 {
     let areanum: Int32
 
     if aasworld.loaded == 0 {
@@ -324,7 +324,7 @@ func AAS_PointPresenceType(_ point: JKAShared.vec3_t) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:349
-func AAS_BoxOriginDistanceFromPlane(_ normal: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ side: Int32) -> Float {
+public func AAS_BoxOriginDistanceFromPlane(_ normal: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ side: Int32) -> Float {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     var v1 = vec3_t(), v2 = vec3_t()
     var i: Int32
@@ -374,7 +374,7 @@ func AAS_BoxOriginDistanceFromPlane(_ normal: JKAShared.vec3_t, _ mins: JKAShare
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:389
-func AAS_AreaEntityCollision(_ areanum: Int32, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ presencetype: Int32, _ passent: Int32, _ trace: AasTrace) -> Bool {
+public func AAS_AreaEntityCollision(_ areanum: Int32, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ presencetype: Int32, _ passent: Int32, _ trace: AasTrace) -> Bool {
     var boxmins = vec3_t()
     var boxmaxs = vec3_t()
 
@@ -424,7 +424,7 @@ func AAS_AreaEntityCollision(_ areanum: Int32, _ start: JKAShared.vec3_t, _ end:
 var trace_AAS_TraceClientBBox: AasTrace { world.storage.trace_AAS_TraceClientBBox }
 
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:432
-func AAS_TraceClientBBox(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ presencetype: Int32, _ passent: Int32) -> AasTrace {
+public func AAS_TraceClientBBox(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ presencetype: Int32, _ passent: Int32) -> AasTrace {
     let trace = trace_AAS_TraceClientBBox
 
     //clear the trace structure
@@ -647,7 +647,7 @@ func AAS_TraceClientBBox(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ p
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:709
-func AAS_TraceAreas(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ areas: Slots<Int32>, _ points: Slots<JKAShared.vec3_t>?, _ maxareas: Int32) -> Int32 {
+public func AAS_TraceAreas(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ areas: Slots<Int32>, _ points: Slots<JKAShared.vec3_t>?, _ maxareas: Int32) -> Int32 {
     var numareas: Int32
 
     numareas = 0
@@ -821,7 +821,7 @@ private func AAS_OrthogonalToVectors(_ v1: vec3_t, _ v2: vec3_t, _ res: inout ve
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:909
-func AAS_InsideFace(_ face: AasFace, _ pnormal: JKAShared.vec3_t, _ point: JKAShared.vec3_t, _ epsilon: Float) -> Bool {
+public func AAS_InsideFace(_ face: AasFace, _ pnormal: JKAShared.vec3_t, _ point: JKAShared.vec3_t, _ epsilon: Float) -> Bool {
     var i: Int32
     var firstvertex: Int32
     var edgenum: Int32
@@ -873,7 +873,7 @@ func AAS_InsideFace(_ face: AasFace, _ pnormal: JKAShared.vec3_t, _ point: JKASh
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:961
-func AAS_PointInsideFace(_ facenum: Int32, _ point: JKAShared.vec3_t, _ epsilon: Float) -> Bool {
+public func AAS_PointInsideFace(_ facenum: Int32, _ point: JKAShared.vec3_t, _ epsilon: Float) -> Bool {
     var i: Int32
     var firstvertex: Int32
     var edgenum: Int32
@@ -925,7 +925,7 @@ func AAS_PointInsideFace(_ facenum: Int32, _ point: JKAShared.vec3_t, _ epsilon:
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1001
-func AAS_AreaGroundFace(_ areanum: Int32, _ point: JKAShared.vec3_t) -> AasFace? {
+public func AAS_AreaGroundFace(_ areanum: Int32, _ point: JKAShared.vec3_t) -> AasFace? {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     var i: Int32
     var facenum: Int32
@@ -969,7 +969,7 @@ func AAS_AreaGroundFace(_ areanum: Int32, _ point: JKAShared.vec3_t) -> AasFace?
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1035
-func AAS_FacePlane(_ facenum: Int32, _ normal: inout JKAShared.vec3_t, _ dist: inout Float) {
+public func AAS_FacePlane(_ facenum: Int32, _ normal: inout JKAShared.vec3_t, _ dist: inout Float) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     var plane: AasPlane
 
@@ -986,7 +986,7 @@ func AAS_FacePlane(_ facenum: Int32, _ normal: inout JKAShared.vec3_t, _ dist: i
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1050
-func AAS_TraceEndFace(_ trace: AasTrace) -> AasFace? {
+public func AAS_TraceEndFace(_ trace: AasTrace) -> AasFace? {
     // Port-note: Raven calls this function only from BotExportTest under `#ifdef DEBUG`, which the release build leaves out, so it is dead.
     var i: Int32
     var facenum: Int32
@@ -1056,7 +1056,7 @@ func AAS_TraceEndFace(_ trace: AasTrace) -> AasFace? {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1110
-func AAS_BoxOnPlaneSide2(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _ p: AasPlane) -> Int32 {
+public func AAS_BoxOnPlaneSide2(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _ p: AasPlane) -> Int32 {
     var i: Int32
     var sides: Int32
     let dist1: Float
@@ -1096,7 +1096,7 @@ func AAS_BoxOnPlaneSide2(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1175
-func AAS_UnlinkFromAreas(_ areas: AasLink?) {
+public func AAS_UnlinkFromAreas(_ areas: AasLink?) {
     var link: AasLink?
     var nextlink: AasLink?
 
@@ -1120,7 +1120,7 @@ func AAS_UnlinkFromAreas(_ areas: AasLink?) {
 }
 
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1206
-func AAS_AASLinkEntity(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _ entnum: Int32) -> AasLink? {
+public func AAS_AASLinkEntity(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _ entnum: Int32) -> AasLink? {
     if aasworld.loaded == 0 {
         botimport.runPrint(PRT_ERROR, "AAS_LinkEntity: aas not loaded\n")
         return nil
@@ -1231,7 +1231,7 @@ func AAS_AASLinkEntity(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t,
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1306
-func AAS_LinkEntityClientBBox(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _ entnum: Int32, _ presencetype: Int32) -> AasLink? {
+public func AAS_LinkEntityClientBBox(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _ entnum: Int32, _ presencetype: Int32) -> AasLink? {
     var mins = vec3_t()
     var maxs = vec3_t()
     let newabsmins: vec3_t
@@ -1251,7 +1251,7 @@ func AAS_LinkEntityClientBBox(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1323
-func AAS_BBoxAreas(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _ areas: Slots<Int32>, _ maxareas: Int32) -> Int32 {
+public func AAS_BBoxAreas(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _ areas: Slots<Int32>, _ maxareas: Int32) -> Int32 {
     let linkedareas: AasLink?
     var link: AasLink?
     var num: Int32
@@ -1278,7 +1278,7 @@ func AAS_BBoxAreas(_ absmins: JKAShared.vec3_t, _ absmaxs: JKAShared.vec3_t, _ a
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1346
-func AAS_AreaInfo(_ areanum: Int32, _ info: AasAreainfo) -> Int32 {
+public func AAS_AreaInfo(_ areanum: Int32, _ info: AasAreainfo) -> Int32 {
     let settings: AasAreasettings
     if areanum <= 0 || areanum >= aasworld.numareas {
         botimport.runPrint(PRT_ERROR, "AAS_AreaInfo: areanum %d out of range\n", areanum)
@@ -1302,7 +1302,7 @@ func AAS_AreaInfo(_ areanum: Int32, _ info: AasAreainfo) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_sample.cpp:1372
-func AAS_PlaneFromNum(_ planenum: Int32) -> AasPlane? {
+public func AAS_PlaneFromNum(_ planenum: Int32) -> AasPlane? {
     if aasworld.loaded == 0 {
         return nil
     }

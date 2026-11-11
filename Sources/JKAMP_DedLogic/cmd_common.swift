@@ -10,16 +10,16 @@ let MAX_CMD_BUFFER = 16384 as Int32
 let MAX_CMD_LINE = 1024 as Int32
 
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:16
-var cmd_wait: Int32 {
+public var cmd_wait: Int32 {
     get { world.variables.cmd_wait }
     set { world.variables.cmd_wait = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:17
-var cmd_text: Cmd { world.storage.cmd_text }
+public var cmd_text: Cmd { world.storage.cmd_text }
 
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:18
-var cmd_text_buf: Slots<JKAShared.byte> { world.storage.cmd_text_buf }
+public var cmd_text_buf: Slots<JKAShared.byte> { world.storage.cmd_text_buf }
 
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:290
 var cmd_argc: Int32 {
@@ -49,7 +49,7 @@ bind g "cmd use rocket ; +attack ; wait ; -attack ; cmd use blaster"
 ```
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:32
-func Cmd_Wait_f() {
+public func Cmd_Wait_f() {
     if Cmd_Argc() == 2 {
         cmd_wait = atoi(Cmd_Argv(1))
     } else {
@@ -65,7 +65,7 @@ Cbuf_Init
 ```
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:54
-func Cbuf_Init() {
+public func Cbuf_Init() {
     cmd_text.data = cmd_text_buf
     cmd_text.maxsize = MAX_CMD_BUFFER
     cmd_text.cursize = 0
@@ -81,7 +81,7 @@ Adds command text at the end of the buffer, does NOT add a final \n
 ```
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:68
-func Cbuf_AddText(_ text: String) {
+public func Cbuf_AddText(_ text: String) {
     var l: Int32
 
     l = strlen(text)
@@ -106,7 +106,7 @@ Adds a \n to the text
 ```
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:91
-func Cbuf_InsertText(_ text: String) {
+public func Cbuf_InsertText(_ text: String) {
     var len: Int32
     var i: Int32
 
@@ -141,7 +141,7 @@ Cbuf_ExecuteText
 ```
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:121
-func Cbuf_ExecuteText(_ exec_when: Int32, _ text: String) {
+public func Cbuf_ExecuteText(_ exec_when: Int32, _ text: String) {
     switch exec_when {
     case EXEC_NOW:
         if strlen(text) > 0 {
@@ -169,7 +169,7 @@ Cbuf_Execute
 ```
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:148
-func Cbuf_Execute() {
+public func Cbuf_Execute() {
     var i: Int32
     var text: Slots<JKAShared.byte>
     var line = CharBuf(MAX_CMD_LINE)
@@ -235,7 +235,7 @@ Cmd_Exec_f
 ```
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:219
-func Cmd_Exec_f() {
+public func Cmd_Exec_f() {
     var f = CharBuf(0)
     var len: Int32
     var filename = CharBuf(MAX_QPATH)
@@ -270,7 +270,7 @@ Inserts the current value of a variable as command text
 ```
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:251
-func Cmd_Vstr_f() {
+public func Cmd_Vstr_f() {
     if Cmd_Argc() != 2 {
         Com_Printf("vstr <variablename> : execute a variable command\n")
         return
@@ -290,7 +290,7 @@ Just prints the rest of the line to the console
 ```
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:271
-func Cmd_Echo_f() {
+public func Cmd_Echo_f() {
     var i: Int32 = 1
     while i < Cmd_Argc() {
         Com_Printf("%s ", Cmd_Argv(i))
@@ -307,7 +307,7 @@ Cmd_Argc
 ```
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:300
-func Cmd_Argc() -> Int32 {
+public func Cmd_Argc() -> Int32 {
     return cmd_argc
 }
 
@@ -319,7 +319,7 @@ Cmd_Argv
 ```
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:309
-func Cmd_Argv(_ arg: Int32) -> String {
+public func Cmd_Argv(_ arg: Int32) -> String {
     if arg < 0 || arg >= cmd_argc {
         return ""
     }
@@ -337,7 +337,7 @@ they can't have pointers returned to them
 ```
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:324
-func Cmd_ArgvBuffer(_ arg: Int32, _ buffer: inout JKAShared.CharBuf, _ bufferLength: Int32) {
+public func Cmd_ArgvBuffer(_ arg: Int32, _ buffer: inout JKAShared.CharBuf, _ bufferLength: Int32) {
     Q_strncpyz(&buffer, Cmd_Argv(arg), bufferLength)
 }
 
@@ -351,7 +351,7 @@ Returns a single string containing argv(1) to argv(argc()-1)
 ```
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:336
-func Cmd_Args() -> String {
+public func Cmd_Args() -> String {
     var cmd_args = ""
     var i: Int32 = 1
     while i < cmd_argc {
@@ -375,7 +375,7 @@ Returns a single string containing argv(arg) to argv(argc()-1)
 ```
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:358
-func Cmd_ArgsFrom(_ arg: Int32) -> String {
+public func Cmd_ArgsFrom(_ arg: Int32) -> String {
     var arg = arg
     var cmd_args = ""
     if arg < 0 {
@@ -404,7 +404,7 @@ they can't have pointers returned to them
 ```
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:383
-func Cmd_ArgsBuffer(_ buffer: inout JKAShared.CharBuf, _ bufferLength: Int32) {
+public func Cmd_ArgsBuffer(_ buffer: inout JKAShared.CharBuf, _ bufferLength: Int32) {
     Q_strncpyz(&buffer, Cmd_Args(), bufferLength)
 }
 
@@ -421,7 +421,7 @@ will point into this temporary buffer.
 ```
 */
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:398
-func Cmd_TokenizeString(_ text_in: String) {
+public func Cmd_TokenizeString(_ text_in: String) {
     // clear previous args
     cmd_argc = 0
 
@@ -519,7 +519,7 @@ func Cmd_TokenizeString(_ text_in: String) {
 }
 
 /// Source: oracle/codemp/qcommon/cmd_common.cpp:501
-func Cmd_Init() {
+public func Cmd_Init() {
     Cmd_AddCommand("cmdlist", Cmd_List_f)
     Cmd_AddCommand("exec", Cmd_Exec_f)
     Cmd_AddCommand("vstr", Cmd_Vstr_f)

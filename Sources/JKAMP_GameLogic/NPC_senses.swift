@@ -15,7 +15,7 @@ returns true if can see from point 1 to 2, even through glass (1 pane)- doesn't 
 ```
 */
 /// Source: oracle/codemp/game/NPC_senses.c:11
-func G_ClearLineOfSight(_ point1: JKAShared.vec3_t, _ point2: JKAShared.vec3_t, _ ignore: Int32, _ clipmask: Int32) -> Bool {
+public func G_ClearLineOfSight(_ point1: JKAShared.vec3_t, _ point2: JKAShared.vec3_t, _ ignore: Int32, _ clipmask: Int32) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { tr -> Bool in
@@ -53,7 +53,7 @@ FIXME do we need fat and thin version of this?
 ```
 */
 /// Source: oracle/codemp/game/NPC_senses.c:47
-func CanSee(_ ent: Entity) -> Bool {
+public func CanSee(_ ent: Entity) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { tr -> Bool in
@@ -88,7 +88,7 @@ func CanSee(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:82
-func InFront(_ spot: JKAShared.vec3_t, _ from: JKAShared.vec3_t, _ fromAngles: JKAShared.vec3_t, _ threshHold: Float) -> Bool {
+public func InFront(_ spot: JKAShared.vec3_t, _ from: JKAShared.vec3_t, _ fromAngles: JKAShared.vec3_t, _ threshHold: Float) -> Bool {
     var dir = vec3_t()
     var forward = vec3_t()
     var angles = vec3_t()
@@ -111,7 +111,7 @@ func InFront(_ spot: JKAShared.vec3_t, _ from: JKAShared.vec3_t, _ fromAngles: J
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:109
-func InFOV3(_ spot: JKAShared.vec3_t, _ from: JKAShared.vec3_t, _ fromAngles: JKAShared.vec3_t, _ hFOV: Int32, _ vFOV: Int32) -> Bool {
+public func InFOV3(_ spot: JKAShared.vec3_t, _ from: JKAShared.vec3_t, _ fromAngles: JKAShared.vec3_t, _ hFOV: Int32, _ vFOV: Int32) -> Bool {
     var deltaVector = vec3_t()
     var angles = vec3_t()
     var deltaAngles = vec3_t()
@@ -130,7 +130,7 @@ func InFOV3(_ spot: JKAShared.vec3_t, _ from: JKAShared.vec3_t, _ fromAngles: JK
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:129
-func InFOV2(_ origin: JKAShared.vec3_t, _ from: Entity, _ hFOV: Int32, _ vFOV: Int32) -> Bool {
+public func InFOV2(_ origin: JKAShared.vec3_t, _ from: Entity, _ hFOV: Int32, _ vFOV: Int32) -> Bool {
     var fromAngles = vec3_t()
     var eyes = vec3_t()
 
@@ -146,7 +146,7 @@ func InFOV2(_ origin: JKAShared.vec3_t, _ from: Entity, _ hFOV: Int32, _ vFOV: I
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:149
-func InFOV(_ ent: Entity, _ from: Entity, _ hFOV: Int32, _ vFOV: Int32) -> Bool {
+public func InFOV(_ ent: Entity, _ from: Entity, _ hFOV: Int32, _ vFOV: Int32) -> Bool {
     var eyes = vec3_t()
     var spot = vec3_t()
     var deltaVector = vec3_t()
@@ -200,7 +200,7 @@ func InFOV(_ ent: Entity, _ from: Entity, _ hFOV: Int32, _ vFOV: Int32) -> Bool 
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:210
-func InVisrange(_ ent: Entity) -> Bool {
+public func InVisrange(_ ent: Entity) -> Bool {
     //FIXME: make a calculate visibility for ents that takes into account
     //lighting, movement, turning, crouch/stand up, other anims, hide brushes, etc.
     var eyes = vec3_t()
@@ -243,7 +243,7 @@ func InVisrange(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:257
-func NPC_CheckVisibility(_ ent: Entity, _ flags: Int32) -> visibility_t {
+public func NPC_CheckVisibility(_ ent: Entity, _ flags: Int32) -> visibility_t {
     // flags should never be 0
     if flags == 0 {
         return VIS_NOT
@@ -378,7 +378,7 @@ private func G_CheckSoundEvents(_ `self`: Entity, _ maxHearDist: Float, _ ignore
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:388
-func G_GetLightLevel(_ pos: JKAShared.vec3_t, _ fromDir: JKAShared.vec3_t) -> Float {
+public func G_GetLightLevel(_ pos: JKAShared.vec3_t, _ fromDir: JKAShared.vec3_t) -> Float {
     /*
     vec3_t	ambient={0}, directed, lightDir;
 
@@ -482,7 +482,7 @@ private func G_CheckSightEvents(_ `self`: Entity, _ hFOV: Int32, _ vFOV: Int32, 
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:478
-func G_CheckAlertEvents(_ `self`: Entity, _ checkSight: Bool, _ checkSound: Bool, _ maxSeeDist: Float, _ maxHearDist: Float, _ ignoreAlert: Int32, _ mustHaveOwner: Bool, _ minAlertLevel: Int32) -> Int32 {
+public func G_CheckAlertEvents(_ `self`: Entity, _ checkSight: Bool, _ checkSound: Bool, _ maxSeeDist: Float, _ maxHearDist: Float, _ ignoreAlert: Int32, _ mustHaveOwner: Bool, _ minAlertLevel: Int32) -> Int32 {
     var bestSoundEvent: Int32 = -1
     var bestSightEvent: Int32 = -1
     var bestSoundAlert: Int32 = -1
@@ -531,12 +531,12 @@ func G_CheckAlertEvents(_ `self`: Entity, _ checkSight: Bool, _ checkSound: Bool
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:532
-func NPC_CheckAlertEvents(_ checkSight: Bool, _ checkSound: Bool, _ ignoreAlert: Int32, _ mustHaveOwner: Bool, _ minAlertLevel: Int32) -> Int32 {
+public func NPC_CheckAlertEvents(_ checkSight: Bool, _ checkSound: Bool, _ ignoreAlert: Int32, _ mustHaveOwner: Bool, _ minAlertLevel: Int32) -> Int32 {
     return G_CheckAlertEvents(NPC!, checkSight, checkSound, NPCInfo!.stats.visrange, NPCInfo!.stats.earshot, ignoreAlert, mustHaveOwner, minAlertLevel)
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:537
-func G_CheckForDanger(_ `self`: Entity, _ alertEvent: Int32) -> Bool {
+public func G_CheckForDanger(_ `self`: Entity, _ alertEvent: Int32) -> Bool {
     //FIXME: more bStates need to call this?
     if alertEvent == -1 {
         return false
@@ -562,13 +562,13 @@ func G_CheckForDanger(_ `self`: Entity, _ alertEvent: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:568
-func NPC_CheckForDanger(_ alertEvent: Int32) -> Bool {
+public func NPC_CheckForDanger(_ alertEvent: Int32) -> Bool {
     //FIXME: more bStates need to call this?
     return G_CheckForDanger(NPC!, alertEvent)
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:579
-func AddSoundEvent(_ owner: Entity, _ position: JKAShared.vec3_t, _ radius: Float, _ alertLevel: alertEventLevel_e, _ needLOS: Bool) {
+public func AddSoundEvent(_ owner: Entity, _ position: JKAShared.vec3_t, _ radius: Float, _ alertLevel: alertEventLevel_e, _ needLOS: Bool) {
     //FIXME: Handle this in another manner?
     if level.numAlertEvents >= MAX_ALERT_EVENTS {
         if !RemoveOldestAlert() {
@@ -605,7 +605,7 @@ func AddSoundEvent(_ owner: Entity, _ position: JKAShared.vec3_t, _ radius: Floa
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:623
-func AddSightEvent(_ owner: Entity, _ position: JKAShared.vec3_t, _ radius: Float, _ alertLevel: alertEventLevel_e, _ addLight: Float) {
+public func AddSightEvent(_ owner: Entity, _ position: JKAShared.vec3_t, _ radius: Float, _ alertLevel: alertEventLevel_e, _ addLight: Float) {
     //FIXME: Handle this in another manner?
     if level.numAlertEvents >= MAX_ALERT_EVENTS {
         if !RemoveOldestAlert() {
@@ -637,7 +637,7 @@ func AddSightEvent(_ owner: Entity, _ position: JKAShared.vec3_t, _ radius: Floa
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:660
-func ClearPlayerAlertEvents() {
+public func ClearPlayerAlertEvents() {
     let curNumAlerts: Int32 = level.numAlertEvents
     var i: Int32
     //loop through them all (max 32)
@@ -674,7 +674,7 @@ func ClearPlayerAlertEvents() {
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:695
-func RemoveOldestAlert() -> Bool {
+public func RemoveOldestAlert() -> Bool {
     var oldestEvent: Int32 = -1
     var oldestTime: Int32 = Q3_INFINITE
     var i: Int32
@@ -713,7 +713,7 @@ func RemoveOldestAlert() -> Bool {
 
 // Position to position
 /// Source: oracle/codemp/game/NPC_senses.c:739
-func G_ClearLOS(_ `self`: Entity?, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) -> Bool {
+public func G_ClearLOS(_ `self`: Entity?, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { tr -> Bool in
@@ -744,7 +744,7 @@ func G_ClearLOS(_ `self`: Entity?, _ start: JKAShared.vec3_t, _ end: JKAShared.v
 
 //Entity to position
 /// Source: oracle/codemp/game/NPC_senses.c:767
-func G_ClearLOS2(_ `self`: Entity?, _ ent: Entity, _ end: JKAShared.vec3_t) -> Bool {
+public func G_ClearLOS2(_ `self`: Entity?, _ ent: Entity, _ end: JKAShared.vec3_t) -> Bool {
     var eyes = vec3_t()
 
     CalcEntitySpot(ent, SPOT_HEAD_LEAN, &eyes)
@@ -754,7 +754,7 @@ func G_ClearLOS2(_ `self`: Entity?, _ ent: Entity, _ end: JKAShared.vec3_t) -> B
 
 //Position to entity
 /// Source: oracle/codemp/game/NPC_senses.c:777
-func G_ClearLOS3(_ `self`: Entity, _ start: JKAShared.vec3_t, _ ent: Entity) -> Bool {
+public func G_ClearLOS3(_ `self`: Entity, _ start: JKAShared.vec3_t, _ ent: Entity) -> Bool {
     var spot = vec3_t()
 
     //Look for the chest first
@@ -776,7 +776,7 @@ func G_ClearLOS3(_ `self`: Entity, _ start: JKAShared.vec3_t, _ ent: Entity) -> 
 
 //NPC's eyes to entity
 /// Source: oracle/codemp/game/NPC_senses.c:797
-func G_ClearLOS4(_ `self`: Entity, _ ent: Entity) -> Bool {
+public func G_ClearLOS4(_ `self`: Entity, _ ent: Entity) -> Bool {
     var eyes = vec3_t()
 
     //Calculate my position
@@ -787,7 +787,7 @@ func G_ClearLOS4(_ `self`: Entity, _ ent: Entity) -> Bool {
 
 //NPC's eyes to position
 /// Source: oracle/codemp/game/NPC_senses.c:808
-func G_ClearLOS5(_ `self`: Entity, _ end: JKAShared.vec3_t) -> Bool {
+public func G_ClearLOS5(_ `self`: Entity, _ end: JKAShared.vec3_t) -> Bool {
     var eyes = vec3_t()
 
     //Calculate the my position
@@ -797,7 +797,7 @@ func G_ClearLOS5(_ `self`: Entity, _ end: JKAShared.vec3_t) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:824
-func NPC_GetHFOVPercentage(_ spot: JKAShared.vec3_t, _ from: JKAShared.vec3_t, _ facing: JKAShared.vec3_t, _ hFOV: Float) -> Float {
+public func NPC_GetHFOVPercentage(_ spot: JKAShared.vec3_t, _ from: JKAShared.vec3_t, _ facing: JKAShared.vec3_t, _ hFOV: Float) -> Float {
     var deltaVector = vec3_t()
     var angles = vec3_t()
     let delta: Float
@@ -816,7 +816,7 @@ func NPC_GetHFOVPercentage(_ spot: JKAShared.vec3_t, _ from: JKAShared.vec3_t, _
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:847
-func NPC_GetVFOVPercentage(_ spot: JKAShared.vec3_t, _ from: JKAShared.vec3_t, _ facing: JKAShared.vec3_t, _ vFOV: Float) -> Float {
+public func NPC_GetVFOVPercentage(_ spot: JKAShared.vec3_t, _ from: JKAShared.vec3_t, _ facing: JKAShared.vec3_t, _ vFOV: Float) -> Float {
     var deltaVector = vec3_t()
     var angles = vec3_t()
     let delta: Float
@@ -835,7 +835,7 @@ func NPC_GetVFOVPercentage(_ spot: JKAShared.vec3_t, _ from: JKAShared.vec3_t, _
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:871
-func G_FindLocalInterestPoint(_ `self`: Entity) -> Int32 {
+public func G_FindLocalInterestPoint(_ `self`: Entity) -> Int32 {
     var i: Int32
     var bestPoint: Int32 = ENTITYNUM_NONE
     var dist: Float
@@ -873,7 +873,7 @@ func G_FindLocalInterestPoint(_ `self`: Entity) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/NPC_senses.c:915
-func SP_target_interest(_ `self`: Entity) {
+public func SP_target_interest(_ `self`: Entity) {
     //FIXME: rename point_interest
     if level.numInterestPoints >= MAX_INTEREST_POINTS {
         Com_Printf("ERROR:  Too many interest points, limit is %d\n", MAX_INTEREST_POINTS)

@@ -15,7 +15,7 @@ public var bgHumanoidAnimations: Slots<JKAMP.Animation> { bg.storage.bgHumanoidA
 public var bgAllAnims: Slots<JKAMP.BgLoadedAnim> { bg.storage.bgAllAnims }
 
 /// Source: oracle/codemp/game/bg_panimate.c:1703
-var bgNumAllAnims: Int32 {
+public var bgNumAllAnims: Int32 {
     get { bg.variables.bgNumAllAnims }
     set { bg.variables.bgNumAllAnims = newValue }
 }
@@ -44,7 +44,7 @@ var bg_animParseIncluding: Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:33
-func BG_SaberStanceAnim(_ anim: Int32) -> Bool {
+public func BG_SaberStanceAnim(_ anim: Int32) -> Bool {
     switch anim {
     case BOTH_STAND1, //not really a saberstance anim, actually... "saber off" stance
          BOTH_STAND2, //single-saber, medium style
@@ -144,7 +144,7 @@ public func BG_InSpecialJump(_ anim: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:134
-func BG_InSaberStandAnim(_ anim: Int32) -> Bool {
+public func BG_InSaberStandAnim(_ anim: Int32) -> Bool {
     switch (anim) {
     case BOTH_SABERFAST_STANCE, BOTH_STAND2, BOTH_SABERSLOW_STANCE, BOTH_SABERDUAL_STANCE, BOTH_SABERSTAFF_STANCE:
         return true
@@ -179,7 +179,7 @@ public func BG_InReboundHold(_ anim: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:177
-func BG_InReboundRelease(_ anim: Int32) -> Bool {
+public func BG_InReboundRelease(_ anim: Int32) -> Bool {
     switch anim {
     case BOTH_FORCEWALLRELEASE_FORWARD, BOTH_FORCEWALLRELEASE_LEFT, BOTH_FORCEWALLRELEASE_BACK, BOTH_FORCEWALLRELEASE_RIGHT:
         return true
@@ -191,7 +191,7 @@ func BG_InReboundRelease(_ anim: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:191
-func BG_InBackFlip(_ anim: Int32) -> Bool {
+public func BG_InBackFlip(_ anim: Int32) -> Bool {
     switch anim {
     case BOTH_FLIP_BACK1, BOTH_FLIP_BACK2, BOTH_FLIP_BACK3:
         return true
@@ -203,7 +203,7 @@ func BG_InBackFlip(_ anim: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:204
-func BG_DirectFlippingAnim(_ anim: Int32) -> Bool {
+public func BG_DirectFlippingAnim(_ anim: Int32) -> Bool {
     switch (anim) {
     case BOTH_FLIP_F, //# Flip forward
          BOTH_FLIP_B, //# Flip backwards
@@ -254,7 +254,7 @@ public func BG_SaberInKata(_ saberMove: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:306
-func BG_InKataAnim(_ anim: Int32) -> Bool {
+public func BG_InKataAnim(_ anim: Int32) -> Bool {
     switch anim {
     case BOTH_A6_SABERPROTECT, BOTH_A7_SOULCAL, BOTH_A1_SPECIAL, BOTH_A2_SPECIAL, BOTH_A3_SPECIAL:
         return true
@@ -278,7 +278,7 @@ public func BG_SaberInSpecial(_ move: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:380
-func BG_KickMove(_ move: Int32) -> Bool {
+public func BG_KickMove(_ move: Int32) -> Bool {
     switch move {
     case LS_KICK_F, LS_KICK_B, LS_KICK_R, LS_KICK_L, LS_KICK_S, LS_KICK_BF, LS_KICK_RL, LS_KICK_F_AIR, LS_KICK_B_AIR, LS_KICK_R_AIR, LS_KICK_L_AIR, LS_HILT_BASH:
         return true
@@ -290,7 +290,7 @@ func BG_KickMove(_ move: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:401
-func BG_SaberInIdle(_ move: Int32) -> Bool {
+public func BG_SaberInIdle(_ move: Int32) -> Bool {
     switch move {
     case LS_NONE, LS_READY, LS_DRAW, LS_PUTAWAY:
         return true
@@ -581,7 +581,7 @@ public func BG_InRoll(_ ps: JKAMP.PlayerState, _ anim: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:814
-func BG_InSpecialDeathAnim(_ anim: Int32) -> Bool {
+public func BG_InSpecialDeathAnim(_ anim: Int32) -> Bool {
     switch anim {
     case BOTH_DEATH_ROLL, //# Death anim from a roll
          BOTH_DEATH_FLIP, //# Death anim from a flip
@@ -704,7 +704,7 @@ public func BG_InKnockDownOnly(_ anim: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:944
-func BG_InSaberLockOld(_ anim: Int32) -> Bool {
+public func BG_InSaberLockOld(_ anim: Int32) -> Bool {
     switch anim {
     case BOTH_BF2LOCK, BOTH_BF1LOCK, BOTH_CWCIRCLELOCK, BOTH_CCWCIRCLELOCK:
         return true
@@ -716,7 +716,7 @@ func BG_InSaberLockOld(_ anim: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:957
-func BG_InSaberLock(_ anim: Int32) -> Bool {
+public func BG_InSaberLock(_ anim: Int32) -> Bool {
     switch anim {
     case BOTH_LK_S_DL_S_L_1, //lock if I'm using single vs. a dual
          BOTH_LK_S_DL_T_L_1, //lock if I'm using single vs. a dual
@@ -957,7 +957,7 @@ public func PM_InKnockDown(_ ps: JKAMP.PlayerState) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:1256
-func PM_PainAnim(_ anim: Int32) -> Bool {
+public func PM_PainAnim(_ anim: Int32) -> Bool {
     switch (anim) {
     case BOTH_PAIN1, //# First take pain anim
          BOTH_PAIN2, //# Second take pain anim
@@ -986,7 +986,7 @@ func PM_PainAnim(_ anim: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:1284
-func PM_JumpingAnim(_ anim: Int32) -> Bool {
+public func PM_JumpingAnim(_ anim: Int32) -> Bool {
     switch (anim) {
     case BOTH_JUMP1, //# Jump - wind-up and leave ground
          BOTH_INAIR1, //# In air loop (from jump)
@@ -1022,7 +1022,7 @@ func PM_JumpingAnim(_ anim: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:1319
-func PM_LandingAnim(_ anim: Int32) -> Bool {
+public func PM_LandingAnim(_ anim: Int32) -> Bool {
     switch (anim) {
     case BOTH_LAND1, //# Landing (from in air loop)
          BOTH_LAND2, //# Landing Hard (from a great height)
@@ -1055,7 +1055,7 @@ public func PM_SpinningAnim(_ anim: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:1351
-func PM_InOnGroundAnim(_ anim: Int32) -> Bool {
+public func PM_InOnGroundAnim(_ anim: Int32) -> Bool {
     switch anim {
     case BOTH_DEAD1,
          BOTH_DEAD2,
@@ -1107,7 +1107,7 @@ func PM_InOnGroundAnim(_ anim: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:1402
-func PM_InRollComplete(_ ps: JKAMP.PlayerState, _ anim: Int32) -> Bool {
+public func PM_InRollComplete(_ ps: JKAMP.PlayerState, _ anim: Int32) -> Bool {
     switch (anim) {
     case BOTH_ROLL_F, BOTH_ROLL_B, BOTH_ROLL_R, BOTH_ROLL_L:
         if ps.legsTimer < 1 {
@@ -1121,7 +1121,7 @@ func PM_InRollComplete(_ ps: JKAMP.PlayerState, _ anim: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:1419
-func PM_CanRollFromSoulCal(_ ps: JKAMP.PlayerState) -> Bool {
+public func PM_CanRollFromSoulCal(_ ps: JKAMP.PlayerState) -> Bool {
     if ps.legsAnim == BOTH_A7_SOULCAL && ps.legsTimer < 700 && ps.legsTimer > 250 {
         return true
     }
@@ -1187,7 +1187,7 @@ public func BG_SuperBreakWinAnim(_ anim: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:1487
-func BG_SaberLockBreakAnim(_ anim: Int32) -> Bool {
+public func BG_SaberLockBreakAnim(_ anim: Int32) -> Bool {
     switch anim {
     case BOTH_BF1BREAK,
          BOTH_BF2BREAK,
@@ -1285,7 +1285,7 @@ public func BG_AnimLength(_ index: Int32, _ anim: JKAMP.animNumber_t) -> Int32 {
 
 //just use whatever pm->animations is
 /// Source: oracle/codemp/game/bg_panimate.c:1584
-func PM_AnimLength(_ index: Int32, _ anim: JKAMP.animNumber_t) -> Int32 {
+public func PM_AnimLength(_ index: Int32, _ anim: JKAMP.animNumber_t) -> Int32 {
     if anim >= MAX_ANIMATIONS || pm.animations == nil {
         return -1
     }
@@ -1296,7 +1296,7 @@ func PM_AnimLength(_ index: Int32, _ anim: JKAMP.animNumber_t) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:1597
-func PM_DebugLegsAnim(_ anim: Int32) {
+public func PM_DebugLegsAnim(_ anim: Int32) {
     let oldAnim: Int32 = (pm.ps.legsAnim)
     let newAnim: Int32 = (anim)
 
@@ -1331,7 +1331,7 @@ public func BG_SaberInTransitionAny(_ move: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:1642
-func BG_FlipPart(_ ps: JKAMP.PlayerState, _ part: Int32) {
+public func BG_FlipPart(_ ps: JKAMP.PlayerState, _ part: Int32) {
     if part == SETANIM_TORSO {
         if ps.torsoFlip {
             ps.torsoFlip = false
@@ -1376,14 +1376,14 @@ public func BG_ClearAnimsets() {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:1729
-func BG_AnimsetAlloc() -> Slots<JKAMP.Animation> {
+public func BG_AnimsetAlloc() -> Slots<JKAMP.Animation> {
     bgAllAnims[bgNumAllAnims].anims = Animation(BG_Alloc(Int32(Animation.byteCount) * MAX_TOTALANIMATIONS))
 
     return bgAllAnims[bgNumAllAnims].animsSlots
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:1737
-func BG_AnimsetFree(_ animset: Slots<JKAMP.Animation>) {
+public func BG_AnimsetFree(_ animset: Slots<JKAMP.Animation>) {
     /*
     if (!animset)
     {
@@ -2186,7 +2186,7 @@ private func BG_StartLegsAnim(_ ps: JKAMP.PlayerState, _ anim: Int32) {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:2626
-func PM_ContinueLegsAnim(_ anim: Int32) {
+public func PM_ContinueLegsAnim(_ anim: Int32) {
     if (pm.ps.legsAnim) == anim {
         return
     }
@@ -2198,7 +2198,7 @@ func PM_ContinueLegsAnim(_ anim: Int32) {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:2637
-func PM_ForceLegsAnim(_ anim: Int32) {
+public func PM_ForceLegsAnim(_ anim: Int32) {
     if BG_InSpecialJump(pm.ps.legsAnim) && pm.ps.legsTimer > 0 && !BG_InSpecialJump(anim) {
         return
     }
@@ -2229,7 +2229,7 @@ Override animations for upper body
 ```
 */
 /// Source: oracle/codemp/game/bg_panimate.c:2664
-func BG_StartTorsoAnim(_ ps: JKAMP.PlayerState, _ anim: Int32) {
+public func BG_StartTorsoAnim(_ ps: JKAMP.PlayerState, _ anim: Int32) {
     if ps.pm_type >= PM_DEAD {
         //please let me know if this assert fires on you (ideally before you close/ignore it) -rww
         return
@@ -2246,7 +2246,7 @@ func BG_StartTorsoAnim(_ ps: JKAMP.PlayerState, _ anim: Int32) {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:2687
-func PM_StartTorsoAnim(_ anim: Int32) {
+public func PM_StartTorsoAnim(_ anim: Int32) {
     BG_StartTorsoAnim(pm.ps, anim)
 }
 
@@ -2276,7 +2276,7 @@ public func BG_SetLegsAnimTimer(_ ps: JKAMP.PlayerState, _ time: Int32) {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:2708
-func PM_SetLegsAnimTimer(_ time: Int32) {
+public func PM_SetLegsAnimTimer(_ time: Int32) {
     BG_SetLegsAnimTimer(pm.ps, time)
 }
 
@@ -2306,7 +2306,7 @@ public func BG_SetTorsoAnimTimer(_ ps: JKAMP.PlayerState, _ time: Int32) {
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:2728
-func PM_SetTorsoAnimTimer(_ time: Int32) {
+public func PM_SetTorsoAnimTimer(_ time: Int32) {
     BG_SetTorsoAnimTimer(pm.ps, time)
 }
 
@@ -2347,7 +2347,7 @@ public func BG_SaberStartTransAnim(_ clientNum: Int32, _ saberAnimLevel: Int32, 
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:2800
-func BG_SetAnimFinal(_ ps: JKAMP.PlayerState, _ animations: Slots<JKAMP.Animation>, _ setAnimParts: Int32, _ anim: Int32, _ setAnimFlags: Int32, _ blendTime: Int32) {
+public func BG_SetAnimFinal(_ ps: JKAMP.PlayerState, _ animations: Slots<JKAMP.Animation>, _ setAnimParts: Int32, _ anim: Int32, _ setAnimFlags: Int32, _ blendTime: Int32) {
     var editAnimSpeed: Float = 1
 
     // Raven assigns his own `blendTime` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
@@ -2449,7 +2449,7 @@ func BG_SetAnimFinal(_ ps: JKAMP.PlayerState, _ animations: Slots<JKAMP.Animatio
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:2926
-func PM_SetAnimFinal(_ setAnimParts: Int32, _ anim: Int32, _ setAnimFlags: Int32, _ blendTime: Int32) {
+public func PM_SetAnimFinal(_ setAnimParts: Int32, _ anim: Int32, _ setAnimFlags: Int32, _ blendTime: Int32) {
     BG_SetAnimFinal(pm.ps, pm.animationsSlots, setAnimParts, anim, setAnimFlags, blendTime)
 }
 
@@ -2558,6 +2558,6 @@ public func BG_SetAnim(_ ps: JKAMP.PlayerState, _ animations: Slots<JKAMP.Animat
 }
 
 /// Source: oracle/codemp/game/bg_panimate.c:3037
-func PM_SetAnim(_ setAnimParts: Int32, _ anim: Int32, _ setAnimFlags: Int32, _ blendTime: Int32) {
+public func PM_SetAnim(_ setAnimParts: Int32, _ anim: Int32, _ setAnimFlags: Int32, _ blendTime: Int32) {
     BG_SetAnim(pm.ps, pm.animationsSlots, setAnimParts, anim, setAnimFlags, blendTime)
 }

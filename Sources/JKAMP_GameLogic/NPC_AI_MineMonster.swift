@@ -30,7 +30,7 @@ NPC_MineMonster_Precache
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_MineMonster.c:18
-func NPC_MineMonster_Precache() {
+public func NPC_MineMonster_Precache() {
     var i: Int32
 
     i = 0
@@ -49,7 +49,7 @@ MineMonster_Idle
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_MineMonster.c:35
-func MineMonster_Idle() {
+public func MineMonster_Idle() {
     if UpdateGoal() != nil {
         ucmd.buttons &= ~BUTTON_WALKING
         NPC_MoveToGoal(true)
@@ -64,7 +64,7 @@ MineMonster_Patrol
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_MineMonster.c:50
-func MineMonster_Patrol() {
+public func MineMonster_Patrol() {
     var dif = vec3_t()
 
     NPCInfo!.localState = LSTATE_CLEAR
@@ -100,7 +100,7 @@ MineMonster_Move
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_MineMonster.c:90
-func MineMonster_Move(_ visible: Bool) {
+public func MineMonster_Move(_ visible: Bool) {
     if NPCInfo!.localState != LSTATE_WAITING {
         NPCInfo!.goalEntity = NPC!.enemy
         NPC_MoveToGoal(true)
@@ -110,7 +110,7 @@ func MineMonster_Move(_ visible: Bool) {
 
 //---------------------------------------------------------
 /// Source: oracle/codemp/game/NPC_AI_MineMonster.c:101
-func MineMonster_TryDamage(_ enemy: Entity, _ damage: Int32) {
+public func MineMonster_TryDamage(_ enemy: Entity, _ damage: Int32) {
     var end = vec3_t()
     var dir = vec3_t()
     // Raven's record lives to the end of his block, so the block is the closure.
@@ -142,7 +142,7 @@ func MineMonster_TryDamage(_ enemy: Entity, _ damage: Int32) {
 
 //------------------------------
 /// Source: oracle/codemp/game/NPC_AI_MineMonster.c:129
-func MineMonster_Attack() {
+public func MineMonster_Attack() {
     if !TIMER_Exists(NPC!, "attacking") {
         // usually try and play a jump attack if the player somehow got above them....or just really rarely
         // The SDK also declares `random`, so the call names the bg module.
@@ -190,7 +190,7 @@ func MineMonster_Attack() {
 
 //----------------------------------
 /// Source: oracle/codemp/game/NPC_AI_MineMonster.c:189
-func MineMonster_Combat() {
+public func MineMonster_Combat() {
     let distance: Float
     let advance: Bool
 
@@ -230,7 +230,7 @@ NPC_MineMonster_Pain
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_MineMonster.c:234
-func NPC_MineMonster_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func NPC_MineMonster_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     G_AddEvent(`self`, EV_PAIN, Int32(floor(Float(`self`.health) / `self`.client!.pers.maxHealth * 100.0)))
 
     if damage >= 10 {
@@ -257,7 +257,7 @@ NPC_BSMineMonster_Default
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_MineMonster.c:262
-func NPC_BSMineMonster_Default() {
+public func NPC_BSMineMonster_Default() {
     if NPC!.enemy != nil {
         MineMonster_Combat()
     } else if (NPCInfo!.scriptFlags & SCF_LOOK_FOR_ENEMIES) != 0 {

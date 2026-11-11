@@ -111,7 +111,7 @@ G_FilterPacket
 ```
 */
 /// Source: oracle/codemp/game/g_svcmds.c:134
-func G_FilterPacket(_ from: String) -> Bool {
+public func G_FilterPacket(_ from: String) -> Bool {
     let from = CharBuf(from)
     var m: [UInt8] = [UInt8](repeating: 0, count: 4)
     var i: Int32 = 0
@@ -158,7 +158,7 @@ AddIP
 ```
 */
 /// Source: oracle/codemp/game/g_svcmds.c:173
-func AddIP(_ str: inout JKAShared.CharBuf) {
+public func AddIP(_ str: inout JKAShared.CharBuf) {
     var i: Int32
 
     i = 0
@@ -191,7 +191,7 @@ G_ProcessIPBans
 ```
 */
 /// Source: oracle/codemp/game/g_svcmds.c:201
-func G_ProcessIPBans() {
+public func G_ProcessIPBans() {
     var s: Int32
     var t: Int32
     var str = CharBuf(1024)
@@ -223,7 +223,7 @@ Svcmd_AddIP_f
 ```
 */
 /// Source: oracle/codemp/game/g_svcmds.c:226
-func Svcmd_AddIP_f() {
+public func Svcmd_AddIP_f() {
     var str = CharBuf(1024)
 
     if trap_Argc() < 2 {
@@ -244,7 +244,7 @@ Svcmd_RemoveIP_f
 ```
 */
 /// Source: oracle/codemp/game/g_svcmds.c:246
-func Svcmd_RemoveIP_f() {
+public func Svcmd_RemoveIP_f() {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = IpFilter.scratch { f -> Bool in
@@ -283,7 +283,7 @@ func Svcmd_RemoveIP_f() {
 }
 
 /// Source: oracle/codemp/game/g_svcmds.c:276
-func Svcmd_ListIPs_f() {
+public func Svcmd_ListIPs_f() {
     var i: Int32
     var str: String
     var b: [UInt8] = [UInt8](repeating: 0, count: 4)
@@ -304,7 +304,7 @@ func Svcmd_ListIPs_f() {
 }
 
 /// Source: oracle/codemp/game/g_svcmds.c:299
-func G_SaveBanIP() {
+public func G_SaveBanIP() {
     //save out all the banned IPs
     var i: Int32
     var str: String
@@ -336,7 +336,7 @@ func G_SaveBanIP() {
 }
 
 /// Source: oracle/codemp/game/g_svcmds.c:333
-func G_LoadIPBans() {
+public func G_LoadIPBans() {
     //load in all the banned IPs
     var i: Int32
     let len: Int32
@@ -383,7 +383,7 @@ Svcmd_EntityList_f
 ```
 */
 /// Source: oracle/codemp/game/g_svcmds.c:386
-func Svcmd_EntityList_f() {
+public func Svcmd_EntityList_f() {
     var e: Int32
     var checkIndex: Int32 = 0
 
@@ -447,7 +447,7 @@ func Svcmd_EntityList_f() {
 }
 
 /// Source: oracle/codemp/game/g_svcmds.c:445
-func ClientForString(_ s: String) -> Client? {
+public func ClientForString(_ s: String) -> Client? {
     let s = CharBuf(s)
     var cl: Client?
     var i: Int32
@@ -498,7 +498,7 @@ forceteam <player> <team>
 ```
 */
 /// Source: oracle/codemp/game/g_svcmds.c:489
-func Svcmd_ForceTeam_f() {
+public func Svcmd_ForceTeam_f() {
     var cl: Client?
     var str = CharBuf(1024)
 

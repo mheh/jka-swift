@@ -13,7 +13,7 @@ let MAX_COMMANDARGUMENTS = 10 as Int32
 let ACTION_JUMPEDLASTFRAME = 0x0800000 as Int32
 
 /// Source: oracle/codemp/botlib/be_ea.cpp:27
-var botinputs: Slots<BotInput>? {
+public var botinputs: Slots<BotInput>? {
     get { world.variables.botinputs }
     set { world.variables.botinputs = newValue }
 }
@@ -25,7 +25,7 @@ var botinputs: Slots<BotInput>? {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:35
-func EA_Say(_ client: Int32, _ str: String) {
+public func EA_Say(_ client: Int32, _ str: String) {
     botimport.runBotClientCommand(client, va("say %s", str))
 }
 
@@ -36,7 +36,7 @@ func EA_Say(_ client: Int32, _ str: String) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:45
-func EA_SayTeam(_ client: Int32, _ str: String) {
+public func EA_SayTeam(_ client: Int32, _ str: String) {
     botimport.runBotClientCommand(client, va("say_team %s", str))
 }
 
@@ -47,7 +47,7 @@ func EA_SayTeam(_ client: Int32, _ str: String) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:55
-func EA_Tell(_ client: Int32, _ clientto: Int32, _ str: String) {
+public func EA_Tell(_ client: Int32, _ clientto: Int32, _ str: String) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     botimport.runBotClientCommand(client, va("tell %d, %s", clientto, str))
 }
@@ -59,7 +59,7 @@ func EA_Tell(_ client: Int32, _ clientto: Int32, _ str: String) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:65
-func EA_UseItem(_ client: Int32, _ it: String) {
+public func EA_UseItem(_ client: Int32, _ it: String) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     botimport.runBotClientCommand(client, va("use %s", it))
 }
@@ -71,7 +71,7 @@ func EA_UseItem(_ client: Int32, _ it: String) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:75
-func EA_DropItem(_ client: Int32, _ it: String) {
+public func EA_DropItem(_ client: Int32, _ it: String) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     botimport.runBotClientCommand(client, va("drop %s", it))
 }
@@ -83,7 +83,7 @@ func EA_DropItem(_ client: Int32, _ it: String) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:85
-func EA_UseInv(_ client: Int32, _ inv: String) {
+public func EA_UseInv(_ client: Int32, _ inv: String) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     botimport.runBotClientCommand(client, va("invuse %s", inv))
 }
@@ -95,7 +95,7 @@ func EA_UseInv(_ client: Int32, _ inv: String) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:95
-func EA_DropInv(_ client: Int32, _ inv: String) {
+public func EA_DropInv(_ client: Int32, _ inv: String) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     botimport.runBotClientCommand(client, va("invdrop %s", inv))
 }
@@ -107,7 +107,7 @@ func EA_DropInv(_ client: Int32, _ inv: String) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:105
-func EA_Gesture(_ client: Int32) {
+public func EA_Gesture(_ client: Int32) {
     let bi: BotInput
 
     bi = botinputs![client]
@@ -121,7 +121,7 @@ func EA_Gesture(_ client: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:119
-func EA_Command(_ client: Int32, _ command: inout JKAShared.CharBuf) {
+public func EA_Command(_ client: Int32, _ command: inout JKAShared.CharBuf) {
     // AI: Raven hands his `char *` buffer to the import. The run method takes a String, so the call hands the text of the CharBuf.
     botimport.runBotClientCommand(client, String(command))
 }
@@ -133,7 +133,7 @@ func EA_Command(_ client: Int32, _ command: inout JKAShared.CharBuf) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:129
-func EA_SelectWeapon(_ client: Int32, _ weapon: Int32) {
+public func EA_SelectWeapon(_ client: Int32, _ weapon: Int32) {
     let bi: BotInput
 
     bi = botinputs![client]
@@ -147,7 +147,7 @@ func EA_SelectWeapon(_ client: Int32, _ weapon: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:143
-func EA_Attack(_ client: Int32) {
+public func EA_Attack(_ client: Int32) {
     let bi: BotInput
 
     bi = botinputs![client]
@@ -161,7 +161,7 @@ func EA_Attack(_ client: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:157
-func EA_Alt_Attack(_ client: Int32) {
+public func EA_Alt_Attack(_ client: Int32) {
     let bi: BotInput
 
     bi = botinputs![client]
@@ -175,7 +175,7 @@ func EA_Alt_Attack(_ client: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:171
-func EA_ForcePower(_ client: Int32) {
+public func EA_ForcePower(_ client: Int32) {
     let bi: BotInput
 
     bi = botinputs![client]
@@ -189,7 +189,7 @@ func EA_ForcePower(_ client: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:185
-func EA_Talk(_ client: Int32) {
+public func EA_Talk(_ client: Int32) {
     let bi: BotInput
 
     bi = botinputs![client]
@@ -203,7 +203,7 @@ func EA_Talk(_ client: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:199
-func EA_Use(_ client: Int32) {
+public func EA_Use(_ client: Int32) {
     let bi: BotInput
 
     bi = botinputs![client]
@@ -217,7 +217,7 @@ func EA_Use(_ client: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:213
-func EA_Respawn(_ client: Int32) {
+public func EA_Respawn(_ client: Int32) {
     let bi: BotInput
 
     bi = botinputs![client]
@@ -231,7 +231,7 @@ func EA_Respawn(_ client: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:227
-func EA_Jump(_ client: Int32) {
+public func EA_Jump(_ client: Int32) {
     let bi: BotInput
 
     bi = botinputs![client]
@@ -250,7 +250,7 @@ func EA_Jump(_ client: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:248
-func EA_DelayedJump(_ client: Int32) {
+public func EA_DelayedJump(_ client: Int32) {
     let bi: BotInput
 
     bi = botinputs![client]
@@ -269,7 +269,7 @@ func EA_DelayedJump(_ client: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:269
-func EA_Crouch(_ client: Int32) {
+public func EA_Crouch(_ client: Int32) {
     let bi: BotInput
 
     bi = botinputs![client]
@@ -283,7 +283,7 @@ func EA_Crouch(_ client: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:283
-func EA_Walk(_ client: Int32) {
+public func EA_Walk(_ client: Int32) {
     let bi: BotInput
 
     bi = botinputs![client]
@@ -297,7 +297,7 @@ func EA_Walk(_ client: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:297
-func EA_Action(_ client: Int32, _ action: Int32) {
+public func EA_Action(_ client: Int32, _ action: Int32) {
     let bi: BotInput
 
     bi = botinputs![client]
@@ -311,7 +311,7 @@ func EA_Action(_ client: Int32, _ action: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:311
-func EA_MoveUp(_ client: Int32) {
+public func EA_MoveUp(_ client: Int32) {
     let bi: BotInput
 
     bi = botinputs![client]
@@ -325,7 +325,7 @@ func EA_MoveUp(_ client: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:325
-func EA_MoveDown(_ client: Int32) {
+public func EA_MoveDown(_ client: Int32) {
     let bi: BotInput
 
     bi = botinputs![client]
@@ -339,7 +339,7 @@ func EA_MoveDown(_ client: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:339
-func EA_MoveForward(_ client: Int32) {
+public func EA_MoveForward(_ client: Int32) {
     let bi: BotInput
 
     bi = botinputs![client]
@@ -353,7 +353,7 @@ func EA_MoveForward(_ client: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:353
-func EA_MoveBack(_ client: Int32) {
+public func EA_MoveBack(_ client: Int32) {
     let bi: BotInput
 
     bi = botinputs![client]
@@ -367,7 +367,7 @@ func EA_MoveBack(_ client: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:367
-func EA_MoveLeft(_ client: Int32) {
+public func EA_MoveLeft(_ client: Int32) {
     let bi: BotInput
 
     bi = botinputs![client]
@@ -381,7 +381,7 @@ func EA_MoveLeft(_ client: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:381
-func EA_MoveRight(_ client: Int32) {
+public func EA_MoveRight(_ client: Int32) {
     let bi: BotInput
 
     bi = botinputs![client]
@@ -395,7 +395,7 @@ func EA_MoveRight(_ client: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:395
-func EA_Move(_ client: Int32, _ dir: JKAShared.vec3_t, _ speed: Float) {
+public func EA_Move(_ client: Int32, _ dir: JKAShared.vec3_t, _ speed: Float) {
     let bi: BotInput
     var speed = speed
 
@@ -415,7 +415,7 @@ func EA_Move(_ client: Int32, _ dir: JKAShared.vec3_t, _ speed: Float) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:413
-func EA_View(_ client: Int32, _ viewangles: JKAShared.vec3_t) {
+public func EA_View(_ client: Int32, _ viewangles: JKAShared.vec3_t) {
     let bi: BotInput
 
     bi = botinputs![client]
@@ -430,7 +430,7 @@ func EA_View(_ client: Int32, _ viewangles: JKAShared.vec3_t) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:427
-func EA_EndRegular(_ client: Int32, _ thinktime: Float) {
+public func EA_EndRegular(_ client: Int32, _ thinktime: Float) {
 /*
 	bot_input_t *bi;
 	int jumped = qfalse;
@@ -458,7 +458,7 @@ func EA_EndRegular(_ client: Int32, _ thinktime: Float) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:454
-func EA_GetInput(_ client: Int32, _ thinktime: Float, _ input: BotInput) {
+public func EA_GetInput(_ client: Int32, _ thinktime: Float, _ input: BotInput) {
     let bi: BotInput
 //	int jumped = qfalse;
 
@@ -485,7 +485,7 @@ func EA_GetInput(_ client: Int32, _ thinktime: Float, _ input: BotInput) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:481
-func EA_ResetInput(_ client: Int32) {
+public func EA_ResetInput(_ client: Int32) {
     let bi: BotInput
     var jumped: Int32 = 0
 
@@ -507,7 +507,7 @@ func EA_ResetInput(_ client: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:502
-func EA_Setup() -> Int32 {
+public func EA_Setup() -> Int32 {
     //initialize the bot inputs
     botinputs = Slots<BotInput>(GetClearedHunkMemory(botlibglobals.maxclients * Int32(BotInput.byteCount)), count: botlibglobals.maxclients)
     return BLERR_NOERROR
@@ -520,7 +520,7 @@ func EA_Setup() -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ea.cpp:515
-func EA_Shutdown() {
+public func EA_Shutdown() {
     // AI: Raven hands the `bot_input_t *` to FreeMemory. The call hands the handle of the base of the table.
     FreeMemory(OpaquePointer(botinputs!.base))
     botinputs = nil

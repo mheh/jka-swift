@@ -38,7 +38,7 @@ var itemCapture: ItemDef? {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:103
-var DC: DisplayContextDef? {
+public var DC: DisplayContextDef? {
     get { world.variables.DC }
     set { world.variables.DC = newValue }
 }
@@ -68,19 +68,19 @@ var g_editItem: ItemDef? {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:111
-var Menus: Slots<MenuDef> { world.storage.Menus }
+public var Menus: Slots<MenuDef> { world.storage.Menus }
 
 /// Source: oracle/codemp/ui/ui_shared.c:112
-var menuCount: Int32 {
+public var menuCount: Int32 {
     get { world.variables.menuCount }
     set { world.variables.menuCount = newValue }
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:114
-var menuStack: Slots<MenuDef?> { world.storage.menuStack }
+public var menuStack: Slots<MenuDef?> { world.storage.menuStack }
 
 /// Source: oracle/codemp/ui/ui_shared.c:115
-var openMenuCount: Int32 {
+public var openMenuCount: Int32 {
     get { world.variables.openMenuCount }
     set { world.variables.openMenuCount = newValue }
 }
@@ -194,7 +194,7 @@ var strHandleCount: Int32 {
 var strHandle: Slots<StringDef?> { world.storage.strHandle }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1571
-var FPMessageTime: Int32 {
+public var FPMessageTime: Int32 {
     get { world.variables.FPMessageTime }
     set { world.variables.FPMessageTime = newValue }
 }
@@ -203,13 +203,13 @@ var FPMessageTime: Int32 {
 let MAX_DEFERRED_SCRIPT = 2048 as Int32
 
 /// Source: oracle/codemp/ui/ui_shared.c:1756
-var ui_deferredScript: JKAShared.CharBuf {
+public var ui_deferredScript: JKAShared.CharBuf {
     get { world.variables.ui_deferredScript }
     set { world.variables.ui_deferredScript = newValue }
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1757
-var ui_deferredScriptItem: ItemDef? {
+public var ui_deferredScriptItem: ItemDef? {
     get { world.variables.ui_deferredScriptItem }
     set { world.variables.ui_deferredScriptItem = newValue }
 }
@@ -234,13 +234,13 @@ var scriptCommandCount: Int32 { Int32(world.commandList.count) }
 let g_bindCount: Int32 = Int32(g_bindings.count)
 
 /// Source: oracle/codemp/ui/ui_shared.c:5407
-var g_nameBind1: JKAShared.CharBuf {
+public var g_nameBind1: JKAShared.CharBuf {
     get { world.variables.g_nameBind1 }
     set { world.variables.g_nameBind1 = newValue }
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:5408
-var g_nameBind2: JKAShared.CharBuf {
+public var g_nameBind2: JKAShared.CharBuf {
     get { world.variables.g_nameBind2 }
     set { world.variables.g_nameBind2 = newValue }
 }
@@ -252,7 +252,7 @@ let COLOR_MAX = 255.0 as Float
 let KEYWORDHASH_SIZE = 512 as Int32
 
 /// Source: oracle/codemp/ui/ui_shared.c:7487
-var ui_G2PtrTracker: UiG2PtrTracker? {
+public var ui_G2PtrTracker: UiG2PtrTracker? {
     get { world.variables.ui_G2PtrTracker }
     set { world.variables.ui_G2PtrTracker = newValue }
 }
@@ -276,7 +276,7 @@ var itemParseKeywords: [KeywordHashRow] {
 /// Source: oracle/codemp/ui/ui_shared.c:8988
 // Raven wrote: keywordHash_t *itemParseKeywordHash[KEYWORDHASH_SIZE]
 /// Raven's data table, a hand property of `CGameWorld`.
-var itemParseKeywordHash: [Int32?] {
+public var itemParseKeywordHash: [Int32?] {
     get { world.itemParseKeywordHash }
     set { world.itemParseKeywordHash = newValue }
 }
@@ -292,7 +292,7 @@ var menuParseKeywords: [KeywordHashRow] {
 /// Source: oracle/codemp/ui/ui_shared.c:9758
 // Raven wrote: keywordHash_t *menuParseKeywordHash[KEYWORDHASH_SIZE]
 /// Raven's data table, a hand property of `CGameWorld`.
-var menuParseKeywordHash: [Int32?] {
+public var menuParseKeywordHash: [Int32?] {
     get { world.menuParseKeywordHash }
     set { world.menuParseKeywordHash = newValue }
 }
@@ -305,7 +305,7 @@ UI_Alloc
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:209
-func UI_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
+public func UI_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
     let p: UnsafeMutableRawPointer
 
     if allocPoint + size > MEM_POOL_SIZE {
@@ -336,13 +336,13 @@ UI_InitMemory
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:241
-func UI_InitMemory() {
+public func UI_InitMemory() {
     allocPoint = 0
     outOfMemory = 0
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:249
-func UI_OutOfMemory() -> Bool {
+public func UI_OutOfMemory() -> Bool {
     return outOfMemory != 0
 }
 
@@ -373,7 +373,7 @@ private func hashForString(_ str: String) -> CLong {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:291
-func String_Alloc(_ p: String) -> String? {
+public func String_Alloc(_ p: String) -> String? {
     let len: Int32
     let hash: CLong
     var str: StringDef?
@@ -426,7 +426,7 @@ func String_Alloc(_ p: String) -> String? {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:344
-func String_Report() {
+public func String_Report() {
     var f: Float
     Com_Printf("Memory/String Pool Info\n")
     Com_Printf("----------------\n")
@@ -448,7 +448,7 @@ String_Init
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:363
-func String_Init() {
+public func String_Init() {
     var i: Int32
     i = 0
     while i < HASH_TABLE_SIZE {
@@ -475,7 +475,7 @@ PC_SourceWarning
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:385
-func PC_SourceWarning(_ handle: Int32, _ format: String, _ args: any JKAShared.FormatArg...) {
+public func PC_SourceWarning(_ handle: Int32, _ format: String, _ args: any JKAShared.FormatArg...) {
     var line: Int32 = 0
     var filename = CharBuf(128)
     var string = CharBuf(4096)
@@ -497,7 +497,7 @@ PC_SourceError
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:407
-func PC_SourceError(_ handle: Int32, _ format: String, _ args: any JKAShared.FormatArg...) {
+public func PC_SourceError(_ handle: Int32, _ format: String, _ args: any JKAShared.FormatArg...) {
     var line: Int32 = 0
     var filename = CharBuf(128)
     var string = CharBuf(4096)
@@ -519,7 +519,7 @@ LerpColor
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:429
-func LerpColor(_ a: JKAShared.vec4_t, _ b: JKAShared.vec4_t, _ c: inout JKAShared.vec4_t, _ t: Float) {
+public func LerpColor(_ a: JKAShared.vec4_t, _ b: JKAShared.vec4_t, _ c: inout JKAShared.vec4_t, _ t: Float) {
     var i: Int32
 
     // lerp and clamp each component
@@ -543,7 +543,7 @@ Float_Parse
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:449
-func Float_Parse(_ p: inout JKAShared.TextCursor, _ f: inout Float) -> Bool {
+public func Float_Parse(_ p: inout JKAShared.TextCursor, _ f: inout Float) -> Bool {
     let token: String
     token = COM_ParseExt(&p, false)
     if !token.isEmpty {
@@ -562,7 +562,7 @@ PC_Float_Parse
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:465
-func PC_Float_Parse(_ handle: Int32, _ f: inout Float) -> Bool {
+public func PC_Float_Parse(_ handle: Int32, _ f: inout Float) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return PcToken.scratch { token -> Bool in
@@ -598,7 +598,7 @@ Color_Parse
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:492
-func Color_Parse(_ p: inout JKAShared.TextCursor, _ c: inout JKAShared.vec4_t) -> Bool {
+public func Color_Parse(_ p: inout JKAShared.TextCursor, _ c: inout JKAShared.vec4_t) -> Bool {
     var i: Int32
     var f: Float = 0
 
@@ -621,7 +621,7 @@ PC_Color_Parse
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:510
-func PC_Color_Parse(_ handle: Int32, _ c: inout JKAShared.vec4_t) -> Bool {
+public func PC_Color_Parse(_ handle: Int32, _ c: inout JKAShared.vec4_t) -> Bool {
     var i: Int32
     var f: Float = 0
 
@@ -644,7 +644,7 @@ Int_Parse
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:528
-func Int_Parse(_ p: inout JKAShared.TextCursor, _ i: inout Int32) -> Bool {
+public func Int_Parse(_ p: inout JKAShared.TextCursor, _ i: inout Int32) -> Bool {
     let token: String
     token = COM_ParseExt(&p, false)
 
@@ -664,7 +664,7 @@ PC_Int_Parse
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:545
-func PC_Int_Parse(_ handle: Int32, _ i: inout Int32) -> Bool {
+public func PC_Int_Parse(_ handle: Int32, _ i: inout Int32) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return PcToken.scratch { token -> Bool in
@@ -699,7 +699,7 @@ Rect_Parse
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:571
-func Rect_Parse(_ p: inout JKAShared.TextCursor, _ r: JKAMP.RectDef) -> Bool {
+public func Rect_Parse(_ p: inout JKAShared.TextCursor, _ r: JKAMP.RectDef) -> Bool {
     if Float_Parse(&p, &r.x) {
         if Float_Parse(&p, &r.y) {
             if Float_Parse(&p, &r.w) {
@@ -720,7 +720,7 @@ PC_Rect_Parse
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:589
-func PC_Rect_Parse(_ handle: Int32, _ r: JKAMP.RectDef) -> Bool {
+public func PC_Rect_Parse(_ handle: Int32, _ r: JKAMP.RectDef) -> Bool {
     if PC_Float_Parse(handle, &r.x) {
         if PC_Float_Parse(handle, &r.y) {
             if PC_Float_Parse(handle, &r.w) {
@@ -741,7 +741,7 @@ String_Parse
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:607
-func String_Parse(_ p: inout JKAShared.TextCursor, _ out: inout String) -> Bool {
+public func String_Parse(_ p: inout JKAShared.TextCursor, _ out: inout String) -> Bool {
     let token: String
 
     token = COM_ParseExt(&p, false)
@@ -762,7 +762,7 @@ PC_String_Parse
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:623
-func PC_String_Parse(_ handle: Int32, _ out: inout String?) -> Bool {
+public func PC_String_Parse(_ handle: Int32, _ out: inout String?) -> Bool {
     let squiggy: String = "}"
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
@@ -790,7 +790,7 @@ PC_Script_Parse
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:650
-func PC_Script_Parse(_ handle: Int32, _ out: inout String?) -> Bool {
+public func PC_Script_Parse(_ handle: Int32, _ out: inout String?) -> Bool {
     var script = CharBuf(2048)
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
@@ -838,12 +838,12 @@ Initializes the display with a structure to all the drawing routines
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:693
-func Init_Display(_ dc: DisplayContextDef) {
+public func Init_Display(_ dc: DisplayContextDef) {
     DC = dc
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:701
-func GradientBar_Paint(_ rect: JKAMP.RectDef, _ color: JKAShared.vec4_t) {
+public func GradientBar_Paint(_ rect: JKAMP.RectDef, _ color: JKAShared.vec4_t) {
     // gradient bar takes two paints
     DC!.runSetColor(color)
     DC!.runDrawHandlePic(rect.x, rect.y, rect.w, rect.h, DC!.Assets.gradientBar)
@@ -861,7 +861,7 @@ Initializes a window structure ( windowDef_t ) with defaults
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:717
-func Window_Init(_ w: JKAMP.WindowDef) {
+public func Window_Init(_ w: JKAMP.WindowDef) {
     w.clear()
     w.borderSize = 1
     w.foreColor[3] = 1.0
@@ -872,7 +872,7 @@ func Window_Init(_ w: JKAMP.WindowDef) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:724
-func Fade(_ flags: inout Int32, _ f: inout Float, _ clamp: Float, _ nextTime: inout Int32, _ offsetTime: Int32, _ bFlags: Bool, _ fadeAmount: Float) {
+public func Fade(_ flags: inout Int32, _ f: inout Float, _ clamp: Float, _ nextTime: inout Int32, _ offsetTime: Int32, _ bFlags: Bool, _ fadeAmount: Float) {
     if (flags & (WINDOW_FADINGOUT | WINDOW_FADINGIN)) != 0 {
         if DC!.realTime > nextTime {
             nextTime = DC!.realTime + offsetTime
@@ -895,7 +895,7 @@ func Fade(_ flags: inout Int32, _ f: inout Float, _ clamp: Float, _ nextTime: in
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:748
-func Window_Paint(_ w: JKAMP.WindowDef, _ fadeAmount: Float, _ fadeClamp: Float, _ fadeCycle: Float) {
+public func Window_Paint(_ w: JKAMP.WindowDef, _ fadeAmount: Float, _ fadeClamp: Float, _ fadeCycle: Float) {
     //float bordersize = 0;
     var color = vec4_t()
     // Raven's record lives to the end of his block, so the block is the closure.
@@ -1006,7 +1006,7 @@ func Window_Paint(_ w: JKAMP.WindowDef, _ fadeAmount: Float, _ fadeClamp: Float,
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:891
-func Item_SetScreenCoords(_ item: ItemDef, _ x: Float, _ y: Float) {
+public func Item_SetScreenCoords(_ item: ItemDef, _ x: Float, _ y: Float) {
     // Raven assigns his own `x` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var x = x
     // Raven assigns his own `y` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
@@ -1051,7 +1051,7 @@ func Item_SetScreenCoords(_ item: ItemDef, _ x: Float, _ y: Float) {
 
 // FIXME: consolidate this with nearby stuff
 /// Source: oracle/codemp/ui/ui_shared.c:933
-func Item_UpdatePosition(_ item: ItemDef) {
+public func Item_UpdatePosition(_ item: ItemDef) {
     var x: Float
     var y: Float
     var menu: MenuDef?
@@ -1075,7 +1075,7 @@ func Item_UpdatePosition(_ item: ItemDef) {
 
 // menus
 /// Source: oracle/codemp/ui/ui_shared.c:959
-func Menu_UpdatePosition(_ menu: MenuDef) {
+public func Menu_UpdatePosition(_ menu: MenuDef) {
     var i: Int32
     var x: Float
     var y: Float
@@ -1099,7 +1099,7 @@ func Menu_UpdatePosition(_ menu: MenuDef) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:979
-func Menu_PostParse(_ menu: MenuDef) {
+public func Menu_PostParse(_ menu: MenuDef) {
     if menu == nil {
         return
     }
@@ -1113,7 +1113,7 @@ func Menu_PostParse(_ menu: MenuDef) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:992
-func Menu_ClearFocus(_ menu: MenuDef) -> ItemDef? {
+public func Menu_ClearFocus(_ menu: MenuDef) -> ItemDef? {
     var i: Int32
     var ret: ItemDef? = nil
 
@@ -1137,12 +1137,12 @@ func Menu_ClearFocus(_ menu: MenuDef) -> ItemDef? {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1013
-func IsVisible(_ flags: Int32) -> Bool {
+public func IsVisible(_ flags: Int32) -> Bool {
     return ((flags & WINDOW_VISIBLE) != 0 && !((flags & WINDOW_FADINGOUT) != 0))
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1017
-func Rect_ContainsPoint(_ rect: JKAMP.RectDef, _ x: Float, _ y: Float) -> Bool {
+public func Rect_ContainsPoint(_ rect: JKAMP.RectDef, _ x: Float, _ y: Float) -> Bool {
     if x > rect.x && x < rect.x + rect.w && y > rect.y && y < rect.y + rect.h {
         return true
     }
@@ -1150,7 +1150,7 @@ func Rect_ContainsPoint(_ rect: JKAMP.RectDef, _ x: Float, _ y: Float) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1026
-func Menu_ItemsMatchingGroup(_ menu: MenuDef, _ name: String) -> Int32 {
+public func Menu_ItemsMatchingGroup(_ menu: MenuDef, _ name: String) -> Int32 {
     var i: Int32
     var count: Int32 = 0
 
@@ -1172,7 +1172,7 @@ func Menu_ItemsMatchingGroup(_ menu: MenuDef, _ name: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1049
-func Menu_GetMatchingItemByNumber(_ menu: MenuDef, _ index: Int32, _ name: String) -> ItemDef? {
+public func Menu_GetMatchingItemByNumber(_ menu: MenuDef, _ index: Int32, _ name: String) -> ItemDef? {
     var i: Int32
     var count: Int32 = 0
     i = 0
@@ -1189,7 +1189,7 @@ func Menu_GetMatchingItemByNumber(_ menu: MenuDef, _ index: Int32, _ name: Strin
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1063
-func Script_SetColor(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_SetColor(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var name: String = ""
     var i: Int32
     var f: Float = 0
@@ -1224,7 +1224,7 @@ func Script_SetColor(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Boo
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1105
-func Script_SetAsset(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_SetAsset(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var name: String = ""
     // expecting name to set asset to
     if String_Parse(&args, &name) {
@@ -1236,7 +1236,7 @@ func Script_SetAsset(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Boo
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1119
-func Script_SetBackground(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_SetBackground(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var name: String = ""
     // expecting name to set asset to
     if String_Parse(&args, &name) {
@@ -1246,7 +1246,7 @@ func Script_SetBackground(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1130
-func Script_SetItemRectCvar(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_SetItemRectCvar(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var itemName: String = ""
     var cvarName: String = ""
     var cvarBuf = CharBuf(1024)
@@ -1302,7 +1302,7 @@ func Script_SetItemRectCvar(_ item: ItemDef, _ args: inout JKAShared.TextCursor)
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1193
-func Script_SetItemBackground(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_SetItemBackground(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var itemName: String = ""
     var name: String = ""
 
@@ -1314,7 +1314,7 @@ func Script_SetItemBackground(_ item: ItemDef, _ args: inout JKAShared.TextCurso
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1206
-func Script_SetItemText(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_SetItemText(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var itemName: String = ""
     var text: String = ""
 
@@ -1326,7 +1326,7 @@ func Script_SetItemText(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> 
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1220
-func Menu_FindItemByName(_ menu: MenuDef, _ p: String) -> ItemDef? {
+public func Menu_FindItemByName(_ menu: MenuDef, _ p: String) -> ItemDef? {
     var i: Int32
     if menu == nil || p == nil {
         return nil
@@ -1344,7 +1344,7 @@ func Menu_FindItemByName(_ menu: MenuDef, _ p: String) -> ItemDef? {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1235
-func Script_SetTeamColor(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_SetTeamColor(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     if DC!.getTeamColor != nil {
         var i: Int32
         var color = vec4_t()
@@ -1359,7 +1359,7 @@ func Script_SetTeamColor(_ item: ItemDef, _ args: inout JKAShared.TextCursor) ->
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1250
-func Script_SetItemColor(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_SetItemColor(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var itemname: String = ""
     var name: String = ""
     var color = vec4_t()
@@ -1416,7 +1416,7 @@ func Script_SetItemColor(_ item: ItemDef, _ args: inout JKAShared.TextCursor) ->
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1314
-func Script_SetItemColorCvar(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_SetItemColorCvar(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var itemname: String = ""
     var colorCvarName: String = ""
     var holdBuf = TextCursor()
@@ -1494,7 +1494,7 @@ func Script_SetItemColorCvar(_ item: ItemDef, _ args: inout JKAShared.TextCursor
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1403
-func Script_SetItemRect(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_SetItemRect(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var itemname: String = ""
     var out: RectDef?
     // Raven's record lives to the end of his block, so the block is the closure.
@@ -1535,7 +1535,7 @@ func Script_SetItemRect(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> 
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1444
-func Menu_ShowGroup(_ menu: MenuDef, _ groupName: String, _ showFlag: Bool) {
+public func Menu_ShowGroup(_ menu: MenuDef, _ groupName: String, _ showFlag: Bool) {
     var item: ItemDef?
     let count: Int32
     var j: Int32
@@ -1556,7 +1556,7 @@ func Menu_ShowGroup(_ menu: MenuDef, _ groupName: String, _ showFlag: Bool) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1467
-func Menu_ShowItemByName(_ menu: MenuDef, _ p: String, _ bShow: Bool) {
+public func Menu_ShowItemByName(_ menu: MenuDef, _ p: String, _ bShow: Bool) {
     var item: ItemDef?
     var i: Int32
     let count: Int32 = Menu_ItemsMatchingGroup(menu, p)
@@ -1580,7 +1580,7 @@ func Menu_ShowItemByName(_ menu: MenuDef, _ p: String, _ bShow: Bool) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1488
-func Menu_FadeItemByName(_ menu: MenuDef, _ p: String, _ fadeOut: Bool) {
+public func Menu_FadeItemByName(_ menu: MenuDef, _ p: String, _ fadeOut: Bool) {
     var item: ItemDef?
     var i: Int32
     let count: Int32 = Menu_ItemsMatchingGroup(menu, p)
@@ -1601,7 +1601,7 @@ func Menu_FadeItemByName(_ menu: MenuDef, _ p: String, _ fadeOut: Bool) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1506
-func Menus_FindByName(_ p: String) -> MenuDef? {
+public func Menus_FindByName(_ p: String) -> MenuDef? {
     var i: Int32
     i = 0
     while i < menuCount {
@@ -1614,7 +1614,7 @@ func Menus_FindByName(_ p: String) -> MenuDef? {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1516
-func Menus_ShowByName(_ p: String) {
+public func Menus_ShowByName(_ p: String) {
     let menu: MenuDef? = Menus_FindByName(p)
     if menu != nil {
         Menus_Activate(menu!)
@@ -1622,7 +1622,7 @@ func Menus_ShowByName(_ p: String) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1523
-func Menus_OpenByName(_ p: String) {
+public func Menus_OpenByName(_ p: String) {
     Menus_ActivateByName(p)
 }
 
@@ -1638,7 +1638,7 @@ private func Menu_RunCloseScript(_ menu: MenuDef) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1535
-func Menus_CloseByName(_ p: String) {
+public func Menus_CloseByName(_ p: String) {
     let menu: MenuDef? = Menus_FindByName(p)
 
     // If the menu wasnt found just exit
@@ -1671,7 +1671,7 @@ func Menus_CloseByName(_ p: String) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1573
-func Menus_CloseAll() {
+public func Menus_CloseAll() {
     var i: Int32
 
     g_waitingForKey = false
@@ -1690,7 +1690,7 @@ func Menus_CloseAll() {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1591
-func Script_Show(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_Show(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var name: String = ""
     if String_Parse(&args, &name) {
         Menu_ShowItemByName(item.parent!, name, true)
@@ -1699,7 +1699,7 @@ func Script_Show(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1601
-func Script_Hide(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_Hide(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var name: String = ""
     if String_Parse(&args, &name) {
         Menu_ShowItemByName(item.parent!, name, false)
@@ -1708,7 +1708,7 @@ func Script_Hide(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1611
-func Script_FadeIn(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_FadeIn(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var name: String = ""
     if String_Parse(&args, &name) {
         Menu_FadeItemByName(item.parent!, name, false)
@@ -1718,7 +1718,7 @@ func Script_FadeIn(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool 
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1622
-func Script_FadeOut(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_FadeOut(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var name: String = ""
     if String_Parse(&args, &name) {
         Menu_FadeItemByName(item.parent!, name, true)
@@ -1727,7 +1727,7 @@ func Script_FadeOut(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1632
-func Script_Open(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_Open(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var name: String = ""
     if String_Parse(&args, &name) {
         Menus_OpenByName(name)
@@ -1736,7 +1736,7 @@ func Script_Open(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1642
-func Script_Close(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_Close(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var name: String = ""
     if String_Parse(&args, &name) {
         if Q_stricmp(name, "all") == 0 {
@@ -1750,7 +1750,7 @@ func Script_Close(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
 
 //void Menu_TransitionItemByName(menuDef_t *menu, const char *p, rectDef_t rectFrom, rectDef_t rectTo, int time, float amt)
 /// Source: oracle/codemp/ui/ui_shared.c:1660
-func Menu_TransitionItemByName(_ menu: MenuDef, _ p: String, _ rectFrom: JKAMP.RectDef?, _ rectTo: JKAMP.RectDef, _ time: Int32, _ amt: Float) {
+public func Menu_TransitionItemByName(_ menu: MenuDef, _ p: String, _ rectFrom: JKAMP.RectDef?, _ rectTo: JKAMP.RectDef, _ time: Int32, _ amt: Float) {
     var item: ItemDef?
     var i: Int32
     let count: Int32 = Menu_ItemsMatchingGroup(menu, p)
@@ -1779,7 +1779,7 @@ func Menu_TransitionItemByName(_ menu: MenuDef, _ p: String, _ rectFrom: JKAMP.R
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1696
-func Menu_Transition3ItemByName(_ menu: MenuDef, _ p: String, _ minx: Float, _ miny: Float, _ minz: Float, _ maxx: Float, _ maxy: Float, _ maxz: Float, _ fovtx: Float, _ fovty: Float, _ time: Int32, _ amt: Float) {
+public func Menu_Transition3ItemByName(_ menu: MenuDef, _ p: String, _ minx: Float, _ miny: Float, _ minz: Float, _ maxx: Float, _ maxy: Float, _ maxz: Float, _ fovtx: Float, _ fovty: Float, _ time: Int32, _ amt: Float) {
     var item: ItemDef?
     var i: Int32
     let count: Int32 = Menu_ItemsMatchingGroup(menu, p)
@@ -1835,7 +1835,7 @@ portion of the script can later be run with the "rundeferred"
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:1767
-func Script_Defer(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_Defer(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // Should the script be deferred?
     if DC!.runDeferScript(&args) {
         // Need the item the script was being run on
@@ -1863,7 +1863,7 @@ time so be careful of recursion
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:1794
-func Script_RunDeferred(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_RunDeferred(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     // Make sure there is something to run.
     if ui_deferredScript[0] == 0 || ui_deferredScriptItem == nil {
         return true
@@ -1876,7 +1876,7 @@ func Script_RunDeferred(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> 
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1808
-func Script_Transition(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_Transition(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var name: String = ""
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
@@ -1899,7 +1899,7 @@ func Script_Transition(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> B
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1826
-func Menu_OrbitItemByName(_ menu: MenuDef, _ p: String, _ x: Float, _ y: Float, _ cx: Float, _ cy: Float, _ time: Int32) {
+public func Menu_OrbitItemByName(_ menu: MenuDef, _ p: String, _ x: Float, _ y: Float, _ cx: Float, _ cy: Float, _ time: Int32) {
     var item: ItemDef?
     var i: Int32
     let count: Int32 = Menu_ItemsMatchingGroup(menu, p)
@@ -1920,7 +1920,7 @@ func Menu_OrbitItemByName(_ menu: MenuDef, _ p: String, _ x: Float, _ y: Float, 
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1845
-func Menu_ItemDisable(_ menu: MenuDef, _ name: String, _ disableFlag: Int32) {
+public func Menu_ItemDisable(_ menu: MenuDef, _ name: String, _ disableFlag: Int32) {
     var j: Int32
     let count: Int32
     var itemFound: ItemDef?
@@ -1941,7 +1941,7 @@ func Menu_ItemDisable(_ menu: MenuDef, _ name: String, _ disableFlag: Int32) {
 
 // Set item disable flags
 /// Source: oracle/codemp/ui/ui_shared.c:1865
-func Script_Disable(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_Disable(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var name: String = ""
     var value: Int32 = 0
     var menu: MenuDef?
@@ -1967,7 +1967,7 @@ func Script_Disable(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool
 
 // Scale the given item instantly.
 /// Source: oracle/codemp/ui/ui_shared.c:1895
-func Script_Scale(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_Scale(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var name: String = ""
     var scale: Float = 0
     var j: Int32 = 0
@@ -2012,7 +2012,7 @@ func Script_Scale(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1939
-func Script_Orbit(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_Orbit(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var name: String = ""
     var cx: Float = 0
     var cy: Float = 0
@@ -2030,7 +2030,7 @@ func Script_Orbit(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1956
-func Script_SetFocus(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_SetFocus(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var name: String = ""
     var focusItem: ItemDef?
 
@@ -2056,7 +2056,7 @@ func Script_SetFocus(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Boo
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:1986
-func Script_SetPlayerModel(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_SetPlayerModel(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var name: String = ""
     if String_Parse(&args, &name) {
         DC!.runSetCVar("model", name)
@@ -2073,7 +2073,7 @@ ParseRect
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:2002
-func ParseRect(_ p: inout JKAShared.TextCursor, _ r: JKAMP.RectDef) -> Bool {
+public func ParseRect(_ p: inout JKAShared.TextCursor, _ r: JKAMP.RectDef) -> Bool {
     if !COM_ParseFloat(&p, &r.x) {
         if !COM_ParseFloat(&p, &r.y) {
             if !COM_ParseFloat(&p, &r.w) {
@@ -2097,7 +2097,7 @@ transition2		lfvscr		25 0 202 264  20 25
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:2027
-func Script_Transition2(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_Transition2(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var name: String = ""
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
@@ -2132,7 +2132,7 @@ transition3		lfvscr		(min extent) (max extent) (fovx,y)  20 25
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:2062
-func Script_Transition3(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_Transition3(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var name: String = ""
     var value: String = ""
     let minx: Float
@@ -2188,7 +2188,7 @@ func Script_Transition3(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> 
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2150
-func Script_SetCvar(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_SetCvar(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var cvar: String = ""
     var val: String = ""
     if String_Parse(&args, &cvar) && String_Parse(&args, &val) {
@@ -2198,7 +2198,7 @@ func Script_SetCvar(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2160
-func Script_SetCvarToCvar(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_SetCvarToCvar(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var cvar: String = ""
     var val: String = ""
     if String_Parse(&args, &cvar) && String_Parse(&args, &val) {
@@ -2210,7 +2210,7 @@ func Script_SetCvarToCvar(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2170
-func Script_Exec(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_Exec(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var val: String = ""
     if String_Parse(&args, &val) {
         DC!.runExecuteText(EXEC_APPEND, va("%s ; ", val))
@@ -2219,7 +2219,7 @@ func Script_Exec(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2178
-func Script_Play(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_Play(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var val: String = ""
     if String_Parse(&args, &val) {
         DC!.runStartLocalSound(DC!.runRegisterSound(val), CHAN_AUTO)
@@ -2228,7 +2228,7 @@ func Script_Play(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2186
-func Script_playLooped(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
+public func Script_playLooped(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> Bool {
     var val: String = ""
     if String_Parse(&args, &val) {
         DC!.runStopBackgroundTrack()
@@ -2239,7 +2239,7 @@ func Script_playLooped(_ item: ItemDef, _ args: inout JKAShared.TextCursor) -> B
 
 // Set all the items within a given menu, with the given itemName, to the given shader
 /// Source: oracle/codemp/ui/ui_shared.c:2231
-func Menu_SetItemBackground(_ menu: MenuDef, _ itemName: String, _ background: String) {
+public func Menu_SetItemBackground(_ menu: MenuDef, _ itemName: String, _ background: String) {
     var item: ItemDef?
     var j: Int32
     let count: Int32
@@ -2259,7 +2259,7 @@ func Menu_SetItemBackground(_ menu: MenuDef, _ itemName: String, _ background: S
 
 // Set all the items within a given menu, with the given itemName, to the given text
 /// Source: oracle/codemp/ui/ui_shared.c:2254
-func Menu_SetItemText(_ menu: MenuDef, _ itemName: String, _ text: String) {
+public func Menu_SetItemText(_ menu: MenuDef, _ itemName: String, _ text: String) {
     var item: ItemDef?
     var j: Int32
     let count: Int32
@@ -2300,7 +2300,7 @@ func Menu_SetItemText(_ menu: MenuDef, _ itemName: String, _ text: String) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2306
-func Item_RunScript(_ item: ItemDef, _ s: String) {
+public func Item_RunScript(_ item: ItemDef, _ s: String) {
     var script = CharBuf(2048)
     var p = TextCursor()
     var i: Int32
@@ -2347,7 +2347,7 @@ func Item_RunScript(_ item: ItemDef, _ s: String) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2360
-func Item_EnableShowViaCvar(_ item: ItemDef, _ flag: Int32) -> Bool {
+public func Item_EnableShowViaCvar(_ item: ItemDef, _ flag: Int32) -> Bool {
     var script = CharBuf(2048)
     var p = TextCursor()
     if item.enableCvar != nil && !item.enableCvar!.isEmpty && item.cvarTest != nil && !item.cvarTest!.isEmpty {
@@ -2386,7 +2386,7 @@ func Item_EnableShowViaCvar(_ item: ItemDef, _ flag: Int32) -> Bool {
 
 // will optionaly set focus to this item
 /// Source: oracle/codemp/ui/ui_shared.c:2399
-func Item_SetFocus(_ item: ItemDef, _ x: Float, _ y: Float) -> Bool {
+public func Item_SetFocus(_ item: ItemDef, _ x: Float, _ y: Float) -> Bool {
     var i: Int32 = 0
     var oldFocus: ItemDef?
     // Port-note: Raven keeps the address of the chosen field, and nothing writes it before his one read, so the local holds the value.
@@ -2466,7 +2466,7 @@ func Item_SetFocus(_ item: ItemDef, _ x: Float, _ y: Float) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2482
-func Item_TextScroll_MaxScroll(_ item: ItemDef) -> Int32 {
+public func Item_TextScroll_MaxScroll(_ item: ItemDef) -> Int32 {
     let scrollPtr: TextScrollDef? = item.typeData.map { TextScrollDef($0) }
 
     let count: Int32 = scrollPtr!.iLineCount
@@ -2480,7 +2480,7 @@ func Item_TextScroll_MaxScroll(_ item: ItemDef) -> Int32 {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2497
-func Item_TextScroll_ThumbPosition(_ item: ItemDef) -> Int32 {
+public func Item_TextScroll_ThumbPosition(_ item: ItemDef) -> Int32 {
     let max: Float
     var pos: Float
     let size: Float
@@ -2501,7 +2501,7 @@ func Item_TextScroll_ThumbPosition(_ item: ItemDef) -> Int32 {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2519
-func Item_TextScroll_ThumbDrawPosition(_ item: ItemDef) -> Int32 {
+public func Item_TextScroll_ThumbDrawPosition(_ item: ItemDef) -> Int32 {
     let min: Int32
     let max: Int32
 
@@ -2520,7 +2520,7 @@ func Item_TextScroll_ThumbDrawPosition(_ item: ItemDef) -> Int32 {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2539
-func Item_TextScroll_OverLB(_ item: ItemDef, _ x: Float, _ y: Float) -> Int32 {
+public func Item_TextScroll_OverLB(_ item: ItemDef, _ x: Float, _ y: Float) -> Int32 {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return RectDef.scratch { r -> Int32 in
@@ -2567,13 +2567,13 @@ func Item_TextScroll_OverLB(_ item: ItemDef, _ x: Float, _ y: Float) -> Int32 {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2587
-func Item_TextScroll_MouseEnter(_ item: ItemDef, _ x: Float, _ y: Float) {
+public func Item_TextScroll_MouseEnter(_ item: ItemDef, _ x: Float, _ y: Float) {
     item.window.flags &= ~(WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP | WINDOW_LB_PGDN)
     item.window.flags |= Item_TextScroll_OverLB(item, x, y)
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2593
-func Item_TextScroll_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool, _ force: Bool) -> Bool {
+public func Item_TextScroll_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool, _ force: Bool) -> Bool {
     let scrollPtr: TextScrollDef? = item.typeData.map { TextScrollDef($0) }
     let max: Int32
     let viewmax: Int32
@@ -2662,7 +2662,7 @@ func Item_TextScroll_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool, _ fo
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2707
-func Item_ListBox_MaxScroll(_ item: ItemDef) -> Int32 {
+public func Item_ListBox_MaxScroll(_ item: ItemDef) -> Int32 {
     let listPtr: ListBoxDef? = item.typeData.map { ListBoxDef($0) }
     let count: Int32 = DC!.runFeederCount(item.special)
     let max: Int32
@@ -2679,7 +2679,7 @@ func Item_ListBox_MaxScroll(_ item: ItemDef) -> Int32 {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2724
-func Item_ListBox_ThumbPosition(_ item: ItemDef) -> Int32 {
+public func Item_ListBox_ThumbPosition(_ item: ItemDef) -> Int32 {
     let max: Float
     var pos: Float
     let size: Float
@@ -2708,7 +2708,7 @@ func Item_ListBox_ThumbPosition(_ item: ItemDef) -> Int32 {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2751
-func Item_ListBox_ThumbDrawPosition(_ item: ItemDef) -> Int32 {
+public func Item_ListBox_ThumbDrawPosition(_ item: ItemDef) -> Int32 {
     let min: Int32
     let max: Int32
 
@@ -2736,7 +2736,7 @@ func Item_ListBox_ThumbDrawPosition(_ item: ItemDef) -> Int32 {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2790
-func Item_Slider_ThumbPosition(_ item: ItemDef) -> Float {
+public func Item_Slider_ThumbPosition(_ item: ItemDef) -> Float {
     var value: Float
     let range: Float
     var x: Float
@@ -2772,7 +2772,7 @@ func Item_Slider_ThumbPosition(_ item: ItemDef) -> Float {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2823
-func Item_Slider_OverSlider(_ item: ItemDef, _ x: Float, _ y: Float) -> Int32 {
+public func Item_Slider_OverSlider(_ item: ItemDef, _ x: Float, _ y: Float) -> Int32 {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return RectDef.scratch { r -> Int32 in
@@ -2790,7 +2790,7 @@ func Item_Slider_OverSlider(_ item: ItemDef, _ x: Float, _ y: Float) -> Int32 {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2837
-func Item_ListBox_OverLB(_ item: ItemDef, _ x: Float, _ y: Float) -> Int32 {
+public func Item_ListBox_OverLB(_ item: ItemDef, _ x: Float, _ y: Float) -> Int32 {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return RectDef.scratch { r -> Int32 in
@@ -2894,7 +2894,7 @@ func Item_ListBox_OverLB(_ item: ItemDef, _ x: Float, _ y: Float) -> Int32 {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:2956
-func Item_ListBox_MouseEnter(_ item: ItemDef, _ x: Float, _ y: Float) {
+public func Item_ListBox_MouseEnter(_ item: ItemDef, _ x: Float, _ y: Float) {
     // Raven's record lives to the end of his block, so the block is the closure.
     RectDef.scratch { r in
         let listPtr: ListBoxDef? = item.typeData.map { ListBoxDef($0) }
@@ -2955,7 +2955,7 @@ func Item_ListBox_MouseEnter(_ item: ItemDef, _ x: Float, _ y: Float) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:3028
-func Item_MouseEnter(_ item: ItemDef, _ x: Float, _ y: Float) {
+public func Item_MouseEnter(_ item: ItemDef, _ x: Float, _ y: Float) {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = RectDef.scratch { r -> Bool in
@@ -3013,7 +3013,7 @@ func Item_MouseEnter(_ item: ItemDef, _ x: Float, _ y: Float) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:3090
-func Item_MouseLeave(_ item: ItemDef) {
+public func Item_MouseLeave(_ item: ItemDef) {
     if (item.window.flags & WINDOW_MOUSEOVERTEXT) != 0 {
         Item_RunScript(item, item.mouseExitText!)
         item.window.flags &= ~WINDOW_MOUSEOVERTEXT
@@ -3023,7 +3023,7 @@ func Item_MouseLeave(_ item: ItemDef) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:3101
-func Menu_HitTest(_ menu: MenuDef, _ x: Float, _ y: Float) -> ItemDef? {
+public func Menu_HitTest(_ menu: MenuDef, _ x: Float, _ y: Float) -> ItemDef? {
     var i: Int32
     i = 0
     while i < menu.itemCount {
@@ -3036,7 +3036,7 @@ func Menu_HitTest(_ menu: MenuDef, _ x: Float, _ y: Float) -> ItemDef? {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:3111
-func Item_SetMouseOver(_ item: ItemDef, _ focus: Bool) {
+public func Item_SetMouseOver(_ item: ItemDef, _ focus: Bool) {
     if focus {
         item.window.flags |= WINDOW_MOUSEOVER
     } else {
@@ -3045,7 +3045,7 @@ func Item_SetMouseOver(_ item: ItemDef, _ focus: Bool) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:3122
-func Item_OwnerDraw_HandleKey(_ item: ItemDef, _ key: Int32) -> Bool {
+public func Item_OwnerDraw_HandleKey(_ item: ItemDef, _ key: Int32) -> Bool {
     if DC!.ownerDrawHandleKey != nil {
         // yep this is an ugly hack
         if key == A_MOUSE1 || key == A_MOUSE2 {
@@ -3067,7 +3067,7 @@ func Item_OwnerDraw_HandleKey(_ item: ItemDef, _ key: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:3220
-func Item_ListBox_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool, _ force: Bool) -> Bool {
+public func Item_ListBox_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool, _ force: Bool) -> Bool {
     let listPtr: ListBoxDef? = item.typeData.map { ListBoxDef($0) }
     let count: Int32 = DC!.runFeederCount(item.special)
     let max: Int32
@@ -3295,7 +3295,7 @@ func Item_ListBox_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool, _ force
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:3477
-func Item_YesNo_HandleKey(_ item: ItemDef, _ key: Int32) -> Bool {
+public func Item_YesNo_HandleKey(_ item: ItemDef, _ key: Int32) -> Bool {
     //JLFMOUSE MPMOVED
     if Rect_ContainsPoint(item.window.rect, Float(DC!.cursorx), Float(DC!.cursory)) && (item.window.flags & WINDOW_HASFOCUS) != 0 && item.cvar != nil {
         //JLFDPAD MPMOVED
@@ -3309,7 +3309,7 @@ func Item_YesNo_HandleKey(_ item: ItemDef, _ key: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:3504
-func Item_Multi_CountSettings(_ item: ItemDef) -> Int32 {
+public func Item_Multi_CountSettings(_ item: ItemDef) -> Int32 {
     let multiPtr: MultiDef? = item.typeData.map { MultiDef($0) }
     if multiPtr == nil {
         return 0
@@ -3318,7 +3318,7 @@ func Item_Multi_CountSettings(_ item: ItemDef) -> Int32 {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:3512
-func Item_Multi_FindCvarByValue(_ item: ItemDef) -> Int32 {
+public func Item_Multi_FindCvarByValue(_ item: ItemDef) -> Int32 {
     var buff = CharBuf(2048)
     var value: Float = 0
     var i: Int32
@@ -3347,7 +3347,7 @@ func Item_Multi_FindCvarByValue(_ item: ItemDef) -> Int32 {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:3538
-func Item_Multi_Setting(_ item: ItemDef) -> String {
+public func Item_Multi_Setting(_ item: ItemDef) -> String {
     var buff = CharBuf(2048)
     var value: Float = 0
     var i: Int32
@@ -3381,7 +3381,7 @@ func Item_Multi_Setting(_ item: ItemDef) -> String {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:3581
-func Item_Multi_HandleKey(_ item: ItemDef, _ key: Int32) -> Bool {
+public func Item_Multi_HandleKey(_ item: ItemDef, _ key: Int32) -> Bool {
     let multiPtr: MultiDef? = item.typeData.map { MultiDef($0) }
     if multiPtr != nil {
         //JLF MPMOVED
@@ -3426,7 +3426,7 @@ func Item_Multi_HandleKey(_ item: ItemDef, _ key: Int32) -> Bool {
 
 // Leaving an edit field so reset it so it prints from the beginning.
 /// Source: oracle/codemp/ui/ui_shared.c:3651
-func Leaving_EditField(_ item: ItemDef) {
+public func Leaving_EditField(_ item: ItemDef) {
     // switching fields so reset printed text of edit field
     if (g_editingField == true) && (item.type == ITEM_TYPE_EDITFIELD) {
         let editPtr: EditFieldDef? = item.typeData.map { EditFieldDef($0) }
@@ -3437,7 +3437,7 @@ func Leaving_EditField(_ item: ItemDef) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:3664
-func Item_TextField_HandleKey(_ item: ItemDef, _ key: Int32) -> Bool {
+public func Item_TextField_HandleKey(_ item: ItemDef, _ key: Int32) -> Bool {
     var buff = CharBuf(2048)
     var len: Int32
     var newItem: ItemDef? = nil
@@ -3787,7 +3787,7 @@ private func Scroll_Slider_ThumbFunc(_ p: ScrollInfo?) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:4022
-func Item_StartCapture(_ item: ItemDef, _ key: Int32) {
+public func Item_StartCapture(_ item: ItemDef, _ key: Int32) {
     var flags: Int32
     switch item.type {
     case ITEM_TYPE_EDITFIELD, ITEM_TYPE_NUMERICFIELD, ITEM_TYPE_LISTBOX:
@@ -3859,11 +3859,11 @@ func Item_StartCapture(_ item: ItemDef, _ key: Int32) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:4097
-func Item_StopCapture(_ item: ItemDef) {
+public func Item_StopCapture(_ item: ItemDef) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:4101
-func Item_Slider_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool) -> Bool {
+public func Item_Slider_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool) -> Bool {
     var x: Float = 0
     var value: Float = 0
     var width: Float = 0
@@ -3916,7 +3916,7 @@ func Item_Slider_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool) -> Bool 
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:4176
-func Item_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool) -> Bool {
+public func Item_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool) -> Bool {
     if itemCapture != nil {
         Item_StopCapture(itemCapture!)
         itemCapture = nil
@@ -3999,7 +3999,7 @@ Item_HandleAccept
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:4271
-func Item_HandleAccept(_ item: ItemDef) -> Bool {
+public func Item_HandleAccept(_ item: ItemDef) -> Bool {
     if item.accept != nil {
         Item_RunScript(item, item.accept!)
         return true
@@ -4008,12 +4008,12 @@ func Item_HandleAccept(_ item: ItemDef) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:4321
-func Item_Action(_ item: ItemDef) {
+public func Item_Action(_ item: ItemDef) {
     Item_RunScript(item, item.action!)
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:4329
-func Menu_SetPrevCursorItem(_ menu: MenuDef) -> ItemDef? {
+public func Menu_SetPrevCursorItem(_ menu: MenuDef) -> ItemDef? {
     var wrapped: Bool = false
     let oldCursor: Int32 = menu.cursorItem
 
@@ -4042,7 +4042,7 @@ func Menu_SetPrevCursorItem(_ menu: MenuDef) -> ItemDef? {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:4360
-func Menu_SetNextCursorItem(_ menu: MenuDef) -> ItemDef? {
+public func Menu_SetNextCursorItem(_ menu: MenuDef) -> ItemDef? {
     var wrapped: Bool = false
     let oldCursor: Int32 = menu.cursorItem
 
@@ -4101,7 +4101,7 @@ private func Display_CloseCinematics() {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:4416
-func Menus_Activate(_ menu: MenuDef) {
+public func Menus_Activate(_ menu: MenuDef) {
     //JLFCALLOUT MPMOVED
     //JLF END
     menu.window.flags |= (WINDOW_HASFOCUS | WINDOW_VISIBLE)
@@ -4123,7 +4123,7 @@ func Menus_Activate(_ menu: MenuDef) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:4442
-func Display_VisibleMenuCount() -> Int32 {
+public func Display_VisibleMenuCount() -> Int32 {
     var i: Int32
     var count: Int32
     count = 0
@@ -4138,7 +4138,7 @@ func Display_VisibleMenuCount() -> Int32 {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:4453
-func Menus_HandleOOBClick(_ menu: MenuDef, _ key: Int32, _ down: Bool) {
+public func Menus_HandleOOBClick(_ menu: MenuDef, _ key: Int32, _ down: Bool) {
     //JLFMOUSE
     var i: Int32
     // basically the behaviour we are looking for is if there are windows in the stack.. see if
@@ -4177,7 +4177,7 @@ var inHandleKey: Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:4490
-func Menu_HandleKey(_ menu: MenuDef, _ key: Int32, _ down: Bool) {
+public func Menu_HandleKey(_ menu: MenuDef, _ key: Int32, _ down: Bool) {
     var i: Int32 = 0
     var item: ItemDef? = nil
     var inHandler: Bool = false
@@ -4352,7 +4352,7 @@ func Menu_HandleKey(_ menu: MenuDef, _ key: Int32, _ down: Bool) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:4727
-func ToWindowCoords(_ x: inout Float, _ y: inout Float, _ window: JKAMP.WindowDef) {
+public func ToWindowCoords(_ x: inout Float, _ y: inout Float, _ window: JKAMP.WindowDef) {
     if window.border != 0 {
         x += window.borderSize
         y += window.borderSize
@@ -4362,12 +4362,12 @@ func ToWindowCoords(_ x: inout Float, _ y: inout Float, _ window: JKAMP.WindowDe
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:4736
-func Rect_ToWindowCoords(_ rect: JKAMP.RectDef, _ window: JKAMP.WindowDef) {
+public func Rect_ToWindowCoords(_ rect: JKAMP.RectDef, _ window: JKAMP.WindowDef) {
     ToWindowCoords(&rect.x, &rect.y, window)
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:4740
-func Item_SetTextExtents(_ item: ItemDef, _ width: inout Int32, _ height: inout Int32, _ text: String) {
+public func Item_SetTextExtents(_ item: ItemDef, _ width: inout Int32, _ height: inout Int32, _ text: String) {
     let textPtr: String = text
 
     width = Int32(item.textRect.w)
@@ -4403,7 +4403,7 @@ func Item_SetTextExtents(_ item: ItemDef, _ width: inout Int32, _ height: inout 
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:4793
-func Item_TextColor(_ item: ItemDef, _ newColor: inout JKAShared.vec4_t) {
+public func Item_TextColor(_ item: ItemDef, _ newColor: inout JKAShared.vec4_t) {
     var lowLight = vec4_t()
     let parent: MenuDef? = item.parent
 
@@ -4438,7 +4438,7 @@ func Item_TextColor(_ item: ItemDef, _ newColor: inout JKAShared.vec4_t) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:4828
-func Item_Text_AutoWrapped_Paint(_ item: ItemDef) {
+public func Item_Text_AutoWrapped_Paint(_ item: ItemDef) {
     var text = CharBuf(2048)
     var p: TextCursor
     var textPtr: String
@@ -4527,7 +4527,7 @@ func Item_Text_AutoWrapped_Paint(_ item: ItemDef) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:4911
-func Item_Text_Wrapped_Paint(_ item: ItemDef) {
+public func Item_Text_Wrapped_Paint(_ item: ItemDef) {
     var text = CharBuf(1024)
     var p: TextCursor
     var start: TextCursor
@@ -4581,7 +4581,7 @@ func Item_Text_Wrapped_Paint(_ item: ItemDef) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:4961
-func Item_Text_Paint(_ item: ItemDef) {
+public func Item_Text_Paint(_ item: ItemDef) {
     var text = CharBuf(1024)
     var textPtr: String
     var height: Int32 = 0
@@ -4636,7 +4636,7 @@ func Item_Text_Paint(_ item: ItemDef) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:5024
-func Item_TextField_Paint(_ item: ItemDef) {
+public func Item_TextField_Paint(_ item: ItemDef) {
     var buff = CharBuf(1024)
     var newColor = vec4_t()
     var lowLight = vec4_t()
@@ -4677,7 +4677,7 @@ func Item_TextField_Paint(_ item: ItemDef) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:5064
-func Item_YesNo_Paint(_ item: ItemDef) {
+public func Item_YesNo_Paint(_ item: ItemDef) {
     var sYES = CharBuf(20)
     var sNO = CharBuf(20)
     var newColor = vec4_t()
@@ -4731,7 +4731,7 @@ func Item_YesNo_Paint(_ item: ItemDef) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:5128
-func Item_Multi_Paint(_ item: ItemDef) {
+public func Item_Multi_Paint(_ item: ItemDef) {
     var newColor = vec4_t()
     var lowLight = vec4_t()
     var text: String = ""
@@ -4811,7 +4811,7 @@ Controls_GetConfig
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:5332
-func Controls_GetConfig() {
+public func Controls_GetConfig() {
     var i: Int32
     var twokeys: [Int32] = [Int32](repeating: 0, count: 2)
 
@@ -4843,7 +4843,7 @@ Controls_SetConfig
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:5362
-func Controls_SetConfig(_ restart: Bool) {
+public func Controls_SetConfig(_ restart: Bool) {
     var i: Int32
 
     // iterate each command, get its numeric binding
@@ -4877,7 +4877,7 @@ func Controls_SetConfig(_ restart: Bool) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:5396
-func BindingIDFromName(_ name: String) -> Int32 {
+public func BindingIDFromName(_ name: String) -> Int32 {
     var i: Int32
     i = 0
     while i < g_bindCount {
@@ -4890,7 +4890,7 @@ func BindingIDFromName(_ name: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:5410
-func BindingFromName(_ cvar: String) {
+public func BindingFromName(_ cvar: String) {
     var i: Int32
     var b1: Int32
     var b2: Int32
@@ -4926,7 +4926,7 @@ func BindingFromName(_ cvar: String) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:5443
-func Item_Slider_Paint(_ item: ItemDef) {
+public func Item_Slider_Paint(_ item: ItemDef) {
     var newColor = vec4_t()
     var lowLight = vec4_t()
     var x: Float
@@ -4961,7 +4961,7 @@ func Item_Slider_Paint(_ item: ItemDef) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:5475
-func Item_Bind_Paint(_ item: ItemDef) {
+public func Item_Bind_Paint(_ item: ItemDef) {
     var newColor = vec4_t()
     var lowLight = vec4_t()
     let value: Float
@@ -5026,12 +5026,12 @@ func Item_Bind_Paint(_ item: ItemDef) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:5548
-func Display_KeyBindPending() -> Bool {
+public func Display_KeyBindPending() -> Bool {
     return g_waitingForKey
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:5552
-func Item_Bind_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool) -> Bool {
+public func Item_Bind_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool) -> Bool {
     var id: Int32
     var i: Int32
 
@@ -5135,7 +5135,7 @@ func Item_Bind_HandleKey(_ item: ItemDef, _ key: Int32, _ down: Bool) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:5668
-func UI_ScaleModelAxis(_ ent: JKAMP.RefEntity) {
+public func UI_ScaleModelAxis(_ ent: JKAMP.RefEntity) {
     // scale the model should we need to
     if ent.modelScale[0] != 0 && ent.modelScale[0] != 1.0 {
         ent.axis[0] = ent.axis[0] * ent.modelScale[0]
@@ -5152,7 +5152,7 @@ func UI_ScaleModelAxis(_ ent: JKAMP.RefEntity) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:5694
-func Item_Model_Paint(_ item: ItemDef) {
+public func Item_Model_Paint(_ item: ItemDef) {
     var x: Float = 0
     var y: Float = 0
     var w: Float = 0
@@ -5279,7 +5279,7 @@ func Item_Model_Paint(_ item: ItemDef) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:5903
-func Item_Image_Paint(_ item: ItemDef) {
+public func Item_Image_Paint(_ item: ItemDef) {
     if item == nil {
         return
     }
@@ -5287,7 +5287,7 @@ func Item_Image_Paint(_ item: ItemDef) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:5911
-func Item_TextScroll_Paint(_ item: ItemDef) {
+public func Item_TextScroll_Paint(_ item: ItemDef) {
     var cvartext = CharBuf(1024)
     var x: Float
     var y: Float
@@ -5357,7 +5357,7 @@ func Item_TextScroll_Paint(_ item: ItemDef) {
 
 // Draw routine for list boxes
 /// Source: oracle/codemp/ui/ui_shared.c:5979
-func Item_ListBox_Paint(_ item: ItemDef) {
+public func Item_ListBox_Paint(_ item: ItemDef) {
     var x: Float
     var y: Float
     var sizeWidth: Float
@@ -5662,7 +5662,7 @@ func Item_ListBox_Paint(_ item: ItemDef) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:6370
-func Item_OwnerDraw_Paint(_ item: ItemDef) {
+public func Item_OwnerDraw_Paint(_ item: ItemDef) {
     var parent: MenuDef?
 
     if item == nil {
@@ -5727,7 +5727,7 @@ func Item_OwnerDraw_Paint(_ item: ItemDef) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:6433
-func Item_Paint(_ item: ItemDef) {
+public func Item_Paint(_ item: ItemDef) {
     var red = vec4_t()
     let parent: MenuDef? = item.parent
     var xPos: Int32
@@ -6189,7 +6189,7 @@ func Item_Paint(_ item: ItemDef) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:7015
-func Menu_Init(_ menu: MenuDef) {
+public func Menu_Init(_ menu: MenuDef) {
     menu.clear()
     menu.cursorItem = -1
     menu.fadeAmount = DC!.Assets.fadeAmount
@@ -6199,7 +6199,7 @@ func Menu_Init(_ menu: MenuDef) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:7024
-func Menu_GetFocusedItem(_ menu: MenuDef) -> ItemDef? {
+public func Menu_GetFocusedItem(_ menu: MenuDef) -> ItemDef? {
     var i: Int32
     i = 0
     while i < menu.itemCount {
@@ -6212,7 +6212,7 @@ func Menu_GetFocusedItem(_ menu: MenuDef) -> ItemDef? {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:7036
-func Menu_GetFocused() -> MenuDef? {
+public func Menu_GetFocused() -> MenuDef? {
     var i: Int32
     i = 0
     while i < menuCount {
@@ -6225,7 +6225,7 @@ func Menu_GetFocused() -> MenuDef? {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:7046
-func Menu_ScrollFeeder(_ menu: MenuDef, _ feeder: Int32, _ down: Bool) {
+public func Menu_ScrollFeeder(_ menu: MenuDef, _ feeder: Int32, _ down: Bool) {
     var i: Int32
     i = 0
     while i < menu.itemCount {
@@ -6238,7 +6238,7 @@ func Menu_ScrollFeeder(_ menu: MenuDef, _ feeder: Int32, _ down: Bool) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:7060
-func Menu_SetFeederSelection(_ menu: MenuDef, _ feeder: Int32, _ index: Int32, _ name: String?) {
+public func Menu_SetFeederSelection(_ menu: MenuDef, _ feeder: Int32, _ index: Int32, _ name: String?) {
     // Raven assigns his own `menu` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var menu = menu
     if menu == nil {
@@ -6267,7 +6267,7 @@ func Menu_SetFeederSelection(_ menu: MenuDef, _ feeder: Int32, _ index: Int32, _
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:7086
-func Menus_AnyFullScreenVisible() -> Bool {
+public func Menus_AnyFullScreenVisible() -> Bool {
     var i: Int32
     i = 0
     while i < menuCount {
@@ -6280,7 +6280,7 @@ func Menus_AnyFullScreenVisible() -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:7096
-func Menus_ActivateByName(_ p: String) -> MenuDef? {
+public func Menus_ActivateByName(_ p: String) -> MenuDef? {
     var i: Int32
     var m: MenuDef? = nil
     let focus: MenuDef? = Menu_GetFocused()
@@ -6307,14 +6307,14 @@ func Menus_ActivateByName(_ p: String) -> MenuDef? {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:7120
-func Item_Init(_ item: ItemDef) {
+public func Item_Init(_ item: ItemDef) {
     item.clear()
     item.textscale = 0.55
     Window_Init(item.window)
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:7126
-func Menu_HandleMouseMove(_ menu: MenuDef, _ x: Float, _ y: Float) {
+public func Menu_HandleMouseMove(_ menu: MenuDef, _ x: Float, _ y: Float) {
     //JLFMOUSE  I THINK THIS JUST SETS THE FOCUS BASED ON THE MOUSE
     //END JLF
 
@@ -6405,7 +6405,7 @@ func Menu_HandleMouseMove(_ menu: MenuDef, _ x: Float, _ y: Float) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:7212
-func Menu_Paint(_ menu: MenuDef, _ forcePaint: Bool) {
+public func Menu_Paint(_ menu: MenuDef, _ forcePaint: Bool) {
     var i: Int32
 
     if menu == nil {
@@ -6473,7 +6473,7 @@ Item_ValidateTypeData
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:7279
-func Item_ValidateTypeData(_ item: ItemDef) {
+public func Item_ValidateTypeData(_ item: ItemDef) {
     if item.typeData != nil {
         return
     }
@@ -6500,7 +6500,7 @@ func Item_ValidateTypeData(_ item: ItemDef) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:7333
-func KeywordHash_Key(_ keyword: String) -> Int32 {
+public func KeywordHash_Key(_ keyword: String) -> Int32 {
     var hash: Int32
     var i: Int32
 
@@ -6552,7 +6552,7 @@ func KeywordHash_Find(_ table: [Int32?], _ rows: [KeywordHashRow], _ keyword: St
 
 // name <string>
 /// Source: oracle/codemp/ui/ui_shared.c:7380
-func ItemParse_name(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_name(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_String_Parse(handle, &item.window.name) {
         return false
     }
@@ -6561,7 +6561,7 @@ func ItemParse_name(_ item: ItemDef, _ handle: Int32) -> Bool {
 
 // name <string>
 /// Source: oracle/codemp/ui/ui_shared.c:7388
-func ItemParse_focusSound(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_focusSound(_ item: ItemDef, _ handle: Int32) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return PcToken.scratch { token -> Bool in
@@ -6575,7 +6575,7 @@ func ItemParse_focusSound(_ item: ItemDef, _ handle: Int32) -> Bool {
 
 // text <string>
 /// Source: oracle/codemp/ui/ui_shared.c:7399
-func ItemParse_text(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_text(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_String_Parse(handle, &item.text) {
         return false
     }
@@ -6591,7 +6591,7 @@ ItemParse_descText
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:7412
-func ItemParse_descText(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_descText(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_String_Parse(handle, &item.descText) {
         return false
     }
@@ -6608,7 +6608,7 @@ ItemParse_text
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:7431
-func ItemParse_text2(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_text2(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_String_Parse(handle, &item.text2) {
         return false
     }
@@ -6624,7 +6624,7 @@ ItemParse_text2alignx
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:7448
-func ItemParse_text2alignx(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_text2alignx(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Float_Parse(handle, &item.text2alignx) {
         return false
     }
@@ -6639,7 +6639,7 @@ ItemParse_text2aligny
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:7462
-func ItemParse_text2aligny(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_text2aligny(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Float_Parse(handle, &item.text2aligny) {
         return false
     }
@@ -6648,7 +6648,7 @@ func ItemParse_text2aligny(_ item: ItemDef, _ handle: Int32) -> Bool {
 
 // group <string>
 /// Source: oracle/codemp/ui/ui_shared.c:7472
-func ItemParse_group(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_group(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_String_Parse(handle, &item.window.group) {
         return false
     }
@@ -6657,7 +6657,7 @@ func ItemParse_group(_ item: ItemDef, _ handle: Int32) -> Bool {
 
 //Insert the pointer into our chain so we can keep track of it for freeing.
 /// Source: oracle/codemp/ui/ui_shared.c:7492
-func UI_InsertG2Pointer(_ ghoul2: OpaquePointer?) {
+public func UI_InsertG2Pointer(_ ghoul2: OpaquePointer?) {
     var prev: UiG2PtrTracker? = nil
     var nextFree: UiG2PtrTracker? = ui_G2PtrTracker
 
@@ -6685,7 +6685,7 @@ func UI_InsertG2Pointer(_ ghoul2: OpaquePointer?) {
 
 //Remove a ghoul2 pointer from the chain if it's there.
 /// Source: oracle/codemp/ui/ui_shared.c:7517
-func UI_ClearG2Pointer(_ ghoul2: OpaquePointer?) {
+public func UI_ClearG2Pointer(_ ghoul2: OpaquePointer?) {
     var next: UiG2PtrTracker? = ui_G2PtrTracker
 
     if ghoul2 == nil {
@@ -6705,7 +6705,7 @@ func UI_ClearG2Pointer(_ ghoul2: OpaquePointer?) {
 
 //Called on shutdown, cleans up all the ghoul2 instances laying around.
 /// Source: oracle/codemp/ui/ui_shared.c:7539
-func UI_CleanupGhoul2() {
+public func UI_CleanupGhoul2() {
     var next: UiG2PtrTracker? = ui_G2PtrTracker
 
     while next != nil {
@@ -6727,7 +6727,7 @@ ItemParse_asset_model
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:7567
-func ItemParse_asset_model_go(_ item: ItemDef, _ name: String, _ runTimeLength: inout Int32) -> Bool {
+public func ItemParse_asset_model_go(_ item: ItemDef, _ name: String, _ runTimeLength: inout Int32) -> Bool {
     //					DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim);
 
 
@@ -6752,7 +6752,7 @@ func ItemParse_asset_model_go(_ item: ItemDef, _ name: String, _ runTimeLength: 
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:7659
-func ItemParse_asset_model(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_asset_model(_ item: ItemDef, _ handle: Int32) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return PcToken.scratch { token -> Bool in
@@ -6774,7 +6774,7 @@ func ItemParse_asset_model(_ item: ItemDef, _ handle: Int32) -> Bool {
 
 // asset_shader <string>
 /// Source: oracle/codemp/ui/ui_shared.c:7687
-func ItemParse_asset_shader(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_asset_shader(_ item: ItemDef, _ handle: Int32) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return PcToken.scratch { token -> Bool in
@@ -6788,7 +6788,7 @@ func ItemParse_asset_shader(_ item: ItemDef, _ handle: Int32) -> Bool {
 
 // model_origin <number> <number> <number>
 /// Source: oracle/codemp/ui/ui_shared.c:7697
-func ItemParse_model_origin(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_model_origin(_ item: ItemDef, _ handle: Int32) -> Bool {
     var modelPtr: ModelDef?
     Item_ValidateTypeData(item)
     modelPtr = item.typeData.map { ModelDef($0) }
@@ -6805,7 +6805,7 @@ func ItemParse_model_origin(_ item: ItemDef, _ handle: Int32) -> Bool {
 
 // model_fovx <number>
 /// Source: oracle/codemp/ui/ui_shared.c:7713
-func ItemParse_model_fovx(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_model_fovx(_ item: ItemDef, _ handle: Int32) -> Bool {
     var modelPtr: ModelDef?
     Item_ValidateTypeData(item)
     modelPtr = item.typeData.map { ModelDef($0) }
@@ -6818,7 +6818,7 @@ func ItemParse_model_fovx(_ item: ItemDef, _ handle: Int32) -> Bool {
 
 // model_fovy <number>
 /// Source: oracle/codemp/ui/ui_shared.c:7725
-func ItemParse_model_fovy(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_model_fovy(_ item: ItemDef, _ handle: Int32) -> Bool {
     var modelPtr: ModelDef?
     Item_ValidateTypeData(item)
     modelPtr = item.typeData.map { ModelDef($0) }
@@ -6831,7 +6831,7 @@ func ItemParse_model_fovy(_ item: ItemDef, _ handle: Int32) -> Bool {
 
 // model_rotation <integer>
 /// Source: oracle/codemp/ui/ui_shared.c:7737
-func ItemParse_model_rotation(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_model_rotation(_ item: ItemDef, _ handle: Int32) -> Bool {
     var modelPtr: ModelDef?
     Item_ValidateTypeData(item)
     modelPtr = item.typeData.map { ModelDef($0) }
@@ -6844,7 +6844,7 @@ func ItemParse_model_rotation(_ item: ItemDef, _ handle: Int32) -> Bool {
 
 // model_angle <integer>
 /// Source: oracle/codemp/ui/ui_shared.c:7749
-func ItemParse_model_angle(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_model_angle(_ item: ItemDef, _ handle: Int32) -> Bool {
     var modelPtr: ModelDef?
     Item_ValidateTypeData(item)
     modelPtr = item.typeData.map { ModelDef($0) }
@@ -6857,7 +6857,7 @@ func ItemParse_model_angle(_ item: ItemDef, _ handle: Int32) -> Bool {
 
 // model_g2mins <number> <number> <number>
 /// Source: oracle/codemp/ui/ui_shared.c:7761
-func ItemParse_model_g2mins(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_model_g2mins(_ item: ItemDef, _ handle: Int32) -> Bool {
     var modelPtr: ModelDef?
     Item_ValidateTypeData(item)
     modelPtr = item.typeData.map { ModelDef($0) }
@@ -6874,7 +6874,7 @@ func ItemParse_model_g2mins(_ item: ItemDef, _ handle: Int32) -> Bool {
 
 // model_g2maxs <number> <number> <number>
 /// Source: oracle/codemp/ui/ui_shared.c:7777
-func ItemParse_model_g2maxs(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_model_g2maxs(_ item: ItemDef, _ handle: Int32) -> Bool {
     var modelPtr: ModelDef?
     Item_ValidateTypeData(item)
     modelPtr = item.typeData.map { ModelDef($0) }
@@ -6891,7 +6891,7 @@ func ItemParse_model_g2maxs(_ item: ItemDef, _ handle: Int32) -> Bool {
 
 // model_g2scale <number> <number> <number>
 /// Source: oracle/codemp/ui/ui_shared.c:7793
-func ItemParse_model_g2scale(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_model_g2scale(_ item: ItemDef, _ handle: Int32) -> Bool {
     var modelPtr: ModelDef?
     Item_ValidateTypeData(item)
     modelPtr = item.typeData.map { ModelDef($0) }
@@ -6907,7 +6907,7 @@ func ItemParse_model_g2scale(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:7811
-func ItemParse_model_g2skin(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_model_g2skin(_ item: ItemDef, _ handle: Int32) -> Bool {
     var modelPtr: ModelDef?
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
@@ -6933,7 +6933,7 @@ func ItemParse_model_g2skin(_ item: ItemDef, _ handle: Int32) -> Bool {
 
 // model_g2anim <number>
 /// Source: oracle/codemp/ui/ui_shared.c:7833
-func ItemParse_model_g2anim(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_model_g2anim(_ item: ItemDef, _ handle: Int32) -> Bool {
     var modelPtr: ModelDef?
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
@@ -6968,7 +6968,7 @@ func ItemParse_model_g2anim(_ item: ItemDef, _ handle: Int32) -> Bool {
 
 // model_g2skin <string>
 /// Source: oracle/codemp/ui/ui_shared.c:7865
-func ItemParse_model_g2skin_go(_ item: ItemDef, _ skinName: String) -> Bool {
+public func ItemParse_model_g2skin_go(_ item: ItemDef, _ skinName: String) -> Bool {
     var modelPtr: ModelDef?
     let defSkin: Int32
 
@@ -6995,7 +6995,7 @@ func ItemParse_model_g2skin_go(_ item: ItemDef, _ skinName: String) -> Bool {
 
 // model_g2anim <number>
 /// Source: oracle/codemp/ui/ui_shared.c:7894
-func ItemParse_model_g2anim_go(_ item: ItemDef, _ animName: String) -> Bool {
+public func ItemParse_model_g2anim_go(_ item: ItemDef, _ animName: String) -> Bool {
     var modelPtr: ModelDef?
     var i: Int32 = 0
 
@@ -7022,7 +7022,7 @@ func ItemParse_model_g2anim_go(_ item: ItemDef, _ animName: String) -> Bool {
 
 // Get the cvar, get the values and stuff them in the rect structure.
 /// Source: oracle/codemp/ui/ui_shared.c:7922
-func ItemParse_rectcvar(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_rectcvar(_ item: ItemDef, _ handle: Int32) -> Bool {
     var cvarBuf = CharBuf(1024)
     var holdVal: String = ""
     var holdBuf = TextCursor()
@@ -7060,7 +7060,7 @@ func ItemParse_rectcvar(_ item: ItemDef, _ handle: Int32) -> Bool {
 
 // rect <rectangle>
 /// Source: oracle/codemp/ui/ui_shared.c:7962
-func ItemParse_rect(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_rect(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Rect_Parse(handle, item.window.rectClient) {
         return false
     }
@@ -7076,7 +7076,7 @@ ItemParse_flag
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:7975
-func ItemParse_flag(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_flag(_ item: ItemDef, _ handle: Int32) -> Bool {
     var i: Int32 = 0
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
@@ -7112,7 +7112,7 @@ ItemParse_style
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:8010
-func ItemParse_style(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_style(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Int_Parse(handle, &item.window.style) {
         Com_Printf(S_COLOR_YELLOW + "Unknown item style value")
         return false
@@ -7123,14 +7123,14 @@ func ItemParse_style(_ item: ItemDef, _ handle: Int32) -> Bool {
 
 // decoration
 /// Source: oracle/codemp/ui/ui_shared.c:8023
-func ItemParse_decoration(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_decoration(_ item: ItemDef, _ handle: Int32) -> Bool {
     item.window.flags |= WINDOW_DECORATION
     return true
 }
 
 // notselectable
 /// Source: oracle/codemp/ui/ui_shared.c:8029
-func ItemParse_notselectable(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_notselectable(_ item: ItemDef, _ handle: Int32) -> Bool {
     var listPtr: ListBoxDef?
     Item_ValidateTypeData(item)
     listPtr = item.typeData.map { ListBoxDef($0) }
@@ -7149,7 +7149,7 @@ ItemParse_scrollhidden
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:8045
-func ItemParse_scrollhidden(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_scrollhidden(_ item: ItemDef, _ handle: Int32) -> Bool {
     var listPtr: ListBoxDef?
     Item_ValidateTypeData(item)
     listPtr = item.typeData.map { ListBoxDef($0) }
@@ -7162,21 +7162,21 @@ func ItemParse_scrollhidden(_ item: ItemDef, _ handle: Int32) -> Bool {
 
 // manually wrapped
 /// Source: oracle/codemp/ui/ui_shared.c:8063
-func ItemParse_wrapped(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_wrapped(_ item: ItemDef, _ handle: Int32) -> Bool {
     item.window.flags |= WINDOW_WRAPPED
     return true
 }
 
 // auto wrapped
 /// Source: oracle/codemp/ui/ui_shared.c:8069
-func ItemParse_autowrapped(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_autowrapped(_ item: ItemDef, _ handle: Int32) -> Bool {
     item.window.flags |= WINDOW_AUTOWRAPPED
     return true
 }
 
 // horizontalscroll
 /// Source: oracle/codemp/ui/ui_shared.c:8076
-func ItemParse_horizontalscroll(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_horizontalscroll(_ item: ItemDef, _ handle: Int32) -> Bool {
     item.window.flags |= WINDOW_HORIZONTAL
     return true
 }
@@ -7190,7 +7190,7 @@ ItemParse_type
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:8087
-func ItemParse_type(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_type(_ item: ItemDef, _ handle: Int32) -> Bool {
     //	int		i,holdInt;
 
     if !PC_Int_Parse(handle, &item.type) {
@@ -7203,7 +7203,7 @@ func ItemParse_type(_ item: ItemDef, _ handle: Int32) -> Bool {
 // elementwidth, used for listbox image elements
 // uses textalignx for storage
 /// Source: oracle/codemp/ui/ui_shared.c:8101
-func ItemParse_elementwidth(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_elementwidth(_ item: ItemDef, _ handle: Int32) -> Bool {
     var listPtr: ListBoxDef?
 
     Item_ValidateTypeData(item)
@@ -7217,7 +7217,7 @@ func ItemParse_elementwidth(_ item: ItemDef, _ handle: Int32) -> Bool {
 // elementheight, used for listbox image elements
 // uses textaligny for storage
 /// Source: oracle/codemp/ui/ui_shared.c:8114
-func ItemParse_elementheight(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_elementheight(_ item: ItemDef, _ handle: Int32) -> Bool {
     var listPtr: ListBoxDef?
 
     Item_ValidateTypeData(item)
@@ -7230,7 +7230,7 @@ func ItemParse_elementheight(_ item: ItemDef, _ handle: Int32) -> Bool {
 
 // feeder <float>
 /// Source: oracle/codemp/ui/ui_shared.c:8126
-func ItemParse_feeder(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_feeder(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Float_Parse(handle, &item.special) {
         return false
     }
@@ -7240,7 +7240,7 @@ func ItemParse_feeder(_ item: ItemDef, _ handle: Int32) -> Bool {
 // elementtype, used to specify what type of elements a listbox contains
 // uses textstyle for storage
 /// Source: oracle/codemp/ui/ui_shared.c:8135
-func ItemParse_elementtype(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_elementtype(_ item: ItemDef, _ handle: Int32) -> Bool {
     var listPtr: ListBoxDef?
 
     Item_ValidateTypeData(item)
@@ -7256,7 +7256,7 @@ func ItemParse_elementtype(_ item: ItemDef, _ handle: Int32) -> Bool {
 
 // columns sets a number of columns and an x pos and width per..
 /// Source: oracle/codemp/ui/ui_shared.c:8149
-func ItemParse_columns(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_columns(_ item: ItemDef, _ handle: Int32) -> Bool {
     var num: Int32 = 0
     var i: Int32
     var listPtr: ListBoxDef?
@@ -7293,7 +7293,7 @@ func ItemParse_columns(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8179
-func ItemParse_border(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_border(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Int_Parse(handle, &item.window.border) {
         return false
     }
@@ -7301,7 +7301,7 @@ func ItemParse_border(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8186
-func ItemParse_bordersize(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_bordersize(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Float_Parse(handle, &item.window.borderSize) {
         return false
     }
@@ -7309,7 +7309,7 @@ func ItemParse_bordersize(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8193
-func ItemParse_visible(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_visible(_ item: ItemDef, _ handle: Int32) -> Bool {
     var i: Int32 = 0
 
     if !PC_Int_Parse(handle, &i) {
@@ -7322,7 +7322,7 @@ func ItemParse_visible(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8205
-func ItemParse_ownerdraw(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_ownerdraw(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Int_Parse(handle, &item.window.ownerDraw) {
         return false
     }
@@ -7331,7 +7331,7 @@ func ItemParse_ownerdraw(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8213
-func ItemParse_align(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_align(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Int_Parse(handle, &item.alignment) {
         return false
     }
@@ -7348,7 +7348,7 @@ Sets item flag showing this is a character
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:8227
-func ItemParse_isCharacter(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_isCharacter(_ item: ItemDef, _ handle: Int32) -> Bool {
     var flag: Int32 = 0
 
     if PC_Int_Parse(handle, &flag) {
@@ -7370,7 +7370,7 @@ ItemParse_textalign
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:8252
-func ItemParse_textalign(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_textalign(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Int_Parse(handle, &item.textalignment) {
         Com_Printf(S_COLOR_YELLOW + "Unknown text alignment value")
 
@@ -7381,7 +7381,7 @@ func ItemParse_textalign(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8264
-func ItemParse_textalignx(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_textalignx(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Float_Parse(handle, &item.textalignx) {
         return false
     }
@@ -7389,7 +7389,7 @@ func ItemParse_textalignx(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8271
-func ItemParse_textaligny(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_textaligny(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Float_Parse(handle, &item.textaligny) {
         return false
     }
@@ -7397,7 +7397,7 @@ func ItemParse_textaligny(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8278
-func ItemParse_textscale(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_textscale(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Float_Parse(handle, &item.textscale) {
         return false
     }
@@ -7405,7 +7405,7 @@ func ItemParse_textscale(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8285
-func ItemParse_textstyle(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_textstyle(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Int_Parse(handle, &item.textStyle) {
         return false
     }
@@ -7421,7 +7421,7 @@ ItemParse_invertyesno
 */
 //JLFYESNO MPMOVED
 /// Source: oracle/codemp/ui/ui_shared.c:8298
-func ItemParse_invertyesno(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_invertyesno(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Int_Parse(handle, &item.invertYesNo) {
         return false
     }
@@ -7436,7 +7436,7 @@ ItemParse_xoffset (used for yes/no and multi)
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:8312
-func ItemParse_xoffset(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_xoffset(_ item: ItemDef, _ handle: Int32) -> Bool {
     if PC_Int_Parse(handle, &item.xoffset) {
         return false
     }
@@ -7444,7 +7444,7 @@ func ItemParse_xoffset(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8322
-func ItemParse_backcolor(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_backcolor(_ item: ItemDef, _ handle: Int32) -> Bool {
     var i: Int32
     var f: Float = 0
 
@@ -7460,7 +7460,7 @@ func ItemParse_backcolor(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8335
-func ItemParse_forecolor(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_forecolor(_ item: ItemDef, _ handle: Int32) -> Bool {
     var i: Int32
     var f: Float = 0
 
@@ -7484,7 +7484,7 @@ func ItemParse_forecolor(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8356
-func ItemParse_bordercolor(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_bordercolor(_ item: ItemDef, _ handle: Int32) -> Bool {
     var i: Int32
     var f: Float = 0
 
@@ -7500,7 +7500,7 @@ func ItemParse_bordercolor(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8369
-func ItemParse_outlinecolor(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_outlinecolor(_ item: ItemDef, _ handle: Int32) -> Bool {
     // PC_Color_Parse takes a vec4_t, and the view holds `outlineColor` as a Slots, so the call fills a copy that stores back.
     var outlineColor = vec4_t(item.window.outlineColor[0], item.window.outlineColor[1], item.window.outlineColor[2], item.window.outlineColor[3])
     let parsed = PC_Color_Parse(handle, &outlineColor)
@@ -7515,7 +7515,7 @@ func ItemParse_outlinecolor(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8376
-func ItemParse_background(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_background(_ item: ItemDef, _ handle: Int32) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return PcToken.scratch { token -> Bool in
@@ -7529,7 +7529,7 @@ func ItemParse_background(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8386
-func ItemParse_cinematic(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_cinematic(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_String_Parse(handle, &item.window.cinematicName) {
         return false
     }
@@ -7537,7 +7537,7 @@ func ItemParse_cinematic(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8393
-func ItemParse_doubleClick(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_doubleClick(_ item: ItemDef, _ handle: Int32) -> Bool {
     var listPtr: ListBoxDef?
 
     Item_ValidateTypeData(item)
@@ -7554,7 +7554,7 @@ func ItemParse_doubleClick(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8409
-func ItemParse_onFocus(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_onFocus(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Script_Parse(handle, &item.onFocus) {
         return false
     }
@@ -7562,7 +7562,7 @@ func ItemParse_onFocus(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8416
-func ItemParse_leaveFocus(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_leaveFocus(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Script_Parse(handle, &item.leaveFocus) {
         return false
     }
@@ -7570,7 +7570,7 @@ func ItemParse_leaveFocus(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8423
-func ItemParse_mouseEnter(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_mouseEnter(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Script_Parse(handle, &item.mouseEnter) {
         return false
     }
@@ -7578,7 +7578,7 @@ func ItemParse_mouseEnter(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8430
-func ItemParse_mouseExit(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_mouseExit(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Script_Parse(handle, &item.mouseExit) {
         return false
     }
@@ -7586,7 +7586,7 @@ func ItemParse_mouseExit(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8437
-func ItemParse_mouseEnterText(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_mouseEnterText(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Script_Parse(handle, &item.mouseEnterText) {
         return false
     }
@@ -7594,7 +7594,7 @@ func ItemParse_mouseEnterText(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8444
-func ItemParse_mouseExitText(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_mouseExitText(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Script_Parse(handle, &item.mouseExitText) {
         return false
     }
@@ -7602,7 +7602,7 @@ func ItemParse_mouseExitText(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8451
-func ItemParse_action(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_action(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Script_Parse(handle, &item.action) {
         return false
     }
@@ -7610,7 +7610,7 @@ func ItemParse_action(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8458
-func ItemParse_special(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_special(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Float_Parse(handle, &item.special) {
         return false
     }
@@ -7618,7 +7618,7 @@ func ItemParse_special(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8465
-func ItemParse_cvarTest(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_cvarTest(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_String_Parse(handle, &item.cvarTest) {
         return false
     }
@@ -7626,7 +7626,7 @@ func ItemParse_cvarTest(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8472
-func ItemParse_cvar(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_cvar(_ item: ItemDef, _ handle: Int32) -> Bool {
     Item_ValidateTypeData(item)
     if !PC_String_Parse(handle, &item.cvar) {
         return false
@@ -7650,7 +7650,7 @@ func ItemParse_cvar(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8502
-func ItemParse_font(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_font(_ item: ItemDef, _ handle: Int32) -> Bool {
     Item_ValidateTypeData(item)
     if !PC_Int_Parse(handle, &item.iMenuFont) {
         return false
@@ -7659,7 +7659,7 @@ func ItemParse_font(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8513
-func ItemParse_maxChars(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_maxChars(_ item: ItemDef, _ handle: Int32) -> Bool {
     var editPtr: EditFieldDef?
     var maxChars: Int32 = 0
 
@@ -7677,7 +7677,7 @@ func ItemParse_maxChars(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8529
-func ItemParse_maxPaintChars(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_maxPaintChars(_ item: ItemDef, _ handle: Int32) -> Bool {
     var editPtr: EditFieldDef?
     var maxChars: Int32 = 0
 
@@ -7695,7 +7695,7 @@ func ItemParse_maxPaintChars(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8545
-func ItemParse_maxLineChars(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_maxLineChars(_ item: ItemDef, _ handle: Int32) -> Bool {
     var scrollPtr: TextScrollDef?
     var maxChars: Int32 = 0
 
@@ -7715,7 +7715,7 @@ func ItemParse_maxLineChars(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8565
-func ItemParse_lineHeight(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_lineHeight(_ item: ItemDef, _ handle: Int32) -> Bool {
     var scrollPtr: TextScrollDef?
     var height: Int32 = 0
 
@@ -7735,7 +7735,7 @@ func ItemParse_lineHeight(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8585
-func ItemParse_cvarFloat(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_cvarFloat(_ item: ItemDef, _ handle: Int32) -> Bool {
     var editPtr: EditFieldDef?
 
     Item_ValidateTypeData(item)
@@ -7750,7 +7750,7 @@ func ItemParse_cvarFloat(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8604
-func ItemParse_cvarStrList(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_cvarStrList(_ item: ItemDef, _ handle: Int32) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return PcToken.scratch { token -> Bool in
@@ -7827,7 +7827,7 @@ func ItemParse_cvarStrList(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8696
-func ItemParse_cvarFloatList(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_cvarFloatList(_ item: ItemDef, _ handle: Int32) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return PcToken.scratch { token -> Bool in
@@ -7886,7 +7886,7 @@ func ItemParse_cvarFloatList(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8763
-func ItemParse_addColorRange(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_addColorRange(_ item: ItemDef, _ handle: Int32) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return ColorRangeDef.scratch { color -> Bool in
@@ -7913,7 +7913,7 @@ func ItemParse_addColorRange(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8778
-func ItemParse_ownerdrawFlag(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_ownerdrawFlag(_ item: ItemDef, _ handle: Int32) -> Bool {
     var i: Int32 = 0
     if !PC_Int_Parse(handle, &i) {
         return false
@@ -7923,7 +7923,7 @@ func ItemParse_ownerdrawFlag(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8787
-func ItemParse_enableCvar(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_enableCvar(_ item: ItemDef, _ handle: Int32) -> Bool {
     if PC_Script_Parse(handle, &item.enableCvar) {
         item.cvarFlags = CVAR_ENABLE
         return true
@@ -7932,7 +7932,7 @@ func ItemParse_enableCvar(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8795
-func ItemParse_disableCvar(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_disableCvar(_ item: ItemDef, _ handle: Int32) -> Bool {
     if PC_Script_Parse(handle, &item.enableCvar) {
         item.cvarFlags = CVAR_DISABLE
         return true
@@ -7941,7 +7941,7 @@ func ItemParse_disableCvar(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8803
-func ItemParse_showCvar(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_showCvar(_ item: ItemDef, _ handle: Int32) -> Bool {
     if PC_Script_Parse(handle, &item.enableCvar) {
         item.cvarFlags = CVAR_SHOW
         return true
@@ -7950,7 +7950,7 @@ func ItemParse_showCvar(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8811
-func ItemParse_hideCvar(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_hideCvar(_ item: ItemDef, _ handle: Int32) -> Bool {
     if PC_Script_Parse(handle, &item.enableCvar) {
         item.cvarFlags = CVAR_HIDE
         return true
@@ -7966,7 +7966,7 @@ ItemParse_align
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:8824
-func ItemParse_Appearance_slot(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_Appearance_slot(_ item: ItemDef, _ handle: Int32) -> Bool {
     if !PC_Int_Parse(handle, &item.appearanceSlot) {
         return false
     }
@@ -7974,12 +7974,12 @@ func ItemParse_Appearance_slot(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8833
-func ItemParse_isSaber(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_isSaber(_ item: ItemDef, _ handle: Int32) -> Bool {
     return false
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:8865
-func ItemParse_isSaber2(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func ItemParse_isSaber2(_ item: ItemDef, _ handle: Int32) -> Bool {
     return false
 }
 
@@ -7991,7 +7991,7 @@ Item_SetupKeywordHash
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:8995
-func Item_SetupKeywordHash() {
+public func Item_SetupKeywordHash() {
     var i: Int32
 
     itemParseKeywordHash.fill(nil)
@@ -8010,7 +8010,7 @@ Item_Parse
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:9009
-func Item_Parse(_ handle: Int32, _ item: ItemDef) -> Bool {
+public func Item_Parse(_ handle: Int32, _ item: ItemDef) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return PcToken.scratch { token -> Bool in
@@ -8193,7 +8193,7 @@ private func Item_TextScroll_BuildLines(_ item: ItemDef) {
 // Item_InitControls
 // init's special control types
 /// Source: oracle/codemp/ui/ui_shared.c:9259
-func Item_InitControls(_ item: ItemDef) {
+public func Item_InitControls(_ item: ItemDef) {
     if item == nil {
         return
     }
@@ -8219,7 +8219,7 @@ func Item_InitControls(_ item: ItemDef) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9291
-func MenuParse_font(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_font(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
     if !PC_String_Parse(handle, &menu!.font) {
         return false
@@ -8233,7 +8233,7 @@ func MenuParse_font(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9304
-func MenuParse_name(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_name(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
     if !PC_String_Parse(handle, &menu!.window.name) {
         return false
@@ -8246,7 +8246,7 @@ func MenuParse_name(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9316
-func MenuParse_fullscreen(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_fullscreen(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
     // PC_Int_Parse takes an Int32, and the view holds `fullScreen` as a Bool, so the call fills a copy that stores back.
     var fullScreen: Int32 = menu!.fullScreen ? 1 : 0
@@ -8259,7 +8259,7 @@ func MenuParse_fullscreen(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9324
-func MenuParse_rect(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_rect(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
     if !PC_Rect_Parse(handle, menu!.window.rect) {
         return false
@@ -8275,7 +8275,7 @@ MenuParse_style
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:9337
-func MenuParse_style(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_style(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
 
     if !PC_Int_Parse(handle, &menu!.window.style) {
@@ -8287,7 +8287,7 @@ func MenuParse_style(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9350
-func MenuParse_visible(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_visible(_ item: ItemDef, _ handle: Int32) -> Bool {
     var i: Int32 = 0
     let menu: MenuDef? = MenuDef(item)
 
@@ -8301,7 +8301,7 @@ func MenuParse_visible(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9363
-func MenuParse_onOpen(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_onOpen(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
     if !PC_Script_Parse(handle, &menu!.onOpen) {
         return false
@@ -8310,7 +8310,7 @@ func MenuParse_onOpen(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9371
-func MenuParse_onClose(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_onClose(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
     if !PC_Script_Parse(handle, &menu!.onClose) {
         return false
@@ -8327,7 +8327,7 @@ MenuParse_onAccept
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:9385
-func MenuParse_onAccept(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_onAccept(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
 
     if !PC_Script_Parse(handle, &menu!.onAccept) {
@@ -8337,7 +8337,7 @@ func MenuParse_onAccept(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9396
-func MenuParse_onESC(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_onESC(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
     if !PC_Script_Parse(handle, &menu!.onESC) {
         return false
@@ -8346,7 +8346,7 @@ func MenuParse_onESC(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9406
-func MenuParse_border(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_border(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
     if !PC_Int_Parse(handle, &menu!.window.border) {
         return false
@@ -8355,7 +8355,7 @@ func MenuParse_border(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9414
-func MenuParse_borderSize(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_borderSize(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
     if !PC_Float_Parse(handle, &menu!.window.borderSize) {
         return false
@@ -8364,7 +8364,7 @@ func MenuParse_borderSize(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9422
-func MenuParse_backcolor(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_backcolor(_ item: ItemDef, _ handle: Int32) -> Bool {
     var i: Int32
     var f: Float = 0
     let menu: MenuDef? = MenuDef(item)
@@ -8388,7 +8388,7 @@ MenuParse_descAlignment
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:9441
-func MenuParse_descAlignment(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_descAlignment(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
 
     if !PC_Int_Parse(handle, &menu!.descAlignment) {
@@ -8407,7 +8407,7 @@ MenuParse_descX
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:9459
-func MenuParse_descX(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_descX(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
 
     if !PC_Int_Parse(handle, &menu!.descX) {
@@ -8424,7 +8424,7 @@ MenuParse_descY
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:9475
-func MenuParse_descY(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_descY(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
 
     if !PC_Int_Parse(handle, &menu!.descY) {
@@ -8441,7 +8441,7 @@ MenuParse_descScale
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:9491
-func MenuParse_descScale(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_descScale(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
 
     if !PC_Float_Parse(handle, &menu!.descScale) {
@@ -8458,7 +8458,7 @@ MenuParse_descColor
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:9507
-func MenuParse_descColor(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_descColor(_ item: ItemDef, _ handle: Int32) -> Bool {
     var i: Int32
     var f: Float = 0
     let menu: MenuDef? = MenuDef(item)
@@ -8475,7 +8475,7 @@ func MenuParse_descColor(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9524
-func MenuParse_forecolor(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_forecolor(_ item: ItemDef, _ handle: Int32) -> Bool {
     var i: Int32
     var f: Float = 0
     let menu: MenuDef? = MenuDef(item)
@@ -8498,7 +8498,7 @@ func MenuParse_forecolor(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9544
-func MenuParse_bordercolor(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_bordercolor(_ item: ItemDef, _ handle: Int32) -> Bool {
     var i: Int32
     var f: Float = 0
     let menu: MenuDef? = MenuDef(item)
@@ -8515,7 +8515,7 @@ func MenuParse_bordercolor(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9558
-func MenuParse_focuscolor(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_focuscolor(_ item: ItemDef, _ handle: Int32) -> Bool {
     var i: Int32
     var f: Float = 0
     let menu: MenuDef? = MenuDef(item)
@@ -8532,7 +8532,7 @@ func MenuParse_focuscolor(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9572
-func MenuParse_disablecolor(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_disablecolor(_ item: ItemDef, _ handle: Int32) -> Bool {
     var i: Int32
     var f: Float = 0
     let menu: MenuDef? = MenuDef(item)
@@ -8548,7 +8548,7 @@ func MenuParse_disablecolor(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9586
-func MenuParse_outlinecolor(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_outlinecolor(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
     // PC_Color_Parse takes a vec4_t, and the view holds `outlineColor` as a Slots, so the call fills a copy that stores back.
     var outlineColor = vec4_t(menu!.window.outlineColor[0], menu!.window.outlineColor[1], menu!.window.outlineColor[2], menu!.window.outlineColor[3])
@@ -8564,7 +8564,7 @@ func MenuParse_outlinecolor(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9594
-func MenuParse_background(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_background(_ item: ItemDef, _ handle: Int32) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return PcToken.scratch { token -> Bool in
@@ -8579,7 +8579,7 @@ func MenuParse_background(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9605
-func MenuParse_cinematic(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_cinematic(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
 
     if !PC_String_Parse(handle, &menu!.window.cinematicName) {
@@ -8589,7 +8589,7 @@ func MenuParse_cinematic(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9614
-func MenuParse_ownerdrawFlag(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_ownerdrawFlag(_ item: ItemDef, _ handle: Int32) -> Bool {
     var i: Int32 = 0
     let menu: MenuDef? = MenuDef(item)
 
@@ -8601,7 +8601,7 @@ func MenuParse_ownerdrawFlag(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9625
-func MenuParse_ownerdraw(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_ownerdraw(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
 
     if !PC_Int_Parse(handle, &menu!.window.ownerDraw) {
@@ -8612,14 +8612,14 @@ func MenuParse_ownerdraw(_ item: ItemDef, _ handle: Int32) -> Bool {
 
 // decoration
 /// Source: oracle/codemp/ui/ui_shared.c:9636
-func MenuParse_popup(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_popup(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
     menu!.window.flags |= WINDOW_POPUP
     return true
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9643
-func MenuParse_outOfBounds(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_outOfBounds(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
 
     menu!.window.flags |= WINDOW_OOB_CLICK
@@ -8627,7 +8627,7 @@ func MenuParse_outOfBounds(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9650
-func MenuParse_soundLoop(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_soundLoop(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
 
     if !PC_String_Parse(handle, &menu!.soundName) {
@@ -8637,7 +8637,7 @@ func MenuParse_soundLoop(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9659
-func MenuParse_fadeClamp(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_fadeClamp(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
 
     if !PC_Float_Parse(handle, &menu!.fadeClamp) {
@@ -8647,7 +8647,7 @@ func MenuParse_fadeClamp(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9668
-func MenuParse_fadeAmount(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_fadeAmount(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
 
     if !PC_Float_Parse(handle, &menu!.fadeAmount) {
@@ -8657,7 +8657,7 @@ func MenuParse_fadeAmount(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9678
-func MenuParse_fadeCycle(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_fadeCycle(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
 
     if !PC_Int_Parse(handle, &menu!.fadeCycle) {
@@ -8667,7 +8667,7 @@ func MenuParse_fadeCycle(_ item: ItemDef, _ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9688
-func MenuParse_itemDef(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_itemDef(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
     if menu!.itemCount < MAX_MENUITEMS {
         menu!.items[menu!.itemCount] = ItemDef(UI_Alloc(Int32(ItemDef.byteCount)))
@@ -8690,7 +8690,7 @@ MenuParse_focuscolor
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:9706
-func MenuParse_appearanceIncrement(_ item: ItemDef, _ handle: Int32) -> Bool {
+public func MenuParse_appearanceIncrement(_ item: ItemDef, _ handle: Int32) -> Bool {
     let menu: MenuDef? = MenuDef(item)
 
     if !PC_Float_Parse(handle, &menu!.appearanceIncrement) {
@@ -8707,7 +8707,7 @@ Menu_SetupKeywordHash
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:9765
-func Menu_SetupKeywordHash() {
+public func Menu_SetupKeywordHash() {
     var i: Int32
 
     menuParseKeywordHash.fill(nil)
@@ -8726,7 +8726,7 @@ Menu_Parse
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:9779
-func Menu_Parse(_ handle: Int32, _ menu: MenuDef) -> Bool {
+public func Menu_Parse(_ handle: Int32, _ menu: MenuDef) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return PcToken.scratch { token -> Bool in
@@ -8771,7 +8771,7 @@ Menu_New
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:9817
-func Menu_New(_ handle: Int32) {
+public func Menu_New(_ handle: Int32) {
     let menu: MenuDef? = Menus[menuCount]
 
     if menuCount < MAX_MENUS {
@@ -8784,12 +8784,12 @@ func Menu_New(_ handle: Int32) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9829
-func Menu_Count() -> Int32 {
+public func Menu_Count() -> Int32 {
     return menuCount
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9833
-func Menu_PaintAll() {
+public func Menu_PaintAll() {
     var i: Int32
     if captureFunc != nil {
         captureFunc!(captureData)
@@ -8809,17 +8809,17 @@ func Menu_PaintAll() {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9850
-func Menu_Reset() {
+public func Menu_Reset() {
     menuCount = 0
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9854
-func Display_GetContext() -> DisplayContextDef? {
+public func Display_GetContext() -> DisplayContextDef? {
     return DC
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9858
-func Display_CaptureItem(_ x: Int32, _ y: Int32) -> MenuDef? {
+public func Display_CaptureItem(_ x: Int32, _ y: Int32) -> MenuDef? {
     var i: Int32
 
     i = 0
@@ -8836,7 +8836,7 @@ func Display_CaptureItem(_ x: Int32, _ y: Int32) -> MenuDef? {
 
 // FIXME:
 /// Source: oracle/codemp/ui/ui_shared.c:9873
-func Display_MouseMove(_ p: MenuDef?, _ x: Int32, _ y: Int32) -> Bool {
+public func Display_MouseMove(_ p: MenuDef?, _ x: Int32, _ y: Int32) -> Bool {
     //JLFMOUSE  AGAIN I THINK THIS SHOULD BE MOOT
     //END JLF
     var i: Int32
@@ -8864,7 +8864,7 @@ func Display_MouseMove(_ p: MenuDef?, _ x: Int32, _ y: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9903
-func Display_CursorType(_ x: Int32, _ y: Int32) -> Int32 {
+public func Display_CursorType(_ x: Int32, _ y: Int32) -> Int32 {
     var i: Int32 = 0
     i = 0
     while i < menuCount {
@@ -8889,7 +8889,7 @@ func Display_CursorType(_ x: Int32, _ y: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9918
-func Display_HandleKey(_ key: Int32, _ down: Bool, _ x: Int32, _ y: Int32) {
+public func Display_HandleKey(_ key: Int32, _ down: Bool, _ x: Int32, _ y: Int32) {
     var menu: MenuDef? = Display_CaptureItem(x, y)
     if menu == nil {
         menu = Menu_GetFocused()
@@ -8928,7 +8928,7 @@ private func Menu_CacheContents(_ menu: MenuDef) {
 }
 
 /// Source: oracle/codemp/ui/ui_shared.c:9960
-func Display_CacheAll() {
+public func Display_CacheAll() {
     var i: Int32
     i = 0
     while i < menuCount {

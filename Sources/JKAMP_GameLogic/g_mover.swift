@@ -5,11 +5,11 @@ import JKAMP_Game
 import JKAMP_BG
 
 /// Source: oracle/codemp/game/g_mover.c:24
-var pushed: Slots<Pushed> { world.storage.pushed }
+public var pushed: Slots<Pushed> { world.storage.pushed }
 
 /// Source: oracle/codemp/game/g_mover.c:24
 /// Raven walks `pushed_p` over `pushed`, so the port holds the index of the slot it points at.
-var pushed_pIndex: Int32 {
+public var pushed_pIndex: Int32 {
     get { world.variables.pushed_pIndex }
     set { world.variables.pushed_pIndex = newValue }
 }
@@ -63,7 +63,7 @@ let TRAIN_BLOCK_STOPS = 4 as Int32
 let FUNC_WALL_OFF = 1 as Int32
 
 /// Source: oracle/codemp/game/g_mover.c:45
-func G_PlayDoorLoopSound(_ ent: Entity) {
+public func G_PlayDoorLoopSound(_ ent: Entity) {
     if ent.soundSet == nil || ent.soundSet!.isEmpty {
         return
     }
@@ -79,7 +79,7 @@ func G_PlayDoorLoopSound(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_mover.c:68
-func G_PlayDoorSound(_ ent: Entity, _ type: Int32) {
+public func G_PlayDoorSound(_ ent: Entity, _ type: Int32) {
     if ent.soundSet == nil || ent.soundSet!.isEmpty {
         return
     }
@@ -98,7 +98,7 @@ G_TestEntityPosition
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:86
-func G_TestEntityPosition(_ ent: Entity) -> Entity? {
+public func G_TestEntityPosition(_ ent: Entity) -> Entity? {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { tr -> Entity? in
@@ -136,7 +136,7 @@ G_CreateRotationMatrix
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:118
-func G_CreateRotationMatrix(_ angles: JKAShared.vec3_t, _ matrix: inout [JKAShared.vec3_t]) {
+public func G_CreateRotationMatrix(_ angles: JKAShared.vec3_t, _ matrix: inout [JKAShared.vec3_t]) {
     do {
         var matrix0 = matrix[0]
         var matrix1 = matrix[1]
@@ -157,7 +157,7 @@ G_TransposeMatrix
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:128
-func G_TransposeMatrix(_ matrix: [JKAShared.vec3_t], _ transpose: inout [JKAShared.vec3_t]) {
+public func G_TransposeMatrix(_ matrix: [JKAShared.vec3_t], _ transpose: inout [JKAShared.vec3_t]) {
     var i: Int32
     var j: Int32
     i = 0
@@ -179,7 +179,7 @@ G_RotatePoint
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:142
-func G_RotatePoint(_ point: inout JKAShared.vec3_t, _ matrix: [JKAShared.vec3_t]) {
+public func G_RotatePoint(_ point: inout JKAShared.vec3_t, _ matrix: [JKAShared.vec3_t]) {
     var tvec = vec3_t()
 
     tvec = point
@@ -189,7 +189,7 @@ func G_RotatePoint(_ point: inout JKAShared.vec3_t, _ matrix: [JKAShared.vec3_t]
 }
 
 /// Source: oracle/codemp/game/g_mover.c:159
-func G_TryPushingEntity(_ check: Entity, _ pusher: Entity, _ move: JKAShared.vec3_t, _ amove: JKAShared.vec3_t) -> Bool {
+public func G_TryPushingEntity(_ check: Entity, _ pusher: Entity, _ move: JKAShared.vec3_t, _ amove: JKAShared.vec3_t) -> Bool {
     var matrix = [vec3_t](repeating: vec3_t(), count: 3)
     var transpose = [vec3_t](repeating: vec3_t(), count: 3)
     var org = vec3_t()
@@ -313,7 +313,7 @@ If qfalse is returned, *obstacle will be the blocking entity
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:283
-func G_MoverPush(_ pusher: Entity, _ move: JKAShared.vec3_t, _ amove: JKAShared.vec3_t, _ obstacle: inout Entity?) -> Bool {
+public func G_MoverPush(_ pusher: Entity, _ move: JKAShared.vec3_t, _ amove: JKAShared.vec3_t, _ obstacle: inout Entity?) -> Bool {
     var i: Int32
     var e: Int32
     var check: Entity?
@@ -463,7 +463,7 @@ G_MoverTeam
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:416
-func G_MoverTeam(_ ent: Entity) {
+public func G_MoverTeam(_ ent: Entity) {
     var move = vec3_t()
     var amove = vec3_t()
     var part: Entity?
@@ -536,7 +536,7 @@ G_RunMover
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:479
-func G_RunMover(_ ent: Entity) {
+public func G_RunMover(_ ent: Entity) {
     // if not a team captain, don't do anything, because
     // the captain will handle everything
     if (ent.flags & FL_TEAMSLAVE) != 0 {
@@ -553,7 +553,7 @@ func G_RunMover(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_mover.c:511
-func CalcTeamDoorCenter(_ ent: Entity, _ center: inout JKAShared.vec3_t) {
+public func CalcTeamDoorCenter(_ ent: Entity, _ center: inout JKAShared.vec3_t) {
     var slavecenter = vec3_t()
     var slave: Entity?
 
@@ -580,7 +580,7 @@ SetMoverState
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:535
-func SetMoverState(_ ent: Entity, _ moverState: moverState_t, _ time: Int32) {
+public func SetMoverState(_ ent: Entity, _ moverState: moverState_t, _ time: Int32) {
     var delta = vec3_t()
     var f: Float
 
@@ -642,7 +642,7 @@ in the same amount of time
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:600
-func MatchTeam(_ teamLeader: Entity, _ moverState: Int32, _ time: Int32) {
+public func MatchTeam(_ teamLeader: Entity, _ moverState: Int32, _ time: Int32) {
     var slave: Entity?
 
     slave = teamLeader
@@ -660,7 +660,7 @@ ReturnToPos1
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:615
-func ReturnToPos1(_ ent: Entity) {
+public func ReturnToPos1(_ ent: Entity) {
     ent.think = nil
     ent.nextthink = 0
     ent.s.time = level.time
@@ -673,7 +673,7 @@ func ReturnToPos1(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_mover.c:634
-func Reached_BinaryMover(_ ent: Entity) {
+public func Reached_BinaryMover(_ ent: Entity) {
     // stop the looping sound
     ent.s.loopSound = 0
     ent.s.loopIsSoundset = false
@@ -741,7 +741,7 @@ Use_BinaryMover_Go
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:710
-func Use_BinaryMover_Go(_ ent: Entity) {
+public func Use_BinaryMover_Go(_ ent: Entity) {
     var total: Int32
     var partial: Int32
     //	gentity_t	*other = ent->enemy;
@@ -850,7 +850,7 @@ func Use_BinaryMover_Go(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_mover.c:830
-func UnLockDoors(_ ent: Entity) {
+public func UnLockDoors(_ ent: Entity) {
     //noise?
     //go through and unlock the door and all the slaves
     var slave: Entity? = ent
@@ -866,7 +866,7 @@ func UnLockDoors(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_mover.c:846
-func LockDoors(_ ent: Entity) {
+public func LockDoors(_ ent: Entity) {
     //noise?
     //go through and lock the door and all the slaves
     var slave: Entity? = ent
@@ -885,7 +885,7 @@ Use_BinaryMover
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:863
-func Use_BinaryMover(_ ent: Entity, _ other: Entity, _ activator: Entity) {
+public func Use_BinaryMover(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     if ent.use == nil {
         //I cannot be used anymore, must be a door with a wait of -1 that's opened.
         return
@@ -930,7 +930,7 @@ so the movement delta can be calculated
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:913
-func InitMoverTrData(_ ent: Entity) {
+public func InitMoverTrData(_ ent: Entity) {
     var move = vec3_t()
     let distance: Float
 
@@ -951,7 +951,7 @@ func InitMoverTrData(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_mover.c:936
-func InitMover(_ ent: Entity) {
+public func InitMover(_ ent: Entity) {
     var light: Float = 0
     var color = vec3_t()
     let lightSet: Bool
@@ -1024,7 +1024,7 @@ Blocked_Door
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:1018
-func Blocked_Door(_ ent: Entity, _ other: Entity) {
+public func Blocked_Door(_ ent: Entity, _ other: Entity) {
     if ent.damage != 0 {
         var dir: vec3_t? = nil
         G_Damage(other, ent, ent, &dir, nil, ent.damage, 0, MOD_CRUSH)
@@ -1094,7 +1094,7 @@ Touch_DoorTrigger
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:1078
-func Touch_DoorTrigger(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+public func Touch_DoorTrigger(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     var relockEnt: Entity? = nil
 
     if other.client != nil && other.client!.sess.sessionTeam == TEAM_SPECTATOR {
@@ -1170,7 +1170,7 @@ a trigger that encloses all of them
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:1168
-func Think_SpawnNewDoorTrigger(_ ent: Entity) {
+public func Think_SpawnNewDoorTrigger(_ ent: Entity) {
     var other: Entity?
     var mins = vec3_t()
     var maxs = vec3_t()
@@ -1225,7 +1225,7 @@ func Think_SpawnNewDoorTrigger(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_mover.c:1217
-func Think_MatchTeam(_ ent: Entity) {
+public func Think_MatchTeam(_ ent: Entity) {
     MatchTeam(ent, ent.moverState, level.time)
 }
 
@@ -1246,7 +1246,7 @@ public func G_EntIsDoor(_ entityNum: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_mover.c:1239
-func G_FindDoorTrigger(_ ent: Entity) -> Entity? {
+public func G_FindDoorTrigger(_ ent: Entity) -> Entity? {
     var owner: Entity? = nil
     var door: Entity? = ent
     if (door!.flags & FL_TEAMSLAVE) != 0 {
@@ -1373,7 +1373,7 @@ INACTIVE	must be used by a target_activate before it can be used
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:1380
-func SP_func_door(_ ent: Entity) {
+public func SP_func_door(_ ent: Entity) {
     var abs_movedir = vec3_t()
     let distance: Float
     var size = vec3_t()
@@ -1472,7 +1472,7 @@ Don't allow decent if a living player is on it
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:1489
-func Touch_Plat(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+public func Touch_Plat(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     if other.client == nil || other.client!.ps.stats[STAT_HEALTH] <= 0 {
         return
     }
@@ -1493,7 +1493,7 @@ If the plat is at the bottom position, start it going up
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:1507
-func Touch_PlatCenterTrigger(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+public func Touch_PlatCenterTrigger(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     if other.client == nil {
         return
     }
@@ -1515,7 +1515,7 @@ not just sit on top of it.
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:1527
-func SpawnPlatTrigger(_ ent: Entity) {
+public func SpawnPlatTrigger(_ ent: Entity) {
     var trigger: Entity?
     var tmin = vec3_t()
     var tmax = vec3_t()
@@ -1568,7 +1568,7 @@ Plats are always drawn in the extended position so they will light correctly.
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:1576
-func SP_func_plat(_ ent: Entity) {
+public func SP_func_plat(_ ent: Entity) {
     var lip: Float = 0
     var height: Float = 0
 
@@ -1621,7 +1621,7 @@ Touch_Button
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:1633
-func Touch_Button(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace?) {
+public func Touch_Button(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace?) {
     if other.client == nil {
         return
     }
@@ -1651,7 +1651,7 @@ When a button is touched, it moves some distance in the direction of it's angle,
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:1660
-func SP_func_button(_ ent: Entity) {
+public func SP_func_button(_ ent: Entity) {
     var abs_movedir = vec3_t()
     let distance: Float
     var size = vec3_t()
@@ -1705,7 +1705,7 @@ The wait time at a corner has completed, so start moving again
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:1727
-func Think_BeginMoving(_ ent: Entity) {
+public func Think_BeginMoving(_ ent: Entity) {
     G_PlayDoorSound(ent, BMS_START)
     G_PlayDoorLoopSound(ent)
     ent.s.pos.trTime = level.time
@@ -1720,7 +1720,7 @@ Reached_Train
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:1739
-func Reached_Train(_ ent: Entity) {
+public func Reached_Train(_ ent: Entity) {
     var next: Entity?
     var speed: Float
     var move = vec3_t()
@@ -1784,7 +1784,7 @@ Link all the corners together
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:1802
-func Think_SetupTrainTargets(_ ent: Entity) {
+public func Think_SetupTrainTargets(_ ent: Entity) {
     var path: Entity?
     var next: Entity?
     var start: Entity?
@@ -1855,7 +1855,7 @@ Target: next path corner and other targets to fire
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:1873
-func SP_path_corner(_ `self`: Entity) {
+public func SP_path_corner(_ `self`: Entity) {
     if `self`.targetname == nil {
         G_Printf("path_corner with no targetname at %s\n", vtos(`self`.s.origin))
         G_FreeEntity(`self`)
@@ -1881,7 +1881,7 @@ entities and damage them on contact as well.
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:1897
-func SP_func_train(_ `self`: Entity) {
+public func SP_func_train(_ `self`: Entity) {
     `self`.s.angles = vec3_t()
 
     if (`self`.spawnflags & TRAIN_BLOCK_STOPS) != 0 {
@@ -1935,7 +1935,7 @@ A bmodel that just sits there, doing nothing.  Can be used for conditional walls
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:1956
-func SP_func_static(_ ent: Entity) {
+public func SP_func_static(_ ent: Entity) {
     var test: Int32 = 0
     trap_SetBrushModel(ent, ent.model!)
 
@@ -1989,7 +1989,7 @@ func SP_func_static(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_mover.c:2021
-func func_static_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func func_static_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     G_ActivateBehavior(`self`, BSET_USE)
 
     if (`self`.spawnflags & 4) != 0 {
@@ -1999,7 +1999,7 @@ func func_static_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_mover.c:2040
-func func_rotating_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func func_rotating_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     if `self`.s.apos.trType == TR_LINEAR {
         `self`.s.apos.trType = TR_STATIONARY
         // stop the sound if it stops moving
@@ -2022,7 +2022,7 @@ func func_rotating_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_mover.c:2133
-func SP_func_rotating(_ ent: Entity) {
+public func SP_func_rotating(_ ent: Entity) {
     var spinangles = vec3_t()
     if ent.health != 0 {
         let sav_spawnflags: Int32 = ent.spawnflags
@@ -2096,7 +2096,7 @@ Normally bobs on the Z axis
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:2231
-func SP_func_bobbing(_ ent: Entity) {
+public func SP_func_bobbing(_ ent: Entity) {
     var height: Float = 0
     var phase: Float = 0
 
@@ -2140,7 +2140,7 @@ Pendulum frequency is a physical constant based on the length of the beam and gr
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:2280
-func SP_func_pendulum(_ ent: Entity) {
+public func SP_func_pendulum(_ ent: Entity) {
     let freq: Float
     var length: Float
     var phase: Float = 0
@@ -2221,7 +2221,7 @@ private func CacheChunkEffects(_ material: JKAMP.material_t) {
 }
 
 /// Source: oracle/codemp/game/g_mover.c:2363
-func G_MiscModelExplosion(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ size: Int32, _ chunkType: JKAMP.material_t) {
+public func G_MiscModelExplosion(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ size: Int32, _ chunkType: JKAMP.material_t) {
     var te: Entity?
     var mid = vec3_t()
 
@@ -2237,7 +2237,7 @@ func G_MiscModelExplosion(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ 
 }
 
 /// Source: oracle/codemp/game/g_mover.c:2379
-func G_Chunks(_ owner: Int32, _ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ speed: Float, _ numChunks: Int32, _ chunkType: JKAMP.material_t, _ customChunk: Int32, _ baseScale: Float) {
+public func G_Chunks(_ owner: Int32, _ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ speed: Float, _ numChunks: Int32, _ chunkType: JKAMP.material_t, _ customChunk: Int32, _ baseScale: Float) {
     let te: Entity? = G_TempEntity(origin, EV_DEBRIS)
 
     //Now it's time to cram everything horribly into the entitystate of an event entity.
@@ -2255,7 +2255,7 @@ func G_Chunks(_ owner: Int32, _ origin: JKAShared.vec3_t, _ normal: JKAShared.ve
 
 //--------------------------------------
 /// Source: oracle/codemp/game/g_mover.c:2398
-func funcBBrushDieGo(_ `self`: Entity) {
+public func funcBBrushDieGo(_ `self`: Entity) {
     var org = vec3_t()
     var dir = vec3_t()
     var up = vec3_t()
@@ -2353,7 +2353,7 @@ func funcBBrushDieGo(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_mover.c:2500
-func funcBBrushDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
+public func funcBBrushDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
     `self`.takedamage = false //stop chain reaction runaway loops
 
     `self`.enemy = attacker
@@ -2368,7 +2368,7 @@ func funcBBrushDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ 
 }
 
 /// Source: oracle/codemp/game/g_mover.c:2516
-func funcBBrushUse(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func funcBBrushUse(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     G_ActivateBehavior(`self`, BSET_USE)
     if (`self`.spawnflags & 64) != 0 {
         //Using it doesn't break it, makes it use it's targets
@@ -2381,7 +2381,7 @@ func funcBBrushUse(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_mover.c:2532
-func funcBBrushPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func funcBBrushPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     if `self`.painDebounceTime > level.time {
         return
     }
@@ -2500,7 +2500,7 @@ private func InitBBrush(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_mover.c:2663
-func funcBBrushTouch(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+public func funcBBrushTouch(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
 }
 
 /**
@@ -2570,7 +2570,7 @@ teamnodmg - if 1, team 1 can't damage this. If 2, team 2 can't damage this.
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:2731
-func SP_func_breakable(_ `self`: Entity) {
+public func SP_func_breakable(_ `self`: Entity) {
     var t: Int32 = 0
     var s: String = ""
 
@@ -2701,7 +2701,7 @@ GLASS
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:2875
-func GlassDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
+public func GlassDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
     var te: Entity?
     var dif = vec3_t()
 
@@ -2731,7 +2731,7 @@ func GlassDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damag
 }
 
 /// Source: oracle/codemp/game/g_mover.c:2905
-func GlassDie_Old(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
+public func GlassDie_Old(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
     var te: Entity?
     var dif = vec3_t()
 
@@ -2750,13 +2750,13 @@ func GlassDie_Old(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ d
 }
 
 /// Source: oracle/codemp/game/g_mover.c:2924
-func GlassPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func GlassPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     //G_Printf("Mr. Glass says: PLZ NO IT HURTS\n");
     //Make "cracking" sound?
 }
 
 /// Source: oracle/codemp/game/g_mover.c:2930
-func GlassUse(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func GlassUse(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     var temp1 = vec3_t()
     var temp2 = vec3_t()
 
@@ -2787,7 +2787,7 @@ Breakable glass
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:2957
-func SP_func_glass(_ ent: Entity) {
+public func SP_func_glass(_ ent: Entity) {
     trap_SetBrushModel(ent, ent.model!)
     InitMover(ent)
 
@@ -2819,7 +2819,7 @@ func SP_func_glass(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_mover.c:2995
-func func_wait_return_solid(_ `self`: Entity) {
+public func func_wait_return_solid(_ `self`: Entity) {
     //once a frame, see if it's clear.
     `self`.clipmask = CONTENTS_BODY
     if !((`self`.spawnflags & 16) != 0) || G_TestEntityPosition(`self`) == nil {
@@ -2847,7 +2847,7 @@ func func_wait_return_solid(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_mover.c:3027
-func func_usable_think(_ `self`: Entity) {
+public func func_usable_think(_ `self`: Entity) {
     if (`self`.spawnflags & 8) != 0 {
         `self`.r.svFlags |= SVF_PLAYER_USABLE //Replace the usable flag
         `self`.use = Use.func_usable_use
@@ -2868,7 +2868,7 @@ public func G_EntIsRemovableUsable(_ entNum: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_mover.c:3050
-func func_usable_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func func_usable_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     //Toggle on and off
     G_ActivateBehavior(`self`, BSET_USE)
     if (`self`.s.eFlags & EF_SHADER_ANIM) != 0 {
@@ -2919,18 +2919,18 @@ func func_usable_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_mover.c:3108
-func func_usable_pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func func_usable_pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     GlobalUse(`self`, attacker, attacker)
 }
 
 /// Source: oracle/codemp/game/g_mover.c:3113
-func func_usable_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
+public func func_usable_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
     `self`.takedamage = false
     GlobalUse(`self`, inflictor, attacker)
 }
 
 /// Source: oracle/codemp/game/g_mover.c:3140
-func SP_func_usable(_ `self`: Entity) {
+public func SP_func_usable(_ `self`: Entity) {
     trap_SetBrushModel(`self`, `self`.model!)
     InitMover(`self`)
     `self`.s.pos.trBase = `self`.s.origin
@@ -2990,7 +2990,7 @@ func SP_func_usable(_ `self`: Entity) {
 
 //static -slc
 /// Source: oracle/codemp/game/g_mover.c:3215
-func use_wall(_ ent: Entity, _ other: Entity, _ activator: Entity) {
+public func use_wall(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     G_ActivateBehavior(ent, BSET_USE)
 
     // Not there so make it there
@@ -3029,7 +3029,7 @@ START_OFF - the wall will not be there
 ```
 */
 /// Source: oracle/codemp/game/g_mover.c:3256
-func SP_func_wall(_ ent: Entity) {
+public func SP_func_wall(_ ent: Entity) {
     trap_SetBrushModel(ent, ent.model!)
 
     ent.pos1 = ent.s.origin

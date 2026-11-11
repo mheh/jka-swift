@@ -79,7 +79,7 @@ var enemyDist3: Float {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Grenadier.c:49
-func Grenadier_ClearTimers(_ ent: Entity) {
+public func Grenadier_ClearTimers(_ ent: Entity) {
     TIMER_Set(ent, "chatter", 0)
     TIMER_Set(ent, "duck", 0)
     TIMER_Set(ent, "stand", 0)
@@ -95,7 +95,7 @@ func Grenadier_ClearTimers(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Grenadier.c:65
-func NPC_Grenadier_PlayConfusionSound(_ `self`: Entity) {
+public func NPC_Grenadier_PlayConfusionSound(_ `self`: Entity) {
     //FIXME: make this a custom sound in sound set
     if `self`.health > 0 {
         G_AddVoiceEvent(`self`, Q_irand(EV_CONFUSE1, EV_CONFUSE3), 2000)
@@ -113,7 +113,7 @@ func NPC_Grenadier_PlayConfusionSound(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Grenadier.c:90
-func NPC_Grenadier_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func NPC_Grenadier_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     `self`.NPC!.localState = LSTATE_UNDERFIRE
 
     TIMER_Set(`self`, "duck", -1)
@@ -195,7 +195,7 @@ private func Grenadier_Move() -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Grenadier.c:190
-func NPC_BSGrenadier_Patrol() {
+public func NPC_BSGrenadier_Patrol() {
     //FIXME: pick up on bodies of dead buddies?
     if NPCInfo!.confusionTime < level.time {
         //Look for any enemies
@@ -389,7 +389,7 @@ private func Grenadier_CheckFireState() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Grenadier.c:441
-func Grenadier_EvaluateShot(_ hit: Int32) -> Bool {
+public func Grenadier_EvaluateShot(_ hit: Int32) -> Bool {
     if NPC!.enemy == nil {
         return false
     }
@@ -402,7 +402,7 @@ func Grenadier_EvaluateShot(_ hit: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Grenadier.c:461
-func NPC_BSGrenadier_Attack() {
+public func NPC_BSGrenadier_Attack() {
     //Don't do anything if we're hurt
     if NPC!.painDebounceTime > level.time {
         NPC_UpdateAngles(true, true)
@@ -579,7 +579,7 @@ func NPC_BSGrenadier_Attack() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Grenadier.c:664
-func NPC_BSGrenadier_Default() {
+public func NPC_BSGrenadier_Default() {
     if (NPCInfo!.scriptFlags & SCF_FIRE_WEAPON) != 0 {
         WeaponThink(true)
     }

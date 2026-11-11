@@ -12,7 +12,7 @@ SV_SetConfigstring
 ```
 */
 /// Source: oracle/codemp/server/sv_init.cpp:25
-func SV_SetConfigstring(_ index: Int32, _ val: String) {
+public func SV_SetConfigstring(_ index: Int32, _ val: String) {
     var len: Int32
     var i: Int32
     let maxChunkSize: Int32 = MAX_STRING_CHARS - 24
@@ -94,7 +94,7 @@ SV_GetConfigstring
 ```
 */
 /// Source: oracle/codemp/server/sv_init.cpp:101
-func SV_GetConfigstring(_ index: Int32, _ buffer: inout JKAShared.CharBuf, _ bufferSize: Int32) {
+public func SV_GetConfigstring(_ index: Int32, _ buffer: inout JKAShared.CharBuf, _ bufferSize: Int32) {
     var bufferIndex: Int32 = 0
     if bufferSize < 1 {
         Com_Error(ERR_DROP, "SV_GetConfigstring: bufferSize == %i", bufferSize)
@@ -119,7 +119,7 @@ SV_AddConfigstring
 ```
 */
 /// Source: oracle/codemp/server/sv_init.cpp:123
-func SV_AddConfigstring(_ name: String, _ start: Int32, _ max: Int32) -> Int32 {
+public func SV_AddConfigstring(_ name: String, _ start: Int32, _ max: Int32) -> Int32 {
     var i: Int32
     // Raven steps his own `name` parameter through its bytes, so the body walks a TextCursor over a copy of them.
     var name = TextCursor(CharBuf(name))
@@ -160,7 +160,7 @@ SV_SetUserinfo
 ```
 */
 /// Source: oracle/codemp/server/sv_init.cpp:168
-func SV_SetUserinfo(_ index: Int32, _ val: String) {
+public func SV_SetUserinfo(_ index: Int32, _ val: String) {
     // Raven steps his own `val` parameter through its bytes, so the body walks a TextCursor over a copy of them.
     var val = TextCursor(CharBuf(val))
     if index < 0 || index >= sv_maxclients!.integer {
@@ -181,7 +181,7 @@ SV_GetUserinfo
 ```
 */
 /// Source: oracle/codemp/server/sv_init.cpp:189
-func SV_GetUserinfo(_ index: Int32, _ buffer: inout JKAShared.CharBuf, _ bufferSize: Int32) {
+public func SV_GetUserinfo(_ index: Int32, _ buffer: inout JKAShared.CharBuf, _ bufferSize: Int32) {
     if bufferSize < 1 {
         Com_Error(ERR_DROP, "SV_GetUserinfo: bufferSize == %i", bufferSize)
     }
@@ -203,7 +203,7 @@ baseline will be transmitted
 ```
 */
 /// Source: oracle/codemp/server/sv_init.cpp:209
-func SV_CreateBaseline() {
+public func SV_CreateBaseline() {
     var svent: SharedEntity?
     var entnum: Int32
 
@@ -233,7 +233,7 @@ SV_BoundMaxClients
 ```
 */
 /// Source: oracle/codemp/server/sv_init.cpp:234
-func SV_BoundMaxClients(_ minimum: Int32) {
+public func SV_BoundMaxClients(_ minimum: Int32) {
     // get the current maxclients value
     Cvar_Get("sv_maxclients", "8", 0)
 
@@ -259,7 +259,7 @@ the menu system first.
 ```
 */
 /// Source: oracle/codemp/server/sv_init.cpp:258
-func SV_Startup() {
+public func SV_Startup() {
     if svs.initialized {
         Com_Error(ERR_FATAL, "SV_Startup: svs.initialized")
     }
@@ -280,7 +280,7 @@ func SV_Startup() {
 }
 
 /// Source: oracle/codemp/server/sv_init.cpp:284
-func SV_InitSV() {
+public func SV_InitSV() {
     // clear out most of the sv struct
     sv.clear()
     sv.mLocalSubBSPIndex = -1
@@ -294,7 +294,7 @@ SV_ChangeMaxClients
 ```
 */
 /// Source: oracle/codemp/server/sv_init.cpp:299
-func SV_ChangeMaxClients() {
+public func SV_ChangeMaxClients() {
     let oldMaxClients: Int32
     var i: Int32
     let oldClients: Slots<Client>
@@ -371,7 +371,7 @@ SV_ClearServer
 ```
 */
 /// Source: oracle/codemp/server/sv_init.cpp:365
-func SV_ClearServer() {
+public func SV_ClearServer() {
     var i: Int32
 
     i = 0
@@ -407,7 +407,7 @@ SV_TouchCGame
 ```
 */
 /// Source: oracle/codemp/server/sv_init.cpp:396
-func SV_TouchCGame() {
+public func SV_TouchCGame() {
     var f: fileHandle_t = 0
     var filename = CharBuf(64)
 
@@ -423,7 +423,7 @@ func SV_TouchCGame() {
 }
 
 /// Source: oracle/codemp/server/sv_init.cpp:414
-func SV_SendMapChange() {
+public func SV_SendMapChange() {
     var i: Int32
 
     if svs.clients != nil {
@@ -440,7 +440,7 @@ func SV_SendMapChange() {
 }
 
 /// Source: oracle/codemp/server/sv_init.cpp:472
-func SV_SpawnServer(_ server: String, _ killBots: Bool, _ eForceReload: JKAMP.ForceReload_e) {
+public func SV_SpawnServer(_ server: String, _ killBots: Bool, _ eForceReload: JKAMP.ForceReload_e) {
     var i: Int32
     var checksum: Int32 = 0
     var isBot: Bool
@@ -741,7 +741,7 @@ func SV_SpawnServer(_ server: String, _ killBots: Bool, _ eForceReload: JKAMP.Fo
 }
 
 /// Source: oracle/codemp/server/sv_init.cpp:803
-func SV_Init() {
+public func SV_Init() {
     SV_AddOperatorCommands()
 
     // serverinfo vars
@@ -830,7 +830,7 @@ to totally exit after returning from this function.
 ```
 */
 /// Source: oracle/codemp/server/sv_init.cpp:899
-func SV_FinalMessage(_ message: String) {
+public func SV_FinalMessage(_ message: String) {
     var i: Int32
     var j: Int32
     var cl: Slots<Client>
@@ -869,7 +869,7 @@ before Sys_Quit or Sys_Error
 ```
 */
 /// Source: oracle/codemp/server/sv_init.cpp:929
-func SV_Shutdown(_ finalmsg: String) {
+public func SV_Shutdown(_ finalmsg: String) {
     if com_sv_running == nil || com_sv_running!.integer == 0 {
         return
     }

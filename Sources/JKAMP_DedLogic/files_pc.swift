@@ -38,7 +38,7 @@ FS_PakIsPure
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:39
-func FS_PakIsPure(_ pack: Pack) -> Bool {
+public func FS_PakIsPure(_ pack: Pack) -> Bool {
     var i: Int32
 
     if fs_numServerPaks != 0 {
@@ -114,7 +114,7 @@ private func FS_FileForHandle(_ f: JKAShared.fileHandle_t) -> OpaquePointer? {
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:100
-func FS_ForceFlush(_ f: JKAShared.fileHandle_t) {
+public func FS_ForceFlush(_ f: JKAShared.fileHandle_t) {
     let file: OpaquePointer?
 
     file = FS_FileForHandle(f)
@@ -133,7 +133,7 @@ size of the file.
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:117
-func FS_filelength(_ f: JKAShared.fileHandle_t) -> Int32 {
+public func FS_filelength(_ f: JKAShared.fileHandle_t) -> Int32 {
     let pos: Int32
     let end: Int32
     let h: OpaquePointer?
@@ -157,7 +157,7 @@ Creates any directories needed to store the given filename
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:138
-func FS_CreatePath(_ OSPath: inout JKAShared.CharBuf) -> Bool {
+public func FS_CreatePath(_ OSPath: inout JKAShared.CharBuf) -> Bool {
     var ofs: Int32
 
     // make absolutely sure that it can't back up the path
@@ -190,7 +190,7 @@ Copy a fully specified file from one place to another
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:166
-func FS_CopyFile(_ fromOSPath: inout JKAShared.CharBuf, _ toOSPath: inout JKAShared.CharBuf) {
+public func FS_CopyFile(_ fromOSPath: inout JKAShared.CharBuf, _ toOSPath: inout JKAShared.CharBuf) {
     var f: OpaquePointer?
     let len: Int32
 
@@ -241,7 +241,7 @@ FS_Remove
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:213
-func FS_Remove(_ osPath: String) {
+public func FS_Remove(_ osPath: String) {
     FileBackend.remove(osPath)
 }
 
@@ -258,7 +258,7 @@ NOTE TTimo: this goes with FS_FOpenFileWrite for opening the file afterwards
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:227
-func FS_FileExists(_ file: String) -> Bool {
+public func FS_FileExists(_ file: String) -> Bool {
     let f: OpaquePointer?
     let testpath: String
 
@@ -282,7 +282,7 @@ Tests if the file exists
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:249
-func FS_SV_FileExists(_ file: String) -> Bool {
+public func FS_SV_FileExists(_ file: String) -> Bool {
     let f: OpaquePointer?
     var testpath: CharBuf
 
@@ -306,7 +306,7 @@ FS_SV_FOpenFileWrite
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:272
-func FS_SV_FOpenFileWrite(_ filename: String) -> JKAShared.fileHandle_t {
+public func FS_SV_FOpenFileWrite(_ filename: String) -> JKAShared.fileHandle_t {
     var ospath: CharBuf
     var f: fileHandle_t
 
@@ -350,7 +350,7 @@ we search in that order, matching FS_SV_FOpenFileRead order
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:313
-func FS_SV_FOpenFileRead(_ filename: String, _ fp: inout Int32) -> Int32 {
+public func FS_SV_FOpenFileRead(_ filename: String, _ fp: inout Int32) -> Int32 {
     var ospath: CharBuf
     var f: fileHandle_t = 0 // bk001129 - from cvs1.17
 
@@ -430,7 +430,7 @@ FS_SV_Rename
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:395
-func FS_SV_Rename(_ from: String, _ to: String) {
+public func FS_SV_Rename(_ from: String, _ to: String) {
     var from_ospath: CharBuf
     var to_ospath: CharBuf
 
@@ -466,7 +466,7 @@ FS_Rename
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:427
-func FS_Rename(_ from: String, _ to: String) {
+public func FS_Rename(_ from: String, _ to: String) {
     var from_ospath: CharBuf
     var to_ospath: CharBuf
 
@@ -504,7 +504,7 @@ on files returned by FS_FOpenFile...
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:461
-func FS_FCloseFile(_ f: JKAShared.fileHandle_t) {
+public func FS_FCloseFile(_ f: JKAShared.fileHandle_t) {
     if fs_searchpaths == nil {
         Com_Error(ERR_FATAL, "Filesystem call made without initialization\n")
     }
@@ -537,7 +537,7 @@ FS_FOpenFileWrite
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:491
-func FS_FOpenFileWrite(_ filename: String) -> JKAShared.fileHandle_t {
+public func FS_FOpenFileWrite(_ filename: String) -> JKAShared.fileHandle_t {
     var ospath: CharBuf
     var f: fileHandle_t
 
@@ -581,7 +581,7 @@ FS_FOpenFileAppend
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:532
-func FS_FOpenFileAppend(_ filename: String) -> JKAShared.fileHandle_t {
+public func FS_FOpenFileAppend(_ filename: String) -> JKAShared.fileHandle_t {
     var ospath: CharBuf
     var f: fileHandle_t
 
@@ -620,7 +620,7 @@ func FS_FOpenFileAppend(_ filename: String) -> JKAShared.fileHandle_t {
 // Not ported: SysBackend.GetFileTime of Sources/JKAMP_Ded/SysBackend.swift reads the POSIX modification time, and Sys_FileOutOfDate calls it.
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:600
-func Sys_FileOutOfDate(_ psFinalFileName: String, _ psDataFileName: String) -> Bool {
+public func Sys_FileOutOfDate(_ psFinalFileName: String, _ psDataFileName: String) -> Bool {
     var ftFinalFile = FILETIME()
     var ftDataFile = FILETIME()
 
@@ -650,7 +650,7 @@ func Sys_FileOutOfDate(_ psFinalFileName: String, _ psDataFileName: String) -> B
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:634
-func FS_FileCacheable(_ filename: String) -> Bool {
+public func FS_FileCacheable(_ filename: String) -> Bool {
     if com_buildScript != nil && com_buildScript!.integer != 0 {
         return true
     }
@@ -665,7 +665,7 @@ FS_ShiftedStrStr
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:649
-func FS_ShiftedStrStr(_ string: String, _ substring: String, _ shift: Int32) -> String? {
+public func FS_ShiftedStrStr(_ string: String, _ substring: String, _ shift: Int32) -> String? {
     var buf = CharBuf(MAX_STRING_TOKENS)
     var i: Int32
     // Raven indexes his own `substring` parameter by byte, so the body reads a CharBuf of it.
@@ -682,7 +682,7 @@ func FS_ShiftedStrStr(_ string: String, _ substring: String, _ shift: Int32) -> 
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:672
-func FS_FOpenFileRead(_ filename: String, _ file: inout Int32, _ uniqueFILE: Bool) -> Int32 {
+public func FS_FOpenFileRead(_ filename: String, _ file: inout Int32, _ uniqueFILE: Bool) -> Int32 {
     var search: Searchpath?
     var netpath: String
     var dir: Directory
@@ -968,7 +968,7 @@ Properly handles partial reads
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1007
-func FS_Read2(_ buffer: Slots<JKAShared.byte>, _ len: Int32, _ f: JKAShared.fileHandle_t) -> Int32 {
+public func FS_Read2(_ buffer: Slots<JKAShared.byte>, _ len: Int32, _ f: JKAShared.fileHandle_t) -> Int32 {
     if fs_searchpaths == nil {
         Com_Error(ERR_FATAL, "Filesystem call made without initialization\n")
     }
@@ -988,7 +988,7 @@ func FS_Read2(_ buffer: Slots<JKAShared.byte>, _ len: Int32, _ f: JKAShared.file
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1026
-func FS_Read(_ buffer: Slots<JKAShared.byte>, _ len: Int32, _ f: JKAShared.fileHandle_t) -> Int32 {
+public func FS_Read(_ buffer: Slots<JKAShared.byte>, _ len: Int32, _ f: JKAShared.fileHandle_t) -> Int32 {
     var block: Int32
     var remaining: Int32
     var read: Int32
@@ -1041,7 +1041,7 @@ func FS_Read(_ buffer: Slots<JKAShared.byte>, _ len: Int32, _ f: JKAShared.fileH
 /// Raven's `buffer` takes a `char buf[N]` at msg.cpp:2070, and this overload reads into that buffer.
 // Port-note: The CharBuf overload of the FS_Read row, which reads into the caller's buffer.
 // AI: Raven hands a `char *` buffer to the `void *` of FS_Read. The overload takes the caller's CharBuf, the form trap_FS_Read has.
-func FS_Read(_ buffer: inout CharBuf, _ len: Int32, _ f: JKAShared.fileHandle_t) -> Int32 {
+public func FS_Read(_ buffer: inout CharBuf, _ len: Int32, _ f: JKAShared.fileHandle_t) -> Int32 {
     var block: Int32
     var remaining: Int32
     var read: Int32
@@ -1099,7 +1099,7 @@ Properly handles partial writes
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1079
-func FS_Write(_ buffer: Slots<JKAShared.byte>, _ len: Int32, _ h: JKAShared.fileHandle_t) -> Int32 {
+public func FS_Write(_ buffer: Slots<JKAShared.byte>, _ len: Int32, _ h: JKAShared.fileHandle_t) -> Int32 {
     var block: Int32
     var remaining: Int32
     var written: Int32
@@ -1150,7 +1150,7 @@ func FS_Write(_ buffer: Slots<JKAShared.byte>, _ len: Int32, _ h: JKAShared.file
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1079
 // Port-note: The CharBuf overload of FS_Write, for the `char msg[MAXPRINTMSG]` of FS_Printf at files_common.cpp:383 and the log file write of common.cpp:188.
 // AI: Raven casts the caller's `char *` to `const void *`. A CharBuf overload hands the bytes of the buffer on as a Slots of bytes.
-func FS_Write(_ buffer: CharBuf, _ len: Int32, _ h: JKAShared.fileHandle_t) -> Int32 {
+public func FS_Write(_ buffer: CharBuf, _ len: Int32, _ h: JKAShared.fileHandle_t) -> Int32 {
     buffer.withSlots { FS_Write($0, len, h) }
 }
 
@@ -1163,7 +1163,7 @@ FS_Seek
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1131
-func FS_Seek(_ f: JKAShared.fileHandle_t, _ offset: CLong, _ origin: Int32) -> Int32 {
+public func FS_Seek(_ f: JKAShared.fileHandle_t, _ offset: CLong, _ origin: Int32) -> Int32 {
     var _origin: Int32
     var foo = CharBuf(65536)
 
@@ -1218,7 +1218,7 @@ func FS_Seek(_ f: JKAShared.fileHandle_t, _ offset: CLong, _ origin: Int32) -> I
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1191
-func FS_FileIsInPAK(_ filename: String, _ pChecksum: inout Int32) -> Int32 {
+public func FS_FileIsInPAK(_ filename: String, _ pChecksum: inout Int32) -> Int32 {
     var search: Searchpath?
     var hash: CLong = 0
     // Raven steps his own `filename` parameter through its bytes, so the body walks a TextCursor over a copy of them.
@@ -1286,7 +1286,7 @@ a null buffer will just return the file length without loading
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1259
-func FS_ReadFile(_ qpath: String, _ buffer: inout OpaquePointer?) -> Int32 {
+public func FS_ReadFile(_ qpath: String, _ buffer: inout OpaquePointer?) -> Int32 {
     var h: fileHandle_t = 0
     let isConfig: Bool
     var len: Int32 = 0
@@ -1397,7 +1397,7 @@ func FS_ReadFile(_ qpath: String, _ buffer: inout OpaquePointer?) -> Int32 {
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1259
 // Port-note: The VmHeader overload of row V3, for `(void **)&header` of VM_Create and VM_Restart, vm.cpp:530 and :416.
 // AI: Raven reads the QVM image into a zone block and stores its address in the `vmHeader_t *`. The overload gives the view over the block, or nil.
-func FS_ReadFile(_ qpath: String, _ buffer: inout VmHeader?) -> Int32 {
+public func FS_ReadFile(_ qpath: String, _ buffer: inout VmHeader?) -> Int32 {
     var block: OpaquePointer? = nil
     let len = FS_ReadFile(qpath, &block)
     buffer = block.map { VmHeader(handle: $0) }
@@ -1407,7 +1407,7 @@ func FS_ReadFile(_ qpath: String, _ buffer: inout VmHeader?) -> Int32 {
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1259
 // Port-note: The optional overload of the FS_ReadFile row, for the `char *` callers and the NULL callers, files_common.cpp:502 and sv_ccmds.cpp:159.
 // AI: Raven hands `(void **)&f` of a `char *f`, or NULL for the length alone. A nil buffer is Raven's NULL, and a read fills the CharBuf.
-func FS_ReadFile(_ qpath: String, _ buffer: inout CharBuf?) -> Int32 {
+public func FS_ReadFile(_ qpath: String, _ buffer: inout CharBuf?) -> Int32 {
     var h: fileHandle_t = 0
     let isConfig: Bool
     var len: Int32 = 0
@@ -1540,7 +1540,7 @@ func FS_ReadFile(_ qpath: String, _ buffer: inout CharBuf?) -> Int32 {
 // Port-note: The CharBuf overload of the FS_ReadFile row, for the `char *` callers, cmd_common.cpp:231 and cm_shader.cpp:113.
 // AI: Raven hands `(void **)&f` of a `char *f`. This forward wraps the caller's CharBuf in the optional and writes the read back.
 // AI: Raven sets `*buffer` to NULL for a missing file. The forward leaves the buffer empty, so a caller tests the length Raven returns, `len < 0`.
-func FS_ReadFile(_ qpath: String, _ buffer: inout CharBuf) -> Int32 {
+public func FS_ReadFile(_ qpath: String, _ buffer: inout CharBuf) -> Int32 {
     var optionalBuffer: CharBuf? = buffer
     let length = FS_ReadFile(qpath, &optionalBuffer)
     buffer = optionalBuffer ?? CharBuf(0)
@@ -1555,7 +1555,7 @@ FS_FreeFile
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1379
-func FS_FreeFile(_ buffer: OpaquePointer?) {
+public func FS_FreeFile(_ buffer: OpaquePointer?) {
     /*
     if ( !fs_searchpaths ) {
     Com_Error( ERR_FATAL, "Filesystem call made without initialization\n" );
@@ -1587,20 +1587,20 @@ func FS_FreeFile(_ buffer: OpaquePointer?) {
 // Port-note: The CharBuf overload of the FS_FreeFile row, for the `char *` callers of the FS_ReadFile forward, cmd_common.cpp:240.
 // The overload does nothing, because a CharBuf owns its bytes and frees them when the caller drops it.
 // AI: Raven frees the hunk block that FS_ReadFile gave. The overload takes the caller's CharBuf and frees nothing.
-func FS_FreeFile(_ buffer: CharBuf) {
+public func FS_FreeFile(_ buffer: CharBuf) {
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1379
 // Port-note: The VmHeader overload of row V3, for the `vmHeader_t *` of VM_Create and VM_Restart, vm.cpp:587 and :455.
 // AI: Raven frees the block of the QVM image through the header pointer. The overload hands the handle of the view to the original.
-func FS_FreeFile(_ buffer: VmHeader?) {
+public func FS_FreeFile(_ buffer: VmHeader?) {
     FS_FreeFile(buffer.map { $0.handle })
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1379
 // Port-note: The Slots overload of the FS_FreeFile row, for the `unsigned char *` of SE_FreeFileDataAfterLoad, stringed_interface.cpp:117.
 // AI: Raven hands the block that FS_ReadFile gave. The overload hands the handle of the block the Slots covers to the original.
-func FS_FreeFile(_ buffer: Slots<JKAShared.byte>) {
+public func FS_FreeFile(_ buffer: Slots<JKAShared.byte>) {
     FS_FreeFile(OpaquePointer(buffer.base))
 }
 
@@ -1796,7 +1796,7 @@ from all search paths
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1587
-func FS_ListFilteredFiles(_ path: String, _ `extension`: String, _ filter: String?, _ numfiles: inout Int32) -> [String] {
+public func FS_ListFilteredFiles(_ path: String, _ `extension`: String, _ filter: String?, _ numfiles: inout Int32) -> [String] {
     var nfiles: Int32
     var listCopy: [String]
     var list = [String](repeating: "", count: Int(MAX_FOUND_FILES))
@@ -1946,7 +1946,7 @@ FS_ListFiles
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1724
-func FS_ListFiles(_ path: String, _ `extension`: String, _ numfiles: inout Int32) -> [String] {
+public func FS_ListFiles(_ path: String, _ `extension`: String, _ numfiles: inout Int32) -> [String] {
     return FS_ListFilteredFiles(path, `extension`, nil, &numfiles)
 }
 
@@ -1958,7 +1958,7 @@ FS_FreeFileList
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1733
-func FS_FreeFileList(_ fileList: [String]) {
+public func FS_FreeFileList(_ fileList: [String]) {
     //rwwRMG - changed to fileList to not conflict with list type
 
     if fs_searchpaths == nil {
@@ -1976,7 +1976,7 @@ FS_GetFileList
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1758
-func FS_GetFileList(_ path: String, _ `extension`: String, _ listbuf: inout JKAShared.CharBuf, _ bufsize: Int32) -> Int32 {
+public func FS_GetFileList(_ path: String, _ `extension`: String, _ listbuf: inout JKAShared.CharBuf, _ bufsize: Int32) -> Int32 {
     var nFiles: Int32
     var i: Int32
     var nTotal: Int32
@@ -2085,7 +2085,7 @@ The directories are searched in base path, cd path and home path
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1866
-func FS_GetModList(_ listbuf: inout JKAShared.CharBuf, _ bufsize: Int32) -> Int32 {
+public func FS_GetModList(_ listbuf: inout JKAShared.CharBuf, _ bufsize: Int32) -> Int32 {
     var nMods: Int32
     var i: Int32
     var j: Int32
@@ -2220,7 +2220,7 @@ FS_Dir_f
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:1989
-func FS_Dir_f() {
+public func FS_Dir_f() {
     let path: String
     let `extension`: String
     let dirnames: [String]
@@ -2261,7 +2261,7 @@ FS_ConvertPath
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2025
-func FS_ConvertPath(_ s: inout JKAShared.CharBuf) {
+public func FS_ConvertPath(_ s: inout JKAShared.CharBuf) {
     var sIndex: Int32 = 0
     while s[sIndex] != 0 {
         if s[sIndex] == Int32(ascii: "\\") || s[sIndex] == Int32(ascii: ":") {
@@ -2281,7 +2281,7 @@ Ignore case and seprator char distinctions
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2041
-func FS_PathCmp(_ s1: String, _ s2: String) -> Int32 {
+public func FS_PathCmp(_ s1: String, _ s2: String) -> Int32 {
     var c1: Int32
     var c2: Int32
     // Raven steps his own `s1` parameter through its bytes, so the body walks a TextCursor over a copy of them.
@@ -2328,7 +2328,7 @@ FS_SortFileList
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2078
-func FS_SortFileList(_ filelist: inout [String], _ numfiles: Int32) {
+public func FS_SortFileList(_ filelist: inout [String], _ numfiles: Int32) {
     var i: Int32
     var j: Int32
     var k: Int32
@@ -2373,7 +2373,7 @@ FS_NewDir_f
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2106
-func FS_NewDir_f() {
+public func FS_NewDir_f() {
     let filter: String
     var dirnames: [String]
     var ndirs: Int32 = 0
@@ -2414,7 +2414,7 @@ FS_Path_f
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2140
-func FS_Path_f() {
+public func FS_Path_f() {
     var s: Searchpath?
     var i: Int32
 
@@ -2458,7 +2458,7 @@ arbitrary files furing an "fs_copyfiles 1" run.
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2177
-func FS_TouchFile_f() {
+public func FS_TouchFile_f() {
     var f: fileHandle_t = 0
 
     if Cmd_Argc() != 2 {
@@ -2582,7 +2582,7 @@ FS_idPak
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2301
-func FS_idPak(_ pak: String, _ base: String) -> Bool {
+public func FS_idPak(_ pak: String, _ base: String) -> Bool {
     var i: Int32
 
     i = 0
@@ -2625,7 +2625,7 @@ we are not interested in a download string format, we want something human-reada
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2339
-func FS_ComparePaks(_ neededpaks: inout JKAShared.CharBuf, _ len: Int32, _ dlstring: Bool) -> Bool {
+public func FS_ComparePaks(_ neededpaks: inout JKAShared.CharBuf, _ len: Int32, _ dlstring: Bool) -> Bool {
     var sp: Searchpath?
     var havepak: Bool
     var badchecksum: Bool
@@ -2703,7 +2703,7 @@ func FS_ComparePaks(_ neededpaks: inout JKAShared.CharBuf, _ len: Int32, _ dlstr
 
 //rww - add search paths in for received svc_setgame
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2419
-func FS_UpdateGamedir() {
+public func FS_UpdateGamedir() {
     if !fs_gamedirvar!.string!.isEmpty && Q_stricmp(fs_gamedirvar!.string!, BASEGAME) != 0 {
         if !fs_cdpath!.string!.isEmpty {
             FS_AddGameDirectory(fs_cdpath!.string!, fs_gamedirvar!.string!)
@@ -2768,7 +2768,7 @@ FS_Startup
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2483
-func FS_Startup(_ gameName: String) {
+public func FS_Startup(_ gameName: String) {
     var homePath: String?
 
     Com_Printf("----- FS_Startup -----\n")
@@ -2858,7 +2858,7 @@ if the full version is not found
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2587
-func FS_SetRestrictions() {
+public func FS_SetRestrictions() {
     var path: Searchpath?
     // A buffer asks FS_ReadFile for the read, and the overload sets it to nil for a missing file, Raven's NULL.
     var productId: CharBuf? = CharBuf(0)
@@ -2925,7 +2925,7 @@ Returns the checksum of the pk3 from which the server loaded the qagame.qvm
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2646
-func FS_GamePureChecksum() -> String {
+public func FS_GamePureChecksum() -> String {
     // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
     var info = CharBuf(MAX_STRING_TOKENS)
     var search: Searchpath?
@@ -2957,7 +2957,7 @@ Servers with sv_pure set will get this string and pass it to clients.
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2672
-func FS_LoadedPakChecksums() -> String {
+public func FS_LoadedPakChecksums() -> String {
     // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
     var info = CharBuf(BIG_INFO_STRING)
     var search: Searchpath?
@@ -2990,7 +2990,7 @@ Servers with sv_pure set will get this string and pass it to clients.
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2698
-func FS_LoadedPakNames() -> String {
+public func FS_LoadedPakNames() -> String {
     // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
     var info = CharBuf(BIG_INFO_STRING)
     var search: Searchpath?
@@ -3027,7 +3027,7 @@ back to the server.
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2728
-func FS_LoadedPakPureChecksums() -> String {
+public func FS_LoadedPakPureChecksums() -> String {
     // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
     var info = CharBuf(BIG_INFO_STRING)
     var search: Searchpath?
@@ -3060,7 +3060,7 @@ The server will send this to the clients so they can check which files should be
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2754
-func FS_ReferencedPakChecksums() -> String {
+public func FS_ReferencedPakChecksums() -> String {
     // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
     var info = CharBuf(BIG_INFO_STRING)
     var search: Searchpath?
@@ -3095,7 +3095,7 @@ The string has a specific order, "cgame ui @ ref1 ref2 ref3 ..."
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2783
-func FS_ReferencedPakPureChecksums() -> String {
+public func FS_ReferencedPakPureChecksums() -> String {
     // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
     var info = CharBuf(BIG_INFO_STRING)
     var search: Searchpath?
@@ -3154,7 +3154,7 @@ The server will send this to the clients so they can check which files should be
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2832
-func FS_ReferencedPakNames() -> String {
+public func FS_ReferencedPakNames() -> String {
     // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
     var info = CharBuf(BIG_INFO_STRING)
     var search: Searchpath?
@@ -3190,7 +3190,7 @@ FS_ClearPakReferences
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2862
-func FS_ClearPakReferences(_ flags: Int32) {
+public func FS_ClearPakReferences(_ flags: Int32) {
     var search: Searchpath?
     // Raven assigns his own `flags` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var flags = flags
@@ -3221,7 +3221,7 @@ exception of .cfg and .dat files.
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2887
-func FS_PureServerSetLoadedPaks(_ pakSums: String, _ pakNames: String) {
+public func FS_PureServerSetLoadedPaks(_ pakSums: String, _ pakNames: String) {
     var i: Int32
     var c: Int32
     var d: Int32
@@ -3290,7 +3290,7 @@ checksums to see if any pk3 files need to be auto-downloaded.
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2947
-func FS_PureServerSetReferencedPaks(_ pakSums: String, _ pakNames: String) {
+public func FS_PureServerSetReferencedPaks(_ pakSums: String, _ pakNames: String) {
     var i: Int32
     var c: Int32
     var d: Int32
@@ -3343,7 +3343,7 @@ FS_Restart
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:2988
-func FS_Restart(_ checksumFeed: Int32) {
+public func FS_Restart(_ checksumFeed: Int32) {
     // free anything we currently have loaded
     FS_Shutdown(false)
 
@@ -3401,7 +3401,7 @@ restart if necessary
 ```
 */
 /// Source: oracle/codemp/qcommon/files_pc.cpp:3048
-func FS_ConditionalRestart(_ checksumFeed: Int32) -> Bool {
+public func FS_ConditionalRestart(_ checksumFeed: Int32) -> Bool {
     if fs_gamedirvar!.modified || checksumFeed != fs_checksumFeed {
         FS_Restart(checksumFeed)
         return true
@@ -3410,7 +3410,7 @@ func FS_ConditionalRestart(_ checksumFeed: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:3064
-func FS_FOpenFileByMode(_ qpath: String, _ f: inout Int32, _ mode: JKAShared.fsMode_t) -> Int32 {
+public func FS_FOpenFileByMode(_ qpath: String, _ f: inout Int32, _ mode: JKAShared.fsMode_t) -> Int32 {
     var r: Int32
     var sync: Bool
 
@@ -3464,7 +3464,7 @@ func FS_FOpenFileByMode(_ qpath: String, _ f: inout Int32, _ mode: JKAShared.fsM
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:3118
-func FS_FTell(_ f: JKAShared.fileHandle_t) -> Int32 {
+public func FS_FTell(_ f: JKAShared.fileHandle_t) -> Int32 {
     let pos: Int32
     if fsh[f].zipFile == true {
         // C narrows the `long` position to the `int` local.
@@ -3476,6 +3476,6 @@ func FS_FTell(_ f: JKAShared.fileHandle_t) -> Int32 {
 }
 
 /// Source: oracle/codemp/qcommon/files_pc.cpp:3128
-func FS_Flush(_ f: JKAShared.fileHandle_t) {
+public func FS_Flush(_ f: JKAShared.fileHandle_t) {
     FileBackend.fflush(fsh[f].handleFiles.file.o)
 }

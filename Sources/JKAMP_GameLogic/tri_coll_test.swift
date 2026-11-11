@@ -169,7 +169,7 @@ private func POINT_IN_TRI(_ V0: JKAShared.vec3_t, _ U0: JKAShared.vec3_t, _ U1: 
 }
 
 /// Source: oracle/codemp/game/tri_coll_test.c:149
-func coplanar_tri_tri(_ N: JKAShared.vec3_t, _ V0: JKAShared.vec3_t, _ V1: JKAShared.vec3_t, _ V2: JKAShared.vec3_t, _ U0: JKAShared.vec3_t, _ U1: JKAShared.vec3_t, _ U2: JKAShared.vec3_t) -> Bool {
+public func coplanar_tri_tri(_ N: JKAShared.vec3_t, _ V0: JKAShared.vec3_t, _ V1: JKAShared.vec3_t, _ V2: JKAShared.vec3_t, _ U0: JKAShared.vec3_t, _ U1: JKAShared.vec3_t, _ U2: JKAShared.vec3_t) -> Bool {
     var A = vec3_t()
     var i0: Int16
     var i1: Int16
@@ -219,7 +219,7 @@ func coplanar_tri_tri(_ N: JKAShared.vec3_t, _ V0: JKAShared.vec3_t, _ V1: JKASh
 }
 
 /// Source: oracle/codemp/game/tri_coll_test.c:198
-func tri_tri_intersect(_ V0: JKAShared.vec3_t, _ V1: JKAShared.vec3_t, _ V2: JKAShared.vec3_t, _ U0: JKAShared.vec3_t, _ U1: JKAShared.vec3_t, _ U2: JKAShared.vec3_t) -> Bool {
+public func tri_tri_intersect(_ V0: JKAShared.vec3_t, _ V1: JKAShared.vec3_t, _ V2: JKAShared.vec3_t, _ U0: JKAShared.vec3_t, _ U1: JKAShared.vec3_t, _ U2: JKAShared.vec3_t) -> Bool {
     var E1 = vec3_t()
     var E2 = vec3_t()
     var N1 = vec3_t()

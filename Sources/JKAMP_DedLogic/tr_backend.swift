@@ -4,13 +4,13 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/renderer/tr_backend.cpp:20
-var backEndData: BackEndData? {
+public var backEndData: BackEndData? {
     get { world.variables.backEndData }
     set { world.variables.backEndData = newValue }
 }
 
 /// Source: oracle/codemp/renderer/tr_backend.cpp:21
-var backEnd: BackEndState { world.storage.backEnd }
+public var backEnd: BackEndState { world.storage.backEnd }
 
 /// Source: oracle/codemp/renderer/tr_backend.cpp:23
 // Raven wrote: bool tr_stencilled = false

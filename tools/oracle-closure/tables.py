@@ -230,7 +230,12 @@ DED_PIECES: tuple[Piece, ...] = (
         "mdxaBone_t id_G2_Set_Bone_Angles_IK = {",
     ), source="codemp/ghoul2/G2_bones.cpp", first=4577, last=4580),
     # The behavior state names of GameInterface.cpp, the twin of the game's BSTable of NPC_stats.c, row 2 of the icarus round.
-    Piece(source="codemp/icarus/GameInterface.cpp", first=592, last=606),
+    # The link name keeps the two arrays apart in a client that links the game and the host, and the C name and the Swift name stay `BSTable`.
+    Piece(own=(
+        "// The host's table takes the link name `_BSTable_ded`, so it does not collide with the game's `BSTable` of g_tables.c in one link.",
+        "// ded_tables.h declares the table with the same link name, and the definition below takes the name of this declaration.",
+        'extern stringID_table_t BSTable[11] __asm("_BSTable_ded");',
+    ), source="codemp/icarus/GameInterface.cpp", first=592, last=606),
 )
 
 

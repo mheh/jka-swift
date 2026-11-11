@@ -9,13 +9,13 @@ let MAX_VEH_WEAPON_DATA_SIZE = 0x20000 as Int32
 let MAX_VEHICLE_DATA_SIZE = 0x80000 as Int32
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:76
-var VehWeaponParms: JKAShared.CharBuf {
+public var VehWeaponParms: JKAShared.CharBuf {
     get { bg.variables.VehWeaponParms }
     set { bg.variables.VehWeaponParms = newValue }
 }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:77
-var VehicleParms: JKAShared.CharBuf {
+public var VehicleParms: JKAShared.CharBuf {
     get { bg.variables.VehicleParms }
     set { bg.variables.VehicleParms = newValue }
 }
@@ -24,7 +24,7 @@ var VehicleParms: JKAShared.CharBuf {
 public var g_vehWeaponInfo: Slots<JKAMP.VehWeaponInfo> { bg.storage.g_vehWeaponInfo }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:104
-var numVehicleWeapons: Int32 {
+public var numVehicleWeapons: Int32 {
     get { bg.variables.numVehicleWeapons }
     set { bg.variables.numVehicleWeapons = newValue }
 }
@@ -33,7 +33,7 @@ var numVehicleWeapons: Int32 {
 public var g_vehicleInfo: Slots<JKAMP.VehicleInfo> { bg.storage.g_vehicleInfo }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:107
-var numVehicles: Int32 {
+public var numVehicles: Int32 {
     get { bg.variables.numVehicles }
     set { bg.variables.numVehicles = newValue }
 }
@@ -51,7 +51,7 @@ var numVehicles: Int32 {
 // Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:79
-func BG_ClearVehicleParseParms() {
+public func BG_ClearVehicleParseParms() {
     //You can't strcat to these forever without clearing them!
     VehWeaponParms[0] = 0
     VehicleParms[0] = 0
@@ -200,7 +200,7 @@ private func BG_ParseVehWeaponParm(_ vehWeapon: JKAMP.VehWeaponInfo, _ parmName:
 }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:309
-func VEH_LoadVehWeapon(_ vehWeaponName: String) -> Int32 {
+public func VEH_LoadVehWeapon(_ vehWeaponName: String) -> Int32 {
     //load up specified vehWeapon and save in array: g_vehWeaponInfo
     var token: String
     var parmName = CharBuf(128)
@@ -294,7 +294,7 @@ func VEH_LoadVehWeapon(_ vehWeaponName: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:413
-func VEH_VehWeaponIndexForName(_ vehWeaponName: String) -> Int32 {
+public func VEH_VehWeaponIndexForName(_ vehWeaponName: String) -> Int32 {
     var vw: Int32
     if vehWeaponName.isEmpty {
         Com_Printf(S_COLOR_RED + "ERROR: Trying to read Vehicle Weapon with no name!\n")
@@ -325,7 +325,7 @@ func VEH_VehWeaponIndexForName(_ vehWeaponName: String) -> Int32 {
 
 // Setup the shared functions (one's that all vehicles would generally use).
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:683
-func BG_SetSharedVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
+public func BG_SetSharedVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
     if bg.consumer == .game {
         //only do the whole thing if we're on game
         G_SetSharedVehicleFunctions(pVehInfo)
@@ -350,7 +350,7 @@ func BG_SetSharedVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
 }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:709
-func BG_VehicleSetDefaults(_ vehicle: JKAMP.VehicleInfo) {
+public func BG_VehicleSetDefaults(_ vehicle: JKAMP.VehicleInfo) {
     vehicle.clear()
     /*
     #if _JK2MP
@@ -453,7 +453,7 @@ func BG_VehicleSetDefaults(_ vehicle: JKAMP.VehicleInfo) {
 }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:812
-func BG_VehicleClampData(_ vehicle: JKAMP.VehicleInfo) {
+public func BG_VehicleClampData(_ vehicle: JKAMP.VehicleInfo) {
     //sanity check and clamp the vehicle's data
     var i: Int32
 
@@ -620,7 +620,7 @@ private func BG_ParseVehicleParm(_ vehicle: JKAMP.VehicleInfo, _ parmName: Strin
 }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:983
-func VEH_LoadVehicle(_ vehicleName: String) -> Int32 {
+public func VEH_LoadVehicle(_ vehicleName: String) -> Int32 {
     //load up specified vehicle and save in array: g_vehicleInfo
     var token: String
     //we'll assume that no parm name is longer than 128
@@ -912,7 +912,7 @@ func VEH_LoadVehicle(_ vehicleName: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:1364
-func VEH_VehicleIndexForName(_ vehicleName: String) -> Int32 {
+public func VEH_VehicleIndexForName(_ vehicleName: String) -> Int32 {
     var v: Int32
     if vehicleName.isEmpty {
         Com_Printf(S_COLOR_RED + "ERROR: Trying to read Vehicle with no name!\n")
@@ -942,7 +942,7 @@ func VEH_VehicleIndexForName(_ vehicleName: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_vehicleLoad.c:1396
-func BG_VehWeaponLoadParms() {
+public func BG_VehWeaponLoadParms() {
     var len: Int32
     var totallen: Int32
     var vehExtFNLen: Int32

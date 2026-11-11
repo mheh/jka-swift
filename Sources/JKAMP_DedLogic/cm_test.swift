@@ -12,7 +12,7 @@ CM_PointLeafnum_r
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_test.cpp:16
-func CM_PointLeafnum_r(_ p: JKAShared.vec3_t, _ num: Int32, _ local: ClipMap) -> Int32 {
+public func CM_PointLeafnum_r(_ p: JKAShared.vec3_t, _ num: Int32, _ local: ClipMap) -> Int32 {
     // Raven assigns his own `num` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var num = num
     var d: Float
@@ -42,7 +42,7 @@ func CM_PointLeafnum_r(_ p: JKAShared.vec3_t, _ num: Int32, _ local: ClipMap) ->
 }
 
 /// Source: oracle/codemp/qcommon/cm_test.cpp:46
-func CM_PointLeafnum(_ p: JKAShared.vec3_t) -> Int32 {
+public func CM_PointLeafnum(_ p: JKAShared.vec3_t) -> Int32 {
     if cmg.numNodes == 0 {
         // map not loaded
         return 0
@@ -51,7 +51,7 @@ func CM_PointLeafnum(_ p: JKAShared.vec3_t) -> Int32 {
 }
 
 /// Source: oracle/codemp/qcommon/cm_test.cpp:63
-func CM_StoreLeafs(_ ll: LeafList, _ nodenum: Int32) {
+public func CM_StoreLeafs(_ ll: LeafList, _ nodenum: Int32) {
     let leafNum: Int32
 
     leafNum = -1 - nodenum
@@ -70,7 +70,7 @@ func CM_StoreLeafs(_ ll: LeafList, _ nodenum: Int32) {
 }
 
 /// Source: oracle/codemp/qcommon/cm_test.cpp:80
-func CM_StoreBrushes(_ ll: LeafList, _ nodenum: Int32) {
+public func CM_StoreBrushes(_ ll: LeafList, _ nodenum: Int32) {
     // CM_BoxBrushes is the one function that stores it, and no file of either tree calls CM_BoxBrushes, so it is dead.
     var i: Int32
     var k: Int32
@@ -125,7 +125,7 @@ Fills in a list of all the leafs touched
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_test.cpp:130
-func CM_BoxLeafnums_r(_ ll: LeafList, _ nodenum: Int32) {
+public func CM_BoxLeafnums_r(_ ll: LeafList, _ nodenum: Int32) {
     // Raven assigns his own `nodenum` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var nodenum = nodenum
     var plane: JKAShared.Cplane
@@ -164,7 +164,7 @@ CM_BoxLeafnums
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_test.cpp:168
-func CM_BoxLeafnums(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ boxList: Slots<Int32>, _ listsize: Int32, _ lastLeaf: inout Int32) -> Int32 {
+public func CM_BoxLeafnums(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ boxList: Slots<Int32>, _ listsize: Int32, _ lastLeaf: inout Int32) -> Int32 {
     //rwwRMG - changed to boxList to not conflict with list type
     LeafList.scratch { ll -> Int32 in
         cmg.checkcount += 1
@@ -193,7 +193,7 @@ CM_BoxBrushes
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_test.cpp:194
-func CM_BoxBrushes(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ boxList: Slots<Cbrush?>, _ listsize: Int32) -> Int32 {
+public func CM_BoxBrushes(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ boxList: Slots<Cbrush?>, _ listsize: Int32) -> Int32 {
     // Raven calls this function from no file of either tree, so it is dead.
     //rwwRMG - changed to boxList to not conflict with list type
     LeafList.scratch { ll -> Int32 in
@@ -223,7 +223,7 @@ CM_PointContents
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_test.cpp:224
-func CM_PointContents(_ p: JKAShared.vec3_t, _ model: JKAShared.clipHandle_t) -> Int32 {
+public func CM_PointContents(_ p: JKAShared.vec3_t, _ model: JKAShared.clipHandle_t) -> Int32 {
     var leafnum: Int32
     var i: Int32
     var k: Int32
@@ -300,7 +300,7 @@ rotating entities
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_test.cpp:306
-func CM_TransformedPointContents(_ p: JKAShared.vec3_t, _ model: JKAShared.clipHandle_t, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t) -> Int32 {
+public func CM_TransformedPointContents(_ p: JKAShared.vec3_t, _ model: JKAShared.clipHandle_t, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t) -> Int32 {
     var p_l = vec3_t()
     var temp = vec3_t()
     var forward = vec3_t()
@@ -324,7 +324,7 @@ func CM_TransformedPointContents(_ p: JKAShared.vec3_t, _ model: JKAShared.clipH
 }
 
 /// Source: oracle/codemp/qcommon/cm_test.cpp:351
-func CM_ClusterPVS(_ cluster: Int32) -> Slots<JKAShared.byte> {
+public func CM_ClusterPVS(_ cluster: Int32) -> Slots<JKAShared.byte> {
     if cluster < 0 || cluster >= cmg.numClusters || !cmg.vised {
         return cmg.visibility!
     }
@@ -333,7 +333,7 @@ func CM_ClusterPVS(_ cluster: Int32) -> Slots<JKAShared.byte> {
 }
 
 /// Source: oracle/codemp/qcommon/cm_test.cpp:395
-func CM_FloodArea_r(_ areaNum: Int32, _ floodnum: Int32, _ cm: ClipMap) {
+public func CM_FloodArea_r(_ areaNum: Int32, _ floodnum: Int32, _ cm: ClipMap) {
     var i: Int32
     let area: CmArea
     let con: Slots<Int32>
@@ -360,7 +360,7 @@ func CM_FloodArea_r(_ areaNum: Int32, _ floodnum: Int32, _ cm: ClipMap) {
 }
 
 /// Source: oracle/codemp/qcommon/cm_test.cpp:448
-func CM_FloodAreaConnections(_ cm: ClipMap) {
+public func CM_FloodAreaConnections(_ cm: ClipMap) {
     var i: Int32
     var area: CmArea
     var floodnum: Int32
@@ -392,7 +392,7 @@ CM_AdjustAreaPortalState
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_test.cpp:476
-func CM_AdjustAreaPortalState(_ area1: Int32, _ area2: Int32, _ open: Bool) {
+public func CM_AdjustAreaPortalState(_ area1: Int32, _ area2: Int32, _ open: Bool) {
     if area1 < 0 || area2 < 0 {
         return
     }
@@ -424,7 +424,7 @@ CM_AreasConnected
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_test.cpp:509
-func CM_AreasConnected(_ area1: Int32, _ area2: Int32) -> Bool {
+public func CM_AreasConnected(_ area1: Int32, _ area2: Int32) -> Bool {
     if cm_noAreas!.integer != 0 {
         return true
     }
@@ -460,7 +460,7 @@ This is used to cull non-visible entities from snapshots
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_test.cpp:545
-func CM_WriteAreaBits(_ buffer: Slots<UInt8>, _ area: Int32) -> Int32 {
+public func CM_WriteAreaBits(_ buffer: Slots<UInt8>, _ area: Int32) -> Int32 {
     var i: Int32
     let floodnum: Int32
     let bytes: Int32

@@ -8,7 +8,7 @@ import JKAMP_BG
 let SABER_BOX_SIZE = 16.0 as Float
 
 /// Source: oracle/codemp/game/w_saber.c:18
-var saberSpinSound: Int32 {
+public var saberSpinSound: Int32 {
     get { world.variables.saberSpinSound }
     set { world.variables.saberSpinSound = newValue }
 }
@@ -167,7 +167,7 @@ let SABER_MAX_THROW_DISTANCE = 700 as Int32
 let STAFF_KICK_RANGE = 16 as Int32
 
 /// Source: oracle/codemp/game/w_saber.c:39
-func RandFloat(_ min: Float, _ max: Float) -> Float {
+public func RandFloat(_ min: Float, _ max: Float) -> Float {
     //	return ((rand() * (max - min)) / 32768.0F) + min;
     //for linux:
     // The SDK also declares `rand`, so the call names the bg module.
@@ -175,7 +175,7 @@ func RandFloat(_ min: Float, _ max: Float) -> Float {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:46
-func G_DebugBoxLines(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ duration: Int32) {
+public func G_DebugBoxLines(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ duration: Int32) {
     var start = vec3_t()
     var end = vec3_t()
 
@@ -210,7 +210,7 @@ func G_DebugBoxLines(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ durat
 
 //general check for performing certain attacks against others
 /// Source: oracle/codemp/game/w_saber.c:82
-func G_CanBeEnemy(_ `self`: Entity, _ enemy: Entity) -> Bool {
+public func G_CanBeEnemy(_ `self`: Entity, _ enemy: Entity) -> Bool {
     if !`self`.inuse || !enemy.inuse || `self`.client == nil || enemy.client == nil {
         return false
     }
@@ -329,7 +329,7 @@ private func G_SaberAttackPower(_ ent: Entity, _ attacking: Bool) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:219
-func WP_DeactivateSaber(_ `self`: Entity, _ clearLength: Bool) {
+public func WP_DeactivateSaber(_ `self`: Entity, _ clearLength: Bool) {
     if `self`.client == nil {
         return
     }
@@ -354,7 +354,7 @@ func WP_DeactivateSaber(_ `self`: Entity, _ clearLength: Bool) {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:250
-func WP_ActivateSaber(_ `self`: Entity) {
+public func WP_ActivateSaber(_ `self`: Entity) {
     if `self`.client == nil {
         return
     }
@@ -381,7 +381,7 @@ func WP_ActivateSaber(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:286
-func SaberUpdateSelf(_ ent: Entity) {
+public func SaberUpdateSelf(_ ent: Entity) {
     if ent.r.ownerNum == ENTITYNUM_NONE {
         ent.think = Think.G_FreeEntity
         ent.nextthink = level.time
@@ -436,7 +436,7 @@ func SaberUpdateSelf(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:360
-func SaberGotHit(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+public func SaberGotHit(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     let own: Entity? = g_entities[`self`.r.ownerNum]
 
     if own == nil || own!.client == nil {
@@ -619,7 +619,7 @@ private func SetSaberBoxSize(_ saberent: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:566
-func WP_SaberInitBladeData(_ ent: Entity) {
+public func WP_SaberInitBladeData(_ ent: Entity) {
     var saberent: Entity? = nil
     var checkEnt: Entity?
     var i: Int32 = 0
@@ -1063,7 +1063,7 @@ private func SaberAttacking(_ `self`: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:1094
-func G_SaberLockAnim(_ attackerSaberStyle: Int32, _ defenderSaberStyle: Int32, _ topOrSide: Int32, _ lockOrBreakOrSuperBreak: Int32, _ winOrLose: Int32) -> Int32 {
+public func G_SaberLockAnim(_ attackerSaberStyle: Int32, _ defenderSaberStyle: Int32, _ topOrSide: Int32, _ lockOrBreakOrSuperBreak: Int32, _ winOrLose: Int32) -> Int32 {
     var baseAnim: Int32 = -1
     if lockOrBreakOrSuperBreak == SABERLOCK_LOCK {
         //special case: if we're using the same style and locking
@@ -1383,7 +1383,7 @@ private func WP_SabersCheckLock2(_ attacker: Entity, _ defender: Entity, _ lockM
 }
 
 /// Source: oracle/codemp/game/w_saber.c:1462
-func WP_SabersCheckLock(_ ent1: Entity, _ ent2: Entity) -> Bool {
+public func WP_SabersCheckLock(_ ent1: Entity, _ ent2: Entity) -> Bool {
     let dist: Float
     var ent1BlockingPlayer: Bool = false
     var ent2BlockingPlayer: Bool = false
@@ -1897,7 +1897,7 @@ private func WP_GetSaberDeflectionAngle(_ attacker: Entity, _ defender: Entity, 
 }
 
 /// Source: oracle/codemp/game/w_saber.c:2210
-func G_KnockawayForParry(_ move: Int32) -> Int32 {
+public func G_KnockawayForParry(_ move: Int32) -> Int32 {
     //FIXME: need actual anims for this
     //FIXME: need to know which side of the saber was hit!  For now, we presume the saber gets knocked away from the center
     switch move {
@@ -2411,7 +2411,7 @@ private func G_SaberCollide(_ atk: Entity, _ def: Entity, _ atkStart: JKAShared.
 }
 
 /// Source: oracle/codemp/game/w_saber.c:2779
-func WP_SaberBladeLength(_ saber: JKAMP.SaberInfo) -> Float {
+public func WP_SaberBladeLength(_ saber: JKAMP.SaberInfo) -> Float {
     //return largest length
     var i: Int32
     var len: Float = 0.0
@@ -2426,7 +2426,7 @@ func WP_SaberBladeLength(_ saber: JKAMP.SaberInfo) -> Float {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:2793
-func WP_SaberLength(_ ent: Entity) -> Float {
+public func WP_SaberLength(_ ent: Entity) -> Float {
     //return largest length
     if ent.client == nil {
         return 0.0
@@ -2447,7 +2447,7 @@ func WP_SaberLength(_ ent: Entity) -> Float {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:2814
-func WPDEBUG_SaberColor(_ saberColor: JKAMP.saber_colors_t) -> Int32 {
+public func WPDEBUG_SaberColor(_ saberColor: JKAMP.saber_colors_t) -> Int32 {
     switch Int32((saberColor)) {
     case SABER_RED:
         return 0x000000ff
@@ -2473,7 +2473,7 @@ func WPDEBUG_SaberColor(_ saberColor: JKAMP.saber_colors_t) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:2851
-func WP_SabersIntersect(_ ent1: Entity, _ ent1SaberNum: Int32, _ ent1BladeNum: Int32, _ ent2: Entity, _ checkDir: Bool) -> Bool {
+public func WP_SabersIntersect(_ ent1: Entity, _ ent1SaberNum: Int32, _ ent1BladeNum: Int32, _ ent2: Entity, _ checkDir: Bool) -> Bool {
     var saberBase1 = vec3_t()
     var saberTip1 = vec3_t()
     var saberBaseNext1 = vec3_t()
@@ -3073,7 +3073,7 @@ private func G_PowerLevelForSaberAnim(_ ent: Entity, _ saberNum: Int32, _ mySabe
 }
 
 /// Source: oracle/codemp/game/w_saber.c:3512
-func WP_SaberClearDamage() {
+public func WP_SaberClearDamage() {
     var ven: Int32
     ven = 0
     while ven < MAX_SABER_VICTIMS {
@@ -3090,7 +3090,7 @@ func WP_SaberClearDamage() {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:3528
-func WP_SaberDamageAdd(_ trVictimEntityNum: Int32, _ trDmgDir: JKAShared.vec3_t, _ trDmgSpot: JKAShared.vec3_t, _ trDmg: Int32, _ doDismemberment: Bool, _ knockBackFlags: Int32) {
+public func WP_SaberDamageAdd(_ trVictimEntityNum: Int32, _ trDmgDir: JKAShared.vec3_t, _ trDmgSpot: JKAShared.vec3_t, _ trDmg: Int32, _ doDismemberment: Bool, _ knockBackFlags: Int32) {
     if trVictimEntityNum < 0 || trVictimEntityNum >= ENTITYNUM_WORLD {
         return
     }
@@ -3136,7 +3136,7 @@ func WP_SaberDamageAdd(_ trVictimEntityNum: Int32, _ trDmgDir: JKAShared.vec3_t,
 }
 
 /// Source: oracle/codemp/game/w_saber.c:3577
-func WP_SaberApplyDamage(_ `self`: Entity) {
+public func WP_SaberApplyDamage(_ `self`: Entity) {
     var i: Int32
     if numVictims == 0 {
         return
@@ -3165,7 +3165,7 @@ func WP_SaberApplyDamage(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:3608
-func WP_SaberDoHit(_ `self`: Entity, _ saberNum: Int32, _ bladeNum: Int32) {
+public func WP_SaberDoHit(_ `self`: Entity, _ saberNum: Int32, _ bladeNum: Int32) {
     var i: Int32
     if numVictims == 0 {
         return
@@ -3238,7 +3238,7 @@ func WP_SaberDoHit(_ `self`: Entity, _ saberNum: Int32, _ bladeNum: Int32) {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:3701
-func WP_SaberRadiusDamage(_ ent: Entity, _ point: JKAShared.vec3_t, _ radius: Float, _ damage: Int32, _ knockBack: Float) {
+public func WP_SaberRadiusDamage(_ ent: Entity, _ point: JKAShared.vec3_t, _ radius: Float, _ damage: Int32, _ knockBack: Float) {
     if ent.client == nil {
         return
     } else if radius <= 0.0 || (damage <= 0 && knockBack <= 0) {
@@ -3333,7 +3333,7 @@ func WP_SaberRadiusDamage(_ ent: Entity, _ point: JKAShared.vec3_t, _ radius: Fl
 }
 
 /// Source: oracle/codemp/game/w_saber.c:3798
-func WP_SaberDoClash(_ `self`: Entity, _ saberNum: Int32, _ bladeNum: Int32) {
+public func WP_SaberDoClash(_ `self`: Entity, _ saberNum: Int32, _ bladeNum: Int32) {
     if saberDoClashEffect {
         let te: Entity? = G_TempEntity(saberClashPos, EV_SABER_BLOCK)
         te!.s.origin = saberClashPos
@@ -3346,7 +3346,7 @@ func WP_SaberDoClash(_ `self`: Entity, _ saberNum: Int32, _ bladeNum: Int32) {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:3812
-func WP_SaberBounceSound(_ ent: Entity, _ saberNum: Int32, _ bladeNum: Int32) {
+public func WP_SaberBounceSound(_ ent: Entity, _ saberNum: Int32, _ bladeNum: Int32) {
     var index: Int32 = 1
     if ent.client == nil {
         return
@@ -4420,7 +4420,7 @@ private func CheckSaberDamage(_ `self`: Entity, _ rSaberNum: Int32, _ rBladeNum:
 }
 
 /// Source: oracle/codemp/game/w_saber.c:5275
-func VectorCompare2(_ v1: JKAShared.vec3_t, _ v2: JKAShared.vec3_t) -> Int32 {
+public func VectorCompare2(_ v1: JKAShared.vec3_t, _ v2: JKAShared.vec3_t) -> Int32 {
     if v1[0] > v2[0] + 0.0001 || v1[0] < v2[0] - 0.0001 || v1[1] > v2[1] + 0.0001 || v1[1] < v2[1] - 0.0001 || v1[2] > v2[2] + 0.0001 || v1[2] < v2[2] - 0.0001 {
         return 0
     }
@@ -4428,7 +4428,7 @@ func VectorCompare2(_ v1: JKAShared.vec3_t, _ v2: JKAShared.vec3_t) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:5285
-func G_SPSaberDamageTraceLerped(_ `self`: Entity, _ saberNum: Int32, _ bladeNum: Int32, _ baseNew: inout JKAShared.vec3_t, _ endNew: inout JKAShared.vec3_t, _ clipmask: Int32) {
+public func G_SPSaberDamageTraceLerped(_ `self`: Entity, _ saberNum: Int32, _ bladeNum: Int32, _ baseNew: inout JKAShared.vec3_t, _ endNew: inout JKAShared.vec3_t, _ clipmask: Int32) {
     var baseOld = vec3_t()
     var endOld = vec3_t()
     var mp1 = vec3_t()
@@ -4629,7 +4629,7 @@ func G_SPSaberDamageTraceLerped(_ `self`: Entity, _ saberNum: Int32, _ bladeNum:
 }
 
 /// Source: oracle/codemp/game/w_saber.c:5492
-func WP_SaberStartMissileBlockCheck(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
+public func WP_SaberStartMissileBlockCheck(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
     var dist: Float = 0
     var ent: Entity?
     var incoming: Entity? = nil
@@ -5327,13 +5327,13 @@ private func saberMoveBack(_ ent: Entity, _ goingBack: Bool) {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:6229
-func SaberBounceSound(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+public func SaberBounceSound(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     `self`.s.apos.trBase = `self`.r.currentAngles
     `self`.s.apos.trBase[PITCH] = 90
 }
 
 /// Source: oracle/codemp/game/w_saber.c:6235
-func DeadSaberThink(_ saberent: Entity) {
+public func DeadSaberThink(_ saberent: Entity) {
     if saberent.speed < level.time {
         saberent.think = Think.G_FreeEntity
         saberent.nextthink = level.time
@@ -5344,7 +5344,7 @@ func DeadSaberThink(_ saberent: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:6247
-func MakeDeadSaber(_ ent: Entity) {
+public func MakeDeadSaber(_ ent: Entity) {
     //spawn a "dead" saber entity here so it looks like the saber fell out of the air.
     //This entity will remove itself after a very short time period.
     var startorg = vec3_t()
@@ -5430,7 +5430,7 @@ func MakeDeadSaber(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:6342
-func DownedSaberThink(_ saberent: Entity) {
+public func DownedSaberThink(_ saberent: Entity) {
     var saberOwn: Entity? = nil
     var notDisowned: Bool = false
     var pullBack: Bool = false
@@ -5545,7 +5545,7 @@ func DownedSaberThink(_ saberent: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:6482
-func saberReactivate(_ saberent: Entity, _ saberOwner: Entity) {
+public func saberReactivate(_ saberent: Entity, _ saberOwner: Entity) {
     saberent.s.saberInFlight = true
 
     saberent.s.apos.trType = TR_LINEAR
@@ -5573,7 +5573,7 @@ func saberReactivate(_ saberent: Entity, _ saberOwner: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:6512
-func saberKnockDown(_ saberent: Entity, _ saberOwner: Entity, _ other: Entity) {
+public func saberKnockDown(_ saberent: Entity, _ saberOwner: Entity, _ other: Entity) {
     saberOwner.client!.ps.saberEntityNum = 0 //still stored in client->saberStoredIndex
     saberOwner.client!.saberKnockedTime = level.time + SABER_RETRIEVE_DELAY
 
@@ -5646,14 +5646,14 @@ func saberKnockDown(_ saberent: Entity, _ saberOwner: Entity, _ other: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:6589
-func WP_SaberRemoveG2Model(_ saberent: Entity) {
+public func WP_SaberRemoveG2Model(_ saberent: Entity) {
     if saberent.ghoul2 != nil {
         trap_G2API_RemoveGhoul2Models(&saberent.ghoul2)
     }
 }
 
 /// Source: oracle/codemp/game/w_saber.c:6597
-func WP_SaberAddG2Model(_ saberent: Entity, _ saberModel: String, _ saberSkin: JKAShared.qhandle_t) {
+public func WP_SaberAddG2Model(_ saberent: Entity, _ saberModel: String, _ saberSkin: JKAShared.qhandle_t) {
     WP_SaberRemoveG2Model(saberent)
     if !saberModel.isEmpty {
         saberent.s.modelindex = G_ModelIndex(saberModel)
@@ -5666,7 +5666,7 @@ func WP_SaberAddG2Model(_ saberent: Entity, _ saberModel: String, _ saberSkin: J
 
 //Make the saber go flying directly out of the owner's hand in the specified direction
 /// Source: oracle/codemp/game/w_saber.c:6613
-func saberKnockOutOfHand(_ saberent: Entity, _ saberOwner: Entity, _ velocity: JKAShared.vec3_t) -> Bool {
+public func saberKnockOutOfHand(_ saberent: Entity, _ saberOwner: Entity, _ velocity: JKAShared.vec3_t) -> Bool {
     if !saberent.inuse || !saberOwner.inuse || saberOwner.client == nil {
         return false
     }
@@ -5729,7 +5729,7 @@ func saberKnockOutOfHand(_ saberent: Entity, _ saberOwner: Entity, _ velocity: J
 
 //Called at the result of a circle lock duel - the loser gets his saber tossed away and is put into a reflected attack anim
 /// Source: oracle/codemp/game/w_saber.c:6681
-func saberCheckKnockdown_DuelLoss(_ saberent: Entity, _ saberOwner: Entity, _ other: Entity) -> Bool {
+public func saberCheckKnockdown_DuelLoss(_ saberent: Entity, _ saberOwner: Entity, _ other: Entity) -> Bool {
     var dif = vec3_t()
     var totalDistance: Float = 1
     let distScale: Float = 6.5
@@ -5803,7 +5803,7 @@ func saberCheckKnockdown_DuelLoss(_ saberent: Entity, _ saberOwner: Entity, _ ot
 //Called when we want to try knocking the saber out of the owner's hand upon them going into a broken parry.
 //Also called on reflected attacks.
 /// Source: oracle/codemp/game/w_saber.c:6765
-func saberCheckKnockdown_BrokenParry(_ saberent: Entity, _ saberOwner: Entity, _ other: Entity) -> Bool {
+public func saberCheckKnockdown_BrokenParry(_ saberent: Entity, _ saberOwner: Entity, _ other: Entity) -> Bool {
     let myAttack: Int32
     let otherAttack: Int32
     var doKnock: Bool = false
@@ -5880,7 +5880,7 @@ func saberCheckKnockdown_BrokenParry(_ saberent: Entity, _ saberOwner: Entity, _
 
 //Called upon an enemy actually slashing into a thrown saber
 /// Source: oracle/codemp/game/w_saber.c:6852
-func saberCheckKnockdown_Smashed(_ saberent: Entity, _ saberOwner: Entity, _ other: Entity, _ damage: Int32) -> Bool {
+public func saberCheckKnockdown_Smashed(_ saberent: Entity, _ saberOwner: Entity, _ other: Entity, _ damage: Int32) -> Bool {
     if saberInvalid(saberent, saberOwner, other) {
         return false
     }
@@ -5908,7 +5908,7 @@ func saberCheckKnockdown_Smashed(_ saberent: Entity, _ saberOwner: Entity, _ oth
 //Called upon blocking a thrown saber. If the throw level compared to the blocker's defense level
 //is inferior, or equal and a random factor is met, then the saber will be tossed to the ground.
 /// Source: oracle/codemp/game/w_saber.c:6884
-func saberCheckKnockdown_Thrown(_ saberent: Entity, _ saberOwner: Entity, _ other: Entity) -> Bool {
+public func saberCheckKnockdown_Thrown(_ saberent: Entity, _ saberOwner: Entity, _ other: Entity) -> Bool {
     var throwLevel: Int32 = 0
     var defenLevel: Int32 = 0
     var tossIt: Bool = false
@@ -5936,7 +5936,7 @@ func saberCheckKnockdown_Thrown(_ saberent: Entity, _ saberOwner: Entity, _ othe
 }
 
 /// Source: oracle/codemp/game/w_saber.c:6917
-func saberBackToOwner(_ saberent: Entity) {
+public func saberBackToOwner(_ saberent: Entity) {
     let saberOwner: Entity? = g_entities[saberent.r.ownerNum]
     var dir = vec3_t()
     let ownerLen: Float
@@ -6072,7 +6072,7 @@ func saberBackToOwner(_ saberent: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:7080
-func thrownSaberTouch(_ saberent: Entity, _ other: Entity, _ trace: JKAMP.Trace?) {
+public func thrownSaberTouch(_ saberent: Entity, _ other: Entity, _ trace: JKAMP.Trace?) {
     var hitEnt: Entity? = other
 
     if other.s.number == saberent.r.ownerNum {
@@ -6102,7 +6102,7 @@ func thrownSaberTouch(_ saberent: Entity, _ other: Entity, _ trace: JKAMP.Trace?
 }
 
 /// Source: oracle/codemp/game/w_saber.c:7117
-func saberFirstThrown(_ saberent: Entity) {
+public func saberFirstThrown(_ saberent: Entity) {
     var vSub = vec3_t()
     var vLen: Float = 0
     let saberOwn: Entity? = g_entities[saberent.r.ownerNum]
@@ -6236,7 +6236,7 @@ func saberFirstThrown(_ saberent: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:7259
-func UpdateClientRenderBolts(_ `self`: Entity, _ renderOrigin: JKAShared.vec3_t, _ renderAngles: JKAShared.vec3_t) {
+public func UpdateClientRenderBolts(_ `self`: Entity, _ renderOrigin: JKAShared.vec3_t, _ renderAngles: JKAShared.vec3_t) {
     // Raven's record lives to the end of his block, so the block is the closure.
     MdxaBone.scratch { boltMatrix in
         let ri: RenderInfo? = `self`.client!.renderInfo
@@ -6298,7 +6298,7 @@ func UpdateClientRenderBolts(_ `self`: Entity, _ renderOrigin: JKAShared.vec3_t,
 }
 
 /// Source: oracle/codemp/game/w_saber.c:7322
-func UpdateClientRenderinfo(_ `self`: Entity, _ renderOrigin: JKAShared.vec3_t, _ renderAngles: JKAShared.vec3_t) {
+public func UpdateClientRenderinfo(_ `self`: Entity, _ renderOrigin: JKAShared.vec3_t, _ renderAngles: JKAShared.vec3_t) {
     let ri: RenderInfo? = `self`.client!.renderInfo
     if ri!.mPCalcTime < level.time {
         //We're just going to give rough estimates on most of this stuff,
@@ -7044,7 +7044,7 @@ private func G_GrabSomeMofos(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:8084
-func WP_SaberPositionUpdate(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
+public func WP_SaberPositionUpdate(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
     //rww - keep the saber position as updated as possible on the server so that we can try to do realistic-looking contact stuff
     //Note that this function also does the majority of working in maintaining the server g2 client instance (updating angles/anims/etc)
     var mySaber: Entity? = nil
@@ -7940,7 +7940,7 @@ func WP_SaberPositionUpdate(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:9104
-func WP_MissileBlockForBlock(_ saberBlock: Int32) -> Int32 {
+public func WP_MissileBlockForBlock(_ saberBlock: Int32) -> Int32 {
     switch saberBlock {
     case BLOCKED_UPPER_RIGHT:
         return BLOCKED_UPPER_RIGHT_PROJ
@@ -7964,7 +7964,7 @@ func WP_MissileBlockForBlock(_ saberBlock: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/w_saber.c:9127
-func WP_SaberBlockNonRandom(_ `self`: Entity, _ hitloc: JKAShared.vec3_t, _ missileBlock: Bool) {
+public func WP_SaberBlockNonRandom(_ `self`: Entity, _ hitloc: JKAShared.vec3_t, _ missileBlock: Bool) {
     var diff = vec3_t()
     var fwdangles = vec3_t(0, 0, 0)
     var right = vec3_t()
@@ -8022,7 +8022,7 @@ func WP_SaberBlockNonRandom(_ `self`: Entity, _ hitloc: JKAShared.vec3_t, _ miss
 }
 
 /// Source: oracle/codemp/game/w_saber.c:9200
-func WP_SaberBlock(_ playerent: Entity, _ hitloc: JKAShared.vec3_t, _ missileBlock: Bool) {
+public func WP_SaberBlock(_ playerent: Entity, _ hitloc: JKAShared.vec3_t, _ missileBlock: Bool) {
     var diff = vec3_t()
     var fwdangles = vec3_t(0, 0, 0)
     var right = vec3_t()
@@ -8089,7 +8089,7 @@ func WP_SaberBlock(_ playerent: Entity, _ hitloc: JKAShared.vec3_t, _ missileBlo
 }
 
 /// Source: oracle/codemp/game/w_saber.c:9276
-func WP_SaberCanBlock(_ `self`: Entity, _ point: JKAShared.vec3_t, _ dflags: Int32, _ mod: Int32, _ projectile: Bool, _ attackStr: Int32) -> Int32 {
+public func WP_SaberCanBlock(_ `self`: Entity, _ point: JKAShared.vec3_t, _ dflags: Int32, _ mod: Int32, _ projectile: Bool, _ attackStr: Int32) -> Int32 {
     var thrownSaber: Bool = false
     var blockFactor: Float = 0
     // Raven assigns his own `attackStr` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
@@ -8240,7 +8240,7 @@ func WP_SaberCanBlock(_ `self`: Entity, _ point: JKAShared.vec3_t, _ dflags: Int
 }
 
 /// Source: oracle/codemp/game/w_saber.c:9453
-func HasSetSaberOnly() -> Bool {
+public func HasSetSaberOnly() -> Bool {
     var i: Int32 = 0
     var wDisable: Int32 = 0
 

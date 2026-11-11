@@ -49,7 +49,7 @@ private func Q3_CenterPrint(_ format: String, _ args: any JKAShared.FormatArg...
 }
 
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:98
-func Q3_TaskIDClear(_ taskID: inout Int32) {
+public func Q3_TaskIDClear(_ taskID: inout Int32) {
     taskID = -1
 }
 
@@ -61,7 +61,7 @@ qboolean Q3_TaskIDPending( sharedEntity_t *ent, taskID_t taskType )
 ```
 */
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:109
-func Q3_TaskIDPending(_ ent: JKAMP.SharedEntity, _ taskType: JKAMP.taskID_t) -> Bool {
+public func Q3_TaskIDPending(_ ent: JKAMP.SharedEntity, _ taskType: JKAMP.taskID_t) -> Bool {
     if gSequencers[ent.s.number] == nil || gTaskManagers[ent.s.number] == nil {
         return false
     }
@@ -85,7 +85,7 @@ void Q3_TaskIDComplete( sharedEntity_t *ent, taskID_t taskType )
 ```
 */
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:134
-func Q3_TaskIDComplete(_ ent: JKAMP.SharedEntity, _ taskType: JKAMP.taskID_t) {
+public func Q3_TaskIDComplete(_ ent: JKAMP.SharedEntity, _ taskType: JKAMP.taskID_t) {
     if taskType < TID_CHAN_VOICE || taskType >= NUM_TIDS {
         return
     }
@@ -111,7 +111,7 @@ func Q3_TaskIDComplete(_ ent: JKAMP.SharedEntity, _ taskType: JKAMP.taskID_t) {
 }
 
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:167
-func Q3_TaskIDSet(_ ent: JKAMP.SharedEntity, _ taskType: JKAMP.taskID_t, _ taskID: Int32) {
+public func Q3_TaskIDSet(_ ent: JKAMP.SharedEntity, _ taskType: JKAMP.taskID_t, _ taskID: Int32) {
     if taskType < TID_CHAN_VOICE || taskType >= NUM_TIDS {
         return
     }
@@ -242,7 +242,7 @@ Q3_SetVar
 ```
 */
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:337
-func Q3_SetVar(_ taskID: Int32, _ entID: Int32, _ type_name: String, _ data: String) {
+public func Q3_SetVar(_ taskID: Int32, _ entID: Int32, _ type_name: String, _ data: String) {
     let vret: Int32 = Q3_VariableDeclared(type_name)
     var float_data: Float = 0
     var val: Float = 0.0
@@ -506,7 +506,7 @@ Q3_DebugPrint
 ```
 */
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:638
-func Q3_DebugPrint(_ level: Int32, _ format: String, _ args: any JKAShared.FormatArg...) {
+public func Q3_DebugPrint(_ level: Int32, _ format: String, _ args: any JKAShared.FormatArg...) {
     var text = CharBuf(1024)
 
     //Don't print messages they don't want to see
@@ -552,69 +552,69 @@ func Q3_DebugPrint(_ level: Int32, _ format: String, _ args: any JKAShared.Forma
 }
 
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:689
-func CGCam_Anything() {
+public func CGCam_Anything() {
     Q3_DebugPrint(WL_WARNING, "Camera functions NOT SUPPORTED IN MP\n")
 }
 
 //These are useless for MP. Just taking it for now since I don't want to remove all calls to this in ICARUS.
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:695
-func AppendToSaveGame(_ chid: UInt32, _ data: Slots<JKAShared.byte>, _ length: Int32) -> Int32 {
+public func AppendToSaveGame(_ chid: UInt32, _ data: Slots<JKAShared.byte>, _ length: Int32) -> Int32 {
     return 1
 }
 
 // Changed by BTO (VV) - Visual C++ 7.1 doesn't allow default args on funcion pointers
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:701
-func ReadFromSaveGame(_ chid: UInt32, _ pvAddress: Slots<JKAShared.byte>, _ iLength: Int32) -> Int32 {
+public func ReadFromSaveGame(_ chid: UInt32, _ pvAddress: Slots<JKAShared.byte>, _ iLength: Int32) -> Int32 {
     return 1
 }
 
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:706
-func CGCam_Enable() {
+public func CGCam_Enable() {
     CGCam_Anything()
 }
 
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:711
-func CGCam_Disable() {
+public func CGCam_Disable() {
     CGCam_Anything()
 }
 
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:716
-func CGCam_Zoom(_ FOV: Float, _ duration: Float) {
+public func CGCam_Zoom(_ FOV: Float, _ duration: Float) {
     CGCam_Anything()
 }
 
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:721
-func CGCam_Pan(_ dest: JKAShared.vec3_t, _ panDirection: JKAShared.vec3_t, _ duration: Float) {
+public func CGCam_Pan(_ dest: JKAShared.vec3_t, _ panDirection: JKAShared.vec3_t, _ duration: Float) {
     CGCam_Anything()
 }
 
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:726
-func CGCam_Move(_ dest: JKAShared.vec3_t, _ duration: Float) {
+public func CGCam_Move(_ dest: JKAShared.vec3_t, _ duration: Float) {
     CGCam_Anything()
 }
 
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:734
-func CGCam_Shake(_ intensity: Float, _ duration: Int32) {
+public func CGCam_Shake(_ intensity: Float, _ duration: Int32) {
     CGCam_Anything()
 }
 
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:740
-func CGCam_Follow(_ cameraGroup: String, _ speed: Float, _ initLerp: Float) {
+public func CGCam_Follow(_ cameraGroup: String, _ speed: Float, _ initLerp: Float) {
     CGCam_Anything()
 }
 
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:745
-func CGCam_Track(_ trackName: String, _ speed: Float, _ initLerp: Float) {
+public func CGCam_Track(_ trackName: String, _ speed: Float, _ initLerp: Float) {
     CGCam_Anything()
 }
 
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:750
-func CGCam_Distance(_ distance: Float, _ initLerp: Float) {
+public func CGCam_Distance(_ distance: Float, _ initLerp: Float) {
     CGCam_Anything()
 }
 
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:755
-func CGCam_Roll(_ dest: Float, _ duration: Float) {
+public func CGCam_Roll(_ dest: Float, _ duration: Float) {
     CGCam_Anything()
 }
 

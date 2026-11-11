@@ -5,33 +5,33 @@ import JKAMP_Ded
 
 /// Source: oracle/codemp/icarus/Q3_Registers.cpp:9
 /// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var varStrings: [String: String] {
+public var varStrings: [String: String] {
     get { world.varStrings }
     set { world.varStrings = newValue }
 }
 
 /// Source: oracle/codemp/icarus/Q3_Registers.cpp:10
 /// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var varFloats: [String: Float] {
+public var varFloats: [String: Float] {
     get { world.varFloats }
     set { world.varFloats = newValue }
 }
 
 /// Source: oracle/codemp/icarus/Q3_Registers.cpp:11
 /// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var varVectors: [String: String] {
+public var varVectors: [String: String] {
     get { world.varVectors }
     set { world.varVectors = newValue }
 }
 
 /// Source: oracle/codemp/icarus/Q3_Registers.cpp:13
-var numVariables: Int32 {
+public var numVariables: Int32 {
     get { world.variables.numVariables }
     set { world.variables.numVariables = newValue }
 }
 
 /// Source: oracle/codemp/icarus/Q3_Registers.cpp:21
-func Q3_VariableDeclared(_ name: String) -> Int32 {
+public func Q3_VariableDeclared(_ name: String) -> Int32 {
     //Check the strings
     if varStrings[name] != nil {
         return VTYPE_STRING
@@ -51,7 +51,7 @@ func Q3_VariableDeclared(_ name: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/icarus/Q3_Registers.cpp:50
-func Q3_DeclareVariable(_ type: Int32, _ name: String) {
+public func Q3_DeclareVariable(_ type: Int32, _ name: String) {
     //Cannot declare the same variable twice
     if Q3_VariableDeclared(name) != VTYPE_NONE {
         return
@@ -81,7 +81,7 @@ func Q3_DeclareVariable(_ type: Int32, _ name: String) {
 }
 
 /// Source: oracle/codemp/icarus/Q3_Registers.cpp:91
-func Q3_FreeVariable(_ name: String) {
+public func Q3_FreeVariable(_ name: String) {
     //Check the strings
     if varStrings[name] != nil {
         varStrings[name] = nil
@@ -106,7 +106,7 @@ func Q3_FreeVariable(_ name: String) {
 
 /// Source: oracle/codemp/icarus/Q3_Registers.cpp:130
 @discardableResult
-func Q3_GetFloatVariable(_ name: String, _ value: inout Float) -> Int32 {
+public func Q3_GetFloatVariable(_ name: String, _ value: inout Float) -> Int32 {
     //Check the floats
     if let vfi = varFloats[name] {
         value = vfi
@@ -117,7 +117,7 @@ func Q3_GetFloatVariable(_ name: String, _ value: inout Float) -> Int32 {
 }
 
 /// Source: oracle/codemp/icarus/Q3_Registers.cpp:150
-func Q3_GetStringVariable(_ name: String, _ value: inout JKAShared.TextCursor) -> Int32 {
+public func Q3_GetStringVariable(_ name: String, _ value: inout JKAShared.TextCursor) -> Int32 {
     //Check the strings
     if let vsi = varStrings[name] {
         value = JKAShared.TextCursor(JKAShared.CharBuf(vsi))
@@ -128,7 +128,7 @@ func Q3_GetStringVariable(_ name: String, _ value: inout JKAShared.TextCursor) -
 }
 
 /// Source: oracle/codemp/icarus/Q3_Registers.cpp:170
-func Q3_GetVectorVariable(_ name: String, _ value: inout JKAShared.vec3_t) -> Int32 {
+public func Q3_GetVectorVariable(_ name: String, _ value: inout JKAShared.vec3_t) -> Int32 {
     //Check the strings
     if let vvi = varVectors[name] {
         let str = vvi
@@ -141,7 +141,7 @@ func Q3_GetVectorVariable(_ name: String, _ value: inout JKAShared.vec3_t) -> In
 }
 
 /// Source: oracle/codemp/icarus/Q3_Registers.cpp:192
-func Q3_InitVariables() {
+public func Q3_InitVariables() {
     varStrings.removeAll()
     varFloats.removeAll()
     varVectors.removeAll()
@@ -155,7 +155,7 @@ func Q3_InitVariables() {
 
 /// Source: oracle/codemp/icarus/Q3_Registers.cpp:210
 @discardableResult
-func Q3_SetFloatVariable(_ name: String, _ value: Float) -> Int32 {
+public func Q3_SetFloatVariable(_ name: String, _ value: Float) -> Int32 {
     //Check the floats
     if varFloats[name] == nil {
         return VTYPE_FLOAT
@@ -168,7 +168,7 @@ func Q3_SetFloatVariable(_ name: String, _ value: Float) -> Int32 {
 
 /// Source: oracle/codemp/icarus/Q3_Registers.cpp:229
 @discardableResult
-func Q3_SetStringVariable(_ name: String, _ value: String) -> Int32 {
+public func Q3_SetStringVariable(_ name: String, _ value: String) -> Int32 {
     //Check the strings
     if varStrings[name] == nil {
         return 0
@@ -181,7 +181,7 @@ func Q3_SetStringVariable(_ name: String, _ value: String) -> Int32 {
 
 /// Source: oracle/codemp/icarus/Q3_Registers.cpp:248
 @discardableResult
-func Q3_SetVectorVariable(_ name: String, _ value: String) -> Int32 {
+public func Q3_SetVectorVariable(_ name: String, _ value: String) -> Int32 {
     //Check the strings
     if varVectors[name] == nil {
         return 0
@@ -193,7 +193,7 @@ func Q3_SetVectorVariable(_ name: String, _ value: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/icarus/Q3_Registers.cpp:267
-func Q3_VariableSaveFloats(_ fmap: inout [String: Float]) {
+public func Q3_VariableSaveFloats(_ fmap: inout [String: Float]) {
     return
         /*
         int numFloats = fmap.size();
@@ -216,7 +216,7 @@ func Q3_VariableSaveFloats(_ fmap: inout [String: Float]) {
 }
 
 /// Source: oracle/codemp/icarus/Q3_Registers.cpp:296
-func Q3_VariableSaveStrings(_ smap: inout [String: String]) {
+public func Q3_VariableSaveStrings(_ smap: inout [String: String]) {
     return
         /*
         int numStrings = smap.size();
@@ -242,7 +242,7 @@ func Q3_VariableSaveStrings(_ smap: inout [String: String]) {
 }
 
 /// Source: oracle/codemp/icarus/Q3_Registers.cpp:328
-func Q3_VariableSave() -> Int32 {
+public func Q3_VariableSave() -> Int32 {
     Q3_VariableSaveFloats(&varFloats)
     Q3_VariableSaveStrings(&varStrings)
     Q3_VariableSaveStrings(&varVectors)
@@ -251,7 +251,7 @@ func Q3_VariableSave() -> Int32 {
 }
 
 /// Source: oracle/codemp/icarus/Q3_Registers.cpp:343
-func Q3_VariableLoadFloats(_ fmap: inout [String: Float]) {
+public func Q3_VariableLoadFloats(_ fmap: inout [String: Float]) {
     return
         /*
         int        numFloats;
@@ -278,7 +278,7 @@ func Q3_VariableLoadFloats(_ fmap: inout [String: Float]) {
 }
 
 /// Source: oracle/codemp/icarus/Q3_Registers.cpp:376
-func Q3_VariableLoadStrings(_ type: Int32, _ fmap: inout [String: String]) {
+public func Q3_VariableLoadStrings(_ type: Int32, _ fmap: inout [String: String]) {
     return
         /*
         int        numFloats;
@@ -316,7 +316,7 @@ func Q3_VariableLoadStrings(_ type: Int32, _ fmap: inout [String: String]) {
 }
 
 /// Source: oracle/codemp/icarus/Q3_Registers.cpp:420
-func Q3_VariableLoad() -> Int32 {
+public func Q3_VariableLoad() -> Int32 {
     Q3_InitVariables()
 
     Q3_VariableLoadFloats(&varFloats)

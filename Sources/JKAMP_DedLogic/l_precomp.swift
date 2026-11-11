@@ -16,19 +16,19 @@ let DEFINEHASHSIZE = 1024 as Int32
 let TOKEN_HEAP_SIZE = 4096 as Int32
 
 /// Source: oracle/codemp/botlib/l_precomp.cpp:96
-var numtokens: Int32 {
+public var numtokens: Int32 {
     get { world.variables.numtokens }
     set { world.variables.numtokens = newValue }
 }
 
 /// Source: oracle/codemp/botlib/l_precomp.cpp:105
-var globaldefines: Slots<Define?>? {
+public var globaldefines: Slots<Define?>? {
     get { world.variables.globaldefines }
     set { world.variables.globaldefines = newValue }
 }
 
 /// Source: oracle/codemp/botlib/l_precomp.cpp:109
-var addGlobalDefine: Bool {
+public var addGlobalDefine: Bool {
     get { world.variables.addGlobalDefine }
     set { world.variables.addGlobalDefine = newValue }
 }
@@ -57,7 +57,7 @@ var dollardirectives: [DirectiveRow] {
 let MAX_SOURCEFILES = 64 as Int32
 
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3187
-var sourceFiles: Slots<Source?> { world.storage.sourceFiles }
+public var sourceFiles: Slots<Source?> { world.storage.sourceFiles }
 
 //============================================================================
 //
@@ -66,7 +66,7 @@ var sourceFiles: Slots<Source?> { world.storage.sourceFiles }
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:117
-func SourceError(_ source: Source, _ str: String, _ args: any JKAShared.FormatArg...) {
+public func SourceError(_ source: Source, _ str: String, _ args: any JKAShared.FormatArg...) {
     var text = CharBuf(1024)
 
     strcpy(&text, JKAShared.format(str, args))
@@ -80,7 +80,7 @@ func SourceError(_ source: Source, _ str: String, _ args: any JKAShared.FormatAr
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:141
-func SourceWarning(_ source: Source, _ str: String, _ args: any JKAShared.FormatArg...) {
+public func SourceWarning(_ source: Source, _ str: String, _ args: any JKAShared.FormatArg...) {
     var text = CharBuf(1024)
 
     strcpy(&text, JKAShared.format(str, args))
@@ -94,7 +94,7 @@ func SourceWarning(_ source: Source, _ str: String, _ args: any JKAShared.Format
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:165
-func PC_PushIndent(_ source: Source, _ type: Int32, _ skip: Int32) {
+public func PC_PushIndent(_ source: Source, _ type: Int32, _ skip: Int32) {
     let indent: Indent
 
     indent = Indent(GetMemory(Int32(Indent.byteCount))!)
@@ -113,7 +113,7 @@ func PC_PushIndent(_ source: Source, _ type: Int32, _ skip: Int32) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:183
-func PC_PopIndent(_ source: Source, _ type: inout Int32, _ skip: inout Int32) {
+public func PC_PopIndent(_ source: Source, _ type: inout Int32, _ skip: inout Int32) {
     type = 0
     skip = 0
 
@@ -136,7 +136,7 @@ func PC_PopIndent(_ source: Source, _ type: inout Int32, _ skip: inout Int32) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:208
-func PC_PushScript(_ source: Source, _ script: Script) {
+public func PC_PushScript(_ source: Source, _ script: Script) {
     var s: Script?
 
     s = source.scriptstack
@@ -159,7 +159,7 @@ func PC_PushScript(_ source: Source, _ script: Script) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:230
-func PC_InitTokenHeap() {
+public func PC_InitTokenHeap() {
     /*
     int i;
 
@@ -181,7 +181,7 @@ func PC_InitTokenHeap() {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:251
-func PC_CopyToken(_ token: Token) -> Token? {
+public func PC_CopyToken(_ token: Token) -> Token? {
     let t: Token?
 
 //	t = (token_t *) malloc(sizeof(token_t));
@@ -205,7 +205,7 @@ func PC_CopyToken(_ token: Token) -> Token? {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:279
-func PC_FreeToken(_ token: Token) {
+public func PC_FreeToken(_ token: Token) {
     //free(token);
     FreeMemory(token.handle)
 //	token->next = freetokens;
@@ -220,7 +220,7 @@ func PC_FreeToken(_ token: Token) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:293
-func PC_ReadSourceToken(_ source: Source, _ token: Token) -> Int32 {
+public func PC_ReadSourceToken(_ source: Source, _ token: Token) -> Int32 {
     let t: Token?
     var script: Script?
     var type: Int32 = 0, skip: Int32 = 0
@@ -262,7 +262,7 @@ func PC_ReadSourceToken(_ source: Source, _ token: Token) -> Int32 {
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:336
 @discardableResult
-func PC_UnreadSourceToken(_ source: Source, _ token: Token) -> Int32 {
+public func PC_UnreadSourceToken(_ source: Source, _ token: Token) -> Int32 {
     let t: Token?
 
     t = PC_CopyToken(token)
@@ -278,7 +278,7 @@ func PC_UnreadSourceToken(_ source: Source, _ token: Token) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:351
-func PC_ReadDefineParms(_ source: Source, _ define: Define, _ parms: inout [Token?], _ maxparms: Int32) -> Int32 {
+public func PC_ReadDefineParms(_ source: Source, _ define: Define, _ parms: inout [Token?], _ maxparms: Int32) -> Int32 {
     Token.scratch { token -> Int32 in
         var t: Token?, last: Token?
         var i: Int32, done: Int32, lastcomma: Int32, numparms: Int32, indent: Int32
@@ -376,7 +376,7 @@ func PC_ReadDefineParms(_ source: Source, _ define: Define, _ parms: inout [Toke
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:450
-func PC_StringizeTokens(_ tokens: Token?, _ token: Token) -> Int32 {
+public func PC_StringizeTokens(_ tokens: Token?, _ token: Token) -> Int32 {
     var t: Token?
 
     token.type = TT_STRING
@@ -401,7 +401,7 @@ func PC_StringizeTokens(_ tokens: Token?, _ token: Token) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:472
-func PC_MergeTokens(_ t1: Token, _ t2: Token) -> Int32 {
+public func PC_MergeTokens(_ t1: Token, _ t2: Token) -> Int32 {
     //merging of a name with a name or number
     if t1.type == TT_NAME && (t2.type == TT_NAME || t2.type == TT_NUMBER) {
         strcat(&t1.stringBuffer, t2.string)
@@ -426,7 +426,7 @@ func PC_MergeTokens(_ t1: Token, _ t2: Token) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:516
-func PC_PrintDefineHashTable(_ definehash: Slots<Define?>) {
+public func PC_PrintDefineHashTable(_ definehash: Slots<Define?>) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     var i: Int32
     var d: Define?
@@ -445,7 +445,7 @@ func PC_PrintDefineHashTable(_ definehash: Slots<Define?>) {
 } //end of the function PC_PrintDefineHashTable
 
 /// Source: oracle/codemp/botlib/l_precomp.cpp:539
-func PC_NameHash(_ name: String) -> Int32 {
+public func PC_NameHash(_ name: String) -> Int32 {
     let name = CharBuf(name)
     var hash: Int32, i: Int32
 
@@ -468,7 +468,7 @@ func PC_NameHash(_ name: String) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:559
-func PC_AddDefineToHash(_ define: Define, _ definehash: Slots<Define?>) {
+public func PC_AddDefineToHash(_ define: Define, _ definehash: Slots<Define?>) {
     var hash: Int32
     // Raven writes his own `definehash` parameter, so the body writes a local of the same name.
     var definehash = definehash
@@ -495,7 +495,7 @@ func PC_AddDefineToHash(_ define: Define, _ definehash: Slots<Define?>) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:585
-func PC_FindHashedDefine(_ definehash: Slots<Define?>, _ name: String) -> Define? {
+public func PC_FindHashedDefine(_ definehash: Slots<Define?>, _ name: String) -> Define? {
     var d: Define?
     var hash: Int32
 
@@ -515,7 +515,7 @@ func PC_FindHashedDefine(_ definehash: Slots<Define?>, _ name: String) -> Define
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:604
-func PC_FindDefine(_ defines: Define, _ name: String) -> Define? {
+public func PC_FindDefine(_ defines: Define, _ name: String) -> Define? {
     // Port-note: Every call of Raven's stands in an arm that `DEFINEHASHING` turns off, so it is dead.
     var d: Define?
 
@@ -535,7 +535,7 @@ func PC_FindDefine(_ defines: Define, _ name: String) -> Define? {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:621
-func PC_FindDefineParm(_ define: Define, _ name: String) -> Int32 {
+public func PC_FindDefineParm(_ define: Define, _ name: String) -> Int32 {
     var p: Token?
     var i: Int32
 
@@ -556,7 +556,7 @@ func PC_FindDefineParm(_ define: Define, _ name: String) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:640
-func PC_FreeDefine(_ define: Define) {
+public func PC_FreeDefine(_ define: Define) {
     var t: Token?, next: Token?
 
     //free the define parameters
@@ -584,7 +584,7 @@ func PC_FreeDefine(_ define: Define) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:665
-func PC_AddBuiltinDefines(_ source: Source) {
+public func PC_AddBuiltinDefines(_ source: Source) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     var i: Int32
     var define: Define
@@ -618,7 +618,7 @@ func PC_AddBuiltinDefines(_ source: Source) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:705
-func PC_ExpandBuiltinDefine(_ source: Source, _ deftoken: Token, _ define: Define, _ firsttoken: inout Token?, _ lasttoken: inout Token?) -> Int32 {
+public func PC_ExpandBuiltinDefine(_ source: Source, _ deftoken: Token, _ define: Define, _ firsttoken: inout Token?, _ lasttoken: inout Token?) -> Int32 {
     let token: Token
     var t: UInt32 //	time_t t; //to prevent LCC warning
     var curtime: CharBuf
@@ -682,7 +682,7 @@ func PC_ExpandBuiltinDefine(_ source: Source, _ deftoken: Token, _ define: Defin
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:782
-func PC_ExpandDefine(_ source: Source, _ deftoken: Token, _ define: Define, _ firsttoken: inout Token?, _ lasttoken: inout Token?) -> Int32 {
+public func PC_ExpandDefine(_ source: Source, _ deftoken: Token, _ define: Define, _ firsttoken: inout Token?, _ lasttoken: inout Token?) -> Int32 {
     var parms = [Token?](repeating: nil, count: Int(MAX_DEFINEPARMS))
     var dt: Token?, pt: Token?, t: Token?
     var t1: Token?, t2: Token?, first: Token?, last: Token?, nextpt: Token?
@@ -804,7 +804,7 @@ func PC_ExpandDefine(_ source: Source, _ deftoken: Token, _ define: Define, _ fi
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:920
-func PC_ExpandDefineIntoSource(_ source: Source, _ deftoken: Token, _ define: Define) -> Int32 {
+public func PC_ExpandDefineIntoSource(_ source: Source, _ deftoken: Token, _ define: Define) -> Int32 {
     var firsttoken: Token?, lasttoken: Token?
 
     if PC_ExpandDefine(source, deftoken, define, &firsttoken, &lasttoken) == 0 { return 0 }
@@ -824,7 +824,7 @@ func PC_ExpandDefineIntoSource(_ source: Source, _ deftoken: Token, _ define: De
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:940
-func PC_ConvertPath(_ path: inout JKAShared.CharBuf) {
+public func PC_ConvertPath(_ path: inout JKAShared.CharBuf) {
     var ptr: Int32
 
     //remove double path seperators
@@ -856,7 +856,7 @@ func PC_ConvertPath(_ path: inout JKAShared.CharBuf) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:970
-func PC_Directive_include(_ source: Source) -> Int32 {
+public func PC_Directive_include(_ source: Source) -> Int32 {
     return Token.scratch { token -> Int32 in
         var script: Script?
         var path = CharBuf(MAX_PATH)
@@ -923,7 +923,7 @@ func PC_Directive_include(_ source: Source) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1062
-func PC_ReadLine(_ source: Source, _ token: Token) -> Int32 {
+public func PC_ReadLine(_ source: Source, _ token: Token) -> Int32 {
     var crossline: Int32
 
     crossline = 0
@@ -946,7 +946,7 @@ func PC_ReadLine(_ source: Source, _ token: Token) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1086
-func PC_WhiteSpaceBeforeToken(_ token: Token) -> Int32 {
+public func PC_WhiteSpaceBeforeToken(_ token: Token) -> Int32 {
     return (token.endwhitespace_p - token.whitespace_p > 0) ? 1 : 0
 } //end of the function PC_WhiteSpaceBeforeToken
 
@@ -957,7 +957,7 @@ func PC_WhiteSpaceBeforeToken(_ token: Token) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1096
-func PC_ClearTokenWhiteSpace(_ token: Token) {
+public func PC_ClearTokenWhiteSpace(_ token: Token) {
     // AI: Raven stores NULL in the two pointers. The fields hold a byte offset, and the offset 0 is the bits of NULL.
     token.whitespace_p = 0
     token.endwhitespace_p = 0
@@ -971,7 +971,7 @@ func PC_ClearTokenWhiteSpace(_ token: Token) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1108
-func PC_Directive_undef(_ source: Source) -> Int32 {
+public func PC_Directive_undef(_ source: Source) -> Int32 {
     return Token.scratch { token -> Int32 in
         var define: Define?, lastdefine: Define?
         var hash: Int32
@@ -1019,7 +1019,7 @@ func PC_Directive_undef(_ source: Source) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1180
-func PC_Directive_define(_ source: Source) -> Int32 {
+public func PC_Directive_define(_ source: Source) -> Int32 {
     return Token.scratch { token -> Int32 in
         var t: Token?, last: Token?
         var define: Define?
@@ -1134,7 +1134,7 @@ func PC_Directive_define(_ source: Source) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1323
-func PC_DefineFromString(_ string: String) -> Define? {
+public func PC_DefineFromString(_ string: String) -> Define? {
     // Port-note: The two calls of Raven's stand in PC_AddDefine, which no file calls, and in an arm that `DEFINEHASHING` turns off, so it is dead.
     return Source.scratch { src -> Define? in
         let script: Script?
@@ -1190,7 +1190,7 @@ func PC_DefineFromString(_ string: String) -> Define? {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1381
-func PC_AddDefine(_ source: Source, _ string: String) -> Int32 {
+public func PC_AddDefine(_ source: Source, _ string: String) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     let define: Define?
 
@@ -1212,7 +1212,7 @@ func PC_AddDefine(_ source: Source, _ string: String) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1407
-func PC_AddGlobalDefine(_ string: String) -> Int32 {
+public func PC_AddGlobalDefine(_ string: String) -> Int32 {
     return 1
 } //end of the function PC_AddGlobalDefine
 
@@ -1224,7 +1224,7 @@ func PC_AddGlobalDefine(_ string: String) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1426
-func PC_RemoveGlobalDefine(_ name: String) -> Int32 {
+public func PC_RemoveGlobalDefine(_ name: String) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     return 0
 } //end of the function PC_RemoveGlobalDefine
@@ -1237,7 +1237,7 @@ func PC_RemoveGlobalDefine(_ name: String) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1447
-func PC_RemoveAllGlobalDefines() {
+public func PC_RemoveAllGlobalDefines() {
     var define: Define?
 
     var i: Int32
@@ -1261,7 +1261,7 @@ func PC_RemoveAllGlobalDefines() {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1479
-func PC_CopyDefine(_ source: Source, _ define: Define) -> Define? {
+public func PC_CopyDefine(_ source: Source, _ define: Define) -> Define? {
     // Port-note: The one call of Raven's stands in an arm that `DEFINEHASHING` turns off, so it is dead.
     let newdefine: Define
     var token: Token?, newtoken: Token?, lasttoken: Token?
@@ -1308,7 +1308,7 @@ func PC_CopyDefine(_ source: Source, _ define: Define) -> Define? {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1522
-func PC_AddGlobalDefinesToSource(_ source: Source) {
+public func PC_AddGlobalDefinesToSource(_ source: Source) {
     var define: Define?
 
     var i: Int32
@@ -1332,7 +1332,7 @@ func PC_AddGlobalDefinesToSource(_ source: Source) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1558
-func PC_Directive_if_def(_ source: Source, _ type: Int32) -> Int32 {
+public func PC_Directive_if_def(_ source: Source, _ type: Int32) -> Int32 {
     return Token.scratch { token -> Int32 in
         var d: Define?
         var skip: Int32
@@ -1360,7 +1360,7 @@ func PC_Directive_if_def(_ source: Source, _ type: Int32) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1590
-func PC_Directive_ifdef(_ source: Source) -> Int32 {
+public func PC_Directive_ifdef(_ source: Source) -> Int32 {
     return PC_Directive_if_def(source, INDENT_IFDEF)
 } //end of the function PC_Directive_ifdef
 
@@ -1371,7 +1371,7 @@ func PC_Directive_ifdef(_ source: Source) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1600
-func PC_Directive_ifndef(_ source: Source) -> Int32 {
+public func PC_Directive_ifndef(_ source: Source) -> Int32 {
     return PC_Directive_if_def(source, INDENT_IFNDEF)
 } //end of the function PC_Directive_ifndef
 
@@ -1382,7 +1382,7 @@ func PC_Directive_ifndef(_ source: Source) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1610
-func PC_Directive_else(_ source: Source) -> Int32 {
+public func PC_Directive_else(_ source: Source) -> Int32 {
     var type: Int32 = 0, skip: Int32 = 0
 
     PC_PopIndent(source, &type, &skip)
@@ -1405,7 +1405,7 @@ func PC_Directive_else(_ source: Source) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1634
-func PC_Directive_endif(_ source: Source) -> Int32 {
+public func PC_Directive_endif(_ source: Source) -> Int32 {
     var type: Int32 = 0, skip: Int32 = 0
 
     PC_PopIndent(source, &type, &skip)
@@ -1417,7 +1417,7 @@ func PC_Directive_endif(_ source: Source) -> Int32 {
 } //end of the function PC_Directive_endif
 
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1668
-func PC_OperatorPriority(_ op: Int32) -> Int32 {
+public func PC_OperatorPriority(_ op: Int32) -> Int32 {
     switch op {
     case P_MUL: return 15
     case P_DIV: return 15
@@ -1452,7 +1452,7 @@ func PC_OperatorPriority(_ op: Int32) -> Int32 {
 } //end of the function PC_OperatorPriority
 
 /// Source: oracle/codemp/botlib/l_precomp.cpp:1730
-func PC_EvaluateTokens(_ source: Source, _ tokens: Token, _ intvalue: UnsafeMutablePointer<Int32>?, _ floatvalue: UnsafeMutablePointer<Double>?, _ integer: Int32) -> Int32 {
+public func PC_EvaluateTokens(_ source: Source, _ tokens: Token, _ intvalue: UnsafeMutablePointer<Int32>?, _ floatvalue: UnsafeMutablePointer<Double>?, _ integer: Int32) -> Int32 {
     // Raven's `operator_heap` and `value_heap` live to the end of the function, so the blocks are the closures.
     return Operator.scratch(count: Int(MAX_OPERATORS)) { operator_heap -> Int32 in
         Value.scratch(count: Int(MAX_VALUES)) { value_heap -> Int32 in
@@ -1827,7 +1827,7 @@ func PC_EvaluateTokens(_ source: Source, _ tokens: Token, _ intvalue: UnsafeMuta
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2184
-func PC_Evaluate(_ source: Source, _ intvalue: UnsafeMutablePointer<Int32>?, _ floatvalue: UnsafeMutablePointer<Double>?, _ integer: Int32) -> Int32 {
+public func PC_Evaluate(_ source: Source, _ intvalue: UnsafeMutablePointer<Int32>?, _ floatvalue: UnsafeMutablePointer<Double>?, _ integer: Int32) -> Int32 {
     var defined: Bool = false
 
     if intvalue != nil { intvalue!.pointee = 0 }
@@ -1904,7 +1904,7 @@ func PC_Evaluate(_ source: Source, _ intvalue: UnsafeMutablePointer<Int32>?, _ f
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2283
-func PC_DollarEvaluate(_ source: Source, _ intvalue: UnsafeMutablePointer<Int32>?, _ floatvalue: UnsafeMutablePointer<Double>?, _ integer: Int32) -> Int32 {
+public func PC_DollarEvaluate(_ source: Source, _ intvalue: UnsafeMutablePointer<Int32>?, _ floatvalue: UnsafeMutablePointer<Double>?, _ integer: Int32) -> Int32 {
     var defined: Bool = false
 
     if intvalue != nil { intvalue!.pointee = 0 }
@@ -1993,7 +1993,7 @@ func PC_DollarEvaluate(_ source: Source, _ intvalue: UnsafeMutablePointer<Int32>
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2391
-func PC_Directive_elif(_ source: Source) -> Int32 {
+public func PC_Directive_elif(_ source: Source) -> Int32 {
     var value: Int32 = 0
     var type: Int32 = 0, skip: Int32 = 0
 
@@ -2015,7 +2015,7 @@ func PC_Directive_elif(_ source: Source) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2413
-func PC_Directive_if(_ source: Source) -> Int32 {
+public func PC_Directive_if(_ source: Source) -> Int32 {
     var value: Int32 = 0
     var skip: Int32
 
@@ -2032,7 +2032,7 @@ func PC_Directive_if(_ source: Source) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2429
-func PC_Directive_line(_ source: Source) -> Int32 {
+public func PC_Directive_line(_ source: Source) -> Int32 {
     SourceError(source, "#line directive not supported")
     return 0
 } //end of the function PC_Directive_line
@@ -2044,7 +2044,7 @@ func PC_Directive_line(_ source: Source) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2440
-func PC_Directive_error(_ source: Source) -> Int32 {
+public func PC_Directive_error(_ source: Source) -> Int32 {
     return Token.scratch { token -> Int32 in
         strcpy(&token.stringBuffer, "")
         _ = PC_ReadSourceToken(source, token)
@@ -2060,7 +2060,7 @@ func PC_Directive_error(_ source: Source) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2455
-func PC_Directive_pragma(_ source: Source) -> Int32 {
+public func PC_Directive_pragma(_ source: Source) -> Int32 {
     return Token.scratch { token -> Int32 in
         SourceWarning(source, "#pragma directive not supported")
         while PC_ReadLine(source, token) != 0 {}
@@ -2075,7 +2075,7 @@ func PC_Directive_pragma(_ source: Source) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2469
-func UnreadSignToken(_ source: Source) {
+public func UnreadSignToken(_ source: Source) {
     Token.scratch { token in
         token.line = source.scriptstack!.line
         token.whitespace_p = source.scriptstack!.script_p
@@ -2095,7 +2095,7 @@ func UnreadSignToken(_ source: Source) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2488
-func PC_Directive_eval(_ source: Source) -> Int32 {
+public func PC_Directive_eval(_ source: Source) -> Int32 {
     var value: Int32 = 0
 
     return Token.scratch { token -> Int32 in
@@ -2121,7 +2121,7 @@ func PC_Directive_eval(_ source: Source) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2512
-func PC_Directive_evalfloat(_ source: Source) -> Int32 {
+public func PC_Directive_evalfloat(_ source: Source) -> Int32 {
     var value: Double = 0
 
     return Token.scratch { token -> Int32 in
@@ -2140,7 +2140,7 @@ func PC_Directive_evalfloat(_ source: Source) -> Int32 {
 } //end of the function PC_Directive_evalfloat
 
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2554
-func PC_ReadDirective(_ source: Source) -> Int32 {
+public func PC_ReadDirective(_ source: Source) -> Int32 {
     return Token.scratch { token -> Int32 in
         var i: Int32
 
@@ -2178,7 +2178,7 @@ func PC_ReadDirective(_ source: Source) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2593
-func PC_DollarDirective_evalint(_ source: Source) -> Int32 {
+public func PC_DollarDirective_evalint(_ source: Source) -> Int32 {
     var value: Int32 = 0
 
     return Token.scratch { token -> Int32 in
@@ -2207,7 +2207,7 @@ func PC_DollarDirective_evalint(_ source: Source) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2621
-func PC_DollarDirective_evalfloat(_ source: Source) -> Int32 {
+public func PC_DollarDirective_evalfloat(_ source: Source) -> Int32 {
     var value: Double = 0
 
     return Token.scratch { token -> Int32 in
@@ -2230,7 +2230,7 @@ func PC_DollarDirective_evalfloat(_ source: Source) -> Int32 {
 } //end of the function PC_DollarDirective_evalfloat
 
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2655
-func PC_ReadDollarDirective(_ source: Source) -> Int32 {
+public func PC_ReadDollarDirective(_ source: Source) -> Int32 {
     return Token.scratch { token -> Int32 in
         var i: Int32
 
@@ -2269,7 +2269,7 @@ func PC_ReadDollarDirective(_ source: Source) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2749
-func PC_ReadToken(_ source: Source, _ token: Token) -> Int32 {
+public func PC_ReadToken(_ source: Source, _ token: Token) -> Int32 {
     var define: Define?
 
     while true {
@@ -2344,7 +2344,7 @@ func PC_ReadToken(_ source: Source, _ token: Token) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2844
-func PC_ExpectTokenString(_ source: Source, _ string: String) -> Int32 {
+public func PC_ExpectTokenString(_ source: Source, _ string: String) -> Int32 {
     return Token.scratch { token -> Int32 in
         if PC_ReadToken(source, token) == 0 {
             SourceError(source, "couldn't find expected %s", string)
@@ -2366,7 +2366,7 @@ func PC_ExpectTokenString(_ source: Source, _ string: String) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2867
-func PC_ExpectTokenType(_ source: Source, _ type: Int32, _ subtype: Int32, _ token: Token) -> Int32 {
+public func PC_ExpectTokenType(_ source: Source, _ type: Int32, _ subtype: Int32, _ token: Token) -> Int32 {
     var str = CharBuf(MAX_TOKEN)
 
     if PC_ReadToken(source, token) == 0 {
@@ -2414,7 +2414,7 @@ func PC_ExpectTokenType(_ source: Source, _ type: Int32, _ subtype: Int32, _ tok
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2920
-func PC_ExpectAnyToken(_ source: Source, _ token: Token) -> Int32 {
+public func PC_ExpectAnyToken(_ source: Source, _ token: Token) -> Int32 {
     if PC_ReadToken(source, token) == 0 {
         SourceError(source, "couldn't read expected token")
         return 0
@@ -2431,7 +2431,7 @@ func PC_ExpectAnyToken(_ source: Source, _ token: Token) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2938
-func PC_CheckTokenString(_ source: Source, _ string: String) -> Int32 {
+public func PC_CheckTokenString(_ source: Source, _ string: String) -> Int32 {
     return Token.scratch { tok -> Int32 in
         if PC_ReadToken(source, tok) == 0 { return 0 }
         //if the token is available
@@ -2449,7 +2449,7 @@ func PC_CheckTokenString(_ source: Source, _ string: String) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2955
-func PC_CheckTokenType(_ source: Source, _ type: Int32, _ subtype: Int32, _ token: Token) -> Int32 {
+public func PC_CheckTokenType(_ source: Source, _ type: Int32, _ subtype: Int32, _ token: Token) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     return Token.scratch { tok -> Int32 in
         if PC_ReadToken(source, tok) == 0 { return 0 }
@@ -2472,7 +2472,7 @@ func PC_CheckTokenType(_ source: Source, _ type: Int32, _ subtype: Int32, _ toke
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2977
-func PC_SkipUntilString(_ source: Source, _ string: String) -> Int32 {
+public func PC_SkipUntilString(_ source: Source, _ string: String) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     return Token.scratch { token -> Int32 in
         while PC_ReadToken(source, token) != 0 {
@@ -2489,7 +2489,7 @@ func PC_SkipUntilString(_ source: Source, _ string: String) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2993
-func PC_UnreadLastToken(_ source: Source) {
+public func PC_UnreadLastToken(_ source: Source) {
     PC_UnreadSourceToken(source, source.token)
 } //end of the function PC_UnreadLastToken
 
@@ -2500,7 +2500,7 @@ func PC_UnreadLastToken(_ source: Source) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3003
-func PC_UnreadToken(_ source: Source, _ token: Token) {
+public func PC_UnreadToken(_ source: Source, _ token: Token) {
     PC_UnreadSourceToken(source, token)
 } //end of the function PC_UnreadToken
 
@@ -2511,7 +2511,7 @@ func PC_UnreadToken(_ source: Source, _ token: Token) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3013
-func PC_SetIncludePath(_ source: Source, _ path: String) {
+public func PC_SetIncludePath(_ source: Source, _ path: String) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     strncpy(&source.includepathBuffer, path, MAX_PATH)
     //add trailing path seperator
@@ -2531,7 +2531,7 @@ func PC_SetIncludePath(_ source: Source, _ path: String) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3029
-func PC_SetPunctuations(_ source: Source, _ p: Punctuation) {
+public func PC_SetPunctuations(_ source: Source, _ p: Punctuation) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     source.punctuations = p
 } //end of the function PC_SetPunctuations
@@ -2543,7 +2543,7 @@ func PC_SetPunctuations(_ source: Source, _ p: Punctuation) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3039
-func LoadSourceFile(_ filename: String) -> Source? {
+public func LoadSourceFile(_ filename: String) -> Source? {
     let source: Source
     let script: Script?
 
@@ -2582,7 +2582,7 @@ func LoadSourceFile(_ filename: String) -> Source? {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3080
-func LoadSourceMemory(_ ptr: String, _ length: Int32, _ name: String) -> Source? {
+public func LoadSourceMemory(_ ptr: String, _ length: Int32, _ name: String) -> Source? {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     let source: Source
     let script: Script?
@@ -2616,7 +2616,7 @@ func LoadSourceMemory(_ ptr: String, _ length: Int32, _ name: String) -> Source?
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3113
-func FreeSource(_ source: Source) {
+public func FreeSource(_ source: Source) {
     var script: Script?
     var token: Token?
     var define: Define?
@@ -2666,7 +2666,7 @@ func FreeSource(_ source: Source) {
 } //end of the function FreeSource
 
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3189
-func PC_LoadSourceHandle(_ filename: String) -> Int32 {
+public func PC_LoadSourceHandle(_ filename: String) -> Int32 {
     let source: Source?
     var i: Int32
 
@@ -2696,7 +2696,7 @@ func PC_LoadSourceHandle(_ filename: String) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3214
-func PC_FreeSourceHandle(_ handle: Int32) -> Int32 {
+public func PC_FreeSourceHandle(_ handle: Int32) -> Int32 {
     if handle < 1 || handle >= MAX_SOURCEFILES {
         return 0
     }
@@ -2710,7 +2710,7 @@ func PC_FreeSourceHandle(_ handle: Int32) -> Int32 {
 } //end of the function PC_FreeSourceHandle
 
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3226
-func PC_LoadGlobalDefines(_ filename: String) -> Int32 {
+public func PC_LoadGlobalDefines(_ filename: String) -> Int32 {
     return Token.scratch { token -> Int32 in
         var handle: Int32
 
@@ -2739,7 +2739,7 @@ func PC_LoadGlobalDefines(_ filename: String) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3253
-func PC_ReadTokenHandle(_ handle: Int32, _ pc_token: JKAMP.PcToken) -> Int32 {
+public func PC_ReadTokenHandle(_ handle: Int32, _ pc_token: JKAMP.PcToken) -> Int32 {
     return Token.scratch { token -> Int32 in
         var ret: Int32
 
@@ -2772,7 +2772,7 @@ func PC_ReadTokenHandle(_ handle: Int32, _ pc_token: JKAMP.PcToken) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3280
-func PC_SourceFileAndLine(_ handle: Int32, _ filename: inout JKAShared.CharBuf, _ line: inout Int32) -> Int32 {
+public func PC_SourceFileAndLine(_ handle: Int32, _ filename: inout JKAShared.CharBuf, _ line: inout Int32) -> Int32 {
     if handle < 1 || handle >= MAX_SOURCEFILES {
         return 0
     }
@@ -2796,7 +2796,7 @@ func PC_SourceFileAndLine(_ handle: Int32, _ filename: inout JKAShared.CharBuf, 
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3300
-func PC_SetBaseFolder(_ path: String) {
+public func PC_SetBaseFolder(_ path: String) {
     PS_SetBaseFolder(path)
 } //end of the function PC_SetBaseFolder
 
@@ -2807,7 +2807,7 @@ func PC_SetBaseFolder(_ path: String) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_precomp.cpp:3310
-func PC_CheckOpenSourceHandles() {
+public func PC_CheckOpenSourceHandles() {
     var i: Int32
 
     i = 1

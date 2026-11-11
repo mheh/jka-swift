@@ -4,19 +4,19 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:41
-var se_language: JKAMP.Cvar? {
+public var se_language: JKAMP.Cvar? {
     get { world.variables.se_language }
     set { world.variables.se_language = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:42
-var se_debug: JKAMP.Cvar? {
+public var se_debug: JKAMP.Cvar? {
     get { world.variables.se_debug }
     set { world.variables.se_debug = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:43
-var sp_leet: JKAMP.Cvar? {
+public var sp_leet: JKAMP.Cvar? {
     get { world.variables.sp_leet }
     set { world.variables.sp_leet = newValue }
 }
@@ -639,7 +639,7 @@ extension CStringEdPackage {
 
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:752
 // AI: Raven keeps the text in a static std::string and returns its c_str. The function keeps it in a local buffer and returns its String, by row C6.
-func Leetify(_ psString: String) -> String {
+public func Leetify(_ psString: String) -> String {
     var str = CharBuf(psString)
     if sp_leet!.integer == 42 {	// very specific test, so you won't hit it accidentally
         let cReplace = CharBuf(bytes: [
@@ -783,7 +783,7 @@ private func SE_GetFoundFile(_ strResult: inout String) -> String? {
 // return is either NULL for good else error message to display...
 //
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:910
-func SE_Load(_ psFileName: String, _ bLoadDebug: Bool = true, _ bFailIsCritical: Bool = true) -> String? {
+public func SE_Load(_ psFileName: String, _ bLoadDebug: Bool = true, _ bFailIsCritical: Bool = true) -> String? {
     // Raven sets his own `psFileName` parameter to the built name, so the body takes a copy.
     var psFileName = psFileName
     ////////////////////////////////////////////////////
@@ -837,7 +837,7 @@ func SE_Load(_ psFileName: String, _ bLoadDebug: Bool = true, _ bFailIsCritical:
 // convenience-function for the main GetString call...
 //
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:971
-func SE_GetString(_ psPackageReference: String, _ psStringReference: String) -> String {
+public func SE_GetString(_ psPackageReference: String, _ psStringReference: String) -> String {
     var sReference = CharBuf(256)	// will always be enough, I've never seen one more than about 30 chars long
 
     // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of sReference.
@@ -848,7 +848,7 @@ func SE_GetString(_ psPackageReference: String, _ psStringReference: String) -> 
 }
 
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:981
-func SE_GetString(_ psPackageAndStringReference: String) -> String {
+public func SE_GetString(_ psPackageAndStringReference: String) -> String {
     var sReference = CharBuf(256)	// will always be enough, I've never seen one more than about 30 chars long
     Q_strncpyz(&sReference, psPackageAndStringReference, Int32(sReference.count))
     Q_strupr(&sReference)
@@ -870,7 +870,7 @@ func SE_GetString(_ psPackageAndStringReference: String) -> String {
 // convenience-function for the main GetFlags call...
 //
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:1012
-func SE_GetFlags(_ psPackageReference: String, _ psStringReference: String) -> Int32 {
+public func SE_GetFlags(_ psPackageReference: String, _ psStringReference: String) -> Int32 {
     var sReference = CharBuf(256)	// will always be enough, I've never seen one more than about 30 chars long
 
     // AI: Raven calls sprintf with no size. The body calls Com_sprintf with the size of sReference.
@@ -880,7 +880,7 @@ func SE_GetFlags(_ psPackageReference: String, _ psStringReference: String) -> I
 }
 
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:1021
-func SE_GetFlags(_ psPackageAndStringReference: String) -> Int32 {
+public func SE_GetFlags(_ psPackageAndStringReference: String) -> Int32 {
     if let Entry = TheStringPackage.m_StringEntries[psPackageAndStringReference] {
         return Entry.m_iFlags
     }
@@ -893,13 +893,13 @@ func SE_GetFlags(_ psPackageAndStringReference: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:1039
-func SE_GetNumFlags() -> Int32 {
+public func SE_GetNumFlags() -> Int32 {
     return Int32(TheStringPackage.m_vstrFlagNames.count)
 }
 
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:1044
 // AI: Raven compares the int with the unsigned size, so a negative index fails the test. The body converts the index the same way.
-func SE_GetFlagName(_ iFlagIndex: Int32) -> String {
+public func SE_GetFlagName(_ iFlagIndex: Int32) -> String {
     if UInt32(bitPattern: iFlagIndex) < TheStringPackage.m_vstrFlagNames.count {
         return TheStringPackage.m_vstrFlagNames[iFlagIndex]
     }
@@ -911,7 +911,7 @@ func SE_GetFlagName(_ iFlagIndex: Int32) -> String {
 // returns flag bitmask (eg 00000010b), else 0 for not found
 //
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:1057
-func SE_GetFlagMask(_ psFlagName: String) -> Int32 {
+public func SE_GetFlagMask(_ psFlagName: String) -> Int32 {
     return TheStringPackage.GetFlagMask(psFlagName)
 }
 
@@ -925,13 +925,13 @@ func SE_GetFlagMask(_ psFlagName: String) -> Int32 {
 //	every level-load...  Ok, cacheing it is...
 //
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:1071
-var gvLanguagesAvailable: [String] {
+public var gvLanguagesAvailable: [String] {
     get { world.gvLanguagesAvailable }
     set { world.gvLanguagesAvailable = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:1072
-func SE_GetNumLanguages() -> Int32 {
+public func SE_GetNumLanguages() -> Int32 {
     if gvLanguagesAvailable.isEmpty {
         var strResults = ""
         /*int iFilesFound = */SE_BuildFileList(sSE_STRINGS_DIR, &strResults)
@@ -969,7 +969,7 @@ func SE_GetNumLanguages() -> Int32 {
 //
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:1120
 // AI: Raven compares the int with the unsigned size, so a negative index fails the test. The body converts the index the same way.
-func SE_GetLanguageName(_ iLangIndex: Int32) -> String {
+public func SE_GetLanguageName(_ iLangIndex: Int32) -> String {
     if UInt32(bitPattern: iLangIndex) < gvLanguagesAvailable.count {
         return gvLanguagesAvailable[iLangIndex]
     }
@@ -982,7 +982,7 @@ func SE_GetLanguageName(_ iLangIndex: Int32) -> String {
 //
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:1133
 // AI: Raven compares the int with the unsigned size, so a negative index fails the test. The body converts the index the same way.
-func SE_GetLanguageDir(_ iLangIndex: Int32) -> String {
+public func SE_GetLanguageDir(_ iLangIndex: Int32) -> String {
     if UInt32(bitPattern: iLangIndex) < gvLanguagesAvailable.count {
         return va("%s/%s", sSE_STRINGS_DIR, gvLanguagesAvailable[iLangIndex])
     }
@@ -992,7 +992,7 @@ func SE_GetLanguageDir(_ iLangIndex: Int32) -> String {
 }
 
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:1144
-func SE_NewLanguage() {
+public func SE_NewLanguage() {
     TheStringPackage.Clear(true)
 }
 
@@ -1002,7 +1002,7 @@ func SE_NewLanguage() {
 // but here they are for completeness's sake I guess...
 //
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:1156
-func SE_Init() {
+public func SE_Init() {
     TheStringPackage.Clear(false)
 
     se_language = Cvar_Get("se_language", "english", CVAR_ARCHIVE | CVAR_NORESTART)
@@ -1029,7 +1029,7 @@ func SE_Init() {
 }
 
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:1198
-func SE_ShutDown() {
+public func SE_ShutDown() {
     TheStringPackage.Clear(false)
 }
 
@@ -1038,7 +1038,7 @@ func SE_ShutDown() {
 // Any errors that result from this should probably be treated as game-fatal, since an asset file is fuxored.
 //
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:1208
-func SE_LoadLanguage(_ psLanguage: String, _ bLoadDebug: Bool = true) -> String? {
+public func SE_LoadLanguage(_ psLanguage: String, _ bLoadDebug: Bool = true) -> String? {
     var psErrorMessage: String? = nil
 
     if !psLanguage.isEmpty {
@@ -1066,7 +1066,7 @@ func SE_LoadLanguage(_ psLanguage: String, _ bLoadDebug: Bool = true) -> String?
 // instead of re-loading just the files we've already loaded I'm going to load the whole language (simpler)
 //
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:1250
-func SE_CheckForLanguageUpdates() {
+public func SE_CheckForLanguageUpdates() {
     if se_language != nil && se_language!.modified {
         let psErrorMessage = SE_LoadLanguage(se_language!.string!, true)
         if psErrorMessage != nil {

@@ -28,51 +28,51 @@ var cameramaxs: JKAShared.vec3_t {
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:223
-var camerafwd: JKAShared.vec3_t {
+public var camerafwd: JKAShared.vec3_t {
     get { world.variables.camerafwd }
     set { world.variables.camerafwd = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:223
-var cameraup: JKAShared.vec3_t {
+public var cameraup: JKAShared.vec3_t {
     get { world.variables.cameraup }
     set { world.variables.cameraup = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:225
-var cameraFocusAngles: JKAShared.vec3_t {
+public var cameraFocusAngles: JKAShared.vec3_t {
     get { world.variables.cameraFocusAngles }
     set { world.variables.cameraFocusAngles = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:225
-var cameraFocusLoc: JKAShared.vec3_t {
+public var cameraFocusLoc: JKAShared.vec3_t {
     get { world.variables.cameraFocusLoc }
     set { world.variables.cameraFocusLoc = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:226
-var cameraIdealTarget: JKAShared.vec3_t {
+public var cameraIdealTarget: JKAShared.vec3_t {
     get { world.variables.cameraIdealTarget }
     set { world.variables.cameraIdealTarget = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:226
-var cameraIdealLoc: JKAShared.vec3_t {
+public var cameraIdealLoc: JKAShared.vec3_t {
     get { world.variables.cameraIdealLoc }
     set { world.variables.cameraIdealLoc = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:227
 /// Raven's data table, a hand property of `CGameWorld`.
-var cameraCurTarget: JKAShared.vec3_t {
+public var cameraCurTarget: JKAShared.vec3_t {
     get { world.cameraCurTarget }
     set { world.cameraCurTarget = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:227
 /// Raven's data table, a hand property of `CGameWorld`.
-var cameraCurLoc: JKAShared.vec3_t {
+public var cameraCurLoc: JKAShared.vec3_t {
     get { world.cameraCurLoc }
     set { world.cameraCurLoc = newValue }
 }
@@ -86,19 +86,19 @@ let cameraOldLoc: JKAShared.vec3_t = vec3_t()
 let cameraNewLoc: JKAShared.vec3_t = vec3_t()
 
 /// Source: oracle/codemp/cgame/cg_view.c:229
-var cameraLastFrame: Int32 {
+public var cameraLastFrame: Int32 {
     get { world.variables.cameraLastFrame }
     set { world.variables.cameraLastFrame = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:231
-var cameraLastYaw: Float {
+public var cameraLastYaw: Float {
     get { world.variables.cameraLastYaw }
     set { world.variables.cameraLastYaw = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:232
-var cameraStiffFactor: Float {
+public var cameraStiffFactor: Float {
     get { world.variables.cameraStiffFactor }
     set { world.variables.cameraStiffFactor = newValue }
 }
@@ -110,26 +110,26 @@ let WAVE_AMPLITUDE = 1 as Int32
 let WAVE_FREQUENCY = 0.4 as Double
 
 /// Source: oracle/codemp/cgame/cg_view.c:1189
-var zoomFov: Float {
+public var zoomFov: Float {
     get { world.variables.zoomFov }
     set { world.variables.zoomFov = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:1396
-var cg_actionCamLastTime: Int32 {
+public var cg_actionCamLastTime: Int32 {
     get { world.variables.cg_actionCamLastTime }
     set { world.variables.cg_actionCamLastTime = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:1397
-var cg_actionCamLastPos: JKAShared.vec3_t {
+public var cg_actionCamLastPos: JKAShared.vec3_t {
     get { world.variables.cg_actionCamLastPos }
     set { world.variables.cg_actionCamLastPos = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:1476
 /// Raven's data table, a hand property of `CGameWorld`.
-var cg_lastTurretViewAngles: JKAShared.vec3_t {
+public var cg_lastTurretViewAngles: JKAShared.vec3_t {
     get { world.cg_lastTurretViewAngles }
     set { world.cg_lastTurretViewAngles = newValue }
 }
@@ -141,10 +141,10 @@ let CAMERA_DEFAULT_FOV = 90.0 as Float
 let MAX_SHAKE_INTENSITY = 16.0 as Float
 
 /// Source: oracle/codemp/cgame/cg_view.c:2009
-var cgScreenEffects: Cgscreffects { world.storage.cgScreenEffects }
+public var cgScreenEffects: Cgscreffects { world.storage.cgScreenEffects }
 
 /// Source: oracle/codemp/cgame/cg_view.c:2277
-var cg_autoMapZoom: Float {
+public var cg_autoMapZoom: Float {
     get { world.variables.cg_autoMapZoom }
     set { world.variables.cg_autoMapZoom = newValue }
 }
@@ -182,7 +182,7 @@ var cg_rangedFogging: Bool {
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:2435
-var cg_linearFogOverride: Float {
+public var cg_linearFogOverride: Float {
     get { world.variables.cg_linearFogOverride }
     set { world.variables.cg_linearFogOverride = newValue }
 }
@@ -204,7 +204,7 @@ can then be moved around
 ```
 */
 /// Source: oracle/codemp/cgame/cg_view.c:60
-func CG_TestModel_f() {
+public func CG_TestModel_f() {
     var angles = vec3_t()
 
     cg.testModelEntity.clear()
@@ -245,7 +245,7 @@ Replaces the current view weapon with the given model
 ```
 */
 /// Source: oracle/codemp/cgame/cg_view.c:98
-func CG_TestGun_f() {
+public func CG_TestGun_f() {
     CG_TestModel_f()
     cg.testGun = true
     //cg.testModelEntity.renderfx = RF_MINLIGHT | RF_DEPTHHACK | RF_FIRST_PERSON;
@@ -255,13 +255,13 @@ func CG_TestGun_f() {
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:108
-func CG_TestModelNextFrame_f() {
+public func CG_TestModelNextFrame_f() {
     cg.testModelEntity.frame += 1
     CG_Printf("frame %i\n", cg.testModelEntity.frame)
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:113
-func CG_TestModelPrevFrame_f() {
+public func CG_TestModelPrevFrame_f() {
     cg.testModelEntity.frame -= 1
     if cg.testModelEntity.frame < 0 {
         cg.testModelEntity.frame = 0
@@ -270,13 +270,13 @@ func CG_TestModelPrevFrame_f() {
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:121
-func CG_TestModelNextSkin_f() {
+public func CG_TestModelNextSkin_f() {
     cg.testModelEntity.skinNum += 1
     CG_Printf("skin %i\n", cg.testModelEntity.skinNum)
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:126
-func CG_TestModelPrevSkin_f() {
+public func CG_TestModelPrevSkin_f() {
     cg.testModelEntity.skinNum -= 1
     if cg.testModelEntity.skinNum < 0 {
         cg.testModelEntity.skinNum = 0
@@ -822,7 +822,7 @@ private func CG_OffsetThirdPersonView() {
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:797
-func CG_GetVehicleCamPos(_ camPos: inout JKAShared.vec3_t) {
+public func CG_GetVehicleCamPos(_ camPos: inout JKAShared.vec3_t) {
     camPos = cg.refdef.vieworg
 }
 
@@ -1027,7 +1027,7 @@ private func CG_OffsetFighterView() {
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:1105
-func CG_ZoomDown_f() {
+public func CG_ZoomDown_f() {
     if cg.zoomed {
         return
     }
@@ -1036,7 +1036,7 @@ func CG_ZoomDown_f() {
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:1113
-func CG_ZoomUp_f() {
+public func CG_ZoomUp_f() {
     if !cg.zoomed {
         return
     }
@@ -1054,7 +1054,7 @@ Calcs Y FOV from given X FOV
 ```
 */
 /// Source: oracle/codemp/cgame/cg_view.c:1130
-func CG_CalcFOVFromX(_ fov_x: Float) -> Bool {
+public func CG_CalcFOVFromX(_ fov_x: Float) -> Bool {
     let x: Float
     //	float	phase;
     //	float	v;
@@ -1367,7 +1367,7 @@ private func CG_ThirdPersonActionCam() -> Bool {
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:1477
-func CG_CheckPassengerTurretView() -> Bool {
+public func CG_CheckPassengerTurretView() -> Bool {
     if cg.predictedPlayerState.m_iVehicleNum != 0 && cg.predictedPlayerState.generic1 != 0 {
         //passenger in a vehicle
         let vehCent: Centity? = cg_entities[cg.predictedPlayerState.m_iVehicleNum]
@@ -1594,7 +1594,7 @@ private func CG_PowerupTimerSounds() {
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:1748
-func CG_DrawSkyBoxPortal(_ cstr: String) {
+public func CG_DrawSkyBoxPortal(_ cstr: String) {
     var lastfov: Float = 0
     // Raven steps his own `cstr` parameter through its bytes, so the body walks a TextCursor over a copy of them.
     var cstr = TextCursor(CharBuf(cstr))
@@ -1770,7 +1770,7 @@ CG_AddBufferedSound
 ```
 */
 /// Source: oracle/codemp/cgame/cg_view.c:1942
-func CG_AddBufferedSound(_ sfx: JKAShared.sfxHandle_t) {
+public func CG_AddBufferedSound(_ sfx: JKAShared.sfxHandle_t) {
     if sfx == 0 {
         return
     }
@@ -1801,7 +1801,7 @@ private func CG_PlayBufferedSounds() {
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:1968
-func CG_UpdateSoundTrackers() {
+public func CG_UpdateSoundTrackers() {
     var num: Int32
     var cent: Centity?
 
@@ -1829,7 +1829,7 @@ func CG_UpdateSoundTrackers() {
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:2011
-func CG_SE_UpdateShake(_ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) {
+public func CG_SE_UpdateShake(_ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) {
     var moveDir = vec3_t()
     let intensity_scale: Float
     let intensity: Float
@@ -1874,7 +1874,7 @@ func CG_SE_UpdateShake(_ origin: inout JKAShared.vec3_t, _ angles: inout JKAShar
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:2051
-func CG_SE_UpdateMusic() {
+public func CG_SE_UpdateMusic() {
     if Double(cgScreenEffects.music_volume_multiplier) < 0.1 {
         cgScreenEffects.music_volume_multiplier = 1.0
         return
@@ -1922,13 +1922,13 @@ Currently just for screen shaking (and music volume management)
 ```
 */
 /// Source: oracle/codemp/cgame/cg_view.c:2104
-func CG_CalcScreenEffects() {
+public func CG_CalcScreenEffects() {
     CG_SE_UpdateShake(&cg.refdef.vieworg, &cg.refdef.viewangles)
     CG_SE_UpdateMusic()
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:2110
-func CGCam_Shake(_ intensity: Float, _ duration: Int32) {
+public func CGCam_Shake(_ intensity: Float, _ duration: Int32) {
     // Raven assigns his own `intensity` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var intensity = intensity
     if intensity > MAX_SHAKE_INTENSITY {
@@ -1968,7 +1968,7 @@ public func CG_DoCameraShake(_ origin: JKAShared.vec3_t, _ intensity: Float, _ r
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:2151
-func CGCam_SetMusicMult(_ multiplier: Float, _ duration: Int32) {
+public func CGCam_SetMusicMult(_ multiplier: Float, _ duration: Int32) {
     // Raven assigns his own `multiplier` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var multiplier = multiplier
     if multiplier < 0.1 {
@@ -1985,7 +1985,7 @@ func CGCam_SetMusicMult(_ multiplier: Float, _ duration: Int32) {
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:2185
-func CG_EmplacedView(_ angles: inout JKAShared.vec3_t) {
+public func CG_EmplacedView(_ angles: inout JKAShared.vec3_t) {
     var yaw: Float = 0
     var override: Int32
 
@@ -2053,7 +2053,7 @@ private func CG_AddRefentForAutoMap(_ cent: Centity) {
 
 //add all entities that would be on the radar
 /// Source: oracle/codemp/cgame/cg_view.c:2256
-func CG_AddRadarAutomapEnts() {
+public func CG_AddRadarAutomapEnts() {
     var i: Int32 = 0
 
     //first add yourself
@@ -2066,7 +2066,7 @@ func CG_AddRadarAutomapEnts() {
 }
 
 /// Source: oracle/codemp/cgame/cg_view.c:2284
-func CG_DrawAutoMap() {
+public func CG_DrawAutoMap() {
     var local: ClientInfo?
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.

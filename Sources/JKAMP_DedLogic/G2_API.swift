@@ -4,25 +4,25 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:34
-var g_Ghoul2Allocations: Int32 {
+public var g_Ghoul2Allocations: Int32 {
     get { world.variables.g_Ghoul2Allocations }
     set { world.variables.g_Ghoul2Allocations = newValue }
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:35
-var g_G2ServerAlloc: Int32 {
+public var g_G2ServerAlloc: Int32 {
     get { world.variables.g_G2ServerAlloc }
     set { world.variables.g_G2ServerAlloc = newValue }
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:36
-var g_G2ClientAlloc: Int32 {
+public var g_G2ClientAlloc: Int32 {
     get { world.variables.g_G2ClientAlloc }
     set { world.variables.g_G2ClientAlloc = newValue }
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:37
-var g_G2AllocServer: Int32 {
+public var g_G2AllocServer: Int32 {
     get { world.variables.g_G2AllocServer }
     set { world.variables.g_G2AllocServer = newValue }
 }
@@ -92,25 +92,25 @@ private let RAG_PCJ = (0x00001) as Int32
 private let RAG_EFFECTOR = (0x00100) as Int32
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1724
-var gG2_GBMNoReconstruct: Bool {
+public var gG2_GBMNoReconstruct: Bool {
     get { world.variables.gG2_GBMNoReconstruct }
     set { world.variables.gG2_GBMNoReconstruct = newValue }
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1725
-var gG2_GBMUseSPMethod: Bool {
+public var gG2_GBMUseSPMethod: Bool {
     get { world.variables.gG2_GBMUseSPMethod }
     set { world.variables.gG2_GBMUseSPMethod = newValue }
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:46
-func G2_DEBUG_InitPtrTracker() {
+public func G2_DEBUG_InitPtrTracker() {
     g_G2AllocTrack.fill(nil)
     g_G2AllocTrackInit = true
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:52
-func G2_DEBUG_ReportLeaks() {
+public func G2_DEBUG_ReportLeaks() {
     var i: Int32 = 0
 
     if !g_G2AllocTrackInit {
@@ -198,7 +198,7 @@ func G2_DEBUG_RemovePtrFromTracker(_ g2: CGhoul2Info_v?) {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:162
-func G2API_SetTime(_ currentTime: Int32, _ clock: Int32) {
+public func G2API_SetTime(_ currentTime: Int32, _ clock: Int32) {
     G2TimeBases[clock] = currentTime
     if G2TimeBases[1] > G2TimeBases[0] + 200 {
         G2TimeBases[1] = 0 // use server time instead
@@ -207,7 +207,7 @@ func G2API_SetTime(_ currentTime: Int32, _ clock: Int32) {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:179
-func G2API_GetTime(_ argTime: Int32) -> Int32 {
+public func G2API_GetTime(_ argTime: Int32) -> Int32 {
     var ret = G2TimeBases[1]
     if ret == 0 {
         ret = G2TimeBases[0]
@@ -221,11 +221,11 @@ func G2API_AttachInstanceToEntNum(_ ghoul2: CGhoul2Info_v, _ entityNum: Int32, _
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:214
-func G2API_ClearAttachedInstance(_ entityNum: Int32) {
+public func G2API_ClearAttachedInstance(_ entityNum: Int32) {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:221
-func G2API_CleanEntAttachments() {
+public func G2API_CleanEntAttachments() {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:239
@@ -242,7 +242,7 @@ func TheGhoul2InfoArray() -> Ghoul2InfoArray {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:487
-func Ghoul2InfoArray_Free() {
+public func Ghoul2InfoArray_Free() {
     if singleton != nil {
         singleton = nil
     }
@@ -275,7 +275,7 @@ func G2API_CleanGhoul2Models(_ ghoul2Ptr: inout CGhoul2Info_v?) {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:570
-func G2_ShouldRegisterServer() -> Bool {
+public func G2_ShouldRegisterServer() -> Bool {
     if currentVM != nil && currentVM == gvm {
         if com_cl_running != nil && com_cl_running!.integer != 0 &&
             Com_TheHunkMarkHasBeenMade() && ShaderHashTableExists() { //if the hunk has been marked then we are now loading client assets so don't load on server.
@@ -288,7 +288,7 @@ func G2_ShouldRegisterServer() -> Bool {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:585
-func G2API_PrecacheGhoul2Model(_ fileName: String) -> JKAShared.qhandle_t {
+public func G2API_PrecacheGhoul2Model(_ fileName: String) -> JKAShared.qhandle_t {
     if G2_ShouldRegisterServer() {
         return RE_RegisterServerModel(fileName)
     } else {
@@ -1304,7 +1304,7 @@ func G2API_SetGhoul2ModelIndexes(_ ghoul2: CGhoul2Info_v, _ modelList: Slots<qha
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1962
-func G2API_GetAnimFileNameIndex(_ modelIndex: JKAShared.qhandle_t) -> String {
+public func G2API_GetAnimFileNameIndex(_ modelIndex: JKAShared.qhandle_t) -> String {
     let mod_m = R_GetModelByHandle(modelIndex)
     return mod_m!.mdxm!.animName
 }
@@ -1520,7 +1520,7 @@ func G2API_GetGhoul2ModelFlags(_ ghlInfo: CGhoul2Info?) -> Int32 {
 
 // given a boltmatrix, return in vec a normalised vector for the axis requested in flags
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2196
-func G2API_GiveMeVectorFromMatrix(_ boltMatrix: JKAMP.MdxaBone, _ flags: JKAMP.Eorientations, _ vec: inout JKAShared.vec3_t) {
+public func G2API_GiveMeVectorFromMatrix(_ boltMatrix: JKAMP.MdxaBone, _ flags: JKAMP.Eorientations, _ vec: inout JKAShared.vec3_t) {
     switch flags {
     case ORIGIN:
         vec[0] = boltMatrix.matrix[0][3]
@@ -1738,7 +1738,7 @@ func G2API_LoadGhoul2Models(_ ghoul2: CGhoul2Info_v, _ buffer: Slots<JKAShared.b
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2482
-func G2API_FreeSaveBuffer(_ buffer: Slots<JKAShared.byte>) {
+public func G2API_FreeSaveBuffer(_ buffer: Slots<JKAShared.byte>) {
     Z_Free(OpaquePointer(buffer.base))
 }
 

@@ -4,7 +4,7 @@
 #define JKA_CODEMP_ICARUS_INTERPRETER_ENUM_ID_AFFECT_H
 
 #include "CJKAMP_Ded_forward.h"
-#include "codemp/icarus/interpreter/enum_TK_BLOCK_START.h"
+#include "enum_TK_BLOCK_START.h"
 
 // Source: oracle/codemp/icarus/interpreter.h:33
 //ID defines

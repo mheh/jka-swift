@@ -5,32 +5,32 @@ import JKAMP_Ded
 
 /// Source: oracle/codemp/qcommon/vm.cpp:20
 // AI: Raven's `g_vmMap` is a `std::map` from the VM to its symbol map. The map is a Dictionary on the world, under rule 17.
-var g_vmMap: [Vm: [Int32: VmSymbol]] {
+public var g_vmMap: [Vm: [Int32: VmSymbol]] {
     get { world.g_vmMap }
     set { world.g_vmMap = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/vm.cpp:21
 // AI: Raven points `g_symbolMap` at the symbol map of one VM in `g_vmMap`. The port holds that VM, the key of the map.
-var g_symbolMap: Vm? {
+public var g_symbolMap: Vm? {
     get { world.g_symbolMap }
     set { world.g_symbolMap = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/vm.cpp:24
-var currentVM: Vm? {
+public var currentVM: Vm? {
     get { world.variables.currentVM }
     set { world.variables.currentVM = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/vm.cpp:25
-var lastVM: Vm? {
+public var lastVM: Vm? {
     get { world.variables.lastVM }
     set { world.variables.lastVM = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/vm.cpp:26
-var vm_debugLevel: Int32 {
+public var vm_debugLevel: Int32 {
     get { world.variables.vm_debugLevel }
     set { world.variables.vm_debugLevel = newValue }
 }
@@ -39,7 +39,7 @@ var vm_debugLevel: Int32 {
 let MAX_VM = 3 as Int32
 
 /// Source: oracle/codemp/qcommon/vm.cpp:29
-var vmTable: Slots<Vm> { world.storage.vmTable }
+public var vmTable: Slots<Vm> { world.storage.vmTable }
 
 /// Source: oracle/codemp/qcommon/vm.cpp:115
 // AI: Raven declares `nullSym` static in VM_ValueToFunctionSymbol. The function uses one zeroed allocation on the storage class.
@@ -71,13 +71,13 @@ func VM_SetSymbolMap(_ vm: Vm) {
 // checks to make sure that the range is acceptable
 /// Source: oracle/codemp/qcommon/vm.cpp:37
 // Raven calls this function from no file of either tree, so it is dead.
-func VM_VM2C(_ p: vmptr_t, _ length: Int32) -> OpaquePointer? {
+public func VM_VM2C(_ p: vmptr_t, _ length: Int32) -> OpaquePointer? {
     // AI: Raven casts the `int` to `void *`. The return is the opaque pointer of that bit pattern, and nil for zero.
     return OpaquePointer(bitPattern: Int(p))
 }
 
 /// Source: oracle/codemp/qcommon/vm.cpp:41
-func VM_Debug(_ level: Int32) {
+public func VM_Debug(_ level: Int32) {
     vm_debugLevel = level
 }
 
@@ -89,7 +89,7 @@ VM_Init
 ```
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:50
-func VM_Init() {
+public func VM_Init() {
     Cvar_Get("vm_cgame", "0", CVAR_SYSTEMINFO | CVAR_ARCHIVE) // default to DLLs now instead. Our VMs are getting too HUGE.
     Cvar_Get("vm_game", "0", CVAR_SYSTEMINFO | CVAR_ARCHIVE) //
     Cvar_Get("vm_ui", "0", CVAR_SYSTEMINFO | CVAR_ARCHIVE) //
@@ -112,7 +112,7 @@ Assumes a program counter value
 ```
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:70
-func VM_ValueToSymbol(_ vm: Vm, _ value: Int32) -> String {
+public func VM_ValueToSymbol(_ vm: Vm, _ value: Int32) -> String {
     var sym: VmSymbol?
     // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
     var text = CharBuf(1024)
@@ -154,7 +154,7 @@ For profiling, find the symbol behind this value
 ```
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:113
-func VM_ValueToFunctionSymbol(_ vm: Vm, _ value: Int32) -> VmSymbol? {
+public func VM_ValueToFunctionSymbol(_ vm: Vm, _ value: Int32) -> VmSymbol? {
     var sym: VmSymbol?
 
     sym = g_vmMap[g_symbolMap!]?[value]
@@ -186,7 +186,7 @@ VM_SymbolToValue
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:148
 // Port-note: Raven calls this function from no file of either tree, so it is dead.
-func VM_SymbolToValue(_ vm: Vm, _ symbol: String) -> Int32 {
+public func VM_SymbolToValue(_ vm: Vm, _ symbol: String) -> Int32 {
     var sym: VmSymbol?
 
     sym = vm.symbols
@@ -208,7 +208,7 @@ VM_SymbolForCompiledPointer
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:165
 // Port-note: Raven calls this function from no file of either tree, so it is dead.
-func VM_SymbolForCompiledPointer(_ vm: Vm, _ code: OpaquePointer?) -> String {
+public func VM_SymbolForCompiledPointer(_ vm: Vm, _ code: OpaquePointer?) -> String {
     var i: Int32
 
     // C converts the pointers to addresses at the compare.
@@ -244,7 +244,7 @@ ParseHex
 ```
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:197
-func ParseHex(_ text: String) -> Int32 {
+public func ParseHex(_ text: String) -> Int32 {
     var value: Int32
     var c: Int32
     // Raven steps his own `text` parameter through its bytes, so the body walks a TextCursor over a copy of them.
@@ -282,7 +282,7 @@ Convenience function for changing the way VMs are allocated.
 ```
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:227
-func VM_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
+public func VM_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
     return Hunk_Alloc(size, h_high)
     //return Z_Malloc(size, TAG_ALL, qtrue);
 }
@@ -295,7 +295,7 @@ VM_LoadSymbols
 ```
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:238
-func VM_LoadSymbols(_ vm: Vm) {
+public func VM_LoadSymbols(_ vm: Vm) {
     let len: Int32
     var mapfile = CharBuf(0)
     var token: String
@@ -437,7 +437,7 @@ This allows a server to do a map_restart without changing memory allocation
 ```
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:391
-func VM_Restart(_ vm: Vm) -> Vm? {
+public func VM_Restart(_ vm: Vm) -> Vm? {
     var header: VmHeader?
     var length: Int32
     var dataLength: Int32
@@ -521,7 +521,7 @@ it will attempt to load as a system dll
 ```
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:471
-func VM_Create(_ module: String, _ systemCalls: VmSystemCall?, _ interpret: vmInterpret_t) -> Vm? {
+public func VM_Create(_ module: String, _ systemCalls: VmSystemCall?, _ interpret: vmInterpret_t) -> Vm? {
     var vm: Vm?
     var header: VmHeader?
     var length: Int32
@@ -673,7 +673,7 @@ VM_Free
 ```
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:605
-func VM_Free(_ vm: Vm) {
+public func VM_Free(_ vm: Vm) {
 
     if vm.dllHandle != nil {
         Sys_UnloadDll(vm.dllHandle)
@@ -689,7 +689,7 @@ func VM_Free(_ vm: Vm) {
 }
 
 /// Source: oracle/codemp/qcommon/vm.cpp:628
-func VM_Clear() {
+public func VM_Clear() {
     var i: Int32
     i = 0
     while i < MAX_VM {
@@ -708,7 +708,7 @@ func VM_Clear() {
 
 /// Source: oracle/codemp/qcommon/vm.cpp:640
 // Port-note: The port has no caller, because `args.VMA` and the field views replace Raven's calls in sv_game.cpp and sv_snapshot.cpp.
-func VM_ArgPtr(_ intValue: Int32) -> UnsafeMutableRawPointer? {
+public func VM_ArgPtr(_ intValue: Int32) -> UnsafeMutableRawPointer? {
     if intValue == 0 {
         return nil
     }
@@ -726,7 +726,7 @@ func VM_ArgPtr(_ intValue: Int32) -> UnsafeMutableRawPointer? {
 
 /// Source: oracle/codemp/qcommon/vm.cpp:657
 // Port-note: The port has no caller, because SV_BotWaypointReception copies the pointer in place of Raven's call in sv_bot.cpp.
-func BotVMShift(_ ptr: Int32) -> UnsafeMutableRawPointer? {
+public func BotVMShift(_ ptr: Int32) -> UnsafeMutableRawPointer? {
     if ptr == 0 {
         return nil
     }
@@ -744,7 +744,7 @@ func BotVMShift(_ ptr: Int32) -> UnsafeMutableRawPointer? {
 }
 
 /// Source: oracle/codemp/qcommon/vm.cpp:679
-func VM_Shifted_Alloc(_ ptr: inout OpaquePointer?, _ size: Int32) {
+public func VM_Shifted_Alloc(_ ptr: inout OpaquePointer?, _ size: Int32) {
     var mem: OpaquePointer?
 
     if currentVM == nil {
@@ -775,7 +775,7 @@ func VM_Shifted_Alloc(_ ptr: inout OpaquePointer?, _ size: Int32) {
 }
 
 /// Source: oracle/codemp/qcommon/vm.cpp:719
-func VM_Shifted_Free(_ ptr: inout OpaquePointer?) {
+public func VM_Shifted_Free(_ ptr: inout OpaquePointer?) {
     let mem: OpaquePointer?
 
     if currentVM == nil {
@@ -794,7 +794,7 @@ func VM_Shifted_Free(_ ptr: inout OpaquePointer?) {
 }
 
 /// Source: oracle/codemp/qcommon/vm.cpp:742
-func VM_ExplicitArgPtr(_ vm: Vm, _ intValue: Int) -> String? {
+public func VM_ExplicitArgPtr(_ vm: Vm, _ intValue: Int) -> String? {
     if intValue == 0 {
         return nil
     }
@@ -839,7 +839,7 @@ locals from sp
 ```
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:787
-func VM_Call(_ vm: Vm, _ callnum: Int32, _ args: any JKAShared.FormatArg...) -> Int {
+public func VM_Call(_ vm: Vm, _ callnum: Int32, _ args: any JKAShared.FormatArg...) -> Int {
     var oldVM: Vm?
     var r: Int
     // Raven's local `int args[16]` is `words`, because the variadic parameter holds the name `args`.
@@ -892,7 +892,7 @@ func VM_Call(_ vm: Vm, _ callnum: Int32, _ args: any JKAShared.FormatArg...) -> 
 /// Source: oracle/codemp/qcommon/vm.cpp:787
 // AI: Raven's VM_Call returns an `int`. This form gives the low 32 bits of the word, so an `int` caller has no conversion in its body.
 @_disfavoredOverload
-func VM_Call(_ vm: Vm, _ callnum: Int32) -> Int32 {
+public func VM_Call(_ vm: Vm, _ callnum: Int32) -> Int32 {
     Int32(truncatingIfNeeded: VM_Call(vm, callnum) as Int)
 }
 
@@ -924,7 +924,7 @@ VM_VmProfile_f
 ```
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:854
-func VM_VmProfile_f() {
+public func VM_VmProfile_f() {
     var vm: Vm?
     var sorted: [VmSymbol?]
     var sym: VmSymbol?
@@ -978,7 +978,7 @@ VM_VmInfo_f
 ```
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:901
-func VM_VmInfo_f() {
+public func VM_VmInfo_f() {
     var vm: Vm?
     var i: Int32
 
@@ -1030,7 +1030,7 @@ Insert calls to this while debugging the vm compiler
 */
 /// Source: oracle/codemp/qcommon/vm.cpp:934
 // Port-note: Raven calls this function only from comments of vm_interpreted.cpp and vm_x86.cpp, so it is dead.
-func VM_LogSyscalls(_ args: Slots<Int32>) {
+public func VM_LogSyscalls(_ args: Slots<Int32>) {
     if f == nil {
         f = FileBackend.fopen("syscalls.log", "w")
     }

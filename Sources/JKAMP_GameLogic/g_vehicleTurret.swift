@@ -6,7 +6,7 @@ import JKAMP_BG
 
 //-----------------------------------------------------
 /// Source: oracle/codemp/game/g_vehicleTurret.c:12
-func VEH_TurretCheckFire(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ turretStats: JKAMP.TurretStats, _ vehWeapon: JKAMP.VehWeaponInfo, _ turretNum: Int32, _ curMuzzle: Int32) {
+public func VEH_TurretCheckFire(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ turretStats: JKAMP.TurretStats, _ vehWeapon: JKAMP.VehWeaponInfo, _ turretNum: Int32, _ curMuzzle: Int32) {
     // if it's time to fire and we have an enemy, then gun 'em down!  pushDebounce time controls next fire time
     if pVeh.m_iMuzzleTag[curMuzzle] == -1 {
         //invalid muzzle?
@@ -51,7 +51,7 @@ func VEH_TurretCheckFire(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ turretStats:
 }
 
 /// Source: oracle/codemp/game/g_vehicleTurret.c:61
-func VEH_TurretAnglesToEnemy(_ pVeh: JKAMP.Vehicle, _ curMuzzle: Int32, _ fSpeed: Float, _ turretEnemy: Entity, _ bAILead: Bool, _ desiredAngles: inout JKAShared.vec3_t) {
+public func VEH_TurretAnglesToEnemy(_ pVeh: JKAMP.Vehicle, _ curMuzzle: Int32, _ fSpeed: Float, _ turretEnemy: Entity, _ bAILead: Bool, _ desiredAngles: inout JKAShared.vec3_t) {
     var enemyDir = vec3_t()
     var org = vec3_t()
     org = turretEnemy.r.currentOrigin
@@ -78,7 +78,7 @@ func VEH_TurretAnglesToEnemy(_ pVeh: JKAMP.Vehicle, _ curMuzzle: Int32, _ fSpeed
 
 //-----------------------------------------------------
 /// Source: oracle/codemp/game/g_vehicleTurret.c:89
-func VEH_TurretAim(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ turretEnemy: Entity?, _ turretStats: JKAMP.TurretStats, _ vehWeapon: JKAMP.VehWeaponInfo, _ turretNum: Int32, _ curMuzzle: Int32, _ desiredAngles: inout JKAShared.vec3_t) -> Bool {
+public func VEH_TurretAim(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ turretEnemy: Entity?, _ turretStats: JKAMP.TurretStats, _ vehWeapon: JKAMP.VehWeaponInfo, _ turretNum: Int32, _ curMuzzle: Int32, _ desiredAngles: inout JKAShared.vec3_t) -> Bool {
     var curAngles = vec3_t()
     var addAngles = vec3_t()
     var newAngles = vec3_t()
@@ -257,7 +257,7 @@ private func VEH_TurretFindEnemies(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ tu
 }
 
 /// Source: oracle/codemp/game/g_vehicleTurret.c:304
-func VEH_TurretObeyPassengerControl(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ turretNum: Int32) {
+public func VEH_TurretObeyPassengerControl(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ turretNum: Int32) {
     let turretStats: TurretStats? = pVeh.m_pVehicleInfo!.turret[turretNum]
     let passenger: Entity? = pVeh.m_ppPassengers[turretStats!.passengerNum - 1].map { Entity($0) }
 
@@ -277,7 +277,7 @@ func VEH_TurretObeyPassengerControl(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ t
 }
 
 /// Source: oracle/codemp/game/g_vehicleTurret.c:324
-func VEH_TurretThink(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ turretNum: Int32) {
+public func VEH_TurretThink(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ turretNum: Int32) {
     var doAim: Bool = false
     var enemyDist: Float = 0
     var rangeSq: Float = 0

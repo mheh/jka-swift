@@ -20,94 +20,94 @@ var team2: JKAShared.CharBuf {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:20
-var g_siegePersistant: JKAMP.SiegePers { world.storage.g_siegePersistant }
+public var g_siegePersistant: JKAMP.SiegePers { world.storage.g_siegePersistant }
 
 /// Source: oracle/codemp/game/g_saga.c:22
-var imperial_goals_required: Int32 {
+public var imperial_goals_required: Int32 {
     get { world.variables.imperial_goals_required }
     set { world.variables.imperial_goals_required = newValue }
 }
 
 /// Source: oracle/codemp/game/g_saga.c:23
-var imperial_goals_completed: Int32 {
+public var imperial_goals_completed: Int32 {
     get { world.variables.imperial_goals_completed }
     set { world.variables.imperial_goals_completed = newValue }
 }
 
 /// Source: oracle/codemp/game/g_saga.c:24
-var rebel_goals_required: Int32 {
+public var rebel_goals_required: Int32 {
     get { world.variables.rebel_goals_required }
     set { world.variables.rebel_goals_required = newValue }
 }
 
 /// Source: oracle/codemp/game/g_saga.c:25
-var rebel_goals_completed: Int32 {
+public var rebel_goals_completed: Int32 {
     get { world.variables.rebel_goals_completed }
     set { world.variables.rebel_goals_completed = newValue }
 }
 
 /// Source: oracle/codemp/game/g_saga.c:27
-var imperial_time_limit: Int32 {
+public var imperial_time_limit: Int32 {
     get { world.variables.imperial_time_limit }
     set { world.variables.imperial_time_limit = newValue }
 }
 
 /// Source: oracle/codemp/game/g_saga.c:28
-var rebel_time_limit: Int32 {
+public var rebel_time_limit: Int32 {
     get { world.variables.rebel_time_limit }
     set { world.variables.rebel_time_limit = newValue }
 }
 
 /// Source: oracle/codemp/game/g_saga.c:30
-var gImperialCountdown: Int32 {
+public var gImperialCountdown: Int32 {
     get { world.variables.gImperialCountdown }
     set { world.variables.gImperialCountdown = newValue }
 }
 
 /// Source: oracle/codemp/game/g_saga.c:31
-var gRebelCountdown: Int32 {
+public var gRebelCountdown: Int32 {
     get { world.variables.gRebelCountdown }
     set { world.variables.gRebelCountdown = newValue }
 }
 
 /// Source: oracle/codemp/game/g_saga.c:33
-var rebel_attackers: Int32 {
+public var rebel_attackers: Int32 {
     get { world.variables.rebel_attackers }
     set { world.variables.rebel_attackers = newValue }
 }
 
 /// Source: oracle/codemp/game/g_saga.c:34
-var imperial_attackers: Int32 {
+public var imperial_attackers: Int32 {
     get { world.variables.imperial_attackers }
     set { world.variables.imperial_attackers = newValue }
 }
 
 /// Source: oracle/codemp/game/g_saga.c:36
-var gSiegeRoundBegun: Bool {
+public var gSiegeRoundBegun: Bool {
     get { world.variables.gSiegeRoundBegun }
     set { world.variables.gSiegeRoundBegun = newValue }
 }
 
 /// Source: oracle/codemp/game/g_saga.c:37
-var gSiegeRoundEnded: Bool {
+public var gSiegeRoundEnded: Bool {
     get { world.variables.gSiegeRoundEnded }
     set { world.variables.gSiegeRoundEnded = newValue }
 }
 
 /// Source: oracle/codemp/game/g_saga.c:38
-var gSiegeRoundWinningTeam: Int32 {
+public var gSiegeRoundWinningTeam: Int32 {
     get { world.variables.gSiegeRoundWinningTeam }
     set { world.variables.gSiegeRoundWinningTeam = newValue }
 }
 
 /// Source: oracle/codemp/game/g_saga.c:39
-var gSiegeBeginTime: Int32 {
+public var gSiegeBeginTime: Int32 {
     get { world.variables.gSiegeBeginTime }
     set { world.variables.gSiegeBeginTime = newValue }
 }
 
 /// Source: oracle/codemp/game/g_saga.c:41
-var g_preroundState: Int32 {
+public var g_preroundState: Int32 {
     get { world.variables.g_preroundState }
     set { world.variables.g_preroundState = newValue }
 }
@@ -130,7 +130,7 @@ let SIEGE_ITEM_RESPAWN_TIME = 20000 as Int32
 //go through all classes on a team and register their
 //weapons and items for precaching.
 /// Source: oracle/codemp/game/g_saga.c:51
-func G_SiegeRegisterWeaponsAndHoldables(_ team: Int32) {
+public func G_SiegeRegisterWeaponsAndHoldables(_ team: Int32) {
     let stm: SiegeTeam? = BG_SiegeFindThemeForTeam(team)
 
     if stm != nil {
@@ -165,12 +165,12 @@ func G_SiegeRegisterWeaponsAndHoldables(_ team: Int32) {
 //tell clients that this team won and print it on their scoreboard for intermission
 //or whatever.
 /// Source: oracle/codemp/game/g_saga.c:91
-func SiegeSetCompleteData(_ team: Int32) {
+public func SiegeSetCompleteData(_ team: Int32) {
     trap_SetConfigstring(CS_SIEGE_WINTEAM, va("%i", team))
 }
 
 /// Source: oracle/codemp/game/g_saga.c:96
-func InitSiegeMode() {
+public func InitSiegeMode() {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = VmCvar.scratch { mapname -> Bool in
@@ -413,7 +413,7 @@ func InitSiegeMode() {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:375
-func G_SiegeSetObjectiveComplete(_ team: Int32, _ objective: Int32, _ failIt: Bool) {
+public func G_SiegeSetObjectiveComplete(_ team: Int32, _ objective: Int32, _ failIt: Bool) {
     var p: Int32? = nil
     var onObjective: Int32 = 0
 
@@ -458,7 +458,7 @@ func G_SiegeSetObjectiveComplete(_ team: Int32, _ objective: Int32, _ failIt: Bo
 
 //Returns qtrue if objective complete currently, otherwise qfalse
 /// Source: oracle/codemp/game/g_saga.c:430
-func G_SiegeGetCompletionStatus(_ team: Int32, _ objective: Int32) -> Bool {
+public func G_SiegeGetCompletionStatus(_ team: Int32, _ objective: Int32) -> Bool {
     var p: Int32? = nil
     var onObjective: Int32 = 0
 
@@ -500,7 +500,7 @@ func G_SiegeGetCompletionStatus(_ team: Int32, _ objective: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:482
-func UseSiegeTarget(_ other: Entity, _ en: Entity, _ target: String) {
+public func UseSiegeTarget(_ other: Entity, _ en: Entity, _ target: String) {
     //actually use the player which triggered the object which triggered the siege objective to trigger the target
     var t: Entity?
     var ent: Entity?
@@ -532,7 +532,7 @@ func UseSiegeTarget(_ other: Entity, _ en: Entity, _ target: String) {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:528
-func SiegeBroadcast_OBJECTIVECOMPLETE(_ team: Int32, _ client: Int32, _ objective: Int32) {
+public func SiegeBroadcast_OBJECTIVECOMPLETE(_ team: Int32, _ client: Int32, _ objective: Int32) {
     var te: Entity?
     var nomatter = vec3_t()
 
@@ -546,7 +546,7 @@ func SiegeBroadcast_OBJECTIVECOMPLETE(_ team: Int32, _ client: Int32, _ objectiv
 }
 
 /// Source: oracle/codemp/game/g_saga.c:542
-func SiegeBroadcast_ROUNDOVER(_ winningteam: Int32, _ winningclient: Int32) {
+public func SiegeBroadcast_ROUNDOVER(_ winningteam: Int32, _ winningclient: Int32) {
     var te: Entity?
     var nomatter = vec3_t()
 
@@ -559,7 +559,7 @@ func SiegeBroadcast_ROUNDOVER(_ winningteam: Int32, _ winningclient: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:555
-func BroadcastObjectiveCompletion(_ team: Int32, _ objective: Int32, _ final: Int32, _ client: Int32) {
+public func BroadcastObjectiveCompletion(_ team: Int32, _ objective: Int32, _ final: Int32, _ client: Int32) {
     if client != ENTITYNUM_NONE && g_entities[client].client != nil && g_entities[client].client!.sess.sessionTeam == team {
         //guy who completed this objective gets points, providing he's on the opposing team
         AddScore(g_entities[client], g_entities[client].client!.ps.origin, SIEGE_POINTS_OBJECTIVECOMPLETED)
@@ -570,7 +570,7 @@ func BroadcastObjectiveCompletion(_ team: Int32, _ objective: Int32, _ final: In
 }
 
 /// Source: oracle/codemp/game/g_saga.c:566
-func AddSiegeWinningTeamPoints(_ team: Int32, _ winner: Int32) {
+public func AddSiegeWinningTeamPoints(_ team: Int32, _ winner: Int32) {
     var i: Int32 = 0
     var ent: Entity?
 
@@ -590,13 +590,13 @@ func AddSiegeWinningTeamPoints(_ team: Int32, _ winner: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:591
-func SiegeClearSwitchData() {
+public func SiegeClearSwitchData() {
     g_siegePersistant.clear()
     trap_SiegePersSet(g_siegePersistant)
 }
 
 /// Source: oracle/codemp/game/g_saga.c:597
-func SiegeDoTeamAssign() {
+public func SiegeDoTeamAssign() {
     var i: Int32 = 0
     var ent: Entity?
 
@@ -623,7 +623,7 @@ func SiegeDoTeamAssign() {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:632
-func SiegeTeamSwitch(_ winTeam: Int32, _ winTime: Int32) {
+public func SiegeTeamSwitch(_ winTeam: Int32, _ winTime: Int32) {
     trap_SiegePersGet(g_siegePersistant)
     if g_siegePersistant.beatingTime {
         //was already in "switched" mode, change back
@@ -644,7 +644,7 @@ func SiegeTeamSwitch(_ winTeam: Int32, _ winTime: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:654
-func SiegeRoundComplete(_ winningteam: Int32, _ winningclient: Int32) {
+public func SiegeRoundComplete(_ winningteam: Int32, _ winningclient: Int32) {
     var nomatter = vec3_t()
     var teamstr = CharBuf(1024)
     var originalWinningClient: Int32 = winningclient
@@ -724,7 +724,7 @@ func SiegeRoundComplete(_ winningteam: Int32, _ winningclient: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:744
-func G_ValidateSiegeClassForTeam(_ ent: Entity, _ team: Int32) {
+public func G_ValidateSiegeClassForTeam(_ ent: Entity, _ team: Int32) {
     var scl: SiegeClass?
     var stm: SiegeTeam?
     var newClassIndex: Int32 = -1
@@ -763,7 +763,7 @@ func G_ValidateSiegeClassForTeam(_ ent: Entity, _ team: Int32) {
 
 //bypass most of the normal checks in SetTeam
 /// Source: oracle/codemp/game/g_saga.c:787
-func SetTeamQuick(_ ent: Entity, _ team: Int32, _ doBegin: Bool) {
+public func SetTeamQuick(_ ent: Entity, _ team: Int32, _ doBegin: Bool) {
     var userinfo = CharBuf(1024)
 
     strcpy(&userinfo, trap_GetUserinfo(ent.s.number, Int32((userinfo).count)))
@@ -802,7 +802,7 @@ func SetTeamQuick(_ ent: Entity, _ team: Int32, _ doBegin: Bool) {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:836
-func SiegeRespawn(_ ent: Entity) {
+public func SiegeRespawn(_ ent: Entity) {
     var tent: Entity?
 
     if ent.client!.sess.sessionTeam != ent.client!.sess.siegeDesiredTeam {
@@ -816,7 +816,7 @@ func SiegeRespawn(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:853
-func SiegeBeginRound(_ entNum: Int32) {
+public func SiegeBeginRound(_ entNum: Int32) {
     //entNum is just used as something to fire targets from.
     var targname = CharBuf(1024)
 
@@ -860,7 +860,7 @@ func SiegeBeginRound(_ entNum: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:905
-func SiegeCheckTimers() {
+public func SiegeCheckTimers() {
     var i: Int32 = 0
     var ent: Entity?
     var numTeam1: Int32 = 0
@@ -947,7 +947,7 @@ func SiegeCheckTimers() {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:1015
-func SiegeObjectiveCompleted(_ team: Int32, _ objective: Int32, _ final: Int32, _ client: Int32) {
+public func SiegeObjectiveCompleted(_ team: Int32, _ objective: Int32, _ final: Int32, _ client: Int32) {
     let goals_completed: Int32
     let goals_required: Int32
 
@@ -982,7 +982,7 @@ func SiegeObjectiveCompleted(_ team: Int32, _ objective: Int32, _ final: Int32, 
 }
 
 /// Source: oracle/codemp/game/g_saga.c:1060
-func siegeTriggerUse(_ ent: Entity, _ other: Entity, _ activator: Entity) {
+public func siegeTriggerUse(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     var teamstr = CharBuf(64)
     var objectivestr = CharBuf(64)
     var desiredobjective = CharBuf(16384)
@@ -1051,7 +1051,7 @@ STARTOFFRADAR - start not displaying on radar, don't display until used.
 ```
 */
 /// Source: oracle/codemp/game/g_saga.c:1137
-func SP_info_siege_objective(_ ent: Entity) {
+public func SP_info_siege_objective(_ ent: Entity) {
     var s: String = ""
 
     if siege_valid == 0 || g_gametype.integer != GT_SIEGE {
@@ -1092,7 +1092,7 @@ func SP_info_siege_objective(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:1182
-func SiegeIconUse(_ ent: Entity, _ other: Entity, _ activator: Entity) {
+public func SiegeIconUse(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     //toggle it on and off
     if (ent.s.eFlags & EF_RADAROBJECT) != 0 {
         ent.s.eFlags &= ~EF_RADAROBJECT
@@ -1114,7 +1114,7 @@ to toggle on and off.
 ```
 */
 /// Source: oracle/codemp/game/g_saga.c:1203
-func SP_info_siege_radaricon(_ ent: Entity) {
+public func SP_info_siege_radaricon(_ ent: Entity) {
     var s: String = ""
     var i: Int32 = 0
 
@@ -1146,7 +1146,7 @@ func SP_info_siege_radaricon(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:1236
-func decompTriggerUse(_ ent: Entity, _ other: Entity, _ activator: Entity) {
+public func decompTriggerUse(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     var final: Int32 = 0
     var teamstr = CharBuf(1024)
     var objectivestr = CharBuf(64)
@@ -1199,7 +1199,7 @@ QUAKED info_siege_decomplete (1 0 1) (-16 -16 -24) (16 16 32)
 ```
 */
 /// Source: oracle/codemp/game/g_saga.c:1297
-func SP_info_siege_decomplete(_ ent: Entity) {
+public func SP_info_siege_decomplete(_ ent: Entity) {
     if siege_valid == 0 || g_gametype.integer != GT_SIEGE {
         G_FreeEntity(ent)
         return
@@ -1218,7 +1218,7 @@ func SP_info_siege_decomplete(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:1317
-func siegeEndUse(_ ent: Entity, _ other: Entity, _ activator: Entity) {
+public func siegeEndUse(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     LogExit("Round ended")
 }
 
@@ -1229,7 +1229,7 @@ Do a logexit for siege when used.
 ```
 */
 /// Source: oracle/codemp/game/g_saga.c:1325
-func SP_target_siege_end(_ ent: Entity) {
+public func SP_target_siege_end(_ ent: Entity) {
     if siege_valid == 0 || g_gametype.integer != GT_SIEGE {
         G_FreeEntity(ent)
         return
@@ -1239,7 +1239,7 @@ func SP_target_siege_end(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:1338
-func SiegeItemRemoveOwner(_ ent: Entity, _ carrier: Entity?) {
+public func SiegeItemRemoveOwner(_ ent: Entity, _ carrier: Entity?) {
     ent.genericValue2 = 0 //Remove picked-up flag
 
     ent.genericValue8 = ENTITYNUM_NONE //Mark entity carrying us as none
@@ -1281,7 +1281,7 @@ private func SiegeItemRespawnOnOriginalSpot(_ ent: Entity, _ carrier: Entity?) {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:1382
-func SiegeItemThink(_ ent: Entity) {
+public func SiegeItemThink(_ ent: Entity) {
     var carrier: Entity? = nil
 
     if ent.genericValue12 != 0 {
@@ -1362,7 +1362,7 @@ func SiegeItemThink(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:1477
-func SiegeItemTouch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+public func SiegeItemTouch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     if !other.inuse || other.client == nil || other.s.eType == ET_NPC {
         if trace.startsolid != 0 {
             //let me out! (ideally this should not happen, but such is life)
@@ -1430,13 +1430,13 @@ func SiegeItemTouch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
 }
 
 /// Source: oracle/codemp/game/g_saga.c:1547
-func SiegeItemPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func SiegeItemPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     // Time 2 is used to pulse the radar icon to show its under attack
     `self`.s.time2 = level.time
 }
 
 /// Source: oracle/codemp/game/g_saga.c:1553
-func SiegeItemDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ meansOfDeath: Int32) {
+public func SiegeItemDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ meansOfDeath: Int32) {
     `self`.takedamage = false //don't die more than once
 
     if `self`.genericValue3 != 0 {
@@ -1458,7 +1458,7 @@ func SiegeItemDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ d
 }
 
 /// Source: oracle/codemp/game/g_saga.c:1576
-func SiegeItemUse(_ ent: Entity, _ other: Entity, _ activator: Entity) {
+public func SiegeItemUse(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     //once used, become active
     if (ent.spawnflags & SIEGEITEM_STARTOFFRADAR) != 0 {
         //start showing on radar
@@ -1558,7 +1558,7 @@ health charge things only work with showhealth 1 on siege items that take damage
 ```
 */
 /// Source: oracle/codemp/game/g_saga.c:1676
-func SP_misc_siege_item(_ ent: Entity) {
+public func SP_misc_siege_item(_ ent: Entity) {
     var canpickup: Int32 = 0
     var noradar: Int32 = 0
     var s: String = ""
@@ -1716,7 +1716,7 @@ func SP_misc_siege_item(_ ent: Entity) {
 //reasonable range. We don't need to send anything about the max ammo or current weapon, because
 //currentState.weapon can be checked for the ent in question on the client. -rww
 /// Source: oracle/codemp/game/g_saga.c:1845
-func G_SiegeClientExData(_ msgTarg: Entity) {
+public func G_SiegeClientExData(_ msgTarg: Entity) {
     var ent: Entity?
     var count: Int32 = 0
     var i: Int32 = 0

@@ -15,7 +15,7 @@ private var WHITE: JKAShared.vec3_t {
 let FX_ALPHA_WAVE = 0x00000008 as Int32
 
 /// Source: oracle/codemp/cgame/fx_disruptor.c:13
-func FX_DisruptorMainShot(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) {
+public func FX_DisruptorMainShot(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) {
     //	vec3_t	dir;
     //	float	len;
 
@@ -40,7 +40,7 @@ FX_DisruptorAltShot
 ```
 */
 /// Source: oracle/codemp/cgame/fx_disruptor.c:41
-func FX_DisruptorAltShot(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ fullCharge: Bool) {
+public func FX_DisruptorAltShot(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ fullCharge: Bool) {
     trap_FX_AddLine(start, end, 0.1, 10.0, 0.0, 1.0, 0.0, 0.0, WHITE, WHITE, 0.0, 175, trap_R_RegisterShader("gfx/effects/redLine"), FX_SIZE_LINEAR | FX_ALPHA_LINEAR)
 
     if fullCharge {
@@ -52,7 +52,7 @@ func FX_DisruptorAltShot(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ f
 }
 
 /// Source: oracle/codemp/cgame/fx_disruptor.c:70
-func FX_DisruptorAltMiss(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t) {
+public func FX_DisruptorAltMiss(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t) {
     var pos = vec3_t()
     var c1 = vec3_t()
     var c2 = vec3_t()
@@ -101,16 +101,16 @@ func FX_DisruptorAltMiss(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t)
 }
 
 /// Source: oracle/codemp/cgame/fx_disruptor.c:121
-func FX_DisruptorAltHit(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t) {
+public func FX_DisruptorAltHit(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t) {
     trap_FX_PlayEffectID(cgs.effects.disruptorAltHitEffect, origin, normal, -1, -1)
 }
 
 /// Source: oracle/codemp/cgame/fx_disruptor.c:134
-func FX_DisruptorHitWall(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t) {
+public func FX_DisruptorHitWall(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t) {
     trap_FX_PlayEffectID(cgs.effects.disruptorWallImpactEffect, origin, normal, -1, -1)
 }
 
 /// Source: oracle/codemp/cgame/fx_disruptor.c:145
-func FX_DisruptorHitPlayer(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ humanoid: Bool) {
+public func FX_DisruptorHitPlayer(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ humanoid: Bool) {
     trap_FX_PlayEffectID(cgs.effects.disruptorFleshImpactEffect, origin, normal, -1, -1)
 }

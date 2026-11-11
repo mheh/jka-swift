@@ -70,7 +70,7 @@ let STRAFERAM_DURATION = 8 as Int32
 let STRAFERAM_ANGLE = 8 as Int32
 
 /// Source: oracle/codemp/game/SpeederNPC.c:140
-func VEH_StartStrafeRam(_ pVeh: JKAMP.Vehicle, _ Right: Bool, _ Duration: Int32) -> Bool {
+public func VEH_StartStrafeRam(_ pVeh: JKAMP.Vehicle, _ Right: Bool, _ Duration: Int32) -> Bool {
     return false
 }
 
@@ -618,7 +618,7 @@ private func AnimateRiders(_ pVeh: JKAMP.Vehicle) {
 }
 
 /// Source: oracle/codemp/game/SpeederNPC.c:1044
-func G_SetSpeederVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
+public func G_SetSpeederVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
     pVehInfo.AnimateVehicle = VehicleInfoThunks.AnimateVehicle
     pVehInfo.AnimateRiders = VehicleInfoThunks.AnimateRiders
     //	pVehInfo->ValidateBoard				=		ValidateBoard;
@@ -648,7 +648,7 @@ func G_SetSpeederVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
 
 // Create/Allocate a new Animal Vehicle (initializing it as well).
 /// Source: oracle/codemp/game/SpeederNPC.c:1092
-func G_CreateSpeederNPC(_ pVeh: inout JKAMP.Vehicle?, _ strType: String) {
+public func G_CreateSpeederNPC(_ pVeh: inout JKAMP.Vehicle?, _ strType: String) {
     //these will remain on entities on the client once allocated because the pointer is
     //never stomped. on the server, however, when an ent is freed, the entity struct is
     //memset to 0, so this memory would be lost..

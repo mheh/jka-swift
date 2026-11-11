@@ -166,7 +166,7 @@ private func ProcessMoveCommands(_ pVeh: JKAMP.Vehicle) {
 }
 
 /// Source: oracle/codemp/game/WalkerNPC.c:254
-func WalkerYawAdjust(_ pVeh: JKAMP.Vehicle, _ riderPS: JKAMP.PlayerState, _ parentPS: JKAMP.PlayerState) {
+public func WalkerYawAdjust(_ pVeh: JKAMP.Vehicle, _ riderPS: JKAMP.PlayerState, _ parentPS: JKAMP.PlayerState) {
     var angDif: Float = AngleSubtract(pVeh.m_vOrientationVector[YAW], riderPS.viewangles[YAW])
 
     if parentPS.speed != 0 {
@@ -258,7 +258,7 @@ private func ProcessOrientCommands(_ pVeh: JKAMP.Vehicle) {
 
 //on the client this function will only set up the process command funcs
 /// Source: oracle/codemp/game/WalkerNPC.c:547
-func G_SetWalkerVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
+public func G_SetWalkerVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
     //	pVehInfo->AnimateRiders				=		AnimateRiders;
     //	pVehInfo->ValidateBoard				=		ValidateBoard;
     //	pVehInfo->SetParent					=		SetParent;
@@ -285,7 +285,7 @@ func G_SetWalkerVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
 // Create/Allocate a new Animal Vehicle (initializing it as well).
 //this is a BG function too in MP so don't un-bg-compatibilify it -rww
 /// Source: oracle/codemp/game/WalkerNPC.c:594
-func G_CreateWalkerNPC(_ pVeh: inout JKAMP.Vehicle?, _ strAnimalType: String) {
+public func G_CreateWalkerNPC(_ pVeh: inout JKAMP.Vehicle?, _ strAnimalType: String) {
     // Allocate the Vehicle.
     //these will remain on entities on the client once allocated because the pointer is
     //never stomped. on the server, however, when an ent is freed, the entity struct is

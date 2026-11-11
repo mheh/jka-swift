@@ -66,18 +66,18 @@ private let TURN_ON = 0x00000000 as Int32
 private let TURN_OFF = 0x00000100 as Int32
 
 /// Source: oracle/codemp/game/g_vehicles.c:91
-func Vehicle_SetAnim(_ ent: Entity, _ setAnimParts: Int32, _ anim: Int32, _ setAnimFlags: Int32, _ iBlend: Int32) {
+public func Vehicle_SetAnim(_ ent: Entity, _ setAnimParts: Int32, _ anim: Int32, _ setAnimFlags: Int32, _ iBlend: Int32) {
     BG_SetAnim(ent.client!.ps, bgAllAnims[ent.localAnimIndex].animsSlots, setAnimParts, anim, setAnimFlags, iBlend)
     ent.s.legsAnim = ent.client!.ps.legsAnim
 }
 
 /// Source: oracle/codemp/game/g_vehicles.c:102
-func G_VehicleTrace(_ results: JKAMP.Trace, _ start: JKAShared.vec3_t, _ tMins: JKAShared.vec3_t, _ tMaxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ passEntityNum: Int32, _ contentmask: Int32) {
+public func G_VehicleTrace(_ results: JKAMP.Trace, _ start: JKAShared.vec3_t, _ tMins: JKAShared.vec3_t, _ tMaxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ passEntityNum: Int32, _ contentmask: Int32) {
     trap_Trace(results, start, tMins, tMaxs, end, passEntityNum, contentmask)
 }
 
 /// Source: oracle/codemp/game/g_vehicles.c:111
-func G_IsRidingVehicle(_ pEnt: Entity) -> JKAMP.Vehicle? {
+public func G_IsRidingVehicle(_ pEnt: Entity) -> JKAMP.Vehicle? {
     let ent: Entity? = pEnt
 
     if ent != nil && ent!.client != nil && ent!.client!.NPC_class != CLASS_VEHICLE && ent!.s.m_iVehicleNum != 0 {
@@ -87,7 +87,7 @@ func G_IsRidingVehicle(_ pEnt: Entity) -> JKAMP.Vehicle? {
 }
 
 /// Source: oracle/codemp/game/g_vehicles.c:124
-func G_CanJumpToEnemyVeh(_ pVeh: JKAMP.Vehicle, _ pUcmd: JKAMP.Usercmd) -> Float {
+public func G_CanJumpToEnemyVeh(_ pVeh: JKAMP.Vehicle, _ pUcmd: JKAMP.Usercmd) -> Float {
     // If There Is An Enemy And We Are At The Same Z Height
     //------------------------------------------------------
 
@@ -106,7 +106,7 @@ func G_CanJumpToEnemyVeh(_ pVeh: JKAMP.Vehicle, _ pUcmd: JKAMP.Usercmd) -> Float
 
 // Spawn this vehicle into the world.
 /// Source: oracle/codemp/game/g_vehicles.c:186
-func G_VehicleSpawn(_ `self`: Entity) {
+public func G_VehicleSpawn(_ `self`: Entity) {
     let yaw: Float
     var vehEnt: Entity?
 
@@ -149,7 +149,7 @@ func G_VehicleSpawn(_ `self`: Entity) {
 
 // Attachs an entity to the vehicle it's riding (it's owner).
 /// Source: oracle/codemp/game/g_vehicles.c:247
-func G_AttachToVehicle(_ pEnt: Entity, _ ucmd: inout JKAMP.Usercmd?) {
+public func G_AttachToVehicle(_ pEnt: Entity, _ ucmd: inout JKAMP.Usercmd?) {
     var vehEnt: Entity?
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
@@ -184,7 +184,7 @@ func G_AttachToVehicle(_ pEnt: Entity, _ ucmd: inout JKAMP.Usercmd?) {
 
 // Animate the vehicle and it's riders.
 /// Source: oracle/codemp/game/g_vehicles.c:481
-func Animate(_ pVeh: JKAMP.Vehicle) {
+public func Animate(_ pVeh: JKAMP.Vehicle) {
     // Validate a pilot rider.
     if pVeh.m_pPilot != nil {
         if pVeh.m_pVehicleInfo!.AnimateRiders != nil {
@@ -197,7 +197,7 @@ func Animate(_ pVeh: JKAMP.Vehicle) {
 
 // Determine whether this entity is able to board this vehicle or not.
 /// Source: oracle/codemp/game/g_vehicles.c:496
-func ValidateBoard(_ pVeh: JKAMP.Vehicle, _ pEnt: JKAMP.BgEntity) -> Bool {
+public func ValidateBoard(_ pVeh: JKAMP.Vehicle, _ pEnt: JKAMP.BgEntity) -> Bool {
     // Determine where the entity is entering the vehicle from (left, right, or back).
     var vVehToEnt = vec3_t()
     var vVehDir = vec3_t()
@@ -456,7 +456,7 @@ private func Board(_ pVeh: JKAMP.Vehicle, _ pEnt: JKAMP.BgEntity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_vehicles.c:874
-func VEH_TryEject(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ ent: Entity, _ ejectDir: Int32, _ vExitPos: inout JKAShared.vec3_t) -> Bool {
+public func VEH_TryEject(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ ent: Entity, _ ejectDir: Int32, _ vExitPos: inout JKAShared.vec3_t) -> Bool {
     var fBias: Float = 0
     var fVehDiag: Float = 0
     var fEntDiag: Float = 0
@@ -578,7 +578,7 @@ func VEH_TryEject(_ pVeh: JKAMP.Vehicle, _ parent: Entity, _ ent: Entity, _ ejec
 }
 
 /// Source: oracle/codemp/game/g_vehicles.c:989
-func G_EjectDroidUnit(_ pVeh: JKAMP.Vehicle, _ kill: Bool) {
+public func G_EjectDroidUnit(_ pVeh: JKAMP.Vehicle, _ kill: Bool) {
     pVeh.m_pDroidUnit!.s.m_iVehicleNum = ENTITYNUM_NONE
     pVeh.m_pDroidUnit!.s.owner = ENTITYNUM_NONE
     //	pVeh->m_pDroidUnit->s.otherEntityNum2 = ENTITYNUM_NONE;
@@ -856,7 +856,7 @@ private func Eject(_ pVeh: JKAMP.Vehicle, _ pEnt: JKAMP.BgEntity, _ forceEject: 
 
 // Eject all the inhabitants of this vehicle.
 /// Source: oracle/codemp/game/g_vehicles.c:1377
-func EjectAll(_ pVeh: JKAMP.Vehicle) -> Bool {
+public func EjectAll(_ pVeh: JKAMP.Vehicle) -> Bool {
     // TODO: Setup a default escape for ever vehicle type.
 
     pVeh.m_EjectDir = VEH_EJECT_TOP
@@ -1012,7 +1012,7 @@ private func RegisterAssets(_ pVeh: JKAMP.Vehicle) {
 
 // Initialize the vehicle.
 /// Source: oracle/codemp/game/g_vehicles.c:1626
-func Initialize(_ pVeh: JKAMP.Vehicle) -> Bool {
+public func Initialize(_ pVeh: JKAMP.Vehicle) -> Bool {
     let parent: Entity? = pVeh.m_pParentEntity.map { Entity($0) }
     var i: Int32 = 0
 
@@ -1832,7 +1832,7 @@ private func UnGhost(_ pVeh: JKAMP.Vehicle, _ pEnt: JKAMP.BgEntity) {
 
 //try to resize the bounding box around a torn apart ship
 /// Source: oracle/codemp/game/g_vehicles.c:2785
-func G_VehicleDamageBoxSizing(_ pVeh: JKAMP.Vehicle) {
+public func G_VehicleDamageBoxSizing(_ pVeh: JKAMP.Vehicle) {
     var fwd = vec3_t()
     var right = vec3_t()
     var up = vec3_t()
@@ -1895,7 +1895,7 @@ func G_VehicleDamageBoxSizing(_ pVeh: JKAMP.Vehicle) {
 
 //get one of 4 possible impact locations based on the trace direction
 /// Source: oracle/codemp/game/g_vehicles.c:2843
-func G_FlyVehicleImpactDir(_ veh: Entity, _ trace: JKAMP.Trace) -> Int32 {
+public func G_FlyVehicleImpactDir(_ veh: Entity, _ trace: JKAMP.Trace) -> Int32 {
     var impactAngle: Float = 0
     var relativeAngle: Float = 0
     // Raven's record lives to the end of his block, so the block is the closure.
@@ -1976,7 +1976,7 @@ func G_FlyVehicleImpactDir(_ veh: Entity, _ trace: JKAMP.Trace) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_vehicles.c:2930
-func G_ShipSurfaceForSurfName(_ surfaceName: String) -> Int32 {
+public func G_ShipSurfaceForSurfName(_ surfaceName: String) -> Int32 {
     if Q_strncmp("nose", surfaceName, 4) == 0 || Q_strncmp("f_gear", surfaceName, 6) == 0 || Q_strncmp("glass", surfaceName, 5) == 0 {
         return SHIPSURF_FRONT
     }
@@ -1993,7 +1993,7 @@ func G_ShipSurfaceForSurfName(_ surfaceName: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_vehicles.c:2961
-func G_SetVehDamageFlags(_ veh: Entity, _ shipSurf: Int32, _ damageLevel: Int32) {
+public func G_SetVehDamageFlags(_ veh: Entity, _ shipSurf: Int32, _ damageLevel: Int32) {
     var dmgFlag: Int32
     switch damageLevel {
     case 3: //destroyed
@@ -2067,7 +2067,7 @@ func G_SetVehDamageFlags(_ veh: Entity, _ shipSurf: Int32, _ damageLevel: Int32)
 }
 
 /// Source: oracle/codemp/game/g_vehicles.c:3041
-func G_VehicleSetDamageLocFlags(_ veh: Entity, _ impactDir: Int32, _ deathPoint: Int32) {
+public func G_VehicleSetDamageLocFlags(_ veh: Entity, _ impactDir: Int32, _ deathPoint: Int32) {
     // Raven assigns his own `deathPoint` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var deathPoint = deathPoint
     if veh.client == nil {
@@ -2118,7 +2118,7 @@ func G_VehicleSetDamageLocFlags(_ veh: Entity, _ impactDir: Int32, _ deathPoint:
 }
 
 /// Source: oracle/codemp/game/g_vehicles.c:3102
-func G_FlyVehicleDestroySurface(_ veh: Entity, _ surface: Int32) -> Bool {
+public func G_FlyVehicleDestroySurface(_ veh: Entity, _ surface: Int32) -> Bool {
     var surfName = [String](repeating: "", count: 4) //up to 4 surfs at once
     var numSurfs: Int32 = 0
     var smashedBits: Int32 = 0
@@ -2205,7 +2205,7 @@ func G_FlyVehicleDestroySurface(_ veh: Entity, _ surface: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_vehicles.c:3190
-func G_FlyVehicleSurfaceDestruction(_ veh: Entity, _ trace: JKAMP.Trace, _ magnitude: Int32, _ force: Bool) {
+public func G_FlyVehicleSurfaceDestruction(_ veh: Entity, _ trace: JKAMP.Trace, _ magnitude: Int32, _ force: Bool) {
     var impactDir: Int32
     var secondImpact: Int32
     var deathPoint: Int32 = -1
@@ -2274,7 +2274,7 @@ func G_FlyVehicleSurfaceDestruction(_ veh: Entity, _ trace: JKAMP.Trace, _ magni
 }
 
 /// Source: oracle/codemp/game/g_vehicles.c:3261
-func G_VehUpdateShields(_ targ: Entity) {
+public func G_VehUpdateShields(_ targ: Entity) {
     if targ.client == nil || targ.m_pVehicle == nil || targ.m_pVehicle!.m_pVehicleInfo == nil {
         return
     }
@@ -2287,31 +2287,31 @@ func G_VehUpdateShields(_ targ: Entity) {
 
 // Set the parent entity of this Vehicle NPC.
 /// Source: oracle/codemp/game/g_vehicles.c:3277
-func SetParent(_ pVeh: JKAMP.Vehicle, _ pParentEntity: JKAMP.BgEntity) {
+public func SetParent(_ pVeh: JKAMP.Vehicle, _ pParentEntity: JKAMP.BgEntity) {
     pVeh.m_pParentEntity = pParentEntity
 }
 
 // Add a pilot to the vehicle.
 /// Source: oracle/codemp/game/g_vehicles.c:3280
-func SetPilot(_ pVeh: JKAMP.Vehicle, _ pPilot: JKAMP.BgEntity) {
+public func SetPilot(_ pVeh: JKAMP.Vehicle, _ pPilot: JKAMP.BgEntity) {
     pVeh.m_pPilot = pPilot
 }
 
 // Add a passenger to the vehicle (false if we're full).
 /// Source: oracle/codemp/game/g_vehicles.c:3283
-func AddPassenger(_ pVeh: JKAMP.Vehicle) -> Bool {
+public func AddPassenger(_ pVeh: JKAMP.Vehicle) -> Bool {
     return false
 }
 
 // Whether this vehicle is currently inhabited (by anyone) or not.
 /// Source: oracle/codemp/game/g_vehicles.c:3286
-func Inhabited(_ pVeh: JKAMP.Vehicle) -> Bool {
+public func Inhabited(_ pVeh: JKAMP.Vehicle) -> Bool {
     return (pVeh.m_pPilot != nil || pVeh.m_iNumPassengers != 0) ? true : false
 }
 
 // Setup the shared functions (one's that all vehicles would generally use).
 /// Source: oracle/codemp/game/g_vehicles.c:3290
-func G_SetSharedVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
+public func G_SetSharedVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
     //	pVehInfo->AnimateVehicle				=		AnimateVehicle;
     //	pVehInfo->AnimateRiders					=		AnimateRiders;
     pVehInfo.ValidateBoard = VehicleInfoThunks.ValidateBoard

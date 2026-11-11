@@ -18,25 +18,25 @@ let redhudtint: JKAShared.vec4_t = JKAShared.vec4_t(1.0, 0.5, 0.5, 1.0)
 
 /// Source: oracle/codemp/cgame/cg_draw.c:26
 // Raven wrote: float *hudTintColor
-var hudTintColor: JKAShared.vec4_t {
+public var hudTintColor: JKAShared.vec4_t {
     get { world.hudTintColor }
     set { world.hudTintColor = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:28
-var sortedTeamPlayers: [Int32] {
+public var sortedTeamPlayers: [Int32] {
     get { world.variables.sortedTeamPlayers }
     set { world.variables.sortedTeamPlayers = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:29
-var numSortedTeamPlayers: Int32 {
+public var numSortedTeamPlayers: Int32 {
     get { world.variables.numSortedTeamPlayers }
     set { world.variables.numSortedTeamPlayers = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:31
-var lastvalidlockdif: Int32 {
+public var lastvalidlockdif: Int32 {
     get { world.variables.lastvalidlockdif }
     set { world.variables.lastvalidlockdif = newValue }
 }
@@ -54,7 +54,7 @@ nonisolated(unsafe) let teamChat1: JKAShared.CharBuf = JKAShared.CharBuf(256)
 nonisolated(unsafe) let teamChat2: JKAShared.CharBuf = JKAShared.CharBuf(256)
 
 /// Source: oracle/codemp/cgame/cg_draw.c:40
-var cg_siegeDeathTime: Int32 {
+public var cg_siegeDeathTime: Int32 {
     get { world.variables.cg_siegeDeathTime }
     set { world.variables.cg_siegeDeathTime = newValue }
 }
@@ -64,19 +64,19 @@ let MAX_HUD_TICS = 4 as Int32
 
 /// Source: oracle/codemp/cgame/cg_draw.c:43
 /// Raven's data table, a hand property of `CGameWorld`.
-var armorTicName: [String] { world.armorTicName }
+public var armorTicName: [String] { world.armorTicName }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:51
 /// Raven's data table, a hand property of `CGameWorld`.
-var healthTicName: [String] { world.healthTicName }
+public var healthTicName: [String] { world.healthTicName }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:59
 /// Raven's data table, a hand property of `CGameWorld`.
-var forceTicName: [String] { world.forceTicName }
+public var forceTicName: [String] { world.forceTicName }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:67
 /// Raven's data table, a hand property of `CGameWorld`.
-var ammoTicName: [String] { world.ammoTicName }
+public var ammoTicName: [String] { world.ammoTicName }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:75
 /// Raven's data table, a hand property of `CGameWorld`.
@@ -86,13 +86,13 @@ var showPowersName: [String?] { world.showPowersName }
 let MAX_SHOWPOWERS = JKAMP.NUM_FORCE_POWERS
 
 /// Source: oracle/codemp/cgame/cg_draw.c:1791
-var cg_targVeh: Int32 {
+public var cg_targVeh: Int32 {
     get { world.variables.cg_targVeh }
     set { world.variables.cg_targVeh = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:1792
-var cg_targVehLastTime: Int32 {
+public var cg_targVehLastTime: Int32 {
     get { world.variables.cg_targVehLastTime }
     set { world.variables.cg_targVehLastTime = newValue }
 }
@@ -110,19 +110,19 @@ let MAX_VHUD_ARMOR_TICS = 5 as Int32
 let MAX_VHUD_AMMO_TICS = 5 as Int32
 
 /// Source: oracle/codemp/cgame/cg_draw.c:1940
-var cg_vehicleAmmoWarning: Int32 {
+public var cg_vehicleAmmoWarning: Int32 {
     get { world.variables.cg_vehicleAmmoWarning }
     set { world.variables.cg_vehicleAmmoWarning = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:1941
-var cg_vehicleAmmoWarningTime: Int32 {
+public var cg_vehicleAmmoWarningTime: Int32 {
     get { world.variables.cg_vehicleAmmoWarningTime }
     set { world.variables.cg_vehicleAmmoWarningTime = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:2196
-var cg_drawLink: Bool {
+public var cg_drawLink: Bool {
     get { world.variables.cg_drawLink }
     set { world.variables.cg_drawLink = newValue }
 }
@@ -138,7 +138,7 @@ let FPS_FRAMES = 16 as Int32
 let MAX_HEALTH_FOR_IFACE = 100 as Int32
 
 /// Source: oracle/codemp/cgame/cg_draw.c:3167
-var cg_radarRange: Float {
+public var cg_radarRange: Float {
     get { world.variables.cg_radarRange }
     set { world.variables.cg_radarRange = newValue }
 }
@@ -177,7 +177,7 @@ let RADAR_MIN_ASTEROID_SURF_WARN_DIST = 1200.0 as Float
 let LAG_SAMPLES = 128 as Int32
 
 /// Source: oracle/codemp/cgame/cg_draw.c:4152
-var lagometer: Lagometer { world.storage.lagometer }
+public var lagometer: Lagometer { world.storage.lagometer }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:4244
 let MAX_LAGOMETER_PING = 900 as Int32
@@ -192,19 +192,19 @@ let HEALTH_WIDTH = 50.0 as Float
 let HEALTH_HEIGHT = 5.0 as Float
 
 /// Source: oracle/codemp/cgame/cg_draw.c:4738
-var cg_genericTimerBar: Int32 {
+public var cg_genericTimerBar: Int32 {
     get { world.variables.cg_genericTimerBar }
     set { world.variables.cg_genericTimerBar = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:4739
-var cg_genericTimerDur: Int32 {
+public var cg_genericTimerDur: Int32 {
     get { world.variables.cg_genericTimerDur }
     set { world.variables.cg_genericTimerDur = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:4740
-var cg_genericTimerColor: JKAShared.vec4_t {
+public var cg_genericTimerColor: JKAShared.vec4_t {
     get { world.variables.cg_genericTimerColor }
     set { world.variables.cg_genericTimerColor = newValue }
 }
@@ -222,13 +222,13 @@ let CGTIMERBAR_X = (JKAShared.SCREEN_WIDTH - CGTIMERBAR_W - 120.0)
 let CGTIMERBAR_Y = (JKAShared.SCREEN_HEIGHT - CGTIMERBAR_H - 20.0)
 
 /// Source: oracle/codemp/cgame/cg_draw.c:4802
-var cg_crosshairPrevPosX: Float {
+public var cg_crosshairPrevPosX: Float {
     get { world.variables.cg_crosshairPrevPosX }
     set { world.variables.cg_crosshairPrevPosX = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:4803
-var cg_crosshairPrevPosY: Float {
+public var cg_crosshairPrevPosY: Float {
     get { world.variables.cg_crosshairPrevPosY }
     set { world.variables.cg_crosshairPrevPosY = newValue }
 }
@@ -241,20 +241,20 @@ let CRAZY_CROSSHAIR_MAX_ERROR_Y = (100.0) as Float
 
 /// Source: oracle/codemp/cgame/cg_draw.c:4847
 /// Raven's data table, a hand property of `CGameWorld`.
-var cg_crosshairPos: JKAShared.vec3_t {
+public var cg_crosshairPos: JKAShared.vec3_t {
     get { world.cg_crosshairPos }
     set { world.cg_crosshairPos = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:5325
-var cg_saberFlashTime: Int32 {
+public var cg_saberFlashTime: Int32 {
     get { world.variables.cg_saberFlashTime }
     set { world.variables.cg_saberFlashTime = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:5326
 /// Raven's data table, a hand property of `CGameWorld`.
-var cg_saberFlashPos: JKAShared.vec3_t {
+public var cg_saberFlashPos: JKAShared.vec3_t {
     get { world.cg_saberFlashPos }
     set { world.cg_saberFlashPos = newValue }
 }
@@ -299,127 +299,127 @@ let CLFUELBAR_X = (JKAShared.SCREEN_WIDTH - CLFUELBAR_W - 8.0)
 let CLFUELBAR_Y = 260.0 as Float
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7317
-var cgRageTime: Int32 {
+public var cgRageTime: Int32 {
     get { world.variables.cgRageTime }
     set { world.variables.cgRageTime = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7318
-var cgRageFadeTime: Int32 {
+public var cgRageFadeTime: Int32 {
     get { world.variables.cgRageFadeTime }
     set { world.variables.cgRageFadeTime = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7319
-var cgRageFadeVal: Float {
+public var cgRageFadeVal: Float {
     get { world.variables.cgRageFadeVal }
     set { world.variables.cgRageFadeVal = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7321
-var cgRageRecTime: Int32 {
+public var cgRageRecTime: Int32 {
     get { world.variables.cgRageRecTime }
     set { world.variables.cgRageRecTime = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7322
-var cgRageRecFadeTime: Int32 {
+public var cgRageRecFadeTime: Int32 {
     get { world.variables.cgRageRecFadeTime }
     set { world.variables.cgRageRecFadeTime = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7323
-var cgRageRecFadeVal: Float {
+public var cgRageRecFadeVal: Float {
     get { world.variables.cgRageRecFadeVal }
     set { world.variables.cgRageRecFadeVal = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7325
-var cgAbsorbTime: Int32 {
+public var cgAbsorbTime: Int32 {
     get { world.variables.cgAbsorbTime }
     set { world.variables.cgAbsorbTime = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7326
-var cgAbsorbFadeTime: Int32 {
+public var cgAbsorbFadeTime: Int32 {
     get { world.variables.cgAbsorbFadeTime }
     set { world.variables.cgAbsorbFadeTime = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7327
-var cgAbsorbFadeVal: Float {
+public var cgAbsorbFadeVal: Float {
     get { world.variables.cgAbsorbFadeVal }
     set { world.variables.cgAbsorbFadeVal = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7329
-var cgProtectTime: Int32 {
+public var cgProtectTime: Int32 {
     get { world.variables.cgProtectTime }
     set { world.variables.cgProtectTime = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7330
-var cgProtectFadeTime: Int32 {
+public var cgProtectFadeTime: Int32 {
     get { world.variables.cgProtectFadeTime }
     set { world.variables.cgProtectFadeTime = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7331
-var cgProtectFadeVal: Float {
+public var cgProtectFadeVal: Float {
     get { world.variables.cgProtectFadeVal }
     set { world.variables.cgProtectFadeVal = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7333
-var cgYsalTime: Int32 {
+public var cgYsalTime: Int32 {
     get { world.variables.cgYsalTime }
     set { world.variables.cgYsalTime = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7334
-var cgYsalFadeTime: Int32 {
+public var cgYsalFadeTime: Int32 {
     get { world.variables.cgYsalFadeTime }
     set { world.variables.cgYsalFadeTime = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7335
-var cgYsalFadeVal: Float {
+public var cgYsalFadeVal: Float {
     get { world.variables.cgYsalFadeVal }
     set { world.variables.cgYsalFadeVal = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7337
-var gCGHasFallVector: Bool {
+public var gCGHasFallVector: Bool {
     get { world.variables.gCGHasFallVector }
     set { world.variables.gCGHasFallVector = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7338
-var gCGFallVector: JKAShared.vec3_t {
+public var gCGFallVector: JKAShared.vec3_t {
     get { world.variables.gCGFallVector }
     set { world.variables.gCGFallVector = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7351
-var cg_beatingSiegeTime: Int32 {
+public var cg_beatingSiegeTime: Int32 {
     get { world.variables.cg_beatingSiegeTime }
     set { world.variables.cg_beatingSiegeTime = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7353
-var cgSiegeRoundBeganTime: Int32 {
+public var cgSiegeRoundBeganTime: Int32 {
     get { world.variables.cgSiegeRoundBeganTime }
     set { world.variables.cgSiegeRoundBeganTime = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7354
-var cgSiegeRoundCountTime: Int32 {
+public var cgSiegeRoundCountTime: Int32 {
     get { world.variables.cgSiegeRoundCountTime }
     set { world.variables.cgSiegeRoundCountTime = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7481
-var cgSiegeEntityRender: Int32 {
+public var cgSiegeEntityRender: Int32 {
     get { world.variables.cgSiegeEntityRender }
     set { world.variables.cgSiegeEntityRender = newValue }
 }
@@ -431,12 +431,12 @@ let CHATBOX_CUTOFF_LEN = 550 as Int32
 let CHATBOX_FONT_HEIGHT = 20 as Int32
 
 /// Source: oracle/codemp/cgame/cg_draw.c:102
-func UI_ParseAnimationFile(_ filename: String, _ animset: JKAMP.Animation, _ isHumanoid: Bool) -> Int32 {
+public func UI_ParseAnimationFile(_ filename: String, _ animset: JKAMP.Animation, _ isHumanoid: Bool) -> Int32 {
     return BG_ParseAnimationFile(filename, Slots(record: animset), isHumanoid)
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:107
-func MenuFontToHandle(_ iMenuFont: Int32) -> Int32 {
+public func MenuFontToHandle(_ iMenuFont: Int32) -> Int32 {
     switch iMenuFont {
     case FONT_SMALL:
         return cgDC.Assets.qhSmallFont
@@ -458,21 +458,21 @@ func MenuFontToHandle(_ iMenuFont: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:123
-func CG_Text_Width(_ text: String, _ scale: Float, _ iMenuFont: Int32) -> Int32 {
+public func CG_Text_Width(_ text: String, _ scale: Float, _ iMenuFont: Int32) -> Int32 {
     let iFontIndex: Int32 = MenuFontToHandle(iMenuFont)
 
     return trap_R_Font_StrLenPixels(text, iFontIndex, scale)
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:130
-func CG_Text_Height(_ text: String, _ scale: Float, _ iMenuFont: Int32) -> Int32 {
+public func CG_Text_Height(_ text: String, _ scale: Float, _ iMenuFont: Int32) -> Int32 {
     let iFontIndex: Int32 = MenuFontToHandle(iMenuFont)
 
     return trap_R_Font_HeightPixels(iFontIndex, scale)
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:138
-func CG_Text_Paint(_ x: Float, _ y: Float, _ scale: Float, _ color: JKAShared.vec4_t, _ text: String, _ adjust: Float, _ limit: Int32, _ style: Int32, _ iMenuFont: Int32) {
+public func CG_Text_Paint(_ x: Float, _ y: Float, _ scale: Float, _ color: JKAShared.vec4_t, _ text: String, _ adjust: Float, _ limit: Int32, _ style: Int32, _ iMenuFont: Int32) {
     var iStyleOR: Int32 = 0
     let iFontIndex: Int32 = MenuFontToHandle(iMenuFont)
 
@@ -754,7 +754,7 @@ CG_Draw3DModel
 ```
 */
 /// Source: oracle/codemp/cgame/cg_draw.c:467
-func CG_Draw3DModel(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ model: JKAShared.qhandle_t, _ ghoul2: OpaquePointer?, _ g2radius: Int32, _ skin: JKAShared.qhandle_t, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t) {
+public func CG_Draw3DModel(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ model: JKAShared.qhandle_t, _ ghoul2: OpaquePointer?, _ g2radius: Int32, _ skin: JKAShared.qhandle_t, _ origin: JKAShared.vec3_t, _ angles: JKAShared.vec3_t) {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = Refdef.scratch { refdef -> Bool in
@@ -816,7 +816,7 @@ Used for both the status bar and the scoreboard
 ```
 */
 /// Source: oracle/codemp/cgame/cg_draw.c:512
-func CG_DrawHead(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ clientNum: Int32, _ headAngles: JKAShared.vec3_t) {
+public func CG_DrawHead(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ clientNum: Int32, _ headAngles: JKAShared.vec3_t) {
     var ci: ClientInfo?
 
     if clientNum >= MAX_CLIENTS {
@@ -844,7 +844,7 @@ Used for both the status bar and the scoreboard
 ```
 */
 /// Source: oracle/codemp/cgame/cg_draw.c:539
-func CG_DrawFlagModel(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ team: Int32, _ force2D: Bool) {
+public func CG_DrawFlagModel(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ team: Int32, _ force2D: Bool) {
     let cm: qhandle_t
     let len: Float
     var origin = vec3_t()
@@ -908,7 +908,7 @@ DrawAmmo
 ```
 */
 /// Source: oracle/codemp/cgame/cg_draw.c:598
-func DrawAmmo() {
+public func DrawAmmo() {
     let x: Int32
     let y: Int32
 
@@ -924,7 +924,7 @@ CG_DrawHealth
 ```
 */
 /// Source: oracle/codemp/cgame/cg_draw.c:614
-func CG_DrawHealth(_ menuHUD: MenuDef) {
+public func CG_DrawHealth(_ menuHUD: MenuDef) {
     var calcColor = vec4_t()
     var ps: PlayerState?
     var healthAmt: Int32
@@ -994,7 +994,7 @@ CG_DrawArmor
 ```
 */
 /// Source: oracle/codemp/cgame/cg_draw.c:702
-func CG_DrawArmor(_ menuHUD: MenuDef) {
+public func CG_DrawArmor(_ menuHUD: MenuDef) {
     var calcColor = vec4_t()
     var ps: PlayerState?
     var armor: Int32
@@ -1251,7 +1251,7 @@ CG_DrawForcePower
 ```
 */
 /// Source: oracle/codemp/cgame/cg_draw.c:1042
-func CG_DrawForcePower(_ menuHUD: MenuDef) {
+public func CG_DrawForcePower(_ menuHUD: MenuDef) {
     var i: Int32
     var calcColor = vec4_t()
     var value: Float
@@ -1349,7 +1349,7 @@ CG_DrawHUD
 ```
 */
 /// Source: oracle/codemp/cgame/cg_draw.c:1169
-func CG_DrawHUD(_ cent: Centity) {
+public func CG_DrawHUD(_ cent: Centity) {
     var menuHUD: MenuDef? = nil
     var focusItem: ItemDef? = nil
     var scoreStr: String? = nil
@@ -1510,7 +1510,7 @@ func CG_DrawHUD(_ cent: Centity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:1395
-func ForcePower_Valid(_ i: Int32) -> Bool {
+public func ForcePower_Valid(_ i: Int32) -> Bool {
     if i == FP_LEVITATION || i == FP_SABER_OFFENSE || i == FP_SABER_DEFENSE || i == FP_SABERTHROW {
         return false
     }
@@ -1523,7 +1523,7 @@ func ForcePower_Valid(_ i: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:1421
-func CG_DrawForceSelect() {
+public func CG_DrawForceSelect() {
     var i: Int32
     var count: Int32
     let smallIconSize: Int32
@@ -1678,7 +1678,7 @@ CG_DrawInventorySelect
 ```
 */
 /// Source: oracle/codemp/cgame/cg_draw.c:1585
-func CG_DrawInvenSelect() {
+public func CG_DrawInvenSelect() {
     var i: Int32
     let sideMax: Int32
     let holdCount: Int32
@@ -1870,7 +1870,7 @@ func CG_DrawInvenSelect() {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:1793
-func CG_CheckTargetVehicle(_ pTargetVeh: inout Centity?, _ alpha: inout Float) -> Bool {
+public func CG_CheckTargetVehicle(_ pTargetVeh: inout Centity?, _ alpha: inout Float) -> Bool {
     var targetNum: Int32 = ENTITYNUM_NONE
     var targetVeh: Centity? = nil
 
@@ -1925,7 +1925,7 @@ func CG_CheckTargetVehicle(_ pTargetVeh: inout Centity?, _ alpha: inout Float) -
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:1873
-func CG_DrawVehicleShields(_ menuHUD: MenuDef, _ veh: Centity) -> Float {
+public func CG_DrawVehicleShields(_ menuHUD: MenuDef, _ veh: Centity) -> Float {
     var i: Int32
     var itemName = CharBuf(64)
     let inc: Float
@@ -1983,7 +1983,7 @@ func CG_DrawVehicleShields(_ menuHUD: MenuDef, _ veh: Centity) -> Float {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:1942
-func CG_DrawVehicleAmmo(_ menuHUD: MenuDef, _ veh: Centity) {
+public func CG_DrawVehicleAmmo(_ menuHUD: MenuDef, _ veh: Centity) {
     var i: Int32
     var itemName = CharBuf(64)
     let inc: Float
@@ -2041,7 +2041,7 @@ func CG_DrawVehicleAmmo(_ menuHUD: MenuDef, _ veh: Centity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:2013
-func CG_DrawVehicleAmmoUpper(_ menuHUD: MenuDef, _ veh: Centity) {
+public func CG_DrawVehicleAmmoUpper(_ menuHUD: MenuDef, _ veh: Centity) {
     var i: Int32
     var itemName = CharBuf(64)
     let inc: Float
@@ -2099,7 +2099,7 @@ func CG_DrawVehicleAmmoUpper(_ menuHUD: MenuDef, _ veh: Centity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:2084
-func CG_DrawVehicleAmmoLower(_ menuHUD: MenuDef, _ veh: Centity) {
+public func CG_DrawVehicleAmmoLower(_ menuHUD: MenuDef, _ veh: Centity) {
     var i: Int32
     var itemName = CharBuf(64)
     let inc: Float
@@ -2159,7 +2159,7 @@ func CG_DrawVehicleAmmoLower(_ menuHUD: MenuDef, _ veh: Centity) {
 
 // The HUD.menu file has the graphic print with a negative height, so it will print from the bottom up.
 /// Source: oracle/codemp/cgame/cg_draw.c:2156
-func CG_DrawVehicleTurboRecharge(_ menuHUD: MenuDef, _ veh: Centity) {
+public func CG_DrawVehicleTurboRecharge(_ menuHUD: MenuDef, _ veh: Centity) {
     var item: ItemDef?
     var height: Int32
 
@@ -2189,7 +2189,7 @@ func CG_DrawVehicleTurboRecharge(_ menuHUD: MenuDef, _ veh: Centity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:2197
-func CG_DrawVehicleWeaponsLinked(_ menuHUD: MenuDef, _ veh: Centity) {
+public func CG_DrawVehicleWeaponsLinked(_ menuHUD: MenuDef, _ veh: Centity) {
     var drawLink: Bool = false
     if veh.m_pVehicle != nil && veh.m_pVehicle!.m_pVehicleInfo != nil && (veh.m_pVehicle!.m_pVehicleInfo!.weapon[0].linkable == 2 || veh.m_pVehicle!.m_pVehicleInfo!.weapon[1].linkable == 2) {
         //weapon is always linked
@@ -2231,7 +2231,7 @@ func CG_DrawVehicleWeaponsLinked(_ menuHUD: MenuDef, _ veh: Centity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:2251
-func CG_DrawVehicleSpeed(_ menuHUD: MenuDef, _ veh: Centity) {
+public func CG_DrawVehicleSpeed(_ menuHUD: MenuDef, _ veh: Centity) {
     var i: Int32
     var itemName = CharBuf(64)
     let inc: Float
@@ -2307,7 +2307,7 @@ func CG_DrawVehicleSpeed(_ menuHUD: MenuDef, _ veh: Centity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:2344
-func CG_DrawVehicleArmor(_ menuHUD: MenuDef, _ veh: Centity) {
+public func CG_DrawVehicleArmor(_ menuHUD: MenuDef, _ veh: Centity) {
     var i: Int32
     var calcColor = vec4_t()
     var itemName = CharBuf(64)
@@ -2365,7 +2365,7 @@ func CG_DrawVehicleArmor(_ menuHUD: MenuDef, _ veh: Centity) {
 
 // Draw health graphic for given part of vehicle
 /// Source: oracle/codemp/cgame/cg_draw.c:2434
-func CG_DrawVehicleDamage(_ veh: Centity, _ brokenLimbs: Int32, _ menuHUD: MenuDef, _ alpha: Float, _ index: Int32) {
+public func CG_DrawVehicleDamage(_ veh: Centity, _ brokenLimbs: Int32, _ menuHUD: MenuDef, _ alpha: Float, _ index: Int32) {
     var item: ItemDef?
     var colorI: Int32
     var color = vec4_t()
@@ -2414,7 +2414,7 @@ func CG_DrawVehicleDamage(_ veh: Centity, _ brokenLimbs: Int32, _ menuHUD: MenuD
 
 // Used on both damage indicators :  player vehicle and the vehicle the player is locked on
 /// Source: oracle/codemp/cgame/cg_draw.c:2495
-func CG_DrawVehicleDamageHUD(_ veh: Centity, _ brokenLimbs: Int32, _ percShields: Float, _ menuName: String, _ alpha: Float) {
+public func CG_DrawVehicleDamageHUD(_ veh: Centity, _ brokenLimbs: Int32, _ percShields: Float, _ menuName: String, _ alpha: Float) {
     var menuHUD: MenuDef?
     var item: ItemDef?
     var color = vec4_t()
@@ -2478,7 +2478,7 @@ func CG_DrawVehicleDamageHUD(_ veh: Centity, _ brokenLimbs: Int32, _ percShields
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:2585
-func CG_DrawVehicleHud(_ cent: Centity) -> Bool {
+public func CG_DrawVehicleHud(_ cent: Centity) -> Bool {
     var item: ItemDef?
     var menuHUD: MenuDef?
     var ps: PlayerState?
@@ -2651,7 +2651,7 @@ CG_DrawTeamBackground
 ```
 */
 /// Source: oracle/codemp/cgame/cg_draw.c:2776
-func CG_DrawTeamBackground(_ x: Int32, _ y: Int32, _ w: Int32, _ h: Int32, _ alpha: Float, _ team: Int32) {
+public func CG_DrawTeamBackground(_ x: Int32, _ y: Int32, _ w: Int32, _ h: Int32, _ alpha: Float, _ team: Int32) {
     var hcolor = vec4_t()
 
     hcolor[3] = alpha
@@ -2973,7 +2973,7 @@ var lastupdate: Int32 {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:3117
-func CG_DrawHealthBarRough(_ x: Float, _ y: Float, _ width: Int32, _ height: Int32, _ ratio: Float, _ color1: JKAShared.vec4_t?, _ color2: JKAShared.vec4_t?) {
+public func CG_DrawHealthBarRough(_ x: Float, _ y: Float, _ width: Int32, _ height: Int32, _ ratio: Float, _ color1: JKAShared.vec4_t?, _ color2: JKAShared.vec4_t?) {
     let midpoint: Float
     let remainder: Float
     var color3: [Float] = [1, 0, 0, 0.7]
@@ -2989,7 +2989,7 @@ func CG_DrawHealthBarRough(_ x: Float, _ y: Float, _ width: Int32, _ height: Int
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:3132
-func CG_DrawDuelistHealth(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ duelist: Int32) {
+public func CG_DrawDuelistHealth(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ duelist: Int32) {
     var duelHealthColor: [Float] = [1, 0, 0, 0.7]
     var healthSrc: Float = 0.0
     var ratio: Float
@@ -3013,7 +3013,7 @@ func CG_DrawDuelistHealth(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ duel
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:3179
-func CG_DrawRadar(_ y: Float) -> Float {
+public func CG_DrawRadar(_ y: Float) -> Float {
     var color = vec4_t()
     var teamColor = vec4_t()
     var arrow_w: Float
@@ -3832,7 +3832,7 @@ Adds the current interpolate / extrapolate bar for this frame
 ```
 */
 /// Source: oracle/codemp/cgame/cg_draw.c:4161
-func CG_AddLagometerFrameInfo() {
+public func CG_AddLagometerFrameInfo() {
     let offset: Int32
 
     offset = cg.time - cg.latestSnapshotTime
@@ -3853,7 +3853,7 @@ Pass NULL for a dropped packet.
 ```
 */
 /// Source: oracle/codemp/cgame/cg_draw.c:4179
-func CG_AddLagometerSnapshotInfo(_ snap: Snapshot?) {
+public func CG_AddLagometerSnapshotInfo(_ snap: Snapshot?) {
     // dropped packet
     if snap == nil {
         lagometer.snapshotSamples[lagometer.snapshotCount & (LAG_SAMPLES - 1)] = -1
@@ -4049,7 +4049,7 @@ private func CG_DrawLagometer() {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:4353
-func CG_DrawSiegeMessage(_ str: String, _ objectiveScreen: Int32) {
+public func CG_DrawSiegeMessage(_ str: String, _ objectiveScreen: Int32) {
     //	if (!( trap_Key_GetCatcher() & KEYCATCH_UI ))
     do {
         trap_OpenUIMenu(UIMENU_CLOSEALL)
@@ -4063,7 +4063,7 @@ func CG_DrawSiegeMessage(_ str: String, _ objectiveScreen: Int32) {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:4370
-func CG_DrawSiegeMessageNonMenu(_ str: String) {
+public func CG_DrawSiegeMessageNonMenu(_ str: String) {
     var text = CharBuf(1024)
     // Raven steps his own `str` parameter through its bytes, so the body walks a TextCursor over a copy of them.
     var str = TextCursor(CharBuf(str))
@@ -4086,7 +4086,7 @@ for a few moments
 ```
 */
 /// Source: oracle/codemp/cgame/cg_draw.c:4398
-func CG_CenterPrint(_ str: String, _ y: Int32, _ charWidth: Int32) {
+public func CG_CenterPrint(_ str: String, _ y: Int32, _ charWidth: Int32) {
     // Raven wrote: char *s;
     var s: TextCursor
 
@@ -4182,7 +4182,7 @@ private func CG_DrawCenterString() {
 
 //see if we can draw some extra info on this guy based on our class
 /// Source: oracle/codemp/cgame/cg_draw.c:4489
-func CG_DrawSiegeInfo(_ cent: Centity, _ chX: Float, _ chY: Float, _ chW: Float, _ chH: Float) {
+public func CG_DrawSiegeInfo(_ cent: Centity, _ chX: Float, _ chY: Float, _ chW: Float, _ chH: Float) {
     let se: SiegeExtended? = cg_siegeExtendedData[cent.currentState.number]
     var ci: ClientInfo?
     let configstring: String
@@ -4321,7 +4321,7 @@ func CG_DrawSiegeInfo(_ cent: Centity, _ chX: Float, _ chY: Float, _ chW: Float,
 
 //draw the health bar based on current "health" and maxhealth
 /// Source: oracle/codemp/cgame/cg_draw.c:4632
-func CG_DrawHealthBar(_ cent: Centity, _ chX: Float, _ chY: Float, _ chW: Float, _ chH: Float) {
+public func CG_DrawHealthBar(_ cent: Centity, _ chX: Float, _ chY: Float, _ chW: Float, _ chH: Float) {
     var aColor = vec4_t()
     var bColor = vec4_t()
     var cColor = vec4_t()
@@ -4377,7 +4377,7 @@ func CG_DrawHealthBar(_ cent: Centity, _ chX: Float, _ chY: Float, _ chW: Float,
 
 //same routine (at least for now), draw progress of a "hack" or whatever
 /// Source: oracle/codemp/cgame/cg_draw.c:4691
-func CG_DrawHaqrBar(_ chX: Float, _ chY: Float, _ chW: Float, _ chH: Float) {
+public func CG_DrawHaqrBar(_ chX: Float, _ chY: Float, _ chW: Float, _ chH: Float) {
     var aColor = vec4_t()
     var bColor = vec4_t()
     var cColor = vec4_t()
@@ -4421,7 +4421,7 @@ func CG_DrawHaqrBar(_ chX: Float, _ chY: Float, _ chW: Float, _ chH: Float) {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:4745
-func CG_DrawGenericTimerBar() {
+public func CG_DrawGenericTimerBar() {
     var aColor = vec4_t()
     var bColor = vec4_t()
     var cColor = vec4_t()
@@ -4466,7 +4466,7 @@ func CG_DrawGenericTimerBar() {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:4806
-func CG_LerpCrosshairPos(_ x: inout Float, _ y: inout Float) {
+public func CG_LerpCrosshairPos(_ x: inout Float, _ y: inout Float) {
     if cg_crosshairPrevPosX != 0 {
         //blend from old pos
         var maxMove: Float = 30.0 * (Float(cg.frametime) / 500.0) * 640.0 / 480.0
@@ -4819,7 +4819,7 @@ private func CG_DrawCrosshair(_ worldPoint: JKAShared.vec3_t?, _ chEntValid: Int
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:5270
-func CG_WorldCoordToScreenCoordFloat(_ worldCoord: JKAShared.vec3_t?, _ x: inout Float, _ y: inout Float) -> Bool {
+public func CG_WorldCoordToScreenCoordFloat(_ worldCoord: JKAShared.vec3_t?, _ x: inout Float, _ y: inout Float) -> Bool {
     let xcenter: Float
     let ycenter: Float
     var local = vec3_t()
@@ -4861,7 +4861,7 @@ func CG_WorldCoordToScreenCoordFloat(_ worldCoord: JKAShared.vec3_t?, _ x: inout
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:5311
-func CG_WorldCoordToScreenCoord(_ worldCoord: JKAShared.vec3_t, _ x: inout Int32, _ y: inout Int32) -> Bool {
+public func CG_WorldCoordToScreenCoord(_ worldCoord: JKAShared.vec3_t, _ x: inout Int32, _ y: inout Int32) -> Bool {
     var xF: Float = 0
     var yF: Float = 0
     let retVal: Bool = CG_WorldCoordToScreenCoordFloat(worldCoord, &xF, &yF)
@@ -4871,7 +4871,7 @@ func CG_WorldCoordToScreenCoord(_ worldCoord: JKAShared.vec3_t, _ x: inout Int32
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:5327
-func CG_SaberClashFlare() {
+public func CG_SaberClashFlare() {
     var t: Int32 = 0
     let maxTime: Int32 = 150
     var dif = vec3_t()
@@ -4937,7 +4937,7 @@ func CG_SaberClashFlare() {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:5388
-func CG_DottedLine(_ x1: Float, _ y1: Float, _ x2: Float, _ y2: Float, _ dotSize: Float, _ numDots: Int32, _ color: JKAShared.vec4_t, _ alpha: Float) {
+public func CG_DottedLine(_ x1: Float, _ y1: Float, _ x2: Float, _ y2: Float, _ dotSize: Float, _ numDots: Int32, _ color: JKAShared.vec4_t, _ alpha: Float) {
     var x: Float
     var y: Float
     let xDiff: Float
@@ -4969,7 +4969,7 @@ func CG_DottedLine(_ x1: Float, _ y1: Float, _ x2: Float, _ y2: Float, _ dotSize
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:5413
-func CG_BracketEntity(_ cent: Centity, _ radius: Float) {
+public func CG_BracketEntity(_ cent: Centity, _ radius: Float) {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = Trace.scratch { tr -> Bool in
@@ -5149,7 +5149,7 @@ func CG_BracketEntity(_ cent: Centity, _ radius: Float) {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:5602
-func CG_InFighter() -> Bool {
+public func CG_InFighter() -> Bool {
     if cg.predictedPlayerState.m_iVehicleNum != 0 {
         //I'm in a vehicle
         let vehCent: Centity? = cg_entities[cg.predictedPlayerState.m_iVehicleNum]
@@ -5162,7 +5162,7 @@ func CG_InFighter() -> Bool {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:5618
-func CG_InATST() -> Bool {
+public func CG_InATST() -> Bool {
     if cg.predictedPlayerState.m_iVehicleNum != 0 {
         //I'm in a vehicle
         let vehCent: Centity? = cg_entities[cg.predictedPlayerState.m_iVehicleNum]
@@ -5175,7 +5175,7 @@ func CG_InATST() -> Bool {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:5634
-func CG_DrawBracketedEntities() {
+public func CG_DrawBracketedEntities() {
     var i: Int32
     i = 0
     while i < cg.bracketedEntityCount {
@@ -5438,7 +5438,7 @@ private func CG_DrawRocketLocking(_ lockEntNum: Int32, _ lockTime: Int32) {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:5963
-func CG_CalcVehicleMuzzlePoint(_ entityNum: Int32, _ start: inout JKAShared.vec3_t, _ d_f: inout JKAShared.vec3_t, _ d_rt: inout JKAShared.vec3_t, _ d_up: inout JKAShared.vec3_t) -> Bool {
+public func CG_CalcVehicleMuzzlePoint(_ entityNum: Int32, _ start: inout JKAShared.vec3_t, _ d_f: inout JKAShared.vec3_t, _ d_rt: inout JKAShared.vec3_t, _ d_up: inout JKAShared.vec3_t) -> Bool {
     let vehCent: Centity? = cg_entities[entityNum]
     if vehCent!.m_pVehicle != nil && vehCent!.m_pVehicle!.m_pVehicleInfo!.type == VH_WALKER {
         //draw from barrels
@@ -5516,7 +5516,7 @@ func CG_CalcVehicleMuzzlePoint(_ entityNum: Int32, _ start: inout JKAShared.vec3
 
 //calc the muzzle point from the e-web itself
 /// Source: oracle/codemp/cgame/cg_draw.c:6043
-func CG_CalcEWebMuzzlePoint(_ cent: Centity, _ start: inout JKAShared.vec3_t, _ d_f: inout JKAShared.vec3_t, _ d_rt: inout JKAShared.vec3_t, _ d_up: inout JKAShared.vec3_t) {
+public func CG_CalcEWebMuzzlePoint(_ cent: Centity, _ start: inout JKAShared.vec3_t, _ d_f: inout JKAShared.vec3_t, _ d_rt: inout JKAShared.vec3_t, _ d_up: inout JKAShared.vec3_t) {
     let bolt: Int32 = trap_G2API_AddBolt(cent.ghoul2, 0, "*cannonflash")
 
 
@@ -5724,7 +5724,7 @@ private func CG_ScanForCrosshairEntity() {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:6288
-func CG_SanitizeString(_ `in`: String, _ out: inout JKAShared.CharBuf) {
+public func CG_SanitizeString(_ `in`: String, _ out: inout JKAShared.CharBuf) {
     let `in` = CharBuf(`in`)
     var i: Int32 = 0
     var r: Int32 = 0
@@ -6333,7 +6333,7 @@ CG_DrawTimedMenus
 ```
 */
 /// Source: oracle/codemp/cgame/cg_draw.c:7073
-func CG_DrawTimedMenus() {
+public func CG_DrawTimedMenus() {
     if cg.voiceTime != 0 {
         let t: Int32 = cg.time - cg.voiceTime
         if t > 2500 {
@@ -6345,7 +6345,7 @@ func CG_DrawTimedMenus() {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7084
-func CG_DrawFlagStatus() {
+public func CG_DrawFlagStatus() {
     var myFlagTakenShader: Int32 = 0
     var theirFlagShader: Int32 = 0
     var team: Int32 = 0
@@ -6393,7 +6393,7 @@ func CG_DrawFlagStatus() {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7150
-func CG_DrawJetpackFuel() {
+public func CG_DrawJetpackFuel() {
     var aColor = vec4_t()
     var bColor = vec4_t()
     var cColor = vec4_t()
@@ -6438,7 +6438,7 @@ func CG_DrawJetpackFuel() {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7202
-func CG_DrawEWebHealth() {
+public func CG_DrawEWebHealth() {
     var aColor = vec4_t()
     var bColor = vec4_t()
     var cColor = vec4_t()
@@ -6492,7 +6492,7 @@ func CG_DrawEWebHealth() {
 }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:7265
-func CG_DrawCloakFuel() {
+public func CG_DrawCloakFuel() {
     var aColor = vec4_t()
     var bColor = vec4_t()
     var cColor = vec4_t()
@@ -6673,7 +6673,7 @@ private func CG_DrawSiegeHUDItem() {
 //utility func, insert a string into a string at the specified
 //place (assuming this will not overflow the buffer)
 /// Source: oracle/codemp/cgame/cg_draw.c:7534
-func CG_ChatBox_StrInsert(_ buffer: inout JKAShared.CharBuf, _ place: Int32, _ str: String) {
+public func CG_ChatBox_StrInsert(_ buffer: inout JKAShared.CharBuf, _ place: Int32, _ str: String) {
     let str = CharBuf(str)
     let insLen: Int32 = strlen(str)
     var i: Int32 = strlen(buffer)
@@ -6697,7 +6697,7 @@ func CG_ChatBox_StrInsert(_ buffer: inout JKAShared.CharBuf, _ place: Int32, _ s
 
 //add chatbox string
 /// Source: oracle/codemp/cgame/cg_draw.c:7557
-func CG_ChatBox_AddString(_ chatStr: inout JKAShared.CharBuf) {
+public func CG_ChatBox_AddString(_ chatStr: inout JKAShared.CharBuf) {
     let chat: ChatBoxItem? = cg.chatItems[cg.chatItemActive]
     var chatLen: Float
     var chatStrIndex: Int32 = 0
@@ -6764,7 +6764,7 @@ func CG_ChatBox_AddString(_ chatStr: inout JKAShared.CharBuf) {
 
 //insert item into array (rearranging the array if necessary)
 /// Source: oracle/codemp/cgame/cg_draw.c:7627
-func CG_ChatBox_ArrayInsert(_ array: inout [ChatBoxItem?], _ insPoint: Int32, _ maxNum: Int32, _ item: ChatBoxItem) {
+public func CG_ChatBox_ArrayInsert(_ array: inout [ChatBoxItem?], _ insPoint: Int32, _ maxNum: Int32, _ item: ChatBoxItem) {
     if array[insPoint] != nil {
         //recursively call, to move everything up to the top
         if insPoint + 1 >= maxNum {
@@ -7542,7 +7542,7 @@ Perform all drawing needed to completely fill the screen
 ```
 */
 /// Source: oracle/codemp/cgame/cg_draw.c:8528
-func CG_DrawActive(_ stereoView: JKAMP.stereoFrame_t) {
+public func CG_DrawActive(_ stereoView: JKAMP.stereoFrame_t) {
     var separation: Float
     var baseOrg = vec3_t()
 

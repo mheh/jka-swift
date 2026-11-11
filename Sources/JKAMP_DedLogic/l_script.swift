@@ -8,7 +8,7 @@ import JKAMP_Ded
 // Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/botlib/l_script.cpp:151
-var basefolder: JKAShared.CharBuf {
+public var basefolder: JKAShared.CharBuf {
     get { world.variables.basefolder }
     set { world.variables.basefolder = newValue }
 }
@@ -20,7 +20,7 @@ var basefolder: JKAShared.CharBuf {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:160
-func PS_CreatePunctuationTable(_ script: Script, _ punctuations: Slots<Punctuation>) {
+public func PS_CreatePunctuationTable(_ script: Script, _ punctuations: Slots<Punctuation>) {
     var i: Int32
     var p: Punctuation?
     var lastp: Punctuation?
@@ -69,7 +69,7 @@ func PS_CreatePunctuationTable(_ script: Script, _ punctuations: Slots<Punctuati
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:200
-func PunctuationFromNum(_ script: Script, _ num: Int32) -> String {
+public func PunctuationFromNum(_ script: Script, _ num: Int32) -> String {
     var i: Int32
 
     i = 0
@@ -87,7 +87,7 @@ func PunctuationFromNum(_ script: Script, _ num: Int32) -> String {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:216
-func ScriptError(_ script: Script, _ str: String, _ args: any JKAShared.FormatArg...) {
+public func ScriptError(_ script: Script, _ str: String, _ args: any JKAShared.FormatArg...) {
     var text = CharBuf(1024)
 
     if (script.flags & SCFL_NOERRORS) != 0 { return }
@@ -103,7 +103,7 @@ func ScriptError(_ script: Script, _ str: String, _ args: any JKAShared.FormatAr
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:242
-func ScriptWarning(_ script: Script, _ str: String, _ args: any JKAShared.FormatArg...) {
+public func ScriptWarning(_ script: Script, _ str: String, _ args: any JKAShared.FormatArg...) {
     var text = CharBuf(1024)
 
     if (script.flags & SCFL_NOWARNINGS) != 0 { return }
@@ -119,7 +119,7 @@ func ScriptWarning(_ script: Script, _ str: String, _ args: any JKAShared.Format
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:268
-func SetScriptPunctuations(_ script: Script, _ p: Punctuation?) {
+public func SetScriptPunctuations(_ script: Script, _ p: Punctuation?) {
     if p != nil {
         PS_CreatePunctuationTable(script, Slots(record: p!))
     } else {
@@ -141,7 +141,7 @@ func SetScriptPunctuations(_ script: Script, _ p: Punctuation?) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:285
-func PS_ReadWhiteSpace(_ script: Script) -> Int32 {
+public func PS_ReadWhiteSpace(_ script: Script) -> Int32 {
     while true {
         //skip white space
         while (script.buffer![byte: script.script_p] as Int32) <= Int32(ascii: " ") {
@@ -192,7 +192,7 @@ func PS_ReadWhiteSpace(_ script: Script) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:344
-func PS_ReadEscapeCharacter(_ script: Script, _ ch: inout CChar) -> Int32 {
+public func PS_ReadEscapeCharacter(_ script: Script, _ ch: inout CChar) -> Int32 {
     var c: Int32
     var val: Int32
     var i: Int32
@@ -282,7 +282,7 @@ func PS_ReadEscapeCharacter(_ script: Script, _ ch: inout CChar) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:422
-func PS_ReadString(_ script: Script, _ token: Token, _ quote: Int32) -> Int32 {
+public func PS_ReadString(_ script: Script, _ token: Token, _ quote: Int32) -> Int32 {
     var len: Int32
     var tmpline: Int32
     var tmpscript_p: Int32
@@ -371,7 +371,7 @@ func PS_ReadString(_ script: Script, _ token: Token, _ quote: Int32) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:511
-func PS_ReadName(_ script: Script, _ token: Token) -> Int32 {
+public func PS_ReadName(_ script: Script, _ token: Token) -> Int32 {
     var len: Int32 = 0
     var c: CChar
 
@@ -402,7 +402,7 @@ func PS_ReadName(_ script: Script, _ token: Token) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:541
-func NumberValue(_ string: inout JKAShared.CharBuf, _ subtype: Int32, _ intvalue: inout UInt32, _ floatvalue: inout Double) {
+public func NumberValue(_ string: inout JKAShared.CharBuf, _ subtype: Int32, _ intvalue: inout UInt32, _ floatvalue: inout Double) {
     var dotfound: UInt32 = 0
     // Raven steps his own `string` parameter through its bytes, so the body holds the byte offset of his pointer.
     var stringIndex: Int32 = 0
@@ -483,7 +483,7 @@ func NumberValue(_ string: inout JKAShared.CharBuf, _ subtype: Int32, _ intvalue
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:613
-func PS_ReadNumber(_ script: Script, _ token: Token) -> Int32 {
+public func PS_ReadNumber(_ script: Script, _ token: Token) -> Int32 {
     var len: Int32 = 0
     var i: Int32
     var octal: Int32
@@ -601,7 +601,7 @@ func PS_ReadNumber(_ script: Script, _ token: Token) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:721
-func PS_ReadLiteral(_ script: Script, _ token: Token) -> Int32 {
+public func PS_ReadLiteral(_ script: Script, _ token: Token) -> Int32 {
     // Port-note: Raven's one call, at l_script.cpp:870, is a comment, so the function is dead.
     token.type = TT_LITERAL
     //first quote
@@ -648,7 +648,7 @@ func PS_ReadLiteral(_ script: Script, _ token: Token) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:768
-func PS_ReadPunctuation(_ script: Script, _ token: Token) -> Int32 {
+public func PS_ReadPunctuation(_ script: Script, _ token: Token) -> Int32 {
     var len: Int32
     var p: String
     var punc: Punctuation?
@@ -681,7 +681,7 @@ func PS_ReadPunctuation(_ script: Script, _ token: Token) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:809
-func PS_ReadPrimitive(_ script: Script, _ token: Token) -> Int32 {
+public func PS_ReadPrimitive(_ script: Script, _ token: Token) -> Int32 {
     var len: Int32
 
     len = 0
@@ -710,7 +710,7 @@ func PS_ReadPrimitive(_ script: Script, _ token: Token) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:835
-func PS_ReadToken(_ script: Script, _ token: Token) -> Int32 {
+public func PS_ReadToken(_ script: Script, _ token: Token) -> Int32 {
     //if there is a token available (from UnreadToken)
     if script.tokenavailable != 0 {
         script.tokenavailable = 0
@@ -778,7 +778,7 @@ func PS_ReadToken(_ script: Script, _ token: Token) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:909
-func PS_ExpectTokenString(_ script: Script, _ string: String) -> Int32 {
+public func PS_ExpectTokenString(_ script: Script, _ string: String) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     return Token.scratch { token -> Int32 in
         if PS_ReadToken(script, token) == 0 {
@@ -801,7 +801,7 @@ func PS_ExpectTokenString(_ script: Script, _ string: String) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:932
-func PS_ExpectTokenType(_ script: Script, _ type: Int32, _ subtype: Int32, _ token: Token) -> Int32 {
+public func PS_ExpectTokenType(_ script: Script, _ type: Int32, _ subtype: Int32, _ token: Token) -> Int32 {
     var str = CharBuf(MAX_TOKEN)
 
     if PS_ReadToken(script, token) == 0 {
@@ -855,7 +855,7 @@ func PS_ExpectTokenType(_ script: Script, _ type: Int32, _ subtype: Int32, _ tok
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:990
-func PS_ExpectAnyToken(_ script: Script, _ token: Token) -> Int32 {
+public func PS_ExpectAnyToken(_ script: Script, _ token: Token) -> Int32 {
     if PS_ReadToken(script, token) == 0 {
         ScriptError(script, "couldn't read expected token")
         return 0
@@ -872,7 +872,7 @@ func PS_ExpectAnyToken(_ script: Script, _ token: Token) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1008
-func PS_CheckTokenString(_ script: Script, _ string: String) -> Int32 {
+public func PS_CheckTokenString(_ script: Script, _ string: String) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     return Token.scratch { tok -> Int32 in
         if PS_ReadToken(script, tok) == 0 { return 0 }
@@ -891,7 +891,7 @@ func PS_CheckTokenString(_ script: Script, _ string: String) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1025
-func PS_CheckTokenType(_ script: Script, _ type: Int32, _ subtype: Int32, _ token: Token) -> Int32 {
+public func PS_CheckTokenType(_ script: Script, _ type: Int32, _ subtype: Int32, _ token: Token) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     return Token.scratch { tok -> Int32 in
         if PS_ReadToken(script, tok) == 0 { return 0 }
@@ -914,7 +914,7 @@ func PS_CheckTokenType(_ script: Script, _ type: Int32, _ subtype: Int32, _ toke
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1047
-func PS_SkipUntilString(_ script: Script, _ string: String) -> Int32 {
+public func PS_SkipUntilString(_ script: Script, _ string: String) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     return Token.scratch { token -> Int32 in
         while PS_ReadToken(script, token) != 0 {
@@ -931,7 +931,7 @@ func PS_SkipUntilString(_ script: Script, _ string: String) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1063
-func PS_UnreadLastToken(_ script: Script) {
+public func PS_UnreadLastToken(_ script: Script) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     script.tokenavailable = 1
 }
@@ -943,7 +943,7 @@ func PS_UnreadLastToken(_ script: Script) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1073
-func PS_UnreadToken(_ script: Script, _ token: Token) {
+public func PS_UnreadToken(_ script: Script, _ token: Token) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     script.token.copy(from: token)
     script.tokenavailable = 1
@@ -957,7 +957,7 @@ func PS_UnreadToken(_ script: Script, _ token: Token) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1085
-func PS_NextWhiteSpaceChar(_ script: Script) -> Int32 {
+public func PS_NextWhiteSpaceChar(_ script: Script) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     if script.whitespace_p != script.endwhitespace_p {
         defer { script.whitespace_p += 1 }
@@ -975,7 +975,7 @@ func PS_NextWhiteSpaceChar(_ script: Script) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1102
-func StripDoubleQuotes(_ string: inout JKAShared.CharBuf) {
+public func StripDoubleQuotes(_ string: inout JKAShared.CharBuf) {
     if string[0] == Int32(ascii: "\"") {
         // Port-note: Raven's strcpy copies the text over its own source, which C leaves undefined.
         // The copy reads the bytes after the quote first, so the text moves one byte to the left.
@@ -995,7 +995,7 @@ func StripDoubleQuotes(_ string: inout JKAShared.CharBuf) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1119
-func StripSingleQuotes(_ string: inout JKAShared.CharBuf) {
+public func StripSingleQuotes(_ string: inout JKAShared.CharBuf) {
     if string[0] == Int32(ascii: "'") {
         // Port-note: Raven's strcpy copies the text over its own source, which C leaves undefined.
         // The copy reads the bytes after the quote first, so the text moves one byte to the left.
@@ -1015,7 +1015,7 @@ func StripSingleQuotes(_ string: inout JKAShared.CharBuf) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1136
-func ReadSignedFloat(_ script: Script) -> Double {
+public func ReadSignedFloat(_ script: Script) -> Double {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     return Token.scratch { token -> Double in
         var sign: Double = 1
@@ -1039,7 +1039,7 @@ func ReadSignedFloat(_ script: Script) -> Double {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1159
-func ReadSignedInt(_ script: Script) -> Int32 {
+public func ReadSignedInt(_ script: Script) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     return Token.scratch { token -> Int32 in
         var sign: Int32 = 1
@@ -1064,7 +1064,7 @@ func ReadSignedInt(_ script: Script) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1182
-func SetScriptFlags(_ script: Script, _ flags: Int32) {
+public func SetScriptFlags(_ script: Script, _ flags: Int32) {
     script.flags = flags
 }
 
@@ -1075,7 +1075,7 @@ func SetScriptFlags(_ script: Script, _ flags: Int32) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1192
-func GetScriptFlags(_ script: Script) -> Int32 {
+public func GetScriptFlags(_ script: Script) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     return script.flags
 }
@@ -1087,7 +1087,7 @@ func GetScriptFlags(_ script: Script) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1202
-func ResetScript(_ script: Script) {
+public func ResetScript(_ script: Script) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     //pointer in script buffer
     script.script_p = 0
@@ -1115,7 +1115,7 @@ func ResetScript(_ script: Script) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1227
-func EndOfScript(_ script: Script) -> Int32 {
+public func EndOfScript(_ script: Script) -> Int32 {
     return script.script_p >= script.end_p ? 1 : 0
 }
 
@@ -1126,7 +1126,7 @@ func EndOfScript(_ script: Script) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1237
-func NumLinesCrossed(_ script: Script) -> Int32 {
+public func NumLinesCrossed(_ script: Script) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     return script.line - script.lastline
 }
@@ -1138,7 +1138,7 @@ func NumLinesCrossed(_ script: Script) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1247
-func ScriptSkipTo(_ script: Script, _ value: String) -> Int32 {
+public func ScriptSkipTo(_ script: Script, _ value: String) -> Int32 {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     var len: Int32
     var firstchar: CChar
@@ -1163,7 +1163,7 @@ func ScriptSkipTo(_ script: Script, _ value: String) -> Int32 {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1293
-func LoadScriptFile(_ filename: String) -> Script? {
+public func LoadScriptFile(_ filename: String) -> Script? {
     var fp: fileHandle_t = 0
     var pathname = CharBuf(MAX_QPATH)
     var length: Int32
@@ -1217,7 +1217,7 @@ func LoadScriptFile(_ filename: String) -> Script? {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1362
-func LoadScriptMemory(_ ptr: String, _ length: Int32, _ name: String) -> Script? {
+public func LoadScriptMemory(_ ptr: String, _ length: Int32, _ name: String) -> Script? {
     let buffer = GetClearedMemory(Int32(Script.byteCount) + length + 1)
     let script = Script(buffer)
     script.clear()
@@ -1252,7 +1252,7 @@ func LoadScriptMemory(_ ptr: String, _ length: Int32, _ name: String) -> Script?
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1398
-func FreeScript(_ script: Script) {
+public func FreeScript(_ script: Script) {
     if script.punctuationtable != nil { FreeMemory(OpaquePointer(script.punctuationtable!.base)) }
     FreeMemory(script.handle)
 }
@@ -1264,6 +1264,6 @@ func FreeScript(_ script: Script) {
 // Changes Globals:		-
 //============================================================================
 /// Source: oracle/codemp/botlib/l_script.cpp:1411
-func PS_SetBaseFolder(_ path: String) {
+public func PS_SetBaseFolder(_ path: String) {
     Com_sprintf(&basefolder, Int32(basefolder.count), path)
 }

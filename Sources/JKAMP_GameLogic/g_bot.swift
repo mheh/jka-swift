@@ -17,7 +17,7 @@ var g_botInfos: [String] {
 }
 
 /// Source: oracle/codemp/game/g_bot.c:12
-var g_numArenas: Int32 {
+public var g_numArenas: Int32 {
     get { world.variables.g_numArenas }
     set { world.variables.g_numArenas = newValue }
 }
@@ -41,10 +41,10 @@ let BOT_SPAWN_QUEUE_DEPTH = 16 as Int32
 var botSpawnQueue: Slots<BotSpawnQueue> { world.storage.botSpawnQueue }
 
 /// Source: oracle/codemp/game/g_bot.c:29
-var bot_minplayers: JKAMP.VmCvar { world.storage.bot_minplayers }
+public var bot_minplayers: JKAMP.VmCvar { world.storage.bot_minplayers }
 
 /// Source: oracle/codemp/game/g_bot.c:36
-func trap_Cvar_VariableValue(_ var_name: String) -> Float {
+public func trap_Cvar_VariableValue(_ var_name: String) -> Float {
     var buf = CharBuf(128)
 
     strcpy(&buf, trap_Cvar_VariableStringBuffer(var_name, Int32((buf).count)))
@@ -59,7 +59,7 @@ G_ParseInfos
 ```
 */
 /// Source: oracle/codemp/game/g_bot.c:50
-func G_ParseInfos(_ buf: inout JKAShared.CharBuf, _ max: Int32, _ infos: inout ArraySlice<String>) -> Int32 {
+public func G_ParseInfos(_ buf: inout JKAShared.CharBuf, _ max: Int32, _ infos: inout ArraySlice<String>) -> Int32 {
     var buf = TextCursor(buf)
     var token: String
     var count: Int32
@@ -141,7 +141,7 @@ private func G_LoadArenasFromFile(_ filename: String) {
 }
 
 /// Source: oracle/codemp/game/g_bot.c:129
-func G_GetMapTypeBits(_ type: String?) -> Int32 {
+public func G_GetMapTypeBits(_ type: String?) -> Int32 {
     let type = CharBuf(type!)
     var typeBits: Int32 = 0
 
@@ -184,7 +184,7 @@ func G_GetMapTypeBits(_ type: String?) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_bot.c:171
-func G_DoesMapSupportGametype(_ mapname: String, _ gametype: Int32) -> Bool {
+public func G_DoesMapSupportGametype(_ mapname: String, _ gametype: Int32) -> Bool {
     var typeBits: Int32 = 0
     var thisLevel: Int32 = -1
     var n: Int32 = 0
@@ -226,7 +226,7 @@ func G_DoesMapSupportGametype(_ mapname: String, _ gametype: Int32) -> Bool {
 
 //rww - auto-obtain nextmap. I could've sworn Q3 had something like this, but I guess not.
 /// Source: oracle/codemp/game/g_bot.c:216
-func G_RefreshNextMap(_ gametype: Int32, _ forced: Bool) -> String? {
+public func G_RefreshNextMap(_ gametype: Int32, _ forced: Bool) -> String? {
     var typeBits: Int32 = 0
     var thisLevel: Int32 = 0
     var desiredMap: Int32 = 0
@@ -352,7 +352,7 @@ G_GetArenaInfoByNumber
 ```
 */
 /// Source: oracle/codemp/game/g_bot.c:329
-func G_GetArenaInfoByMap(_ map: String) -> String? {
+public func G_GetArenaInfoByMap(_ map: String) -> String? {
     var n: Int32
 
     n = 0
@@ -374,7 +374,7 @@ G_AddRandomBot
 ```
 */
 /// Source: oracle/codemp/game/g_bot.c:373
-func G_AddRandomBot(_ team: Int32) {
+public func G_AddRandomBot(_ team: Int32) {
     var i: Int32
     var n: Int32
     var num: Int32
@@ -484,7 +484,7 @@ G_RemoveRandomBot
 ```
 */
 /// Source: oracle/codemp/game/g_bot.c:461
-func G_RemoveRandomBot(_ team: Int32) -> Int32 {
+public func G_RemoveRandomBot(_ team: Int32) -> Int32 {
     var i: Int32
     var netname = CharBuf(36)
     var cl: Client?
@@ -528,7 +528,7 @@ G_CountHumanPlayers
 ```
 */
 /// Source: oracle/codemp/game/g_bot.c:499
-func G_CountHumanPlayers(_ team: Int32) -> Int32 {
+public func G_CountHumanPlayers(_ team: Int32) -> Int32 {
     var i: Int32
     var num: Int32
     var cl: Client?
@@ -563,7 +563,7 @@ G_CountBotPlayers
 ```
 */
 /// Source: oracle/codemp/game/g_bot.c:525
-func G_CountBotPlayers(_ team: Int32) -> Int32 {
+public func G_CountBotPlayers(_ team: Int32) -> Int32 {
     var i: Int32
     var n: Int32
     var num: Int32
@@ -623,7 +623,7 @@ G_CheckMinimumPlayers
 var checkminimumplayers_time: Int32 { get { world.checkminimumplayers_time } set { world.checkminimumplayers_time = newValue } }
 
 /// Source: oracle/codemp/game/g_bot.c:569
-func G_CheckMinimumPlayers() {
+public func G_CheckMinimumPlayers() {
     var minplayers: Int32
     let humanplayers: Int32
     let botplayers: Int32
@@ -752,7 +752,7 @@ G_CheckBotSpawn
 ```
 */
 /// Source: oracle/codemp/game/g_bot.c:697
-func G_CheckBotSpawn() {
+public func G_CheckBotSpawn() {
     var n: Int32
 
     G_CheckMinimumPlayers()
@@ -816,7 +816,7 @@ doesn't happen on a freed index
 ```
 */
 /// Source: oracle/codemp/game/g_bot.c:751
-func G_RemoveQueuedBotBegin(_ clientNum: Int32) {
+public func G_RemoveQueuedBotBegin(_ clientNum: Int32) {
     var n: Int32
 
     n = 0
@@ -837,7 +837,7 @@ G_BotConnect
 ```
 */
 /// Source: oracle/codemp/game/g_bot.c:768
-func G_BotConnect(_ clientNum: Int32, _ restart: Bool) -> Bool {
+public func G_BotConnect(_ clientNum: Int32, _ restart: Bool) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return BotSettings.scratch { settings -> Bool in
@@ -1088,7 +1088,7 @@ Svcmd_AddBot_f
 ```
 */
 /// Source: oracle/codemp/game/g_bot.c:1041
-func Svcmd_AddBot_f() {
+public func Svcmd_AddBot_f() {
     let skill: Float
     let delay: Int32
     var name = CharBuf(1024)
@@ -1147,7 +1147,7 @@ Svcmd_BotList_f
 ```
 */
 /// Source: oracle/codemp/game/g_bot.c:1100
-func Svcmd_BotList_f() {
+public func Svcmd_BotList_f() {
     var i: Int32
     var name = CharBuf(1024)
     var funname = CharBuf(1024)
@@ -1272,7 +1272,7 @@ G_GetBotInfoByNumber
 ```
 */
 /// Source: oracle/codemp/game/g_bot.c:1265
-func G_GetBotInfoByNumber(_ num: Int32) -> String? {
+public func G_GetBotInfoByNumber(_ num: Int32) -> String? {
     if num < 0 || num >= g_numBots {
         trap_Printf(va(S_COLOR_RED + "Invalid bot number: %i\n", num))
         return nil
@@ -1288,7 +1288,7 @@ G_GetBotInfoByName
 ```
 */
 /// Source: oracle/codemp/game/g_bot.c:1279
-func G_GetBotInfoByName(_ name: String) -> String? {
+public func G_GetBotInfoByName(_ name: String) -> String? {
     var n: Int32
     var value: String
 
@@ -1312,7 +1312,7 @@ G_InitBots
 ```
 */
 /// Source: oracle/codemp/game/g_bot.c:1302
-func G_InitBots(_ restart: Bool) {
+public func G_InitBots(_ restart: Bool) {
     G_LoadBots()
     G_LoadArenas()
 

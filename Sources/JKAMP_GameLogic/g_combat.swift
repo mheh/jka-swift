@@ -6,7 +6,7 @@ import JKAMP_BG
 
 /// Source: oracle/codemp/game/g_combat.c:755
 /// Raven's data table, a hand property of `GameWorld`.
-var modNames: [String?] {
+public var modNames: [String?] {
     get { world.modNames }
     set { world.modNames = newValue }
 }
@@ -19,37 +19,37 @@ let DEATH_ALERT_SOUND_RADIUS = 512 as Int32
 
 /// Source: oracle/codemp/game/g_combat.c:3165
 /// Raven's data table, a hand property of `GameWorld`.
-var hitLocName: [String] {
+public var hitLocName: [String] {
     get { world.hitLocName }
     set { world.hitLocName = newValue }
 }
 
 /// Source: oracle/codemp/game/g_combat.c:3753
-var gGAvoidDismember: Int32 {
+public var gGAvoidDismember: Int32 {
     get { world.variables.gGAvoidDismember }
     set { world.variables.gGAvoidDismember = newValue }
 }
 
 /// Source: oracle/codemp/game/g_combat.c:4573
-var gPainMOD: Int32 {
+public var gPainMOD: Int32 {
     get { world.variables.gPainMOD }
     set { world.variables.gPainMOD = newValue }
 }
 
 /// Source: oracle/codemp/game/g_combat.c:4574
-var gPainHitLoc: Int32 {
+public var gPainHitLoc: Int32 {
     get { world.variables.gPainHitLoc }
     set { world.variables.gPainHitLoc = newValue }
 }
 
 /// Source: oracle/codemp/game/g_combat.c:4575
-var gPainPoint: JKAShared.vec3_t {
+public var gPainPoint: JKAShared.vec3_t {
     get { world.variables.gPainPoint }
     set { world.variables.gPainPoint = newValue }
 }
 
 /// Source: oracle/codemp/game/g_combat.c:22
-func ObjectDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ meansOfDeath: Int32) {
+public func ObjectDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ meansOfDeath: Int32) {
     if `self`.target != nil {
         G_UseTargets(`self`, attacker)
     }
@@ -59,7 +59,7 @@ func ObjectDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ dama
 }
 
 /// Source: oracle/codemp/game/g_combat.c:33
-func G_HeavyMelee(_ attacker: Entity) -> Bool {
+public func G_HeavyMelee(_ attacker: Entity) -> Bool {
     if g_gametype.integer == GT_SIEGE && attacker.client != nil && attacker.client!.siegeClass != -1 && (bgSiegeClasses[attacker.client!.siegeClass].classflags & (1 << CFL_HEAVYMELEE)) != 0 {
         return true
     }
@@ -67,7 +67,7 @@ func G_HeavyMelee(_ attacker: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:46
-func G_GetHitLocation(_ target: Entity, _ ppoint: JKAShared.vec3_t?) -> Int32 {
+public func G_GetHitLocation(_ target: Entity, _ ppoint: JKAShared.vec3_t?) -> Int32 {
     var point = vec3_t()
     var point_dir = vec3_t()
     var forward = vec3_t()
@@ -228,7 +228,7 @@ func G_GetHitLocation(_ target: Entity, _ ppoint: JKAShared.vec3_t?) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:369
-func ExplodeDeath(_ `self`: Entity) {
+public func ExplodeDeath(_ `self`: Entity) {
     //	gentity_t	*tent;
     var forward = vec3_t()
 
@@ -277,7 +277,7 @@ ScorePlum
 ```
 */
 /// Source: oracle/codemp/game/g_combat.c:417
-func ScorePlum(_ ent: Entity, _ origin: JKAShared.vec3_t, _ score: Int32) {
+public func ScorePlum(_ ent: Entity, _ origin: JKAShared.vec3_t, _ score: Int32) {
     var plum: Entity?
 
     plum = G_TempEntity(origin, EV_SCOREPLUM)
@@ -290,7 +290,7 @@ func ScorePlum(_ ent: Entity, _ origin: JKAShared.vec3_t, _ score: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:437
-func AddScore(_ ent: Entity, _ origin: JKAShared.vec3_t, _ score: Int32) {
+public func AddScore(_ ent: Entity, _ origin: JKAShared.vec3_t, _ score: Int32) {
     /*
     if (g_gametype.integer == GT_SIEGE)
     { //no scoring in this gametype at all.
@@ -325,7 +325,7 @@ rww - Toss the weapon away from the player in the specified direction
 ```
 */
 /// Source: oracle/codemp/game/g_combat.c:469
-func TossClientWeapon(_ `self`: Entity, _ direction: JKAShared.vec3_t, _ speed: Float) {
+public func TossClientWeapon(_ `self`: Entity, _ direction: JKAShared.vec3_t, _ speed: Float) {
     var vel = vec3_t()
     var item: Gitem?
     var launched: Entity?
@@ -416,7 +416,7 @@ Toss the weapon and powerups for the killed player
 ```
 */
 /// Source: oracle/codemp/game/g_combat.c:568
-func TossClientItems(_ `self`: Entity) {
+public func TossClientItems(_ `self`: Entity) {
     var item: Gitem?
     var weapon: Int32
     var angle: Float
@@ -493,7 +493,7 @@ LookAtKiller
 ```
 */
 /// Source: oracle/codemp/game/g_combat.c:643
-func LookAtKiller(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity) {
+public func LookAtKiller(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity) {
     var dir = vec3_t()
     var angles = vec3_t()
 
@@ -521,7 +521,7 @@ GibEntity
 ```
 */
 /// Source: oracle/codemp/game/g_combat.c:668
-func GibEntity(_ `self`: Entity, _ killer: Int32) {
+public func GibEntity(_ `self`: Entity, _ killer: Int32) {
     G_AddEvent(`self`, EV_GIB_PLAYER, killer)
     `self`.takedamage = false
     `self`.s.eType = ET_INVISIBLE
@@ -529,7 +529,7 @@ func GibEntity(_ `self`: Entity, _ killer: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:675
-func BodyRid(_ ent: Entity) {
+public func BodyRid(_ ent: Entity) {
     trap_UnlinkEntity(ent)
     ent.physicsObject = false
 }
@@ -542,7 +542,7 @@ body_die
 ```
 */
 /// Source: oracle/codemp/game/g_combat.c:686
-func body_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ meansOfDeath: Int32) {
+public func body_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ meansOfDeath: Int32) {
     // NOTENOTE No gibbing right now, this is star wars.
     var doDisint: Bool = false
 
@@ -595,7 +595,7 @@ CheckAlmostCapture
 ```
 */
 /// Source: oracle/codemp/game/g_combat.c:806
-func CheckAlmostCapture(_ `self`: Entity, _ attacker: Entity) {
+public func CheckAlmostCapture(_ `self`: Entity, _ attacker: Entity) {
     // if this player was carrying a flag
     // get the goal flag this player should have been going for
     // if we found the destination flag and it's not picked up
@@ -603,7 +603,7 @@ func CheckAlmostCapture(_ `self`: Entity, _ attacker: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:853
-func G_InKnockDown(_ ps: JKAMP.PlayerState) -> Bool {
+public func G_InKnockDown(_ ps: JKAMP.PlayerState) -> Bool {
     switch (ps.legsAnim) {
     case BOTH_KNOCKDOWN1, BOTH_KNOCKDOWN2, BOTH_KNOCKDOWN3, BOTH_KNOCKDOWN4, BOTH_KNOCKDOWN5:
         return true
@@ -1062,7 +1062,7 @@ private func G_CheckSpecialDeathAnim(_ `self`: Entity, _ point: JKAShared.vec3_t
 }
 
 /// Source: oracle/codemp/game/g_combat.c:1374
-func G_PickDeathAnim(_ `self`: Entity, _ point: JKAShared.vec3_t, _ damage: Int32, _ mod: Int32, _ hitLoc: Int32) -> Int32 {
+public func G_PickDeathAnim(_ `self`: Entity, _ point: JKAShared.vec3_t, _ damage: Int32, _ mod: Int32, _ hitLoc: Int32) -> Int32 {
     //FIXME: play dead flop anims on body if in an appropriate _DEAD anim when this func is called
     var deathAnim: Int32 = -1
     let max_health: Int32
@@ -1346,7 +1346,7 @@ func G_PickDeathAnim(_ `self`: Entity, _ point: JKAShared.vec3_t, _ damage: Int3
 }
 
 /// Source: oracle/codemp/game/g_combat.c:1744
-func G_GetJediMaster() -> Entity? {
+public func G_GetJediMaster() -> Entity? {
     var i: Int32 = 0
     var ent: Entity?
 
@@ -1364,7 +1364,7 @@ func G_GetJediMaster() -> Entity? {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:1770
-func G_AlertTeam(_ victim: Entity, _ attacker: Entity, _ radius: Float, _ soundDist: Float) {
+public func G_AlertTeam(_ victim: Entity, _ attacker: Entity, _ radius: Float, _ soundDist: Float) {
     var radiusEnts: [Int32] = [Int32](repeating: 0, count: 128)
     var check: Entity?
     var mins = vec3_t()
@@ -1478,13 +1478,13 @@ func G_AlertTeam(_ victim: Entity, _ attacker: Entity, _ radius: Float, _ soundD
 }
 
 /// Source: oracle/codemp/game/g_combat.c:1869
-func G_DeathAlert(_ victim: Entity, _ attacker: Entity) {
+public func G_DeathAlert(_ victim: Entity, _ attacker: Entity) {
     //FIXME: with all the other alert stuff, do we really need this?
     G_AlertTeam(victim, attacker, Float(DEATH_ALERT_RADIUS), Float(DEATH_ALERT_SOUND_RADIUS))
 }
 
 /// Source: oracle/codemp/game/g_combat.c:1883
-func DeathFX(_ ent: Entity) {
+public func DeathFX(_ ent: Entity) {
     var effectPos = vec3_t()
     var right = vec3_t()
     var defaultDir = vec3_t()
@@ -1580,7 +1580,7 @@ func DeathFX(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:1986
-func G_CheckVictoryScript(_ `self`: Entity) {
+public func G_CheckVictoryScript(_ `self`: Entity) {
     if !G_ActivateBehavior(`self`, BSET_VICTORY) {
         if `self`.NPC != nil && `self`.s.weapon == WP_SABER {
             //Jedi taunt from within their AI
@@ -1606,7 +1606,7 @@ func G_CheckVictoryScript(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:2016
-func G_AddPowerDuelScore(_ team: Int32, _ score: Int32) {
+public func G_AddPowerDuelScore(_ team: Int32, _ score: Int32) {
     var i: Int32 = 0
     var check: Entity?
 
@@ -1622,7 +1622,7 @@ func G_AddPowerDuelScore(_ team: Int32, _ score: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:2037
-func G_AddPowerDuelLoserScore(_ team: Int32, _ score: Int32) {
+public func G_AddPowerDuelLoserScore(_ team: Int32, _ score: Int32) {
     var i: Int32 = 0
     var check: Entity?
 
@@ -1638,7 +1638,7 @@ func G_AddPowerDuelLoserScore(_ team: Int32, _ score: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:2059
-func G_BroadcastObit(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ killer: Int32, _ meansOfDeath: Int32, _ wasInVehicle: Int32, _ wasJediMaster: Bool) {
+public func G_BroadcastObit(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ killer: Int32, _ meansOfDeath: Int32, _ wasInVehicle: Int32, _ wasJediMaster: Bool) {
     // broadcast the death event to everyone
     if `self`.s.eType != ET_NPC && !g_noPDuelCheck {
         var ent: Entity?
@@ -1679,7 +1679,7 @@ var i_player_die: Int32 {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:2123
-func player_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ meansOfDeath: Int32) {
+public func player_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ meansOfDeath: Int32) {
     let anim: Int32
     let contents: Int32
     var killer: Int32
@@ -2440,7 +2440,7 @@ CheckArmor
 ```
 */
 /// Source: oracle/codemp/game/g_combat.c:3019
-func CheckArmor(_ ent: Entity, _ damage: Int32, _ dflags: Int32) -> Int32 {
+public func CheckArmor(_ ent: Entity, _ damage: Int32, _ dflags: Int32) -> Int32 {
     var client: Client?
     var save: Int32
     let count: Int32
@@ -2493,7 +2493,7 @@ func CheckArmor(_ ent: Entity, _ damage: Int32, _ dflags: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:3074
-func G_ApplyKnockback(_ targ: Entity, _ newDir: JKAShared.vec3_t, _ knockback: Float) {
+public func G_ApplyKnockback(_ targ: Entity, _ newDir: JKAShared.vec3_t, _ knockback: Float) {
     var kvel = vec3_t()
     let mass: Float
 
@@ -2543,7 +2543,7 @@ RaySphereIntersections
 ```
 */
 /// Source: oracle/codemp/game/g_combat.c:3128
-func RaySphereIntersections(_ origin: JKAShared.vec3_t, _ radius: Float, _ point: JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t, _ intersections: inout [JKAShared.vec3_t]) -> Int32 {
+public func RaySphereIntersections(_ origin: JKAShared.vec3_t, _ radius: Float, _ point: JKAShared.vec3_t, _ dir: inout JKAShared.vec3_t, _ intersections: inout [JKAShared.vec3_t]) -> Int32 {
     let b: Float
     let c: Float
     let d: Float
@@ -2575,7 +2575,7 @@ func RaySphereIntersections(_ origin: JKAShared.vec3_t, _ radius: Float, _ point
 }
 
 /// Source: oracle/codemp/game/g_combat.c:3192
-func G_GetDismemberLoc(_ `self`: Entity, _ boltPoint: inout JKAShared.vec3_t, _ limbType: Int32) {
+public func G_GetDismemberLoc(_ `self`: Entity, _ boltPoint: inout JKAShared.vec3_t, _ limbType: Int32) {
     //Just get the general area without using server-side ghoul2
     var fwd = vec3_t()
     var right = vec3_t()
@@ -2649,7 +2649,7 @@ func G_GetDismemberLoc(_ `self`: Entity, _ boltPoint: inout JKAShared.vec3_t, _ 
 }
 
 /// Source: oracle/codemp/game/g_combat.c:3264
-func G_GetDismemberBolt(_ `self`: Entity, _ boltPoint: inout JKAShared.vec3_t, _ limbType: Int32) {
+public func G_GetDismemberBolt(_ `self`: Entity, _ boltPoint: inout JKAShared.vec3_t, _ limbType: Int32) {
     var useBolt: Int32 = `self`.genericValue5
     var properOrigin = vec3_t()
     var properAngles = vec3_t()
@@ -2763,11 +2763,11 @@ func G_GetDismemberBolt(_ `self`: Entity, _ boltPoint: inout JKAShared.vec3_t, _
 }
 
 /// Source: oracle/codemp/game/g_combat.c:3387
-func LimbTouch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+public func LimbTouch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:3391
-func LimbThink(_ ent: Entity) {
+public func LimbThink(_ ent: Entity) {
     let gravity: Float = 3.0
     var mass: Float = 0.09
     var bounce: Float = 1.3
@@ -2801,7 +2801,7 @@ func LimbThink(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:3436
-func G_Dismember(_ ent: Entity, _ enemy: Entity, _ point: JKAShared.vec3_t, _ limbType: Int32, _ limbRollBase: Float, _ limbPitchBase: Float, _ deathAnim: Int32, _ postDeath: Bool) {
+public func G_Dismember(_ ent: Entity, _ enemy: Entity, _ point: JKAShared.vec3_t, _ limbType: Int32, _ limbRollBase: Float, _ limbPitchBase: Float, _ deathAnim: Int32, _ postDeath: Bool) {
     var newPoint = vec3_t()
     var dir = vec3_t()
     var vel = vec3_t()
@@ -2961,7 +2961,7 @@ func G_Dismember(_ ent: Entity, _ enemy: Entity, _ point: JKAShared.vec3_t, _ li
 }
 
 /// Source: oracle/codemp/game/g_combat.c:3622
-func DismembermentTest(_ `self`: Entity) {
+public func DismembermentTest(_ `self`: Entity) {
     var sect: Int32 = G2_MODELPART_HEAD
     var boltPoint = vec3_t()
 
@@ -2973,7 +2973,7 @@ func DismembermentTest(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:3635
-func DismembermentByNum(_ `self`: Entity, _ num: Int32) {
+public func DismembermentByNum(_ `self`: Entity, _ num: Int32) {
     var sect: Int32 = G2_MODELPART_HEAD
     var boltPoint = vec3_t()
 
@@ -3008,7 +3008,7 @@ func DismembermentByNum(_ `self`: Entity, _ num: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:3671
-func G_GetHitQuad(_ `self`: Entity, _ hitloc: JKAShared.vec3_t) -> Int32 {
+public func G_GetHitQuad(_ `self`: Entity, _ hitloc: JKAShared.vec3_t) -> Int32 {
     var diff = vec3_t()
     var fwdangles = vec3_t(0, 0, 0)
     var right = vec3_t()
@@ -3071,7 +3071,7 @@ func G_GetHitQuad(_ `self`: Entity, _ hitloc: JKAShared.vec3_t) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:3757
-func G_GetHitLocFromSurfName(_ ent: Entity, _ surfName: String, _ hitLoc: inout Int32, _ point: JKAShared.vec3_t?, _ dir: JKAShared.vec3_t?, _ bladeDir: JKAShared.vec3_t, _ mod: Int32) -> Bool {
+public func G_GetHitLocFromSurfName(_ ent: Entity, _ surfName: String, _ hitLoc: inout Int32, _ point: JKAShared.vec3_t?, _ dir: JKAShared.vec3_t?, _ bladeDir: JKAShared.vec3_t, _ mod: Int32) -> Bool {
     var dismember: Bool = false
     var actualTime: Int32 = 0
     var kneeLBolt: Int32 = -1
@@ -3430,7 +3430,7 @@ func G_GetHitLocFromSurfName(_ ent: Entity, _ surfName: String, _ hitLoc: inout 
 }
 
 /// Source: oracle/codemp/game/g_combat.c:4218
-func G_CheckForDismemberment(_ ent: Entity, _ enemy: Entity, _ point: JKAShared.vec3_t, _ damage: Int32, _ deathAnim: Int32, _ postDeath: Bool) {
+public func G_CheckForDismemberment(_ ent: Entity, _ enemy: Entity, _ point: JKAShared.vec3_t, _ damage: Int32, _ deathAnim: Int32, _ postDeath: Bool) {
     var hitLoc: Int32 = -1
     var hitLocUse: Int32 = -1
     var boltPoint = vec3_t()
@@ -3535,7 +3535,7 @@ func G_CheckForDismemberment(_ ent: Entity, _ enemy: Entity, _ point: JKAShared.
 }
 
 /// Source: oracle/codemp/game/g_combat.c:4346
-func G_LocationBasedDamageModifier(_ ent: Entity, _ point: JKAShared.vec3_t?, _ mod: Int32, _ dflags: Int32, _ damage: inout Int32) {
+public func G_LocationBasedDamageModifier(_ ent: Entity, _ point: JKAShared.vec3_t?, _ mod: Int32, _ dflags: Int32, _ damage: inout Int32) {
     var hitLoc: Int32 = -1
 
     if g_locationBasedDamage.integer == 0 {
@@ -3601,7 +3601,7 @@ func G_LocationBasedDamageModifier(_ ent: Entity, _ point: JKAShared.vec3_t?, _ 
 }
 
 /// Source: oracle/codemp/game/g_combat.c:4432
-func G_ThereIsAMaster() -> Bool {
+public func G_ThereIsAMaster() -> Bool {
     var i: Int32 = 0
     var ent: Entity?
 
@@ -3619,7 +3619,7 @@ func G_ThereIsAMaster() -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:4452
-func G_Knockdown(_ victim: Entity) {
+public func G_Knockdown(_ victim: Entity) {
     if victim.client != nil && BG_KnockDownable(victim.client!.ps) {
         victim.client!.ps.forceHandExtend = HANDEXTEND_KNOCKDOWN
         victim.client!.ps.forceDodgeAnim = 0
@@ -3629,7 +3629,7 @@ func G_Knockdown(_ victim: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:4463
-func G_ApplyVehicleOtherKiller(_ targ: Entity, _ inflictor: Entity, _ attacker: Entity, _ mod: Int32, _ vehicleDying: Bool) {
+public func G_ApplyVehicleOtherKiller(_ targ: Entity, _ inflictor: Entity, _ attacker: Entity, _ mod: Int32, _ vehicleDying: Bool) {
     if targ.client != nil {
         if targ.client!.ps.otherKillerDebounceTime > level.time {
             //wait a minute, I already have a last damager
@@ -3685,7 +3685,7 @@ func G_ApplyVehicleOtherKiller(_ targ: Entity, _ inflictor: Entity, _ attacker: 
 }
 
 /// Source: oracle/codemp/game/g_combat.c:4528
-func G_CheckVehicleNPCTeamDamage(_ ent: Entity) -> Bool {
+public func G_CheckVehicleNPCTeamDamage(_ ent: Entity) -> Bool {
     //NOTE: this covers both the vehicle and NPCs riding vehicles (droids)
     if ent.s.number < MAX_CLIENTS || ent.s.eType != ET_NPC {
         //not valid or a real client or not an NPC
@@ -3703,7 +3703,7 @@ func G_CheckVehicleNPCTeamDamage(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_combat.c:4577
-func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: inout JKAShared.vec3_t?, _ point: JKAShared.vec3_t?, _ damage: Int32, _ dflags: Int32, _ mod: Int32) {
+public func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: inout JKAShared.vec3_t?, _ point: JKAShared.vec3_t?, _ damage: Int32, _ dflags: Int32, _ mod: Int32) {
     var client: Client?
     var take: Int32
     let save: Int32
@@ -4599,14 +4599,14 @@ func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: 
 
 /// A caller that passes a vector for `dir` reaches `G_Damage` through this forward, and a NULL caller passes the optional.
 /// Source: oracle/codemp/game/g_combat.c:4577
-func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: inout JKAShared.vec3_t, _ point: JKAShared.vec3_t?, _ damage: Int32, _ dflags: Int32, _ mod: Int32) {
+public func G_Damage(_ targ: Entity, _ inflictor: Entity?, _ attacker: Entity?, _ dir: inout JKAShared.vec3_t, _ point: JKAShared.vec3_t?, _ damage: Int32, _ dflags: Int32, _ mod: Int32) {
     var optionalDir: JKAShared.vec3_t? = dir
     defer { dir = optionalDir! }
     G_Damage(targ, inflictor, attacker, &optionalDir, point, damage, dflags, mod)
 }
 
 /// Source: oracle/codemp/game/g_combat.c:5717
-func G_DamageFromKiller(_ pEnt: Entity, _ pVehEnt: Entity, _ attacker: Entity?, _ org: JKAShared.vec3_t, _ damage: Int32, _ dflags: Int32, _ mod: Int32) {
+public func G_DamageFromKiller(_ pEnt: Entity, _ pVehEnt: Entity, _ attacker: Entity?, _ org: JKAShared.vec3_t, _ damage: Int32, _ dflags: Int32, _ mod: Int32) {
     var killer: Entity? = attacker
     var inflictor: Entity? = attacker
     var tempInflictor: Bool = false
@@ -4657,7 +4657,7 @@ explosions and melee attacks.
 ```
 */
 /// Source: oracle/codemp/game/g_combat.c:5768
-func CanDamage(_ targ: Entity, _ origin: JKAShared.vec3_t) -> Bool {
+public func CanDamage(_ targ: Entity, _ origin: JKAShared.vec3_t) -> Bool {
     var dest = vec3_t()
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
@@ -4722,7 +4722,7 @@ G_RadiusDamage
 ```
 */
 /// Source: oracle/codemp/game/g_combat.c:5823
-func G_RadiusDamage(_ origin: JKAShared.vec3_t, _ attacker: Entity, _ damage: Float, _ radius: Float, _ ignore: Entity?, _ missile: Entity?, _ mod: Int32) -> Bool {
+public func G_RadiusDamage(_ origin: JKAShared.vec3_t, _ attacker: Entity, _ damage: Float, _ radius: Float, _ ignore: Entity?, _ missile: Entity?, _ mod: Int32) -> Bool {
     var points: Float
     var dist: Float
     var ent: Entity?

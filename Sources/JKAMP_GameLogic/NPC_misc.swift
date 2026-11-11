@@ -10,7 +10,7 @@ Debug_Printf
 ```
 */
 /// Source: oracle/codemp/game/NPC_misc.c:10
-func Debug_Printf(_ cv: JKAMP.VmCvar, _ debugLevel: Int32, _ fmt: String, _ args: any JKAShared.FormatArg...) {
+public func Debug_Printf(_ cv: JKAMP.VmCvar, _ debugLevel: Int32, _ fmt: String, _ args: any JKAShared.FormatArg...) {
     var color: String
     var msg = CharBuf(1024)
 
@@ -41,7 +41,7 @@ Debug_NPCPrintf
 ```
 */
 /// Source: oracle/codemp/game/NPC_misc.c:41
-func Debug_NPCPrintf(_ printNPC: Entity, _ cv: JKAMP.VmCvar, _ debugLevel: Int32, _ fmt: String, _ args: any JKAShared.FormatArg...) {
+public func Debug_NPCPrintf(_ printNPC: Entity, _ cv: JKAMP.VmCvar, _ debugLevel: Int32, _ fmt: String, _ args: any JKAShared.FormatArg...) {
     var color: Int32
     var msg = CharBuf(1024)
 

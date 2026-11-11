@@ -110,7 +110,7 @@ and whenever the server updates any serverinfo flagged cvars
 ```
 */
 /// Source: oracle/codemp/cgame/cg_servercmds.c:105
-func CG_ParseServerinfo() {
+public func CG_ParseServerinfo() {
     let info: String
     let tinfo: String
     let mapname: String
@@ -220,7 +220,7 @@ Called on load to set the initial values from configure strings
 ```
 */
 /// Source: oracle/codemp/cgame/cg_servercmds.c:213
-func CG_SetConfigValues() {
+public func CG_SetConfigValues() {
     let s: String
     let str: String
 
@@ -275,7 +275,7 @@ CG_ShaderStateChanged
 ```
 */
 /// Source: oracle/codemp/cgame/cg_servercmds.c:269
-func CG_ShaderStateChanged() {
+public func CG_ShaderStateChanged() {
     var originalShader = CharBuf(64)
     var newShader = CharBuf(64)
     var timeOffset = CharBuf(16)
@@ -350,7 +350,7 @@ private func GetCustomSoundForType(_ setType: Int32, _ index: Int32) -> String? 
 }
 
 /// Source: oracle/codemp/cgame/cg_servercmds.c:332
-func SetCustomSoundForType(_ ci: ClientInfo, _ setType: Int32, _ index: Int32, _ sfx: JKAShared.sfxHandle_t) {
+public func SetCustomSoundForType(_ ci: ClientInfo, _ setType: Int32, _ index: Int32, _ sfx: JKAShared.sfxHandle_t) {
     switch setType {
     case 1:
         ci.sounds[index] = sfx
@@ -445,7 +445,7 @@ private func CG_RegisterCustomSounds(_ ci: ClientInfo, _ setType: Int32, _ psDir
 }
 
 /// Source: oracle/codemp/cgame/cg_servercmds.c:432
-func CG_PrecacheNPCSounds(_ str: String) {
+public func CG_PrecacheNPCSounds(_ str: String) {
     var sEnd = CharBuf(64)
     var pEnd = CharBuf(64)
     var i: Int32 = 0
@@ -493,7 +493,7 @@ func CG_PrecacheNPCSounds(_ str: String) {
 }
 
 /// Source: oracle/codemp/cgame/cg_servercmds.c:484
-func CG_HandleNPCSounds(_ cent: Centity) {
+public func CG_HandleNPCSounds(_ cent: Centity) {
     if cent.npcClient == nil {
         return
     }
@@ -597,7 +597,7 @@ func CG_HandleNPCSounds(_ cent: Centity) {
 
 // nmckenzie: DUEL_HEALTH - fixme - we could really clean this up immensely with some helper functions.
 /// Source: oracle/codemp/cgame/cg_servercmds.c:612
-func SetDuelistHealthsFromConfigString(_ str: String) {
+public func SetDuelistHealthsFromConfigString(_ str: String) {
     var buf = CharBuf(64)
     var c: Int32 = 0
     var i: Int32 = 0
@@ -811,7 +811,7 @@ private func CG_ConfigStringModified() {
 
 //frees all ghoul2 stuff and npc stuff from a centity -rww
 /// Source: oracle/codemp/cgame/cg_servercmds.c:863
-func CG_KillCEntityG2(_ entNum: Int32) {
+public func CG_KillCEntityG2(_ entNum: Int32) {
     var j: Int32
     var ci: ClientInfo? = nil
     let cent: Centity? = cg_entities[entNum]
@@ -871,7 +871,7 @@ func CG_KillCEntityG2(_ entNum: Int32) {
 }
 
 /// Source: oracle/codemp/cgame/cg_servercmds.c:937
-func CG_KillCEntityInstances() {
+public func CG_KillCEntityInstances() {
     var i: Int32 = 0
     var cent: Centity?
 
@@ -1003,7 +1003,7 @@ private func CG_RemoveChatEscapeChar(_ text: inout JKAShared.CharBuf) {
 }
 
 /// Source: oracle/codemp/cgame/cg_servercmds.c:1059
-func CG_CheckSVStringEdRef(_ buf: inout JKAShared.CharBuf, _ str: String) {
+public func CG_CheckSVStringEdRef(_ buf: inout JKAShared.CharBuf, _ str: String) {
     //I don't really like doing this. But it utilizes the system that was already in place.
     var i: Int32 = 0
     var b: Int32 = 0
@@ -1531,7 +1531,7 @@ with this this snapshot.
 ```
 */
 /// Source: oracle/codemp/cgame/cg_servercmds.c:1681
-func CG_ExecuteNewServerCommands(_ latestSequence: Int32) {
+public func CG_ExecuteNewServerCommands(_ latestSequence: Int32) {
     while cgs.serverCommandSequence < latestSequence {
         cgs.serverCommandSequence += 1
         if trap_GetServerCommand(cgs.serverCommandSequence) {

@@ -47,7 +47,7 @@ NPC_Sentry_Precache
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Sentry.c:37
-func NPC_Sentry_Precache() {
+public func NPC_Sentry_Precache() {
     var i: Int32
 
     G_SoundIndex("sound/chars/sentry/misc/sentry_explo")
@@ -77,7 +77,7 @@ sentry_use
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Sentry.c:64
-func sentry_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func sentry_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     G_ActivateBehavior(`self`, BSET_USE)
 
     `self`.flags &= ~FL_SHIELDED
@@ -94,7 +94,7 @@ NPC_Sentry_Pain
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Sentry.c:79
-func NPC_Sentry_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func NPC_Sentry_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     let mod: Int32 = gPainMOD
 
     NPC_Pain(`self`, attacker, damage)
@@ -128,7 +128,7 @@ Sentry_Fire
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Sentry.c:112
-func Sentry_Fire() {
+public func Sentry_Fire() {
     var muzzle = vec3_t()
     var forward = vec3_t()
     var vright = vec3_t()
@@ -221,7 +221,7 @@ Sentry_MaintainHeight
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Sentry.c:210
-func Sentry_MaintainHeight() {
+public func Sentry_MaintainHeight() {
     var dif: Float
 
     NPC!.s.loopSound = G_SoundIndex("sound/chars/sentry/misc/sentry_hover_1_lp")
@@ -303,7 +303,7 @@ Sentry_Idle
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Sentry.c:311
-func Sentry_Idle() {
+public func Sentry_Idle() {
     Sentry_MaintainHeight()
 
     // Is he waking up?
@@ -328,7 +328,7 @@ Sentry_Strafe
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Sentry.c:338
-func Sentry_Strafe() {
+public func Sentry_Strafe() {
     var dir: Int32 = 0
     var end = vec3_t()
     var right = vec3_t()
@@ -371,7 +371,7 @@ Sentry_Hunt
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Sentry.c:372
-func Sentry_Hunt(_ visible: Bool, _ advance: Bool) {
+public func Sentry_Hunt(_ visible: Bool, _ advance: Bool) {
     var distance: Float = 0
     let speed: Float
     var forward = vec3_t()
@@ -417,7 +417,7 @@ Sentry_RangedAttack
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Sentry.c:418
-func Sentry_RangedAttack(_ visible: Bool, _ advance: Bool) {
+public func Sentry_RangedAttack(_ visible: Bool, _ advance: Bool) {
     if TIMER_Done(NPC!, "attackDelay") && NPC!.attackDebounceTime < level.time && visible {
         if NPCInfo!.burstCount > 6 {
             if NPC!.fly_sound_debounce_time == 0 {
@@ -450,7 +450,7 @@ Sentry_AttackDecision
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Sentry.c:455
-func Sentry_AttackDecision() {
+public func Sentry_AttackDecision() {
     let distance: Float
     let visible: Bool
     let advance: Bool
@@ -508,7 +508,7 @@ NPC_Sentry_Patrol
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Sentry.c:519
-func NPC_Sentry_Patrol() {
+public func NPC_Sentry_Patrol() {
     Sentry_MaintainHeight()
 
     //If we have somewhere to go, then do that
@@ -544,7 +544,7 @@ NPC_BSSentry_Default
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Sentry.c:557
-func NPC_BSSentry_Default() {
+public func NPC_BSSentry_Default() {
     if NPC!.targetname != nil {
         NPC!.use = Use.sentry_use
     }

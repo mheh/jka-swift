@@ -113,7 +113,7 @@ var localIP: [[JKAShared.byte]] {
 }
 
 /// Source: oracle/codemp/win32/win_net.cpp:248
-var recvfromCount: Int32 {
+public var recvfromCount: Int32 {
     get { world.variables.recvfromCount }
     set { world.variables.recvfromCount = newValue }
 }
@@ -132,7 +132,7 @@ NET_ErrorString
 ```
 */
 /// Source: oracle/codemp/win32/win_net.cpp:43
-func NET_ErrorString() -> String {
+public func NET_ErrorString() -> String {
     let code: Int32
 
     // AI: Raven called the Winsock WSAGetLastError. The backend reads errno.
@@ -161,7 +161,7 @@ idnewt
 ```
 */
 /// Source: oracle/codemp/win32/win_net.cpp:228
-func Sys_StringToAdr(_ s: String, _ a: Netadr) -> Bool {
+public func Sys_StringToAdr(_ s: String, _ a: Netadr) -> Bool {
     var sadr = Sockaddr()
 
     if !Sys_StringToSockaddr(s, &sadr) {
@@ -173,7 +173,7 @@ func Sys_StringToAdr(_ s: String, _ a: Netadr) -> Bool {
 }
 
 /// Source: oracle/codemp/win32/win_net.cpp:250
-func Sys_GetPacket(_ net_from: Netadr, _ net_message: Msg) -> Bool {
+public func Sys_GetPacket(_ net_from: Netadr, _ net_message: Msg) -> Bool {
     var ret: Int32
     var from = Sockaddr()
     var fromlen: Int32
@@ -254,7 +254,7 @@ Sys_SendPacket
 ```
 */
 /// Source: oracle/codemp/win32/win_net.cpp:393
-func Sys_SendPacket(_ length: Int32, _ data: Slots<JKAShared.byte>, _ to: Netadr) {
+public func Sys_SendPacket(_ length: Int32, _ data: Slots<JKAShared.byte>, _ to: Netadr) {
     let ret: Int32
     var addr = Sockaddr()
     let net_socket: Int32
@@ -319,7 +319,7 @@ LAN clients will have their rate var ignored
 ```
 */
 /// Source: oracle/codemp/win32/win_net.cpp:479
-func Sys_IsLANAddress(_ adr: Netadr) -> Bool {
+public func Sys_IsLANAddress(_ adr: Netadr) -> Bool {
     var i: Int32
 
     if net_forcenonlocal == nil {
@@ -410,7 +410,7 @@ Sys_ShowIP
 ```
 */
 /// Source: oracle/codemp/win32/win_net.cpp:571
-func Sys_ShowIP() {
+public func Sys_ShowIP() {
     var i: Int32
 
     i = 0
@@ -428,7 +428,7 @@ NET_IPSocket
 ```
 */
 /// Source: oracle/codemp/win32/win_net.cpp:588
-func NET_IPSocket(_ net_interface: String, _ port: Int32) -> Int32 {
+public func NET_IPSocket(_ net_interface: String, _ port: Int32) -> Int32 {
     let newsocket: Int32
     var address = Sockaddr()
     let err: Int32
@@ -494,7 +494,7 @@ NET_OpenSocks
 ```
 */
 /// Source: oracle/codemp/win32/win_net.cpp:653
-func NET_OpenSocks(_ port: Int32) {
+public func NET_OpenSocks(_ port: Int32) {
     var address = Sockaddr()
     var err: Int32
     let h: Hostent?
@@ -693,7 +693,7 @@ NET_GetLocalAddress
 ```
 */
 /// Source: oracle/codemp/win32/win_net.cpp:838
-func NET_GetLocalAddress() {
+public func NET_GetLocalAddress() {
     let hostname: String?
     let hostInfo: Hostent?
     var error: Int32
@@ -754,7 +754,7 @@ NET_OpenIP
 ```
 */
 /// Source: oracle/codemp/win32/win_net.cpp:914
-func NET_OpenIP() {
+public func NET_OpenIP() {
     let ip: Cvar?
     let port: Int32
     var i: Int32
@@ -789,7 +789,7 @@ NET_IPXSocket
 ```
 */
 /// Source: oracle/codemp/win32/win_net.cpp:946
-func NET_IPXSocket(_ port: Int32) -> Int32 {
+public func NET_IPXSocket(_ port: Int32) -> Int32 {
     let newsocket: Int32
     var address = Sockaddr()
     let err: Int32
@@ -847,7 +847,7 @@ NET_OpenIPX
 ```
 */
 /// Source: oracle/codemp/win32/win_net.cpp:1003
-func NET_OpenIPX() {
+public func NET_OpenIPX() {
     let port: Int32
 
     port = Cvar_Get("net_port", va("%i", PORT_SERVER), CVAR_LATCH)!.integer
@@ -921,7 +921,7 @@ NET_Config
 ```
 */
 /// Source: oracle/codemp/win32/win_net.cpp:1077
-func NET_Config(_ enableNetworking: Bool) {
+public func NET_Config(_ enableNetworking: Bool) {
     let modified: Bool
     var stop: Bool
     var start: Bool
@@ -1023,7 +1023,7 @@ NET_Shutdown
 ```
 */
 /// Source: oracle/codemp/win32/win_net.cpp:1193
-func NET_Shutdown() {
+public func NET_Shutdown() {
     if !winsockInitialized {
         return
     }
@@ -1043,7 +1043,7 @@ sleeps msec or until net socket is ready
 ```
 */
 /// Source: oracle/codemp/win32/win_net.cpp:1211
-func NET_Sleep(_ msec: Int32) {
+public func NET_Sleep(_ msec: Int32) {
 }
 
 /**
@@ -1054,6 +1054,6 @@ NET_Restart_f
 ```
 */
 /// Source: oracle/codemp/win32/win_net.cpp:1220
-func NET_Restart() {
+public func NET_Restart() {
     NET_Config(networkingEnabled)
 }

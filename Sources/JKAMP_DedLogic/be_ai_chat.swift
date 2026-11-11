@@ -43,43 +43,43 @@ let RCKFL_GENDERLESS = 256 as Int32
 let CHATMESSAGE_RECENTTIME = 20 as Int32
 
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:181
-var ichatdata: Slots<BotIchatdata?> { world.storage.ichatdata }
+public var ichatdata: Slots<BotIchatdata?> { world.storage.ichatdata }
 
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:183
-var botchatstates: Slots<BotChatstate?> { world.storage.botchatstates }
+public var botchatstates: Slots<BotChatstate?> { world.storage.botchatstates }
 
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:185
-var consolemessageheap: Slots<BotConsolemessage>? {
+public var consolemessageheap: Slots<BotConsolemessage>? {
     get { world.variables.consolemessageheap }
     set { world.variables.consolemessageheap = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:186
-var freeconsolemessages: BotConsolemessage? {
+public var freeconsolemessages: BotConsolemessage? {
     get { world.variables.freeconsolemessages }
     set { world.variables.freeconsolemessages = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:188
-var matchtemplates: BotMatchtemplate? {
+public var matchtemplates: BotMatchtemplate? {
     get { world.variables.matchtemplates }
     set { world.variables.matchtemplates = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:190
-var synonyms: BotSynonymlist? {
+public var synonyms: BotSynonymlist? {
     get { world.variables.synonyms }
     set { world.variables.synonyms = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:192
-var randomstrings: BotRandomlist? {
+public var randomstrings: BotRandomlist? {
     get { world.variables.randomstrings }
     set { world.variables.randomstrings = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:194
-var replychats: BotReplychat? {
+public var replychats: BotReplychat? {
     get { world.variables.replychats }
     set { world.variables.replychats = newValue }
 }
@@ -91,7 +91,7 @@ var replychats: BotReplychat? {
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:202
-func BotChatStateFromHandle(_ handle: Int32) -> BotChatstate? {
+public func BotChatStateFromHandle(_ handle: Int32) -> BotChatstate? {
     if handle <= 0 || handle > MAX_CLIENTS {
         botimport.runPrint(PRT_FATAL, "chat state handle %d out of range\n", handle)
         return nil
@@ -111,7 +111,7 @@ func BotChatStateFromHandle(_ handle: Int32) -> BotChatstate? {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:223
-func InitConsoleMessageHeap() {
+public func InitConsoleMessageHeap() {
     var i: Int32
     var max_messages: Int32
 
@@ -141,7 +141,7 @@ func InitConsoleMessageHeap() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:251
-func AllocConsoleMessage() -> BotConsolemessage? {
+public func AllocConsoleMessage() -> BotConsolemessage? {
     var message: BotConsolemessage?
     message = freeconsolemessages
     if freeconsolemessages != nil { freeconsolemessages = freeconsolemessages!.next }
@@ -157,7 +157,7 @@ func AllocConsoleMessage() -> BotConsolemessage? {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:266
-func FreeConsoleMessage(_ message: BotConsolemessage) {
+public func FreeConsoleMessage(_ message: BotConsolemessage) {
     if freeconsolemessages != nil { freeconsolemessages!.prev = message }
     message.prev = nil
     message.next = freeconsolemessages
@@ -171,7 +171,7 @@ func FreeConsoleMessage(_ message: BotConsolemessage) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:279
-func BotRemoveConsoleMessage(_ chatstate: Int32, _ handle: Int32) {
+public func BotRemoveConsoleMessage(_ chatstate: Int32, _ handle: Int32) {
     var m: BotConsolemessage?
     var nextm: BotConsolemessage?
 
@@ -199,7 +199,7 @@ func BotRemoveConsoleMessage(_ chatstate: Int32, _ handle: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:309
-func BotQueueConsoleMessage(_ chatstate: Int32, _ type: Int32, _ message: String) {
+public func BotQueueConsoleMessage(_ chatstate: Int32, _ type: Int32, _ message: String) {
     guard let cs = BotChatStateFromHandle(chatstate) else { return }
 
     guard let m = AllocConsoleMessage() else {
@@ -232,7 +232,7 @@ func BotQueueConsoleMessage(_ chatstate: Int32, _ type: Int32, _ message: String
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:350
-func BotNextConsoleMessage(_ chatstate: Int32, _ cm: BotConsolemessage) -> Int32 {
+public func BotNextConsoleMessage(_ chatstate: Int32, _ cm: BotConsolemessage) -> Int32 {
     guard let cs = BotChatStateFromHandle(chatstate) else { return 0 }
     if cs.firstmessage != nil {
         cm.copy(from: cs.firstmessage!)
@@ -250,7 +250,7 @@ func BotNextConsoleMessage(_ chatstate: Int32, _ cm: BotConsolemessage) -> Int32
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:370
-func BotNumConsoleMessages(_ chatstate: Int32) -> Int32 {
+public func BotNumConsoleMessages(_ chatstate: Int32) -> Int32 {
     guard let cs = BotChatStateFromHandle(chatstate) else { return 0 }
     return cs.numconsolemessages
 }
@@ -262,7 +262,7 @@ func BotNumConsoleMessages(_ chatstate: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:384
-func IsWhiteSpace(_ c: Int32) -> Int32 {
+public func IsWhiteSpace(_ c: Int32) -> Int32 {
     if (c >= Int32(ascii: "a") && c <= Int32(ascii: "z"))
         || (c >= Int32(ascii: "A") && c <= Int32(ascii: "Z"))
         || (c >= Int32(ascii: "0") && c <= Int32(ascii: "9"))
@@ -285,7 +285,7 @@ func IsWhiteSpace(_ c: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:404
-func BotRemoveTildes(_ message: inout JKAShared.CharBuf) {
+public func BotRemoveTildes(_ message: inout JKAShared.CharBuf) {
     var i: Int32
 
     //remove all tildes from the chat message
@@ -305,7 +305,7 @@ func BotRemoveTildes(_ message: inout JKAShared.CharBuf) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:423
-func UnifyWhiteSpaces(_ string: inout JKAShared.CharBuf) {
+public func UnifyWhiteSpaces(_ string: inout JKAShared.CharBuf) {
     var ptr: Int32
     var oldptr: Int32
 
@@ -335,7 +335,7 @@ func UnifyWhiteSpaces(_ string: inout JKAShared.CharBuf) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:447
-func StringContains(_ str1: inout JKAShared.CharBuf, _ str2: String, _ casesensitive: Int32) -> Int32 {
+public func StringContains(_ str1: inout JKAShared.CharBuf, _ str2: String, _ casesensitive: Int32) -> Int32 {
     var len: Int32
     var i: Int32
     var j: Int32
@@ -374,7 +374,7 @@ func StringContains(_ str1: inout JKAShared.CharBuf, _ str2: String, _ casesensi
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:478
-func StringContainsWord(_ str1: inout JKAShared.CharBuf, _ str2: String, _ casesensitive: Int32) -> Int32? {
+public func StringContainsWord(_ str1: inout JKAShared.CharBuf, _ str2: String, _ casesensitive: Int32) -> Int32? {
     var len: Int32
     var i: Int32
     var j: Int32
@@ -422,7 +422,7 @@ func StringContainsWord(_ str1: inout JKAShared.CharBuf, _ str2: String, _ cases
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:520
-func StringReplaceWords(_ string: inout JKAShared.CharBuf, _ synonym: String, _ replacement: String) {
+public func StringReplaceWords(_ string: inout JKAShared.CharBuf, _ synonym: String, _ replacement: String) {
     var str: Int32?, str2: Int32?
 
     //find the synonym in the string
@@ -462,7 +462,7 @@ func StringReplaceWords(_ string: inout JKAShared.CharBuf, _ synonym: String, _ 
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:553
 // Port-note: Only a comment at be_ai_chat.cpp:733 calls this function, so it is dead, rule 20.
-func BotDumpSynonymList(_ synlist: BotSynonymlist) {
+public func BotDumpSynonymList(_ synlist: BotSynonymlist) {
     var fp: OpaquePointer?
     var syn: BotSynonymlist?
     var synonym: BotSynonym?
@@ -498,7 +498,7 @@ func BotDumpSynonymList(_ synlist: BotSynonymlist) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:578
-func BotLoadSynonyms(_ filename: inout JKAShared.CharBuf) -> BotSynonymlist? {
+public func BotLoadSynonyms(_ filename: inout JKAShared.CharBuf) -> BotSynonymlist? {
     Token.scratch { token -> BotSynonymlist? in
         var pass: Int32, size: Int32, contextlevel: Int32, numsynonyms: Int32
         var context: UInt32
@@ -652,7 +652,7 @@ func BotLoadSynonyms(_ filename: inout JKAShared.CharBuf) -> BotSynonymlist? {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:744
-func BotReplaceSynonyms(_ string: inout JKAShared.CharBuf, _ context: UInt32) {
+public func BotReplaceSynonyms(_ string: inout JKAShared.CharBuf, _ context: UInt32) {
     var syn: BotSynonymlist?
     var synonym: BotSynonym?
 
@@ -678,7 +678,7 @@ func BotReplaceSynonyms(_ string: inout JKAShared.CharBuf, _ context: UInt32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:764
-func BotReplaceWeightedSynonyms(_ string: inout JKAShared.CharBuf, _ context: UInt32) {
+public func BotReplaceWeightedSynonyms(_ string: inout JKAShared.CharBuf, _ context: UInt32) {
     var syn: BotSynonymlist?
     var synonym: BotSynonym?
     var replacement: BotSynonym?
@@ -729,7 +729,7 @@ func BotReplaceWeightedSynonyms(_ string: inout JKAShared.CharBuf, _ context: UI
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:797
-func BotReplaceReplySynonyms(_ string: inout JKAShared.CharBuf, _ context: UInt32) {
+public func BotReplaceReplySynonyms(_ string: inout JKAShared.CharBuf, _ context: UInt32) {
     var str1: Int32, str2: Int32?
     var replacement: String
     var syn: BotSynonymlist?
@@ -792,7 +792,7 @@ func BotReplaceReplySynonyms(_ string: inout JKAShared.CharBuf, _ context: UInt3
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:845
-func BotLoadChatMessage(_ source: Source, _ chatmessagestring: inout JKAShared.CharBuf) -> Int32 {
+public func BotLoadChatMessage(_ source: Source, _ chatmessagestring: inout JKAShared.CharBuf) -> Int32 {
     Token.scratch { token -> Int32 in
         var ptr: Int32
 
@@ -845,7 +845,7 @@ func BotLoadChatMessage(_ source: Source, _ chatmessagestring: inout JKAShared.C
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:904
 // Port-note: Only a comment at be_ai_chat.cpp:1020 calls this function, so it is dead, rule 20.
-func BotDumpRandomStringList(_ randomlist: BotRandomlist) {
+public func BotDumpRandomStringList(_ randomlist: BotRandomlist) {
     var fp: OpaquePointer?
     var random: BotRandomlist?
     var rs: BotRandomstring?
@@ -882,7 +882,7 @@ func BotDumpRandomStringList(_ randomlist: BotRandomlist) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:929
-func BotLoadRandomStrings(_ filename: inout JKAShared.CharBuf) -> BotRandomlist? {
+public func BotLoadRandomStrings(_ filename: inout JKAShared.CharBuf) -> BotRandomlist? {
     Token.scratch { token -> BotRandomlist? in
         var pass: Int32, size: Int32
         var chatmessagestring = CharBuf(MAX_MESSAGE_SIZE)
@@ -972,7 +972,7 @@ func BotLoadRandomStrings(_ filename: inout JKAShared.CharBuf) -> BotRandomlist?
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1031
-func RandomString(_ name: String) -> String? {
+public func RandomString(_ name: String) -> String? {
     var random: BotRandomlist?
     var rs: BotRandomstring?
     var i: Int32
@@ -1005,7 +1005,7 @@ func RandomString(_ name: String) -> String? {
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1060
 // Port-note: Only a comment at be_ai_chat.cpp:1330 calls this function, so it is dead, rule 20.
-func BotDumpMatchTemplates(_ matches: BotMatchtemplate) {
+public func BotDumpMatchTemplates(_ matches: BotMatchtemplate) {
     var fp: OpaquePointer?
     var mt: BotMatchtemplate?
     var mp: BotMatchpiece?
@@ -1056,7 +1056,7 @@ func BotDumpMatchTemplates(_ matches: BotMatchtemplate) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1097
-func BotFreeMatchPieces(_ matchpieces: BotMatchpiece?) {
+public func BotFreeMatchPieces(_ matchpieces: BotMatchpiece?) {
     var mp: BotMatchpiece?
     var nextmp: BotMatchpiece?
     var ms: BotMatchstring?
@@ -1085,7 +1085,7 @@ func BotFreeMatchPieces(_ matchpieces: BotMatchpiece?) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1122
-func BotLoadMatchPieces(_ source: Source, _ endtoken: String) -> BotMatchpiece? {
+public func BotLoadMatchPieces(_ source: Source, _ endtoken: String) -> BotMatchpiece? {
     Token.scratch { token -> BotMatchpiece? in
         var lastwasvariable: Int32
         var emptystring: Int32
@@ -1192,7 +1192,7 @@ func BotLoadMatchPieces(_ source: Source, _ endtoken: String) -> BotMatchpiece? 
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1224
-func BotFreeMatchTemplates(_ mt: BotMatchtemplate?) {
+public func BotFreeMatchTemplates(_ mt: BotMatchtemplate?) {
     var nextmt: BotMatchtemplate?
     // Raven steps his own `mt` parameter, so the body walks a local of the same name.
     var mt: BotMatchtemplate? = mt
@@ -1212,7 +1212,7 @@ func BotFreeMatchTemplates(_ mt: BotMatchtemplate?) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1241
-func BotLoadMatchTemplates(_ matchfile: inout JKAShared.CharBuf) -> BotMatchtemplate? {
+public func BotLoadMatchTemplates(_ matchfile: inout JKAShared.CharBuf) -> BotMatchtemplate? {
     Token.scratch { token -> BotMatchtemplate? in
         var matchtemplate: BotMatchtemplate?
         var matches: BotMatchtemplate?
@@ -1306,7 +1306,7 @@ func BotLoadMatchTemplates(_ matchfile: inout JKAShared.CharBuf) -> BotMatchtemp
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1340
-func StringsMatch(_ pieces: BotMatchpiece, _ match: BotMatch) -> Int32 {
+public func StringsMatch(_ pieces: BotMatchpiece, _ match: BotMatch) -> Int32 {
     var lastvariable: Int32
     var index: Int32
     var strptr: Int32
@@ -1378,7 +1378,7 @@ func StringsMatch(_ pieces: BotMatchpiece, _ match: BotMatch) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1417
-func BotFindMatch(_ str: String, _ match: BotMatch, _ context: UInt32) -> Int32 {
+public func BotFindMatch(_ str: String, _ match: BotMatch, _ context: UInt32) -> Int32 {
     var i: Int32
     var ms: BotMatchtemplate?
 
@@ -1418,7 +1418,7 @@ func BotFindMatch(_ str: String, _ match: BotMatch, _ context: UInt32) -> Int32 
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1451
-func BotMatchVariable(_ match: BotMatch, _ variable: Int32, _ buf: inout JKAShared.CharBuf, _ size: Int32) {
+public func BotMatchVariable(_ match: BotMatch, _ variable: Int32, _ buf: inout JKAShared.CharBuf, _ size: Int32) {
     // Raven writes his own `size` parameter, so the body writes a local of the same name.
     var size = size
 
@@ -1448,7 +1448,7 @@ func BotMatchVariable(_ match: BotMatch, _ variable: Int32, _ buf: inout JKAShar
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1480
-func BotFindStringInList(_ list: BotStringlist?, _ string: String) -> BotStringlist? {
+public func BotFindStringInList(_ list: BotStringlist?, _ string: String) -> BotStringlist? {
     var s: BotStringlist?
 
     s = list
@@ -1466,7 +1466,7 @@ func BotFindStringInList(_ list: BotStringlist?, _ string: String) -> BotStringl
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1496
-func BotCheckChatMessageIntegrety(_ message: inout JKAShared.CharBuf, _ stringlist: BotStringlist?) -> BotStringlist? {
+public func BotCheckChatMessageIntegrety(_ message: inout JKAShared.CharBuf, _ stringlist: BotStringlist?) -> BotStringlist? {
     var i: Int32
     var msgptr: Int32
     var temp = CharBuf(MAX_MESSAGE_SIZE)
@@ -1529,7 +1529,7 @@ func BotCheckChatMessageIntegrety(_ message: inout JKAShared.CharBuf, _ stringli
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1567
-func BotCheckInitialChatIntegrety(_ chat: BotChat) {
+public func BotCheckInitialChatIntegrety(_ chat: BotChat) {
     var t: BotChattype?
     var cm: BotChatmessage?
     var stringlist: BotStringlist?, s: BotStringlist?, nexts: BotStringlist?
@@ -1560,7 +1560,7 @@ func BotCheckInitialChatIntegrety(_ chat: BotChat) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1593
-func BotCheckReplyChatIntegrety(_ replychat: BotReplychat?) {
+public func BotCheckReplyChatIntegrety(_ replychat: BotReplychat?) {
     var rp: BotReplychat?
     var cm: BotChatmessage?
     var stringlist: BotStringlist?, s: BotStringlist?, nexts: BotStringlist?
@@ -1592,7 +1592,7 @@ func BotCheckReplyChatIntegrety(_ replychat: BotReplychat?) {
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1619
 // Port-note: Only a comment at be_ai_chat.cpp:1955 calls this function, so it is dead, rule 20.
-func BotDumpReplyChat(_ replychat: BotReplychat) {
+public func BotDumpReplyChat(_ replychat: BotReplychat) {
     var fp: OpaquePointer?
     var rp: BotReplychat?
     var key: BotReplychatkey?
@@ -1686,7 +1686,7 @@ func BotDumpReplyChat(_ replychat: BotReplychat) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1674
-func BotFreeReplyChat(_ replychat: BotReplychat?) {
+public func BotFreeReplyChat(_ replychat: BotReplychat?) {
     var rp: BotReplychat?
     var nextrp: BotReplychat?
     var key: BotReplychatkey?
@@ -1723,7 +1723,7 @@ func BotFreeReplyChat(_ replychat: BotReplychat?) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1704
-func BotCheckValidReplyChatKeySet(_ source: Source, _ keys: BotReplychatkey) {
+public func BotCheckValidReplyChatKeySet(_ source: Source, _ keys: BotReplychatkey) {
     var allprefixed: Int32
     var hasvariableskey: Int32
     var hasstringkey: Int32
@@ -1835,7 +1835,7 @@ func BotCheckValidReplyChatKeySet(_ source: Source, _ keys: BotReplychatkey) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1811
-func BotLoadReplyChat(_ filename: inout JKAShared.CharBuf) -> BotReplychat? {
+public func BotLoadReplyChat(_ filename: inout JKAShared.CharBuf) -> BotReplychat? {
     Token.scratch { token -> BotReplychat? in
         var chatmessagestring = CharBuf(MAX_MESSAGE_SIZE)
         var namebuffer = CharBuf(MAX_MESSAGE_SIZE)
@@ -1988,7 +1988,7 @@ func BotLoadReplyChat(_ filename: inout JKAShared.CharBuf) -> BotReplychat? {
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1971
 // Port-note: Only a comment at be_ai_chat.cpp:2151 calls this function, so it is dead, rule 20.
-func BotDumpInitialChat(_ chat: BotChat) {
+public func BotDumpInitialChat(_ chat: BotChat) {
     var t: BotChattype?
     var m: BotChatmessage?
 
@@ -2016,7 +2016,7 @@ func BotDumpInitialChat(_ chat: BotChat) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:1996
-func BotLoadInitialChat(_ chatfile: inout JKAShared.CharBuf, _ chatname: inout JKAShared.CharBuf) -> BotChat? {
+public func BotLoadInitialChat(_ chatfile: inout JKAShared.CharBuf, _ chatname: inout JKAShared.CharBuf) -> BotChat? {
     Token.scratch { token -> BotChat? in
         var pass: Int32, foundchat: Bool, indent: Int32, size: Int32
         var chatmessagestring = CharBuf(MAX_MESSAGE_SIZE)
@@ -2164,7 +2164,7 @@ func BotLoadInitialChat(_ chatfile: inout JKAShared.CharBuf, _ chatname: inout J
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2168
-func BotFreeChatFile(_ chatstate: Int32) {
+public func BotFreeChatFile(_ chatstate: Int32) {
     guard let cs = BotChatStateFromHandle(chatstate) else { return }
     if cs.chat != nil { FreeMemory(cs.chat!.handle) }
     cs.chat = nil
@@ -2177,7 +2177,7 @@ func BotFreeChatFile(_ chatstate: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2183
-func BotLoadChatFile(_ chatstate: Int32, _ chatfile: inout JKAShared.CharBuf, _ chatname: inout JKAShared.CharBuf) -> Int32 {
+public func BotLoadChatFile(_ chatstate: Int32, _ chatfile: inout JKAShared.CharBuf, _ chatname: inout JKAShared.CharBuf) -> Int32 {
     var n: Int32
     var avail: Int32 = 0
 
@@ -2236,7 +2236,7 @@ func BotLoadChatFile(_ chatstate: Int32, _ chatfile: inout JKAShared.CharBuf, _ 
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2241
-func BotExpandChatMessage(_ outmessage: inout JKAShared.CharBuf, _ message: inout JKAShared.CharBuf, _ mcontext: UInt32, _ match: BotMatch, _ vcontext: UInt32, _ reply: Int32) -> Int32 {
+public func BotExpandChatMessage(_ outmessage: inout JKAShared.CharBuf, _ message: inout JKAShared.CharBuf, _ mcontext: UInt32, _ match: BotMatch, _ vcontext: UInt32, _ reply: Int32) -> Int32 {
     var num: Int32
     var len: Int32
     var i: Int32
@@ -2344,7 +2344,7 @@ func BotExpandChatMessage(_ outmessage: inout JKAShared.CharBuf, _ message: inou
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2362
-func BotConstructChatMessage(_ chatstate: BotChatstate, _ message: String, _ mcontext: UInt32, _ match: BotMatch, _ vcontext: UInt32, _ reply: Int32) {
+public func BotConstructChatMessage(_ chatstate: BotChatstate, _ message: String, _ mcontext: UInt32, _ match: BotMatch, _ vcontext: UInt32, _ reply: Int32) {
     var i: Int32
     var srcmessage = CharBuf(MAX_MESSAGE_SIZE)
 
@@ -2365,7 +2365,7 @@ func BotConstructChatMessage(_ chatstate: BotChatstate, _ message: String, _ mco
 
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2362
 /// This overload is the guide's form for an `int` argument to an `unsigned long` parameter, and it converts the value once.
-func BotConstructChatMessage(_ chatstate: BotChatstate, _ message: String, _ mcontext: Int32, _ match: BotMatch, _ vcontext: Int32, _ reply: Int32) {
+public func BotConstructChatMessage(_ chatstate: BotChatstate, _ message: String, _ mcontext: Int32, _ match: BotMatch, _ vcontext: Int32, _ reply: Int32) {
     BotConstructChatMessage(chatstate, message, UInt32(bitPattern: mcontext), match, UInt32(bitPattern: vcontext), reply)
 }
 
@@ -2377,7 +2377,7 @@ func BotConstructChatMessage(_ chatstate: BotChatstate, _ message: String, _ mco
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2390
-func BotChooseInitialChatMessage(_ cs: BotChatstate, _ type: String) -> String? {
+public func BotChooseInitialChatMessage(_ cs: BotChatstate, _ type: String) -> String? {
     var n: Int32
     var numchatmessages: Int32
     var besttime: Float
@@ -2443,7 +2443,7 @@ func BotChooseInitialChatMessage(_ cs: BotChatstate, _ type: String) -> String? 
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2448
-func BotNumInitialChats(_ chatstate: Int32, _ type: inout JKAShared.CharBuf) -> Int32 {
+public func BotNumInitialChats(_ chatstate: Int32, _ type: inout JKAShared.CharBuf) -> Int32 {
     var t: BotChattype?
 
     guard let cs = BotChatStateFromHandle(chatstate) else { return 0 }
@@ -2469,7 +2469,7 @@ func BotNumInitialChats(_ chatstate: Int32, _ type: inout JKAShared.CharBuf) -> 
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2475
-func BotInitialChat(_ chatstate: Int32, _ type: String, _ mcontext: Int32, _ var0: String?, _ var1: String?, _ var2: String?, _ var3: String?, _ var4: String?, _ var5: String?, _ var6: String?, _ var7: String?) {
+public func BotInitialChat(_ chatstate: Int32, _ type: String, _ mcontext: Int32, _ var0: String?, _ var1: String?, _ var2: String?, _ var3: String?, _ var4: String?, _ var5: String?, _ var6: String?, _ var7: String?) {
     var message: String?
 
     guard let cs = BotChatStateFromHandle(chatstate) else { return }
@@ -2547,7 +2547,7 @@ func BotInitialChat(_ chatstate: Int32, _ type: String, _ mcontext: Int32, _ var
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2556
 // Port-note: No code calls this function, so it is dead, rule 20.
-func BotPrintReplyChatKeys(_ replychat: BotReplychat) {
+public func BotPrintReplyChatKeys(_ replychat: BotReplychat) {
     var key: BotReplychatkey?
     var mp: BotMatchpiece?
 
@@ -2602,7 +2602,7 @@ func BotPrintReplyChatKeys(_ replychat: BotReplychat) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2597
-func BotReplyChat(_ chatstate: Int32, _ message: inout JKAShared.CharBuf, _ mcontext: Int32, _ vcontext: Int32, _ var0: String?, _ var1: String?, _ var2: String?, _ var3: String?, _ var4: String?, _ var5: String?, _ var6: String?, _ var7: String?) -> Int32 {
+public func BotReplyChat(_ chatstate: Int32, _ message: inout JKAShared.CharBuf, _ mcontext: Int32, _ vcontext: Int32, _ var0: String?, _ var1: String?, _ var2: String?, _ var3: String?, _ var4: String?, _ var5: String?, _ var6: String?, _ var7: String?) -> Int32 {
     guard let cs = BotChatStateFromHandle(chatstate) else { return 0 }
     return BotMatch.scratch { match -> Int32 in
         BotMatch.scratch { bestmatch -> Int32 in
@@ -2775,7 +2775,7 @@ func BotReplyChat(_ chatstate: Int32, _ message: inout JKAShared.CharBuf, _ mcon
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2754
-func BotChatLength(_ chatstate: Int32) -> Int32 {
+public func BotChatLength(_ chatstate: Int32) -> Int32 {
     guard let cs = BotChatStateFromHandle(chatstate) else { return 0 }
     return strlen(cs.chatmessage)
 }
@@ -2787,7 +2787,7 @@ func BotChatLength(_ chatstate: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2768
-func BotEnterChat(_ chatstate: Int32, _ clientto: Int32, _ sendto: Int32) {
+public func BotEnterChat(_ chatstate: Int32, _ clientto: Int32, _ sendto: Int32) {
     guard let cs = BotChatStateFromHandle(chatstate) else { return }
 
     if strlen(cs.chatmessage) != 0 {
@@ -2819,7 +2819,7 @@ func BotEnterChat(_ chatstate: Int32, _ clientto: Int32, _ sendto: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2804
-func BotGetChatMessage(_ chatstate: Int32, _ buf: inout JKAShared.CharBuf, _ size: Int32) {
+public func BotGetChatMessage(_ chatstate: Int32, _ buf: inout JKAShared.CharBuf, _ size: Int32) {
     guard let cs = BotChatStateFromHandle(chatstate) else { return }
 
     BotRemoveTildes(&cs.chatmessageBuffer)
@@ -2836,7 +2836,7 @@ func BotGetChatMessage(_ chatstate: Int32, _ buf: inout JKAShared.CharBuf, _ siz
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2823
-func BotSetChatGender(_ chatstate: Int32, _ gender: Int32) {
+public func BotSetChatGender(_ chatstate: Int32, _ gender: Int32) {
     guard let cs = BotChatStateFromHandle(chatstate) else { return }
     switch gender {
     case CHAT_GENDERFEMALE: cs.gender = CHAT_GENDERFEMALE
@@ -2852,7 +2852,7 @@ func BotSetChatGender(_ chatstate: Int32, _ gender: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2842
-func BotSetChatName(_ chatstate: Int32, _ name: String, _ client: Int32) {
+public func BotSetChatName(_ chatstate: Int32, _ name: String, _ client: Int32) {
     guard let cs = BotChatStateFromHandle(chatstate) else { return }
     cs.client = client
     cs.nameBuffer.zero()
@@ -2867,7 +2867,7 @@ func BotSetChatName(_ chatstate: Int32, _ name: String, _ client: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2859
-func BotResetChatAI() {
+public func BotResetChatAI() {
     var rchat: BotReplychat?
     var m: BotChatmessage?
 
@@ -2889,7 +2889,7 @@ func BotResetChatAI() {
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2878
-func BotAllocChatState() -> Int32 {
+public func BotAllocChatState() -> Int32 {
     var i: Int32
 
     i = 1
@@ -2910,7 +2910,7 @@ func BotAllocChatState() -> Int32 {
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2898
-func BotFreeChatState(_ handle: Int32) {
+public func BotFreeChatState(_ handle: Int32) {
     if handle <= 0 || handle > MAX_CLIENTS {
         botimport.runPrint(PRT_FATAL, "chat state handle %d out of range\n", handle)
         return
@@ -2944,7 +2944,7 @@ func BotFreeChatState(_ handle: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2934
-func BotSetupChatAI() -> Int32 {
+public func BotSetupChatAI() -> Int32 {
     var file: CharBuf
 
     file = CharBuf(LibVarString("synfile", "syn.c"))
@@ -2971,7 +2971,7 @@ func BotSetupChatAI() -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_chat.cpp:2968
-func BotShutdownChatAI() {
+public func BotShutdownChatAI() {
     var i: Int32
 
     //free all remaining chat states

@@ -110,7 +110,7 @@ MD4 initialization. Begins an MD4 operation, writing a new context.
 ```
 */
 /// Source: oracle/codemp/qcommon/md4.cpp:100
-func MD4Init(_ context: Md4Ctx) {
+public func MD4Init(_ context: Md4Ctx) {
     context.count[0] = 0
     context.count[1] = 0
 
@@ -127,7 +127,7 @@ MD4 block update operation. Continues an MD4 message-digest operation, processin
 ```
 */
 /// Source: oracle/codemp/qcommon/md4.cpp:112
-func MD4Update(_ context: Md4Ctx, _ input: Slots<UInt8>, _ inputLen: UInt32) {
+public func MD4Update(_ context: Md4Ctx, _ input: Slots<UInt8>, _ inputLen: UInt32) {
     var i: UInt32
     var index: UInt32
     let partLen: UInt32
@@ -171,7 +171,7 @@ MD4 finalization. Ends an MD4 message-digest operation, writing the the message 
 ```
 */
 /// Source: oracle/codemp/qcommon/md4.cpp:147
-func MD4Final(_ digest: Slots<UInt8>, _ context: Md4Ctx) {
+public func MD4Final(_ digest: Slots<UInt8>, _ context: Md4Ctx) {
     // AI: Raven declares `unsigned char bits[8]` on his stack. The body uses the zeroed allocation of the storage class through the `bits` forward.
     let index: UInt32
     let padLen: UInt32
@@ -314,7 +314,7 @@ private func Decode(_ output: Slots<UInt32>, _ input: Slots<UInt8>, _ len: UInt3
 }
 
 /// Source: oracle/codemp/qcommon/md4.cpp:267
-func Com_BlockChecksum(_ buffer: Slots<JKAShared.byte>, _ length: Int32) -> UInt32 {
+public func Com_BlockChecksum(_ buffer: Slots<JKAShared.byte>, _ length: Int32) -> UInt32 {
     // AI: Raven declares `int digest[4]` on his stack. The body uses the zeroed allocation of the storage class through the `digest` forward.
     var val: UInt32 = 0
     return Md4Ctx.scratch { ctx -> UInt32 in
@@ -329,7 +329,7 @@ func Com_BlockChecksum(_ buffer: Slots<JKAShared.byte>, _ length: Int32) -> UInt
 }
 
 /// Source: oracle/codemp/qcommon/md4.cpp:282
-func Com_BlockChecksumKey(_ buffer: Slots<JKAShared.byte>, _ length: Int32, _ key: Int32) -> UInt32 {
+public func Com_BlockChecksumKey(_ buffer: Slots<JKAShared.byte>, _ length: Int32, _ key: Int32) -> UInt32 {
     // AI: Raven declares `int digest[4]` on his stack. The body uses the zeroed allocation of the storage class through the `digest` forward.
     var val: UInt32 = 0
     return Md4Ctx.scratch { ctx -> UInt32 in

@@ -18,13 +18,13 @@ public var siege_valid: Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:35
-var team1Theme: JKAMP.SiegeTeam? {
+public var team1Theme: JKAMP.SiegeTeam? {
     get { bg.variables.team1Theme }
     set { bg.variables.team1Theme = newValue }
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:36
-var team2Theme: JKAMP.SiegeTeam? {
+public var team2Theme: JKAMP.SiegeTeam? {
     get { bg.variables.team2Theme }
     set { bg.variables.team2Theme = newValue }
 }
@@ -39,7 +39,7 @@ public var bgNumSiegeClasses: Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:41
-var bgSiegeTeams: Slots<JKAMP.SiegeTeam> { bg.storage.bgSiegeTeams }
+public var bgSiegeTeams: Slots<JKAMP.SiegeTeam> { bg.storage.bgSiegeTeams }
 
 /// Source: oracle/codemp/game/bg_saga.c:42
 public var bgNumSiegeTeams: Int32 {
@@ -73,7 +73,7 @@ public var bgNumSiegeTeams: Int32 {
 
 /// Source: oracle/codemp/game/bg_saga.c:748
 /// Raven's data table, a hand property of `BgState`.
-var classTitles: [String] {
+public var classTitles: [String] {
     get { bg.classTitles }
     set { bg.classTitles = newValue }
 }
@@ -82,7 +82,7 @@ var classTitles: [String] {
 //Parsing functions
 //======================================
 /// Source: oracle/codemp/game/bg_saga.c:168
-func BG_SiegeStripTabs(_ buf: inout JKAShared.CharBuf) {
+public func BG_SiegeStripTabs(_ buf: inout JKAShared.CharBuf) {
     var i: Int32 = 0
     var i_r: Int32 = 0
 
@@ -423,7 +423,7 @@ public func BG_SiegeGetPairedValue(_ buf: String, _ key: String, _ outbuf: inout
 //Class loading functions
 //======================================
 /// Source: oracle/codemp/game/bg_saga.c:571
-func BG_SiegeTranslateForcePowers(_ buf: String, _ siegeClass: JKAMP.SiegeClass) {
+public func BG_SiegeTranslateForcePowers(_ buf: String, _ siegeClass: JKAMP.SiegeClass) {
     let buf = CharBuf(buf)
     var checkPower = CharBuf(1024)
     var checkLevel = CharBuf(256)
@@ -529,7 +529,7 @@ func BG_SiegeTranslateForcePowers(_ buf: String, _ siegeClass: JKAMP.SiegeClass)
 //values are accumulated into a bitflag. If bitflag is qfalse then the first value
 //is returned as a directly corresponding id and no further parsing is done.
 /// Source: oracle/codemp/game/bg_saga.c:688
-func BG_SiegeTranslateGenericTable(_ buf: String, _ table: Slots<JKAShared.StringIDTable>, _ bitflag: Bool) -> Int32 {
+public func BG_SiegeTranslateGenericTable(_ buf: String, _ table: Slots<JKAShared.StringIDTable>, _ bitflag: Bool) -> Int32 {
     let buf = CharBuf(buf)
     var items: Int32 = 0
     var checkItem = CharBuf(1024)
@@ -584,7 +584,7 @@ func BG_SiegeTranslateGenericTable(_ buf: String, _ table: Slots<JKAShared.Strin
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:759
-func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDesc?) {
+public func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDesc?) {
     var f: fileHandle_t = 0
     let len: Int32
     var i: Int32
@@ -838,7 +838,7 @@ func BG_SiegeParseClassFile(_ filename: String, _ descBuffer: JKAMP.SiegeClassDe
 
 // Count the number of like base classes
 /// Source: oracle/codemp/game/bg_saga.c:1071
-func BG_SiegeCountBaseClass(_ team: Int32, _ classIndex: Int32) -> Int32 {
+public func BG_SiegeCountBaseClass(_ team: Int32, _ classIndex: Int32) -> Int32 {
     var count: Int32 = 0
     var i: Int32
     var stm: SiegeTeam?
@@ -859,7 +859,7 @@ func BG_SiegeCountBaseClass(_ team: Int32, _ classIndex: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:1094
-func BG_GetUIPortraitFile(_ team: Int32, _ classIndex: Int32, _ cntIndex: Int32) -> String? {
+public func BG_GetUIPortraitFile(_ team: Int32, _ classIndex: Int32, _ cntIndex: Int32) -> String? {
     var count: Int32 = 0
     var i: Int32
     var stm: SiegeTeam?
@@ -887,7 +887,7 @@ func BG_GetUIPortraitFile(_ team: Int32, _ classIndex: Int32, _ cntIndex: Int32)
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:1123
-func BG_GetUIPortrait(_ team: Int32, _ classIndex: Int32, _ cntIndex: Int32) -> Int32 {
+public func BG_GetUIPortrait(_ team: Int32, _ classIndex: Int32, _ cntIndex: Int32) -> Int32 {
     var count: Int32 = 0
     var i: Int32
     var stm: SiegeTeam?
@@ -916,7 +916,7 @@ func BG_GetUIPortrait(_ team: Int32, _ classIndex: Int32, _ cntIndex: Int32) -> 
 
 // This is really getting ugly - looking to get the base class (within a class) based on the index passed in
 /// Source: oracle/codemp/game/bg_saga.c:1153
-func BG_GetClassOnBaseClass(_ team: Int32, _ classIndex: Int32, _ cntIndex: Int32) -> JKAMP.SiegeClass? {
+public func BG_GetClassOnBaseClass(_ team: Int32, _ classIndex: Int32, _ cntIndex: Int32) -> JKAMP.SiegeClass? {
     var count: Int32 = 0
     var i: Int32
     var stm: SiegeTeam?
@@ -996,7 +996,7 @@ public func BG_SiegeFindClassByName(_ classname: String) -> JKAMP.SiegeClass? {
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:1235
-func BG_SiegeParseTeamFile(_ filename: String) {
+public func BG_SiegeParseTeamFile(_ filename: String) {
     var f: fileHandle_t = 0
     let len: Int32
     var teamInfo = CharBuf(2048)
@@ -1194,7 +1194,7 @@ public func BG_SiegeCheckClassLegality(_ team: Int32, _ classname: inout JKAShar
 }
 
 /// Source: oracle/codemp/game/bg_saga.c:1455
-func BG_SiegeFindTeamForTheme(_ themeName: String) -> JKAMP.SiegeTeam? {
+public func BG_SiegeFindTeamForTheme(_ themeName: String) -> JKAMP.SiegeTeam? {
     var i: Int32 = 0
 
     while i < bgNumSiegeTeams {

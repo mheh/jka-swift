@@ -13,7 +13,7 @@ G_BounceObject
 ```
 */
 /// Source: oracle/codemp/game/g_object.c:14
-func G_BounceObject(_ ent: Entity, _ trace: JKAMP.Trace) {
+public func G_BounceObject(_ ent: Entity, _ trace: JKAMP.Trace) {
     var velocity = vec3_t()
     let dot: Float
     var bounceFactor: Float
@@ -58,7 +58,7 @@ func G_BounceObject(_ ent: Entity, _ trace: JKAMP.Trace) {
 }
 
 /// Source: oracle/codemp/game/g_object.c:72
-func G_RunObject(_ ent: Entity) {
+public func G_RunObject(_ ent: Entity) {
     var origin = vec3_t()
     var oldOrg = vec3_t()
     // Raven's record lives to the end of his block, so the block is the closure.
@@ -214,7 +214,7 @@ func G_RunObject(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_object.c:244
-func G_StopObjectMoving(_ object: Entity) {
+public func G_StopObjectMoving(_ object: Entity) {
     object.s.pos.trType = TR_STATIONARY
     object.s.origin = object.r.currentOrigin
     object.s.pos.trBase = object.r.currentOrigin
@@ -230,7 +230,7 @@ func G_StopObjectMoving(_ object: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_object.c:260
-func G_StartObjectMoving(_ object: Entity, _ dir: inout JKAShared.vec3_t, _ speed: Float, _ trType: JKAShared.trType_t) {
+public func G_StartObjectMoving(_ object: Entity, _ dir: inout JKAShared.vec3_t, _ speed: Float, _ trType: JKAShared.trType_t) {
     VectorNormalize(&dir)
 
     //object->s.eType = ET_GENERAL;

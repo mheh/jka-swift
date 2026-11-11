@@ -1,5 +1,8 @@
 // swift-tools-version: 6.3
+import Foundation
 import PackageDescription
+
+let implicitDynamic: [SwiftSetting] = ProcessInfo.processInfo.environment["JKA_IMPLICIT_DYNAMIC"] != nil ? [.unsafeFlags(["-Xfrontend", "-enable-implicit-dynamic"])] : []
 
 let package = Package(
     name: "jka-swift",
@@ -12,6 +15,8 @@ let package = Package(
         .library(name: "JKAMP_GameLogic", targets: ["JKAMP_GameLogic", "JKAMP_BG", "JKAMP_Game", "JKAMP", "JKAShared"]),
         .library(name: "JKAMP_CGameLogic", targets: ["JKAMP_CGameLogic", "JKAMP_BG", "JKAMP_CGame", "JKAMP", "JKAShared"]),
         .library(name: "JKAMP_DedLogic", targets: ["JKAMP_DedLogic", "JKAMP_Ded", "JKAMP", "JKAShared"]),
+        .library(name: "JKAMP_GameShell", targets: ["jampgame"]),
+        .library(name: "JKAMP_DedShell", targets: ["CJKAHost"]),
     ],
     targets: [
         // MARK: - C, the syscall shim
@@ -43,9 +48,9 @@ let package = Package(
 
         // MARK: - Swift logic, ported bodies, no C import
         .target(name: "JKAMP_BG", dependencies: ["JKAMP"]),
-        .target(name: "JKAMP_GameLogic", dependencies: ["JKAMP_Game", "JKAMP_BG"]),
+        .target(name: "JKAMP_GameLogic", dependencies: ["JKAMP_Game", "JKAMP_BG"], swiftSettings: implicitDynamic),
         .target(name: "JKAMP_CGameLogic", dependencies: ["JKAMP_CGame", "JKAMP_BG"]),
-        .target(name: "JKAMP_DedLogic", dependencies: ["JKAMP_Ded"]),
+        .target(name: "JKAMP_DedLogic", dependencies: ["JKAMP_Ded"], swiftSettings: implicitDynamic),
 
         // MARK: - Shell, the product
         .target(name: "jampgame", dependencies: ["JKAMP_GameLogic"]),

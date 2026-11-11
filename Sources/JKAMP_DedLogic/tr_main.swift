@@ -4,7 +4,7 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/renderer/tr_main.cpp:15
-var tr: TrGlobals { world.storage.tr }
+public var tr: TrGlobals { world.storage.tr }
 
 /// Source: oracle/codemp/renderer/tr_main.cpp:17
 // Raven wrote: static float s_flipMatrix[16]
@@ -23,7 +23,7 @@ private let s_flipMatrix: [Float] = [
 ```
 */
 /// Source: oracle/codemp/renderer/tr_main.cpp:109
-func R_CullLocalPointAndRadius(_ pt: JKAShared.vec3_t, _ radius: Float) -> Int32 {
+public func R_CullLocalPointAndRadius(_ pt: JKAShared.vec3_t, _ radius: Float) -> Int32 {
     var transformed = vec3_t()
 
     R_LocalPointToWorld(pt, &transformed)
@@ -37,7 +37,7 @@ func R_CullLocalPointAndRadius(_ pt: JKAShared.vec3_t, _ radius: Float) -> Int32
 ```
 */
 /// Source: oracle/codemp/renderer/tr_main.cpp:121
-func R_CullPointAndRadius(_ pt: JKAShared.vec3_t, _ radius: Float) -> Int32 {
+public func R_CullPointAndRadius(_ pt: JKAShared.vec3_t, _ radius: Float) -> Int32 {
     var i: Int32
     var dist: Float
     var frust: Cplane
@@ -77,7 +77,7 @@ R_LocalPointToWorld
 ```
 */
 /// Source: oracle/codemp/renderer/tr_main.cpp:177
-func R_LocalPointToWorld(_ local: JKAShared.vec3_t, _ world: inout JKAShared.vec3_t) {
+public func R_LocalPointToWorld(_ local: JKAShared.vec3_t, _ world: inout JKAShared.vec3_t) {
     world[0] = local[0] * tr.ori.axis[0][0] + local[1] * tr.ori.axis[1][0] + local[2] * tr.ori.axis[2][0] + tr.ori.origin[0]
     world[1] = local[0] * tr.ori.axis[0][1] + local[1] * tr.ori.axis[1][1] + local[2] * tr.ori.axis[2][1] + tr.ori.origin[1]
     world[2] = local[0] * tr.ori.axis[0][2] + local[1] * tr.ori.axis[1][2] + local[2] * tr.ori.axis[2][2] + tr.ori.origin[2]

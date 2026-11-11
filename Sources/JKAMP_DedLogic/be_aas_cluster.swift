@@ -42,7 +42,7 @@ var backareanums_AAS_CheckAreaForPossiblePortals: Slots<Int32> { world.storage.b
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:46
-func AAS_RemoveClusterAreas() {
+public func AAS_RemoveClusterAreas() {
     var i: Int32
 
     i = 1
@@ -59,7 +59,7 @@ func AAS_RemoveClusterAreas() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:61
-func AAS_ClearCluster(_ clusternum: Int32) {
+public func AAS_ClearCluster(_ clusternum: Int32) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     var i: Int32
 
@@ -79,7 +79,7 @@ func AAS_ClearCluster(_ clusternum: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:79
-func AAS_RemovePortalsClusterReference(_ clusternum: Int32) {
+public func AAS_RemovePortalsClusterReference(_ clusternum: Int32) {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     var portalnum: Int32
 
@@ -102,7 +102,7 @@ func AAS_RemovePortalsClusterReference(_ clusternum: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:101
-func AAS_UpdatePortal(_ areanum: Int32, _ clusternum: Int32) -> Int32 {
+public func AAS_UpdatePortal(_ areanum: Int32, _ clusternum: Int32) -> Int32 {
     var portalnum: Int32
     let portal: AasPortal
     let cluster: AasCluster
@@ -164,7 +164,7 @@ func AAS_UpdatePortal(_ areanum: Int32, _ clusternum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:160
-func AAS_FloodClusterAreas_r(_ areanum: Int32, _ clusternum: Int32) -> Int32 {
+public func AAS_FloodClusterAreas_r(_ areanum: Int32, _ clusternum: Int32) -> Int32 {
     let area: AasArea
     var face: AasFace
     var facenum: Int32
@@ -243,7 +243,7 @@ func AAS_FloodClusterAreas_r(_ areanum: Int32, _ clusternum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:233
-func AAS_FloodClusterAreasUsingReachabilities(_ clusternum: Int32) -> Int32 {
+public func AAS_FloodClusterAreasUsingReachabilities(_ clusternum: Int32) -> Int32 {
     var i: Int32
     var j: Int32
     var areanum: Int32
@@ -292,7 +292,7 @@ func AAS_FloodClusterAreasUsingReachabilities(_ clusternum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:271
-func AAS_NumberClusterPortals(_ clusternum: Int32) {
+public func AAS_NumberClusterPortals(_ clusternum: Int32) {
     // Port-note: Raven calls this function only from a comment, at be_aas_cluster.cpp:409, so it is dead.
     var i: Int32
     var portalnum: Int32
@@ -323,7 +323,7 @@ func AAS_NumberClusterPortals(_ clusternum: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:298
-func AAS_NumberClusterAreas(_ clusternum: Int32) {
+public func AAS_NumberClusterAreas(_ clusternum: Int32) {
     var i: Int32
     var portalnum: Int32
     var cluster: AasCluster
@@ -421,7 +421,7 @@ func AAS_NumberClusterAreas(_ clusternum: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:372
-func AAS_FindClusters() -> Int32 {
+public func AAS_FindClusters() -> Int32 {
     var i: Int32
     var cluster: AasCluster
 
@@ -479,7 +479,7 @@ func AAS_FindClusters() -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:422
-func AAS_CreatePortals() {
+public func AAS_CreatePortals() {
     var i: Int32
     var portal: AasPortal
 
@@ -730,7 +730,7 @@ qboolean AAS_CanMergeFaces(int *facenums, int numfaces, int planenum)
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:670
-func AAS_ConnectedAreas_r(_ areanums: Slots<Int32>, _ numareas: Int32, _ connectedareas: Slots<Int32>, _ curarea: Int32) {
+public func AAS_ConnectedAreas_r(_ areanums: Slots<Int32>, _ numareas: Int32, _ connectedareas: Slots<Int32>, _ curarea: Int32) {
     var i: Int32
     var j: Int32
     var otherareanum: Int32
@@ -786,7 +786,7 @@ func AAS_ConnectedAreas_r(_ areanums: Slots<Int32>, _ numareas: Int32, _ connect
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:706
-func AAS_ConnectedAreas(_ areanums: Slots<Int32>, _ numareas: Int32) -> Bool {
+public func AAS_ConnectedAreas(_ areanums: Slots<Int32>, _ numareas: Int32) -> Bool {
     var i: Int32
 
     connectedareas_AAS_ConnectedAreas.zero()
@@ -815,7 +815,7 @@ func AAS_ConnectedAreas(_ areanums: Slots<Int32>, _ numareas: Int32) -> Bool {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:727
-func AAS_GetAdjacentAreasWithLessPresenceTypes_r(_ areanums: Slots<Int32>, _ numareas: Int32, _ curareanum: Int32) -> Int32 {
+public func AAS_GetAdjacentAreasWithLessPresenceTypes_r(_ areanums: Slots<Int32>, _ numareas: Int32, _ curareanum: Int32) -> Int32 {
     // Raven assigns his own `numareas` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var numareas = numareas
     var i: Int32
@@ -879,7 +879,7 @@ func AAS_GetAdjacentAreasWithLessPresenceTypes_r(_ areanums: Slots<Int32>, _ num
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:776
-func AAS_CheckAreaForPossiblePortals(_ areanum: Int32) -> Int32 {
+public func AAS_CheckAreaForPossiblePortals(_ areanum: Int32) -> Int32 {
     var i: Int32
     var j: Int32
     var k: Int32
@@ -1082,7 +1082,7 @@ func AAS_CheckAreaForPossiblePortals(_ areanum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:903
-func AAS_FindPossiblePortals() {
+public func AAS_FindPossiblePortals() {
     var i: Int32
     var numpossibleportals: Int32
 
@@ -1102,7 +1102,7 @@ func AAS_FindPossiblePortals() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:920
-func AAS_RemoveAllPortals() {
+public func AAS_RemoveAllPortals() {
     // Port-note: Raven calls this function from no file of either tree, so it is dead.
     var i: Int32
 
@@ -1120,7 +1120,7 @@ func AAS_RemoveAllPortals() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:1355
-func AAS_TestPortals() -> Int32 {
+public func AAS_TestPortals() -> Int32 {
     var i: Int32
     var portal: AasPortal
 
@@ -1149,7 +1149,7 @@ func AAS_TestPortals() -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:1384
-func AAS_CountForcedClusterPortals() {
+public func AAS_CountForcedClusterPortals() {
     var num: Int32
     var i: Int32
 
@@ -1172,7 +1172,7 @@ func AAS_CountForcedClusterPortals() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:1405
-func AAS_CreateViewPortals() {
+public func AAS_CreateViewPortals() {
     var i: Int32
 
     i = 1
@@ -1191,7 +1191,7 @@ func AAS_CreateViewPortals() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:1423
-func AAS_SetViewPortalsAsClusterPortals() {
+public func AAS_SetViewPortalsAsClusterPortals() {
     var i: Int32
 
     i = 1
@@ -1210,7 +1210,7 @@ func AAS_SetViewPortalsAsClusterPortals() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:1441
-func AAS_InitClustering() {
+public func AAS_InitClustering() {
     var i: Int32
     var removedPortalAreas: Int32
     var n: Int32

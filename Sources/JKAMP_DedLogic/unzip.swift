@@ -128,7 +128,7 @@ private func strcmpcasenosensitive_internal(_ fileName1: String, _ fileName2: St
 ```
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:318
-func unzStringFileNameCompare(_ fileName1: String, _ fileName2: String, _ iCaseSensitivity: Int32) -> Int32 {
+public func unzStringFileNameCompare(_ fileName1: String, _ fileName2: String, _ iCaseSensitivity: Int32) -> Int32 {
     // Raven assigns his own `iCaseSensitivity` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var iCaseSensitivity = iCaseSensitivity
     if iCaseSensitivity == 0 {
@@ -214,7 +214,7 @@ private func unzlocal_SearchCentralDir(_ fin: OpaquePointer?) -> CUnsignedLong {
 }
 
 /// Source: oracle/codemp/qcommon/unzip.cpp:388
-func unzReOpen(_ path: String, _ file: OpaquePointer?) -> OpaquePointer? {
+public func unzReOpen(_ path: String, _ file: OpaquePointer?) -> OpaquePointer? {
     let fin: OpaquePointer?
 
     // ZIP_fopen is Raven's macro for fopen.
@@ -243,7 +243,7 @@ func unzReOpen(_ path: String, _ file: OpaquePointer?) -> OpaquePointer? {
 ```
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:413
-func unzOpen(_ path: String) -> OpaquePointer? {
+public func unzOpen(_ path: String) -> OpaquePointer? {
     return UnzS.scratch { us -> OpaquePointer? in
         let central_pos: CUnsignedLong
         var uL: CUnsignedLong = 0
@@ -354,7 +354,7 @@ func unzOpen(_ path: String) -> OpaquePointer? {
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:508
 @discardableResult
-func unzClose(_ file: OpaquePointer?) -> Int32 {
+public func unzClose(_ file: OpaquePointer?) -> Int32 {
     if file == nil {
         return UNZ_PARAMERROR
     }
@@ -379,7 +379,7 @@ func unzClose(_ file: OpaquePointer?) -> Int32 {
 ```
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:528
-func unzGetGlobalInfo(_ file: OpaquePointer?, _ pglobal_info: Unz_global_info) -> Int32 {
+public func unzGetGlobalInfo(_ file: OpaquePointer?, _ pglobal_info: Unz_global_info) -> Int32 {
     if file == nil {
         return UNZ_PARAMERROR
     }
@@ -595,7 +595,7 @@ private func unzlocal_GetCurrentFileInfoInternal(_ file: OpaquePointer?, _ pfile
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:722
 @discardableResult
-func unzGetCurrentFileInfo(_ file: OpaquePointer?, _ pfile_info: Unz_file_info?, _ szFileName: inout JKAShared.CharBuf, _ fileNameBufferSize: CUnsignedLong, _ extraField: OpaquePointer?, _ extraFieldBufferSize: CUnsignedLong, _ szComment: inout JKAShared.CharBuf, _ commentBufferSize: CUnsignedLong) -> Int32 {
+public func unzGetCurrentFileInfo(_ file: OpaquePointer?, _ pfile_info: Unz_file_info?, _ szFileName: inout JKAShared.CharBuf, _ fileNameBufferSize: CUnsignedLong, _ extraField: OpaquePointer?, _ extraFieldBufferSize: CUnsignedLong, _ szComment: inout JKAShared.CharBuf, _ commentBufferSize: CUnsignedLong) -> Int32 {
     return unzlocal_GetCurrentFileInfoInternal(file, pfile_info, nil, &szFileName, fileNameBufferSize, extraField, extraFieldBufferSize, &szComment, commentBufferSize)
 }
 
@@ -607,7 +607,7 @@ func unzGetCurrentFileInfo(_ file: OpaquePointer?, _ pfile_info: Unz_file_info?,
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:737
 @discardableResult
-func unzGoToFirstFile(_ file: OpaquePointer?) -> Int32 {
+public func unzGoToFirstFile(_ file: OpaquePointer?) -> Int32 {
     var err: Int32 = UNZ_OK
     if file == nil {
         return UNZ_PARAMERROR
@@ -632,7 +632,7 @@ func unzGoToFirstFile(_ file: OpaquePointer?) -> Int32 {
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:759
 @discardableResult
-func unzGoToNextFile(_ file: OpaquePointer?) -> Int32 {
+public func unzGoToNextFile(_ file: OpaquePointer?) -> Int32 {
     var err: Int32
     if file == nil {
         return UNZ_PARAMERROR
@@ -663,7 +663,7 @@ func unzGoToNextFile(_ file: OpaquePointer?) -> Int32 {
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:786
 @discardableResult
-func unzGetCurrentFileInfoPosition(_ file: OpaquePointer?, _ pos: inout CUnsignedLong) -> Int32 {
+public func unzGetCurrentFileInfoPosition(_ file: OpaquePointer?, _ pos: inout CUnsignedLong) -> Int32 {
     if file == nil {
         return UNZ_PARAMERROR
     }
@@ -681,7 +681,7 @@ func unzGetCurrentFileInfoPosition(_ file: OpaquePointer?, _ pos: inout CUnsigne
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:802
 @discardableResult
-func unzSetCurrentFileInfoPosition(_ file: OpaquePointer?, _ pos: CUnsignedLong) -> Int32 {
+public func unzSetCurrentFileInfoPosition(_ file: OpaquePointer?, _ pos: CUnsignedLong) -> Int32 {
     var err: Int32
     if file == nil {
         return UNZ_PARAMERROR
@@ -708,7 +708,7 @@ func unzSetCurrentFileInfoPosition(_ file: OpaquePointer?, _ pos: CUnsignedLong)
 ```
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:827
-func unzLocateFile(_ file: OpaquePointer?, _ szFileName: String, _ iCaseSensitivity: Int32) -> Int32 {
+public func unzLocateFile(_ file: OpaquePointer?, _ szFileName: String, _ iCaseSensitivity: Int32) -> Int32 {
     var err: Int32
     let num_fileSaved: CUnsignedLong
     let pos_in_central_dirSaved: CUnsignedLong
@@ -851,7 +851,7 @@ private func unzlocal_CheckCurrentFileCoherencyHeader(_ s: UnzS, _ piSizeVar: in
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:963
 @discardableResult
-func unzOpenCurrentFile(_ file: OpaquePointer?) -> Int32 {
+public func unzOpenCurrentFile(_ file: OpaquePointer?) -> Int32 {
     var err: Int32 = UNZ_OK
     let Store: Bool
     var iSizeVar: UInt32 = 0
@@ -934,7 +934,7 @@ func unzOpenCurrentFile(_ file: OpaquePointer?) -> Int32 {
 ```
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:1050
-func unzReadCurrentFile(_ file: OpaquePointer?, _ buf: Slots<JKAShared.byte>, _ len: UInt32) -> Int32 {
+public func unzReadCurrentFile(_ file: OpaquePointer?, _ buf: Slots<JKAShared.byte>, _ len: UInt32) -> Int32 {
     var err: Int32 = UNZ_OK
     var iRead: UInt32 = 0
 
@@ -1061,7 +1061,7 @@ func unzReadCurrentFile(_ file: OpaquePointer?, _ buf: Slots<JKAShared.byte>, _ 
 /// Source: oracle/codemp/qcommon/unzip.cpp:1050
 // Port-note: The CharBuf overload of row U5, for the `char` array of the zip arm of FS_Read, files_pc.cpp:1068.
 // AI: Raven hands the caller's `char` array as the `void *` buffer. The overload hands the bytes of the CharBuf to the original as a Slots that it writes.
-func unzReadCurrentFile(_ file: OpaquePointer?, _ buf: inout CharBuf, _ len: UInt32) -> Int32 {
+public func unzReadCurrentFile(_ file: OpaquePointer?, _ buf: inout CharBuf, _ len: UInt32) -> Int32 {
     return buf.withMutableSlots { bytes in
         unzReadCurrentFile(file, bytes, len)
     }
@@ -1073,7 +1073,7 @@ func unzReadCurrentFile(_ file: OpaquePointer?, _ buf: inout CharBuf, _ len: UIn
 ```
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:1174
-func unztell(_ file: OpaquePointer?) -> CLong {
+public func unztell(_ file: OpaquePointer?) -> CLong {
     if file == nil {
         return CLong(UNZ_PARAMERROR)
     }
@@ -1091,7 +1091,7 @@ func unztell(_ file: OpaquePointer?) -> CLong {
 ```
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:1193
-func unzeof(_ file: OpaquePointer?) -> Int32 {
+public func unzeof(_ file: OpaquePointer?) -> Int32 {
     if file == nil {
         return UNZ_PARAMERROR
     }
@@ -1122,7 +1122,7 @@ func unzeof(_ file: OpaquePointer?) -> Int32 {
 ```
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:1225
-func unzGetLocalExtrafield(_ file: OpaquePointer?, _ buf: OpaquePointer?, _ len: UInt32) -> Int32 {
+public func unzGetLocalExtrafield(_ file: OpaquePointer?, _ buf: OpaquePointer?, _ len: UInt32) -> Int32 {
     let read_now: UInt32
     let size_to_read: CUnsignedLong
 
@@ -1170,7 +1170,7 @@ func unzGetLocalExtrafield(_ file: OpaquePointer?, _ buf: OpaquePointer?, _ len:
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:1269
 @discardableResult
-func unzCloseCurrentFile(_ file: OpaquePointer?) -> Int32 {
+public func unzCloseCurrentFile(_ file: OpaquePointer?) -> Int32 {
     let err: Int32 = UNZ_OK
 
     if file == nil {
@@ -1214,7 +1214,7 @@ func unzCloseCurrentFile(_ file: OpaquePointer?) -> Int32 {
 ```
 */
 /// Source: oracle/codemp/qcommon/unzip.cpp:1310
-func unzGetGlobalComment(_ file: OpaquePointer?, _ szComment: inout JKAShared.CharBuf, _ uSizeBuf: CUnsignedLong) -> Int32 {
+public func unzGetGlobalComment(_ file: OpaquePointer?, _ szComment: inout JKAShared.CharBuf, _ uSizeBuf: CUnsignedLong) -> Int32 {
     var uReadThis: CUnsignedLong
     if file == nil {
         return UNZ_PARAMERROR

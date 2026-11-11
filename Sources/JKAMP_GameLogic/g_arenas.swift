@@ -24,7 +24,7 @@ UpdateTournamentInfo
 ```
 */
 /// Source: oracle/codemp/game/g_arenas.c:20
-func UpdateTournamentInfo() {
+public func UpdateTournamentInfo() {
     var i: Int32
     var player: Entity?
     let playerClientNum: Int32

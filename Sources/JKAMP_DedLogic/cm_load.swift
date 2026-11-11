@@ -16,7 +16,7 @@ let BOX_LEAFS = 2 as Int32
 let BOX_PLANES = 12 as Int32
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:37
-var cmg: ClipMap { world.storage.cmg }
+public var cmg: ClipMap { world.storage.cmg }
 
 /// Raven's `cmg.landScape` of `cm_local.h:210`, the terrain class of the clip map, held on the world.
 // AI: Raven holds the class pointer in the C record. The forward reads the Swift class the world holds, so the C field stays unused, rule 12.
@@ -26,79 +26,79 @@ var landScape_cmg: CCMLandScape? {
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:38
-var c_pointcontents: Int32 {
+public var c_pointcontents: Int32 {
     get { world.variables.c_pointcontents }
     set { world.variables.c_pointcontents = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:39
-var c_traces: Int32 {
+public var c_traces: Int32 {
     get { world.variables.c_traces }
     set { world.variables.c_traces = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:39
-var c_brush_traces: Int32 {
+public var c_brush_traces: Int32 {
     get { world.variables.c_brush_traces }
     set { world.variables.c_brush_traces = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:39
-var c_patch_traces: Int32 {
+public var c_patch_traces: Int32 {
     get { world.variables.c_patch_traces }
     set { world.variables.c_patch_traces = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:42
-var cmod_base: Slots<JKAShared.byte>? {
+public var cmod_base: Slots<JKAShared.byte>? {
     get { world.variables.cmod_base }
     set { world.variables.cmod_base = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:45
-var cm_noAreas: JKAMP.Cvar? {
+public var cm_noAreas: JKAMP.Cvar? {
     get { world.variables.cm_noAreas }
     set { world.variables.cm_noAreas = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:46
-var cm_noCurves: JKAMP.Cvar? {
+public var cm_noCurves: JKAMP.Cvar? {
     get { world.variables.cm_noCurves }
     set { world.variables.cm_noCurves = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:47
-var cm_playerCurveClip: JKAMP.Cvar? {
+public var cm_playerCurveClip: JKAMP.Cvar? {
     get { world.variables.cm_playerCurveClip }
     set { world.variables.cm_playerCurveClip = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:50
-var box_model: Cmodel { world.storage.box_model }
+public var box_model: Cmodel { world.storage.box_model }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:51
-var box_planes: JKAShared.Cplane? {
+public var box_planes: JKAShared.Cplane? {
     get { world.variables.box_planes }
     set { world.variables.box_planes = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:52
-var box_brush: Cbrush? {
+public var box_brush: Cbrush? {
     get { world.variables.box_brush }
     set { world.variables.box_brush = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:60
-var SubBSP: Slots<ClipMap> { world.storage.SubBSP }
+public var SubBSP: Slots<ClipMap> { world.storage.SubBSP }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:61
-var NumSubBSP: Int32 {
+public var NumSubBSP: Int32 {
     get { world.variables.NumSubBSP }
     set { world.variables.NumSubBSP = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:61
-var TotalSubModels: Int32 {
+public var TotalSubModels: Int32 {
     get { world.variables.TotalSubModels }
     set { world.variables.TotalSubModels = newValue }
 }
@@ -114,19 +114,19 @@ let MAX_PATCH_VERTS = 1024 as Int32
 var checksums_CM_Checksum: Slots<UInt32> { world.storage.checksums_CM_Checksum }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:568
-var gpvCachedMapDiskImage: OpaquePointer? {
+public var gpvCachedMapDiskImage: OpaquePointer? {
     get { world.variables.gpvCachedMapDiskImage }
     set { world.variables.gpvCachedMapDiskImage = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:569
-var gsCachedMapDiskImage: JKAShared.CharBuf {
+public var gsCachedMapDiskImage: JKAShared.CharBuf {
     get { world.variables.gsCachedMapDiskImage }
     set { world.variables.gsCachedMapDiskImage = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:570
-var gbUsingCachedMapDataRightNow: Bool {
+public var gbUsingCachedMapDataRightNow: Bool {
     get { world.variables.gbUsingCachedMapDataRightNow }
     set { world.variables.gbUsingCachedMapDataRightNow = newValue }
 }
@@ -139,7 +139,7 @@ CMod_LoadShaders
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:76
-func CMod_LoadShaders(_ l: JKAMP.Lump, _ cm: ClipMap) {
+public func CMod_LoadShaders(_ l: JKAMP.Lump, _ cm: ClipMap) {
     let `in`: Slots<Dshader>
     var i: Int32
     let count: Int32
@@ -176,7 +176,7 @@ CMod_LoadSubmodels
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:109
-func CMod_LoadSubmodels(_ l: JKAMP.Lump, _ cm: ClipMap) {
+public func CMod_LoadSubmodels(_ l: JKAMP.Lump, _ cm: ClipMap) {
     let `in`: Slots<Dmodel>
     var out: Cmodel
     var i: Int32
@@ -258,7 +258,7 @@ CMod_LoadNodes
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:175
-func CMod_LoadNodes(_ l: JKAMP.Lump, _ cm: ClipMap) {
+public func CMod_LoadNodes(_ l: JKAMP.Lump, _ cm: ClipMap) {
     let `in`: Slots<Dnode>
     var child: Int32
     var out: CmNode
@@ -303,7 +303,7 @@ CM_BoundBrush
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:211
-func CM_BoundBrush(_ b: Cbrush) {
+public func CM_BoundBrush(_ b: Cbrush) {
     b.bounds[0][0] = -b.sidesSlots[0].plane!.dist
     b.bounds[1][0] = b.sidesSlots[1].plane!.dist
 
@@ -323,7 +323,7 @@ CMod_LoadBrushes
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:229
-func CMod_LoadBrushes(_ l: JKAMP.Lump, _ cm: ClipMap) {
+public func CMod_LoadBrushes(_ l: JKAMP.Lump, _ cm: ClipMap) {
     let `in`: Slots<Dbrush>
     var out: Cbrush
     var i: Int32
@@ -369,7 +369,7 @@ CMod_LoadLeafs
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:269
-func CMod_LoadLeafs(_ l: JKAMP.Lump, _ cm: ClipMap) {
+public func CMod_LoadLeafs(_ l: JKAMP.Lump, _ cm: ClipMap) {
     var i: Int32
     var out: CLeaf
     let `in`: Slots<Dleaf>
@@ -422,7 +422,7 @@ CMod_LoadPlanes
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:312
-func CMod_LoadPlanes(_ l: JKAMP.Lump, _ cm: ClipMap) {
+public func CMod_LoadPlanes(_ l: JKAMP.Lump, _ cm: ClipMap) {
     var i: Int32
     var j: Int32
     var out: Cplane
@@ -471,7 +471,7 @@ CMod_LoadLeafBrushes
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:353
-func CMod_LoadLeafBrushes(_ l: JKAMP.Lump, _ cm: ClipMap) {
+public func CMod_LoadLeafBrushes(_ l: JKAMP.Lump, _ cm: ClipMap) {
     var i: Int32
     let `in`: Slots<JKAShared.byte>
     let count: Int32
@@ -501,7 +501,7 @@ CMod_LoadLeafSurfaces
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:380
-func CMod_LoadLeafSurfaces(_ l: JKAMP.Lump, _ cm: ClipMap) {
+public func CMod_LoadLeafSurfaces(_ l: JKAMP.Lump, _ cm: ClipMap) {
     var i: Int32
     let `in`: Slots<JKAShared.byte>
     let count: Int32
@@ -531,7 +531,7 @@ CMod_LoadBrushSides
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:407
-func CMod_LoadBrushSides(_ l: JKAMP.Lump, _ cm: ClipMap) {
+public func CMod_LoadBrushSides(_ l: JKAMP.Lump, _ cm: ClipMap) {
     var i: Int32
     var out: Cbrushside
     let `in`: Slots<Dbrushside>
@@ -569,7 +569,7 @@ CMod_LoadEntityString
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:442
-func CMod_LoadEntityString(_ l: JKAMP.Lump, _ cm: ClipMap) {
+public func CMod_LoadEntityString(_ l: JKAMP.Lump, _ cm: ClipMap) {
     // AI: Raven copies the lump into a hunk block that `entityString` points at. The call stays for the zone count, and the text goes through a CharBuf into the string pool.
     _ = Hunk_Alloc(l.filelen, h_high)
     cm.numEntityChars = l.filelen
@@ -579,7 +579,7 @@ func CMod_LoadEntityString(_ l: JKAMP.Lump, _ cm: ClipMap) {
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:454
-func CMod_LoadVisibility(_ l: JKAMP.Lump, _ cm: ClipMap) {
+public func CMod_LoadVisibility(_ l: JKAMP.Lump, _ cm: ClipMap) {
     let len: Int32
     let buf: Slots<JKAShared.byte>
 
@@ -600,7 +600,7 @@ func CMod_LoadVisibility(_ l: JKAMP.Lump, _ cm: ClipMap) {
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:483
-func CMod_LoadPatches(_ surfs: JKAMP.Lump, _ verts: JKAMP.Lump, _ cm: ClipMap) {
+public func CMod_LoadPatches(_ surfs: JKAMP.Lump, _ verts: JKAMP.Lump, _ cm: ClipMap) {
     let dv: Slots<DrawVert>
     var dv_p: Int32
     let `in`: Slots<Dsurface>
@@ -670,12 +670,12 @@ func CMod_LoadPatches(_ surfs: JKAMP.Lump, _ verts: JKAMP.Lump, _ cm: ClipMap) {
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:540
-func CM_LumpChecksum(_ lump: JKAMP.Lump) -> UInt32 {
+public func CM_LumpChecksum(_ lump: JKAMP.Lump) -> UInt32 {
     return Com_BlockChecksum(cmod_base!.suffix(from: lump.fileofs), lump.filelen)
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:544
-func CM_Checksum(_ header: Dheader) -> UInt32 {
+public func CM_Checksum(_ header: Dheader) -> UInt32 {
     // Raven calls this function from no file of either tree, so it is dead.
     // AI: Raven declares `unsigned checksums[16]` on his stack. The body uses the zeroed allocation of the storage class through the `checksums_CM_Checksum` forward.
     checksums_CM_Checksum[0] = CM_LumpChecksum(header.lumps[LUMP_SHADERS])
@@ -699,7 +699,7 @@ func CM_Checksum(_ header: Dheader) -> UInt32 {
 // new bool return used to see if anything was freed, used during z_malloc failure re-try
 //
 /// Source: oracle/codemp/qcommon/cm_load.cpp:576
-func CM_DeleteCachedMap(_ bGuaranteedOkToDelete: Bool) -> Bool {
+public func CM_DeleteCachedMap(_ bGuaranteedOkToDelete: Bool) -> Bool {
     var bActuallyFreedSomething: Bool = false
 
     if bGuaranteedOkToDelete || !gbUsingCachedMapDataRightNow {
@@ -885,7 +885,7 @@ var last_checksum: UInt32 {
 // need a wrapper function around this because of multiple returns, need to ensure bool is correct...
 //
 /// Source: oracle/codemp/qcommon/cm_load.cpp:775
-func CM_LoadMap(_ name: String, _ clientload: Bool, _ checksum: inout Int32) {
+public func CM_LoadMap(_ name: String, _ clientload: Bool, _ checksum: inout Int32) {
     gbUsingCachedMapDataRightNow = true // !!!!!!!!!!!!!!!!!!
 
     CM_LoadMap_Actual(name, clientload, &checksum, cmg)
@@ -901,7 +901,7 @@ CM_ClearMap
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:791
-func CM_ClearMap() {
+public func CM_ClearMap() {
     var i: Int32
 
     CM_ShutdownShaderProperties()
@@ -937,7 +937,7 @@ CM_ClipHandleToModel
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:828
-func CM_ClipHandleToModel(_ handle: JKAShared.clipHandle_t, _ clipMap: inout ClipMap?) -> Cmodel? {
+public func CM_ClipHandleToModel(_ handle: JKAShared.clipHandle_t, _ clipMap: inout ClipMap?) -> Cmodel? {
     var i: Int32
     var count: Int32
 
@@ -980,7 +980,7 @@ CM_InlineModel
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:882
-func CM_InlineModel(_ index: Int32) -> JKAShared.clipHandle_t {
+public func CM_InlineModel(_ index: Int32) -> JKAShared.clipHandle_t {
     if index < 0 || index >= TotalSubModels {
         Com_Error(ERR_DROP, "CM_InlineModel: bad number: %d > %d", index, TotalSubModels)
     }
@@ -988,27 +988,27 @@ func CM_InlineModel(_ index: Int32) -> JKAShared.clipHandle_t {
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:890
-func CM_NumClusters() -> Int32 {
+public func CM_NumClusters() -> Int32 {
     return cmg.numClusters
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:894
-func CM_NumInlineModels() -> Int32 {
+public func CM_NumInlineModels() -> Int32 {
     return cmg.numSubModels
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:898
-func CM_EntityString() -> String {
+public func CM_EntityString() -> String {
     return cmg.entityString!
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:902
-func CM_SubBSPEntityString(_ index: Int32) -> String {
+public func CM_SubBSPEntityString(_ index: Int32) -> String {
     return SubBSP[index].entityString!
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:907
-func CM_LeafCluster(_ leafnum: Int32) -> Int32 {
+public func CM_LeafCluster(_ leafnum: Int32) -> Int32 {
     if leafnum < 0 || leafnum >= cmg.numLeafs {
         Com_Error(ERR_DROP, "CM_LeafCluster: bad number")
     }
@@ -1016,7 +1016,7 @@ func CM_LeafCluster(_ leafnum: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:914
-func CM_LeafArea(_ leafnum: Int32) -> Int32 {
+public func CM_LeafArea(_ leafnum: Int32) -> Int32 {
     if leafnum < 0 || leafnum >= cmg.numLeafs {
         Com_Error(ERR_DROP, "CM_LeafArea: bad number")
     }
@@ -1034,7 +1034,7 @@ can just be stored out and get a proper clipping hull structure.
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:932
-func CM_InitBoxHull() {
+public func CM_InitBoxHull() {
     var i: Int32
     var side: Int32
     var p: Cplane?
@@ -1093,7 +1093,7 @@ Capsules are handled differently though.
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:987
-func CM_TempBoxModel(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ capsule: Int32) -> JKAShared.clipHandle_t {
+public func CM_TempBoxModel(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ capsule: Int32) -> JKAShared.clipHandle_t {
     box_model.mins = mins
     box_model.maxs = maxs
 
@@ -1128,7 +1128,7 @@ CM_ModelBounds
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_load.cpp:1020
-func CM_ModelBounds(_ model: JKAShared.clipHandle_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t) {
+public func CM_ModelBounds(_ model: JKAShared.clipHandle_t, _ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t) {
     var cmod: Cmodel?
 
     // AI: Raven passes no `clipMap`, the default NULL of the declaration. The call hands a local that the body drops, because the parameter has no default.
@@ -1161,7 +1161,7 @@ func CM_RegisterTerrain(_ config: String, _ server: Bool) -> CCMLandScape? {
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:1065
-func CM_ShutdownTerrain(_ terrainId: JKAShared.thandle_t) {
+public func CM_ShutdownTerrain(_ terrainId: JKAShared.thandle_t) {
     var landscape: CCMLandScape?
 
     // AI: Raven reads the class pointer `cmg.landScape` of the C record. The world holds the Swift class as `landScape_cmg`, the C field stays unused.
@@ -1177,7 +1177,7 @@ func CM_ShutdownTerrain(_ terrainId: JKAShared.thandle_t) {
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:1083
-func CM_LoadSubBSP(_ name: String, _ clientload: Bool) -> Int32 {
+public func CM_LoadSubBSP(_ name: String, _ clientload: Bool) -> Int32 {
     var i: Int32
     var checksum: Int32 = 0
     var count: Int32
@@ -1203,7 +1203,7 @@ func CM_LoadSubBSP(_ name: String, _ clientload: Bool) -> Int32 {
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:1110
-func CM_FindSubBSP(_ modelIndex: Int32) -> Int32 {
+public func CM_FindSubBSP(_ modelIndex: Int32) -> Int32 {
     var i: Int32
     var count: Int32
 
@@ -1225,13 +1225,13 @@ func CM_FindSubBSP(_ modelIndex: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:1132
-func CM_GetWorldBounds(_ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t) {
+public func CM_GetWorldBounds(_ mins: inout JKAShared.vec3_t, _ maxs: inout JKAShared.vec3_t) {
     mins = cmg.cmodelsSlots[0].mins
     maxs = cmg.cmodelsSlots[0].maxs
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:1138
-func CM_ModelContents_Actual(_ model: JKAShared.clipHandle_t, _ cm: ClipMap?) -> Int32 {
+public func CM_ModelContents_Actual(_ model: JKAShared.clipHandle_t, _ cm: ClipMap?) -> Int32 {
     var cmod: Cmodel?
     var contents: Int32 = 0
     var i: Int32
@@ -1275,7 +1275,7 @@ func CM_ModelContents_Actual(_ model: JKAShared.clipHandle_t, _ cm: ClipMap?) ->
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:1176
-func CM_ModelContents(_ model: JKAShared.clipHandle_t, _ subBSPIndex: Int32) -> Int32 {
+public func CM_ModelContents(_ model: JKAShared.clipHandle_t, _ subBSPIndex: Int32) -> Int32 {
     if subBSPIndex < 0 {
         return CM_ModelContents_Actual(model, nil)
     }

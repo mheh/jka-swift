@@ -3,9 +3,9 @@
 #ifndef JKA_CODEMP_UI_UI_LOCAL_MENUFRAMEWORK_S_H
 #define JKA_CODEMP_UI_UI_LOCAL_MENUFRAMEWORK_S_H
 
+#include "../ui_shared/constants.h"
 #include "CJKAMP_UI_forward.h"
 #include "codemp/game/q_shared/qboolean.h"
-#include "codemp/ui/ui_shared/constants.h"
 #include "shared/game/q_shared/sfxHandle_t.h"
 
 // Source: oracle/codemp/ui/ui_local.h:144

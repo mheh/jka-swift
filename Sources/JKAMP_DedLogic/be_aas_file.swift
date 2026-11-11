@@ -16,7 +16,7 @@ var AAS_WriteAASLump_offset: Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_file.cpp:37
-func AAS_SwapAASData() {
+public func AAS_SwapAASData() {
     // Raven swaps each field of the AAS lumps with LittleLong, LittleShort, and LittleFloat.
     // The loops have no line, because each swap of the WinDed arm is its argument.
 }
@@ -29,7 +29,7 @@ func AAS_SwapAASData() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_file.cpp:166
-func AAS_DumpAASData() {
+public func AAS_DumpAASData() {
     aasworld.numbboxes = 0
     if aasworld.bboxes != nil { FreeMemory(aasworld.bboxes!.handle) }
     aasworld.bboxes = nil
@@ -87,7 +87,7 @@ func AAS_DumpAASData() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_file.cpp:273
-func AAS_LoadAASLump(_ fp: JKAShared.fileHandle_t, _ offset: Int32, _ length: Int32, _ lastoffset: inout Int32, _ size: Int32) -> UnsafeMutableRawPointer? {
+public func AAS_LoadAASLump(_ fp: JKAShared.fileHandle_t, _ offset: Int32, _ length: Int32, _ lastoffset: inout Int32, _ size: Int32) -> UnsafeMutableRawPointer? {
     //
     if length == 0 {
         //just alloc a dummy
@@ -120,7 +120,7 @@ func AAS_LoadAASLump(_ fp: JKAShared.fileHandle_t, _ offset: Int32, _ length: In
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_file.cpp:310
-func AAS_DData(_ data: Slots<UInt8>, _ size: Int32) {
+public func AAS_DData(_ data: Slots<UInt8>, _ size: Int32) {
     var i: Int32
 
     i = 0
@@ -138,7 +138,7 @@ func AAS_DData(_ data: Slots<UInt8>, _ size: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_file.cpp:326
-func AAS_LoadAASFile(_ filename: inout JKAShared.CharBuf) -> Int32 {
+public func AAS_LoadAASFile(_ filename: inout JKAShared.CharBuf) -> Int32 {
     var fp: fileHandle_t = 0
 
     botimport.runPrint(PRT_MESSAGE, "trying to load %s\n", String(filename))
@@ -278,7 +278,7 @@ func AAS_LoadAASFile(_ filename: inout JKAShared.CharBuf) -> Int32 {
 }
 
 /// Source: oracle/codemp/botlib/be_aas_file.cpp:481
-func AAS_WriteAASLump(_ fp: JKAShared.fileHandle_t, _ h: AasHeader, _ lumpnum: Int32, _ data: OpaquePointer?, _ length: Int32) -> Int32 {
+public func AAS_WriteAASLump(_ fp: JKAShared.fileHandle_t, _ h: AasHeader, _ lumpnum: Int32, _ data: OpaquePointer?, _ length: Int32) -> Int32 {
     var lump: AasLump
 
     lump = h.lumps[lumpnum]
@@ -304,7 +304,7 @@ func AAS_WriteAASLump(_ fp: JKAShared.fileHandle_t, _ h: AasHeader, _ lumpnum: I
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_file.cpp:506
-func AAS_WriteAASFile(_ filename: inout JKAShared.CharBuf) -> Bool {
+public func AAS_WriteAASFile(_ filename: inout JKAShared.CharBuf) -> Bool {
     var fp: fileHandle_t = 0
 
     botimport.runPrint(PRT_MESSAGE, "writing %s\n", String(filename))

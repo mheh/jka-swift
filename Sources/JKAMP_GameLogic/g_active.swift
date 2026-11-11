@@ -23,7 +23,7 @@ let SLOWDOWN_DIST = 128.0 as Float
 let MIN_NPC_SPEED = 16.0 as Float
 
 /// Source: oracle/codemp/game/g_active.c:20
-func P_SetTwitchInfo(_ client: Client) {
+public func P_SetTwitchInfo(_ client: Client) {
     client.ps.painTime = level.time
     client.ps.painDirection ^= 1
 }
@@ -41,7 +41,7 @@ global pain sound events for all clients.
 ```
 */
 /// Source: oracle/codemp/game/g_active.c:36
-func P_DamageFeedback(_ player: Entity) {
+public func P_DamageFeedback(_ player: Entity) {
     var client: Client?
     var count: Float
     var angles = vec3_t()
@@ -127,7 +127,7 @@ Check for lava / slime contents and drowning
 ```
 */
 /// Source: oracle/codemp/game/g_active.c:129
-func P_WorldEffects(_ ent: Entity) {
+public func P_WorldEffects(_ ent: Entity) {
     let envirosuit: Bool
     let waterlevel: Int32
 
@@ -205,7 +205,7 @@ func P_WorldEffects(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_active.c:213
-func DoImpact(_ `self`: Entity, _ other: Entity, _ damageSelf: Bool) {
+public func DoImpact(_ `self`: Entity, _ other: Entity, _ damageSelf: Bool) {
     var magnitude: Float
     var my_mass: Float
     var velocity = vec3_t()
@@ -370,7 +370,7 @@ func DoImpact(_ `self`: Entity, _ other: Entity, _ damageSelf: Bool) {
 }
 
 /// Source: oracle/codemp/game/g_active.c:407
-func Client_CheckImpactBBrush(_ `self`: Entity, _ other: Entity) {
+public func Client_CheckImpactBBrush(_ `self`: Entity, _ other: Entity) {
     if !other.inuse {
         return
     }
@@ -400,7 +400,7 @@ G_SetClientSound
 ```
 */
 /// Source: oracle/codemp/game/g_active.c:444
-func G_SetClientSound(_ ent: Entity) {
+public func G_SetClientSound(_ ent: Entity) {
     if ent.client != nil && ent.client!.isHacking != 0 {
         //loop hacking sound
         ent.client!.ps.loopSound = level.snd_hack
@@ -430,7 +430,7 @@ ClientImpacts
 ```
 */
 /// Source: oracle/codemp/game/g_active.c:478
-func ClientImpacts(_ ent: Entity, _ pm: JKAMP.Pmove) {
+public func ClientImpacts(_ ent: Entity, _ pm: JKAMP.Pmove) {
     var i: Int32 = 0
     var j: Int32 = 0
     // Raven's record lives to the end of his block, so the block is the closure.
@@ -483,7 +483,7 @@ Spectators will only interact with teleporters.
 ```
 */
 /// Source: oracle/codemp/game/g_active.c:516
-func G_TouchTriggers(_ ent: Entity) {
+public func G_TouchTriggers(_ ent: Entity) {
     var i: Int32 = 0
     var num: Int32 = 0
     var touch: [Int32] = [Int32](repeating: 0, count: 1024)
@@ -585,7 +585,7 @@ Spectators will only interact with teleporters.
 ```
 */
 /// Source: oracle/codemp/game/g_active.c:601
-func G_MoverTouchPushTriggers(_ ent: Entity, _ oldOrg: inout JKAShared.vec3_t) {
+public func G_MoverTouchPushTriggers(_ ent: Entity, _ oldOrg: inout JKAShared.vec3_t) {
     var i: Int32 = 0
     var num: Int32 = 0
     var step: Float = 0
@@ -677,7 +677,7 @@ SpectatorThink
 ```
 */
 /// Source: oracle/codemp/game/g_active.c:678
-func SpectatorThink(_ ent: Entity, _ ucmd: JKAMP.Usercmd) {
+public func SpectatorThink(_ ent: Entity, _ ucmd: JKAMP.Usercmd) {
     // Pmove names both the view and the function, so the module name selects the view.
     // Raven's record lives to the end of the function, so the rest of the body is the closure.
     JKAMP.Pmove.scratch { pm in
@@ -752,7 +752,7 @@ Returns qfalse if the client is dropped
 ```
 */
 /// Source: oracle/codemp/game/g_active.c:751
-func ClientInactivityTimer(_ client: Client) -> Bool {
+public func ClientInactivityTimer(_ client: Client) -> Bool {
     if g_inactivity.integer == 0 {
         // give everyone some time, so if the operator sets g_inactivity during
         // gameplay, everyone isn't kicked
@@ -784,7 +784,7 @@ Actions that happen once a second
 ```
 */
 /// Source: oracle/codemp/game/g_active.c:783
-func ClientTimerActions(_ ent: Entity, _ msec: Int32) {
+public func ClientTimerActions(_ ent: Entity, _ msec: Int32) {
     var client: Client?
 
     client = ent.client
@@ -813,7 +813,7 @@ ClientIntermissionThink
 ```
 */
 /// Source: oracle/codemp/game/g_active.c:810
-func ClientIntermissionThink(_ client: Client) {
+public func ClientIntermissionThink(_ client: Client) {
     client.ps.eFlags &= ~EF_TALK
     client.ps.eFlags &= ~EF_FIRING
 
@@ -829,7 +829,7 @@ func ClientIntermissionThink(_ client: Client) {
 }
 
 /// Source: oracle/codemp/game/g_active.c:826
-func G_VehicleAttachDroidUnit(_ vehEnt: Entity) {
+public func G_VehicleAttachDroidUnit(_ vehEnt: Entity) {
     if vehEnt.m_pVehicle != nil && vehEnt.m_pVehicle!.m_pDroidUnit != nil {
         let droidEnt: Entity? = vehEnt.m_pVehicle!.m_pDroidUnit.map { Entity($0) }
         // Raven's record lives to the end of his block, so the block is the closure.
@@ -858,7 +858,7 @@ func G_VehicleAttachDroidUnit(_ vehEnt: Entity) {
 
 //called gameside only from pmove code (convenience)
 /// Source: oracle/codemp/game/g_active.c:857
-func G_CheapWeaponFire(_ entNum: Int32, _ ev: Int32) {
+public func G_CheapWeaponFire(_ entNum: Int32, _ ev: Int32) {
     let ent: Entity? = g_entities[entNum]
 
     if !ent!.inuse || ent!.client == nil {
@@ -896,7 +896,7 @@ func G_CheapWeaponFire(_ entNum: Int32, _ ev: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_active.c:909
-func ClientEvents(_ ent: Entity, _ oldEventSequence: Int32) {
+public func ClientEvents(_ ent: Entity, _ oldEventSequence: Int32) {
     var i: Int32
     var event: Int32
     var client: Client?
@@ -1037,7 +1037,7 @@ SendPendingPredictableEvents
 ```
 */
 /// Source: oracle/codemp/game/g_active.c:1059
-func SendPendingPredictableEvents(_ ps: JKAMP.PlayerState) {
+public func SendPendingPredictableEvents(_ ps: JKAMP.PlayerState) {
     var t: Entity?
     let event: Int32
     let seq: Int32
@@ -1165,7 +1165,7 @@ private func G_UpdateJediMasterBroadcasts(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_active.c:1199
-func G_UpdateClientBroadcasts(_ `self`: Entity) {
+public func G_UpdateClientBroadcasts(_ `self`: Entity) {
     // Clear all the broadcast bits for this client
     `self`.r.broadcastClients.fill(0)
 
@@ -1177,7 +1177,7 @@ func G_UpdateClientBroadcasts(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_active.c:1211
-func G_AddPushVecToUcmd(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
+public func G_AddPushVecToUcmd(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
     var forward = vec3_t()
     var right = vec3_t()
     var moveDir = vec3_t()
@@ -1216,7 +1216,7 @@ func G_AddPushVecToUcmd(_ `self`: Entity, _ ucmd: JKAMP.Usercmd) {
 }
 
 /// Source: oracle/codemp/game/g_active.c:1246
-func G_StandingAnim(_ anim: Int32) -> Bool {
+public func G_StandingAnim(_ anim: Int32) -> Bool {
     //NOTE: does not check idles or special (cinematic) stands
     switch anim {
     case BOTH_STAND1, BOTH_STAND2, BOTH_STAND3, BOTH_STAND4:
@@ -1229,7 +1229,7 @@ func G_StandingAnim(_ anim: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_active.c:1260
-func G_ActionButtonPressed(_ buttons: Int32) -> Bool {
+public func G_ActionButtonPressed(_ buttons: Int32) -> Bool {
     if (buttons & BUTTON_ATTACK) != 0 {
         return true
     } else if (buttons & BUTTON_USE_HOLDABLE) != 0 {
@@ -1254,7 +1254,7 @@ func G_ActionButtonPressed(_ buttons: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_active.c:1302
-func G_CheckClientIdle(_ ent: Entity, _ ucmd: JKAMP.Usercmd) {
+public func G_CheckClientIdle(_ ent: Entity, _ ucmd: JKAMP.Usercmd) {
     var viewChange = vec3_t()
     let actionPressed: Bool
     var buttons: Int32
@@ -1342,7 +1342,7 @@ func G_CheckClientIdle(_ ent: Entity, _ ucmd: JKAMP.Usercmd) {
 }
 
 /// Source: oracle/codemp/game/g_active.c:1432
-func NPC_Accelerate(_ ent: Entity, _ fullWalkAcc: Bool, _ fullRunAcc: Bool) {
+public func NPC_Accelerate(_ ent: Entity, _ fullWalkAcc: Bool, _ fullRunAcc: Bool) {
     if ent.client == nil || ent.NPC == nil {
         return
     }
@@ -1464,7 +1464,7 @@ private func NPC_GetRunSpeed(_ ent: Entity) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_active.c:1577
-func G_CheckMovingLoopingSounds(_ ent: Entity, _ ucmd: JKAMP.Usercmd) {
+public func G_CheckMovingLoopingSounds(_ ent: Entity, _ ucmd: JKAMP.Usercmd) {
     if ent.client != nil {
         if (ent.NPC != nil && VectorCompare(vec3_origin, ent.client!.ps.moveDir) == 0) || ucmd.forwardmove != 0 || ucmd.rightmove != 0 || (ucmd.upmove != 0 && FlyingCreature(ent)) || (FlyingCreature(ent) && VectorCompare(vec3_origin, ent.client!.ps.velocity) == 0 && ent.health > 0) {
             switch ent.client!.NPC_class {
@@ -1496,7 +1496,7 @@ func G_CheckMovingLoopingSounds(_ ent: Entity, _ ucmd: JKAMP.Usercmd) {
 }
 
 /// Source: oracle/codemp/game/g_active.c:1616
-func G_HeldByMonster(_ ent: Entity, _ ucmd: inout JKAMP.Usercmd?) {
+public func G_HeldByMonster(_ ent: Entity, _ ucmd: inout JKAMP.Usercmd?) {
     if ent.client != nil && ent.client!.ps.hasLookTarget {
         let monster: Entity? = g_entities[ent.client!.ps.lookTarget]
         if monster != nil && monster!.client != nil {
@@ -1532,7 +1532,7 @@ func G_HeldByMonster(_ ent: Entity, _ ucmd: inout JKAMP.Usercmd?) {
 }
 
 /// Source: oracle/codemp/game/g_active.c:1662
-func G_SetTauntAnim(_ ent: Entity, _ taunt: Int32) {
+public func G_SetTauntAnim(_ ent: Entity, _ taunt: Int32) {
     if ent.client!.pers.cmd.upmove != 0 || ent.client!.pers.cmd.forwardmove != 0 || ent.client!.pers.cmd.rightmove != 0 {
         //hack, don't do while moving
         return
@@ -1763,7 +1763,7 @@ once for each server frame, which makes for smooth demo recording.
 ```
 */
 /// Source: oracle/codemp/game/g_active.c:1939
-func ClientThink_real(_ ent: Entity) {
+public func ClientThink_real(_ ent: Entity) {
     var client: Client?
     // Pmove names both the view and the function, so the module name selects the view.
     // Raven's record lives to the end of the function, so the rest of the body is the closure.
@@ -3157,7 +3157,7 @@ Checks whether a client has exceded any timeouts and act accordingly
 ```
 */
 /// Source: oracle/codemp/game/g_active.c:3620
-func G_CheckClientTimeouts(_ ent: Entity) {
+public func G_CheckClientTimeouts(_ ent: Entity) {
     // Only timeout supported right now is the timeout to spectator mode
     if g_timeouttospec.integer == 0 {
         return
@@ -3256,7 +3256,7 @@ public func ClientThink(_ clientNum: Int32, _ ucmd: JKAMP.Usercmd?) {
 }
 
 /// Source: oracle/codemp/game/g_active.c:3723
-func G_RunClient(_ ent: Entity) {
+public func G_RunClient(_ ent: Entity) {
     if !((ent.r.svFlags & SVF_BOT) != 0) && g_synchronousClients.integer == 0 {
         return
     }
@@ -3273,7 +3273,7 @@ SpectatorClientEndFrame
 ```
 */
 /// Source: oracle/codemp/game/g_active.c:3738
-func SpectatorClientEndFrame(_ ent: Entity) {
+public func SpectatorClientEndFrame(_ ent: Entity) {
     var cl: Client?
 
     if ent.s.eType == ET_NPC {
@@ -3330,7 +3330,7 @@ while a slow client may have multiple ClientEndFrame between ClientThink.
 ```
 */
 /// Source: oracle/codemp/game/g_active.c:3794
-func ClientEndFrame(_ ent: Entity) {
+public func ClientEndFrame(_ ent: Entity) {
     var i: Int32
     var pers: ClientPersistant?
     var isNPC: Bool = false

@@ -36,7 +36,7 @@ private let START_DIS = 15 as Int32
 
 //special routine for tracking angles between client and server -rww
 /// Source: oracle/codemp/game/g_turret_G2.c:24
-func G2Tur_SetBoneAngles(_ ent: Entity, _ bone: String, _ angles: JKAShared.vec3_t) {
+public func G2Tur_SetBoneAngles(_ ent: Entity, _ bone: String, _ angles: JKAShared.vec3_t) {
     var thebone: Int32? = 0
     var firstFree: Int32? = nil
     var i: Int32 = 0
@@ -119,7 +119,7 @@ func G2Tur_SetBoneAngles(_ ent: Entity, _ bone: String, _ angles: JKAShared.vec3
 }
 
 /// Source: oracle/codemp/game/g_turret_G2.c:125
-func turretG2_set_models(_ `self`: Entity, _ dying: Bool) {
+public func turretG2_set_models(_ `self`: Entity, _ dying: Bool) {
     if dying {
         if !((`self`.spawnflags & SPF_TURRETG2_TURBO) != 0) {
             `self`.s.modelindex = G_ModelIndex(name2)
@@ -175,7 +175,7 @@ func turretG2_set_models(_ `self`: Entity, _ dying: Bool) {
 
 //------------------------------------------------------------------------------------------------------------
 /// Source: oracle/codemp/game/g_turret_G2.c:210
-func TurretG2Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func TurretG2Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     if `self`.paintarget != nil && !`self`.paintarget!.isEmpty {
         if `self`.genericValue8 < level.time {
             G_UseTargets2(`self`, `self`, `self`.paintarget)
@@ -198,7 +198,7 @@ func TurretG2Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 
 //------------------------------------------------------------------------------------------------------------
 /// Source: oracle/codemp/game/g_turret_G2.c:236
-func turretG2_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ meansOfDeath: Int32) {
+public func turretG2_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ meansOfDeath: Int32) {
     var forward = vec3_t(0, 0, -1)
     var pos = vec3_t()
 
@@ -267,7 +267,7 @@ func turretG2_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ d
 
 //start an animation on model_root both server side and client side
 /// Source: oracle/codemp/game/g_turret_G2.c:321
-func TurboLaser_SetBoneAnim(_ eweb: Entity, _ startFrame: Int32, _ endFrame: Int32) {
+public func TurboLaser_SetBoneAnim(_ eweb: Entity, _ startFrame: Int32, _ endFrame: Int32) {
     //set info on the entity so it knows to start the anim on the client next snapshot.
     eweb.s.eFlags |= EF_G2ANIMATING
 
@@ -350,7 +350,7 @@ private func turretG2_fire(_ ent: Entity, _ start: inout JKAShared.vec3_t, _ dir
 }
 
 /// Source: oracle/codemp/game/g_turret_G2.c:414
-func turretG2_respawn(_ `self`: Entity) {
+public func turretG2_respawn(_ `self`: Entity) {
     `self`.use = Use.turretG2_base_use
     `self`.pain = Pain.TurretG2Pain
     `self`.die = Die.turretG2_die
@@ -373,7 +373,7 @@ func turretG2_respawn(_ `self`: Entity) {
 
 //-----------------------------------------------------
 /// Source: oracle/codemp/game/g_turret_G2.c:437
-func turretG2_head_think(_ `self`: Entity) {
+public func turretG2_head_think(_ `self`: Entity) {
     // if it's time to fire and we have an enemy, then gun 'em down!  pushDebounce time controls next fire time
     if `self`.enemy != nil && `self`.setTime < level.time && `self`.attackDebounceTime < level.time {
         var fwd = vec3_t()
@@ -694,7 +694,7 @@ private func turretG2_find_enemies(_ `self`: Entity) -> Bool {
 
 //-----------------------------------------------------
 /// Source: oracle/codemp/game/g_turret_G2.c:829
-func turretG2_base_think(_ `self`: Entity) {
+public func turretG2_base_think(_ `self`: Entity) {
     var turnOff: Bool = true
     var enemyDist: Float = 0
     var enemyDir = vec3_t()
@@ -804,7 +804,7 @@ func turretG2_base_think(_ `self`: Entity) {
 
 //-----------------------------------------------------------------------------
 /// Source: oracle/codemp/game/g_turret_G2.c:959
-func turretG2_base_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func turretG2_base_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     // Toggle on and off
     `self`.spawnflags = (`self`.spawnflags ^ 1)
 
@@ -872,7 +872,7 @@ Turret that hangs from the ceiling, will aim and shoot at enemies
 */
 //-----------------------------------------------------
 /// Source: oracle/codemp/game/g_turret_G2.c:1029
-func SP_misc_turretG2(_ base: Entity) {
+public func SP_misc_turretG2(_ base: Entity) {
     var customscaleVal: Int32 = 0
     var s: String = ""
 
@@ -917,7 +917,7 @@ func SP_misc_turretG2(_ base: Entity) {
 
 //-----------------------------------------------------
 /// Source: oracle/codemp/game/g_turret_G2.c:1084
-func finish_spawning_turretG2(_ base: Entity) {
+public func finish_spawning_turretG2(_ base: Entity) {
     var fwd = vec3_t()
     var t: Int32 = 0
 

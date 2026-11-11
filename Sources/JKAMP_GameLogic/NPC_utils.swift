@@ -5,13 +5,13 @@ import JKAMP_Game
 import JKAMP_BG
 
 /// Source: oracle/codemp/game/NPC_utils.c:7
-var teamNumbers: [Int32] {
+public var teamNumbers: [Int32] {
     get { world.variables.teamNumbers }
     set { world.variables.teamNumbers = newValue }
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:8
-var teamStrength: [Int32] {
+public var teamStrength: [Int32] {
     get { world.variables.teamStrength }
     set { world.variables.teamStrength = newValue }
 }
@@ -43,7 +43,7 @@ Added: Uses shootAngles if a NPC has them
 ```
 */
 /// Source: oracle/codemp/game/NPC_utils.c:20
-func CalcEntitySpot(_ ent: Entity, _ spot: spot_t, _ point: inout JKAShared.vec3_t) {
+public func CalcEntitySpot(_ ent: Entity, _ spot: spot_t, _ point: inout JKAShared.vec3_t) {
     var forward = vec3_t()
     var up = vec3_t()
     var right = vec3_t()
@@ -185,7 +185,7 @@ FIXME: stop compressing angles into shorts!!!!
 ```
 */
 /// Source: oracle/codemp/game/NPC_utils.c:182
-func NPC_UpdateAngles(_ doPitch: Bool, _ doYaw: Bool) -> Bool {
+public func NPC_UpdateAngles(_ doPitch: Bool, _ doYaw: Bool) -> Bool {
     var error: Float
     var decay: Float
     var targetPitch: Float = 0
@@ -403,7 +403,7 @@ func NPC_UpdateAngles(_ doPitch: Bool, _ doYaw: Bool) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:519
-func NPC_AimWiggle(_ enemy_org: inout JKAShared.vec3_t) {
+public func NPC_AimWiggle(_ enemy_org: inout JKAShared.vec3_t) {
     //shoot for somewhere between the head and torso
     //NOTE: yes, I know this looks weird, but it works
     if NPCInfo!.aimErrorDebounceTime < level.time {
@@ -424,7 +424,7 @@ qboolean NPC_UpdateFiringAngles ( qboolean doPitch, qboolean doYaw )
 ```
 */
 /// Source: oracle/codemp/game/NPC_utils.c:540
-func NPC_UpdateFiringAngles(_ doPitch: Bool, _ doYaw: Bool) -> Bool {
+public func NPC_UpdateFiringAngles(_ doPitch: Bool, _ doYaw: Bool) -> Bool {
     // add yaw error based on NPCInfo->aim value
 
 
@@ -548,7 +548,7 @@ func NPC_UpdateFiringAngles(_ doPitch: Bool, _ doYaw: Bool) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:740
-func NPC_UpdateShootAngles(_ angles: JKAShared.vec3_t, _ doPitch: Bool, _ doYaw: Bool) {
+public func NPC_UpdateShootAngles(_ angles: JKAShared.vec3_t, _ doPitch: Bool, _ doYaw: Bool) {
     //FIXME: shoot angles either not set right or not used!
     var error: Float
     var decay: Float
@@ -617,7 +617,7 @@ FIXME: Don't include medics?
 ```
 */
 /// Source: oracle/codemp/game/NPC_utils.c:818
-func SetTeamNumbers() {
+public func SetTeamNumbers() {
     var found: Entity?
     var i: Int32
 
@@ -650,7 +650,7 @@ func SetTeamNumbers() {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:851
-func G_ActivateBehavior(_ `self`: Entity, _ bset: Int32) -> Bool {
+public func G_ActivateBehavior(_ `self`: Entity, _ bset: Int32) -> Bool {
     var bSID: bState_t = bState_t(-1)
     var bs_name: String? = nil
 
@@ -686,7 +686,7 @@ func G_ActivateBehavior(_ `self`: Entity, _ bset: Int32) -> Bool {
 
 //rww - special system for sync'ing bone angles between client and server.
 /// Source: oracle/codemp/game/NPC_utils.c:906
-func NPC_SetBoneAngles(_ ent: Entity, _ bone: String, _ angles: JKAShared.vec3_t) {
+public func NPC_SetBoneAngles(_ ent: Entity, _ bone: String, _ angles: JKAShared.vec3_t) {
     var thebone: Int32? = 0
     var firstFree: Int32? = nil
     var i: Int32 = 0
@@ -769,7 +769,7 @@ func NPC_SetBoneAngles(_ ent: Entity, _ bone: String, _ angles: JKAShared.vec3_t
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1001
-func NPC_SetSurfaceOnOff(_ ent: Entity, _ surfaceName: String, _ surfaceFlags: Int32) {
+public func NPC_SetSurfaceOnOff(_ ent: Entity, _ surfaceName: String, _ surfaceFlags: Int32) {
     var i: Int32 = 0
     var foundIt: Bool = false
 
@@ -806,7 +806,7 @@ func NPC_SetSurfaceOnOff(_ ent: Entity, _ surfaceName: String, _ surfaceFlags: I
 
 //rww - cheap check to see if an armed client is looking in our general direction
 /// Source: oracle/codemp/game/NPC_utils.c:1042
-func NPC_SomeoneLookingAtMe(_ ent: Entity) -> Bool {
+public func NPC_SomeoneLookingAtMe(_ ent: Entity) -> Bool {
     var i: Int32 = 0
     var pEnt: Entity?
 
@@ -829,22 +829,22 @@ func NPC_SomeoneLookingAtMe(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1069
-func NPC_ClearLOS(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) -> Bool {
+public func NPC_ClearLOS(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t) -> Bool {
     return G_ClearLOS(NPC!, start, end)
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1073
-func NPC_ClearLOS5(_ end: JKAShared.vec3_t) -> Bool {
+public func NPC_ClearLOS5(_ end: JKAShared.vec3_t) -> Bool {
     return G_ClearLOS5(NPC!, end)
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1077
-func NPC_ClearLOS4(_ ent: Entity) -> Bool {
+public func NPC_ClearLOS4(_ ent: Entity) -> Bool {
     return G_ClearLOS4(NPC!, ent)
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1081
-func NPC_ClearLOS3(_ start: JKAShared.vec3_t, _ ent: Entity) -> Bool {
+public func NPC_ClearLOS3(_ start: JKAShared.vec3_t, _ ent: Entity) -> Bool {
     return G_ClearLOS3(NPC!, start, ent)
 }
 
@@ -854,7 +854,7 @@ public func NPC_ClearLOS2(_ ent: Entity, _ end: JKAShared.vec3_t) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1096
-func NPC_ValidEnemy(_ ent: Entity?) -> Bool {
+public func NPC_ValidEnemy(_ ent: Entity?) -> Bool {
     var entTeam: Int32 = TEAM_FREE
     //Must be a valid pointer
     if ent == nil {
@@ -929,7 +929,7 @@ func NPC_ValidEnemy(_ ent: Entity?) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1195
-func NPC_TargetVisible(_ ent: Entity) -> Bool {
+public func NPC_TargetVisible(_ ent: Entity) -> Bool {
     //Make sure we're in a valid range
     if DistanceSquared(ent.r.currentOrigin, NPC!.r.currentOrigin) > (NPCInfo!.stats.visrange * NPCInfo!.stats.visrange) {
         return false
@@ -949,7 +949,7 @@ func NPC_TargetVisible(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1246
-func NPC_FindNearestEnemy(_ ent: Entity) -> Int32 {
+public func NPC_FindNearestEnemy(_ ent: Entity) -> Int32 {
     var iradiusEnts: [Int32] = [Int32](repeating: 0, count: 256)
     var radEnt: Entity?
     var mins = vec3_t()
@@ -1008,7 +1008,7 @@ func NPC_FindNearestEnemy(_ ent: Entity) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1302
-func NPC_PickEnemyExt(_ checkAlerts: Bool) -> Entity? {
+public func NPC_PickEnemyExt(_ checkAlerts: Bool) -> Entity? {
     //Check for Hazard Team status and remove this check
     /*
     if ( NPC->client->playerTeam != TEAM_STARFLEET )
@@ -1057,7 +1057,7 @@ func NPC_PickEnemyExt(_ checkAlerts: Bool) -> Entity? {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1356
-func NPC_FindPlayer() -> Bool {
+public func NPC_FindPlayer() -> Bool {
     return NPC_TargetVisible(g_entities[0])
 }
 
@@ -1096,7 +1096,7 @@ private func NPC_CheckPlayerDistance() -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1407
-func NPC_FindEnemy(_ checkAlerts: Bool) -> Bool {
+public func NPC_FindEnemy(_ checkAlerts: Bool) -> Bool {
     var newenemy: Entity?
 
     //We're ignoring all enemies for now
@@ -1146,7 +1146,7 @@ func NPC_FindEnemy(_ checkAlerts: Bool) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1469
-func NPC_CheckEnemyExt(_ checkAlerts: Bool) -> Bool {
+public func NPC_CheckEnemyExt(_ checkAlerts: Bool) -> Bool {
     //Make sure we're ready to think again
     /*
     if ( NPCInfo->enemyCheckDebounceTime > level.time )
@@ -1162,7 +1162,7 @@ func NPC_CheckEnemyExt(_ checkAlerts: Bool) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1491
-func NPC_FacePosition(_ position: JKAShared.vec3_t, _ doPitch: Bool) -> Bool {
+public func NPC_FacePosition(_ position: JKAShared.vec3_t, _ doPitch: Bool) -> Bool {
     var muzzle = vec3_t()
     var angles = vec3_t()
     let yawDelta: Float
@@ -1215,7 +1215,7 @@ func NPC_FacePosition(_ position: JKAShared.vec3_t, _ doPitch: Bool) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1555
-func NPC_FaceEntity(_ ent: Entity, _ doPitch: Bool) -> Bool {
+public func NPC_FaceEntity(_ ent: Entity, _ doPitch: Bool) -> Bool {
     var entPos = vec3_t()
 
     //Get the positions
@@ -1225,7 +1225,7 @@ func NPC_FaceEntity(_ ent: Entity, _ doPitch: Bool) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1571
-func NPC_FaceEnemy(_ doPitch: Bool) -> Bool {
+public func NPC_FaceEnemy(_ doPitch: Bool) -> Bool {
     if NPC == nil {
         return false
     }
@@ -1238,7 +1238,7 @@ func NPC_FaceEnemy(_ doPitch: Bool) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1588
-func NPC_CheckCanAttackExt() -> Bool {
+public func NPC_CheckCanAttackExt() -> Bool {
     //We don't want them to shoot
     if (NPCInfo!.scriptFlags & SCF_DONT_FIRE) != 0 {
         return false
@@ -1258,7 +1258,7 @@ func NPC_CheckCanAttackExt() -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1611
-func NPC_ClearLookTarget(_ `self`: Entity) {
+public func NPC_ClearLookTarget(_ `self`: Entity) {
     if `self`.client == nil {
         return
     }
@@ -1280,7 +1280,7 @@ NPC_SetLookTarget
 ```
 */
 /// Source: oracle/codemp/game/NPC_utils.c:1632
-func NPC_SetLookTarget(_ `self`: Entity, _ entNum: Int32, _ clearTime: Int32) {
+public func NPC_SetLookTarget(_ `self`: Entity, _ entNum: Int32, _ clearTime: Int32) {
     if `self`.client == nil {
         return
     }
@@ -1302,7 +1302,7 @@ NPC_CheckLookTarget
 ```
 */
 /// Source: oracle/codemp/game/NPC_utils.c:1653
-func NPC_CheckLookTarget(_ `self`: Entity) -> Bool {
+public func NPC_CheckLookTarget(_ `self`: Entity) -> Bool {
     if `self`.client != nil {
         if `self`.client!.renderInfo.lookTarget >= 0 && `self`.client!.renderInfo.lookTarget < ENTITYNUM_WORLD {
             //within valid range
@@ -1325,7 +1325,7 @@ func NPC_CheckLookTarget(_ `self`: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1687
-func NPC_CheckCharmed() {
+public func NPC_CheckCharmed() {
     if NPCInfo!.charmedTime != 0 && NPCInfo!.charmedTime < level.time && NPC!.client != nil {
         //we were charmed, set us back!
         NPC!.client!.playerTeam = NPC!.genericValue1
@@ -1344,7 +1344,7 @@ func NPC_CheckCharmed() {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1707
-func G_GetBoltPosition(_ `self`: Entity, _ boltIndex: Int32, _ pos: inout JKAShared.vec3_t, _ modelIndex: Int32) {
+public func G_GetBoltPosition(_ `self`: Entity, _ boltIndex: Int32, _ pos: inout JKAShared.vec3_t, _ modelIndex: Int32) {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = MdxaBone.scratch { boltMatrix -> Bool in
@@ -1377,7 +1377,7 @@ func G_GetBoltPosition(_ `self`: Entity, _ boltIndex: Int32, _ pos: inout JKASha
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1742
-func NPC_EntRangeFromBolt(_ targEnt: Entity, _ boltIndex: Int32) -> Float {
+public func NPC_EntRangeFromBolt(_ targEnt: Entity, _ boltIndex: Int32) -> Float {
     var org = vec3_t()
 
 
@@ -1387,12 +1387,12 @@ func NPC_EntRangeFromBolt(_ targEnt: Entity, _ boltIndex: Int32) -> Float {
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1756
-func NPC_EnemyRangeFromBolt(_ boltIndex: Int32) -> Float {
+public func NPC_EnemyRangeFromBolt(_ boltIndex: Int32) -> Float {
     return (NPC_EntRangeFromBolt(NPC!.enemy!, boltIndex))
 }
 
 /// Source: oracle/codemp/game/NPC_utils.c:1761
-func NPC_GetEntsNearBolt(_ radiusEnts: inout [Int32], _ radius: Float, _ boltIndex: Int32, _ boltOrg: inout JKAShared.vec3_t) -> Int32 {
+public func NPC_GetEntsNearBolt(_ radiusEnts: inout [Int32], _ radius: Float, _ boltIndex: Int32, _ boltOrg: inout JKAShared.vec3_t) -> Int32 {
     var mins = vec3_t()
     var maxs = vec3_t()
     var i: Int32

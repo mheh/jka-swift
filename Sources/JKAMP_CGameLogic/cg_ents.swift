@@ -31,7 +31,7 @@ tag location
 ```
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:26
-func CG_PositionEntityOnTag(_ entity: JKAMP.RefEntity, _ parent: JKAMP.RefEntity, _ parentModel: JKAShared.qhandle_t, _ tagName: String) {
+public func CG_PositionEntityOnTag(_ entity: JKAMP.RefEntity, _ parent: JKAMP.RefEntity, _ parentModel: JKAShared.qhandle_t, _ tagName: String) {
     var i: Int32 = 0
     // Raven's record lives to the end of his block, so the block is the closure.
     Orientation.scratch { lerped in
@@ -64,7 +64,7 @@ tag location
 ```
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:55
-func CG_PositionRotatedEntityOnTag(_ entity: JKAMP.RefEntity, _ parent: JKAMP.RefEntity, _ parentModel: JKAShared.qhandle_t, _ tagName: String) {
+public func CG_PositionRotatedEntityOnTag(_ entity: JKAMP.RefEntity, _ parent: JKAMP.RefEntity, _ parentModel: JKAShared.qhandle_t, _ tagName: String) {
     var i: Int32 = 0
     // Raven's record lives to the end of his block, so the block is the closure.
     Orientation.scratch { lerped in
@@ -100,7 +100,7 @@ Also called by event processing code
 ```
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:96
-func CG_SetEntitySoundPosition(_ cent: Centity) {
+public func CG_SetEntitySoundPosition(_ cent: Centity) {
     if cent.currentState.solid == SOLID_BMODEL {
         var origin = vec3_t()
 
@@ -121,7 +121,7 @@ Set the current looping sounds on the entity.
 ```
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:119
-func CG_S_AddLoopingSound(_ entityNum: Int32, _ origin: JKAShared.vec3_t, _ velocity: JKAShared.vec3_t, _ sfx: JKAShared.sfxHandle_t) {
+public func CG_S_AddLoopingSound(_ entityNum: Int32, _ origin: JKAShared.vec3_t, _ velocity: JKAShared.vec3_t, _ sfx: JKAShared.sfxHandle_t) {
     let cent: Centity? = cg_entities[entityNum]
     var cSound: CgLoopSound? = nil
     let i: Int32 = 0
@@ -167,7 +167,7 @@ For now just redirect, might eventually do something different.
 ```
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:169
-func CG_S_AddRealLoopingSound(_ entityNum: Int32, _ origin: JKAShared.vec3_t, _ velocity: JKAShared.vec3_t, _ sfx: JKAShared.sfxHandle_t) {
+public func CG_S_AddRealLoopingSound(_ entityNum: Int32, _ origin: JKAShared.vec3_t, _ velocity: JKAShared.vec3_t, _ sfx: JKAShared.sfxHandle_t) {
     CG_S_AddLoopingSound(entityNum, origin, velocity, sfx)
 }
 
@@ -181,7 +181,7 @@ Clear looping sounds.
 ```
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:181
-func CG_S_StopLoopingSound(_ entityNum: Int32, _ sfx: JKAShared.sfxHandle_t) {
+public func CG_S_StopLoopingSound(_ entityNum: Int32, _ sfx: JKAShared.sfxHandle_t) {
     let cent: Centity? = cg_entities[entityNum]
     var cSound: CgLoopSound?
 
@@ -222,7 +222,7 @@ Update any existing looping sounds on the entity.
 ```
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:223
-func CG_S_UpdateLoopingSounds(_ entityNum: Int32) {
+public func CG_S_UpdateLoopingSounds(_ entityNum: Int32) {
     let cent: Centity? = cg_entities[entityNum]
     var cSound: CgLoopSound?
     var lerpOrg = vec3_t()
@@ -314,7 +314,7 @@ private func CG_EntityEffects(_ cent: Centity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:329
-func FX_AddOrientedLine(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ stScale: Float, _ scale: Float, _ dscale: Float, _ startalpha: Float, _ endalpha: Float, _ killTime: Float, _ shader: JKAShared.qhandle_t) -> LocalEntity? {
+public func FX_AddOrientedLine(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ stScale: Float, _ scale: Float, _ dscale: Float, _ startalpha: Float, _ endalpha: Float, _ killTime: Float, _ shader: JKAShared.qhandle_t) -> LocalEntity? {
     var le: LocalEntity?
 
 
@@ -362,7 +362,7 @@ func FX_AddOrientedLine(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ no
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:379
-func FX_DrawPortableShield(_ cent: Centity) {
+public func FX_DrawPortableShield(_ cent: Centity) {
     //rww - this code differs a bit from the draw code in EF, I don't know why I had to do
     //it this way yet it worked in EF the other way.
 
@@ -441,7 +441,7 @@ CG_Special
 ```
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:463
-func CG_Special(_ cent: Centity) {
+public func CG_Special(_ cent: Centity) {
     var s1: EntityState?
 
     s1 = cent.currentState
@@ -464,7 +464,7 @@ func CG_Special(_ cent: Centity) {
 
 // Copy the ghoul2 data into the ref ent correctly
 /// Source: oracle/codemp/cgame/cg_ents.c:490
-func CG_SetGhoul2Info(_ ent: JKAMP.RefEntity, _ cent: Centity) {
+public func CG_SetGhoul2Info(_ ent: JKAMP.RefEntity, _ cent: Centity) {
     ent.ghoul2 = cent.ghoul2
     ent.modelScale = cent.modelScale
     ent.radius = cent.radius
@@ -473,7 +473,7 @@ func CG_SetGhoul2Info(_ ent: JKAMP.RefEntity, _ cent: Centity) {
 
 // create 8 new points on screen around a model so we can see it's bounding box
 /// Source: oracle/codemp/cgame/cg_ents.c:502
-func CG_CreateBBRefEnts(_ s1: JKAMP.EntityState, _ origin: JKAShared.vec3_t) {
+public func CG_CreateBBRefEnts(_ s1: JKAMP.EntityState, _ origin: JKAShared.vec3_t) {
     /*
     //g2r
     #if _DEBUG
@@ -542,7 +542,7 @@ func CG_CreateBBRefEnts(_ s1: JKAMP.EntityState, _ origin: JKAShared.vec3_t) {
 
 // write in the axis and stuff
 /// Source: oracle/codemp/cgame/cg_ents.c:571
-func G2_BoltToGhoul2Model(_ cent: Centity, _ ent: JKAMP.RefEntity) {
+public func G2_BoltToGhoul2Model(_ cent: Centity, _ ent: JKAMP.RefEntity) {
     // extract the wraith ID from the bolt info
     var modelNum: Int32 = cent.boltInfo >> MODEL_SHIFT
     var boltNum: Int32 = cent.boltInfo >> BOLT_SHIFT
@@ -581,7 +581,7 @@ func G2_BoltToGhoul2Model(_ cent: Centity, _ ent: JKAMP.RefEntity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:609
-func ScaleModelAxis(_ ent: JKAMP.RefEntity) {
+public func ScaleModelAxis(_ ent: JKAMP.RefEntity) {
     // scale the model should we need to
     if ent.modelScale[0] != 0 && ent.modelScale[0] != 1.0 {
         ent.axis[0] = ent.axis[0] * ent.modelScale[0]
@@ -598,7 +598,7 @@ func ScaleModelAxis(_ ent: JKAMP.RefEntity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:653
-func CG_Disintegration(_ cent: Centity, _ ent: JKAMP.RefEntity) {
+public func CG_Disintegration(_ cent: Centity, _ ent: JKAMP.RefEntity) {
     var tempAng = vec3_t()
     var hitLoc = vec3_t()
     var tempLength: Float = 0
@@ -697,7 +697,7 @@ private func CG_RenderTimeEntBolt(_ cent: Centity) -> Bool {
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:799
-func CG_AddRadarEnt(_ cent: Centity) {
+public func CG_AddRadarEnt(_ cent: Centity) {
     if cg.radarEntityCount == cg.radarEntities.count {
         return
     }
@@ -706,7 +706,7 @@ func CG_AddRadarEnt(_ cent: Centity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:811
-func CG_AddBracketedEnt(_ cent: Centity) {
+public func CG_AddBracketedEnt(_ cent: Centity) {
     if cg.bracketedEntityCount == cg.bracketedEntities.count {
         return
     }
@@ -1648,7 +1648,7 @@ private func CG_Speaker(_ cent: Centity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:1856
-func CG_GreyItem(_ type: Int32, _ tag: Int32, _ plSide: Int32) -> Bool {
+public func CG_GreyItem(_ type: Int32, _ tag: Int32, _ plSide: Int32) -> Bool {
     if type == IT_POWERUP && (tag == PW_FORCE_ENLIGHTENED_LIGHT || tag == PW_FORCE_ENLIGHTENED_DARK) {
         if plSide == FORCE_LIGHTSIDE {
             if tag == PW_FORCE_ENLIGHTENED_DARK {
@@ -2068,7 +2068,7 @@ private func CG_Item(_ cent: Centity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:2331
-func CG_CreateDistortionTrailPart(_ cent: Centity, _ scale: Float, _ pos: JKAShared.vec3_t) {
+public func CG_CreateDistortionTrailPart(_ cent: Centity, _ scale: Float, _ pos: JKAShared.vec3_t) {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = RefEntity.scratch { ent -> Bool in
@@ -2426,7 +2426,7 @@ private func CG_Missile(_ cent: Centity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:2746
-func CG_PlayDoorLoopSound(_ cent: Centity) {
+public func CG_PlayDoorLoopSound(_ cent: Centity) {
     let sfx: sfxHandle_t
     let soundSet: String
     var origin = vec3_t()
@@ -2458,7 +2458,7 @@ func CG_PlayDoorLoopSound(_ cent: Centity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:2792
-func CG_PlayDoorSound(_ cent: Centity, _ type: Int32) {
+public func CG_PlayDoorSound(_ cent: Centity, _ type: Int32) {
     let sfx: sfxHandle_t
     let soundSet: String
 
@@ -2602,7 +2602,7 @@ Also called as an event
 ```
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:2935
-func CG_Beam(_ cent: Centity) {
+public func CG_Beam(_ cent: Centity) {
     // Raven's record lives to the end of his block, so the block is the closure.
     RefEntity.scratch { ent in
         var s1: EntityState?
@@ -2683,7 +2683,7 @@ Also called by client movement prediction code
 ```
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:3008
-func CG_AdjustPositionForMover(_ `in`: JKAShared.vec3_t, _ moverNum: Int32, _ fromTime: Int32, _ toTime: Int32, _ out: inout JKAShared.vec3_t) {
+public func CG_AdjustPositionForMover(_ `in`: JKAShared.vec3_t, _ moverNum: Int32, _ fromTime: Int32, _ toTime: Int32, _ out: inout JKAShared.vec3_t) {
     var cent: Centity?
     var oldOrigin = vec3_t()
     var origin = vec3_t()
@@ -3036,7 +3036,7 @@ private func CG_AddCEntity(_ cent: Centity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:3417
-func CG_ManualEntityRender(_ cent: Centity) {
+public func CG_ManualEntityRender(_ cent: Centity) {
     CG_AddCEntity(cent)
 }
 
@@ -3049,7 +3049,7 @@ CG_AddPacketEntities
 ```
 */
 /// Source: oracle/codemp/cgame/cg_ents.c:3428
-func CG_AddPacketEntities(_ isPortal: Bool) {
+public func CG_AddPacketEntities(_ isPortal: Bool) {
     var num: Int32
     var cent: Centity?
     var ps: PlayerState?
@@ -3360,7 +3360,7 @@ public func CG_ROFF_NotetrackCallback(_ cent: Centity, _ notetrack: String) {
 }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:3760
-func CG_Cube(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ color: JKAShared.vec3_t, _ alpha: Float) {
+public func CG_Cube(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ color: JKAShared.vec3_t, _ alpha: Float) {
     var rot = vec3_t(0, 0, 0)
     var vec: [Int32] = [Int32](repeating: 0, count: 3)
     var axis: Int32 = 0

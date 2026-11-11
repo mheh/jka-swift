@@ -1678,18 +1678,10 @@ SIGNATURE_EXCEPTIONS: dict[str, tuple[str, str]] = {
     "ZoneTailFromHeader": ("mp-engine-ded", f"row SG31 of {LEDGER}"),
 }
 
-# Game functions and globals the shell's `vmMain` names, which cross the module line, so each is public. Rule 11 and ruling E1.
+# Globals the shell's `vmMain` names, which cross the module line, so each is public. Rule 11 and ruling E1.
 # The state singletons of rule 25 are public too, so a fork can add a target that reaches them.
-# The shell decodes the words of a command and calls the bare function, so the callee is public in its own logic file.
+# Raven's linkage makes every function he declares without `static` public, so no function name stands here.
 PUBLIC_NAMES = {
-    # The commands of Raven's vmMain at g_main.c:515, in the order of the switch.
-    "G_InitGame", "G_ShutdownGame", "ClientConnect", "ClientThink", "ClientUserinfoChanged", "ClientDisconnect", "ClientBegin",
-    "ClientCommand", "G_RunFrame", "ConsoleCommand", "BotAIStartFrame", "G_ROFF_NotetrackCallback", "G_ParseSpawnVars",
-    "G_SpawnGEntityFromSpawnVars", "Q3_PlaySound", "Q3_Set", "Q3_Lerp2Pos", "Q3_Lerp2Origin", "Q3_Lerp2Angles", "Q3_GetTag",
-    "Q3_Lerp2Start", "Q3_Lerp2End", "Q3_Use", "Q3_Kill", "Q3_Remove", "Q3_Play", "Q3_GetFloat", "Q3_GetVector", "Q3_GetString",
-    "G_SoundIndex", "GetIDForString", "NAV_ClearPathToPoint", "NPC_ClearLOS2", "NAVNEW_ClearPathBetweenPoints",
-    "NAV_CheckNodeFailedForEnt", "G_EntIsUnlockedDoor", "G_EntIsDoor", "G_EntIsBreakable", "G_EntIsRemovableUsable",
-    "CP_FindCombatPointWaypoints", "BG_GetItemIndexByTag",
     # The globals the decode reads: the entity table and the ICARUS shared buffer. `world` is hand code in g_local.swift.
     "g_entities", "gSharedBuffer",
     # Rule 25 makes each state singleton public, `level` of g_main.c:9 and `cg` and `cgs` of cg_main.c:691 and :692.

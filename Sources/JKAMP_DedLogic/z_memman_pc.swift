@@ -14,13 +14,13 @@ var psTagStrings: [String] {
 let ZONE_MAGIC = 0x21436587 as Int32
 
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:75
-var com_validateZone: JKAMP.Cvar? {
+public var com_validateZone: JKAMP.Cvar? {
     get { world.variables.com_validateZone }
     set { world.variables.com_validateZone = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:77
-var TheZone: Zone { world.storage.TheZone }
+public var TheZone: Zone { world.storage.TheZone }
 
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:139
 // Raven wrote: StaticZeroMem_t gZeroMalloc
@@ -35,7 +35,7 @@ var TheZone: Zone { world.storage.TheZone }
 // Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:156
-var gbMemFreeupOccured: Bool {
+public var gbMemFreeupOccured: Bool {
     get { world.variables.gbMemFreeupOccured }
     set { world.variables.gbMemFreeupOccured = newValue }
 }
@@ -47,7 +47,7 @@ var hunk_tag: JKAShared.memtag_t {
 }
 
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:82
-func Z_Validate() {
+public func Z_Validate() {
     if com_validateZone == nil || com_validateZone!.integer == 0 {
         return
     }
@@ -67,7 +67,7 @@ func Z_Validate() {
 }
 
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:157
-func Z_Malloc(_ iSize: Int32, _ eTag: JKAShared.memtag_t, _ bZeroit: Bool = false, _ iUnusedAlign: Int32 = 4) -> UnsafeMutableRawPointer {
+public func Z_Malloc(_ iSize: Int32, _ eTag: JKAShared.memtag_t, _ bZeroit: Bool = false, _ iUnusedAlign: Int32 = 4) -> UnsafeMutableRawPointer {
     gbMemFreeupOccured = false
 
     if iSize == 0 {
@@ -192,7 +192,7 @@ func Z_Malloc(_ iSize: Int32, _ eTag: JKAShared.memtag_t, _ bZeroit: Bool = fals
 //	just not fs_freefile() it afterwards.
 //
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:313
-func Z_MorphMallocTag(_ pvAddress: OpaquePointer?, _ eDesiredTag: JKAShared.memtag_t) {
+public func Z_MorphMallocTag(_ pvAddress: OpaquePointer?, _ eDesiredTag: JKAShared.memtag_t) {
     let pMemory = ZoneHeader(block: pvAddress!)
 
     if pMemory.iMagic != ZONE_MAGIC {
@@ -245,7 +245,7 @@ private func Zone_FreeBlock(_ pMemory: ZoneHeader) {
 // stats-query function to ask how big a malloc is...
 //
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:383
-func Z_Size(_ pvAddress: OpaquePointer?) -> Int32 {
+public func Z_Size(_ pvAddress: OpaquePointer?) -> Int32 {
     let pMemory = ZoneHeader(block: pvAddress!)
 
     if pMemory.eTag == TAG_STATIC {
@@ -263,7 +263,7 @@ func Z_Size(_ pvAddress: OpaquePointer?) -> Int32 {
 // Frees a block of memory...
 //
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:404
-func Z_Free(_ pvAddress: OpaquePointer?) {
+public func Z_Free(_ pvAddress: OpaquePointer?) {
     if pvAddress == nil { // I've put this in as a safety measure because of some bits of #ifdef BSPC stuff	-Ste.
         //Com_Error(ERR_FATAL, "Z_Free(): NULL arg");
         return
@@ -286,14 +286,14 @@ func Z_Free(_ pvAddress: OpaquePointer?) {
 }
 
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:446
-func Z_MemSize(_ eTag: JKAShared.memtag_t) -> Int32 {
+public func Z_MemSize(_ eTag: JKAShared.memtag_t) -> Int32 {
     return TheZone.Stats.iSizesPerTag[eTag]
 }
 
 // Frees all blocks with the specified tag...
 //
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:453
-func Z_TagFree(_ eTag: JKAShared.memtag_t) {
+public func Z_TagFree(_ eTag: JKAShared.memtag_t) {
     //#ifdef _DEBUG
     //	int iZoneBlocks = TheZone.Stats.iCount;
     //#endif
@@ -317,7 +317,7 @@ func Z_TagFree(_ eTag: JKAShared.memtag_t) {
 }
 
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:480
-func S_Malloc(_ iSize: Int32) -> UnsafeMutableRawPointer {
+public func S_Malloc(_ iSize: Int32) -> UnsafeMutableRawPointer {
     return Z_Malloc(iSize, TAG_SMALL)
 }
 
@@ -356,7 +356,7 @@ private func Z_Details_f() {
 
 // Shuts down the zone memory system and frees up all memory
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:558
-func Com_ShutdownZoneMemory() {
+public func Com_ShutdownZoneMemory() {
     //	Com_Printf("Shutting down zone memory .....\n");
 
     Cmd_RemoveCommand("zone_stats")
@@ -369,7 +369,7 @@ func Com_ShutdownZoneMemory() {
 }
 
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:577
-func Com_InitZoneMemory() {
+public func Com_InitZoneMemory() {
     TheZone.clear()
     TheZone.Header.iMagic = ZONE_MAGIC
 
@@ -394,7 +394,7 @@ CopyString
 ```
 */
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:607
-func CopyString(_ `in`: String) -> String {
+public func CopyString(_ `in`: String) -> String {
     if `in`.isEmpty {
         // AI: Raven returns the address of the bytes after the header of gEmptyString. The function returns the text of those bytes.
         return String(CharBuf(bytes: gEmptyString.mem.map { CChar(bitPattern: $0) }))
@@ -420,7 +420,7 @@ Touch all known used data to make sure it is paged in
 ```
 */
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:636
-func Com_TouchMemory() {
+public func Com_TouchMemory() {
     //	int		start, end;
     var i: Int32
     var j: Int32
@@ -451,7 +451,7 @@ func Com_TouchMemory() {
 }
 
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:664
-func Com_TheHunkMarkHasBeenMade() -> Bool {
+public func Com_TheHunkMarkHasBeenMade() -> Bool {
     if hunk_tag == TAG_HUNK_MARK2 {
         return true
     }
@@ -466,13 +466,13 @@ Com_InitHunkMemory
 ```
 */
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:678
-func Com_InitHunkMemory() {
+public func Com_InitHunkMemory() {
     hunk_tag = TAG_HUNK_MARK1
     Hunk_Clear()
 }
 
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:683
-func Com_ShutdownHunkMemory() {
+public func Com_ShutdownHunkMemory() {
     //Er, ok. Clear it then I guess.
     Z_TagFree(TAG_HUNK_MARK1)
     Z_TagFree(TAG_HUNK_MARK2)
@@ -486,7 +486,7 @@ Hunk_MemoryRemaining
 ```
 */
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:695
-func Hunk_MemoryRemaining() -> Int32 {
+public func Hunk_MemoryRemaining() -> Int32 {
     return (64 * 1024 * 1024) - (Z_MemSize(TAG_HUNK_MARK1) + Z_MemSize(TAG_HUNK_MARK2)) //Yeah. Whatever. We've got no size now.
 }
 
@@ -500,7 +500,7 @@ The server calls this after the level and game VM have been loaded
 ```
 */
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:706
-func Hunk_SetMark() {
+public func Hunk_SetMark() {
     hunk_tag = TAG_HUNK_MARK2
 }
 
@@ -514,7 +514,7 @@ The client calls this before starting a vid_restart or snd_restart
 ```
 */
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:717
-func Hunk_ClearToMark() {
+public func Hunk_ClearToMark() {
     //if this is not true then no mark has been made
     Z_TagFree(TAG_HUNK_MARK2)
 }
@@ -527,7 +527,7 @@ Hunk_CheckMark
 ```
 */
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:727
-func Hunk_CheckMark() -> Bool {
+public func Hunk_CheckMark() -> Bool {
     //if( hunk_low.mark || hunk_high.mark ) {
     if hunk_tag != TAG_HUNK_MARK1 {
         return true
@@ -536,7 +536,7 @@ func Hunk_CheckMark() -> Bool {
 }
 
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:752
-func Hunk_Clear() {
+public func Hunk_Clear() {
     SV_ShutdownGameProgs()
 
     hunk_tag = TAG_HUNK_MARK1
@@ -565,7 +565,7 @@ Allocate permanent (until the hunk is cleared) memory
 ```
 */
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:791
-func Hunk_Alloc(_ size: Int32, _ preference: JKAMP.ha_pref) -> UnsafeMutableRawPointer {
+public func Hunk_Alloc(_ size: Int32, _ preference: JKAMP.ha_pref) -> UnsafeMutableRawPointer {
     return Z_Malloc(size, hunk_tag, true)
 }
 
@@ -581,7 +581,7 @@ When the files-in-use count reaches zero, all temp memory will be deleted
 ```
 */
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:804
-func Hunk_AllocateTempMemory(_ size: Int32) -> UnsafeMutableRawPointer {
+public func Hunk_AllocateTempMemory(_ size: Int32) -> UnsafeMutableRawPointer {
     // don't bother clearing, because we are going to load a file over it
     return Z_Malloc(size, TAG_TEMP_HUNKALLOC, false)
 }
@@ -594,7 +594,7 @@ Hunk_FreeTempMemory
 ```
 */
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:815
-func Hunk_FreeTempMemory(_ buf: OpaquePointer?) {
+public func Hunk_FreeTempMemory(_ buf: OpaquePointer?) {
     Z_Free(buf)
 }
 
@@ -610,6 +610,6 @@ permanent allocs use this side.
 ```
 */
 /// Source: oracle/codemp/qcommon/z_memman_pc.cpp:830
-func Hunk_ClearTempMemory() {
+public func Hunk_ClearTempMemory() {
     Z_TagFree(TAG_TEMP_HUNKALLOC)
 }

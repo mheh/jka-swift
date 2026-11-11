@@ -5,28 +5,28 @@ import JKAMP_Game
 import JKAMP_BG
 
 /// Source: oracle/codemp/game/NPC.c:34
-var NPC: Entity? {
+public var NPC: Entity? {
     get { world.variables.NPC }
     set { world.variables.NPC = newValue }
 }
 
 /// Source: oracle/codemp/game/NPC.c:35
-var NPCInfo: GNPC? {
+public var NPCInfo: GNPC? {
     get { world.variables.NPCInfo }
     set { world.variables.NPCInfo = newValue }
 }
 
 /// Source: oracle/codemp/game/NPC.c:36
-var client: Client? {
+public var client: Client? {
     get { world.variables.client }
     set { world.variables.client = newValue }
 }
 
 /// Source: oracle/codemp/game/NPC.c:37
-var ucmd: JKAMP.Usercmd { world.storage.ucmd }
+public var ucmd: JKAMP.Usercmd { world.storage.ucmd }
 
 /// Source: oracle/codemp/game/NPC.c:38
-var enemyVisibility: visibility_t {
+public var enemyVisibility: visibility_t {
     get { world.variables.enemyVisibility }
     set { world.variables.enemyVisibility = newValue }
 }
@@ -38,29 +38,29 @@ let REMOVE_DISTANCE = 128 as Int32
 let REMOVE_DISTANCE_SQR = (REMOVE_DISTANCE * REMOVE_DISTANCE)
 
 /// Source: oracle/codemp/game/NPC.c:625
-var _saved_NPC: Entity? {
+public var _saved_NPC: Entity? {
     get { world.variables._saved_NPC }
     set { world.variables._saved_NPC = newValue }
 }
 
 /// Source: oracle/codemp/game/NPC.c:626
-var _saved_NPCInfo: GNPC? {
+public var _saved_NPCInfo: GNPC? {
     get { world.variables._saved_NPCInfo }
     set { world.variables._saved_NPCInfo = newValue }
 }
 
 /// Source: oracle/codemp/game/NPC.c:627
-var _saved_client: Client? {
+public var _saved_client: Client? {
     get { world.variables._saved_client }
     set { world.variables._saved_client = newValue }
 }
 
 /// Source: oracle/codemp/game/NPC.c:628
-var _saved_ucmd: JKAMP.Usercmd { world.storage._saved_ucmd }
+public var _saved_ucmd: JKAMP.Usercmd { world.storage._saved_ucmd }
 
 /// Source: oracle/codemp/game/NPC.c:656
 /// Raven's data table, a hand property of `GameWorld`.
-var NPCDEBUG_RED: JKAShared.vec3_t {
+public var NPCDEBUG_RED: JKAShared.vec3_t {
     get { world.NPCDEBUG_RED }
     set { world.NPCDEBUG_RED = newValue }
 }
@@ -71,7 +71,7 @@ let NPCDEBUG_GREEN: JKAShared.vec3_t = vec3_t(0.0, 1.0, 0.0)
 
 /// Source: oracle/codemp/game/NPC.c:658
 /// Raven's data table, a hand property of `GameWorld`.
-var NPCDEBUG_BLUE: JKAShared.vec3_t {
+public var NPCDEBUG_BLUE: JKAShared.vec3_t {
     get { world.NPCDEBUG_BLUE }
     set { world.NPCDEBUG_BLUE = newValue }
 }
@@ -81,7 +81,7 @@ var NPCDEBUG_BLUE: JKAShared.vec3_t {
 let NPCDEBUG_LIGHT_BLUE: JKAShared.vec3_t = vec3_t(0.3, 0.7, 1.0)
 
 /// Source: oracle/codemp/game/NPC.c:46
-func CorpsePhysics(_ `self`: Entity) {
+public func CorpsePhysics(_ `self`: Entity) {
     // run the bot through the server like it was a real client
     ucmd.clear()
     ClientThink(`self`.s.number, ucmd)
@@ -133,7 +133,7 @@ func CorpsePhysics(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC.c:115
-func NPC_RemoveBody(_ `self`: Entity) {
+public func NPC_RemoveBody(_ `self`: Entity) {
     CorpsePhysics(`self`)
 
     `self`.nextthink = level.time + FRAMETIME
@@ -227,7 +227,7 @@ func NPC_RemoveBody(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC.c:233
-func BodyRemovalPadTime(_ ent: Entity) -> Int32 {
+public func BodyRemovalPadTime(_ ent: Entity) -> Int32 {
     var time: Int32
 
     if ent.client == nil {
@@ -352,7 +352,7 @@ private func NPC_RemoveBodyEffect() {
 }
 
 /// Source: oracle/codemp/game/NPC.c:395
-func pitch_roll_for_slope(_ forwhom: Entity, _ pass_slope: JKAShared.vec3_t?) {
+public func pitch_roll_for_slope(_ forwhom: Entity, _ pass_slope: JKAShared.vec3_t?) {
     var slope = vec3_t()
     var nvf = vec3_t()
     var ovf = vec3_t()
@@ -579,7 +579,7 @@ local function to set globals used throughout the AI code
 ```
 */
 /// Source: oracle/codemp/game/NPC.c:617
-func SetNPCGlobals(_ ent: Entity) {
+public func SetNPCGlobals(_ ent: Entity) {
     NPC = ent
     NPCInfo = ent.NPC
     client = ent.client
@@ -587,7 +587,7 @@ func SetNPCGlobals(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC.c:630
-func SaveNPCGlobals() {
+public func SaveNPCGlobals() {
     _saved_NPC = NPC
     _saved_NPCInfo = NPCInfo
     _saved_client = client
@@ -595,7 +595,7 @@ func SaveNPCGlobals() {
 }
 
 /// Source: oracle/codemp/game/NPC.c:638
-func RestoreNPCGlobals() {
+public func RestoreNPCGlobals() {
     NPC = _saved_NPC
     NPCInfo = _saved_NPCInfo
     client = _saved_client
@@ -604,14 +604,14 @@ func RestoreNPCGlobals() {
 
 //We MUST do this, other funcs were using NPC illegally when "self" wasn't the global NPC
 /// Source: oracle/codemp/game/NPC.c:647
-func ClearNPCGlobals() {
+public func ClearNPCGlobals() {
     NPC = nil
     NPCInfo = nil
     client = nil
 }
 
 /// Source: oracle/codemp/game/NPC.c:664
-func NPC_ShowDebugInfo() {
+public func NPC_ShowDebugInfo() {
     if showBBoxes {
         var found: Entity? = nil
         var mins = vec3_t()
@@ -629,7 +629,7 @@ func NPC_ShowDebugInfo() {
 }
 
 /// Source: oracle/codemp/game/NPC.c:683
-func NPC_ApplyScriptFlags() {
+public func NPC_ApplyScriptFlags() {
     if (NPCInfo!.scriptFlags & SCF_CROUCHED) != 0 {
         if NPCInfo!.charmedTime > level.time && (ucmd.forwardmove != 0 || ucmd.rightmove != 0) {
             //ugh, if charmed and moving, ignore the crouched command
@@ -672,7 +672,7 @@ func NPC_ApplyScriptFlags() {
 }
 
 /// Source: oracle/codemp/game/NPC.c:738
-func NPC_HandleAIFlags() {
+public func NPC_HandleAIFlags() {
     //FIXME: make these flags checks a function call like NPC_CheckAIFlagsAndTimers
     if (NPCInfo!.aiFlags & NPCAI_LOST) != 0 {
         //Print that you need help!
@@ -766,12 +766,12 @@ func NPC_HandleAIFlags() {
 }
 
 /// Source: oracle/codemp/game/NPC.c:835
-func NPC_AvoidWallsAndCliffs() {
+public func NPC_AvoidWallsAndCliffs() {
     //...
 }
 
 /// Source: oracle/codemp/game/NPC.c:840
-func NPC_CheckAttackScript() {
+public func NPC_CheckAttackScript() {
     if !((ucmd.buttons & BUTTON_ATTACK) != 0) {
         return
     }
@@ -780,7 +780,7 @@ func NPC_CheckAttackScript() {
 }
 
 /// Source: oracle/codemp/game/NPC.c:851
-func NPC_CheckAttackHold() {
+public func NPC_CheckAttackHold() {
     var vec = vec3_t()
 
     // If they don't have an enemy they shouldn't hold their attack anim.
@@ -844,7 +844,7 @@ Fills in a default ucmd to keep current angles facing
 ```
 */
 /// Source: oracle/codemp/game/NPC.c:920
-func NPC_KeepCurrentFacing() {
+public func NPC_KeepCurrentFacing() {
     if ucmd.angles[YAW] == 0 {
         ucmd.angles[YAW] = ANGLE2SHORT(client!.ps.viewangles[YAW]) - client!.ps.delta_angles[YAW]
     }
@@ -855,7 +855,7 @@ func NPC_KeepCurrentFacing() {
 }
 
 /// Source: oracle/codemp/game/NPC.c:939
-func NPC_BehaviorSet_Charmed(_ bState: Int32) {
+public func NPC_BehaviorSet_Charmed(_ bState: Int32) {
     switch bState {
     case BS_FOLLOW_LEADER: //# 40: Follow your leader and shoot any enemies you come across
         NPC_BSFollowLeader()
@@ -878,7 +878,7 @@ func NPC_BehaviorSet_Charmed(_ bState: Int32) {
 }
 
 /// Source: oracle/codemp/game/NPC.c:970
-func NPC_BehaviorSet_Default(_ bState: Int32) {
+public func NPC_BehaviorSet_Default(_ bState: Int32) {
     switch bState {
     case BS_ADVANCE_FIGHT: //head toward captureGoal, shoot anything that gets in the way
         NPC_BSAdvanceFight()
@@ -926,7 +926,7 @@ NPC_BehaviorSet_Interrogator
 ```
 */
 /// Source: oracle/codemp/game/NPC.c:1019
-func NPC_BehaviorSet_Interrogator(_ bState: Int32) {
+public func NPC_BehaviorSet_Interrogator(_ bState: Int32) {
     switch bState {
     case BS_STAND_GUARD, BS_PATROL, BS_STAND_AND_SHOOT, BS_HUNT_AND_KILL, BS_DEFAULT:
         NPC_BSInterrogator_Default()
@@ -944,7 +944,7 @@ NPC_BehaviorSet_ImperialProbe
 ```
 */
 /// Source: oracle/codemp/game/NPC.c:1045
-func NPC_BehaviorSet_ImperialProbe(_ bState: Int32) {
+public func NPC_BehaviorSet_ImperialProbe(_ bState: Int32) {
     switch bState {
     case BS_STAND_GUARD, BS_PATROL, BS_STAND_AND_SHOOT, BS_HUNT_AND_KILL, BS_DEFAULT:
         NPC_BSImperialProbe_Default()
@@ -962,7 +962,7 @@ NPC_BehaviorSet_Seeker
 ```
 */
 /// Source: oracle/codemp/game/NPC.c:1070
-func NPC_BehaviorSet_Seeker(_ bState: Int32) {
+public func NPC_BehaviorSet_Seeker(_ bState: Int32) {
     switch bState {
     case BS_STAND_GUARD, BS_PATROL, BS_STAND_AND_SHOOT, BS_HUNT_AND_KILL, BS_DEFAULT:
         NPC_BSSeeker_Default()
@@ -980,7 +980,7 @@ NPC_BehaviorSet_Remote
 ```
 */
 /// Source: oracle/codemp/game/NPC.c:1094
-func NPC_BehaviorSet_Remote(_ bState: Int32) {
+public func NPC_BehaviorSet_Remote(_ bState: Int32) {
     NPC_BSRemote_Default()
 }
 
@@ -992,7 +992,7 @@ NPC_BehaviorSet_Sentry
 ```
 */
 /// Source: oracle/codemp/game/NPC.c:1106
-func NPC_BehaviorSet_Sentry(_ bState: Int32) {
+public func NPC_BehaviorSet_Sentry(_ bState: Int32) {
     switch bState {
     case BS_STAND_GUARD, BS_PATROL, BS_STAND_AND_SHOOT, BS_HUNT_AND_KILL, BS_DEFAULT:
         NPC_BSSentry_Default()
@@ -1010,7 +1010,7 @@ NPC_BehaviorSet_Grenadier
 ```
 */
 /// Source: oracle/codemp/game/NPC.c:1128
-func NPC_BehaviorSet_Grenadier(_ bState: Int32) {
+public func NPC_BehaviorSet_Grenadier(_ bState: Int32) {
     switch bState {
     case BS_STAND_GUARD, BS_PATROL, BS_STAND_AND_SHOOT, BS_HUNT_AND_KILL, BS_DEFAULT:
         NPC_BSGrenadier_Default()
@@ -1028,7 +1028,7 @@ NPC_BehaviorSet_Sniper
 ```
 */
 /// Source: oracle/codemp/game/NPC.c:1150
-func NPC_BehaviorSet_Sniper(_ bState: Int32) {
+public func NPC_BehaviorSet_Sniper(_ bState: Int32) {
     switch bState {
     case BS_STAND_GUARD, BS_PATROL, BS_STAND_AND_SHOOT, BS_HUNT_AND_KILL, BS_DEFAULT:
         NPC_BSSniper_Default()
@@ -1039,7 +1039,7 @@ func NPC_BehaviorSet_Sniper(_ bState: Int32) {
 }
 
 /// Source: oracle/codemp/game/NPC.c:1173
-func NPC_BehaviorSet_Stormtrooper(_ bState: Int32) {
+public func NPC_BehaviorSet_Stormtrooper(_ bState: Int32) {
     switch bState {
     case BS_STAND_GUARD, BS_PATROL, BS_STAND_AND_SHOOT, BS_HUNT_AND_KILL, BS_DEFAULT:
         NPC_BSST_Default()
@@ -1056,7 +1056,7 @@ func NPC_BehaviorSet_Stormtrooper(_ bState: Int32) {
 }
 
 /// Source: oracle/codemp/game/NPC.c:1205
-func NPC_BehaviorSet_Jedi(_ bState: Int32) {
+public func NPC_BehaviorSet_Jedi(_ bState: Int32) {
     switch bState {
     case BS_STAND_GUARD, BS_PATROL, BS_STAND_AND_SHOOT, BS_HUNT_AND_KILL, BS_DEFAULT:
         NPC_BSJedi_Default()
@@ -1077,7 +1077,7 @@ NPC_BehaviorSet_Droid
 ```
 */
 /// Source: oracle/codemp/game/NPC.c:1232
-func NPC_BehaviorSet_Droid(_ bState: Int32) {
+public func NPC_BehaviorSet_Droid(_ bState: Int32) {
     switch bState {
     case BS_DEFAULT, BS_STAND_GUARD, BS_PATROL:
         NPC_BSDroid_Default()
@@ -1095,7 +1095,7 @@ NPC_BehaviorSet_Mark1
 ```
 */
 /// Source: oracle/codemp/game/NPC.c:1252
-func NPC_BehaviorSet_Mark1(_ bState: Int32) {
+public func NPC_BehaviorSet_Mark1(_ bState: Int32) {
     switch bState {
     case BS_DEFAULT, BS_STAND_GUARD, BS_PATROL:
         NPC_BSMark1_Default()
@@ -1113,7 +1113,7 @@ NPC_BehaviorSet_Mark2
 ```
 */
 /// Source: oracle/codemp/game/NPC.c:1272
-func NPC_BehaviorSet_Mark2(_ bState: Int32) {
+public func NPC_BehaviorSet_Mark2(_ bState: Int32) {
     switch bState {
     case BS_DEFAULT, BS_PATROL, BS_STAND_AND_SHOOT, BS_HUNT_AND_KILL:
         NPC_BSMark2_Default()
@@ -1131,7 +1131,7 @@ NPC_BehaviorSet_ATST
 ```
 */
 /// Source: oracle/codemp/game/NPC.c:1293
-func NPC_BehaviorSet_ATST(_ bState: Int32) {
+public func NPC_BehaviorSet_ATST(_ bState: Int32) {
     switch bState {
     case BS_DEFAULT, BS_PATROL, BS_STAND_AND_SHOOT, BS_HUNT_AND_KILL:
         NPC_BSATST_Default()
@@ -1149,7 +1149,7 @@ NPC_BehaviorSet_MineMonster
 ```
 */
 /// Source: oracle/codemp/game/NPC.c:1314
-func NPC_BehaviorSet_MineMonster(_ bState: Int32) {
+public func NPC_BehaviorSet_MineMonster(_ bState: Int32) {
     switch bState {
     case BS_STAND_GUARD, BS_PATROL, BS_STAND_AND_SHOOT, BS_HUNT_AND_KILL, BS_DEFAULT:
         NPC_BSMineMonster_Default()
@@ -1167,7 +1167,7 @@ NPC_BehaviorSet_Howler
 ```
 */
 /// Source: oracle/codemp/game/NPC.c:1336
-func NPC_BehaviorSet_Howler(_ bState: Int32) {
+public func NPC_BehaviorSet_Howler(_ bState: Int32) {
     switch bState {
     case BS_STAND_GUARD, BS_PATROL, BS_STAND_AND_SHOOT, BS_HUNT_AND_KILL, BS_DEFAULT:
         NPC_BSHowler_Default()
@@ -1185,7 +1185,7 @@ NPC_BehaviorSet_Rancor
 ```
 */
 /// Source: oracle/codemp/game/NPC.c:1358
-func NPC_BehaviorSet_Rancor(_ bState: Int32) {
+public func NPC_BehaviorSet_Rancor(_ bState: Int32) {
     switch bState {
     case BS_STAND_GUARD, BS_PATROL, BS_STAND_AND_SHOOT, BS_HUNT_AND_KILL, BS_DEFAULT:
         NPC_BSRancor_Default()
@@ -1196,7 +1196,7 @@ func NPC_BehaviorSet_Rancor(_ bState: Int32) {
 }
 
 /// Source: oracle/codemp/game/NPC.c:1384
-func NPC_RunBehavior(_ team: Int32, _ bState: Int32) {
+public func NPC_RunBehavior(_ team: Int32, _ bState: Int32) {
     var dontSetAim: Bool = false
 
     if NPC!.s.NPC_class == CLASS_VEHICLE && NPC!.m_pVehicle != nil {
@@ -1360,7 +1360,7 @@ NPC Behavior state thinking
 ```
 */
 /// Source: oracle/codemp/game/NPC.c:1576
-func NPC_ExecuteBState(_ `self`: Entity) {
+public func NPC_ExecuteBState(_ `self`: Entity) {
     let bState: bState_t
 
     NPC_HandleAIFlags()
@@ -1528,7 +1528,7 @@ func NPC_ExecuteBState(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC.c:1764
-func NPC_CheckInSolid() {
+public func NPC_CheckInSolid() {
     // Raven's record lives to the end of his block, so the block is the closure.
     Trace.scratch { trace in
         var point = vec3_t()
@@ -1549,7 +1549,7 @@ func NPC_CheckInSolid() {
 }
 
 /// Source: oracle/codemp/game/NPC.c:1787
-func G_DroidSounds(_ `self`: Entity) {
+public func G_DroidSounds(_ `self`: Entity) {
     if `self`.client != nil {
         //make the noises
         if TIMER_Done(`self`, "patrolNoise") && Q_irand(0, 20) == 0 {
@@ -1578,7 +1578,7 @@ func G_DroidSounds(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC.c:1826
-func NPC_Think(_ `self`: Entity) {
+public func NPC_Think(_ `self`: Entity) {
     var oldMoveDir = vec3_t()
     var i: Int32 = 0
     var player: Entity?
@@ -1702,7 +1702,7 @@ func NPC_Think(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC.c:1981
-func NPC_InitAI() {
+public func NPC_InitAI() {
     /*
     trap_Cvar_Register(&g_saberRealisticCombat, "g_saberRealisticCombat", "0", CVAR_CHEAT);
 
@@ -1732,7 +1732,7 @@ func NPC_InitAI() {
 }
 
 /// Source: oracle/codemp/game/NPC.c:2041
-func NPC_InitGame() {
+public func NPC_InitGame() {
     //	globals.NPCs = (gNPC_t *) gi.TagMalloc(game.maxclients * sizeof(game.bots[0]), TAG_GAME);
     //	trap_Cvar_Register(&debugNPCName, "d_npc", "0", CVAR_CHEAT);
 
@@ -1749,7 +1749,7 @@ func NPC_InitGame() {
 }
 
 /// Source: oracle/codemp/game/NPC.c:2058
-func NPC_SetAnim(_ ent: Entity, _ setAnimParts: Int32, _ anim: Int32, _ setAnimFlags: Int32) {
+public func NPC_SetAnim(_ ent: Entity, _ setAnimParts: Int32, _ anim: Int32, _ setAnimFlags: Int32) {
     // FIXME : once torsoAnim and legsAnim are in the same structure for NCP and Players
     // rename PM_SETAnimFinal to PM_SetAnim and have both NCP and Players call PM_SetAnim
     G_SetAnim(ent, nil, setAnimParts, anim, setAnimFlags, 0)

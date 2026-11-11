@@ -42,7 +42,7 @@ private let MIN_DISTANCE = 128 as Int32
 private let MIN_DISTANCE_SQR = (MIN_DISTANCE * MIN_DISTANCE)
 
 /// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:21
-func NPC_Probe_Precache() {
+public func NPC_Probe_Precache() {
     var i: Int32
 
     i = 1
@@ -64,7 +64,7 @@ func NPC_Probe_Precache() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:49
-func ImperialProbe_MaintainHeight() {
+public func ImperialProbe_MaintainHeight() {
     var dif: Float
     //	vec3_t	endPos;
     //	trace_t	trace;
@@ -166,7 +166,7 @@ func ImperialProbe_MaintainHeight() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:182
-func ImperialProbe_Strafe() {
+public func ImperialProbe_Strafe() {
     var dir: Int32 = 0
     var end = vec3_t()
     var right = vec3_t()
@@ -202,7 +202,7 @@ func ImperialProbe_Strafe() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:220
-func ImperialProbe_Hunt(_ visible: Bool, _ advance: Bool) {
+public func ImperialProbe_Hunt(_ visible: Bool, _ advance: Bool) {
     var distance: Float = 0
     let speed: Float
     var forward = vec3_t()
@@ -250,7 +250,7 @@ ImperialProbe_FireBlaster
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:268
-func ImperialProbe_FireBlaster() {
+public func ImperialProbe_FireBlaster() {
     var muzzle1 = vec3_t()
     var enemy_org1 = vec3_t()
     var delta1 = vec3_t()
@@ -312,7 +312,7 @@ ImperialProbe_Ranged
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:331
-func ImperialProbe_Ranged(_ visible: Bool, _ advance: Bool) {
+public func ImperialProbe_Ranged(_ visible: Bool, _ advance: Bool) {
     var delay_min: Int32
     var delay_max: Int32
 
@@ -339,7 +339,7 @@ func ImperialProbe_Ranged(_ visible: Bool, _ advance: Bool) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:377
-func ImperialProbe_AttackDecision() {
+public func ImperialProbe_AttackDecision() {
     let distance: Float
     let visible: Bool
     let advance: Bool
@@ -392,7 +392,7 @@ NPC_BSDroid_Pain
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:433
-func NPC_Probe_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func NPC_Probe_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     var pain_chance: Float = 0
     let other: Entity? = attacker
     let mod: Int32 = gPainMOD
@@ -456,7 +456,7 @@ func NPC_Probe_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:506
-func ImperialProbe_Idle() {
+public func ImperialProbe_Idle() {
     ImperialProbe_MaintainHeight()
 
     NPC_BSIdle()
@@ -470,7 +470,7 @@ NPC_BSImperialProbe_Patrol
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:518
-func ImperialProbe_Patrol() {
+public func ImperialProbe_Patrol() {
     ImperialProbe_MaintainHeight()
 
     if NPC_CheckPlayerTeamStealth() {
@@ -511,7 +511,7 @@ ImperialProbe_Wait
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:563
-func ImperialProbe_Wait() {
+public func ImperialProbe_Wait() {
     if NPCInfo!.localState == LSTATE_DROP {
         var endPos = vec3_t()
         // Raven's record lives to the end of his block, so the block is the closure.
@@ -540,7 +540,7 @@ NPC_BSImperialProbe_Default
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_ImperialProbe.c:589
-func NPC_BSImperialProbe_Default() {
+public func NPC_BSImperialProbe_Default() {
     if NPC!.enemy != nil {
         NPCInfo!.goalEntity = NPC!.enemy
         ImperialProbe_AttackDecision()

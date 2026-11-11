@@ -74,7 +74,7 @@ var localClient: Bool {
 }
 
 /// Source: oracle/codemp/cgame/cg_scoreboard.c:344
-var cg_siegeWinTeam: Int32 {
+public var cg_siegeWinTeam: Int32 {
     get { world.variables.cg_siegeWinTeam }
     set { world.variables.cg_siegeWinTeam = newValue }
 }
@@ -257,7 +257,7 @@ private func CG_TeamScoreboard(_ y: Int32, _ team: JKAMP.team_t, _ fade: Float, 
 }
 
 /// Source: oracle/codemp/cgame/cg_scoreboard.c:263
-func CG_GetClassCount(_ team: JKAMP.team_t, _ siegeClass: Int32) -> Int32 {
+public func CG_GetClassCount(_ team: JKAMP.team_t, _ siegeClass: Int32) -> Int32 {
     var i: Int32 = 0
     var count: Int32 = 0
     var ci: ClientInfo?
@@ -288,7 +288,7 @@ func CG_GetClassCount(_ team: JKAMP.team_t, _ siegeClass: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/cgame/cg_scoreboard.c:294
-func CG_GetTeamNonScoreCount(_ team: JKAMP.team_t) -> Int32 {
+public func CG_GetTeamNonScoreCount(_ team: JKAMP.team_t) -> Int32 {
     var i: Int32 = 0
     var count: Int32 = 0
     var ci: ClientInfo?
@@ -310,7 +310,7 @@ func CG_GetTeamNonScoreCount(_ team: JKAMP.team_t) -> Int32 {
 }
 
 /// Source: oracle/codemp/cgame/cg_scoreboard.c:314
-func CG_GetTeamCount(_ team: JKAMP.team_t, _ maxClients: Int32) -> Int32 {
+public func CG_GetTeamCount(_ team: JKAMP.team_t, _ maxClients: Int32) -> Int32 {
     var i: Int32 = 0
     var count: Int32 = 0
     var ci: ClientInfo?
@@ -334,7 +334,7 @@ func CG_GetTeamCount(_ team: JKAMP.team_t, _ maxClients: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/cgame/cg_scoreboard.c:345
-func CG_DrawOldScoreboard() -> Bool {
+public func CG_DrawOldScoreboard() -> Bool {
     var x: Int32
     var y: Int32
     let w: Int32

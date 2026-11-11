@@ -56,13 +56,13 @@ private var logfile: JKAShared.fileHandle_t {
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:34
-var com_journalFile: JKAShared.fileHandle_t {
+public var com_journalFile: JKAShared.fileHandle_t {
     get { world.variables.com_journalFile }
     set { world.variables.com_journalFile = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:35
-var com_journalDataFile: JKAShared.fileHandle_t {
+public var com_journalDataFile: JKAShared.fileHandle_t {
     get { world.variables.com_journalDataFile }
     set { world.variables.com_journalDataFile = newValue }
 }
@@ -74,19 +74,19 @@ public var com_viewlog: JKAMP.Cvar? {
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:38
-var com_speeds: JKAMP.Cvar? {
+public var com_speeds: JKAMP.Cvar? {
     get { world.variables.com_speeds }
     set { world.variables.com_speeds = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:39
-var com_developer: JKAMP.Cvar? {
+public var com_developer: JKAMP.Cvar? {
     get { world.variables.com_developer }
     set { world.variables.com_developer = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:40
-var com_vmdebug: JKAMP.Cvar? {
+public var com_vmdebug: JKAMP.Cvar? {
     get { world.variables.com_vmdebug }
     set { world.variables.com_vmdebug = newValue }
 }
@@ -98,133 +98,133 @@ public var com_dedicated: JKAMP.Cvar? {
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:42
-var com_timescale: JKAMP.Cvar? {
+public var com_timescale: JKAMP.Cvar? {
     get { world.variables.com_timescale }
     set { world.variables.com_timescale = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:43
-var com_fixedtime: JKAMP.Cvar? {
+public var com_fixedtime: JKAMP.Cvar? {
     get { world.variables.com_fixedtime }
     set { world.variables.com_fixedtime = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:44
-var com_dropsim: JKAMP.Cvar? {
+public var com_dropsim: JKAMP.Cvar? {
     get { world.variables.com_dropsim }
     set { world.variables.com_dropsim = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:45
-var com_journal: JKAMP.Cvar? {
+public var com_journal: JKAMP.Cvar? {
     get { world.variables.com_journal }
     set { world.variables.com_journal = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:46
-var com_maxfps: JKAMP.Cvar? {
+public var com_maxfps: JKAMP.Cvar? {
     get { world.variables.com_maxfps }
     set { world.variables.com_maxfps = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:47
-var com_timedemo: JKAMP.Cvar? {
+public var com_timedemo: JKAMP.Cvar? {
     get { world.variables.com_timedemo }
     set { world.variables.com_timedemo = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:48
-var com_sv_running: JKAMP.Cvar? {
+public var com_sv_running: JKAMP.Cvar? {
     get { world.variables.com_sv_running }
     set { world.variables.com_sv_running = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:49
-var com_cl_running: JKAMP.Cvar? {
+public var com_cl_running: JKAMP.Cvar? {
     get { world.variables.com_cl_running }
     set { world.variables.com_cl_running = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:50
-var com_logfile: JKAMP.Cvar? {
+public var com_logfile: JKAMP.Cvar? {
     get { world.variables.com_logfile }
     set { world.variables.com_logfile = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:51
-var com_showtrace: JKAMP.Cvar? {
+public var com_showtrace: JKAMP.Cvar? {
     get { world.variables.com_showtrace }
     set { world.variables.com_showtrace = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:53
-var com_optvehtrace: JKAMP.Cvar? {
+public var com_optvehtrace: JKAMP.Cvar? {
     get { world.variables.com_optvehtrace }
     set { world.variables.com_optvehtrace = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:56
-var com_G2Report: JKAMP.Cvar? {
+public var com_G2Report: JKAMP.Cvar? {
     get { world.variables.com_G2Report }
     set { world.variables.com_G2Report = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:59
-var com_terrainPhysics: JKAMP.Cvar? {
+public var com_terrainPhysics: JKAMP.Cvar? {
     get { world.variables.com_terrainPhysics }
     set { world.variables.com_terrainPhysics = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:61
-var com_version: JKAMP.Cvar? {
+public var com_version: JKAMP.Cvar? {
     get { world.variables.com_version }
     set { world.variables.com_version = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:62
-var com_blood: JKAMP.Cvar? {
+public var com_blood: JKAMP.Cvar? {
     get { world.variables.com_blood }
     set { world.variables.com_blood = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:63
-var com_buildScript: JKAMP.Cvar? {
+public var com_buildScript: JKAMP.Cvar? {
     get { world.variables.com_buildScript }
     set { world.variables.com_buildScript = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:64
-var com_introPlayed: JKAMP.Cvar? {
+public var com_introPlayed: JKAMP.Cvar? {
     get { world.variables.com_introPlayed }
     set { world.variables.com_introPlayed = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:65
-var cl_paused: JKAMP.Cvar? {
+public var cl_paused: JKAMP.Cvar? {
     get { world.variables.cl_paused }
     set { world.variables.cl_paused = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:66
-var sv_paused: JKAMP.Cvar? {
+public var sv_paused: JKAMP.Cvar? {
     get { world.variables.sv_paused }
     set { world.variables.sv_paused = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:67
-var com_cameraMode: JKAMP.Cvar? {
+public var com_cameraMode: JKAMP.Cvar? {
     get { world.variables.com_cameraMode }
     set { world.variables.com_cameraMode = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:72
-var com_RMG: JKAMP.Cvar? {
+public var com_RMG: JKAMP.Cvar? {
     get { world.variables.com_RMG }
     set { world.variables.com_RMG = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:75
-var time_game: Int32 {
+public var time_game: Int32 {
     get { world.variables.time_game }
     set { world.variables.time_game = newValue }
 }
@@ -238,37 +238,37 @@ let time_frontend: Int32 = 0
 let time_backend: Int32 = 0
 
 /// Source: oracle/codemp/qcommon/common.cpp:79
-var com_frameTime: Int32 {
+public var com_frameTime: Int32 {
     get { world.variables.com_frameTime }
     set { world.variables.com_frameTime = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:80
-var com_frameMsec: Int32 {
+public var com_frameMsec: Int32 {
     get { world.variables.com_frameMsec }
     set { world.variables.com_frameMsec = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:81
-var com_frameNumber: Int32 {
+public var com_frameNumber: Int32 {
     get { world.variables.com_frameNumber }
     set { world.variables.com_frameNumber = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:83
-var com_errorEntered: Bool {
+public var com_errorEntered: Bool {
     get { world.variables.com_errorEntered }
     set { world.variables.com_errorEntered = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:84
-var com_fullyInitialized: Bool {
+public var com_fullyInitialized: Bool {
     get { world.variables.com_fullyInitialized }
     set { world.variables.com_fullyInitialized = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:86
-var com_errorMessage: JKAShared.CharBuf {
+public var com_errorMessage: JKAShared.CharBuf {
     get { world.variables.com_errorMessage }
     set { world.variables.com_errorMessage = newValue }
 }
@@ -296,13 +296,13 @@ var rd_flush: ((inout JKAShared.CharBuf) -> Void)? {
 let MAX_CONSOLE_LINES = 32 as Int32
 
 /// Source: oracle/codemp/qcommon/common.cpp:387
-var com_numConsoleLines: Int32 {
+public var com_numConsoleLines: Int32 {
     get { world.variables.com_numConsoleLines }
     set { world.variables.com_numConsoleLines = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:388
-var com_consoleLines: [String] {
+public var com_consoleLines: [String] {
     get { world.variables.com_consoleLines }
     set { world.variables.com_consoleLines = newValue }
 }
@@ -335,7 +335,7 @@ var bufData_Com_EventLoop: Slots<JKAShared.byte> { world.storage.bufData_Com_Eve
 
 
 /// Source: oracle/codemp/qcommon/common.cpp:96
-func Com_BeginRedirect(_ buffer: inout JKAShared.CharBuf, _ buffersize: Int32, _ flush: ((inout JKAShared.CharBuf) -> Void)?) {
+public func Com_BeginRedirect(_ buffer: inout JKAShared.CharBuf, _ buffersize: Int32, _ flush: ((inout JKAShared.CharBuf) -> Void)?) {
     if buffersize == 0 || flush == nil {
         return
     }
@@ -350,7 +350,7 @@ func Com_BeginRedirect(_ buffer: inout JKAShared.CharBuf, _ buffersize: Int32, _
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:107
-func Com_EndRedirect() {
+public func Com_EndRedirect() {
     if rd_flush != nil {
         // AI: Raven hands rd_buffer to the flush. The flush takes a buffer of rd_buffersize bytes that holds the text of rd_buffer.
         var flushBuffer = CharBuf(rd_buffersize)
@@ -455,7 +455,7 @@ A Com_Printf that only shows up if the "developer" cvar is set
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:210
-func Com_DPrintf(_ fmt: String, _ args: any JKAShared.FormatArg...) {
+public func Com_DPrintf(_ fmt: String, _ args: any JKAShared.FormatArg...) {
     var msg = CharBuf(MAXPRINTMSG)
 
     if com_developer == nil || com_developer!.integer == 0 {
@@ -469,7 +469,7 @@ func Com_DPrintf(_ fmt: String, _ args: any JKAShared.FormatArg...) {
 
 // Outputs to the VC / Windows Debug window (only in debug compile)
 /// Source: oracle/codemp/qcommon/common.cpp:226
-func Com_OPrintf(_ fmt: String, _ args: any JKAShared.FormatArg...) {
+public func Com_OPrintf(_ fmt: String, _ args: any JKAShared.FormatArg...) {
     var msg = CharBuf(MAXPRINTMSG)
 
     strcpy(&msg, JKAShared.format(fmt, args))
@@ -590,7 +590,7 @@ do the apropriate things.
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:356
-func Com_Quit_f() {
+public func Com_Quit_f() {
     // don't try to shutdown if we are in a recursive error
     if !com_errorEntered {
         SV_Shutdown("Server quit\n")
@@ -611,7 +611,7 @@ Break it up into multiple console lines
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:397
-func Com_ParseCommandLine(_ commandLine: inout JKAShared.CharBuf) {
+public func Com_ParseCommandLine(_ commandLine: inout JKAShared.CharBuf) {
     // AI: Raven points each com_consoleLines entry at its line in commandLine. Each entry is the text of its line, read out of commandLine at the NUL that ends the line.
     var commandLineIndex: Int32 = 0
     var lineStart: Int32 = 0
@@ -646,7 +646,7 @@ skip loading of jampconfig.cfg
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:425
-func Com_SafeMode() -> Bool {
+public func Com_SafeMode() -> Bool {
     var i: Int32
 
     i = 0
@@ -676,7 +676,7 @@ be after execing the config and default.
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:451
-func Com_StartupVariable(_ match: String?) {
+public func Com_StartupVariable(_ match: String?) {
     var i: Int32
     var s: String
     var cv: Cvar?
@@ -714,7 +714,7 @@ will keep the demoloop from immediately starting
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:484
-func Com_AddStartupCommands() -> Bool {
+public func Com_AddStartupCommands() -> Bool {
     var i: Int32
     var added: Bool
 
@@ -742,7 +742,7 @@ func Com_AddStartupCommands() -> Bool {
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:509
-func Info_Print(_ s: String) {
+public func Info_Print(_ s: String) {
     var key = CharBuf(512)
     var value = CharBuf(512)
     var o: Int32
@@ -799,7 +799,7 @@ Com_StringContains
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:556
-func Com_StringContains(_ str1: inout JKAShared.CharBuf, _ str2: String, _ casesensitive: Int32) -> String? {
+public func Com_StringContains(_ str1: inout JKAShared.CharBuf, _ str2: String, _ casesensitive: Int32) -> String? {
     let len: Int32
     var i: Int32
     var j: Int32
@@ -841,7 +841,7 @@ Com_Filter
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:585
-func Com_Filter(_ filter: inout JKAShared.CharBuf, _ name: inout JKAShared.CharBuf, _ casesensitive: Int32) -> Int32 {
+public func Com_Filter(_ filter: inout JKAShared.CharBuf, _ name: inout JKAShared.CharBuf, _ casesensitive: Int32) -> Int32 {
     var buf = CharBuf(MAX_TOKEN_CHARS)
     var ptr: String? = nil
     var i: Int32
@@ -947,7 +947,7 @@ Com_FilterPath
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:665
-func Com_FilterPath(_ filter: String?, _ name: String, _ casesensitive: Int32) -> Int32 {
+public func Com_FilterPath(_ filter: String?, _ name: String, _ casesensitive: Int32) -> Int32 {
     var i: Int32
     var new_filter = CharBuf(MAX_QPATH)
     var new_name = CharBuf(MAX_QPATH)
@@ -985,7 +985,7 @@ Com_HashKey
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:697
-func Com_HashKey(_ string: String, _ maxlen: Int32) -> Int32 {
+public func Com_HashKey(_ string: String, _ maxlen: Int32) -> Int32 {
     var hash: Int32
     var i: Int32
     let string = CharBuf(string)
@@ -1008,7 +1008,7 @@ Com_RealTime
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:713
-func Com_RealTime(_ qtime: JKAMP.Qtime?) -> Int32 {
+public func Com_RealTime(_ qtime: JKAMP.Qtime?) -> Int32 {
     let t: time_t
 
     t = time(nil)
@@ -1029,7 +1029,7 @@ Com_InitJournaling
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:759
-func Com_InitJournaling() {
+public func Com_InitJournaling() {
     Com_StartupVariable("journal")
     com_journal = Cvar_Get("journal", "0", CVAR_INIT)
     if com_journal!.integer == 0 {
@@ -1062,7 +1062,7 @@ Com_GetRealEvent
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:789
-func Com_GetRealEvent() -> SysEvent {
+public func Com_GetRealEvent() -> SysEvent {
     var r: Int32
     let ev = ev_Com_GetRealEvent
 
@@ -1111,7 +1111,7 @@ Com_InitPushEvent
 */
 // bk001129 - added
 /// Source: oracle/codemp/qcommon/common.cpp:834
-func Com_InitPushEvent() {
+public func Com_InitPushEvent() {
     // clear the static buffer array
     // this requires SE_NONE to be accepted as a valid but NOP event
     com_pushedEvents.zero()
@@ -1129,7 +1129,7 @@ Com_PushEvent
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:850
-func Com_PushEvent(_ event: SysEvent) {
+public func Com_PushEvent(_ event: SysEvent) {
     let ev: SysEvent
 
     ev = com_pushedEvents[com_pushedEventsHead & (MAX_PUSHED_EVENTS - 1)]
@@ -1168,7 +1168,7 @@ Com_GetEvent
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:881
-func Com_GetEvent() -> SysEvent {
+public func Com_GetEvent() -> SysEvent {
     if com_pushedEventsHead > com_pushedEventsTail {
         com_pushedEventsTail += 1
         return com_pushedEvents[(com_pushedEventsTail - 1) & (MAX_PUSHED_EVENTS - 1)]
@@ -1184,7 +1184,7 @@ Com_RunAndTimeServerPacket
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:894
-func Com_RunAndTimeServerPacket(_ evFrom: Netadr, _ buf: Msg) {
+public func Com_RunAndTimeServerPacket(_ evFrom: Netadr, _ buf: Msg) {
     var t1: Int32
     let t2: Int32
     let msec: Int32
@@ -1216,7 +1216,7 @@ Returns last event time
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:921
-func Com_EventLoop() -> Int32 {
+public func Com_EventLoop() -> Int32 {
     return SysEvent.scratch { ev -> Int32 in
         Netadr.scratch { evFrom -> Int32 in
             Msg.scratch { buf -> Int32 in
@@ -1323,7 +1323,7 @@ Can be used for profiling, but will be journaled accurately
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:1028
-func Com_Milliseconds() -> Int32 {
+public func Com_Milliseconds() -> Int32 {
     return SysEvent.scratch { ev -> Int32 in
         // get events and push them until we get a null event with the current time
         repeat {
@@ -1592,7 +1592,7 @@ public func Com_Init(_ commandLine: inout JKAShared.CharBuf) {
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:1446
-func Com_WriteConfigToFile(_ filename: String) {
+public func Com_WriteConfigToFile(_ filename: String) {
     let f: fileHandle_t
 
     f = FS_FOpenFileWrite(filename)
@@ -1617,7 +1617,7 @@ Writes key bindings and archived cvars to config file if modified
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:1471
-func Com_WriteConfiguration() {
+public func Com_WriteConfiguration() {
     // if we are quiting without fully initializing, make sure
     // we don't write out anything
     if !com_fullyInitialized {
@@ -1644,7 +1644,7 @@ Write the config file to a specific name
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:1515
-func Com_WriteConfig_f() {
+public func Com_WriteConfig_f() {
     var filename = CharBuf(MAX_QPATH)
 
     if Cmd_Argc() != 2 {
@@ -1666,7 +1666,7 @@ Com_ModifyMsec
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:1534
-func Com_ModifyMsec(_ msec: Int32) -> Int32 {
+public func Com_ModifyMsec(_ msec: Int32) -> Int32 {
     var clampTime: Int32
     // Raven assigns his own `msec` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var msec = msec
@@ -1893,7 +1893,7 @@ public func Com_Frame() {
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:1785
-func Com_Shutdown() {
+public func Com_Shutdown() {
     CM_ClearMap()
 
     if logfile != 0 {
@@ -1920,13 +1920,13 @@ func Com_Shutdown() {
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:1815
-func Com_Memcpy(_ dest: OpaquePointer?, _ src: OpaquePointer?, _ count: CUnsignedLong) {
+public func Com_Memcpy(_ dest: OpaquePointer?, _ src: OpaquePointer?, _ count: CUnsignedLong) {
     // AI: Raven calls memcpy on raw pointers. CommonBackend.memcpy makes the call in the view target.
     CommonBackend.memcpy(dest, src, count)
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:1820
-func Com_Memset(_ dest: OpaquePointer?, _ val: Int32, _ count: CUnsignedLong) {
+public func Com_Memset(_ dest: OpaquePointer?, _ val: Int32, _ count: CUnsignedLong) {
     // AI: Raven calls memset on raw pointers. CommonBackend.memset makes the call in the view target.
     CommonBackend.memset(dest, val, count)
 }
@@ -1948,7 +1948,7 @@ acos(*(float*) &i) == -1.#IND0
 ```
 */
 /// Source: oracle/codemp/qcommon/common.cpp:2143
-func Q_acos(_ c: Float) -> Float {
+public func Q_acos(_ c: Float) -> Float {
     let angle: Float
 
     angle = acos(c)
@@ -1964,7 +1964,7 @@ func Q_acos(_ c: Float) -> Float {
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:2157
-func Q_asin(_ c: Float) -> Float {
+public func Q_asin(_ c: Float) -> Float {
     let angle: Float
 
     angle = asin(c)

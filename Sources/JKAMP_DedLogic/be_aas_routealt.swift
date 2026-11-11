@@ -4,19 +4,19 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/botlib/be_aas_routealt.cpp:39
-var midrangeareas: Slots<Midrangearea>? {
+public var midrangeareas: Slots<Midrangearea>? {
     get { world.variables.midrangeareas }
     set { world.variables.midrangeareas = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_aas_routealt.cpp:40
-var clusterareas: Slots<Int32>? {
+public var clusterareas: Slots<Int32>? {
     get { world.variables.clusterareas }
     set { world.variables.clusterareas = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_aas_routealt.cpp:41
-var numclusterareas: Int32 {
+public var numclusterareas: Int32 {
     get { world.variables.numclusterareas }
     set { world.variables.numclusterareas = newValue }
 }
@@ -28,7 +28,7 @@ var numclusterareas: Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_routealt.cpp:49
-func AAS_AltRoutingFloodCluster_r(_ areanum: Int32) {
+public func AAS_AltRoutingFloodCluster_r(_ areanum: Int32) {
     var i: Int32
     var otherareanum: Int32
     var area: AasArea
@@ -73,7 +73,7 @@ func AAS_AltRoutingFloodCluster_r(_ areanum: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_routealt.cpp:82
-func AAS_AlternativeRouteGoals(_ start: JKAShared.vec3_t, _ startareanum: Int32, _ goal: JKAShared.vec3_t, _ goalareanum: Int32, _ travelflags: Int32, _ altroutegoals: Slots<AasAltroutegoal>, _ maxaltroutegoals: Int32, _ type: Int32) -> Int32 {
+public func AAS_AlternativeRouteGoals(_ start: JKAShared.vec3_t, _ startareanum: Int32, _ goal: JKAShared.vec3_t, _ goalareanum: Int32, _ travelflags: Int32, _ altroutegoals: Slots<AasAltroutegoal>, _ maxaltroutegoals: Int32, _ type: Int32) -> Int32 {
     var i: Int32
     var j: Int32
     var bestareanum: Int32
@@ -207,7 +207,7 @@ func AAS_AlternativeRouteGoals(_ start: JKAShared.vec3_t, _ startareanum: Int32,
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_routealt.cpp:199
-func AAS_InitAlternativeRouting() {
+public func AAS_InitAlternativeRouting() {
     if midrangeareas != nil {
         FreeMemory(OpaquePointer(midrangeareas!.base))
     }
@@ -225,7 +225,7 @@ func AAS_InitAlternativeRouting() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_routealt.cpp:214
-func AAS_ShutdownAlternativeRouting() {
+public func AAS_ShutdownAlternativeRouting() {
     if midrangeareas != nil {
         FreeMemory(OpaquePointer(midrangeareas!.base))
     }

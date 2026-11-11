@@ -14,7 +14,7 @@ var bloc: Int32 {
 var seq: Slots<JKAShared.byte> { world.storage.seq }
 
 /// Source: oracle/codemp/qcommon/huffman.cpp:12
-func Huff_putBit(_ bit: Int32, _ fout: Slots<JKAShared.byte>, _ offset: inout Int32) {
+public func Huff_putBit(_ bit: Int32, _ fout: Slots<JKAShared.byte>, _ offset: inout Int32) {
     bloc = offset
     if (bloc & 7) == 0 {
         fout[byte: (bloc >> 3)] = 0
@@ -25,7 +25,7 @@ func Huff_putBit(_ bit: Int32, _ fout: Slots<JKAShared.byte>, _ offset: inout In
 }
 
 /// Source: oracle/codemp/qcommon/huffman.cpp:22
-func Huff_getBit(_ fin: Slots<JKAShared.byte>, _ offset: inout Int32) -> Int32 {
+public func Huff_getBit(_ fin: Slots<JKAShared.byte>, _ offset: inout Int32) -> Int32 {
     let t: Int32
     bloc = offset
     t = (fin[byte: (bloc >> 3)] >> (bloc & 7)) & 0x1
@@ -200,7 +200,7 @@ private func increment(_ huff: Huff, _ node: Node?) {
 }
 
 /// Source: oracle/codemp/qcommon/huffman.cpp:166
-func Huff_addRef(_ huff: Huff, _ ch: Int32) {
+public func Huff_addRef(_ huff: Huff, _ ch: Int32) {
     var tnode: Node?
     var tnode2: Node?
     if huff.loc[ch] == nil { /* if this is the first transmission of this node */
@@ -280,7 +280,7 @@ Get a symbol
 ```
 */
 /// Source: oracle/codemp/qcommon/huffman.cpp:236
-func Huff_Receive(_ node: Node, _ ch: inout Int32, _ fin: Slots<JKAShared.byte>) -> Int32 {
+public func Huff_Receive(_ node: Node, _ ch: inout Int32, _ fin: Slots<JKAShared.byte>) -> Int32 {
     // Raven assigns his own `node` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var node: Node? = node
     while node != nil && node!.symbol == INTERNAL_NODE {
@@ -304,7 +304,7 @@ Get a symbol
 ```
 */
 /// Source: oracle/codemp/qcommon/huffman.cpp:252
-func Huff_offsetReceive(_ node: Node, _ ch: inout Int32, _ fin: Slots<JKAShared.byte>, _ offset: inout Int32) {
+public func Huff_offsetReceive(_ node: Node, _ ch: inout Int32, _ fin: Slots<JKAShared.byte>, _ offset: inout Int32) {
     // Raven assigns his own `node` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var node: Node? = node
     bloc = offset
@@ -349,7 +349,7 @@ Send a symbol
 ```
 */
 /// Source: oracle/codemp/qcommon/huffman.cpp:285
-func Huff_transmit(_ huff: Huff, _ ch: Int32, _ fout: Slots<JKAShared.byte>) {
+public func Huff_transmit(_ huff: Huff, _ ch: Int32, _ fout: Slots<JKAShared.byte>) {
     var i: Int32
     if huff.loc[ch] == nil {
         /* node_t hasn't been transmitted, send a NYT, then the symbol */
@@ -365,14 +365,14 @@ func Huff_transmit(_ huff: Huff, _ ch: Int32, _ fout: Slots<JKAShared.byte>) {
 }
 
 /// Source: oracle/codemp/qcommon/huffman.cpp:298
-func Huff_offsetTransmit(_ huff: Huff, _ ch: Int32, _ fout: Slots<JKAShared.byte>, _ offset: inout Int32) {
+public func Huff_offsetTransmit(_ huff: Huff, _ ch: Int32, _ fout: Slots<JKAShared.byte>, _ offset: inout Int32) {
     bloc = offset
     send(huff.loc[ch]!, nil, fout)
     offset = bloc
 }
 
 /// Source: oracle/codemp/qcommon/huffman.cpp:304
-func Huff_Decompress(_ mbuf: Msg, _ offset: Int32) {
+public func Huff_Decompress(_ mbuf: Msg, _ offset: Int32) {
     var ch: Int32 = 0
     var cch: Int32 = 0
     var i: Int32 = 0
@@ -445,7 +445,7 @@ func Huff_Decompress(_ mbuf: Msg, _ offset: Int32) {
 }
 
 /// Source: oracle/codemp/qcommon/huffman.cpp:358
-func Huff_Compress(_ mbuf: Msg, _ offset: Int32) {
+public func Huff_Compress(_ mbuf: Msg, _ offset: Int32) {
     var i: Int32 = 0
     var ch: Int32 = 0
     var size: Int32 = 0
@@ -500,7 +500,7 @@ func Huff_Compress(_ mbuf: Msg, _ offset: Int32) {
 }
 
 /// Source: oracle/codemp/qcommon/huffman.cpp:397
-func Huff_Init(_ huff: Huffman) {
+public func Huff_Init(_ huff: Huffman) {
     huff.compressor.clear()
     huff.decompressor.clear()
 

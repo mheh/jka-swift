@@ -5,7 +5,7 @@ import JKAMP_Game
 import JKAMP_BG
 
 /// Source: oracle/codemp/game/g_target.c:753
-var numNewICARUSEnts: Int32 {
+public var numNewICARUSEnts: Int32 {
     get { world.variables.numNewICARUSEnts }
     set { world.variables.numNewICARUSEnts = newValue }
 }
@@ -23,7 +23,7 @@ Gives the activator all the items pointed to.
 ```
 */
 /// Source: oracle/codemp/game/g_target.c:10
-func Use_Target_Give(_ ent: Entity, _ other: Entity, _ activator: Entity) {
+public func Use_Target_Give(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     var t: Entity?
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
@@ -58,7 +58,7 @@ func Use_Target_Give(_ ent: Entity, _ other: Entity, _ activator: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_target.c:36
-func SP_target_give(_ ent: Entity) {
+public func SP_target_give(_ ent: Entity) {
     ent.use = Use.Use_Target_Give
 }
 
@@ -70,7 +70,7 @@ Used to drop flight powerups into death puts.
 ```
 */
 /// Source: oracle/codemp/game/g_target.c:47
-func Use_target_remove_powerups(_ ent: Entity, _ other: Entity, _ activator: Entity) {
+public func Use_target_remove_powerups(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     if activator.client == nil {
         return
     }
@@ -87,7 +87,7 @@ func Use_target_remove_powerups(_ ent: Entity, _ other: Entity, _ activator: Ent
 }
 
 /// Source: oracle/codemp/game/g_target.c:63
-func SP_target_remove_powerups(_ ent: Entity) {
+public func SP_target_remove_powerups(_ ent: Entity) {
     ent.use = Use.Use_target_remove_powerups
 }
 
@@ -103,12 +103,12 @@ activated again while it is counting down to an event.
 ```
 */
 /// Source: oracle/codemp/game/g_target.c:78
-func Think_Target_Delay(_ ent: Entity) {
+public func Think_Target_Delay(_ ent: Entity) {
     G_UseTargets(ent, ent.activator)
 }
 
 /// Source: oracle/codemp/game/g_target.c:82
-func Use_Target_Delay(_ ent: Entity, _ other: Entity, _ activator: Entity) {
+public func Use_Target_Delay(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     if ent.nextthink > level.time && (ent.spawnflags & 1) != 0 {
         //Leave me alone, I am thinking.
         return
@@ -120,7 +120,7 @@ func Use_Target_Delay(_ ent: Entity, _ other: Entity, _ activator: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_target.c:93
-func SP_target_delay(_ ent: Entity) {
+public func SP_target_delay(_ ent: Entity) {
     // check delay for backwards compatability
     if !G_SpawnFloat("delay", "0", &ent.wait) {
         G_SpawnFloat("wait", "1", &ent.wait)
@@ -141,12 +141,12 @@ The activator is given this many points.
 ```
 */
 /// Source: oracle/codemp/game/g_target.c:113
-func Use_Target_Score(_ ent: Entity, _ other: Entity, _ activator: Entity) {
+public func Use_Target_Score(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     AddScore(activator, ent.r.currentOrigin, ent.count)
 }
 
 /// Source: oracle/codemp/game/g_target.c:117
-func SP_target_score(_ ent: Entity) {
+public func SP_target_score(_ ent: Entity) {
     if ent.count == 0 {
         ent.count = 1
     }
@@ -162,7 +162,7 @@ If "private", only the activator gets the message.  If no checks, all clients ge
 ```
 */
 /// Source: oracle/codemp/game/g_target.c:132
-func Use_Target_Print(_ ent: Entity, _ other: Entity, _ activator: Entity) {
+public func Use_Target_Print(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     if !ent.inuse {
         Com_Printf("ERROR: Bad ent in Use_Target_Print")
         return
@@ -247,7 +247,7 @@ func Use_Target_Print(_ ent: Entity, _ other: Entity, _ activator: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_target.c:239
-func SP_target_print(_ ent: Entity) {
+public func SP_target_print(_ ent: Entity) {
     ent.use = Use.Use_Target_Print
 }
 
@@ -267,7 +267,7 @@ Multiple identical looping sounds will just increase volume without any speed co
 ```
 */
 /// Source: oracle/codemp/game/g_target.c:259
-func Use_Target_Speaker(_ ent: Entity, _ other: Entity, _ activator: Entity) {
+public func Use_Target_Speaker(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     G_ActivateBehavior(ent, BSET_USE)
 
     if (ent.spawnflags & 3) != 0 {
@@ -294,7 +294,7 @@ func Use_Target_Speaker(_ ent: Entity, _ other: Entity, _ activator: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_target.c:286
-func SP_target_speaker(_ ent: Entity) {
+public func SP_target_speaker(_ ent: Entity) {
     var buffer = CharBuf(64)
     var s: String = ""
 
@@ -357,7 +357,7 @@ When triggered, fires a laser.  You can either set a target or a direction.
 ```
 */
 /// Source: oracle/codemp/game/g_target.c:349
-func target_laser_think(_ `self`: Entity) {
+public func target_laser_think(_ `self`: Entity) {
     var end = vec3_t()
     // Raven's record lives to the end of his block, so the block is the closure.
     Trace.scratch { tr in
@@ -389,7 +389,7 @@ func target_laser_think(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_target.c:379
-func target_laser_on(_ `self`: Entity) {
+public func target_laser_on(_ `self`: Entity) {
     if `self`.activator == nil {
         `self`.activator = `self`
     }
@@ -397,13 +397,13 @@ func target_laser_on(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_target.c:386
-func target_laser_off(_ `self`: Entity) {
+public func target_laser_off(_ `self`: Entity) {
     trap_UnlinkEntity(`self`)
     `self`.nextthink = 0
 }
 
 /// Source: oracle/codemp/game/g_target.c:392
-func target_laser_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func target_laser_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     `self`.activator = activator
     if `self`.nextthink > 0 {
         target_laser_off(`self`)
@@ -413,7 +413,7 @@ func target_laser_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_target.c:401
-func target_laser_start(_ `self`: Entity) {
+public func target_laser_start(_ `self`: Entity) {
     var ent: Entity?
 
     `self`.s.eType = ET_BEAM
@@ -443,14 +443,14 @@ func target_laser_start(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_target.c:430
-func SP_target_laser(_ `self`: Entity) {
+public func SP_target_laser(_ `self`: Entity) {
     // let everything else get spawned before we start firing
     `self`.think = Think.target_laser_start
     `self`.nextthink = level.time + FRAMETIME
 }
 
 /// Source: oracle/codemp/game/g_target.c:440
-func target_teleporter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func target_teleporter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     var dest: Entity?
 
     if activator.client == nil {
@@ -475,7 +475,7 @@ The activator will be teleported away.
 ```
 */
 /// Source: oracle/codemp/game/g_target.c:460
-func SP_target_teleporter(_ `self`: Entity) {
+public func SP_target_teleporter(_ `self`: Entity) {
     if `self`.targetname == nil {
         G_Printf("untargeted %s at %s\n", `self`.classname!, vtos(`self`.s.origin))
     }
@@ -496,7 +496,7 @@ wait - set to -1 to use it only once
 ```
 */
 /// Source: oracle/codemp/game/g_target.c:479
-func target_relay_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func target_relay_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     var ranscript: Bool = false
     if (`self`.spawnflags & 1) != 0 && activator.client != nil && activator.client!.sess.sessionTeam != TEAM_RED {
         return
@@ -535,7 +535,7 @@ func target_relay_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_target.c:520
-func SP_target_relay(_ `self`: Entity) {
+public func SP_target_relay(_ `self`: Entity) {
     `self`.use = Use.target_relay_use
     if (`self`.spawnflags & 128) != 0 {
         `self`.flags |= FL_INACTIVE
@@ -549,14 +549,14 @@ Kills the activator.
 ```
 */
 /// Source: oracle/codemp/game/g_target.c:534
-func target_kill_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func target_kill_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     G_ActivateBehavior(`self`, BSET_USE)
     var dir: vec3_t? = nil
     G_Damage(activator, nil, nil, &dir, nil, 100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG)
 }
 
 /// Source: oracle/codemp/game/g_target.c:539
-func SP_target_kill(_ `self`: Entity) {
+public func SP_target_kill(_ `self`: Entity) {
     `self`.use = Use.target_kill_use
 }
 
@@ -567,7 +567,7 @@ Used as a positional target for in-game calculation, like jumppad targets.
 ```
 */
 /// Source: oracle/codemp/game/g_target.c:546
-func SP_target_position(_ `self`: Entity) {
+public func SP_target_position(_ `self`: Entity) {
     G_SetOrigin(`self`, &`self`.s.origin)
     /*
     G_SetAngles( self, self->s.angles );
@@ -623,7 +623,7 @@ in site, closest in distance
 ```
 */
 /// Source: oracle/codemp/game/g_target.c:592
-func SP_target_location(_ `self`: Entity) {
+public func SP_target_location(_ `self`: Entity) {
     `self`.think = Think.target_location_linkup
     `self`.nextthink = level.time + 200 // Let them all spawn first
 
@@ -631,7 +631,7 @@ func SP_target_location(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_target.c:611
-func target_counter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func target_counter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     if `self`.count == 0 {
         return
     }
@@ -671,7 +671,7 @@ func target_counter_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) 
 }
 
 /// Source: oracle/codemp/game/g_target.c:660
-func SP_target_counter(_ `self`: Entity) {
+public func SP_target_counter(_ `self`: Entity) {
     `self`.wait = -1
     if `self`.count == 0 {
         `self`.count = 2
@@ -686,7 +686,7 @@ func SP_target_counter(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_target.c:681
-func target_random_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func target_random_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     var t_count: Int32 = 0
     let pick: Int32
     var t: Entity? = nil
@@ -742,12 +742,12 @@ func target_random_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_target.c:748
-func SP_target_random(_ `self`: Entity) {
+public func SP_target_random(_ `self`: Entity) {
     `self`.use = Use.target_random_use
 }
 
 /// Source: oracle/codemp/game/g_target.c:754
-func scriptrunner_run(_ `self`: Entity) {
+public func scriptrunner_run(_ `self`: Entity) {
     /*
     if (self->behaviorSet[BSET_USE])
     {
@@ -815,7 +815,7 @@ func scriptrunner_run(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_target.c:839
-func target_scriptrunner_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func target_scriptrunner_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     if `self`.nextthink > level.time {
         return
     }
@@ -846,7 +846,7 @@ delay - how long to wait after use to run script
 ```
 */
 /// Source: oracle/codemp/game/g_target.c:871
-func SP_target_scriptrunner(_ `self`: Entity) {
+public func SP_target_scriptrunner(_ `self`: Entity) {
     var v: Float = 0
     if (`self`.spawnflags & 128) != 0 {
         `self`.flags |= FL_INACTIVE
@@ -873,7 +873,7 @@ func SP_target_scriptrunner(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_target.c:900
-func G_SetActiveState(_ targetstring: String, _ actState: Bool) {
+public func G_SetActiveState(_ targetstring: String, _ actState: Bool) {
     var target: Entity? = nil
     while let next = G_Find(target, \.targetname, targetstring) {
         target = next
@@ -882,14 +882,14 @@ func G_SetActiveState(_ targetstring: String, _ actState: Bool) {
 }
 
 /// Source: oracle/codemp/game/g_target.c:912
-func target_activate_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func target_activate_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     G_ActivateBehavior(`self`, BSET_USE)
 
     G_SetActiveState(`self`.target!, true)
 }
 
 /// Source: oracle/codemp/game/g_target.c:919
-func target_deactivate_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func target_deactivate_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     G_ActivateBehavior(`self`, BSET_USE)
 
     G_SetActiveState(`self`.target!, false)
@@ -903,7 +903,7 @@ Will set the target(s) to be usable/triggerable
 ```
 */
 /// Source: oracle/codemp/game/g_target.c:930
-func SP_target_activate(_ `self`: Entity) {
+public func SP_target_activate(_ `self`: Entity) {
     G_SetOrigin(`self`, &`self`.s.origin)
     `self`.use = Use.target_activate_use
 }
@@ -915,13 +915,13 @@ Will set the target(s) to be non-usable/triggerable
 ```
 */
 /// Source: oracle/codemp/game/g_target.c:939
-func SP_target_deactivate(_ `self`: Entity) {
+public func SP_target_deactivate(_ `self`: Entity) {
     G_SetOrigin(`self`, &`self`.s.origin)
     `self`.use = Use.target_deactivate_use
 }
 
 /// Source: oracle/codemp/game/g_target.c:945
-func target_level_change_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func target_level_change_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     G_ActivateBehavior(`self`, BSET_USE)
 
     trap_SendConsoleCommand(EXEC_NOW, va("map %s", `self`.message!))
@@ -934,7 +934,7 @@ QUAKED target_level_change (1 0 0) (-4 -4 -4) (4 4 4)
 ```
 */
 /// Source: oracle/codemp/game/g_target.c:955
-func SP_target_level_change(_ `self`: Entity) {
+public func SP_target_level_change(_ `self`: Entity) {
     var s: String = ""
 
     G_SpawnString("mapname", "", &s)
@@ -950,7 +950,7 @@ func SP_target_level_change(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_target.c:972
-func target_play_music_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func target_play_music_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     G_ActivateBehavior(`self`, BSET_USE)
     trap_SetConfigstring(CS_MUSIC, `self`.message!)
 }
@@ -970,7 +970,7 @@ will play.
 ```
 */
 /// Source: oracle/codemp/game/g_target.c:989
-func SP_target_play_music(_ `self`: Entity) {
+public func SP_target_play_music(_ `self`: Entity) {
     var s: String = ""
 
     G_SetOrigin(`self`, &`self`.s.origin)

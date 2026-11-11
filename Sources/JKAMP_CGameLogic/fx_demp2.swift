@@ -5,7 +5,7 @@ import JKAMP_CGame
 import JKAMP_BG
 
 /// Source: oracle/codemp/cgame/fx_demp2.c:11
-func FX_DEMP2_ProjectileThink(_ cent: Centity, _ weapon: WeaponInfo) {
+public func FX_DEMP2_ProjectileThink(_ cent: Centity, _ weapon: WeaponInfo) {
     var forward = vec3_t()
 
     if VectorNormalize2(cent.currentState.pos.trDelta, &forward) == 0.0 {
@@ -16,12 +16,12 @@ func FX_DEMP2_ProjectileThink(_ cent: Centity, _ weapon: WeaponInfo) {
 }
 
 /// Source: oracle/codemp/cgame/fx_demp2.c:29
-func FX_DEMP2_HitWall(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t) {
+public func FX_DEMP2_HitWall(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t) {
     trap_FX_PlayEffectID(cgs.effects.demp2WallImpactEffect, origin, normal, -1, -1)
 }
 
 /// Source: oracle/codemp/cgame/fx_demp2.c:40
-func FX_DEMP2_HitPlayer(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ humanoid: Bool) {
+public func FX_DEMP2_HitPlayer(_ origin: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ humanoid: Bool) {
     trap_FX_PlayEffectID(cgs.effects.demp2FleshImpactEffect, origin, normal, -1, -1)
 }
 
@@ -33,7 +33,7 @@ FX_DEMP2_AltBeam
 ```
 */
 /// Source: oracle/codemp/cgame/fx_demp2.c:50
-func FX_DEMP2_AltBeam(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ targ1: JKAShared.vec3_t, _ targ2: JKAShared.vec3_t) {
+public func FX_DEMP2_AltBeam(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ normal: JKAShared.vec3_t, _ targ1: JKAShared.vec3_t, _ targ2: JKAShared.vec3_t) {
     //NOTENOTE Fix this after trap calls for all primitives are created.
     /*
     vec3_t	dir, chaos,
@@ -222,7 +222,7 @@ func FX_DEMP2_AltBeam(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ norm
 
 //---------------------------------------------
 /// Source: oracle/codemp/cgame/fx_demp2.c:240
-func FX_DEMP2_AltDetonate(_ org: JKAShared.vec3_t, _ size: Float) {
+public func FX_DEMP2_AltDetonate(_ org: JKAShared.vec3_t, _ size: Float) {
     var ex: LocalEntity?
 
     ex = CG_AllocLocalEntity()

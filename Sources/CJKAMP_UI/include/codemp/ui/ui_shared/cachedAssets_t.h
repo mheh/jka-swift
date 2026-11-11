@@ -5,7 +5,7 @@
 
 #include "CJKAMP_UI_forward.h"
 #include "codemp/game/q_shared/qboolean.h"
-#include "codemp/ui/ui_shared/constants.h"
+#include "constants.h"
 #include "shared/game/q_shared/qhandle_t.h"
 #include "shared/game/q_shared/sfxHandle_t.h"
 #include "shared/game/q_shared/vec4_t.h"

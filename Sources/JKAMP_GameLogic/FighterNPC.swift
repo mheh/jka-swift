@@ -68,7 +68,7 @@ let FIGHTER_MIN_TAKEOFF_FRACTION = 0.7 as Float
 
 //this stuff has got to be predicted, so..
 /// Source: oracle/codemp/game/FighterNPC.c:99
-func BG_FighterUpdate(_ pVeh: JKAMP.Vehicle, _ pUcmd: JKAMP.Usercmd, _ trMins: JKAShared.vec3_t, _ trMaxs: JKAShared.vec3_t, _ gravity: Float, _ traceFunc: ((JKAMP.Trace, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Int32) -> Void)?) -> Bool {
+public func BG_FighterUpdate(_ pVeh: JKAMP.Vehicle, _ pUcmd: JKAMP.Usercmd, _ trMins: JKAShared.vec3_t, _ trMaxs: JKAShared.vec3_t, _ gravity: Float, _ traceFunc: ((JKAMP.Trace, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, JKAShared.vec3_t, Int32, Int32) -> Void)?) -> Bool {
     var bottom = vec3_t()
     var parentPS: PlayerState?
     var isDead: Bool = false
@@ -203,7 +203,7 @@ private func PredictedAngularDecrement(_ scale: Float, _ timeMod: Float, _ origi
 }
 
 /// Source: oracle/codemp/game/FighterNPC.c:276
-func FighterIsInSpace(_ gParent: Entity) -> Bool {
+public func FighterIsInSpace(_ gParent: Entity) -> Bool {
     if gParent.client != nil && gParent.client!.inSpaceIndex != 0 && gParent.client!.inSpaceIndex < ENTITYNUM_WORLD {
         return true
     }
@@ -211,7 +211,7 @@ func FighterIsInSpace(_ gParent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/FighterNPC.c:289
-func FighterOverValidLandingSurface(_ pVeh: JKAMP.Vehicle) -> Bool {
+public func FighterOverValidLandingSurface(_ pVeh: JKAMP.Vehicle) -> Bool {
     if pVeh.m_LandTrace.fraction < 1.0 && pVeh.m_LandTrace.plane.normal[2] >= MIN_LANDING_SLOPE {
         return true
     }
@@ -219,7 +219,7 @@ func FighterOverValidLandingSurface(_ pVeh: JKAMP.Vehicle) -> Bool {
 }
 
 /// Source: oracle/codemp/game/FighterNPC.c:300
-func FighterIsLanded(_ pVeh: JKAMP.Vehicle, _ parentPS: JKAMP.PlayerState) -> Bool {
+public func FighterIsLanded(_ pVeh: JKAMP.Vehicle, _ parentPS: JKAMP.PlayerState) -> Bool {
     if FighterOverValidLandingSurface(pVeh) && parentPS.speed == 0 {
         return true
     }
@@ -227,7 +227,7 @@ func FighterIsLanded(_ pVeh: JKAMP.Vehicle, _ parentPS: JKAMP.PlayerState) -> Bo
 }
 
 /// Source: oracle/codemp/game/FighterNPC.c:310
-func FighterIsLanding(_ pVeh: JKAMP.Vehicle, _ parentPS: JKAMP.PlayerState) -> Bool {
+public func FighterIsLanding(_ pVeh: JKAMP.Vehicle, _ parentPS: JKAMP.PlayerState) -> Bool {
     if FighterOverValidLandingSurface(pVeh)
         //only do this check on GAME side, because if it's CGAME, it's being predicted, and it's only predicted if the local client is the driver
         && pVeh.m_pVehicleInfo!.runInhabited(pVeh) //has to have a driver in order to be capable of landing
@@ -240,7 +240,7 @@ func FighterIsLanding(_ pVeh: JKAMP.Vehicle, _ parentPS: JKAMP.PlayerState) -> B
 }
 
 /// Source: oracle/codemp/game/FighterNPC.c:325
-func FighterIsLaunching(_ pVeh: JKAMP.Vehicle, _ parentPS: JKAMP.PlayerState) -> Bool {
+public func FighterIsLaunching(_ pVeh: JKAMP.Vehicle, _ parentPS: JKAMP.PlayerState) -> Bool {
     if FighterOverValidLandingSurface(pVeh)
         //only do this check on GAME side, because if it's CGAME, it's being predicted, and it's only predicted if the local client is the driver
         && pVeh.m_pVehicleInfo!.runInhabited(pVeh) //has to have a driver in order to be capable of landing
@@ -253,7 +253,7 @@ func FighterIsLaunching(_ pVeh: JKAMP.Vehicle, _ parentPS: JKAMP.PlayerState) ->
 }
 
 /// Source: oracle/codemp/game/FighterNPC.c:340
-func FighterSuspended(_ pVeh: JKAMP.Vehicle, _ parentPS: JKAMP.PlayerState) -> Bool {
+public func FighterSuspended(_ pVeh: JKAMP.Vehicle, _ parentPS: JKAMP.PlayerState) -> Bool {
     if pVeh.m_pPilot == nil && parentPS.speed == 0 && pVeh.m_ucmd.forwardmove <= 0 && pVeh.m_pParentEntity != nil && ((pVeh.m_pParentEntity.map { Entity($0) })!.spawnflags & 2) != 0 {
         return true
     }
@@ -838,7 +838,7 @@ private func FighterDamageRoutine(_ pVeh: JKAMP.Vehicle, _ parent: JKAMP.BgEntit
 }
 
 /// Source: oracle/codemp/game/FighterNPC.c:1299
-func FighterYawAdjust(_ pVeh: JKAMP.Vehicle, _ riderPS: JKAMP.PlayerState, _ parentPS: JKAMP.PlayerState) {
+public func FighterYawAdjust(_ pVeh: JKAMP.Vehicle, _ riderPS: JKAMP.PlayerState, _ parentPS: JKAMP.PlayerState) {
     var angDif: Float = AngleSubtract(pVeh.m_vOrientationVector[YAW], riderPS.viewangles[YAW])
 
     if parentPS.speed != 0 {
@@ -859,7 +859,7 @@ func FighterYawAdjust(_ pVeh: JKAMP.Vehicle, _ riderPS: JKAMP.PlayerState, _ par
 }
 
 /// Source: oracle/codemp/game/FighterNPC.c:1325
-func FighterPitchAdjust(_ pVeh: JKAMP.Vehicle, _ riderPS: JKAMP.PlayerState, _ parentPS: JKAMP.PlayerState) {
+public func FighterPitchAdjust(_ pVeh: JKAMP.Vehicle, _ riderPS: JKAMP.PlayerState, _ parentPS: JKAMP.PlayerState) {
     var angDif: Float = AngleSubtract(pVeh.m_vOrientationVector[PITCH], riderPS.viewangles[PITCH])
 
     if parentPS.speed != 0 {
@@ -880,7 +880,7 @@ func FighterPitchAdjust(_ pVeh: JKAMP.Vehicle, _ riderPS: JKAMP.PlayerState, _ p
 }
 
 /// Source: oracle/codemp/game/FighterNPC.c:1352
-func FighterPitchClamp(_ pVeh: JKAMP.Vehicle, _ riderPS: JKAMP.PlayerState, _ parentPS: JKAMP.PlayerState, _ curTime: Int32) {
+public func FighterPitchClamp(_ pVeh: JKAMP.Vehicle, _ riderPS: JKAMP.PlayerState, _ parentPS: JKAMP.PlayerState, _ curTime: Int32) {
     if !BG_UnrestrainedPitchRoll(riderPS, pVeh) {
         //cap pitch reasonably
         if pVeh.m_pVehicleInfo!.pitchLimit != -1 && pVeh.m_iRemovedSurfaces == 0 && parentPS.electrifyTime < curTime {
@@ -1266,7 +1266,7 @@ private func AnimateRiders(_ pVeh: JKAMP.Vehicle) {
 }
 
 /// Source: oracle/codemp/game/FighterNPC.c:1948
-func G_SetFighterVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
+public func G_SetFighterVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
     pVehInfo.AnimateVehicle = VehicleInfoThunks.AnimateVehicle
     pVehInfo.AnimateRiders = VehicleInfoThunks.AnimateRiders
     //	pVehInfo->ValidateBoard				=		ValidateBoard;
@@ -1294,7 +1294,7 @@ func G_SetFighterVehicleFunctions(_ pVehInfo: JKAMP.VehicleInfo) {
 
 // Create/Allocate a new Animal Vehicle (initializing it as well).
 /// Source: oracle/codemp/game/FighterNPC.c:1994
-func G_CreateFighterNPC(_ pVeh: inout JKAMP.Vehicle?, _ strType: String) {
+public func G_CreateFighterNPC(_ pVeh: inout JKAMP.Vehicle?, _ strType: String) {
     // Allocate the Vehicle.
     //these will remain on entities on the client once allocated because the pointer is
     //never stomped. on the server, however, when an ent is freed, the entity struct is

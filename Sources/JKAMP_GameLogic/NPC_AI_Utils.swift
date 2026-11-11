@@ -11,7 +11,7 @@ private let MAX_RADIUS_ENTS = 128 as Int32
 let DEFAULT_RADIUS = 45 as Int32
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:23
-func AI_GetGroupSize(_ origin: JKAShared.vec3_t, _ radius: Int32, _ playerTeam: JKAMP.team_t, _ avoid: Entity) -> Int32 {
+public func AI_GetGroupSize(_ origin: JKAShared.vec3_t, _ radius: Int32, _ playerTeam: JKAMP.team_t, _ avoid: Entity) -> Int32 {
     var radiusEnts: [Int32] = [Int32](repeating: 0, count: 128)
     var check: Entity?
     var mins = vec3_t()
@@ -69,7 +69,7 @@ func AI_GetGroupSize(_ origin: JKAShared.vec3_t, _ radius: Int32, _ playerTeam: 
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:71
-func AI_GetGroupSize2(_ ent: Entity, _ radius: Int32) -> Int32 {
+public func AI_GetGroupSize2(_ ent: Entity, _ radius: Int32) -> Int32 {
     if (ent == nil) || (ent.client == nil) {
         return -1
     }
@@ -78,7 +78,7 @@ func AI_GetGroupSize2(_ ent: Entity, _ radius: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:80
-func AI_ClosestGroupEntityNumToPoint(_ group: AIGroupInfo, _ point: inout JKAShared.vec3_t) -> Int32 {
+public func AI_ClosestGroupEntityNumToPoint(_ group: AIGroupInfo, _ point: inout JKAShared.vec3_t) -> Int32 {
     var markerWP: Int32 = WAYPOINT_NONE
     var cost: Int32
     var bestCost: Int32 = Q3_INFINITE
@@ -109,7 +109,7 @@ func AI_ClosestGroupEntityNumToPoint(_ group: AIGroupInfo, _ point: inout JKASha
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:112
-func AI_SetClosestBuddy(_ group: AIGroupInfo) {
+public func AI_SetClosestBuddy(_ group: AIGroupInfo) {
     var i: Int32
     var j: Int32
     var dist: Int32
@@ -134,7 +134,7 @@ func AI_SetClosestBuddy(_ group: AIGroupInfo) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:134
-func AI_SortGroupByPathCostToEnemy(_ group: AIGroupInfo) {
+public func AI_SortGroupByPathCostToEnemy(_ group: AIGroupInfo) {
     // Raven's array of records lives to the end of his function, so the rest of the body is the closure.
     AIGroupMember.scratch(count: Int(MAX_GROUP_MEMBERS)) { bestMembers in
         var i: Int32
@@ -214,7 +214,7 @@ func AI_SortGroupByPathCostToEnemy(_ group: AIGroupInfo) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:212
-func AI_FindSelfInPreviousGroup(_ `self`: Entity) -> Bool {
+public func AI_FindSelfInPreviousGroup(_ `self`: Entity) -> Bool {
     //go through other groups made this frame and see if any of those contain me already
     var i: Int32
     var j: Int32
@@ -237,7 +237,7 @@ func AI_FindSelfInPreviousGroup(_ `self`: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:232
-func AI_InsertGroupMember(_ group: AIGroupInfo, _ member: Entity) {
+public func AI_InsertGroupMember(_ group: AIGroupInfo, _ member: Entity) {
     var i: Int32
 
     //okay, you know what?  Check this damn group and make sure we're not already in here!
@@ -265,7 +265,7 @@ func AI_InsertGroupMember(_ group: AIGroupInfo, _ member: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:259
-func AI_TryJoinPreviousGroup(_ `self`: Entity) -> Bool {
+public func AI_TryJoinPreviousGroup(_ `self`: Entity) -> Bool {
     //go through other groups made this frame and see if any of those have the same enemy as me... if so, add me in!
     var i: Int32
     i = 0
@@ -284,7 +284,7 @@ func AI_TryJoinPreviousGroup(_ `self`: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:279
-func AI_GetNextEmptyGroup(_ `self`: Entity) -> Bool {
+public func AI_GetNextEmptyGroup(_ `self`: Entity) -> Bool {
     var i: Int32
 
     if AI_FindSelfInPreviousGroup(`self`) {
@@ -317,7 +317,7 @@ func AI_GetNextEmptyGroup(_ `self`: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:310
-func AI_ValidateNoEnemyGroupMember(_ group: AIGroupInfo, _ member: Entity) -> Bool {
+public func AI_ValidateNoEnemyGroupMember(_ group: AIGroupInfo, _ member: Entity) -> Bool {
     var center = vec3_t()
 
     if group.commander != nil {
@@ -341,7 +341,7 @@ func AI_ValidateNoEnemyGroupMember(_ group: AIGroupInfo, _ member: Entity) -> Bo
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:342
-func AI_ValidateGroupMember(_ group: AIGroupInfo, _ member: Entity) -> Bool {
+public func AI_ValidateGroupMember(_ group: AIGroupInfo, _ member: Entity) -> Bool {
     //Validate ents
     if member == nil {
         return false
@@ -431,7 +431,7 @@ AI_GetGroup
 */
 //#define MAX_WAITERS	128
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:443
-func AI_GetGroup(_ `self`: Entity) {
+public func AI_GetGroup(_ `self`: Entity) {
     var i: Int32
     var member: Entity?
     //int	waiters[MAX_WAITERS];
@@ -537,7 +537,7 @@ func AI_GetGroup(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:553
-func AI_SetNewGroupCommander(_ group: AIGroupInfo) {
+public func AI_SetNewGroupCommander(_ group: AIGroupInfo) {
     var member: Entity? = nil
     var i: Int32
 
@@ -555,7 +555,7 @@ func AI_SetNewGroupCommander(_ group: AIGroupInfo) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:570
-func AI_DeleteGroupMember(_ group: AIGroupInfo, _ memberNum: Int32) {
+public func AI_DeleteGroupMember(_ group: AIGroupInfo, _ memberNum: Int32) {
     var i: Int32
 
     if group.commander != nil && group.commander!.s.number == group.member[memberNum].number {
@@ -583,7 +583,7 @@ func AI_DeleteGroupMember(_ group: AIGroupInfo, _ memberNum: Int32) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:602
-func AI_DeleteSelfFromGroup(_ `self`: Entity) {
+public func AI_DeleteSelfFromGroup(_ `self`: Entity) {
     var i: Int32
 
     //FIXME: if killed, keep track of how many in group killed?  To affect morale?
@@ -598,7 +598,7 @@ func AI_DeleteSelfFromGroup(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:620
-func AI_GroupMemberKilled(_ `self`: Entity) {
+public func AI_GroupMemberKilled(_ `self`: Entity) {
     let group: AIGroupInfo? = `self`.NPC!.group
     var member: Entity?
     var noflee: Bool = false
@@ -672,7 +672,7 @@ func AI_GroupMemberKilled(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:699
-func AI_GroupUpdateEnemyLastSeen(_ group: AIGroupInfo?, _ spot: JKAShared.vec3_t) {
+public func AI_GroupUpdateEnemyLastSeen(_ group: AIGroupInfo?, _ spot: JKAShared.vec3_t) {
     if group == nil {
         return
     }
@@ -681,7 +681,7 @@ func AI_GroupUpdateEnemyLastSeen(_ group: AIGroupInfo?, _ spot: JKAShared.vec3_t
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:709
-func AI_GroupUpdateClearShotTime(_ group: AIGroupInfo?) {
+public func AI_GroupUpdateClearShotTime(_ group: AIGroupInfo?) {
     if group == nil {
         return
     }
@@ -689,7 +689,7 @@ func AI_GroupUpdateClearShotTime(_ group: AIGroupInfo?) {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:718
-func AI_GroupUpdateSquadstates(_ group: AIGroupInfo?, _ member: Entity, _ newSquadState: Int32) {
+public func AI_GroupUpdateSquadstates(_ group: AIGroupInfo?, _ member: Entity, _ newSquadState: Int32) {
     if group == nil {
         return
     }
@@ -709,7 +709,7 @@ func AI_GroupUpdateSquadstates(_ group: AIGroupInfo?, _ member: Entity, _ newSqu
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:740
-func AI_RefreshGroup(_ group: AIGroupInfo) -> Bool {
+public func AI_RefreshGroup(_ group: AIGroupInfo) -> Bool {
     var member: Entity?
     var i: Int32
 
@@ -913,7 +913,7 @@ func AI_RefreshGroup(_ group: AIGroupInfo) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:964
-func AI_UpdateGroups() {
+public func AI_UpdateGroups() {
     var i: Int32
 
     if d_noGroupAI.integer != 0 {
@@ -930,7 +930,7 @@ func AI_UpdateGroups() {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:982
-func AI_GroupContainsEntNum(_ group: AIGroupInfo?, _ entNum: Int32) -> Bool {
+public func AI_GroupContainsEntNum(_ group: AIGroupInfo?, _ entNum: Int32) -> Bool {
     if group == nil {
         return false
     }
@@ -947,7 +947,7 @@ func AI_GroupContainsEntNum(_ group: AIGroupInfo?, _ entNum: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:1030
-func AI_CheckEnemyCollision(_ ent: Entity, _ takeEnemy: Bool) -> Bool {
+public func AI_CheckEnemyCollision(_ ent: Entity, _ takeEnemy: Bool) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return NavInfo.scratch { info -> Bool in
@@ -977,7 +977,7 @@ func AI_CheckEnemyCollision(_ ent: Entity, _ takeEnemy: Bool) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_AI_Utils.c:1065
-func AI_DistributeAttack(_ attacker: Entity, _ enemy: Entity, _ team: JKAMP.team_t, _ threshold: Int32) -> Entity? {
+public func AI_DistributeAttack(_ attacker: Entity, _ enemy: Entity, _ team: JKAMP.team_t, _ threshold: Int32) -> Entity? {
     var radiusEnts: [Int32] = [Int32](repeating: 0, count: 128)
     var check: Entity?
     let numEnts: Int32

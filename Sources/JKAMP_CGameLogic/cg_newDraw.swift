@@ -8,7 +8,7 @@ import JKAMP_BG
 let PIC_WIDTH = 12 as Int32
 
 /// Source: oracle/codemp/cgame/cg_newDraw.c:7
-func CG_GetSelectedPlayer() -> Int32 {
+public func CG_GetSelectedPlayer() -> Int32 {
     if cg_currentSelectedPlayer.integer < 0 || cg_currentSelectedPlayer.integer >= numSortedTeamPlayers {
         cg_currentSelectedPlayer.integer = 0
     }
@@ -16,7 +16,7 @@ func CG_GetSelectedPlayer() -> Int32 {
 }
 
 /// Source: oracle/codemp/cgame/cg_newDraw.c:14
-func CG_StatusHandle(_ task: Int32) -> JKAShared.qhandle_t {
+public func CG_StatusHandle(_ task: Int32) -> JKAShared.qhandle_t {
     var h: qhandle_t = cgs.media.assaultShader
     switch task {
     case TEAMTASK_OFFENSE:
@@ -47,7 +47,7 @@ func CG_StatusHandle(_ task: Int32) -> JKAShared.qhandle_t {
 }
 
 /// Source: oracle/codemp/cgame/cg_newDraw.c:46
-func CG_GetValue(_ ownerDraw: Int32) -> Float {
+public func CG_GetValue(_ ownerDraw: Int32) -> Float {
     var cent: Centity?
     var ci: ClientInfo?
     var ps: PlayerState?
@@ -94,7 +94,7 @@ func CG_GetValue(_ ownerDraw: Int32) -> Float {
 }
 
 /// Source: oracle/codemp/cgame/cg_newDraw.c:93
-func CG_OtherTeamHasFlag() -> Bool {
+public func CG_OtherTeamHasFlag() -> Bool {
     if cgs.gametype == GT_CTF || cgs.gametype == GT_CTY {
         let team: Int32 = cg.snap!.ps.persistant[PERS_TEAM]
         if team == TEAM_RED && cgs.redflag == FLAG_TAKEN {
@@ -109,7 +109,7 @@ func CG_OtherTeamHasFlag() -> Bool {
 }
 
 /// Source: oracle/codemp/cgame/cg_newDraw.c:107
-func CG_YourTeamHasFlag() -> Bool {
+public func CG_YourTeamHasFlag() -> Bool {
     if cgs.gametype == GT_CTF || cgs.gametype == GT_CTY {
         let team: Int32 = cg.snap!.ps.persistant[PERS_TEAM]
         if team == TEAM_RED && cgs.blueflag == FLAG_TAKEN {
@@ -126,7 +126,7 @@ func CG_YourTeamHasFlag() -> Bool {
 // THINKABOUTME: should these be exclusive or inclusive..
 //
 /// Source: oracle/codemp/cgame/cg_newDraw.c:123
-func CG_OwnerDrawVisible(_ flags: Int32) -> Bool {
+public func CG_OwnerDrawVisible(_ flags: Int32) -> Bool {
     if (flags & CG_SHOW_TEAMINFO) != 0 {
         return (cg_currentSelectedPlayer.integer == numSortedTeamPlayers)
     }
@@ -213,7 +213,7 @@ var s_CG_GetKillerText: String {
 }
 
 /// Source: oracle/codemp/cgame/cg_newDraw.c:204
-func CG_GetKillerText() -> String {
+public func CG_GetKillerText() -> String {
     // Raven's static local `s` is the world's `s_CG_GetKillerText`.
     // AI: Raven's `s` points into the va ring, which a later va call writes over. The world keeps a copy of the text.
     if !cg.killerName.isEmpty {
@@ -230,7 +230,7 @@ var s_CG_GetGameStatusText: String {
 }
 
 /// Source: oracle/codemp/cgame/cg_newDraw.c:213
-func CG_GetGameStatusText() -> String {
+public func CG_GetGameStatusText() -> String {
     // Raven's static local `s` is the world's `s_CG_GetGameStatusText`.
     // AI: Raven's `s` points into the va ring, which a later va call writes over. The world keeps a copy of the text.
     if cgs.gametype == GT_POWERDUEL {
@@ -255,7 +255,7 @@ func CG_GetGameStatusText() -> String {
 }
 
 /// Source: oracle/codemp/cgame/cg_newDraw.c:242
-func CG_GameTypeString() -> String {
+public func CG_GameTypeString() -> String {
     if cgs.gametype == GT_FFA {
         return "Free For All"
     } else if cgs.gametype == GT_HOLOCRON {
@@ -326,7 +326,7 @@ private func CG_Text_Paint_Limit(_ maxX: inout Float, _ x: Float, _ y: Float, _ 
 }
 
 /// Source: oracle/codemp/cgame/cg_newDraw.c:327
-func CG_DrawNewTeamInfo(_ rect: JKAMP.RectDef, _ text_x: Float, _ text_y: Float, _ scale: Float, _ color: JKAShared.vec4_t, _ shader: JKAShared.qhandle_t) {
+public func CG_DrawNewTeamInfo(_ rect: JKAMP.RectDef, _ text_x: Float, _ text_y: Float, _ scale: Float, _ color: JKAShared.vec4_t, _ shader: JKAShared.qhandle_t) {
     var xx: Int32
     var y: Float
     var i: Int32
@@ -446,7 +446,7 @@ func CG_DrawNewTeamInfo(_ rect: JKAMP.RectDef, _ text_x: Float, _ text_y: Float,
 }
 
 /// Source: oracle/codemp/cgame/cg_newDraw.c:437
-func CG_DrawTeamSpectators(_ rect: JKAMP.RectDef, _ scale: Float, _ color: JKAShared.vec4_t, _ shader: JKAShared.qhandle_t) {
+public func CG_DrawTeamSpectators(_ rect: JKAMP.RectDef, _ scale: Float, _ color: JKAShared.vec4_t, _ shader: JKAShared.qhandle_t) {
     if cg.spectatorLen != 0 {
         var maxX: Float = 0
 
@@ -503,7 +503,7 @@ func CG_DrawTeamSpectators(_ rect: JKAMP.RectDef, _ scale: Float, _ color: JKASh
 }
 
 /// Source: oracle/codemp/cgame/cg_newDraw.c:496
-func CG_DrawMedal(_ ownerDraw: Int32, _ rect: JKAMP.RectDef, _ scale: Float, _ color: inout JKAShared.vec4_t, _ shader: JKAShared.qhandle_t) {
+public func CG_DrawMedal(_ ownerDraw: Int32, _ rect: JKAMP.RectDef, _ scale: Float, _ color: inout JKAShared.vec4_t, _ shader: JKAShared.qhandle_t) {
     let score: Score? = cg.scores[cg.selectedScore]
     var value: Float = 0
     var text: String? = nil
@@ -570,7 +570,7 @@ func CG_DrawMedal(_ ownerDraw: Int32, _ rect: JKAMP.RectDef, _ scale: Float, _ c
 
 //
 /// Source: oracle/codemp/cgame/cg_newDraw.c:562
-func CG_OwnerDraw(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ text_x: Float, _ text_y: Float, _ ownerDraw: Int32, _ ownerDrawFlags: Int32, _ align: Int32, _ special: Float, _ scale: Float, _ color: JKAShared.vec4_t, _ shader: JKAShared.qhandle_t, _ textStyle: Int32, _ font: Int32) {
+public func CG_OwnerDraw(_ x: Float, _ y: Float, _ w: Float, _ h: Float, _ text_x: Float, _ text_y: Float, _ ownerDraw: Int32, _ ownerDrawFlags: Int32, _ align: Int32, _ special: Float, _ scale: Float, _ color: JKAShared.vec4_t, _ shader: JKAShared.qhandle_t, _ textStyle: Int32, _ font: Int32) {
     //Ignore all this, at least for now. May put some stat stuff back in menu files later.
 
 
@@ -625,7 +625,7 @@ CG_HideTeamMenus
 ```
 */
 /// Source: oracle/codemp/cgame/cg_newDraw.c:789
-func CG_HideTeamMenu() {
+public func CG_HideTeamMenu() {
     Menus_CloseByName("teamMenu")
     Menus_CloseByName("getMenu")
 }
@@ -638,7 +638,7 @@ CG_ShowTeamMenus
 ```
 */
 /// Source: oracle/codemp/cgame/cg_newDraw.c:800
-func CG_ShowTeamMenu() {
+public func CG_ShowTeamMenu() {
     Menus_OpenByName("teamMenu")
 }
 
@@ -695,7 +695,7 @@ public func CG_KeyEvent(_ key: Int32, _ down: Bool) {
 }
 
 /// Source: oracle/codemp/cgame/cg_newDraw.c:860
-func CG_ClientNumFromName(_ p: String) -> Int32 {
+public func CG_ClientNumFromName(_ p: String) -> Int32 {
     var i: Int32
     i = 0
     while i < cgs.maxclients {
@@ -708,23 +708,23 @@ func CG_ClientNumFromName(_ p: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/cgame/cg_newDraw.c:870
-func CG_ShowResponseHead() {
+public func CG_ShowResponseHead() {
     Menus_OpenByName("voiceMenu")
     trap_Cvar_Set("cl_conXOffset", "72")
     cg.voiceTime = cg.time
 }
 
 /// Source: oracle/codemp/cgame/cg_newDraw.c:876
-func CG_RunMenuScript(_ args: inout JKAShared.TextCursor) {
+public func CG_RunMenuScript(_ args: inout JKAShared.TextCursor) {
 }
 
 /// Source: oracle/codemp/cgame/cg_newDraw.c:879
-func CG_DeferMenuScript(_ args: inout JKAShared.TextCursor) -> Bool {
+public func CG_DeferMenuScript(_ args: inout JKAShared.TextCursor) -> Bool {
     return false
 }
 
 /// Source: oracle/codemp/cgame/cg_newDraw.c:884
-func CG_GetTeamColor(_ color: inout JKAShared.vec4_t) {
+public func CG_GetTeamColor(_ color: inout JKAShared.vec4_t) {
     if cg.snap!.ps.persistant[PERS_TEAM] == TEAM_RED {
         (color)[0] = 1.0
         (color)[3] = 0.25

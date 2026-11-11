@@ -4,19 +4,19 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/qcommon/cvar.cpp:6
-var cvar_vars: JKAMP.Cvar? {
+public var cvar_vars: JKAMP.Cvar? {
     get { world.variables.cvar_vars }
     set { world.variables.cvar_vars = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/cvar.cpp:7
-var cvar_cheats: JKAMP.Cvar? {
+public var cvar_cheats: JKAMP.Cvar? {
     get { world.variables.cvar_cheats }
     set { world.variables.cvar_cheats = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/cvar.cpp:8
-var cvar_modifiedFlags: Int32 {
+public var cvar_modifiedFlags: Int32 {
     get { world.variables.cvar_modifiedFlags }
     set { world.variables.cvar_modifiedFlags = newValue }
 }
@@ -25,10 +25,10 @@ var cvar_modifiedFlags: Int32 {
 let MAX_CVARS = 1224 as Int32
 
 /// Source: oracle/codemp/qcommon/cvar.cpp:11
-var cvar_indexes: Slots<JKAMP.Cvar> { world.storage.cvar_indexes }
+public var cvar_indexes: Slots<JKAMP.Cvar> { world.storage.cvar_indexes }
 
 /// Source: oracle/codemp/qcommon/cvar.cpp:12
-var cvar_numIndexes: Int32 {
+public var cvar_numIndexes: Int32 {
     get { world.variables.cvar_numIndexes }
     set { world.variables.cvar_numIndexes = newValue }
 }
@@ -138,7 +138,7 @@ Cvar_VariableValue
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:103
-func Cvar_VariableValue(_ var_name: String) -> Float {
+public func Cvar_VariableValue(_ var_name: String) -> Float {
     guard let v = Cvar_FindVar(var_name) else { return 0 }
     return v.value
 }
@@ -151,7 +151,7 @@ Cvar_VariableIntegerValue
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:118
-func Cvar_VariableIntegerValue(_ var_name: String) -> Int32 {
+public func Cvar_VariableIntegerValue(_ var_name: String) -> Int32 {
     guard let v = Cvar_FindVar(var_name) else { return 0 }
     return v.integer
 }
@@ -164,7 +164,7 @@ Cvar_VariableString
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:133
-func Cvar_VariableString(_ var_name: String) -> String {
+public func Cvar_VariableString(_ var_name: String) -> String {
     guard let v = Cvar_FindVar(var_name) else { return "" }
     return v.string!
 }
@@ -177,7 +177,7 @@ Cvar_VariableStringBuffer
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:148
-func Cvar_VariableStringBuffer(_ var_name: String, _ buffer: inout JKAShared.CharBuf, _ bufsize: Int32) {
+public func Cvar_VariableStringBuffer(_ var_name: String, _ buffer: inout JKAShared.CharBuf, _ bufsize: Int32) {
     if let v = Cvar_FindVar(var_name) {
         Q_strncpyz(&buffer, v.string!, bufsize)
     } else {
@@ -193,7 +193,7 @@ Cvar_CommandCompletion
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:166
-func Cvar_CommandCompletion(_ callback: ((String) -> Void)?) {
+public func Cvar_CommandCompletion(_ callback: ((String) -> Void)?) {
     var cvar = cvar_vars
     while let current = cvar {
         defer { cvar = current.next }
@@ -216,7 +216,7 @@ The flags will be or'ed in if the variable exists.
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:188
-func Cvar_Get(_ var_name: String, _ var_value: String, _ flags: Int32) -> JKAMP.Cvar? {
+public func Cvar_Get(_ var_name: String, _ var_value: String, _ flags: Int32) -> JKAMP.Cvar? {
     var var_name = var_name
     var hash: CLong
 
@@ -290,7 +290,7 @@ Cvar_Set2
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:287
-func Cvar_Set2(_ var_name: String, _ value: String?, _ force: Bool) -> JKAMP.Cvar? {
+public func Cvar_Set2(_ var_name: String, _ value: String?, _ force: Bool) -> JKAMP.Cvar? {
     var var_name = var_name
     var value = value
 
@@ -390,7 +390,7 @@ Cvar_Set
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:402
-func Cvar_Set(_ var_name: String, _ value: String) {
+public func Cvar_Set(_ var_name: String, _ value: String) {
     _ = Cvar_Set2(var_name, value, true)
 }
 
@@ -402,7 +402,7 @@ Cvar_SetLatched
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:411
-func Cvar_SetLatched(_ var_name: String, _ value: String) {
+public func Cvar_SetLatched(_ var_name: String, _ value: String) {
     _ = Cvar_Set2(var_name, value, false)
 }
 
@@ -414,7 +414,7 @@ Cvar_SetValue
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:420
-func Cvar_SetValue(_ var_name: String, _ value: Float) {
+public func Cvar_SetValue(_ var_name: String, _ value: Float) {
     var val = CharBuf(32)
 
     // Port-note: C is undefined when the value is outside the Int32 range, and Swift traps there.
@@ -434,7 +434,7 @@ Cvar_Reset
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:437
-func Cvar_Reset(_ var_name: String) {
+public func Cvar_Reset(_ var_name: String) {
     _ = Cvar_Set2(var_name, nil, false)
 }
 
@@ -448,7 +448,7 @@ Any testing variables will be reset to the safe values
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:449
-func Cvar_SetCheatState() {
+public func Cvar_SetCheatState() {
     // Set all default vars to the safe value.
     var v = cvar_vars
     while let current = v {
@@ -476,7 +476,7 @@ Handles variable inspection and changing from the console
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:476
-func Cvar_Command() -> Bool {
+public func Cvar_Command() -> Bool {
     // Check variables.
     guard let v = Cvar_FindVar(Cmd_Argv(0)) else { return false }
 
@@ -513,7 +513,7 @@ Toggles a cvar for easy single key binding
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:525
-func Cvar_Toggle_f() {
+public func Cvar_Toggle_f() {
     var v: Int32
 
     if Cmd_Argc() != 2 {
@@ -539,7 +539,7 @@ weren't declared in C code.
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:547
-func Cvar_Set_f() {
+public func Cvar_Set_f() {
     var c: Int32
     var l: Int32
     var len: Int32
@@ -585,7 +585,7 @@ As Cvar_Set, but also flags it as userinfo
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:580
-func Cvar_SetU_f() {
+public func Cvar_SetU_f() {
     if Cmd_Argc() != 3 {
         Com_Printf("usage: setu <variable> <value>\n")
         return
@@ -605,7 +605,7 @@ As Cvar_Set, but also flags it as userinfo
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:602
-func Cvar_SetS_f() {
+public func Cvar_SetS_f() {
     if Cmd_Argc() != 3 {
         Com_Printf("usage: sets <variable> <value>\n")
         return
@@ -625,7 +625,7 @@ As Cvar_Set, but also flags it as archived
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:624
-func Cvar_SetA_f() {
+public func Cvar_SetA_f() {
     if Cmd_Argc() != 3 {
         Com_Printf("usage: seta <variable> <value>\n")
         return
@@ -643,7 +643,7 @@ Cvar_Reset_f
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:644
-func Cvar_Reset_f() {
+public func Cvar_Reset_f() {
     if Cmd_Argc() != 2 {
         Com_Printf("usage: reset <variable>\n")
         return
@@ -662,7 +662,7 @@ with the archive flag set to qtrue.
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:660
-func Cvar_WriteVariables(_ f: JKAShared.fileHandle_t) {
+public func Cvar_WriteVariables(_ f: JKAShared.fileHandle_t) {
     var buffer = CharBuf(1024)
 
     var v = cvar_vars
@@ -688,7 +688,7 @@ Cvar_List_f
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:687
-func Cvar_List_f() {
+public func Cvar_List_f() {
     var i: Int32
     var match: String?
 
@@ -741,7 +741,7 @@ Resets all cvars to their hardcoded values
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:759
-func Cvar_Restart_f() {
+public func Cvar_Restart_f() {
     // AI: Raven walks a `cvar_t **prev` link. The body holds the previous cvar, and nil stands for the head cvar_vars.
     var prev: JKAMP.Cvar? = nil
     while true {
@@ -780,7 +780,7 @@ Cvar_InfoString
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:811
-func Cvar_InfoString(_ bit: Int32) -> String {
+public func Cvar_InfoString(_ bit: Int32) -> String {
     // AI: Raven fills a static `char info[MAX_INFO_STRING]` and returns it. The body fills a local buffer and returns its String.
     var info = CharBuf(MAX_INFO_STRING)
 
@@ -807,7 +807,7 @@ Cvar_InfoString_Big
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:854
-func Cvar_InfoString_Big(_ bit: Int32) -> String {
+public func Cvar_InfoString_Big(_ bit: Int32) -> String {
     // AI: Raven fills a static `char info[BIG_INFO_STRING]` and returns it. The body fills a local buffer and returns its String.
     var info = CharBuf(BIG_INFO_STRING)
 
@@ -832,7 +832,7 @@ Cvar_InfoStringBuffer
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:878
-func Cvar_InfoStringBuffer(_ bit: Int32, _ buff: inout JKAShared.CharBuf, _ buffsize: Int32) {
+public func Cvar_InfoStringBuffer(_ bit: Int32, _ buff: inout JKAShared.CharBuf, _ buffsize: Int32) {
     Q_strncpyz(&buff, Cvar_InfoString(bit), buffsize)
 }
 
@@ -846,7 +846,7 @@ basically a slightly modified Cvar_Get for the interpreted modules
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:889
-func Cvar_Register(_ vmCvar: JKAMP.VmCvar?, _ varName: String, _ defaultValue: String, _ flags: Int32) {
+public func Cvar_Register(_ vmCvar: JKAMP.VmCvar?, _ varName: String, _ defaultValue: String, _ flags: Int32) {
     let cv: JKAMP.Cvar?
 
     cv = Cvar_Get(varName, defaultValue, flags)
@@ -866,7 +866,7 @@ updates an interpreted modules' version of a cvar
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:909
-func Cvar_Update(_ vmCvar: JKAMP.VmCvar) {
+public func Cvar_Update(_ vmCvar: JKAMP.VmCvar) {
     let cv: JKAMP.Cvar
 
     if UInt32(bitPattern: vmCvar.cvarHandle) >= cvar_numIndexes {
@@ -902,7 +902,7 @@ Reads in all archived cvars
 ```
 */
 /// Source: oracle/codemp/qcommon/cvar.cpp:951
-func Cvar_Init() {
+public func Cvar_Init() {
     cvar_cheats = Cvar_Get("sv_cheats", "0", CVAR_ROM | CVAR_SYSTEMINFO)
 
     Cmd_AddCommand("toggle", Cvar_Toggle_f)
@@ -921,6 +921,6 @@ func Cvar_Init() {
 
 //Turns many small allocation blocks into one big one.
 /// Source: oracle/codemp/qcommon/cvar.cpp:979
-func Cvar_Defrag() {
+public func Cvar_Defrag() {
     // AI: Raven copies every cvar string into one Z_Malloc block. The string pool holds every string, so the defrag is a no-op.
 }

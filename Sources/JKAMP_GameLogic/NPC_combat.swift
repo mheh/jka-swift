@@ -23,7 +23,7 @@ let MIN_AVOID_DISTANCE_SQUARED = (MIN_AVOID_DISTANCE * MIN_AVOID_DISTANCE)
 let CP_COLLECT_RADIUS = 512.0 as Float
 
 /// Source: oracle/codemp/game/NPC_combat.c:17
-func G_ClearEnemy(_ `self`: Entity) {
+public func G_ClearEnemy(_ `self`: Entity) {
     NPC_CheckLookTarget(`self`)
 
     if `self`.enemy != nil {
@@ -41,7 +41,7 @@ func G_ClearEnemy(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:47
-func G_AngerAlert(_ `self`: Entity) {
+public func G_AngerAlert(_ `self`: Entity) {
     if `self`.NPC != nil && (`self`.NPC!.scriptFlags & SCF_NO_GROUPS) != 0 {
         //I'm not a team playa...
         return
@@ -55,7 +55,7 @@ func G_AngerAlert(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:67
-func G_TeamEnemy(_ `self`: Entity) -> Bool {
+public func G_TeamEnemy(_ `self`: Entity) -> Bool {
     //FIXME: Probably a better way to do this, is a linked list of your teammates already available?
     var i: Int32
     var ent: Entity?
@@ -107,7 +107,7 @@ func G_TeamEnemy(_ `self`: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:117
-func G_AttackDelay(_ `self`: Entity, _ enemy: Entity) {
+public func G_AttackDelay(_ `self`: Entity, _ enemy: Entity) {
     if `self`.client != nil && `self`.NPC != nil {
         //delay their attack based on how far away they're facing from enemy
         var fwd = vec3_t()
@@ -256,7 +256,7 @@ func G_AttackDelay(_ `self`: Entity, _ enemy: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:312
-func G_ForceSaberOn(_ ent: Entity) {
+public func G_ForceSaberOn(_ ent: Entity) {
     if ent.client!.ps.saberInFlight {
         //alright, can't turn it on now in any case, so forget it.
         return
@@ -284,7 +284,7 @@ func G_ForceSaberOn(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:349
-func G_SetEnemy(_ `self`: Entity, _ enemy: Entity) {
+public func G_SetEnemy(_ `self`: Entity, _ enemy: Entity) {
     var event: Int32 = 0
 
     //Must be valid
@@ -437,7 +437,7 @@ func G_SetEnemy(_ `self`: Entity, _ enemy: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:570
-func ChangeWeapon(_ ent: Entity, _ newWeapon: Int32) {
+public func ChangeWeapon(_ ent: Entity, _ newWeapon: Int32) {
     if ent.client == nil || ent.NPC == nil {
         return
     }
@@ -672,7 +672,7 @@ func ChangeWeapon(_ ent: Entity, _ newWeapon: Int32) {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:844
-func NPC_ChangeWeapon(_ newWeapon: Int32) {
+public func NPC_ChangeWeapon(_ newWeapon: Int32) {
     /*
     qboolean	changing = qfalse;
     if ( newWeapon != NPC->client->ps.weapon )
@@ -709,7 +709,7 @@ How long, if at all, in msec the actual fire should delay from the time the atta
 ```
 */
 /// Source: oracle/codemp/game/NPC_combat.c:878
-func NPC_ApplyWeaponFireDelay() {
+public func NPC_ApplyWeaponFireDelay() {
     if NPC!.attackDebounceTime > level.time {
         //Just fired, if attacking again, must be a burst fire, so don't add delay
         //NOTE: Borg AI uses attackDebounceTime "incorrectly", so this will always return for them!
@@ -753,7 +753,7 @@ ShootThink
 ```
 */
 /// Source: oracle/codemp/game/NPC_combat.c:925
-func ShootThink() {
+public func ShootThink() {
     var delay: Int32
 
     ucmd.buttons &= ~BUTTON_ATTACK
@@ -843,7 +843,7 @@ Added: hacks for Borg
 ```
 */
 /// Source: oracle/codemp/game/NPC_combat.c:1036
-func WeaponThink(_ inCombat: Bool) {
+public func WeaponThink(_ inCombat: Bool) {
     if client!.ps.weaponstate == WEAPON_RAISING || client!.ps.weaponstate == WEAPON_DROPPING {
         ucmd.weapon = client!.ps.weapon
         ucmd.buttons &= ~BUTTON_ATTACK
@@ -909,12 +909,12 @@ func WeaponThink(_ inCombat: Bool) {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:1109
-func HaveWeapon(_ weapon: Int32) -> Bool {
+public func HaveWeapon(_ weapon: Int32) -> Bool {
     return (client!.ps.stats[STAT_WEAPONS] & (1 << weapon)) != 0
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:1114
-func EntIsGlass(_ check: Entity) -> Bool {
+public func EntIsGlass(_ check: Entity) -> Bool {
     if check.classname != nil && Q_stricmp("func_breakable", check.classname!) == 0 && check.count == 1 && check.health <= 100 {
         return true
     }
@@ -923,7 +923,7 @@ func EntIsGlass(_ check: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:1126
-func ShotThroughGlass(_ tr: JKAMP.Trace, _ target: Entity, _ spot: JKAShared.vec3_t, _ mask: Int32) -> Bool {
+public func ShotThroughGlass(_ tr: JKAMP.Trace, _ target: Entity, _ spot: JKAShared.vec3_t, _ mask: Int32) -> Bool {
     let hit: Entity? = g_entities[tr.entityNum]
     if hit != target && EntIsGlass(hit!) {
         //ok to shoot through breakable glass
@@ -949,7 +949,7 @@ Added: If can't shoot center, try head, if not, see if it's close enough to try 
 ```
 */
 /// Source: oracle/codemp/game/NPC_combat.c:1150
-func CanShoot(_ ent: Entity, _ shooter: Entity) -> Bool {
+public func CanShoot(_ ent: Entity, _ shooter: Entity) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { tr -> Bool in
@@ -1025,7 +1025,7 @@ Added: hacks for scripted NPCs
 ```
 */
 /// Source: oracle/codemp/game/NPC_combat.c:1229
-func NPC_CheckPossibleEnemy(_ other: Entity, _ vis: visibility_t) {
+public func NPC_CheckPossibleEnemy(_ other: Entity, _ vis: visibility_t) {
     // is he is already our enemy?
     if other == NPC!.enemy {
         return
@@ -1075,7 +1075,7 @@ Only makes you keep your weapon up after you fire
 ```
 */
 /// Source: oracle/codemp/game/NPC_combat.c:1288
-func NPC_AttackDebounceForWeapon() -> Int32 {
+public func NPC_AttackDebounceForWeapon() -> Int32 {
     switch NPC!.client!.ps.weapon {
     /*
     case WP_BLASTER://scav rifle
@@ -1111,7 +1111,7 @@ func NPC_AttackDebounceForWeapon() -> Int32 {
 
 //FIXME: need a mindist for explosive weapons
 /// Source: oracle/codemp/game/NPC_combat.c:1334
-func NPC_MaxDistSquaredForWeapon() -> Float {
+public func NPC_MaxDistSquaredForWeapon() -> Float {
     if NPCInfo!.stats.shootDistance > 0 {
         //overrides default weapon dist
         return NPCInfo!.stats.shootDistance * NPCInfo!.stats.shootDistance
@@ -1158,7 +1158,7 @@ func NPC_MaxDistSquaredForWeapon() -> Float {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:1400
-func ValidEnemy(_ ent: Entity) -> Bool {
+public func ValidEnemy(_ ent: Entity) -> Bool {
     if ent == nil {
         return false
     }
@@ -1204,7 +1204,7 @@ func ValidEnemy(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:1462
-func NPC_EnemyTooFar(_ enemy: Entity, _ dist: Float, _ toShoot: Bool) -> Bool {
+public func NPC_EnemyTooFar(_ enemy: Entity, _ dist: Float, _ toShoot: Bool) -> Bool {
     var vec = vec3_t()
     // Raven assigns his own `dist` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var dist = dist
@@ -1251,7 +1251,7 @@ FIXME: this should go through the snapshot and find the closest enemy
 ```
 */
 /// Source: oracle/codemp/game/NPC_combat.c:1505
-func NPC_PickEnemy(_ closestTo: Entity, _ enemyTeam: Int32, _ checkVis: Bool, _ findPlayersFirst: Bool, _ findClosest: Bool) -> Entity? {
+public func NPC_PickEnemy(_ closestTo: Entity, _ enemyTeam: Int32, _ checkVis: Bool, _ findPlayersFirst: Bool, _ findClosest: Bool) -> Entity? {
     var num_choices: Int32 = 0
     var choice: [Int32] = [Int32](repeating: 0, count: 128)
     var newenemy: Entity? = nil
@@ -1489,7 +1489,7 @@ func NPC_PickEnemy(_ closestTo: Entity, _ enemyTeam: Int32, _ checkVis: Bool, _ 
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:1804
-func NPC_PickAlly(_ facingEachOther: Bool, _ range: Float, _ ignoreGroup: Bool, _ movingOnly: Bool) -> Entity? {
+public func NPC_PickAlly(_ facingEachOther: Bool, _ range: Float, _ ignoreGroup: Bool, _ movingOnly: Bool) -> Entity? {
     var ally: Entity? = nil
     var closestAlly: Entity? = nil
     var entNum: Int32
@@ -1582,7 +1582,7 @@ func NPC_PickAlly(_ facingEachOther: Bool, _ range: Float, _ ignoreGroup: Bool, 
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:1895
-func NPC_CheckEnemy(_ findNew: Bool, _ tooFarOk: Bool, _ setEnemy: Bool) -> Entity? {
+public func NPC_CheckEnemy(_ findNew: Bool, _ tooFarOk: Bool, _ setEnemy: Bool) -> Entity? {
     var forcefindNew: Bool = false
     var closestTo: Entity?
     var newEnemy: Entity? = nil
@@ -1764,7 +1764,7 @@ func NPC_CheckEnemy(_ findNew: Bool, _ tooFarOk: Bool, _ setEnemy: Bool) -> Enti
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:2110
-func NPC_ClearShot(_ ent: Entity) -> Bool {
+public func NPC_ClearShot(_ ent: Entity) -> Bool {
     var muzzle = vec3_t()
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
@@ -1801,7 +1801,7 @@ func NPC_ClearShot(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:2152
-func NPC_ShotEntity(_ ent: Entity, _ impactPos: inout JKAShared.vec3_t) -> Int32 {
+public func NPC_ShotEntity(_ ent: Entity, _ impactPos: inout JKAShared.vec3_t) -> Int32 {
     var muzzle = vec3_t()
     var targ = vec3_t()
     // Raven's record lives to the end of his block, so the block is the closure.
@@ -1859,7 +1859,7 @@ func NPC_ShotEntity(_ ent: Entity, _ impactPos: inout JKAShared.vec3_t) -> Int32
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:2208
-func NPC_EvaluateShot(_ hit: Int32, _ glassOK: Bool) -> Bool {
+public func NPC_EvaluateShot(_ hit: Int32, _ glassOK: Bool) -> Bool {
     if NPC!.enemy == nil {
         return false
     }
@@ -1872,7 +1872,7 @@ func NPC_EvaluateShot(_ hit: Int32, _ glassOK: Bool) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:2228
-func NPC_CheckAttack(_ scale: Float) -> Bool {
+public func NPC_CheckAttack(_ scale: Float) -> Bool {
     // Raven assigns his own `scale` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var scale = scale
     if scale == 0 {
@@ -1891,7 +1891,7 @@ func NPC_CheckAttack(_ scale: Float) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:2250
-func NPC_CheckDefend(_ scale: Float) -> Bool {
+public func NPC_CheckDefend(_ scale: Float) -> Bool {
     // Raven assigns his own `scale` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var scale = scale
     if scale == 0 {
@@ -1908,7 +1908,7 @@ func NPC_CheckDefend(_ scale: Float) -> Bool {
 
 //NOTE: BE SURE TO CHECK PVS BEFORE THIS!
 /// Source: oracle/codemp/game/NPC_combat.c:2263
-func NPC_CheckCanAttack(_ attack_scale: Float, _ stationary: Bool) -> Bool {
+public func NPC_CheckCanAttack(_ attack_scale: Float, _ stationary: Bool) -> Bool {
     var delta = vec3_t()
     var forward = vec3_t()
     var angleToEnemy = vec3_t()
@@ -2121,7 +2121,7 @@ be in the current situation
 ```
 */
 /// Source: oracle/codemp/game/NPC_combat.c:2475
-func IdealDistance(_ `self`: Entity) -> Float {
+public func IdealDistance(_ `self`: Entity) -> Float {
     var ideal: Float
 
     ideal = Float(225 - 20 * NPCInfo!.stats.aggression)
@@ -2145,7 +2145,7 @@ func IdealDistance(_ `self`: Entity) -> Float {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:2516
-func SP_point_combat(_ `self`: Entity) {
+public func SP_point_combat(_ `self`: Entity) {
     if level.numCombatPoints >= MAX_COMBAT_POINTS {
         Com_Printf(S_COLOR_RED + "ERROR:  Too many combat points, limit is %d\n", MAX_COMBAT_POINTS)
         G_FreeEntity(`self`)
@@ -2261,7 +2261,7 @@ private func NPC_CollectCombatPoints(_ origin: JKAShared.vec3_t, _ radius: Float
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:2657
-func NPC_FindCombatPoint(_ position: JKAShared.vec3_t, _ avoidPosition: JKAShared.vec3_t, _ enemyPosition: JKAShared.vec3_t, _ flags: Int32, _ avoidDist: Float, _ ignorePoint: Int32) -> Int32 {
+public func NPC_FindCombatPoint(_ position: JKAShared.vec3_t, _ avoidPosition: JKAShared.vec3_t, _ enemyPosition: JKAShared.vec3_t, _ flags: Int32, _ avoidDist: Float, _ ignorePoint: Int32) -> Int32 {
     // Raven's array lives to the end of his block, so the block is the closure.
     return CombatPt.scratch(count: Int(MAX_COMBAT_POINTS)) { points -> Int32 in
         var best: Int32 = -1
@@ -2485,7 +2485,7 @@ func NPC_FindCombatPoint(_ position: JKAShared.vec3_t, _ avoidPosition: JKAShare
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:2882
-func NPC_FindSquadPoint(_ position: JKAShared.vec3_t) -> Int32 {
+public func NPC_FindSquadPoint(_ position: JKAShared.vec3_t) -> Int32 {
     var dist: Float
     var nearestDist: Float = Float(WORLD_SIZE) * Float(WORLD_SIZE)
     var nearestPoint: Int32 = -1
@@ -2525,7 +2525,7 @@ func NPC_FindSquadPoint(_ position: JKAShared.vec3_t) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:2923
-func NPC_ReserveCombatPoint(_ combatPointID: Int32) -> Bool {
+public func NPC_ReserveCombatPoint(_ combatPointID: Int32) -> Bool {
     //Make sure it's valid
     if combatPointID > level.numCombatPoints {
         return false
@@ -2543,7 +2543,7 @@ func NPC_ReserveCombatPoint(_ combatPointID: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:2945
-func NPC_FreeCombatPoint(_ combatPointID: Int32, _ failed: Bool) -> Bool {
+public func NPC_FreeCombatPoint(_ combatPointID: Int32, _ failed: Bool) -> Bool {
     if failed {
         //remember that this one failed for us
         NPCInfo!.lastFailedCombatPoint = combatPointID
@@ -2567,7 +2567,7 @@ func NPC_FreeCombatPoint(_ combatPointID: Int32, _ failed: Bool) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:2971
-func NPC_SetCombatPoint(_ combatPointID: Int32) -> Bool {
+public func NPC_SetCombatPoint(_ combatPointID: Int32) -> Bool {
     //Free a combat point if we already have one
     if NPCInfo!.combatPoint != -1 {
         NPC_FreeCombatPoint(NPCInfo!.combatPoint, false)
@@ -2583,7 +2583,7 @@ func NPC_SetCombatPoint(_ combatPointID: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:2988
-func NPC_SearchForWeapons() -> Entity? {
+public func NPC_SearchForWeapons() -> Entity? {
     var foundIndex: Int32 = 0
     var bestFound: Entity? = nil
     var dist: Float
@@ -2643,7 +2643,7 @@ func NPC_SearchForWeapons() -> Entity? {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:3047
-func NPC_SetPickUpGoal(_ foundWeap: Entity) {
+public func NPC_SetPickUpGoal(_ foundWeap: Entity) {
     var org = vec3_t()
 
     //NPCInfo->goalEntity = foundWeap;
@@ -2656,7 +2656,7 @@ func NPC_SetPickUpGoal(_ foundWeap: Entity) {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:3060
-func NPC_CheckGetNewWeapon() {
+public func NPC_CheckGetNewWeapon() {
     if NPC!.s.weapon == WP_NONE && NPC!.enemy != nil {
         //if running away because dropped weapon...
         if NPCInfo!.goalEntity != nil && NPCInfo!.goalEntity == NPCInfo!.tempGoal && NPCInfo!.goalEntity!.enemy != nil && !NPCInfo!.goalEntity!.enemy!.inuse {
@@ -2691,7 +2691,7 @@ func NPC_CheckGetNewWeapon() {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:3098
-func NPC_AimAdjust(_ change: Int32) {
+public func NPC_AimAdjust(_ change: Int32) {
     if !TIMER_Exists(NPC!, "aimDebounce") {
         var debounce: Int32 = 500 + (3 - g_spskill.integer) * 100
         TIMER_Set(NPC!, "aimDebounce", Q_irand(debounce, debounce + 1000))
@@ -2721,7 +2721,7 @@ func NPC_AimAdjust(_ change: Int32) {
 }
 
 /// Source: oracle/codemp/game/NPC_combat.c:3131
-func G_AimSet(_ `self`: Entity, _ aim: Int32) {
+public func G_AimSet(_ `self`: Entity, _ aim: Int32) {
     if `self`.NPC != nil {
         let debounce: Int32
 

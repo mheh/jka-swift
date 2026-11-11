@@ -11,7 +11,7 @@ var forceToggleNamePrints: [String] {
 }
 
 /// Source: oracle/codemp/server/sv_ccmds.cpp:16
-func SV_GetStringEdString(_ refSection: String, _ refName: String) -> String {
+public func SV_GetStringEdString(_ refSection: String, _ refName: String) -> String {
     /*
     static char text[1024]={0};
     trap_SP_GetStringTextString(va("%s_%s", refSection, refName), text, sizeof(text));
@@ -696,7 +696,7 @@ SV_ForceToggle_f
 ```
 */
 /// Source: oracle/codemp/server/sv_ccmds.cpp:817
-func SV_ForceToggle_f() {
+public func SV_ForceToggle_f() {
     var i: Int32 = 0
     var fpDisabled: Int32 = Int32(Cvar_VariableValue("g_forcePowerDisable"))
     var targetPower: Int32 = 0
@@ -749,7 +749,7 @@ Also called by SV_DropClient, SV_DirectConnect, and SV_SpawnServer
 ```
 */
 /// Source: oracle/codemp/server/sv_ccmds.cpp:876
-func SV_Heartbeat_f() {
+public func SV_Heartbeat_f() {
     svs.nextHeartbeatTime = -9999999
 }
 
@@ -847,7 +847,7 @@ var initialized_SV_AddOperatorCommands: Bool {
 }
 
 /// Source: oracle/codemp/server/sv_ccmds.cpp:958
-func SV_AddOperatorCommands() {
+public func SV_AddOperatorCommands() {
     // Raven's static local `initialized` is `initialized_SV_AddOperatorCommands`, because navigator.cpp has a static local of the name.
 
     if initialized_SV_AddOperatorCommands {
@@ -889,6 +889,6 @@ SV_RemoveOperatorCommands
 ```
 */
 /// Source: oracle/codemp/server/sv_ccmds.cpp:1003
-func SV_RemoveOperatorCommands() {
+public func SV_RemoveOperatorCommands() {
     // removing these won't let the server start again
 }

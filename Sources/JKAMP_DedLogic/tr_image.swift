@@ -11,13 +11,13 @@ let LANCZOS3 = (3.0) as Float
 // The macro's text is not a constant over this file's names, so a body spells its expansion at the site.
 
 /// Source: oracle/codemp/renderer/tr_image.cpp:2967
-var gServerSkinHack: Bool {
+public var gServerSkinHack: Bool {
     get { world.variables.gServerSkinHack }
     set { world.variables.gServerSkinHack = newValue }
 }
 
 /// Source: oracle/codemp/renderer/tr_image.cpp:1421
-func LoadTGA(_ name: String, _ pic: inout Slots<JKAShared.byte>?, _ width: inout Int32, _ height: inout Int32) {
+public func LoadTGA(_ name: String, _ pic: inout Slots<JKAShared.byte>?, _ width: inout Int32, _ height: inout Int32) {
     // Its two callers at tr_image.cpp:2252 and :2295 stand under `#ifndef DEDICATED`, so the function is dead in the dedicated build.
     var sErrorString = CharBuf(1024)
     var bFormatErrors = false
@@ -384,7 +384,7 @@ func LoadTGA(_ name: String, _ pic: inout Slots<JKAShared.byte>?, _ width: inout
 }
 
 /// Source: oracle/codemp/renderer/tr_image.cpp:2310
-func R_InvertImage(_ data: Slots<UInt8>, _ width: Int32, _ height: Int32, _ depth: Int32) {
+public func R_InvertImage(_ data: Slots<UInt8>, _ width: Int32, _ height: Int32, _ depth: Int32) {
     var newData: Int32
     var oldData: Int32
     var y: Int32
@@ -413,7 +413,7 @@ func R_InvertImage(_ data: Slots<UInt8>, _ width: Int32, _ height: Int32, _ dept
 }
 
 /// Source: oracle/codemp/renderer/tr_image.cpp:2352
-func Lanczos3(_ t: Float) -> Float {
+public func Lanczos3(_ t: Float) -> Float {
     var t = t
     if t == 0 {
         return (1.0)
@@ -428,7 +428,7 @@ func Lanczos3(_ t: Float) -> Float {
 }
 
 /// Source: oracle/codemp/renderer/tr_image.cpp:2366
-func R_Resample(_ source: Slots<UInt8>, _ swidth: Int32, _ sheight: Int32, _ dest: Slots<UInt8>, _ dwidth: Int32, _ dheight: Int32, _ components: Int32) {
+public func R_Resample(_ source: Slots<UInt8>, _ swidth: Int32, _ sheight: Int32, _ dest: Slots<UInt8>, _ dwidth: Int32, _ dheight: Int32, _ components: Int32) {
     var i: Int32
     var j: Int32
     var k: Int32
@@ -605,7 +605,7 @@ output= qualified names to three skins if return is true, undefined if false
 ```
 */
 /// Source: oracle/codemp/renderer/tr_image.cpp:2980
-func RE_SplitSkins(_ INname: String, _ skinhead: inout JKAShared.CharBuf, _ skintorso: inout JKAShared.CharBuf, _ skinlower: inout JKAShared.CharBuf) -> Bool { //INname= "models/players/jedi_tf/|head01_skin1|torso01|lower01";
+public func RE_SplitSkins(_ INname: String, _ skinhead: inout JKAShared.CharBuf, _ skintorso: inout JKAShared.CharBuf, _ skinlower: inout JKAShared.CharBuf) -> Bool { //INname= "models/players/jedi_tf/|head01_skin1|torso01|lower01";
     if strchr(INname, Int32(ascii: "|")) != nil {
         var name = CharBuf(MAX_QPATH)
         strcpy(&name, INname)
@@ -651,7 +651,7 @@ func RE_SplitSkins(_ INname: String, _ skinhead: inout JKAShared.CharBuf, _ skin
 
 // given a name, go get the skin we want and return
 /// Source: oracle/codemp/renderer/tr_image.cpp:3030
-func RE_RegisterIndividualSkin(_ name: String, _ hSkin: JKAShared.qhandle_t) -> JKAShared.qhandle_t {
+public func RE_RegisterIndividualSkin(_ name: String, _ hSkin: JKAShared.qhandle_t) -> JKAShared.qhandle_t {
     var skin: Skin
     var surf: SkinSurface
     var text = CharBuf(0)
@@ -726,7 +726,7 @@ func RE_RegisterIndividualSkin(_ name: String, _ hSkin: JKAShared.qhandle_t) -> 
 }
 
 /// Source: oracle/codemp/renderer/tr_image.cpp:3113
-func RE_RegisterSkin(_ name: String) -> JKAShared.qhandle_t {
+public func RE_RegisterSkin(_ name: String) -> JKAShared.qhandle_t {
     var hSkin: qhandle_t
     var skin: Skin
 
@@ -899,7 +899,7 @@ private func CommaParse(_ data_p: inout JKAShared.TextCursor) -> String {
 }
 
 /// Source: oracle/codemp/renderer/tr_image.cpp:3301
-func RE_RegisterServerSkin(_ name: String) -> JKAShared.qhandle_t {
+public func RE_RegisterServerSkin(_ name: String) -> JKAShared.qhandle_t {
     var r: qhandle_t
 
     if com_cl_running != nil &&
@@ -924,7 +924,7 @@ R_InitSkins
 ```
 */
 /// Source: oracle/codemp/renderer/tr_image.cpp:3324
-func R_InitSkins() {
+public func R_InitSkins() {
     var skin: Skin
 
     tr.numSkins = 1
@@ -946,7 +946,7 @@ R_GetSkinByHandle
 ```
 */
 /// Source: oracle/codemp/renderer/tr_image.cpp:3342
-func R_GetSkinByHandle(_ hSkin: JKAShared.qhandle_t) -> Skin? {
+public func R_GetSkinByHandle(_ hSkin: JKAShared.qhandle_t) -> Skin? {
     if hSkin < 1 || hSkin >= tr.numSkins {
         return tr.skins[0]
     }

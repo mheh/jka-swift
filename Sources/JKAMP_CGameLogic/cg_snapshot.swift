@@ -76,7 +76,7 @@ FIXME: Also called by map_restart?
 ```
 */
 /// Source: oracle/codemp/cgame/cg_snapshot.c:80
-func CG_SetInitialSnapshot(_ snap: Snapshot) {
+public func CG_SetInitialSnapshot(_ snap: Snapshot) {
     var i: Int32
     var cent: Centity?
     var state: EntityState?
@@ -336,7 +336,7 @@ of an interpolating one)
 ```
 */
 /// Source: oracle/codemp/cgame/cg_snapshot.c:338
-func CG_ProcessSnapshots() {
+public func CG_ProcessSnapshots() {
     var snap: Snapshot?
     var n: Int32 = 0
 

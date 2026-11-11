@@ -4,31 +4,31 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/server/sv_game.cpp:32
-var botlib_export: BotlibExport? {
+public var botlib_export: BotlibExport? {
     get { world.variables.botlib_export }
     set { world.variables.botlib_export = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_game.cpp:420
-var gLocalModifier: JKAMP.SharedEntity { world.storage.gLocalModifier }
+public var gLocalModifier: JKAMP.SharedEntity { world.storage.gLocalModifier }
 
 /// Source: oracle/codemp/server/sv_game.cpp:454
-var sv_siegePersData: JKAMP.SiegePers { world.storage.sv_siegePersData }
+public var sv_siegePersData: JKAMP.SiegePers { world.storage.sv_siegePersData }
 
 /// Source: oracle/codemp/server/sv_game.cpp:36
-func SV_GameError(_ string: String) -> Never {
+public func SV_GameError(_ string: String) -> Never {
     Com_Error(ERR_DROP, "%s", string)
 }
 
 /// Source: oracle/codemp/server/sv_game.cpp:40
-func SV_GamePrint(_ string: String) {
+public func SV_GamePrint(_ string: String) {
     Com_Printf("%s", string)
 }
 
 // these functions must be used instead of pointer arithmetic, because
 // the game allocates gentities with private information after the server shared part
 /// Source: oracle/codemp/server/sv_game.cpp:46
-func SV_NumForGentity(_ ent: JKAMP.SharedEntity) -> Int32 {
+public func SV_NumForGentity(_ ent: JKAMP.SharedEntity) -> Int32 {
     let num: Int32
 
     // AI: Raven divides the byte distance from sv.gentities by sv.gentitySize. The body takes the index in the Slots of that stride.
@@ -38,7 +38,7 @@ func SV_NumForGentity(_ ent: JKAMP.SharedEntity) -> Int32 {
 }
 
 /// Source: oracle/codemp/server/sv_game.cpp:54
-func SV_GentityNum(_ num: Int32) -> JKAMP.SharedEntity? {
+public func SV_GentityNum(_ num: Int32) -> JKAMP.SharedEntity? {
     var ent: SharedEntity?
 
     // AI: Raven steps a byte pointer from sv.gentities by sv.gentitySize. The body indexes the Slots of that stride.
@@ -48,7 +48,7 @@ func SV_GentityNum(_ num: Int32) -> JKAMP.SharedEntity? {
 }
 
 /// Source: oracle/codemp/server/sv_game.cpp:62
-func SV_GameClientNum(_ num: Int32) -> JKAMP.PlayerState? {
+public func SV_GameClientNum(_ num: Int32) -> JKAMP.PlayerState? {
     var ps: PlayerState?
 
     // AI: Raven steps a byte pointer from sv.gameClients by sv.gameClientSize. The body indexes the Slots of that stride.
@@ -58,7 +58,7 @@ func SV_GameClientNum(_ num: Int32) -> JKAMP.PlayerState? {
 }
 
 /// Source: oracle/codemp/server/sv_game.cpp:70
-func SV_SvEntityForGentity(_ gEnt: JKAMP.SharedEntity) -> SvEntity? {
+public func SV_SvEntityForGentity(_ gEnt: JKAMP.SharedEntity) -> SvEntity? {
     if gEnt.s.number < 0 || gEnt.s.number >= MAX_GENTITIES {
         Com_Error(ERR_DROP, "SV_SvEntityForGentity: bad gEnt")
     }
@@ -66,7 +66,7 @@ func SV_SvEntityForGentity(_ gEnt: JKAMP.SharedEntity) -> SvEntity? {
 }
 
 /// Source: oracle/codemp/server/sv_game.cpp:77
-func SV_GEntityForSvEntity(_ svEnt: SvEntity) -> JKAMP.SharedEntity? {
+public func SV_GEntityForSvEntity(_ svEnt: SvEntity) -> JKAMP.SharedEntity? {
     let num: Int32
 
     num = sv.svEntities.index(of: svEnt)
@@ -83,7 +83,7 @@ Sends a command string to a client
 ```
 */
 /// Source: oracle/codemp/server/sv_game.cpp:91
-func SV_GameSendServerCommand(_ clientNum: Int32, _ text: String) {
+public func SV_GameSendServerCommand(_ clientNum: Int32, _ text: String) {
     if clientNum == -1 {
         SV_SendServerCommand(nil, "%s", text)
     } else {
@@ -104,7 +104,7 @@ Disconnects the client with a message
 ```
 */
 /// Source: oracle/codemp/server/sv_game.cpp:110
-func SV_GameDropClient(_ clientNum: Int32, _ reason: String) {
+public func SV_GameDropClient(_ clientNum: Int32, _ reason: String) {
     if clientNum < 0 || clientNum >= sv_maxclients!.integer {
         return
     }
@@ -121,7 +121,7 @@ sets mins and maxs for inline bmodels
 ```
 */
 /// Source: oracle/codemp/server/sv_game.cpp:128
-func SV_SetBrushModel(_ ent: JKAMP.SharedEntity, _ name: String) {
+public func SV_SetBrushModel(_ ent: JKAMP.SharedEntity, _ name: String) {
     let name = CharBuf(name)
     var h: clipHandle_t
     var mins = vec3_t()
@@ -167,7 +167,7 @@ func SV_SetBrushModel(_ ent: JKAMP.SharedEntity, _ name: String) {
 }
 
 /// Source: oracle/codemp/server/sv_game.cpp:185
-func SV_SetActiveSubBSP(_ index: Int32) -> String? {
+public func SV_SetActiveSubBSP(_ index: Int32) -> String? {
     if index >= 0 {
         sv.mLocalSubBSPIndex = CM_FindSubBSP(index)
         sv.mLocalSubBSPModelOffset = index
@@ -190,7 +190,7 @@ Also checks portalareas so that doors block sight
 ```
 */
 /// Source: oracle/codemp/server/sv_game.cpp:209
-func SV_inPVS(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool {
+public func SV_inPVS(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool {
     var leafnum: Int32
     var cluster: Int32
     let area1: Int32
@@ -224,7 +224,7 @@ Does NOT check portalareas
 ```
 */
 /// Source: oracle/codemp/server/sv_game.cpp:243
-func SV_inPVSIgnorePortals(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool {
+public func SV_inPVSIgnorePortals(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool {
     var leafnum: Int32
     var cluster: Int32
     let area1: Int32
@@ -255,7 +255,7 @@ SV_AdjustAreaPortalState
 ```
 */
 /// Source: oracle/codemp/server/sv_game.cpp:275
-func SV_AdjustAreaPortalState(_ ent: JKAMP.SharedEntity, _ open: Bool) {
+public func SV_AdjustAreaPortalState(_ ent: JKAMP.SharedEntity, _ open: Bool) {
     var svEnt: SvEntity?
 
     svEnt = SV_SvEntityForGentity(ent)
@@ -273,7 +273,7 @@ SV_GameAreaEntities
 ```
 */
 /// Source: oracle/codemp/server/sv_game.cpp:291
-func SV_EntityContact(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ gEnt: JKAMP.SharedEntity, _ capsule: Int32) -> Bool {
+public func SV_EntityContact(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ gEnt: JKAMP.SharedEntity, _ capsule: Int32) -> Bool {
     var ch: clipHandle_t = 0
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
@@ -297,7 +297,7 @@ SV_GetServerinfo
 ```
 */
 /// Source: oracle/codemp/server/sv_game.cpp:314
-func SV_GetServerinfo(_ buffer: inout JKAShared.CharBuf, _ bufferSize: Int32) {
+public func SV_GetServerinfo(_ buffer: inout JKAShared.CharBuf, _ bufferSize: Int32) {
     if bufferSize < 1 {
         Com_Error(ERR_DROP, "SV_GetServerinfo: bufferSize == %i", bufferSize)
     }
@@ -313,7 +313,7 @@ SV_LocateGameData
 ```
 */
 /// Source: oracle/codemp/server/sv_game.cpp:327
-func SV_LocateGameData(_ gEnts: JKAMP.SharedEntity, _ numGEntities: Int32, _ sizeofGEntity_t: Int32, _ clients: JKAMP.PlayerState, _ sizeofGameClient: Int32) {
+public func SV_LocateGameData(_ gEnts: JKAMP.SharedEntity, _ numGEntities: Int32, _ sizeofGEntity_t: Int32, _ clients: JKAMP.PlayerState, _ sizeofGameClient: Int32) {
     sv.gentities = gEnts
     sv.gentitySize = sizeofGEntity_t
     sv.num_entities = numGEntities
@@ -323,7 +323,7 @@ func SV_LocateGameData(_ gEnts: JKAMP.SharedEntity, _ numGEntities: Int32, _ siz
 }
 
 /// Source: oracle/codemp/server/sv_game.cpp:337
-func SV_GetEntityToken(_ buffer: inout JKAShared.CharBuf, _ bufferSize: Int32) -> Bool {
+public func SV_GetEntityToken(_ buffer: inout JKAShared.CharBuf, _ bufferSize: Int32) -> Bool {
     let s: String
 
     if sv.mLocalSubBSPIndex == -1 {
@@ -356,7 +356,7 @@ SV_GetUsercmd
 ```
 */
 /// Source: oracle/codemp/server/sv_game.cpp:375
-func SV_GetUsercmd(_ clientNum: Int32, _ cmd: JKAMP.Usercmd) {
+public func SV_GetUsercmd(_ clientNum: Int32, _ cmd: JKAMP.Usercmd) {
     if clientNum < 0 || clientNum >= sv_maxclients!.integer {
         Com_Error(ERR_DROP, "SV_GetUsercmd: bad clientNum:%i", clientNum)
     }
@@ -373,7 +373,7 @@ private func FloatAsInt(_ f: Float) -> Int32 {
 }
 
 /// Source: oracle/codemp/server/sv_game.cpp:422
-func ConvertedEntity(_ ent: JKAMP.SharedEntity) -> JKAMP.SharedEntity? {
+public func ConvertedEntity(_ ent: JKAMP.SharedEntity) -> JKAMP.SharedEntity? {
     //Return an entity with the memory shifted around to allow reading/modifying VM memory
     var i: Int32 = 0
 
@@ -1960,7 +1960,7 @@ Called every time a map changes
 ```
 */
 /// Source: oracle/codemp/server/sv_game.cpp:1666
-func SV_ShutdownGameProgs() {
+public func SV_ShutdownGameProgs() {
     if gvm == nil {
         return
     }
@@ -2009,7 +2009,7 @@ Called on a map_restart, but not on a normal map change
 ```
 */
 /// Source: oracle/codemp/server/sv_game.cpp:1708
-func SV_RestartGameProgs() {
+public func SV_RestartGameProgs() {
     if gvm == nil {
         return
     }
@@ -2035,7 +2035,7 @@ Called on a normal map change, not on a map_restart
 ```
 */
 /// Source: oracle/codemp/server/sv_game.cpp:1731
-func SV_InitGameProgs() {
+public func SV_InitGameProgs() {
     var `var`: Cvar?
     //FIXME these are temp while I make bots run in vm
 
@@ -2070,7 +2070,7 @@ See if the current console command is claimed by the game
 ```
 */
 /// Source: oracle/codemp/server/sv_game.cpp:1766
-func SV_GameCommand() -> Bool {
+public func SV_GameCommand() -> Bool {
     if sv.state != SS_GAME {
         return false
     }

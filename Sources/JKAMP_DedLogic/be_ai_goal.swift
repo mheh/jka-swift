@@ -52,58 +52,58 @@ let IFL_ROAM = 16 as Int32
 // Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:163
-var botgoalstates: Slots<BotGoalstate?> { world.storage.botgoalstates }
+public var botgoalstates: Slots<BotGoalstate?> { world.storage.botgoalstates }
 
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:165
-var itemconfig: Itemconfig? {
+public var itemconfig: Itemconfig? {
     get { world.variables.itemconfig }
     set { world.variables.itemconfig = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:167
-var levelitemheap: Slots<Levelitem>? {
+public var levelitemheap: Slots<Levelitem>? {
     get { world.variables.levelitemheap }
     set { world.variables.levelitemheap = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:168
-var freelevelitems: Levelitem? {
+public var freelevelitems: Levelitem? {
     get { world.variables.freelevelitems }
     set { world.variables.freelevelitems = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:169
-var levelitems: Levelitem? {
+public var levelitems: Levelitem? {
     get { world.variables.levelitems }
     set { world.variables.levelitems = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:170
-var numlevelitems: Int32 {
+public var numlevelitems: Int32 {
     get { world.variables.numlevelitems }
     set { world.variables.numlevelitems = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:172
-var maplocations: Maplocation? {
+public var maplocations: Maplocation? {
     get { world.variables.maplocations }
     set { world.variables.maplocations = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:174
-var campspots: Campspot? {
+public var campspots: Campspot? {
     get { world.variables.campspots }
     set { world.variables.campspots = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:176
-var g_gametype: Int32 {
+public var g_gametype: Int32 {
     get { world.variables.g_gametype }
     set { world.variables.g_gametype = newValue }
 }
 
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:178
-var droppedweight: Libvar? {
+public var droppedweight: Libvar? {
     get { world.variables.droppedweight }
     set { world.variables.droppedweight = newValue }
 }
@@ -118,7 +118,7 @@ private let ET_ITEM = 2 as Int32
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:186
-func BotGoalStateFromHandle(_ handle: Int32) -> BotGoalstate? {
+public func BotGoalStateFromHandle(_ handle: Int32) -> BotGoalstate? {
     if handle <= 0 || handle > MAX_CLIENTS {
         botimport.runPrint(PRT_FATAL, "goal state handle %d out of range\n", handle)
         return nil
@@ -137,7 +137,7 @@ func BotGoalStateFromHandle(_ handle: Int32) -> BotGoalstate? {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:206
-func BotInterbreedGoalFuzzyLogic(_ parent1: Int32, _ parent2: Int32, _ child: Int32) {
+public func BotInterbreedGoalFuzzyLogic(_ parent1: Int32, _ parent2: Int32, _ child: Int32) {
     var p1: BotGoalstate?, p2: BotGoalstate?, c: BotGoalstate?
 
     p1 = BotGoalStateFromHandle(parent1)
@@ -154,7 +154,7 @@ func BotInterbreedGoalFuzzyLogic(_ parent1: Int32, _ parent2: Int32, _ child: In
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:223
-func BotSaveGoalFuzzyLogic(_ goalstate: Int32, _ filename: String) {
+public func BotSaveGoalFuzzyLogic(_ goalstate: Int32, _ filename: String) {
     var gs: BotGoalstate?
 
     gs = BotGoalStateFromHandle(goalstate)
@@ -169,7 +169,7 @@ func BotSaveGoalFuzzyLogic(_ goalstate: Int32, _ filename: String) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:237
-func BotMutateGoalFuzzyLogic(_ goalstate: Int32, _ range: Float) {
+public func BotMutateGoalFuzzyLogic(_ goalstate: Int32, _ range: Float) {
     var gs: BotGoalstate?
 
     gs = BotGoalStateFromHandle(goalstate)
@@ -184,7 +184,7 @@ func BotMutateGoalFuzzyLogic(_ goalstate: Int32, _ range: Float) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:251
-func LoadItemConfig(_ filename: String) -> Itemconfig? {
+public func LoadItemConfig(_ filename: String) -> Itemconfig? {
     // Raven's record lives to the end of his block, so the block is the closure.
     return Token.scratch { token -> Itemconfig? in
         var max_iteminfo: Int32
@@ -262,7 +262,7 @@ func LoadItemConfig(_ filename: String) -> Itemconfig? {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:332
-func ItemWeightIndex(_ iwc: Weightconfig, _ ic: Itemconfig) -> Slots<Int32> {
+public func ItemWeightIndex(_ iwc: Weightconfig, _ ic: Itemconfig) -> Slots<Int32> {
     var index: Slots<Int32>, i: Int32
 
     //initialize item weight index
@@ -286,7 +286,7 @@ func ItemWeightIndex(_ iwc: Weightconfig, _ ic: Itemconfig) -> Slots<Int32> {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:355
-func InitLevelItemHeap() {
+public func InitLevelItemHeap() {
     var i: Int32, max_levelitems: Int32
 
     if levelitemheap != nil { FreeMemory(OpaquePointer(levelitemheap!.base)) }
@@ -311,7 +311,7 @@ func InitLevelItemHeap() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:378
-func AllocLevelItem() -> Levelitem? {
+public func AllocLevelItem() -> Levelitem? {
     guard let li = freelevelitems else {
         botimport.runPrint(PRT_FATAL, "out of level items\n")
         return nil
@@ -329,7 +329,7 @@ func AllocLevelItem() -> Levelitem? {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:399
-func FreeLevelItem(_ li: Levelitem) {
+public func FreeLevelItem(_ li: Levelitem) {
     li.next = freelevelitems
     freelevelitems = li
 }
@@ -341,7 +341,7 @@ func FreeLevelItem(_ li: Levelitem) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:410
-func AddLevelItemToList(_ li: Levelitem) {
+public func AddLevelItemToList(_ li: Levelitem) {
     if levelitems != nil { levelitems!.prev = li }
     li.prev = nil
     li.next = levelitems
@@ -355,7 +355,7 @@ func AddLevelItemToList(_ li: Levelitem) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:423
-func RemoveLevelItemFromList(_ li: Levelitem) {
+public func RemoveLevelItemFromList(_ li: Levelitem) {
     if li.prev != nil {
         li.prev!.next = li.next
     } else {
@@ -371,7 +371,7 @@ func RemoveLevelItemFromList(_ li: Levelitem) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:435
-func BotFreeInfoEntities() {
+public func BotFreeInfoEntities() {
     var ml: Maplocation?, nextml: Maplocation?
     var cs: Campspot?, nextcs: Campspot?
 
@@ -398,7 +398,7 @@ func BotFreeInfoEntities() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:459
-func BotInitInfoEntities() {
+public func BotInitInfoEntities() {
     var classname = CharBuf(MAX_EPAIRKEY)
     var ml: Maplocation
     var cs: Campspot
@@ -462,7 +462,7 @@ func BotInitInfoEntities() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:521
-func BotInitLevelItems() {
+public func BotInitLevelItems() {
     // Raven's record lives to the end of his block, so the block is the closure.
     BspTrace.scratch { trace in
         var i: Int32, spawnflags: Int32, value: Int32 = 0
@@ -598,7 +598,7 @@ func BotInitLevelItems() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:663
-func BotGoalName(_ number: Int32, _ name: inout JKAShared.CharBuf, _ size: Int32) {
+public func BotGoalName(_ number: Int32, _ name: inout JKAShared.CharBuf, _ size: Int32) {
     var li: Levelitem?
 
     if itemconfig == nil { return }
@@ -623,7 +623,7 @@ func BotGoalName(_ number: Int32, _ name: inout JKAShared.CharBuf, _ size: Int32
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:687
-func BotResetAvoidGoals(_ goalstate: Int32) {
+public func BotResetAvoidGoals(_ goalstate: Int32) {
     guard let gs = BotGoalStateFromHandle(goalstate) else { return }
     gs.avoidgoals.fill(0)
     gs.avoidgoaltimes.fill(0)
@@ -636,7 +636,7 @@ func BotResetAvoidGoals(_ goalstate: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:702
-func BotDumpAvoidGoals(_ goalstate: Int32) {
+public func BotDumpAvoidGoals(_ goalstate: Int32) {
     var i: Int32
     var name = CharBuf(32)
 
@@ -658,7 +658,7 @@ func BotDumpAvoidGoals(_ goalstate: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:726
-func BotAddToAvoidGoals(_ gs: BotGoalstate, _ number: Int32, _ avoidtime: Float) {
+public func BotAddToAvoidGoals(_ gs: BotGoalstate, _ number: Int32, _ avoidtime: Float) {
     var i: Int32
 
     i = 0
@@ -691,7 +691,7 @@ func BotAddToAvoidGoals(_ gs: BotGoalstate, _ number: Int32, _ avoidtime: Float)
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:758
-func BotRemoveFromAvoidGoals(_ goalstate: Int32, _ number: Int32) {
+public func BotRemoveFromAvoidGoals(_ goalstate: Int32, _ number: Int32) {
     var i: Int32
 
     guard let gs = BotGoalStateFromHandle(goalstate) else { return }
@@ -713,7 +713,7 @@ func BotRemoveFromAvoidGoals(_ goalstate: Int32, _ number: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:781
-func BotAvoidGoalTime(_ goalstate: Int32, _ number: Int32) -> Float {
+public func BotAvoidGoalTime(_ goalstate: Int32, _ number: Int32) -> Float {
     var i: Int32
 
     guard let gs = BotGoalStateFromHandle(goalstate) else { return 0 }
@@ -735,7 +735,7 @@ func BotAvoidGoalTime(_ goalstate: Int32, _ number: Int32) -> Float {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:804
-func BotSetAvoidGoalTime(_ goalstate: Int32, _ number: Int32, _ avoidtime: Float) {
+public func BotSetAvoidGoalTime(_ goalstate: Int32, _ number: Int32, _ avoidtime: Float) {
     var avoidtime = avoidtime
     var li: Levelitem?
 
@@ -773,7 +773,7 @@ func BotSetAvoidGoalTime(_ goalstate: Int32, _ number: Int32, _ avoidtime: Float
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:843
-func BotGetLevelItemGoal(_ index: Int32, _ name: String, _ goal: BotGoal) -> Int32 {
+public func BotGetLevelItemGoal(_ index: Int32, _ name: String, _ goal: BotGoal) -> Int32 {
     var li: Levelitem?
 
     if itemconfig == nil { return -1 }
@@ -834,7 +834,7 @@ func BotGetLevelItemGoal(_ index: Int32, _ name: String, _ goal: BotGoal) -> Int
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:896
-func BotGetMapLocationGoal(_ name: String, _ goal: BotGoal) -> Int32 {
+public func BotGetMapLocationGoal(_ name: String, _ goal: BotGoal) -> Int32 {
     var ml: Maplocation?
     let mins = vec3_t(-8, -8, -8), maxs = vec3_t(8, 8, 8)
 
@@ -860,7 +860,7 @@ func BotGetMapLocationGoal(_ name: String, _ goal: BotGoal) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:921
-func BotGetNextCampSpotGoal(_ num: Int32, _ goal: BotGoal) -> Int32 {
+public func BotGetNextCampSpotGoal(_ num: Int32, _ goal: BotGoal) -> Int32 {
     var num = num
     var i: Int32
     var cs: Campspot?
@@ -892,7 +892,7 @@ func BotGetNextCampSpotGoal(_ num: Int32, _ goal: BotGoal) -> Int32 {
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:949
 // Port-note: Dead under rule 20. The one call, at be_ai_goal.cpp:1156, is inside a comment block of BotUpdateEntityItems.
-func BotFindEntityForLevelItem(_ li: Levelitem) {
+public func BotFindEntityForLevelItem(_ li: Levelitem) {
     // Raven's record lives to the end of his block, so the block is the closure.
     AasEntityinfo.scratch { entinfo in
         var ent: Int32, modelindex: Int32
@@ -934,7 +934,7 @@ func BotFindEntityForLevelItem(_ li: Levelitem) {
 }
 
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:993
-func BotUpdateEntityItems() {
+public func BotUpdateEntityItems() {
     // Raven's record lives to the end of his block, so the block is the closure.
     AasEntityinfo.scratch { entinfo in
         var ent: Int32, i: Int32, modelindex: Int32
@@ -1124,7 +1124,7 @@ func BotUpdateEntityItems() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1166
-func BotDumpGoalStack(_ goalstate: Int32) {
+public func BotDumpGoalStack(_ goalstate: Int32) {
     var i: Int32
     var name = CharBuf(32)
 
@@ -1144,7 +1144,7 @@ func BotDumpGoalStack(_ goalstate: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1186
-func BotPushGoal(_ goalstate: Int32, _ goal: BotGoal) {
+public func BotPushGoal(_ goalstate: Int32, _ goal: BotGoal) {
     guard let gs = BotGoalStateFromHandle(goalstate) else { return }
     if gs.goalstacktop >= MAX_GOALSTACK - 1 {
         botimport.runPrint(PRT_ERROR, "goal heap overflow\n")
@@ -1162,7 +1162,7 @@ func BotPushGoal(_ goalstate: Int32, _ goal: BotGoal) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1207
-func BotPopGoal(_ goalstate: Int32) {
+public func BotPopGoal(_ goalstate: Int32) {
     guard let gs = BotGoalStateFromHandle(goalstate) else { return }
     if gs.goalstacktop > 0 { gs.goalstacktop -= 1 }
 }
@@ -1174,7 +1174,7 @@ func BotPopGoal(_ goalstate: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1221
-func BotEmptyGoalStack(_ goalstate: Int32) {
+public func BotEmptyGoalStack(_ goalstate: Int32) {
     guard let gs = BotGoalStateFromHandle(goalstate) else { return }
     gs.goalstacktop = 0
 }
@@ -1186,7 +1186,7 @@ func BotEmptyGoalStack(_ goalstate: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1235
-func BotGetTopGoal(_ goalstate: Int32, _ goal: BotGoal) -> Int32 {
+public func BotGetTopGoal(_ goalstate: Int32, _ goal: BotGoal) -> Int32 {
     guard let gs = BotGoalStateFromHandle(goalstate) else { return 0 }
     if gs.goalstacktop == 0 { return 0 }
     goal.copy(from: gs.goalstack[gs.goalstacktop])
@@ -1200,7 +1200,7 @@ func BotGetTopGoal(_ goalstate: Int32, _ goal: BotGoal) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1251
-func BotGetSecondGoal(_ goalstate: Int32, _ goal: BotGoal) -> Int32 {
+public func BotGetSecondGoal(_ goalstate: Int32, _ goal: BotGoal) -> Int32 {
     guard let gs = BotGoalStateFromHandle(goalstate) else { return 0 }
     if gs.goalstacktop <= 1 { return 0 }
     goal.copy(from: gs.goalstack[gs.goalstacktop - 1])
@@ -1215,7 +1215,7 @@ func BotGetSecondGoal(_ goalstate: Int32, _ goal: BotGoal) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1268
-func BotChooseLTGItem(_ goalstate: Int32, _ origin: JKAShared.vec3_t, _ inventory: Slots<Int32>, _ travelflags: Int32) -> Int32 {
+public func BotChooseLTGItem(_ goalstate: Int32, _ origin: JKAShared.vec3_t, _ inventory: Slots<Int32>, _ travelflags: Int32) -> Int32 {
     // Raven's record lives to the end of his block, so the block is the closure.
     return BotGoal.scratch { goal -> Int32 in
         var areanum: Int32, t: Int32, weightnum: Int32
@@ -1390,7 +1390,7 @@ func BotChooseLTGItem(_ goalstate: Int32, _ origin: JKAShared.vec3_t, _ inventor
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1435
-func BotChooseNBGItem(_ goalstate: Int32, _ origin: JKAShared.vec3_t, _ inventory: Slots<Int32>, _ travelflags: Int32, _ ltg: BotGoal, _ maxtime: Float) -> Int32 {
+public func BotChooseNBGItem(_ goalstate: Int32, _ origin: JKAShared.vec3_t, _ inventory: Slots<Int32>, _ travelflags: Int32, _ ltg: BotGoal, _ maxtime: Float) -> Int32 {
     // Raven's record lives to the end of his block, so the block is the closure.
     return BotGoal.scratch { goal -> Int32 in
         var areanum: Int32, t: Int32, weightnum: Int32, ltg_time: Int32
@@ -1553,7 +1553,7 @@ func BotChooseNBGItem(_ goalstate: Int32, _ origin: JKAShared.vec3_t, _ inventor
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1592
-func BotTouchingGoal(_ origin: JKAShared.vec3_t, _ goal: BotGoal) -> Int32 {
+public func BotTouchingGoal(_ origin: JKAShared.vec3_t, _ goal: BotGoal) -> Int32 {
     var i: Int32
     var boxmins = vec3_t(), boxmaxs = vec3_t()
     var absmins = vec3_t(), absmaxs = vec3_t()
@@ -1584,7 +1584,7 @@ func BotTouchingGoal(_ origin: JKAShared.vec3_t, _ goal: BotGoal) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1621
-func BotItemGoalInVisButNotVisible(_ viewer: Int32, _ eye: JKAShared.vec3_t, _ viewangles: JKAShared.vec3_t, _ goal: BotGoal) -> Int32 {
+public func BotItemGoalInVisButNotVisible(_ viewer: Int32, _ eye: JKAShared.vec3_t, _ viewangles: JKAShared.vec3_t, _ goal: BotGoal) -> Int32 {
     var middle = vec3_t()
 
     // Raven's records live to the end of his block, so the block is the closure.
@@ -1626,7 +1626,7 @@ func BotItemGoalInVisButNotVisible(_ viewer: Int32, _ eye: JKAShared.vec3_t, _ v
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1658
-func BotResetGoalState(_ goalstate: Int32) {
+public func BotResetGoalState(_ goalstate: Int32) {
     guard let gs = BotGoalStateFromHandle(goalstate) else { return }
     gs.goalstack.zero()
     gs.goalstacktop = 0
@@ -1640,7 +1640,7 @@ func BotResetGoalState(_ goalstate: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1674
-func BotLoadItemWeights(_ goalstate: Int32, _ filename: inout JKAShared.CharBuf) -> Int32 {
+public func BotLoadItemWeights(_ goalstate: Int32, _ filename: inout JKAShared.CharBuf) -> Int32 {
     guard let gs = BotGoalStateFromHandle(goalstate) else { return BLERR_CANNOTLOADITEMWEIGHTS }
     //load the weight configuration
     gs.itemweightconfig = ReadWeightConfig(&filename)
@@ -1663,7 +1663,7 @@ func BotLoadItemWeights(_ goalstate: Int32, _ filename: inout JKAShared.CharBuf)
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1700
-func BotFreeItemWeights(_ goalstate: Int32) {
+public func BotFreeItemWeights(_ goalstate: Int32) {
     guard let gs = BotGoalStateFromHandle(goalstate) else { return }
     if gs.itemweightconfig != nil { FreeWeightConfig(gs.itemweightconfig!) }
     if gs.itemweightindex != nil { FreeMemory(OpaquePointer(gs.itemweightindex!.base)) }
@@ -1676,7 +1676,7 @@ func BotFreeItemWeights(_ goalstate: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1715
-func BotAllocGoalState(_ client: Int32) -> Int32 {
+public func BotAllocGoalState(_ client: Int32) -> Int32 {
     var i: Int32
 
     i = 1
@@ -1698,7 +1698,7 @@ func BotAllocGoalState(_ client: Int32) -> Int32 {
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1736
-func BotFreeGoalState(_ handle: Int32) {
+public func BotFreeGoalState(_ handle: Int32) {
     if handle <= 0 || handle > MAX_CLIENTS {
         botimport.runPrint(PRT_FATAL, "goal state handle %d out of range\n", handle)
         return
@@ -1719,7 +1719,7 @@ func BotFreeGoalState(_ handle: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1758
-func BotSetupGoalAI() -> Int32 {
+public func BotSetupGoalAI() -> Int32 {
     var filename: String
 
     //check if teamplay is on
@@ -1745,7 +1745,7 @@ func BotSetupGoalAI() -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_goal.cpp:1784
-func BotShutdownGoalAI() {
+public func BotShutdownGoalAI() {
     var i: Int32
 
     if itemconfig != nil { FreeMemory(itemconfig!.handle) }

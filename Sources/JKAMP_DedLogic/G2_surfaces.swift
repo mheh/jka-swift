@@ -22,7 +22,7 @@ func G2_FindOverrideSurface(_ surfaceNum: Int32, _ surfaceList: inout [surfaceIn
 
 // given a surface name, lets see if it's legal in the model
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:65
-func G2_IsSurfaceLegal(_ mod: Model?, _ surfaceName: String, _ flags: inout Int32) -> Int32 {
+public func G2_IsSurfaceLegal(_ mod: Model?, _ surfaceName: String, _ flags: inout Int32) -> Int32 {
     // damn include file dependancies
     var surf: MdxmSurfHierarchy
     let mod_m = mod!

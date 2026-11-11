@@ -6,7 +6,7 @@ import JKAMP_Ded
 /// Source: oracle/codemp/renderer/tr_shader.cpp:16
 // Raven wrote: const unsigned char g_strGlowVShaderARB[]
 // Raven's string literal, as the character codes in hex after the line splices, with the NUL.
-let g_strGlowVShaderARB: [UInt8] = [
+public let g_strGlowVShaderARB: [UInt8] = [
     0x21, 0x21, 0x41, 0x52, 0x42, 0x76, 0x70, 0x31, 0x2E, 0x30, 0x09, 0x09, 0x23, 0x20, 0x49, 0x6E,
     0x70, 0x75, 0x74, 0x2E, 0x0A, 0x09, 0x41, 0x54, 0x54, 0x52, 0x49, 0x42, 0x09, 0x69, 0x50, 0x6F,
     0x73, 0x09, 0x09, 0x3D, 0x20, 0x76, 0x65, 0x72, 0x74, 0x65, 0x78, 0x2E, 0x70, 0x6F, 0x73, 0x69,
@@ -78,7 +78,7 @@ let g_strGlowVShaderARB: [UInt8] = [
 /// Source: oracle/codemp/renderer/tr_shader.cpp:60
 // Raven wrote: const unsigned char g_strGlowPShaderARB[]
 // Raven's string literal, as the character codes in hex after the line splices, with the NUL.
-let g_strGlowPShaderARB: [UInt8] = [
+public let g_strGlowPShaderARB: [UInt8] = [
     0x21, 0x21, 0x41, 0x52, 0x42, 0x66, 0x70, 0x31, 0x2E, 0x30, 0x09, 0x09, 0x23, 0x20, 0x49, 0x6E,
     0x70, 0x75, 0x74, 0x2E, 0x0A, 0x09, 0x41, 0x54, 0x54, 0x52, 0x49, 0x42, 0x09, 0x69, 0x43, 0x6F,
     0x6C, 0x6F, 0x72, 0x09, 0x3D, 0x20, 0x66, 0x72, 0x61, 0x67, 0x6D, 0x65, 0x6E, 0x74, 0x2E, 0x63,
@@ -151,21 +151,21 @@ var shaderTextHashTable: [[TextCursor]] {
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:125
 /// Raven's data table, a hand property of `EngineWorld`.
-var lightmapsNone: [Int32] {
+public var lightmapsNone: [Int32] {
     get { world.lightmapsNone }
     set { world.lightmapsNone = newValue }
 }
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:133
 /// Raven's data table, a hand property of `EngineWorld`.
-var lightmaps2d: [Int32] {
+public var lightmaps2d: [Int32] {
     get { world.lightmaps2d }
     set { world.lightmaps2d = newValue }
 }
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:141
 // Raven wrote: const int lightmapsVertex[MAXLIGHTMAPS]
-let lightmapsVertex: [Int32] = [
+public let lightmapsVertex: [Int32] = [
     LIGHTMAP_BY_VERTEX,
     LIGHTMAP_BY_VERTEX,
     LIGHTMAP_BY_VERTEX,
@@ -174,7 +174,7 @@ let lightmapsVertex: [Int32] = [
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:149
 // Raven wrote: const int lightmapsFullBright[MAXLIGHTMAPS]
-let lightmapsFullBright: [Int32] = [
+public let lightmapsFullBright: [Int32] = [
     LIGHTMAP_WHITEIMAGE,
     LIGHTMAP_WHITEIMAGE,
     LIGHTMAP_WHITEIMAGE,
@@ -183,7 +183,7 @@ let lightmapsFullBright: [Int32] = [
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:157
 /// Raven's data table, a hand property of `EngineWorld`.
-var stylesDefault: [JKAShared.byte] {
+public var stylesDefault: [JKAShared.byte] {
     get { world.stylesDefault }
     set { world.stylesDefault = newValue }
 }
@@ -193,7 +193,7 @@ let MAX_IMAGE_ANIMATIONS = 32 as Int32
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:2193
 /// Raven's data table, a hand property of `EngineWorld`.
-var materialNames: [String] {
+public var materialNames: [String] {
     get { world.materialNames }
     set { world.materialNames = newValue }
 }
@@ -242,13 +242,13 @@ let infoParms: [InfoParm] = [
 ]
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:111
-func KillTheShaderHashTable() {
+public func KillTheShaderHashTable() {
     // AI: Raven zeroes the pointer of each hash. The table holds one list of cursors per hash, and each list empties.
     shaderTextHashTable.fill([])
 }
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:116
-func ShaderHashTableExists() -> Bool {
+public func ShaderHashTableExists() -> Bool {
     // AI: Raven tests the pointer of hash 0. The test reads whether the list of hash 0 holds a cursor.
     if !shaderTextHashTable[0].isEmpty {
         return true
@@ -267,7 +267,7 @@ R_CreateExtendedName
 */
 //rwwRMG - added
 /// Source: oracle/codemp/renderer/tr_shader.cpp:177
-func R_CreateExtendedName(_ extendedName: inout JKAShared.CharBuf, _ name: String, _ lightmapIndex: [Int32]?, _ styles: [JKAShared.byte]) {
+public func R_CreateExtendedName(_ extendedName: inout JKAShared.CharBuf, _ name: String, _ lightmapIndex: [Int32]?, _ styles: [JKAShared.byte]) {
     var i: Int32
 
     // Set the basename
@@ -362,7 +362,7 @@ private func generateHashValue(_ fname: String, _ size: Int32) -> CLong {
 }
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:273
-func R_RemapShader(_ shaderName: String, _ newShaderName: String, _ timeOffset: String?) {
+public func R_RemapShader(_ shaderName: String, _ newShaderName: String, _ timeOffset: String?) {
     var strippedName = CharBuf(MAX_QPATH)
     var hash: Int32
     var sh: Shader?
@@ -418,7 +418,7 @@ ParseVector
 ```
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:323
-func ParseVector(_ text: inout JKAShared.TextCursor, _ count: Int32, _ v: inout JKAShared.vec3_t) -> Bool {
+public func ParseVector(_ text: inout JKAShared.TextCursor, _ count: Int32, _ v: inout JKAShared.vec3_t) -> Bool {
     var token: String
     var i: Int32
 
@@ -1958,7 +1958,7 @@ private func ParseSort(_ text: inout JKAShared.TextCursor) {
 }
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:2198
-func ParseMaterial(_ text: inout JKAShared.TextCursor) {
+public func ParseMaterial(_ text: inout JKAShared.TextCursor) {
     var token: String
     var i: Int32
 
@@ -2748,7 +2748,7 @@ default shader if the real one can't be found.
 ```
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3342
-func R_FindShaderByName(_ name: String) -> Shader? {
+public func R_FindShaderByName(_ name: String) -> Shader? {
     var strippedName = CharBuf(MAX_QPATH)
     var hash: Int32
     var sh: Shader?
@@ -2781,7 +2781,7 @@ func R_FindShaderByName(_ name: String) -> Shader? {
 }
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3373
-func IsShader(_ sh: Shader, _ name: String, _ lightmapIndex: [Int32]?, _ styles: [JKAShared.byte]) -> Bool {
+public func IsShader(_ sh: Shader, _ name: String, _ lightmapIndex: [Int32]?, _ styles: [JKAShared.byte]) -> Bool {
     var i: Int32
 
     if Q_stricmp(sh.name, name) != 0 {
@@ -2835,7 +2835,7 @@ most world construction surfaces.
 ```
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3428
-func R_FindShader(_ name: String, _ lightmapIndex: [Int32]?, _ styles: [JKAShared.byte], _ mipRawImage: Bool) -> Shader? {
+public func R_FindShader(_ name: String, _ lightmapIndex: [Int32]?, _ styles: [JKAShared.byte], _ mipRawImage: Bool) -> Shader? {
     var strippedName = CharBuf(MAX_QPATH)
     var hash: Int32
     var sh: Shader?
@@ -2908,7 +2908,7 @@ func R_FindShader(_ name: String, _ lightmapIndex: [Int32]?, _ styles: [JKAShare
 }
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3560
-func R_FindServerShader(_ name: String, _ lightmapIndex: [Int32]?, _ styles: [JKAShared.byte], _ mipRawImage: Bool) -> Shader? {
+public func R_FindServerShader(_ name: String, _ lightmapIndex: [Int32]?, _ styles: [JKAShared.byte], _ mipRawImage: Bool) -> Shader? {
     var strippedName = CharBuf(MAX_QPATH)
     var hash: Int32
     var sh: Shader?
@@ -2953,7 +2953,7 @@ func R_FindServerShader(_ name: String, _ lightmapIndex: [Int32]?, _ styles: [JK
 }
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3598
-func RE_RegisterShaderFromImage(_ name: String, _ lightmapIndex: [Int32]?, _ styles: [JKAShared.byte], _ image: Image, _ mipRawImage: Bool) -> JKAShared.qhandle_t {
+public func RE_RegisterShaderFromImage(_ name: String, _ lightmapIndex: [Int32]?, _ styles: [JKAShared.byte], _ image: Image, _ mipRawImage: Bool) -> JKAShared.qhandle_t {
     // No file of the oracle calls it, and tr_local.h:1775 only declares it, so the function is dead.
     var i: Int32
     let hash: Int32
@@ -3066,7 +3066,7 @@ way to ask for different implicit lighting modes (vertex, lightmap, etc)
 ```
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3696
-func RE_RegisterShaderLightMap(_ name: String, _ lightmapIndex: [Int32]?, _ styles: [JKAShared.byte]) -> JKAShared.qhandle_t {
+public func RE_RegisterShaderLightMap(_ name: String, _ lightmapIndex: [Int32]?, _ styles: [JKAShared.byte]) -> JKAShared.qhandle_t {
     var sh: Shader?
 
     if strlen(name) >= MAX_QPATH {
@@ -3102,7 +3102,7 @@ way to ask for different implicit lighting modes (vertex, lightmap, etc)
 ```
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3731
-func RE_RegisterShader(_ name: String) -> JKAShared.qhandle_t {
+public func RE_RegisterShader(_ name: String) -> JKAShared.qhandle_t {
     if strlen(name) >= MAX_QPATH {
         Com_Printf("Shader name exceeds MAX_QPATH\n")
         return 0
@@ -3132,7 +3132,7 @@ For menu graphics that should never be picmiped
 ```
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3761
-func RE_RegisterShaderNoMip(_ name: String) -> JKAShared.qhandle_t {
+public func RE_RegisterShaderNoMip(_ name: String) -> JKAShared.qhandle_t {
     if strlen(name) >= MAX_QPATH {
         Com_Printf("Shader name exceeds MAX_QPATH\n")
         return 0
@@ -3154,7 +3154,7 @@ func RE_RegisterShaderNoMip(_ name: String) -> JKAShared.qhandle_t {
 
 //added for ui -rww
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3785
-func RE_ShaderNameFromIndex(_ index: Int32) -> String {
+public func RE_ShaderNameFromIndex(_ index: Int32) -> String {
     assert(index >= 0 && index < tr.numShaders && tr.shaders[index] != nil)
     return tr.shaders[index]!.name
 }
@@ -3170,7 +3170,7 @@ it and returns a valid (possibly default) shader_t to be used internally.
 ```
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:3800
-func R_GetShaderByHandle(_ hShader: JKAShared.qhandle_t) -> Shader? {
+public func R_GetShaderByHandle(_ hShader: JKAShared.qhandle_t) -> Shader? {
     if hShader < 0 {
         Com_Printf(S_COLOR_YELLOW + "R_GetShaderByHandle: out of range hShader '%d'\n", hShader) // bk: FIXME name
         return tr.defaultShader
@@ -3190,7 +3190,7 @@ R_InitShaders
 ```
 */
 /// Source: oracle/codemp/renderer/tr_shader.cpp:4265
-func R_InitShaders(_ server: Bool) {
+public func R_InitShaders(_ server: Bool) {
     //Com_Printf ("Initializing Shaders\n" );
 
     hashTable.fill(nil)

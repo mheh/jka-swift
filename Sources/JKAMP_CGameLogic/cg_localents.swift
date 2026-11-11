@@ -8,13 +8,13 @@ import JKAMP_BG
 let MAX_LOCAL_ENTITIES = 512 as Int32
 
 /// Source: oracle/codemp/cgame/cg_localents.c:10
-var cg_localEntities: Slots<LocalEntity> { world.storage.cg_localEntities }
+public var cg_localEntities: Slots<LocalEntity> { world.storage.cg_localEntities }
 
 /// Source: oracle/codemp/cgame/cg_localents.c:11
-var cg_activeLocalEntities: LocalEntity { world.storage.cg_activeLocalEntities }
+public var cg_activeLocalEntities: LocalEntity { world.storage.cg_activeLocalEntities }
 
 /// Source: oracle/codemp/cgame/cg_localents.c:12
-var cg_freeLocalEntities: LocalEntity? {
+public var cg_freeLocalEntities: LocalEntity? {
     get { world.variables.cg_freeLocalEntities }
     set { world.variables.cg_freeLocalEntities = newValue }
 }
@@ -32,7 +32,7 @@ This is called at startup and for tournement restarts
 ```
 */
 /// Source: oracle/codemp/cgame/cg_localents.c:21
-func CG_InitLocalEntities() {
+public func CG_InitLocalEntities() {
     var i: Int32
 
     cg_localEntities.zero()
@@ -54,7 +54,7 @@ CG_FreeLocalEntity
 ```
 */
 /// Source: oracle/codemp/cgame/cg_localents.c:39
-func CG_FreeLocalEntity(_ le: LocalEntity) {
+public func CG_FreeLocalEntity(_ le: LocalEntity) {
     if le.prev == nil {
         CG_Error("CG_FreeLocalEntity: not active")
     }
@@ -78,7 +78,7 @@ Will allways succeed, even if it requires freeing an old active entity
 ```
 */
 /// Source: oracle/codemp/cgame/cg_localents.c:60
-func CG_AllocLocalEntity() -> LocalEntity? {
+public func CG_AllocLocalEntity() -> LocalEntity? {
     var le: LocalEntity?
 
     if cg_freeLocalEntities == nil {
@@ -110,7 +110,7 @@ Leave expanding blood puffs behind gibs
 ```
 */
 /// Source: oracle/codemp/cgame/cg_localents.c:101
-func CG_BloodTrail(_ le: LocalEntity) {
+public func CG_BloodTrail(_ le: LocalEntity) {
     var t: Int32
     let t2: Int32
     let step: Int32
@@ -141,7 +141,7 @@ CG_FragmentBounceMark
 ```
 */
 /// Source: oracle/codemp/cgame/cg_localents.c:136
-func CG_FragmentBounceMark(_ le: LocalEntity, _ trace: JKAMP.Trace) {
+public func CG_FragmentBounceMark(_ le: LocalEntity, _ trace: JKAMP.Trace) {
     let radius: Int32
 
     if le.leMarkType == LEMT_BLOOD {
@@ -170,7 +170,7 @@ CG_FragmentBounceSound
 ```
 */
 /// Source: oracle/codemp/cgame/cg_localents.c:162
-func CG_FragmentBounceSound(_ le: LocalEntity, _ trace: JKAMP.Trace) {
+public func CG_FragmentBounceSound(_ le: LocalEntity, _ trace: JKAMP.Trace) {
     // half the fragments will make a bounce sounds
     // The SDK also declares `rand`, so the call names the bg module.
     // The SDK also declares `rand`, so the call names the bg module.
@@ -210,7 +210,7 @@ CG_ReflectVelocity
 ```
 */
 /// Source: oracle/codemp/cgame/cg_localents.c:203
-func CG_ReflectVelocity(_ le: LocalEntity, _ trace: JKAMP.Trace) {
+public func CG_ReflectVelocity(_ le: LocalEntity, _ trace: JKAMP.Trace) {
     var velocity = vec3_t()
     let dot: Float
     let hitTime: Int32
@@ -241,7 +241,7 @@ CG_AddFragment
 ```
 */
 /// Source: oracle/codemp/cgame/cg_localents.c:234
-func CG_AddFragment(_ le: LocalEntity) {
+public func CG_AddFragment(_ le: LocalEntity) {
     var newOrigin = vec3_t()
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
@@ -351,7 +351,7 @@ CG_AddFadeRGB
 ```
 */
 /// Source: oracle/codemp/cgame/cg_localents.c:348
-func CG_AddFadeRGB(_ le: LocalEntity) {
+public func CG_AddFadeRGB(_ le: LocalEntity) {
     var re: RefEntity?
     var c: Float
 
@@ -645,7 +645,7 @@ CG_AddRefEntity
 ```
 */
 /// Source: oracle/codemp/cgame/cg_localents.c:624
-func CG_AddRefEntity(_ le: LocalEntity) {
+public func CG_AddRefEntity(_ le: LocalEntity) {
     if le.endTime < cg.time {
         CG_FreeLocalEntity(le)
         return
@@ -654,7 +654,7 @@ func CG_AddRefEntity(_ le: LocalEntity) {
 }
 
 /// Source: oracle/codemp/cgame/cg_localents.c:639
-func CG_AddScorePlum(_ le: LocalEntity) {
+public func CG_AddScorePlum(_ le: LocalEntity) {
     var re: RefEntity?
     var origin = vec3_t()
     var delta = vec3_t()
@@ -757,7 +757,7 @@ For forcefields/other rectangular things
 ```
 */
 /// Source: oracle/codemp/cgame/cg_localents.c:725
-func CG_AddOLine(_ le: LocalEntity) {
+public func CG_AddOLine(_ le: LocalEntity) {
     var re: RefEntity?
     var frac: Float
     let alpha: Float
@@ -805,7 +805,7 @@ for beams and the like.
 ```
 */
 /// Source: oracle/codemp/cgame/cg_localents.c:770
-func CG_AddLine(_ le: LocalEntity) {
+public func CG_AddLine(_ le: LocalEntity) {
     var re: RefEntity?
 
     re = le.refEntity
@@ -824,7 +824,7 @@ CG_AddLocalEntities
 ```
 */
 /// Source: oracle/codemp/cgame/cg_localents.c:789
-func CG_AddLocalEntities() {
+public func CG_AddLocalEntities() {
     var le: LocalEntity?
     var next: LocalEntity?
 

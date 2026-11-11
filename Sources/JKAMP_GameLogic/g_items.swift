@@ -155,14 +155,14 @@ let EWEB_HEALTH = 200 as Int32
 let EWEB_USE_DEBOUNCE = 1000 as Int32
 
 /// Source: oracle/codemp/game/g_items.c:2966
-var itemRegistered: [Bool] {
+public var itemRegistered: [Bool] {
     get { world.variables.itemRegistered }
     set { world.variables.itemRegistered = newValue }
 }
 
 // For more than four players, adjust the respawn times, up to 1/4.
 /// Source: oracle/codemp/game/g_items.c:47
-func adjustRespawnTime(_ preRespawnTime: Float, _ itemType: Int32, _ itemTag: Int32) -> Int32 {
+public func adjustRespawnTime(_ preRespawnTime: Float, _ itemType: Int32, _ itemTag: Int32) -> Int32 {
     var respawnTime: Float = preRespawnTime
 
     if itemType == IT_WEAPON {
@@ -199,7 +199,7 @@ func adjustRespawnTime(_ preRespawnTime: Float, _ itemType: Int32, _ itemTag: In
 }
 
 /// Source: oracle/codemp/game/g_items.c:108
-func ShieldRemove(_ `self`: Entity) {
+public func ShieldRemove(_ `self`: Entity) {
     `self`.think = Think.G_FreeEntity
     `self`.nextthink = level.time + 100
 
@@ -213,7 +213,7 @@ func ShieldRemove(_ `self`: Entity) {
 
 // Count down the health of the shield.
 /// Source: oracle/codemp/game/g_items.c:123
-func ShieldThink(_ `self`: Entity) {
+public func ShieldThink(_ `self`: Entity) {
     `self`.s.trickedentindex = 0
 
     if g_gametype.integer == GT_SIEGE {
@@ -230,7 +230,7 @@ func ShieldThink(_ `self`: Entity) {
 
 // The shield was damaged to below zero health.
 /// Source: oracle/codemp/game/g_items.c:145
-func ShieldDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
+public func ShieldDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
     // Play damaging sound...
     G_AddEvent(`self`, EV_GENERAL_SOUND, shieldDamageSound)
 
@@ -239,7 +239,7 @@ func ShieldDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ dama
 
 // The shield had damage done to it.  Make it flicker.
 /// Source: oracle/codemp/game/g_items.c:155
-func ShieldPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func ShieldPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     // Set the itemplaceholder flag to indicate the the shield drawing that the shield pain should be drawn.
     `self`.think = Think.ShieldThink
     `self`.nextthink = level.time + 400
@@ -254,7 +254,7 @@ func ShieldPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 
 // Try to turn the shield back on after a delay.
 /// Source: oracle/codemp/game/g_items.c:171
-func ShieldGoSolid(_ `self`: Entity) {
+public func ShieldGoSolid(_ `self`: Entity) {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = Trace.scratch { tr -> Bool in
@@ -298,7 +298,7 @@ func ShieldGoSolid(_ `self`: Entity) {
 
 // Turn the shield off to allow a friend to pass through.
 /// Source: oracle/codemp/game/g_items.c:211
-func ShieldGoNotSolid(_ `self`: Entity) {
+public func ShieldGoNotSolid(_ `self`: Entity) {
     // make the shield non-solid very briefly
     `self`.r.contents = 0
     `self`.s.eFlags |= EF_NODRAW
@@ -316,7 +316,7 @@ func ShieldGoNotSolid(_ `self`: Entity) {
 
 // Somebody (a player) has touched the shield.  See if it is a "friend".
 /// Source: oracle/codemp/game/g_items.c:230
-func ShieldTouch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+public func ShieldTouch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     if g_gametype.integer >= GT_TEAM {
         // let teammates through
         // compare the parent's team to the "other's" team
@@ -335,7 +335,7 @@ func ShieldTouch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
 
 // After a short delay, create the shield by expanding in all directions.
 /// Source: oracle/codemp/game/g_items.c:254
-func CreateShield(_ ent: Entity) {
+public func CreateShield(_ ent: Entity) {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = Trace.scratch { tr -> Bool in
@@ -465,7 +465,7 @@ func CreateShield(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_items.c:382
-func PlaceShield(_ playerent: Entity) -> Bool {
+public func PlaceShield(_ playerent: Entity) -> Bool {
     var shieldItem: Gitem? = nil
     var shield: Entity? = nil
     // Raven's record lives to the end of his block, so the block is the closure.
@@ -559,7 +559,7 @@ func PlaceShield(_ playerent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_items.c:472
-func ItemUse_Binoculars(_ ent: Entity) {
+public func ItemUse_Binoculars(_ ent: Entity) {
     if ent.client == nil {
         return
     }
@@ -587,18 +587,18 @@ func ItemUse_Binoculars(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_items.c:504
-func ItemUse_Shield(_ ent: Entity) {
+public func ItemUse_Shield(_ ent: Entity) {
     PlaceShield(ent)
 }
 
 /// Source: oracle/codemp/game/g_items.c:515
-func SentryTouch(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+public func SentryTouch(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     return
 }
 
 //----------------------------------------------------------------
 /// Source: oracle/codemp/game/g_items.c:521
-func pas_fire(_ ent: Entity) {
+public func pas_fire(_ ent: Entity) {
     var fwd = vec3_t()
     var myOrg = vec3_t()
     var enOrg = vec3_t()
@@ -718,7 +718,7 @@ private func pas_find_enemies(_ `self`: Entity) -> Bool {
 
 //---------------------------------
 /// Source: oracle/codemp/game/g_items.c:642
-func pas_adjust_enemy(_ ent: Entity) {
+public func pas_adjust_enemy(_ ent: Entity) {
     // Raven's record lives to the end of his block, so the block is the closure.
     Trace.scratch { tr in
         var keep: Bool = true
@@ -765,13 +765,13 @@ func pas_adjust_enemy(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_items.c:702
-func sentryExpire(_ `self`: Entity) {
+public func sentryExpire(_ `self`: Entity) {
     turret_die(`self`, `self`, `self`, 1000, MOD_UNKNOWN)
 }
 
 //---------------------------------
 /// Source: oracle/codemp/game/g_items.c:708
-func pas_think(_ ent: Entity) {
+public func pas_think(_ ent: Entity) {
     var moved: Bool
     var diffYaw: Float
     var diffPitch: Float
@@ -963,7 +963,7 @@ func pas_think(_ ent: Entity) {
 
 //------------------------------------------------------------------------------------------------------------
 /// Source: oracle/codemp/game/g_items.c:940
-func turret_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
+public func turret_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
     // Turn off the thinking of the base & use it's targets
     `self`.think = nil //NULL;
     `self`.use = nil //NULL;
@@ -996,7 +996,7 @@ func turret_die(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ dam
 
 //---------------------------------
 /// Source: oracle/codemp/game/g_items.c:978
-func SP_PAS(_ base: Entity) {
+public func SP_PAS(_ base: Entity) {
     if base.count == 0 {
         // give ammo
         base.count = TURRET_AMMO_COUNT
@@ -1029,7 +1029,7 @@ func SP_PAS(_ base: Entity) {
 
 //------------------------------------------------------------------------
 /// Source: oracle/codemp/game/g_items.c:1014
-func ItemUse_Sentry(_ ent: Entity) {
+public func ItemUse_Sentry(_ ent: Entity) {
     var fwd = vec3_t()
     var fwdorg = vec3_t()
     var yawonly = vec3_t()
@@ -1110,7 +1110,7 @@ func ItemUse_Sentry(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_items.c:1096
-func ItemUse_Seeker(_ ent: Entity) {
+public func ItemUse_Seeker(_ ent: Entity) {
     if g_gametype.integer == GT_SIEGE && d_siegeSeekerNPC.integer != 0 {
         //actualy spawn a remote NPC
         let remote = NPC_SpawnType(ent, "remote", nil, false)
@@ -1156,17 +1156,17 @@ private func MedPackGive(_ ent: Entity, _ amount: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_items.c:1154
-func ItemUse_MedPack_Big(_ ent: Entity) {
+public func ItemUse_MedPack_Big(_ ent: Entity) {
     MedPackGive(ent, MAX_MEDPACK_BIG_HEAL_AMOUNT)
 }
 
 /// Source: oracle/codemp/game/g_items.c:1159
-func ItemUse_MedPack(_ ent: Entity) {
+public func ItemUse_MedPack(_ ent: Entity) {
     MedPackGive(ent, MAX_MEDPACK_HEAL_AMOUNT)
 }
 
 /// Source: oracle/codemp/game/g_items.c:1165
-func Jetpack_Off(_ ent: Entity) {
+public func Jetpack_Off(_ ent: Entity) {
     //create effects?
 
     if !ent.client!.jetPackOn {
@@ -1178,7 +1178,7 @@ func Jetpack_Off(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_items.c:1177
-func Jetpack_On(_ ent: Entity) {
+public func Jetpack_On(_ ent: Entity) {
     //create effects?
 
     if ent.client!.jetPackOn {
@@ -1202,7 +1202,7 @@ func Jetpack_On(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_items.c:1201
-func ItemUse_Jetpack(_ ent: Entity) {
+public func ItemUse_Jetpack(_ ent: Entity) {
     if ent.client!.jetPackToggleTime >= level.time {
         return
     }
@@ -1227,7 +1227,7 @@ func ItemUse_Jetpack(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_items.c:1239
-func ItemUse_UseCloak(_ ent: Entity) {
+public func ItemUse_UseCloak(_ ent: Entity) {
     if ent.client!.cloakToggleTime >= level.time {
         return
     }
@@ -1254,7 +1254,7 @@ func ItemUse_UseCloak(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_items.c:1277
-func SpecialItemThink(_ ent: Entity) {
+public func SpecialItemThink(_ ent: Entity) {
     let gravity: Float = 3.0
     let mass: Float = 0.09
     let bounce: Float = 1.1
@@ -1271,7 +1271,7 @@ func SpecialItemThink(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_items.c:1295
-func G_SpecialSpawnItem(_ ent: Entity, _ item: JKAMP.Gitem) {
+public func G_SpecialSpawnItem(_ ent: Entity, _ item: JKAMP.Gitem) {
     RegisterItem(item)
     ent.item = item
 
@@ -1309,7 +1309,7 @@ func G_SpecialSpawnItem(_ ent: Entity, _ item: JKAMP.Gitem) {
 }
 
 /// Source: oracle/codemp/game/g_items.c:1336
-func G_PrecacheDispensers() {
+public func G_PrecacheDispensers() {
     var item: Gitem?
 
     item = BG_FindItem(DISP_HEALTH_ITEM)
@@ -1324,7 +1324,7 @@ func G_PrecacheDispensers() {
 }
 
 /// Source: oracle/codemp/game/g_items.c:1353
-func ItemUse_UseDisp(_ ent: Entity, _ type: Int32) {
+public func ItemUse_UseDisp(_ ent: Entity, _ type: Int32) {
     var item: Gitem? = nil
     var eItem: Entity?
 
@@ -1385,7 +1385,7 @@ func ItemUse_UseDisp(_ ent: Entity, _ type: Int32) {
 //===============================================
 //put the e-web away/remove it from the owner
 /// Source: oracle/codemp/game/g_items.c:1417
-func EWebDisattach(_ owner: Entity, _ eweb: Entity) {
+public func EWebDisattach(_ owner: Entity, _ eweb: Entity) {
     owner.client!.ewebIndex = 0
     owner.client!.ps.emplacedIndex = 0
     if owner.health > 0 {
@@ -1399,14 +1399,14 @@ func EWebDisattach(_ owner: Entity, _ eweb: Entity) {
 
 //precache misc e-web assets
 /// Source: oracle/codemp/game/g_items.c:1434
-func EWebPrecache() {
+public func EWebPrecache() {
     RegisterItem(BG_FindItemForWeapon(WP_TURRET)!)
     G_EffectIndex("detpack/explosion.efx")
     G_EffectIndex("turret/muzzle_flash.efx")
 }
 
 /// Source: oracle/codemp/game/g_items.c:1449
-func EWebDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
+public func EWebDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage: Int32, _ mod: Int32) {
     var fxDir = vec3_t()
 
     G_RadiusDamage(`self`.r.currentOrigin, `self`, Float(EWEB_DEATH_DMG), Float(EWEB_DEATH_RADIUS), `self`, `self`, MOD_SUICIDE)
@@ -1437,7 +1437,7 @@ func EWebDie(_ `self`: Entity, _ inflictor: Entity, _ attacker: Entity, _ damage
 
 //e-web pain
 /// Source: oracle/codemp/game/g_items.c:1484
-func EWebPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func EWebPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     //update the owner's health status of me
     if `self`.r.ownerNum != ENTITYNUM_NONE {
         let owner: Entity? = g_entities[`self`.r.ownerNum]
@@ -1450,7 +1450,7 @@ func EWebPain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
 
 //special routine for tracking angles between client and server
 /// Source: oracle/codemp/game/g_items.c:1499
-func EWeb_SetBoneAngles(_ ent: Entity, _ bone: String, _ angles: JKAShared.vec3_t) {
+public func EWeb_SetBoneAngles(_ ent: Entity, _ bone: String, _ angles: JKAShared.vec3_t) {
     var thebone: Int32? = 0
     var firstFree: Int32? = nil
     var i: Int32 = 0
@@ -1534,7 +1534,7 @@ func EWeb_SetBoneAngles(_ ent: Entity, _ bone: String, _ angles: JKAShared.vec3_
 
 //start an animation on model_root both server side and client side
 /// Source: oracle/codemp/game/g_items.c:1601
-func EWeb_SetBoneAnim(_ eweb: Entity, _ startFrame: Int32, _ endFrame: Int32) {
+public func EWeb_SetBoneAnim(_ eweb: Entity, _ startFrame: Int32, _ endFrame: Int32) {
     //set info on the entity so it knows to start the anim on the client next snapshot.
     eweb.s.eFlags |= EF_G2ANIMATING
 
@@ -1551,7 +1551,7 @@ func EWeb_SetBoneAnim(_ eweb: Entity, _ startFrame: Int32, _ endFrame: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_items.c:1624
-func EWebFire(_ owner: Entity, _ eweb: Entity) {
+public func EWebFire(_ owner: Entity, _ eweb: Entity) {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = MdxaBone.scratch { boltMatrix -> Bool in
@@ -1602,7 +1602,7 @@ func EWebFire(_ owner: Entity, _ eweb: Entity) {
 
 //lock the owner into place relative to the cannon pos
 /// Source: oracle/codemp/game/g_items.c:1667
-func EWebPositionUser(_ owner: Entity, _ eweb: Entity) {
+public func EWebPositionUser(_ owner: Entity, _ eweb: Entity) {
     // Raven's record lives to the end of his block, so the block is the closure.
     MdxaBone.scratch { boltMatrix in
         var p = vec3_t()
@@ -1669,7 +1669,7 @@ func EWebPositionUser(_ owner: Entity, _ eweb: Entity) {
 
 //keep the bone angles updated based on the owner's look dir
 /// Source: oracle/codemp/game/g_items.c:1735
-func EWebUpdateBoneAngles(_ owner: Entity, _ eweb: Entity) {
+public func EWebUpdateBoneAngles(_ owner: Entity, _ eweb: Entity) {
     var yAng = vec3_t()
     let ideal: Float
     var incr: Float
@@ -1702,7 +1702,7 @@ func EWebUpdateBoneAngles(_ owner: Entity, _ eweb: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_items.c:1776
-func EWebThink(_ `self`: Entity) {
+public func EWebThink(_ `self`: Entity) {
     var killMe: Bool = false
     let gravity: Float = 3.0
     let mass: Float = 0.09
@@ -1773,7 +1773,7 @@ func EWebThink(_ `self`: Entity) {
 
 //spawn and set up an e-web ent
 /// Source: oracle/codemp/game/g_items.c:1859
-func EWeb_Create(_ spawner: Entity) -> Entity? {
+public func EWeb_Create(_ spawner: Entity) -> Entity? {
     let modelName: String = "models/map_objects/hoth/eweb_model.glm"
     let failSound: Int32 = G_SoundIndex("sound/interface/shieldcon_empty")
     var ent: Entity?
@@ -1908,7 +1908,7 @@ func EWeb_Create(_ spawner: Entity) -> Entity? {
 
 //use the e-web
 /// Source: oracle/codemp/game/g_items.c:1984
-func ItemUse_UseEWeb(_ ent: Entity) {
+public func ItemUse_UseEWeb(_ ent: Entity) {
     if ent.client!.ewebTime > level.time {
         //can't use again yet
         return
@@ -1942,7 +1942,7 @@ func ItemUse_UseEWeb(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_items.c:2024
-func Pickup_Powerup(_ ent: Entity, _ other: Entity) -> Int32 {
+public func Pickup_Powerup(_ ent: Entity, _ other: Entity) -> Int32 {
     var quantity: Int32 = 0
     var i: Int32 = 0
 
@@ -2024,7 +2024,7 @@ func Pickup_Powerup(_ ent: Entity, _ other: Entity) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_items.c:2104
-func Pickup_Holdable(_ ent: Entity, _ other: Entity) -> Int32 {
+public func Pickup_Holdable(_ ent: Entity, _ other: Entity) -> Int32 {
     other.client!.ps.stats[STAT_HOLDABLE_ITEM] = bg_itemlist.index(of: ent.item!)
 
     other.client!.ps.stats[STAT_HOLDABLE_ITEMS] |= (1 << ent.item!.giTag)
@@ -2035,7 +2035,7 @@ func Pickup_Holdable(_ ent: Entity, _ other: Entity) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_items.c:2118
-func Add_Ammo(_ ent: Entity, _ weapon: Int32, _ count: Int32) {
+public func Add_Ammo(_ ent: Entity, _ weapon: Int32, _ count: Int32) {
     if ent.client!.ps.ammo[weapon] < ammoData[weapon].max {
         ent.client!.ps.ammo[weapon] += count
         if ent.client!.ps.ammo[weapon] > ammoData[weapon].max {
@@ -2045,7 +2045,7 @@ func Add_Ammo(_ ent: Entity, _ weapon: Int32, _ count: Int32) {
 }
 
 /// Source: oracle/codemp/game/g_items.c:2130
-func Pickup_Ammo(_ ent: Entity, _ other: Entity) -> Int32 {
+public func Pickup_Ammo(_ ent: Entity, _ other: Entity) -> Int32 {
     let quantity: Int32
 
     if ent.count != 0 {
@@ -2084,7 +2084,7 @@ func Pickup_Ammo(_ ent: Entity, _ other: Entity) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_items.c:2180
-func Pickup_Weapon(_ ent: Entity, _ other: Entity) -> Int32 {
+public func Pickup_Weapon(_ ent: Entity, _ other: Entity) -> Int32 {
     var quantity: Int32
 
     if ent.count < 0 {
@@ -2138,7 +2138,7 @@ func Pickup_Weapon(_ ent: Entity, _ other: Entity) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_items.c:2237
-func Pickup_Health(_ ent: Entity, _ other: Entity) -> Int32 {
+public func Pickup_Health(_ ent: Entity, _ other: Entity) -> Int32 {
     let max: Int32
     let quantity: Int32
 
@@ -2171,7 +2171,7 @@ func Pickup_Health(_ ent: Entity, _ other: Entity) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_items.c:2270
-func Pickup_Armor(_ ent: Entity, _ other: Entity) -> Int32 {
+public func Pickup_Armor(_ ent: Entity, _ other: Entity) -> Int32 {
     other.client!.ps.stats[STAT_ARMOR] += ent.item!.quantity
     if other.client!.ps.stats[STAT_ARMOR] > other.client!.ps.stats[STAT_MAX_HEALTH] * ent.item!.giTag {
         other.client!.ps.stats[STAT_ARMOR] = other.client!.ps.stats[STAT_MAX_HEALTH] * ent.item!.giTag
@@ -2188,7 +2188,7 @@ RespawnItem
 ```
 */
 /// Source: oracle/codemp/game/g_items.c:2288
-func RespawnItem(_ ent: Entity) {
+public func RespawnItem(_ ent: Entity) {
     // Raven assigns his own `ent` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var ent = ent
     // randomly select from teamed entities
@@ -2247,7 +2247,7 @@ func RespawnItem(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_items.c:2336
-func CheckItemCanBePickedUpByNPC(_ item: Entity, _ pickerupper: Entity) -> Bool {
+public func CheckItemCanBePickedUpByNPC(_ item: Entity, _ pickerupper: Entity) -> Bool {
     if (item.flags & FL_DROPPED_ITEM) != 0 && item.activator != g_entities[0] && pickerupper.s.number != 0 && pickerupper.s.weapon == WP_NONE && pickerupper.enemy != nil && pickerupper.painDebounceTime < level.time && pickerupper.NPC != nil && pickerupper.NPC!.surrenderTime < level.time && !((pickerupper.NPC!.scriptFlags & SCF_FORCED_MARCH) != 0) {
         //non-player, in combat, picking up a dropped item that does NOT belong to the player and it *not* a security key
         if level.time - item.s.time < 3000 {
@@ -2266,7 +2266,7 @@ Touch_Item
 ```
 */
 /// Source: oracle/codemp/game/g_items.c:2362
-func Touch_Item(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+public func Touch_Item(_ ent: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     var respawn: Int32
     var predict: Bool
 
@@ -2511,7 +2511,7 @@ Spawns an item and tosses it forward
 ```
 */
 /// Source: oracle/codemp/game/g_items.c:2658
-func LaunchItem(_ item: JKAMP.Gitem, _ origin: inout JKAShared.vec3_t, _ velocity: JKAShared.vec3_t) -> Entity? {
+public func LaunchItem(_ item: JKAMP.Gitem, _ origin: inout JKAShared.vec3_t, _ velocity: JKAShared.vec3_t) -> Entity? {
     var dropped: Entity?
 
     dropped = G_Spawn()
@@ -2590,7 +2590,7 @@ Spawns an item and tosses it forward
 ```
 */
 /// Source: oracle/codemp/game/g_items.c:2742
-func Drop_Item(_ ent: Entity, _ item: JKAMP.Gitem, _ angle: Float) -> Entity? {
+public func Drop_Item(_ ent: Entity, _ item: JKAMP.Gitem, _ angle: Float) -> Entity? {
     var velocity = vec3_t()
     var angles = vec3_t()
 
@@ -2618,7 +2618,7 @@ Respawn the item
 ```
 */
 /// Source: oracle/codemp/game/g_items.c:2765
-func Use_Item(_ ent: Entity, _ other: Entity, _ activator: Entity) {
+public func Use_Item(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     RespawnItem(ent)
 }
 
@@ -2633,7 +2633,7 @@ free fall from their spawn points
 ```
 */
 /// Source: oracle/codemp/game/g_items.c:2779
-func FinishSpawningItem(_ ent: Entity) {
+public func FinishSpawningItem(_ ent: Entity) {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = Trace.scratch { tr -> Bool in
@@ -2807,7 +2807,7 @@ G_CheckTeamItems
 ```
 */
 /// Source: oracle/codemp/game/g_items.c:2973
-func G_CheckTeamItems() {
+public func G_CheckTeamItems() {
     // Set up team stuff
     Team_InitGame()
 
@@ -2834,7 +2834,7 @@ ClearRegisteredItems
 ```
 */
 /// Source: oracle/codemp/game/g_items.c:2998
-func ClearRegisteredItems() {
+public func ClearRegisteredItems() {
     itemRegistered.fill(false)
 
     // players always start with the base weapon
@@ -2859,7 +2859,7 @@ The item will be added to the precache list
 ```
 */
 /// Source: oracle/codemp/game/g_items.c:3020
-func RegisterItem(_ item: JKAMP.Gitem) {
+public func RegisterItem(_ item: JKAMP.Gitem) {
     itemRegistered[bg_itemlist.firstIndex(of: item)!] = true
 }
 
@@ -2874,7 +2874,7 @@ so the client will know which ones to precache
 ```
 */
 /// Source: oracle/codemp/game/g_items.c:3036
-func SaveRegisteredItems() {
+public func SaveRegisteredItems() {
     var string = CharBuf(257)
     var i: Int32
     var count: Int32
@@ -2904,7 +2904,7 @@ G_ItemDisabled
 ```
 */
 /// Source: oracle/codemp/game/g_items.c:3061
-func G_ItemDisabled(_ item: JKAMP.Gitem) -> Int32 {
+public func G_ItemDisabled(_ item: JKAMP.Gitem) -> Int32 {
     var name = CharBuf(128)
 
     Com_sprintf(&name, Int32((name).count), "disable_%s", item.classname!)
@@ -2924,7 +2924,7 @@ be on an entity that hasn't spawned yet.
 ```
 */
 /// Source: oracle/codemp/game/g_items.c:3079
-func G_SpawnItem(_ ent: Entity, _ item: JKAMP.Gitem) {
+public func G_SpawnItem(_ ent: Entity, _ item: JKAMP.Gitem) {
     var wDisable: Int32 = 0
 
     G_SpawnFloat("random", "0", &ent.random)
@@ -2971,7 +2971,7 @@ G_BounceItem
 ```
 */
 /// Source: oracle/codemp/game/g_items.c:3130
-func G_BounceItem(_ ent: Entity, _ trace: JKAMP.Trace) {
+public func G_BounceItem(_ ent: Entity, _ trace: JKAMP.Trace) {
     var velocity = vec3_t()
     let dot: Float
     let hitTime: Int32
@@ -3023,7 +3023,7 @@ G_RunItem
 ```
 */
 /// Source: oracle/codemp/game/g_items.c:3183
-func G_RunItem(_ ent: Entity) {
+public func G_RunItem(_ ent: Entity) {
     var origin = vec3_t()
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.

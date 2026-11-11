@@ -40,61 +40,61 @@ var G2PerformanceTimer_G2_SetupModelPointers: timing_c { world.G2PerformanceTime
 var G2PerformanceTimer_PreciseFrame: timing_c { world.G2PerformanceTimer_PreciseFrame }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:52
-var G2PerformanceCounter_G2_TransformGhoulBones: Int32 {
+public var G2PerformanceCounter_G2_TransformGhoulBones: Int32 {
     get { world.variables.G2PerformanceCounter_G2_TransformGhoulBones }
     set { world.variables.G2PerformanceCounter_G2_TransformGhoulBones = newValue }
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:54
-var G2Time_RenderSurfaces: Int32 {
+public var G2Time_RenderSurfaces: Int32 {
     get { world.variables.G2Time_RenderSurfaces }
     set { world.variables.G2Time_RenderSurfaces = newValue }
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:55
-var G2Time_R_AddGHOULSurfaces: Int32 {
+public var G2Time_R_AddGHOULSurfaces: Int32 {
     get { world.variables.G2Time_R_AddGHOULSurfaces }
     set { world.variables.G2Time_R_AddGHOULSurfaces = newValue }
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:56
-var G2Time_G2_TransformGhoulBones: Int32 {
+public var G2Time_G2_TransformGhoulBones: Int32 {
     get { world.variables.G2Time_G2_TransformGhoulBones }
     set { world.variables.G2Time_G2_TransformGhoulBones = newValue }
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:57
-var G2Time_G2_ProcessGeneratedSurfaceBolts: Int32 {
+public var G2Time_G2_ProcessGeneratedSurfaceBolts: Int32 {
     get { world.variables.G2Time_G2_ProcessGeneratedSurfaceBolts }
     set { world.variables.G2Time_G2_ProcessGeneratedSurfaceBolts = newValue }
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:58
-var G2Time_ProcessModelBoltSurfaces: Int32 {
+public var G2Time_ProcessModelBoltSurfaces: Int32 {
     get { world.variables.G2Time_ProcessModelBoltSurfaces }
     set { world.variables.G2Time_ProcessModelBoltSurfaces = newValue }
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:59
-var G2Time_G2_ConstructGhoulSkeleton: Int32 {
+public var G2Time_G2_ConstructGhoulSkeleton: Int32 {
     get { world.variables.G2Time_G2_ConstructGhoulSkeleton }
     set { world.variables.G2Time_G2_ConstructGhoulSkeleton = newValue }
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:60
-var G2Time_RB_SurfaceGhoul: Int32 {
+public var G2Time_RB_SurfaceGhoul: Int32 {
     get { world.variables.G2Time_RB_SurfaceGhoul }
     set { world.variables.G2Time_RB_SurfaceGhoul = newValue }
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:61
-var G2Time_G2_SetupModelPointers: Int32 {
+public var G2Time_G2_SetupModelPointers: Int32 {
     get { world.variables.G2Time_G2_SetupModelPointers }
     set { world.variables.G2Time_G2_SetupModelPointers = newValue }
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:62
-var G2Time_PreciseFrame: Int32 {
+public var G2Time_PreciseFrame: Int32 {
     get { world.variables.G2Time_PreciseFrame }
     set { world.variables.G2Time_PreciseFrame = newValue }
 }
@@ -108,10 +108,10 @@ let HackadelicOnClient: Bool = false // means this is a render traversal
 // Raven's data table is C storage in the C target, with his initializer as written, reached as a Slots over the C array, the bg_tables.c shape that tables.py writes.
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:136
-var worldMatrix: JKAMP.MdxaBone { world.storage.worldMatrix }
+public var worldMatrix: JKAMP.MdxaBone { world.storage.worldMatrix }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:137
-var worldMatrixInv: JKAMP.MdxaBone { world.storage.worldMatrixInv }
+public var worldMatrixInv: JKAMP.MdxaBone { world.storage.worldMatrixInv }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:139
 // Raven wrote: qhandle_t goreShader=-1
@@ -251,7 +251,7 @@ let OldToNewRemapTable: [Int32] = [
 ]
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:64
-func G2Time_ResetTimers() {
+public func G2Time_ResetTimers() {
     G2Time_RenderSurfaces = 0
     G2Time_R_AddGHOULSurfaces = 0
     G2Time_G2_TransformGhoulBones = 0
@@ -265,7 +265,7 @@ func G2Time_ResetTimers() {
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:78
-func G2Time_ReportTimers() {
+public func G2Time_ReportTimers() {
     Com_Printf(
         "\n---------------------------------\nRenderSurfaces: %i\nR_AddGhoulSurfaces: %i\nG2_TransformGhoulBones: %i\nG2_ProcessGeneratedSurfaceBolts: %i\nProcessModelBoltSurfaces: %i\nG2_ConstructGhoulSkeleton: %i\nRB_SurfaceGhoul: %i\nG2_SetupModelPointers: %i\n\nPrecise frame time: %i\nTransformGhoulBones calls: %i\n---------------------------------\n\n",
         G2Time_RenderSurfaces,
@@ -666,7 +666,7 @@ private func G2_ComputeLOD(_ ent: TrRefEntity, _ currentModel: Model, _ lodBias:
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1048
-func G2_CreateQuaterion(_ mat: JKAMP.MdxaBone, _ quat: inout JKAShared.vec4_t) {
+public func G2_CreateQuaterion(_ mat: JKAMP.MdxaBone, _ quat: inout JKAShared.vec4_t) {
     // Raven calls this function from no file of either tree, so it is dead.
     // this is revised for the 3x4 matrix we use in G2.
     let t: Float = 1 + mat.matrix[0][0] + mat.matrix[1][1] + mat.matrix[2][2]
@@ -714,7 +714,7 @@ func G2_CreateQuaterion(_ mat: JKAMP.MdxaBone, _ quat: inout JKAShared.vec4_t) {
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1097
-func G2_CreateMatrixFromQuaterion(_ mat: JKAMP.MdxaBone, _ quat: JKAShared.vec4_t) {
+public func G2_CreateMatrixFromQuaterion(_ mat: JKAMP.MdxaBone, _ quat: JKAShared.vec4_t) {
     // Raven calls this function from no file of either tree, so it is dead.
     let xx: Float = quat[0] * quat[0]
     let xy: Float = quat[0] * quat[1]
@@ -747,7 +747,7 @@ func G2_CreateMatrixFromQuaterion(_ mat: JKAMP.MdxaBone, _ quat: JKAShared.vec4_
 
 // nasty little matrix multiply going on here..
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1128
-func Multiply_3x4Matrix(_ out: JKAMP.MdxaBone, _ in2: JKAMP.MdxaBone, _ `in`: JKAMP.MdxaBone) {
+public func Multiply_3x4Matrix(_ out: JKAMP.MdxaBone, _ in2: JKAMP.MdxaBone, _ `in`: JKAMP.MdxaBone) {
     // first row of out
     out.matrix[0][0] = (in2.matrix[0][0] * `in`.matrix[0][0]) + (in2.matrix[0][1] * `in`.matrix[1][0]) + (in2.matrix[0][2] * `in`.matrix[2][0])
     out.matrix[0][1] = (in2.matrix[0][0] * `in`.matrix[0][1]) + (in2.matrix[0][1] * `in`.matrix[1][1]) + (in2.matrix[0][2] * `in`.matrix[2][1])
@@ -776,7 +776,7 @@ private func G2_GetBonePoolIndex(_ pMDXAHeader: MdxaHeader, _ iFrame: Int32, _ i
 
 /*static inline*/
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1158
-func UnCompressBone(_ mat: JKAMP.MdxaBone?, _ iBoneIndex: Int32, _ pMDXAHeader: MdxaHeader, _ iFrame: Int32) {
+public func UnCompressBone(_ mat: JKAMP.MdxaBone?, _ iBoneIndex: Int32, _ pMDXAHeader: MdxaHeader, _ iFrame: Int32) {
     // AI: Raven indexes the record pointer at `ofsCompBonePool` of the header.
     // The element is the view at that offset plus the pool index times the record size.
     let pCompBonePool = MdxaCompQuatBone(pMDXAHeader, byteOffset: pMDXAHeader.ofsCompBonePool + G2_GetBonePoolIndex(pMDXAHeader, iFrame, iBoneIndex) * Int32(MdxaCompQuatBone.byteCount))
@@ -2035,7 +2035,7 @@ private func G2_Sort_Models(_ ghoul2: CGhoul2Info_v, _ modelList: Slots<Int32>, 
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2952
 // AI: Raven returns `void *`, and every caller casts it to `mdxmSurface_t *`. The function returns that view, the form of G2_FindSurface of G2_misc.cpp.
-func G2_FindSurface_BC(_ mod: Model, _ index: Int32, _ lod: Int32) -> MdxmSurface? {
+public func G2_FindSurface_BC(_ mod: Model, _ index: Int32, _ lod: Int32) -> MdxmSurface? {
     // point at first lod list
     // Raven's `current` is a byte pointer, and each read casts it to the record at its address.
     var current = MdxmLOD(mod.mdxm!, byteOffset: mod.mdxm!.ofsLODs)
@@ -2412,7 +2412,7 @@ R_AddGHOULSurfaces
 ```
 */
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:3383
-func R_AddGhoulSurfaces(_ ent: TrRefEntity) {
+public func R_AddGhoulSurfaces(_ ent: TrRefEntity) {
     // Raven's whole body stands under `#ifndef DEDICATED`, so the dedicated build has an empty body.
 }
 
@@ -2484,7 +2484,7 @@ func G2_ConstructGhoulSkeleton(_ ghoul2: CGhoul2Info_v, _ frameNum: Int32, _ che
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:4816
-func R_LoadMDXM(_ mod: Model, _ buffer: Slots<JKAShared.byte>, _ mod_name: String, _ bAlreadyCached: inout Bool) -> Bool {
+public func R_LoadMDXM(_ mod: Model, _ buffer: Slots<JKAShared.byte>, _ mod_name: String, _ bAlreadyCached: inout Bool) -> Bool {
     var i: Int32
     var l: Int32
     var j: Int32
@@ -2633,7 +2633,7 @@ R_LoadMDXA - load a Ghoul 2 animation file
 ```
 */
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:5256
-func R_LoadMDXA(_ mod: Model, _ buffer: Slots<JKAShared.byte>, _ mod_name: String, _ bAlreadyCached: inout Bool) -> Bool {
+public func R_LoadMDXA(_ mod: Model, _ buffer: Slots<JKAShared.byte>, _ mod_name: String, _ bAlreadyCached: inout Bool) -> Bool {
     var pinmodel: MdxaHeader
     var mdxa: MdxaHeader
     var version: Int32

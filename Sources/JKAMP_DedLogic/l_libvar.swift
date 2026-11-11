@@ -4,7 +4,7 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/botlib/l_libvar.cpp:20
-var libvarlist: Libvar? {
+public var libvarlist: Libvar? {
     get { world.variables.libvarlist }
     set { world.variables.libvarlist = newValue }
 }
@@ -16,7 +16,7 @@ var libvarlist: Libvar? {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_libvar.cpp:28
-func LibVarStringValue(_ string: inout JKAShared.CharBuf) -> Float {
+public func LibVarStringValue(_ string: inout JKAShared.CharBuf) -> Float {
     var dotfound: Int32 = 0
     var value: Float = 0
     // Raven steps the pointer `string` through the text, and the walk is a byte offset into the buffer.
@@ -51,7 +51,7 @@ func LibVarStringValue(_ string: inout JKAShared.CharBuf) -> Float {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_libvar.cpp:66
-func LibVarAlloc(_ var_name: String) -> Libvar? {
+public func LibVarAlloc(_ var_name: String) -> Libvar? {
     let v: Libvar
 
     // AI: Raven points the name at the bytes after the record. The setter keeps the text in the string pool, so those bytes stay unused.
@@ -71,7 +71,7 @@ func LibVarAlloc(_ var_name: String) -> Libvar? {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_libvar.cpp:85
-func LibVarDeAlloc(_ v: Libvar) {
+public func LibVarDeAlloc(_ v: Libvar) {
     // AI: Raven frees the GetMemory block of the text. The text is a String in the pool, so the free drops.
     FreeMemory(v.handle)
 }
@@ -83,7 +83,7 @@ func LibVarDeAlloc(_ v: Libvar) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_libvar.cpp:96
-func LibVarDeAllocAll() {
+public func LibVarDeAllocAll() {
     var v: Libvar?
 
     v = libvarlist
@@ -102,7 +102,7 @@ func LibVarDeAllocAll() {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_libvar.cpp:113
-func LibVarGet(_ var_name: String) -> Libvar? {
+public func LibVarGet(_ var_name: String) -> Libvar? {
     var v: Libvar?
 
     v = libvarlist
@@ -122,7 +122,7 @@ func LibVarGet(_ var_name: String) -> Libvar? {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_libvar.cpp:132
-func LibVarGetString(_ var_name: String) -> String {
+public func LibVarGetString(_ var_name: String) -> String {
     let v: Libvar?
 
     v = LibVarGet(var_name)
@@ -141,7 +141,7 @@ func LibVarGetString(_ var_name: String) -> String {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_libvar.cpp:152
-func LibVarGetValue(_ var_name: String) -> Float {
+public func LibVarGetValue(_ var_name: String) -> Float {
     let v: Libvar?
 
     v = LibVarGet(var_name)
@@ -160,7 +160,7 @@ func LibVarGetValue(_ var_name: String) -> Float {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_libvar.cpp:172
-func LibVar(_ var_name: String, _ value: String) -> Libvar? {
+public func LibVar(_ var_name: String, _ value: String) -> Libvar? {
     var v: Libvar?
     v = LibVarGet(var_name)
     if v != nil { return v }
@@ -186,7 +186,7 @@ func LibVar(_ var_name: String, _ value: String) -> Libvar? {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_libvar.cpp:195
-func LibVarString(_ var_name: String, _ value: String) -> String {
+public func LibVarString(_ var_name: String, _ value: String) -> String {
     let v: Libvar?
 
     v = LibVar(var_name, value)
@@ -200,7 +200,7 @@ func LibVarString(_ var_name: String, _ value: String) -> String {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_libvar.cpp:208
-func LibVarValue(_ var_name: String, _ value: String) -> Float {
+public func LibVarValue(_ var_name: String, _ value: String) -> Float {
     let v: Libvar?
 
     v = LibVar(var_name, value)
@@ -214,7 +214,7 @@ func LibVarValue(_ var_name: String, _ value: String) -> Float {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_libvar.cpp:221
-func LibVarSet(_ var_name: String, _ value: String) {
+public func LibVarSet(_ var_name: String, _ value: String) {
     var v: Libvar?
 
     v = LibVarGet(var_name)
@@ -242,7 +242,7 @@ func LibVarSet(_ var_name: String, _ value: String) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_libvar.cpp:248
-func LibVarChanged(_ var_name: String) -> Bool {
+public func LibVarChanged(_ var_name: String) -> Bool {
     let v: Libvar?
 
     v = LibVarGet(var_name)
@@ -261,7 +261,7 @@ func LibVarChanged(_ var_name: String) -> Bool {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/l_libvar.cpp:268
-func LibVarSetNotModified(_ var_name: String) {
+public func LibVarSetNotModified(_ var_name: String) {
     let v: Libvar?
 
     v = LibVarGet(var_name)

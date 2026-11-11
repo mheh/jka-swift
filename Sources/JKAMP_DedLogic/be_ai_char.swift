@@ -19,7 +19,7 @@ let CT_STRING = 3 as Int32
 let DEFAULT_CHARACTER = "bots/default_c.c"
 
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:60
-var botcharacters: Slots<BotCharacter?> { world.storage.botcharacters }
+public var botcharacters: Slots<BotCharacter?> { world.storage.botcharacters }
 
 //========================================================================
 //
@@ -28,7 +28,7 @@ var botcharacters: Slots<BotCharacter?> { world.storage.botcharacters }
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:68
-func BotCharacterFromHandle(_ handle: Int32) -> BotCharacter? {
+public func BotCharacterFromHandle(_ handle: Int32) -> BotCharacter? {
     if handle <= 0 || handle > MAX_CLIENTS {
         botimport.runPrint(PRT_FATAL, "character handle %d out of range\n", handle)
         return nil
@@ -47,7 +47,7 @@ func BotCharacterFromHandle(_ handle: Int32) -> BotCharacter? {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:88
-func BotDumpCharacter(_ ch: BotCharacter) {
+public func BotDumpCharacter(_ ch: BotCharacter) {
     var i: Int32
 
     Log_Write("%s", ch.filename)
@@ -75,7 +75,7 @@ func BotDumpCharacter(_ ch: BotCharacter) {
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:112
-func BotFreeCharacterStrings(_ ch: BotCharacter) {
+public func BotFreeCharacterStrings(_ ch: BotCharacter) {
     var i: Int32
 
     i = 0
@@ -94,7 +94,7 @@ func BotFreeCharacterStrings(_ ch: BotCharacter) {
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:130
-func BotFreeCharacter2(_ handle: Int32) {
+public func BotFreeCharacter2(_ handle: Int32) {
     if handle <= 0 || handle > MAX_CLIENTS {
         botimport.runPrint(PRT_FATAL, "character handle %d out of range\n", handle)
         return
@@ -115,7 +115,7 @@ func BotFreeCharacter2(_ handle: Int32) {
 // Changes Globals:		-
 //========================================================================
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:152
-func BotFreeCharacter(_ handle: Int32) {
+public func BotFreeCharacter(_ handle: Int32) {
     if LibVarGetValue("bot_reloadcharacters") == 0 { return }
     BotFreeCharacter2(handle)
 }
@@ -127,7 +127,7 @@ func BotFreeCharacter(_ handle: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:163
-func BotDefaultCharacteristics(_ ch: BotCharacter, _ defaultch: BotCharacter) {
+public func BotDefaultCharacteristics(_ ch: BotCharacter, _ defaultch: BotCharacter) {
     var i: Int32
 
     i = 0
@@ -160,7 +160,7 @@ func BotDefaultCharacteristics(_ ch: BotCharacter, _ defaultch: BotCharacter) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:195
-func BotLoadCharacterFromFile(_ charfile: inout JKAShared.CharBuf, _ skill: Int32) -> BotCharacter? {
+public func BotLoadCharacterFromFile(_ charfile: inout JKAShared.CharBuf, _ skill: Int32) -> BotCharacter? {
     var foundcharacter: Bool
     let ch: BotCharacter
 
@@ -294,7 +294,7 @@ func BotLoadCharacterFromFile(_ charfile: inout JKAShared.CharBuf, _ skill: Int3
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:345
-func BotFindCachedCharacter(_ charfile: String, _ skill: Float) -> Int32 {
+public func BotFindCachedCharacter(_ charfile: String, _ skill: Float) -> Int32 {
     var handle: Int32
 
     handle = 1
@@ -319,7 +319,7 @@ func BotFindCachedCharacter(_ charfile: String, _ skill: Float) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:366
-func BotLoadCachedCharacter(_ charfile: inout JKAShared.CharBuf, _ skill: Float, _ reload: Int32) -> Int32 {
+public func BotLoadCachedCharacter(_ charfile: inout JKAShared.CharBuf, _ skill: Float, _ reload: Int32) -> Int32 {
     var handle: Int32, cachedhandle: Int32, intskill: Int32
     var ch: BotCharacter? = nil
 
@@ -412,7 +412,7 @@ func BotLoadCachedCharacter(_ charfile: inout JKAShared.CharBuf, _ skill: Float,
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:479
-func BotLoadCharacterSkill(_ charfile: inout JKAShared.CharBuf, _ skill: Float) -> Int32 {
+public func BotLoadCharacterSkill(_ charfile: inout JKAShared.CharBuf, _ skill: Float) -> Int32 {
     var ch: Int32, defaultch: Int32
 
     var defaultcharacter = CharBuf(DEFAULT_CHARACTER)
@@ -433,7 +433,7 @@ func BotLoadCharacterSkill(_ charfile: inout JKAShared.CharBuf, _ skill: Float) 
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:499
-func BotInterpolateCharacters(_ handle1: Int32, _ handle2: Int32, _ desiredskill: Float) -> Int32 {
+public func BotInterpolateCharacters(_ handle1: Int32, _ handle2: Int32, _ desiredskill: Float) -> Int32 {
     let out: BotCharacter
     var i: Int32, handle: Int32
     var scale: Float
@@ -481,7 +481,7 @@ func BotInterpolateCharacters(_ handle1: Int32, _ handle2: Int32, _ desiredskill
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:551
-func BotLoadCharacter(_ charfile: inout JKAShared.CharBuf, _ skill: Float) -> Int32 {
+public func BotLoadCharacter(_ charfile: inout JKAShared.CharBuf, _ skill: Float) -> Int32 {
     var skill = skill
     var firstskill: Int32, secondskill: Int32, handle: Int32
 
@@ -530,7 +530,7 @@ func BotLoadCharacter(_ charfile: inout JKAShared.CharBuf, _ skill: Float) -> In
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:600
-func CheckCharacteristicIndex(_ character: Int32, _ index: Int32) -> Int32 {
+public func CheckCharacteristicIndex(_ character: Int32, _ index: Int32) -> Int32 {
     guard let ch = BotCharacterFromHandle(character) else { return 0 }
     if index < 0 || index >= MAX_CHARACTERISTICS {
         botimport.runPrint(PRT_ERROR, "characteristic %d does not exist\n", index)
@@ -550,7 +550,7 @@ func CheckCharacteristicIndex(_ character: Int32, _ index: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:624
-func Characteristic_Float(_ character: Int32, _ index: Int32) -> Float {
+public func Characteristic_Float(_ character: Int32, _ index: Int32) -> Float {
     guard let ch = BotCharacterFromHandle(character) else { return 0 }
     //check if the index is in range
     if CheckCharacteristicIndex(character, index) == 0 { return 0 }
@@ -577,7 +577,7 @@ func Characteristic_Float(_ character: Int32, _ index: Int32) -> Float {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:656
-func Characteristic_BFloat(_ character: Int32, _ index: Int32, _ min: Float, _ max: Float) -> Float {
+public func Characteristic_BFloat(_ character: Int32, _ index: Int32, _ min: Float, _ max: Float) -> Float {
     let value: Float
 
     if BotCharacterFromHandle(character) == nil { return 0 }
@@ -598,7 +598,7 @@ func Characteristic_BFloat(_ character: Int32, _ index: Int32, _ min: Float, _ m
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:679
-func Characteristic_Integer(_ character: Int32, _ index: Int32) -> Int32 {
+public func Characteristic_Integer(_ character: Int32, _ index: Int32) -> Int32 {
     guard let ch = BotCharacterFromHandle(character) else { return 0 }
     //check if the index is in range
     if CheckCharacteristicIndex(character, index) == 0 { return 0 }
@@ -623,7 +623,7 @@ func Characteristic_Integer(_ character: Int32, _ index: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:710
-func Characteristic_BInteger(_ character: Int32, _ index: Int32, _ min: Int32, _ max: Int32) -> Int32 {
+public func Characteristic_BInteger(_ character: Int32, _ index: Int32, _ min: Int32, _ max: Int32) -> Int32 {
     let value: Int32
 
     if BotCharacterFromHandle(character) == nil { return 0 }
@@ -644,7 +644,7 @@ func Characteristic_BInteger(_ character: Int32, _ index: Int32, _ min: Int32, _
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:733
-func Characteristic_String(_ character: Int32, _ index: Int32, _ buf: inout JKAShared.CharBuf, _ size: Int32) {
+public func Characteristic_String(_ character: Int32, _ index: Int32, _ buf: inout JKAShared.CharBuf, _ size: Int32) {
     guard let ch = BotCharacterFromHandle(character) else { return }
     //check if the index is in range
     if CheckCharacteristicIndex(character, index) == 0 { return }
@@ -666,7 +666,7 @@ func Characteristic_String(_ character: Int32, _ index: Int32, _ buf: inout JKAS
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_ai_char.cpp:761
-func BotShutdownCharacters() {
+public func BotShutdownCharacters() {
     var handle: Int32
 
     handle = 1

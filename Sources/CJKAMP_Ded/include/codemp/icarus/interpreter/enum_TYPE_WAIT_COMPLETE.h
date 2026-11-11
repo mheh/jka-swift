@@ -4,7 +4,7 @@
 #define JKA_CODEMP_ICARUS_INTERPRETER_ENUM_TYPE_WAIT_COMPLETE_H
 
 #include "CJKAMP_Ded_forward.h"
-#include "codemp/icarus/interpreter/enum_ID_AFFECT.h"
+#include "enum_ID_AFFECT.h"
 
 // Source: oracle/codemp/icarus/interpreter.h:72
 //Type defines

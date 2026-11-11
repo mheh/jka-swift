@@ -38,7 +38,7 @@ private let MIN_DISTANCE = 80 as Int32
 private let MIN_DISTANCE_SQR = (MIN_DISTANCE * MIN_DISTANCE)
 
 /// Source: oracle/codemp/game/NPC_AI_Remote.c:17
-func NPC_Remote_Precache() {
+public func NPC_Remote_Precache() {
     G_SoundIndex("sound/chars/remote/misc/fire.wav")
     G_SoundIndex("sound/chars/remote/misc/hiss.wav")
     G_EffectIndex("env/small_explode")
@@ -52,7 +52,7 @@ NPC_Remote_Pain
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Remote.c:29
-func NPC_Remote_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func NPC_Remote_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     SaveNPCGlobals()
     SetNPCGlobals(`self`)
     Remote_Strafe()
@@ -69,7 +69,7 @@ Remote_MaintainHeight
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Remote.c:44
-func Remote_MaintainHeight() {
+public func Remote_MaintainHeight() {
     var dif: Float
 
     // Update our angles regardless
@@ -145,7 +145,7 @@ Remote_Strafe
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Remote.c:139
-func Remote_Strafe() {
+public func Remote_Strafe() {
     var dir: Int32 = 0
     var end = vec3_t()
     var right = vec3_t()
@@ -190,7 +190,7 @@ Remote_Hunt
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Remote.c:178
-func Remote_Hunt(_ visible: Bool, _ advance: Bool, _ retreat: Bool) {
+public func Remote_Hunt(_ visible: Bool, _ advance: Bool, _ retreat: Bool) {
     var distance: Float = 0
     var speed: Float
     var forward = vec3_t()
@@ -239,7 +239,7 @@ Remote_Fire
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Remote.c:229
-func Remote_Fire() {
+public func Remote_Fire() {
     var delta1 = vec3_t()
     var enemy_org1 = vec3_t()
     var muzzle1 = vec3_t()
@@ -279,7 +279,7 @@ Remote_Ranged
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Remote.c:264
-func Remote_Ranged(_ visible: Bool, _ advance: Bool, _ retreat: Bool) {
+public func Remote_Ranged(_ visible: Bool, _ advance: Bool, _ retreat: Bool) {
     if TIMER_Done(NPC!, "attackDelay") {
         TIMER_Set(NPC!, "attackDelay", Q_irand(500, 3000))
         Remote_Fire()
@@ -298,7 +298,7 @@ Remote_Attack
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Remote.c:290
-func Remote_Attack() {
+public func Remote_Attack() {
     let distance: Float
     let visible: Bool
     let idealDist: Float
@@ -344,7 +344,7 @@ Remote_Idle
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Remote.c:339
-func Remote_Idle() {
+public func Remote_Idle() {
     Remote_MaintainHeight()
 
     NPC_BSIdle()
@@ -358,7 +358,7 @@ Remote_Patrol
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Remote.c:351
-func Remote_Patrol() {
+public func Remote_Patrol() {
     Remote_MaintainHeight()
 
     //If we have somewhere to go, then do that
@@ -381,7 +381,7 @@ NPC_BSRemote_Default
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Remote.c:375
-func NPC_BSRemote_Default() {
+public func NPC_BSRemote_Default() {
     if NPC!.enemy != nil {
         Remote_Attack()
     } else if (NPCInfo!.scriptFlags & SCF_LOOK_FOR_ENEMIES) != 0 {

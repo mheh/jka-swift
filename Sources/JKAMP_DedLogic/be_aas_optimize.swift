@@ -10,7 +10,7 @@ import JKAMP_Ded
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_optimize.cpp:61
-func AAS_KeepEdge(_ edge: AasEdge) -> Int32 {
+public func AAS_KeepEdge(_ edge: AasEdge) -> Int32 {
     return 1
 }
 
@@ -21,7 +21,7 @@ func AAS_KeepEdge(_ edge: AasEdge) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_optimize.cpp:71
-func AAS_OptimizeEdge(_ optimized: Optimized, _ edgenum: Int32) -> Int32 {
+public func AAS_OptimizeEdge(_ optimized: Optimized, _ edgenum: Int32) -> Int32 {
     var i: Int32
     var optedgenum: Int32
     var edge: AasEdge
@@ -75,7 +75,7 @@ func AAS_OptimizeEdge(_ optimized: Optimized, _ edgenum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_optimize.cpp:116
-func AAS_KeepFace(_ face: AasFace) -> Int32 {
+public func AAS_KeepFace(_ face: AasFace) -> Int32 {
     if (face.faceflags & FACE_LADDER) == 0 {
         return 0
     } else {
@@ -90,7 +90,7 @@ func AAS_KeepFace(_ face: AasFace) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_optimize.cpp:127
-func AAS_OptimizeFace(_ optimized: Optimized, _ facenum: Int32) -> Int32 {
+public func AAS_OptimizeFace(_ optimized: Optimized, _ facenum: Int32) -> Int32 {
     var i: Int32
     var edgenum: Int32
     var optedgenum: Int32
@@ -147,7 +147,7 @@ func AAS_OptimizeFace(_ optimized: Optimized, _ facenum: Int32) -> Int32 {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_optimize.cpp:172
-func AAS_OptimizeArea(_ optimized: Optimized, _ areanum: Int32) {
+public func AAS_OptimizeArea(_ optimized: Optimized, _ areanum: Int32) {
     var i: Int32
     var facenum: Int32
     var optfacenum: Int32
@@ -180,7 +180,7 @@ func AAS_OptimizeArea(_ optimized: Optimized, _ areanum: Int32) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_optimize.cpp:201
-func AAS_OptimizeAlloc(_ optimized: Optimized) {
+public func AAS_OptimizeAlloc(_ optimized: Optimized) {
     optimized.vertexes = Slots(vectors: GetClearedMemory(aasworld.numvertexes * Int32(vec3_t.byteCount)), count: Int(aasworld.numvertexes))
     optimized.numvertexes = 0
     optimized.edges = AasEdge(GetClearedMemory(aasworld.numedges * Int32(AasEdge.byteCount)))
@@ -206,7 +206,7 @@ func AAS_OptimizeAlloc(_ optimized: Optimized) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_optimize.cpp:226
-func AAS_OptimizeStore(_ optimized: Optimized) {
+public func AAS_OptimizeStore(_ optimized: Optimized) {
     //store the optimized vertexes
     if aasworld.vertexes != nil {
         FreeMemory(OpaquePointer(aasworld.vertexes!.base))
@@ -256,7 +256,7 @@ func AAS_OptimizeStore(_ optimized: Optimized) {
 // Changes Globals:		-
 //===========================================================================
 /// Source: oracle/codemp/botlib/be_aas_optimize.cpp:263
-func AAS_Optimize() {
+public func AAS_Optimize() {
     Optimized.scratch { optimized in
         var i: Int32
         var sign: Int32

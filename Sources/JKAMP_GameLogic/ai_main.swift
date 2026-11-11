@@ -11,10 +11,10 @@ let MAX_PATH = 144 as Int32
 let BOT_THINK_TIME = 0 as Int32
 
 /// Source: oracle/codemp/game/ai_main.c:46
-var botstates: Slots<BotState?> { world.storage.botstates }
+public var botstates: Slots<BotState?> { world.storage.botstates }
 
 /// Source: oracle/codemp/game/ai_main.c:48
-var numbots: Int32 {
+public var numbots: Int32 {
     get { world.variables.numbots }
     set { world.variables.numbots = newValue }
 }
@@ -24,97 +24,97 @@ var numbots: Int32 {
 let floattime: Float = 0
 
 /// Source: oracle/codemp/game/ai_main.c:52
-var regularupdate_time: Float {
+public var regularupdate_time: Float {
     get { world.variables.regularupdate_time }
     set { world.variables.regularupdate_time = newValue }
 }
 
 /// Source: oracle/codemp/game/ai_main.c:59
-var gBotEventTracker: Slots<Boteventtracker> { world.storage.gBotEventTracker }
+public var gBotEventTracker: Slots<Boteventtracker> { world.storage.gBotEventTracker }
 
 /// Source: oracle/codemp/game/ai_main.c:62
-var bot_forcepowers: JKAMP.VmCvar { world.storage.bot_forcepowers }
+public var bot_forcepowers: JKAMP.VmCvar { world.storage.bot_forcepowers }
 
 /// Source: oracle/codemp/game/ai_main.c:63
-var bot_forgimmick: JKAMP.VmCvar { world.storage.bot_forgimmick }
+public var bot_forgimmick: JKAMP.VmCvar { world.storage.bot_forgimmick }
 
 /// Source: oracle/codemp/game/ai_main.c:64
-var bot_honorableduelacceptance: JKAMP.VmCvar { world.storage.bot_honorableduelacceptance }
+public var bot_honorableduelacceptance: JKAMP.VmCvar { world.storage.bot_honorableduelacceptance }
 
 /// Source: oracle/codemp/game/ai_main.c:65
-var bot_pvstype: JKAMP.VmCvar { world.storage.bot_pvstype }
+public var bot_pvstype: JKAMP.VmCvar { world.storage.bot_pvstype }
 
 /// Source: oracle/codemp/game/ai_main.c:66
-var bot_normgpath: JKAMP.VmCvar { world.storage.bot_normgpath }
+public var bot_normgpath: JKAMP.VmCvar { world.storage.bot_normgpath }
 
 /// Source: oracle/codemp/game/ai_main.c:68
-var bot_getinthecarrr: JKAMP.VmCvar { world.storage.bot_getinthecarrr }
+public var bot_getinthecarrr: JKAMP.VmCvar { world.storage.bot_getinthecarrr }
 
 /// Source: oracle/codemp/game/ai_main.c:76
-var bot_attachments: JKAMP.VmCvar { world.storage.bot_attachments }
+public var bot_attachments: JKAMP.VmCvar { world.storage.bot_attachments }
 
 /// Source: oracle/codemp/game/ai_main.c:77
-var bot_camp: JKAMP.VmCvar { world.storage.bot_camp }
+public var bot_camp: JKAMP.VmCvar { world.storage.bot_camp }
 
 /// Source: oracle/codemp/game/ai_main.c:79
-var bot_wp_info: JKAMP.VmCvar { world.storage.bot_wp_info }
+public var bot_wp_info: JKAMP.VmCvar { world.storage.bot_wp_info }
 
 /// Source: oracle/codemp/game/ai_main.c:80
-var bot_wp_edit: JKAMP.VmCvar { world.storage.bot_wp_edit }
+public var bot_wp_edit: JKAMP.VmCvar { world.storage.bot_wp_edit }
 
 /// Source: oracle/codemp/game/ai_main.c:81
-var bot_wp_clearweight: JKAMP.VmCvar { world.storage.bot_wp_clearweight }
+public var bot_wp_clearweight: JKAMP.VmCvar { world.storage.bot_wp_clearweight }
 
 /// Source: oracle/codemp/game/ai_main.c:82
-var bot_wp_distconnect: JKAMP.VmCvar { world.storage.bot_wp_distconnect }
+public var bot_wp_distconnect: JKAMP.VmCvar { world.storage.bot_wp_distconnect }
 
 /// Source: oracle/codemp/game/ai_main.c:83
-var bot_wp_visconnect: JKAMP.VmCvar { world.storage.bot_wp_visconnect }
+public var bot_wp_visconnect: JKAMP.VmCvar { world.storage.bot_wp_visconnect }
 
 /// Source: oracle/codemp/game/ai_main.c:86
-var flagRed: JKAMP.Wpobject? {
+public var flagRed: JKAMP.Wpobject? {
     get { world.variables.flagRed }
     set { world.variables.flagRed = newValue }
 }
 
 /// Source: oracle/codemp/game/ai_main.c:87
-var oFlagRed: JKAMP.Wpobject? {
+public var oFlagRed: JKAMP.Wpobject? {
     get { world.variables.oFlagRed }
     set { world.variables.oFlagRed = newValue }
 }
 
 /// Source: oracle/codemp/game/ai_main.c:88
-var flagBlue: JKAMP.Wpobject? {
+public var flagBlue: JKAMP.Wpobject? {
     get { world.variables.flagBlue }
     set { world.variables.flagBlue = newValue }
 }
 
 /// Source: oracle/codemp/game/ai_main.c:89
-var oFlagBlue: JKAMP.Wpobject? {
+public var oFlagBlue: JKAMP.Wpobject? {
     get { world.variables.oFlagBlue }
     set { world.variables.oFlagBlue = newValue }
 }
 
 /// Source: oracle/codemp/game/ai_main.c:91
-var eFlagRed: Entity? {
+public var eFlagRed: Entity? {
     get { world.variables.eFlagRed }
     set { world.variables.eFlagRed = newValue }
 }
 
 /// Source: oracle/codemp/game/ai_main.c:92
-var droppedRedFlag: Entity? {
+public var droppedRedFlag: Entity? {
     get { world.variables.droppedRedFlag }
     set { world.variables.droppedRedFlag = newValue }
 }
 
 /// Source: oracle/codemp/game/ai_main.c:93
-var eFlagBlue: Entity? {
+public var eFlagBlue: Entity? {
     get { world.variables.eFlagBlue }
     set { world.variables.eFlagBlue = newValue }
 }
 
 /// Source: oracle/codemp/game/ai_main.c:94
-var droppedBlueFlag: Entity? {
+public var droppedBlueFlag: Entity? {
     get { world.variables.droppedBlueFlag }
     set { world.variables.droppedBlueFlag = newValue }
 }
@@ -133,21 +133,21 @@ let ctfStateNames: [String] = [
 
 /// Source: oracle/codemp/game/ai_main.c:106
 /// Raven's data table, a hand property of `GameWorld`.
-var ctfStateDescriptions: [String] {
+public var ctfStateDescriptions: [String] {
     get { world.ctfStateDescriptions }
     set { world.ctfStateDescriptions = newValue }
 }
 
 /// Source: oracle/codemp/game/ai_main.c:115
 /// Raven's data table, a hand property of `GameWorld`.
-var siegeStateDescriptions: [String] {
+public var siegeStateDescriptions: [String] {
     get { world.siegeStateDescriptions }
     set { world.siegeStateDescriptions = newValue }
 }
 
 /// Source: oracle/codemp/game/ai_main.c:121
 /// Raven's data table, a hand property of `GameWorld`.
-var teamplayStateDescriptions: [String] {
+public var teamplayStateDescriptions: [String] {
     get { world.teamplayStateDescriptions }
     set { world.teamplayStateDescriptions = newValue }
 }
@@ -159,13 +159,13 @@ let STRAFEAROUND_RIGHT = 1 as Int32
 let STRAFEAROUND_LEFT = 2 as Int32
 
 /// Source: oracle/codemp/game/ai_main.c:7485
-var gUpdateVars: Int32 {
+public var gUpdateVars: Int32 {
     get { world.variables.gUpdateVars }
     set { world.variables.gUpdateVars = newValue }
 }
 
 /// Source: oracle/codemp/game/ai_main.c:128
-func BotStraightTPOrderCheck(_ ent: Entity, _ ordernum: Int32, _ bs: BotState) {
+public func BotStraightTPOrderCheck(_ ent: Entity, _ ordernum: Int32, _ bs: BotState) {
     switch ordernum {
     case 0:
         if bs.squadLeader == ent {
@@ -191,7 +191,7 @@ func BotStraightTPOrderCheck(_ ent: Entity, _ ordernum: Int32, _ bs: BotState) {
 }
 
 /// Source: oracle/codemp/game/ai_main.c:157
-func BotSelectWeapon(_ client: Int32, _ weapon: Int32) {
+public func BotSelectWeapon(_ client: Int32, _ weapon: Int32) {
     if weapon <= WP_NONE {
         //		assert(0);
         return
@@ -200,7 +200,7 @@ func BotSelectWeapon(_ client: Int32, _ weapon: Int32) {
 }
 
 /// Source: oracle/codemp/game/ai_main.c:167
-func BotReportStatus(_ bs: BotState) {
+public func BotReportStatus(_ bs: BotState) {
     if g_gametype.integer == GT_TEAM {
         trap_EA_SayTeam(bs.client, teamplayStateDescriptions[bs.teamplayState])
     } else if g_gametype.integer == GT_SIEGE {
@@ -212,7 +212,7 @@ func BotReportStatus(_ bs: BotState) {
 
 //accept a team order from a player
 /// Source: oracle/codemp/game/ai_main.c:184
-func BotOrder(_ ent: Entity, _ clientnum: Int32, _ ordernum: Int32) {
+public func BotOrder(_ ent: Entity, _ clientnum: Int32, _ ordernum: Int32) {
     var stateMin: Int32 = 0
     var stateMax: Int32 = 0
     var i: Int32 = 0
@@ -283,7 +283,7 @@ func BotOrder(_ ent: Entity, _ clientnum: Int32, _ ordernum: Int32) {
 
 //See if bot is mindtricked by the client in question
 /// Source: oracle/codemp/game/ai_main.c:279
-func BotMindTricked(_ botClient: Int32, _ enemyClient: Int32) -> Int32 {
+public func BotMindTricked(_ botClient: Int32, _ enemyClient: Int32) -> Int32 {
     var fd: Forcedata?
 
     if g_entities[enemyClient].client == nil {
@@ -318,12 +318,12 @@ func BotMindTricked(_ botClient: Int32, _ enemyClient: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_main.c:332
-func BotAI_Print(_ type: Int32, _ fmt: String, _ args: any JKAShared.FormatArg...) {
+public func BotAI_Print(_ type: Int32, _ fmt: String, _ args: any JKAShared.FormatArg...) {
     return
 }
 
 /// Source: oracle/codemp/game/ai_main.c:336
-func IsTeamplay() -> Int32 {
+public func IsTeamplay() -> Int32 {
     if g_gametype.integer < GT_TEAM {
         return 0
     }
@@ -339,7 +339,7 @@ BotAI_GetClientState
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:351
-func BotAI_GetClientState(_ clientNum: Int32, _ state: JKAMP.PlayerState) -> Int32 {
+public func BotAI_GetClientState(_ clientNum: Int32, _ state: JKAMP.PlayerState) -> Int32 {
     var ent: Entity?
 
     ent = g_entities[clientNum]
@@ -362,7 +362,7 @@ BotAI_GetEntityState
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:371
-func BotAI_GetEntityState(_ entityNum: Int32, _ state: JKAMP.EntityState) -> Int32 {
+public func BotAI_GetEntityState(_ entityNum: Int32, _ state: JKAMP.EntityState) -> Int32 {
     var ent: Entity?
 
     ent = g_entities[entityNum]
@@ -388,7 +388,7 @@ BotAI_GetSnapshotEntity
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:388
-func BotAI_GetSnapshotEntity(_ clientNum: Int32, _ sequence: Int32, _ state: JKAMP.EntityState) -> Int32 {
+public func BotAI_GetSnapshotEntity(_ clientNum: Int32, _ sequence: Int32, _ state: JKAMP.EntityState) -> Int32 {
     let entNum: Int32
 
     entNum = trap_BotGetSnapshotEntity(clientNum, sequence)
@@ -421,7 +421,7 @@ NumBots
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:416
-func NumBots() -> Int32 {
+public func NumBots() -> Int32 {
     return numbots
 }
 
@@ -433,7 +433,7 @@ AngleDifference
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:425
-func AngleDifference(_ ang1: Float, _ ang2: Float) -> Float {
+public func AngleDifference(_ ang1: Float, _ ang2: Float) -> Float {
     var diff: Float
 
     diff = ang1 - ang2
@@ -457,7 +457,7 @@ BotChangeViewAngle
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:443
-func BotChangeViewAngle(_ angle: Float, _ ideal_angle: Float, _ speed: Float) -> Float {
+public func BotChangeViewAngle(_ angle: Float, _ ideal_angle: Float, _ speed: Float) -> Float {
     var move: Float
     // Raven assigns his own `angle` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var angle = angle
@@ -499,7 +499,7 @@ BotChangeViewAngles
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:470
-func BotChangeViewAngles(_ bs: BotState, _ thinktime: Float) {
+public func BotChangeViewAngles(_ bs: BotState, _ thinktime: Float) {
     var diff: Float
     var factor: Float
     var maxchange: Float
@@ -575,7 +575,7 @@ BotInputToUserCommand
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:537
-func BotInputToUserCommand(_ bi: BotInput, _ ucmd: JKAMP.Usercmd, _ delta_angles: [Int32], _ time: Int32, _ useTime: Int32) {
+public func BotInputToUserCommand(_ bi: BotInput, _ ucmd: JKAMP.Usercmd, _ delta_angles: [Int32], _ time: Int32, _ useTime: Int32) {
     var angles = vec3_t()
     var forward = vec3_t()
     var right = vec3_t()
@@ -698,7 +698,7 @@ BotUpdateInput
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:633
-func BotUpdateInput(_ bs: BotState, _ time: Int32, _ elapsed_time: Int32) {
+public func BotUpdateInput(_ bs: BotState, _ time: Int32, _ elapsed_time: Int32) {
     // Raven's record lives to the end of his block, so the block is the closure.
     BotInput.scratch { bi in
         var j: Int32 = 0
@@ -738,7 +738,7 @@ BotAIRegularUpdate
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:662
-func BotAIRegularUpdate() {
+public func BotAIRegularUpdate() {
     if regularupdate_time < floattime {
         trap_BotUpdateEntityItems()
         regularupdate_time = Float(Double(floattime) + 0.3)
@@ -753,7 +753,7 @@ RemoveColorEscapeSequences
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:674
-func RemoveColorEscapeSequences(_ text: inout JKAShared.CharBuf) {
+public func RemoveColorEscapeSequences(_ text: inout JKAShared.CharBuf) {
     var i: Int32
     var l: Int32
 
@@ -784,7 +784,7 @@ BotAI
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:696
-func BotAI(_ client: Int32, _ thinktime: Float) -> Int32 {
+public func BotAI(_ client: Int32, _ thinktime: Float) -> Int32 {
     var bs: BotState?
     var buf = CharBuf(1024)
     var args: Int32?
@@ -869,7 +869,7 @@ BotScheduleBotThink
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:778
-func BotScheduleBotThink() {
+public func BotScheduleBotThink() {
     var i: Int32
     var botnum: Int32
 
@@ -889,7 +889,7 @@ func BotScheduleBotThink() {
 }
 
 /// Source: oracle/codemp/game/ai_main.c:793
-func PlayersInGame() -> Int32 {
+public func PlayersInGame() -> Int32 {
     var i: Int32 = 0
     var ent: Entity?
     var pl: Int32 = 0
@@ -915,7 +915,7 @@ BotAISetupClient
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:819
-func BotAISetupClient(_ client: Int32, _ settings: BotSettings, _ restart: Bool) -> Int32 {
+public func BotAISetupClient(_ client: Int32, _ settings: BotSettings, _ restart: Bool) -> Int32 {
     var bs: BotState?
 
     if botstates[client] == nil {
@@ -991,7 +991,7 @@ BotAIShutdownClient
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:891
-func BotAIShutdownClient(_ client: Int32, _ restart: Bool) -> Int32 {
+public func BotAIShutdownClient(_ client: Int32, _ restart: Bool) -> Int32 {
     var bs: BotState?
 
     bs = botstates[client]
@@ -1027,7 +1027,7 @@ when the level is changed
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:924
-func BotResetState(_ bs: BotState) {
+public func BotResetState(_ bs: BotState) {
     var client: Int32 = 0
     var entitynum: Int32 = 0
     var inuse: Int32 = 0
@@ -1090,7 +1090,7 @@ BotAILoadMap
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:966
-func BotAILoadMap(_ restart: Int32) -> Int32 {
+public func BotAILoadMap(_ restart: Int32) -> Int32 {
     var i: Int32
 
     i = 0
@@ -1107,7 +1107,7 @@ func BotAILoadMap(_ restart: Int32) -> Int32 {
 
 //standard visibility check
 /// Source: oracle/codemp/game/ai_main.c:982
-func OrgVisible(_ org1: JKAShared.vec3_t, _ org2: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
+public func OrgVisible(_ org1: JKAShared.vec3_t, _ org2: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { tr -> Int32 in
@@ -1124,7 +1124,7 @@ func OrgVisible(_ org1: JKAShared.vec3_t, _ org2: JKAShared.vec3_t, _ ignore: In
 
 //special waypoint visibility check
 /// Source: oracle/codemp/game/ai_main.c:997
-func WPOrgVisible(_ bot: Entity, _ org1: JKAShared.vec3_t, _ org2: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
+public func WPOrgVisible(_ bot: Entity, _ org1: JKAShared.vec3_t, _ org2: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { tr -> Int32 in
@@ -1155,7 +1155,7 @@ func WPOrgVisible(_ bot: Entity, _ org1: JKAShared.vec3_t, _ org2: JKAShared.vec
 
 //visibility check with hull trace
 /// Source: oracle/codemp/game/ai_main.c:1029
-func OrgVisibleBox(_ org1: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ org2: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
+public func OrgVisibleBox(_ org1: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ org2: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { tr -> Int32 in
@@ -1178,7 +1178,7 @@ func OrgVisibleBox(_ org1: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: J
 //kind of badly done, but this shouldn't happen
 //often.
 /// Source: oracle/codemp/game/ai_main.c:1053
-func CheckForFunc(_ org: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
+public func CheckForFunc(_ org: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
     var fent: Entity?
     var under = vec3_t()
     // Raven's record lives to the end of his block, so the block is the closure.
@@ -1211,7 +1211,7 @@ func CheckForFunc(_ org: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
 
 //perform pvs check based on rmg or not
 /// Source: oracle/codemp/game/ai_main.c:1086
-func BotPVSCheck(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool {
+public func BotPVSCheck(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool {
     if g_RMG.integer != 0 && bot_pvstype.integer != 0 {
         var subPoint = vec3_t()
         subPoint = p1 - p2
@@ -1227,7 +1227,7 @@ func BotPVSCheck(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Bool {
 
 //get the index to the nearest visible waypoint in the global trail
 /// Source: oracle/codemp/game/ai_main.c:1104
-func GetNearestVisibleWP(_ org: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
+public func GetNearestVisibleWP(_ org: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
     var i: Int32
     var bestdist: Float
     var flLen: Float
@@ -1272,7 +1272,7 @@ func GetNearestVisibleWP(_ org: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
 //see if this is a valid waypoint to pick up in our
 //current state (whatever that may be)
 /// Source: oracle/codemp/game/ai_main.c:1157
-func PassWayCheck(_ bs: BotState, _ windex: Int32) -> Int32 {
+public func PassWayCheck(_ bs: BotState, _ windex: Int32) -> Int32 {
     if gWPArray[windex] == nil || gWPArray[windex]!.inuse == 0 {
         //bad point index
         return 0
@@ -1303,7 +1303,7 @@ func PassWayCheck(_ bs: BotState, _ windex: Int32) -> Int32 {
 
 //tally up the distance between two waypoints
 /// Source: oracle/codemp/game/ai_main.c:1193
-func TotalTrailDistance(_ start: Int32, _ end: Int32, _ bs: BotState) -> Float {
+public func TotalTrailDistance(_ start: Int32, _ end: Int32, _ bs: BotState) -> Float {
     var beginat: Int32
     let endat: Int32
     var distancetotal: Float
@@ -1345,7 +1345,7 @@ func TotalTrailDistance(_ start: Int32, _ end: Int32, _ bs: BotState) -> Float {
 //see if there's a route shorter than our current one to get
 //to the final destination we currently desire
 /// Source: oracle/codemp/game/ai_main.c:1263
-func CheckForShorterRoutes(_ bs: BotState, _ newwpindex: Int32) {
+public func CheckForShorterRoutes(_ bs: BotState, _ newwpindex: Int32) {
     var bestlen: Float
     var checklen: Float
     var bestindex: Int32
@@ -1418,7 +1418,7 @@ func CheckForShorterRoutes(_ bs: BotState, _ newwpindex: Int32) {
 //check for flags on the waypoint we're currently travelling to
 //and perform the desired behavior based on the flag
 /// Source: oracle/codemp/game/ai_main.c:1353
-func WPConstantRoutine(_ bs: BotState) {
+public func WPConstantRoutine(_ bs: BotState) {
     if bs.wpCurrent == nil {
         return
     }
@@ -1479,7 +1479,7 @@ func WPConstantRoutine(_ bs: BotState) {
 
 //check if our ctf state is to guard the base
 /// Source: oracle/codemp/game/ai_main.c:1432
-func BotCTFGuardDuty(_ bs: BotState) -> Bool {
+public func BotCTFGuardDuty(_ bs: BotState) -> Bool {
     if g_gametype.integer != GT_CTF && g_gametype.integer != GT_CTY {
         return false
     }
@@ -1496,7 +1496,7 @@ func BotCTFGuardDuty(_ bs: BotState) -> Bool {
 //checks for flags on the current wp and activate
 //any "touch" events based on that.
 /// Source: oracle/codemp/game/ai_main.c:1452
-func WPTouchRoutine(_ bs: BotState) {
+public func WPTouchRoutine(_ bs: BotState) {
     let lastNum: Int32
 
     if bs.wpCurrent == nil {
@@ -1563,14 +1563,14 @@ func WPTouchRoutine(_ bs: BotState) {
 //could also slowly lerp toward, but for now
 //just copying straight over.
 /// Source: oracle/codemp/game/ai_main.c:1543
-func MoveTowardIdealAngles(_ bs: BotState) {
+public func MoveTowardIdealAngles(_ bs: BotState) {
     bs.ideal_viewangles = bs.goalAngles
 }
 
 //do some trace checks for strafing to get an idea of where we
 //are and if we should move to avoid obstacles.
 /// Source: oracle/codemp/game/ai_main.c:1556
-func BotTrace_Strafe(_ bs: BotState, _ traceto: JKAShared.vec3_t) -> Int32 {
+public func BotTrace_Strafe(_ bs: BotState, _ traceto: JKAShared.vec3_t) -> Int32 {
     var playerMins = vec3_t(-15, -15, -8)
     var playerMaxs = vec3_t(15, 15, Float(DEFAULT_MAXS_2))
     var from = vec3_t()
@@ -1659,7 +1659,7 @@ func BotTrace_Strafe(_ bs: BotState, _ traceto: JKAShared.vec3_t) -> Int32 {
 //Similar to the trace check, but we want to trace to see
 //if there's anything we can jump over.
 /// Source: oracle/codemp/game/ai_main.c:1638
-func BotTrace_Jump(_ bs: BotState, _ traceto: JKAShared.vec3_t) -> Int32 {
+public func BotTrace_Jump(_ bs: BotState, _ traceto: JKAShared.vec3_t) -> Int32 {
     var mins = vec3_t()
     var maxs = vec3_t()
     var a = vec3_t()
@@ -1730,7 +1730,7 @@ func BotTrace_Jump(_ bs: BotState, _ traceto: JKAShared.vec3_t) -> Int32 {
 
 //And yet another check to duck under any obstacles.
 /// Source: oracle/codemp/game/ai_main.c:1702
-func BotTrace_Duck(_ bs: BotState, _ traceto: JKAShared.vec3_t) -> Int32 {
+public func BotTrace_Duck(_ bs: BotState, _ traceto: JKAShared.vec3_t) -> Int32 {
     var mins = vec3_t()
     var maxs = vec3_t()
     var a = vec3_t()
@@ -1790,7 +1790,7 @@ func BotTrace_Duck(_ bs: BotState, _ traceto: JKAShared.vec3_t) -> Int32 {
 
 //check of the potential enemy is a valid one
 /// Source: oracle/codemp/game/ai_main.c:1753
-func PassStandardEnemyChecks(_ bs: BotState, _ en: Entity) -> Int32 {
+public func PassStandardEnemyChecks(_ bs: BotState, _ en: Entity) -> Int32 {
     if en.client == nil {
         //not a client, don't care about him
         return 0
@@ -1887,7 +1887,7 @@ func PassStandardEnemyChecks(_ bs: BotState, _ en: Entity) -> Int32 {
 
 //Notifies the bot that he has taken damage from "attacker".
 /// Source: oracle/codemp/game/ai_main.c:1861
-func BotDamageNotification(_ bot: Client, _ attacker: Entity) {
+public func BotDamageNotification(_ bot: Client, _ attacker: Entity) {
     var bs: BotState?
     var bs_a: BotState?
     var i: Int32
@@ -1960,7 +1960,7 @@ func BotDamageNotification(_ bot: Client, _ attacker: Entity) {
 //perform cheap "hearing" checks based on the event catching
 //system
 /// Source: oracle/codemp/game/ai_main.c:1945
-func BotCanHear(_ bs: BotState, _ en: Entity, _ endist: Float) -> Int32 {
+public func BotCanHear(_ bs: BotState, _ en: Entity, _ endist: Float) -> Int32 {
     var minlen: Float
 
     checkStep: do {
@@ -2017,7 +2017,7 @@ func BotCanHear(_ bs: BotState, _ en: Entity, _ endist: Float) -> Int32 {
 
 //check for new events
 /// Source: oracle/codemp/game/ai_main.c:2013
-func UpdateEventTracker() {
+public func UpdateEventTracker() {
     var i: Int32
 
     i = 0
@@ -2037,7 +2037,7 @@ func UpdateEventTracker() {
 
 //check if said angles are within our fov
 /// Source: oracle/codemp/game/ai_main.c:2034
-func InFieldOfVision(_ viewangles: JKAShared.vec3_t, _ fov: Float, _ angles: inout JKAShared.vec3_t) -> Int32 {
+public func InFieldOfVision(_ viewangles: JKAShared.vec3_t, _ fov: Float, _ angles: inout JKAShared.vec3_t) -> Int32 {
     var i: Int32
     var diff: Float
     var angle: Float
@@ -2073,7 +2073,7 @@ func InFieldOfVision(_ viewangles: JKAShared.vec3_t, _ fov: Float, _ angles: ino
 //We cannot hurt the ones we love. Unless of course this
 //function says we can.
 /// Source: oracle/codemp/game/ai_main.c:2078
-func PassLovedOneCheck(_ bs: BotState, _ ent: Entity) -> Int32 {
+public func PassLovedOneCheck(_ bs: BotState, _ ent: Entity) -> Int32 {
     var i: Int32
     var loved: BotState?
 
@@ -2120,7 +2120,7 @@ func PassLovedOneCheck(_ bs: BotState, _ ent: Entity) -> Int32 {
 
 //standard check to find a new enemy.
 /// Source: oracle/codemp/game/ai_main.c:2134
-func ScanForEnemies(_ bs: BotState) -> Int32 {
+public func ScanForEnemies(_ bs: BotState) -> Int32 {
     var a = vec3_t()
     var distcheck: Float
     var closest: Float
@@ -2194,7 +2194,7 @@ func ScanForEnemies(_ bs: BotState) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_main.c:2222
-func WaitingForNow(_ bs: BotState, _ goalpos: JKAShared.vec3_t) -> Int32 {
+public func WaitingForNow(_ bs: BotState, _ goalpos: JKAShared.vec3_t) -> Int32 {
     //checks if the bot is doing something along the lines of waiting for an elevator to raise up
     var xybot = vec3_t()
     var xywp = vec3_t()
@@ -2230,7 +2230,7 @@ func WaitingForNow(_ bs: BotState, _ goalpos: JKAShared.vec3_t) -> Int32 {
 //get an ideal distance for us to be at in relation to our opponent
 //based on our weapon.
 /// Source: oracle/codemp/game/ai_main.c:2264
-func BotGetWeaponRange(_ bs: BotState) -> Int32 {
+public func BotGetWeaponRange(_ bs: BotState) -> Int32 {
     switch bs.cur_ps.weapon {
     case WP_STUN_BATON, WP_MELEE:
         return BWEAPONRANGE_MELEE
@@ -2278,7 +2278,7 @@ func BotGetWeaponRange(_ bs: BotState) -> Int32 {
 
 //see if we want to run away from the opponent for whatever reason
 /// Source: oracle/codemp/game/ai_main.c:2301
-func BotIsAChickenWuss(_ bs: BotState) -> Int32 {
+public func BotIsAChickenWuss(_ bs: BotState) -> Int32 {
     let bWRange: Int32
 
     jmPass: do {
@@ -2364,7 +2364,7 @@ func BotIsAChickenWuss(_ bs: BotState) -> Int32 {
 //look for "bad things". bad things include detpacks, thermal detonators,
 //and other dangerous explodey items.
 /// Source: oracle/codemp/game/ai_main.c:2395
-func GetNearestBadThing(_ bs: BotState) -> Entity? {
+public func GetNearestBadThing(_ bs: BotState) -> Entity? {
     var i: Int32 = 0
     var glen: Float = 0
     var hold = vec3_t()
@@ -2449,7 +2449,7 @@ func GetNearestBadThing(_ bs: BotState) -> Entity? {
 
 //Keep our CTF priorities on defending our team's flag
 /// Source: oracle/codemp/game/ai_main.c:2507
-func BotDefendFlag(_ bs: BotState) -> Int32 {
+public func BotDefendFlag(_ bs: BotState) -> Int32 {
     var flagPoint: Wpobject?
     var a = vec3_t()
 
@@ -2476,7 +2476,7 @@ func BotDefendFlag(_ bs: BotState) -> Int32 {
 
 //Keep our CTF priorities on getting the other team's flag
 /// Source: oracle/codemp/game/ai_main.c:2541
-func BotGetEnemyFlag(_ bs: BotState) -> Int32 {
+public func BotGetEnemyFlag(_ bs: BotState) -> Int32 {
     var flagPoint: Wpobject?
     var a = vec3_t()
 
@@ -2503,7 +2503,7 @@ func BotGetEnemyFlag(_ bs: BotState) -> Int32 {
 
 //Our team's flag is gone, so try to get it back
 /// Source: oracle/codemp/game/ai_main.c:2575
-func BotGetFlagBack(_ bs: BotState) -> Int32 {
+public func BotGetFlagBack(_ bs: BotState) -> Int32 {
     var i: Int32 = 0
     var myFlag: Int32 = 0
     var foundCarrier: Int32 = 0
@@ -2557,7 +2557,7 @@ func BotGetFlagBack(_ bs: BotState) -> Int32 {
 //Someone else on our team has the enemy flag, so try to get
 //to their assistance
 /// Source: oracle/codemp/game/ai_main.c:2641
-func BotGuardFlagCarrier(_ bs: BotState) -> Int32 {
+public func BotGuardFlagCarrier(_ bs: BotState) -> Int32 {
     var i: Int32 = 0
     var enemyFlag: Int32 = 0
     var foundCarrier: Int32 = 0
@@ -2610,7 +2610,7 @@ func BotGuardFlagCarrier(_ bs: BotState) -> Int32 {
 
 //We have the flag, let's get it home.
 /// Source: oracle/codemp/game/ai_main.c:2706
-func BotGetFlagHome(_ bs: BotState) -> Int32 {
+public func BotGetFlagHome(_ bs: BotState) -> Int32 {
     var flagPoint: Wpobject?
     var a = vec3_t()
 
@@ -2636,7 +2636,7 @@ func BotGetFlagHome(_ bs: BotState) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_main.c:2739
-func GetNewFlagPoint(_ wp: JKAMP.Wpobject, _ flagEnt: Entity, _ team: Int32) {
+public func GetNewFlagPoint(_ wp: JKAMP.Wpobject, _ flagEnt: Entity, _ team: Int32) {
     //get the nearest possible waypoint to the flag since it's not in its original position
     var i: Int32 = 0
     var a = vec3_t()
@@ -2703,7 +2703,7 @@ func GetNewFlagPoint(_ wp: JKAMP.Wpobject, _ flagEnt: Entity, _ team: Int32) {
 
 //See if our CTF state should take priority in our nav routines
 /// Source: oracle/codemp/game/ai_main.c:2804
-func CTFTakesPriority(_ bs: BotState) -> Int32 {
+public func CTFTakesPriority(_ bs: BotState) -> Int32 {
     var ent: Entity? = nil
     var enemyFlag: Int32 = 0
     var myFlag: Int32 = 0
@@ -2867,7 +2867,7 @@ func CTFTakesPriority(_ bs: BotState) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_main.c:3036
-func EntityVisibleBox(_ org1: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ org2: JKAShared.vec3_t, _ ignore: Int32, _ ignore2: Int32) -> Int32 {
+public func EntityVisibleBox(_ org1: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ maxs: JKAShared.vec3_t?, _ org2: JKAShared.vec3_t, _ ignore: Int32, _ ignore2: Int32) -> Int32 {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { tr -> Int32 in
@@ -2886,7 +2886,7 @@ func EntityVisibleBox(_ org1: JKAShared.vec3_t, _ mins: JKAShared.vec3_t?, _ max
 
 //Get the closest objective for siege and go after it
 /// Source: oracle/codemp/game/ai_main.c:3055
-func Siege_TargetClosestObjective(_ bs: BotState, _ flag: Int32) -> Int32 {
+public func Siege_TargetClosestObjective(_ bs: BotState, _ flag: Int32) -> Int32 {
     var i: Int32 = 0
     var bestindex: Int32 = -1
     var testdistance: Float = 0
@@ -2970,7 +2970,7 @@ func Siege_TargetClosestObjective(_ bs: BotState, _ flag: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_main.c:3154
-func Siege_DefendFromAttackers(_ bs: BotState) {
+public func Siege_DefendFromAttackers(_ bs: BotState) {
     //this may be a little cheap, but the best way to find our defending point is probably
     //to just find the nearest person on the opposing team since they'll most likely
     //be on offense in this situation
@@ -3013,7 +3013,7 @@ func Siege_DefendFromAttackers(_ bs: BotState) {
 
 //how many defenders on our team?
 /// Source: oracle/codemp/game/ai_main.c:3202
-func Siege_CountDefenders(_ bs: BotState) -> Int32 {
+public func Siege_CountDefenders(_ bs: BotState) -> Int32 {
     var i: Int32 = 0
     var num: Int32 = 0
     var ent: Entity?
@@ -3037,7 +3037,7 @@ func Siege_CountDefenders(_ bs: BotState) -> Int32 {
 
 //how many other players on our team?
 /// Source: oracle/codemp/game/ai_main.c:3230
-func Siege_CountTeammates(_ bs: BotState) -> Int32 {
+public func Siege_CountTeammates(_ bs: BotState) -> Int32 {
     var i: Int32 = 0
     var num: Int32 = 0
     var ent: Entity?
@@ -3060,7 +3060,7 @@ func Siege_CountTeammates(_ bs: BotState) -> Int32 {
 //see if siege objective completion should take priority in our
 //nav routines.
 /// Source: oracle/codemp/game/ai_main.c:3256
-func SiegeTakesPriority(_ bs: BotState) -> Int32 {
+public func SiegeTakesPriority(_ bs: BotState) -> Int32 {
     var attacker: Int32 = 0
     var flagForDefendableObjective: Int32 = 0
     var flagForAttackableObjective: Int32 = 0
@@ -3197,7 +3197,7 @@ func SiegeTakesPriority(_ bs: BotState) -> Int32 {
 //see if jedi master priorities should take priority in our nav
 //routines.
 /// Source: oracle/codemp/game/ai_main.c:3424
-func JMTakesPriority(_ bs: BotState) -> Int32 {
+public func JMTakesPriority(_ bs: BotState) -> Int32 {
     var i: Int32 = 0
     var wpClose: Int32 = -1
     var theImportantEntity: Entity? = nil
@@ -3260,7 +3260,7 @@ func JMTakesPriority(_ bs: BotState) -> Int32 {
 //see if we already have an item/powerup/etc. that is associated
 //with this waypoint.
 /// Source: oracle/codemp/game/ai_main.c:3500
-func BotHasAssociated(_ bs: BotState, _ wp: JKAMP.Wpobject) -> Int32 {
+public func BotHasAssociated(_ bs: BotState, _ wp: JKAMP.Wpobject) -> Int32 {
     var `as`: Entity?
 
     if wp.associated_entity == ENTITYNUM_NONE {
@@ -3307,7 +3307,7 @@ func BotHasAssociated(_ bs: BotState, _ wp: JKAMP.Wpobject) -> Int32 {
 //let's just find the best thing to do given the current
 //situation.
 /// Source: oracle/codemp/game/ai_main.c:3559
-func GetBestIdleGoal(_ bs: BotState) -> Int32 {
+public func GetBestIdleGoal(_ bs: BotState) -> Int32 {
     var i: Int32 = 0
     var highestweight: Int32 = 0
     var desiredindex: Int32 = -1
@@ -3359,7 +3359,7 @@ func GetBestIdleGoal(_ bs: BotState) -> Int32 {
 //go through the list of possible priorities for navigating
 //and work out the best destination point.
 /// Source: oracle/codemp/game/ai_main.c:3625
-func GetIdealDestination(_ bs: BotState) {
+public func GetIdealDestination(_ bs: BotState) {
     var tempInt: Int32
     let cWPIndex: Int32
     let bChicken: Int32
@@ -3574,7 +3574,7 @@ func GetIdealDestination(_ bs: BotState) {
 //commander CTF AI - tell other bots in the so-called
 //"squad" what to do.
 /// Source: oracle/codemp/game/ai_main.c:3911
-func CommanderBotCTFAI(_ bs: BotState) {
+public func CommanderBotCTFAI(_ bs: BotState) {
     var i: Int32 = 0
     var ent: Entity?
     var squadmates: Int32 = 0
@@ -3700,7 +3700,7 @@ func CommanderBotCTFAI(_ bs: BotState) {
 
 //similar to ctf ai, for siege
 /// Source: oracle/codemp/game/ai_main.c:4077
-func CommanderBotSiegeAI(_ bs: BotState) {
+public func CommanderBotSiegeAI(_ bs: BotState) {
     var i: Int32 = 0
     var squadmates: Int32 = 0
     var commanded: Int32 = 0
@@ -3757,7 +3757,7 @@ func CommanderBotSiegeAI(_ bs: BotState) {
 
 //teamplay ffa squad ai
 /// Source: oracle/codemp/game/ai_main.c:4143
-func BotDoTeamplayAI(_ bs: BotState) {
+public func BotDoTeamplayAI(_ bs: BotState) {
     if bs.state_Forced != 0 {
         bs.teamplayState = bs.state_Forced
     }
@@ -3771,7 +3771,7 @@ func BotDoTeamplayAI(_ bs: BotState) {
 
 //like ctf and siege commander ai, instruct the squad
 /// Source: oracle/codemp/game/ai_main.c:4158
-func CommanderBotTeamplayAI(_ bs: BotState) {
+public func CommanderBotTeamplayAI(_ bs: BotState) {
     var i: Int32 = 0
     var squadmates: Int32 = 0
     var teammates: Int32 = 0
@@ -3854,7 +3854,7 @@ func CommanderBotTeamplayAI(_ bs: BotState) {
 
 //pick which commander ai to use based on gametype
 /// Source: oracle/codemp/game/ai_main.c:4252
-func CommanderBotAI(_ bs: BotState) {
+public func CommanderBotAI(_ bs: BotState) {
     if g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTY {
         CommanderBotCTFAI(bs)
     } else if g_gametype.integer == GT_SIEGE {
@@ -3866,7 +3866,7 @@ func CommanderBotAI(_ bs: BotState) {
 
 //close range combat routines
 /// Source: oracle/codemp/game/ai_main.c:4269
-func MeleeCombatHandling(_ bs: BotState) {
+public func MeleeCombatHandling(_ bs: BotState) {
     var usethisvec = vec3_t()
     var downvec = vec3_t()
     var midorg = vec3_t()
@@ -3952,7 +3952,7 @@ func MeleeCombatHandling(_ bs: BotState) {
 
 //saber combat routines (it's simple, but it works)
 /// Source: oracle/codemp/game/ai_main.c:4354
-func SaberCombatHandling(_ bs: BotState) {
+public func SaberCombatHandling(_ bs: BotState) {
     var usethisvec = vec3_t()
     var downvec = vec3_t()
     var midorg = vec3_t()
@@ -4140,7 +4140,7 @@ func SaberCombatHandling(_ bs: BotState) {
 //should we be "leading" our aim with this weapon? And if
 //so, by how much?
 /// Source: oracle/codemp/game/ai_main.c:4570
-func BotWeaponCanLead(_ bs: BotState) -> Float {
+public func BotWeaponCanLead(_ bs: BotState) -> Float {
     let weap: Int32 = bs.cur_ps.weapon
 
     if weap == WP_BRYAR_PISTOL {
@@ -4170,7 +4170,7 @@ func BotWeaponCanLead(_ bs: BotState) -> Float {
 
 //offset the desired view angles with aim leading in mind
 /// Source: oracle/codemp/game/ai_main.c:4607
-func BotAimLeading(_ bs: BotState, _ headlevel: JKAShared.vec3_t, _ leadAmount: Float) {
+public func BotAimLeading(_ bs: BotState, _ headlevel: JKAShared.vec3_t, _ leadAmount: Float) {
     var x: Int32
     var predictedSpot = vec3_t()
     var movementVector = vec3_t()
@@ -4235,7 +4235,7 @@ func BotAimLeading(_ bs: BotState, _ headlevel: JKAShared.vec3_t, _ leadAmount: 
 
 //wobble our aim around based on our sk1llz
 /// Source: oracle/codemp/game/ai_main.c:4687
-func BotAimOffsetGoalAngles(_ bs: BotState) {
+public func BotAimOffsetGoalAngles(_ bs: BotState) {
     var i: Int32
     var accVal: Float
     i = 0
@@ -4333,7 +4333,7 @@ func BotAimOffsetGoalAngles(_ bs: BotState) {
 
 //do we want to alt fire with this weapon?
 /// Source: oracle/codemp/game/ai_main.c:4804
-func ShouldSecondaryFire(_ bs: BotState) -> Int32 {
+public func ShouldSecondaryFire(_ bs: BotState) -> Int32 {
     let weap: Int32
     let dif: Int32
     var rTime: Float
@@ -4392,7 +4392,7 @@ func ShouldSecondaryFire(_ bs: BotState) -> Int32 {
 
 //standard weapon combat routines
 /// Source: oracle/codemp/game/ai_main.c:4885
-func CombatBotAI(_ bs: BotState, _ thinktime: Float) -> Int32 {
+public func CombatBotAI(_ bs: BotState, _ thinktime: Float) -> Int32 {
     var eorg = vec3_t()
     var a = vec3_t()
     let secFire: Int32
@@ -4494,7 +4494,7 @@ func CombatBotAI(_ bs: BotState, _ thinktime: Float) -> Int32 {
 //directions off walls to see if we can get back to a
 //good place.
 /// Source: oracle/codemp/game/ai_main.c:5029
-func BotFallbackNavigation(_ bs: BotState) -> Int32 {
+public func BotFallbackNavigation(_ bs: BotState) -> Int32 {
     var b_angle = vec3_t()
     var fwd = vec3_t()
     var trto = vec3_t()
@@ -4544,7 +4544,7 @@ func BotFallbackNavigation(_ bs: BotState) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/ai_main.c:5072
-func BotTryAnotherWeapon(_ bs: BotState) -> Int32 {
+public func BotTryAnotherWeapon(_ bs: BotState) -> Int32 {
     //out of ammo, resort to the first weapon we come across that has ammo
     var i: Int32
 
@@ -4576,7 +4576,7 @@ func BotTryAnotherWeapon(_ bs: BotState) -> Int32 {
 
 //is this weapon available to us?
 /// Source: oracle/codemp/game/ai_main.c:5106
-func BotWeaponSelectable(_ bs: BotState, _ weapon: Int32) -> Bool {
+public func BotWeaponSelectable(_ bs: BotState, _ weapon: Int32) -> Bool {
     if weapon == WP_NONE {
         return false
     }
@@ -4590,7 +4590,7 @@ func BotWeaponSelectable(_ bs: BotState, _ weapon: Int32) -> Bool {
 
 //select the best weapon we can
 /// Source: oracle/codemp/game/ai_main.c:5123
-func BotSelectIdealWeapon(_ bs: BotState) -> Int32 {
+public func BotSelectIdealWeapon(_ bs: BotState) -> Int32 {
     var i: Int32
     var bestweight: Int32 = -1
     var bestweapon: Int32 = 0
@@ -4659,7 +4659,7 @@ func BotSelectIdealWeapon(_ bs: BotState) -> Int32 {
 
 //check/select the chosen weapon
 /// Source: oracle/codemp/game/ai_main.c:5216
-func BotSelectChoiceWeapon(_ bs: BotState, _ weapon: Int32, _ doselection: Int32) -> Int32 {
+public func BotSelectChoiceWeapon(_ bs: BotState, _ weapon: Int32, _ doselection: Int32) -> Int32 {
     //if !doselection then bot will only check if he has the specified weapon and return 1 (yes) or 0 (no)
     var i: Int32
     var hasit: Int32 = 0
@@ -4692,7 +4692,7 @@ func BotSelectChoiceWeapon(_ bs: BotState, _ weapon: Int32, _ doselection: Int32
 
 //override our standard weapon choice with a melee weapon
 /// Source: oracle/codemp/game/ai_main.c:5254
-func BotSelectMelee(_ bs: BotState) -> Int32 {
+public func BotSelectMelee(_ bs: BotState) -> Int32 {
     if bs.cur_ps.weapon != 1 && bs.virtualWeapon != 1 {
         bs.virtualWeapon = 1
         BotSelectWeapon(bs.client, 1)
@@ -4706,7 +4706,7 @@ func BotSelectMelee(_ bs: BotState) -> Int32 {
 
 //See if we our in love with the potential bot.
 /// Source: oracle/codemp/game/ai_main.c:5269
-func GetLoveLevel(_ bs: BotState, _ love: BotState) -> Int32 {
+public func GetLoveLevel(_ bs: BotState, _ love: BotState) -> Int32 {
     var i: Int32 = 0
     var lname: String? = nil
 
@@ -4746,7 +4746,7 @@ func GetLoveLevel(_ bs: BotState, _ love: BotState) -> Int32 {
 
 //Our loved one was killed. We must become infuriated!
 /// Source: oracle/codemp/game/ai_main.c:5315
-func BotLovedOneDied(_ bs: BotState, _ loved: BotState, _ lovelevel: Int32) {
+public func BotLovedOneDied(_ bs: BotState, _ loved: BotState, _ lovelevel: Int32) {
     if loved.lastHurt == nil || loved.lastHurt!.client == nil || loved.lastHurt!.s.number == loved.client {
         return
     }
@@ -4810,7 +4810,7 @@ func BotLovedOneDied(_ bs: BotState, _ loved: BotState, _ lovelevel: Int32) {
 }
 
 /// Source: oracle/codemp/game/ai_main.c:5390
-func BotDeathNotify(_ bs: BotState) {
+public func BotDeathNotify(_ bs: BotState) {
     //in case someone has an emotional attachment to us, we'll notify them
     var i: Int32 = 0
     var ltest: Int32 = 0
@@ -4834,7 +4834,7 @@ func BotDeathNotify(_ bs: BotState) {
 
 //perform strafe trace checks
 /// Source: oracle/codemp/game/ai_main.c:5417
-func StrafeTracing(_ bs: BotState) {
+public func StrafeTracing(_ bs: BotState) {
     var mins = vec3_t()
     var maxs = vec3_t()
     var right = vec3_t()
@@ -4887,7 +4887,7 @@ func StrafeTracing(_ bs: BotState) {
 
 //doing primary weapon fire
 /// Source: oracle/codemp/game/ai_main.c:5466
-func PrimFiring(_ bs: BotState) -> Int32 {
+public func PrimFiring(_ bs: BotState) -> Int32 {
     if bs.cur_ps.weaponstate != WEAPON_CHARGING && bs.doAttack != 0 {
         return 1
     }
@@ -4901,7 +4901,7 @@ func PrimFiring(_ bs: BotState) -> Int32 {
 
 //should we keep our primary weapon from firing?
 /// Source: oracle/codemp/game/ai_main.c:5484
-func KeepPrimFromFiring(_ bs: BotState) -> Int32 {
+public func KeepPrimFromFiring(_ bs: BotState) -> Int32 {
     if bs.cur_ps.weaponstate != WEAPON_CHARGING && bs.doAttack != 0 {
         bs.doAttack = 0
     }
@@ -4915,7 +4915,7 @@ func KeepPrimFromFiring(_ bs: BotState) -> Int32 {
 
 //doing secondary weapon fire
 /// Source: oracle/codemp/game/ai_main.c:5502
-func AltFiring(_ bs: BotState) -> Int32 {
+public func AltFiring(_ bs: BotState) -> Int32 {
     if bs.cur_ps.weaponstate != WEAPON_CHARGING_ALT && bs.doAltAttack != 0 {
         return 1
     }
@@ -4929,7 +4929,7 @@ func AltFiring(_ bs: BotState) -> Int32 {
 
 //should we keep our alt from firing?
 /// Source: oracle/codemp/game/ai_main.c:5520
-func KeepAltFromFiring(_ bs: BotState) -> Int32 {
+public func KeepAltFromFiring(_ bs: BotState) -> Int32 {
     if bs.cur_ps.weaponstate != WEAPON_CHARGING_ALT && bs.doAltAttack != 0 {
         bs.doAltAttack = 0
     }
@@ -4943,7 +4943,7 @@ func KeepAltFromFiring(_ bs: BotState) -> Int32 {
 
 //Try not to shoot our friends in the back. Or in the face. Or anywhere, really.
 /// Source: oracle/codemp/game/ai_main.c:5538
-func CheckForFriendInLOF(_ bs: BotState) -> Entity? {
+public func CheckForFriendInLOF(_ bs: BotState) -> Entity? {
     var fwd = vec3_t()
     var trfrom = vec3_t()
     var trto = vec3_t()
@@ -4994,7 +4994,7 @@ func CheckForFriendInLOF(_ bs: BotState) -> Entity? {
 }
 
 /// Source: oracle/codemp/game/ai_main.c:5585
-func BotScanForLeader(_ bs: BotState) {
+public func BotScanForLeader(_ bs: BotState) {
     //bots will only automatically obtain a leader if it's another bot using this method.
     var i: Int32 = 0
     var ent: Entity?
@@ -5024,7 +5024,7 @@ func BotScanForLeader(_ bs: BotState) {
 
 //w3rd to the p33pz.
 /// Source: oracle/codemp/game/ai_main.c:5618
-func BotReplyGreetings(_ bs: BotState) {
+public func BotReplyGreetings(_ bs: BotState) {
     var i: Int32 = 0
     var numhello: Int32 = 0
 
@@ -5048,7 +5048,7 @@ func BotReplyGreetings(_ bs: BotState) {
 
 //try to move in to grab a nearby flag
 /// Source: oracle/codemp/game/ai_main.c:5647
-func CTFFlagMovement(_ bs: BotState) {
+public func CTFFlagMovement(_ bs: BotState) {
     var diddrop: Int32 = 0
     var desiredDrop: Entity? = nil
     var a = vec3_t()
@@ -5117,7 +5117,7 @@ func CTFFlagMovement(_ bs: BotState) {
 
 //see if we want to make our detpacks blow up
 /// Source: oracle/codemp/game/ai_main.c:5726
-func BotCheckDetPacks(_ bs: BotState) {
+public func BotCheckDetPacks(_ bs: BotState) {
     var dp: Entity? = nil
     var myDet: Entity? = nil
     var a = vec3_t()
@@ -5168,7 +5168,7 @@ func BotCheckDetPacks(_ bs: BotState) {
 
 //see if it would be beneficial at this time to use one of our inv items
 /// Source: oracle/codemp/game/ai_main.c:5780
-func BotUseInventoryItem(_ bs: BotState) -> Int32 {
+public func BotUseInventoryItem(_ bs: BotState) -> Int32 {
     wantuseitem: do {
         if (bs.cur_ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_MEDPAC)) != 0 {
             if g_entities[bs.client].health <= 75 {
@@ -5213,7 +5213,7 @@ func BotUseInventoryItem(_ bs: BotState) -> Int32 {
 
 //trace forward to see if we can plant a detpack or something
 /// Source: oracle/codemp/game/ai_main.c:5833
-func BotSurfaceNear(_ bs: BotState) -> Int32 {
+public func BotSurfaceNear(_ bs: BotState) -> Int32 {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { tr -> Int32 in
@@ -5240,7 +5240,7 @@ func BotSurfaceNear(_ bs: BotState) -> Int32 {
 
 //could we block projectiles from the weapon potentially with a light saber?
 /// Source: oracle/codemp/game/ai_main.c:5855
-func BotWeaponBlockable(_ weapon: Int32) -> Int32 {
+public func BotWeaponBlockable(_ weapon: Int32) -> Int32 {
     switch weapon {
     case WP_STUN_BATON, WP_MELEE:
         return 0
@@ -5270,7 +5270,7 @@ func BotWeaponBlockable(_ weapon: Int32) -> Int32 {
 
 //movement overrides
 /// Source: oracle/codemp/game/ai_main.c:5883
-func Bot_SetForcedMovement(_ bot: Int32, _ forward: Int32, _ right: Int32, _ up: Int32) {
+public func Bot_SetForcedMovement(_ bot: Int32, _ forward: Int32, _ right: Int32, _ up: Int32) {
     var bs: BotState?
 
     bs = botstates[bot]
@@ -5306,7 +5306,7 @@ func Bot_SetForcedMovement(_ bot: Int32, _ forward: Int32, _ right: Int32, _ up:
 //the main AI loop.
 //please don't be too frightened.
 /// Source: oracle/codemp/game/ai_main.c:5931
-func StandardBotAI(_ bs: BotState, _ thinktime: Float) {
+public func StandardBotAI(_ bs: BotState, _ thinktime: Float) {
     let wp: Int32
     let enemy: Int32
     let desiredIndex: Int32
@@ -6596,7 +6596,7 @@ BotAISetup
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:7575
-func BotAISetup(_ restart: Int32) -> Int32 {
+public func BotAISetup(_ restart: Int32) -> Int32 {
     //rww - new bot cvars..
     trap_Cvar_Register(bot_forcepowers, "bot_forcepowers", "1", CVAR_CHEAT)
     trap_Cvar_Register(bot_forgimmick, "bot_forgimmick", "0", CVAR_CHEAT)
@@ -6640,7 +6640,7 @@ BotAIShutdown
 ```
 */
 /// Source: oracle/codemp/game/ai_main.c:7623
-func BotAIShutdown(_ restart: Int32) -> Int32 {
+public func BotAIShutdown(_ restart: Int32) -> Int32 {
     var i: Int32
 
     //if the game is restarted for a tournament

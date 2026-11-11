@@ -350,7 +350,7 @@ public final class GameWorld {
     /// Raven's `spawn_t spawns[]` of `g_spawn.c`, 185 rows in Raven's order.
     /// Raven's closing `{0, 0}` row marks the end for his walk, and the Swift array's count takes its place.
     /// Source: oracle/codemp/game/g_spawn.c:435
-    let spawns: [SpawnRow] = [
+    public var spawns: [SpawnRow] = [
         SpawnRow(name: "info_player_start", spawn: SP_info_player_start),
         SpawnRow(name: "info_player_duel", spawn: SP_info_player_duel),
         SpawnRow(name: "info_player_duel1", spawn: SP_info_player_duel1),
@@ -784,9 +784,14 @@ public final class GameWorld {
 
 /// One row of Raven's `spawns` of `g_spawn.c`, the `spawn_t` record with the spawn function as a Swift function value.
 /// C storage cannot hold the address of a Swift function, so the table is hand data on `GameWorld`.
-struct SpawnRow {
-    let name: String
-    let spawn: (Entity) -> Void
+public struct SpawnRow {
+    public let name: String
+    public let spawn: (Entity) -> Void
+
+    public init(name: String, spawn: @escaping (Entity) -> Void) {
+        self.name = name
+        self.spawn = spawn
+    }
 }
 
 /// One row of Raven's `gameCvarTable` of `g_main.c`, the `cvarTable_t` record with the cvar handle as a key path into `GameStorage`.

@@ -4,160 +4,160 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/server/sv_main.cpp:10
-var svs: ServerStatic { world.storage.svs }
+public var svs: ServerStatic { world.storage.svs }
 
 /// Source: oracle/codemp/server/sv_main.cpp:11
-var sv: Server { world.storage.sv }
+public var sv: Server { world.storage.sv }
 
 /// Source: oracle/codemp/server/sv_main.cpp:12
-var gvm: Vm? {
+public var gvm: Vm? {
     get { world.variables.gvm }
     set { world.variables.gvm = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:14
-var sv_fps: JKAMP.Cvar? {
+public var sv_fps: JKAMP.Cvar? {
     get { world.variables.sv_fps }
     set { world.variables.sv_fps = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:15
-var sv_timeout: JKAMP.Cvar? {
+public var sv_timeout: JKAMP.Cvar? {
     get { world.variables.sv_timeout }
     set { world.variables.sv_timeout = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:16
-var sv_zombietime: JKAMP.Cvar? {
+public var sv_zombietime: JKAMP.Cvar? {
     get { world.variables.sv_zombietime }
     set { world.variables.sv_zombietime = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:17
-var sv_rconPassword: JKAMP.Cvar? {
+public var sv_rconPassword: JKAMP.Cvar? {
     get { world.variables.sv_rconPassword }
     set { world.variables.sv_rconPassword = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:18
-var sv_privatePassword: JKAMP.Cvar? {
+public var sv_privatePassword: JKAMP.Cvar? {
     get { world.variables.sv_privatePassword }
     set { world.variables.sv_privatePassword = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:19
-var sv_maxclients: JKAMP.Cvar? {
+public var sv_maxclients: JKAMP.Cvar? {
     get { world.variables.sv_maxclients }
     set { world.variables.sv_maxclients = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:20
-var sv_privateClients: JKAMP.Cvar? {
+public var sv_privateClients: JKAMP.Cvar? {
     get { world.variables.sv_privateClients }
     set { world.variables.sv_privateClients = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:21
-var sv_hostname: JKAMP.Cvar? {
+public var sv_hostname: JKAMP.Cvar? {
     get { world.variables.sv_hostname }
     set { world.variables.sv_hostname = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:23
-var sv_allowDownload: JKAMP.Cvar? {
+public var sv_allowDownload: JKAMP.Cvar? {
     get { world.variables.sv_allowDownload }
     set { world.variables.sv_allowDownload = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:24
-var sv_master: Slots<JKAMP.Cvar?> { world.storage.sv_master }
+public var sv_master: Slots<JKAMP.Cvar?> { world.storage.sv_master }
 
 /// Source: oracle/codemp/server/sv_main.cpp:26
-var sv_reconnectlimit: JKAMP.Cvar? {
+public var sv_reconnectlimit: JKAMP.Cvar? {
     get { world.variables.sv_reconnectlimit }
     set { world.variables.sv_reconnectlimit = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:27
-var sv_showghoultraces: JKAMP.Cvar? {
+public var sv_showghoultraces: JKAMP.Cvar? {
     get { world.variables.sv_showghoultraces }
     set { world.variables.sv_showghoultraces = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:28
-var sv_showloss: JKAMP.Cvar? {
+public var sv_showloss: JKAMP.Cvar? {
     get { world.variables.sv_showloss }
     set { world.variables.sv_showloss = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:29
-var sv_padPackets: JKAMP.Cvar? {
+public var sv_padPackets: JKAMP.Cvar? {
     get { world.variables.sv_padPackets }
     set { world.variables.sv_padPackets = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:30
-var sv_killserver: JKAMP.Cvar? {
+public var sv_killserver: JKAMP.Cvar? {
     get { world.variables.sv_killserver }
     set { world.variables.sv_killserver = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:31
-var sv_mapname: JKAMP.Cvar? {
+public var sv_mapname: JKAMP.Cvar? {
     get { world.variables.sv_mapname }
     set { world.variables.sv_mapname = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:32
-var sv_mapChecksum: JKAMP.Cvar? {
+public var sv_mapChecksum: JKAMP.Cvar? {
     get { world.variables.sv_mapChecksum }
     set { world.variables.sv_mapChecksum = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:33
-var sv_serverid: JKAMP.Cvar? {
+public var sv_serverid: JKAMP.Cvar? {
     get { world.variables.sv_serverid }
     set { world.variables.sv_serverid = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:34
-var sv_maxRate: JKAMP.Cvar? {
+public var sv_maxRate: JKAMP.Cvar? {
     get { world.variables.sv_maxRate }
     set { world.variables.sv_maxRate = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:35
-var sv_minPing: JKAMP.Cvar? {
+public var sv_minPing: JKAMP.Cvar? {
     get { world.variables.sv_minPing }
     set { world.variables.sv_minPing = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:36
-var sv_maxPing: JKAMP.Cvar? {
+public var sv_maxPing: JKAMP.Cvar? {
     get { world.variables.sv_maxPing }
     set { world.variables.sv_maxPing = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:37
-var sv_gametype: JKAMP.Cvar? {
+public var sv_gametype: JKAMP.Cvar? {
     get { world.variables.sv_gametype }
     set { world.variables.sv_gametype = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:38
-var sv_pure: JKAMP.Cvar? {
+public var sv_pure: JKAMP.Cvar? {
     get { world.variables.sv_pure }
     set { world.variables.sv_pure = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:39
-var sv_floodProtect: JKAMP.Cvar? {
+public var sv_floodProtect: JKAMP.Cvar? {
     get { world.variables.sv_floodProtect }
     set { world.variables.sv_floodProtect = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:40
-var sv_needpass: JKAMP.Cvar? {
+public var sv_needpass: JKAMP.Cvar? {
     get { world.variables.sv_needpass }
     set { world.variables.sv_needpass = newValue }
 }
@@ -197,7 +197,7 @@ Converts newlines to "\n" so a line prints nicer
 ```
 */
 /// Source: oracle/codemp/server/sv_main.cpp:59
-func SV_ExpandNewlines(_ `in`: inout JKAShared.CharBuf) -> String {
+public func SV_ExpandNewlines(_ `in`: inout JKAShared.CharBuf) -> String {
     // Raven's static local `string` is `string_SV_ExpandNewlines`, because msg.cpp has three static locals of the name.
     var l: Int32
     var inIndex: Int32 = 0
@@ -230,7 +230,7 @@ SV_ReplacePendingServerCommands
 ```
 */
 /// Source: oracle/codemp/server/sv_main.cpp:85
-func SV_ReplacePendingServerCommands(_ client: Client, _ cmd: String) -> Int32 {
+public func SV_ReplacePendingServerCommands(_ client: Client, _ cmd: String) -> Int32 {
     var i: Int32
     var index: Int32
     var csnum1: Int32 = 0
@@ -269,7 +269,7 @@ not have future snapshot_t executed before it is executed
 ```
 */
 /// Source: oracle/codemp/server/sv_main.cpp:116
-func SV_AddServerCommand(_ client: Client, _ cmd: String) {
+public func SV_AddServerCommand(_ client: Client, _ cmd: String) {
     let index: Int32
     var i: Int32
 
@@ -311,7 +311,7 @@ A NULL client will broadcast to all clients
 ```
 */
 /// Source: oracle/codemp/server/sv_main.cpp:153
-func SV_SendServerCommand(_ cl: Client?, _ fmt: String, _ args: any JKAShared.FormatArg...) {
+public func SV_SendServerCommand(_ cl: Client?, _ fmt: String, _ args: any JKAShared.FormatArg...) {
     var message = CharBuf(MAX_MSGLEN)
     var client: Slots<Client>
     var j: Int32
@@ -364,7 +364,7 @@ private func SV_MasterNeedsResolving(_ server: Int32, _ time: Int32) -> Bool {
 var adr: Slots<Netadr> { world.adr }
 
 /// Source: oracle/codemp/server/sv_main.cpp:222
-func SV_MasterHeartbeat() {
+public func SV_MasterHeartbeat() {
     var i: Int32
     let time: Int32
 
@@ -434,7 +434,7 @@ Informs all masters that this server is going down
 ```
 */
 /// Source: oracle/codemp/server/sv_main.cpp:288
-func SV_MasterShutdown() {
+public func SV_MasterShutdown() {
     // send a hearbeat right now
     svs.nextHeartbeatTime = -9999
     SV_MasterHeartbeat()
@@ -459,7 +459,7 @@ the simple info query.
 ```
 */
 /// Source: oracle/codemp/server/sv_main.cpp:320
-func SVC_Status(_ from: Netadr) {
+public func SVC_Status(_ from: Netadr) {
     var player = CharBuf(1024)
     var status = CharBuf(49152)
     var i: Int32
@@ -523,7 +523,7 @@ if a user is interested in a server to do a full status
 ```
 */
 /// Source: oracle/codemp/server/sv_main.cpp:381
-func SVC_Info(_ from: Netadr) {
+public func SVC_Info(_ from: Netadr) {
     var i: Int32
     var count: Int32
     let wDisable: Int32
@@ -603,7 +603,7 @@ SVC_FlushRedirect
 ```
 */
 /// Source: oracle/codemp/server/sv_main.cpp:477
-func SV_FlushRedirect(_ outputbuf: String) {
+public func SV_FlushRedirect(_ outputbuf: String) {
     NET_OutOfBandPrint(NS_SERVER, svs.redirectAddress, "print\n%s", outputbuf)
 }
 
@@ -626,7 +626,7 @@ var lasttime: UInt32 {
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:490
-func SVC_RemoteCommand(_ from: Netadr, _ msg: Msg) {
+public func SVC_RemoteCommand(_ from: Netadr, _ msg: Msg) {
     let valid: Bool
     var i: UInt32
     let time: UInt32
@@ -686,7 +686,7 @@ connectionless packets.
 ```
 */
 /// Source: oracle/codemp/server/sv_main.cpp:545
-func SV_ConnectionlessPacket(_ from: Netadr, _ msg: Msg) {
+public func SV_ConnectionlessPacket(_ from: Netadr, _ msg: Msg) {
     let s: String
     let c: String
 
@@ -735,7 +735,7 @@ SV_ReadPackets
 ```
 */
 /// Source: oracle/codemp/server/sv_main.cpp:594
-func SV_PacketEvent(_ from: Netadr, _ msg: Msg) {
+public func SV_PacketEvent(_ from: Netadr, _ msg: Msg) {
     var i: Int32
     var cl: Slots<Client>
     let qport: Int32
@@ -810,7 +810,7 @@ Updates the cl->ping variables
 ```
 */
 /// Source: oracle/codemp/server/sv_main.cpp:659
-func SV_CalcPings() {
+public func SV_CalcPings() {
     var i: Int32
     var j: Int32
     var cl: Client?
@@ -883,7 +883,7 @@ if necessary
 ```
 */
 /// Source: oracle/codemp/server/sv_main.cpp:719
-func SV_CheckTimeouts() {
+public func SV_CheckTimeouts() {
     var i: Int32
     var cl: Slots<Client>
     let droppoint: Int32
@@ -931,7 +931,7 @@ SV_CheckPaused
 ```
 */
 /// Source: oracle/codemp/server/sv_main.cpp:759
-func SV_CheckPaused() -> Bool {
+public func SV_CheckPaused() -> Bool {
     var count: Int32
     var cl: Slots<Client>
     var i: Int32
@@ -977,7 +977,7 @@ var lastMod: Int32 {
 }
 
 /// Source: oracle/codemp/server/sv_main.cpp:791
-func SV_CheckCvars() {
+public func SV_CheckCvars() {
     var changed: Bool = false
 
     if sv_hostname!.modificationCount != lastMod {
@@ -1009,7 +1009,7 @@ happen before SV_Frame is called
 ```
 */
 /// Source: oracle/codemp/server/sv_main.cpp:826
-func SV_Frame(_ msec: Int32) {
+public func SV_Frame(_ msec: Int32) {
     // The fork's gate assigns the `msec` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var msec = msec
     let frameMsec: Int32

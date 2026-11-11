@@ -20,7 +20,7 @@ var HolocronIcons: [String] { world.HolocronIcons }
 let cgWeatherOverride: Int32 = 0
 
 /// Source: oracle/codemp/cgame/cg_main.c:115
-var forceModelModificationCount: Int32 {
+public var forceModelModificationCount: Int32 {
     get { world.variables.forceModelModificationCount }
     set { world.variables.forceModelModificationCount = newValue }
 }
@@ -59,400 +59,400 @@ public var cgs: Cgs { world.storage.cgs }
 public var cg_entities: Slots<Centity> { world.storage.cg_entities }
 
 /// Source: oracle/codemp/cgame/cg_main.c:695
-var cg_permanents: Slots<Centity?> { world.storage.cg_permanents }
+public var cg_permanents: Slots<Centity?> { world.storage.cg_permanents }
 
 /// Source: oracle/codemp/cgame/cg_main.c:696
-var cg_numpermanents: Int32 {
+public var cg_numpermanents: Int32 {
     get { world.variables.cg_numpermanents }
     set { world.variables.cg_numpermanents = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:698
-var cg_weapons: Slots<WeaponInfo> { world.storage.cg_weapons }
+public var cg_weapons: Slots<WeaponInfo> { world.storage.cg_weapons }
 
 /// Source: oracle/codemp/cgame/cg_main.c:699
-var cg_items: Slots<ItemInfo> { world.storage.cg_items }
+public var cg_items: Slots<ItemInfo> { world.storage.cg_items }
 
 /// Source: oracle/codemp/cgame/cg_main.c:702
-var cg_centertime: JKAMP.VmCvar { world.storage.cg_centertime }
+public var cg_centertime: JKAMP.VmCvar { world.storage.cg_centertime }
 
 /// Source: oracle/codemp/cgame/cg_main.c:703
-var cg_runpitch: JKAMP.VmCvar { world.storage.cg_runpitch }
+public var cg_runpitch: JKAMP.VmCvar { world.storage.cg_runpitch }
 
 /// Source: oracle/codemp/cgame/cg_main.c:704
-var cg_runroll: JKAMP.VmCvar { world.storage.cg_runroll }
+public var cg_runroll: JKAMP.VmCvar { world.storage.cg_runroll }
 
 /// Source: oracle/codemp/cgame/cg_main.c:705
-var cg_bobup: JKAMP.VmCvar { world.storage.cg_bobup }
+public var cg_bobup: JKAMP.VmCvar { world.storage.cg_bobup }
 
 /// Source: oracle/codemp/cgame/cg_main.c:706
-var cg_bobpitch: JKAMP.VmCvar { world.storage.cg_bobpitch }
+public var cg_bobpitch: JKAMP.VmCvar { world.storage.cg_bobpitch }
 
 /// Source: oracle/codemp/cgame/cg_main.c:707
-var cg_bobroll: JKAMP.VmCvar { world.storage.cg_bobroll }
+public var cg_bobroll: JKAMP.VmCvar { world.storage.cg_bobroll }
 
 /// Source: oracle/codemp/cgame/cg_main.c:709
-var cg_shadows: JKAMP.VmCvar { world.storage.cg_shadows }
+public var cg_shadows: JKAMP.VmCvar { world.storage.cg_shadows }
 
 /// Source: oracle/codemp/cgame/cg_main.c:710
-var cg_renderToTextureFX: JKAMP.VmCvar { world.storage.cg_renderToTextureFX }
+public var cg_renderToTextureFX: JKAMP.VmCvar { world.storage.cg_renderToTextureFX }
 
 /// Source: oracle/codemp/cgame/cg_main.c:711
-var cg_drawTimer: JKAMP.VmCvar { world.storage.cg_drawTimer }
+public var cg_drawTimer: JKAMP.VmCvar { world.storage.cg_drawTimer }
 
 /// Source: oracle/codemp/cgame/cg_main.c:712
-var cg_drawFPS: JKAMP.VmCvar { world.storage.cg_drawFPS }
+public var cg_drawFPS: JKAMP.VmCvar { world.storage.cg_drawFPS }
 
 /// Source: oracle/codemp/cgame/cg_main.c:713
-var cg_drawSnapshot: JKAMP.VmCvar { world.storage.cg_drawSnapshot }
+public var cg_drawSnapshot: JKAMP.VmCvar { world.storage.cg_drawSnapshot }
 
 /// Source: oracle/codemp/cgame/cg_main.c:714
-var cg_draw3dIcons: JKAMP.VmCvar { world.storage.cg_draw3dIcons }
+public var cg_draw3dIcons: JKAMP.VmCvar { world.storage.cg_draw3dIcons }
 
 /// Source: oracle/codemp/cgame/cg_main.c:715
-var cg_drawIcons: JKAMP.VmCvar { world.storage.cg_drawIcons }
+public var cg_drawIcons: JKAMP.VmCvar { world.storage.cg_drawIcons }
 
 /// Source: oracle/codemp/cgame/cg_main.c:716
-var cg_drawAmmoWarning: JKAMP.VmCvar { world.storage.cg_drawAmmoWarning }
+public var cg_drawAmmoWarning: JKAMP.VmCvar { world.storage.cg_drawAmmoWarning }
 
 /// Source: oracle/codemp/cgame/cg_main.c:717
-var cg_drawCrosshair: JKAMP.VmCvar { world.storage.cg_drawCrosshair }
+public var cg_drawCrosshair: JKAMP.VmCvar { world.storage.cg_drawCrosshair }
 
 /// Source: oracle/codemp/cgame/cg_main.c:718
-var cg_drawCrosshairNames: JKAMP.VmCvar { world.storage.cg_drawCrosshairNames }
+public var cg_drawCrosshairNames: JKAMP.VmCvar { world.storage.cg_drawCrosshairNames }
 
 /// Source: oracle/codemp/cgame/cg_main.c:719
-var cg_drawRadar: JKAMP.VmCvar { world.storage.cg_drawRadar }
+public var cg_drawRadar: JKAMP.VmCvar { world.storage.cg_drawRadar }
 
 /// Source: oracle/codemp/cgame/cg_main.c:720
-var cg_drawVehLeadIndicator: JKAMP.VmCvar { world.storage.cg_drawVehLeadIndicator }
+public var cg_drawVehLeadIndicator: JKAMP.VmCvar { world.storage.cg_drawVehLeadIndicator }
 
 /// Source: oracle/codemp/cgame/cg_main.c:721
-var cg_dynamicCrosshair: JKAMP.VmCvar { world.storage.cg_dynamicCrosshair }
+public var cg_dynamicCrosshair: JKAMP.VmCvar { world.storage.cg_dynamicCrosshair }
 
 /// Source: oracle/codemp/cgame/cg_main.c:722
-var cg_dynamicCrosshairPrecision: JKAMP.VmCvar { world.storage.cg_dynamicCrosshairPrecision }
+public var cg_dynamicCrosshairPrecision: JKAMP.VmCvar { world.storage.cg_dynamicCrosshairPrecision }
 
 /// Source: oracle/codemp/cgame/cg_main.c:723
-var cg_drawRewards: JKAMP.VmCvar { world.storage.cg_drawRewards }
+public var cg_drawRewards: JKAMP.VmCvar { world.storage.cg_drawRewards }
 
 /// Source: oracle/codemp/cgame/cg_main.c:724
-var cg_drawScores: JKAMP.VmCvar { world.storage.cg_drawScores }
+public var cg_drawScores: JKAMP.VmCvar { world.storage.cg_drawScores }
 
 /// Source: oracle/codemp/cgame/cg_main.c:725
-var cg_crosshairSize: JKAMP.VmCvar { world.storage.cg_crosshairSize }
+public var cg_crosshairSize: JKAMP.VmCvar { world.storage.cg_crosshairSize }
 
 /// Source: oracle/codemp/cgame/cg_main.c:726
-var cg_crosshairX: JKAMP.VmCvar { world.storage.cg_crosshairX }
+public var cg_crosshairX: JKAMP.VmCvar { world.storage.cg_crosshairX }
 
 /// Source: oracle/codemp/cgame/cg_main.c:727
-var cg_crosshairY: JKAMP.VmCvar { world.storage.cg_crosshairY }
+public var cg_crosshairY: JKAMP.VmCvar { world.storage.cg_crosshairY }
 
 /// Source: oracle/codemp/cgame/cg_main.c:728
-var cg_crosshairHealth: JKAMP.VmCvar { world.storage.cg_crosshairHealth }
+public var cg_crosshairHealth: JKAMP.VmCvar { world.storage.cg_crosshairHealth }
 
 /// Source: oracle/codemp/cgame/cg_main.c:729
-var cg_draw2D: JKAMP.VmCvar { world.storage.cg_draw2D }
+public var cg_draw2D: JKAMP.VmCvar { world.storage.cg_draw2D }
 
 /// Source: oracle/codemp/cgame/cg_main.c:730
-var cg_drawStatus: JKAMP.VmCvar { world.storage.cg_drawStatus }
+public var cg_drawStatus: JKAMP.VmCvar { world.storage.cg_drawStatus }
 
 /// Source: oracle/codemp/cgame/cg_main.c:731
-var cg_animSpeed: JKAMP.VmCvar { world.storage.cg_animSpeed }
+public var cg_animSpeed: JKAMP.VmCvar { world.storage.cg_animSpeed }
 
 /// Source: oracle/codemp/cgame/cg_main.c:732
-var cg_debugAnim: JKAMP.VmCvar { world.storage.cg_debugAnim }
+public var cg_debugAnim: JKAMP.VmCvar { world.storage.cg_debugAnim }
 
 /// Source: oracle/codemp/cgame/cg_main.c:733
-var cg_debugSaber: JKAMP.VmCvar { world.storage.cg_debugSaber }
+public var cg_debugSaber: JKAMP.VmCvar { world.storage.cg_debugSaber }
 
 /// Source: oracle/codemp/cgame/cg_main.c:734
-var cg_debugPosition: JKAMP.VmCvar { world.storage.cg_debugPosition }
+public var cg_debugPosition: JKAMP.VmCvar { world.storage.cg_debugPosition }
 
 /// Source: oracle/codemp/cgame/cg_main.c:735
-var cg_debugEvents: JKAMP.VmCvar { world.storage.cg_debugEvents }
+public var cg_debugEvents: JKAMP.VmCvar { world.storage.cg_debugEvents }
 
 /// Source: oracle/codemp/cgame/cg_main.c:736
-var cg_errorDecay: JKAMP.VmCvar { world.storage.cg_errorDecay }
+public var cg_errorDecay: JKAMP.VmCvar { world.storage.cg_errorDecay }
 
 /// Source: oracle/codemp/cgame/cg_main.c:737
-var cg_nopredict: JKAMP.VmCvar { world.storage.cg_nopredict }
+public var cg_nopredict: JKAMP.VmCvar { world.storage.cg_nopredict }
 
 /// Source: oracle/codemp/cgame/cg_main.c:738
-var cg_noPlayerAnims: JKAMP.VmCvar { world.storage.cg_noPlayerAnims }
+public var cg_noPlayerAnims: JKAMP.VmCvar { world.storage.cg_noPlayerAnims }
 
 /// Source: oracle/codemp/cgame/cg_main.c:739
-var cg_showmiss: JKAMP.VmCvar { world.storage.cg_showmiss }
+public var cg_showmiss: JKAMP.VmCvar { world.storage.cg_showmiss }
 
 /// Source: oracle/codemp/cgame/cg_main.c:740
-var cg_showVehMiss: JKAMP.VmCvar { world.storage.cg_showVehMiss }
+public var cg_showVehMiss: JKAMP.VmCvar { world.storage.cg_showVehMiss }
 
 /// Source: oracle/codemp/cgame/cg_main.c:741
-var cg_footsteps: JKAMP.VmCvar { world.storage.cg_footsteps }
+public var cg_footsteps: JKAMP.VmCvar { world.storage.cg_footsteps }
 
 /// Source: oracle/codemp/cgame/cg_main.c:742
-var cg_addMarks: JKAMP.VmCvar { world.storage.cg_addMarks }
+public var cg_addMarks: JKAMP.VmCvar { world.storage.cg_addMarks }
 
 /// Source: oracle/codemp/cgame/cg_main.c:743
-var cg_viewsize: JKAMP.VmCvar { world.storage.cg_viewsize }
+public var cg_viewsize: JKAMP.VmCvar { world.storage.cg_viewsize }
 
 /// Source: oracle/codemp/cgame/cg_main.c:744
-var cg_drawGun: JKAMP.VmCvar { world.storage.cg_drawGun }
+public var cg_drawGun: JKAMP.VmCvar { world.storage.cg_drawGun }
 
 /// Source: oracle/codemp/cgame/cg_main.c:745
-var cg_gun_frame: JKAMP.VmCvar { world.storage.cg_gun_frame }
+public var cg_gun_frame: JKAMP.VmCvar { world.storage.cg_gun_frame }
 
 /// Source: oracle/codemp/cgame/cg_main.c:746
-var cg_gun_x: JKAMP.VmCvar { world.storage.cg_gun_x }
+public var cg_gun_x: JKAMP.VmCvar { world.storage.cg_gun_x }
 
 /// Source: oracle/codemp/cgame/cg_main.c:747
-var cg_gun_y: JKAMP.VmCvar { world.storage.cg_gun_y }
+public var cg_gun_y: JKAMP.VmCvar { world.storage.cg_gun_y }
 
 /// Source: oracle/codemp/cgame/cg_main.c:748
-var cg_gun_z: JKAMP.VmCvar { world.storage.cg_gun_z }
+public var cg_gun_z: JKAMP.VmCvar { world.storage.cg_gun_z }
 
 /// Source: oracle/codemp/cgame/cg_main.c:749
-var cg_autoswitch: JKAMP.VmCvar { world.storage.cg_autoswitch }
+public var cg_autoswitch: JKAMP.VmCvar { world.storage.cg_autoswitch }
 
 /// Source: oracle/codemp/cgame/cg_main.c:750
-var cg_ignore: JKAMP.VmCvar { world.storage.cg_ignore }
+public var cg_ignore: JKAMP.VmCvar { world.storage.cg_ignore }
 
 /// Source: oracle/codemp/cgame/cg_main.c:751
-var cg_simpleItems: JKAMP.VmCvar { world.storage.cg_simpleItems }
+public var cg_simpleItems: JKAMP.VmCvar { world.storage.cg_simpleItems }
 
 /// Source: oracle/codemp/cgame/cg_main.c:752
-var cg_fov: JKAMP.VmCvar { world.storage.cg_fov }
+public var cg_fov: JKAMP.VmCvar { world.storage.cg_fov }
 
 /// Source: oracle/codemp/cgame/cg_main.c:753
-var cg_zoomFov: JKAMP.VmCvar { world.storage.cg_zoomFov }
+public var cg_zoomFov: JKAMP.VmCvar { world.storage.cg_zoomFov }
 
 /// Source: oracle/codemp/cgame/cg_main.c:755
-var cg_swingAngles: JKAMP.VmCvar { world.storage.cg_swingAngles }
+public var cg_swingAngles: JKAMP.VmCvar { world.storage.cg_swingAngles }
 
 /// Source: oracle/codemp/cgame/cg_main.c:757
-var cg_oldPainSounds: JKAMP.VmCvar { world.storage.cg_oldPainSounds }
+public var cg_oldPainSounds: JKAMP.VmCvar { world.storage.cg_oldPainSounds }
 
 /// Source: oracle/codemp/cgame/cg_main.c:759
-var cg_ragDoll: JKAMP.VmCvar { world.storage.cg_ragDoll }
+public var cg_ragDoll: JKAMP.VmCvar { world.storage.cg_ragDoll }
 
 /// Source: oracle/codemp/cgame/cg_main.c:761
-var cg_jumpSounds: JKAMP.VmCvar { world.storage.cg_jumpSounds }
+public var cg_jumpSounds: JKAMP.VmCvar { world.storage.cg_jumpSounds }
 
 /// Source: oracle/codemp/cgame/cg_main.c:763
-var cg_autoMap: JKAMP.VmCvar { world.storage.cg_autoMap }
+public var cg_autoMap: JKAMP.VmCvar { world.storage.cg_autoMap }
 
 /// Source: oracle/codemp/cgame/cg_main.c:764
-var cg_autoMapX: JKAMP.VmCvar { world.storage.cg_autoMapX }
+public var cg_autoMapX: JKAMP.VmCvar { world.storage.cg_autoMapX }
 
 /// Source: oracle/codemp/cgame/cg_main.c:765
-var cg_autoMapY: JKAMP.VmCvar { world.storage.cg_autoMapY }
+public var cg_autoMapY: JKAMP.VmCvar { world.storage.cg_autoMapY }
 
 /// Source: oracle/codemp/cgame/cg_main.c:766
-var cg_autoMapW: JKAMP.VmCvar { world.storage.cg_autoMapW }
+public var cg_autoMapW: JKAMP.VmCvar { world.storage.cg_autoMapW }
 
 /// Source: oracle/codemp/cgame/cg_main.c:767
-var cg_autoMapH: JKAMP.VmCvar { world.storage.cg_autoMapH }
+public var cg_autoMapH: JKAMP.VmCvar { world.storage.cg_autoMapH }
 
 /// Source: oracle/codemp/cgame/cg_main.c:770
-var bg_fighterAltControl: JKAMP.VmCvar { world.storage.bg_fighterAltControl }
+public var bg_fighterAltControl: JKAMP.VmCvar { world.storage.bg_fighterAltControl }
 
 /// Source: oracle/codemp/cgame/cg_main.c:773
-var cg_chatBox: JKAMP.VmCvar { world.storage.cg_chatBox }
+public var cg_chatBox: JKAMP.VmCvar { world.storage.cg_chatBox }
 
 /// Source: oracle/codemp/cgame/cg_main.c:774
-var cg_chatBoxHeight: JKAMP.VmCvar { world.storage.cg_chatBoxHeight }
+public var cg_chatBoxHeight: JKAMP.VmCvar { world.storage.cg_chatBoxHeight }
 
 /// Source: oracle/codemp/cgame/cg_main.c:776
-var cg_saberModelTraceEffect: JKAMP.VmCvar { world.storage.cg_saberModelTraceEffect }
+public var cg_saberModelTraceEffect: JKAMP.VmCvar { world.storage.cg_saberModelTraceEffect }
 
 /// Source: oracle/codemp/cgame/cg_main.c:778
-var cg_saberClientVisualCompensation: JKAMP.VmCvar { world.storage.cg_saberClientVisualCompensation }
+public var cg_saberClientVisualCompensation: JKAMP.VmCvar { world.storage.cg_saberClientVisualCompensation }
 
 /// Source: oracle/codemp/cgame/cg_main.c:780
-var cg_g2TraceLod: JKAMP.VmCvar { world.storage.cg_g2TraceLod }
+public var cg_g2TraceLod: JKAMP.VmCvar { world.storage.cg_g2TraceLod }
 
 /// Source: oracle/codemp/cgame/cg_main.c:782
-var cg_fpls: JKAMP.VmCvar { world.storage.cg_fpls }
+public var cg_fpls: JKAMP.VmCvar { world.storage.cg_fpls }
 
 /// Source: oracle/codemp/cgame/cg_main.c:784
-var cg_ghoul2Marks: JKAMP.VmCvar { world.storage.cg_ghoul2Marks }
+public var cg_ghoul2Marks: JKAMP.VmCvar { world.storage.cg_ghoul2Marks }
 
 /// Source: oracle/codemp/cgame/cg_main.c:786
-var cg_optvehtrace: JKAMP.VmCvar { world.storage.cg_optvehtrace }
+public var cg_optvehtrace: JKAMP.VmCvar { world.storage.cg_optvehtrace }
 
 /// Source: oracle/codemp/cgame/cg_main.c:788
-var cg_saberDynamicMarks: JKAMP.VmCvar { world.storage.cg_saberDynamicMarks }
+public var cg_saberDynamicMarks: JKAMP.VmCvar { world.storage.cg_saberDynamicMarks }
 
 /// Source: oracle/codemp/cgame/cg_main.c:789
-var cg_saberDynamicMarkTime: JKAMP.VmCvar { world.storage.cg_saberDynamicMarkTime }
+public var cg_saberDynamicMarkTime: JKAMP.VmCvar { world.storage.cg_saberDynamicMarkTime }
 
 /// Source: oracle/codemp/cgame/cg_main.c:791
-var cg_saberContact: JKAMP.VmCvar { world.storage.cg_saberContact }
+public var cg_saberContact: JKAMP.VmCvar { world.storage.cg_saberContact }
 
 /// Source: oracle/codemp/cgame/cg_main.c:792
-var cg_saberTrail: JKAMP.VmCvar { world.storage.cg_saberTrail }
+public var cg_saberTrail: JKAMP.VmCvar { world.storage.cg_saberTrail }
 
 /// Source: oracle/codemp/cgame/cg_main.c:794
-var cg_duelHeadAngles: JKAMP.VmCvar { world.storage.cg_duelHeadAngles }
+public var cg_duelHeadAngles: JKAMP.VmCvar { world.storage.cg_duelHeadAngles }
 
 /// Source: oracle/codemp/cgame/cg_main.c:796
-var cg_speedTrail: JKAMP.VmCvar { world.storage.cg_speedTrail }
+public var cg_speedTrail: JKAMP.VmCvar { world.storage.cg_speedTrail }
 
 /// Source: oracle/codemp/cgame/cg_main.c:797
-var cg_auraShell: JKAMP.VmCvar { world.storage.cg_auraShell }
+public var cg_auraShell: JKAMP.VmCvar { world.storage.cg_auraShell }
 
 /// Source: oracle/codemp/cgame/cg_main.c:799
-var cg_repeaterOrb: JKAMP.VmCvar { world.storage.cg_repeaterOrb }
+public var cg_repeaterOrb: JKAMP.VmCvar { world.storage.cg_repeaterOrb }
 
 /// Source: oracle/codemp/cgame/cg_main.c:801
-var cg_animBlend: JKAMP.VmCvar { world.storage.cg_animBlend }
+public var cg_animBlend: JKAMP.VmCvar { world.storage.cg_animBlend }
 
 /// Source: oracle/codemp/cgame/cg_main.c:803
-var cg_dismember: JKAMP.VmCvar { world.storage.cg_dismember }
+public var cg_dismember: JKAMP.VmCvar { world.storage.cg_dismember }
 
 /// Source: oracle/codemp/cgame/cg_main.c:805
-var cg_thirdPersonSpecialCam: JKAMP.VmCvar { world.storage.cg_thirdPersonSpecialCam }
+public var cg_thirdPersonSpecialCam: JKAMP.VmCvar { world.storage.cg_thirdPersonSpecialCam }
 
 /// Source: oracle/codemp/cgame/cg_main.c:807
-var cg_thirdPerson: JKAMP.VmCvar { world.storage.cg_thirdPerson }
+public var cg_thirdPerson: JKAMP.VmCvar { world.storage.cg_thirdPerson }
 
 /// Source: oracle/codemp/cgame/cg_main.c:808
-var cg_thirdPersonRange: JKAMP.VmCvar { world.storage.cg_thirdPersonRange }
+public var cg_thirdPersonRange: JKAMP.VmCvar { world.storage.cg_thirdPersonRange }
 
 /// Source: oracle/codemp/cgame/cg_main.c:809
-var cg_thirdPersonAngle: JKAMP.VmCvar { world.storage.cg_thirdPersonAngle }
+public var cg_thirdPersonAngle: JKAMP.VmCvar { world.storage.cg_thirdPersonAngle }
 
 /// Source: oracle/codemp/cgame/cg_main.c:810
-var cg_thirdPersonPitchOffset: JKAMP.VmCvar { world.storage.cg_thirdPersonPitchOffset }
+public var cg_thirdPersonPitchOffset: JKAMP.VmCvar { world.storage.cg_thirdPersonPitchOffset }
 
 /// Source: oracle/codemp/cgame/cg_main.c:811
-var cg_thirdPersonVertOffset: JKAMP.VmCvar { world.storage.cg_thirdPersonVertOffset }
+public var cg_thirdPersonVertOffset: JKAMP.VmCvar { world.storage.cg_thirdPersonVertOffset }
 
 /// Source: oracle/codemp/cgame/cg_main.c:812
-var cg_thirdPersonCameraDamp: JKAMP.VmCvar { world.storage.cg_thirdPersonCameraDamp }
+public var cg_thirdPersonCameraDamp: JKAMP.VmCvar { world.storage.cg_thirdPersonCameraDamp }
 
 /// Source: oracle/codemp/cgame/cg_main.c:813
-var cg_thirdPersonTargetDamp: JKAMP.VmCvar { world.storage.cg_thirdPersonTargetDamp }
+public var cg_thirdPersonTargetDamp: JKAMP.VmCvar { world.storage.cg_thirdPersonTargetDamp }
 
 /// Source: oracle/codemp/cgame/cg_main.c:815
-var cg_thirdPersonAlpha: JKAMP.VmCvar { world.storage.cg_thirdPersonAlpha }
+public var cg_thirdPersonAlpha: JKAMP.VmCvar { world.storage.cg_thirdPersonAlpha }
 
 /// Source: oracle/codemp/cgame/cg_main.c:816
-var cg_thirdPersonHorzOffset: JKAMP.VmCvar { world.storage.cg_thirdPersonHorzOffset }
+public var cg_thirdPersonHorzOffset: JKAMP.VmCvar { world.storage.cg_thirdPersonHorzOffset }
 
 /// Source: oracle/codemp/cgame/cg_main.c:818
-var cg_stereoSeparation: JKAMP.VmCvar { world.storage.cg_stereoSeparation }
+public var cg_stereoSeparation: JKAMP.VmCvar { world.storage.cg_stereoSeparation }
 
 /// Source: oracle/codemp/cgame/cg_main.c:819
-var cg_lagometer: JKAMP.VmCvar { world.storage.cg_lagometer }
+public var cg_lagometer: JKAMP.VmCvar { world.storage.cg_lagometer }
 
 /// Source: oracle/codemp/cgame/cg_main.c:820
-var cg_drawEnemyInfo: JKAMP.VmCvar { world.storage.cg_drawEnemyInfo }
+public var cg_drawEnemyInfo: JKAMP.VmCvar { world.storage.cg_drawEnemyInfo }
 
 /// Source: oracle/codemp/cgame/cg_main.c:821
-var cg_synchronousClients: JKAMP.VmCvar { world.storage.cg_synchronousClients }
+public var cg_synchronousClients: JKAMP.VmCvar { world.storage.cg_synchronousClients }
 
 /// Source: oracle/codemp/cgame/cg_main.c:822
-var cg_stats: JKAMP.VmCvar { world.storage.cg_stats }
+public var cg_stats: JKAMP.VmCvar { world.storage.cg_stats }
 
 /// Source: oracle/codemp/cgame/cg_main.c:823
-var cg_buildScript: JKAMP.VmCvar { world.storage.cg_buildScript }
+public var cg_buildScript: JKAMP.VmCvar { world.storage.cg_buildScript }
 
 /// Source: oracle/codemp/cgame/cg_main.c:824
-var cg_forceModel: JKAMP.VmCvar { world.storage.cg_forceModel }
+public var cg_forceModel: JKAMP.VmCvar { world.storage.cg_forceModel }
 
 /// Source: oracle/codemp/cgame/cg_main.c:825
-var cg_paused: JKAMP.VmCvar { world.storage.cg_paused }
+public var cg_paused: JKAMP.VmCvar { world.storage.cg_paused }
 
 /// Source: oracle/codemp/cgame/cg_main.c:826
-var cg_blood: JKAMP.VmCvar { world.storage.cg_blood }
+public var cg_blood: JKAMP.VmCvar { world.storage.cg_blood }
 
 /// Source: oracle/codemp/cgame/cg_main.c:827
-var cg_predictItems: JKAMP.VmCvar { world.storage.cg_predictItems }
+public var cg_predictItems: JKAMP.VmCvar { world.storage.cg_predictItems }
 
 /// Source: oracle/codemp/cgame/cg_main.c:828
-var cg_deferPlayers: JKAMP.VmCvar { world.storage.cg_deferPlayers }
+public var cg_deferPlayers: JKAMP.VmCvar { world.storage.cg_deferPlayers }
 
 /// Source: oracle/codemp/cgame/cg_main.c:829
-var cg_drawTeamOverlay: JKAMP.VmCvar { world.storage.cg_drawTeamOverlay }
+public var cg_drawTeamOverlay: JKAMP.VmCvar { world.storage.cg_drawTeamOverlay }
 
 /// Source: oracle/codemp/cgame/cg_main.c:830
-var cg_teamOverlayUserinfo: JKAMP.VmCvar { world.storage.cg_teamOverlayUserinfo }
+public var cg_teamOverlayUserinfo: JKAMP.VmCvar { world.storage.cg_teamOverlayUserinfo }
 
 /// Source: oracle/codemp/cgame/cg_main.c:831
-var cg_drawFriend: JKAMP.VmCvar { world.storage.cg_drawFriend }
+public var cg_drawFriend: JKAMP.VmCvar { world.storage.cg_drawFriend }
 
 /// Source: oracle/codemp/cgame/cg_main.c:832
-var cg_teamChatsOnly: JKAMP.VmCvar { world.storage.cg_teamChatsOnly }
+public var cg_teamChatsOnly: JKAMP.VmCvar { world.storage.cg_teamChatsOnly }
 
 /// Source: oracle/codemp/cgame/cg_main.c:833
-var cg_hudFiles: JKAMP.VmCvar { world.storage.cg_hudFiles }
+public var cg_hudFiles: JKAMP.VmCvar { world.storage.cg_hudFiles }
 
 /// Source: oracle/codemp/cgame/cg_main.c:834
-var cg_scorePlum: JKAMP.VmCvar { world.storage.cg_scorePlum }
+public var cg_scorePlum: JKAMP.VmCvar { world.storage.cg_scorePlum }
 
 /// Source: oracle/codemp/cgame/cg_main.c:835
-var cg_smoothClients: JKAMP.VmCvar { world.storage.cg_smoothClients }
+public var cg_smoothClients: JKAMP.VmCvar { world.storage.cg_smoothClients }
 
 /// Source: oracle/codemp/cgame/cg_main.c:838
-var pmove_fixed: JKAMP.VmCvar { world.storage.pmove_fixed }
+public var pmove_fixed: JKAMP.VmCvar { world.storage.pmove_fixed }
 
 /// Source: oracle/codemp/cgame/cg_main.c:840
-var pmove_msec: JKAMP.VmCvar { world.storage.pmove_msec }
+public var pmove_msec: JKAMP.VmCvar { world.storage.pmove_msec }
 
 /// Source: oracle/codemp/cgame/cg_main.c:842
-var g_showDuelHealths: JKAMP.VmCvar { world.storage.g_showDuelHealths }
+public var g_showDuelHealths: JKAMP.VmCvar { world.storage.g_showDuelHealths }
 
 /// Source: oracle/codemp/cgame/cg_main.c:845
-var cg_pmove_msec: JKAMP.VmCvar { world.storage.cg_pmove_msec }
+public var cg_pmove_msec: JKAMP.VmCvar { world.storage.cg_pmove_msec }
 
 /// Source: oracle/codemp/cgame/cg_main.c:846
-var cg_cameraMode: JKAMP.VmCvar { world.storage.cg_cameraMode }
+public var cg_cameraMode: JKAMP.VmCvar { world.storage.cg_cameraMode }
 
 /// Source: oracle/codemp/cgame/cg_main.c:847
-var cg_cameraOrbit: JKAMP.VmCvar { world.storage.cg_cameraOrbit }
+public var cg_cameraOrbit: JKAMP.VmCvar { world.storage.cg_cameraOrbit }
 
 /// Source: oracle/codemp/cgame/cg_main.c:848
-var cg_cameraOrbitDelay: JKAMP.VmCvar { world.storage.cg_cameraOrbitDelay }
+public var cg_cameraOrbitDelay: JKAMP.VmCvar { world.storage.cg_cameraOrbitDelay }
 
 /// Source: oracle/codemp/cgame/cg_main.c:849
-var cg_timescaleFadeEnd: JKAMP.VmCvar { world.storage.cg_timescaleFadeEnd }
+public var cg_timescaleFadeEnd: JKAMP.VmCvar { world.storage.cg_timescaleFadeEnd }
 
 /// Source: oracle/codemp/cgame/cg_main.c:850
-var cg_timescaleFadeSpeed: JKAMP.VmCvar { world.storage.cg_timescaleFadeSpeed }
+public var cg_timescaleFadeSpeed: JKAMP.VmCvar { world.storage.cg_timescaleFadeSpeed }
 
 /// Source: oracle/codemp/cgame/cg_main.c:851
-var cg_timescale: JKAMP.VmCvar { world.storage.cg_timescale }
+public var cg_timescale: JKAMP.VmCvar { world.storage.cg_timescale }
 
 /// Source: oracle/codemp/cgame/cg_main.c:852
-var cg_noTaunt: JKAMP.VmCvar { world.storage.cg_noTaunt }
+public var cg_noTaunt: JKAMP.VmCvar { world.storage.cg_noTaunt }
 
 /// Source: oracle/codemp/cgame/cg_main.c:853
-var cg_noProjectileTrail: JKAMP.VmCvar { world.storage.cg_noProjectileTrail }
+public var cg_noProjectileTrail: JKAMP.VmCvar { world.storage.cg_noProjectileTrail }
 
 /// Source: oracle/codemp/cgame/cg_main.c:858
-var cg_debugBB: JKAMP.VmCvar { world.storage.cg_debugBB }
+public var cg_debugBB: JKAMP.VmCvar { world.storage.cg_debugBB }
 
 /// Source: oracle/codemp/cgame/cg_main.c:864
-var cg_currentSelectedPlayer: JKAMP.VmCvar { world.storage.cg_currentSelectedPlayer }
+public var cg_currentSelectedPlayer: JKAMP.VmCvar { world.storage.cg_currentSelectedPlayer }
 
 /// Source: oracle/codemp/cgame/cg_main.c:865
-var cg_currentSelectedPlayerName: JKAMP.VmCvar { world.storage.cg_currentSelectedPlayerName }
+public var cg_currentSelectedPlayerName: JKAMP.VmCvar { world.storage.cg_currentSelectedPlayerName }
 
 /// Source: oracle/codemp/cgame/cg_main.c:867
-var cg_recordSPDemo: JKAMP.VmCvar { world.storage.cg_recordSPDemo }
+public var cg_recordSPDemo: JKAMP.VmCvar { world.storage.cg_recordSPDemo }
 
 /// Source: oracle/codemp/cgame/cg_main.c:868
-var cg_recordSPDemoName: JKAMP.VmCvar { world.storage.cg_recordSPDemoName }
+public var cg_recordSPDemoName: JKAMP.VmCvar { world.storage.cg_recordSPDemoName }
 
 /// Source: oracle/codemp/cgame/cg_main.c:869
-var cg_showVehBounds: JKAMP.VmCvar { world.storage.cg_showVehBounds }
+public var cg_showVehBounds: JKAMP.VmCvar { world.storage.cg_showVehBounds }
 
 /// Source: oracle/codemp/cgame/cg_main.c:871
-var ui_myteam: JKAMP.VmCvar { world.storage.ui_myteam }
+public var ui_myteam: JKAMP.VmCvar { world.storage.ui_myteam }
 
 /// Source: oracle/codemp/cgame/cg_main.c:873
-var cg_snapshotTimeout: JKAMP.VmCvar { world.storage.cg_snapshotTimeout }
+public var cg_snapshotTimeout: JKAMP.VmCvar { world.storage.cg_snapshotTimeout }
 
 /// Source: oracle/codemp/cgame/cg_main.c:882
 /// Raven's data table, a hand property of `CGameWorld`.
@@ -504,25 +504,25 @@ var cg_spawnVarChars: JKAShared.CharBuf {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3417
-var cg_noFogOutsidePortal: Bool {
+public var cg_noFogOutsidePortal: Bool {
     get { world.variables.cg_noFogOutsidePortal }
     set { world.variables.cg_noFogOutsidePortal = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3429
-var cg_skyOri: Bool {
+public var cg_skyOri: Bool {
     get { world.variables.cg_skyOri }
     set { world.variables.cg_skyOri = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3430
-var cg_skyOriPos: JKAShared.vec3_t {
+public var cg_skyOriPos: JKAShared.vec3_t {
     get { world.variables.cg_skyOriPos }
     set { world.variables.cg_skyOriPos = newValue }
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3431
-var cg_skyOriScale: Float {
+public var cg_skyOriScale: Float {
     get { world.variables.cg_skyOriScale }
     set { world.variables.cg_skyOriScale = newValue }
 }
@@ -795,7 +795,7 @@ public func CG_MiscEnt() {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:624
-func CG_DrawMiscEnts() {
+public func CG_DrawMiscEnts() {
     var i: Int32
     var RefEntIndex: Int32 = 0
     var radiusIndex: Int32 = 0
@@ -836,7 +836,7 @@ CG_RegisterCvars
 ```
 */
 /// Source: oracle/codemp/cgame/cg_main.c:1062
-func CG_RegisterCvars() {
+public func CG_RegisterCvars() {
     var i: Int32
     var cvIndex: Int32 = 0
     var `var` = CharBuf(1024)
@@ -933,7 +933,7 @@ CG_UpdateCvars
 ```
 */
 /// Source: oracle/codemp/cgame/cg_main.c:1157
-func CG_UpdateCvars() {
+public func CG_UpdateCvars() {
     var i: Int32
     var cvIndex: Int32 = 0
 
@@ -990,7 +990,7 @@ public func CG_LastAttacker() -> Int32 {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:1209
-func CG_Printf(_ msg: String, _ args: any JKAShared.FormatArg...) {
+public func CG_Printf(_ msg: String, _ args: any JKAShared.FormatArg...) {
     var text = CharBuf(1024)
 
     strcpy(&text, JKAShared.format(msg, args))
@@ -1033,7 +1033,7 @@ CG_Argv
 ```
 */
 /// Source: oracle/codemp/cgame/cg_main.c:1263
-func CG_Argv(_ arg: Int32) -> String {
+public func CG_Argv(_ arg: Int32) -> String {
     // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
     var buffer = CharBuf(1024)
 
@@ -1043,7 +1043,7 @@ func CG_Argv(_ arg: Int32) -> String {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:1276
-func BG_GetTime() -> Int32 {
+public func BG_GetTime() -> Int32 {
     return cg.time
 }
 
@@ -1157,13 +1157,13 @@ private func CG_AS_Register() {
 
 //a global weather effect (rain, snow, etc)
 /// Source: oracle/codemp/cgame/cg_main.c:1395
-func CG_ParseWeatherEffect(_ str: String) {
+public func CG_ParseWeatherEffect(_ str: String) {
     let sptr = String(str.dropFirst()) //pass the '*'
     trap_R_WorldEffectCommand(sptr)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:1403
-func CG_ParseSiegeState(_ str: String) {
+public func CG_ParseSiegeState(_ str: String) {
     var i: Int32 = 0
     var j: Int32 = 0
     //	int prevState = cgSiegeRoundState;
@@ -2142,7 +2142,7 @@ private func CG_RegisterGraphics() {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:2429
-func CG_GetStringEdString(_ refSection: String, _ refName: String?) -> String {
+public func CG_GetStringEdString(_ refSection: String, _ refName: String?) -> String {
     // Raven's ring of static buffers keeps one result valid across a later call, and a returned `String` is already a copy.
     var text = CharBuf(1024)
 
@@ -2151,7 +2151,7 @@ func CG_GetStringEdString(_ refSection: String, _ refName: String?) -> String {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:2442
-func CG_SiegeCountCvars() {
+public func CG_SiegeCountCvars() {
     var classGfx: [Int32] = [Int32](repeating: 0, count: 6)
 
     trap_Cvar_Set("ui_tm1_cnt", va("%d", CG_GetTeamNonScoreCount(TEAM_RED)))
@@ -2190,7 +2190,7 @@ CG_BuildSpectatorString
 ```
 */
 /// Source: oracle/codemp/cgame/cg_main.c:2480
-func CG_BuildSpectatorString() {
+public func CG_BuildSpectatorString() {
     var i: Int32
     cg.spectatorList = ""
 
@@ -2254,7 +2254,7 @@ CG_ConfigString
 ```
 */
 /// Source: oracle/codemp/cgame/cg_main.c:2535
-func CG_ConfigString(_ index: Int32) -> String {
+public func CG_ConfigString(_ index: Int32) -> String {
     if index < 0 || index >= MAX_CONFIGSTRINGS {
         CG_Error("CG_ConfigString: bad index: %i", index)
     }
@@ -2270,7 +2270,7 @@ CG_StartMusic
 ```
 */
 /// Source: oracle/codemp/cgame/cg_main.c:2550
-func CG_StartMusic(_ bForceStart: Bool) {
+public func CG_StartMusic(_ bForceStart: Bool) {
     var s = TextCursor()
     var parm1 = CharBuf(64)
     var parm2 = CharBuf(64)
@@ -2284,7 +2284,7 @@ func CG_StartMusic(_ bForceStart: Bool) {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:2563
-func CG_GetMenuBuffer(_ filename: String) -> String? {
+public func CG_GetMenuBuffer(_ filename: String) -> String? {
     let len: Int32
     var f: fileHandle_t = 0
     // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
@@ -2314,7 +2314,7 @@ func CG_GetMenuBuffer(_ filename: String) -> String? {
 // ==============================
 //
 /// Source: oracle/codemp/cgame/cg_main.c:2592
-func CG_Asset_Parse(_ handle: Int32) -> Bool {
+public func CG_Asset_Parse(_ handle: Int32) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return PcToken.scratch { token -> Bool in
@@ -2490,7 +2490,7 @@ func CG_Asset_Parse(_ handle: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:2753
-func CG_ParseMenu(_ menuFile: String) {
+public func CG_ParseMenu(_ menuFile: String) {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = PcToken.scratch { token -> Bool in
@@ -2546,7 +2546,7 @@ func CG_ParseMenu(_ menuFile: String) {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:2800
-func CG_Load_Menu(_ p: inout JKAShared.TextCursor) -> Bool {
+public func CG_Load_Menu(_ p: inout JKAShared.TextCursor) -> Bool {
     var token: String
 
     token = COM_ParseExt(&p, true)
@@ -2604,7 +2604,7 @@ private func CG_FeederCount(_ feederID: Float) -> Int32 {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:2856
-func CG_SetScoreSelection(_ p: MenuDef?) {
+public func CG_SetScoreSelection(_ p: MenuDef?) {
     let menu: MenuDef? = p
     let ps: PlayerState? = cg.snap!.ps
     var i: Int32
@@ -2795,7 +2795,7 @@ private func CG_Cvar_Get(_ cvar: String) -> Float {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3027
-func CG_Text_PaintWithCursor(_ x: Float, _ y: Float, _ scale: Float, _ color: JKAShared.vec4_t, _ text: String, _ cursorPos: Int32, _ cursor: Int32, _ limit: Int32, _ style: Int32, _ iMenuFont: Int32) {
+public func CG_Text_PaintWithCursor(_ x: Float, _ y: Float, _ scale: Float, _ color: JKAShared.vec4_t, _ text: String, _ cursorPos: Int32, _ cursor: Int32, _ limit: Int32, _ style: Int32, _ iMenuFont: Int32) {
     CG_Text_Paint(x, y, scale, color, text, 0, limit, style, iMenuFont)
 }
 
@@ -2853,7 +2853,7 @@ CG_LoadMenus();
 ```
 */
 /// Source: oracle/codemp/cgame/cg_main.c:3076
-func CG_LoadMenus(_ menuFile: String) {
+public func CG_LoadMenus(_ menuFile: String) {
     var token: String
     var p = TextCursor()
     var len: Int32
@@ -2914,7 +2914,7 @@ CG_LoadHudMenu();
 ```
 */
 /// Source: oracle/codemp/cgame/cg_main.c:3145
-func CG_LoadHudMenu() {
+public func CG_LoadHudMenu() {
     var hudSet: String
 
     cgDC.registerShaderNoMip = DisplayContextDefThunks.trap_R_RegisterShaderNoMip
@@ -2988,7 +2988,7 @@ func CG_LoadHudMenu() {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3221
-func CG_AssetCache() {
+public func CG_AssetCache() {
     //if (Assets.textFont == NULL) {
     //  trap_R_RegisterFont("fonts/arial.ttf", 72, &Assets.textFont);
     //}
@@ -3015,23 +3015,23 @@ func CG_AssetCache() {
 
 // initialise the cg_entities structure - take into account the ghoul2 stl stuff in the active snap shots
 /// Source: oracle/codemp/cgame/cg_main.c:3254
-func CG_Init_CG() {
+public func CG_Init_CG() {
     cg.clear()
 }
 
 // initialise the cg_entities structure - take into account the ghoul2 stl stuff
 /// Source: oracle/codemp/cgame/cg_main.c:3274
-func CG_Init_CGents() {
+public func CG_Init_CGents() {
     cg_entities.zero()
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3281
-func CG_InitItems() {
+public func CG_InitItems() {
     cg_items.zero()
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3286
-func CG_TransitionPermanent() {
+public func CG_TransitionPermanent() {
     var centIndex: Int32 = 0
     var i: Int32
 
@@ -3053,7 +3053,7 @@ func CG_TransitionPermanent() {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3313
-func CG_StrPool_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
+public func CG_StrPool_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
     let giveThemThis: UnsafeMutableRawPointer
 
     if cg_strPoolSize + size >= MAX_CGSTRPOOL_SIZE {
@@ -3071,7 +3071,7 @@ func CG_StrPool_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3331
-func CG_StrPool_Reset() {
+public func CG_StrPool_Reset() {
     cg_strPoolSize = 0
 }
 
@@ -3086,7 +3086,7 @@ so message texts can be multi-line
 ```
 */
 /// Source: oracle/codemp/cgame/cg_main.c:3344
-func CG_NewString(_ string: String) -> String {
+public func CG_NewString(_ string: String) -> String {
     let string = CharBuf(string)
     let newb: UnsafeMutableRawPointer
     var new_p: Int32
@@ -3122,7 +3122,7 @@ func CG_NewString(_ string: String) -> String {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3418
-func CG_CreateSkyPortalFromSpawnEnt(_ ent: CgSpawnEnt) {
+public func CG_CreateSkyPortalFromSpawnEnt(_ ent: CgSpawnEnt) {
     if ent.onlyFogHere != 0 {
         //only globally fog INSIDE the sky portal
         cg_noFogOutsidePortal = true
@@ -3130,7 +3130,7 @@ func CG_CreateSkyPortalFromSpawnEnt(_ ent: CgSpawnEnt) {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3432
-func CG_CreateSkyOriFromSpawnEnt(_ ent: CgSpawnEnt) {
+public func CG_CreateSkyOriFromSpawnEnt(_ ent: CgSpawnEnt) {
     cg_skyOri = true
     cg_skyOriPos = ent.origin
     cg_skyOriScale = ent.fScale
@@ -3138,19 +3138,19 @@ func CG_CreateSkyOriFromSpawnEnt(_ ent: CgSpawnEnt) {
 
 //get brush box extents, note this does not care about bsp instances.
 /// Source: oracle/codemp/cgame/cg_main.c:3440
-func CG_CreateBrushEntData(_ ent: CgSpawnEnt) {
+public func CG_CreateBrushEntData(_ ent: CgSpawnEnt) {
     trap_R_ModelBounds(trap_R_RegisterModel(ent.model!), &ent.mins, &ent.maxs)
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3445
-func CG_CreateWeatherZoneFromSpawnEnt(_ ent: CgSpawnEnt) {
+public func CG_CreateWeatherZoneFromSpawnEnt(_ ent: CgSpawnEnt) {
     CG_CreateBrushEntData(ent)
     trap_WE_AddWeatherZone(ent.mins, ent.maxs)
 }
 
 //create a new cgame-only model
 /// Source: oracle/codemp/cgame/cg_main.c:3452
-func CG_CreateModelFromSpawnEnt(_ ent: CgSpawnEnt) {
+public func CG_CreateModelFromSpawnEnt(_ ent: CgSpawnEnt) {
     let modelIndex: Int32
     var RefEnt: RefEntity?
     var mins = vec3_t()
@@ -3216,7 +3216,7 @@ CG_AddSpawnVarToken
 ```
 */
 /// Source: oracle/codemp/cgame/cg_main.c:3515
-func CG_AddSpawnVarToken(_ string: String) -> String {
+public func CG_AddSpawnVarToken(_ string: String) -> String {
     let l: Int32
     var dest: Int32 = 0
 
@@ -3244,7 +3244,7 @@ need to take up an entity slot (e.g. static models) -rww
 ```
 */
 /// Source: oracle/codemp/cgame/cg_main.c:3541
-func CG_ParseSpawnVars() -> Bool {
+public func CG_ParseSpawnVars() -> Bool {
     var keyname = CharBuf(1024)
     var com_token = CharBuf(1024)
 
@@ -3299,7 +3299,7 @@ func CG_ParseSpawnVars() -> Bool {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3608
-func CG_SpawnCGameEntFromVars() {
+public func CG_SpawnCGameEntFromVars() {
     var i: Int32 = 0
     // Raven's record lives to the end of his block, so the block is the closure.
     CgSpawnEnt.scratch { ent in
@@ -3357,7 +3357,7 @@ the server and never even bother sending. -rww
 ```
 */
 /// Source: oracle/codemp/cgame/cg_main.c:3664
-func CG_SpawnCGameOnlyEnts() {
+public func CG_SpawnCGameOnlyEnts() {
     //make sure it is reset
     trap_GetEntityToken(nil, -1)
 
@@ -3607,7 +3607,7 @@ public func CG_Init(_ serverMessageNum: Int32, _ serverCommandSequence: Int32, _
 
 //makes sure returned string is in localized format
 /// Source: oracle/codemp/cgame/cg_main.c:3936
-func CG_GetLocationString(_ loc: String) -> String {
+public func CG_GetLocationString(_ loc: String) -> String {
     // Raven's static buffer keeps the result valid after the return, and a returned `String` is already a copy.
     var text = CharBuf(1024)
 
@@ -3621,7 +3621,7 @@ func CG_GetLocationString(_ loc: String) -> String {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:3951
-func CG_DestroyAllGhoul2() {
+public func CG_DestroyAllGhoul2() {
     var i: Int32 = 0
     var j: Int32
 
@@ -3694,7 +3694,7 @@ CG_NextForcePower_f
 ```
 */
 /// Source: oracle/codemp/cgame/cg_main.c:4023
-func CG_NextForcePower_f() {
+public func CG_NextForcePower_f() {
     var current: Int32 = 0
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
@@ -3744,7 +3744,7 @@ CG_PrevForcePower_f
 ```
 */
 /// Source: oracle/codemp/cgame/cg_main.c:4070
-func CG_PrevForcePower_f() {
+public func CG_PrevForcePower_f() {
     var current: Int32 = 0
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
@@ -3787,7 +3787,7 @@ func CG_PrevForcePower_f() {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:4112
-func CG_NextInventory_f() {
+public func CG_NextInventory_f() {
     if cg.snap == nil {
         return
     }
@@ -3812,7 +3812,7 @@ func CG_NextInventory_f() {
 }
 
 /// Source: oracle/codemp/cgame/cg_main.c:4142
-func CG_PrevInventory_f() {
+public func CG_PrevInventory_f() {
     if cg.snap == nil {
         return
     }

@@ -5,7 +5,7 @@ import JKAMP_Game
 import JKAMP_BG
 
 /// Source: oracle/codemp/game/g_trigger.c:6
-var gTrigFallSound: Int32 {
+public var gTrigFallSound: Int32 {
     get { world.variables.gTrigFallSound }
     set { world.variables.gTrigFallSound = newValue }
 }
@@ -26,7 +26,7 @@ let PUSH_CONSTANT = 2 as Int32
 let INITIAL_SUFFOCATION_DELAY = 500 as Int32
 
 /// Source: oracle/codemp/game/g_trigger.c:8
-func InitTrigger(_ `self`: Entity) {
+public func InitTrigger(_ `self`: Entity) {
     if VectorCompare(`self`.s.angles, vec3_origin) == 0 {
         G_SetMovedir(&`self`.s.angles, &`self`.movedir)
     }
@@ -42,7 +42,7 @@ func InitTrigger(_ `self`: Entity) {
 
 // the wait time has passed, so set back up for another activation
 /// Source: oracle/codemp/game/g_trigger.c:23
-func multi_wait(_ ent: Entity) {
+public func multi_wait(_ ent: Entity) {
     ent.nextthink = 0
 }
 
@@ -50,7 +50,7 @@ func multi_wait(_ ent: Entity) {
 // ent->activator should be set to the activator so it can be held through a delay
 // so wait for the delay time before firing
 /// Source: oracle/codemp/game/g_trigger.c:32
-func multi_trigger_run(_ ent: Entity) {
+public func multi_trigger_run(_ ent: Entity) {
     ent.think = nil
 
     G_ActivateBehavior(ent, BSET_USE)
@@ -103,7 +103,7 @@ func multi_trigger_run(_ ent: Entity) {
 
 //determine if the class given is listed in the string using the | formatting
 /// Source: oracle/codemp/game/g_trigger.c:97
-func G_NameInTriggerClassList(_ list: String, _ str: String) -> Bool {
+public func G_NameInTriggerClassList(_ list: String, _ str: String) -> Bool {
     let list = CharBuf(list)
     var cmp = CharBuf(1024)
     var i: Int32 = 0
@@ -133,7 +133,7 @@ func G_NameInTriggerClassList(_ list: String, _ str: String) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_trigger.c:130
-func multi_trigger(_ ent: Entity, _ activator: Entity) {
+public func multi_trigger(_ ent: Entity, _ activator: Entity) {
     var haltTrigger: Bool = false
 
     if ent.think == Think.multi_trigger_run {
@@ -306,12 +306,12 @@ func multi_trigger(_ ent: Entity, _ activator: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_trigger.c:343
-func Use_Multi(_ ent: Entity, _ other: Entity, _ activator: Entity) {
+public func Use_Multi(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     multi_trigger(ent, activator)
 }
 
 /// Source: oracle/codemp/game/g_trigger.c:350
-func Touch_Multi(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+public func Touch_Multi(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     if other.client == nil {
         return
     }
@@ -484,7 +484,7 @@ func Touch_Multi(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
 }
 
 /// Source: oracle/codemp/game/g_trigger.c:549
-func trigger_cleared_fire(_ `self`: Entity) {
+public func trigger_cleared_fire(_ `self`: Entity) {
     G_UseTargets2(`self`, `self`.activator, `self`.target2)
     `self`.think = nil
     // should start the wait timer now, because the trigger's just been cleared, so we must "wait" from this point
@@ -544,7 +544,7 @@ idealclass	-	Can only be used by this class/these classes. You can specify use b
 ```
 */
 /// Source: oracle/codemp/game/g_trigger.c:607
-func SP_trigger_multiple(_ ent: Entity) {
+public func SP_trigger_multiple(_ ent: Entity) {
     var s: String = ""
     if G_SpawnString("noise", "", &s) {
         if !s.isEmpty {
@@ -625,7 +625,7 @@ idealclass	-	Can only be used by this class/these classes. You can specify use b
 ```
 */
 /// Source: oracle/codemp/game/g_trigger.c:694
-func SP_trigger_once(_ ent: Entity) {
+public func SP_trigger_once(_ ent: Entity) {
     var s: String = ""
     if G_SpawnString("noise", "", &s) {
         if !s.isEmpty {
@@ -667,7 +667,7 @@ trigger_lightningstrike -rww
 */
 //lightning strike trigger lightning strike event
 /// Source: oracle/codemp/game/g_trigger.c:739
-func Do_Strike(_ ent: Entity) {
+public func Do_Strike(_ ent: Entity) {
     // Raven's record lives to the end of his block, so the block is the closure.
     // The closure gives true where Raven returns from the function.
     let earlyOut = Trace.scratch { localTrace -> Bool in
@@ -724,7 +724,7 @@ func Do_Strike(_ ent: Entity) {
 
 //lightning strike trigger think loop
 /// Source: oracle/codemp/game/g_trigger.c:789
-func Think_Strike(_ ent: Entity) {
+public func Think_Strike(_ ent: Entity) {
     if ent.genericValue1 != 0 {
         //turned off currently
         return
@@ -736,7 +736,7 @@ func Think_Strike(_ ent: Entity) {
 
 //lightning strike trigger use event function
 /// Source: oracle/codemp/game/g_trigger.c:801
-func Use_Strike(_ ent: Entity, _ other: Entity, _ activator: Entity) {
+public func Use_Strike(_ ent: Entity, _ other: Entity, _ activator: Entity) {
     ent.genericValue1 = (ent.genericValue1 == 0 ? 1 : 0)
 
     if ent.genericValue1 == 0 {
@@ -762,7 +762,7 @@ use to toggle on and off
 ```
 */
 /// Source: oracle/codemp/game/g_trigger.c:824
-func SP_trigger_lightningstrike(_ ent: Entity) {
+public func SP_trigger_lightningstrike(_ ent: Entity) {
     var s: String = ""
 
     ent.use = Use.Use_Strike
@@ -800,7 +800,7 @@ func SP_trigger_lightningstrike(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_trigger.c:872
-func trigger_always_think(_ ent: Entity) {
+public func trigger_always_think(_ ent: Entity) {
     G_UseTargets(ent, ent)
     G_FreeEntity(ent)
 }
@@ -812,14 +812,14 @@ This trigger will always fire.  It is activated by the world.
 ```
 */
 /// Source: oracle/codemp/game/g_trigger.c:880
-func SP_trigger_always(_ ent: Entity) {
+public func SP_trigger_always(_ ent: Entity) {
     // we must have some delay to make sure our use targets are present
     ent.nextthink = level.time + 300
     ent.think = Think.trigger_always_think
 }
 
 /// Source: oracle/codemp/game/g_trigger.c:901
-func trigger_push_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+public func trigger_push_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     if (`self`.flags & FL_INACTIVE) != 0 {
         //set by target_deactivate
         return
@@ -943,7 +943,7 @@ Calculate origin2 so the target apogee will be hit
 ```
 */
 /// Source: oracle/codemp/game/g_trigger.c:1039
-func AimAtTarget(_ `self`: Entity) {
+public func AimAtTarget(_ `self`: Entity) {
     var ent: Entity?
     var origin = vec3_t()
     let height: Float
@@ -1018,7 +1018,7 @@ speed - when used with the LINEAR spawnflag, pushes the client toward the positi
 ```
 */
 /// Source: oracle/codemp/game/g_trigger.c:1112
-func SP_trigger_push(_ `self`: Entity) {
+public func SP_trigger_push(_ `self`: Entity) {
     InitTrigger(`self`)
 
     // unlike other triggers, we need to send this one to the client
@@ -1045,7 +1045,7 @@ func SP_trigger_push(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_trigger.c:1138
-func Use_target_push(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func Use_target_push(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     if activator.client == nil {
         return
     }
@@ -1078,7 +1078,7 @@ if "bouncepad", play bounce noise instead of none
 ```
 */
 /// Source: oracle/codemp/game/g_trigger.c:1168
-func SP_target_push(_ `self`: Entity) {
+public func SP_target_push(_ `self`: Entity) {
     if `self`.speed == 0 {
         `self`.speed = 1000
     }
@@ -1100,7 +1100,7 @@ func SP_target_push(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_trigger.c:1197
-func trigger_teleporter_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+public func trigger_teleporter_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     var dest: Entity?
 
     if (`self`.flags & FL_INACTIVE) != 0 {
@@ -1141,7 +1141,7 @@ automatically near doors to allow spectators to move through them
 ```
 */
 /// Source: oracle/codemp/game/g_trigger.c:1236
-func SP_trigger_teleport(_ `self`: Entity) {
+public func SP_trigger_teleport(_ `self`: Entity) {
     InitTrigger(`self`)
 
     // unlike other triggers, we need to send this one to the client
@@ -1179,7 +1179,7 @@ If dmg is set to -1 this brush will use the fade-kill method
 ```
 */
 /// Source: oracle/codemp/game/g_trigger.c:1280
-func hurt_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func hurt_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     if activator.inuse && activator.client != nil {
         `self`.activator = activator
     } else {
@@ -1196,7 +1196,7 @@ func hurt_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_trigger.c:1299
-func hurt_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+public func hurt_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     let dflags: Int32
 
     if g_gametype.integer == GT_SIEGE && `self`.team != nil && !`self`.team!.isEmpty {
@@ -1300,7 +1300,7 @@ func hurt_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
 }
 
 /// Source: oracle/codemp/game/g_trigger.c:1413
-func SP_trigger_hurt(_ `self`: Entity) {
+public func SP_trigger_hurt(_ `self`: Entity) {
     InitTrigger(`self`)
 
     gTrigFallSound = G_SoundIndex("*falling1.wav")
@@ -1327,7 +1327,7 @@ func SP_trigger_hurt(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_trigger.c:1442
-func space_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+public func space_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     if !other.inuse || other.client == nil {
         return
     }
@@ -1364,7 +1364,7 @@ causes human clients to suffocate and have no gravity.
 ```
 */
 /// Source: oracle/codemp/game/g_trigger.c:1484
-func SP_trigger_space(_ `self`: Entity) {
+public func SP_trigger_space(_ `self`: Entity) {
     InitTrigger(`self`)
     `self`.r.contents = CONTENTS_TRIGGER
 
@@ -1374,7 +1374,7 @@ func SP_trigger_space(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_trigger.c:1494
-func shipboundary_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace?) {
+public func shipboundary_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace?) {
     var ent: Entity?
 
     if !other.inuse || other.client == nil || other.s.number < MAX_CLIENTS || other.m_pVehicle == nil {
@@ -1412,7 +1412,7 @@ func shipboundary_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace?
 }
 
 /// Source: oracle/codemp/game/g_trigger.c:1533
-func shipboundary_think(_ ent: Entity) {
+public func shipboundary_think(_ ent: Entity) {
     var iEntityList: [Int32] = [Int32](repeating: 0, count: 1024)
     let numListedEntities: Int32
     var i: Int32 = 0
@@ -1450,7 +1450,7 @@ causes vehicle to turn toward target and travel in that direction for a set time
 ```
 */
 /// Source: oracle/codemp/game/g_trigger.c:1574
-func SP_trigger_shipboundary(_ `self`: Entity) {
+public func SP_trigger_shipboundary(_ `self`: Entity) {
     InitTrigger(`self`)
     `self`.r.contents = CONTENTS_TRIGGER
 
@@ -1471,7 +1471,7 @@ func SP_trigger_shipboundary(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_trigger.c:1597
-func hyperspace_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+public func hyperspace_touch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     var ent: Entity?
 
     if !other.inuse || other.client == nil || other.s.number < MAX_CLIENTS || other.m_pVehicle == nil {
@@ -1591,7 +1591,7 @@ Ship will turn to face the angles of the first target_position then fly forward,
 ```
 */
 /// Source: oracle/codemp/game/g_trigger.c:1709
-func SP_trigger_hyperspace(_ `self`: Entity) {
+public func SP_trigger_hyperspace(_ `self`: Entity) {
     G_SpawnFloat("exitscale", "1", &`self`.radius)
 
     //register the hyperspace end sound (start sounds are customized)
@@ -1631,14 +1631,14 @@ so, the basic time between firing is a random time between
 ```
 */
 /// Source: oracle/codemp/game/g_trigger.c:1757
-func func_timer_think(_ `self`: Entity) {
+public func func_timer_think(_ `self`: Entity) {
     G_UseTargets(`self`, `self`.activator)
     // set time before next firing
     `self`.nextthink = Int32(Double(level.time) + 1000 * (Double(`self`.wait) + crandom() * Double(`self`.random)))
 }
 
 /// Source: oracle/codemp/game/g_trigger.c:1763
-func func_timer_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func func_timer_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     `self`.activator = activator
 
     G_ActivateBehavior(`self`, BSET_USE)
@@ -1654,7 +1654,7 @@ func func_timer_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_trigger.c:1778
-func SP_func_timer(_ `self`: Entity) {
+public func SP_func_timer(_ `self`: Entity) {
     G_SpawnFloat("random", "1", &`self`.random)
     G_SpawnFloat("wait", "1", &`self`.wait)
 
@@ -1675,7 +1675,7 @@ func SP_func_timer(_ `self`: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_trigger.c:1798
-func asteroid_pick_random_asteroid(_ `self`: Entity) -> Entity? {
+public func asteroid_pick_random_asteroid(_ `self`: Entity) -> Entity? {
     var t_count: Int32 = 0
     let pick: Int32
     var t: Entity? = nil
@@ -1715,7 +1715,7 @@ func asteroid_pick_random_asteroid(_ `self`: Entity) -> Entity? {
 }
 
 /// Source: oracle/codemp/game/g_trigger.c:1843
-func asteroid_count_num_asteroids(_ `self`: Entity) -> Int32 {
+public func asteroid_count_num_asteroids(_ `self`: Entity) -> Int32 {
     var i: Int32
     var count: Int32 = 0
 
@@ -1734,7 +1734,7 @@ func asteroid_count_num_asteroids(_ `self`: Entity) -> Int32 {
 }
 
 /// Source: oracle/codemp/game/g_trigger.c:1864
-func asteroid_move_to_start2(_ `self`: Entity, _ ownerTrigger: Entity) {
+public func asteroid_move_to_start2(_ `self`: Entity, _ ownerTrigger: Entity) {
     //move asteroid to a new start position
     //move it
     var startSpot = vec3_t()
@@ -1786,13 +1786,13 @@ func asteroid_move_to_start2(_ `self`: Entity, _ ownerTrigger: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_trigger.c:1922
-func asteroid_move_to_start(_ `self`: Entity) {
+public func asteroid_move_to_start(_ `self`: Entity) {
     //move asteroid to a new start position
     asteroid_move_to_start2(`self`, g_entities[`self`.r.ownerNum])
 }
 
 /// Source: oracle/codemp/game/g_trigger.c:1927
-func asteroid_field_think(_ `self`: Entity) {
+public func asteroid_field_think(_ `self`: Entity) {
     let numAsteroids: Int32 = asteroid_count_num_asteroids(`self`)
 
     `self`.nextthink = level.time + 500
@@ -1851,7 +1851,7 @@ target - target this at func_rotating asteroids
 ```
 */
 /// Source: oracle/codemp/game/g_trigger.c:1986
-func SP_trigger_asteroid_field(_ `self`: Entity) {
+public func SP_trigger_asteroid_field(_ `self`: Entity) {
     trap_SetBrushModel(`self`, `self`.model!)
     //	self->r.contents = CONTENTS_TRIGGER;		// replaces the -1 from trap_SetBrushModel
     `self`.r.contents = 0

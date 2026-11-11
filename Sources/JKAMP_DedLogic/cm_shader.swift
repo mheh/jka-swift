@@ -4,21 +4,21 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:28
-var shaderText: String {
+public var shaderText: String {
     get { world.variables.shaderText }
     set { world.variables.shaderText = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:29
 // AI: Raven wrote `CHash<CCMShaderText> shaderTextTable`. The forward reaches the `Dictionary` of `EngineWorld`, the name to the byte offset of the text.
-var shaderTextTable: [String: Int32] {
+public var shaderTextTable: [String: Int32] {
     get { world.shaderTextTable }
     set { world.shaderTextTable = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:30
 // AI: Raven wrote `CHash<CCMShader> cmShaderTable`. The forward reaches the `Dictionary` of `EngineWorld`, the name to the view of the record.
-var cmShaderTable: [String: CmShader] {
+public var cmShaderTable: [String: CmShader] {
     get { world.cmShaderTable }
     set { world.cmShaderTable = newValue }
 }
@@ -74,7 +74,7 @@ let svInfoParms: [InfoParm] = [
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:285
 /// Raven's data table, a hand property of `EngineWorld`.
-var svMaterialNames: [String] {
+public var svMaterialNames: [String] {
     get { world.svMaterialNames }
     set { world.svMaterialNames = newValue }
 }
@@ -87,7 +87,7 @@ CM_CreateShaderTextHash
 ```
 */
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:37
-func CM_CreateShaderTextHash() {
+public func CM_CreateShaderTextHash() {
     var p: TextCursor
     var hasNewLines: Bool = false
     var token: String
@@ -108,7 +108,7 @@ func CM_CreateShaderTextHash() {
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:71
-func CM_LoadShaderFiles() {
+public func CM_LoadShaderFiles() {
     var shaderFiles1: [String]
     var numShaders1: Int32 = 0
     var shaderFiles2: [String]
@@ -181,7 +181,7 @@ func CM_LoadShaderFiles() {
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:158
-func CM_GetShaderText(_ key: String) -> String? {
+public func CM_GetShaderText(_ key: String) -> String? {
     let st = shaderTextTable[key]
     if st != nil {
         // AI: Raven returns the `GetData` pointer into `shaderText`. The function returns the text from that byte offset.
@@ -191,7 +191,7 @@ func CM_GetShaderText(_ key: String) -> String? {
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:176
-func CM_FreeShaderText() {
+public func CM_FreeShaderText() {
     shaderTextTable.removeAll()
     // AI: Raven tests the `char *shaderText` for NULL. The empty text is the NULL of the `String` variable, because a loaded text holds at least one newline.
     if !shaderText.isEmpty {
@@ -201,7 +201,7 @@ func CM_FreeShaderText() {
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:195
-func CM_LoadShaderText(_ forceReload: Bool) {
+public func CM_LoadShaderText(_ forceReload: Bool) {
     if forceReload {
         CM_FreeShaderText()
     }
@@ -217,7 +217,7 @@ func CM_LoadShaderText(_ forceReload: Bool) {
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:261
-func SV_ParseSurfaceParm(_ shader: CmShader, _ text: inout JKAShared.TextCursor) {
+public func SV_ParseSurfaceParm(_ shader: CmShader, _ text: inout JKAShared.TextCursor) {
     let token: String
     let numsvInfoParms = svInfoParms.count
     var i: Int32
@@ -236,7 +236,7 @@ func SV_ParseSurfaceParm(_ shader: CmShader, _ text: inout JKAShared.TextCursor)
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:290
-func SV_ParseMaterial(_ shader: CmShader, _ text: inout JKAShared.TextCursor) {
+public func SV_ParseMaterial(_ shader: CmShader, _ text: inout JKAShared.TextCursor) {
     let token: String
     var i: Int32
 
@@ -387,7 +387,7 @@ private func CM_ParseShader(_ shader: CmShader, _ text: inout JKAShared.TextCurs
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:466
-func CM_SetupShaderProperties() {
+public func CM_SetupShaderProperties() {
     var i: Int32
     var def: String?
     var shader: CmShader?
@@ -413,7 +413,7 @@ func CM_SetupShaderProperties() {
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:489
-func CM_ShutdownShaderProperties() {
+public func CM_ShutdownShaderProperties() {
     if cmShaderTable.count != 0 {
         //		Com_Printf("Shutting down cmShaderTable .....\n");
         cmShaderTable.removeAll()
@@ -421,7 +421,7 @@ func CM_ShutdownShaderProperties() {
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:498
-func CM_GetShaderInfo(_ name: String) -> CmShader? {
+public func CM_GetShaderInfo(_ name: String) -> CmShader? {
     var out: CmShader?
     var def: String?
 
@@ -449,7 +449,7 @@ func CM_GetShaderInfo(_ name: String) -> CmShader? {
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:526
-func CM_GetShaderInfo(_ shaderNum: Int32) -> CmShader? {
+public func CM_GetShaderInfo(_ shaderNum: Int32) -> CmShader? {
     var out: CmShader?
 
     if (shaderNum < 0) || (shaderNum >= cmg.numShaders) {

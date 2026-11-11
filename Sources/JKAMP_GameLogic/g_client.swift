@@ -19,13 +19,13 @@ private var playerMaxs: JKAShared.vec3_t {
 }
 
 /// Source: oracle/codemp/game/g_client.c:19
-var Client_Force: Slots<JKAMP.Forcedata> { world.storage.Client_Force }
+public var Client_Force: Slots<JKAMP.Forcedata> { world.storage.Client_Force }
 
 /// Source: oracle/codemp/game/g_client.c:256
 let JMSABER_RESPAWN_TIME = 20000 as Int32
 
 /// Source: oracle/codemp/game/g_client.c:471
-var gJMSaberEnt: Entity? {
+public var gJMSaberEnt: Entity? {
     get { world.variables.gJMSaberEnt }
     set { world.variables.gJMSaberEnt = newValue }
 }
@@ -37,7 +37,7 @@ let MAX_SPAWN_POINTS = 128 as Int32
 let BODY_SINK_TIME = 30000 as Int32
 
 /// Source: oracle/codemp/game/g_client.c:1511
-var g2SaberInstance: OpaquePointer? {
+public var g2SaberInstance: OpaquePointer? {
     get { world.variables.g2SaberInstance }
     set { world.variables.g2SaberInstance = newValue }
 }
@@ -52,7 +52,7 @@ Targets will be fired when someone spawns in on them.
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:27
-func SP_info_player_duel(_ ent: Entity) {
+public func SP_info_player_duel(_ ent: Entity) {
     var i: Int32 = 0
 
     G_SpawnInt("nobots", "0", &i)
@@ -75,7 +75,7 @@ Targets will be fired when someone spawns in on them.
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:47
-func SP_info_player_duel1(_ ent: Entity) {
+public func SP_info_player_duel1(_ ent: Entity) {
     var i: Int32 = 0
 
     G_SpawnInt("nobots", "0", &i)
@@ -98,7 +98,7 @@ Targets will be fired when someone spawns in on them.
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:67
-func SP_info_player_duel2(_ ent: Entity) {
+public func SP_info_player_duel2(_ ent: Entity) {
     var i: Int32 = 0
 
     G_SpawnInt("nobots", "0", &i)
@@ -122,7 +122,7 @@ Targets will be fired when someone spawns in on them.
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:88
-func SP_info_player_deathmatch(_ ent: Entity) {
+public func SP_info_player_deathmatch(_ ent: Entity) {
     var i: Int32 = 0
 
     G_SpawnInt("nobots", "0", &i)
@@ -143,7 +143,7 @@ equivelant to info_player_deathmatch
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:105
-func SP_info_player_start(_ ent: Entity) {
+public func SP_info_player_start(_ ent: Entity) {
     ent.classname = "info_player_deathmatch"
     SP_info_player_deathmatch(ent)
 }
@@ -163,7 +163,7 @@ INITIAL - The first time a player enters the game, they will be at an 'initial' 
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:121
-func SP_info_player_start_red(_ ent: Entity) {
+public func SP_info_player_start_red(_ ent: Entity) {
     SP_info_player_deathmatch(ent)
 }
 
@@ -182,12 +182,12 @@ INITIAL - The first time a player enters the game, they will be at an 'initial' 
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:136
-func SP_info_player_start_blue(_ ent: Entity) {
+public func SP_info_player_start_blue(_ ent: Entity) {
     SP_info_player_deathmatch(ent)
 }
 
 /// Source: oracle/codemp/game/g_client.c:140
-func SiegePointUse(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
+public func SiegePointUse(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     //Toggle the point on/off
     if `self`.genericValue1 != 0 {
         `self`.genericValue1 = 0
@@ -211,7 +211,7 @@ Targets will be fired when someone spawns in on them.
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:164
-func SP_info_player_siegeteam1(_ ent: Entity) {
+public func SP_info_player_siegeteam1(_ ent: Entity) {
     var soff: Int32 = 0
 
     if g_gametype.integer != GT_SIEGE {
@@ -249,7 +249,7 @@ Targets will be fired when someone spawns in on them.
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:200
-func SP_info_player_siegeteam2(_ ent: Entity) {
+public func SP_info_player_siegeteam2(_ ent: Entity) {
     var soff: Int32 = 0
 
     if g_gametype.integer != GT_SIEGE {
@@ -281,7 +281,7 @@ BLUE - In a Siege game, the intermission will happen here if the Blue (defending
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:230
-func SP_info_player_intermission(_ ent: Entity) {
+public func SP_info_player_intermission(_ ent: Entity) {
 }
 
 /**
@@ -295,7 +295,7 @@ target2 - ents to use when this intermission point is chosen
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:241
-func SP_info_player_intermission_red(_ ent: Entity) {
+public func SP_info_player_intermission_red(_ ent: Entity) {
 }
 
 /**
@@ -309,11 +309,11 @@ target2 - ents to use when this intermission point is chosen
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:252
-func SP_info_player_intermission_blue(_ ent: Entity) {
+public func SP_info_player_intermission_blue(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_client.c:258
-func ThrowSaberToAttacker(_ `self`: Entity, _ attacker: Entity?) {
+public func ThrowSaberToAttacker(_ `self`: Entity, _ attacker: Entity?) {
     var ent: Entity? = g_entities[`self`.client!.ps.saberIndex]
     var a = vec3_t()
     var altVelocity: Int32 = 0
@@ -388,7 +388,7 @@ func ThrowSaberToAttacker(_ `self`: Entity, _ attacker: Entity?) {
 }
 
 /// Source: oracle/codemp/game/g_client.c:346
-func JMSaberThink(_ ent: Entity) {
+public func JMSaberThink(_ ent: Entity) {
     gJMSaberEnt = ent
 
     if ent.enemy != nil {
@@ -422,7 +422,7 @@ func JMSaberThink(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_client.c:385
-func JMSaberTouch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
+public func JMSaberTouch(_ `self`: Entity, _ other: Entity, _ trace: JKAMP.Trace) {
     var i: Int32 = 0
     //	gentity_t *te;
 
@@ -507,7 +507,7 @@ QUAKED info_jedimaster_start (1 0 0) (-16 -16 -24) (16 16 32)
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:476
-func SP_info_jedimaster_start(_ ent: Entity) {
+public func SP_info_jedimaster_start(_ ent: Entity) {
     if g_gametype.integer != GT_JEDIMASTER {
         gJMSaberEnt = nil
         G_FreeEntity(ent)
@@ -556,7 +556,7 @@ SpotWouldTelefrag
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:532
-func SpotWouldTelefrag(_ spot: Entity) -> Bool {
+public func SpotWouldTelefrag(_ spot: Entity) -> Bool {
     var i: Int32
     let num: Int32
     var touch: [Int32] = [Int32](repeating: 0, count: 1024)
@@ -582,7 +582,7 @@ func SpotWouldTelefrag(_ spot: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_client.c:554
-func SpotWouldTelefrag2(_ mover: Entity, _ dest: JKAShared.vec3_t) -> Bool {
+public func SpotWouldTelefrag2(_ mover: Entity, _ dest: JKAShared.vec3_t) -> Bool {
     var i: Int32
     let num: Int32
     var touch: [Int32] = [Int32](repeating: 0, count: 1024)
@@ -612,7 +612,7 @@ func SpotWouldTelefrag2(_ mover: Entity, _ dest: JKAShared.vec3_t) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_client.c:590
-func SelectNearestDeathmatchSpawnPoint(_ from: JKAShared.vec3_t) -> Entity? {
+public func SelectNearestDeathmatchSpawnPoint(_ from: JKAShared.vec3_t) -> Entity? {
     var spot: Entity?
     var delta = vec3_t()
     var dist: Float
@@ -637,7 +637,7 @@ func SelectNearestDeathmatchSpawnPoint(_ from: JKAShared.vec3_t) -> Entity? {
 }
 
 /// Source: oracle/codemp/game/g_client.c:622
-func SelectRandomDeathmatchSpawnPoint() -> Entity? {
+public func SelectRandomDeathmatchSpawnPoint() -> Entity? {
     var spot: Entity?
     var count: Int32
     let selection: Int32
@@ -675,7 +675,7 @@ Chooses a player start, deathmatch start, etc
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:654
-func SelectRandomFurthestSpawnPoint(_ avoidPoint: JKAShared.vec3_t, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ team: JKAMP.team_t) -> Entity? {
+public func SelectRandomFurthestSpawnPoint(_ avoidPoint: JKAShared.vec3_t, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ team: JKAMP.team_t) -> Entity? {
     var spot: Entity?
     var delta = vec3_t()
     var dist: Float
@@ -796,7 +796,7 @@ func SelectRandomFurthestSpawnPoint(_ avoidPoint: JKAShared.vec3_t, _ origin: in
 }
 
 /// Source: oracle/codemp/game/g_client.c:760
-func SelectDuelSpawnPoint(_ team: Int32, _ avoidPoint: JKAShared.vec3_t, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) -> Entity? {
+public func SelectDuelSpawnPoint(_ team: Int32, _ avoidPoint: JKAShared.vec3_t, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) -> Entity? {
     var spot: Entity?
     var delta = vec3_t()
     var dist: Float
@@ -897,7 +897,7 @@ Chooses a player start, deathmatch start, etc
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:854
-func SelectSpawnPoint(_ avoidPoint: JKAShared.vec3_t, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ team: JKAMP.team_t) -> Entity? {
+public func SelectSpawnPoint(_ avoidPoint: JKAShared.vec3_t, _ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ team: JKAMP.team_t) -> Entity? {
     return SelectRandomFurthestSpawnPoint(avoidPoint, &origin, &angles, team)
 
     /*
@@ -940,7 +940,7 @@ use normal spawn selection.
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:894
-func SelectInitialSpawnPoint(_ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ team: JKAMP.team_t) -> Entity? {
+public func SelectInitialSpawnPoint(_ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t, _ team: JKAMP.team_t) -> Entity? {
     var spot: Entity?
 
     spot = G_Find(nil, \.classname, "info_player_deathmatch")
@@ -971,7 +971,7 @@ SelectSpectatorSpawnPoint
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:921
-func SelectSpectatorSpawnPoint(_ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) -> Entity? {
+public func SelectSpectatorSpawnPoint(_ origin: inout JKAShared.vec3_t, _ angles: inout JKAShared.vec3_t) -> Entity? {
     FindIntermissionPoint()
 
     origin = level.intermission_origin
@@ -988,7 +988,7 @@ InitBodyQue
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:953
-func InitBodyQue() {
+public func InitBodyQue() {
     var i: Int32
     var ent: Entity?
 
@@ -1013,7 +1013,7 @@ After sitting around for five seconds, fall into the ground and dissapear
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:973
-func BodySink(_ ent: Entity) {
+public func BodySink(_ ent: Entity) {
     if level.time - ent.timestamp > BODY_SINK_TIME + 2500 {
         // the body ques are never actually freed, they are just unlinked
         trap_UnlinkEntity(ent)
@@ -1159,7 +1159,7 @@ SetClientViewAngle
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:1116
-func SetClientViewAngle(_ ent: Entity, _ angle: JKAShared.vec3_t) {
+public func SetClientViewAngle(_ ent: Entity, _ angle: JKAShared.vec3_t) {
     var i: Int32
 
     // set the delta angle
@@ -1176,7 +1176,7 @@ func SetClientViewAngle(_ ent: Entity, _ angle: JKAShared.vec3_t) {
 }
 
 /// Source: oracle/codemp/game/g_client.c:1130
-func MaintainBodyQueue(_ ent: Entity) {
+public func MaintainBodyQueue(_ ent: Entity) {
     //do whatever should be done taking ragdoll and dismemberment states into account.
     var doRCG: Bool = false
 
@@ -1201,7 +1201,7 @@ func MaintainBodyQueue(_ ent: Entity) {
 }
 
 /// Source: oracle/codemp/game/g_client.c:1167
-func respawn(_ ent: Entity) {
+public func respawn(_ ent: Entity) {
     MaintainBodyQueue(ent)
 
     if gEscaping || g_gametype.integer == GT_POWERDUEL {
@@ -1267,7 +1267,7 @@ Returns number of players on a team
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:1237
-func TeamCount(_ ignoreClientNum: Int32, _ team: Int32) -> JKAMP.team_t {
+public func TeamCount(_ ignoreClientNum: Int32, _ team: Int32) -> JKAMP.team_t {
     var i: Int32
     var count: Int32 = 0
 
@@ -1302,7 +1302,7 @@ Returns the client number of the team leader
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:1268
-func TeamLeader(_ team: Int32) -> Int32 {
+public func TeamLeader(_ team: Int32) -> Int32 {
     var i: Int32
 
     i = 0
@@ -1331,7 +1331,7 @@ PickTeam
 ```
 */
 /// Source: oracle/codemp/game/g_client.c:1291
-func PickTeam(_ ignoreClientNum: Int32) -> JKAMP.team_t {
+public func PickTeam(_ ignoreClientNum: Int32) -> JKAMP.team_t {
     var counts: [Int32] = [Int32](repeating: 0, count: 4)
 
     counts[TEAM_BLUE] = TeamCount(ignoreClientNum, TEAM_BLUE)
@@ -1449,7 +1449,7 @@ private func ClientCleanName(_ `in`: String, _ out: inout JKAShared.CharBuf, _ o
 }
 
 /// Source: oracle/codemp/game/g_client.c:1423
-func G_SaberModelSetup(_ ent: Entity) -> Bool {
+public func G_SaberModelSetup(_ ent: Entity) -> Bool {
     var i: Int32 = 0
     var fallbackForSaber: Bool = true
 
@@ -1513,7 +1513,7 @@ func G_SaberModelSetup(_ ent: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/g_client.c:1519
-func SetupGameGhoul2Model(_ ent: Entity, _ modelname: inout JKAShared.CharBuf, _ skinName: String?) {
+public func SetupGameGhoul2Model(_ ent: Entity, _ modelname: inout JKAShared.CharBuf, _ skinName: String?) {
     var handle: Int32
     var afilename = CharBuf(64)
     var GLAName = CharBuf(64)
@@ -2444,7 +2444,7 @@ private func AllForceDisabled(_ force: Int32) -> Bool {
 
 //Convenient interface to set all my limb breakage stuff up -rww
 /// Source: oracle/codemp/game/g_client.c:2616
-func G_BreakArm(_ ent: Entity, _ arm: Int32) {
+public func G_BreakArm(_ ent: Entity, _ arm: Int32) {
     var anim: Int32 = -1
 
 
@@ -2527,7 +2527,7 @@ var animSpeed: Float { get { world.animSpeed } set { world.animSpeed = newValue 
 var lAnimSpeedScale: Float { get { world.lAnimSpeedScale } set { world.lAnimSpeedScale = newValue } }
 
 /// Source: oracle/codemp/game/g_client.c:2681
-func G_UpdateClientAnims(_ `self`: Entity, _ animSpeedScale: Float) {
+public func G_UpdateClientAnims(_ `self`: Entity, _ animSpeedScale: Float) {
     var setTorso: Bool = false
 
     // Raven assigns his own `animSpeedScale` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
@@ -2651,7 +2651,7 @@ func G_UpdateClientAnims(_ `self`: Entity, _ animSpeedScale: Float) {
 }
 
 /// Source: oracle/codemp/game/g_client.c:2938
-func ClientSpawn(_ ent: Entity) {
+public func ClientSpawn(_ ent: Entity) {
     var index: Int32 = 0
     var spawn_origin = vec3_t()
     var spawn_angles = vec3_t()

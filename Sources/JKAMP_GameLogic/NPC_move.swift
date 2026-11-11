@@ -5,10 +5,10 @@ import JKAMP_Game
 import JKAMP_BG
 
 /// Source: oracle/codemp/game/NPC_move.c:14
-var frameNavInfo: NavInfo { world.storage.frameNavInfo }
+public var frameNavInfo: NavInfo { world.storage.frameNavInfo }
 
 /// Source: oracle/codemp/game/NPC_move.c:27
-func NPC_ClearPathToGoal(_ dir: JKAShared.vec3_t, _ goal: Entity) -> Bool {
+public func NPC_ClearPathToGoal(_ dir: JKAShared.vec3_t, _ goal: Entity) -> Bool {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { trace -> Bool in
@@ -56,7 +56,7 @@ func NPC_ClearPathToGoal(_ dir: JKAShared.vec3_t, _ goal: Entity) -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_move.c:78
-func NPC_CheckCombatMove() -> Bool {
+public func NPC_CheckCombatMove() -> Bool {
     //return NPCInfo->combatMove;
     if (NPCInfo!.goalEntity != nil && NPC!.enemy != nil && NPCInfo!.goalEntity == NPC!.enemy) || (NPCInfo!.combatMove) {
         return true
@@ -89,7 +89,7 @@ private func NPC_LadderMove(_ dir: JKAShared.vec3_t) {
 }
 
 /// Source: oracle/codemp/game/NPC_move.c:126
-func NPC_GetMoveInformation(_ dir: inout JKAShared.vec3_t, _ distance: inout Float) -> Bool {
+public func NPC_GetMoveInformation(_ dir: inout JKAShared.vec3_t, _ distance: inout Float) -> Bool {
     //NOTENOTE: Use path stacks!
 
     //Make sure we have somewhere to go
@@ -107,12 +107,12 @@ func NPC_GetMoveInformation(_ dir: inout JKAShared.vec3_t, _ distance: inout Flo
 }
 
 /// Source: oracle/codemp/game/NPC_move.c:149
-func NAV_GetLastMove(_ info: NavInfo) {
+public func NAV_GetLastMove(_ info: NavInfo) {
     info.copy(from: frameNavInfo)
 }
 
 /// Source: oracle/codemp/game/NPC_move.c:160
-func NPC_GetMoveDirection(_ out: inout JKAShared.vec3_t, _ distance: inout Float) -> Bool {
+public func NPC_GetMoveDirection(_ out: inout JKAShared.vec3_t, _ distance: inout Float) -> Bool {
     var angles = vec3_t()
 
     //Clear the struct
@@ -180,7 +180,7 @@ func NPC_GetMoveDirection(_ out: inout JKAShared.vec3_t, _ distance: inout Float
 }
 
 /// Source: oracle/codemp/game/NPC_move.c:239
-func NPC_GetMoveDirectionAltRoute(_ out: inout JKAShared.vec3_t, _ distance: inout Float, _ tryStraight: Bool) -> Bool {
+public func NPC_GetMoveDirectionAltRoute(_ out: inout JKAShared.vec3_t, _ distance: inout Float, _ tryStraight: Bool) -> Bool {
     var angles = vec3_t()
 
     NPCInfo!.aiFlags &= ~NPCAI_BLOCKED
@@ -267,7 +267,7 @@ func NPC_GetMoveDirectionAltRoute(_ out: inout JKAShared.vec3_t, _ distance: ino
 }
 
 /// Source: oracle/codemp/game/NPC_move.c:324
-func G_UcmdMoveForDir(_ `self`: Entity, _ cmd: JKAMP.Usercmd, _ dir: inout JKAShared.vec3_t) {
+public func G_UcmdMoveForDir(_ `self`: Entity, _ cmd: JKAMP.Usercmd, _ dir: inout JKAShared.vec3_t) {
     var forward = vec3_t()
     var right = vec3_t()
     var fDot: Float
@@ -315,7 +315,7 @@ func G_UcmdMoveForDir(_ `self`: Entity, _ cmd: JKAMP.Usercmd, _ dir: inout JKASh
 }
 
 /// Source: oracle/codemp/game/NPC_move.c:382
-func NPC_MoveToGoal(_ tryStraight: Bool) -> Bool {
+public func NPC_MoveToGoal(_ tryStraight: Bool) -> Bool {
     var distance: Float = 0
     var dir = vec3_t()
 
@@ -392,7 +392,7 @@ void NPC_SlideMoveToGoal( void )
 ```
 */
 /// Source: oracle/codemp/game/NPC_move.c:476
-func NPC_SlideMoveToGoal() -> Bool {
+public func NPC_SlideMoveToGoal() -> Bool {
     let saveYaw: Float = NPC!.client!.ps.viewangles[YAW]
     let ret: Bool
 
@@ -406,7 +406,7 @@ func NPC_SlideMoveToGoal() -> Bool {
 }
 
 /// Source: oracle/codemp/game/NPC_move.c:497
-func NPC_ApplyRoff() {
+public func NPC_ApplyRoff() {
     BG_PlayerStateToEntityState(NPC!.client!.ps, NPC!.s, false)
     //VectorCopy ( NPC->r.currentOrigin, NPC->lastOrigin );
     //rwwFIXMEFIXME: Any significance to this?

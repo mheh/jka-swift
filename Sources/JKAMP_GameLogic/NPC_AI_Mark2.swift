@@ -32,7 +32,7 @@ private let MIN_DISTANCE = 24 as Int32
 private let MIN_DISTANCE_SQR = (MIN_DISTANCE * MIN_DISTANCE)
 
 /// Source: oracle/codemp/game/NPC_AI_Mark2.c:27
-func NPC_Mark2_Precache() {
+public func NPC_Mark2_Precache() {
     G_SoundIndex("sound/chars/mark2/misc/mark2_explo") // blows up on death
     G_SoundIndex("sound/chars/mark2/misc/mark2_pain")
     G_SoundIndex("sound/chars/mark2/misc/mark2_fire")
@@ -57,7 +57,7 @@ NPC_Mark2_Part_Explode
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark2.c:50
-func NPC_Mark2_Part_Explode(_ `self`: Entity, _ bolt: Int32) {
+public func NPC_Mark2_Part_Explode(_ `self`: Entity, _ bolt: Int32) {
     if bolt >= 0 {
         // Raven's record lives to the end of his block, so the block is the closure.
         MdxaBone.scratch { boltMatrix in
@@ -88,7 +88,7 @@ NPC_Mark2_Pain
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark2.c:80
-func NPC_Mark2_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
+public func NPC_Mark2_Pain(_ `self`: Entity, _ attacker: Entity, _ damage: Int32) {
     var newBolt: Int32
     var i: Int32
     let hitLoc: Int32 = gPainHitLoc
@@ -127,7 +127,7 @@ Mark2_Hunt
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark2.c:118
-func Mark2_Hunt() {
+public func Mark2_Hunt() {
     if NPCInfo!.goalEntity == nil {
         NPCInfo!.goalEntity = NPC!.enemy
     }
@@ -147,7 +147,7 @@ Mark2_FireBlaster
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark2.c:137
-func Mark2_FireBlaster(_ advance: Bool) {
+public func Mark2_FireBlaster(_ advance: Bool) {
     var muzzle1 = vec3_t()
     var enemy_org1 = vec3_t()
     var delta1 = vec3_t()
@@ -198,7 +198,7 @@ Mark2_BlasterAttack
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark2.c:186
-func Mark2_BlasterAttack(_ advance: Bool) {
+public func Mark2_BlasterAttack(_ advance: Bool) {
     if TIMER_Done(NPC!, "attackDelay") {
         if NPCInfo!.localState == LSTATE_NONE {
             TIMER_Set(NPC!, "attackDelay", Q_irand(500, 2000))
@@ -220,7 +220,7 @@ Mark2_AttackDecision
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark2.c:212
-func Mark2_AttackDecision() {
+public func Mark2_AttackDecision() {
     let distance: Float
     let visible: Bool
     let advance: Bool
@@ -295,7 +295,7 @@ Mark2_Patrol
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark2.c:303
-func Mark2_Patrol() {
+public func Mark2_Patrol() {
     if NPC_CheckPlayerTeamStealth() {
         //		G_Sound( NPC, G_SoundIndex("sound/chars/mark1/misc/anger.wav"));
         NPC_UpdateAngles(true, true)
@@ -327,7 +327,7 @@ Mark2_Idle
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark2.c:337
-func Mark2_Idle() {
+public func Mark2_Idle() {
     NPC_BSIdle()
 }
 
@@ -339,7 +339,7 @@ NPC_BSMark2_Default
 ```
 */
 /// Source: oracle/codemp/game/NPC_AI_Mark2.c:347
-func NPC_BSMark2_Default() {
+public func NPC_BSMark2_Default() {
     if NPC!.enemy != nil {
         NPCInfo!.goalEntity = NPC!.enemy
         Mark2_AttackDecision()

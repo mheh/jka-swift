@@ -16,25 +16,25 @@ let PACKET_HEADER = 10 as Int32
 let FRAGMENT_BIT = (1 << 31) as Int32
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:40
-var showpackets: JKAMP.Cvar? {
+public var showpackets: JKAMP.Cvar? {
     get { world.variables.showpackets }
     set { world.variables.showpackets = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:41
-var showdrop: JKAMP.Cvar? {
+public var showdrop: JKAMP.Cvar? {
     get { world.variables.showdrop }
     set { world.variables.showdrop = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:42
-var qport: JKAMP.Cvar? {
+public var qport: JKAMP.Cvar? {
     get { world.variables.qport }
     set { world.variables.qport = newValue }
 }
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:43
-var net_killdroppedfragments: JKAMP.Cvar? {
+public var net_killdroppedfragments: JKAMP.Cvar? {
     get { world.variables.net_killdroppedfragments }
     set { world.variables.net_killdroppedfragments = newValue }
 }
@@ -58,7 +58,7 @@ var send_buf_Netchan_Transmit: Slots<JKAShared.byte> { world.storage.send_buf_Ne
 private let MAX_LOOPBACK = 16 as Int32
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:486
-var loopbacks: Slots<Loopback> { world.storage.loopbacks }
+public var loopbacks: Slots<Loopback> { world.storage.loopbacks }
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:586
 // AI: Raven declares `string` on the stack of NET_OutOfBandData. The function uses one zeroed allocation on the storage class.
@@ -73,7 +73,7 @@ Netchan_Init
 ```
 */
 /// Source: oracle/codemp/qcommon/net_chan.cpp:56
-func Netchan_Init(_ port: Int32) {
+public func Netchan_Init(_ port: Int32) {
     // Raven assigns his own `port` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
     var port = port
     port &= 0xffff
@@ -93,7 +93,7 @@ called to open a channel to a remote system
 ```
 */
 /// Source: oracle/codemp/qcommon/net_chan.cpp:71
-func Netchan_Setup(_ sock: netsrc_t, _ chan: Netchan, _ adr: Netadr, _ qport: Int32) {
+public func Netchan_Setup(_ sock: netsrc_t, _ chan: Netchan, _ adr: Netadr, _ qport: Int32) {
     chan.clear()
     chan.sock = sock
     chan.remoteAddress = adr
@@ -112,7 +112,7 @@ Send one fragment of the current message
 ```
 */
 /// Source: oracle/codemp/qcommon/net_chan.cpp:88
-func Netchan_TransmitNextFragment(_ chan: Netchan) {
+public func Netchan_TransmitNextFragment(_ chan: Netchan) {
     var fragmentLength: Int32 = 0
 
     Msg.scratch { send in
@@ -172,7 +172,7 @@ A 0 length will still generate a packet.
 ```
 */
 /// Source: oracle/codemp/qcommon/net_chan.cpp:145
-func Netchan_Transmit(_ chan: Netchan, _ length: Int32, _ data: Slots<JKAShared.byte>) {
+public func Netchan_Transmit(_ chan: Netchan, _ length: Int32, _ data: Slots<JKAShared.byte>) {
     if length > MAX_MSGLEN {
         Com_Error(ERR_DROP, "Netchan_Transmit: length = %i", length)
     }
@@ -235,7 +235,7 @@ copied out.
 ```
 */
 /// Source: oracle/codemp/qcommon/net_chan.cpp:208
-func Netchan_Process(_ chan: Netchan, _ msg: Msg) -> Bool {
+public func Netchan_Process(_ chan: Netchan, _ msg: Msg) -> Bool {
     var sequence: Int32
     var qport: Int32
     var fragmentStart: Int32
@@ -405,7 +405,7 @@ Compares without the port
 ```
 */
 /// Source: oracle/codemp/qcommon/net_chan.cpp:378
-func NET_CompareBaseAdr(_ a: Netadr, _ b: Netadr) -> Bool {
+public func NET_CompareBaseAdr(_ a: Netadr, _ b: Netadr) -> Bool {
     if a.type != b.type {
         return false
     }
@@ -440,7 +440,7 @@ func NET_CompareBaseAdr(_ a: Netadr, _ b: Netadr) -> Bool {
 }
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:406
-func NET_AdrToString(_ a: Netadr) -> String {
+public func NET_AdrToString(_ a: Netadr) -> String {
     var s = CharBuf(64)
 
     if a.type == NA_LOOPBACK {
@@ -463,7 +463,7 @@ func NET_AdrToString(_ a: Netadr) -> String {
 }
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:429
-func NET_CompareAdr(_ a: Netadr, _ b: Netadr) -> Bool {
+public func NET_CompareAdr(_ a: Netadr, _ b: Netadr) -> Bool {
     if a.type != b.type {
         return false
     }
@@ -498,12 +498,12 @@ func NET_CompareAdr(_ a: Netadr, _ b: Netadr) -> Bool {
 }
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:458
-func NET_IsLocalAddress(_ adr: Netadr) -> Bool {
+public func NET_IsLocalAddress(_ adr: Netadr) -> Bool {
     return (adr.type == NA_LOOPBACK)
 }
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:489
-func NET_GetLoopPacket(_ sock: netsrc_t, _ net_from: Netadr, _ net_message: Msg) -> Bool {
+public func NET_GetLoopPacket(_ sock: netsrc_t, _ net_from: Netadr, _ net_message: Msg) -> Bool {
     let i: Int32
     let loop: Loopback
 
@@ -528,7 +528,7 @@ func NET_GetLoopPacket(_ sock: netsrc_t, _ net_from: Netadr, _ net_message: Msg)
 }
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:514
-func NET_SendLoopPacket(_ sock: netsrc_t, _ length: Int32, _ data: Slots<JKAShared.byte>, _ to: Netadr) {
+public func NET_SendLoopPacket(_ sock: netsrc_t, _ length: Int32, _ data: Slots<JKAShared.byte>, _ to: Netadr) {
     let i: Int32
     let loop: Loopback
 
@@ -542,7 +542,7 @@ func NET_SendLoopPacket(_ sock: netsrc_t, _ length: Int32, _ data: Slots<JKAShar
 }
 
 /// Source: oracle/codemp/qcommon/net_chan.cpp:531
-func NET_SendPacket(_ sock: netsrc_t, _ length: Int32, _ data: Slots<JKAShared.byte>, _ to: Netadr) {
+public func NET_SendPacket(_ sock: netsrc_t, _ length: Int32, _ data: Slots<JKAShared.byte>, _ to: Netadr) {
     // sequenced packets are shown in netchan, so just show oob
     if showpackets!.integer != 0 && data[int: 0] == -1 {
         Com_Printf("send packet %4i\n", length)
@@ -565,7 +565,7 @@ func NET_SendPacket(_ sock: netsrc_t, _ length: Int32, _ data: Slots<JKAShared.b
 /// Source: oracle/codemp/qcommon/net_chan.cpp:531
 // Port-note: The overload of the row "CharBuf as send data", for the `char string[MAX_MSGLEN]` that NET_OutOfBandPrint hands to `const void *data`, net_chan.cpp:575.
 // AI: Raven casts the caller's `char *` to `const void *`. A CharBuf overload hands the bytes of the buffer on as a Slots of bytes.
-func NET_SendPacket(_ sock: netsrc_t, _ length: Int32, _ data: CharBuf, _ to: Netadr) {
+public func NET_SendPacket(_ sock: netsrc_t, _ length: Int32, _ data: CharBuf, _ to: Netadr) {
     data.withSlots { NET_SendPacket(sock, length, $0, to) }
 }
 
@@ -579,7 +579,7 @@ Sends a text message in an out-of-band datagram
 ```
 */
 /// Source: oracle/codemp/qcommon/net_chan.cpp:559
-func NET_OutOfBandPrint(_ sock: netsrc_t, _ adr: Netadr, _ format: String, _ args: any JKAShared.FormatArg...) {
+public func NET_OutOfBandPrint(_ sock: netsrc_t, _ adr: Netadr, _ format: String, _ args: any JKAShared.FormatArg...) {
     var string = CharBuf(MAX_MSGLEN)
 
     // set the header
@@ -605,7 +605,7 @@ Sends a data message in an out-of-band datagram (only used for "connect")
 ```
 */
 /// Source: oracle/codemp/qcommon/net_chan.cpp:585
-func NET_OutOfBandData(_ sock: netsrc_t, _ adr: Netadr, _ format: Slots<JKAShared.byte>, _ len: Int32) {
+public func NET_OutOfBandData(_ sock: netsrc_t, _ adr: Netadr, _ format: Slots<JKAShared.byte>, _ len: Int32) {
     var i: Int32 = 0
 
     Msg.scratch { mbuf in
@@ -639,7 +639,7 @@ Traps "localhost" for loopback, passes everything else to system
 ```
 */
 /// Source: oracle/codemp/qcommon/net_chan.cpp:617
-func NET_StringToAdr(_ s: String, _ a: Netadr) -> Bool {
+public func NET_StringToAdr(_ s: String, _ a: Netadr) -> Bool {
     let r: Bool
     var base = CharBuf(MAX_STRING_CHARS)
     var port: Int32?

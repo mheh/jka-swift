@@ -10,13 +10,13 @@ private var debugpolygons: Slots<BotDebugpoly>? {
 }
 
 /// Source: oracle/codemp/server/sv_bot.cpp:17
-var bot_maxdebugpolys: Int32 {
+public var bot_maxdebugpolys: Int32 {
     get { world.variables.bot_maxdebugpolys }
     set { world.variables.bot_maxdebugpolys = newValue }
 }
 
 /// Source: oracle/codemp/server/sv_bot.cpp:20
-var bot_enable: Int32 {
+public var bot_enable: Int32 {
     get { world.variables.bot_enable }
     set { world.variables.bot_enable = newValue }
 }
@@ -44,7 +44,7 @@ private func NotWithinRange(_ base: Int32, _ extent: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/server/sv_bot.cpp:40
-func SV_OrgVisibleBox(_ org1: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ org2: JKAShared.vec3_t, _ ignore: Int32, _ rmg: Int32) -> Int32 {
+public func SV_OrgVisibleBox(_ org1: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ org2: JKAShared.vec3_t, _ ignore: Int32, _ rmg: Int32) -> Int32 {
     // Raven's record lives to the end of his block, so the block is the closure.
     // Every path of Raven's block returns, so the closure's value is the function's.
     return Trace.scratch { tr -> Int32 in
@@ -64,7 +64,7 @@ func SV_OrgVisibleBox(_ org1: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs
 }
 
 /// Source: oracle/codemp/server/sv_bot.cpp:63
-func SV_BotWaypointReception(_ wpnum: Int32, _ wps: Slots<JKAMP.Wpobject?>) {
+public func SV_BotWaypointReception(_ wpnum: Int32, _ wps: Slots<JKAMP.Wpobject?>) {
     var i: Int32 = 0
 
     gWPNum = wpnum
@@ -84,7 +84,7 @@ SV_BotCalculatePaths
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:81
-func SV_BotCalculatePaths(_ rmg: Int32) {
+public func SV_BotCalculatePaths(_ rmg: Int32) {
     var i: Int32
     var c: Int32
     var forceJumpable: Int32
@@ -167,7 +167,7 @@ SV_BotAllocateClient
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:178
-func SV_BotAllocateClient() -> Int32 {
+public func SV_BotAllocateClient() -> Int32 {
     var i: Int32
     var cl: Slots<Client>
 
@@ -204,7 +204,7 @@ SV_BotFreeClient
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:208
-func SV_BotFreeClient(_ clientNum: Int32) {
+public func SV_BotFreeClient(_ clientNum: Int32) {
     var cl: Client?
 
     if clientNum < 0 || clientNum >= sv_maxclients!.integer {
@@ -243,7 +243,7 @@ BotDrawDebugPolygons
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:227
 // AI: Raven passes the points to `drawPoly` as a `float *`. The closure takes the Slots of the vectors, row N-CLOSURE.
-func BotDrawDebugPolygons(_ drawPoly: ((Int32, Int32, Slots<JKAShared.vec3_t>) -> Void)?, _ value: Int32) {
+public func BotDrawDebugPolygons(_ drawPoly: ((Int32, Int32, Slots<JKAShared.vec3_t>) -> Void)?, _ value: Int32) {
     // CM_DrawDebugSurface is the one caller, and the dedicated build never draws, so it is dead.
     var poly: BotDebugpoly
     var i: Int32
@@ -306,7 +306,7 @@ BotImport_Print
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:267
-func BotImport_Print(_ type: Int32, _ fmt: String, _ args: any JKAShared.FormatArg...) {
+public func BotImport_Print(_ type: Int32, _ fmt: String, _ args: any JKAShared.FormatArg...) {
     var str = CharBuf(2048)
 
     strcpy(&str, JKAShared.format(fmt, args))
@@ -340,7 +340,7 @@ BotImport_Trace
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:309
-func BotImport_Trace(_ bsptrace: BspTrace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ passent: Int32, _ contentmask: Int32) {
+public func BotImport_Trace(_ bsptrace: BspTrace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ passent: Int32, _ contentmask: Int32) {
     // Raven's record lives to the end of his block, so the block is the closure.
     Trace.scratch { trace in
 
@@ -370,7 +370,7 @@ BotImport_EntityTrace
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:334
-func BotImport_EntityTrace(_ bsptrace: BspTrace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ entnum: Int32, _ contentmask: Int32) {
+public func BotImport_EntityTrace(_ bsptrace: BspTrace, _ start: JKAShared.vec3_t, _ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ entnum: Int32, _ contentmask: Int32) {
     // Raven's record lives to the end of his block, so the block is the closure.
     Trace.scratch { trace in
 
@@ -400,7 +400,7 @@ BotImport_PointContents
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:360
-func BotImport_PointContents(_ point: JKAShared.vec3_t) -> Int32 {
+public func BotImport_PointContents(_ point: JKAShared.vec3_t) -> Int32 {
     return SV_PointContents(point, -1)
 }
 
@@ -412,7 +412,7 @@ BotImport_inPVS
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:369
-func BotImport_inPVS(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Int32 {
+public func BotImport_inPVS(_ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) -> Int32 {
     return (SV_inPVS(p1, p2) ? 1 : 0)
 }
 
@@ -424,7 +424,7 @@ BotImport_BSPEntityData
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:378
-func BotImport_BSPEntityData() -> String {
+public func BotImport_BSPEntityData() -> String {
     return CM_EntityString()
 }
 
@@ -436,7 +436,7 @@ BotImport_BSPModelMinsMaxsOrigin
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:387
-func BotImport_BSPModelMinsMaxsOrigin(_ modelnum: Int32, _ angles: JKAShared.vec3_t, _ outmins: inout JKAShared.vec3_t, _ outmaxs: inout JKAShared.vec3_t, _ origin: inout JKAShared.vec3_t) {
+public func BotImport_BSPModelMinsMaxsOrigin(_ modelnum: Int32, _ angles: JKAShared.vec3_t, _ outmins: inout JKAShared.vec3_t, _ outmaxs: inout JKAShared.vec3_t, _ origin: inout JKAShared.vec3_t) {
     let h: clipHandle_t
     var mins = vec3_t()
     var maxs = vec3_t()
@@ -463,7 +463,7 @@ func BotImport_BSPModelMinsMaxsOrigin(_ modelnum: Int32, _ angles: JKAShared.vec
 }
 
 /// Source: oracle/codemp/server/sv_bot.cpp:416
-func Bot_GetMemoryGame(_ size: Int32) -> UnsafeMutableRawPointer {
+public func Bot_GetMemoryGame(_ size: Int32) -> UnsafeMutableRawPointer {
     let ptr = Z_Malloc(size, TAG_BOTGAME, true)
 
     return ptr
@@ -477,7 +477,7 @@ BotImport_FreeMemoryGame
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:429
-func Bot_FreeMemoryGame(_ ptr: OpaquePointer?) {
+public func Bot_FreeMemoryGame(_ ptr: OpaquePointer?) {
     Z_Free(ptr)
 }
 
@@ -489,7 +489,7 @@ BotImport_GetMemory
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:438
-func BotImport_GetMemory(_ size: Int32) -> UnsafeMutableRawPointer {
+public func BotImport_GetMemory(_ size: Int32) -> UnsafeMutableRawPointer {
     let ptr = Z_Malloc(size, TAG_BOTLIB, true)
     return ptr
 }
@@ -502,7 +502,7 @@ BotImport_FreeMemory
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:450
-func BotImport_FreeMemory(_ ptr: OpaquePointer?) {
+public func BotImport_FreeMemory(_ ptr: OpaquePointer?) {
     Z_Free(ptr)
 }
 
@@ -514,7 +514,7 @@ BotImport_HunkAlloc
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:459
-func BotImport_HunkAlloc(_ size: Int32) -> UnsafeMutableRawPointer {
+public func BotImport_HunkAlloc(_ size: Int32) -> UnsafeMutableRawPointer {
     if Hunk_CheckMark() {
         Com_Error(ERR_DROP, "SV_Bot_HunkAlloc: Alloc with marks already set\n")
     }
@@ -529,7 +529,7 @@ BotImport_DebugPolygonCreate
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:471
-func BotImport_DebugPolygonCreate(_ color: Int32, _ numPoints: Int32, _ points: Slots<JKAShared.vec3_t>) -> Int32 {
+public func BotImport_DebugPolygonCreate(_ color: Int32, _ numPoints: Int32, _ points: Slots<JKAShared.vec3_t>) -> Int32 {
     let poly: BotDebugpoly
     var i: Int32
 
@@ -564,7 +564,7 @@ BotImport_DebugPolygonShow
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:498
-func BotImport_DebugPolygonShow(_ id: Int32, _ color: Int32, _ numPoints: Int32, _ points: Slots<JKAShared.vec3_t>) {
+public func BotImport_DebugPolygonShow(_ id: Int32, _ color: Int32, _ numPoints: Int32, _ points: Slots<JKAShared.vec3_t>) {
     let poly: BotDebugpoly
 
     if debugpolygons == nil {
@@ -585,7 +585,7 @@ BotImport_DebugPolygonDelete
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:514
-func BotImport_DebugPolygonDelete(_ id: Int32) {
+public func BotImport_DebugPolygonDelete(_ id: Int32) {
     if debugpolygons == nil {
         return
     }
@@ -604,7 +604,7 @@ BotImport_DebugLineCreate
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:525
-func BotImport_DebugLineCreate() -> Int32 {
+public func BotImport_DebugLineCreate() -> Int32 {
     // AI: Raven declares `vec3_t points[1]` on his stack. The body uses the zeroed allocation of the storage class through the `points_BotImport_DebugLineCreate` forward.
     return BotImport_DebugPolygonCreate(0, 0, points_BotImport_DebugLineCreate)
 }
@@ -617,7 +617,7 @@ BotImport_DebugLineDelete
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:535
-func BotImport_DebugLineDelete(_ line: Int32) {
+public func BotImport_DebugLineDelete(_ line: Int32) {
     BotImport_DebugPolygonDelete(line)
 }
 
@@ -633,7 +633,7 @@ BotImport_DebugLineShow
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:544
-func BotImport_DebugLineShow(_ line: Int32, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ color: Int32) {
+public func BotImport_DebugLineShow(_ line: Int32, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ color: Int32) {
     // AI: Raven declares `vec3_t points[4]` on his stack. The body uses the zeroed allocation of the storage class through the `points_BotImport_DebugLineShow` forward.
     var dir = vec3_t()
     var cross = vec3_t()
@@ -675,7 +675,7 @@ SV_BotClientCommand
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:577
-func BotClientCommand(_ client: Int32, _ command: String) {
+public func BotClientCommand(_ client: Int32, _ command: String) {
     SV_ExecuteClientCommand(svs.clientsSlots[client], command, true)
 }
 
@@ -687,7 +687,7 @@ SV_BotFrame
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:586
-func SV_BotFrame(_ time: Int32) {
+public func SV_BotFrame(_ time: Int32) {
     if bot_enable == 0 {
         return
     }
@@ -706,7 +706,7 @@ SV_BotLibSetup
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:598
-func SV_BotLibSetup() -> Int32 {
+public func SV_BotLibSetup() -> Int32 {
     if bot_enable == 0 {
         return 0
     }
@@ -730,7 +730,7 @@ it is changing to a different game directory.
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:619
-func SV_BotLibShutdown() -> Int32 {
+public func SV_BotLibShutdown() -> Int32 {
     if botlib_export == nil {
         return -1
     }
@@ -746,7 +746,7 @@ SV_BotInitCvars
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:633
-func SV_BotInitCvars() {
+public func SV_BotInitCvars() {
     Cvar_Get("bot_enable", "1", 0) //enable the bot
     Cvar_Get("bot_developer", "0", CVAR_CHEAT) //bot developer mode
     Cvar_Get("bot_debug", "0", CVAR_CHEAT) //enable bot debugging
@@ -797,7 +797,7 @@ SV_BotInitBotLib
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:684
-func SV_BotInitBotLib() {
+public func SV_BotInitBotLib() {
     BotlibImport.scratch { botlib_import in
         if debugpolygons != nil {
             Z_Free(debugpolygons![0].handle)
@@ -849,7 +849,7 @@ SV_BotGetConsoleMessage
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:736
-func SV_BotGetConsoleMessage(_ client: Int32, _ buf: inout JKAShared.CharBuf, _ size: Int32) -> Int32 {
+public func SV_BotGetConsoleMessage(_ client: Int32, _ buf: inout JKAShared.CharBuf, _ size: Int32) -> Int32 {
     var cl: Client?
     let index: Int32
 
@@ -879,7 +879,7 @@ SV_BotGetSnapshotEntity
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:786
-func SV_BotGetSnapshotEntity(_ client: Int32, _ sequence: Int32) -> Int32 {
+public func SV_BotGetSnapshotEntity(_ client: Int32, _ sequence: Int32) -> Int32 {
     var cl: Client?
     var frame: ClientSnapshot?
 
