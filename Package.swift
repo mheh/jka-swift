@@ -12,6 +12,8 @@ let package = Package(
         .library(name: "JKAMP_GameLogic", targets: ["JKAMP_GameLogic", "JKAMP_BG", "JKAMP_Game", "JKAMP", "JKAShared"]),
         .library(name: "JKAMP_CGameLogic", targets: ["JKAMP_CGameLogic", "JKAMP_BG", "JKAMP_CGame", "JKAMP", "JKAShared"]),
         .library(name: "JKAMP_DedLogic", targets: ["JKAMP_DedLogic", "JKAMP_Ded", "JKAMP", "JKAShared"]),
+        .library(name: "JKAMP_GameShell", targets: ["jampgame"]),
+        .library(name: "JKAMP_DedShell", targets: ["CJKAHost"]),
     ],
     targets: [
         // MARK: - C, the syscall shim
