@@ -2,7 +2,7 @@
 # This script prepares a worktree for the gate, and a second run changes nothing.
 # Usage: `tools/worktree-setup.sh [--tools]`, from a folder in the worktree.
 # With no flag, the script prints one line that says whether the worktree is clean.
-# `--tools` gives the generators and `snapshot.py` what they need: the `oracle` and `jka-rust` submodules the Python environment of the main tree,
+# `--tools` gives the generators and `snapshot.py` what they need: the `oracle` and `jka-rust` submodules, the Python environment of the main tree,
 # and the `extract.json` of each unit that has a snapshot.
 # The submodules borrow their objects from the main tree's `.git/modules`, so the checkout downloads almost nothing.
 # The script never removes a submodule checkout.

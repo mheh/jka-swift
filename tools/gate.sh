@@ -5,6 +5,7 @@
 # The full output of a step goes to `$OUT/<step>.txt`, and the summary goes to stdout and to `$OUT/summary.txt`.
 # OUT is `/tmp/gate-<branch>-<short head>` by default.
 # A failed step does not stop the later steps, and the script exits 1 at the end if a step failed.
+# `--jobs N` reaches the build, release, and test steps and the host build of the referee step, and not the linux step.
 # `--snap-out` writes a new snapshot of each unit that differs to `$OUT/snap-<unit>`. The script never writes into `~/.cache`.
 # `tools/worktree-setup.sh --tools` prepares a new worktree for the tooltests step and the snapshot steps.
 # The referee step uses these variables: REFEREE_HOST for the reference host, REFEREE_HOST_B for the Swift host, and REFEREE_REC for the `.rec` file.
