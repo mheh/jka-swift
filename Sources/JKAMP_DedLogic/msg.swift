@@ -24,6 +24,7 @@ var gLastBitIndex: Int32 {
 }
 
 /// Source: oracle/codemp/qcommon/msg.cpp:37
+// Port-note: Raven's `int` counter only grows, so each `oldsize +=` can overflow, which C leaves undefined. The port wraps at 32 bits.
 var oldsize: Int32 {
     get { world.variables.oldsize }
     set { world.variables.oldsize = newValue }
@@ -481,7 +482,7 @@ func MSG_WriteBits(_ msg: Msg, _ value: Int32, _ bits: Int32) {
     var bits = bits
     var i: Int32
 
-    oldsize += bits
+    oldsize &+= bits
 
     // this isn't an exact overflow check, but close enough
     if msg.maxsize - msg.cursize < 4 {
@@ -1021,7 +1022,8 @@ MSG_ReadDeltaUsercmd
 /// Source: oracle/codemp/qcommon/msg.cpp:714
 func MSG_ReadDeltaUsercmd(_ msg: Msg, _ from: JKAMP.Usercmd, _ to: JKAMP.Usercmd) {
     if MSG_ReadBits(msg, 1) != 0 {
-        to.serverTime = from.serverTime + MSG_ReadBits(msg, 8)
+        // Port-note: Raven's `int` sum overflows, which C leaves undefined. The port wraps at 32 bits.
+        to.serverTime = from.serverTime &+ MSG_ReadBits(msg, 8)
     } else {
         to.serverTime = MSG_ReadBits(msg, 32)
     }
@@ -1069,7 +1071,7 @@ func MSG_WriteDeltaUsercmdKey(_ msg: Msg, _ key: Int32, _ from: JKAMP.Usercmd, _
         from.invensel == to.invensel &&
         from.generic_cmd == to.generic_cmd {
         MSG_WriteBits(msg, 0, 1)				// no change
-        oldsize += 7
+        oldsize &+= 7
         return
     }
     key ^= to.serverTime
@@ -1100,7 +1102,8 @@ MSG_ReadDeltaUsercmd
 func MSG_ReadDeltaUsercmdKey(_ msg: Msg, _ key: Int32, _ from: JKAMP.Usercmd, _ to: JKAMP.Usercmd) {
     var key = key
     if MSG_ReadBits(msg, 1) != 0 {
-        to.serverTime = from.serverTime + MSG_ReadBits(msg, 8)
+        // Port-note: Raven's `int` sum overflows, which C leaves undefined. The port wraps at 32 bits.
+        to.serverTime = from.serverTime &+ MSG_ReadBits(msg, 8)
     } else {
         to.serverTime = MSG_ReadBits(msg, 32)
     }
@@ -1169,6 +1172,7 @@ func MSG_WriteDeltaEntity(_ msg: Msg, _ from: JKAMP.EntityState, _ to: JKAMP.Ent
 
     // a NULL to is a delta remove message
     guard let to else {
+        // AI: Raven returns here when `from` is NULL too. The Swift `from` is not optional, so that test drops.
         MSG_WriteBits(msg, from.number, GENTITYNUM_BITS)
         MSG_WriteBits(msg, 1, 1)
         return
@@ -1190,7 +1194,7 @@ func MSG_WriteDeltaEntity(_ msg: Msg, _ from: JKAMP.EntityState, _ to: JKAMP.Ent
         toF = Slots(record: to).bytes.suffix(from: field.offset)
         if fromF[int: 0] != toF[int: 0] {
             lc = i + 1
-            field.mCount += 1
+            field.mCount &+= 1
         }
         i += 1
     }
@@ -1213,7 +1217,7 @@ func MSG_WriteDeltaEntity(_ msg: Msg, _ from: JKAMP.EntityState, _ to: JKAMP.Ent
 
     MSG_WriteByte(msg, lc)	// # of changes
 
-    oldsize += numFields
+    oldsize &+= numFields
 
     i = 0
     while i < lc {
@@ -1236,7 +1240,7 @@ func MSG_WriteDeltaEntity(_ msg: Msg, _ from: JKAMP.EntityState, _ to: JKAMP.Ent
 
             if fullFloat == 0.0 {
                 MSG_WriteBits(msg, 0, 1)
-                oldsize += FLOAT_INT_BITS
+                oldsize &+= FLOAT_INT_BITS
             } else {
                 MSG_WriteBits(msg, 1, 1)
                 if trunc == fullFloat && trunc + FLOAT_INT_BIAS >= 0 && trunc + FLOAT_INT_BIAS < (1 << FLOAT_INT_BITS) {
@@ -1467,6 +1471,8 @@ func MSG_CheckNETFPSFOverrides(_ psfOverrides: Bool) {
         while overrideFile[i] != 0 {
             if overrideFile[i] == Int32(ascii: ";") {
                 //parse to end of the line
+                // Port-note: When the last line has no newline, Raven's scan reads stack that is not initialized, which C leaves undefined.
+                // The port scans the zeroed buffer to its end and traps.
                 while overrideFile[i] != Int32(ascii: "\n") {
                     i += 1
                 }
@@ -1497,6 +1503,8 @@ func MSG_CheckNETFPSFOverrides(_ psfOverrides: Bool) {
                 }
 
                 j = 0
+                // Port-note: When the last line has no newline, Raven's scan reads stack that is not initialized, which C leaves undefined.
+                // The port scans the zeroed buffer to its end and traps.
                 while overrideFile[i] != Int32(ascii: "\n") && overrideFile[i] != Int32(ascii: "\r") {
                     //now read the value in
                     bits[j] = overrideFile[i]
@@ -1614,7 +1622,7 @@ func MSG_WriteDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState?, _ to: JKA
             toF = Slots(record: to).bytes.suffix(from: field.offset)
             if fromF[int: 0] != toF[int: 0] {
                 lc = i + 1
-                field.mCount += 1
+                field.mCount &+= 1
             }
             i += 1
         }
@@ -1623,7 +1631,7 @@ func MSG_WriteDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState?, _ to: JKA
 
         gLastBitIndex = lc
 
-        oldsize += numFields - lc
+        oldsize &+= numFields - lc
 
         i = 0
         while i < lc {
@@ -1700,7 +1708,7 @@ func MSG_WriteDeltaPlayerstate(_ msg: Msg, _ from: JKAMP.PlayerState?, _ to: JKA
 
         if statsbits == 0 && persistantbits == 0 && ammobits == 0 && powerupbits == 0 {
             MSG_WriteBits(msg, 0, 1)	// no change
-            oldsize += 4
+            oldsize &+= 4
             return
         }
         MSG_WriteBits(msg, 1, 1)	// changed
