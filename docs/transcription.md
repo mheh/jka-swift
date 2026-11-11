@@ -13,7 +13,7 @@ The transcriptor reads each function's oracle slice by that line range and ports
 It reads the oracle only. It never reads jka-rust. The port carries Raven's behavior, not jka-rust's.
 
 A reviewer runs after all transcriptors of a batch finish. It takes one file.
-For each function it reads the oracle slice, the jka-rust slice from the manifest, and the Swift body, and confirms the three agree. The reviewer fixes what this guide settles. It notes the rest as a Port-note.
+For each function it reads the oracle slice, the jka-rust slice from the manifest, and the Swift body, and confirms the three agree. The reviewer reports each difference as a citation, with Raven's line beside the Swift line. It puts no fix into a file.
 
 Both roles are per file and per assigned block. Neither touches another file.
 A batch runs ten or more files in parallel.
@@ -42,7 +42,9 @@ That range names a file of the submodule `jka-rust/` at the repository root, pin
 The reviewer reads that range in the submodule and never in the sibling clone `../jka-rust`, whose later layout holds the game functions as stubs.
 
 Neither role greps across `Sources/`.
-When a needed fact sits outside the read set, the agent writes a Port-note and moves on.
+For a fact outside the read set that has a name, such as the signature of a callee, a helper, or the callers of a function, the agent asks codegraph for that symbol.
+A transcriptor asks for Swift symbols and oracle symbols only, and never for a symbol of `jka-rust`.
+When codegraph does not settle the fact, the agent writes a Port-note and moves on.
 
 ### The brief
 
@@ -626,6 +628,9 @@ A `qboolean` operand where C reads an `int` is `(b ? 1 : 0)`, the 0 or 1 that C 
 An `int` or a `byte` that Raven compares with `qfalse` is `== 0`, and with `qtrue` is `== 1`, with no comment line, the text the drafter writes for `!x`, so `TAG_GetOrigin2( NULL, name, goalPos ) == qfalse` reads `TAG_GetOrigin2(nil, name, &goalPos) == 0`.
 
 A cast Raven wrote explicitly stays on the page, so `(int)v[0]` is `Int32(v[0])` and `(float)x` is `Float(x)`. A body never adds a cast Raven did not write.
+The conversions that this guide names for a store, an argument, or a table entry between an `int` and a `float` are the only exceptions.
+Where a body needs another cast to compile, the cause is a gap in the generator or the table, and the fix is the shape and not the site.
+A pointer cast that Raven wrote and that the Swift type does not need, `(char *)value`, is dropped with no comment line.
 `Sources/JKAShared/Promotion.swift` defines the arithmetic and comparison operators between `Int32` and `Float`, both orders, and the compound assignments, and each one promotes the integer as C does.
 So `ps.velocity[2] -= ps.gravity * bg.pml.frametime` and `ps.origin[2] + MINS_Z + 1` are Raven's lines.
 An expression the type checker cannot finish splits into typed `let` locals, one per term, each of the type C computes the term in, under one comment that names the split, `// Raven's one expression is two terms here, because the compiler cannot type-check it whole in reasonable time.`.
@@ -839,9 +844,9 @@ private func vector(at word: Int) -> vec3_t {
 
 A transcriptor never runs `swift build`, not between functions and not at the end. It ports every row and stops. It never reads a compiler message, and it never fixes a build error.
 
-A reviewer runs `swift build` once, at the end of its own file. A body that fails to compile keeps its marker and gets a Port-note carrying the compiler's first line, never a guessed fix.
+A reviewer runs no build. It reviews on the branch that compiles, and it reads only.
 
-The batch gate runs after every reviewer of the batch is done, and the coordinator runs it: `swift build`, `swift build -c release`, and `swift test --no-parallel`. A golden test is written per golden once the files it needs are ported in. The gate reads errors only. A warning that maps to a line Raven wrote stands, and no body line changes only to silence it. The round's report counts the warnings without failing the gate on them.
+The coordinator merges the branches of a wave and runs `tools/gate.sh --only build` once. One fix agent takes the compile errors of the wave in one batch. The reviews follow on the branch that compiles, and the full gate, `tools/gate.sh`, runs once at the end: `swift build`, `swift build -c release`, and `swift test --no-parallel`, with the other steps of the script. A golden test is written per golden once the files it needs are ported in. The gate reads errors only. A warning that maps to a line Raven wrote stands, and no body line changes only to silence it. The round's report counts the warnings without failing the gate on them.
 
 ## 5. The finished report
 
