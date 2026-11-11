@@ -48,7 +48,7 @@ env:
 jobs:
   test:
     name: Swift tests on Linux
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container: swift:6.4-noble
     timeout-minutes: 60
     steps:
@@ -73,7 +73,7 @@ jobs:
 
   build-linux:
     name: jampgame x86_64-linux
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container: swift:6.4-noble
     timeout-minutes: 60
     steps:
@@ -166,7 +166,7 @@ jobs:
 
   build-linux-cgame:
     name: cgame x86_64-linux
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container: swift:6.4-noble
     timeout-minutes: 60
     steps:
@@ -261,7 +261,7 @@ jobs:
     name: Update the rolling release
     needs: [build-linux, build-windows, build-linux-cgame, build-windows-cgame]
     if: ${{ !cancelled() && github.ref == 'refs/heads/master' && needs.build-linux.result == 'success' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
       contents: write # The job attaches assets to the rolling release.
