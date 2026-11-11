@@ -2,7 +2,8 @@
 # This script prepares a worktree for the gate, and a second run changes nothing.
 # Usage: `tools/worktree-setup.sh [--tools]`, from a folder in the worktree.
 # With no flag, the script prints one line that says whether the worktree is clean.
-# `--tools` gives the generators and `snapshot.py` what they need: the `oracle` and `jka-rust` submodules and the Python environment of the main tree.
+# `--tools` gives the generators and `snapshot.py` what they need: the `oracle` and `jka-rust` submodules the Python environment of the main tree,
+# and the `extract.json` of each unit that has a snapshot.
 # The submodules borrow their objects from the main tree's `.git/modules`, so the checkout downloads almost nothing.
 # The script never removes a submodule checkout.
 
@@ -70,11 +71,26 @@ else
     STATUS=1
 fi
 
-# The script makes no table, because `out/` and `table.sqlite` are the output of a sweep.
-ABSENT=""
-[ -e "$CLOSURE/out" ] || ABSENT="$ABSENT out/"
-[ -e "$CLOSURE/table.sqlite" ] || ABSENT="$ABSENT table.sqlite"
-if [ -n "$ABSENT" ]; then
-    echo "---- absent in $CLOSURE:$ABSENT"
+# Only `extract.py <unit>` makes `out/extract/<unit>/extract.json`, and git ignores `out/`, so a new worktree has none.
+# `skeleton.py` reads the `.c` enums of a stub from that file, and it reads an absent file as an empty list.
+# The full output of an extract goes to `out/extract/<unit>.log`.
+for UNIT in mp-game mp-cgame mp-engine-ded; do
+    if [ -f "$CLOSURE/out/extract/$UNIT/extract.json" ]; then
+        echo "---- extract $UNIT: present"
+        continue
+    fi
+    mkdir -p "$CLOSURE/out/extract"
+    if (cd "$CLOSURE" && .venv/bin/python extract.py "$UNIT") > "$CLOSURE/out/extract/$UNIT.log" 2>&1 \
+        && [ -f "$CLOSURE/out/extract/$UNIT/extract.json" ]; then
+        echo "---- extract $UNIT: written"
+    else
+        echo "---- extract $UNIT: the extract failed, see $CLOSURE/out/extract/$UNIT.log"
+        STATUS=1
+    fi
+done
+
+# The script makes no table, because the first sweep of `snapshot.py` or `table.py` writes `table.sqlite` and the store of each unit under `out/`.
+if [ ! -e "$CLOSURE/table.sqlite" ]; then
+    echo "---- table.sqlite: absent, and the first sweep writes it"
 fi
 exit $STATUS
