@@ -2561,9 +2561,9 @@ func RaySphereIntersections(_ origin: JKAShared.vec3_t, _ radius: Float, _ point
 
     d = b * b - 4 * c
     if d > 0 {
-        t = (-b + sqrt(d)) / 2
+        t = Float((Double(-b) + sqrt(Double(d))) / 2)
         _VectorMA(point, t, dir, &intersections[0])
-        t = (-b - sqrt(d)) / 2
+        t = Float((Double(-b) - sqrt(Double(d))) / 2)
         _VectorMA(point, t, dir, &intersections[1])
         return 2
     } else if d == 0 {

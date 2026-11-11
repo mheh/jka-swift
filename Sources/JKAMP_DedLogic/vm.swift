@@ -703,6 +703,7 @@ func VM_Clear() {
 }
 
 /// Source: oracle/codemp/qcommon/vm.cpp:640
+// Port-note: The port has no caller, because `args.VMA` and the field views replace Raven's calls in sv_game.cpp and sv_snapshot.cpp.
 func VM_ArgPtr(_ intValue: Int32) -> UnsafeMutableRawPointer? {
     if intValue == 0 {
         return nil
@@ -720,6 +721,7 @@ func VM_ArgPtr(_ intValue: Int32) -> UnsafeMutableRawPointer? {
 }
 
 /// Source: oracle/codemp/qcommon/vm.cpp:657
+// Port-note: The port has no caller, because SV_BotWaypointReception copies the pointer in place of Raven's call in sv_bot.cpp.
 func BotVMShift(_ ptr: Int32) -> UnsafeMutableRawPointer? {
     if ptr == 0 {
         return nil

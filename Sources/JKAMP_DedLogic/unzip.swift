@@ -175,14 +175,14 @@ private func unzlocal_SearchCentralDir(_ fin: OpaquePointer?) -> CUnsignedLong {
         let uReadSize: CUnsignedLong
         let uReadPos: CUnsignedLong
         var i: Int32
-        if uBackRead + CUnsignedLong(BUFREADCOMMENT) > uMaxBack {
+        if uBackRead &+ CUnsignedLong(BUFREADCOMMENT) > uMaxBack {
             uBackRead = uMaxBack
         } else {
-            uBackRead += CUnsignedLong(BUFREADCOMMENT)
+            uBackRead &+= CUnsignedLong(BUFREADCOMMENT)
         }
-        uReadPos = uSizeFile - uBackRead
+        uReadPos = uSizeFile &- uBackRead
 
-        uReadSize = (CUnsignedLong(BUFREADCOMMENT + 4) < (uSizeFile - uReadPos)) ? CUnsignedLong(BUFREADCOMMENT + 4) : (uSizeFile - uReadPos)
+        uReadSize = (CUnsignedLong(BUFREADCOMMENT + 4) < (uSizeFile &- uReadPos)) ? CUnsignedLong(BUFREADCOMMENT + 4) : (uSizeFile &- uReadPos)
         if FileBackend.fseek(fin, CLong(bitPattern: uReadPos), SEEK_SET) != 0 {
             break
         }
@@ -199,7 +199,7 @@ private func unzlocal_SearchCentralDir(_ fin: OpaquePointer?) -> CUnsignedLong {
             i -= 1
             if !(iBefore > 0) { break }
             if ((buf[byte: i] as UInt8) == 0x50) && ((buf[byte: i + 1] as UInt8) == 0x4b) && ((buf[byte: i + 2] as UInt8) == 0x05) && ((buf[byte: i + 3] as UInt8) == 0x06) {
-                uPosFound = uReadPos + CUnsignedLong(i)
+                uPosFound = uReadPos &+ CUnsignedLong(i)
                 break
             }
         }
@@ -320,7 +320,7 @@ func unzOpen(_ path: String) -> OpaquePointer? {
             err = UNZ_ERRNO
         }
 
-        if (central_pos < us.offset_central_dir + us.size_central_dir) && (err == UNZ_OK) {
+        if (central_pos < us.offset_central_dir &+ us.size_central_dir) && (err == UNZ_OK) {
             err = UNZ_BADZIPFILE
         }
 
@@ -332,7 +332,7 @@ func unzOpen(_ path: String) -> OpaquePointer? {
 
         us.file = fin
         // The `uLong` difference wraps as C's does when the offsets are past the central directory.
-        us.byte_before_the_zipfile = central_pos &- (us.offset_central_dir + us.size_central_dir)
+        us.byte_before_the_zipfile = central_pos &- (us.offset_central_dir &+ us.size_central_dir)
         us.central_pos = central_pos
         us.pfile_in_zip_read = nil
 
@@ -400,11 +400,11 @@ private func unzlocal_DosDateToTmuDate(_ ulDosDate: CUnsignedLong, _ ptm: Tm_unz
     ptm.tm_mday = UInt32(truncatingIfNeeded: uDate & 0x1f)
     // The `uLong` difference wraps as C's does for a month of 0.
     ptm.tm_mon = UInt32(truncatingIfNeeded: (((uDate) & 0x1E0) / 0x20) &- 1)
-    ptm.tm_year = UInt32(truncatingIfNeeded: ((uDate & 0x0FE00) / 0x0200) + 1980)
+    ptm.tm_year = UInt32(truncatingIfNeeded: ((uDate & 0x0FE00) / 0x0200) &+ 1980)
 
     ptm.tm_hour = UInt32(truncatingIfNeeded: (ulDosDate & 0xF800) / 0x800)
     ptm.tm_min = UInt32(truncatingIfNeeded: (ulDosDate & 0x7E0) / 0x20)
-    ptm.tm_sec = UInt32(truncatingIfNeeded: 2 * (ulDosDate & 0x1f))
+    ptm.tm_sec = UInt32(truncatingIfNeeded: 2 &* (ulDosDate & 0x1f))
 }
 
 /**
@@ -425,7 +425,7 @@ private func unzlocal_GetCurrentFileInfoInternal(_ file: OpaquePointer?, _ pfile
             }
             let s = UnzS(file!)
             // ZIP_fseek is Raven's macro for fseek.
-            if FileBackend.fseek(s.file, CLong(bitPattern: s.pos_in_central_dir + s.byte_before_the_zipfile), SEEK_SET) != 0 {
+            if FileBackend.fseek(s.file, CLong(bitPattern: s.pos_in_central_dir &+ s.byte_before_the_zipfile), SEEK_SET) != 0 {
                 err = UNZ_ERRNO
             }
 
@@ -499,7 +499,7 @@ private func unzlocal_GetCurrentFileInfoInternal(_ file: OpaquePointer?, _ pfile
                 err = UNZ_ERRNO
             }
 
-            lSeek += CLong(bitPattern: file_info.size_filename)
+            lSeek &+= CLong(bitPattern: file_info.size_filename)
             // Raven's `szFileName!=NULL` half has no path here, because an `inout` buffer is never NULL.
             if err == UNZ_OK {
                 let uSizeRead: CUnsignedLong
@@ -516,7 +516,7 @@ private func unzlocal_GetCurrentFileInfoInternal(_ file: OpaquePointer?, _ pfile
                         err = UNZ_ERRNO
                     }
                 }
-                lSeek -= CLong(bitPattern: uSizeRead)
+                lSeek &-= CLong(bitPattern: uSizeRead)
             }
 
             if (err == UNZ_OK) && (extraField != nil) {
@@ -540,13 +540,14 @@ private func unzlocal_GetCurrentFileInfoInternal(_ file: OpaquePointer?, _ pfile
                         err = UNZ_ERRNO
                     }
                 }
-                lSeek += CLong(bitPattern: file_info.size_file_extra &- uSizeRead)
+                lSeek &+= CLong(bitPattern: file_info.size_file_extra &- uSizeRead)
             } else {
-                lSeek += CLong(bitPattern: file_info.size_file_extra)
+                lSeek &+= CLong(bitPattern: file_info.size_file_extra)
             }
 
-            // Raven's `szComment!=NULL` half has no path here, because an `inout` buffer is never NULL.
-            if err == UNZ_OK {
+            // AI: Raven tested the comment buffer for NULL.
+            // A caller with no comment passes a scratch CharBuf with a size of 0, so the test reads the size.
+            if (err == UNZ_OK) && (commentBufferSize > 0) {
                 let uSizeRead: CUnsignedLong
                 if file_info.size_file_comment < commentBufferSize {
                     szComment[file_info.size_file_comment] = 0
@@ -567,9 +568,9 @@ private func unzlocal_GetCurrentFileInfoInternal(_ file: OpaquePointer?, _ pfile
                         err = UNZ_ERRNO
                     }
                 }
-                lSeek += CLong(bitPattern: file_info.size_file_comment &- uSizeRead)
+                lSeek &+= CLong(bitPattern: file_info.size_file_comment &- uSizeRead)
             } else {
-                lSeek += CLong(bitPattern: file_info.size_file_comment)
+                lSeek &+= CLong(bitPattern: file_info.size_file_comment)
             }
 
             if (err == UNZ_OK) && (pfile_info != nil) {
@@ -640,12 +641,12 @@ func unzGoToNextFile(_ file: OpaquePointer?) -> Int32 {
     if s.current_file_ok == 0 {
         return UNZ_END_OF_LIST_OF_FILE
     }
-    if s.num_file + 1 == s.gi.number_entry {
+    if s.num_file &+ 1 == s.gi.number_entry {
         return UNZ_END_OF_LIST_OF_FILE
     }
 
-    s.pos_in_central_dir += CUnsignedLong(SIZECENTRALDIRITEM) + s.cur_file_info.size_filename + s.cur_file_info.size_file_extra + s.cur_file_info.size_file_comment
-    s.num_file += 1
+    s.pos_in_central_dir &+= CUnsignedLong(SIZECENTRALDIRITEM) &+ s.cur_file_info.size_filename &+ s.cur_file_info.size_file_extra &+ s.cur_file_info.size_file_comment
+    s.num_file &+= 1
     // AI: Raven passes NULL for the name and the comment. The call passes a scratch CharBuf with a size of 0, so it reads and writes no byte.
     var szFileName = CharBuf(1)
     var szComment = CharBuf(1)
@@ -769,7 +770,7 @@ private func unzlocal_CheckCurrentFileCoherencyHeader(_ s: UnzS, _ piSizeVar: in
     psize_local_extrafield = 0
 
     // ZIP_fseek is Raven's macro for fseek.
-    if FileBackend.fseek(s.file, CLong(bitPattern: s.cur_file_info_internal.offset_curfile + s.byte_before_the_zipfile), SEEK_SET) != 0 {
+    if FileBackend.fseek(s.file, CLong(bitPattern: s.cur_file_info_internal.offset_curfile &+ s.byte_before_the_zipfile), SEEK_SET) != 0 {
         return UNZ_ERRNO
     }
 
@@ -829,15 +830,15 @@ private func unzlocal_CheckCurrentFileCoherencyHeader(_ s: UnzS, _ piSizeVar: in
         err = UNZ_BADZIPFILE
     }
 
-    piSizeVar += UInt32(truncatingIfNeeded: size_filename)
+    piSizeVar &+= UInt32(truncatingIfNeeded: size_filename)
 
     if unzlocal_getShort(s.file, &size_extra_field) != UNZ_OK {
         err = UNZ_ERRNO
     }
-    poffset_local_extrafield = s.cur_file_info_internal.offset_curfile + CUnsignedLong(SIZEZIPLOCALHEADER) + size_filename
+    poffset_local_extrafield = s.cur_file_info_internal.offset_curfile &+ CUnsignedLong(SIZEZIPLOCALHEADER) &+ size_filename
     psize_local_extrafield = UInt32(truncatingIfNeeded: size_extra_field)
 
-    piSizeVar += UInt32(truncatingIfNeeded: size_extra_field)
+    piSizeVar &+= UInt32(truncatingIfNeeded: size_extra_field)
 
     return err
 }
@@ -912,7 +913,7 @@ func unzOpenCurrentFile(_ file: OpaquePointer?) -> Int32 {
     pfile_in_zip_read_info.rest_read_compressed = s.cur_file_info.compressed_size
     pfile_in_zip_read_info.rest_read_uncompressed = s.cur_file_info.uncompressed_size
 
-    pfile_in_zip_read_info.pos_in_zipfile = s.cur_file_info_internal.offset_curfile + CUnsignedLong(SIZEZIPLOCALHEADER) + CUnsignedLong(iSizeVar)
+    pfile_in_zip_read_info.pos_in_zipfile = s.cur_file_info_internal.offset_curfile &+ CUnsignedLong(SIZEZIPLOCALHEADER) &+ CUnsignedLong(iSizeVar)
 
     pfile_in_zip_read_info.stream.avail_in = 0
 
@@ -971,7 +972,7 @@ func unzReadCurrentFile(_ file: OpaquePointer?, _ buf: Slots<JKAShared.byte>, _ 
             }
             if s.cur_file_info.compressed_size == pfile_in_zip_read_info.rest_read_compressed {
                 // ZIP_fseek is Raven's macro for fseek.
-                if FileBackend.fseek(pfile_in_zip_read_info.file, CLong(bitPattern: pfile_in_zip_read_info.pos_in_zipfile + pfile_in_zip_read_info.byte_before_the_zipfile), SEEK_SET) != 0 {
+                if FileBackend.fseek(pfile_in_zip_read_info.file, CLong(bitPattern: pfile_in_zip_read_info.pos_in_zipfile &+ pfile_in_zip_read_info.byte_before_the_zipfile), SEEK_SET) != 0 {
                     return UNZ_ERRNO
                 }
             }
@@ -980,9 +981,9 @@ func unzReadCurrentFile(_ file: OpaquePointer?, _ buf: Slots<JKAShared.byte>, _ 
             if FileBackend.fread(ZipBackend.bytes(pfile_in_zip_read_info.read_buffer, count: UNZ_BUFSIZE)!, at: 0, Int32(bitPattern: uReadThis), 1, pfile_in_zip_read_info.file) != 1 {
                 return UNZ_ERRNO
             }
-            pfile_in_zip_read_info.pos_in_zipfile += CUnsignedLong(uReadThis)
+            pfile_in_zip_read_info.pos_in_zipfile &+= CUnsignedLong(uReadThis)
 
-            pfile_in_zip_read_info.rest_read_compressed -= CUnsignedLong(uReadThis)
+            pfile_in_zip_read_info.rest_read_compressed &-= CUnsignedLong(uReadThis)
 
             pfile_in_zip_read_info.stream.next_in = ZipBackend.bytes(pfile_in_zip_read_info.read_buffer, count: UNZ_BUFSIZE)
             pfile_in_zip_read_info.stream.avail_in = CUnsignedLong(uReadThis)
@@ -1002,19 +1003,19 @@ func unzReadCurrentFile(_ file: OpaquePointer?, _ buf: Slots<JKAShared.byte>, _ 
             i = 0
             while i < uDoCopy {
                 next_out[i] = next_in[i]
-                i += 1
+                i &+= 1
             }
 
             //			pfile_in_zip_read_info->crc32 = crc32(pfile_in_zip_read_info->crc32,
             //								pfile_in_zip_read_info->stream.next_out,
             //								uDoCopy);
-            pfile_in_zip_read_info.rest_read_uncompressed -= CUnsignedLong(uDoCopy)
-            pfile_in_zip_read_info.stream.avail_in -= CUnsignedLong(uDoCopy)
-            pfile_in_zip_read_info.stream.avail_out -= CUnsignedLong(uDoCopy)
+            pfile_in_zip_read_info.rest_read_uncompressed &-= CUnsignedLong(uDoCopy)
+            pfile_in_zip_read_info.stream.avail_in &-= CUnsignedLong(uDoCopy)
+            pfile_in_zip_read_info.stream.avail_out &-= CUnsignedLong(uDoCopy)
             pfile_in_zip_read_info.stream.next_out = next_out.suffix(from: uDoCopy)
             pfile_in_zip_read_info.stream.next_in = next_in.suffix(from: uDoCopy)
-            pfile_in_zip_read_info.stream.total_out += CUnsignedLong(uDoCopy)
-            iRead += uDoCopy
+            pfile_in_zip_read_info.stream.total_out &+= CUnsignedLong(uDoCopy)
+            iRead &+= uDoCopy
         } else {
             let uTotalOutBefore: CUnsignedLong
             let uTotalOutAfter: CUnsignedLong
@@ -1032,15 +1033,15 @@ func unzReadCurrentFile(_ file: OpaquePointer?, _ buf: Slots<JKAShared.byte>, _ 
             err = ZipBackend.inflate(pfile_in_zip_read_info.stream)
 
             uTotalOutAfter = pfile_in_zip_read_info.stream.total_out
-            uOutThis = uTotalOutAfter - uTotalOutBefore
+            uOutThis = uTotalOutAfter &- uTotalOutBefore
 
             //			pfile_in_zip_read_info->crc32 =
             //                crc32(pfile_in_zip_read_info->crc32,bufBefore,
             //                        (uInt)(uOutThis));
 
-            pfile_in_zip_read_info.rest_read_uncompressed -= uOutThis
+            pfile_in_zip_read_info.rest_read_uncompressed &-= uOutThis
 
-            iRead += UInt32(truncatingIfNeeded: uTotalOutAfter - uTotalOutBefore)
+            iRead &+= UInt32(truncatingIfNeeded: uTotalOutAfter &- uTotalOutBefore)
 
             if err == Z_STREAM_END {
                 return (iRead == 0) ? UNZ_EOF : Int32(bitPattern: iRead)
@@ -1133,7 +1134,7 @@ func unzGetLocalExtrafield(_ file: OpaquePointer?, _ buf: OpaquePointer?, _ len:
         return UNZ_PARAMERROR
     }
 
-    size_to_read = CUnsignedLong(pfile_in_zip_read_info.size_local_extrafield) - pfile_in_zip_read_info.pos_local_extrafield
+    size_to_read = CUnsignedLong(pfile_in_zip_read_info.size_local_extrafield) &- pfile_in_zip_read_info.pos_local_extrafield
 
     if buf == nil {
         return Int32(truncatingIfNeeded: size_to_read)
@@ -1149,7 +1150,7 @@ func unzGetLocalExtrafield(_ file: OpaquePointer?, _ buf: OpaquePointer?, _ len:
         return 0
     }
 
-    if FileBackend.fseek(pfile_in_zip_read_info.file, CLong(bitPattern: pfile_in_zip_read_info.offset_local_extrafield + pfile_in_zip_read_info.pos_local_extrafield), SEEK_SET) != 0 {
+    if FileBackend.fseek(pfile_in_zip_read_info.file, CLong(bitPattern: pfile_in_zip_read_info.offset_local_extrafield &+ pfile_in_zip_read_info.pos_local_extrafield), SEEK_SET) != 0 {
         return UNZ_ERRNO
     }
 
@@ -1225,7 +1226,7 @@ func unzGetGlobalComment(_ file: OpaquePointer?, _ szComment: inout JKAShared.Ch
         uReadThis = s.gi.size_comment
     }
 
-    if FileBackend.fseek(s.file, CLong(bitPattern: s.central_pos + 22), SEEK_SET) != 0 {
+    if FileBackend.fseek(s.file, CLong(bitPattern: s.central_pos &+ 22), SEEK_SET) != 0 {
         return UNZ_ERRNO
     }
 
