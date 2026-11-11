@@ -4,7 +4,7 @@ import JKAShared
 import JKAMP_Ded
 
 /// Source: oracle/codemp/server/sv_snapshot.cpp:245
-let MAX_SNAPSHOT_ENTITIES = 1024 as Int32
+private let MAX_SNAPSHOT_ENTITIES = 1024 as Int32
 
 /// Source: oracle/codemp/server/sv_snapshot.cpp:300
 var g_svCullDist: Float {
