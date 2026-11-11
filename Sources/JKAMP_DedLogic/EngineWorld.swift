@@ -806,6 +806,14 @@ public final class EngineWorld {
     /// Source: oracle/codemp/qcommon/cm_patch.cpp:1401
     var cv_CM_TraceThroughPatchCollide: Cvar? = nil
 
+    /// Raven's `static cvar_t *cv` of CM_DrawDebugSurface.
+    /// Source: oracle/codemp/qcommon/cm_patch.cpp:1652
+    var cv_CM_DrawDebugSurface: Cvar? = nil
+
+    /// Raven's `static cvar_t *cv2` of CM_DrawDebugSurface.
+    /// Source: oracle/codemp/qcommon/cm_patch.cpp:1654
+    var cv2: Cvar? = nil
+
     // MARK: - tr_init.cpp
 
     /// Raven's `CMiniHeap *G2VertSpaceServer` of `tr_init.cpp`, which SV_Init points at `CMiniHeap_singleton`.

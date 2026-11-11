@@ -310,6 +310,10 @@ public final class EngineStorage {
     /// Source: oracle/codemp/qcommon/cm_patch.cpp:431
     public let planes: Slots<PatchPlane>
 
+    /// Raven's `vec3_t v[3]` local of `CM_DrawDebugSurface` in `cm_patch.cpp`.
+    /// Source: oracle/codemp/qcommon/cm_patch.cpp:1772
+    public let v_CM_DrawDebugSurface: Slots<JKAShared.vec3_t>
+
     /// Raven's `vec3_t p[MAX_POINTS_ON_WINDING]` local of `RemoveColinearPoints` in `cm_polylib.cpp`.
     /// Source: oracle/codemp/qcommon/cm_polylib.cpp:69
     public let p: Slots<JKAShared.vec3_t>
@@ -659,6 +663,7 @@ public final class EngineStorage {
         self.SubBSP = EngineStorage.records(count: Int(JKAShared.MAX_SUB_BSP), of: ClipMap.self)
         self.checksums_CM_Checksum = Slots(scalars: EngineStorage.bytes(count: 16 * MemoryLayout<UInt32>.stride), count: 16)
         self.planes = EngineStorage.records(count: Int(JKAMP_Ded.MAX_PATCH_PLANES), of: PatchPlane.self)
+        self.v_CM_DrawDebugSurface = Slots(vectors: EngineStorage.bytes(count: 3 * JKAShared.vec3_t.byteCount), count: 3)
         self.p = Slots(vectors: EngineStorage.bytes(count: Int(JKAMP_Ded.MAX_POINTS_ON_WINDING) * JKAShared.vec3_t.byteCount), count: Int(JKAMP_Ded.MAX_POINTS_ON_WINDING))
         self.hullPoints = Slots(vectors: EngineStorage.bytes(count: 128 * JKAShared.vec3_t.byteCount), count: 128)
         self.newHullPoints = Slots(vectors: EngineStorage.bytes(count: 128 * JKAShared.vec3_t.byteCount), count: 128)
@@ -806,6 +811,7 @@ public final class EngineStorage {
         self.SubBSP.base.deallocate()
         self.checksums_CM_Checksum.base.deallocate()
         self.planes.base.deallocate()
+        self.v_CM_DrawDebugSurface.base.deallocate()
         self.p.base.deallocate()
         self.hullPoints.base.deallocate()
         self.newHullPoints.base.deallocate()

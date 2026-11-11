@@ -392,12 +392,19 @@ final class CCMLandScape {
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:997
-    // TODO: Port signature
-    // Raven wrote: void CCMLandScape::TerrainPatchIterate(void (*IterateFunc)( CCMPatch *, void * ), void *userdata) const
-    // No table row for `void (*)( CCMPatch *, void * )` and `void *userdata`.
-    func TerrainPatchIterate() -> Never {
-        // TODO: Port CCMLandScape::TerrainPatchIterate
-        portMissing("CCMLandScape::TerrainPatchIterate", source: "oracle/codemp/qcommon/cm_terrain.cpp:997")
+    // AI: Raven passes a `void *userdata` to each call of IterateFunc. The parameter is gone, and the caller's closure captures the value, row N-USERDATA.
+    func TerrainPatchIterate(_ IterateFunc: ((CCMPatch?) -> Void)?) {
+        var i: Int32
+        var patchIndex: Int32
+
+        // AI: Raven walks the patch block with the pointer `patch`. The walk is the index `patchIndex` into the array.
+        patchIndex = 0
+        i = 0
+        while i < self.GetBlockCount() {
+            IterateFunc!(self.mPatches[patchIndex])
+            i += 1
+            patchIndex += 1
+        }
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1011

@@ -1827,9 +1827,180 @@ func CM_PositionTestInPatchCollide(_ tw: TraceWork, _ pc: PatchCollide) -> Bool 
     return false
 }
 
+/// Source: oracle/codemp/qcommon/cm_patch.cpp:1652
+var cv_CM_DrawDebugSurface: Cvar? {
+    get { world.cv_CM_DrawDebugSurface }
+    set { world.cv_CM_DrawDebugSurface = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/cm_patch.cpp:1654
+var cv2: Cvar? {
+    get { world.cv2 }
+    set { world.cv2 = newValue }
+}
+
+/// Source: oracle/codemp/qcommon/cm_patch.cpp:1772
+// AI: Raven declares `v` on the stack of CM_DrawDebugSurface. The function uses one zeroed allocation on the storage class.
+var v_CM_DrawDebugSurface: Slots<JKAShared.vec3_t> { world.storage.v_CM_DrawDebugSurface }
+
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:1651
-func CM_DrawDebugSurface(_ drawPoly: ((Int32, Int32, inout Float) -> Void)?) {
+// AI: Raven passes the points to `drawPoly` as a `float *`. The closure takes the Slots of the vectors, row N-CLOSURE.
+func CM_DrawDebugSurface(_ drawPoly: ((Int32, Int32, Slots<JKAShared.vec3_t>) -> Void)?) {
     // The renderer's R_DebugGraphics is the one caller, and the dedicated build never draws, so it is dead.
-    // TODO: Port CM_DrawDebugSurface
-    portMissing("CM_DrawDebugSurface", source: "oracle/codemp/qcommon/cm_patch.cpp:1651")
+    let pc: PatchCollide
+    var facet: Facet
+    var w: Winding?
+    var i: Int32
+    var j: Int32
+    var k: Int32
+    var n: Int32
+    var curplanenum: Int32
+    var planenum: Int32
+    var curinward: Int32
+    var inward: Int32
+    var plane = vec4_t()
+    let mins = vec3_t(-15, -15, -28)
+    let maxs = vec3_t(15, 15, 28)
+    //vec3_t mins = {0, 0, 0}, maxs = {0, 0, 0};
+    var v1 = vec3_t()
+    var v2: vec3_t
+
+    // Raven's static locals `cv` and `cv2` are `cv_CM_DrawDebugSurface` and `cv2`, properties of `EngineWorld`.
+    if cv2 == nil {
+        cv2 = Cvar_Get("r_debugSurface", "0", 0)
+    }
+
+    if cv2!.integer != 1 {
+        BotDrawDebugPolygons(drawPoly, cv2!.integer)
+        return
+    }
+
+    if debugPatchCollide == nil {
+        return
+    }
+
+    if cv_CM_DrawDebugSurface == nil {
+        cv_CM_DrawDebugSurface = Cvar_Get("cm_debugSize", "2", 0)
+    }
+    pc = debugPatchCollide!
+
+    i = 0
+    while i < pc.numFacets {
+        facet = pc.facetsSlots[i]
+
+        k = 0
+        while k < facet.numBorders + 1 {
+            //
+            if k < facet.numBorders {
+                planenum = facet.borderPlanes[k]
+                inward = facet.borderInward[k]
+            } else {
+                planenum = facet.surfacePlane
+                inward = 0
+                //continue;
+            }
+
+            plane[0] = pc.planesSlots[planenum].plane[0]
+            plane[1] = pc.planesSlots[planenum].plane[1]
+            plane[2] = pc.planesSlots[planenum].plane[2]
+            plane[3] = pc.planesSlots[planenum].plane[3]
+
+            //planenum = facet->surfacePlane;
+            if inward != 0 {
+                plane[0] = vec3_origin[0] - plane[0]
+                plane[1] = vec3_origin[1] - plane[1]
+                plane[2] = vec3_origin[2] - plane[2]
+                plane[3] = -plane[3]
+            }
+
+            plane[3] += cv_CM_DrawDebugSurface!.value
+            //*
+            n = 0
+            while n < 3 {
+                if plane[n] > 0 {
+                    v1[n] = maxs[n]
+                } else {
+                    v1[n] = mins[n]
+                }
+                n += 1
+            } //end for
+            v2 = -vec3_t(plane[0], plane[1], plane[2])
+            plane[3] += abs(_DotProduct(v1, v2))
+            //*/
+
+            w = BaseWindingForPlane(vec3_t(plane[0], plane[1], plane[2]), plane[3])
+            j = 0
+            while j < facet.numBorders + 1 && w != nil {
+                //
+                if j < facet.numBorders {
+                    curplanenum = facet.borderPlanes[j]
+                    curinward = facet.borderInward[j]
+                } else {
+                    curplanenum = facet.surfacePlane
+                    curinward = 0
+                    //continue;
+                }
+                //
+                if curplanenum == planenum {
+                    j += 1
+                    continue
+                }
+
+                plane[0] = pc.planesSlots[curplanenum].plane[0]
+                plane[1] = pc.planesSlots[curplanenum].plane[1]
+                plane[2] = pc.planesSlots[curplanenum].plane[2]
+                plane[3] = pc.planesSlots[curplanenum].plane[3]
+                if curinward == 0 {
+                    plane[0] = vec3_origin[0] - plane[0]
+                    plane[1] = vec3_origin[1] - plane[1]
+                    plane[2] = vec3_origin[2] - plane[2]
+                    plane[3] = -plane[3]
+                }
+                //			if ( !facet->borderNoAdjust[j] ) {
+                plane[3] -= cv_CM_DrawDebugSurface!.value
+                //			}
+                n = 0
+                while n < 3 {
+                    if plane[n] > 0 {
+                        v1[n] = maxs[n]
+                    } else {
+                        v1[n] = mins[n]
+                    }
+                    n += 1
+                } //end for
+                v2 = -vec3_t(plane[0], plane[1], plane[2])
+                plane[3] -= abs(_DotProduct(v1, v2))
+
+                ChopWindingInPlace(&w, vec3_t(plane[0], plane[1], plane[2]), plane[3], 0.1)
+                j += 1
+            }
+            if w != nil {
+                if facet == debugFacet {
+                    drawPoly!(4, w!.numpoints, w!.p)
+                    //Com_Printf("blue facet has %d border planes\n", facet->numBorders);
+                } else {
+                    drawPoly!(1, w!.numpoints, w!.p)
+                }
+                FreeWinding(w!)
+            } else {
+                Com_Printf("winding chopped away by border planes\n")
+            }
+            k += 1
+        }
+        i += 1
+    }
+
+    // draw the debug block
+    do {
+        // AI: Raven declares `vec3_t v[3]` on his stack. The body uses the zeroed allocation of the storage class through the `v_CM_DrawDebugSurface` forward.
+        v_CM_DrawDebugSurface[0] = debugBlockPoints[0]
+        v_CM_DrawDebugSurface[1] = debugBlockPoints[1]
+        v_CM_DrawDebugSurface[2] = debugBlockPoints[2]
+        drawPoly!(2, 3, v_CM_DrawDebugSurface)
+
+        v_CM_DrawDebugSurface[0] = debugBlockPoints[2]
+        v_CM_DrawDebugSurface[1] = debugBlockPoints[3]
+        v_CM_DrawDebugSurface[2] = debugBlockPoints[0]
+        drawPoly!(2, 3, v_CM_DrawDebugSurface)
+    }
 }
