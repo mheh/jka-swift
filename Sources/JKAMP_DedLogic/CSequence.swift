@@ -370,8 +370,6 @@ final class CSequence {
             _ = value.withSlots { (self.m_owner!.GetInterface())!.I_WriteSaveData!(0x4253_495A, $0, Int32(Int32.byteCount)) } // 'BSIZ'
 
             //Save out the raw data
-            // Port-note: Raven passes a NULL `m_data` with size 0, and the save call writes nothing.
-            // The `bytes` parameter has no nullable form, so the unwrap traps there.
             _ = (self.m_owner!.GetInterface())!.I_WriteSaveData!(0x424D_454D, bm!.GetData()!, size) // 'BMEM'
             i += 1
         }

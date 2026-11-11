@@ -392,8 +392,7 @@ final class CCMLandScape {
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:997
-    // AI: Raven passes a `void *userdata` to each call of IterateFunc. The parameter is gone, and the caller's closure captures the value, row N-USERDATA.
-    func TerrainPatchIterate(_ IterateFunc: ((CCMPatch?) -> Void)?) {
+    func TerrainPatchIterate(_ IterateFunc: ((CCMPatch?, OpaquePointer?) -> Void)?, _ userdata: OpaquePointer?) {
         var i: Int32
         var patchIndex: Int32
 
@@ -401,7 +400,7 @@ final class CCMLandScape {
         patchIndex = 0
         i = 0
         while i < self.GetBlockCount() {
-            IterateFunc!(self.mPatches[patchIndex])
+            IterateFunc!(self.mPatches[patchIndex], userdata)
             i += 1
             patchIndex += 1
         }
