@@ -71,6 +71,7 @@ func CM_StoreLeafs(_ ll: LeafList, _ nodenum: Int32) {
 
 /// Source: oracle/codemp/qcommon/cm_test.cpp:80
 func CM_StoreBrushes(_ ll: LeafList, _ nodenum: Int32) {
+    // CM_BoxBrushes is the one function that stores it, and no file of either tree calls CM_BoxBrushes, so it is dead.
     var i: Int32
     var k: Int32
     let leafnum: Int32
@@ -108,9 +109,8 @@ func CM_StoreBrushes(_ ll: LeafList, _ nodenum: Int32) {
             ll.overflowed = true
             return
         }
-        // Port-note: The `int *list` of `leafList_t` holds `cbrush_t *` slots here, and the view gives it as a `Slots<Int32>`. Only the dead CM_BoxBrushes stores this function.
-        // Raven wrote: ((cbrush_t **)ll->list)[ ll->count++ ] = b;
-        portMissing("CM_StoreBrushes", source: "oracle/codemp/qcommon/cm_test.cpp:80")
+        ll.listBrushes![ll.count] = b
+        ll.count += 1
         k += 1
     }
 }
@@ -196,9 +196,24 @@ CM_BoxBrushes
 */
 /// Source: oracle/codemp/qcommon/cm_test.cpp:194
 func CM_BoxBrushes(_ mins: JKAShared.vec3_t, _ maxs: JKAShared.vec3_t, _ boxList: Slots<Cbrush?>, _ listsize: Int32) -> Int32 {
-    // Port-note: Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port CM_BoxBrushes
-    portMissing("CM_BoxBrushes", source: "oracle/codemp/qcommon/cm_test.cpp:194")
+    // Raven calls this function from no file of either tree, so it is dead.
+    //rwwRMG - changed to boxList to not conflict with list type
+    LeafList.scratch { ll -> Int32 in
+        cmg.checkcount += 1
+
+        ll.bounds[0] = mins
+        ll.bounds[1] = maxs
+        ll.count = 0
+        ll.maxcount = listsize
+        ll.listBrushes = boxList
+        ll.storeLeafs = LeafListThunks.CM_StoreBrushes
+        ll.lastLeaf = 0
+        ll.overflowed = false
+
+        CM_BoxLeafnums_r(ll, 0)
+
+        return ll.count
+    }
 }
 
 /**
@@ -476,4 +491,6 @@ func CM_WriteAreaBits(_ buffer: Slots<UInt8>, _ area: Int32) -> Int32 {
 private enum LeafListThunks {
     /// Source: oracle/codemp/qcommon/cm_test.cpp:63
     static let CM_StoreLeafs: LeafListStoreLeafs = { JKAMP_DedLogic.CM_StoreLeafs(LeafList(handle: $0!), $1) }
+    /// Source: oracle/codemp/qcommon/cm_test.cpp:80
+    static let CM_StoreBrushes: LeafListStoreLeafs = { JKAMP_DedLogic.CM_StoreBrushes(LeafList(handle: $0!), $1) }
 }

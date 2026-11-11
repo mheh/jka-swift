@@ -11,6 +11,16 @@ extension Cbrushside {
     }
 }
 
+extension LeafList {
+    /// Raven's `(cbrush_t **)ll->list`, the `int *list` field read and written as a table of brush pointers.
+    /// Source: oracle/codemp/qcommon/cm_test.cpp:117
+    // AI: Raven casts the `int *` field to `cbrush_t **` to store brush pointers. The accessor reads and writes the same word as a Slots of brush views, row N-LEAFLIST.
+    public var listBrushes: Slots<Cbrush?>? {
+        get { self.raw.pointee.list.map { Slots(pointers: UnsafeMutableRawPointer($0), count: Int.max) } }
+        nonmutating set { self.raw.pointee.list = newValue?.base.assumingMemoryBound(to: Int32.self) }
+    }
+}
+
 /// Raven's `Com_Memset( buffer, val, count )` over a `byte *` that the port holds as a Slots of bytes.
 /// Source: oracle/codemp/qcommon/common.cpp:1820
 // AI: Raven fills the bytes from a raw pointer. The overload takes the Slots and stores the low byte of `val` into each of the first `count` bytes, the form of the `CharBuf` overload.

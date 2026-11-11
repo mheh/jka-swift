@@ -242,10 +242,60 @@ BotDrawDebugPolygons
 ```
 */
 /// Source: oracle/codemp/server/sv_bot.cpp:227
-func BotDrawDebugPolygons(_ drawPoly: ((Int32, Int32, inout Float) -> Void)?, _ value: Int32) {
+// AI: Raven passes the points to `drawPoly` as a `float *`. The closure takes the Slots of the vectors, row N-CLOSURE.
+func BotDrawDebugPolygons(_ drawPoly: ((Int32, Int32, Slots<JKAShared.vec3_t>) -> Void)?, _ value: Int32) {
     // CM_DrawDebugSurface is the one caller, and the dedicated build never draws, so it is dead.
-    // TODO: Port BotDrawDebugPolygons
-    portMissing("BotDrawDebugPolygons", source: "oracle/codemp/server/sv_bot.cpp:227")
+    var poly: BotDebugpoly
+    var i: Int32
+    var parm0: Int32
+
+    if debugpolygons == nil {
+        return
+    }
+    //bot debugging
+    if bot_debug == nil {
+        bot_debug = Cvar_Get("bot_debug", "0", 0)
+    }
+    //
+    if bot_enable != 0 && bot_debug!.integer != 0 {
+        //show reachabilities
+        if bot_reachability == nil {
+            bot_reachability = Cvar_Get("bot_reachability", "0", 0)
+        }
+        //show ground faces only
+        if bot_groundonly == nil {
+            bot_groundonly = Cvar_Get("bot_groundonly", "1", 0)
+        }
+        //get the hightlight area
+        if bot_highlightarea == nil {
+            bot_highlightarea = Cvar_Get("bot_highlightarea", "0", 0)
+        }
+        //
+        parm0 = 0
+        if (svs.clientsSlots[0].lastUsercmd.buttons & BUTTON_ATTACK) != 0 {
+            parm0 |= 1
+        }
+        if bot_reachability!.integer != 0 {
+            parm0 |= 2
+        }
+        if bot_groundonly!.integer != 0 {
+            parm0 |= 4
+        }
+        botlib_export!.runBotLibVarSet("bot_highlightarea", bot_highlightarea!.string!)
+        botlib_export!.runTest(parm0, nil, &svs.clientsSlots[0].gentity!.r.currentOrigin, &svs.clientsSlots[0].gentity!.r.currentAngles)
+    } //end if
+    //draw all debug polys
+    i = 0
+    while i < bot_maxdebugpolys {
+        poly = debugpolygons![i]
+        if poly.inuse == 0 {
+            i += 1
+            continue
+        }
+        drawPoly!(poly.color, poly.numPoints, poly.points)
+        //Com_Printf("poly %i, numpoints = %d\n", i, poly->numPoints);
+        i += 1
+    }
 }
 
 /**
