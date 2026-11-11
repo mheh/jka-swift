@@ -1726,18 +1726,20 @@ func G2API_GetBoneIndex(_ ghlInfo: CGhoul2Info?, _ boneName: String) -> Int32 {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2472
-func G2API_SaveGhoul2Models(_ ghoul2: CGhoul2Info_v, _ buffer: inout JKAShared.TextCursor, _ size: inout Int32) -> Bool {
+// AI: Raven hands a `char **` out-pointer to a zone block. The parameter is the Slots of bytes of that block, the form of a `void **` of kind `bytes`.
+func G2API_SaveGhoul2Models(_ ghoul2: CGhoul2Info_v, _ buffer: inout Slots<JKAShared.byte>?, _ size: inout Int32) -> Bool {
     return G2_SaveGhoul2Models(ghoul2, &buffer, &size)
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2477
-func G2API_LoadGhoul2Models(_ ghoul2: CGhoul2Info_v, _ buffer: inout JKAShared.CharBuf) {
-    G2_LoadGhoul2Model(ghoul2, &buffer)
+// AI: Raven reads a `char *` to the zone block of G2_SaveGhoul2Models. The parameter is the Slots of bytes of that block.
+func G2API_LoadGhoul2Models(_ ghoul2: CGhoul2Info_v, _ buffer: Slots<JKAShared.byte>) {
+    G2_LoadGhoul2Model(ghoul2, buffer)
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2482
-func G2API_FreeSaveBuffer(_ buffer: inout JKAShared.CharBuf) {
-    // AI: Raven frees the zone block with Z_Free. The CharBuf owns its bytes, so the body frees nothing.
+func G2API_FreeSaveBuffer(_ buffer: Slots<JKAShared.byte>) {
+    Z_Free(OpaquePointer(buffer.base))
 }
 
 // this is kinda sad, but I need to call the destructor in this module (exe), not the game.dll...

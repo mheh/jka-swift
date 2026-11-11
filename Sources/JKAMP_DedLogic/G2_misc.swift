@@ -159,13 +159,10 @@ func FindGoreRecord(_ tag: Int32) -> GoreTextureCoordinates? {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:113
-// TODO: Port signature
-// Raven wrote: void *G2_GetGoreRecord(int tag)
-// No table row for the return `void *`.
-func G2_GetGoreRecord() -> Never {
+// AI: Raven returns `void *` over the `GoreTextureCoordinates *` of FindGoreRecord. The function returns that class, the form of FindGoreRecord.
+func G2_GetGoreRecord(_ tag: Int32) -> GoreTextureCoordinates? {
     // Raven calls this function from no file of either tree, so it is dead.
-    // TODO: Port G2_GetGoreRecord
-    portMissing("G2_GetGoreRecord", source: "oracle/codemp/ghoul2/G2_misc.cpp:113")
+    return FindGoreRecord(tag)
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:118
@@ -1516,17 +1513,249 @@ func G2_FindSurface(_ mod_t: Model?, _ index: Int32, _ lod: Int32) -> MdxmSurfac
     return MdxmSurface(indexes, byteOffset: indexes.offsets[index])
 }
 
+/// Source: oracle/codemp/ghoul2/G2_misc.cpp:1715
+// AI: Raven takes `sizeof` of the struct. The Swift class has no byte size, so the constant holds the byte count of the 32-bit build.
+private let SURFACE_SAVE_BLOCK_SIZE = 24 as Int32
+
+/// Source: oracle/codemp/ghoul2/G2_misc.cpp:1716
+// AI: Raven takes `sizeof` of the struct less its `position` record. The constant holds the byte count of the 32-bit build, four ints.
+private let BOLT_SAVE_BLOCK_SIZE = 16 as Int32
+
+/// Source: oracle/codemp/ghoul2/G2_misc.cpp:1717
+// AI: Raven takes `sizeof` of the struct. The Swift class has no byte size, so the constant holds the byte count of the 32-bit build.
+private let BONE_SAVE_BLOCK_SIZE = 744 as Int32
+
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1719
-func G2_SaveGhoul2Models(_ ghoul2: CGhoul2Info_v, _ buffer: inout JKAShared.TextCursor, _ size: inout Int32) -> Bool {
+// AI: Raven hands a `char **` out-pointer to a zone block. The parameter is the Slots of bytes of that block, the form of a `void **` of kind `bytes`.
+func G2_SaveGhoul2Models(_ ghoul2: CGhoul2Info_v, _ buffer: inout Slots<JKAShared.byte>?, _ size: inout Int32) -> Bool {
     // G2API_SaveGhoul2Models is the one caller, and no file of the MP tree calls it, so the function is dead.
-    // TODO: Port G2_SaveGhoul2Models
-    portMissing("G2_SaveGhoul2Models", source: "oracle/codemp/ghoul2/G2_misc.cpp:1719")
+
+    // is there anything to save?
+    if ghoul2.size() == 0 {
+        buffer = Slots<JKAShared.byte>(scalars: Z_Malloc(4, TAG_GHOUL2, true), count: 4)
+        let tempBuffer = buffer!
+        tempBuffer[int: 0] = 0
+        size = 4
+        return true
+    }
+
+    // yeah, lets get busy
+    size = 0
+
+    // this one isn't a define since I couldn't work out how to figure it out at compile time
+    // AI: Raven subtracts two member addresses. The constant holds the byte count of the band from mModelindex to mFlags in the 32-bit build.
+    let ghoul2BlockSize = 116 as Int32
+
+    // add in count for number of ghoul2 models
+    size += 4
+    // start out working out the total size of the buffer we need to allocate
+    var i: Int32 // Linux GCC is forcing new scoping rules
+    i = 0
+    while i < ghoul2.size() {
+        size += ghoul2BlockSize
+        // add in count for number of surfaces
+        size += 4
+        size += (Int32(ghoul2[i].mSlist.count) * SURFACE_SAVE_BLOCK_SIZE)
+        // add in count for number of bones
+        size += 4
+        size += (Int32(ghoul2[i].mBlist.count) * BONE_SAVE_BLOCK_SIZE)
+        // add in count for number of bolts
+        size += 4
+        size += (Int32(ghoul2[i].mBltlist.count) * BOLT_SAVE_BLOCK_SIZE)
+        i += 1
+    }
+
+    // ok, we should know how much space we need now
+    buffer = Slots<JKAShared.byte>(scalars: Z_Malloc(size, TAG_GHOUL2, true), count: Int(size))
+
+    // now lets start putting the data we care about into the buffer
+    var tempBuffer = buffer!
+
+    // save out how many ghoul2 models we have
+    tempBuffer[int: 0] = ghoul2.size()
+    tempBuffer = tempBuffer.suffix(from: 4)
+
+    i = 0
+    while i < ghoul2.size() {
+        // first save out the ghoul2 details themselves
+//		OutputDebugString(va("G2_SaveGhoul2Models(): ghoul2[%d].mModelindex = %d\n",i,ghoul2[i].mModelindex));
+        // AI: Raven copies the band of CGhoul2Info from mModelindex to mFlags with memcpy. The body writes each member at its offset in the 32-bit build.
+        tempBuffer[int: 0] = ghoul2[i].mModelindex
+        tempBuffer[int: 4] = ghoul2[i].mCustomShader
+        tempBuffer[int: 8] = ghoul2[i].mCustomSkin
+        tempBuffer[int: 12] = ghoul2[i].mModelBoltLink
+        tempBuffer[int: 16] = ghoul2[i].mSurfaceRoot
+        tempBuffer[int: 20] = ghoul2[i].mLodBias
+        tempBuffer[int: 24] = ghoul2[i].mNewOrigin
+        tempBuffer[int: 28] = ghoul2[i].mGoreSetTag
+        tempBuffer[int: 32] = ghoul2[i].mModel
+        Com_Memcpy(tempBuffer.suffix(from: 36), ghoul2[i].mFileName, MAX_QPATH)
+        tempBuffer[int: 100] = ghoul2[i].mAnimFrameDefault
+        tempBuffer[int: 104] = ghoul2[i].mSkelFrameNum
+        tempBuffer[int: 108] = ghoul2[i].mMeshFrameNum
+        tempBuffer[int: 112] = ghoul2[i].mFlags
+        tempBuffer = tempBuffer.suffix(from: ghoul2BlockSize)
+
+        // save out how many surfaces we have
+        tempBuffer[int: 0] = Int32(ghoul2[i].mSlist.count)
+        tempBuffer = tempBuffer.suffix(from: 4)
+
+        // now save the all the surface list info
+        var x: Int32
+        x = 0
+        while x < ghoul2[i].mSlist.count {
+            // AI: Raven copies each `surfaceInfo_t` whole with memcpy. The body writes each member at its offset in the 32-bit build.
+            let surf = ghoul2[i].mSlist[x]
+            tempBuffer[int: 0] = surf.offFlags
+            tempBuffer[int: 4] = surf.surface
+            tempBuffer[float: 8] = surf.genBarycentricJ
+            tempBuffer[float: 12] = surf.genBarycentricI
+            tempBuffer[int: 16] = surf.genPolySurfaceIndex
+            tempBuffer[int: 20] = surf.genLod
+            tempBuffer = tempBuffer.suffix(from: SURFACE_SAVE_BLOCK_SIZE)
+            x += 1
+        }
+
+        // save out how many bones we have
+        tempBuffer[int: 0] = Int32(ghoul2[i].mBlist.count)
+        tempBuffer = tempBuffer.suffix(from: 4)
+
+        // now save the all the bone list info
+        x = 0
+        while x < ghoul2[i].mBlist.count {
+            // AI: Raven copies each `boneInfo_t` whole with memcpy. The body writes each member at its offset in the 32-bit build.
+            // Port-note: Raven copies the padding at 658 and 685 uninitialized. The zeroed block keeps those bytes zero.
+            let bone = ghoul2[i].mBlist[x]
+            tempBuffer[int: 0] = bone.boneNumber
+            Com_Memcpy(tempBuffer.suffix(from: 4), bone.matrix.matrix.bytes, 48)
+            tempBuffer[int: 52] = bone.flags
+            tempBuffer[int: 56] = bone.startFrame
+            tempBuffer[int: 60] = bone.endFrame
+            tempBuffer[int: 64] = bone.startTime
+            tempBuffer[int: 68] = bone.pauseTime
+            tempBuffer[float: 72] = bone.animSpeed
+            tempBuffer[float: 76] = bone.blendFrame
+            tempBuffer[int: 80] = bone.blendLerpFrame
+            tempBuffer[int: 84] = bone.blendTime
+            tempBuffer[int: 88] = bone.blendStart
+            tempBuffer[int: 92] = bone.boneBlendTime
+            tempBuffer[int: 96] = bone.boneBlendStart
+            tempBuffer[int: 100] = bone.lastTime
+            Com_Memcpy(tempBuffer.suffix(from: 104), bone.newMatrix.matrix.bytes, 48)
+            tempBuffer[int: 152] = bone.lastTimeUpdated
+            tempBuffer[int: 156] = bone.lastContents
+            tempBuffer[float: 160] = bone.lastPosition[0]
+            tempBuffer[float: 164] = bone.lastPosition[1]
+            tempBuffer[float: 168] = bone.lastPosition[2]
+            tempBuffer[float: 172] = bone.velocityEffector[0]
+            tempBuffer[float: 176] = bone.velocityEffector[1]
+            tempBuffer[float: 180] = bone.velocityEffector[2]
+            tempBuffer[float: 184] = bone.lastAngles[0]
+            tempBuffer[float: 188] = bone.lastAngles[1]
+            tempBuffer[float: 192] = bone.lastAngles[2]
+            tempBuffer[float: 196] = bone.minAngles[0]
+            tempBuffer[float: 200] = bone.minAngles[1]
+            tempBuffer[float: 204] = bone.minAngles[2]
+            tempBuffer[float: 208] = bone.maxAngles[0]
+            tempBuffer[float: 212] = bone.maxAngles[1]
+            tempBuffer[float: 216] = bone.maxAngles[2]
+            tempBuffer[float: 220] = bone.currentAngles[0]
+            tempBuffer[float: 224] = bone.currentAngles[1]
+            tempBuffer[float: 228] = bone.currentAngles[2]
+            tempBuffer[float: 232] = bone.anglesOffset[0]
+            tempBuffer[float: 236] = bone.anglesOffset[1]
+            tempBuffer[float: 240] = bone.anglesOffset[2]
+            tempBuffer[float: 244] = bone.positionOffset[0]
+            tempBuffer[float: 248] = bone.positionOffset[1]
+            tempBuffer[float: 252] = bone.positionOffset[2]
+            tempBuffer[float: 256] = bone.radius
+            tempBuffer[float: 260] = bone.weight
+            tempBuffer[int: 264] = bone.ragIndex
+            tempBuffer[float: 268] = bone.velocityRoot[0]
+            tempBuffer[float: 272] = bone.velocityRoot[1]
+            tempBuffer[float: 276] = bone.velocityRoot[2]
+            tempBuffer[int: 280] = bone.ragStartTime
+            tempBuffer[int: 284] = bone.firstTime
+            tempBuffer[int: 288] = bone.firstCollisionTime
+            tempBuffer[int: 292] = bone.restTime
+            tempBuffer[int: 296] = bone.RagFlags
+            tempBuffer[int: 300] = bone.DependentRagIndexMask
+            Com_Memcpy(tempBuffer.suffix(from: 304), bone.originalTrueBoneMatrix.matrix.bytes, 48)
+            Com_Memcpy(tempBuffer.suffix(from: 352), bone.parentTrueBoneMatrix.matrix.bytes, 48)
+            Com_Memcpy(tempBuffer.suffix(from: 400), bone.parentOriginalTrueBoneMatrix.matrix.bytes, 48)
+            tempBuffer[float: 448] = bone.originalOrigin[0]
+            tempBuffer[float: 452] = bone.originalOrigin[1]
+            tempBuffer[float: 456] = bone.originalOrigin[2]
+            tempBuffer[float: 460] = bone.originalAngles[0]
+            tempBuffer[float: 464] = bone.originalAngles[1]
+            tempBuffer[float: 468] = bone.originalAngles[2]
+            tempBuffer[float: 472] = bone.lastShotDir[0]
+            tempBuffer[float: 476] = bone.lastShotDir[1]
+            tempBuffer[float: 480] = bone.lastShotDir[2]
+            // AI: Raven copies the four basepose pointers, which hold addresses of this process. A view does not fit in 4 bytes, so the four words are zero.
+            tempBuffer[int: 484] = 0
+            tempBuffer[int: 488] = 0
+            tempBuffer[int: 492] = 0
+            tempBuffer[int: 496] = 0
+            tempBuffer[int: 500] = bone.parentRawBoneIndex
+            Com_Memcpy(tempBuffer.suffix(from: 504), bone.ragOverrideMatrix.matrix.bytes, 48)
+            Com_Memcpy(tempBuffer.suffix(from: 552), bone.extraMatrix.matrix.bytes, 48)
+            tempBuffer[float: 600] = bone.extraVec1[0]
+            tempBuffer[float: 604] = bone.extraVec1[1]
+            tempBuffer[float: 608] = bone.extraVec1[2]
+            tempBuffer[float: 612] = bone.extraFloat1
+            tempBuffer[int: 616] = bone.extraInt1
+            tempBuffer[float: 620] = bone.ikPosition[0]
+            tempBuffer[float: 624] = bone.ikPosition[1]
+            tempBuffer[float: 628] = bone.ikPosition[2]
+            tempBuffer[float: 632] = bone.ikSpeed
+            tempBuffer[float: 636] = bone.epVelocity[0]
+            tempBuffer[float: 640] = bone.epVelocity[1]
+            tempBuffer[float: 644] = bone.epVelocity[2]
+            tempBuffer[float: 648] = bone.epGravFactor
+            tempBuffer[int: 652] = bone.solidCount
+            tempBuffer[byte: 656] = Int32(bone.physicsSettled ? 1 : 0)
+            tempBuffer[byte: 657] = Int32(bone.snapped ? 1 : 0)
+            tempBuffer[int: 660] = bone.parentBoneIndex
+            tempBuffer[float: 664] = bone.offsetRotation
+            tempBuffer[float: 668] = bone.overGradSpeed
+            tempBuffer[float: 672] = bone.overGoalSpot[0]
+            tempBuffer[float: 676] = bone.overGoalSpot[1]
+            tempBuffer[float: 680] = bone.overGoalSpot[2]
+            tempBuffer[byte: 684] = Int32(bone.hasOverGoal ? 1 : 0)
+            Com_Memcpy(tempBuffer.suffix(from: 688), bone.animFrameMatrix.matrix.bytes, 48)
+            tempBuffer[int: 736] = bone.hasAnimFrameMatrix
+            tempBuffer[int: 740] = bone.airTime
+            tempBuffer = tempBuffer.suffix(from: BONE_SAVE_BLOCK_SIZE)
+            x += 1
+        }
+
+        // save out how many bolts we have
+        tempBuffer[int: 0] = Int32(ghoul2[i].mBltlist.count)
+        tempBuffer = tempBuffer.suffix(from: 4)
+
+        // lastly save the all the bolt list info
+        x = 0
+        while x < ghoul2[i].mBltlist.count {
+            // AI: Raven copies the first 16 bytes of each `boltInfo_t` with memcpy. The body writes the four members at their offsets.
+            let bolt = ghoul2[i].mBltlist[x]
+            tempBuffer[int: 0] = bolt.boneNumber
+            tempBuffer[int: 4] = bolt.surfaceNumber
+            tempBuffer[int: 8] = bolt.surfaceType
+            tempBuffer[int: 12] = bolt.boltUsed
+            tempBuffer = tempBuffer.suffix(from: BOLT_SAVE_BLOCK_SIZE)
+            x += 1
+        }
+        i += 1
+    }
+
+    return true
 }
 
 // have to free space malloced in the save system here because the game DLL can't.
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1812
-func G2_FreeSaveBuffer(_ buffer: inout JKAShared.CharBuf) {
-    // AI: Raven frees the zone block of the save buffer with Z_Free. The CharBuf owns its bytes, so the body frees nothing.
+func G2_FreeSaveBuffer(_ buffer: Slots<JKAShared.byte>) {
+    Z_Free(OpaquePointer(buffer.base))
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1817
@@ -1550,10 +1779,223 @@ func G2_FindConfigStringSpace(_ name: String, _ start: Int32, _ max: Int32) -> I
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1841
-func G2_LoadGhoul2Model(_ ghoul2: CGhoul2Info_v, _ buffer: inout JKAShared.CharBuf) {
+// AI: Raven reads a `char *` to the zone block of G2_SaveGhoul2Models. The parameter is the Slots of bytes of that block.
+func G2_LoadGhoul2Model(_ ghoul2: CGhoul2Info_v, _ buffer: Slots<JKAShared.byte>) {
     // G2API_LoadGhoul2Models is the one caller, and no file of the MP tree calls it, so the function is dead.
-    // TODO: Port G2_LoadGhoul2Model
-    portMissing("G2_LoadGhoul2Model", source: "oracle/codemp/ghoul2/G2_misc.cpp:1841")
+    var buffer = buffer
+    // first thing, lets see how many ghoul2 models we have, and resize our buffers accordingly
+    let newSize = buffer[int: 0]
+    ghoul2.resize(newSize)
+    buffer = buffer.suffix(from: 4)
+
+    // did we actually resize to a value?
+    if newSize == 0 {
+        // no, ok, well, done then.
+        return
+    }
+
+    // this one isn't a define since I couldn't work out how to figure it out at compile time
+    // AI: Raven subtracts two member addresses. The constant holds the byte count of the band from mModelindex to mFlags in the 32-bit build.
+    let ghoul2BlockSize = 116 as Int32
+
+    // now we have enough instances, lets go through each one and load up the relevant details
+    var i: Int32 = 0
+    while i < ghoul2.size() {
+        ghoul2[i].mSkelFrameNum = 0
+        ghoul2[i].mModelindex = -1
+        ghoul2[i].mFileName[0] = 0
+        ghoul2[i].mValid = false
+        // load the ghoul2 info from the buffer
+        // AI: Raven copies the band of CGhoul2Info from mModelindex to mFlags with memcpy. The body reads each member at its offset in the 32-bit build.
+        ghoul2[i].mModelindex = buffer[int: 0]
+        ghoul2[i].mCustomShader = buffer[int: 4]
+        ghoul2[i].mCustomSkin = buffer[int: 8]
+        ghoul2[i].mModelBoltLink = buffer[int: 12]
+        ghoul2[i].mSurfaceRoot = buffer[int: 16]
+        ghoul2[i].mLodBias = buffer[int: 20]
+        ghoul2[i].mNewOrigin = buffer[int: 24]
+        ghoul2[i].mGoreSetTag = buffer[int: 28]
+        ghoul2[i].mModel = buffer[int: 32]
+        Com_Memcpy(&ghoul2[i].mFileName, buffer.suffix(from: 36), MAX_QPATH)
+        ghoul2[i].mAnimFrameDefault = buffer[int: 100]
+        ghoul2[i].mSkelFrameNum = buffer[int: 104]
+        ghoul2[i].mMeshFrameNum = buffer[int: 108]
+        ghoul2[i].mFlags = buffer[int: 112]
+//		OutputDebugString(va("G2_LoadGhoul2Model(): ghoul2[%d].mModelindex = %d\n",i,ghoul2[i].mModelindex));
+        buffer = buffer.suffix(from: ghoul2BlockSize)
+
+        if ghoul2[i].mModelindex != -1 && ghoul2[i].mFileName[0] != 0 {
+            ghoul2[i].mModelindex = i
+            _ = G2_SetupModelPointers(ghoul2[i])
+        }
+
+        // give us enough surfaces to load up the data
+        // Raven's `resize` constructs each new element and destroys each element past the count.
+        while ghoul2[i].mSlist.count < buffer[int: 0] {
+            ghoul2[i].mSlist.append(surfaceInfo_t())
+        }
+        while ghoul2[i].mSlist.count > buffer[int: 0] {
+            ghoul2[i].mSlist.removeLast()
+        }
+        buffer = buffer.suffix(from: 4)
+
+        // now load all the surfaces
+        var x: Int32
+        x = 0
+        while x < ghoul2[i].mSlist.count {
+            // AI: Raven copies each `surfaceInfo_t` whole with memcpy. The body reads each member at its offset in the 32-bit build.
+            let surf = ghoul2[i].mSlist[x]
+            surf.offFlags = buffer[int: 0]
+            surf.surface = buffer[int: 4]
+            surf.genBarycentricJ = buffer[float: 8]
+            surf.genBarycentricI = buffer[float: 12]
+            surf.genPolySurfaceIndex = buffer[int: 16]
+            surf.genLod = buffer[int: 20]
+            buffer = buffer.suffix(from: SURFACE_SAVE_BLOCK_SIZE)
+            x += 1
+        }
+
+        // give us enough bones to load up the data
+        while ghoul2[i].mBlist.count < buffer[int: 0] {
+            ghoul2[i].mBlist.append(boneInfo_t())
+        }
+        while ghoul2[i].mBlist.count > buffer[int: 0] {
+            ghoul2[i].mBlist.removeLast()
+        }
+        buffer = buffer.suffix(from: 4)
+
+        // now load all the bones
+        x = 0
+        while x < ghoul2[i].mBlist.count {
+            // AI: Raven copies each `boneInfo_t` whole with memcpy. The body reads each member at its offset in the 32-bit build.
+            let bone = ghoul2[i].mBlist[x]
+            bone.boneNumber = buffer[int: 0]
+            Com_Memcpy(bone.matrix.matrix.bytes, buffer.suffix(from: 4), 48)
+            bone.flags = buffer[int: 52]
+            bone.startFrame = buffer[int: 56]
+            bone.endFrame = buffer[int: 60]
+            bone.startTime = buffer[int: 64]
+            bone.pauseTime = buffer[int: 68]
+            bone.animSpeed = buffer[float: 72]
+            bone.blendFrame = buffer[float: 76]
+            bone.blendLerpFrame = buffer[int: 80]
+            bone.blendTime = buffer[int: 84]
+            bone.blendStart = buffer[int: 88]
+            bone.boneBlendTime = buffer[int: 92]
+            bone.boneBlendStart = buffer[int: 96]
+            bone.lastTime = buffer[int: 100]
+            Com_Memcpy(bone.newMatrix.matrix.bytes, buffer.suffix(from: 104), 48)
+            bone.lastTimeUpdated = buffer[int: 152]
+            bone.lastContents = buffer[int: 156]
+            bone.lastPosition[0] = buffer[float: 160]
+            bone.lastPosition[1] = buffer[float: 164]
+            bone.lastPosition[2] = buffer[float: 168]
+            bone.velocityEffector[0] = buffer[float: 172]
+            bone.velocityEffector[1] = buffer[float: 176]
+            bone.velocityEffector[2] = buffer[float: 180]
+            bone.lastAngles[0] = buffer[float: 184]
+            bone.lastAngles[1] = buffer[float: 188]
+            bone.lastAngles[2] = buffer[float: 192]
+            bone.minAngles[0] = buffer[float: 196]
+            bone.minAngles[1] = buffer[float: 200]
+            bone.minAngles[2] = buffer[float: 204]
+            bone.maxAngles[0] = buffer[float: 208]
+            bone.maxAngles[1] = buffer[float: 212]
+            bone.maxAngles[2] = buffer[float: 216]
+            bone.currentAngles[0] = buffer[float: 220]
+            bone.currentAngles[1] = buffer[float: 224]
+            bone.currentAngles[2] = buffer[float: 228]
+            bone.anglesOffset[0] = buffer[float: 232]
+            bone.anglesOffset[1] = buffer[float: 236]
+            bone.anglesOffset[2] = buffer[float: 240]
+            bone.positionOffset[0] = buffer[float: 244]
+            bone.positionOffset[1] = buffer[float: 248]
+            bone.positionOffset[2] = buffer[float: 252]
+            bone.radius = buffer[float: 256]
+            bone.weight = buffer[float: 260]
+            bone.ragIndex = buffer[int: 264]
+            bone.velocityRoot[0] = buffer[float: 268]
+            bone.velocityRoot[1] = buffer[float: 272]
+            bone.velocityRoot[2] = buffer[float: 276]
+            bone.ragStartTime = buffer[int: 280]
+            bone.firstTime = buffer[int: 284]
+            bone.firstCollisionTime = buffer[int: 288]
+            bone.restTime = buffer[int: 292]
+            bone.RagFlags = buffer[int: 296]
+            bone.DependentRagIndexMask = buffer[int: 300]
+            Com_Memcpy(bone.originalTrueBoneMatrix.matrix.bytes, buffer.suffix(from: 304), 48)
+            Com_Memcpy(bone.parentTrueBoneMatrix.matrix.bytes, buffer.suffix(from: 352), 48)
+            Com_Memcpy(bone.parentOriginalTrueBoneMatrix.matrix.bytes, buffer.suffix(from: 400), 48)
+            bone.originalOrigin[0] = buffer[float: 448]
+            bone.originalOrigin[1] = buffer[float: 452]
+            bone.originalOrigin[2] = buffer[float: 456]
+            bone.originalAngles[0] = buffer[float: 460]
+            bone.originalAngles[1] = buffer[float: 464]
+            bone.originalAngles[2] = buffer[float: 468]
+            bone.lastShotDir[0] = buffer[float: 472]
+            bone.lastShotDir[1] = buffer[float: 476]
+            bone.lastShotDir[2] = buffer[float: 480]
+            // AI: Raven restores the four basepose pointers from the block. The save wrote them as zero, so the four views are nil.
+            bone.basepose = nil
+            bone.baseposeInv = nil
+            bone.baseposeParent = nil
+            bone.baseposeInvParent = nil
+            bone.parentRawBoneIndex = buffer[int: 500]
+            Com_Memcpy(bone.ragOverrideMatrix.matrix.bytes, buffer.suffix(from: 504), 48)
+            Com_Memcpy(bone.extraMatrix.matrix.bytes, buffer.suffix(from: 552), 48)
+            bone.extraVec1[0] = buffer[float: 600]
+            bone.extraVec1[1] = buffer[float: 604]
+            bone.extraVec1[2] = buffer[float: 608]
+            bone.extraFloat1 = buffer[float: 612]
+            bone.extraInt1 = buffer[int: 616]
+            bone.ikPosition[0] = buffer[float: 620]
+            bone.ikPosition[1] = buffer[float: 624]
+            bone.ikPosition[2] = buffer[float: 628]
+            bone.ikSpeed = buffer[float: 632]
+            bone.epVelocity[0] = buffer[float: 636]
+            bone.epVelocity[1] = buffer[float: 640]
+            bone.epVelocity[2] = buffer[float: 644]
+            bone.epGravFactor = buffer[float: 648]
+            bone.solidCount = buffer[int: 652]
+            bone.physicsSettled = (buffer[byte: 656] as Int32) != 0
+            bone.snapped = (buffer[byte: 657] as Int32) != 0
+            bone.parentBoneIndex = buffer[int: 660]
+            bone.offsetRotation = buffer[float: 664]
+            bone.overGradSpeed = buffer[float: 668]
+            bone.overGoalSpot[0] = buffer[float: 672]
+            bone.overGoalSpot[1] = buffer[float: 676]
+            bone.overGoalSpot[2] = buffer[float: 680]
+            bone.hasOverGoal = (buffer[byte: 684] as Int32) != 0
+            Com_Memcpy(bone.animFrameMatrix.matrix.bytes, buffer.suffix(from: 688), 48)
+            bone.hasAnimFrameMatrix = buffer[int: 736]
+            bone.airTime = buffer[int: 740]
+            buffer = buffer.suffix(from: BONE_SAVE_BLOCK_SIZE)
+            x += 1
+        }
+
+        // give us enough bolts to load up the data
+        while ghoul2[i].mBltlist.count < buffer[int: 0] {
+            ghoul2[i].mBltlist.append(boltInfo_t())
+        }
+        while ghoul2[i].mBltlist.count > buffer[int: 0] {
+            ghoul2[i].mBltlist.removeLast()
+        }
+        buffer = buffer.suffix(from: 4)
+
+        // now load all the bolts
+        x = 0
+        while x < ghoul2[i].mBltlist.count {
+            // AI: Raven copies the first 16 bytes of each `boltInfo_t` with memcpy. The body reads the four members at their offsets.
+            let bolt = ghoul2[i].mBltlist[x]
+            bolt.boneNumber = buffer[int: 0]
+            bolt.surfaceNumber = buffer[int: 4]
+            bolt.surfaceType = buffer[int: 8]
+            bolt.boltUsed = buffer[int: 12]
+            buffer = buffer.suffix(from: BOLT_SAVE_BLOCK_SIZE)
+            x += 1
+        }
+        i += 1
+    }
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1912
