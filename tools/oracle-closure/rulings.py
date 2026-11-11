@@ -1605,6 +1605,13 @@ PARAMS = {
     ("AAS_StringFromIndex", "stringindex"): "string_slots",
     ("AAS_IndexFromString", "stringindex"): "string_slots",
     ("AAS_UpdateStringIndexes", "configstrings"): "string_slots",
+    # The rows of the signature batch, notes/2026-11-11/signature-batch-ledger.md.
+    # CG_DrawChatBox hands its `chatBoxItem_t *drawThese[MAX_CHATBOX_ITEMS]` at cg_draw.c:7645 and :7676, and the body fills it at :7639, row SG12.
+    ("CG_ChatBox_ArrayInsert", "array"): "view_array",
+    # CCMLandScape::GetWorldHeight writes `origin[2]` at cm_terrain.cpp:1054, and CM_GetWorldHeight hands it `origin` at :1635, row SG19.
+    ("CM_GetWorldHeight", "origin"): "vec3_mut",
+    # CM_AreaCollision hands `areaTypes` to CCMLandScape::AreaCollision at cm_terrain.cpp:1660, which reads `areaTypeCount` types, row SG20.
+    ("CM_AreaCollision", "areaTypes"): "int_array",
 }
 
 # Rule 20: a function with no caller in either tree gets its real body like any other function,
@@ -1653,9 +1660,35 @@ NOT_PORTED = {
 
 # Functions whose Swift signature differs from the signature the table gives, by a ledger row, function -> (unit, the ledger row).
 # sigcheck.py prints each one with its row, and it fails on a difference that the table does not name and on an entry that no longer differs.
-SIGNATURE_EXCEPTIONS: dict[str, tuple[str, str]] = {}
+LEDGER = "notes/2026-11-11/signature-batch-ledger.md"
+SIGNATURE_EXCEPTIONS: dict[str, tuple[str, str]] = {
+    # The RETURNS row of BG_AnimsetAlloc names the kind `table`, which table.py gives no return, bg_panimate.c:1729.
+    "BG_AnimsetAlloc": ("mp-game", f"row SG3 of {LEDGER}"),
+    # The table gives a `vec3_t name[3]` axis that the body only reads the inout of a written axis, q_math.c:550 and :603.
+    "AxisCopy": ("mp-game", f"row SG6 of {LEDGER}"),
+    "VectorRotate": ("mp-game", f"row SG7 of {LEDGER}"),
+    # The q_math plane functions take the hand value `Plane` of Sources/JKAShared/Views/Plane.swift, q_math.c:751 and :809.
+    "SetPlaneSignbits": ("mp-game", f"row SG8 of {LEDGER}"),
+    "BoxOnPlaneSide": ("mp-game", f"row SG9 of {LEDGER}"),
+    # The body reads the bone list through `ghoul2.mBlist` under an AI line and takes no `blist`, G2_bones.cpp:1318.
+    "G2_Set_Bone_Rag": ("mp-engine-ded", f"row SG14 of {LEDGER}"),
+    # The text sweep gives `char *fmt` the inout CharBuf, and the body only reads it through vfprintf, l_log.cpp:96 and :113.
+    "Log_Write": ("mp-engine-ded", f"row SG23 of {LEDGER}"),
+    "Log_WriteTimeStamped": ("mp-engine-ded", f"row SG24 of {LEDGER}"),
+    # The width branch of table.py gives `signed long int *intvalue` the inout Int32, and callers hand NULL, l_precomp.cpp:2517 and :2626.
+    "PC_EvaluateTokens": ("mp-engine-ded", f"row SG25 of {LEDGER}"),
+    "PC_Evaluate": ("mp-engine-ded", f"row SG26 of {LEDGER}"),
+    "PC_DollarEvaluate": ("mp-engine-ded", f"row SG27 of {LEDGER}"),
+    # Raven's dispatcher returns an address in its `int` at sv_game.cpp:471 and :668, and the hand wrapper returns the word, sv_game.cpp:458.
+    "SV_GameSystemCalls": ("mp-engine-ded", f"row SG29 of {LEDGER}"),
+    # The executable's top-level code in Sources/jampded/main.swift is the entry, so no Swift function has the name, win_main.cpp:1410.
+    "main": ("mp-engine-ded", f"row SG30 of {LEDGER}"),
+    # The hand function of the view target returns the tail record, which is never NULL, z_memman_pc.cpp:45.
+    "ZoneTailFromHeader": ("mp-engine-ded", f"row SG31 of {LEDGER}"),
+}
 
 # Game functions and globals the shell's `vmMain` names, which cross the module line, so each is public. Rule 11 and ruling E1.
+# The state singletons of rule 25 are public too, so a fork can add a target that reaches them.
 # The shell decodes the words of a command and calls the bare function, so the callee is public in its own logic file.
 PUBLIC_NAMES = {
     # The commands of Raven's vmMain at g_main.c:515, in the order of the switch.
@@ -1668,6 +1701,8 @@ PUBLIC_NAMES = {
     "CP_FindCombatPointWaypoints", "BG_GetItemIndexByTag",
     # The globals the decode reads: the entity table and the ICARUS shared buffer. `world` is hand code in g_local.swift.
     "g_entities", "gSharedBuffer",
+    # Rule 25 makes each state singleton public, `level` of g_main.c:9 and `cg` and `cgs` of cg_main.c:691 and :692.
+    "level", "cg", "cgs",
 }
 
 # C library functions a .c file aliases, `#define sqrtf sqrt`, with the Swift signature the forwarder takes.
