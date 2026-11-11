@@ -400,8 +400,8 @@ func CopyString(_ `in`: String) -> String {
         }
     }
 
-    // AI: Raven copies the text into the S_Malloc block and returns the block. The call stays for the zone count, and the function returns the text.
-    _ = S_Malloc(strlen(`in`) + 1)
+    // AI: Raven copies the text into an S_Malloc block and returns the block.
+    // The port holds the text in the string pool, so the zone counts no block for it.
     return `in`
 }
 
