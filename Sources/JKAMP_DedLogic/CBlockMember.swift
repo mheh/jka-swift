@@ -153,10 +153,9 @@ final class CBlockMember {
         _ = FileBackend.fwrite(value, at: 0, Int32(Int32.byteCount), 1, m_fileHandle)
         value.withMutableSlots { $0[int: 0] = self.m_size }
         _ = FileBackend.fwrite(value, at: 0, Int32(Int32.byteCount), 1, m_fileHandle)
-        // AI: Raven hands a NULL `m_data` with size 0 to `fwrite`, which writes nothing. The Swift skips the write for a nil `m_data`.
-        if self.m_data != nil {
-            _ = FileBackend.fwrite(self.m_data!, at: 0, self.m_size, 1, m_fileHandle)
-        }
+        // Port-note: A member with no data has a NULL `m_data` with size -1, and Raven's `fwrite` of it is undefined.
+        // The port traps at the unwrap in that case.
+        _ = FileBackend.fwrite(self.m_data!, at: 0, self.m_size, 1, m_fileHandle)
 
         return 1
     }
