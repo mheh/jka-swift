@@ -342,7 +342,7 @@ func CG_ThrowChunk(_ origin: JKAShared.vec3_t, _ velocity: JKAShared.vec3_t, _ h
 }
 
 /// Source: oracle/codemp/cgame/cg_effects.c:261
-private func CG_DoGlassQuad(_ p: inout [JKAShared.vec3_t], _ uv: inout [JKAShared.vec2_t], _ stick: Bool, _ time: Int32, _ dmgDir: JKAShared.vec3_t) {
+private func CG_DoGlassQuad(_ p: [JKAShared.vec3_t], _ uv: inout [JKAShared.vec2_t], _ stick: Bool, _ time: Int32, _ dmgDir: JKAShared.vec3_t) {
     var bounce: Float = 0
     var rotDelta = vec3_t()
     var vel = vec3_t()
@@ -449,7 +449,7 @@ private func CG_DoGlassQuad(_ p: inout [JKAShared.vec3_t], _ uv: inout [JKAShare
 }
 
 /// Source: oracle/codemp/cgame/cg_effects.c:367
-private func CG_CalcBiLerp(_ verts: inout [JKAShared.vec3_t], _ subVerts: inout [JKAShared.vec3_t], _ uv: inout [JKAShared.vec2_t]) {
+private func CG_CalcBiLerp(_ verts: [JKAShared.vec3_t], _ subVerts: inout [JKAShared.vec3_t], _ uv: inout [JKAShared.vec2_t]) {
     var temp = vec3_t()
 
     // Nasty crap
@@ -483,7 +483,7 @@ private func CG_CalcBiLerp(_ verts: inout [JKAShared.vec3_t], _ subVerts: inout 
 }
 
 /// Source: oracle/codemp/cgame/cg_effects.c:404
-private func CG_CalcHeightWidth(_ verts: inout [JKAShared.vec3_t], _ height: inout Float, _ width: inout Float) {
+private func CG_CalcHeightWidth(_ verts: [JKAShared.vec3_t], _ height: inout Float, _ width: inout Float) {
     var dir1 = vec3_t()
     var dir2 = vec3_t()
     var cross = vec3_t()
@@ -533,7 +533,7 @@ func Vector2Set(_ a: inout JKAShared.vec2_t, _ b: Float, _ c: Float) {
 }
 
 /// Source: oracle/codemp/cgame/cg_effects.c:456
-func CG_DoGlass(_ verts: inout [JKAShared.vec3_t], _ normal: JKAShared.vec3_t, _ dmgPt: JKAShared.vec3_t, _ dmgDir: JKAShared.vec3_t, _ dmgRadius: Float, _ maxShards: Int32) {
+func CG_DoGlass(_ verts: [JKAShared.vec3_t], _ normal: JKAShared.vec3_t, _ dmgPt: JKAShared.vec3_t, _ dmgDir: JKAShared.vec3_t, _ dmgRadius: Float, _ maxShards: Int32) {
     var i: Int32
     var t: Int32
     var mxHeight: Int32
@@ -557,7 +557,7 @@ func CG_DoGlass(_ verts: inout [JKAShared.vec3_t], _ normal: JKAShared.vec3_t, _
     // To do a smarter tesselation, we should figure out the relative height and width of the brush face,
     //	then use this to pick a lod value from 1-3 in each axis.  This will give us 1-9 lod levels, which will
     //	hopefully be sufficient.
-    CG_CalcHeightWidth(&verts, &height, &width)
+    CG_CalcHeightWidth(verts, &height, &width)
 
     trap_S_StartSound(dmgPt, -1, CHAN_AUTO, trap_S_RegisterSound("sound/effects/glassbreak1.wav"))
 
@@ -674,7 +674,7 @@ func CG_DoGlass(_ verts: inout [JKAShared.vec3_t], _ normal: JKAShared.vec3_t, _
 
             Vector2Set(&biPoints[3], xx, zz + stepHeight)
 
-            CG_CalcBiLerp(&verts, &subVerts, &biPoints)
+            CG_CalcBiLerp(verts, &subVerts, &biPoints)
 
             // The SDK also declares `random`, so the call names the bg module.
             dif = DistanceSquared(subVerts[0], dmgPt) * timeDecay - JKAMP_BG.random() * 32
@@ -691,7 +691,7 @@ func CG_DoGlass(_ verts: inout [JKAShared.vec3_t], _ normal: JKAShared.vec3_t, _
                 time = 0
             }
 
-            CG_DoGlassQuad(&subVerts, &biPoints, stick, time, dmgDir)
+            CG_DoGlassQuad(subVerts, &biPoints, stick, time, dmgDir)
             glassShards += 1
 
             if maxShards != 0 && glassShards >= maxShards {
@@ -720,7 +720,7 @@ func CG_GlassShatter(_ entnum: Int32, _ dmgPt: JKAShared.vec3_t, _ dmgDir: JKASh
 
     if cgs.inlineDrawModel[cg_entities[entnum].currentState.modelindex] != 0 {
         trap_R_GetBModelVerts(cgs.inlineDrawModel[cg_entities[entnum].currentState.modelindex], verts, &normal)
-        CG_DoGlass(&verts, normal, dmgPt, dmgDir, dmgRadius, maxShards)
+        CG_DoGlass(verts, normal, dmgPt, dmgDir, dmgRadius, maxShards)
     }
     //otherwise something awful has happened.
 }
