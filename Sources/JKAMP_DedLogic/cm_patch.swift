@@ -1319,7 +1319,8 @@ func CM_GeneratePatchCollide(_ width: Int32, _ height: Int32, _ points: [JKAShar
         var j: Int32
 
         if width <= 2 || height <= 2 {
-            // AI: Raven prints the address of `points` with `%p`. The port holds no address for the array, so the text prints 0 with `%d`.
+            // AI: Raven also tests `!points` and prints the address of `points` with `%p`.
+            // The Swift array is not optional, so that test drops, and the port holds no address for the array, so the text prints 0 with `%d`.
             Com_Error(ERR_DROP, "CM_GeneratePatchFacets: bad parameters: (%i, %i, %d)", width, height, 0)
         }
 
