@@ -1545,9 +1545,9 @@ class Skeleton:
         lines = [f"    /// Source: {fn.cite}"]
         # A vector, a text, or a scalar output crosses as a C pointer with no view, and only a view target may read it under rule 11.
         # A thunk with such an argument keeps the marker, unless the function takes the pointer as it is.
-        # A host thunk reads a text and a vector the function takes by value through the readers of the view target, `text(at:)` and `vector(at:)`,
-        # the form of the cgame thunks of cg_main.swift, rows X1 and X2 of docket 10.
-        raw = fn.mapped and any(self.raw_argument(arg, fn.params[i] if i < len(fn.params) else None) and self.host_reader(fn.params[i] if i < len(fn.params) else None) is None
+        # A thunk of a unit whose view target holds a ThunkReaders.swift reads a text and a vector the function takes by value
+        # through the readers of that file, `text(at:)`, `vector(at:)`, and `vector4(at:)`, the form of the cgame thunks of cg_main.swift.
+        raw = fn.mapped and any(self.raw_argument(arg, fn.params[i] if i < len(fn.params) else None) and self.thunk_reader(fn.params[i] if i < len(fn.params) else None) is None
                                 for i, arg in enumerate(proto.argument_types()))
         if not fn.mapped or raw:
             self.counts["thunks over an unmapped signature"] += 1
@@ -1570,10 +1570,13 @@ class Skeleton:
                     ignored = ", ".join("_" for _ in proto.argument_types())
                     return lines + ["    // TODO: Port signature",
                                     f'    static let {swift_name(fn.name)}: {alias} = {{ {ignored} in portMissing("{fn.name}", source: "{fn.cite}") }}']
-                reader = None if view else self.host_reader(fn.params[i] if i < len(fn.params) else None)
+                reader = None if view else self.thunk_reader(fn.params[i] if i < len(fn.params) else None)
                 args.append(f"{view}(handle: ${i}!)" if view else reader.replace("{}", f"${i}") if reader else f"${i}")
             elif self.table.views.scalar(arg, C_TARGET) == "Bool":
                 args.append(f"${i} != 0")
+            elif canonical.kind in (TypeKind.CHAR_S, TypeKind.SCHAR) and param is not None and param.swift == "Int32":
+                # A C `char` of the stored function is an `int` of the Swift function, so the thunk widens it, `cursor` of drawTextWithCursor.
+                args.append(f"Int32(${i})")
             elif C.HOST and canonical.kind in (TypeKind.LONG, TypeKind.ULONG) and param is not None and param.swift in ("Int32", "UInt32"):
                 # The C `long` of the stored function is the 32 bits of WinDed in the botlib function, MSVC_WIDTH_FOLDERS,
                 # so the thunk keeps the low 32 bits, BotFindMatch of be_ai_chat.cpp, row X2 of docket 10.
@@ -1599,18 +1602,31 @@ class Skeleton:
         self.counts["thunks"] += 1
         return lines
 
-    def host_reader(self, param: Param | None) -> str | None:
-        """The reader of the view target that turns a host thunk's C word into the parameter, with `{}` for the word, or None.
-        A text is `text(at:)` and a vector by value is `vector(at:)`, the readers of ThunkReaders.swift, rows X1 and X2 of docket 10."""
-        if not C.HOST or param is None:
+    def thunk_reader(self, param: Param | None) -> str | None:
+        """The reader of the view target that turns a thunk's C word into the parameter, with `{}` for the word, or None.
+        A unit whose view target holds a `ThunkReaders.swift` gets each reader that file declares: a text is `text(at:)`,
+        a vector by value is `vector(at:)`, and a `vec4_t` by value is `vector4(at:)`, rows X1 and X2 of docket 10."""
+        if param is None:
             return None
-        if param.swift == "String":
-            return "text(at: {}!)"
-        if param.swift == "String?":
-            return "{}.map(text(at:))"
-        if param.swift == "JKAShared.vec3_t":
-            return "vector(at: {}!)"
-        return None
+        forms = {
+            "String": ("text", "text(at: {}!)"),
+            "String?": ("text", "{}.map(text(at:))"),
+            "JKAShared.vec3_t": ("vector", "vector(at: {}!)"),
+            "JKAShared.vec4_t": ("vector4", "vector4(at: {}!)"),
+            "JKAShared.vec4_t?": ("vector4", "{}.map(vector4(at:))"),
+        }
+        if param.swift not in forms:
+            return None
+        name, form = forms[param.swift]
+        return form if name in self.readers else None
+
+    @cached_property
+    def readers(self) -> set[str]:
+        """The reader functions the `ThunkReaders.swift` of the view target declares, none when the target has no such file."""
+        path = SOURCES / VIEWS / "ThunkReaders.swift"
+        if not path.exists():
+            return set()
+        return set(re.findall(r"^public func (\w+)\(at ", path.read_text(), re.M))
 
     def raw_argument(self, arg: ci.Type, param: Param | None) -> bool:
         """Whether a thunk argument is a C pointer that no view reads and that the stored function does not take as an `OpaquePointer?`."""

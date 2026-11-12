@@ -2148,20 +2148,16 @@ private func UI_StartServerRefresh(_ full: Bool) {
 /// The thunks stand in this file, because the functions they call are private to it.
 private enum DisplayContextDefThunks {
     /// Source: oracle/codemp/ui/ui_main.c:1096
-    // TODO: Port signature
-    static let Text_Height: DisplayContextDefTextHeight = { _, _, _ in portMissing("Text_Height", source: "oracle/codemp/ui/ui_main.c:1096") }
+    static let Text_Height: DisplayContextDefTextHeight = { JKAMP_UILogic.Text_Height(text(at: $0!), $1, $2) }
 
     /// Source: oracle/codemp/ui/ui_main.c:1103
-    // TODO: Port signature
-    static let Text_Paint: DisplayContextDefDrawText = { _, _, _, _, _, _, _, _, _ in portMissing("Text_Paint", source: "oracle/codemp/ui/ui_main.c:1103") }
+    static let Text_Paint: DisplayContextDefDrawText = { JKAMP_UILogic.Text_Paint($0, $1, $2, vector4(at: $3!), text(at: $4!), $5, $6, $7, $8) }
 
     /// Source: oracle/codemp/ui/ui_main.c:1133
-    // TODO: Port signature
-    static let Text_PaintWithCursor: DisplayContextDefDrawTextWithCursor = { _, _, _, _, _, _, _, _, _, _ in portMissing("Text_PaintWithCursor", source: "oracle/codemp/ui/ui_main.c:1133") }
+    static let Text_PaintWithCursor: DisplayContextDefDrawTextWithCursor = { JKAMP_UILogic.Text_PaintWithCursor($0, $1, $2, vector4(at: $3!), text(at: $4!), $5, Int32($6), $7, $8, $9) }
 
     /// Source: oracle/codemp/ui/ui_main.c:1089
-    // TODO: Port signature
-    static let Text_Width: DisplayContextDefTextWidth = { _, _, _ in portMissing("Text_Width", source: "oracle/codemp/ui/ui_main.c:1089") }
+    static let Text_Width: DisplayContextDefTextWidth = { JKAMP_UILogic.Text_Width(text(at: $0!), $1, $2) }
 
     /// Source: oracle/codemp/ui/ui_main.c:5417
     // TODO: Port signature
@@ -2208,8 +2204,7 @@ private enum DisplayContextDefThunks {
     static let UI_Pause: DisplayContextDefPause = { JKAMP_UILogic.UI_Pause($0 != 0) }
 
     /// Source: oracle/codemp/ui/ui_main.c:10184
-    // TODO: Port signature
-    static let UI_PlayCinematic: DisplayContextDefPlayCinematic = { _, _, _, _, _ in portMissing("UI_PlayCinematic", source: "oracle/codemp/ui/ui_main.c:10184") }
+    static let UI_PlayCinematic: DisplayContextDefPlayCinematic = { JKAMP_UILogic.UI_PlayCinematic(text(at: $0!), $1, $2, $3, $4) }
 
     /// Source: oracle/codemp/ui/ui_main.c:10220
     static let UI_RunCinematicFrame: DisplayContextDefRunCinematicFrame = { JKAMP_UILogic.UI_RunCinematicFrame($0) }
@@ -2222,8 +2217,7 @@ private enum DisplayContextDefThunks {
     static let UI_StopCinematic: DisplayContextDefStopCinematic = { JKAMP_UILogic.UI_StopCinematic($0) }
 
     /// Source: oracle/codemp/ui/ui_main.c:1065
-    // TODO: Port signature
-    static let _UI_DrawRect: DisplayContextDefDrawRect = { _, _, _, _, _, _ in portMissing("_UI_DrawRect", source: "oracle/codemp/ui/ui_main.c:1065") }
+    static let _UI_DrawRect: DisplayContextDefDrawRect = { JKAMP_UILogic._UI_DrawRect($0, $1, $2, $3, $4, $5.map(vector4(at:))) }
 
     /// Source: oracle/codemp/ui/ui_main.c:1047
     static let _UI_DrawSides: DisplayContextDefDrawSides = { JKAMP_UILogic._UI_DrawSides($0, $1, $2, $3, $4) }
