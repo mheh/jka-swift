@@ -12,6 +12,7 @@ import Foundation
 // Run `swift run jampsmoke <path-to-library> <command> <expected answer> [words]` for a manual smoke run.
 // For the game, `39 4 1 6` sends GAME_GETITEMINDEXBYTAG with tag 1, HI_SEEKER, and type 6, IT_HOLDABLE, and expects row 4, item_seeker.
 // For the cgame, `5 -1` sends CG_LAST_ATTACKER, and a fresh world has no attacker.
+// For the ui, `0 7` sends UI_GETAPIVERSION, and the answer is Raven's UI_API_VERSION.
 
 /// The C shape of the module's `dllEntry`, as `@_cdecl` exports it.
 private typealias DllEntryFn = @convention(c) (OpaquePointer) -> Void

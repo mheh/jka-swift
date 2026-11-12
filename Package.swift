@@ -78,6 +78,8 @@ let package = Package(
         .testTarget(name: "JKAMP_CGameTests", dependencies: ["JKAMP_CGameLogic", "JKATestSupport"]),
         .testTarget(name: "JKAMP_DedLogicTests", dependencies: ["JKAMP_DedLogic", "JKATestSupport"]),
         .testTarget(name: "cgameTests", dependencies: ["CJKAMP_CGame"]),
+        .testTarget(name: "JKAMP_UITests", dependencies: ["JKAMP_UILogic", "JKATestSupport"]),
+        .testTarget(name: "uiTests", dependencies: ["CJKAMP_UI"]),
         .testTarget(
             name: "CJKAHostTests",
             dependencies: ["CJKAHost", "CJKASyscall"],
