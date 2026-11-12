@@ -1,7 +1,7 @@
 #!/bin/bash
 # This script runs the full gate of a worktree and prints one result line for each step, 40 lines at most.
 # Usage: `tools/gate.sh [--only a,b,c] [--skip a,b,c] [--snap-out] [--out DIR] [--jobs N] [--rec FILE] [--referee-args "<+set args>"]`, from a worktree root.
-# The steps are build, release, test, tooltests, snap-game, snap-cgame, snap-ded, sigs, linux, referee, and stubs.
+# The steps are build, release, test, tooltests, snap-game, snap-cgame, snap-ui, snap-ded, sigs, linux, referee, and stubs.
 # The full output of a step goes to `$OUT/<step>.txt`, and the summary goes to stdout and to `$OUT/summary.txt`.
 # OUT is `/tmp/gate-<branch>-<short head>` by default.
 # A failed step does not stop the later steps, and the script exits 1 at the end if a step failed.
@@ -13,7 +13,7 @@
 
 set -u
 
-STEPS="build release test tooltests snap-game snap-cgame snap-ded sigs linux referee stubs"
+STEPS="build release test tooltests snap-game snap-cgame snap-ui snap-ded sigs linux referee stubs"
 ONLY=""
 SKIP=""
 SNAP_OUT=0
@@ -146,10 +146,19 @@ result_tooltests() {
 }
 
 # The check compares a new snapshot in a temporary folder with the cache folder, so the cache is read only.
+# A unit with no cache folder yet passes with its own result, because only a landing writes the folder.
 run_snap() {
     UNIT=$1
     FOLDER=$2
     cd "$CLOSURE" || return 2
+    if [ ! -d "$CACHE/$FOLDER" ]; then
+        echo "---- no cache folder: $CACHE/$FOLDER"
+        if [ "$SNAP_OUT" -eq 1 ]; then
+            echo "---- new snapshot: $OUT/snap-$UNIT"
+            .venv/bin/python snapshot.py --unit "$UNIT" --out "$OUT/snap-$UNIT"
+        fi
+        return 0
+    fi
     .venv/bin/python snapshot.py --check "$CACHE/$FOLDER" --unit "$UNIT"
     CHECK=$?
     if [ "$CHECK" -ne 0 ] && [ "$SNAP_OUT" -eq 1 ]; then
@@ -161,10 +170,17 @@ run_snap() {
 
 run_snap_game() { run_snap mp-game snapshot-stage-two-shared; }
 run_snap_cgame() { run_snap mp-cgame snapshot-mp-cgame; }
+run_snap_ui() { run_snap mp-ui snapshot-mp-ui; }
 run_snap_ded() { run_snap mp-engine-ded snapshot-mp-engine-ded; }
 
 # `diff -r` prints one `diff -r` line for each file that differs and one `Only in` line for each file that one side lacks.
 result_snap() {
+    if grep -q '^---- no cache folder: ' "$1"; then
+        NEW=""
+        [ -d "$OUT/$3" ] && NEW=", new snapshot: $OUT/$3"
+        echo "no cache folder: $(sed -n 's/^---- no cache folder: //p' "$1")$NEW"
+        return
+    fi
     NAMES=$(sed -n -E -e 's/^diff -r .*\/([^/ ]+)$/\1/p' -e 's/^Only in [^:]*: (.*)$/\1/p' "$1")
     COUNT=$(printf '%s' "$NAMES" | grep -c .)
     if [ "$COUNT" -eq 0 ]; then
@@ -309,6 +325,7 @@ for NAME in $STEPS; do
         release | linux) RESULT=$(result_build "$FILE") ;;
         snap-game) RESULT=$(result_snap "$FILE" "$STATUS" snap-mp-game) ;;
         snap-cgame) RESULT=$(result_snap "$FILE" "$STATUS" snap-mp-cgame) ;;
+        snap-ui) RESULT=$(result_snap "$FILE" "$STATUS" snap-mp-ui) ;;
         snap-ded) RESULT=$(result_snap "$FILE" "$STATUS" snap-mp-engine-ded) ;;
         *) RESULT=$("result_$FUNCTION" "$FILE") ;;
     esac
