@@ -195,6 +195,63 @@ CGAME_ROOTS = {
     "ragCallbackBoneSnap_t": ("RagCallbackBoneSnap", "CJKAMP_CGame"),
 }
 
+# The records the ui reads, rows 8 and 9 of notes/2026-11-11/walk-7-ledger.md, in the order and the shape of CGAME_ROOTS.
+UI_ROOTS = {
+    # The rows the game and the cgame hold for a struct of JKAMP or JKAShared that the ui reads come first, with their view names and targets,
+    # so the units write one view file for each. They come first, because the first walk to reach a struct gives it its target.
+    "vmCvar_t": ("VmCvar", "CJKAMP"),
+    "siegeClass_t": ("SiegeClass", "CJKAMP"),
+    "siegeTeam_t": ("SiegeTeam", "CJKAMP"),
+    "siegeClassDesc_t": ("SiegeClassDesc", "CJKAMP"),
+    "mdxaBone_t": ("MdxaBone", "CJKAMP"),
+    "sharedRagDollParams_t": ("SharedRagDollParams", "CJKAMP"),
+    "sharedRagDollUpdateParams_t": ("SharedRagDollUpdateParams", "CJKAMP"),
+    "sharedIKMoveParams_t": ("SharedIKMoveParams", "CJKAMP"),
+    "sharedSetBoneIKStateParams_t": ("SharedSetBoneIKStateParams", "CJKAMP"),
+    "pc_token_t": ("PcToken", "CJKAMP"),
+    "qtime_t": ("Qtime", "CJKAMP"),
+    "bgLoadedAnim_t": ("BgLoadedAnim", "CJKAMP"),
+    "animation_t": ("Animation", "CJKAMP"),
+    "polyVert_t": ("PolyVert", "CJKAMP"),
+    "refEntity_t": ("RefEntity", "CJKAMP"),
+    "refdef_t": ("Refdef", "CJKAMP"),
+    "orientation_t": ("Orientation", "CJKAShared"),
+    # The ui's state: Raven's `uiInfo` of ui_main.c:875.
+    "uiInfo_t": ("UiInfo", "CJKAMP_UI"),
+    # Raven defines these inside ui_main.c, and ui_types.h carries them into the ui target.
+    # The ui's cvarTable_t has the fields of the cgame's, and the two views live in two modules no target imports together.
+    "datpadmovedata_t": ("Datpadmovedata", "CJKAMP_UI"),
+    "serverStatusCvar_t": ("ServerStatusCvar", "CJKAMP_UI"),
+    "cvarTable_t": ("CvarTable", "CJKAMP_UI"),
+    # The rows of CGAME_ROOTS for the records of ui_shared.c, with the ui target in place of the cgame target.
+    # Item_StartCapture of ui_shared.c fills `scrollInfo` and hands its address to the five Scroll functions through `captureData`.
+    "scrollInfo_t": ("ScrollInfo", "CJKAMP_UI"),
+    # The C tables g_bindings and itemFlags of ui_shared.c hold these rows.
+    "bind_t": ("Bind", "CJKAMP_UI"),
+    "itemFlagsDef_t": ("ItemFlagsDef", "CJKAMP_UI"),
+    # The file-scope table `strHandle` of ui_shared.c holds pointers to these, one hash chain of interned texts per bucket.
+    "stringDef_t": ("StringDef", "CJKAMP_UI"),
+    # The file-scope list head `ui_G2PtrTracker` of ui_shared.c points at these, one record per Ghoul2 instance the UI holds.
+    "uiG2PtrTracker_t": ("UiG2PtrTracker", "CJKAMP_UI"),
+    "itemDef_t": ("ItemDef", "CJKAMP_UI"),
+    "menuDef_t": ("MenuDef", "CJKAMP_UI"),
+    "cachedAssets_t": ("CachedAssets", "CJKAMP_UI"),
+    # Item_ValidateTypeData of ui_shared.c allocates one of these into the `void *typeData` of an item by its type, and the bodies cast it back.
+    # No root field points at them, because the field is a `void *`.
+    "listBoxDef_t": ("ListBoxDef", "CJKAMP_UI"),
+    "multiDef_t": ("MultiDef", "CJKAMP_UI"),
+    "textScrollDef_t": ("TextScrollDef", "CJKAMP_UI"),
+    "editFieldDef_t": ("EditFieldDef", "CJKAMP"),
+    "modelDef_t": ("ModelDef", "CJKAMP"),
+    # A trap or a stub parameter names these, and no root field points at them.
+    "uiClientState_t": ("UiClientState", "CJKAMP"),
+    "postGameInfo_t": ("PostGameInfo", "CJKAMP_UI"),
+    # The file-scope table `serverFilters` of ui_main.c holds these rows.
+    "serverFilter_t": ("ServerFilter", "CJKAMP_UI"),
+    # The game's view of CollisionRecord_t stands in JKAMP_Game, which a ui target cannot import, so the ui has its own, as the cgame does.
+    "CollisionRecord_t": ("CollisionRecord", "CJKAMP_UI"),
+}
+
 # The records the dedicated server reads, row E4 of notes/2026-11-03/dedicated-opening-docket.md and row T5 of its stage 1 tools record.
 HOST_ROOTS = {
     # The rows the game holds for a struct of JKAMP come first, with the game's view name and target.
@@ -473,7 +530,7 @@ HOST_ROOTS = {
     "TGAHeader_t": ("TGAHeader", "CJKAMP_Ded"),
 }
 
-ROOTS = {"mp-game": GAME_ROOTS, "mp-cgame": CGAME_ROOTS, "mp-engine-ded": HOST_ROOTS}
+ROOTS = {"mp-game": GAME_ROOTS, "mp-cgame": CGAME_ROOTS, "mp-ui": UI_ROOTS, "mp-engine-ded": HOST_ROOTS}
 
 # (struct, field) pairs whose pointer Raven's callers always set. The field is non-optional, and its getter traps with the
 # field's name when the pointer is NULL, the one divergence rule 19 allows. See "A pointer field Raven's callers always set".
@@ -1814,6 +1871,9 @@ CGAME_READS = {
     "bgNpcClientSaber": ("oracle/codemp/game/bg_saber.c:4131", [("entityNum", "Int32", "of"), ("index", "Int32", "at")], "JKAMP.SaberInfo",
                          "cg_entities[Int(entityNum)].npcClient!.saber[Int(index)]"),
 }
+# The read rows of each unit, in the form of ROOTS. The cgame holds the five rows above.
+# The ui has none, because Raven's ui build compiles no bg_saber.c, oracle/codemp/ui/ui.vcproj:287-323.
+READS = {"mp-game": {}, "mp-cgame": CGAME_READS, "mp-ui": {}}
 # A function Raven compiles only under `#ifdef QAGAME` is a game function, R31. The game defines it by hand beside the arm hooks,
 # and the bg body reaches it through the channel. name -> the cite of Raven's definition
 QAGAME_ONLY = {"PM_CrashLandEffect": "oracle/codemp/game/bg_pmove.c:3684"}
@@ -1959,13 +2019,15 @@ SHARED_STEMS = {"q_shared", "q_math", "g_syscalls", "g_strap"}
 # `bg_tables.c` and `g_tables.c` are not among them: tables.py writes them, and it runs after the merge.
 # g_types.h holds the structs Raven defines inside a .c file, so a view can bind over them. See "A struct Raven defines inside a .c file".
 # cg_types.h holds the six of the cgame the same way.
+# ui_types.h holds the three of ui_main.c and the five of ui_shared.c that cg_types.h holds, the same way.
+# ui_tables.h declares the five ui tables of ui_tables.c, in the form of cg_tables.h.
 # g_tables.h declares the six game tables of g_tables.c, ruling E2.
 # ded_types.h holds the structs the host defines inside a .cpp file, and ded_tables.h declares the four netField tables of ded_tables.c.
 HAND_HEADERS = {"CJKAMP": ["bg_tables.h"], "CJKAMP_Game": ["g_types.h", "g_tables.h"], "CJKAMP_CGame": ["cg_types.h", "cg_tables.h"],
-                "CJKAMP_Ded": ["ded_types.h", "ded_tables.h"]}
+                "CJKAMP_Ded": ["ded_types.h", "ded_tables.h"], "CJKAMP_UI": ["ui_types.h", "ui_tables.h"]}
 HAND_FILES = {"CJKAMP": ["include/bg_tables.h"], "CJKAMP_Game": ["include/g_types.h", "include/g_tables.h"],
               "CJKAMP_CGame": ["include/cg_types.h", "include/cg_tables.h"],
-              "CJKAMP_Ded": ["include/ded_types.h", "include/ded_tables.h"]}
+              "CJKAMP_Ded": ["include/ded_types.h", "include/ded_tables.h"], "CJKAMP_UI": ["include/ui_types.h", "include/ui_tables.h"]}
 
 # MARK: - Header preludes
 

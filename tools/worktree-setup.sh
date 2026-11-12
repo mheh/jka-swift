@@ -74,7 +74,7 @@ fi
 # Only `extract.py <unit>` makes `out/extract/<unit>/extract.json`, and git ignores `out/`, so a new worktree has none.
 # `skeleton.py` reads the `.c` enums of a stub from that file, and it stops when the file is absent.
 # The full output of an extract goes to `out/extract/<unit>.log`.
-for UNIT in mp-game mp-cgame mp-engine-ded; do
+for UNIT in mp-game mp-cgame mp-ui mp-engine-ded; do
     if [ -f "$CLOSURE/out/extract/$UNIT/extract.json" ]; then
         echo "---- extract $UNIT: present"
         continue
@@ -94,7 +94,7 @@ done
 # The first `manifest.py` run of a unit sweeps the table, so it also writes `table.sqlite` and the store of the unit under `out/`.
 # The full output of each run goes to `out/setup/`.
 mkdir -p "$CLOSURE/out/setup"
-for UNIT in mp-game mp-cgame mp-engine-ded; do
+for UNIT in mp-game mp-cgame mp-ui mp-engine-ded; do
     # The manifests of `mp-game` are at the root of the folder, and each other unit has a folder of its own name.
     FOLDER=.claude/manifest
     if [ "$UNIT" != mp-game ]; then

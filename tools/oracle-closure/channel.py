@@ -36,7 +36,7 @@ from clang.cindex import CursorKind
 
 import closure as C
 from reexport import REPO, SOURCES
-from rulings import ARM_HOOKS, CGAME_READS, EXTRA_HOOKS, LIST_TRAPS, OWN_HOOKS, QAGAME_ONLY, SHARED_STEMS
+from rulings import ARM_HOOKS, EXTRA_HOOKS, LIST_TRAPS, OWN_HOOKS, QAGAME_ONLY, READS, SHARED_STEMS
 from skeleton import LOGIC, OPTIONAL_INOUTS, VIEWS
 from table import Param, SourceFile, Table
 
@@ -276,8 +276,8 @@ class Channel:
             else:
                 hook.returns = read.swift
             hooks.append(hook)
-        # A cgame read stands on the channel with its trapping default, and the game's install skips it as a foreign hook.
-        for name, (cite, params, returns, install) in CGAME_READS.items():
+        # A read of any unit stands on the channel with its trapping default, and the game's install skips it as a foreign hook.
+        for name, (cite, params, returns, install) in {name: row for rows in READS.values() for name, row in rows.items()}.items():
             hook = Hook(None, name, cite=cite, foreign=True)
             hook.install = install
             hook.params = [Param(p, t, "bare", label=label) for p, t, label in params]
@@ -458,7 +458,7 @@ class ConsumerInstall:
     and `BgCallbacks` from the two generated bg files. It points each closure at the consumer's function of the same name, where the
     consumer's build defines one, as Raven's link of that build resolves the bg call. A closure with no such function keeps its trapping
     default, so a consumer call to a game closure names the closure at the first call. A read callback the consumer defines by the
-    expression of its CGAME_READS entry reads the consumer's own tables."""
+    expression of its READS entry reads the consumer's own tables. A cvar view the consumer's build does not define keeps its default."""
 
     def __init__(self, parse: C.Parse) -> None:
         self.consumer = C.TARGETS["state"].lower()
@@ -466,6 +466,12 @@ class ConsumerInstall:
         self.defined: set[str] = set()
         for cur in parse.game.cursor.get_children():
             if cur.kind == CursorKind.FUNCTION_DECL and cur.is_definition() and cur.location.file:
+                path = Path(cur.location.file.name).resolve()
+                if C.within(path, parse.game_folder) and path.suffix == ".c":
+                    self.defined.add(cur.spelling)
+            # A file-scope variable of the consumer's own files, which a cvar view of CVAR_VIEWS needs.
+            # A C tentative definition, `vmCvar_t bg_fighterAltControl;` of cg_main.c:770, is no definition to libclang, so the test is the storage class.
+            if cur.kind == CursorKind.VAR_DECL and cur.storage_class != ci.StorageClass.EXTERN and cur.location.file:
                 path = Path(cur.location.file.name).resolve()
                 if C.within(path, parse.game_folder) and path.suffix == ".c":
                     self.defined.add(cur.spelling)
@@ -481,7 +487,7 @@ class ConsumerInstall:
                 m = re.match(r"(private |fileprivate )?(?:public )?func `?(\w+)`?\(", line)
                 if m and m.group(2) not in self.declarations:
                     self.declarations[m.group(2)] = [m.group(1) or ""] + lines[max(0, i - 4):i]
-        self.reads = CGAME_READS
+        self.reads = READS[C.UNIT]
         self.counts: Counter[str] = Counter()
 
     @staticmethod
@@ -533,7 +539,8 @@ class ConsumerInstall:
                  "public func installBgChannel() {"]
         # The consumer's shell sets bg.error and bg.print at dllEntry, as the game's shell does, so the install holds no line for them.
         for view, cvar in CVAR_VIEWS.items():
-            lines.append(f"    bg.{view} = {cvar}")
+            if cvar in self.defined:
+                lines.append(f"    bg.{view} = {cvar}")
         bg = SOURCES / "JKAMP_BG" / "Generated"
         for store, path in (("straps", bg / "bg_strap.swift"), ("callbacks", bg / "bg_callbacks.swift")):
             for cite, name, params in self.closures(path):
