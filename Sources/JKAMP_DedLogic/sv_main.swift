@@ -693,9 +693,9 @@ public func SV_ConnectionlessPacket(_ from: Netadr, _ msg: Msg) {
     MSG_BeginReadingOOB(msg)
     MSG_ReadLong(msg) // skip the -1 marker
 
-    // AI: Raven compares the text at `&msg->data[4]` in place. The seven bytes go into a buffer first, and the compare reads the buffer.
-    var connect = CharBuf(7)
-    Com_Memcpy(&connect, msg.data!.suffix(from: 4), 7)
+    // AI: Raven compares the text at `&msg->data[4]` in place. Eight bytes go into a buffer, because Q_strncmp also reads the byte after the seven it compares.
+    var connect = CharBuf(8)
+    Com_Memcpy(&connect, msg.data!.suffix(from: 4), 8)
     if Q_strncmp("connect", connect, 7) == 0 {
         Huff_Decompress(msg, 12)
     }

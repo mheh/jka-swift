@@ -106,7 +106,8 @@ private func SV_Netchan_Decode(_ client: Client, _ msg: Msg) {
     msg.bit = sbit
     msg.readcount = srdc
 
-    string = CharBuf(client.reliableCommands[reliableAcknowledge & (MAX_RELIABLE_COMMANDS - 1)])
+    // AI: Raven points `string` into one slot of `reliableCommands`. The buffer copies all the bytes of the slot, because the loop reads past the first zero.
+    string = charBuf(at: client.reliableCommands.slot(at: reliableAcknowledge & (MAX_RELIABLE_COMMANDS - 1)).base, capacity: Int(MAX_STRING_CHARS))
     index = 0
     //
     key = UInt8(truncatingIfNeeded: client.challenge ^ serverId ^ messageAcknowledge)
