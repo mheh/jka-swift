@@ -1871,6 +1871,9 @@ CGAME_READS = {
     "bgNpcClientSaber": ("oracle/codemp/game/bg_saber.c:4131", [("entityNum", "Int32", "of"), ("index", "Int32", "at")], "JKAMP.SaberInfo",
                          "cg_entities[Int(entityNum)].npcClient!.saber[Int(index)]"),
 }
+# The read rows of each unit, in the form of ROOTS. The cgame holds the five rows above.
+# The ui has none, because Raven's ui build compiles no bg_saber.c, oracle/codemp/ui/ui.vcproj:287-323.
+READS = {"mp-game": {}, "mp-cgame": CGAME_READS, "mp-ui": {}}
 # A function Raven compiles only under `#ifdef QAGAME` is a game function, R31. The game defines it by hand beside the arm hooks,
 # and the bg body reaches it through the channel. name -> the cite of Raven's definition
 QAGAME_ONLY = {"PM_CrashLandEffect": "oracle/codemp/game/bg_pmove.c:3684"}
