@@ -67,14 +67,15 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .build
-          key: test-${{ env.SWIFT_IMAGE }}-${{ hashFiles('Package.swift', 'Sources/**', 'Tests/**') }}
-          restore-keys: test-${{ env.SWIFT_IMAGE }}-
+          key: test-release-${{ env.SWIFT_IMAGE }}-${{ hashFiles('Package.swift', 'Sources/**', 'Tests/**') }}
+          restore-keys: test-release-${{ env.SWIFT_IMAGE }}-
 
-      - name: Build the library
-        run: swift build --product jampgame
+      - name: Build the release library
+        run: swift build -c release --product jampgame
 
+      # The tests use `@testable import`, and a release build gives no test access without `-enable-testing`.
       - name: Run the tests one suite at a time
-        run: swift test --no-parallel
+        run: swift test -c release -Xswiftc -enable-testing --no-parallel
 
       - name: Stop the run when this job fails
         if: ${{ failure() }}
