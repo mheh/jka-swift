@@ -88,6 +88,7 @@ The enum stays in its `.c` file when a header, a hand header, or a `.c` macro na
 An enum of that last kind is `private let` constants of type `Int32` at the top of its stub, in Raven's order with Raven's values, under the enum's `/// Source:` line, and an enumerator with no initializer counts on from the one before, from 0 for the first.
 `Sources/CJKAMP_Game/include/g_types.h` is this hand header for the game target, so a view can bind over the struct.
 `Sources/CJKAMP_CGame/include/cg_types.h` is the hand header of the cgame target in the same form.
+`Sources/CJKAMP_UI/include/ui_types.h` is the hand header of the ui target in the same form.
 
 | Raven | Swift |
 |---|---|

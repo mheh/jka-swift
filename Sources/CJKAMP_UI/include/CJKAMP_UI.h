@@ -62,5 +62,6 @@
 #include "codemp/game/bg_vehicleLoad_c/constants.h"
 #include "codemp/ui/ui_main_c/constants.h"
 #include "codemp/ui/ui_shared_c/constants.h"
+#include "ui_types.h"
 
 #endif // JKA_CJKAMP_UI_H

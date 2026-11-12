@@ -1959,13 +1959,14 @@ SHARED_STEMS = {"q_shared", "q_math", "g_syscalls", "g_strap"}
 # `bg_tables.c` and `g_tables.c` are not among them: tables.py writes them, and it runs after the merge.
 # g_types.h holds the structs Raven defines inside a .c file, so a view can bind over them. See "A struct Raven defines inside a .c file".
 # cg_types.h holds the six of the cgame the same way.
+# ui_types.h holds the three of ui_main.c and the five of ui_shared.c that cg_types.h holds, the same way.
 # g_tables.h declares the six game tables of g_tables.c, ruling E2.
 # ded_types.h holds the structs the host defines inside a .cpp file, and ded_tables.h declares the four netField tables of ded_tables.c.
 HAND_HEADERS = {"CJKAMP": ["bg_tables.h"], "CJKAMP_Game": ["g_types.h", "g_tables.h"], "CJKAMP_CGame": ["cg_types.h", "cg_tables.h"],
-                "CJKAMP_Ded": ["ded_types.h", "ded_tables.h"]}
+                "CJKAMP_Ded": ["ded_types.h", "ded_tables.h"], "CJKAMP_UI": ["ui_types.h"]}
 HAND_FILES = {"CJKAMP": ["include/bg_tables.h"], "CJKAMP_Game": ["include/g_types.h", "include/g_tables.h"],
               "CJKAMP_CGame": ["include/cg_types.h", "include/cg_tables.h"],
-              "CJKAMP_Ded": ["include/ded_types.h", "include/ded_tables.h"]}
+              "CJKAMP_Ded": ["include/ded_types.h", "include/ded_tables.h"], "CJKAMP_UI": ["include/ui_types.h"]}
 
 # MARK: - Header preludes
 
