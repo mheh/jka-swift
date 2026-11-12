@@ -1283,7 +1283,9 @@ public func Info_SetValueForKey(_ s: inout JKAShared.CharBuf, _ key: String, _ v
 
     Com_sprintf(&newi, Int32((newi).count), "\\%s\\%s", key, value)
 
-    if strlen(newi) + strlen(s) > MAX_INFO_STRING {
+    // Port-note: For a sum of exactly `MAX_INFO_STRING`, Raven's `strcat` writes the NUL at `newi[1024]`, one byte past the buffer.
+    // The port takes the `>=` of OpenJK, so that sum gives the print and does not change the string.
+    if strlen(newi) + strlen(s) >= MAX_INFO_STRING {
         Com_Printf("Info string length exceeded\n")
         return
     }
@@ -1331,7 +1333,9 @@ public func Info_SetValueForKey_Big(_ s: inout JKAShared.CharBuf, _ key: String,
 
     Com_sprintf(&newi, Int32((newi).count), "\\%s\\%s", key, value)
 
-    if strlen(newi) + strlen(s) > BIG_INFO_STRING {
+    // Port-note: For a sum of exactly `BIG_INFO_STRING`, Raven's `strcat` writes the NUL at `s[8192]`, one byte past the buffer.
+    // The port takes the `>=` of OpenJK, so that sum gives the print and does not change the string.
+    if strlen(newi) + strlen(s) >= BIG_INFO_STRING {
         Com_Printf("BIG Info string length exceeded\n")
         return
     }

@@ -244,7 +244,10 @@ public func SV_ReplacePendingServerCommands(_ client: Client, _ cmd: String) -> 
             sscanf(cmd, "cs %i", &csnum1)
             sscanf(client.reliableCommands[index], "cs %i", &csnum2)
             if csnum1 == csnum2 {
-                client.reliableCommands[index] = cmd
+                // AI: Raven calls `Q_strncpyz` on the slot of `reliableCommands`. The buffer reads the slot, takes the copy, and goes back into the slot, so the bytes after the text are zero.
+                var slot = charBuf(at: client.reliableCommands.slot(at: index).base, capacity: Int(MAX_STRING_CHARS))
+                Q_strncpyz(&slot, cmd, MAX_STRING_CHARS)
+                store(slot, at: client.reliableCommands.slot(at: index).base, capacity: Int(MAX_STRING_CHARS))
                 /*
                 if ( client->netchan.remoteAddress.type != NA_BOT ) {
                 Com_Printf( "WARNING: client %i removed double pending config string %i: %s\n", client-svs.clients, csnum1, cmd );
@@ -296,7 +299,10 @@ public func SV_AddServerCommand(_ client: Client, _ cmd: String) {
         return
     }
     index = client.reliableSequence & (MAX_RELIABLE_COMMANDS - 1)
-    client.reliableCommands[index] = cmd
+    // AI: Raven calls `Q_strncpyz` on the slot of `reliableCommands`. The buffer reads the slot, takes the copy, and goes back into the slot, so the bytes after the text are zero.
+    var slot = charBuf(at: client.reliableCommands.slot(at: index).base, capacity: Int(MAX_STRING_CHARS))
+    Q_strncpyz(&slot, cmd, MAX_STRING_CHARS)
+    store(slot, at: client.reliableCommands.slot(at: index).base, capacity: Int(MAX_STRING_CHARS))
 }
 
 /**
