@@ -102,9 +102,10 @@ class DefaultUnit(unittest.TestCase):
 
         # and the re-exports name every unit's target, the game's first
         self.assertEqual(reexport.VIEW_OF, {"CJKAShared": "JKAShared", "CJKAMP": "JKAMP", "CJKAMP_Game": "JKAMP_Game", "CJKAMP_CGame": "JKAMP_CGame",
-                                            "CJKAMP_Ded": "JKAMP_Ded"})
+                                            "CJKAMP_UI": "JKAMP_UI", "CJKAMP_Ded": "JKAMP_Ded"})
         self.assertEqual(reexport.DEPS, {"CJKAShared": [], "CJKAMP": ["CJKAShared"], "CJKAMP_Game": ["CJKAMP", "CJKAShared"],
-                                         "CJKAMP_CGame": ["CJKAMP", "CJKAShared"], "CJKAMP_Ded": ["CJKAMP", "CJKAShared"]})
+                                         "CJKAMP_CGame": ["CJKAMP", "CJKAShared"], "CJKAMP_UI": ["CJKAMP", "CJKAShared"],
+                                         "CJKAMP_Ded": ["CJKAMP", "CJKAShared"]})
 
     def test_the_dedicated_server_is_a_host(self) -> None:
         import closure as C
