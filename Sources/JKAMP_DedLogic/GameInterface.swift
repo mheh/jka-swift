@@ -14,8 +14,8 @@ public var iICARUS: ICARUS_Instance? {
 /// Source: oracle/codemp/icarus/GameInterface.h:4
 // AI: Raven holds an ICARUS_Malloc block in `char *buffer`. The record holds the CharBuf of the file, the form of the CharBuf callers of FS_ReadFile.
 public struct pscript_t {
-    var buffer = CharBuf(0)
-    var length: Int32 = 0
+    public var buffer = CharBuf(0)
+    public var length: Int32 = 0
 }
 
 /// Source: oracle/codemp/icarus/GameInterface.h:10

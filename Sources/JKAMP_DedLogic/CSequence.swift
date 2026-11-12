@@ -6,7 +6,7 @@ import JKAMP_Ded
 /// Raven's sequence, one list of commands of a script, with its parent, its children, and the sequence it returns to.
 /// Source: oracle/codemp/icarus/sequence.h:12
 // AI: Raven allocates the class with Z_Malloc in operator new and frees it in operator delete. ARC frees the class, so the two operators drop.
-final class CSequence {
+public final class CSequence {
     // AI: Raven types these with std::list and std::map. Each is an Array or a Dictionary, by rule 17.
     typealias sequence_l = [CSequence]
     typealias sequenceID_m = [Int32: CSequence]
@@ -29,7 +29,7 @@ final class CSequence {
     private var m_numCommands: Int32 = 0
 
     /// Source: oracle/codemp/icarus/Sequence.cpp:13
-    init() {
+    public init() {
         self.m_numCommands = 0
         self.m_flags = 0
         self.m_iterations = 1
@@ -51,7 +51,7 @@ final class CSequence {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:34
-    static func Create() -> CSequence? {
+    public static func Create() -> CSequence? {
         let seq: CSequence? = CSequence()
 
         //TODO: Emit warning
@@ -72,7 +72,7 @@ final class CSequence {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:54
-    func Delete() {
+    public func Delete() {
         //Notify the parent of the deletion
         if self.m_parent != nil {
             self.m_parent!.RemoveChild(self)
@@ -105,7 +105,7 @@ final class CSequence {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:96
-    func AddChild(_ child: CSequence?) {
+    public func AddChild(_ child: CSequence?) {
         if child == nil {
             return
         }
@@ -121,7 +121,7 @@ final class CSequence {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:111
-    func RemoveChild(_ child: CSequence?) {
+    public func RemoveChild(_ child: CSequence?) {
         if child == nil {
             return
         }
@@ -138,7 +138,7 @@ final class CSequence {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:127
-    func HasChild(_ sequence: CSequence?) -> Bool {
+    public func HasChild(_ sequence: CSequence?) -> Bool {
         for ci in self.m_children {
             if ci === sequence {
                 return true
@@ -160,7 +160,7 @@ final class CSequence {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:149
-    func SetParent(_ parent: CSequence?) {
+    public func SetParent(_ parent: CSequence?) {
         self.m_parent = parent
 
         if parent == nil {
@@ -185,7 +185,7 @@ final class CSequence {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:170
-    func PopCommand(_ type: Int32) -> CBlock? {
+    public func PopCommand(_ type: Int32) -> CBlock? {
         var command: CBlock? = nil
 
         //Make sure everything is ok
@@ -226,7 +226,7 @@ final class CSequence {
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:211
     @discardableResult
-    func PushCommand(_ block: CBlock?, _ type: Int32) -> Int32 {
+    public func PushCommand(_ block: CBlock?, _ type: Int32) -> Int32 {
         //Make sure everything is ok
 
         switch type {
@@ -258,7 +258,7 @@ final class CSequence {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:246
-    func SetFlag(_ flag: Int32) {
+    public func SetFlag(_ flag: Int32) {
         self.m_flags |= flag
     }
 
@@ -270,7 +270,7 @@ final class CSequence {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:257
-    func RemoveFlag(_ flag: Int32, _ children: Bool = false) {
+    public func RemoveFlag(_ flag: Int32, _ children: Bool = false) {
         self.m_flags &= ~flag
 
         if children {
@@ -288,7 +288,7 @@ final class CSequence {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:278
-    func HasFlag(_ flag: Int32) -> Int32 {
+    public func HasFlag(_ flag: Int32) -> Int32 {
         return (self.m_flags & flag)
     }
 
@@ -300,7 +300,7 @@ final class CSequence {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:289
-    func SetReturn(_ sequence: CSequence?) {
+    public func SetReturn(_ sequence: CSequence?) {
         self.m_return = sequence
     }
 
@@ -312,7 +312,7 @@ final class CSequence {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:301
-    func GetChildByIndex(_ iIndex: Int32) -> CSequence? {
+    public func GetChildByIndex(_ iIndex: Int32) -> CSequence? {
         if iIndex < 0 || iIndex >= Int32(self.m_children.count) {
             return nil
         }
@@ -386,7 +386,7 @@ final class CSequence {
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:363
     @discardableResult
-    func Save() -> Int32 {
+    public func Save() -> Int32 {
         return 0
     }
 
@@ -399,62 +399,62 @@ final class CSequence {
     */
     /// Source: oracle/codemp/icarus/Sequence.cpp:414
     @discardableResult
-    func Load() -> Int32 {
+    public func Load() -> Int32 {
         return 0
     }
 
     /// Source: oracle/codemp/icarus/sequence.h:34
-    func GetParent() -> CSequence? {
+    public func GetParent() -> CSequence? {
         self.m_parent
     }
 
     /// Source: oracle/codemp/icarus/sequence.h:44
-    func GetFlags() -> Int32 {
+    public func GetFlags() -> Int32 {
         self.m_flags
     }
 
     /// Source: oracle/codemp/icarus/sequence.h:45
-    func SetFlags(_ flags: Int32) {
+    public func SetFlags(_ flags: Int32) {
         self.m_flags = flags
     }
 
     /// Source: oracle/codemp/icarus/sequence.h:48
-    func GetIterations() -> Int32 {
+    public func GetIterations() -> Int32 {
         self.m_iterations
     }
 
     /// Source: oracle/codemp/icarus/sequence.h:49
-    func SetIterations(_ it: Int32) {
+    public func SetIterations(_ it: Int32) {
         self.m_iterations = it
     }
 
     /// Source: oracle/codemp/icarus/sequence.h:51
-    func GetID() -> Int32 {
+    public func GetID() -> Int32 {
         self.m_id
     }
 
     /// Source: oracle/codemp/icarus/sequence.h:52
-    func SetID(_ id: Int32) {
+    public func SetID(_ id: Int32) {
         self.m_id = id
     }
 
     /// Source: oracle/codemp/icarus/sequence.h:54
-    func GetReturn() -> CSequence? {
+    public func GetReturn() -> CSequence? {
         self.m_return
     }
 
     /// Source: oracle/codemp/icarus/sequence.h:58
-    func GetNumCommands() -> Int32 {
+    public func GetNumCommands() -> Int32 {
         self.m_numCommands
     }
 
     /// Source: oracle/codemp/icarus/sequence.h:59
-    func GetNumChildren() -> Int32 {
+    public func GetNumChildren() -> Int32 {
         Int32(self.m_children.count)
     }
 
     /// Source: oracle/codemp/icarus/sequence.h:64
-    func SetOwner(_ owner: ICARUS_Instance?) {
+    public func SetOwner(_ owner: ICARUS_Instance?) {
         self.m_owner = owner
     }
 }

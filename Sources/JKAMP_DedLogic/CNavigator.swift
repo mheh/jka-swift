@@ -36,7 +36,7 @@ public final class CNavigator {
     // AI: Raven declares a `list < nodeList_t >`. The type is an Array, by rule 17.
     private typealias nodeChain_l = [nodeList_t]
 
-    var pathsCalculated: Bool = false
+    public var pathsCalculated: Bool = false
 
     //rww - made failedEdges private as it doesn't seem to need to be public.
     //And I'd rather shoot myself than have to devise a way of setting/accessing this
@@ -60,7 +60,7 @@ public final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:478
-    init() {
+    public init() {
         if d_altRoutes == nil || d_patched == nil {
             NAV_CvarInit()
         }
@@ -79,7 +79,7 @@ public final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:572
-    func Init() {
+    public func Init() {
         self.Free()
     }
 
@@ -91,7 +91,7 @@ public final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:583
-    func Free() {
+    public func Free() {
         // AI: Raven deletes each node in a loop. Emptying the array frees them.
         self.m_nodes.removeAll()
         self.m_edgeLookupMap.removeAll()
@@ -105,7 +105,7 @@ public final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:602
-    func Load(_ filename: String, _ checksum: Int32) -> Bool {
+    public func Load(_ filename: String, _ checksum: Int32) -> Bool {
         var file: JKAShared.fileHandle_t = 0
 
         //Attempt to load the file
@@ -170,7 +170,7 @@ public final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:665
-    func Save(_ filename: String, _ checksum: Int32) -> Bool {
+    public func Save(_ filename: String, _ checksum: Int32) -> Bool {
         var file: JKAShared.fileHandle_t = 0
 
         //Attempt to load the file
@@ -220,7 +220,7 @@ public final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:710
-    func AddRawPoint(_ point: JKAShared.vec3_t, _ flags: Int32, _ radius: Int32) -> Int32 {
+    public func AddRawPoint(_ point: JKAShared.vec3_t, _ flags: Int32, _ radius: Int32) -> Int32 {
         let node = CNode.Create(point, flags, radius, Int32(self.m_nodes.count))
 
         if node == nil {
@@ -243,7 +243,7 @@ public final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:884
-    func CalculatePaths(_ recalc: Bool = false) {
+    public func CalculatePaths(_ recalc: Bool = false) {
         var i: Int32 = 0
         while i < self.m_nodes.count {
             //Allocate the needed memory
@@ -272,7 +272,7 @@ public final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1113
-    func HardConnect(_ first: Int32, _ second: Int32) {
+    public func HardConnect(_ first: Int32, _ second: Int32) {
         let start: CNode?
         let end: CNode?
 
@@ -310,7 +310,7 @@ public final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:916
-    func ShowNodes() {
+    public func ShowNodes() {
         var position = vec3_t()
         var showRadius: Bool
         var dist: Float
@@ -347,7 +347,7 @@ public final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:963
-    func ShowEdges() {
+    public func ShowEdges() {
         var start = vec3_t()
         var end = vec3_t()
 
@@ -422,7 +422,7 @@ public final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1632
-    func ShowPath(_ start: Int32, _ end: Int32) {
+    public func ShowPath(_ start: Int32, _ end: Int32) {
         //Validate the start position
         if (start < 0) || (start >= self.m_nodes.count) {
             return
@@ -485,7 +485,7 @@ public final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1514
-    func GetNearestNode(_ ent: JKAMP.SharedEntity?, _ lastID: Int32, _ flags: Int32, _ targetID: Int32) -> Int32 {
+    public func GetNearestNode(_ ent: JKAMP.SharedEntity?, _ lastID: Int32, _ flags: Int32, _ targetID: Int32) -> Int32 {
         var bestNode: Int32 = NODE_NONE
         //Must have nodes
         if self.m_nodes.count == 0 {
@@ -588,7 +588,7 @@ public final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2377
-    func GetBestNode(_ startID: Int32, _ endID: Int32, _ rejectID: Int32 = NODE_NONE) -> Int32 {
+    public func GetBestNode(_ startID: Int32, _ endID: Int32, _ rejectID: Int32 = NODE_NONE) -> Int32 {
         //Validate the start position
         if (startID < 0) || (startID >= self.m_nodes.count) {
             return WAYPOINT_NONE
@@ -663,7 +663,7 @@ public final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2444
-    func GetNodePosition(_ nodeID: Int32, _ out: inout JKAShared.vec3_t) -> Int32 {
+    public func GetNodePosition(_ nodeID: Int32, _ out: inout JKAShared.vec3_t) -> Int32 {
         //Validate the number
         if (nodeID < 0) || (nodeID >= self.m_nodes.count) {
             return 0
@@ -684,7 +684,7 @@ public final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2463
-    func GetNodeNumEdges(_ nodeID: Int32) -> Int32 {
+    public func GetNodeNumEdges(_ nodeID: Int32) -> Int32 {
         if (nodeID < 0) || (nodeID >= self.m_nodes.count) {
             return -1
         }
@@ -702,7 +702,7 @@ public final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2481
-    func GetNodeEdge(_ nodeID: Int32, _ edge: Int32) -> Int32 {
+    public func GetNodeEdge(_ nodeID: Int32, _ edge: Int32) -> Int32 {
         if (nodeID < 0) || (nodeID >= self.m_nodes.count) {
             return -1
         }
@@ -717,7 +717,7 @@ public final class CNavigator {
     // Not ported: Raven declares the method in navigator.h and defines no body for it.
 
     /// Source: oracle/codemp/server/NPCNav/navigator.h:184
-    func GetNumNodes() -> Int32 {
+    public func GetNumNodes() -> Int32 {
         return Int32(self.m_nodes.count)
     }
 
@@ -729,7 +729,7 @@ public final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2499
-    func Connected(_ startID: Int32, _ endID: Int32) -> Bool {
+    public func Connected(_ startID: Int32, _ endID: Int32) -> Bool {
         //Validate the start position
         if (startID < 0) || (startID >= self.m_nodes.count) {
             return false
@@ -773,7 +773,7 @@ public final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2536
-    func GetPathCost(_ startID: Int32, _ endID: Int32) -> UInt32 {
+    public func GetPathCost(_ startID: Int32, _ endID: Int32) -> UInt32 {
         //Validate the start position
         if (startID < 0) || (startID >= self.m_nodes.count) {
             return UInt32(Q3_INFINITE) // return 0;
@@ -886,7 +886,7 @@ public final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2643
-    func GetProjectedNode(_ origin: JKAShared.vec3_t, _ nodeID: Int32) -> Int32 {
+    public func GetProjectedNode(_ origin: JKAShared.vec3_t, _ nodeID: Int32) -> Int32 {
         //Validate the start position
         if (nodeID < 0) || (nodeID >= self.m_nodes.count) {
             return NODE_NONE
@@ -937,7 +937,7 @@ public final class CNavigator {
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1724
-    func CheckFailedNodes(_ ent: JKAMP.SharedEntity?) {
+    public func CheckFailedNodes(_ ent: JKAMP.SharedEntity?) {
         var nodePos = vec3_t()
         var j: Int32
 
@@ -976,7 +976,7 @@ public final class CNavigator {
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1768
-    func AddFailedNode(_ ent: JKAMP.SharedEntity?, _ nodeID: Int32) {
+    public func AddFailedNode(_ ent: JKAMP.SharedEntity?, _ nodeID: Int32) {
         var j: Int32 = 0
         while j < MAX_FAILED_NODES {
             if ent!.failedWaypoints[j] == 0 {
@@ -1006,7 +1006,7 @@ public final class CNavigator {
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1801
-    func NodeFailed(_ ent: JKAMP.SharedEntity?, _ nodeID: Int32) -> Bool {
+    public func NodeFailed(_ ent: JKAMP.SharedEntity?, _ nodeID: Int32) -> Bool {
         var j: Int32 = 0
         while j < MAX_FAILED_NODES {
             if (ent!.failedWaypoints[j] - 1) == nodeID {
@@ -1018,7 +1018,7 @@ public final class CNavigator {
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1813
-    func NodesAreNeighbors(_ startID: Int32, _ endID: Int32) -> Bool {
+    public func NodesAreNeighbors(_ startID: Int32, _ endID: Int32) -> Bool {
         //See if these 2 are neighbors
         if startID == endID {
             return false
@@ -1040,7 +1040,7 @@ public final class CNavigator {
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1835
-    func ClearFailedEdge(_ failedEdge: JKAMP.FailedEdge?) {
+    public func ClearFailedEdge(_ failedEdge: JKAMP.FailedEdge?) {
         if failedEdge == nil {
             return
         }
@@ -1072,7 +1072,7 @@ public final class CNavigator {
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1867
-    func ClearAllFailedEdges() {
+    public func ClearAllFailedEdges() {
         // AI: Raven calls memset over `sizeof( failedEdges )`. The body calls Com_Memset over the bytes of the records, the form of cm_test.swift:456.
         Com_Memset(self.failedEdges.bytes, WAYPOINT_NONE, JKAMP.FailedEdge.byteCount * Int(MAX_FAILED_EDGES))
         var j: Int32 = 0
@@ -1083,7 +1083,7 @@ public final class CNavigator {
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1876
-    func EdgeFailed(_ startID: Int32, _ endID: Int32) -> Int32 {
+    public func EdgeFailed(_ startID: Int32, _ endID: Int32) -> Int32 {
         //OPTIMIZED WAY  (bjg 01/02)
         //find in lookup map
         // AI: Raven walks the equal_range of the multimap. The body walks the Array of the key, which holds the values in their insert order.
@@ -1124,7 +1124,7 @@ public final class CNavigator {
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1925
-    func AddFailedEdge(_ entID: Int32, _ startID: Int32, _ endID: Int32) {
+    public func AddFailedEdge(_ entID: Int32, _ startID: Int32, _ endID: Int32) {
         var j: Int32 //, nextID;
 
         //Must have nodes
@@ -1240,7 +1240,7 @@ public final class CNavigator {
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2057
-    func CheckFailedEdge(_ failedEdge: JKAMP.FailedEdge?) -> Bool {
+    public func CheckFailedEdge(_ failedEdge: JKAMP.FailedEdge?) -> Bool {
         if failedEdge == nil {
             return false
         }
@@ -1320,7 +1320,7 @@ public final class CNavigator {
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2144
-    func CheckAllFailedEdges() {
+    public func CheckAllFailedEdges() {
         var failedEdge: JKAMP.FailedEdge
         var clearedAny = false
 
@@ -1346,7 +1346,7 @@ public final class CNavigator {
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2170
-    func RouteBlocked(_ startID: Int32, _ testEdgeID: Int32, _ endID: Int32, _ rejectRank: Int32) -> Bool {
+    public func RouteBlocked(_ startID: Int32, _ testEdgeID: Int32, _ endID: Int32, _ rejectRank: Int32) -> Bool {
         var nextID: Int32
         var edgeID: Int32
         var lastID: Int32
@@ -1433,7 +1433,7 @@ public final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2261
-    func GetBestNodeAltRoute(_ startID: Int32, _ endID: Int32, _ pathCost: inout Int32, _ rejectID: Int32 = NODE_NONE) -> Int32 {
+    public func GetBestNodeAltRoute(_ startID: Int32, _ endID: Int32, _ pathCost: inout Int32, _ rejectID: Int32 = NODE_NONE) -> Int32 {
         //Must have nodes
         if self.m_nodes.count == 0 {
             return WAYPOINT_NONE
@@ -1538,13 +1538,13 @@ public final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:2366
-    func GetBestNodeAltRoute(_ startID: Int32, _ endID: Int32, _ rejectID: Int32 = NODE_NONE) -> Int32 {
+    public func GetBestNodeAltRoute(_ startID: Int32, _ endID: Int32, _ rejectID: Int32 = NODE_NONE) -> Int32 {
         var junk: Int32 = 0
         return self.GetBestNodeAltRoute(startID, endID, &junk, rejectID)
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1320
-    func GetBestPathBetweenEnts(_ ent: JKAMP.SharedEntity?, _ goal: JKAMP.SharedEntity?, _ flags: Int32) -> Int32 {
+    public func GetBestPathBetweenEnts(_ ent: JKAMP.SharedEntity?, _ goal: JKAMP.SharedEntity?, _ flags: Int32) -> Int32 {
         //Must have nodes
         if self.m_nodes.count == 0 {
             return NODE_NONE
@@ -1707,7 +1707,7 @@ public final class CNavigator {
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1029
-    func GetNodeRadius(_ nodeID: Int32) -> Int32 {
+    public func GetNodeRadius(_ nodeID: Int32) -> Int32 {
         if self.m_nodes.count == 0 {
             return 0
         }
@@ -1715,7 +1715,7 @@ public final class CNavigator {
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1036
-    func CheckBlockedEdges() {
+    public func CheckBlockedEdges() {
         var start: CNode?
         var end: CNode?
         var p1 = vec3_t()
@@ -1775,12 +1775,12 @@ public final class CNavigator {
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1688
-    func ClearCheckedNodes() {
+    public func ClearCheckedNodes() {
         CheckedNodes.removeAll()
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1693
-    func CheckedNode(_ wayPoint: Int32, _ ent: Int32) -> JKAShared.byte {
+    public func CheckedNode(_ wayPoint: Int32, _ ent: Int32) -> JKAShared.byte {
         //assert(wayPoint>=0&&wayPoint<MAX_STORED_WAYPOINTS);
         if wayPoint < 0 || wayPoint >= MAX_STORED_WAYPOINTS {
             return CHECKED_NO
@@ -1793,7 +1793,7 @@ public final class CNavigator {
     }
 
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:1709
-    func SetCheckedNode(_ wayPoint: Int32, _ ent: Int32, _ value: JKAShared.byte) {
+    public func SetCheckedNode(_ wayPoint: Int32, _ ent: Int32, _ value: JKAShared.byte) {
         //assert(wayPoint>=0&&wayPoint<MAX_STORED_WAYPOINTS);
         if wayPoint < 0 || wayPoint >= MAX_STORED_WAYPOINTS {
             return
@@ -1811,7 +1811,7 @@ public final class CNavigator {
     ```
     */
     /// Source: oracle/codemp/server/NPCNav/navigator.cpp:496
-    func FlagAllNodes(_ newFlag: Int32) {
+    public func FlagAllNodes(_ newFlag: Int32) {
         for ni in self.m_nodes {
             ni!.AddFlag(newFlag)
         }

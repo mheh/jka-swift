@@ -91,7 +91,7 @@ public final class CRandomTerrain {
     private var mPaths: [CPathInfo?] = [CPathInfo?](repeating: nil, count: Int(MAX_RANDOM_PATHS))
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:563
-    init() {
+    public init() {
         // AI: Raven zeroes the MAX_RANDOM_PATHS pointers with memset. The field initializer already gives nil pointers, so the call drops.
     }
 
@@ -101,38 +101,38 @@ public final class CRandomTerrain {
     }
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.h:69
-    func GetLandScape() -> CCMLandScape? {
+    public func GetLandScape() -> CCMLandScape? {
         self.mLandScape
     }
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.h:70
-    func GetBounds() -> [JKAShared.vec3_t] {
+    public func GetBounds() -> [JKAShared.vec3_t] {
         self.mLandScape!.GetBounds()
     }
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.h:71
-    func rand_seed(_ seed: Int32) {
+    public func rand_seed(_ seed: Int32) {
         self.mLandScape!.rand_seed(seed)
     }
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.h:72
     // C converts the `unsigned long` of the landscape to the `int` return by its bits.
-    func get_rand_seed() -> Int32 {
+    public func get_rand_seed() -> Int32 {
         Int32(bitPattern: self.mLandScape!.get_rand_seed())
     }
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.h:73
-    func flrand(_ min: Float, _ max: Float) -> Float {
+    public func flrand(_ min: Float, _ max: Float) -> Float {
         self.mLandScape!.flrand(min, max)
     }
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.h:74
-    func irand(_ min: Int32, _ max: Int32) -> Int32 {
+    public func irand(_ min: Int32, _ max: Int32) -> Int32 {
         self.mLandScape!.irand(min, max)
     }
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:573
-    func Init(_ landscape: CCMLandScape?, _ grid: Slots<JKAShared.byte>?, _ width: Int32, _ height: Int32) {
+    public func Init(_ landscape: CCMLandScape?, _ grid: Slots<JKAShared.byte>?, _ width: Int32, _ height: Int32) {
         self.Shutdown()
         self.mLandScape = landscape
         self.mWidth = width
@@ -143,12 +143,12 @@ public final class CRandomTerrain {
     }
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:600
-    func Shutdown() {
+    public func Shutdown() {
         self.ClearPaths()
     }
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:605
-    func CreatePath(_ PathID: Int32, _ ConnectedID: Int32, _ CreationFlags: UInt32, _ numPoints: Int32, _ bx: Float, _ by: Float, _ ex: Float, _ ey: Float, _ minWidth: Float, _ maxWidth: Float, _ depth: Float, _ deviation: Float, _ breadth: Float) -> Bool {
+    public func CreatePath(_ PathID: Int32, _ ConnectedID: Int32, _ CreationFlags: UInt32, _ numPoints: Int32, _ bx: Float, _ by: Float, _ ex: Float, _ ey: Float, _ minWidth: Float, _ maxWidth: Float, _ depth: Float, _ deviation: Float, _ breadth: Float) -> Bool {
         // The dedicated build never makes a CRandomTerrain, so it never calls this method.
         var connected: CPathInfo? = nil
 
@@ -169,7 +169,7 @@ public final class CRandomTerrain {
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:628
     @discardableResult
-    func GetPathInfo(_ PathNum: Int32, _ PercentInto: Float, _ Coord: inout JKAShared.vec4_t, _ Vector: inout JKAShared.vec4_t) -> Bool {
+    public func GetPathInfo(_ PathNum: Int32, _ PercentInto: Float, _ Coord: inout JKAShared.vec4_t, _ Vector: inout JKAShared.vec4_t) -> Bool {
         // The dedicated build never makes a CRandomTerrain, so it never calls this method.
         if PathNum < 0 || PathNum >= MAX_RANDOM_PATHS || self.mPaths[PathNum] == nil {
             return false
@@ -181,11 +181,11 @@ public final class CRandomTerrain {
     }
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:640
-    func ParseGenerate(_ GenerateFile: String) {
+    public func ParseGenerate(_ GenerateFile: String) {
     }
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:644
-    func Smooth() {
+    public func Smooth() {
         // The dedicated build never makes a CRandomTerrain, so it never calls this method.
         // Scale down to 1/4 size then back up to smooth out the terrain
         var temp: Slots<JKAShared.byte>?
@@ -282,7 +282,7 @@ public final class CRandomTerrain {
     }
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:770
-    func Generate(_ symmetric: Int32) {
+    public func Generate(_ symmetric: Int32) {
         // The dedicated build never makes a CRandomTerrain, so it never calls this method.
         var i: Int32
         var j: Int32
@@ -350,7 +350,7 @@ public final class CRandomTerrain {
     }
 
     /// Source: oracle/codemp/qcommon/cm_randomterrain.cpp:584
-    func ClearPaths() {
+    public func ClearPaths() {
         var i: Int32
 
         i = 0

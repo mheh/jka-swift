@@ -7,35 +7,35 @@ import JKAMP_Ded
 /// `G2_TraceModels` builds one per model, and `G2_TraceSurfaces` walks the surface tree with it.
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:190
 public final class CTraceSurface {
-    var surfaceNum: Int32 = 0
+    public var surfaceNum: Int32 = 0
     // AI: Raven holds a reference to the caller's `surfaceInfo_v`. The field holds the array, because the trace only reads it.
-    var rootSList: [surfaceInfo_t] = []
-    var currentModel: Model? = nil
-    var lod: Int32 = 0
-    var rayStart = JKAShared.vec3_t()
-    var rayEnd = JKAShared.vec3_t()
-    var collRecMap: Slots<CollisionRecord>? = nil
-    var entNum: Int32 = 0
-    var modelIndex: Int32 = 0
-    var skin: Skin? = nil
-    var cust_shader: Shader? = nil
-    var TransformedVertsArray: Slots<Int32>? = nil
-    var traceFlags: Int32 = 0
-    var hitOne: Bool = false
-    var m_fRadius: Float = 0
+    public var rootSList: [surfaceInfo_t] = []
+    public var currentModel: Model? = nil
+    public var lod: Int32 = 0
+    public var rayStart = JKAShared.vec3_t()
+    public var rayEnd = JKAShared.vec3_t()
+    public var collRecMap: Slots<CollisionRecord>? = nil
+    public var entNum: Int32 = 0
+    public var modelIndex: Int32 = 0
+    public var skin: Skin? = nil
+    public var cust_shader: Shader? = nil
+    public var TransformedVertsArray: Slots<Int32>? = nil
+    public var traceFlags: Int32 = 0
+    public var hitOne: Bool = false
+    public var m_fRadius: Float = 0
 
     //gore application thing
-    var ssize: Float = 0
-    var tsize: Float = 0
-    var theta: Float = 0
-    var goreShader: Int32 = 0
-    var ghoul2info: CGhoul2Info? = nil
+    public var ssize: Float = 0
+    public var tsize: Float = 0
+    public var theta: Float = 0
+    public var goreShader: Int32 = 0
+    public var ghoul2info: CGhoul2Info? = nil
 
     //	Procedural-gore application things
-    var gore: SkinGoreData? = nil
+    public var gore: SkinGoreData? = nil
 
     /// Source: oracle/codemp/ghoul2/G2_misc.cpp:221
-    init(
+    public init(
         _ initsurfaceNum: Int32,
         _ initrootSList: [surfaceInfo_t],
         _ initcurrentModel: Model?,

@@ -14,13 +14,13 @@ public final class CMiniHeap {
 
 // reset the heap back to the start
     /// Source: oracle/codemp/qcommon/MiniHeap.h:14
-    func ResetHeap() {
+    public func ResetHeap() {
         self.mCurrentHeap = self.mHeap
     }
 
 // initialise the heap
     /// Source: oracle/codemp/qcommon/MiniHeap.h:20
-    init(_ size: Int32) {
+    public init(_ size: Int32) {
         self.mHeap = Slots<JKAShared.byte>.malloc(size)
         self.mSize = size
         if self.mHeap != nil {
@@ -38,7 +38,7 @@ public final class CMiniHeap {
 
 // give me some space from the heap please
     /// Source: oracle/codemp/qcommon/MiniHeap.h:40
-    func MiniHeapAlloc(_ size: Int32) -> Slots<JKAShared.byte>? {
+    public func MiniHeapAlloc(_ size: Int32) -> Slots<JKAShared.byte>? {
         // AI: Raven subtracts the two heap addresses. The used size is the count of the heap less the count of the tail.
         if size < (self.mSize - Int32(self.mHeap!.count - self.mCurrentHeap!.count)) {
             let tempAddress = self.mCurrentHeap

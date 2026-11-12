@@ -846,8 +846,8 @@ public final class EngineWorld {
 /// C storage cannot hold the address of a Swift function, so the tables are hand data on `EngineWorld`. A nil name is Raven's NULL row.
 /// Source: oracle/codemp/botlib/l_precomp.cpp:86
 public struct DirectiveRow {
-    let name: String?
-    let `func`: ((Source) -> Int32)?
+    public let name: String?
+    public let `func`: ((Source) -> Int32)?
 }
 
 /// The one instance. The engine runs one thread, so this is not isolated.

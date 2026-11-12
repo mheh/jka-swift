@@ -7,7 +7,7 @@ import JKAMP_Ded
 /// The handle is `mItem`, and every method reaches the array through `TheGhoul2InfoArray()`.
 /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:328
 public final class CGhoul2Info_v {
-    var mItem: Int32 = 0	//dont' be bad and muck with this
+    public var mItem: Int32 = 0	//dont' be bad and muck with this
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:330
     private func InfoArray() -> Ghoul2InfoArray {
@@ -43,12 +43,12 @@ public final class CGhoul2Info_v {
     }
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:362
-    init() {
+    public init() {
         self.mItem = 0
     }
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:366
-    init(_ item: Int32) {
+    public init(_ item: Int32) {
         //be VERY carefull with what you pass in here
         self.mItem = item
     }
@@ -60,18 +60,18 @@ public final class CGhoul2Info_v {
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:374
     // AI: Raven defines `operator=` from another handle. The method is `copy`.
-    func copy(_ other: CGhoul2Info_v) {
+    public func copy(_ other: CGhoul2Info_v) {
         self.mItem = other.mItem
     }
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:378
     // AI: Raven defines `operator=` from the VM side item number. The method is `copy`.
-    func copy(_ otherItem: Int32) {	//assigning one from the VM side item number
+    public func copy(_ otherItem: Int32) {	//assigning one from the VM side item number
         self.mItem = otherItem
     }
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:382
-    func DeepCopy(_ other: CGhoul2Info_v) {
+    public func DeepCopy(_ other: CGhoul2Info_v) {
         self.Free()
         if other.mItem != 0 {
             self.Alloc()
@@ -95,7 +95,7 @@ public final class CGhoul2Info_v {
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:399
     // AI: Raven defines a non-const and a const `operator[]`, the second at ghoul2_shared.h:405. The class has one subscript.
-    subscript(_ idx: Int32) -> CGhoul2Info {
+    public subscript(_ idx: Int32) -> CGhoul2Info {
         get {
             return self.Array[idx]
         }
@@ -105,7 +105,7 @@ public final class CGhoul2Info_v {
     }
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:411
-    func resize(_ num: Int32) {
+    public func resize(_ num: Int32) {
         if num != 0 {
             if self.mItem == 0 {
                 self.Alloc()
@@ -123,13 +123,13 @@ public final class CGhoul2Info_v {
     }
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:426
-    func clear() {
+    public func clear() {
         self.Free()
     }
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:430
     // AI: Raven appends a copy of the model. The list holds the instance itself, because the one caller hands a new temporary, G2_API.cpp:645.
-    func push_back(_ model: CGhoul2Info) {
+    public func push_back(_ model: CGhoul2Info) {
         if self.mItem == 0 {
             self.Alloc()
         }
@@ -137,7 +137,7 @@ public final class CGhoul2Info_v {
     }
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:438
-    func size() -> Int32 {
+    public func size() -> Int32 {
         if !self.IsValid() {
             return 0
         }
@@ -145,12 +145,12 @@ public final class CGhoul2Info_v {
     }
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:446
-    func IsValid() -> Bool {
+    public func IsValid() -> Bool {
         return self.InfoArray().IsValid(self.mItem)
     }
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:450
-    func kill() {
+    public func kill() {
         // this scary method zeros the infovector handle without actually freeing it
         // it is used for some places where a copy is made, but we don't want to go through the trouble
         // of making a deep copy

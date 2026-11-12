@@ -8,40 +8,40 @@ import JKAMP_Ded
 /// A `CGhoul2Info_v` handle names one array of these in `Ghoul2InfoArray`.
 /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:240
 public final class CGhoul2Info {
-    var mSlist: [surfaceInfo_t] = []
-    var mBltlist: [boltInfo_t] = []
-    var mBlist: [boneInfo_t] = []
+    public var mSlist: [surfaceInfo_t] = []
+    public var mBltlist: [boltInfo_t] = []
+    public var mBlist: [boneInfo_t] = []
 // save from here
-    var mModelindex: Int32 = -1
-    var mCustomShader: JKAShared.qhandle_t = 0
-    var mCustomSkin: JKAShared.qhandle_t = 0
-    var mModelBoltLink: Int32 = 0
-    var mSurfaceRoot: Int32 = 0
-    var mLodBias: Int32 = 0
-    var mNewOrigin: Int32 = -1	// this contains the bolt index of the new origin for this model
-    var mGoreSetTag: Int32 = 0
-    var mModel: JKAShared.qhandle_t = 0		// this and the next entries do NOT go across the network. They are for gameside access ONLY
-    var mFileName = CharBuf(MAX_QPATH)
-    var mAnimFrameDefault: Int32 = 0
-    var mSkelFrameNum: Int32 = -1
-    var mMeshFrameNum: Int32 = -1
-    var mFlags: Int32 = 0	// used for determining whether to do full collision detection against this object
+    public var mModelindex: Int32 = -1
+    public var mCustomShader: JKAShared.qhandle_t = 0
+    public var mCustomSkin: JKAShared.qhandle_t = 0
+    public var mModelBoltLink: Int32 = 0
+    public var mSurfaceRoot: Int32 = 0
+    public var mLodBias: Int32 = 0
+    public var mNewOrigin: Int32 = -1	// this contains the bolt index of the new origin for this model
+    public var mGoreSetTag: Int32 = 0
+    public var mModel: JKAShared.qhandle_t = 0		// this and the next entries do NOT go across the network. They are for gameside access ONLY
+    public var mFileName = CharBuf(MAX_QPATH)
+    public var mAnimFrameDefault: Int32 = 0
+    public var mSkelFrameNum: Int32 = -1
+    public var mMeshFrameNum: Int32 = -1
+    public var mFlags: Int32 = 0	// used for determining whether to do full collision detection against this object
 // to here
-    var mTransformedVertsArray: Slots<Int32>? = nil	// used to create an array of pointers to transformed verts per surface for collision detection
-    var mBoneCache: CBoneCache? = nil
-    var mSkin: Int32 = 0
+    public var mTransformedVertsArray: Slots<Int32>? = nil	// used to create an array of pointers to transformed verts per surface for collision detection
+    public var mBoneCache: CBoneCache? = nil
+    public var mSkin: Int32 = 0
 
     // these occasionally are not valid (like after a vid_restart)
     // call the questionably efficient G2_SetupModelPointers(this) to insure validity
-    var mValid: Bool = false // all the below are proper and valid
-    var currentModel: Model? = nil
-    var currentModelSize: Int32 = 0
-    var animModel: Model? = nil
-    var currentAnimModelSize: Int32 = 0
-    var aHeader: MdxaHeader? = nil
+    public var mValid: Bool = false // all the below are proper and valid
+    public var currentModel: Model? = nil
+    public var currentModelSize: Int32 = 0
+    public var animModel: Model? = nil
+    public var currentAnimModelSize: Int32 = 0
+    public var aHeader: MdxaHeader? = nil
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:281
-    init() {
+    public init() {
         self.mModelindex = -1
         self.mCustomShader = 0
         self.mCustomSkin = 0
@@ -69,7 +69,7 @@ public final class CGhoul2Info {
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:240
     // AI: Raven copies the class by value with the compiler's `operator=`. The method is `copy`, a memberwise assign in Raven's member order, and each list copies into new objects.
-    func copy(_ other: CGhoul2Info) {
+    public func copy(_ other: CGhoul2Info) {
         self.mSlist = other.mSlist.map { surface in
             let copy = surfaceInfo_t()
             copy.copy(surface)

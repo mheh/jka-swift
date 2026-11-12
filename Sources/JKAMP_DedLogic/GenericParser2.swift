@@ -169,7 +169,7 @@ public struct CGPValue {
     var mList: [String]
 
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:267
-    init(_ initName: String, _ initValue: String? = nil) {
+    public init(_ initName: String, _ initValue: String? = nil) {
         self.mName = initName
         self.mList = []
         if let initValue {
@@ -178,13 +178,13 @@ public struct CGPValue {
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.h:53
-    func GetName() -> String {
+    public func GetName() -> String {
         self.mName
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:289
     // AI: Raven copies each text into the caller's CTextPool. A String is already a copy, so the pool parameter drops.
-    func Duplicate() -> CGPValue {
+    public func Duplicate() -> CGPValue {
         var newValue = CGPValue(self.mName)
         for iterator in self.mList {
             newValue.AddValue(iterator)
@@ -194,7 +194,7 @@ public struct CGPValue {
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:323
-    func IsList() -> Bool {
+    public func IsList() -> Bool {
         if self.mList.count < 2 {
             return false
         }
@@ -203,7 +203,7 @@ public struct CGPValue {
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:333
-    func GetTopValue() -> String? {
+    public func GetTopValue() -> String? {
         if !self.mList.isEmpty {
             return self.mList[0]
         }
@@ -212,18 +212,18 @@ public struct CGPValue {
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.h:83
-    func GetList() -> [String] {
+    public func GetList() -> [String] {
         self.mList
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:343
     // AI: Raven appends a CGPObject node at the tail that the head's in-order link holds. The array append is that step.
-    mutating func AddValue(_ newValue: String) {
+    public mutating func AddValue(_ newValue: String) {
         self.mList.append(newValue)
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:362
-    mutating func Parse(_ dataPtr: inout TextCursor) -> Bool {
+    public mutating func Parse(_ dataPtr: inout TextCursor) -> Bool {
         var token: String
 
         while true {
@@ -245,7 +245,7 @@ public struct CGPValue {
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:387
-    func Write(_ textPool: inout String, _ depth: Int32) -> Bool {
+    public func Write(_ textPool: inout String, _ depth: Int32) -> Bool {
         var i: Int32
 
         if self.mList.isEmpty {
@@ -318,53 +318,53 @@ public final class CGPGroup {
     var mWriteable = false
 
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:458
-    init(_ initName: String = "Top Level", _ initParent: CGPGroup? = nil) {
+    public init(_ initName: String = "Top Level", _ initParent: CGPGroup? = nil) {
         self.mName = initName
         self.mParent = initParent
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.h:53
-    func GetName() -> String {
+    public func GetName() -> String {
         self.mName
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.h:109
-    func GetParent() -> CGPGroup? {
+    public func GetParent() -> CGPGroup? {
         self.mParent
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.h:110
-    func GetNext() -> CGPGroup? {
+    public func GetNext() -> CGPGroup? {
         self.mNext
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.h:58
-    func GetInOrderNext() -> CGPGroup? {
+    public func GetInOrderNext() -> CGPGroup? {
         self.mInOrderNext
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.h:60
-    func GetInOrderPrevious() -> CGPGroup? {
+    public func GetInOrderPrevious() -> CGPGroup? {
         self.mInOrderPrevious
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:476
     // Port-note: Raven's do-while counts one and then reads through the NULL head when the group has no subgroup.
     // The count of an empty list is 0.
-    func GetNumSubGroups() -> Int32 {
+    public func GetNumSubGroups() -> Int32 {
         Int32(self.mSubGroups.count)
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:493
     // Port-note: Raven's do-while counts one and then reads through the NULL head when the group has no pair.
     // The count of an empty list is 0.
-    func GetNumPairs() -> Int32 {
+    public func GetNumPairs() -> Int32 {
         Int32(self.mPairs.count)
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:510
     // AI: Raven deletes each pair and subgroup through the chains. Emptying the arrays frees them.
-    func Clean() {
+    public func Clean() {
         self.mPairs = []
         self.mInOrderPairs = []
         self.mSubGroups = []
@@ -376,7 +376,7 @@ public final class CGPGroup {
     /// Raven's `Duplicate`, which builds the copy with no parent, because his constructor call passes only the name.
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:532
     // AI: Raven copies each text into the caller's CTextPool. A String is already a copy, so the pool parameter drops.
-    func Duplicate(_ initParent: CGPGroup? = nil) -> CGPGroup {
+    public func Duplicate(_ initParent: CGPGroup? = nil) -> CGPGroup {
         let newGroup = CGPGroup(self.mName)
 
         for subSub in self.mSubGroups {
@@ -393,28 +393,28 @@ public final class CGPGroup {
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.h:115
-    func SetWriteable(_ writeable: Bool) {
+    public func SetWriteable(_ writeable: Bool) {
         self.mWriteable = writeable
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.h:116
-    func GetPairs() -> [CGPValue] {
+    public func GetPairs() -> [CGPValue] {
         self.mPairs
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.h:117
-    func GetInOrderPairs() -> [CGPValue] {
+    public func GetInOrderPairs() -> [CGPValue] {
         self.mInOrderPairs
     }
 
     /// Raven's head of the subgroup chain, which a caller walks with `GetNext`.
     /// Source: oracle/codemp/qcommon/GenericParser2.h:118
-    func GetSubGroups() -> CGPGroup? {
+    public func GetSubGroups() -> CGPGroup? {
         self.mSubGroups.first
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.h:119
-    func GetInOrderSubGroups() -> [CGPGroup] {
+    public func GetInOrderSubGroups() -> [CGPGroup] {
         self.mInOrderSubGroups
     }
 
@@ -444,7 +444,7 @@ public final class CGPGroup {
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:615
     // AI: Raven copies the name and the value into the CTextPool. A String is already a copy, so the pool parameter drops.
     @discardableResult
-    func AddPair(_ name: String, _ value: String?) -> CGPValue {
+    public func AddPair(_ name: String, _ value: String?) -> CGPValue {
         let newPair = CGPValue(name, value)
 
         self.AddPair(newPair)
@@ -453,14 +453,14 @@ public final class CGPGroup {
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:635
-    func AddPair(_ NewPair: CGPValue) {
+    public func AddPair(_ NewPair: CGPValue) {
         self.SortObject(NewPair, &self.mPairs, &self.mInOrderPairs) { $0.GetName() }
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:641
     // AI: Raven copies the name into the CTextPool. A String is already a copy, so the pool parameter drops.
     @discardableResult
-    func AddGroup(_ name: String) -> CGPGroup {
+    public func AddGroup(_ name: String) -> CGPGroup {
         let newGroup = CGPGroup(name, self)
 
         self.AddGroup(newGroup)
@@ -469,7 +469,7 @@ public final class CGPGroup {
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:657
-    func AddGroup(_ NewGroup: CGPGroup) {
+    public func AddGroup(_ NewGroup: CGPGroup) {
         // Raven's SortObject sets `mNext` of the last subgroup to the new one.
         self.mSubGroups.last?.mNext = NewGroup
         self.SortObject(NewGroup, &self.mSubGroups, &self.mInOrderSubGroups) { $0.GetName() }
@@ -489,7 +489,7 @@ public final class CGPGroup {
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:663
-    func FindSubGroup(_ name: String) -> CGPGroup? {
+    public func FindSubGroup(_ name: String) -> CGPGroup? {
         var group = self.GetSubGroups()
         while let current = group {
             if Q_stricmp(name, current.GetName()) == 0 {
@@ -501,7 +501,7 @@ public final class CGPGroup {
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:679
-    func Parse(_ dataPtr: inout TextCursor) -> Bool {
+    public func Parse(_ dataPtr: inout TextCursor) -> Bool {
         var token: String
         var lastToken = CharBuf(MAX_TOKEN_SIZE)
         var newSubGroup: CGPGroup
@@ -552,7 +552,7 @@ public final class CGPGroup {
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:736
-    func Write(_ textPool: inout String, _ depth: Int32) -> Bool {
+    public func Write(_ textPool: inout String, _ depth: Int32) -> Bool {
         var i: Int32
 
         if depth >= 0 {
@@ -607,7 +607,7 @@ public final class CGPGroup {
      *
      ************************************************************************************************/
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:795
-    func FindPair(_ key: String) -> CGPValue? {
+    public func FindPair(_ key: String) -> CGPValue? {
         let key = CharBuf(key)
         var length: Int32
         var pos: Int32 = 0
@@ -635,7 +635,7 @@ public final class CGPGroup {
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:834
-    func FindPairValue(_ key: String, _ defaultVal: String? = nil) -> String? {
+    public func FindPairValue(_ key: String, _ defaultVal: String? = nil) -> String? {
         if let pair = self.FindPair(key) {
             return pair.GetTopValue()
         }
@@ -655,20 +655,20 @@ public final class CGenericParser2 {
     var mWriteable = false
 
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:860
-    init() {}
+    public init() {}
 
     /// Source: oracle/codemp/qcommon/GenericParser2.h:149
-    func SetWriteable(_ writeable: Bool) {
+    public func SetWriteable(_ writeable: Bool) {
         self.mWriteable = writeable
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.h:150
-    func GetBaseParseGroup() -> CGPGroup {
+    public func GetBaseParseGroup() -> CGPGroup {
         self.mTopLevel
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:871
-    func Parse(_ dataPtr: inout TextCursor, _ cleanFirst: Bool = true, _ writeable: Bool = false) -> Bool {
+    public func Parse(_ dataPtr: inout TextCursor, _ cleanFirst: Bool = true, _ writeable: Bool = false) -> Bool {
         if cleanFirst {
             self.Clean()
         }
@@ -683,20 +683,20 @@ public final class CGenericParser2 {
 
     /// Raven's inline overload that takes the text pointer by value.
     /// Source: oracle/codemp/qcommon/GenericParser2.h:153
-    func Parse(_ dataPtr: TextCursor, _ cleanFirst: Bool = true, _ writeable: Bool = false) -> Bool {
+    public func Parse(_ dataPtr: TextCursor, _ cleanFirst: Bool = true, _ writeable: Bool = false) -> Bool {
         var dataPtr = dataPtr
         return self.Parse(&dataPtr, cleanFirst, writeable)
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:903
-    func Clean() {
+    public func Clean() {
         self.mTopLevel.Clean()
 
         // AI: Raven frees the CTextPool chain with CleanTextPool. The text pool has no Swift type, so the call drops.
     }
 
     /// Source: oracle/codemp/qcommon/GenericParser2.cpp:911
-    func Write(_ textPool: inout String) -> Bool {
+    public func Write(_ textPool: inout String) -> Bool {
         self.mTopLevel.Write(&textPool, -1)
     }
 }
