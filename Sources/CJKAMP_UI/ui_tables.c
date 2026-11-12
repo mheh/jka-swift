@@ -6,8 +6,8 @@
 #include "ui_tables.h"
 
 // Raven wrote `static datpadmovedata_t datapadMoveData[MD_MOVE_TITLE_MAX][MAX_MOVES] =` at ui_main.c:414, and ui_tables.h declares the table `extern`,
-// so this declaration line is the tool's own and Raven's bytes start at his brace.
-datpadmovedata_t datapadMoveData[MD_MOVE_TITLE_MAX][MAX_MOVES] =
+// so this declaration line is the tool's own with the bounds of ui_tables.h, and Raven's bytes start at his brace.
+datpadmovedata_t datapadMoveData[6][16] =
 // Source: oracle/codemp/ui/ui_main.c:415-523
 {
 // Acrobatics

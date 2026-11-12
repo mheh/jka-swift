@@ -21,7 +21,7 @@ class UiTables(unittest.TestCase):
         # then it compiles in the ui target, and each static table takes the tool's declaration line before Raven's bytes
         self.assertEqual((output.target, output.header), ("CJKAMP_UI", "ui_tables.h"))
         self.assertEqual(sum(1 for p in output.pieces if p.source and p.table), 5)
-        self.assertIn("datpadmovedata_t datapadMoveData[MD_MOVE_TITLE_MAX][MAX_MOVES] =\n// Source: oracle/codemp/ui/ui_main.c:415-523\n", text)
+        self.assertIn("datpadmovedata_t datapadMoveData[6][16] =\n// Source: oracle/codemp/ui/ui_main.c:415-523\n", text)
         self.assertIn("serverFilter_t serverFilters[2] = {\n// Source: oracle/codemp/ui/ui_main.c:897-899\n", text)
         self.assertIn("bind_t g_bindings[] =\n// Source: oracle/codemp/ui/ui_shared.c:5191-5292\n", text)
 

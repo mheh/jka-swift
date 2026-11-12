@@ -3,8 +3,10 @@
 #define JKA_UI_TABLES_H
 
 // The Swift importer drops an array of unknown bound, so the bound is written, and clang checks it against the initializer.
+// Raven's bounds are MD_MOVE_TITLE_MAX and MAX_MOVES of ui_main.c, written as numbers, because a hand header that names an enumerator
+// keeps the enum of ui_main.c out of its constants file.
 // Source: oracle/codemp/ui/ui_main.c:414
-extern datpadmovedata_t datapadMoveData[MD_MOVE_TITLE_MAX][MAX_MOVES];
+extern datpadmovedata_t datapadMoveData[6][16];
 
 // Source: oracle/codemp/ui/ui_main.c:896
 extern serverFilter_t serverFilters[2];

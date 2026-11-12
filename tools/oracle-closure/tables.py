@@ -144,8 +144,8 @@ CGAME_PIECES: tuple[Piece, ...] = (
 UI_PIECES: tuple[Piece, ...] = (
     Piece(own=(
         "// Raven wrote `static datpadmovedata_t datapadMoveData[MD_MOVE_TITLE_MAX][MAX_MOVES] =` at ui_main.c:414, and ui_tables.h declares the table `extern`,",
-        "// so this declaration line is the tool's own and Raven's bytes start at his brace.",
-        "datpadmovedata_t datapadMoveData[MD_MOVE_TITLE_MAX][MAX_MOVES] =",
+        "// so this declaration line is the tool's own with the bounds of ui_tables.h, and Raven's bytes start at his brace.",
+        "datpadmovedata_t datapadMoveData[6][16] =",
     ), source="codemp/ui/ui_main.c", first=415, last=523),
     Piece(own=(
         "// Raven wrote `static const serverFilter_t serverFilters[] = {` at ui_main.c:896, and ui_tables.h declares the table `extern` with its bound,",
