@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """tables.py: Raven's data tables as C storage, written to Sources/CJKAMP/bg_tables.c, Sources/CJKAMP_Game/g_tables.c,
-Sources/CJKAMP_CGame/cg_tables.c, and Sources/CJKAMP_Ded/ded_tables.c.
+Sources/CJKAMP_CGame/cg_tables.c, Sources/CJKAMP_UI/ui_tables.c, and Sources/CJKAMP_Ded/ded_tables.c.
 
 Rule 6: a table with Raven's data lives in C memory the view target binds over, read-only at the Swift surface.
 Rule 13: the file is generated whole and regenerated whole, so no hand edit survives a run.
@@ -138,6 +138,30 @@ CGAME_PIECES: tuple[Piece, ...] = (
 )
 
 
+# The ui file in the form of the cgame file: the datapad move table and the server tables of ui_main.c, which read
+# `datpadmovedata_t`, `serverFilter_t`, and `serverStatusCvar_t`, and the key binding and item flag tables of ui_shared.c,
+# which read `bind_t` and `itemFlagsDef_t` of ui_types.h.
+UI_PIECES: tuple[Piece, ...] = (
+    Piece(own=(
+        "// Raven wrote `static datpadmovedata_t datapadMoveData[MD_MOVE_TITLE_MAX][MAX_MOVES] =` at ui_main.c:414, and ui_tables.h declares the table `extern`,",
+        "// so this declaration line is the tool's own and Raven's bytes start at his brace.",
+        "datpadmovedata_t datapadMoveData[MD_MOVE_TITLE_MAX][MAX_MOVES] =",
+    ), source="codemp/ui/ui_main.c", first=415, last=523),
+    Piece(own=(
+        "// Raven wrote `static const serverFilter_t serverFilters[] = {` at ui_main.c:896, and ui_tables.h declares the table `extern` with its bound,",
+        "// so this declaration line and its brace are the tool's own and Raven's bytes start at his first row.",
+        "serverFilter_t serverFilters[2] = {",
+    ), source="codemp/ui/ui_main.c", first=897, last=899),
+    Piece(source="codemp/ui/ui_main.c", first=7883, last=7894),
+    Piece(own=(
+        "// Raven wrote `static bind_t g_bindings[] =` at ui_shared.c:5190, and ui_tables.h declares the table `extern`,",
+        "// so this declaration line is the tool's own and Raven's bytes start at his brace.",
+        "bind_t g_bindings[] =",
+    ), source="codemp/ui/ui_shared.c", first=5191, last=5292),
+    Piece(source="codemp/ui/ui_shared.c", first=157, last=160),
+)
+
+
 # The host file, the four netField tables of msg.cpp, the padding table of md4.cpp, and the static zone blocks of z_memman_pc.cpp. The netField tables read `netField_t` of ded_types.h and the tree's `entityState_t` and
 # `playerState_t` through `NETF` and `PSF`. Raven's `#ifdef _OPTIMIZED_VEHICLE_NETWORKING` arm of q_shared.h picks the three tables
 # of the first arm, and the copied range keeps both arms as he wrote them.
@@ -253,6 +277,7 @@ OUTPUTS: tuple[Output, ...] = (
     Output("CJKAMP", "bg_tables.c", "bg_tables.h", BG_PIECES),
     Output("CJKAMP_Game", "g_tables.c", "g_tables.h", GAME_PIECES),
     Output("CJKAMP_CGame", "cg_tables.c", "cg_tables.h", CGAME_PIECES),
+    Output("CJKAMP_UI", "ui_tables.c", "ui_tables.h", UI_PIECES),
     Output("CJKAMP_Ded", "ded_tables.c", "ded_tables.h", DED_PIECES),
 )
 
