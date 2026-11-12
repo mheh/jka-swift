@@ -10,6 +10,7 @@ let package = Package(
     products: [
         .library(name: "jampgame", type: .dynamic, targets: ["jampgame"]),
         .library(name: "cgame", type: .dynamic, targets: ["cgame"]),
+        .library(name: "ui", type: .dynamic, targets: ["ui"]),
         .executable(name: "jampded", targets: ["jampded"]),
         .library(name: "JKAMP_BG", targets: ["JKAMP_BG", "JKAMP", "JKAShared"]),
         .library(name: "JKAMP_GameLogic", targets: ["JKAMP_GameLogic", "JKAMP_BG", "JKAMP_Game", "JKAMP", "JKAShared"]),
@@ -58,6 +59,7 @@ let package = Package(
         // MARK: - Shell, the product
         .target(name: "jampgame", dependencies: ["JKAMP_GameLogic"]),
         .target(name: "cgame", dependencies: ["JKAMP_CGameLogic"]),
+        .target(name: "ui", dependencies: ["JKAMP_UILogic"]),
         .executableTarget(name: "jampded", dependencies: ["JKAMP_DedLogic", "CJKAHost", "CJKAZlib"]),
         .executableTarget(name: "jampsmoke", dependencies: ["CJKASyscall"]),
 
