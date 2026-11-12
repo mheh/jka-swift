@@ -164,7 +164,7 @@ private func WriteText(_ textPool: inout String, _ text: String) -> Bool {
 /// Row C3 of the C++ docket makes it a struct over `[String]`, so the `CGPObject` chain of the values is the array.
 /// Source: oracle/codemp/qcommon/GenericParser2.h:68
 // AI: Raven links each value as a `CGPObject` whose text lives in a CTextPool. The struct holds the name and the values as Strings.
-struct CGPValue {
+public struct CGPValue {
     var mName: String
     var mList: [String]
 
@@ -305,7 +305,7 @@ struct CGPValue {
 /// Source: oracle/codemp/qcommon/GenericParser2.h:93
 // AI: Raven links the pairs and subgroups through `mNext` and `mInOrderNext` and keeps the tail in `mCurrentPair` and `mCurrentSubGroup`.
 // The arrays hold the two orders, and a subgroup keeps a weak `mNext`, `mInOrderNext`, and `mInOrderPrevious` for the sibling walks.
-final class CGPGroup {
+public final class CGPGroup {
     var mName: String
     weak var mNext: CGPGroup?
     weak var mInOrderNext: CGPGroup?
@@ -650,7 +650,7 @@ final class CGPGroup {
 /// Row C3 of the C++ docket makes it a final class that holds the top group, as Raven holds it by value.
 /// Source: oracle/codemp/qcommon/GenericParser2.h:136
 // AI: Raven also holds the CTextPool chain of the parse in `mTextPool`. The text lives in the Strings of the tree, so the field drops.
-final class CGenericParser2 {
+public final class CGenericParser2 {
     var mTopLevel = CGPGroup()
     var mWriteable = false
 

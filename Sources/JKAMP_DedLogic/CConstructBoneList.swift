@@ -7,7 +7,7 @@ import JKAMP_Ded
 /// G2_surfaces.cpp and tr_ghoul2.cpp each define the class with the same text, so one class serves both.
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:18
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:142
-final class CConstructBoneList {
+public final class CConstructBoneList {
     var surfaceNum: Int32 = 0
     var boneUsedList: Slots<Int32>? = nil
     // AI: Raven holds references to the caller's `surfaceInfo_v` and `boneInfo_v`.

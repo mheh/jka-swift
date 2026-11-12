@@ -23,7 +23,7 @@ struct SGoreSurface {
 /// Raven's gore set of one Ghoul2 model, its gore surfaces by surface index and a reference count.
 /// `CGhoul2Info.mGoreSetTag` names the set, and `FindGoreSet` returns it.
 /// Source: oracle/codemp/ghoul2/G2_gore.h:59
-final class CGoreSet {
+public final class CGoreSet {
     var mMyGoreSetTag: Int32 = 0
     var mRefCount: UInt8 = 0
     // AI: Raven keys a `multimap<int,SGoreSurface>` by the surface index. The table is a Dictionary of arrays, by the C++ docket.

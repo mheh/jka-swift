@@ -52,7 +52,7 @@ final class SBoneCalc {
 /// Raven's bone cache of one Ghoul2 model, the frame state and the final and smoothed matrices of every bone.
 /// `CGhoul2Info.mBoneCache` holds one, and `G2_TransformGhoulBones` fills it each frame.
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:206
-final class CBoneCache {
+public final class CBoneCache {
     var frameSize: Int32 = 0
     var header: MdxaHeader? = nil
     var mod: Model? = nil

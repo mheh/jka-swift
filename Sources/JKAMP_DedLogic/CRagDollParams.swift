@@ -8,7 +8,7 @@ import JKAMP_Ded
 /// Source: oracle/codemp/ghoul2/G2_gore.h:131
 // AI: Raven nests the enums ERagPhase and ERagEffector in the class.
 // Each is an Int32 alias with static cases, so a body reads `CRagDollParams.RP_DEATH_COLLISION`.
-final class CRagDollParams {
+public final class CRagDollParams {
     typealias ERagPhase = Int32
     static let RP_START_DEATH_ANIM: ERagPhase = 0
     static let RP_END_DEATH_ANIM: ERagPhase = 1

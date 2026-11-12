@@ -6,7 +6,7 @@ import JKAMP_Ded
 /// Raven's renderable Ghoul2 surface, the surface data and the bone cache that `RB_SurfaceGhoul` draws, with the gore values.
 /// `RenderSurfaces` of tr_ghoul2.cpp makes one per drawn surface.
 /// Source: oracle/codemp/renderer/tr_local.h:2047
-final class CRenderableSurface {
+public final class CRenderableSurface {
     var ident: Int32 = 0
     var boneCache: CBoneCache? = nil
     var surfaceData: MdxmSurface? = nil	// pointer to surface data loaded into file - only used by client renderer DO NOT USE IN GAME SIDE - if there is a vid restart this will be out of wack on the game

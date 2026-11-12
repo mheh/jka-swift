@@ -32,7 +32,7 @@ typealias bstream_t = bstream_s
 /// Raven's sequencer of one entity, which parses a script into sequences and hands each command to its task manager.
 /// Source: oracle/codemp/icarus/sequencer.h:68
 // AI: Raven allocates the class with Z_Malloc in operator new and frees it in operator delete. ARC frees the class, so the two operators drop.
-final class CSequencer {
+public final class CSequencer {
     //	typedef	map < int, CSequence * >			sequenceID_m;
     // AI: Raven types the list with std::list. It is an Array, by rule 17.
     typealias sequence_l = [CSequence]

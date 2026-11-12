@@ -7,7 +7,7 @@ import JKAMP_Ded
 /// Raven's one Ghoul2 model of an instance: its surface, bolt, and bone lists, its handles, and the model pointers the renderer sets.
 /// A `CGhoul2Info_v` handle names one array of these in `Ghoul2InfoArray`.
 /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:240
-final class CGhoul2Info {
+public final class CGhoul2Info {
     var mSlist: [surfaceInfo_t] = []
     var mBltlist: [boltInfo_t] = []
     var mBlist: [boneInfo_t] = []

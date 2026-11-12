@@ -6,7 +6,7 @@ import JKAMP_Ded
 /// Raven's state of one Ghoul2 trace through the surfaces of one model, the ray, the model, and the collision records to fill.
 /// `G2_TraceModels` builds one per model, and `G2_TraceSurfaces` walks the surface tree with it.
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:190
-final class CTraceSurface {
+public final class CTraceSurface {
     var surfaceNum: Int32 = 0
     // AI: Raven holds a reference to the caller's `surfaceInfo_v`. The field holds the array, because the trace only reads it.
     var rootSList: [surfaceInfo_t] = []

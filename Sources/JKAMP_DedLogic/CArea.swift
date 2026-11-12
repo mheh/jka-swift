@@ -7,7 +7,7 @@ import JKAMP_Ded
 /// `CCMLandScape.mAreas` holds every area, and the random mission places its instances in them.
 /// Source: oracle/codemp/qcommon/cm_landscape.h:42
 // AI: Raven's destructor at cm_landscape.h:53 has an empty body. The class has no deinit.
-final class CArea {
+public final class CArea {
     // AI: Raven's GetPosition returns a reference to `mPosition`, and RM_Mission.cpp:1579 writes through it.
     // GetPosition returns a copy, so the field is internal, and a caller that writes the vector writes the field.
     var mPosition = JKAShared.vec3_t()

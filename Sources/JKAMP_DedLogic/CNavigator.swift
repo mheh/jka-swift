@@ -18,7 +18,7 @@ typealias drawMap_m = [Int32: Bool]
 /// One instance exists, `navigator`, and the game reaches it through the `trap_Nav_` calls.
 /// Source: oracle/codemp/server/NPCNav/navigator.h:134
 // AI: Raven's destructor at navigator.cpp:486 has an empty body. The deinit frees the allocation of `failedEdges`.
-final class CNavigator {
+public final class CNavigator {
     /// Source: oracle/codemp/server/NPCNav/navigator.h:136
     // AI: Raven declares a `vector < CNode * >`. The type is an Array of the optional class, by rule 17.
     private typealias node_v = [CNode?]

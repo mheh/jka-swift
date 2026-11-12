@@ -13,18 +13,18 @@ var iICARUS: ICARUS_Instance? {
 /// Raven's cached script, the bytes of one IBI file and their count.
 /// Source: oracle/codemp/icarus/GameInterface.h:4
 // AI: Raven holds an ICARUS_Malloc block in `char *buffer`. The record holds the CharBuf of the file, the form of the CharBuf callers of FS_ReadFile.
-struct pscript_t {
+public struct pscript_t {
     var buffer = CharBuf(0)
     var length: Int32 = 0
 }
 
 /// Source: oracle/codemp/icarus/GameInterface.h:10
 // AI: Raven declares a `map < string, int >`. The type is a Dictionary, by rule 17.
-typealias entlist_t = [String: Int32]
+public typealias entlist_t = [String: Int32]
 
 /// Source: oracle/codemp/icarus/GameInterface.h:11
 // AI: Raven declares a `map < string, pscript_t* >`. The type is a Dictionary of the record, by rule 17.
-typealias bufferlist_t = [String: pscript_t]
+public typealias bufferlist_t = [String: pscript_t]
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:17
 /// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.

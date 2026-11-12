@@ -6,7 +6,7 @@ import JKAMP_Ded
 /// Raven's cached model file, the disk image, its size, the shader requests to fill, and the level and pak checksum it came from.
 /// `CachedModels` of tr_model.cpp holds one per model name.
 /// Source: oracle/codemp/renderer/tr_model.cpp:48
-final class CachedEndianedModelBinary_t {
+public final class CachedEndianedModelBinary_t {
     var pModelDiskImage: Slots<JKAShared.byte>? = nil
     var iAllocSize: Int32 = 0		// may be useful for mem-query, but I don't actually need it
     // AI: Raven holds a `vector<pair<int,int>>`, ShaderRegisterData_t of tr_model.cpp:47. The field is an Array of pairs, by the C++ docket.

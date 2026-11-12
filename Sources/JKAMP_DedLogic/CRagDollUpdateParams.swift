@@ -23,7 +23,7 @@ final class SRagDollEffectorCollision {
 /// The ragdoll update of G2_bones.cpp reads it, and its callbacks do nothing in MP.
 /// Source: oracle/codemp/ghoul2/G2_gore.h:94
 // AI: Raven declares the four callbacks virtual, and no class derives from this one. They are plain methods.
-final class CRagDollUpdateParams {
+public final class CRagDollUpdateParams {
     var angles = JKAShared.vec3_t()
     var position = JKAShared.vec3_t()
     var scale = JKAShared.vec3_t()

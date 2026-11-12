@@ -8,7 +8,7 @@ import JKAMP_Ded
 /// Source: oracle/codemp/icarus/instance.h:12
 // AI: Raven's destructor has an empty body. ARC frees the class, so the destructor drops.
 // AI: Raven declares the save and load methods virtual, and no class derives from ICARUS_Instance. The final class makes each one a plain method.
-final class ICARUS_Instance {
+public final class ICARUS_Instance {
     // AI: Raven types these with std::list and std::map. Each is an Array or a Dictionary, by rule 17.
     typealias sequence_l = [CSequence]
     typealias sequencer_l = [CSequencer]

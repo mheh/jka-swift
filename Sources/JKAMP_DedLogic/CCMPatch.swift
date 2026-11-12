@@ -7,7 +7,7 @@ import JKAMP_Ded
 /// `CCMLandScape.mPatches` holds one per block, and the trace of a terrain brush walks the brushes of each patch.
 /// Source: oracle/codemp/qcommon/cm_landscape.h:90
 // AI: Raven's destructor at cm_terrain.cpp:112 has an empty body. The class has no deinit.
-final class CCMPatch {
+public final class CCMPatch {
     // AI: Raven holds the owner as a pointer. The field is weak, because the landscape holds every patch in its array.
     private weak var owner: CCMLandScape? = nil										// Owning landscape
     private var mHx: Int32 = 0

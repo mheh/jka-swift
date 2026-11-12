@@ -6,7 +6,7 @@ import JKAMP_Ded
 /// Raven's collision terrain of a map, the height map, its patches and their brushes, the water, and the flattened areas.
 /// `CM_RegisterTerrain` makes the one instance, `cmg.landScape`, and the trace of a terrain brush and the random mission read it.
 /// Source: oracle/codemp/qcommon/cm_landscape.h:135
-final class CCMLandScape {
+public final class CCMLandScape {
     private var mRefCount: Int32 = 0									// Number of times this class is referenced
     private var mTerrainHandle: JKAShared.thandle_t = 0
     // AI: Raven holds the Z_Malloc blocks of cm_terrain.cpp:157, :158, and :215 as `byte *`. Each field is the Slots over the bytes of its block.

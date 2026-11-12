@@ -7,7 +7,7 @@ import JKAMP_Ded
 /// Raven's bone override of one Ghoul2 model, an angle override, an animation, or a ragdoll bone.
 /// `CGhoul2Info.mBlist` holds one per overridden bone.
 /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:63
-final class boneInfo_t {
+public final class boneInfo_t {
     // AI: Raven holds eight `mdxaBone_t` records by value. The instance owns one allocation of the eight, and each record field is the view of one slot.
     // A store is `copy(from:)`, Raven's `=`. Raven leaves seven of the records unset, and the allocation zeroes them.
     private let mdxaBones: Slots<MdxaBone> = {

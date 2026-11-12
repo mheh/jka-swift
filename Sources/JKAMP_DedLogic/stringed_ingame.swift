@@ -38,7 +38,7 @@ typealias mapStringEntries_t = [String: SE_Entry_t]
 /// One instance exists, `TheStringPackage` on `EngineWorld`, and every `SE_` function reads it.
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:64
 // AI: Raven declares a C++ class with one global instance. The class is a final class on EngineWorld, so a method changes the one table in place.
-final class CStringEdPackage {
+public final class CStringEdPackage {
     private var m_bEndMarkerFound_ParseOnly: Bool = false
     private var m_strCurrentEntryRef_ParseOnly: String = ""
     private var m_strCurrentEntryEnglish_ParseOnly: String = ""

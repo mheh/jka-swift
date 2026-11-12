@@ -79,7 +79,7 @@ private func CM_NoiseGet4f(_ x: Float, _ y: Float, _ z: Float, _ t: Float) -> Fl
 /// Raven's random terrain of a landscape, the height grid and the paths that carve it.
 /// CreateRandomTerrain makes one for a `random_` height map, and only a client build calls it, so the dedicated build never makes one.
 /// Source: oracle/codemp/qcommon/cm_randomterrain.h:51
-final class CRandomTerrain {
+public final class CRandomTerrain {
     private var mLandScape: CCMLandScape? = nil
     private var mWidth: Int32 = 0
     private var mHeight: Int32 = 0

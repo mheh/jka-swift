@@ -9,7 +9,7 @@ let RUNAWAY_LIMIT: Int32 = 256
 /// Raven's task manager of one entity, which runs the commands of its sequencer one game frame at a time.
 /// Source: oracle/codemp/icarus/taskmanager.h:97
 // AI: Raven's destructor has an empty body. ARC frees the class, so the destructor drops.
-final class CTaskManager {
+public final class CTaskManager {
     // AI: Raven types these with std::map, std::vector, and std::list. Each is a Dictionary or an Array, by rule 17.
     typealias taskID_m = [Int32: CTask]
     typealias taskGroupName_m = [String: CTaskGroup]

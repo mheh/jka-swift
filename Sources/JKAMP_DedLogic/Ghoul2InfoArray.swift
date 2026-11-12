@@ -8,7 +8,7 @@ import JKAMP_Ded
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:310
 // AI: Raven declares the interface IGhoul2InfoArray at ghoul2_shared.h:316, and this class is its one implementation.
 // The class stands for both, and the generator spells `IGhoul2InfoArray &` as `Ghoul2InfoArray`.
-final class Ghoul2InfoArray {
+public final class Ghoul2InfoArray {
     // AI: Raven's Get returns a reference to one vector of `mInfos`, and the callers write through it.
     // `Get` returns a copy, so the field is internal, and the setter of `CGhoul2Info_v.Array` writes the stored vector here.
     var mInfos: [[CGhoul2Info]] = [[CGhoul2Info]](repeating: [], count: MAX_G2_MODELS)

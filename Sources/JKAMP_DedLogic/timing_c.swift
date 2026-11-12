@@ -6,7 +6,7 @@ import JKAMP_Ded
 /// Raven's cycle timer, the two time-stamp counter reads of a span and their difference.
 /// Com_Frame and the Ghoul2 timers of tr_ghoul2.cpp hold one each under `G2_PERFORMANCE_ANALYSIS`.
 /// Source: oracle/codemp/qcommon/timing.h:2
-final class timing_c {
+public final class timing_c {
     private var start: Int64 = 0
     private var end: Int64 = 0
 

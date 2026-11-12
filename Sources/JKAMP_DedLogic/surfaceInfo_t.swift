@@ -7,7 +7,7 @@ import JKAMP_Ded
 /// Raven's surface override of one Ghoul2 model, an off flag or a generated surface at a hit point.
 /// `CGhoul2Info.mSlist` holds one per override.
 /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:38
-final class surfaceInfo_t {
+public final class surfaceInfo_t {
     var offFlags: Int32 = 0		// what the flags are for this model
     var surface: Int32 = 0		// index into array held inside the model definition of pointers to the actual surface data loaded in - used by both client and game
     var genBarycentricJ: Float = 0	// point 0 barycentric coors

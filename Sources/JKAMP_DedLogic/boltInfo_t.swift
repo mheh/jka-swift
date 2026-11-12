@@ -7,7 +7,7 @@ import JKAMP_Ded
 /// Raven's bolt of one Ghoul2 model, the bone or the surface that a bolt attaches to and its position matrix.
 /// `CGhoul2Info.mBltlist` holds one per bolt.
 /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:170
-final class boltInfo_t {
+public final class boltInfo_t {
     // AI: Raven holds `position` by value. The instance owns one allocation of the record, and the field is the view of the slot.
     // A store is `copy(from:)`, Raven's `=`. Raven leaves the record unset, and the allocation zeroes it.
     private let mdxaBones: Slots<MdxaBone> = {

@@ -6,7 +6,7 @@ import JKAMP_Ded
 /// Raven's handle to one array of `CGhoul2Info` in `Ghoul2InfoArray`, the ghoul2 instance of an entity.
 /// The handle is `mItem`, and every method reaches the array through `TheGhoul2InfoArray()`.
 /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:328
-final class CGhoul2Info_v {
+public final class CGhoul2Info_v {
     var mItem: Int32 = 0	//dont' be bad and muck with this
 
     /// Source: oracle/codemp/ghoul2/ghoul2_shared.h:330

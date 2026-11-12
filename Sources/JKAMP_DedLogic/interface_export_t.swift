@@ -8,7 +8,7 @@ import JKAMP_Ded
 /// Source: oracle/codemp/icarus/interface.h:17
 // AI: Raven declares a C struct of function pointers, and only the Swift functions of Q3_Interface.cpp, Q3_Registers.cpp, and GameInterface.cpp fill it.
 // C never reads the table, so it is a final class of stored Swift functions, the form of `captureFunc` and `rd_flush`, and nil is Raven's NULL.
-final class interface_export_t {
+public final class interface_export_t {
     //General
     // AI: Raven's `void **buf` holds a `char *` cursor into the script. The parameter is the inout TextCursor of Q3_ReadScript.
     var I_LoadFile: ((String, inout JKAShared.TextCursor) -> Int32)? = nil
