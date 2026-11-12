@@ -10,6 +10,7 @@ This script starts two engine instances and steps them in lockstep.
 Side A and side B each load a different game module from their own `fs_homepath`.
 The script compares the checksum of each frame.
 On a divergence, it reports the first differing entity or client field and the first differing boundary-trace record.
+In a dump block, a line of hex digits with no `REF ` mark is the next part of the record before it, because the Swift host ends a line after each `Com_Printf` call.
 The `--selftest` argument checks the parser and the differ against embedded samples and needs no engine.
 
 Arguments:
