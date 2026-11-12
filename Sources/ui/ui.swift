@@ -2,6 +2,7 @@ import JKAShared
 import JKAMP
 import JKAMP_UI
 import JKAMP_UILogic
+import JKAMP_BG
 
 /// This target holds the ui module's two ABI entry points, `dllEntry` and `vmMain`, and the 13-arm command decode.
 /// It is the dynamic library the engine loads.
@@ -13,7 +14,14 @@ public func dllEntry(_ syscallptr: OpaquePointer) {
     Syscall.transport = EngineTransport(entry: syscallptr)
     // AI: Raven relied on the engine reload of the image to zero every static at a map load. The image stays resident here, so a fresh world gives the same result.
     world = UIWorld()
-    // TODO: Port the bg channel install - needs a ui consumer of BgState, because Raven's ui build defines neither QAGAME nor CGAME.
+    // The ui installs the bg channel here, rule 23, with Raven's `MAX_POOL_SIZE` of 512000 for the ui at oracle/codemp/game/bg_misc.c:3316.
+    bg = BgState(consumer: .ui, maxPoolSize: 512_000)
+    bg.error = { level, text in JKAMP_UILogic.Com_Error(level, text) }
+    bg.print = { text in JKAMP_UILogic.Com_Printf(text) }
+    installBgChannel()
+    // The ui installs the shared channel here too, in the same shape.
+    sharedChannel.error = { level, text in JKAMP_UILogic.Com_Error(level, text) }
+    sharedChannel.print = { text in JKAMP_UILogic.Com_Printf(text) }
 }
 
 /// Source: oracle/codemp/ui/ui_main.c:579
