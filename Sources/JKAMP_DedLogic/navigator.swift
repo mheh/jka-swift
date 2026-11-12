@@ -5,7 +5,7 @@ import JKAMP_Ded
 
 /// Source: oracle/codemp/server/NPCNav/navigator.cpp:32
 /// Raven's instance, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var navigator: CNavigator { world.navigator }
+public var navigator: CNavigator { world.navigator }
 
 /// Source: oracle/codemp/server/NPCNav/navigator.cpp:36
 public var d_altRoutes: JKAMP.Cvar? {

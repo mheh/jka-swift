@@ -11,7 +11,7 @@ var mhHashTable: Slots<ModelHash?> { world.storage.mhHashTable }
 
 /// Source: oracle/codemp/renderer/tr_model.cpp:68
 /// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var CachedModels: [String: CachedEndianedModelBinary_t]? {
+public var CachedModels: [String: CachedEndianedModelBinary_t]? {
     get { world.CachedModels }
     set { world.CachedModels = newValue }
 }

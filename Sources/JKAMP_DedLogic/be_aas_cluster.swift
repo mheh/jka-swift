@@ -17,7 +17,7 @@ let MAX_PORTALAREAS = 1024 as Int32
 
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:38
 // Raven wrote: int nofaceflood = qtrue
-let nofaceflood: Int32 = 1
+public let nofaceflood: Int32 = 1
 
 /// Source: oracle/codemp/botlib/be_aas_cluster.cpp:708
 // AI: Raven declares `connectedareas` on the stack of AAS_ConnectedAreas. The function uses one zeroed allocation on the storage class.

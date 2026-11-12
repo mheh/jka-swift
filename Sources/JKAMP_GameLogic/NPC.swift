@@ -67,7 +67,7 @@ public var NPCDEBUG_RED: JKAShared.vec3_t {
 
 /// Source: oracle/codemp/game/NPC.c:657
 // Raven wrote: vec3_t NPCDEBUG_GREEN = {0.0, 1.0, 0.0}
-let NPCDEBUG_GREEN: JKAShared.vec3_t = vec3_t(0.0, 1.0, 0.0)
+public let NPCDEBUG_GREEN: JKAShared.vec3_t = vec3_t(0.0, 1.0, 0.0)
 
 /// Source: oracle/codemp/game/NPC.c:658
 /// Raven's data table, a hand property of `GameWorld`.
@@ -78,7 +78,7 @@ public var NPCDEBUG_BLUE: JKAShared.vec3_t {
 
 /// Source: oracle/codemp/game/NPC.c:659
 // Raven wrote: vec3_t NPCDEBUG_LIGHT_BLUE = {0.3f, 0.7f, 1.0}
-let NPCDEBUG_LIGHT_BLUE: JKAShared.vec3_t = vec3_t(0.3, 0.7, 1.0)
+public let NPCDEBUG_LIGHT_BLUE: JKAShared.vec3_t = vec3_t(0.3, 0.7, 1.0)
 
 /// Source: oracle/codemp/game/NPC.c:46
 public func CorpsePhysics(_ `self`: Entity) {

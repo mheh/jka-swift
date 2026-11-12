@@ -79,11 +79,11 @@ public var cameraCurLoc: JKAShared.vec3_t {
 
 /// Source: oracle/codemp/cgame/cg_view.c:228
 // Raven wrote: vec3_t cameraOldLoc={0,0,0}, cameraNewLoc={0,0,0}
-let cameraOldLoc: JKAShared.vec3_t = vec3_t()
+public let cameraOldLoc: JKAShared.vec3_t = vec3_t()
 
 /// Source: oracle/codemp/cgame/cg_view.c:228
 // Raven wrote: vec3_t cameraOldLoc={0,0,0}, cameraNewLoc={0,0,0}
-let cameraNewLoc: JKAShared.vec3_t = vec3_t()
+public let cameraNewLoc: JKAShared.vec3_t = vec3_t()
 
 /// Source: oracle/codemp/cgame/cg_view.c:229
 public var cameraLastFrame: Int32 {
@@ -151,7 +151,7 @@ public var cg_autoMapZoom: Float {
 
 /// Source: oracle/codemp/cgame/cg_view.c:2278
 // Raven wrote: float cg_autoMapZoomMainOffset = 0.0f
-let cg_autoMapZoomMainOffset: Float = 0.0
+public let cg_autoMapZoomMainOffset: Float = 0.0
 
 /// Source: oracle/codemp/cgame/cg_view.c:2279
 /// Raven's data table, a hand property of `CGameWorld`.

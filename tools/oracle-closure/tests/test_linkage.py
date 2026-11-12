@@ -107,9 +107,12 @@ class GlobalAccess(unittest.TestCase):
         var.swift = "[SpawnRow]"
         self.assertEqual(generator().variable_access(var), "")
 
-    def test_a_let_without_const_keeps_its_access_and_a_const_let_is_public(self) -> None:
+    def test_a_let_without_const_and_a_const_let_are_public(self) -> None:
+        # given a `let` of a global that Raven declares without const, and one that he declares const
         gen = generator()
-        self.assertEqual(gen.variable_access(variable("floattime", kind="let")), "")
+
+        # then each one is public, because no line that the product compiles writes it
+        self.assertEqual(gen.variable_access(variable("floattime", kind="let")), "public ")
         self.assertEqual(gen.variable_access(variable("bgToggleableSurfaces", kind="let", const=True)), "public ")
 
 
@@ -122,10 +125,12 @@ class KeptDeclarations(unittest.TestCase):
     def tearDown(self) -> None:
         self.patch.stop()
 
-    def test_a_get_only_forward_of_a_global_without_const_is_kept(self) -> None:
-        lines = ["var spawns: [SpawnRow] { world.spawns }"]
-        reason = self.gen.kept(variable("spawns", kind="state_data"), lines, 0, set())
-        self.assertEqual(reason, "Raven declares it without `const`, and its forward has no setter")
+    def test_a_get_only_forward_of_a_global_without_const_takes_public(self) -> None:
+        # given the get-only forward of `colorTable` of cg_main.c, which Raven declares without const
+        lines = ["var colorTable: [vec4_t] { world.colorTable }"]
+
+        # then the forward takes public with no setter
+        self.assertIsNone(self.gen.kept(variable("colorTable", kind="state_data"), lines, 0, set()))
 
     def test_a_forward_with_a_setter_and_a_forward_over_storage_take_public(self) -> None:
         lines = ["var spawns: [SpawnRow] {", "    get { world.spawns }", "    set { world.spawns = newValue }", "}"]
@@ -133,10 +138,9 @@ class KeptDeclarations(unittest.TestCase):
         lines = ["var level: LevelLocals { world.storage.level }"]
         self.assertIsNone(self.gen.kept(variable("level", kind="storage"), lines, 0, set()))
 
-    def test_a_file_scope_let_without_const_is_kept_and_a_const_let_takes_public(self) -> None:
+    def test_a_file_scope_let_without_const_and_a_const_let_take_public(self) -> None:
         lines = ["let floattime: Float = 0"]
-        reason = self.gen.kept(variable("floattime", kind="let"), lines, 0, set())
-        self.assertEqual(reason, "Raven declares it without `const`, and a file-scope `let` cannot be a `var` under rule 6")
+        self.assertIsNone(self.gen.kept(variable("floattime", kind="let"), lines, 0, set()))
         self.assertIsNone(self.gen.kept(variable("floattime", kind="let", const=True), lines, 0, set()))
 
     def test_a_signature_that_names_an_internal_type_is_kept(self) -> None:
@@ -158,6 +162,41 @@ class KeptDeclarations(unittest.TestCase):
             (target / "g_local.swift").write_text("struct SpawnRow {\n    struct Inner {}\n}\npublic struct Row {}\nfinal class Host {}\npublic final class World {}\n")
             with mock.patch.object(C, "READ_ROOTS", [Path(folder)]):
                 self.assertEqual(self.gen.internal_types("JKAMP_GameLogic"), {"SpawnRow", "Inner", "Host"})
+
+
+class VariableRowText(unittest.TestCase):
+    def setUp(self) -> None:
+        self.patch = mock.patch.object(Variable, "kind", property(lambda var: var.kind_override))
+        self.patch.start()
+
+    def tearDown(self) -> None:
+        self.patch.stop()
+
+    def test_the_row_of_a_forward_with_a_get_and_set_block_is_its_head_line(self) -> None:
+        # given the forward of `numbots` of ai_main.c, a get and set block over the variables struct
+        gen = generator()
+        var = variable("numbots")
+        var.line = 48
+        entry = ["/// Source: oracle/codemp/game/ai_main.c:48",
+                 "public var numbots: Int32 {",
+                 "    get { world.variables.numbots }",
+                 "    set { world.variables.numbots = newValue }",
+                 "}"]
+
+        # when the row reads the entry
+        with mock.patch.object(Skeleton, "variable_entry", lambda self, var, count=True: entry):
+            row = gen.variable_signature(var)
+
+        # then the text is the head line and not the closing brace
+        self.assertEqual(row["text"], "public var numbots: Int32 {")
+
+    def test_the_row_of_a_one_line_entry_is_its_last_line(self) -> None:
+        gen = generator()
+        var = variable("floattime", kind="let")
+        var.line = 12
+        entry = ["/// Source: oracle/codemp/game/g_main.c:12", "// Raven wrote: float floattime", "public let floattime: Float = 0"]
+        with mock.patch.object(Skeleton, "variable_entry", lambda self, var, count=True: entry):
+            self.assertEqual(gen.variable_signature(var)["text"], "public let floattime: Float = 0")
 
 
 class PerModuleInclude(unittest.TestCase):

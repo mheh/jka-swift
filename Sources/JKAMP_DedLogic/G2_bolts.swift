@@ -5,7 +5,7 @@ import JKAMP_Ded
 
 // Given a bone number, see if that bone is already in our bone list
 /// Source: oracle/codemp/ghoul2/G2_bolts.cpp:21
-func G2_Find_Bolt_Bone_Num(_ bltlist: inout [boltInfo_t], _ boneNum: Int32) -> Int32 {
+public func G2_Find_Bolt_Bone_Num(_ bltlist: inout [boltInfo_t], _ boneNum: Int32) -> Int32 {
     var i: Int32
 
     // look through entire list
@@ -29,7 +29,7 @@ func G2_Find_Bolt_Bone_Num(_ bltlist: inout [boltInfo_t], _ boneNum: Int32) -> I
 
 // Given a bone number, see if that surface is already in our surfacelist list
 /// Source: oracle/codemp/ghoul2/G2_bolts.cpp:45
-func G2_Find_Bolt_Surface_Num(_ bltlist: inout [boltInfo_t], _ surfaceNum: Int32, _ flags: Int32) -> Int32 {
+public func G2_Find_Bolt_Surface_Num(_ bltlist: inout [boltInfo_t], _ surfaceNum: Int32, _ flags: Int32) -> Int32 {
     var i: Int32
 
     // look through entire list
@@ -54,7 +54,7 @@ func G2_Find_Bolt_Surface_Num(_ bltlist: inout [boltInfo_t], _ surfaceNum: Int32
 //=========================================================================================
 //// Public Bolt Routines
 /// Source: oracle/codemp/ghoul2/G2_bolts.cpp:70
-func G2_Add_Bolt_Surf_Num(_ ghlInfo: CGhoul2Info?, _ bltlist: inout [boltInfo_t], _ slist: inout [surfaceInfo_t], _ surfNum: Int32) -> Int32 {
+public func G2_Add_Bolt_Surf_Num(_ ghlInfo: CGhoul2Info?, _ bltlist: inout [boltInfo_t], _ slist: inout [surfaceInfo_t], _ surfNum: Int32) -> Int32 {
     let tempBolt = boltInfo_t()
     var i: Int32
 
@@ -102,7 +102,7 @@ func G2_Add_Bolt_Surf_Num(_ ghlInfo: CGhoul2Info?, _ bltlist: inout [boltInfo_t]
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bolts.cpp:119
-func G2_Add_Bolt(_ ghlInfo: CGhoul2Info?, _ bltlist: inout [boltInfo_t], _ slist: inout [surfaceInfo_t], _ boneName: String) -> Int32 {
+public func G2_Add_Bolt(_ ghlInfo: CGhoul2Info?, _ bltlist: inout [boltInfo_t], _ slist: inout [surfaceInfo_t], _ boneName: String) -> Int32 {
     assert(ghlInfo != nil && ghlInfo!.mValid)
     let mod_m = ghlInfo!.currentModel!
     let mod_a = ghlInfo!.animModel!
@@ -216,7 +216,7 @@ func G2_Add_Bolt(_ ghlInfo: CGhoul2Info?, _ bltlist: inout [boltInfo_t], _ slist
 
 // Given a model handle, and a bone name, we want to remove this bone from the bone override list
 /// Source: oracle/codemp/ghoul2/G2_bolts.cpp:236
-func G2_Remove_Bolt(_ bltlist: inout [boltInfo_t], _ index: Int32) -> Bool {
+public func G2_Remove_Bolt(_ bltlist: inout [boltInfo_t], _ index: Int32) -> Bool {
     // did we find it?
     if index != -1 {
         bltlist[index].boltUsed -= 1
@@ -254,13 +254,13 @@ func G2_Remove_Bolt(_ bltlist: inout [boltInfo_t], _ index: Int32) -> Bool {
 
 // set the bolt list to all unused so the bone transformation routine ignores it.
 /// Source: oracle/codemp/ghoul2/G2_bolts.cpp:280
-func G2_Init_Bolt_List(_ bltlist: inout [boltInfo_t]) {
+public func G2_Init_Bolt_List(_ bltlist: inout [boltInfo_t]) {
     bltlist.removeAll()
 }
 
 // remove any bolts that reference original surfaces, generated surfaces, or bones that aren't active anymore
 /// Source: oracle/codemp/ghoul2/G2_bolts.cpp:286
-func G2_RemoveRedundantBolts(_ bltlist: inout [boltInfo_t], _ slist: inout [surfaceInfo_t], _ activeSurfaces: Slots<Int32>, _ activeBones: Slots<Int32>) {
+public func G2_RemoveRedundantBolts(_ bltlist: inout [boltInfo_t], _ slist: inout [surfaceInfo_t], _ activeSurfaces: Slots<Int32>, _ activeBones: Slots<Int32>) {
     // walk the bolt list
     var i: Int32 = 0
     while i < bltlist.count {

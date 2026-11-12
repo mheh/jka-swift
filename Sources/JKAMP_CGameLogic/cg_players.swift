@@ -12,7 +12,7 @@ let TURN_OFF = 0x00000100 as Int32
 
 /// Source: oracle/codemp/cgame/cg_players.c:25
 /// Raven's data table, a hand property of `CGameWorld`.
-var cg_customSoundNames: [String?] { world.cg_customSoundNames }
+public var cg_customSoundNames: [String?] { world.cg_customSoundNames }
 
 /// Source: oracle/codemp/cgame/cg_players.c:47
 /// Raven's data table, a hand property of `CGameWorld`.

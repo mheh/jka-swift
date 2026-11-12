@@ -6,7 +6,7 @@ import JKAMP_Ded
 /// Raven's final matrix of one bone in a bone cache, with the touch counts that mark it current.
 /// `CBoneCache.mFinalBones` and `CBoneCache.mSmoothBones` hold one per bone.
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:166
-final class CTransformBone {
+public final class CTransformBone {
     // AI: Raven holds `boneMatrix` by value. The instance owns one allocation of the record, and the field is the view of the slot.
     // A store is `copy(from:)`, Raven's `=`. Raven leaves the record unset, and the allocation zeroes it.
     private let mdxaBones: Slots<MdxaBone> = {
@@ -15,15 +15,15 @@ final class CTransformBone {
         return mdxaBones
     }()
 
-    var touch: Int32 = 0 // for minimal recalculation
+    public var touch: Int32 = 0 // for minimal recalculation
     //rww - RAGDOLL_BEGIN
-    var touchRender: Int32 = 0
+    public var touchRender: Int32 = 0
     //rww - RAGDOLL_END
-    var boneMatrix: MdxaBone { self.mdxaBones[0] } //final matrix
-    var parent: Int32 = 0 // only set once
+    public var boneMatrix: MdxaBone { self.mdxaBones[0] } //final matrix
+    public var parent: Int32 = 0 // only set once
 
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:182
-    init() {
+    public init() {
         self.touch = 0
         //rww - RAGDOLL_BEGIN
         self.touchRender = 0
@@ -39,34 +39,34 @@ final class CTransformBone {
 /// `CBoneCache.mBones` holds one per bone.
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:192
 // AI: Raven declares a plain struct, and the bodies bind `SBoneCalc &` to an element and write through it. The record is a final class.
-final class SBoneCalc {
-    var newFrame: Int32 = 0
-    var currentFrame: Int32 = 0
-    var backlerp: Float = 0
-    var blendFrame: Float = 0
-    var blendOldFrame: Int32 = 0
-    var blendMode: Bool = false
-    var blendLerp: Float = 0
+public final class SBoneCalc {
+    public var newFrame: Int32 = 0
+    public var currentFrame: Int32 = 0
+    public var backlerp: Float = 0
+    public var blendFrame: Float = 0
+    public var blendOldFrame: Int32 = 0
+    public var blendMode: Bool = false
+    public var blendLerp: Float = 0
 }
 
 /// Raven's bone cache of one Ghoul2 model, the frame state and the final and smoothed matrices of every bone.
 /// `CGhoul2Info.mBoneCache` holds one, and `G2_TransformGhoulBones` fills it each frame.
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:206
-final class CBoneCache {
-    var frameSize: Int32 = 0
-    var header: MdxaHeader? = nil
-    var mod: Model? = nil
+public final class CBoneCache {
+    public var frameSize: Int32 = 0
+    public var header: MdxaHeader? = nil
+    public var mod: Model? = nil
 
     // these are split for better cpu cache behavior
-    var mBones: [SBoneCalc] = []
-    var mFinalBones: [CTransformBone] = []
+    public var mBones: [SBoneCalc] = []
+    public var mFinalBones: [CTransformBone] = []
 
-    var mSmoothBones: [CTransformBone] = [] // for render smoothing
+    public var mSmoothBones: [CTransformBone] = [] // for render smoothing
     //vector<mdxaSkel_t *>   mSkels;
 
     // AI: Raven points at the caller's `boneInfo_v`. The field holds the model that owns the list, and `rootBoneList` reads and writes its `mBlist`.
     weak var rootBoneListOwner: CGhoul2Info? = nil
-    var rootBoneList: [boneInfo_t] {
+    public var rootBoneList: [boneInfo_t] {
         get { self.rootBoneListOwner!.mBlist }
         set { self.rootBoneListOwner!.mBlist = newValue }
     }
@@ -77,20 +77,20 @@ final class CBoneCache {
         mdxaBones.zero(count: 1)
         return mdxaBones
     }()
-    var rootMatrix: MdxaBone { self.mdxaBones[0] }
-    var incomingTime: Int32 = 0
+    public var rootMatrix: MdxaBone { self.mdxaBones[0] }
+    public var incomingTime: Int32 = 0
 
-    var mCurrentTouch: Int32 = 0
+    public var mCurrentTouch: Int32 = 0
     //rww - RAGDOLL_BEGIN
-    var mCurrentTouchRender: Int32 = 0
-    var mLastTouch: Int32 = 0
-    var mLastLastTouch: Int32 = 0
+    public var mCurrentTouchRender: Int32 = 0
+    public var mLastTouch: Int32 = 0
+    public var mLastLastTouch: Int32 = 0
     //rww - RAGDOLL_END
 
     // for render smoothing
-    var mSmoothingActive: Bool = false
-    var mUnsquash: Bool = false
-    var mSmoothFactor: Float = 0
+    public var mSmoothingActive: Bool = false
+    public var mUnsquash: Bool = false
+    public var mSmoothFactor: Float = 0
 
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:208
     private func SetRenderMatrix(_ bone: CTransformBone?) {
@@ -154,7 +154,7 @@ final class CBoneCache {
 //rww - RAGDOLL_END
 
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:390
-    init(_ amod: Model?, _ aheader: MdxaHeader?) {
+    public init(_ amod: Model?, _ aheader: MdxaHeader?) {
         self.mod = amod
         self.header = aheader
         assert(amod != nil)
@@ -201,12 +201,12 @@ final class CBoneCache {
     }
 
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:441
-    func Root() -> SBoneCalc {
+    public func Root() -> SBoneCalc {
         return self.mBones[0]
     }
 
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:446
-    func EvalUnsmooth(_ index: Int32) -> MdxaBone {
+    public func EvalUnsmooth(_ index: Int32) -> MdxaBone {
         self.EvalLow(index)
         if self.mSmoothingActive && self.mSmoothBones[index].touch != 0 {
             return self.mSmoothBones[index].boneMatrix
@@ -215,7 +215,7 @@ final class CBoneCache {
     }
 
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:455
-    func Eval(_ index: Int32) -> MdxaBone {
+    public func Eval(_ index: Int32) -> MdxaBone {
         /*
         bool wasEval=EvalLow(index);
         if (mSmoothingActive)
@@ -279,7 +279,7 @@ final class CBoneCache {
 
     //rww - RAGDOLL_BEGIN
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:520
-    func EvalRender(_ index: Int32) -> MdxaBone {
+    public func EvalRender(_ index: Int32) -> MdxaBone {
         if self.mFinalBones[index].touch != self.mCurrentTouch {
             self.mFinalBones[index].touchRender = self.mCurrentTouchRender
             self.EvalLow(index)
@@ -295,12 +295,12 @@ final class CBoneCache {
     //rww - RAGDOLL_END
     //rww - RAGDOLL_BEGIN
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:540
-    func WasRendered(_ index: Int32) -> Bool {
+    public func WasRendered(_ index: Int32) -> Bool {
         return self.mFinalBones[index].touchRender == self.mCurrentTouchRender
     }
 
     /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:545
-    func GetParent(_ index: Int32) -> Int32 {
+    public func GetParent(_ index: Int32) -> Int32 {
         if index == 0 {
             return -1
         }

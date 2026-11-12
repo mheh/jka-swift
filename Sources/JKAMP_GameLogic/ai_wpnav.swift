@@ -62,7 +62,7 @@ public var gLevelFlags: Int32 {
 // Raven wrote: float botGlobalNavWeaponWeights[WP_NUM_WEAPONS]
 // Raven writes 16 rows for a `WP_NUM_WEAPONS` array, so C zeroes the last three slots.
 // The last three rows here are those zeros.
-let botGlobalNavWeaponWeights: [Float] = [
+public let botGlobalNavWeaponWeights: [Float] = [
     0,//WP_NONE,
 
     0,//WP_STUN_BATON,

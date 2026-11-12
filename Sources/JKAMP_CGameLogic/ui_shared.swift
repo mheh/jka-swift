@@ -129,7 +129,7 @@ var outOfMemory: Int32 {
 
 /// Source: oracle/codemp/ui/ui_shared.c:162
 // Raven wrote: char *styles []
-let styles: [String?] = [
+public let styles: [String?] = [
     "WINDOW_STYLE_EMPTY",
     "WINDOW_STYLE_FILLED",
     "WINDOW_STYLE_GRADIENT",
@@ -141,7 +141,7 @@ let styles: [String?] = [
 
 /// Source: oracle/codemp/ui/ui_shared.c:172
 // Raven wrote: char *alignment []
-let alignment: [String?] = [
+public let alignment: [String?] = [
     "ITEM_ALIGN_LEFT",
     "ITEM_ALIGN_CENTER",
     "ITEM_ALIGN_RIGHT",
@@ -150,7 +150,7 @@ let alignment: [String?] = [
 
 /// Source: oracle/codemp/ui/ui_shared.c:179
 // Raven wrote: char *types []
-let types: [String?] = [
+public let types: [String?] = [
     "ITEM_TYPE_TEXT",
     "ITEM_TYPE_BUTTON",
     "ITEM_TYPE_RADIOBUTTON",
@@ -222,7 +222,7 @@ var commandList: [CommandDefRow] { world.commandList }
 /// Source: oracle/codemp/ui/ui_shared.c:2304
 // Raven wrote: int scriptCommandCount = sizeof(commandList) / sizeof(commandDef_t)
 /// Raven's count of `commandList`, which is the count of the hand array.
-var scriptCommandCount: Int32 { Int32(world.commandList.count) }
+public var scriptCommandCount: Int32 { Int32(world.commandList.count) }
 
 /// Source: oracle/codemp/ui/ui_shared.c:5190
 // Raven wrote: static bind_t g_bindings[]
@@ -259,7 +259,7 @@ public var ui_G2PtrTracker: UiG2PtrTracker? {
 
 /// Source: oracle/codemp/ui/ui_shared.c:8601
 // Raven wrote: char currLanguage[32][128]
-nonisolated(unsafe) let currLanguage: [JKAShared.CharBuf] = [JKAShared.CharBuf](repeating: JKAShared.CharBuf(128), count: 32)
+public nonisolated(unsafe) let currLanguage: [JKAShared.CharBuf] = [JKAShared.CharBuf](repeating: JKAShared.CharBuf(128), count: 32)
 
 /// Source: oracle/codemp/ui/ui_shared.c:8602
 // Raven wrote: static const char languageString[32] = "@MENUS_MYLANGUAGE"

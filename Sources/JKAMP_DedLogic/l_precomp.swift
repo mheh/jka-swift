@@ -41,14 +41,14 @@ let MAX_OPERATORS = 64 as Int32
 
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2535
 /// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var directives: [DirectiveRow] {
+public var directives: [DirectiveRow] {
     get { world.directives }
     set { world.directives = newValue }
 }
 
 /// Source: oracle/codemp/botlib/l_precomp.cpp:2648
 /// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var dollardirectives: [DirectiveRow] {
+public var dollardirectives: [DirectiveRow] {
     get { world.dollardirectives }
     set { world.dollardirectives = newValue }
 }

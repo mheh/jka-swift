@@ -28,16 +28,16 @@ let MAX_SHADER_FILES = 1024 as Int32
 
 /// One row of Raven's `infoParm_t` of `cm_shader.cpp`, the surface parameter name and the flags it sets and clears.
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:220
-struct InfoParm {
-    var name: String
-    var clearSolid: Int32
-    var surfaceFlags: Int32
-    var contents: Int32
+public struct InfoParm: Sendable {
+    public var name: String
+    public var clearSolid: Int32
+    public var surfaceFlags: Int32
+    public var contents: Int32
 }
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:226
 // AI: Raven keeps `infoParm_t svInfoParms[]` as C data. The table is a constant Array of rows in Raven's order, because the module never writes it.
-let svInfoParms: [InfoParm] = [
+public let svInfoParms: [InfoParm] = [
     // Game surface flags
     InfoParm(name: "sky", clearSolid: -1, surfaceFlags: SURF_SKY, contents: 0), // emit light from an environment map
     InfoParm(name: "slick", clearSolid: -1, surfaceFlags: SURF_SLICK, contents: 0),

@@ -8,7 +8,7 @@ import JKAMP_Ded
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:310
 // AI: Raven declares the interface IGhoul2InfoArray at ghoul2_shared.h:316, and this class is its one implementation.
 // The class stands for both, and the generator spells `IGhoul2InfoArray &` as `Ghoul2InfoArray`.
-final class Ghoul2InfoArray {
+public final class Ghoul2InfoArray {
     // AI: Raven's Get returns a reference to one vector of `mInfos`, and the callers write through it.
     // `Get` returns a copy, so the field is internal, and the setter of `CGhoul2Info_v.Array` writes the stored vector here.
     var mInfos: [[CGhoul2Info]] = [[CGhoul2Info]](repeating: [], count: MAX_G2_MODELS)
@@ -43,7 +43,7 @@ final class Ghoul2InfoArray {
     }
 
     /// Source: oracle/codemp/ghoul2/G2_API.cpp:342
-    init() {
+    public init() {
         var i: Int32
         i = 0
         while i < MAX_G2_MODELS {
@@ -54,7 +54,7 @@ final class Ghoul2InfoArray {
     }
 
     /// Source: oracle/codemp/ghoul2/G2_API.cpp:386
-    func New() -> Int32 {
+    public func New() -> Int32 {
         if self.mFreeIndecies.isEmpty {
             Com_Error(ERR_FATAL, "Out of ghoul2 info slots")
 
@@ -66,7 +66,7 @@ final class Ghoul2InfoArray {
     }
 
     /// Source: oracle/codemp/ghoul2/G2_API.cpp:399
-    func IsValid(_ handle: Int32) -> Bool {
+    public func IsValid(_ handle: Int32) -> Bool {
         if handle == 0 {
             return false
         }
@@ -77,7 +77,7 @@ final class Ghoul2InfoArray {
     }
 
     /// Source: oracle/codemp/ghoul2/G2_API.cpp:413
-    func Delete(_ handle: Int32) {
+    public func Delete(_ handle: Int32) {
         if handle == 0 {
             return
         }
@@ -88,7 +88,7 @@ final class Ghoul2InfoArray {
 
     /// Source: oracle/codemp/ghoul2/G2_API.cpp:427
     // AI: Raven defines a non-const and a const overload, the second at G2_API.cpp:440. The class has one method.
-    func Get(_ handle: Int32) -> [CGhoul2Info] {
+    public func Get(_ handle: Int32) -> [CGhoul2Info] {
         if handle <= 0 || (handle & G2_INDEX_MASK) < 0 || (handle & G2_INDEX_MASK) >= MAX_G2_MODELS || self.mIds[handle & G2_INDEX_MASK] != handle {
             // AI: Raven clears a static empty vector and returns it by reference. The method returns an empty Array.
             return []

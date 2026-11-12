@@ -47,7 +47,7 @@ let package = Package(
         .target(name: "JKAZlib", dependencies: ["CJKAZlib"]),
 
         // MARK: - Swift logic, ported bodies, no C import
-        .target(name: "JKAMP_BG", dependencies: ["JKAMP"]),
+        .target(name: "JKAMP_BG", dependencies: ["JKAMP"], swiftSettings: implicitDynamic),
         .target(name: "JKAMP_GameLogic", dependencies: ["JKAMP_Game", "JKAMP_BG"], swiftSettings: implicitDynamic),
         .target(name: "JKAMP_CGameLogic", dependencies: ["JKAMP_CGame", "JKAMP_BG"]),
         .target(name: "JKAMP_DedLogic", dependencies: ["JKAMP_Ded"], swiftSettings: implicitDynamic),

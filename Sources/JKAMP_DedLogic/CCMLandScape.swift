@@ -6,7 +6,7 @@ import JKAMP_Ded
 /// Raven's collision terrain of a map, the height map, its patches and their brushes, the water, and the flattened areas.
 /// `CM_RegisterTerrain` makes the one instance, `cmg.landScape`, and the trace of a terrain brush and the random mission read it.
 /// Source: oracle/codemp/qcommon/cm_landscape.h:135
-final class CCMLandScape {
+public final class CCMLandScape {
     private var mRefCount: Int32 = 0									// Number of times this class is referenced
     private var mTerrainHandle: JKAShared.thandle_t = 0
     // AI: Raven holds the Z_Malloc blocks of cm_terrain.cpp:157, :158, and :215 as `byte *`. Each field is the Slots over the bytes of its block.
@@ -47,7 +47,7 @@ final class CCMLandScape {
     private var mCoords: Slots<JKAShared.vec3_t>? = nil									// Temp storage for real world coords
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:116
-    init(_ configstring: String, _ server: Bool) {
+    public init(_ configstring: String, _ server: Bool) {
         var numPatches: Int32
         var numBrushesPerPatch: Int32
         var size: Int32
@@ -162,13 +162,13 @@ final class CCMLandScape {
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:593
-    func GetPatch(_ x: Int32, _ y: Int32) -> CCMPatch? {
+    public func GetPatch(_ x: Int32, _ y: Int32) -> CCMPatch? {
         return (self.mPatches[(y * self.mBlockWidth) + x])
     }
 
     // Prototypes
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:600
-    func PatchCollide(_ tw: TraceWork, _ trace: JKAMP.Trace, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ checkcount: Int32) {
+    public func PatchCollide(_ tw: TraceWork, _ trace: JKAMP.Trace, _ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ checkcount: Int32) {
         var tBounds: [JKAShared.vec3_t] = [JKAShared.vec3_t(), JKAShared.vec3_t()]
 
         // Convert to valid bounding box
@@ -392,7 +392,7 @@ final class CCMLandScape {
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:997
-    func TerrainPatchIterate(_ IterateFunc: ((CCMPatch?, OpaquePointer?) -> Void)?, _ userdata: OpaquePointer?) {
+    public func TerrainPatchIterate(_ IterateFunc: ((CCMPatch?, OpaquePointer?) -> Void)?, _ userdata: OpaquePointer?) {
         var i: Int32
         var patchIndex: Int32
 
@@ -407,7 +407,7 @@ final class CCMLandScape {
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1011
-    func GetWorldHeight(_ origin: inout JKAShared.vec3_t, _ bounds: [JKAShared.vec3_t], _ aboveGround: Bool) -> Float {
+    public func GetWorldHeight(_ origin: inout JKAShared.vec3_t, _ bounds: [JKAShared.vec3_t], _ aboveGround: Bool) -> Float {
         var work = JKAShared.vec3_t()
         var minx: Int32
         var maxx: Int32
@@ -477,7 +477,7 @@ final class CCMLandScape {
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:836
-    func WaterCollide(_ begin: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ fraction: Float) -> Float {
+    public func WaterCollide(_ begin: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ fraction: Float) -> Float {
         // Raven assigns his own `fraction` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
         var fraction = fraction
 
@@ -502,7 +502,7 @@ final class CCMLandScape {
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:898
-    func UpdatePatches() {
+    public func UpdatePatches() {
         var x: Int32
         var y: Int32
         var ix: Int32
@@ -593,7 +593,7 @@ final class CCMLandScape {
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:862
     // AI: Raven fills the caller's `vec3_t coords[8]`. The parameter is the Slots over the vectors, the PARAMS kind `table` of a `vec3_t *`.
-    func GetTerxelLocalCoords(_ x: Int32, _ y: Int32, _ localCoords: Slots<JKAShared.vec3_t>) {
+    public func GetTerxelLocalCoords(_ x: Int32, _ y: Int32, _ localCoords: Slots<JKAShared.vec3_t>) {
         // Raven's one call is in the comment block of UpdatePatches at cm_terrain.cpp:948, and no file of either tree calls it, so the function is dead.
         var realWidth: Int32
         var coords: Slots<JKAShared.vec3_t>?
@@ -627,7 +627,7 @@ final class CCMLandScape {
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:39
-    func LoadTerrainDef(_ td: String) {
+    public func LoadTerrainDef(_ td: String) {
         var terrainDef = CharBuf(MAX_QPATH)
         let parse = CGenericParser2()
         var basegroup: CGPGroup?
@@ -692,7 +692,7 @@ final class CCMLandScape {
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:26
-    func SetShaders(_ height: Int32, _ shader: CmShader?) {
+    public func SetShaders(_ height: Int32, _ shader: CmShader?) {
         var i: Int32
 
         i = height
@@ -705,7 +705,7 @@ final class CCMLandScape {
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1312
-    func FlattenArea(_ area: CArea?, _ height: Int32, _ save: Bool, _ forceHeight: Bool, _ smooth: Bool) {
+    public func FlattenArea(_ area: CArea?, _ height: Int32, _ save: Bool, _ forceHeight: Bool, _ smooth: Bool) {
         // Raven assigns his own `height` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
         var height = height
         var temp = JKAShared.vec3_t()
@@ -759,7 +759,7 @@ final class CCMLandScape {
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1133
-    func CarveLine(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ depth: Int32, _ width: Int32) {
+    public func CarveLine(_ start: JKAShared.vec3_t, _ end: JKAShared.vec3_t, _ depth: Int32, _ width: Int32) {
         // Raven's one call is in CarveBezierCurve, which is dead, so the function is dead too.
         var x: Int32
         var x1: Int32
@@ -879,7 +879,7 @@ final class CCMLandScape {
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1245
-    func CarveBezierCurve(_ numCtlPoints: Int32, _ ctlPoints: Slots<JKAShared.vec3_t>, _ steps: Int32, _ depth: Int32, _ size: Int32) {
+    public func CarveBezierCurve(_ numCtlPoints: Int32, _ ctlPoints: Slots<JKAShared.vec3_t>, _ steps: Int32, _ depth: Int32, _ size: Int32) {
         // Raven calls this method only from CM_CarveBezierCurve, and no file of either tree calls that function, so the method is dead.
         var i: Int32
         var choose: Int32
@@ -957,12 +957,12 @@ final class CCMLandScape {
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1128
-    func SaveArea(_ area: CArea?) {
+    public func SaveArea(_ area: CArea?) {
         self.mAreas.append(area)
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1379
-    func FractionBelowLevel(_ area: CArea?, _ height: Int32) -> Float {
+    public func FractionBelowLevel(_ area: CArea?, _ height: Int32) -> Float {
         // Raven calls this method only from CM_FractionBelowLevel, and no file of either tree calls that function, so the method is dead.
         var temp = JKAShared.vec3_t()
         var icoords = [Int32](repeating: 0, count: 3)
@@ -1002,7 +1002,7 @@ final class CCMLandScape {
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1488
     // AI: Raven reads `areaTypeCount` types through `int *areaTypes`. The parameter is the caller's array, the PARAMS kind `int_array`.
-    func AreaCollision(_ area: CArea?, _ areaTypes: [Int32]?, _ areaTypeCount: Int32) -> Bool {
+    public func AreaCollision(_ area: CArea?, _ areaTypes: [Int32]?, _ areaTypeCount: Int32) -> Bool {
         var areas: CArea?
         var i: Int32
         var segment: Float
@@ -1054,7 +1054,7 @@ final class CCMLandScape {
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1412
-    func GetFirstArea() -> CArea? {
+    public func GetFirstArea() -> CArea? {
         if self.mAreas.count == 0 {
             return (nil)
         }
@@ -1063,7 +1063,7 @@ final class CCMLandScape {
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1422
-    func GetFirstObjectiveArea() -> CArea? {
+    public func GetFirstObjectiveArea() -> CArea? {
         // Raven calls this method only from CM_GetFirstObjectiveArea, and no file of either tree calls that function, so the method is dead.
         if self.mAreas.count == 0 {
             return (nil)
@@ -1081,7 +1081,7 @@ final class CCMLandScape {
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1442
-    func GetPlayerArea() -> CArea? {
+    public func GetPlayerArea() -> CArea? {
         // Raven calls this method only from CM_GetPlayerArea, and no file of either tree calls that function, so the method is dead.
         // do me
         if self.mAreas.count == 0 {
@@ -1100,7 +1100,7 @@ final class CCMLandScape {
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1462
-    func GetNextArea() -> CArea? {
+    public func GetNextArea() -> CArea? {
         self.mAreasIt += 1
         if self.mAreasIt == self.mAreas.count {
             return (nil)
@@ -1109,7 +1109,7 @@ final class CCMLandScape {
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1472
-    func GetNextObjectiveArea() -> CArea? {
+    public func GetNextObjectiveArea() -> CArea? {
         // Raven calls this method only from CM_GetNextObjectiveArea, and no file of either tree calls that function, so the method is dead.
         // Port-note: Raven increments the end iterator of `mAreas` when the last call returned NULL, undefined.
         // The Array index traps past the end there, rule 19.
@@ -1127,163 +1127,163 @@ final class CCMLandScape {
 
     // Accessors
     /// Source: oracle/codemp/qcommon/cm_landscape.h:196
-    func GetRefCount() -> Int32 {
+    public func GetRefCount() -> Int32 {
         self.mRefCount
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:197
-    func IncreaseRefCount() {
+    public func IncreaseRefCount() {
         self.mRefCount += 1
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:198
-    func DecreaseRefCount() {
+    public func DecreaseRefCount() {
         self.mRefCount -= 1
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:199
-    func GetBounds() -> [JKAShared.vec3_t] {
+    public func GetBounds() -> [JKAShared.vec3_t] {
         self.mBounds
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:200
-    func GetMins() -> JKAShared.vec3_t {
+    public func GetMins() -> JKAShared.vec3_t {
         self.mBounds[0]
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:201
-    func GetMaxs() -> JKAShared.vec3_t {
+    public func GetMaxs() -> JKAShared.vec3_t {
         self.mBounds[1]
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:202
-    func GetSize() -> JKAShared.vec3_t {
+    public func GetSize() -> JKAShared.vec3_t {
         self.mSize
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:203
-    func GetTerxelSize() -> JKAShared.vec3_t {
+    public func GetTerxelSize() -> JKAShared.vec3_t {
         self.mTerxelSize
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:204
-    func GetPatchSize() -> JKAShared.vec3_t {
+    public func GetPatchSize() -> JKAShared.vec3_t {
         self.mPatchSize
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:205
-    func GetPatchWidth() -> Float {
+    public func GetPatchWidth() -> Float {
         self.mPatchSize[0]
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:206
-    func GetPatchHeight() -> Float {
+    public func GetPatchHeight() -> Float {
         self.mPatchSize[1]
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:207
-    func GetPatchScalarSize() -> Float {
+    public func GetPatchScalarSize() -> Float {
         self.mPatchScalarSize
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:208
-    func GetTerxels() -> Int32 {
+    public func GetTerxels() -> Int32 {
         self.mTerxels
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:209
-    func GetRealWidth() -> Int32 {
+    public func GetRealWidth() -> Int32 {
         self.mWidth + 1
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:210
-    func GetRealHeight() -> Int32 {
+    public func GetRealHeight() -> Int32 {
         self.mHeight + 1
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:211
-    func GetRealArea() -> Int32 {
+    public func GetRealArea() -> Int32 {
         (self.mWidth + 1) * (self.mHeight + 1)
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:212
-    func GetWidth() -> Int32 {
+    public func GetWidth() -> Int32 {
         self.mWidth
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:213
-    func GetHeight() -> Int32 {
+    public func GetHeight() -> Int32 {
         self.mHeight
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:214
-    func GetArea() -> Int32 {
+    public func GetArea() -> Int32 {
         self.mWidth * self.mHeight
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:215
-    func GetBlockWidth() -> Int32 {
+    public func GetBlockWidth() -> Int32 {
         self.mBlockWidth
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:216
-    func GetBlockHeight() -> Int32 {
+    public func GetBlockHeight() -> Int32 {
         self.mBlockHeight
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:217
-    func GetBlockCount() -> Int32 {
+    public func GetBlockCount() -> Int32 {
         self.mBlockWidth * self.mBlockHeight
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:218
-    func GetHeightMap() -> Slots<JKAShared.byte>? {
+    public func GetHeightMap() -> Slots<JKAShared.byte>? {
         self.mHeightMap
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:219
-    func GetFlattenMap() -> Slots<JKAShared.byte>? {
+    public func GetFlattenMap() -> Slots<JKAShared.byte>? {
         self.mFlattenMap
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:220
-    func GetTerrainId() -> JKAShared.thandle_t {
+    public func GetTerrainId() -> JKAShared.thandle_t {
         self.mTerrainHandle
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:221
-    func SetTerrainId(_ terrainId: JKAShared.thandle_t) {
+    public func SetTerrainId(_ terrainId: JKAShared.thandle_t) {
         self.mTerrainHandle = terrainId
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:222
     // C converts the `int` height to `float` at the multiply.
-    func CalcWorldHeight(_ height: Int32) -> Float {
+    public func CalcWorldHeight(_ height: Int32) -> Float {
         (Float(height) * self.mTerxelSize[2]) + self.mBounds[0][2]
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:223
-    func GetHasPhysics() -> Bool {
+    public func GetHasPhysics() -> Bool {
         self.mHasPhysics
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:224
-    func GetIsRandom() -> Bool {
+    public func GetIsRandom() -> Bool {
         (self.mRandomTerrain != nil)
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:225
-    func GetSurfaceFlags(_ height: Int32) -> Int32 {
+    public func GetSurfaceFlags(_ height: Int32) -> Int32 {
         self.mHeightDetails[height].GetSurfaceFlags()
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:226
-    func GetContentFlags(_ height: Int32) -> Int32 {
+    public func GetContentFlags(_ height: Int32) -> Int32 {
         self.mHeightDetails[height].GetContents()
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:975
-    func CalcRealCoords() {
+    public func CalcRealCoords() {
         var x: Int32
         var y: Int32
 
@@ -1314,55 +1314,55 @@ final class CCMLandScape {
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:228
-    func GetCoords() -> Slots<JKAShared.vec3_t>? {
+    public func GetCoords() -> Slots<JKAShared.vec3_t>? {
         self.mCoords
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:230
-    func GetBaseWaterHeight() -> Int32 {
+    public func GetBaseWaterHeight() -> Int32 {
         self.mBaseWaterHeight
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:231
     // C converts the `int` height to `float` at the multiply.
-    func SetRealWaterHeight(_ height: Int32) {
+    public func SetRealWaterHeight(_ height: Int32) {
         self.mWaterHeight = Float(height) * self.mTerxelSize[2]
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:232
-    func GetWaterHeight() -> Float {
+    public func GetWaterHeight() -> Float {
         self.mWaterHeight
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:233
-    func GetWaterContents() -> Int32 {
+    public func GetWaterContents() -> Int32 {
         self.mWaterContents
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:234
-    func GetWaterSurfaceFlags() -> Int32 {
+    public func GetWaterSurfaceFlags() -> Int32 {
         self.mWaterSurfaceFlags
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:236
-    func GetRandomTerrain() -> CRandomTerrain? {
+    public func GetRandomTerrain() -> CRandomTerrain? {
         self.mRandomTerrain
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1548
-    func rand_seed(_ seed: Int32) {
+    public func rand_seed(_ seed: Int32) {
         self.holdrand = UInt32(bitPattern: seed)
         // AI: Raven passes the `unsigned long` to `%d`, which reads its bits as an `int`. The argument converts by bit pattern, because the format takes no UInt32.
         Com_Printf("rand_seed = %d\n", Int32(bitPattern: self.holdrand))
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:239
-    func get_rand_seed() -> UInt32 {
+    public func get_rand_seed() -> UInt32 {
         self.holdrand
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1554
-    func flrand(_ min: Float, _ max: Float) -> Float {
+    public func flrand(_ min: Float, _ max: Float) -> Float {
         var result: Float
 
         assert((max - min) < 32768)
@@ -1376,7 +1376,7 @@ final class CCMLandScape {
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1568
-    func irand(_ min: Int32, _ max: Int32) -> Int32 {
+    public func irand(_ min: Int32, _ max: Int32) -> Int32 {
         // Raven assigns his own `max` parameter. A Swift parameter is immutable, so the body takes a mutable copy of it.
         var max = max
         var result: Int32

@@ -14,15 +14,15 @@ public var backEnd: BackEndState { world.storage.backEnd }
 
 /// Source: oracle/codemp/renderer/tr_backend.cpp:23
 // Raven wrote: bool tr_stencilled = false
-let tr_stencilled: Bool = false
+public let tr_stencilled: Bool = false
 
 /// Source: oracle/codemp/renderer/tr_backend.cpp:32
 // Raven wrote: bool g_bRenderGlowingObjects = false
-let g_bRenderGlowingObjects: Bool = false
+public let g_bRenderGlowingObjects: Bool = false
 
 /// Source: oracle/codemp/renderer/tr_backend.cpp:35
 // Raven wrote: bool g_bDynamicGlowSupported = false
-let g_bDynamicGlowSupported: Bool = false
+public let g_bDynamicGlowSupported: Bool = false
 
 /// Source: oracle/codemp/renderer/tr_backend.cpp:40
 // Raven wrote: static const float s_flipMatrix[16]

@@ -8,14 +8,14 @@ let G2_VERT_SPACE_SERVER_SIZE = 256 as Int32
 
 /// Source: oracle/codemp/renderer/tr_init.cpp:29
 /// Raven's instance, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var G2VertSpaceServer: CMiniHeap? {
+public var G2VertSpaceServer: CMiniHeap? {
     get { world.G2VertSpaceServer }
     set { world.G2VertSpaceServer = newValue }
 }
 
 /// Source: oracle/codemp/renderer/tr_init.cpp:30
 /// Raven's instance, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var CMiniHeap_singleton: CMiniHeap { world.CMiniHeap_singleton }
+public var CMiniHeap_singleton: CMiniHeap { world.CMiniHeap_singleton }
 
 /// Source: oracle/codemp/renderer/tr_init.cpp:40
 public var r_verbose: JKAMP.Cvar? {

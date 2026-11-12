@@ -151,7 +151,7 @@ public func ResetGoreTag() {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:103
-func FindGoreRecord(_ tag: Int32) -> GoreTextureCoordinates? {
+public func FindGoreRecord(_ tag: Int32) -> GoreTextureCoordinates? {
     if let i = GoreRecords[tag] {
         return i
     }
@@ -160,7 +160,7 @@ func FindGoreRecord(_ tag: Int32) -> GoreTextureCoordinates? {
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:113
 // AI: Raven returns `void *` over the `GoreTextureCoordinates *` of FindGoreRecord. The function returns that class, the form of FindGoreRecord.
-func G2_GetGoreRecord(_ tag: Int32) -> GoreTextureCoordinates? {
+public func G2_GetGoreRecord(_ tag: Int32) -> GoreTextureCoordinates? {
     // Raven calls this function from no file of either tree, so it is dead.
     return FindGoreRecord(tag)
 }
@@ -172,7 +172,7 @@ public func DeleteGoreRecord(_ tag: Int32) {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:127
-func FindGoreSet(_ goreSetTag: Int32) -> CGoreSet? {
+public func FindGoreSet(_ goreSetTag: Int32) -> CGoreSet? {
     if let f = GoreSets[goreSetTag] {
         return f
     }
@@ -180,7 +180,7 @@ func FindGoreSet(_ goreSetTag: Int32) -> CGoreSet? {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:142
-func NewGoreSet() -> CGoreSet? {
+public func NewGoreSet() -> CGoreSet? {
     let ret = CGoreSet(CurrentGoreSet)
     CurrentGoreSet += 1
     GoreSets[ret.mMyGoreSetTag] = ret
@@ -299,7 +299,7 @@ public func G2_GetAnimFileName(_ fileName: String, _ filename: inout JKAShared.T
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:376
-func G2_DecideTraceLod(_ ghoul2: CGhoul2Info, _ useLod: Int32) -> Int32 {
+public func G2_DecideTraceLod(_ ghoul2: CGhoul2Info, _ useLod: Int32) -> Int32 {
     var returnLod = useLod
 
     // if we are overriding the LOD at top level, then we can afford to only check this level of model
@@ -319,7 +319,7 @@ func G2_DecideTraceLod(_ ghoul2: CGhoul2Info, _ useLod: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:404
-func R_TransformEachSurface(_ surface: MdxmSurface, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ TransformedVertsArray: Slots<Int32>, _ boneCache: CBoneCache?) {
+public func R_TransformEachSurface(_ surface: MdxmSurface, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ TransformedVertsArray: Slots<Int32>, _ boneCache: CBoneCache?) {
     var j: Int32
     var k: Int32
     var v: MdxmVertex
@@ -450,7 +450,7 @@ func R_TransformEachSurface(_ surface: MdxmSurface, _ scale: JKAShared.vec3_t, _
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:517
-func G2_TransformSurfaces(_ surfaceNum: Int32, _ rootSList: inout [surfaceInfo_t], _ boneCache: CBoneCache?, _ currentModel: Model, _ lod: Int32, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ TransformedVertArray: Slots<Int32>, _ secondTimeAround: Bool) {
+public func G2_TransformSurfaces(_ surfaceNum: Int32, _ rootSList: inout [surfaceInfo_t], _ boneCache: CBoneCache?, _ currentModel: Model, _ lod: Int32, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ TransformedVertArray: Slots<Int32>, _ secondTimeAround: Bool) {
     var i: Int32
     assert(currentModel.mdxm != nil)
     // back track and get the surfinfo struct for this surface
@@ -487,7 +487,7 @@ func G2_TransformSurfaces(_ surfaceNum: Int32, _ rootSList: inout [surfaceInfo_t
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:560
-func G2_TransformModel(_ ghoul2: CGhoul2Info_v, _ frameNum: Int32, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ useLod: Int32, _ ApplyGore: Bool) {
+public func G2_TransformModel(_ ghoul2: CGhoul2Info_v, _ frameNum: Int32, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ useLod: Int32, _ ApplyGore: Bool) {
     var i: Int32
     var lod: Int32
     var correctScale = JKAShared.vec3_t()
@@ -682,7 +682,7 @@ public func G2_SegmentTriangleTest(_ start: JKAShared.vec3_t, _ end: JKAShared.v
 
 // now we at poly level, check each model space transformed poly against the model world transfomed ray
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:804
-func G2_GorePolys(_ surface: MdxmSurface, _ TS: CTraceSurface, _ surfInfo: MdxmSurfHierarchy) {
+public func G2_GorePolys(_ surface: MdxmSurface, _ TS: CTraceSurface, _ surfInfo: MdxmSurfHierarchy) {
     // Raven's one call is in G2_TraceSurfaces for a trace with no collision records, which only G2API_AddSkinGore starts.
     // No file of the server calls G2API_AddSkinGore, so the function is dead in the dedicated build.
     var j: Int32
@@ -1305,7 +1305,7 @@ private func G2_TraceSurfaces(_ TS: CTraceSurface) {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1514
-func G2_TraceModels(_ ghoul2: CGhoul2Info_v, _ rayStart: JKAShared.vec3_t, _ rayEnd: JKAShared.vec3_t, _ collRecMap: Slots<CollisionRecord>?, _ entNum: Int32, _ eG2TraceType: Int32, _ useLod: Int32, _ fRadius: Float, _ ssize: Float, _ tsize: Float, _ theta: Float, _ shader: Int32, _ gore: SkinGoreData?, _ skipIfLODNotMatch: Bool) {
+public func G2_TraceModels(_ ghoul2: CGhoul2Info_v, _ rayStart: JKAShared.vec3_t, _ rayEnd: JKAShared.vec3_t, _ collRecMap: Slots<CollisionRecord>?, _ entNum: Int32, _ eG2TraceType: Int32, _ useLod: Int32, _ fRadius: Float, _ ssize: Float, _ tsize: Float, _ theta: Float, _ shader: Int32, _ gore: SkinGoreData?, _ skipIfLODNotMatch: Bool) {
     var i: Int32
     var lod: Int32
     var skin: Skin?
@@ -1527,7 +1527,7 @@ private let BONE_SAVE_BLOCK_SIZE = 744 as Int32
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1719
 // AI: Raven hands a `char **` out-pointer to a zone block. The parameter is the Slots of bytes of that block, the form of a `void **` of kind `bytes`.
-func G2_SaveGhoul2Models(_ ghoul2: CGhoul2Info_v, _ buffer: inout Slots<JKAShared.byte>?, _ size: inout Int32) -> Bool {
+public func G2_SaveGhoul2Models(_ ghoul2: CGhoul2Info_v, _ buffer: inout Slots<JKAShared.byte>?, _ size: inout Int32) -> Bool {
     // G2API_SaveGhoul2Models is the one caller, and no file of the MP tree calls it, so the function is dead.
 
     // is there anything to save?
@@ -1780,7 +1780,7 @@ public func G2_FindConfigStringSpace(_ name: String, _ start: Int32, _ max: Int3
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1841
 // AI: Raven reads a `char *` to the zone block of G2_SaveGhoul2Models. The parameter is the Slots of bytes of that block.
-func G2_LoadGhoul2Model(_ ghoul2: CGhoul2Info_v, _ buffer: Slots<JKAShared.byte>) {
+public func G2_LoadGhoul2Model(_ ghoul2: CGhoul2Info_v, _ buffer: Slots<JKAShared.byte>) {
     // G2API_LoadGhoul2Models is the one caller, and no file of the MP tree calls it, so the function is dead.
     var buffer = buffer
     // first thing, lets see how many ghoul2 models we have, and resize our buffers accordingly
@@ -1999,7 +1999,7 @@ func G2_LoadGhoul2Model(_ ghoul2: CGhoul2Info_v, _ buffer: Slots<JKAShared.byte>
 }
 
 /// Source: oracle/codemp/ghoul2/G2_misc.cpp:1912
-func G2_LerpAngles(_ ghoul2: CGhoul2Info_v, _ nextGhoul2: CGhoul2Info_v, _ interpolation: Float) {
+public func G2_LerpAngles(_ ghoul2: CGhoul2Info_v, _ nextGhoul2: CGhoul2Info_v, _ interpolation: Float) {
     // Raven calls this function from no file of either tree, so it is dead.
     // loop each model
     var i: Int32 = 0

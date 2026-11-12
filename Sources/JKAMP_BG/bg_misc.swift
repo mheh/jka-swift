@@ -67,7 +67,7 @@ public let forceMasteryLevels: [String] = [
 
 /// Raven's `forceMasteryPoints` of `bg_misc.c`, the points a rank allows.
 /// Source: oracle/codemp/game/bg_misc.c:162
-let forceMasteryPoints: [Int32] = [
+public let forceMasteryPoints: [Int32] = [
     0,		// FORCE_MASTERY_UNINITIATED,
     5,		// FORCE_MASTERY_INITIATE,
     10,		// FORCE_MASTERY_PADAWAN,
@@ -80,7 +80,7 @@ let forceMasteryPoints: [Int32] = [
 
 /// Raven's `bgForcePowerCost` of `bg_misc.c`, the cost of one power at one level.
 /// Source: oracle/codemp/game/bg_misc.c:174
-let bgForcePowerCost: [[Int32]] = [ //0 == neutral
+public let bgForcePowerCost: [[Int32]] = [ //0 == neutral
     [	0,	2,	4,	6	],	// Heal			// FP_HEAL
     [	0,	0,	2,	6	],	// Jump			//FP_LEVITATION,//hold/duration
     [	0,	2,	4,	6	],	// Speed		//FP_SPEED,//duration

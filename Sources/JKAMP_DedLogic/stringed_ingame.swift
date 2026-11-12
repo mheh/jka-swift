@@ -24,21 +24,21 @@ public var sp_leet: JKAMP.Cvar? {
 /// Raven's string entry of the StringEd package: the text, the debug text, and the flag bits of one reference.
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:48
 // AI: Raven declares two `std::string` fields. The struct holds them as `String`, by the C++ docket.
-struct SE_Entry_t {
-    var m_strString: String = ""
-    var m_strDebug: String = ""	// english and/or "#same", used for debugging only. Also prefixed by "SE:" to show which strings go through StringEd (ie aren't hardwired)
-    var m_iFlags: Int32 = 0
+public struct SE_Entry_t {
+    public var m_strString: String = ""
+    public var m_strDebug: String = ""	// english and/or "#same", used for debugging only. Also prefixed by "SE:" to show which strings go through StringEd (ie aren't hardwired)
+    public var m_iFlags: Int32 = 0
 }
 
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:62
 // AI: Raven keys a `std::map` by the reference. The table is a Dictionary, by row C6 of the C++ docket.
-typealias mapStringEntries_t = [String: SE_Entry_t]
+public typealias mapStringEntries_t = [String: SE_Entry_t]
 
 /// Raven's StringEd package, the string table of every loaded `.str` file and the flag names of its entries.
 /// One instance exists, `TheStringPackage` on `EngineWorld`, and every `SE_` function reads it.
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:64
 // AI: Raven declares a C++ class with one global instance. The class is a final class on EngineWorld, so a method changes the one table in place.
-final class CStringEdPackage {
+public final class CStringEdPackage {
     private var m_bEndMarkerFound_ParseOnly: Bool = false
     private var m_strCurrentEntryRef_ParseOnly: String = ""
     private var m_strCurrentEntryEnglish_ParseOnly: String = ""
@@ -46,17 +46,17 @@ final class CStringEdPackage {
     private var m_strLoadingLanguage_ParseOnly: String = ""	// eg "german"
     private var m_bLoadingEnglish_ParseOnly: Bool = false
 
-    var m_StringEntries: mapStringEntries_t = [:]	// needs to be in public space now
-    var m_bLoadDebug: Bool = false		// ""
+    public var m_StringEntries: mapStringEntries_t = [:]	// needs to be in public space now
+    public var m_bLoadDebug: Bool = false		// ""
     //
     // flag stuff...
     //
     // AI: Raven holds a `vector<string>` and a `map<string,int>`. The fields are an Array and a Dictionary, by the C++ docket.
-    var m_vstrFlagNames: [String] = []
-    var m_mapFlagMasks: [String: Int32] = [:]
+    public var m_vstrFlagNames: [String] = []
+    public var m_mapFlagMasks: [String: Int32] = [:]
 
     /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:77
-    init() {
+    public init() {
         self.Clear(false)
     }
 
@@ -66,19 +66,19 @@ final class CStringEdPackage {
     }
 
     /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:101
-    func EndMarkerFoundDuringParse() -> Bool {
+    public func EndMarkerFoundDuringParse() -> Bool {
         return self.m_bEndMarkerFound_ParseOnly
     }
 }
 
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:124
-var TheStringPackage: CStringEdPackage { world.TheStringPackage }
+public var TheStringPackage: CStringEdPackage { world.TheStringPackage }
 
 // MARK: - The package methods before CopeWithDumbStringData
 
 extension CStringEdPackage {
     /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:127
-    func Clear(_ bChangingLanguages: Bool) {
+    public func Clear(_ bChangingLanguages: Bool) {
         self.m_StringEntries.removeAll()
 
         if !bChangingLanguages {
@@ -185,12 +185,12 @@ extension CStringEdPackage {
     }
 
     /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:230
-    func ExtractLanguageFromPath(_ psFileName: String) -> String {
+    public func ExtractLanguageFromPath(_ psFileName: String) -> String {
         return self.Filename_WithoutPath(self.Filename_PathOnly(psFileName))
     }
 
     /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:236
-    func SetupNewFileParse(_ psFileName: String, _ bLoadDebug: Bool) {
+    public func SetupNewFileParse(_ psFileName: String, _ bLoadDebug: Bool) {
         var sString = CharBuf(iSE_MAX_FILENAME_LENGTH)
 
         strcpy(&sString, self.Filename_WithoutPath(self.Filename_WithoutExt(psFileName)))
@@ -286,7 +286,7 @@ extension CStringEdPackage {
     // returns true while new lines available to be read...
     //
     /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:344
-    func ReadLine(_ psParsePos: inout TextCursor, _ psDest: inout CharBuf) -> Bool {
+    public func ReadLine(_ psParsePos: inout TextCursor, _ psDest: inout CharBuf) -> Bool {
         if psParsePos[0] != 0 {
             if let psLineEnd = strchr(psParsePos.buf[psParsePos.offset!...], Int32(ascii: "\n")) {
                 let iCharsToCopy = psLineEnd
@@ -373,7 +373,7 @@ extension CStringEdPackage {
     // returns flag bitmask (eg 00000010b), else 0 for not found
     //
     /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:441
-    func GetFlagMask(_ psFlagName: String) -> Int32 {
+    public func GetFlagMask(_ psFlagName: String) -> Int32 {
         if let iMask = self.m_mapFlagMasks[psFlagName] {
             return iMask
         }
@@ -498,7 +498,7 @@ extension CStringEdPackage {
     //
     /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:578
     // AI: Raven returns NULL for a good line. The method returns "" for NULL, because no message of his is empty.
-    func ParseLine(_ psLine: String) -> String {
+    public func ParseLine(_ psLine: String) -> String {
         var psErrorMessage = ""
 
         // Raven steps his own `psLine` parameter through its bytes, so the body walks a TextCursor over a copy of them.

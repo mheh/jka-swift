@@ -146,7 +146,7 @@ public let mindTrickTime: [Int32] = [
 
 /// Source: oracle/codemp/game/w_force.c:3044
 // Raven wrote: float forcePushPullRadius[NUM_FORCE_POWER_LEVELS]
-let forcePushPullRadius: [Float] = [
+public let forcePushPullRadius: [Float] = [
     0, //none
     384, //256,
     448, //384,

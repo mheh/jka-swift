@@ -8,11 +8,11 @@ import JKAMP_Ded
 /// Source: oracle/codemp/icarus/instance.h:12
 // AI: Raven's destructor has an empty body. ARC frees the class, so the destructor drops.
 // AI: Raven declares the save and load methods virtual, and no class derives from ICARUS_Instance. The final class makes each one a plain method.
-final class ICARUS_Instance {
+public final class ICARUS_Instance {
     // AI: Raven types these with std::list and std::map. Each is an Array or a Dictionary, by rule 17.
-    typealias sequence_l = [CSequence]
-    typealias sequencer_l = [CSequencer]
-    typealias signal_m = [String: Int32]
+    public typealias sequence_l = [CSequence]
+    public typealias sequencer_l = [CSequencer]
+    public typealias signal_m = [String: Int32]
 
     private var m_interface: interface_export_t? = nil
     private var m_GUID: Int32 = 0
@@ -26,7 +26,7 @@ final class ICARUS_Instance {
 
     // Instance
     /// Source: oracle/codemp/icarus/Instance.cpp:24
-    init() {
+    public init() {
         self.m_GUID = 0
 
         //to be safe
@@ -42,7 +42,7 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:56
-    static func Create(_ ie: interface_export_t?) -> ICARUS_Instance? {
+    public static func Create(_ ie: interface_export_t?) -> ICARUS_Instance? {
         let instance: ICARUS_Instance? = ICARUS_Instance()
         instance!.m_interface = ie
         // AI: Raven calls the Win32 OutputDebugString for the debugger window. A POSIX host has no such window, so the call drops.
@@ -90,7 +90,7 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:121
-    func Delete() -> Int32 {
+    public func Delete() -> Int32 {
         self.Free()
 
         // AI: Raven deletes the instance here. ARC frees it when ICARUS_Shutdown drops `iICARUS`, so the step drops.
@@ -106,7 +106,7 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:165
-    func GetSequencer(_ ownerID: Int32) -> CSequencer? {
+    public func GetSequencer(_ ownerID: Int32) -> CSequencer? {
         let sequencer: CSequencer? = CSequencer.Create()
         let taskManager: CTaskManager? = CTaskManager.Create()
 
@@ -127,7 +127,7 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:191
-    func DeleteSequencer(_ sequencer: CSequencer?) {
+    public func DeleteSequencer(_ sequencer: CSequencer?) {
         // added 2/12/2 to properly delete blocks that were passed to the task manager
         sequencer!.Recall()
 
@@ -150,7 +150,7 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:223
-    func GetSequence() -> CSequence? {
+    public func GetSequence() -> CSequence? {
         let sequence: CSequence? = CSequence.Create()
 
         //Assign the GUID
@@ -171,7 +171,7 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:248
-    func GetSequence(_ id: Int32) -> CSequence? {
+    public func GetSequence(_ id: Int32) -> CSequence? {
         for si in self.m_sequences {
             if si.GetID() == id {
                 return si
@@ -189,7 +189,7 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:266
-    func DeleteSequence(_ sequence: CSequence?) {
+    public func DeleteSequence(_ sequence: CSequence?) {
         self.m_sequences.removeAll { $0 === sequence }
 
         // AI: Raven deletes the sequence, and the destructor calls Delete.
@@ -366,7 +366,7 @@ final class ICARUS_Instance {
     /// Source: oracle/codemp/icarus/Instance.cpp:422
     // Port-note: Rule 20. No file of oracle/codemp calls this function.
     @discardableResult
-    func Save() -> Int32 {
+    public func Save() -> Int32 {
         // AI: Raven writes each value through its address. The value goes into a CharBuf of its bytes, and the CharBuf is written.
         // AI: Raven passes each chunk ID as a four-character constant. The body passes its value as hex, with the text in a trailing comment.
         var value = CharBuf(Double.byteCount)
@@ -566,7 +566,7 @@ final class ICARUS_Instance {
     /// Source: oracle/codemp/icarus/Instance.cpp:575
     // Port-note: Rule 20. No file of oracle/codemp calls this function.
     @discardableResult
-    func Load() -> Int32 {
+    public func Load() -> Int32 {
         // AI: Raven reads each value through its address. The read fills a CharBuf of the value's bytes, and the body takes the value from it.
         // AI: Raven passes each chunk ID as a four-character constant. The body passes its value as hex, with the text in a trailing comment.
         var value = CharBuf(Double.byteCount)
@@ -617,7 +617,7 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:623
-    func Signal(_ identifier: String) {
+    public func Signal(_ identifier: String) {
         self.m_signals[identifier] = 1
     }
 
@@ -629,7 +629,7 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:634
-    func CheckSignal(_ identifier: String) -> Bool {
+    public func CheckSignal(_ identifier: String) -> Bool {
         let smi: Int32? = self.m_signals[identifier]
 
         if smi == nil {
@@ -647,12 +647,12 @@ final class ICARUS_Instance {
     ```
     */
     /// Source: oracle/codemp/icarus/Instance.cpp:652
-    func ClearSignal(_ identifier: String) {
+    public func ClearSignal(_ identifier: String) {
         self.m_signals[identifier] = nil
     }
 
     /// Source: oracle/codemp/icarus/instance.h:33
-    func GetInterface() -> interface_export_t? {
+    public func GetInterface() -> interface_export_t? {
         self.m_interface
     }
 }

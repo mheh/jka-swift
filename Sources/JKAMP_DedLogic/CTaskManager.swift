@@ -9,7 +9,7 @@ let RUNAWAY_LIMIT: Int32 = 256
 /// Raven's task manager of one entity, which runs the commands of its sequencer one game frame at a time.
 /// Source: oracle/codemp/icarus/taskmanager.h:97
 // AI: Raven's destructor has an empty body. ARC frees the class, so the destructor drops.
-final class CTaskManager {
+public final class CTaskManager {
     // AI: Raven types these with std::map, std::vector, and std::list. Each is a Dictionary or an Array, by rule 17.
     typealias taskID_m = [Int32: CTask]
     typealias taskGroupName_m = [String: CTaskGroup]
@@ -48,7 +48,7 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:148
-    init() {}
+    public init() {}
 
     /**
     ```
@@ -58,7 +58,7 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:162
-    static func Create() -> CTaskManager? {
+    public static func Create() -> CTaskManager? {
         return CTaskManager()
     }
 
@@ -71,7 +71,7 @@ final class CTaskManager {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:173
     @discardableResult
-    func Init(_ owner: CSequencer?) -> Int32 {
+    public func Init(_ owner: CSequencer?) -> Int32 {
         //TODO: Emit warning
         if owner == nil {
             return TASK_FAILED
@@ -96,7 +96,7 @@ final class CTaskManager {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:195
     @discardableResult
-    func Free() -> Int32 {
+    public func Free() -> Int32 {
         //Clear out all pending tasks
         for ti in self.m_tasks {
             ti.Free()
@@ -122,7 +122,7 @@ final class CTaskManager {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:227
     @discardableResult
-    func Flush() -> Int32 {
+    public func Flush() -> Int32 {
         //FIXME: Rewrite
 
         return 1
@@ -136,7 +136,7 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:240
-    func AddTaskGroup(_ name: String) -> CTaskGroup? {
+    public func AddTaskGroup(_ name: String) -> CTaskGroup? {
         var group: CTaskGroup?
 
         //Collect any garbage
@@ -180,7 +180,7 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:286
-    func GetTaskGroup(_ name: String) -> CTaskGroup? {
+    public func GetTaskGroup(_ name: String) -> CTaskGroup? {
         let tgi: CTaskGroup? = self.m_taskGroupNameMap[name]
 
         if tgi == nil {
@@ -192,7 +192,7 @@ final class CTaskManager {
     }
 
     /// Source: oracle/codemp/icarus/TaskManager.cpp:301
-    func GetTaskGroup(_ id: Int32) -> CTaskGroup? {
+    public func GetTaskGroup(_ id: Int32) -> CTaskGroup? {
         let tgi: CTaskGroup? = self.m_taskGroupIDMap[id]
 
         if tgi == nil {
@@ -212,7 +212,7 @@ final class CTaskManager {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:322
     @discardableResult
-    func Update() -> Int32 {
+    public func Update() -> Int32 {
         let owner = SV_GentityNum(self.m_ownerID)
 
         if (owner!.r.svFlags & SVF_ICARUS_FREEZE) != 0 {
@@ -236,7 +236,7 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:346
-    func IsRunning() -> Bool {
+    public func IsRunning() -> Bool {
         return self.m_tasks.isEmpty == false
     }
 
@@ -722,7 +722,7 @@ final class CTaskManager {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:841
     @discardableResult
-    func SetCommand(_ command: CBlock?, _ type: Int32) -> Int32 {
+    public func SetCommand(_ command: CBlock?, _ type: Int32) -> Int32 {
         let task: CTask? = CTask.Create(self.m_GUID, command)
         self.m_GUID += 1
 
@@ -751,7 +751,7 @@ final class CTaskManager {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:870
     @discardableResult
-    func MarkTask(_ id: Int32, _ operation: Int32) -> Int32 {
+    public func MarkTask(_ id: Int32, _ operation: Int32) -> Int32 {
         let group: CTaskGroup? = self.GetTaskGroup(id)
 
         if group == nil {
@@ -784,7 +784,7 @@ final class CTaskManager {
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:912
     @discardableResult
-    func Completed(_ id: Int32) -> Int32 {
+    public func Completed(_ id: Int32) -> Int32 {
         //Mark the task as completed
         for tgi in self.m_taskGroups {
             //If this returns true, then the task was marked properly
@@ -822,7 +822,7 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:950
-    func RecallTask() -> CBlock? {
+    public func RecallTask() -> CBlock? {
         var task: CTask?
 
         task = self.PopTask(POP_BACK)
@@ -912,7 +912,7 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1040
-    func GetCurrentTask() -> CBlock? {
+    public func GetCurrentTask() -> CBlock? {
         let task: CTask? = self.PopTask(POP_BACK)
 
         if task == nil {
@@ -1592,7 +1592,7 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1663
-    func Save() {}
+    public func Save() {}
 
     /**
     ```
@@ -1602,5 +1602,5 @@ final class CTaskManager {
     ```
     */
     /// Source: oracle/codemp/icarus/TaskManager.cpp:1790
-    func Load() {}
+    public func Load() {}
 }

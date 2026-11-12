@@ -17,11 +17,11 @@ public var c_totalPatchBlocks: Int32 {
 
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:86
 // Raven wrote: int c_totalPatchSurfaces
-let c_totalPatchSurfaces: Int32 = 0
+public let c_totalPatchSurfaces: Int32 = 0
 
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:87
 // Raven wrote: int c_totalPatchEdges
-let c_totalPatchEdges: Int32 = 0
+public let c_totalPatchEdges: Int32 = 0
 
 /// Source: oracle/codemp/qcommon/cm_patch.cpp:89
 var debugPatchCollide: PatchCollide? {

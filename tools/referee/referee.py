@@ -357,14 +357,17 @@ class ServerProc:
             if payload is not None and payload.startswith(prefix):
                 return payload, line
 
-    def collect_block(self, end_prefix, timeout, begin_prefix=None):
+    def collect_block(self, end_prefix, timeout, begin_prefix=None, join=False):
         """Collect REF payloads up to and including the one starting with
-        end_prefix. If begin_prefix given, first waits for it (included)."""
+        end_prefix. If begin_prefix given, first waits for it (included).
+        With join, a line of hex digits with no REF mark is the next part of the record before it."""
         payloads = []
         deadline = time.monotonic() + timeout
         if begin_prefix is not None:
             p, _ = self.await_pattern(begin_prefix, timeout)
             payloads.append(p)
+        # The text of the last record after its REF mark, with its trailing space, so a joined part keeps the space before the hex.
+        raw = None
         while True:
             remaining = deadline - time.monotonic()
             if remaining <= 0:
@@ -373,7 +376,12 @@ class ServerProc:
             line = self.readline(remaining)
             payload = ref_payload(line)
             if payload is None:
+                # The Swift console ends a line after each Com_Printf call, so the hex of one dump record comes as several lines.
+                if join and raw is not None and re.fullmatch(r"[0-9a-fA-F]+", line):
+                    raw += line
+                    payloads[-1] = raw.strip()
                 continue
+            raw = line[line.find(REF_MARK) + len(REF_MARK):]
             payloads.append(payload)
             if payload.startswith(end_prefix):
                 return payloads
@@ -687,7 +695,7 @@ class Referee:
     def collect_dump(self, side):
         side.send("ref_dump")
         payloads = side.collect_block("DUMP END", self.cfg.timeout,
-                                      begin_prefix="DUMP BEGIN")
+                                      begin_prefix="DUMP BEGIN", join=True)
         return parse_dump(payloads)
 
     def collect_trace(self, side):

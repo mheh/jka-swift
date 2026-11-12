@@ -5,7 +5,7 @@ import JKAMP_Ded
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:16
 /// Raven's instance, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var iICARUS: ICARUS_Instance? {
+public var iICARUS: ICARUS_Instance? {
     get { world.iICARUS }
     set { world.iICARUS = newValue }
 }
@@ -13,36 +13,36 @@ var iICARUS: ICARUS_Instance? {
 /// Raven's cached script, the bytes of one IBI file and their count.
 /// Source: oracle/codemp/icarus/GameInterface.h:4
 // AI: Raven holds an ICARUS_Malloc block in `char *buffer`. The record holds the CharBuf of the file, the form of the CharBuf callers of FS_ReadFile.
-struct pscript_t {
-    var buffer = CharBuf(0)
-    var length: Int32 = 0
+public struct pscript_t {
+    public var buffer = CharBuf(0)
+    public var length: Int32 = 0
 }
 
 /// Source: oracle/codemp/icarus/GameInterface.h:10
 // AI: Raven declares a `map < string, int >`. The type is a Dictionary, by rule 17.
-typealias entlist_t = [String: Int32]
+public typealias entlist_t = [String: Int32]
 
 /// Source: oracle/codemp/icarus/GameInterface.h:11
 // AI: Raven declares a `map < string, pscript_t* >`. The type is a Dictionary of the record, by rule 17.
-typealias bufferlist_t = [String: pscript_t]
+public typealias bufferlist_t = [String: pscript_t]
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:17
 /// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var ICARUS_BufferList: bufferlist_t {
+public var ICARUS_BufferList: bufferlist_t {
     get { world.ICARUS_BufferList }
     set { world.ICARUS_BufferList = newValue }
 }
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:18
 /// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var ICARUS_EntList: entlist_t {
+public var ICARUS_EntList: entlist_t {
     get { world.ICARUS_EntList }
     set { world.ICARUS_EntList = newValue }
 }
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:23
 // Raven wrote: int ICARUS_entFilter = -1
-let ICARUS_entFilter: Int32 = -1
+public let ICARUS_entFilter: Int32 = -1
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:33
 public func ICARUS_GetScript(_ name: String, _ buf: inout JKAShared.TextCursor) -> Int32 {
@@ -538,7 +538,7 @@ public func ICARUS_InitEnt(_ ent: JKAMP.SharedEntity) {
 }
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:679
-func ICARUS_LinkEntity(_ entID: Int32, _ sequencer: CSequencer?, _ taskManager: CTaskManager?) -> Int32 {
+public func ICARUS_LinkEntity(_ entID: Int32, _ sequencer: CSequencer?, _ taskManager: CTaskManager?) -> Int32 {
     let ent = SV_GentityNum(entID)
 
     if ent == nil {

@@ -11,15 +11,15 @@ let HUNK_ID = 0x87654321 as UInt32
 
 /// Source: oracle/codemp/botlib/l_memory.cpp:26
 // Raven wrote: int allocatedmemory
-let allocatedmemory: Int32 = 0
+public let allocatedmemory: Int32 = 0
 
 /// Source: oracle/codemp/botlib/l_memory.cpp:27
 // Raven wrote: int totalmemorysize
-let totalmemorysize: Int32 = 0
+public let totalmemorysize: Int32 = 0
 
 /// Source: oracle/codemp/botlib/l_memory.cpp:28
 // Raven wrote: int numblocks
-let numblocks: Int32 = 0
+public let numblocks: Int32 = 0
 
 /// Source: oracle/codemp/botlib/l_memory.cpp:325
 public func GetMemory(_ size: UInt32) -> UnsafeMutableRawPointer? {

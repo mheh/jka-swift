@@ -6,7 +6,7 @@ import JKAMP_Ded
 /// Raven's block, one ICARUS command with an ID, flags, and its list of members.
 /// Source: oracle/codemp/icarus/blockstream.h:109
 // AI: Raven's destructor only deletes the members. ARC frees the class and its members, so the destructor drops.
-final class CBlock {
+public final class CBlock {
     // AI: Raven types the member list as a std::vector of pointers. The list is an Array of the class, by rule 17.
     typealias blockMember_v = [CBlockMember]
 
@@ -24,7 +24,7 @@ final class CBlock {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:170
-    init() {
+    public init() {
         self.m_flags = 0
         self.m_id = 0
     }
@@ -38,7 +38,7 @@ final class CBlock {
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:187
     @discardableResult
-    func Init() -> Int32 {
+    public func Init() -> Int32 {
         self.m_flags = 0
         self.m_id = 0
 
@@ -54,7 +54,7 @@ final class CBlock {
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:201
     @discardableResult
-    func Create(_ block_id: Int32) -> Int32 {
+    public func Create(_ block_id: Int32) -> Int32 {
         self.Init()
 
         self.m_id = block_id
@@ -71,7 +71,7 @@ final class CBlock {
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:216
     @discardableResult
-    func Free() -> Int32 {
+    public func Free() -> Int32 {
         var numMembers: Int32 = self.GetNumMembers()
         var bMember: CBlockMember?
 
@@ -99,7 +99,7 @@ final class CBlock {
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:244
     @discardableResult
-    func Write(_ member_id: Int32, _ member_data: String) -> Int32 {
+    public func Write(_ member_id: Int32, _ member_data: String) -> Int32 {
         let bMember = CBlockMember()
 
         bMember.SetID(member_id)
@@ -114,7 +114,7 @@ final class CBlock {
 
     /// Source: oracle/codemp/icarus/BlockStream.cpp:258
     @discardableResult
-    func Write(_ member_id: Int32, _ member_data: JKAShared.vec3_t) -> Int32 {
+    public func Write(_ member_id: Int32, _ member_data: JKAShared.vec3_t) -> Int32 {
         let bMember: CBlockMember
 
         bMember = CBlockMember()
@@ -130,7 +130,7 @@ final class CBlock {
 
     /// Source: oracle/codemp/icarus/BlockStream.cpp:273
     @discardableResult
-    func Write(_ member_id: Int32, _ member_data: Float) -> Int32 {
+    public func Write(_ member_id: Int32, _ member_data: Float) -> Int32 {
         var member_data = member_data
         let bMember = CBlockMember()
 
@@ -145,7 +145,7 @@ final class CBlock {
 
     /// Source: oracle/codemp/icarus/BlockStream.cpp:286
     @discardableResult
-    func Write(_ member_id: Int32, _ member_data: Int32) -> Int32 {
+    public func Write(_ member_id: Int32, _ member_data: Int32) -> Int32 {
         var member_data = member_data
         let bMember = CBlockMember()
 
@@ -160,7 +160,7 @@ final class CBlock {
 
     /// Source: oracle/codemp/icarus/BlockStream.cpp:300
     @discardableResult
-    func Write(_ bMember: CBlockMember?) -> Int32 {
+    public func Write(_ bMember: CBlockMember?) -> Int32 {
         // findme: this is wrong:	bMember->SetSize( sizeof(bMember->GetData()) );
 
         self.AddMember(bMember)
@@ -178,7 +178,7 @@ final class CBlock {
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:317
     @discardableResult
-    func AddMember(_ member: CBlockMember?) -> Int32 {
+    public func AddMember(_ member: CBlockMember?) -> Int32 {
         self.m_members.append(member!)
         return 1
     }
@@ -191,7 +191,7 @@ final class CBlock {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:329
-    func GetMember(_ memberNum: Int32) -> CBlockMember? {
+    public func GetMember(_ memberNum: Int32) -> CBlockMember? {
         if memberNum > self.GetNumMembers() - 1 {
             return nil
         }
@@ -206,7 +206,7 @@ final class CBlock {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:344
-    func GetMemberData(_ memberNum: Int32) -> Slots<JKAShared.byte>? {
+    public func GetMemberData(_ memberNum: Int32) -> Slots<JKAShared.byte>? {
         if memberNum > self.GetNumMembers() - 1 {
             return nil
         }
@@ -221,7 +221,7 @@ final class CBlock {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:359
-    func Duplicate() -> CBlock? {
+    public func Duplicate() -> CBlock? {
         var newblock: CBlock?
 
         newblock = CBlock()
@@ -242,33 +242,33 @@ final class CBlock {
 
     //Get the ID for the block
     /// Source: oracle/codemp/icarus/blockstream.h:140
-    func GetBlockID() -> Int32 {
+    public func GetBlockID() -> Int32 {
         self.m_id
     }
 
     //Get the number of member in the block's list
     /// Source: oracle/codemp/icarus/blockstream.h:141
-    func GetNumMembers() -> Int32 {
+    public func GetNumMembers() -> Int32 {
         Int32(self.m_members.count)
     }
 
     /// Source: oracle/codemp/icarus/blockstream.h:143
-    func SetFlags(_ flags: Int32) {
+    public func SetFlags(_ flags: Int32) {
         self.m_flags = flags
     }
 
     /// Source: oracle/codemp/icarus/blockstream.h:144
-    func SetFlag(_ flag: Int32) {
+    public func SetFlag(_ flag: Int32) {
         self.m_flags |= flag
     }
 
     /// Source: oracle/codemp/icarus/blockstream.h:146
-    func HasFlag(_ flag: Int32) -> Int32 {
+    public func HasFlag(_ flag: Int32) -> Int32 {
         self.m_flags & flag
     }
 
     /// Source: oracle/codemp/icarus/blockstream.h:147
-    func GetFlags() -> Int32 {
+    public func GetFlags() -> Int32 {
         self.m_flags
     }
 }

@@ -202,7 +202,7 @@ public var materialNames: [String] {
 
 /// Source: oracle/codemp/renderer/tr_shader.cpp:2228
 // AI: Raven keeps `infoParm_t infoParms[]` as C data. The table is a constant Array of the `InfoParm` rows of cm_shader.swift, whose `infoParm_t` has the same fields.
-let infoParms: [InfoParm] = [
+public let infoParms: [InfoParm] = [
     // Game content Flags
     InfoParm(name: "nonsolid", clearSolid: ~CONTENTS_SOLID, surfaceFlags: 0, contents: 0), // special hack to clear solid flag
     InfoParm(name: "nonopaque", clearSolid: ~CONTENTS_OPAQUE, surfaceFlags: 0, contents: 0), // special hack to clear opaque flag

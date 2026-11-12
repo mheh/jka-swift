@@ -20,7 +20,7 @@ let AFLAG_FINISH = (JKAShared.SETANIM_FLAG_HOLD)
 
 /// Source: oracle/codemp/game/bg_saber.c:324
 // Raven wrote: int transitionMove[Q_NUM_QUADS][Q_NUM_QUADS]
-let transitionMove: [[Int32]] = [
+public let transitionMove: [[Int32]] = [
     [
         LS_NONE, //Can't transition to same pos!
         LS_T1_BR__R, //40
@@ -105,7 +105,7 @@ let transitionMove: [[Int32]] = [
 
 /// Source: oracle/codemp/game/bg_saber.c:715
 // Raven wrote: int saberMoveTransitionAngle[Q_NUM_QUADS][Q_NUM_QUADS]
-let saberMoveTransitionAngle: [[Int32]] = [
+public let saberMoveTransitionAngle: [[Int32]] = [
     [
         0, //Q_BR,Q_BR,
         45, //Q_BR,Q_R,

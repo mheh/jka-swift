@@ -11,11 +11,11 @@ private let MAX_LODS = (8) as Int32
 /// `AllocGoreRecord` makes one, and `DeleteGoreRecord` drops it by its tag.
 /// Source: oracle/codemp/ghoul2/G2_gore.h:10
 // AI: Raven's destructor at G2_gore.h:22 frees each `tex` block with `Z_Free`. The class drops it, because it only frees memory.
-final class GoreTextureCoordinates {
-    var tex: [Slots<Float>?] = [Slots<Float>?](repeating: nil, count: Int(MAX_LODS))
+public final class GoreTextureCoordinates {
+    public var tex: [Slots<Float>?] = [Slots<Float>?](repeating: nil, count: Int(MAX_LODS))
 
     /// Source: oracle/codemp/ghoul2/G2_gore.h:14
-    init() {
+    public init() {
         var i: Int32
         i = 0
         while i < MAX_LODS {

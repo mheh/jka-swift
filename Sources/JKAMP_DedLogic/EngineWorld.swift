@@ -845,9 +845,9 @@ public final class EngineWorld {
 /// One row of Raven's `directives` and `dollardirectives` of `l_precomp.cpp`, the `directive_t` record of :86 with the parse function as a Swift value.
 /// C storage cannot hold the address of a Swift function, so the tables are hand data on `EngineWorld`. A nil name is Raven's NULL row.
 /// Source: oracle/codemp/botlib/l_precomp.cpp:86
-struct DirectiveRow {
-    let name: String?
-    let `func`: ((Source) -> Int32)?
+public struct DirectiveRow {
+    public let name: String?
+    public let `func`: ((Source) -> Int32)?
 }
 
 /// The one instance. The engine runs one thread, so this is not isolated.

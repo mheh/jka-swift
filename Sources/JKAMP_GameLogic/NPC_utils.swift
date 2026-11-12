@@ -18,7 +18,7 @@ public var teamStrength: [Int32] {
 
 /// Source: oracle/codemp/game/NPC_utils.c:9
 // Raven wrote: int teamCounter[TEAM_NUM_TEAMS]
-let teamCounter: [Int32] = [Int32](repeating: 0, count: 4)
+public let teamCounter: [Int32] = [Int32](repeating: 0, count: 4)
 
 /// Source: oracle/codemp/game/NPC_utils.c:11
 let VALID_ATTACK_CONE = 2.0 as Float

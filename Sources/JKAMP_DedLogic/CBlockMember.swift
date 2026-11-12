@@ -6,7 +6,7 @@ import JKAMP_Ded
 /// Raven's block member, one typed value of a block, which an IBI stream holds as an ID, a size, and the data.
 /// Source: oracle/codemp/icarus/blockstream.h:38
 // AI: Raven allocates the class with Z_Malloc in operator new. ARC frees the class, so the two operators drop.
-final class CBlockMember {
+public final class CBlockMember {
     private var m_id: Int32 = 0		//ID of the value contained in data
     private var m_size: Int32 = 0		//Size of the data member variable
     // AI: Raven holds the ICARUS_Malloc block of the data as `void *`, a text, a float, an int, or a vector by `m_id`.
@@ -23,7 +23,7 @@ final class CBlockMember {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:26
-    init() {
+    public init() {
         self.m_id = -1
         self.m_size = -1
         self.m_data = nil
@@ -42,7 +42,7 @@ final class CBlockMember {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:44
-    func Free() {
+    public func Free() {
         if self.m_data != nil {
             // AI: Raven frees the `void *` block. The call frees the base of the Slots, the form of the download blocks of SV_CloseDownload.
             ICARUS_Free(OpaquePointer(self.m_data!.base))
@@ -61,7 +61,7 @@ final class CBlockMember {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:61
-    func GetInfo(_ id: inout Int32, _ size: inout Int32, _ data: inout Slots<JKAShared.byte>?) {
+    public func GetInfo(_ id: inout Int32, _ size: inout Int32, _ data: inout Slots<JKAShared.byte>?) {
         id = self.m_id
         size = self.m_size
         data = self.m_data
@@ -75,17 +75,17 @@ final class CBlockMember {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:74
-    func SetData(_ data: String) {
+    public func SetData(_ data: String) {
         self.WriteDataPointer(data, strlen(data) + 1)
     }
 
     /// Source: oracle/codemp/icarus/BlockStream.cpp:79
-    func SetData(_ data: JKAShared.vec3_t) {
+    public func SetData(_ data: JKAShared.vec3_t) {
         self.WriteDataPointer(data, 3)
     }
 
     /// Source: oracle/codemp/icarus/BlockStream.cpp:84
-    func SetData(_ data: Slots<JKAShared.byte>?, _ size: Int32) {
+    public func SetData(_ data: Slots<JKAShared.byte>?, _ size: Int32) {
         if self.m_data != nil {
             // AI: Raven frees the `void *` block. The call frees the base of the Slots, the form of the download blocks of SV_CloseDownload.
             ICARUS_Free(OpaquePointer(self.m_data!.base))
@@ -108,7 +108,7 @@ final class CBlockMember {
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:102
     @discardableResult
-    func ReadMember(_ stream: CharBuf, _ streamPos: inout Int32) -> Int32 {
+    public func ReadMember(_ stream: CharBuf, _ streamPos: inout Int32) -> Int32 {
         self.m_id = stream.withSlots { $0[int: streamPos] }
         streamPos += Int32(Int32.byteCount)
 
@@ -145,7 +145,7 @@ final class CBlockMember {
     /// Source: oracle/codemp/icarus/BlockStream.cpp:133
     // Port-note: Rule 20. The one caller is CBlockStream::WriteBlock, whose callers are in Interpreter.cpp, and WinDed does not link Interpreter.cpp.
     @discardableResult
-    func WriteMember(_ m_fileHandle: OpaquePointer?) -> Int32 {
+    public func WriteMember(_ m_fileHandle: OpaquePointer?) -> Int32 {
         // AI: Raven writes each value through its address. The value goes into a CharBuf of its bytes, and the CharBuf is written.
         var value = CharBuf(Int32.byteCount)
 
@@ -168,7 +168,7 @@ final class CBlockMember {
     ```
     */
     /// Source: oracle/codemp/icarus/BlockStream.cpp:148
-    func Duplicate() -> CBlockMember? {
+    public func Duplicate() -> CBlockMember? {
         let newblock: CBlockMember? = CBlockMember()
 
         if newblock == nil {
@@ -184,37 +184,37 @@ final class CBlockMember {
 
     //Set the ID member variable
     /// Source: oracle/codemp/icarus/blockstream.h:50
-    func SetID(_ id: Int32) {
+    public func SetID(_ id: Int32) {
         self.m_id = id
     }
 
     //Set the size member variable
     /// Source: oracle/codemp/icarus/blockstream.h:51
-    func SetSize(_ size: Int32) {
+    public func SetSize(_ size: Int32) {
         self.m_size = size
     }
 
     //Get ID member variables
     /// Source: oracle/codemp/icarus/blockstream.h:60
-    func GetID() -> Int32 {
+    public func GetID() -> Int32 {
         self.m_id
     }
 
     //Get data member variable
     /// Source: oracle/codemp/icarus/blockstream.h:61
-    func GetData() -> Slots<JKAShared.byte>? {
+    public func GetData() -> Slots<JKAShared.byte>? {
         self.m_data
     }
 
     //Get size member variable
     /// Source: oracle/codemp/icarus/blockstream.h:62
-    func GetSize() -> Int32 {
+    public func GetSize() -> Int32 {
         self.m_size
     }
 
     /// Source: oracle/codemp/icarus/blockstream.h:76
     // AI: Raven defines a template. The class has one overload for each type Raven's calls take, `float` and `int` of CBlock::Write at BlockStream.cpp:278 and :291.
-    func WriteData(_ data: inout Float) {
+    public func WriteData(_ data: inout Float) {
         if self.m_data != nil {
             // AI: Raven frees the `void *` block. The call frees the base of the Slots, the form of the download blocks of SV_CloseDownload.
             ICARUS_Free(OpaquePointer(self.m_data!.base))
@@ -228,7 +228,7 @@ final class CBlockMember {
     }
 
     /// Source: oracle/codemp/icarus/blockstream.h:76
-    func WriteData(_ data: inout Int32) {
+    public func WriteData(_ data: inout Int32) {
         if self.m_data != nil {
             // AI: Raven frees the `void *` block. The call frees the base of the Slots, the form of the download blocks of SV_CloseDownload.
             ICARUS_Free(OpaquePointer(self.m_data!.base))
@@ -243,7 +243,7 @@ final class CBlockMember {
 
     /// Source: oracle/codemp/icarus/blockstream.h:88
     // AI: Raven defines a template. The class has one overload for each type Raven's calls take, the text and the vector of SetData at BlockStream.cpp:76 and :81.
-    func WriteDataPointer(_ data: String, _ num: Int32) {
+    public func WriteDataPointer(_ data: String, _ num: Int32) {
         if self.m_data != nil {
             // AI: Raven frees the `void *` block. The call frees the base of the Slots, the form of the download blocks of SV_CloseDownload.
             ICARUS_Free(OpaquePointer(self.m_data!.base))
@@ -257,7 +257,7 @@ final class CBlockMember {
     }
 
     /// Source: oracle/codemp/icarus/blockstream.h:88
-    func WriteDataPointer(_ data: JKAShared.vec3_t, _ num: Int32) {
+    public func WriteDataPointer(_ data: JKAShared.vec3_t, _ num: Int32) {
         if self.m_data != nil {
             // AI: Raven frees the `void *` block. The call frees the base of the Slots, the form of the download blocks of SV_CloseDownload.
             ICARUS_Free(OpaquePointer(self.m_data!.base))

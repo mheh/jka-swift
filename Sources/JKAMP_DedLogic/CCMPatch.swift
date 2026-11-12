@@ -7,7 +7,7 @@ import JKAMP_Ded
 /// `CCMLandScape.mPatches` holds one per block, and the trace of a terrain brush walks the brushes of each patch.
 /// Source: oracle/codemp/qcommon/cm_landscape.h:90
 // AI: Raven's destructor at cm_terrain.cpp:112 has an empty body. The class has no deinit.
-final class CCMPatch {
+public final class CCMPatch {
     // AI: Raven holds the owner as a pointer. The field is weak, because the landscape holds every patch in its array.
     private weak var owner: CCMLandScape? = nil										// Owning landscape
     private var mHx: Int32 = 0
@@ -27,79 +27,79 @@ final class CCMPatch {
 
     // Constructors
     /// Source: oracle/codemp/qcommon/cm_landscape.h:105
-    init() {}
+    public init() {}
 
     // Accessors
     /// Source: oracle/codemp/qcommon/cm_landscape.h:109
-    func GetWorld() -> JKAShared.vec3_t {
+    public func GetWorld() -> JKAShared.vec3_t {
         self.mWorldCoords
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:110
-    func GetMins() -> JKAShared.vec3_t {
+    public func GetMins() -> JKAShared.vec3_t {
         self.mBounds[0]
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:111
-    func GetMaxs() -> JKAShared.vec3_t {
+    public func GetMaxs() -> JKAShared.vec3_t {
         self.mBounds[1]
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:112
-    func GetBounds() -> [JKAShared.vec3_t] {
+    public func GetBounds() -> [JKAShared.vec3_t] {
         self.mBounds
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:113
-    func GetHeightMapX() -> Int32 {
+    public func GetHeightMapX() -> Int32 {
         self.mHx
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:114
-    func GetHeightMapY() -> Int32 {
+    public func GetHeightMapY() -> Int32 {
         self.mHy
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:115
     // C widens the unsigned byte to `int` at the return.
-    func GetHeight(_ corner: Int32) -> Int32 {
+    public func GetHeight(_ corner: Int32) -> Int32 {
         Int32(self.mCornerHeights[corner])
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:116
-    func GetNumBrushes() -> Int32 {
+    public func GetNumBrushes() -> Int32 {
         self.mNumBrushes
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:117
-    func GetCollisionData() -> Slots<Cbrush>? {
+    public func GetCollisionData() -> Slots<Cbrush>? {
         self.mPatchBrushData
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:119
-    func SetSurfaceFlags(_ `in`: Int32) {
+    public func SetSurfaceFlags(_ `in`: Int32) {
         self.mSurfaceFlags = `in`
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:120
-    func GetSurfaceFlags() -> Int32 {
+    public func GetSurfaceFlags() -> Int32 {
         self.mSurfaceFlags
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:121
-    func SetContents(_ `in`: Int32) {
+    public func SetContents(_ `in`: Int32) {
         self.mContentFlags = `in`
     }
 
     /// Source: oracle/codemp/qcommon/cm_landscape.h:122
-    func GetContents() -> Int32 {
+    public func GetContents() -> Int32 {
         self.mContentFlags
     }
 
     // Prototypes
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:524
     // AI: Raven passes the brush block of the owner as `byte *` and casts it to `cbrush_t *` at cm_terrain.cpp:588. The parameter is the Slots over the brushes.
-    func Init(_ ls: CCMLandScape?, _ heightX: Int32, _ heightY: Int32, _ world: JKAShared.vec3_t, _ hMap: Slots<JKAShared.byte>?, _ patchBrushData: Slots<Cbrush>?) {
+    public func Init(_ ls: CCMLandScape?, _ heightX: Int32, _ heightY: Int32, _ world: JKAShared.vec3_t, _ hMap: Slots<JKAShared.byte>?, _ patchBrushData: Slots<Cbrush>?) {
         var min: Int32
         var max: Int32
         var x: Int32
@@ -169,7 +169,7 @@ final class CCMPatch {
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:223
-    func InitPlane(_ side: Cbrushside?, _ plane: JKAShared.Cplane?, _ p0: JKAShared.vec3_t, _ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) {
+    public func InitPlane(_ side: Cbrushside?, _ plane: JKAShared.Cplane?, _ p0: JKAShared.vec3_t, _ p1: JKAShared.vec3_t, _ p2: JKAShared.vec3_t) {
         var dx = JKAShared.vec3_t()
         var dy = JKAShared.vec3_t()
 
@@ -186,7 +186,7 @@ final class CCMPatch {
     }
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:302
-    func CreatePatchPlaneData() {
+    public func CreatePatchPlaneData() {
         var realWidth: Int32
         var x: Int32
         var y: Int32
@@ -354,7 +354,7 @@ final class CCMPatch {
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:272
     // AI: Raven returns a `cbrush_t *` as `void *`, and both callers cast it back at cm_terrain.cpp:461 and :483. The method returns the view, the RETURNS kind `view`.
-    func GetAdjacentBrushX(_ x: Int32, _ y: Int32) -> Cbrush? {
+    public func GetAdjacentBrushX(_ x: Int32, _ y: Int32) -> Cbrush? {
         let xo1: Int32 = x % self.owner!.GetTerxels()
         let xo2: Int32 = (x - 1) % self.owner!.GetTerxels()
         let yo: Int32 = y % self.owner!.GetTerxels()
@@ -381,7 +381,7 @@ final class CCMPatch {
 
     /// Source: oracle/codemp/qcommon/cm_terrain.cpp:246
     // AI: Raven returns a `cbrush_t *` as `void *`. The method returns the view, the form of GetAdjacentBrushX.
-    func GetAdjacentBrushY(_ x: Int32, _ y: Int32) -> Cbrush? {
+    public func GetAdjacentBrushY(_ x: Int32, _ y: Int32) -> Cbrush? {
         let yo1: Int32 = y % self.owner!.GetTerxels()
         let yo2: Int32 = (y - 1) % self.owner!.GetTerxels()
         let xo: Int32 = x % self.owner!.GetTerxels()

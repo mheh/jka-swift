@@ -32,7 +32,7 @@ typealias bstream_t = bstream_s
 /// Raven's sequencer of one entity, which parses a script into sequences and hands each command to its task manager.
 /// Source: oracle/codemp/icarus/sequencer.h:68
 // AI: Raven allocates the class with Z_Malloc in operator new and frees it in operator delete. ARC frees the class, so the two operators drop.
-final class CSequencer {
+public final class CSequencer {
     //	typedef	map < int, CSequence * >			sequenceID_m;
     // AI: Raven types the list with std::list. It is an Array, by rule 17.
     typealias sequence_l = [CSequence]
@@ -68,7 +68,7 @@ final class CSequencer {
 
     // Sequencer
     /// Source: oracle/codemp/icarus/Sequencer.cpp:16
-    init() {
+    public init() {
         self.m_numCommands = 0
 
         self.m_curStream = nil
@@ -95,7 +95,7 @@ final class CSequencer {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:42
-    static func Create() -> CSequencer? {
+    public static func Create() -> CSequencer? {
         let sequencer: CSequencer? = CSequencer()
 
         return sequencer
@@ -112,7 +112,7 @@ final class CSequencer {
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:56
     @discardableResult
-    func Init(_ ownerID: Int32, _ ie: interface_export_t?, _ taskManager: CTaskManager?, _ iICARUS: ICARUS_Instance?) -> Int32 {
+    public func Init(_ ownerID: Int32, _ ie: interface_export_t?, _ taskManager: CTaskManager?, _ iICARUS: ICARUS_Instance?) -> Int32 {
         self.m_ownerID = ownerID
         self.m_owner = iICARUS
         self.m_taskManager = taskManager
@@ -132,7 +132,7 @@ final class CSequencer {
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:73
     @discardableResult
-    func Free() -> Int32 {
+    public func Free() -> Int32 {
         //Flush the sequences
         for sli in self.m_sequences {
             self.m_owner!.DeleteSequence(sli)
@@ -373,7 +373,7 @@ final class CSequencer {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:308
-    func Run(_ buffer: CharBuf, _ size: Int32) -> Int32 {
+    public func Run(_ buffer: CharBuf, _ size: Int32) -> Int32 {
         var blockStream: bstream_t?
 
         self.Recall()
@@ -1928,7 +1928,7 @@ final class CSequencer {
     ```
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:2026
-    func Callback(_ taskManager: CTaskManager?, _ block: CBlock?, _ returnCode: Int32) -> Int32 {
+    public func Callback(_ taskManager: CTaskManager?, _ block: CBlock?, _ returnCode: Int32) -> Int32 {
         var command: CBlock?
 
         if returnCode == TASK_RETURN_COMPLETE {
@@ -1976,7 +1976,7 @@ final class CSequencer {
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:2082
     @discardableResult
-    func Recall() -> Int32 {
+    public func Recall() -> Int32 {
         var block: CBlock? = nil
 
         if self.m_taskManager == nil {
@@ -2230,7 +2230,7 @@ final class CSequencer {
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:2343
     @discardableResult
-    func Save() -> Int32 {
+    public func Save() -> Int32 {
         return 0
     }
 
@@ -2243,37 +2243,37 @@ final class CSequencer {
     */
     /// Source: oracle/codemp/icarus/Sequencer.cpp:2406
     @discardableResult
-    func Load() -> Int32 {
+    public func Load() -> Int32 {
         return 0
     }
 
     /// Source: oracle/codemp/icarus/sequencer.h:86
-    func GetOwner() -> ICARUS_Instance? {
+    public func GetOwner() -> ICARUS_Instance? {
         self.m_owner
     }
 
     /// Source: oracle/codemp/icarus/sequencer.h:88
-    func SetOwnerID(_ owner: Int32) {
+    public func SetOwnerID(_ owner: Int32) {
         self.m_ownerID = owner
     }
 
     /// Source: oracle/codemp/icarus/sequencer.h:90
-    func GetOwnerID() -> Int32 {
+    public func GetOwnerID() -> Int32 {
         self.m_ownerID
     }
 
     /// Source: oracle/codemp/icarus/sequencer.h:91
-    func GetInterface() -> interface_export_t? {
+    public func GetInterface() -> interface_export_t? {
         self.m_ie
     }
 
     /// Source: oracle/codemp/icarus/sequencer.h:92
-    func GetTaskManager() -> CTaskManager? {
+    public func GetTaskManager() -> CTaskManager? {
         self.m_taskManager
     }
 
     /// Source: oracle/codemp/icarus/sequencer.h:94
-    func SetTaskManager(_ tm: CTaskManager?) {
+    public func SetTaskManager(_ tm: CTaskManager?) {
         if let tm {
             self.m_taskManager = tm
         }

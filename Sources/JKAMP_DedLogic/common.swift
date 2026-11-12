@@ -11,11 +11,11 @@ let MAX_NUM_ARGVS = 50 as Int32
 
 /// Source: oracle/codemp/qcommon/common.cpp:22
 // Raven wrote: int com_argc
-let com_argc: Int32 = 0
+public let com_argc: Int32 = 0
 
 /// Source: oracle/codemp/qcommon/common.cpp:23
 // Raven wrote: char *com_argv[MAX_NUM_ARGVS+1]
-let com_argv: [String] = [String](repeating: "", count: 51)
+public let com_argv: [String] = [String](repeating: "", count: 51)
 
 /// Raven's version text, from the arm of a build without FINAL_BUILD and _DEBUG, as WinDed Release is.
 /// Source: oracle/codemp/qcommon/game_version.h:11, with VERSION_STRING_DOTTED from oracle/codemp/win32/AutoVersion.h:10
@@ -231,11 +231,11 @@ public var time_game: Int32 {
 
 /// Source: oracle/codemp/qcommon/common.cpp:76
 // Raven wrote: int time_frontend
-let time_frontend: Int32 = 0
+public let time_frontend: Int32 = 0
 
 /// Source: oracle/codemp/qcommon/common.cpp:77
 // Raven wrote: int time_backend
-let time_backend: Int32 = 0
+public let time_backend: Int32 = 0
 
 /// Source: oracle/codemp/qcommon/common.cpp:79
 public var com_frameTime: Int32 {
@@ -1980,7 +1980,7 @@ public func Q_asin(_ c: Float) -> Float {
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:2179
-func Com_ParseTextFile(_ file: String, _ parser: CGenericParser2, _ cleanFirst: Bool = true) -> Bool {
+public func Com_ParseTextFile(_ file: String, _ parser: CGenericParser2, _ cleanFirst: Bool = true) -> Bool {
     var f: fileHandle_t = 0
     var length: Int32 = 0
     var buf: CharBuf
@@ -2005,12 +2005,12 @@ func Com_ParseTextFile(_ file: String, _ parser: CGenericParser2, _ cleanFirst: 
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:2204
-func Com_ParseTextFileDestroy(_ parser: CGenericParser2) {
+public func Com_ParseTextFileDestroy(_ parser: CGenericParser2) {
     parser.Clean()
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:2209
-func Com_ParseTextFile(_ file: String, _ cleanFirst: Bool, _ writeable: Bool) -> CGenericParser2? {
+public func Com_ParseTextFile(_ file: String, _ cleanFirst: Bool, _ writeable: Bool) -> CGenericParser2? {
     var f: fileHandle_t = 0
     var length: Int32 = 0
     var buf: CharBuf
