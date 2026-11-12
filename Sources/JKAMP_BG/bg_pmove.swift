@@ -44,33 +44,33 @@ public var pm_cancelOutZoom: Bool {
 
 // movement parameters
 /// Source: oracle/codemp/game/bg_pmove.c:41
-let pm_stopspeed: Float = 100.0
+public let pm_stopspeed: Float = 100.0
 /// Source: oracle/codemp/game/bg_pmove.c:42
-let pm_duckScale: Float = 0.50
+public let pm_duckScale: Float = 0.50
 /// Source: oracle/codemp/game/bg_pmove.c:43
-let pm_swimScale: Float = 0.50
+public let pm_swimScale: Float = 0.50
 /// Source: oracle/codemp/game/bg_pmove.c:44
-let pm_wadeScale: Float = 0.70
+public let pm_wadeScale: Float = 0.70
 
 /// Source: oracle/codemp/game/bg_pmove.c:46
-let pm_vehicleaccelerate: Float = 36.0
+public let pm_vehicleaccelerate: Float = 36.0
 /// Source: oracle/codemp/game/bg_pmove.c:47
-let pm_accelerate: Float = 10.0
+public let pm_accelerate: Float = 10.0
 /// Source: oracle/codemp/game/bg_pmove.c:48
-let pm_airaccelerate: Float = 1.0
+public let pm_airaccelerate: Float = 1.0
 /// Source: oracle/codemp/game/bg_pmove.c:49
-let pm_wateraccelerate: Float = 4.0
+public let pm_wateraccelerate: Float = 4.0
 /// Source: oracle/codemp/game/bg_pmove.c:50
-let pm_flyaccelerate: Float = 8.0
+public let pm_flyaccelerate: Float = 8.0
 
 /// Source: oracle/codemp/game/bg_pmove.c:52
-let pm_friction: Float = 6.0
+public let pm_friction: Float = 6.0
 /// Source: oracle/codemp/game/bg_pmove.c:53
-let pm_waterfriction: Float = 1.0
+public let pm_waterfriction: Float = 1.0
 /// Source: oracle/codemp/game/bg_pmove.c:54
-let pm_flightfriction: Float = 3.0
+public let pm_flightfriction: Float = 3.0
 /// Source: oracle/codemp/game/bg_pmove.c:55
-let pm_spectatorfriction: Float = 5.0
+public let pm_spectatorfriction: Float = 5.0
 
 /// Source: oracle/codemp/game/bg_pmove.c:57
 public var c_pmove: Int32 {
@@ -79,7 +79,7 @@ public var c_pmove: Int32 {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:59
-let forceSpeedLevels: [Float] = [
+public let forceSpeedLevels: [Float] = [
     1, //rank 0?
     1.25,
     1.5,
@@ -94,7 +94,7 @@ public var forcePowerNeeded: [[Int32]] {
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:155
-let forceJumpHeight: [Float] = [
+public let forceJumpHeight: [Float] = [
     32,//normal jump (+stepheight+crouchdiff = 66)
     96,//(+stepheight+crouchdiff = 130)
     192,//(+stepheight+crouchdiff = 226)
@@ -110,7 +110,7 @@ public let forceJumpStrength: [Float] = [
 ]
 
 /// Source: oracle/codemp/game/bg_pmove.c:1768
-let forceJumpHeightMax: [Float] = [
+public let forceJumpHeightMax: [Float] = [
     66,//normal jump (32+stepheight(18)+crouchdiff(24) = 74)
     130,//(96+stepheight(18)+crouchdiff(24) = 138)
     226,//(192+stepheight(18)+crouchdiff(24) = 234)

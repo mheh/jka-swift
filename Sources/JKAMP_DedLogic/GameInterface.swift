@@ -42,7 +42,7 @@ var ICARUS_EntList: entlist_t {
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:23
 // Raven wrote: int ICARUS_entFilter = -1
-let ICARUS_entFilter: Int32 = -1
+public let ICARUS_entFilter: Int32 = -1
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:33
 public func ICARUS_GetScript(_ name: String, _ buf: inout JKAShared.TextCursor) -> Int32 {

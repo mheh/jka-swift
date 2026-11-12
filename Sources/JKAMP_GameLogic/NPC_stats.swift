@@ -25,7 +25,7 @@ public var TeamNames: [String] {
 
 /// Source: oracle/codemp/game/NPC_stats.c:156
 // Raven wrote: char *ClassNames[CLASS_NUM_CLASSES]
-let ClassNames: [String] = [
+public let ClassNames: [String] = [
     "", // class none
     "atst",
     "bartender",

@@ -9,7 +9,7 @@ public var cgDC: DisplayContextDef { world.storage.cgDC }
 
 /// Source: oracle/codemp/cgame/cg_main.c:27
 /// Raven's data table, a hand property of `CGameWorld`.
-var colorTable: [vec4_t] { world.colorTable }
+public var colorTable: [vec4_t] { world.colorTable }
 
 /// Source: oracle/codemp/cgame/holocronicons.h:4
 /// Raven's data table, a hand property of `CGameWorld`.
@@ -17,7 +17,7 @@ var HolocronIcons: [String] { world.HolocronIcons }
 
 /// Source: oracle/codemp/cgame/cg_main.c:113
 // Raven wrote: int cgWeatherOverride = 0
-let cgWeatherOverride: Int32 = 0
+public let cgWeatherOverride: Int32 = 0
 
 /// Source: oracle/codemp/cgame/cg_main.c:115
 public var forceModelModificationCount: Int32 {

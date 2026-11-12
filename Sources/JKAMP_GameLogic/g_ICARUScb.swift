@@ -9,11 +9,11 @@ import JKAMP_BG
 
 /// Source: oracle/codemp/game/g_ICARUScb.c:3895
 // Raven wrote: char cinematicSkipScript[1024]
-nonisolated(unsafe) let cinematicSkipScript: JKAShared.CharBuf = JKAShared.CharBuf(1024)
+public nonisolated(unsafe) let cinematicSkipScript: JKAShared.CharBuf = JKAShared.CharBuf(1024)
 
 /// Source: oracle/codemp/game/g_ICARUScb.c:4575
 // Raven wrote: qboolean player_locked = qfalse
-let player_locked: Bool = false
+public let player_locked: Bool = false
 
 /// Source: oracle/codemp/game/g_ICARUScb.c:4933
 public var textcolor_caption: JKAShared.vec4_t {

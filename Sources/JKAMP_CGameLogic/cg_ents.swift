@@ -6,19 +6,19 @@ import JKAMP_BG
 
 /// Source: oracle/codemp/cgame/cg_ents.c:632
 /// Raven's data table, a hand property of `CGameWorld`.
-var forceHolocronModels: [String] { world.forceHolocronModels }
+public var forceHolocronModels: [String] { world.forceHolocronModels }
 
 /// Source: oracle/codemp/cgame/cg_ents.c:2736
 // Raven wrote: int CG_BMS_START = 0
-let CG_BMS_START: Int32 = 0
+public let CG_BMS_START: Int32 = 0
 
 /// Source: oracle/codemp/cgame/cg_ents.c:2737
 // Raven wrote: int CG_BMS_MID = 1
-let CG_BMS_MID: Int32 = 1
+public let CG_BMS_MID: Int32 = 1
 
 /// Source: oracle/codemp/cgame/cg_ents.c:2738
 // Raven wrote: int CG_BMS_END = 2
-let CG_BMS_END: Int32 = 2
+public let CG_BMS_END: Int32 = 2
 
 /**
 ```

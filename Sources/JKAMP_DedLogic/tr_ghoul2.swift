@@ -101,7 +101,7 @@ public var G2Time_PreciseFrame: Int32 {
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:104
 // Raven wrote: bool HackadelicOnClient=false
-let HackadelicOnClient: Bool = false // means this is a render traversal
+public let HackadelicOnClient: Bool = false // means this is a render traversal
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:128
 // Raven wrote: const static mdxaBone_t identityMatrix
@@ -115,7 +115,7 @@ public var worldMatrixInv: JKAMP.MdxaBone { world.storage.worldMatrixInv }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:139
 // Raven wrote: qhandle_t goreShader=-1
-let goreShader: JKAShared.qhandle_t = -1
+public let goreShader: JKAShared.qhandle_t = -1
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:865
 let MAX_RENDER_SURFACES = (2048) as Int32
@@ -175,7 +175,7 @@ let MDX_TAG_ORIGIN = 2 as Int32
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:4469
 // Raven wrote: int OldToNewRemapTable[72]
-let OldToNewRemapTable: [Int32] = [
+public let OldToNewRemapTable: [Int32] = [
     0,// Bone 0:   "model_root":           Parent: ""  (index -1)
     1,// Bone 1:   "pelvis":               Parent: "model_root"  (index 0)
     2,// Bone 2:   "Motion":               Parent: "pelvis"  (index 1)

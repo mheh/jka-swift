@@ -6,15 +6,15 @@ import JKAMP_BG
 
 /// Source: oracle/codemp/cgame/cg_draw.c:23
 // Raven wrote: menuDef_t *menuScoreboard = NULL
-nonisolated(unsafe) let menuScoreboard: MenuDef? = nil
+public nonisolated(unsafe) let menuScoreboard: MenuDef? = nil
 
 /// Source: oracle/codemp/cgame/cg_draw.c:24
 // Raven wrote: vec4_t bluehudtint = {0.5, 0.5, 1.0, 1.0}
-let bluehudtint: JKAShared.vec4_t = JKAShared.vec4_t(0.5, 0.5, 1.0, 1.0)
+public let bluehudtint: JKAShared.vec4_t = JKAShared.vec4_t(0.5, 0.5, 1.0, 1.0)
 
 /// Source: oracle/codemp/cgame/cg_draw.c:25
 // Raven wrote: vec4_t redhudtint = {1.0, 0.5, 0.5, 1.0}
-let redhudtint: JKAShared.vec4_t = JKAShared.vec4_t(1.0, 0.5, 0.5, 1.0)
+public let redhudtint: JKAShared.vec4_t = JKAShared.vec4_t(1.0, 0.5, 0.5, 1.0)
 
 /// Source: oracle/codemp/cgame/cg_draw.c:26
 // Raven wrote: float *hudTintColor
@@ -43,15 +43,15 @@ public var lastvalidlockdif: Int32 {
 
 /// Source: oracle/codemp/cgame/cg_draw.c:35
 // Raven wrote: char systemChat[256]
-nonisolated(unsafe) let systemChat: JKAShared.CharBuf = JKAShared.CharBuf(256)
+public nonisolated(unsafe) let systemChat: JKAShared.CharBuf = JKAShared.CharBuf(256)
 
 /// Source: oracle/codemp/cgame/cg_draw.c:36
 // Raven wrote: char teamChat1[256]
-nonisolated(unsafe) let teamChat1: JKAShared.CharBuf = JKAShared.CharBuf(256)
+public nonisolated(unsafe) let teamChat1: JKAShared.CharBuf = JKAShared.CharBuf(256)
 
 /// Source: oracle/codemp/cgame/cg_draw.c:37
 // Raven wrote: char teamChat2[256]
-nonisolated(unsafe) let teamChat2: JKAShared.CharBuf = JKAShared.CharBuf(256)
+public nonisolated(unsafe) let teamChat2: JKAShared.CharBuf = JKAShared.CharBuf(256)
 
 /// Source: oracle/codemp/cgame/cg_draw.c:40
 public var cg_siegeDeathTime: Int32 {
@@ -80,7 +80,7 @@ public var ammoTicName: [String] { world.ammoTicName }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:75
 /// Raven's data table, a hand property of `CGameWorld`.
-var showPowersName: [String?] { world.showPowersName }
+public var showPowersName: [String?] { world.showPowersName }
 
 /// Source: oracle/codemp/cgame/cg_draw.c:1393
 let MAX_SHOWPOWERS = JKAMP.NUM_FORCE_POWERS

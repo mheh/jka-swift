@@ -93,7 +93,7 @@ public var particles: Slots<Cparticle> { world.storage.particles }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:382
 /// Raven's initialized variable, a hand property of `CGameWorld`.
-var cl_numparticles: Int32 { world.cl_numparticles }
+public var cl_numparticles: Int32 { world.cl_numparticles }
 
 /// Source: oracle/codemp/cgame/cg_marks.c:384
 public var initparticles: Bool {

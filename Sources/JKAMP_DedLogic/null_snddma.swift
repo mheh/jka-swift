@@ -5,7 +5,7 @@ import JKAMP_Ded
 
 /// Source: oracle/codemp/null/null_snddma.cpp:7
 // Raven wrote: qboolean gbInsideLoadSound = qfalse
-let gbInsideLoadSound: Bool = false
+public let gbInsideLoadSound: Bool = false
 
 /// Source: oracle/codemp/null/null_snddma.cpp:9
 public func SNDDMA_Init() -> Bool {

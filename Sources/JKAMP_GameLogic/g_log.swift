@@ -72,7 +72,7 @@ public var G_WeaponLogItems: [[Int32]] {
 
 /// Source: oracle/codemp/game/g_log.c:35
 // Raven wrote: int weaponFromMOD[MOD_MAX]
-let weaponFromMOD: [Int32] = [
+public let weaponFromMOD: [Int32] = [
     WP_NONE, //MOD_UNKNOWN,
     WP_STUN_BATON, //MOD_STUN_BATON,
     WP_MELEE, //MOD_MELEE,

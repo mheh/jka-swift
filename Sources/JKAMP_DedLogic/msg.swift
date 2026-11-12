@@ -44,7 +44,7 @@ public var overflows: Int32 {
 
 /// Source: oracle/codemp/qcommon/msg.cpp:610
 // Raven wrote: int kbitmask[32]
-let kbitmask: [Int32] = [
+public let kbitmask: [Int32] = [
     0x00000001, 0x00000003, 0x00000007, 0x0000000F,
     0x0000001F,	0x0000003F,	0x0000007F,	0x000000FF,
     0x000001FF,	0x000003FF,	0x000007FF,	0x00000FFF,
@@ -127,7 +127,7 @@ let STAT_WEAPONS = 4 as Int32
 /// Source: oracle/codemp/qcommon/msg.cpp:2958
 // Raven wrote: int msg_hData[256]
 // Q3 TA freq. table.
-let msg_hData: [Int32] = [
+public let msg_hData: [Int32] = [
     250315,			// 0
     41193,			// 1
     6292,			// 2

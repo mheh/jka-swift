@@ -104,15 +104,15 @@ public var reach_grapple: Int32 {
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:61
 // Raven wrote: int reach_doublejump
-let reach_doublejump: Int32 = 0
+public let reach_doublejump: Int32 = 0
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:62
 // Raven wrote: int reach_rampjump
-let reach_rampjump: Int32 = 0
+public let reach_rampjump: Int32 = 0
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:63
 // Raven wrote: int reach_strafejump
-let reach_strafejump: Int32 = 0
+public let reach_strafejump: Int32 = 0
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:64
 public var reach_rocketjump: Int32 {
@@ -122,7 +122,7 @@ public var reach_rocketjump: Int32 {
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:65
 // Raven wrote: int reach_bfgjump
-let reach_bfgjump: Int32 = 0
+public let reach_bfgjump: Int32 = 0
 
 /// Source: oracle/codemp/botlib/be_aas_reach.cpp:66
 public var reach_jumppad: Int32 {

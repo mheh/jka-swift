@@ -21,7 +21,7 @@ public var numbots: Int32 {
 
 /// Source: oracle/codemp/game/ai_main.c:50
 // Raven wrote: float floattime
-let floattime: Float = 0
+public let floattime: Float = 0
 
 /// Source: oracle/codemp/game/ai_main.c:52
 public var regularupdate_time: Float {
@@ -121,7 +121,7 @@ public var droppedBlueFlag: Entity? {
 
 /// Source: oracle/codemp/game/ai_main.c:96
 // Raven wrote: char *ctfStateNames[]
-let ctfStateNames: [String] = [
+public let ctfStateNames: [String] = [
     "CTFSTATE_NONE",
     "CTFSTATE_ATTACKER",
     "CTFSTATE_DEFENDER",

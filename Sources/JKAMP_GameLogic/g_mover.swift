@@ -40,15 +40,15 @@ let MOVER_INACTIVE = 128 as Int32
 
 /// Source: oracle/codemp/game/g_mover.c:35
 // Raven wrote: int BMS_START = 0
-let BMS_START: Int32 = 0
+public let BMS_START: Int32 = 0
 
 /// Source: oracle/codemp/game/g_mover.c:36
 // Raven wrote: int BMS_MID = 1
-let BMS_MID: Int32 = 1
+public let BMS_MID: Int32 = 1
 
 /// Source: oracle/codemp/game/g_mover.c:37
 // Raven wrote: int BMS_END = 2
-let BMS_END: Int32 = 2
+public let BMS_END: Int32 = 2
 
 /// Source: oracle/codemp/game/g_mover.c:1716
 let TRAIN_START_ON = 1 as Int32
