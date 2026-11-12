@@ -197,8 +197,25 @@ CGAME_ROOTS = {
 
 # The records the ui reads, rows 8 and 9 of notes/2026-11-11/walk-7-ledger.md, in the order and the shape of CGAME_ROOTS.
 UI_ROOTS = {
-    # The row the game holds for a struct of JKAMP comes first, with the game's view name and target, so the units write one view file.
+    # The rows the game and the cgame hold for a struct of JKAMP or JKAShared that the ui reads come first, with their view names and targets,
+    # so the units write one view file for each. They come first, because the first walk to reach a struct gives it its target.
     "vmCvar_t": ("VmCvar", "CJKAMP"),
+    "siegeClass_t": ("SiegeClass", "CJKAMP"),
+    "siegeTeam_t": ("SiegeTeam", "CJKAMP"),
+    "siegeClassDesc_t": ("SiegeClassDesc", "CJKAMP"),
+    "mdxaBone_t": ("MdxaBone", "CJKAMP"),
+    "sharedRagDollParams_t": ("SharedRagDollParams", "CJKAMP"),
+    "sharedRagDollUpdateParams_t": ("SharedRagDollUpdateParams", "CJKAMP"),
+    "sharedIKMoveParams_t": ("SharedIKMoveParams", "CJKAMP"),
+    "sharedSetBoneIKStateParams_t": ("SharedSetBoneIKStateParams", "CJKAMP"),
+    "pc_token_t": ("PcToken", "CJKAMP"),
+    "qtime_t": ("Qtime", "CJKAMP"),
+    "bgLoadedAnim_t": ("BgLoadedAnim", "CJKAMP"),
+    "animation_t": ("Animation", "CJKAMP"),
+    "polyVert_t": ("PolyVert", "CJKAMP"),
+    "refEntity_t": ("RefEntity", "CJKAMP"),
+    "refdef_t": ("Refdef", "CJKAMP"),
+    "orientation_t": ("Orientation", "CJKAShared"),
     # The ui's state: Raven's `uiInfo` of ui_main.c:875.
     "uiInfo_t": ("UiInfo", "CJKAMP_UI"),
     # Raven defines these inside ui_main.c, and ui_types.h carries them into the ui target.
@@ -226,6 +243,13 @@ UI_ROOTS = {
     "textScrollDef_t": ("TextScrollDef", "CJKAMP_UI"),
     "editFieldDef_t": ("EditFieldDef", "CJKAMP"),
     "modelDef_t": ("ModelDef", "CJKAMP"),
+    # A trap or a stub parameter names these, and no root field points at them.
+    "uiClientState_t": ("UiClientState", "CJKAMP"),
+    "postGameInfo_t": ("PostGameInfo", "CJKAMP_UI"),
+    # The file-scope table `serverFilters` of ui_main.c holds these rows.
+    "serverFilter_t": ("ServerFilter", "CJKAMP_UI"),
+    # The game's view of CollisionRecord_t stands in JKAMP_Game, which a ui target cannot import, so the ui has its own, as the cgame does.
+    "CollisionRecord_t": ("CollisionRecord", "CJKAMP_UI"),
 }
 
 # The records the dedicated server reads, row E4 of notes/2026-11-03/dedicated-opening-docket.md and row T5 of its stage 1 tools record.

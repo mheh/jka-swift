@@ -277,9 +277,9 @@ public struct DisplayContextDef: Hashable, HandleView {
 
     /// Calls the stored `addRefEntityToScene` function through the C pointer, with the caller's arguments, as Raven's `pm->addRefEntityToScene(...)` did.
     /// A NULL `addRefEntityToScene` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runAddRefEntityToScene(_ re: OpaquePointer?) {
+    public func runAddRefEntityToScene(_ re: JKAMP.RefEntity?) {
         precondition(self.raw.pointee.addRefEntityToScene != nil, "addRefEntityToScene is NULL")
-        self.addRefEntityToScene!(re)
+        self.addRefEntityToScene!(re?.handle)
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:416
@@ -290,9 +290,9 @@ public struct DisplayContextDef: Hashable, HandleView {
 
     /// Calls the stored `renderScene` function through the C pointer, with the caller's arguments, as Raven's `pm->renderScene(...)` did.
     /// A NULL `renderScene` traps with the field's name, as Raven's call through the pointer would crash.
-    public func runRenderScene(_ fd: OpaquePointer?) {
+    public func runRenderScene(_ fd: JKAMP.Refdef?) {
         precondition(self.raw.pointee.renderScene != nil, "renderScene is NULL")
-        self.renderScene!(fd)
+        self.renderScene!(fd?.handle)
     }
 
     /// Source: oracle/codemp/ui/ui_shared.h:418
