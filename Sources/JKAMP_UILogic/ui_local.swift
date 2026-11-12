@@ -76,6 +76,14 @@ public final class UIWorld {
     lazy var cvarTable: [CvarTableRow] = { () -> [CvarTableRow] in portMissing("cvarTable", source: "oracle/codemp/ui/ui_main.c:11399") }()
 }
 
+/// One row of Raven's `itemParseKeywords` and `menuParseKeywords` of `ui_shared.c`, the `keywordHash_t` record with the parse function as a Swift function value.
+/// C storage cannot hold the address of a Swift function, so the tables are hand data on `UIWorld`, and Raven's `next` pointer is the index of the next row of the bucket.
+struct KeywordHashRow {
+    let keyword: String
+    let `func`: (ItemDef, Int32) -> Bool
+    var next: Int32?
+}
+
 /// One row of Raven's `cvarTable` of `ui_main.c`, the `cvarTable_t` record with the cvar handle as a key path into `UIStorage`.
 /// A nil key path is Raven's NULL handle, a cvar the module registers and never reads.
 struct CvarTableRow {
