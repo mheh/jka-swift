@@ -42,6 +42,18 @@ public final class UIStorage {
     /// Source: oracle/codemp/ui/ui_main.c:540
     public let ui_char_anim: JKAMP.VmCvar
 
+    /// Raven's `siegeClassDesc_t g_UIClassDescriptions[MAX_SIEGE_CLASSES]` of `ui_main.c`.
+    /// Source: oracle/codemp/ui/ui_main.c:628
+    public let g_UIClassDescriptions: Slots<JKAMP.SiegeClassDesc>
+
+    /// Raven's `animation_t uiHumanoidAnimations[MAX_TOTALANIMATIONS]` of `ui_main.c`.
+    /// Source: oracle/codemp/ui/ui_main.c:638
+    public let uiHumanoidAnimations: Slots<JKAMP.Animation>
+
+    /// Raven's `bgLoadedAnim_t bgAllAnims[MAX_ANIM_FILES]` of `ui_main.c`.
+    /// Source: oracle/codemp/ui/ui_main.c:641
+    public let bgAllAnims: Slots<JKAMP.BgLoadedAnim>
+
     /// Raven's `uiInfo_t uiInfo` of `ui_main.c`.
     /// Source: oracle/codemp/ui/ui_main.c:875
     public let uiInfo: UiInfo
@@ -448,6 +460,9 @@ public final class UIStorage {
         self.ui_char_color_blue = UIStorage.record(of: JKAMP.VmCvar.self)
         self.ui_PrecacheModels = UIStorage.record(of: JKAMP.VmCvar.self)
         self.ui_char_anim = UIStorage.record(of: JKAMP.VmCvar.self)
+        self.g_UIClassDescriptions = UIStorage.records(count: Int(JKAMP.MAX_SIEGE_CLASSES), of: JKAMP.SiegeClassDesc.self)
+        self.uiHumanoidAnimations = UIStorage.records(count: Int(JKAMP.MAX_TOTALANIMATIONS), of: JKAMP.Animation.self)
+        self.bgAllAnims = UIStorage.records(count: Int(JKAMP.MAX_ANIM_FILES), of: JKAMP.BgLoadedAnim.self)
         self.uiInfo = UIStorage.record(of: UiInfo.self)
         self.ui_rankChange = UIStorage.record(of: JKAMP.VmCvar.self)
         self.ui_ffa_fraglimit = UIStorage.record(of: JKAMP.VmCvar.self)
@@ -559,6 +574,9 @@ public final class UIStorage {
         UnsafeMutableRawPointer(self.ui_char_color_blue.handle).deallocate()
         UnsafeMutableRawPointer(self.ui_PrecacheModels.handle).deallocate()
         UnsafeMutableRawPointer(self.ui_char_anim.handle).deallocate()
+        self.g_UIClassDescriptions.base.deallocate()
+        self.uiHumanoidAnimations.base.deallocate()
+        self.bgAllAnims.base.deallocate()
         UnsafeMutableRawPointer(self.uiInfo.handle).deallocate()
         UnsafeMutableRawPointer(self.ui_rankChange.handle).deallocate()
         UnsafeMutableRawPointer(self.ui_ffa_fraglimit.handle).deallocate()

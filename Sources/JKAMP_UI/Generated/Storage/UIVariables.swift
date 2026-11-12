@@ -66,6 +66,14 @@ public struct UIVariables {
     /// Source: oracle/codemp/ui/ui_gameinfo.c:19
     public var ui_arenaInfos: [String] = [String](repeating: "", count: 1024)
 
+    /// Raven's `siegeTeam_t *siegeTeam1` of `ui_main.c`.
+    /// Source: oracle/codemp/ui/ui_main.c:629
+    public var siegeTeam1: JKAMP.SiegeTeam? = nil
+
+    /// Raven's `siegeTeam_t *siegeTeam2` of `ui_main.c`.
+    /// Source: oracle/codemp/ui/ui_main.c:630
+    public var siegeTeam2: JKAMP.SiegeTeam? = nil
+
     /// Raven's `int g_UIGloballySelectedSiegeClass` of `ui_main.c`.
     /// Source: oracle/codemp/ui/ui_main.c:631
     public var g_UIGloballySelectedSiegeClass: Int32 = -1
