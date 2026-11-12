@@ -7,14 +7,14 @@ import JKAMP_Ded
 
 /// Source: oracle/codemp/icarus/Instance.cpp:19
 /// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var gSequencers: [CSequencer?] {
+public var gSequencers: [CSequencer?] {
     get { world.gSequencers }
     set { world.gSequencers = newValue }
 }
 
 /// Source: oracle/codemp/icarus/Instance.cpp:20
 /// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var gTaskManagers: [CTaskManager?] {
+public var gTaskManagers: [CTaskManager?] {
     get { world.gTaskManagers }
     set { world.gTaskManagers = newValue }
 }
