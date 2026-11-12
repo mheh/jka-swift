@@ -16,7 +16,7 @@ unit = "mp-game"
 # `folder` holds the unit's own source files, relative to the source root, and `traps` is the file of that folder that holds the trap table.
 # `logic` is the Swift target of the stubs, `views` is the view target, and `c_target` is the C target that the traps import.
 # `state` names the state files and the state object of the logic target: `<state>Variables`, `<state>Storage`, and `<state>World`.
-# `rust` is the jka-rust crate under `jka-rust/crates/mp` that the manifest reads beside `bg` and `qshared`.
+# `rust` is the jka-rust crate under `jka-rust/crates/mp` that the manifest reads beside `bg` and `qshared`, or a list of such crates.
 # `store` is the table cache of the unit's sweeps, one SQLite file outside version control.
 # `borrowed` lists the .c files of another folder that the unit's build compiles too, which the unit's stubs mirror with Source lines in that folder.
 # `borrowed_rust` lists the jka-rust files under `jka-rust/crates/mp` that the manifest reads first for a borrowed file.
@@ -24,7 +24,7 @@ unit = "mp-game"
 # `kind` is `module` when the row has no such key, a game module with a trap file and a vmMain shell.
 # A `host` row is an engine that loads the modules, and it names no trap file and no shell.
 # The skeleton of a host reads every file of the unit's `srcglob` less the files of `deferred`, and the plain functions of a .cpp file.
-# The `rust` key of a host is a list of crates under `jka-rust/crates/mp`.
+# The `rust` key of a host is a list of crates under `jka-rust/crates/mp`, and so is the key of the ui.
 [targets.mp-game]
 other = "mp-cgame"
 folder = "codemp/game"
@@ -60,6 +60,19 @@ borrowed_rust = [
     "cgame/src/vehicle_npc.rs",
     "uishared/src",
 ]
+
+# The MP ui module, rows 8 and 9 of notes/2026-11-11/walk-7-ledger.md.
+# ui_shared.c is a file of this folder, so the ui logic target holds its own stub file of it, beside the borrowed copy of the cgame.
+[targets.mp-ui]
+other = "mp-cgame"
+folder = "codemp/ui"
+traps = "ui_syscalls.c"
+logic = "JKAMP_UILogic"
+views = "JKAMP_UI"
+c_target = "CJKAMP_UI"
+state = "UI"
+rust = ["ui", "uishared"]
+store = "tools/oracle-closure/out/mp-ui/table.sqlite"
 
 # The MP dedicated server, Raven's WinDed.vcproj, rows E4, E5, E6, and E11 of notes/2026-11-03/dedicated-opening-docket.md.
 [targets.mp-engine-ded]
