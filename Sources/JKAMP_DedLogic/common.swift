@@ -1980,7 +1980,7 @@ public func Q_asin(_ c: Float) -> Float {
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:2179
-func Com_ParseTextFile(_ file: String, _ parser: CGenericParser2, _ cleanFirst: Bool = true) -> Bool {
+public func Com_ParseTextFile(_ file: String, _ parser: CGenericParser2, _ cleanFirst: Bool = true) -> Bool {
     var f: fileHandle_t = 0
     var length: Int32 = 0
     var buf: CharBuf
@@ -2005,12 +2005,12 @@ func Com_ParseTextFile(_ file: String, _ parser: CGenericParser2, _ cleanFirst: 
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:2204
-func Com_ParseTextFileDestroy(_ parser: CGenericParser2) {
+public func Com_ParseTextFileDestroy(_ parser: CGenericParser2) {
     parser.Clean()
 }
 
 /// Source: oracle/codemp/qcommon/common.cpp:2209
-func Com_ParseTextFile(_ file: String, _ cleanFirst: Bool, _ writeable: Bool) -> CGenericParser2? {
+public func Com_ParseTextFile(_ file: String, _ cleanFirst: Bool, _ writeable: Bool) -> CGenericParser2? {
     var f: fileHandle_t = 0
     var length: Int32 = 0
     var buf: CharBuf

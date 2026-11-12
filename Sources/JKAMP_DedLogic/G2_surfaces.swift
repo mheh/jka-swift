@@ -5,7 +5,7 @@ import JKAMP_Ded
 
 // find a particular surface in the surface override list
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:48
-func G2_FindOverrideSurface(_ surfaceNum: Int32, _ surfaceList: inout [surfaceInfo_t]) -> surfaceInfo_t? {
+public func G2_FindOverrideSurface(_ surfaceNum: Int32, _ surfaceList: inout [surfaceInfo_t]) -> surfaceInfo_t? {
     var i: Int32
 
     // look through entire list
@@ -95,7 +95,7 @@ private func G2_FindSurface(_ ghlInfo: CGhoul2Info?, _ slist: inout [surfaceInfo
 
 // set a named surface offFlags - if it doesn't find a surface with this name in the list then it will add one.
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:148
-func G2_SetSurfaceOnOff(_ ghlInfo: CGhoul2Info?, _ slist: inout [surfaceInfo_t], _ surfaceName: String, _ offFlags: Int32) -> Bool {
+public func G2_SetSurfaceOnOff(_ ghlInfo: CGhoul2Info?, _ slist: inout [surfaceInfo_t], _ surfaceName: String, _ offFlags: Int32) -> Bool {
     var surfIndex: Int32 = -1
     let temp_slist_entry = surfaceInfo_t()
     let surf: MdxmSurface?
@@ -141,7 +141,7 @@ func G2_SetSurfaceOnOff(_ ghlInfo: CGhoul2Info?, _ slist: inout [surfaceInfo_t],
 }
 
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:201
-func G2_SetSurfaceOnOffFromSkin(_ ghlInfo: CGhoul2Info?, _ renderSkin: JKAShared.qhandle_t) {
+public func G2_SetSurfaceOnOffFromSkin(_ ghlInfo: CGhoul2Info?, _ renderSkin: JKAShared.qhandle_t) {
     var j: Int32
     let skin = R_GetSkinByHandle(renderSkin)!
 
@@ -166,7 +166,7 @@ func G2_SetSurfaceOnOffFromSkin(_ ghlInfo: CGhoul2Info?, _ renderSkin: JKAShared
 
 // return a named surfaces off flags - should tell you if this surface is on or off.
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:229
-func G2_IsSurfaceOff(_ ghlInfo: CGhoul2Info?, _ slist: inout [surfaceInfo_t], _ surfaceName: String) -> Int32 {
+public func G2_IsSurfaceOff(_ ghlInfo: CGhoul2Info?, _ slist: inout [surfaceInfo_t], _ surfaceName: String) -> Int32 {
     let mod = ghlInfo!.currentModel!
     var surfIndex: Int32 = -1
     let surf: MdxmSurface?
@@ -200,7 +200,7 @@ func G2_IsSurfaceOff(_ ghlInfo: CGhoul2Info?, _ slist: inout [surfaceInfo_t], _ 
 }
 
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:266
-func G2_FindRecursiveSurface(_ currentModel: Model, _ surfaceNum: Int32, _ rootList: inout [surfaceInfo_t], _ activeSurfaces: Slots<Int32>) {
+public func G2_FindRecursiveSurface(_ currentModel: Model, _ surfaceNum: Int32, _ rootList: inout [surfaceInfo_t], _ activeSurfaces: Slots<Int32>) {
     var surfaceNum = surfaceNum
     var i: Int32
     let surface = G2_FindSurface(currentModel, surfaceNum, 0)!
@@ -237,7 +237,7 @@ func G2_FindRecursiveSurface(_ currentModel: Model, _ surfaceNum: Int32, _ rootL
 }
 
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:306
-func G2_RemoveRedundantGeneratedSurfaces(_ slist: inout [surfaceInfo_t], _ activeSurfaces: Slots<Int32>) {
+public func G2_RemoveRedundantGeneratedSurfaces(_ slist: inout [surfaceInfo_t], _ activeSurfaces: Slots<Int32>) {
     var i: Int32
 
     // walk the surface list, removing surface overrides or generated surfaces that are pointing at surfaces that aren't active anymore
@@ -264,7 +264,7 @@ func G2_RemoveRedundantGeneratedSurfaces(_ slist: inout [surfaceInfo_t], _ activ
 }
 
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:337
-func G2_SetRootSurface(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ surfaceName: String) -> Bool {
+public func G2_SetRootSurface(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ surfaceName: String) -> Bool {
     let surf: Int32
     var flags: Int32 = 0
     let activeSurfaces: Slots<Int32>
@@ -434,7 +434,7 @@ func G2_SetRootSurface(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ surfaceNa
 }
 
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:511
-func G2_AddSurface(_ ghoul2: CGhoul2Info?, _ surfaceNumber: Int32, _ polyNumber: Int32, _ BarycentricI: Float, _ BarycentricJ: Float, _ lod: Int32) -> Int32 {
+public func G2_AddSurface(_ ghoul2: CGhoul2Info?, _ surfaceNumber: Int32, _ polyNumber: Int32, _ BarycentricI: Float, _ BarycentricJ: Float, _ lod: Int32) -> Int32 {
     let temp_slist_entry = surfaceInfo_t()
     var lod = lod
 
@@ -472,7 +472,7 @@ func G2_AddSurface(_ ghoul2: CGhoul2Info?, _ surfaceNumber: Int32, _ polyNumber:
 }
 
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:549
-func G2_RemoveSurface(_ slist: inout [surfaceInfo_t], _ index: Int32) -> Bool {
+public func G2_RemoveSurface(_ slist: inout [surfaceInfo_t], _ index: Int32) -> Bool {
     // did we find it?
     if index != -1 {
         // set us to be the 'not active' state
@@ -505,7 +505,7 @@ func G2_RemoveSurface(_ slist: inout [surfaceInfo_t], _ index: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:588
-func G2_GetParentSurface(_ ghlInfo: CGhoul2Info?, _ index: Int32) -> Int32 {
+public func G2_GetParentSurface(_ ghlInfo: CGhoul2Info?, _ index: Int32) -> Int32 {
     let mod = ghlInfo!.currentModel!
     let surf: MdxmSurface?
     let surfIndexes = MdxmHierarchyOffsets(mod.mdxm!, byteOffset: MdxmHeader.byteCount)
@@ -519,7 +519,7 @@ func G2_GetParentSurface(_ ghlInfo: CGhoul2Info?, _ index: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:603
-func G2_GetSurfaceIndex(_ ghlInfo: CGhoul2Info?, _ surfaceName: String) -> Int32 {
+public func G2_GetSurfaceIndex(_ ghlInfo: CGhoul2Info?, _ surfaceName: String) -> Int32 {
     let mod = ghlInfo!.currentModel
     var flags: Int32 = 0
 
@@ -527,7 +527,7 @@ func G2_GetSurfaceIndex(_ ghlInfo: CGhoul2Info?, _ surfaceName: String) -> Int32
 }
 
 /// Source: oracle/codemp/ghoul2/G2_surfaces.cpp:611
-func G2_IsSurfaceRendered(_ ghlInfo: CGhoul2Info?, _ surfaceName: String, _ slist: inout [surfaceInfo_t]) -> Int32 {
+public func G2_IsSurfaceRendered(_ ghlInfo: CGhoul2Info?, _ surfaceName: String, _ slist: inout [surfaceInfo_t]) -> Int32 {
     var flags: Int32 = 0 //, surfFlags = 0;
     var surfIndex: Int32 = 0
     if ghlInfo!.currentModel!.mdxm == nil {

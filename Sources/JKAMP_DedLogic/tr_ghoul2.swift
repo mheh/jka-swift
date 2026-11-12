@@ -5,39 +5,39 @@ import JKAMP_Ded
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:42
 /// Raven's instance, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var G2PerformanceTimer_RenderSurfaces: timing_c { world.G2PerformanceTimer_RenderSurfaces }
+public var G2PerformanceTimer_RenderSurfaces: timing_c { world.G2PerformanceTimer_RenderSurfaces }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:43
 /// Raven's instance, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var G2PerformanceTimer_R_AddGHOULSurfaces: timing_c { world.G2PerformanceTimer_R_AddGHOULSurfaces }
+public var G2PerformanceTimer_R_AddGHOULSurfaces: timing_c { world.G2PerformanceTimer_R_AddGHOULSurfaces }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:44
 /// Raven's instance, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var G2PerformanceTimer_G2_TransformGhoulBones: timing_c { world.G2PerformanceTimer_G2_TransformGhoulBones }
+public var G2PerformanceTimer_G2_TransformGhoulBones: timing_c { world.G2PerformanceTimer_G2_TransformGhoulBones }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:45
 /// Raven's instance, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var G2PerformanceTimer_G2_ProcessGeneratedSurfaceBolts: timing_c { world.G2PerformanceTimer_G2_ProcessGeneratedSurfaceBolts }
+public var G2PerformanceTimer_G2_ProcessGeneratedSurfaceBolts: timing_c { world.G2PerformanceTimer_G2_ProcessGeneratedSurfaceBolts }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:46
 /// Raven's instance, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var G2PerformanceTimer_ProcessModelBoltSurfaces: timing_c { world.G2PerformanceTimer_ProcessModelBoltSurfaces }
+public var G2PerformanceTimer_ProcessModelBoltSurfaces: timing_c { world.G2PerformanceTimer_ProcessModelBoltSurfaces }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:47
 /// Raven's instance, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var G2PerformanceTimer_G2_ConstructGhoulSkeleton: timing_c { world.G2PerformanceTimer_G2_ConstructGhoulSkeleton }
+public var G2PerformanceTimer_G2_ConstructGhoulSkeleton: timing_c { world.G2PerformanceTimer_G2_ConstructGhoulSkeleton }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:48
 /// Raven's instance, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var G2PerformanceTimer_RB_SurfaceGhoul: timing_c { world.G2PerformanceTimer_RB_SurfaceGhoul }
+public var G2PerformanceTimer_RB_SurfaceGhoul: timing_c { world.G2PerformanceTimer_RB_SurfaceGhoul }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:49
 /// Raven's instance, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var G2PerformanceTimer_G2_SetupModelPointers: timing_c { world.G2PerformanceTimer_G2_SetupModelPointers }
+public var G2PerformanceTimer_G2_SetupModelPointers: timing_c { world.G2PerformanceTimer_G2_SetupModelPointers }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:50
 /// Raven's instance, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var G2PerformanceTimer_PreciseFrame: timing_c { world.G2PerformanceTimer_PreciseFrame }
+public var G2PerformanceTimer_PreciseFrame: timing_c { world.G2PerformanceTimer_PreciseFrame }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:52
 public var G2PerformanceCounter_G2_TransformGhoulBones: Int32 {
@@ -304,7 +304,7 @@ private func G2_Find_Bone_ByNum(_ mod: Model, _ blist: inout [boneInfo_t], _ bon
 private let sizeofCBoneCache = 140 as Int32
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:569
-func RemoveBoneCache(_ boneCache: CBoneCache?) {
+public func RemoveBoneCache(_ boneCache: CBoneCache?) {
     g_Ghoul2Allocations -= sizeofCBoneCache
 
     // AI: Raven deletes the cache. ARC frees the cache when the last reference drops, so the body holds no statement.
@@ -312,13 +312,13 @@ func RemoveBoneCache(_ boneCache: CBoneCache?) {
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:585
 // AI: Raven returns a reference to the matrix. The function returns the view of the matrix, the form of `CBoneCache.Eval`.
-func EvalBoneCache(_ index: Int32, _ boneCache: CBoneCache?) -> MdxaBone {
+public func EvalBoneCache(_ index: Int32, _ boneCache: CBoneCache?) -> MdxaBone {
     return boneCache!.Eval(index)
 }
 
 //rww - RAGDOLL_BEGIN
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:592
-func G2_GetModA(_ ghoul2: CGhoul2Info) -> MdxaHeader? {
+public func G2_GetModA(_ ghoul2: CGhoul2Info) -> MdxaHeader? {
     if ghoul2.mBoneCache == nil {
         return nil
     }
@@ -328,7 +328,7 @@ func G2_GetModA(_ ghoul2: CGhoul2Info) -> MdxaHeader? {
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:603
-func G2_GetBoneDependents(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ tempDependents: Slots<Int32>, _ maxDep: Int32) -> Int32 {
+public func G2_GetBoneDependents(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ tempDependents: Slots<Int32>, _ maxDep: Int32) -> Int32 {
     var tempDependents = tempDependents
     var maxDep = maxDep
     // fixme, these should be precomputed
@@ -371,7 +371,7 @@ func G2_GetBoneDependents(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ tempDepende
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:645
-func G2_WasBoneRendered(_ ghoul2: CGhoul2Info, _ boneNum: Int32) -> Bool {
+public func G2_WasBoneRendered(_ ghoul2: CGhoul2Info, _ boneNum: Int32) -> Bool {
     if ghoul2.mBoneCache == nil {
         return false
     }
@@ -382,7 +382,7 @@ func G2_WasBoneRendered(_ ghoul2: CGhoul2Info, _ boneNum: Int32) -> Bool {
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:656
 // AI: Raven takes `mdxaBone_t *&` for the two out pointers. The parameters are `inout MdxaBone?`, the form of a pointer to a record pointer.
-func G2_GetBoneBasepose(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ retBasepose: inout MdxaBone?, _ retBaseposeInv: inout MdxaBone?) {
+public func G2_GetBoneBasepose(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ retBasepose: inout MdxaBone?, _ retBaseposeInv: inout MdxaBone?) {
     if ghoul2.mBoneCache == nil {
         // yikes
         retBasepose = identityMatrix
@@ -400,7 +400,7 @@ func G2_GetBoneBasepose(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ retBasepose: 
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:678
-func G2_GetBoneNameFromSkel(_ ghoul2: CGhoul2Info, _ boneNum: Int32) -> String? {
+public func G2_GetBoneNameFromSkel(_ ghoul2: CGhoul2Info, _ boneNum: Int32) -> String? {
     // Raven declares it at G2_bones.cpp:2607 and calls it from no file of either tree, so it is dead.
     if ghoul2.mBoneCache == nil {
         return nil
@@ -418,7 +418,7 @@ func G2_GetBoneNameFromSkel(_ ghoul2: CGhoul2Info, _ boneNum: Int32) -> String? 
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:696
-func G2_RagGetBoneBasePoseMatrixLow(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ boneMatrix: JKAMP.MdxaBone, _ retMatrix: JKAMP.MdxaBone, _ scale: JKAShared.vec3_t) {
+public func G2_RagGetBoneBasePoseMatrixLow(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ boneMatrix: JKAMP.MdxaBone, _ retMatrix: JKAMP.MdxaBone, _ scale: JKAShared.vec3_t) {
     let boneCache = ghoul2.mBoneCache!
 
     let skel: MdxaSkel
@@ -445,7 +445,7 @@ func G2_RagGetBoneBasePoseMatrixLow(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ b
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:727
 // AI: Raven takes `mdxaBone_t *&` for the two out pointers. The parameters are `inout MdxaBone?`, the form of a pointer to a record pointer.
-func G2_GetBoneMatrixLow(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ scale: JKAShared.vec3_t, _ retMatrix: JKAMP.MdxaBone, _ retBasepose: inout MdxaBone?, _ retBaseposeInv: inout MdxaBone?) {
+public func G2_GetBoneMatrixLow(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ scale: JKAShared.vec3_t, _ retMatrix: JKAMP.MdxaBone, _ retBasepose: inout MdxaBone?, _ retBaseposeInv: inout MdxaBone?) {
     if ghoul2.mBoneCache == nil {
         retMatrix.copy(from: identityMatrix)
         // yikes
@@ -484,7 +484,7 @@ func G2_GetBoneMatrixLow(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ scale: JKASh
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:780
 // AI: Raven takes `mdxaBone_t *&` for the two out pointers. The parameters are `inout MdxaBone?`, the form of a pointer to a record pointer.
-func G2_GetParentBoneMatrixLow(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ scale: JKAShared.vec3_t, _ retMatrix: JKAMP.MdxaBone, _ retBasepose: inout MdxaBone?, _ retBaseposeInv: inout MdxaBone?) -> Int32 {
+public func G2_GetParentBoneMatrixLow(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ scale: JKAShared.vec3_t, _ retMatrix: JKAMP.MdxaBone, _ retBasepose: inout MdxaBone?, _ retBaseposeInv: inout MdxaBone?) -> Int32 {
     // Raven's one call stands in a comment at G2_bones.cpp:1339, so no file of either tree calls it, and it is dead.
     var parent: Int32 = -1
     if ghoul2.mBoneCache != nil {
@@ -506,7 +506,7 @@ func G2_GetParentBoneMatrixLow(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ scale:
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:869
-func AllocRS() -> CRenderableSurface? {
+public func AllocRS() -> CRenderableSurface? {
     // Raven's one call, tr_ghoul2.cpp:2660, is in RenderSurfaces under the `#ifndef DEDICATED` of :2520, so the function is dead in the dedicated build.
     let ret: CRenderableSurface = RSStorage[NextRS]
     ret.Init()
@@ -784,7 +784,7 @@ public func UnCompressBone(_ mat: JKAMP.MdxaBone?, _ iBoneIndex: Int32, _ pMDXAH
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1167
-func G2_TimingModel(_ bone: boneInfo_t, _ currentTime: Int32, _ numFramesInFile: Int32, _ currentFrame: inout Int32, _ newFrame: inout Int32, _ lerp: inout Float) {
+public func G2_TimingModel(_ bone: boneInfo_t, _ currentTime: Int32, _ numFramesInFile: Int32, _ currentFrame: inout Int32, _ newFrame: inout Int32, _ lerp: inout Float) {
     // yes - add in animation speed to current frame
     let animSpeed = bone.animSpeed
     var time: Float
@@ -939,7 +939,7 @@ func G2_TimingModel(_ bone: boneInfo_t, _ currentTime: Int32, _ numFramesInFile:
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1417
-func G2_RagGetAnimMatrix(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ matrix: JKAMP.MdxaBone, _ frame: Int32) {
+public func G2_RagGetAnimMatrix(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ matrix: JKAMP.MdxaBone, _ frame: Int32) {
     MdxaBone.scratch { animMatrix in
         let skel: MdxaSkel
         let pskel: MdxaSkel
@@ -1023,7 +1023,7 @@ func G2_RagGetAnimMatrix(_ ghoul2: CGhoul2Info, _ boneNum: Int32, _ matrix: JKAM
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:1541
-func G2_TransformBone(_ child: Int32, _ BC: CBoneCache) {
+public func G2_TransformBone(_ child: Int32, _ BC: CBoneCache) {
     // Raven's static locals `tbone` and `j` are `tbone_G2_TransformBone` and `j_G2_TransformBone`, because other functions of the file have a static `j`.
     let TB = BC.mBones[child]
 // 	mdxaFrame_t		*aFrame=0;
@@ -1433,7 +1433,7 @@ func G2_TransformBone(_ child: Int32, _ BC: CBoneCache) {
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2053
-func G2_SetUpBolts(_ header: MdxaHeader, _ ghoul2: CGhoul2Info, _ bonePtr: inout [(Int32, MdxaBone)], _ boltList: inout [boltInfo_t]) {
+public func G2_SetUpBolts(_ header: MdxaHeader, _ ghoul2: CGhoul2Info, _ bonePtr: inout [(Int32, MdxaBone)], _ boltList: inout [boltInfo_t]) {
     // Raven calls this function from no file of either tree, so it is dead.
     var skel: MdxaSkel
     let offsets: MdxaSkelOffsets
@@ -1451,7 +1451,7 @@ func G2_SetUpBolts(_ header: MdxaHeader, _ ghoul2: CGhoul2Info, _ bonePtr: inout
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2075
-func G2_TransformGhoulBones(_ rootBoneList: inout [boneInfo_t], _ rootMatrix: JKAMP.MdxaBone, _ ghoul2: CGhoul2Info, _ time: Int32, _ smooth: Bool = true) {
+public func G2_TransformGhoulBones(_ rootBoneList: inout [boneInfo_t], _ rootMatrix: JKAMP.MdxaBone, _ ghoul2: CGhoul2Info, _ time: Int32, _ smooth: Bool = true) {
     G2PerformanceTimer_G2_TransformGhoulBones.Start()
     G2PerformanceCounter_G2_TransformGhoulBones += 1
 
@@ -1589,7 +1589,7 @@ func G2_TransformGhoulBones(_ rootBoneList: inout [boneInfo_t], _ rootMatrix: JK
 
 // We've come across a surface that's designated as a bolt surface, process it and put it in the appropriate bolt place
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2246
-func G2_ProcessSurfaceBolt(_ bonePtr: inout [(Int32, MdxaBone)], _ surface: MdxmSurface?, _ boltNum: Int32, _ boltList: inout [boltInfo_t], _ surfInfo: surfaceInfo_t?, _ mod: Model) {
+public func G2_ProcessSurfaceBolt(_ bonePtr: inout [(Int32, MdxaBone)], _ surface: MdxmSurface?, _ boltNum: Int32, _ boltList: inout [boltInfo_t], _ surfInfo: surfaceInfo_t?, _ mod: Model) {
     // Raven's two callers are G2_ProcessGeneratedSurfaceBolts and ProcessModelBoltSurfaces, which are both dead, so the function is dead too.
     var v: MdxmVertex
     var vert0: MdxmVertex
@@ -1807,7 +1807,7 @@ func G2_ProcessSurfaceBolt(_ bonePtr: inout [(Int32, MdxaBone)], _ surface: Mdxm
 
 // now go through all the generated surfaces that aren't included in the model surface hierarchy and create the correct bolt info for them
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2495
-func G2_ProcessGeneratedSurfaceBolts(_ ghoul2: CGhoul2Info, _ bonePtr: inout [(Int32, MdxaBone)], _ mod_t: Model) {
+public func G2_ProcessGeneratedSurfaceBolts(_ ghoul2: CGhoul2Info, _ bonePtr: inout [(Int32, MdxaBone)], _ mod_t: Model) {
     // Raven calls this function from no file of either tree, so it is dead.
     G2PerformanceTimer_G2_ProcessGeneratedSurfaceBolts.Start()
     // look through the surfaces off the end of the pre-defined model surfaces
@@ -1829,7 +1829,7 @@ func G2_ProcessGeneratedSurfaceBolts(_ ghoul2: CGhoul2Info, _ bonePtr: inout [(I
 
 // Go through the model and deal with just the surfaces that are tagged as bolt on points - this is for the server side skeleton construction
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2739
-func ProcessModelBoltSurfaces(_ surfaceNum: Int32, _ rootSList: inout [surfaceInfo_t], _ bonePtr: inout [(Int32, MdxaBone)], _ currentModel: Model, _ lod: Int32, _ boltList: inout [boltInfo_t]) {
+public func ProcessModelBoltSurfaces(_ surfaceNum: Int32, _ rootSList: inout [surfaceInfo_t], _ bonePtr: inout [(Int32, MdxaBone)], _ currentModel: Model, _ lod: Int32, _ boltList: inout [boltInfo_t]) {
     // Raven's one call is its own recursion at tr_ghoul2.cpp:2786, and no other function calls it, so it is dead.
     G2PerformanceTimer_ProcessModelBoltSurfaces.Start()
     var i: Int32
@@ -1878,7 +1878,7 @@ func ProcessModelBoltSurfaces(_ surfaceNum: Int32, _ rootSList: inout [surfaceIn
 
 // build the used bone list so when doing bone transforms we can determine if we need to do it or not
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2796
-func G2_ConstructUsedBoneList(_ CBL: CConstructBoneList) {
+public func G2_ConstructUsedBoneList(_ CBL: CConstructBoneList) {
     var i: Int32
     var j: Int32
     var offFlags: Int32 = 0
@@ -2094,7 +2094,7 @@ func G2_GetVertBoneWeight(_ pVert: MdxmVertex, _ iWeightNum: Int32, _ fTotalWeig
 // We've come across a surface that's designated as a bolt surface, process it and put it in the appropriate bolt place
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:2983
 // G2_GetBoltMatrixLow passes NULL for a generated surface, so `surface` is optional, the form of a view parameter that a caller passes NULL to.
-func G2_ProcessSurfaceBolt2(_ boneCache: CBoneCache, _ surface: MdxmSurface?, _ boltNum: Int32, _ boltList: inout [boltInfo_t], _ surfInfo: surfaceInfo_t?, _ mod: Model, _ retMatrix: JKAMP.MdxaBone) {
+public func G2_ProcessSurfaceBolt2(_ boneCache: CBoneCache, _ surface: MdxmSurface?, _ boltNum: Int32, _ boltList: inout [boltInfo_t], _ surfInfo: surfaceInfo_t?, _ mod: Model, _ retMatrix: JKAMP.MdxaBone) {
     var v: MdxmVertex
     var vert0: MdxmVertex
     var vert1: MdxmVertex
@@ -2318,7 +2318,7 @@ func G2_ProcessSurfaceBolt2(_ boneCache: CBoneCache, _ surface: MdxmSurface?, _ 
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:3253
-func G2_GetBoltMatrixLow(_ ghoul2: CGhoul2Info, _ boltNum: Int32, _ scale: JKAShared.vec3_t, _ retMatrix: JKAMP.MdxaBone) {
+public func G2_GetBoltMatrixLow(_ ghoul2: CGhoul2Info, _ boltNum: Int32, _ scale: JKAShared.vec3_t, _ retMatrix: JKAMP.MdxaBone) {
     if ghoul2.mBoneCache == nil {
         retMatrix.copy(from: identityMatrix)
         return
@@ -2417,7 +2417,7 @@ public func R_AddGhoulSurfaces(_ ent: TrRefEntity) {
 }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:3544
-func G2_NeedsRecalc(_ ghlInfo: CGhoul2Info?, _ frameNum: Int32) -> Bool {
+public func G2_NeedsRecalc(_ ghlInfo: CGhoul2Info?, _ frameNum: Int32) -> Bool {
     G2_SetupModelPointers(ghlInfo)
     // not sure if I still need this test, probably
     if ghlInfo!.mSkelFrameNum != frameNum ||
@@ -2442,7 +2442,7 @@ G2_ConstructGhoulSkeleton - builds a complete skeleton for all ghoul models in a
 var modelList_G2_ConstructGhoulSkeleton: Slots<Int32> { world.storage.modelList_G2_ConstructGhoulSkeleton }
 
 /// Source: oracle/codemp/renderer/tr_ghoul2.cpp:3570
-func G2_ConstructGhoulSkeleton(_ ghoul2: CGhoul2Info_v, _ frameNum: Int32, _ checkForNewOrigin: Bool, _ scale: JKAShared.vec3_t) {
+public func G2_ConstructGhoulSkeleton(_ ghoul2: CGhoul2Info_v, _ frameNum: Int32, _ checkForNewOrigin: Bool, _ scale: JKAShared.vec3_t) {
     G2PerformanceTimer_G2_ConstructGhoulSkeleton.Start()
     var i: Int32 = 0
     var j: Int32 = 0

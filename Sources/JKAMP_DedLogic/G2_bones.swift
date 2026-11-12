@@ -171,7 +171,7 @@ let MAX_GRAVITY_PULL = 256 as Int32
 // Given a bone name, see if that bone is already in our bone list - note the model_t pointer that gets passed in here MUST point at the
 // gla file, not the glm file type.
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:40
-func G2_Find_Bone(_ mod: Model, _ blist: inout [boneInfo_t], _ boneName: String) -> Int32 {
+public func G2_Find_Bone(_ mod: Model, _ blist: inout [boneInfo_t], _ boneName: String) -> Int32 {
     var i: Int32
     var skel: MdxaSkel
     let offsets: MdxaSkelOffsets
@@ -203,7 +203,7 @@ func G2_Find_Bone(_ mod: Model, _ blist: inout [boneInfo_t], _ boneName: String)
 
 // we need to add a bone to the list - find a free one and see if we can find a corresponding bone in the gla file
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:72
-func G2_Add_Bone(_ mod: Model, _ blist: inout [boneInfo_t], _ boneName: String) -> Int32 {
+public func G2_Add_Bone(_ mod: Model, _ blist: inout [boneInfo_t], _ boneName: String) -> Int32 {
     var i: Int32
     var x: Int32
     var skel: MdxaSkel
@@ -263,7 +263,7 @@ func G2_Add_Bone(_ mod: Model, _ blist: inout [boneInfo_t], _ boneName: String) 
 
 // Given a model handle, and a bone name, we want to remove this bone from the bone override list
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:145
-func G2_Remove_Bone_Index(_ blist: inout [boneInfo_t], _ index: Int32) -> Bool {
+public func G2_Remove_Bone_Index(_ blist: inout [boneInfo_t], _ index: Int32) -> Bool {
     if index != -1 {
         if (blist[index].flags & BONE_ANGLES_RAGDOLL) != 0 {
             return true // don't accept any calls on ragdoll bones
@@ -308,7 +308,7 @@ func G2_Remove_Bone_Index(_ blist: inout [boneInfo_t], _ index: Int32) -> Bool {
 
 // given a bone number, see if there is an override bone in the bone list
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:196
-func G2_Find_Bone_In_List(_ blist: inout [boneInfo_t], _ boneNum: Int32) -> Int32 {
+public func G2_Find_Bone_In_List(_ blist: inout [boneInfo_t], _ boneNum: Int32) -> Int32 {
     var i: Int32 = 0
 
     // look through entire list
@@ -323,7 +323,7 @@ func G2_Find_Bone_In_List(_ blist: inout [boneInfo_t], _ boneNum: Int32) -> Int3
 
 // given a model, bonelist and bonename, lets stop an anim if it's playing.
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:212
-func G2_Stop_Bone_Index(_ blist: inout [boneInfo_t], _ index: Int32, _ flags: Int32) -> Bool {
+public func G2_Stop_Bone_Index(_ blist: inout [boneInfo_t], _ index: Int32, _ flags: Int32) -> Bool {
     // did we find it?
     if index != -1 {
         blist[index].flags &= ~(flags)
@@ -336,7 +336,7 @@ func G2_Stop_Bone_Index(_ blist: inout [boneInfo_t], _ index: Int32, _ flags: In
 
 // generate a matrix for a given bone given some new angles for it.
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:228
-func G2_Generate_Matrix(_ mod: Model?, _ blist: inout [boneInfo_t], _ index: Int32, _ angles: JKAShared.vec3_t, _ flags: Int32, _ up: JKAMP.Eorientations, _ left: JKAMP.Eorientations, _ forward: JKAMP.Eorientations) {
+public func G2_Generate_Matrix(_ mod: Model?, _ blist: inout [boneInfo_t], _ index: Int32, _ angles: JKAShared.vec3_t, _ flags: Int32, _ up: JKAMP.Eorientations, _ left: JKAMP.Eorientations, _ forward: JKAMP.Eorientations) {
     let boneOverride = blist[index].matrix
     var newAngles = vec3_t()
 
@@ -502,7 +502,7 @@ func G2_Generate_Matrix(_ mod: Model?, _ blist: inout [boneInfo_t], _ index: Int
 
 // Given a model handle, and a bone name, we want to remove this bone from the bone override list
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:421
-func G2_Remove_Bone(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ boneName: String) -> Bool {
+public func G2_Remove_Bone(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ boneName: String) -> Bool {
     let index: Int32
 
     index = G2_Find_Bone(ghlInfo!.animModel!, &blist, boneName)
@@ -512,7 +512,7 @@ func G2_Remove_Bone(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ bone
 
 // Given a model handle, and a bone name, we want to set angles specifically for overriding
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:435
-func G2_Set_Bone_Angles_Index(_ blist: inout [boneInfo_t], _ index: Int32, _ angles: JKAShared.vec3_t, _ flags: Int32, _ yaw: JKAMP.Eorientations, _ pitch: JKAMP.Eorientations, _ roll: JKAMP.Eorientations, _ modelList: Slots<qhandle_t>?, _ modelIndex: Int32, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
+public func G2_Set_Bone_Angles_Index(_ blist: inout [boneInfo_t], _ index: Int32, _ angles: JKAShared.vec3_t, _ flags: Int32, _ yaw: JKAMP.Eorientations, _ pitch: JKAMP.Eorientations, _ roll: JKAMP.Eorientations, _ modelList: Slots<qhandle_t>?, _ modelIndex: Int32, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
     // AI: Raven compares the signed index with the unsigned size, so a negative index is out of range. The test names that case.
     if (index < 0 || index >= blist.count) || (blist[index].boneNumber == -1) {
         // we are attempting to set a bone override that doesn't exist
@@ -543,7 +543,7 @@ func G2_Set_Bone_Angles_Index(_ blist: inout [boneInfo_t], _ index: Int32, _ ang
 
 // Given a model handle, and a bone name, we want to set angles specifically for overriding
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:477
-func G2_Set_Bone_Angles(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ boneName: String, _ angles: JKAShared.vec3_t, _ flags: Int32, _ up: JKAMP.Eorientations, _ left: JKAMP.Eorientations, _ forward: JKAMP.Eorientations, _ modelList: Slots<qhandle_t>?, _ modelIndex: Int32, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
+public func G2_Set_Bone_Angles(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ boneName: String, _ angles: JKAShared.vec3_t, _ flags: Int32, _ up: JKAMP.Eorientations, _ left: JKAMP.Eorientations, _ forward: JKAMP.Eorientations, _ modelList: Slots<qhandle_t>?, _ modelIndex: Int32, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
     let mod_m: Model?
     let mod_a: Model?
 
@@ -591,7 +591,7 @@ func G2_Set_Bone_Angles(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ 
 
 // Given a model handle, and a bone name, we want to set angles specifically for overriding - using a matrix directly
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:536
-func G2_Set_Bone_Angles_Matrix_Index(_ blist: inout [boneInfo_t], _ index: Int32, _ matrix: JKAMP.MdxaBone, _ flags: Int32, _ modelList: Slots<qhandle_t>?, _ modelIndex: Int32, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
+public func G2_Set_Bone_Angles_Matrix_Index(_ blist: inout [boneInfo_t], _ index: Int32, _ matrix: JKAMP.MdxaBone, _ flags: Int32, _ modelList: Slots<qhandle_t>?, _ modelIndex: Int32, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
 
     // AI: Raven compares the signed index with the unsigned size, so a negative index is out of range. The test names that case.
     if (index < 0 || index >= blist.count) || (blist[index].boneNumber == -1) {
@@ -617,7 +617,7 @@ func G2_Set_Bone_Angles_Matrix_Index(_ blist: inout [boneInfo_t], _ index: Int32
 
 // Given a model handle, and a bone name, we want to set angles specifically for overriding - using a matrix directly
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:567
-func G2_Set_Bone_Angles_Matrix(_ fileName: String, _ blist: inout [boneInfo_t], _ boneName: String, _ matrix: JKAMP.MdxaBone, _ flags: Int32, _ modelList: Slots<qhandle_t>?, _ modelIndex: Int32, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
+public func G2_Set_Bone_Angles_Matrix(_ fileName: String, _ blist: inout [boneInfo_t], _ boneName: String, _ matrix: JKAMP.MdxaBone, _ flags: Int32, _ modelList: Slots<qhandle_t>?, _ modelIndex: Int32, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
     let mod_m: Model?
     if fileName.isEmpty {
         mod_m = R_GetModelByHandle(modelList![modelIndex])
@@ -664,7 +664,7 @@ func G2_Set_Bone_Angles_Matrix(_ fileName: String, _ blist: inout [boneInfo_t], 
 
 // given a model, bone name, a bonelist, a start/end frame number, a anim speed and some anim flags, set up or modify an existing bone entry for a new set of anims
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:625
-func G2_Set_Bone_Anim_Index(_ blist: inout [boneInfo_t], _ index: Int32, _ startFrame: Int32, _ endFrame: Int32, _ flags: Int32, _ animSpeed: Float, _ currentTime: Int32, _ setFrame: Float, _ blendTime: Int32, _ numFrames: Int32) -> Bool {
+public func G2_Set_Bone_Anim_Index(_ blist: inout [boneInfo_t], _ index: Int32, _ startFrame: Int32, _ endFrame: Int32, _ flags: Int32, _ animSpeed: Float, _ currentTime: Int32, _ setFrame: Float, _ blendTime: Int32, _ numFrames: Int32) -> Bool {
     var modFlags: Int32 = flags
 
     // AI: Raven compares the signed index with the unsigned size, so a negative index is out of range. The test names that case.
@@ -783,7 +783,7 @@ func G2_Set_Bone_Anim_Index(_ blist: inout [boneInfo_t], _ index: Int32, _ start
 
 // given a model, bone name, a bonelist, a start/end frame number, a anim speed and some anim flags, set up or modify an existing bone entry for a new set of anims
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:815
-func G2_Set_Bone_Anim(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ boneName: String, _ startFrame: Int32, _ endFrame: Int32, _ flags: Int32, _ animSpeed: Float, _ currentTime: Int32, _ setFrame: Float, _ blendTime: Int32) -> Bool {
+public func G2_Set_Bone_Anim(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ boneName: String, _ startFrame: Int32, _ endFrame: Int32, _ flags: Int32, _ animSpeed: Float, _ currentTime: Int32, _ setFrame: Float, _ blendTime: Int32) -> Bool {
     let mod_a = ghlInfo!.animModel
 
     var index: Int32 = G2_Find_Bone(mod_a!, &blist, boneName)
@@ -804,7 +804,7 @@ func G2_Set_Bone_Anim(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ bo
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:849
-func G2_Get_Bone_Anim_Range(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ boneName: String, _ startFrame: inout Int32, _ endFrame: inout Int32) -> Bool {
+public func G2_Get_Bone_Anim_Range(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ boneName: String, _ startFrame: inout Int32, _ endFrame: inout Int32) -> Bool {
     let mod_a = ghlInfo!.animModel
     let index: Int32 = G2_Find_Bone(mod_a!, &blist, boneName)
 
@@ -821,7 +821,7 @@ func G2_Get_Bone_Anim_Range(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t]
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:872
-func G2_Get_Bone_Anim_Index(_ blist: inout [boneInfo_t], _ index: Int32, _ currentTime: Int32, _ currentFrame: inout Float, _ startFrame: inout Int32, _ endFrame: inout Int32, _ flags: inout Int32, _ retAnimSpeed: inout Float, _ modelList: Slots<qhandle_t>?, _ numFrames: Int32) -> Bool {
+public func G2_Get_Bone_Anim_Index(_ blist: inout [boneInfo_t], _ index: Int32, _ currentTime: Int32, _ currentFrame: inout Float, _ startFrame: inout Int32, _ endFrame: inout Int32, _ flags: inout Int32, _ retAnimSpeed: inout Float, _ modelList: Slots<qhandle_t>?, _ numFrames: Int32) -> Bool {
 
     // did we find it?
     if (index >= 0) && !((index >= blist.count) || (blist[index].boneNumber == -1)) {
@@ -852,7 +852,7 @@ func G2_Get_Bone_Anim_Index(_ blist: inout [boneInfo_t], _ index: Int32, _ curre
 // given a model, bonelist and bonename, return the current frame, startframe and endframe of the current animation
 // NOTE if we aren't running an animation, then qfalse is returned
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:905
-func G2_Get_Bone_Anim(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ boneName: String, _ currentTime: Int32, _ currentFrame: inout Float, _ startFrame: inout Int32, _ endFrame: inout Int32, _ flags: inout Int32, _ retAnimSpeed: inout Float, _ modelList: Slots<qhandle_t>?, _ modelIndex: Int32) -> Bool {
+public func G2_Get_Bone_Anim(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ boneName: String, _ currentTime: Int32, _ currentFrame: inout Float, _ startFrame: inout Int32, _ endFrame: inout Int32, _ flags: inout Int32, _ retAnimSpeed: inout Float, _ modelList: Slots<qhandle_t>?, _ modelIndex: Int32) -> Bool {
     let mod_a = ghlInfo!.animModel
 
     var index: Int32 = G2_Find_Bone(mod_a!, &blist, boneName)
@@ -874,7 +874,7 @@ func G2_Get_Bone_Anim(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ bo
 
 // given a model, bonelist and bonename, lets pause an anim if it's playing.
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:936
-func G2_Pause_Bone_Anim(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ boneName: String, _ currentTime: Int32) -> Bool {
+public func G2_Pause_Bone_Anim(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ boneName: String, _ currentTime: Int32) -> Bool {
     let mod_a = ghlInfo!.animModel
 
     let index: Int32 = G2_Find_Bone(mod_a!, &blist, boneName)
@@ -910,7 +910,7 @@ func G2_Pause_Bone_Anim(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ 
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:971
-func G2_IsPaused(_ fileName: String, _ blist: inout [boneInfo_t], _ boneName: String) -> Bool {
+public func G2_IsPaused(_ fileName: String, _ blist: inout [boneInfo_t], _ boneName: String) -> Bool {
     let mod_m = R_GetModelByHandle(RE_RegisterModel(fileName))
     let mod_a = R_GetModelByHandle(mod_m!.mdxm!.animIndex)
     let index: Int32 = G2_Find_Bone(mod_a!, &blist, boneName)
@@ -930,7 +930,7 @@ func G2_IsPaused(_ fileName: String, _ blist: inout [boneInfo_t], _ boneName: St
 
 // given a model, bonelist and bonename, lets stop an anim if it's playing.
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:993
-func G2_Stop_Bone_Anim_Index(_ blist: inout [boneInfo_t], _ index: Int32) -> Bool {
+public func G2_Stop_Bone_Anim_Index(_ blist: inout [boneInfo_t], _ index: Int32) -> Bool {
 
     // AI: Raven compares the signed index with the unsigned size, so a negative index is out of range. The test names that case.
     if (index < 0 || index >= blist.count) || (blist[index].boneNumber == -1) {
@@ -945,7 +945,7 @@ func G2_Stop_Bone_Anim_Index(_ blist: inout [boneInfo_t], _ index: Int32) -> Boo
 
 // given a model, bonelist and bonename, lets stop an anim if it's playing.
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1009
-func G2_Stop_Bone_Anim(_ fileName: String, _ blist: inout [boneInfo_t], _ boneName: String) -> Bool {
+public func G2_Stop_Bone_Anim(_ fileName: String, _ blist: inout [boneInfo_t], _ boneName: String) -> Bool {
     let mod_m = R_GetModelByHandle(RE_RegisterModel(fileName))
     let mod_a = R_GetModelByHandle(mod_m!.mdxm!.animIndex)
     let index: Int32 = G2_Find_Bone(mod_a!, &blist, boneName)
@@ -962,7 +962,7 @@ func G2_Stop_Bone_Anim(_ fileName: String, _ blist: inout [boneInfo_t], _ boneNa
 
 // given a model, bonelist and bonename, lets stop an anim if it's playing.
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1028
-func G2_Stop_Bone_Angles_Index(_ blist: inout [boneInfo_t], _ index: Int32) -> Bool {
+public func G2_Stop_Bone_Angles_Index(_ blist: inout [boneInfo_t], _ index: Int32) -> Bool {
 
     // AI: Raven compares the signed index with the unsigned size, so a negative index is out of range. The test names that case.
     if (index < 0 || index >= blist.count) || (blist[index].boneNumber == -1) {
@@ -978,7 +978,7 @@ func G2_Stop_Bone_Angles_Index(_ blist: inout [boneInfo_t], _ index: Int32) -> B
 
 // given a model, bonelist and bonename, lets stop an anim if it's playing.
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1045
-func G2_Stop_Bone_Angles(_ fileName: String, _ blist: inout [boneInfo_t], _ boneName: String) -> Bool {
+public func G2_Stop_Bone_Angles(_ fileName: String, _ blist: inout [boneInfo_t], _ boneName: String) -> Bool {
     let mod_m = R_GetModelByHandle(RE_RegisterModel(fileName))
     let mod_a = R_GetModelByHandle(mod_m!.mdxm!.animIndex)
     let index: Int32 = G2_Find_Bone(mod_a!, &blist, boneName)
@@ -995,7 +995,7 @@ func G2_Stop_Bone_Angles(_ fileName: String, _ blist: inout [boneInfo_t], _ bone
 
 // actually walk the bone list and update each and every bone if we have ended an animation for them.
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1065
-func G2_Animate_Bone_List(_ ghoul2: CGhoul2Info_v, _ currentTime: Int32, _ index: Int32) {
+public func G2_Animate_Bone_List(_ ghoul2: CGhoul2Info_v, _ currentTime: Int32, _ index: Int32) {
     // Raven calls only the overload with the CRagDollUpdateParams parameter, at G2_API.cpp:1450, so this overload is dead.
     var i: Int32
     // Raven's `blist` is a reference to `ghoul2[index].mBlist`.
@@ -1072,7 +1072,7 @@ private func G2_Generate_MatrixRag(_ blist: inout [boneInfo_t], _ index: Int32) 
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1267
-func G2_Find_Bone_Rag(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ boneName: String) -> Int32 {
+public func G2_Find_Bone_Rag(_ ghlInfo: CGhoul2Info?, _ blist: inout [boneInfo_t], _ boneName: String) -> Int32 {
     var i: Int32
     var skel: MdxaSkel
     let offsets: MdxaSkelOffsets
@@ -1277,7 +1277,7 @@ private func G2_RagDollMatchPosition() {
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1522
 @discardableResult
-func G2_Set_Bone_Anim_No_BS(_ ghoul2: CGhoul2Info, _ mod: MdxaHeader, _ blist: inout [boneInfo_t], _ boneName: String, _ argStartFrame: Int32, _ argEndFrame: Int32, _ flags: Int32, _ animSpeed: Float, _ currentTime: Int32, _ setFrame: Float, _ blendTime: Int32, _ creationID: Int32, _ resetBonemap: Bool = true) -> Bool {
+public func G2_Set_Bone_Anim_No_BS(_ ghoul2: CGhoul2Info, _ mod: MdxaHeader, _ blist: inout [boneInfo_t], _ boneName: String, _ argStartFrame: Int32, _ argEndFrame: Int32, _ flags: Int32, _ animSpeed: Float, _ currentTime: Int32, _ setFrame: Float, _ blendTime: Int32, _ creationID: Int32, _ resetBonemap: Bool = true) -> Bool {
     var index: Int32 = G2_Find_Bone_Rag(ghoul2, &blist, boneName)
     var modFlags: Int32 = flags
 
@@ -1326,7 +1326,7 @@ func G2_Set_Bone_Anim_No_BS(_ ghoul2: CGhoul2Info, _ mod: MdxaHeader, _ blist: i
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1573
-func G2_ResetRagDoll(_ ghoul2V: CGhoul2Info_v) {
+public func G2_ResetRagDoll(_ ghoul2V: CGhoul2Info_v) {
     var model: Int32 = 0
 
     while model < ghoul2V.size() {
@@ -1353,7 +1353,7 @@ func G2_ResetRagDoll(_ ghoul2V: CGhoul2Info_v) {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:1622
-func G2_SetRagDoll(_ ghoul2V: CGhoul2Info_v, _ parms: CRagDollParams?) {
+public func G2_SetRagDoll(_ ghoul2V: CGhoul2Info_v, _ parms: CRagDollParams?) {
     if parms != nil {
         parms!.CallRagDollBegin = false
     }
@@ -1579,7 +1579,7 @@ func G2_SetRagDoll(_ ghoul2V: CGhoul2Info_v, _ parms: CRagDollParams?) {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:2040
-func G2_SetRagDollBullet(_ ghoul2: CGhoul2Info, _ rayStart: JKAShared.vec3_t, _ hit: JKAShared.vec3_t) {
+public func G2_SetRagDollBullet(_ ghoul2: CGhoul2Info, _ rayStart: JKAShared.vec3_t, _ hit: JKAShared.vec3_t) {
     // Raven calls this function from no file of either tree, so it is dead.
     if broadsword == nil || broadsword!.integer == 0 {
         return
@@ -3063,7 +3063,7 @@ private func G2_DoIK(_ ghoul2V: CGhoul2Info_v, _ g2Index: Int32, _ params: CRagD
 
 //rww - cut out the entire non-ragdoll section of this..
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:4498
-func G2_Animate_Bone_List(_ ghoul2: CGhoul2Info_v, _ currentTime: Int32, _ index: Int32, _ params: CRagDollUpdateParams?) {
+public func G2_Animate_Bone_List(_ ghoul2: CGhoul2Info_v, _ currentTime: Int32, _ index: Int32, _ params: CRagDollUpdateParams?) {
     var i: Int32 = 0
     var anyRagDoll = false
     var anyIK = false
@@ -3144,7 +3144,7 @@ private func G2_Set_Bone_Angles_IK(_ ghoul2: CGhoul2Info, _ mod_a: MdxaHeader?, 
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:4609
-func G2_InitIK(_ ghoul2V: CGhoul2Info_v, _ parms: SharedRagDollUpdateParams, _ time: Int32, _ mod_a: MdxaHeader?, _ model: Int32) {
+public func G2_InitIK(_ ghoul2V: CGhoul2Info_v, _ parms: SharedRagDollUpdateParams, _ time: Int32, _ mod_a: MdxaHeader?, _ model: Int32) {
     let ghoul2 = ghoul2V[model]
     let curTime = time
     // Raven's `blist` is a reference to `ghoul2.mBlist`.
@@ -3173,7 +3173,7 @@ func G2_InitIK(_ ghoul2V: CGhoul2Info_v, _ parms: SharedRagDollUpdateParams, _ t
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:4663
-func G2_SetBoneIKState(_ ghoul2: CGhoul2Info_v, _ time: Int32, _ boneName: String?, _ ikState: Int32, _ params: SharedSetBoneIKStateParams?) -> Bool {
+public func G2_SetBoneIKState(_ ghoul2: CGhoul2Info_v, _ time: Int32, _ boneName: String?, _ ikState: Int32, _ params: SharedSetBoneIKStateParams?) -> Bool {
     let mod_a: Model?
     let g2index: Int32 = 0
     let curTime = time
@@ -3292,7 +3292,7 @@ func G2_SetBoneIKState(_ ghoul2: CGhoul2Info_v, _ time: Int32, _ boneName: Strin
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:4816
-func G2_IKMove(_ ghoul2: CGhoul2Info_v, _ time: Int32, _ params: SharedIKMoveParams) -> Bool {
+public func G2_IKMove(_ ghoul2: CGhoul2Info_v, _ time: Int32, _ params: SharedIKMoveParams) -> Bool {
     let g2index: Int32 = 0
     let curTime = time
     let g2 = ghoul2[g2index]
@@ -3318,12 +3318,12 @@ func G2_IKMove(_ ghoul2: CGhoul2Info_v, _ time: Int32, _ params: SharedIKMovePar
 
 // set the bone list to all unused so the bone transformation routine ignores it.
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:4879
-func G2_Init_Bone_List(_ blist: inout [boneInfo_t]) {
+public func G2_Init_Bone_List(_ blist: inout [boneInfo_t]) {
     blist.removeAll()
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:4884
-func G2_RemoveRedundantBoneOverrides(_ blist: inout [boneInfo_t], _ activeBones: Slots<Int32>) {
+public func G2_RemoveRedundantBoneOverrides(_ blist: inout [boneInfo_t], _ activeBones: Slots<Int32>) {
     var i: Int32
 
     // walk the surface list, removing surface overrides or generated surfaces that are pointing at surfaces that aren't active anymore
@@ -3340,7 +3340,7 @@ func G2_RemoveRedundantBoneOverrides(_ blist: inout [boneInfo_t], _ activeBones:
 }
 
 /// Source: oracle/codemp/ghoul2/G2_bones.cpp:4902
-func G2_Get_Bone_Index(_ ghoul2: CGhoul2Info?, _ boneName: String) -> Int32 {
+public func G2_Get_Bone_Index(_ ghoul2: CGhoul2Info?, _ boneName: String) -> Int32 {
     let mod_m = R_GetModelByHandle(RE_RegisterModel(String(ghoul2!.mFileName)))
     let mod_a = R_GetModelByHandle(mod_m!.mdxm!.animIndex)
 

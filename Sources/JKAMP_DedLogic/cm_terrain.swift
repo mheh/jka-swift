@@ -97,7 +97,7 @@ public func CM_BelowLevel(_ data: Slots<UInt8>, _ lerp: Float, _ info: Slots<Int
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1618
-func CM_InitTerrain(_ configstring: String, _ terrainId: JKAShared.thandle_t, _ server: Bool) -> CCMLandScape? {
+public func CM_InitTerrain(_ configstring: String, _ terrainId: JKAShared.thandle_t, _ server: Bool) -> CCMLandScape? {
     var ls: CCMLandScape?
 
     ls = CCMLandScape(configstring, server)
@@ -107,69 +107,69 @@ func CM_InitTerrain(_ configstring: String, _ terrainId: JKAShared.thandle_t, _ 
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1628
-func CM_TerrainPatchIterate(_ landscape: CCMLandScape?, _ IterateFunc: ((CCMPatch?, OpaquePointer?) -> Void)?, _ userdata: OpaquePointer?) {
+public func CM_TerrainPatchIterate(_ landscape: CCMLandScape?, _ IterateFunc: ((CCMPatch?, OpaquePointer?) -> Void)?, _ userdata: OpaquePointer?) {
     // Its callers are tr_terrain.cpp:923 of the renderer and RM_CreateRandomModels, which only the client calls, so the function is dead in the dedicated build.
     landscape!.TerrainPatchIterate(IterateFunc, userdata)
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1633
-func CM_GetWorldHeight(_ landscape: CCMLandScape?, _ origin: inout JKAShared.vec3_t, _ bounds: [JKAShared.vec3_t], _ aboveGround: Bool) -> Float {
+public func CM_GetWorldHeight(_ landscape: CCMLandScape?, _ origin: inout JKAShared.vec3_t, _ bounds: [JKAShared.vec3_t], _ aboveGround: Bool) -> Float {
     return landscape!.GetWorldHeight(&origin, bounds, aboveGround)
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1638
-func CM_FlattenArea(_ landscape: CCMLandScape?, _ area: CArea?, _ height: Int32, _ save: Bool, _ forceHeight: Bool, _ smooth: Bool) {
+public func CM_FlattenArea(_ landscape: CCMLandScape?, _ area: CArea?, _ height: Int32, _ save: Bool, _ forceHeight: Bool, _ smooth: Bool) {
     landscape!.FlattenArea(area, height, save, forceHeight, smooth)
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1643
-func CM_CarveBezierCurve(_ landscape: CCMLandScape?, _ numCtls: Int32, _ ctls: Slots<JKAShared.vec3_t>, _ steps: Int32, _ depth: Int32, _ size: Int32) {
+public func CM_CarveBezierCurve(_ landscape: CCMLandScape?, _ numCtls: Int32, _ ctls: Slots<JKAShared.vec3_t>, _ steps: Int32, _ depth: Int32, _ size: Int32) {
     landscape!.CarveBezierCurve(numCtls, ctls, steps, depth, size)
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1648
-func CM_SaveArea(_ landscape: CCMLandScape?, _ area: CArea?) {
+public func CM_SaveArea(_ landscape: CCMLandScape?, _ area: CArea?) {
     landscape!.SaveArea(area)
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1653
-func CM_FractionBelowLevel(_ landscape: CCMLandScape?, _ area: CArea?, _ height: Int32) -> Float {
+public func CM_FractionBelowLevel(_ landscape: CCMLandScape?, _ area: CArea?, _ height: Int32) -> Float {
     return (landscape!.FractionBelowLevel(area, height))
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1658
 // AI: Raven reads `areaTypeCount` types through `int *areaTypes`. The parameter is the caller's array, the PARAMS kind `int_array` of the method.
-func CM_AreaCollision(_ landscape: CCMLandScape?, _ area: CArea?, _ areaTypes: [Int32]?, _ areaTypeCount: Int32) -> Bool {
+public func CM_AreaCollision(_ landscape: CCMLandScape?, _ area: CArea?, _ areaTypes: [Int32]?, _ areaTypeCount: Int32) -> Bool {
     return (landscape!.AreaCollision(area, areaTypes, areaTypeCount))
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1663
-func CM_GetFirstArea(_ landscape: CCMLandScape?) -> CArea? {
+public func CM_GetFirstArea(_ landscape: CCMLandScape?) -> CArea? {
     return (landscape!.GetFirstArea())
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1668
-func CM_GetFirstObjectiveArea(_ landscape: CCMLandScape?) -> CArea? {
+public func CM_GetFirstObjectiveArea(_ landscape: CCMLandScape?) -> CArea? {
     return (landscape!.GetFirstObjectiveArea())
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1673
-func CM_GetPlayerArea(_ landscape: CCMLandScape?) -> CArea? {
+public func CM_GetPlayerArea(_ landscape: CCMLandScape?) -> CArea? {
     return (landscape!.GetPlayerArea())
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1678
-func CM_GetNextArea(_ landscape: CCMLandScape?) -> CArea? {
+public func CM_GetNextArea(_ landscape: CCMLandScape?) -> CArea? {
     return (landscape!.GetNextArea())
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1683
-func CM_GetNextObjectiveArea(_ landscape: CCMLandScape?) -> CArea? {
+public func CM_GetNextObjectiveArea(_ landscape: CCMLandScape?) -> CArea? {
     return (landscape!.GetNextObjectiveArea())
 }
 
 /// Source: oracle/codemp/qcommon/cm_terrain.cpp:1688
-func CreateRandomTerrain(_ config: String, _ landscape: CCMLandScape?, _ heightmap: Slots<JKAShared.byte>, _ width: Int32, _ height: Int32) -> CRandomTerrain? {
+public func CreateRandomTerrain(_ config: String, _ landscape: CCMLandScape?, _ heightmap: Slots<JKAShared.byte>, _ width: Int32, _ height: Int32) -> CRandomTerrain? {
     var RandomTerrain: CRandomTerrain? = nil
 
     var ptr: Int32 = 0

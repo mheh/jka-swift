@@ -37,7 +37,7 @@ public struct InfoParm: Sendable {
 
 /// Source: oracle/codemp/qcommon/cm_shader.cpp:226
 // AI: Raven keeps `infoParm_t svInfoParms[]` as C data. The table is a constant Array of rows in Raven's order, because the module never writes it.
-let svInfoParms: [InfoParm] = [
+public let svInfoParms: [InfoParm] = [
     // Game surface flags
     InfoParm(name: "sky", clearSolid: -1, surfaceFlags: SURF_SKY, contents: 0), // emit light from an environment map
     InfoParm(name: "slick", clearSolid: -1, surfaceFlags: SURF_SLICK, contents: 0),

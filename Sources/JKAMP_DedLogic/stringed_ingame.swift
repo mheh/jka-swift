@@ -72,7 +72,7 @@ public final class CStringEdPackage {
 }
 
 /// Source: oracle/codemp/qcommon/stringed_ingame.cpp:124
-var TheStringPackage: CStringEdPackage { world.TheStringPackage }
+public var TheStringPackage: CStringEdPackage { world.TheStringPackage }
 
 // MARK: - The package methods before CopeWithDumbStringData
 

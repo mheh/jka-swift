@@ -1139,7 +1139,7 @@ public func CM_ModelBounds(_ model: JKAShared.clipHandle_t, _ mins: inout JKASha
 }
 
 /// Source: oracle/codemp/qcommon/cm_load.cpp:1036
-func CM_RegisterTerrain(_ config: String, _ server: Bool) -> CCMLandScape? {
+public func CM_RegisterTerrain(_ config: String, _ server: Bool) -> CCMLandScape? {
     var ls: CCMLandScape?
 
     // AI: Raven reads the class pointer `cmg.landScape` of the C record. The world holds the Swift class as `landScape_cmg`, the C field stays unused.

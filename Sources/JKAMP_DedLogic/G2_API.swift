@@ -136,7 +136,7 @@ public func G2_DEBUG_ReportLeaks() {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:83
-func G2_DEBUG_ShovePtrInTracker(_ g2: CGhoul2Info_v?) {
+public func G2_DEBUG_ShovePtrInTracker(_ g2: CGhoul2Info_v?) {
     var i: Int32 = 0
 
     if !g_G2AllocTrackInit {
@@ -169,7 +169,7 @@ func G2_DEBUG_ShovePtrInTracker(_ g2: CGhoul2Info_v?) {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:119
-func G2_DEBUG_RemovePtrFromTracker(_ g2: CGhoul2Info_v?) {
+public func G2_DEBUG_RemovePtrFromTracker(_ g2: CGhoul2Info_v?) {
     var i: Int32 = 0
 
     if !g_G2AllocTrackInit {
@@ -217,7 +217,7 @@ public func G2API_GetTime(_ argTime: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:200
-func G2API_AttachInstanceToEntNum(_ ghoul2: CGhoul2Info_v, _ entityNum: Int32, _ server: Bool) {
+public func G2API_AttachInstanceToEntNum(_ ghoul2: CGhoul2Info_v, _ entityNum: Int32, _ server: Bool) {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:214
@@ -229,12 +229,12 @@ public func G2API_CleanEntAttachments() {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:239
-func G2API_OverrideServerWithClientData(_ serverInstance: CGhoul2Info?) -> Bool {
+public func G2API_OverrideServerWithClientData(_ serverInstance: CGhoul2Info?) -> Bool {
     return false
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:478
-func TheGhoul2InfoArray() -> Ghoul2InfoArray {
+public func TheGhoul2InfoArray() -> Ghoul2InfoArray {
     if singleton == nil {
         singleton = Ghoul2InfoArray()
     }
@@ -250,7 +250,7 @@ public func Ghoul2InfoArray_Free() {
 
 // this is the ONLY function to read entity states directly
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:496
-func G2API_CleanGhoul2Models(_ ghoul2Ptr: inout CGhoul2Info_v?) {
+public func G2API_CleanGhoul2Models(_ ghoul2Ptr: inout CGhoul2Info_v?) {
     if ghoul2Ptr != nil {
         let ghoul2 = ghoul2Ptr!
 
@@ -298,7 +298,7 @@ public func G2API_PrecacheGhoul2Model(_ fileName: String) -> JKAShared.qhandle_t
 
 // initialise all that needs to be on a new Ghoul II model
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:601
-func G2API_InitGhoul2Model(_ ghoul2Ptr: inout CGhoul2Info_v?, _ fileName: String, _ modelIndex: Int32, _ customSkin: JKAShared.qhandle_t, _ customShader: JKAShared.qhandle_t, _ modelFlags: Int32 = 0, _ lodBias: Int32 = 0) -> Int32 {
+public func G2API_InitGhoul2Model(_ ghoul2Ptr: inout CGhoul2Info_v?, _ fileName: String, _ modelIndex: Int32, _ customSkin: JKAShared.qhandle_t, _ customShader: JKAShared.qhandle_t, _ modelFlags: Int32 = 0, _ lodBias: Int32 = 0) -> Int32 {
     var model: Int32
 
     // are we actually asking for a model to be loaded.
@@ -358,7 +358,7 @@ func G2API_InitGhoul2Model(_ ghoul2Ptr: inout CGhoul2Info_v?, _ fileName: String
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:670
-func G2API_SetLodBias(_ ghlInfo: CGhoul2Info?, _ lodBias: Int32) -> Bool {
+public func G2API_SetLodBias(_ ghlInfo: CGhoul2Info?, _ lodBias: Int32) -> Bool {
     if ghlInfo != nil {
         ghlInfo!.mLodBias = lodBias
         return true
@@ -367,7 +367,7 @@ func G2API_SetLodBias(_ ghlInfo: CGhoul2Info?, _ lodBias: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:681
-func G2API_SetSkin(_ ghlInfo: CGhoul2Info?, _ customSkin: JKAShared.qhandle_t, _ renderSkin: JKAShared.qhandle_t) -> Bool {
+public func G2API_SetSkin(_ ghlInfo: CGhoul2Info?, _ customSkin: JKAShared.qhandle_t, _ renderSkin: JKAShared.qhandle_t) -> Bool {
     if ghlInfo != nil {
         ghlInfo!.mCustomSkin = customSkin
         if renderSkin != 0 { //this is going to set the surfs on/off matching the skin file
@@ -380,7 +380,7 @@ func G2API_SetSkin(_ ghlInfo: CGhoul2Info?, _ customSkin: JKAShared.qhandle_t, _
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:696
-func G2API_SetShader(_ ghlInfo: CGhoul2Info?, _ customShader: JKAShared.qhandle_t) -> Bool {
+public func G2API_SetShader(_ ghlInfo: CGhoul2Info?, _ customShader: JKAShared.qhandle_t) -> Bool {
     if ghlInfo != nil {
         ghlInfo!.mCustomShader = customShader
         return true
@@ -389,7 +389,7 @@ func G2API_SetShader(_ ghlInfo: CGhoul2Info?, _ customShader: JKAShared.qhandle_
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:706
-func G2API_SetSurfaceOnOff(_ ghoul2: CGhoul2Info_v, _ surfaceName: String, _ flags: Int32) -> Bool {
+public func G2API_SetSurfaceOnOff(_ ghoul2: CGhoul2Info_v, _ surfaceName: String, _ flags: Int32) -> Bool {
     var ghlInfo: CGhoul2Info? = nil
 
     if ghoul2.size() > 0 {
@@ -405,7 +405,7 @@ func G2API_SetSurfaceOnOff(_ ghoul2: CGhoul2Info_v, _ surfaceName: String, _ fla
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:724
-func G2API_GetSurfaceOnOff(_ ghlInfo: CGhoul2Info?, _ surfaceName: String) -> Int32 {
+public func G2API_GetSurfaceOnOff(_ ghlInfo: CGhoul2Info?, _ surfaceName: String) -> Int32 {
     if ghlInfo != nil {
         return G2_IsSurfaceOff(ghlInfo, &ghlInfo!.mSlist, surfaceName)
     }
@@ -413,7 +413,7 @@ func G2API_GetSurfaceOnOff(_ ghlInfo: CGhoul2Info?, _ surfaceName: String) -> In
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:733
-func G2API_SetRootSurface(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ surfaceName: String) -> Bool {
+public func G2API_SetRootSurface(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ surfaceName: String) -> Bool {
     if G2_SetupModelPointers(ghoul2) {
         return G2_SetRootSurface(ghoul2, modelIndex, surfaceName)
     }
@@ -422,7 +422,7 @@ func G2API_SetRootSurface(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ surfac
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:743
-func G2API_AddSurface(_ ghlInfo: CGhoul2Info?, _ surfaceNumber: Int32, _ polyNumber: Int32, _ BarycentricI: Float, _ BarycentricJ: Float, _ lod: Int32) -> Int32 {
+public func G2API_AddSurface(_ ghlInfo: CGhoul2Info?, _ surfaceNumber: Int32, _ polyNumber: Int32, _ BarycentricI: Float, _ BarycentricJ: Float, _ lod: Int32) -> Int32 {
     if G2_SetupModelPointers(ghlInfo) {
         // ensure we flush the cache
         ghlInfo!.mMeshFrameNum = 0
@@ -432,7 +432,7 @@ func G2API_AddSurface(_ ghlInfo: CGhoul2Info?, _ surfaceNumber: Int32, _ polyNum
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:754
-func G2API_RemoveSurface(_ ghlInfo: CGhoul2Info?, _ index: Int32) -> Bool {
+public func G2API_RemoveSurface(_ ghlInfo: CGhoul2Info?, _ index: Int32) -> Bool {
     if G2_SetupModelPointers(ghlInfo) {
         // ensure we flush the cache
         ghlInfo!.mMeshFrameNum = 0
@@ -442,7 +442,7 @@ func G2API_RemoveSurface(_ ghlInfo: CGhoul2Info?, _ index: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:765
-func G2API_GetParentSurface(_ ghlInfo: CGhoul2Info?, _ index: Int32) -> Int32 {
+public func G2API_GetParentSurface(_ ghlInfo: CGhoul2Info?, _ index: Int32) -> Int32 {
     if G2_SetupModelPointers(ghlInfo) {
         return G2_GetParentSurface(ghlInfo, index)
     }
@@ -450,7 +450,7 @@ func G2API_GetParentSurface(_ ghlInfo: CGhoul2Info?, _ index: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:774
-func G2API_GetSurfaceRenderStatus(_ ghlInfo: CGhoul2Info?, _ surfaceName: String) -> Int32 {
+public func G2API_GetSurfaceRenderStatus(_ ghlInfo: CGhoul2Info?, _ surfaceName: String) -> Int32 {
     if G2_SetupModelPointers(ghlInfo) {
         return G2_IsSurfaceRendered(ghlInfo, surfaceName, &ghlInfo!.mSlist)
     }
@@ -458,7 +458,7 @@ func G2API_GetSurfaceRenderStatus(_ ghlInfo: CGhoul2Info?, _ surfaceName: String
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:783
-func G2API_HasGhoul2ModelOnIndex(_ ghlRemove: inout CGhoul2Info_v?, _ modelIndex: Int32) -> Bool {
+public func G2API_HasGhoul2ModelOnIndex(_ ghlRemove: inout CGhoul2Info_v?, _ modelIndex: Int32) -> Bool {
     let ghlInfo = ghlRemove!
 
     if ghlInfo.size() == 0 || (ghlInfo.size() <= modelIndex) || (ghlInfo[modelIndex].mModelindex == -1) {
@@ -469,7 +469,7 @@ func G2API_HasGhoul2ModelOnIndex(_ ghlRemove: inout CGhoul2Info_v?, _ modelIndex
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:795
-func G2API_RemoveGhoul2Model(_ ghlRemove: inout CGhoul2Info_v?, _ modelIndex: Int32) -> Bool {
+public func G2API_RemoveGhoul2Model(_ ghlRemove: inout CGhoul2Info_v?, _ modelIndex: Int32) -> Bool {
     let ghlInfo = ghlRemove!
 
     // sanity check
@@ -540,7 +540,7 @@ func G2API_RemoveGhoul2Model(_ ghlRemove: inout CGhoul2Info_v?, _ modelIndex: In
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:877
-func G2API_RemoveGhoul2Models(_ ghlRemove: inout CGhoul2Info_v?) -> Bool {
+public func G2API_RemoveGhoul2Models(_ ghlRemove: inout CGhoul2Info_v?) -> Bool {
     let ghlInfo = ghlRemove!
     var modelIndex: Int32 = 0
     var newSize: Int32 = 0
@@ -618,7 +618,7 @@ func G2API_RemoveGhoul2Models(_ ghlRemove: inout CGhoul2Info_v?) -> Bool {
 
 //check if a bone exists on skeleton without actually adding to the bone list -rww
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:963
-func G2API_DoesBoneExist(_ ghlInfo: CGhoul2Info?, _ boneName: String) -> Bool {
+public func G2API_DoesBoneExist(_ ghlInfo: CGhoul2Info?, _ boneName: String) -> Bool {
     if G2_SetupModelPointers(ghlInfo) { //model is valid
         let mdxa = ghlInfo!.currentModel!.mdxa
         if mdxa != nil { //get the skeleton data and iterate through the bones
@@ -644,7 +644,7 @@ func G2API_DoesBoneExist(_ ghlInfo: CGhoul2Info?, _ boneName: String) -> Bool {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:996
-func G2API_SetBoneAnimIndex(_ ghlInfo: CGhoul2Info?, _ index: Int32, _ AstartFrame: Int32, _ AendFrame: Int32, _ flags: Int32, _ animSpeed: Float, _ currentTime: Int32, _ AsetFrame: Float, _ blendTime: Int32) -> Bool {
+public func G2API_SetBoneAnimIndex(_ ghlInfo: CGhoul2Info?, _ index: Int32, _ AstartFrame: Int32, _ AendFrame: Int32, _ flags: Int32, _ animSpeed: Float, _ currentTime: Int32, _ AsetFrame: Float, _ blendTime: Int32) -> Bool {
     var setPtrs = false
     var res = false
 
@@ -695,7 +695,7 @@ func G2API_SetBoneAnimIndex(_ ghlInfo: CGhoul2Info?, _ index: Int32, _ AstartFra
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1066
-func G2API_SetBoneAnim(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ boneName: String, _ AstartFrame: Int32, _ AendFrame: Int32, _ flags: Int32, _ animSpeed: Float, _ currentTime: Int32, _ AsetFrame: Float, _ blendTime: Int32 = -1) -> Bool {
+public func G2API_SetBoneAnim(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ boneName: String, _ AstartFrame: Int32, _ AendFrame: Int32, _ flags: Int32, _ animSpeed: Float, _ currentTime: Int32, _ AsetFrame: Float, _ blendTime: Int32 = -1) -> Bool {
     var endFrame = AendFrame
     var startFrame = AstartFrame
     var setFrame = AsetFrame
@@ -741,7 +741,7 @@ func G2API_SetBoneAnim(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ boneName:
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1140
-func G2API_GetBoneAnim(_ ghlInfo: CGhoul2Info?, _ boneName: String, _ currentTime: Int32, _ currentFrame: inout Float, _ startFrame: inout Int32, _ endFrame: inout Int32, _ flags: inout Int32, _ animSpeed: inout Float, _ modelList: Slots<qhandle_t>?) -> Bool {
+public func G2API_GetBoneAnim(_ ghlInfo: CGhoul2Info?, _ boneName: String, _ currentTime: Int32, _ currentFrame: inout Float, _ startFrame: inout Int32, _ endFrame: inout Int32, _ flags: inout Int32, _ animSpeed: inout Float, _ modelList: Slots<qhandle_t>?) -> Bool {
     if G2_SetupModelPointers(ghlInfo) {
         let aCurrentTime = G2API_GetTime(currentTime)
         let ret = G2_Get_Bone_Anim(ghlInfo, &ghlInfo!.mBlist, boneName, aCurrentTime, &currentFrame,
@@ -752,7 +752,7 @@ func G2API_GetBoneAnim(_ ghlInfo: CGhoul2Info?, _ boneName: String, _ currentTim
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1191
-func G2API_GetAnimRange(_ ghlInfo: CGhoul2Info?, _ boneName: String, _ startFrame: inout Int32, _ endFrame: inout Int32) -> Bool {
+public func G2API_GetAnimRange(_ ghlInfo: CGhoul2Info?, _ boneName: String, _ startFrame: inout Int32, _ endFrame: inout Int32) -> Bool {
     if G2_SetupModelPointers(ghlInfo) {
         let ret = G2_Get_Bone_Anim_Range(ghlInfo, &ghlInfo!.mBlist, boneName, &startFrame, &endFrame)
         return ret
@@ -761,7 +761,7 @@ func G2API_GetAnimRange(_ ghlInfo: CGhoul2Info?, _ boneName: String, _ startFram
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1225
-func G2API_PauseBoneAnim(_ ghlInfo: CGhoul2Info?, _ boneName: String, _ currentTime: Int32) -> Bool {
+public func G2API_PauseBoneAnim(_ ghlInfo: CGhoul2Info?, _ boneName: String, _ currentTime: Int32) -> Bool {
     if G2_SetupModelPointers(ghlInfo) {
         return G2_Pause_Bone_Anim(ghlInfo, &ghlInfo!.mBlist, boneName, currentTime)
     }
@@ -769,7 +769,7 @@ func G2API_PauseBoneAnim(_ ghlInfo: CGhoul2Info?, _ boneName: String, _ currentT
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1234
-func G2API_IsPaused(_ ghlInfo: CGhoul2Info?, _ boneName: String) -> Bool {
+public func G2API_IsPaused(_ ghlInfo: CGhoul2Info?, _ boneName: String) -> Bool {
     if G2_SetupModelPointers(ghlInfo) {
         return G2_IsPaused(String(ghlInfo!.mFileName), &ghlInfo!.mBlist, boneName)
     }
@@ -777,7 +777,7 @@ func G2API_IsPaused(_ ghlInfo: CGhoul2Info?, _ boneName: String) -> Bool {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1243
-func G2API_StopBoneAnimIndex(_ ghlInfo: CGhoul2Info?, _ index: Int32) -> Bool {
+public func G2API_StopBoneAnimIndex(_ ghlInfo: CGhoul2Info?, _ index: Int32) -> Bool {
     if G2_SetupModelPointers(ghlInfo) {
         return G2_Stop_Bone_Anim_Index(&ghlInfo!.mBlist, index)
     }
@@ -785,7 +785,7 @@ func G2API_StopBoneAnimIndex(_ ghlInfo: CGhoul2Info?, _ index: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1252
-func G2API_StopBoneAnim(_ ghlInfo: CGhoul2Info?, _ boneName: String) -> Bool {
+public func G2API_StopBoneAnim(_ ghlInfo: CGhoul2Info?, _ boneName: String) -> Bool {
     if G2_SetupModelPointers(ghlInfo) {
         return G2_Stop_Bone_Anim(String(ghlInfo!.mFileName), &ghlInfo!.mBlist, boneName)
     }
@@ -793,7 +793,7 @@ func G2API_StopBoneAnim(_ ghlInfo: CGhoul2Info?, _ boneName: String) -> Bool {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1261
-func G2API_SetBoneAnglesIndex(_ ghlInfo: CGhoul2Info?, _ index: Int32, _ angles: JKAShared.vec3_t, _ flags: Int32, _ yaw: JKAMP.Eorientations, _ pitch: JKAMP.Eorientations, _ roll: JKAMP.Eorientations, _ modelList: Slots<qhandle_t>?, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
+public func G2API_SetBoneAnglesIndex(_ ghlInfo: CGhoul2Info?, _ index: Int32, _ angles: JKAShared.vec3_t, _ flags: Int32, _ yaw: JKAMP.Eorientations, _ pitch: JKAMP.Eorientations, _ roll: JKAMP.Eorientations, _ modelList: Slots<qhandle_t>?, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
     var setPtrs = false
     var res = false
 
@@ -823,7 +823,7 @@ func G2API_SetBoneAnglesIndex(_ ghlInfo: CGhoul2Info?, _ index: Int32, _ angles:
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1298
-func G2API_SetBoneAngles(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ boneName: String, _ angles: JKAShared.vec3_t, _ flags: Int32, _ up: JKAMP.Eorientations, _ left: JKAMP.Eorientations, _ forward: JKAMP.Eorientations, _ modelList: Slots<qhandle_t>?, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
+public func G2API_SetBoneAngles(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ boneName: String, _ angles: JKAShared.vec3_t, _ flags: Int32, _ up: JKAMP.Eorientations, _ left: JKAMP.Eorientations, _ forward: JKAMP.Eorientations, _ modelList: Slots<qhandle_t>?, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
     if ghoul2.size() > modelIndex {
         let ghlInfo = ghoul2[modelIndex]
         var res = false
@@ -848,7 +848,7 @@ func G2API_SetBoneAngles(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ boneNam
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1339
-func G2API_SetBoneAnglesMatrixIndex(_ ghlInfo: CGhoul2Info?, _ index: Int32, _ matrix: JKAMP.MdxaBone, _ flags: Int32, _ modelList: Slots<qhandle_t>?, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
+public func G2API_SetBoneAnglesMatrixIndex(_ ghlInfo: CGhoul2Info?, _ index: Int32, _ matrix: JKAMP.MdxaBone, _ flags: Int32, _ modelList: Slots<qhandle_t>?, _ blendTime: Int32, _ currentTime: Int32) -> Bool {
     if G2_SetupModelPointers(ghlInfo) {
         // ensure we flush the cache
         ghlInfo!.mSkelFrameNum = 0
@@ -858,7 +858,7 @@ func G2API_SetBoneAnglesMatrixIndex(_ ghlInfo: CGhoul2Info?, _ index: Int32, _ m
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1351
-func G2API_SetBoneAnglesMatrix(_ ghlInfo: CGhoul2Info?, _ boneName: String, _ matrix: JKAMP.MdxaBone, _ flags: Int32, _ modelList: Slots<qhandle_t>?, _ blendTime: Int32 = 0, _ currentTime: Int32 = 0) -> Bool {
+public func G2API_SetBoneAnglesMatrix(_ ghlInfo: CGhoul2Info?, _ boneName: String, _ matrix: JKAMP.MdxaBone, _ flags: Int32, _ modelList: Slots<qhandle_t>?, _ blendTime: Int32 = 0, _ currentTime: Int32 = 0) -> Bool {
     if G2_SetupModelPointers(ghlInfo) {
         // ensure we flush the cache
         ghlInfo!.mSkelFrameNum = 0
@@ -868,7 +868,7 @@ func G2API_SetBoneAnglesMatrix(_ ghlInfo: CGhoul2Info?, _ boneName: String, _ ma
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1363
-func G2API_StopBoneAnglesIndex(_ ghlInfo: CGhoul2Info?, _ index: Int32) -> Bool {
+public func G2API_StopBoneAnglesIndex(_ ghlInfo: CGhoul2Info?, _ index: Int32) -> Bool {
     if G2_SetupModelPointers(ghlInfo) {
         // ensure we flush the cache
         ghlInfo!.mSkelFrameNum = 0
@@ -878,7 +878,7 @@ func G2API_StopBoneAnglesIndex(_ ghlInfo: CGhoul2Info?, _ index: Int32) -> Bool 
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1374
-func G2API_StopBoneAngles(_ ghlInfo: CGhoul2Info?, _ boneName: String) -> Bool {
+public func G2API_StopBoneAngles(_ ghlInfo: CGhoul2Info?, _ boneName: String) -> Bool {
     if G2_SetupModelPointers(ghlInfo) {
         // ensure we flush the cache
         ghlInfo!.mSkelFrameNum = 0
@@ -888,7 +888,7 @@ func G2API_StopBoneAngles(_ ghlInfo: CGhoul2Info?, _ boneName: String) -> Bool {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1386
-func G2API_AbsurdSmoothing(_ ghoul2: CGhoul2Info_v, _ status: Bool) {
+public func G2API_AbsurdSmoothing(_ ghoul2: CGhoul2Info_v, _ status: Bool) {
     assert(ghoul2.size() != 0)
     let ghlInfo = ghoul2[0]
 
@@ -900,17 +900,17 @@ func G2API_AbsurdSmoothing(_ ghoul2: CGhoul2Info_v, _ status: Bool) {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1404
-func G2API_SetRagDoll(_ ghoul2: CGhoul2Info_v, _ parms: CRagDollParams?) {
+public func G2API_SetRagDoll(_ ghoul2: CGhoul2Info_v, _ parms: CRagDollParams?) {
     G2_SetRagDoll(ghoul2, parms)
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1410
-func G2API_ResetRagDoll(_ ghoul2: CGhoul2Info_v) {
+public func G2API_ResetRagDoll(_ ghoul2: CGhoul2Info_v) {
     G2_ResetRagDoll(ghoul2)
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1416
-func G2API_RemoveBone(_ ghlInfo: CGhoul2Info?, _ boneName: String) -> Bool {
+public func G2API_RemoveBone(_ ghlInfo: CGhoul2Info?, _ boneName: String) -> Bool {
     if G2_SetupModelPointers(ghlInfo) {
         // ensure we flush the cache
         ghlInfo!.mSkelFrameNum = 0
@@ -920,7 +920,7 @@ func G2API_RemoveBone(_ ghlInfo: CGhoul2Info?, _ boneName: String) -> Bool {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1434
-func G2API_AnimateG2Models(_ ghoul2: CGhoul2Info_v, _ AcurrentTime: Int32, _ params: CRagDollUpdateParams?) {
+public func G2API_AnimateG2Models(_ ghoul2: CGhoul2Info_v, _ AcurrentTime: Int32, _ params: CRagDollUpdateParams?) {
     var model: Int32 = 0
     let currentTime = G2API_GetTime(AcurrentTime)
 
@@ -957,7 +957,7 @@ private func G2_GetRagBoneConveniently(_ ghoul2: CGhoul2Info_v, _ boneName: Stri
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1499
-func G2API_RagPCJConstraint(_ ghoul2: CGhoul2Info_v, _ boneName: String, _ min: JKAShared.vec3_t, _ max: JKAShared.vec3_t) -> Bool {
+public func G2API_RagPCJConstraint(_ ghoul2: CGhoul2Info_v, _ boneName: String, _ min: JKAShared.vec3_t, _ max: JKAShared.vec3_t) -> Bool {
     let bone = G2_GetRagBoneConveniently(ghoul2, boneName)
 
     if bone == nil {
@@ -975,7 +975,7 @@ func G2API_RagPCJConstraint(_ ghoul2: CGhoul2Info_v, _ boneName: String, _ min: 
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1519
-func G2API_RagPCJGradientSpeed(_ ghoul2: CGhoul2Info_v, _ boneName: String, _ speed: Float) -> Bool {
+public func G2API_RagPCJGradientSpeed(_ ghoul2: CGhoul2Info_v, _ boneName: String, _ speed: Float) -> Bool {
     let bone = G2_GetRagBoneConveniently(ghoul2, boneName)
 
     if bone == nil {
@@ -992,7 +992,7 @@ func G2API_RagPCJGradientSpeed(_ ghoul2: CGhoul2Info_v, _ boneName: String, _ sp
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1538
-func G2API_RagEffectorGoal(_ ghoul2: CGhoul2Info_v, _ boneName: String, _ pos: JKAShared.vec3_t?) -> Bool {
+public func G2API_RagEffectorGoal(_ ghoul2: CGhoul2Info_v, _ boneName: String, _ pos: JKAShared.vec3_t?) -> Bool {
     let bone = G2_GetRagBoneConveniently(ghoul2, boneName)
 
     if bone == nil {
@@ -1013,12 +1013,12 @@ func G2API_RagEffectorGoal(_ ghoul2: CGhoul2Info_v, _ boneName: String, _ pos: J
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1564
-func G2API_GetRagBonePos(_ ghoul2: CGhoul2Info_v, _ boneName: String, _ pos: JKAShared.vec3_t, _ entAngles: JKAShared.vec3_t, _ entPos: JKAShared.vec3_t, _ entScale: JKAShared.vec3_t) -> Bool {
+public func G2API_GetRagBonePos(_ ghoul2: CGhoul2Info_v, _ boneName: String, _ pos: JKAShared.vec3_t, _ entAngles: JKAShared.vec3_t, _ entPos: JKAShared.vec3_t, _ entScale: JKAShared.vec3_t) -> Bool {
     return false
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1569
-func G2API_RagEffectorKick(_ ghoul2: CGhoul2Info_v, _ boneName: String, _ velocity: JKAShared.vec3_t) -> Bool {
+public func G2API_RagEffectorKick(_ ghoul2: CGhoul2Info_v, _ boneName: String, _ velocity: JKAShared.vec3_t) -> Bool {
     let bone = G2_GetRagBoneConveniently(ghoul2, boneName)
 
     if bone == nil {
@@ -1037,7 +1037,7 @@ func G2API_RagEffectorKick(_ ghoul2: CGhoul2Info_v, _ boneName: String, _ veloci
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1590
-func G2API_RagForceSolve(_ ghoul2: CGhoul2Info_v, _ force: Bool) -> Bool {
+public func G2API_RagForceSolve(_ ghoul2: CGhoul2Info_v, _ force: Bool) -> Bool {
     let ghlInfo = ghoul2[0]
 
     if (ghlInfo.mFlags & GHOUL2_RAG_STARTED) == 0 { //can't do this if not in ragdoll
@@ -1054,17 +1054,17 @@ func G2API_RagForceSolve(_ ghoul2: CGhoul2Info_v, _ force: Bool) -> Bool {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1613
-func G2API_SetBoneIKState(_ ghoul2: CGhoul2Info_v, _ time: Int32, _ boneName: String?, _ ikState: Int32, _ params: SharedSetBoneIKStateParams?) -> Bool {
+public func G2API_SetBoneIKState(_ ghoul2: CGhoul2Info_v, _ time: Int32, _ boneName: String?, _ ikState: Int32, _ params: SharedSetBoneIKStateParams?) -> Bool {
     return G2_SetBoneIKState(ghoul2, time, boneName, ikState, params)
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1619
-func G2API_IKMove(_ ghoul2: CGhoul2Info_v, _ time: Int32, _ params: SharedIKMoveParams) -> Bool {
+public func G2API_IKMove(_ ghoul2: CGhoul2Info_v, _ time: Int32, _ params: SharedIKMoveParams) -> Bool {
     return G2_IKMove(ghoul2, time, params)
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1624
-func G2API_RemoveBolt(_ ghlInfo: CGhoul2Info?, _ index: Int32) -> Bool {
+public func G2API_RemoveBolt(_ ghlInfo: CGhoul2Info?, _ index: Int32) -> Bool {
     if G2_SetupModelPointers(ghlInfo) {
         return G2_Remove_Bolt(&ghlInfo!.mBltlist, index)
     }
@@ -1072,7 +1072,7 @@ func G2API_RemoveBolt(_ ghlInfo: CGhoul2Info?, _ index: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1633
-func G2API_AddBolt(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ boneName: String) -> Int32 {
+public func G2API_AddBolt(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ boneName: String) -> Int32 {
     if ghoul2.size() > modelIndex {
         let ghlInfo = ghoul2[modelIndex]
         if G2_SetupModelPointers(ghlInfo) {
@@ -1083,7 +1083,7 @@ func G2API_AddBolt(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ boneName: Str
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1648
-func G2API_AddBoltSurfNum(_ ghlInfo: CGhoul2Info?, _ surfIndex: Int32) -> Int32 {
+public func G2API_AddBoltSurfNum(_ ghlInfo: CGhoul2Info?, _ surfIndex: Int32) -> Int32 {
     if G2_SetupModelPointers(ghlInfo) {
         return G2_Add_Bolt_Surf_Num(ghlInfo, &ghlInfo!.mBltlist, &ghlInfo!.mSlist, surfIndex)
     }
@@ -1091,7 +1091,7 @@ func G2API_AddBoltSurfNum(_ ghlInfo: CGhoul2Info?, _ surfIndex: Int32) -> Int32 
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1658
-func G2API_AttachG2Model(_ ghoul2From: CGhoul2Info_v, _ modelFrom: Int32, _ ghoul2To: CGhoul2Info_v, _ toBoltIndex: Int32, _ toModel: Int32) -> Bool {
+public func G2API_AttachG2Model(_ ghoul2From: CGhoul2Info_v, _ modelFrom: Int32, _ ghoul2To: CGhoul2Info_v, _ toBoltIndex: Int32, _ toModel: Int32) -> Bool {
     var toBoltIndex = toBoltIndex
     var toModel = toModel
     assert(toBoltIndex >= 0)
@@ -1114,14 +1114,14 @@ func G2API_AttachG2Model(_ ghoul2From: CGhoul2Info_v, _ modelFrom: Int32, _ ghou
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1684
-func G2API_SetBoltInfo(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ boltInfo: Int32) {
+public func G2API_SetBoltInfo(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ boltInfo: Int32) {
     if ghoul2.size() > modelIndex {
         ghoul2[modelIndex].mModelBoltLink = boltInfo
     }
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1695
-func G2API_DetachG2Model(_ ghlInfo: CGhoul2Info?) -> Bool {
+public func G2API_DetachG2Model(_ ghlInfo: CGhoul2Info?) -> Bool {
     if G2_SetupModelPointers(ghlInfo) {
         ghlInfo!.mModelBoltLink = -1
         return true
@@ -1130,7 +1130,7 @@ func G2API_DetachG2Model(_ ghlInfo: CGhoul2Info?) -> Bool {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1705
-func G2API_AttachEnt(_ boltInfo: inout Int32, _ ghlInfoTo: CGhoul2Info?, _ toBoltIndex: Int32, _ entNum: Int32, _ toModelNum: Int32) -> Bool {
+public func G2API_AttachEnt(_ boltInfo: inout Int32, _ ghlInfoTo: CGhoul2Info?, _ toBoltIndex: Int32, _ entNum: Int32, _ toModelNum: Int32) -> Bool {
     var toBoltIndex = toBoltIndex
     var entNum = entNum
     var toModelNum = toModelNum
@@ -1150,7 +1150,7 @@ func G2API_AttachEnt(_ boltInfo: inout Int32, _ ghlInfoTo: CGhoul2Info?, _ toBol
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1727
-func G2API_GetBoltMatrix_SPMethod(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: Slots<qhandle_t>?, _ scale: JKAShared.vec3_t) -> Bool {
+public func G2API_GetBoltMatrix_SPMethod(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: Slots<qhandle_t>?, _ scale: JKAShared.vec3_t) -> Bool {
     assert(ghoul2.size() > modelIndex)
 
     if ghoul2.size() > modelIndex {
@@ -1204,7 +1204,7 @@ func G2API_GetBoltMatrix_SPMethod(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, 
 //qboolean G2API_GetBoltMatrix(CGhoul2Info_v &ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles,
 //							 const vec3_t position, const int AframeNum, qhandle_t *modelList, const vec3_t scale )
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1795
-func G2API_GetBoltMatrix(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: Slots<qhandle_t>?, _ scale: JKAShared.vec3_t) -> Bool {
+public func G2API_GetBoltMatrix(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ boltIndex: Int32, _ matrix: JKAMP.MdxaBone, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNum: Int32, _ modelList: Slots<qhandle_t>?, _ scale: JKAShared.vec3_t) -> Bool {
 //	G2ERROR(ghoul2.IsValid(),"Invalid ghlInfo");
     G2_GenerateWorldMatrix(angles, position)
     if G2_SetupModelPointers(ghoul2) {
@@ -1270,14 +1270,14 @@ func G2API_GetBoltMatrix(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32, _ boltInd
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1903
-func G2API_ListSurfaces(_ ghlInfo: CGhoul2Info?) {
+public func G2API_ListSurfaces(_ ghlInfo: CGhoul2Info?) {
     if G2_SetupModelPointers(ghlInfo) {
         G2_List_Model_Surfaces(String(ghlInfo!.mFileName))
     }
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1911
-func G2API_ListBones(_ ghlInfo: CGhoul2Info?, _ frame: Int32) {
+public func G2API_ListBones(_ ghlInfo: CGhoul2Info?, _ frame: Int32) {
     if G2_SetupModelPointers(ghlInfo) {
         G2_List_Model_Bones(String(ghlInfo!.mFileName), frame)
     }
@@ -1285,7 +1285,7 @@ func G2API_ListBones(_ ghlInfo: CGhoul2Info?, _ frame: Int32) {
 
 // decide if we have Ghoul2 models associated with this ghoul list or not
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1920
-func G2API_HaveWeGhoul2Models(_ ghoul2: CGhoul2Info_v) -> Bool {
+public func G2API_HaveWeGhoul2Models(_ ghoul2: CGhoul2Info_v) -> Bool {
     var i: Int32
     i = 0
     while i < ghoul2.size() {
@@ -1299,7 +1299,7 @@ func G2API_HaveWeGhoul2Models(_ ghoul2: CGhoul2Info_v) -> Bool {
 
 // run through the Ghoul2 models and set each of the mModel values to the correct one from the cgs.gameModel offset lsit
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1937
-func G2API_SetGhoul2ModelIndexes(_ ghoul2: CGhoul2Info_v, _ modelList: Slots<qhandle_t>?, _ skinList: Slots<qhandle_t>?) {
+public func G2API_SetGhoul2ModelIndexes(_ ghoul2: CGhoul2Info_v, _ modelList: Slots<qhandle_t>?, _ skinList: Slots<qhandle_t>?) {
     return
 }
 
@@ -1325,7 +1325,7 @@ public func G2API_GetAnimFileNameIndex(_ modelIndex: JKAShared.qhandle_t) -> Str
 ```
 */
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:1979
-func G2API_GetAnimFileName(_ ghlInfo: CGhoul2Info?, _ filename: inout JKAShared.TextCursor) -> Bool {
+public func G2API_GetAnimFileName(_ ghlInfo: CGhoul2Info?, _ filename: inout JKAShared.TextCursor) -> Bool {
     if G2_SetupModelPointers(ghlInfo) {
         return G2_GetAnimFileName(String(ghlInfo!.mFileName), &filename)
     }
@@ -1378,7 +1378,7 @@ private func G2_NeedRetransform(_ g2: CGhoul2Info?, _ frameNum: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2035
-func G2API_CollisionDetectCache(_ collRecMap: Slots<CollisionRecord>, _ ghoul2: CGhoul2Info_v, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNumber: Int32, _ entNum: Int32, _ rayStart: JKAShared.vec3_t, _ rayEnd: JKAShared.vec3_t, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ traceFlags: Int32, _ useLod: Int32, _ fRadius: Float) {
+public func G2API_CollisionDetectCache(_ collRecMap: Slots<CollisionRecord>, _ ghoul2: CGhoul2Info_v, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNumber: Int32, _ entNum: Int32, _ rayStart: JKAShared.vec3_t, _ rayEnd: JKAShared.vec3_t, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ traceFlags: Int32, _ useLod: Int32, _ fRadius: Float) {
     //this will store off the transformed verts for the next trace - this is slower, but for models that do not animate
     //frequently it is much much faster. -rww
     let test = ghoul2[0].mTransformedVertsArray
@@ -1457,7 +1457,7 @@ func G2API_CollisionDetectCache(_ collRecMap: Slots<CollisionRecord>, _ ghoul2: 
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2124
-func G2API_CollisionDetect(_ collRecMap: Slots<CollisionRecord>, _ ghoul2: CGhoul2Info_v, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNumber: Int32, _ entNum: Int32, _ rayStart: JKAShared.vec3_t, _ rayEnd: JKAShared.vec3_t, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ traceFlags: Int32, _ useLod: Int32, _ fRadius: Float) {
+public func G2API_CollisionDetect(_ collRecMap: Slots<CollisionRecord>, _ ghoul2: CGhoul2Info_v, _ angles: JKAShared.vec3_t, _ position: JKAShared.vec3_t, _ frameNumber: Int32, _ entNum: Int32, _ rayStart: JKAShared.vec3_t, _ rayEnd: JKAShared.vec3_t, _ scale: JKAShared.vec3_t, _ G2VertSpace: CMiniHeap?, _ traceFlags: Int32, _ useLod: Int32, _ fRadius: Float) {
     /*
     if (1)
     {
@@ -1501,7 +1501,7 @@ func G2API_CollisionDetect(_ collRecMap: Slots<CollisionRecord>, _ ghoul2: CGhou
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2175
-func G2API_SetGhoul2ModelFlags(_ ghlInfo: CGhoul2Info?, _ flags: Int32) -> Bool {
+public func G2API_SetGhoul2ModelFlags(_ ghlInfo: CGhoul2Info?, _ flags: Int32) -> Bool {
     if G2_SetupModelPointers(ghlInfo) {
         ghlInfo!.mFlags &= GHOUL2_NEWORIGIN
         ghlInfo!.mFlags |= flags
@@ -1511,7 +1511,7 @@ func G2API_SetGhoul2ModelFlags(_ ghlInfo: CGhoul2Info?, _ flags: Int32) -> Bool 
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2186
-func G2API_GetGhoul2ModelFlags(_ ghlInfo: CGhoul2Info?) -> Int32 {
+public func G2API_GetGhoul2ModelFlags(_ ghlInfo: CGhoul2Info?) -> Int32 {
     if G2_SetupModelPointers(ghlInfo) {
         return (ghlInfo!.mFlags & ~GHOUL2_NEWORIGIN)
     }
@@ -1556,7 +1556,7 @@ public func G2API_GiveMeVectorFromMatrix(_ boltMatrix: JKAMP.MdxaBone, _ flags: 
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2239
-func G2API_CopyGhoul2Instance(_ g2From: CGhoul2Info_v, _ g2To: CGhoul2Info_v, _ modelIndex: Int32) -> Int32 {
+public func G2API_CopyGhoul2Instance(_ g2From: CGhoul2Info_v, _ g2To: CGhoul2Info_v, _ modelIndex: Int32) -> Int32 {
     assert(modelIndex == -1) // copy individual bolted parts is not used in jk2 and I didn't want to deal with it
     // if ya want it, we will add it back correctly
 
@@ -1582,7 +1582,7 @@ func G2API_CopyGhoul2Instance(_ g2From: CGhoul2Info_v, _ g2To: CGhoul2Info_v, _ 
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2282
-func G2API_CopySpecificG2Model(_ ghoul2From: CGhoul2Info_v, _ modelFrom: Int32, _ ghoul2To: CGhoul2Info_v, _ modelTo: Int32) {
+public func G2API_CopySpecificG2Model(_ ghoul2From: CGhoul2Info_v, _ modelFrom: Int32, _ ghoul2To: CGhoul2Info_v, _ modelTo: Int32) {
     // have we real ghoul2 models yet?
     // assume we actually have a model to copy from
     if ghoul2From.size() > modelFrom {
@@ -1606,7 +1606,7 @@ func G2API_CopySpecificG2Model(_ ghoul2From: CGhoul2Info_v, _ modelFrom: Int32, 
 
 // This version will automatically copy everything about this model, and make a new one if necessary.
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2330
-func G2API_DuplicateGhoul2Instance(_ g2From: CGhoul2Info_v, _ g2To: inout CGhoul2Info_v?) {
+public func G2API_DuplicateGhoul2Instance(_ g2From: CGhoul2Info_v, _ g2To: inout CGhoul2Info_v?) {
     var ignore: Int32
 
     if g2To != nil { // This is bad.  We only want to do this if there is not yet a to declared.
@@ -1632,7 +1632,7 @@ func G2API_DuplicateGhoul2Instance(_ g2From: CGhoul2Info_v, _ g2To: inout CGhoul
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2360
-func G2API_GetSurfaceName(_ ghlInfo: CGhoul2Info?, _ surfNumber: Int32) -> String {
+public func G2API_GetSurfaceName(_ ghlInfo: CGhoul2Info?, _ surfNumber: Int32) -> String {
     // Raven returns his static empty buffer `noSurface`, and the String return is a copy of its empty text.
     let noSurface = ""
     if G2_SetupModelPointers(ghlInfo) {
@@ -1666,7 +1666,7 @@ func G2API_GetSurfaceName(_ ghlInfo: CGhoul2Info?, _ surfNumber: Int32) -> Strin
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2403
-func G2API_GetSurfaceIndex(_ ghlInfo: CGhoul2Info?, _ surfaceName: String) -> Int32 {
+public func G2API_GetSurfaceIndex(_ ghlInfo: CGhoul2Info?, _ surfaceName: String) -> Int32 {
     if G2_SetupModelPointers(ghlInfo) {
         return G2_GetSurfaceIndex(ghlInfo, surfaceName)
     }
@@ -1674,7 +1674,7 @@ func G2API_GetSurfaceIndex(_ ghlInfo: CGhoul2Info?, _ surfaceName: String) -> In
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2412
-func G2API_GetGLAName(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32) -> String? {
+public func G2API_GetGLAName(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32) -> String? {
     if G2_SetupModelPointers(ghoul2) {
         if ghoul2.size() > modelIndex {
             //model_t	*mod = R_GetModelByHandle(RE_RegisterModel(ghoul2[modelIndex].mFileName));
@@ -1688,7 +1688,7 @@ func G2API_GetGLAName(_ ghoul2: CGhoul2Info_v, _ modelIndex: Int32) -> String? {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2428
-func G2API_SetNewOrigin(_ ghoul2: CGhoul2Info_v, _ boltIndex: Int32) -> Bool {
+public func G2API_SetNewOrigin(_ ghoul2: CGhoul2Info_v, _ boltIndex: Int32) -> Bool {
     var ghlInfo: CGhoul2Info? = nil
 
     if ghoul2.size() > 0 {
@@ -1718,7 +1718,7 @@ func G2API_SetNewOrigin(_ ghoul2: CGhoul2Info_v, _ boltIndex: Int32) -> Bool {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2463
-func G2API_GetBoneIndex(_ ghlInfo: CGhoul2Info?, _ boneName: String) -> Int32 {
+public func G2API_GetBoneIndex(_ ghlInfo: CGhoul2Info?, _ boneName: String) -> Int32 {
     if G2_SetupModelPointers(ghlInfo) {
         return G2_Get_Bone_Index(ghlInfo, boneName)
     }
@@ -1727,13 +1727,13 @@ func G2API_GetBoneIndex(_ ghlInfo: CGhoul2Info?, _ boneName: String) -> Int32 {
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2472
 // AI: Raven hands a `char **` out-pointer to a zone block. The parameter is the Slots of bytes of that block, the form of a `void **` of kind `bytes`.
-func G2API_SaveGhoul2Models(_ ghoul2: CGhoul2Info_v, _ buffer: inout Slots<JKAShared.byte>?, _ size: inout Int32) -> Bool {
+public func G2API_SaveGhoul2Models(_ ghoul2: CGhoul2Info_v, _ buffer: inout Slots<JKAShared.byte>?, _ size: inout Int32) -> Bool {
     return G2_SaveGhoul2Models(ghoul2, &buffer, &size)
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2477
 // AI: Raven reads a `char *` to the zone block of G2_SaveGhoul2Models. The parameter is the Slots of bytes of that block.
-func G2API_LoadGhoul2Models(_ ghoul2: CGhoul2Info_v, _ buffer: Slots<JKAShared.byte>) {
+public func G2API_LoadGhoul2Models(_ ghoul2: CGhoul2Info_v, _ buffer: Slots<JKAShared.byte>) {
     G2_LoadGhoul2Model(ghoul2, buffer)
 }
 
@@ -1745,7 +1745,7 @@ public func G2API_FreeSaveBuffer(_ buffer: Slots<JKAShared.byte>) {
 // this is kinda sad, but I need to call the destructor in this module (exe), not the game.dll...
 //
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2489
-func G2API_LoadSaveCodeDestructGhoul2Info(_ ghoul2: CGhoul2Info_v) {
+public func G2API_LoadSaveCodeDestructGhoul2Info(_ ghoul2: CGhoul2Info_v) {
 
     G2API_ClearSkinGore(ghoul2)
     // AI: Raven calls the destructor by hand. The body calls clear, whose body is the destructor's one call to Free.
@@ -1754,7 +1754,7 @@ func G2API_LoadSaveCodeDestructGhoul2Info(_ ghoul2: CGhoul2Info_v) {
 
 //see if surfs have any shader info...
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2499
-func G2API_SkinlessModel(_ g2: CGhoul2Info?) -> Bool {
+public func G2API_SkinlessModel(_ g2: CGhoul2Info?) -> Bool {
     if G2_SetupModelPointers(g2) {
         let mod = g2!.currentModel
 
@@ -1785,7 +1785,7 @@ func G2API_SkinlessModel(_ g2: CGhoul2Info?) -> Bool {
 
 //way of seeing how many marks are on a model currently -rww
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2534
-func G2API_GetNumGoreMarks(_ g2: CGhoul2Info?) -> Int32 {
+public func G2API_GetNumGoreMarks(_ g2: CGhoul2Info?) -> Int32 {
     if g2!.mGoreSetTag != 0 {
         let goreSet = FindGoreSet(g2!.mGoreSetTag)
 
@@ -1803,7 +1803,7 @@ func G2API_GetNumGoreMarks(_ g2: CGhoul2Info?) -> Int32 {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2549
-func G2API_ClearSkinGore(_ ghoul2: CGhoul2Info_v) {
+public func G2API_ClearSkinGore(_ ghoul2: CGhoul2Info_v) {
     var i: Int32
 
     i = 0
@@ -1817,12 +1817,12 @@ func G2API_ClearSkinGore(_ ghoul2: CGhoul2Info_v) {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2563
-func G2API_Ghoul2Size(_ ghoul2: CGhoul2Info_v) -> Int32 {
+public func G2API_Ghoul2Size(_ ghoul2: CGhoul2Info_v) -> Int32 {
     return ghoul2.size()
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2569
-func G2API_AddSkinGore(_ ghoul2: CGhoul2Info_v, _ gore: SkinGoreData) {
+public func G2API_AddSkinGore(_ ghoul2: CGhoul2Info_v, _ gore: SkinGoreData) {
     if VectorLength(gore.rayDirection) < 0.1 {
         assert(false) // can't add gore without a shot direction
         return
@@ -1860,7 +1860,7 @@ func G2API_AddSkinGore(_ ghoul2: CGhoul2Info_v, _ gore: SkinGoreData) {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2606
-func G2_TestModelPointers(_ ghlInfo: CGhoul2Info?) -> Bool {
+public func G2_TestModelPointers(_ ghlInfo: CGhoul2Info?) -> Bool {
     guard let ghlInfo else {
         return false
     }
@@ -1908,7 +1908,7 @@ func G2_TestModelPointers(_ ghlInfo: CGhoul2Info?) -> Bool {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2675
-func G2_SetupModelPointers(_ ghlInfo: CGhoul2Info?) -> Bool {
+public func G2_SetupModelPointers(_ ghlInfo: CGhoul2Info?) -> Bool {
     G2PerformanceTimer_G2_SetupModelPointers.Start()
     guard let ghlInfo else {
         return false
@@ -1974,7 +1974,7 @@ func G2_SetupModelPointers(_ ghlInfo: CGhoul2Info?) -> Bool {
 }
 
 /// Source: oracle/codemp/ghoul2/G2_API.cpp:2773
-func G2_SetupModelPointers(_ ghoul2: CGhoul2Info_v) -> Bool { // returns true if any model is properly set up
+public func G2_SetupModelPointers(_ ghoul2: CGhoul2Info_v) -> Bool { // returns true if any model is properly set up
     var ret = false
     var i: Int32 = 0
     while i < ghoul2.size() {

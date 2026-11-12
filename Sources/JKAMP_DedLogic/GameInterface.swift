@@ -5,7 +5,7 @@ import JKAMP_Ded
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:16
 /// Raven's instance, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var iICARUS: ICARUS_Instance? {
+public var iICARUS: ICARUS_Instance? {
     get { world.iICARUS }
     set { world.iICARUS = newValue }
 }
@@ -28,14 +28,14 @@ public typealias bufferlist_t = [String: pscript_t]
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:17
 /// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var ICARUS_BufferList: bufferlist_t {
+public var ICARUS_BufferList: bufferlist_t {
     get { world.ICARUS_BufferList }
     set { world.ICARUS_BufferList = newValue }
 }
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:18
 /// Raven's table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var ICARUS_EntList: entlist_t {
+public var ICARUS_EntList: entlist_t {
     get { world.ICARUS_EntList }
     set { world.ICARUS_EntList = newValue }
 }
@@ -538,7 +538,7 @@ public func ICARUS_InitEnt(_ ent: JKAMP.SharedEntity) {
 }
 
 /// Source: oracle/codemp/icarus/GameInterface.cpp:679
-func ICARUS_LinkEntity(_ entID: Int32, _ sequencer: CSequencer?, _ taskManager: CTaskManager?) -> Int32 {
+public func ICARUS_LinkEntity(_ entID: Int32, _ sequencer: CSequencer?, _ taskManager: CTaskManager?) -> Int32 {
     let ent = SV_GentityNum(entID)
 
     if ent == nil {

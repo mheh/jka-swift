@@ -5,7 +5,7 @@ import JKAMP_Ded
 
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:32
 /// Raven's ICARUS game table, a hand property of `EngineWorld`, by the HAND_VARS ruling.
-var interface_export: interface_export_t {
+public var interface_export: interface_export_t {
     world.interface_export
 }
 
@@ -820,7 +820,7 @@ Interface_Init
 */
 /// Source: oracle/codemp/icarus/Q3_Interface.cpp:956
 // AI: Raven takes `interface_export_t *pe`. The parameter is the optional hand class, the form of `ie` of ICARUS_Instance::Create.
-func Interface_Init(_ pe: interface_export_t?) {
+public func Interface_Init(_ pe: interface_export_t?) {
     //TODO: This is where you link up all your functions to the engine
 
     //General

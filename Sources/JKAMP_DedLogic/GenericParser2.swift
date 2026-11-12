@@ -707,7 +707,7 @@ public final class CGenericParser2 {
 // CGenericParser2 (void *) routines
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:928
 // Port-note: Rule 20. No file of oracle/codemp calls this function.
-func GP_Parse(_ dataPtr: inout JKAShared.TextCursor, _ cleanFirst: Bool, _ writeable: Bool) -> CGenericParser2? {
+public func GP_Parse(_ dataPtr: inout JKAShared.TextCursor, _ cleanFirst: Bool, _ writeable: Bool) -> CGenericParser2? {
     let parse: CGenericParser2
 
     parse = CGenericParser2()
@@ -721,7 +721,7 @@ func GP_Parse(_ dataPtr: inout JKAShared.TextCursor, _ cleanFirst: Bool, _ write
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:942
 // Port-note: Rule 20. No file of oracle/codemp calls this function.
-func GP_Clean(_ GP2: CGenericParser2?) {
+public func GP_Clean(_ GP2: CGenericParser2?) {
     guard let GP2 else {
         return
     }
@@ -731,7 +731,7 @@ func GP_Clean(_ GP2: CGenericParser2?) {
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:952
 // Port-note: Rule 20. No file of oracle/codemp calls this function.
-func GP_Delete(_ GP2: inout CGenericParser2?) {
+public func GP_Delete(_ GP2: inout CGenericParser2?) {
     if GP2 == nil {
         return
     }
@@ -742,7 +742,7 @@ func GP_Delete(_ GP2: inout CGenericParser2?) {
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:963
 // Port-note: Rule 20. No file of oracle/codemp calls this function.
-func GP_GetBaseParseGroup(_ GP2: CGenericParser2?) -> CGPGroup? {
+public func GP_GetBaseParseGroup(_ GP2: CGenericParser2?) -> CGPGroup? {
     guard let GP2 else {
         return nil
     }
@@ -753,7 +753,7 @@ func GP_GetBaseParseGroup(_ GP2: CGenericParser2?) -> CGPGroup? {
 // CGPGroup (void *) routines
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:977
 // Port-note: Rule 20. No file of oracle/codemp calls this function.
-func GPG_GetName(_ GPG: CGPGroup?) -> String {
+public func GPG_GetName(_ GPG: CGPGroup?) -> String {
     guard let GPG else {
         return ""
     }
@@ -763,7 +763,7 @@ func GPG_GetName(_ GPG: CGPGroup?) -> String {
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:987
 // Port-note: Rule 20. No file of oracle/codemp calls this function.
-func GPG_GetName(_ GPG: CGPGroup?, _ Value: inout JKAShared.CharBuf) -> Bool {
+public func GPG_GetName(_ GPG: CGPGroup?, _ Value: inout JKAShared.CharBuf) -> Bool {
     guard let GPG else {
         Value[0] = 0
         return false
@@ -775,7 +775,7 @@ func GPG_GetName(_ GPG: CGPGroup?, _ Value: inout JKAShared.CharBuf) -> Bool {
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:999
 // Port-note: Rule 20. No file of oracle/codemp calls this function.
-func GPG_GetNext(_ GPG: CGPGroup?) -> CGPGroup? {
+public func GPG_GetNext(_ GPG: CGPGroup?) -> CGPGroup? {
     guard let GPG else {
         return nil
     }
@@ -785,7 +785,7 @@ func GPG_GetNext(_ GPG: CGPGroup?) -> CGPGroup? {
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1009
 // Port-note: Rule 20. No file of oracle/codemp calls this function.
-func GPG_GetInOrderNext(_ GPG: CGPGroup?) -> CGPGroup? {
+public func GPG_GetInOrderNext(_ GPG: CGPGroup?) -> CGPGroup? {
     guard let GPG else {
         return nil
     }
@@ -795,7 +795,7 @@ func GPG_GetInOrderNext(_ GPG: CGPGroup?) -> CGPGroup? {
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1019
 // Port-note: Rule 20. No file of oracle/codemp calls this function.
-func GPG_GetInOrderPrevious(_ GPG: CGPGroup?) -> CGPGroup? {
+public func GPG_GetInOrderPrevious(_ GPG: CGPGroup?) -> CGPGroup? {
     guard let GPG else {
         return nil
     }
@@ -813,7 +813,7 @@ func GPG_GetInOrderPrevious(_ GPG: CGPGroup?) -> CGPGroup? {
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1049
 // Port-note: Rule 20. No file of oracle/codemp calls this function.
-func GPG_GetSubGroups(_ GPG: CGPGroup?) -> CGPGroup? {
+public func GPG_GetSubGroups(_ GPG: CGPGroup?) -> CGPGroup? {
     guard let GPG else {
         return nil
     }
@@ -823,7 +823,7 @@ func GPG_GetSubGroups(_ GPG: CGPGroup?) -> CGPGroup? {
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1059
 // Port-note: Rule 20. No file of oracle/codemp calls this function.
-func GPG_GetInOrderSubGroups(_ GPG: CGPGroup?) -> CGPGroup? {
+public func GPG_GetInOrderSubGroups(_ GPG: CGPGroup?) -> CGPGroup? {
     guard let GPG else {
         return nil
     }
@@ -833,7 +833,7 @@ func GPG_GetInOrderSubGroups(_ GPG: CGPGroup?) -> CGPGroup? {
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1069
 // Port-note: Rule 20. No file of oracle/codemp calls this function.
-func GPG_FindSubGroup(_ GPG: CGPGroup?, _ name: String) -> CGPGroup? {
+public func GPG_FindSubGroup(_ GPG: CGPGroup?, _ name: String) -> CGPGroup? {
     guard let GPG else {
         return nil
     }
@@ -843,7 +843,7 @@ func GPG_FindSubGroup(_ GPG: CGPGroup?, _ name: String) -> CGPGroup? {
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1079
 // Port-note: Rule 20. No file of oracle/codemp calls this function.
-func GPG_FindPair(_ GPG: CGPGroup?, _ key: String) -> CGPValue? {
+public func GPG_FindPair(_ GPG: CGPGroup?, _ key: String) -> CGPValue? {
     guard let GPG else {
         return nil
     }
@@ -853,7 +853,7 @@ func GPG_FindPair(_ GPG: CGPGroup?, _ key: String) -> CGPValue? {
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1089
 // Port-note: Rule 20. No file of oracle/codemp calls this function.
-func GPG_FindPairValue(_ GPG: CGPGroup?, _ key: String, _ defaultVal: String) -> String? {
+public func GPG_FindPairValue(_ GPG: CGPGroup?, _ key: String, _ defaultVal: String) -> String? {
     guard let GPG else {
         return defaultVal
     }
@@ -863,7 +863,7 @@ func GPG_FindPairValue(_ GPG: CGPGroup?, _ key: String, _ defaultVal: String) ->
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1099
 // Port-note: Rule 20. No file of oracle/codemp calls this function.
-func GPG_FindPairValue(_ GPG: CGPGroup?, _ key: String, _ defaultVal: String, _ Value: inout JKAShared.CharBuf) -> Bool {
+public func GPG_FindPairValue(_ GPG: CGPGroup?, _ key: String, _ defaultVal: String, _ Value: inout JKAShared.CharBuf) -> Bool {
     // Port-note: Rule 19. Raven's strcpy reads through NULL when the pair holds an empty list, so the unwrap traps there.
     strcpy(&Value, GPG_FindPairValue(GPG, key, defaultVal)!)
 
@@ -873,7 +873,7 @@ func GPG_FindPairValue(_ GPG: CGPGroup?, _ key: String, _ defaultVal: String, _ 
 // CGPValue (void *) routines
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1110
 // Port-note: Rule 20. No file of oracle/codemp calls this function.
-func GPV_GetName(_ GPV: CGPValue?) -> String {
+public func GPV_GetName(_ GPV: CGPValue?) -> String {
     guard let GPV else {
         return ""
     }
@@ -883,7 +883,7 @@ func GPV_GetName(_ GPV: CGPValue?) -> String {
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1120
 // Port-note: Rule 20. No file of oracle/codemp calls this function.
-func GPV_GetName(_ GPV: CGPValue?, _ Value: inout JKAShared.CharBuf) -> Bool {
+public func GPV_GetName(_ GPV: CGPValue?, _ Value: inout JKAShared.CharBuf) -> Bool {
     guard let GPV else {
         Value[0] = 0
         return false
@@ -907,7 +907,7 @@ func GPV_GetName(_ GPV: CGPValue?, _ Value: inout JKAShared.CharBuf) -> Bool {
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1162
 // Port-note: Rule 20. No file of oracle/codemp calls this function.
-func GPV_IsList(_ GPV: CGPValue?) -> Bool {
+public func GPV_IsList(_ GPV: CGPValue?) -> Bool {
     guard let GPV else {
         return false
     }
@@ -917,7 +917,7 @@ func GPV_IsList(_ GPV: CGPValue?) -> Bool {
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1172
 // Port-note: Rule 20. No file of oracle/codemp calls this function.
-func GPV_GetTopValue(_ GPV: CGPValue?) -> String? {
+public func GPV_GetTopValue(_ GPV: CGPValue?) -> String? {
     guard let GPV else {
         return ""
     }
@@ -927,7 +927,7 @@ func GPV_GetTopValue(_ GPV: CGPValue?) -> String? {
 
 /// Source: oracle/codemp/qcommon/GenericParser2.cpp:1182
 // Port-note: Rule 20. No file of oracle/codemp calls this function.
-func GPV_GetTopValue(_ GPV: CGPValue?, _ Value: inout JKAShared.CharBuf) -> Bool {
+public func GPV_GetTopValue(_ GPV: CGPValue?, _ Value: inout JKAShared.CharBuf) -> Bool {
     guard let GPV else {
         Value[0] = 0
         return false

@@ -777,7 +777,7 @@ public func CM_TraceThroughTerrain(_ tw: TraceWork, _ trace: JKAMP.Trace, _ brus
 }
 
 /// Source: oracle/codemp/qcommon/cm_trace.cpp:914
-func CM_HandlePatchCollision(_ tw: TraceWork, _ trace: JKAMP.Trace, _ tStart: JKAShared.vec3_t, _ tEnd: JKAShared.vec3_t, _ patch: CCMPatch?, _ checkcount: Int32) {
+public func CM_HandlePatchCollision(_ tw: TraceWork, _ trace: JKAMP.Trace, _ tStart: JKAShared.vec3_t, _ tEnd: JKAShared.vec3_t, _ patch: CCMPatch?, _ checkcount: Int32) {
     var numBrushes: Int32
     var i: Int32
     var brush: Slots<Cbrush>?
