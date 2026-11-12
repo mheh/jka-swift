@@ -12,7 +12,9 @@ struct ServerCommandSuite {
         // given
         world = EngineWorld()
 
-        Client.scratch { client in
+        // A client_t does not fit on the stack of a test task, so the record is the heap form of the scratch.
+        Client.scratch(count: 1) { clients in
+            let client = clients[0]
             SV_AddServerCommand(client, String(repeating: "x", count: 100))
             let old = charBuf(at: client.reliableCommands.slot(at: 1).base, capacity: Int(MAX_STRING_CHARS))
             #expect(old[1] as UInt8 == UInt8(ascii: "x"))
