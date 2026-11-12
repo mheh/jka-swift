@@ -43,6 +43,7 @@ let package = Package(
         .target(name: "JKAMP", dependencies: ["JKAShared", "CJKAMP"]),
         .target(name: "JKAMP_Game", dependencies: ["JKAMP", "CJKAMP_Game"]),
         .target(name: "JKAMP_CGame", dependencies: ["JKAMP", "CJKAMP_CGame"]),
+        .target(name: "JKAMP_UI", dependencies: ["JKAMP", "CJKAMP_UI"]),
         .target(name: "JKAMP_Ded", dependencies: ["JKAMP", "CJKAMP_Ded", "JKAZlib"]),
         .target(name: "JKAZlib", dependencies: ["CJKAZlib"]),
 
