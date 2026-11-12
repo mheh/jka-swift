@@ -16,7 +16,7 @@ Rules for converting Raven's C and C++ under `oracle/` into Swift. The rules wer
 
 <!-- The list starts again here, so that the next rule keeps its number. -->
 
-25. **Access follows Raven's linkage.** A function that Raven declares without `static` is `public` in its logic target or in `JKAMP_BG`, and a `static` function stays `private`. A global that Raven declares without `static` is `public`, and it is a `var` where Raven wrote no `const`. Each world, each storage, and each state singleton is `public` too, so a fork can add a target that reaches the engine through them. The port adds no hook table and no replace point. This repository holds no mailbox, task, actor, lock, or queue.
+25. **Access follows Raven's linkage.** A function that Raven declares without `static` is `public` in its logic target or in `JKAMP_BG`, and a `static` function stays `private`. A global that Raven declares without `static` is `public`, and it is a `var` where Raven wrote no `const`, or a `let` when no line that the product compiles writes it. Each world, each storage, and each state singleton is `public` too, so a fork can add a target that reaches the engine through them. The port adds no hook table and no replace point. This repository holds no mailbox, task, actor, lock, or queue.
 
 ## C. C to Swift idiom translation
 

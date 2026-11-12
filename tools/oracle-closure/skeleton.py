@@ -966,12 +966,12 @@ class Skeleton:
         return literal
 
     def variable_access(self, var: Variable) -> str:
-        """Raven's linkage gives the access: a global he declares without `static` is public, and a `var` where he wrote no `const`.
-        A file-scope `let` of a global with no `const` cannot be a `var`, because rule 6 allows no other static, so it keeps its access."""
+        """Raven's linkage gives the access: a global he declares without `static` is public.
+        It is a `var` where he wrote no `const`, or a `let` when no line that the product compiles writes it."""
         # A global the shell's `vmMain` reads is public by ruling E1, `g_entities` and `gSharedBuffer`.
         if not var.shared and var.name in PUBLIC_NAMES:
             return "public "
-        if not var.linked or (var.kind == "let" and not var.const):
+        if not var.linked:
             return var.access
         # A forward whose type is internal to its target cannot be public, `theROFFSystem` of the hand class `CROFFSystem`.
         if self.names_internal(var.swift or HAND_VARS.get(var.name) or "", target_of(var.stem)):
@@ -1287,8 +1287,8 @@ class Skeleton:
         return names
 
     @staticmethod
-    def declaration_block(lines: list[str], i: int) -> tuple[str, str]:
-        """The head of the declaration at line `i` through its `{` or `=`, and the body through the brace at column 0 that closes it."""
+    def declaration_head(lines: list[str], i: int) -> str:
+        """The head of the declaration at line `i` through its `{` or `=`."""
         head: list[str] = []
         j = i
         # A function head runs to the brace of its body over the lines of its parameters, and a variable head is one line.
@@ -1298,30 +1298,17 @@ class Skeleton:
             if not function or lines[j].rstrip().endswith("{"):
                 break
             j += 1
-        j = min(j, len(lines) - 1)
-        text = " ".join(head)
-        if not lines[j].rstrip().endswith("{"):
-            return text, text
-        k = j + 1
-        while k < len(lines) and lines[k] != "}":
-            k += 1
-        return text, "\n".join(lines[i:k + 1])
+        return " ".join(head)
 
     def kept(self, var: Variable | None, lines: list[str], i: int, internal: set[str]) -> str | None:
         """Why the declaration at line `i` keeps its access, or None when it takes `public`."""
-        head, block = self.declaration_block(lines, i)
+        head = self.declaration_head(lines, i)
         # A parameter label is a name and not a type, so the scan drops each word before a colon.
         signature = re.sub(r"\b\w+\s*:", " ", head.split("=", 1)[0] if var is not None else head)
         types = sorted(set(re.findall(r"\b[A-Za-z_]\w*\b", signature)) & internal)
         if types:
             return f"its declaration names the internal type {', '.join(types)}"
-        if var is None or var.const:
-            return None
-        if re.match(r"(?:nonisolated\(unsafe\) )?let ", lines[i]):
-            return "Raven declares it without `const`, and a file-scope `let` cannot be a `var` under rule 6"
-        # A forward over C storage or over a hand class returns a reference, so a body writes through it with no setter.
-        if var.kind not in ("storage", "pointer_table", "byte_storage", "hand") and "{" in head and not re.search(r"\bset\b", block):
-            return "Raven declares it without `const`, and its forward has no setter"
+        # A `let` and a get-only forward of a global with no `const` take `public` too, because no line that the product compiles writes it.
         return None
 
     def publish(self) -> tuple[int, list[str]]:
