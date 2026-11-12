@@ -195,6 +195,39 @@ CGAME_ROOTS = {
     "ragCallbackBoneSnap_t": ("RagCallbackBoneSnap", "CJKAMP_CGame"),
 }
 
+# The records the ui reads, rows 8 and 9 of notes/2026-11-11/walk-7-ledger.md, in the order and the shape of CGAME_ROOTS.
+UI_ROOTS = {
+    # The row the game holds for a struct of JKAMP comes first, with the game's view name and target, so the units write one view file.
+    "vmCvar_t": ("VmCvar", "CJKAMP"),
+    # The ui's state: Raven's `uiInfo` of ui_main.c:875.
+    "uiInfo_t": ("UiInfo", "CJKAMP_UI"),
+    # Raven defines these inside ui_main.c, and ui_types.h carries them into the ui target.
+    # The ui's cvarTable_t has the fields of the cgame's, and the two views live in two modules no target imports together.
+    "datpadmovedata_t": ("Datpadmovedata", "CJKAMP_UI"),
+    "serverStatusCvar_t": ("ServerStatusCvar", "CJKAMP_UI"),
+    "cvarTable_t": ("CvarTable", "CJKAMP_UI"),
+    # The rows of CGAME_ROOTS for the records of ui_shared.c, with the ui target in place of the cgame target.
+    # Item_StartCapture of ui_shared.c fills `scrollInfo` and hands its address to the five Scroll functions through `captureData`.
+    "scrollInfo_t": ("ScrollInfo", "CJKAMP_UI"),
+    # The C tables g_bindings and itemFlags of ui_shared.c hold these rows.
+    "bind_t": ("Bind", "CJKAMP_UI"),
+    "itemFlagsDef_t": ("ItemFlagsDef", "CJKAMP_UI"),
+    # The file-scope table `strHandle` of ui_shared.c holds pointers to these, one hash chain of interned texts per bucket.
+    "stringDef_t": ("StringDef", "CJKAMP_UI"),
+    # The file-scope list head `ui_G2PtrTracker` of ui_shared.c points at these, one record per Ghoul2 instance the UI holds.
+    "uiG2PtrTracker_t": ("UiG2PtrTracker", "CJKAMP_UI"),
+    "itemDef_t": ("ItemDef", "CJKAMP_UI"),
+    "menuDef_t": ("MenuDef", "CJKAMP_UI"),
+    "cachedAssets_t": ("CachedAssets", "CJKAMP_UI"),
+    # Item_ValidateTypeData of ui_shared.c allocates one of these into the `void *typeData` of an item by its type, and the bodies cast it back.
+    # No root field points at them, because the field is a `void *`.
+    "listBoxDef_t": ("ListBoxDef", "CJKAMP_UI"),
+    "multiDef_t": ("MultiDef", "CJKAMP_UI"),
+    "textScrollDef_t": ("TextScrollDef", "CJKAMP_UI"),
+    "editFieldDef_t": ("EditFieldDef", "CJKAMP"),
+    "modelDef_t": ("ModelDef", "CJKAMP"),
+}
+
 # The records the dedicated server reads, row E4 of notes/2026-11-03/dedicated-opening-docket.md and row T5 of its stage 1 tools record.
 HOST_ROOTS = {
     # The rows the game holds for a struct of JKAMP come first, with the game's view name and target.
@@ -473,7 +506,7 @@ HOST_ROOTS = {
     "TGAHeader_t": ("TGAHeader", "CJKAMP_Ded"),
 }
 
-ROOTS = {"mp-game": GAME_ROOTS, "mp-cgame": CGAME_ROOTS, "mp-engine-ded": HOST_ROOTS}
+ROOTS = {"mp-game": GAME_ROOTS, "mp-cgame": CGAME_ROOTS, "mp-ui": UI_ROOTS, "mp-engine-ded": HOST_ROOTS}
 
 # (struct, field) pairs whose pointer Raven's callers always set. The field is non-optional, and its getter traps with the
 # field's name when the pointer is NULL, the one divergence rule 19 allows. See "A pointer field Raven's callers always set".
