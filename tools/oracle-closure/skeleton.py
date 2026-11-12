@@ -1684,9 +1684,13 @@ class Skeleton:
 
     def variable_signature(self, var: Variable) -> dict[str, str | None]:
         """The signature row of one file-scope variable. Its text is the stub's last line for the variable:
-        the `let`, the rule 3 line, the storage line, or the reason."""
+        the `let`, the rule 3 line, the storage line, or the reason.
+        The text of a forward with a get and set block is the head line of the block, because its last line is the closing brace."""
         entry = self.variable_entry(var, count=False)
-        return {"file": C.file_name(var.stem), "name": var.name, "kind": "variable", "target": target_of(var.stem), "text": entry[-1],
+        text = entry[-1]
+        if text == "}":
+            text = next(line for line in reversed(entry) if line.endswith(" {") and not line.startswith((" ", "/")))
+        return {"file": C.file_name(var.stem), "name": var.name, "kind": "variable", "target": target_of(var.stem), "text": text,
                 "forward": None, "reason": None, "source": f"oracle/{C.folder_of(var.stem)}/{C.file_name(var.stem)}:{var.line}", "destination": "", "state": var.kind, "peer": ""}
 
     def signature_rows(self, stem: str) -> tuple[list[dict[str, str | None]], list[dict[str, str | None]]]:

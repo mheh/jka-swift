@@ -164,6 +164,41 @@ class KeptDeclarations(unittest.TestCase):
                 self.assertEqual(self.gen.internal_types("JKAMP_GameLogic"), {"SpawnRow", "Inner", "Host"})
 
 
+class VariableRowText(unittest.TestCase):
+    def setUp(self) -> None:
+        self.patch = mock.patch.object(Variable, "kind", property(lambda var: var.kind_override))
+        self.patch.start()
+
+    def tearDown(self) -> None:
+        self.patch.stop()
+
+    def test_the_row_of_a_forward_with_a_get_and_set_block_is_its_head_line(self) -> None:
+        # given the forward of `numbots` of ai_main.c, a get and set block over the variables struct
+        gen = generator()
+        var = variable("numbots")
+        var.line = 48
+        entry = ["/// Source: oracle/codemp/game/ai_main.c:48",
+                 "public var numbots: Int32 {",
+                 "    get { world.variables.numbots }",
+                 "    set { world.variables.numbots = newValue }",
+                 "}"]
+
+        # when the row reads the entry
+        with mock.patch.object(Skeleton, "variable_entry", lambda self, var, count=True: entry):
+            row = gen.variable_signature(var)
+
+        # then the text is the head line and not the closing brace
+        self.assertEqual(row["text"], "public var numbots: Int32 {")
+
+    def test_the_row_of_a_one_line_entry_is_its_last_line(self) -> None:
+        gen = generator()
+        var = variable("floattime", kind="let")
+        var.line = 12
+        entry = ["/// Source: oracle/codemp/game/g_main.c:12", "// Raven wrote: float floattime", "public let floattime: Float = 0"]
+        with mock.patch.object(Skeleton, "variable_entry", lambda self, var, count=True: entry):
+            self.assertEqual(gen.variable_signature(var)["text"], "public let floattime: Float = 0")
+
+
 class PerModuleInclude(unittest.TestCase):
     def setUp(self) -> None:
         self.out = merge.Output(Path("unused"))
