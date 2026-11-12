@@ -14,6 +14,7 @@ let package = Package(
         .library(name: "JKAMP_BG", targets: ["JKAMP_BG", "JKAMP", "JKAShared"]),
         .library(name: "JKAMP_GameLogic", targets: ["JKAMP_GameLogic", "JKAMP_BG", "JKAMP_Game", "JKAMP", "JKAShared"]),
         .library(name: "JKAMP_CGameLogic", targets: ["JKAMP_CGameLogic", "JKAMP_BG", "JKAMP_CGame", "JKAMP", "JKAShared"]),
+        .library(name: "JKAMP_UILogic", targets: ["JKAMP_UILogic", "JKAMP_BG", "JKAMP_UI", "JKAMP", "JKAShared"]),
         .library(name: "JKAMP_DedLogic", targets: ["JKAMP_DedLogic", "JKAMP_Ded", "JKAMP", "JKAShared"]),
         .library(name: "JKAMP_GameShell", targets: ["jampgame"]),
         .library(name: "JKAMP_DedShell", targets: ["CJKAHost"]),
@@ -51,6 +52,7 @@ let package = Package(
         .target(name: "JKAMP_BG", dependencies: ["JKAMP"], swiftSettings: implicitDynamic),
         .target(name: "JKAMP_GameLogic", dependencies: ["JKAMP_Game", "JKAMP_BG"], swiftSettings: implicitDynamic),
         .target(name: "JKAMP_CGameLogic", dependencies: ["JKAMP_CGame", "JKAMP_BG"]),
+        .target(name: "JKAMP_UILogic", dependencies: ["JKAMP_UI", "JKAMP_BG"]),
         .target(name: "JKAMP_DedLogic", dependencies: ["JKAMP_Ded"], swiftSettings: implicitDynamic),
 
         // MARK: - Shell, the product
