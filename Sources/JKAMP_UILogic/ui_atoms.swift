@@ -120,8 +120,14 @@ public func UI_LoadBestScores(_ map: String, _ game: Int32) {
     PostGameInfo.scratch { newInfo in
         Com_sprintf(&fileName, MAX_QPATH, "games/%s_%i.game", map, game)
         if trap_FS_FOpenFile(String(fileName), &f, FS_READ) >= 0 {
-            // Port-note: The ui trap_FS_Read takes no address of an int local or of a record, so Raven's raw reads of `size` and `newInfo` are not ported.
-            portMissing("UI_LoadBestScores", source: "oracle/codemp/ui/ui_atoms.c:126")
+            var size: Int32 = 0
+            // AI: Raven reads `size` through its address. The read fills a CharBuf of its bytes, and the body takes the value from it.
+            var sizeBytes = CharBuf(Int32.byteCount)
+            trap_FS_Read(&sizeBytes, Int32(Int32.byteCount), f)
+            size = sizeBytes.withSlots { $0[int: 0] }
+            if size == Int32(PostGameInfo.byteCount) {
+                trap_FS_Read(newInfo.handle, Int32(PostGameInfo.byteCount), f)
+            }
             trap_FS_FCloseFile(f)
         }
         UI_SetBestScores(newInfo, false)
@@ -167,8 +173,11 @@ public func UI_ClearScores() {
             while i < count {
                 len = strlen(gameFile.text)
                 if trap_FS_FOpenFile(va("games/%s", gameFile.text), &f, FS_WRITE) >= 0 {
-                    // Port-note: The ui trap_FS_Write takes no address of an int local or of a record, so Raven's raw writes of `size` and `newInfo` are not ported.
-                    portMissing("UI_ClearScores", source: "oracle/codemp/ui/ui_atoms.c:164")
+                    // AI: Raven writes `size` through its address. The value goes into a CharBuf of its bytes, and the CharBuf is written.
+                    var sizeBytes = CharBuf(Int32.byteCount)
+                    sizeBytes.withMutableSlots { $0[int: 0] = size }
+                    trap_FS_Write(&sizeBytes, Int32(Int32.byteCount), f)
+                    trap_FS_Write(newInfo.handle, size, f)
                     trap_FS_FCloseFile(f)
                 }
                 gameFile.advance(by: len + 1)
@@ -229,8 +238,13 @@ private func UI_CalcPostGameStats() {
             if trap_FS_FOpenFile(String(fileName), &f, FS_READ) >= 0 {
                 // if so load it
                 size = 0
-                // Port-note: The ui trap_FS_Read takes no address of an int local or of a record, so Raven's raw reads of `size` and `oldInfo` are not ported.
-                portMissing("UI_CalcPostGameStats", source: "oracle/codemp/ui/ui_atoms.c:215")
+                // AI: Raven reads `size` through its address. The read fills a CharBuf of its bytes, and the body takes the value from it.
+                var sizeBytes = CharBuf(Int32.byteCount)
+                trap_FS_Read(&sizeBytes, Int32(Int32.byteCount), f)
+                size = sizeBytes.withSlots { $0[int: 0] }
+                if size == Int32(PostGameInfo.byteCount) {
+                    trap_FS_Read(oldInfo.handle, Int32(PostGameInfo.byteCount), f)
+                }
                 trap_FS_FCloseFile(f)
             }
 
@@ -276,8 +290,11 @@ private func UI_CalcPostGameStats() {
                 uiInfo.newHighScoreTime = uiInfo.uiDC.realTime + 20000
                 if trap_FS_FOpenFile(String(fileName), &f, FS_WRITE) >= 0 {
                     size = Int32(PostGameInfo.byteCount)
-                    // Port-note: The ui trap_FS_Write takes no address of an int local or of a record, so Raven's raw writes of `size` and `newInfo` are not ported.
-                    portMissing("UI_CalcPostGameStats", source: "oracle/codemp/ui/ui_atoms.c:264")
+                    // AI: Raven writes `size` through its address. The value goes into a CharBuf of its bytes, and the CharBuf is written.
+                    var sizeBytes = CharBuf(Int32.byteCount)
+                    sizeBytes.withMutableSlots { $0[int: 0] = size }
+                    trap_FS_Write(&sizeBytes, Int32(Int32.byteCount), f)
+                    trap_FS_Write(newInfo.handle, Int32(PostGameInfo.byteCount), f)
                     trap_FS_FCloseFile(f)
                 }
             }
@@ -407,10 +424,11 @@ public func UI_Shutdown() {
 }
 
 /// Source: oracle/codemp/ui/ui_atoms.c:393
-// Port-note: The ui stub of trap_R_RegisterShaderNoMip takes no shader name, so this body waits for the signature of that trap.
 public func UI_DrawNamedPic(_ x: Float, _ y: Float, _ width: Float, _ height: Float, _ picname: String) {
-    // TODO: Port UI_DrawNamedPic
-    portMissing("UI_DrawNamedPic", source: "oracle/codemp/ui/ui_atoms.c:393")
+    let hShader: JKAShared.qhandle_t
+
+    hShader = trap_R_RegisterShaderNoMip(picname)
+    trap_R_DrawStretchPic(x, y, width, height, 0, 0, 1, 1, hShader)
 }
 
 /// Source: oracle/codemp/ui/ui_atoms.c:400
