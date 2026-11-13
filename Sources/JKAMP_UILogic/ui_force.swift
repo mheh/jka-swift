@@ -635,8 +635,6 @@ public func UI_ReadLegalForce() {
 
 /// Source: oracle/codemp/ui/ui_force.c:631
 public func UI_UpdateForcePowers() {
-    // Port-note: Raven walks the static buffer of `UI_Cvar_VariableString`, and his walk reads the byte past the NUL, a stale byte.
-    // The port copies the text into a zeroed buffer of that size, so the byte past the NUL is 0.
     var forcePowers = CharBuf(MAX_STRING_CHARS)
     strcpy(&forcePowers, UI_Cvar_VariableString("forcepowers"))
     var readBuf = CharBuf(256)
@@ -649,6 +647,8 @@ public func UI_UpdateForcePowers() {
     // Port-note: Raven's `goto validitycheck` is a `break` out of the labeled block `validitycheck` here.
     validitycheck: do {
         if forcePowers[0] != 0 {
+            // Port-note: Raven reads index 1024, past his 1024-byte buffer, when the text is 1023 bytes and the last power ends at its NUL.
+            // The step after the power loop sets `i` to 1024 there, and the CharBuf subscript traps at this read.
             while forcePowers[i] != 0 {
                 i_r = 0
 
