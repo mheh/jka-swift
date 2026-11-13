@@ -599,7 +599,7 @@ func target_location_linkup(_ ent: Entity) {
         if g_entities[entIndex].classname != nil && Q_stricmp(g_entities[entIndex].classname!, "target_location") == 0 {
             // lets overload some variables!
             g_entities[entIndex].health = n // use for location marking
-            trap_SetConfigstring(CS_LOCATIONS + n, g_entities[entIndex].message!)
+            trap_SetConfigstring(CS_LOCATIONS + n, g_entities[entIndex].message ?? "")
             n += 1
             g_entities[entIndex].nextTrain = level.locationHead
             level.locationHead = g_entities[entIndex]
@@ -952,7 +952,7 @@ public func SP_target_level_change(_ `self`: Entity) {
 /// Source: oracle/codemp/game/g_target.c:972
 public func target_play_music_use(_ `self`: Entity, _ other: Entity, _ activator: Entity) {
     G_ActivateBehavior(`self`, BSET_USE)
-    trap_SetConfigstring(CS_MUSIC, `self`.message!)
+    trap_SetConfigstring(CS_MUSIC, `self`.message ?? "")
 }
 
 /**
