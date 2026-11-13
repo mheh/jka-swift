@@ -30,11 +30,14 @@ A transcriptor reads exactly this set, and nothing else:
 
 The lookup tool is `tools/oracle-closure/lookup.py`, the only command a transcriptor runs from the repository root.
 
-- `python3 tools/oracle-closure/lookup.py <C type>` gives the Swift view and every field.
-- `python3 tools/oracle-closure/lookup.py <C type> <field>` gives one field.
-- `python3 tools/oracle-closure/lookup.py <typedef or enum>` gives a scalar or enum spelling.
-- `python3 tools/oracle-closure/lookup.py fn <name>` gives a function's manifest row, with its oracle range, its Swift stub line, and its state.
-- `python3 tools/oracle-closure/lookup.py sig <name>` gives the signature the table gives the function today. An adopted file keeps its old stub line, so a second pass takes the parameter list from this command and not from the file.
+- `tools/oracle-closure/.venv/bin/python tools/oracle-closure/lookup.py <C type>` gives the Swift view and every field.
+- `tools/oracle-closure/.venv/bin/python tools/oracle-closure/lookup.py <C type> <field>` gives one field.
+- `tools/oracle-closure/.venv/bin/python tools/oracle-closure/lookup.py <typedef or enum>` gives a scalar or enum spelling.
+- `tools/oracle-closure/.venv/bin/python tools/oracle-closure/lookup.py fn <name>` gives a function's manifest row, with its oracle range, its Swift stub line, and its state.
+- `tools/oracle-closure/.venv/bin/python tools/oracle-closure/lookup.py sig <name>` gives the signature the table gives the function today. An adopted file keeps its old stub line, so a second pass takes the parameter list from this command and not from the file.
+
+A unit that is not the game takes `--unit <unit>` after the script name, for example `--unit mp-ui`, and the answer for a type comes from the stones of that unit.
+A body worktree is prepared with `tools/worktree-setup.sh --tools`, which links the Python environment of the main tree.
 
 Unknown types become Port-notes.
 A reviewer reads the same set, plus the jka-rust range from the manifest.
@@ -253,7 +256,7 @@ When Raven writes into a slot with room past the text, the buffer takes the size
 So `Info_SetValueForKey( g_arenaInfos[n], "num", va( "%i", n ) )` of `G_LoadArenas` reads `var info = CharBuf(strlen(g_arenaInfos[n]) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1)`, `strcpy(&info, g_arenaInfos[n])`, `Info_SetValueForKey(&info, "num", va("%i", n))`, and `g_arenaInfos[n] = String(info)`, with the sum `G_ParseInfos` hands to `G_Alloc` for the slot.
 Where Raven stores the result of `UI_Alloc` in a `char *` slot that Swift holds as a `String` and then tests the slot, `infos[count]` of `UI_ParseInfos`, the body tests the result of the call, `if UI_Alloc(...) != nil { ... }`, and the store of the text and the count go under the test.
 A `char *` parameter the NULL sweep reaches, at a direct `NULL` or one hop on, crosses as a `String?`, the caller passes `nil` for `NULL`, and the body keeps Raven's test with both arms, `if locMsg != nil { ... } else { ... }` of `G_SayTo`.
-In a unit of `TEXT_NULL_UNITS`, the ui, the rule holds for a `const char *` too, and the sweep also reaches a parameter through a `String?` slot of an array of `char *` and a call of a function that returns `NULL` on one path, such as `String_Alloc`. It also reaches each function that passes the parameter on, so `saberName` of `UI_SaberParseParm` and of each `UI_Saber` function that hands it on is `String?`, and the body keeps Raven's test `if ( !saberName || !saberName[0] )`.
+In a unit of `TEXT_NULL_UNITS`, the ui, the rule holds for a `const char *` too, and the sweep also reaches a parameter through a `String?` slot of an array of `char *` and a call of a function that returns `NULL` on one path, such as `String_Alloc`. A text that can be NULL reaches three functions: `UI_SaberProperNameForSaber` from the hilt slots (`oracle/codemp/ui/ui_main.c:8793`, `:8799`), `UI_SaberValidForPlayerInMP` from the result of `String_Alloc` (`oracle/codemp/ui/ui_saber.c:1099-1109`), and `UI_SaberParseParm`, which those two call. Each of the three takes `saberName` as `String?`, and the body keeps Raven's test `if ( !saberName || !saberName[0] )`. A `UI_Saber` function that gets only a buffer from its callers, such as `UI_SaberTypeForSaber`, keeps `String`.
 A body with an `inout CharBuf` parameter writes as Raven wrote, `powerOut[i] = readBuf[0]`, and `Q_strncpyz(_ dest: inout CharBuf, _ src: String, _ destsize: Int32)` ports line for line.
 `BG_ParseField` takes `UnsafeMutableRawPointer` for `byte *ent` and `Slots<BgField>` for the field table, and writes through the labeled subscript of the section on typed access at a byte offset. The caller passes the entity's handle turned raw, with a one-line comment that names rule 11.
 A body with an `inout vec3_t` parameter such as `colors` drops the `&& colors` half of Raven's guard, with no comment and no marker.
