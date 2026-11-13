@@ -100,6 +100,8 @@ class Facts:
     fills_array: bool = False
     # True when the body stores NULL into a slot of the array of `char *`, `singleHilts[numSingleHilts] = NULL`, so the element is `String?`.
     null_slots: bool = False
+    # True when a text that can be NULL reaches the parameter, a NULL slot or a NULL return, at a call or one hop on.
+    text_null: bool = False
     # True when the body reads the pointer only through a dereference or a cast, so the pointer holds one scalar.
     reinterprets: bool = False
     # The body already spells the expression as a Swift Bool, and the expression is a number Swift types by context.
@@ -517,7 +519,9 @@ class Types:
                     if facts.ruled == "text_cursor":
                         # A cursor Raven passes by value and returns advanced, the SkipWhitespace shape.
                         return Answer("JKAShared.TextCursor", "text_cursor")
-                    if facts.nullable:
+                    if facts.nullable or facts.text_null:
+                        # A caller's NULL makes the text a String?, and so does a text that can be NULL at a call or one hop on,
+                        # a NULL slot or a NULL return, `saberName` of UI_SaberParseParm.
                         return Answer("String?", "cstring_opt")
                     return Answer("String", "cstring")
                 if facts.traps and facts.following is not None and facts.following.type.get_canonical().kind in INT_KINDS \
@@ -538,7 +542,8 @@ class Types:
                     # A PARAMS row names the kind itself, so it wins over the sweep.
                     # A row of kind `text` names a read that the sweep cannot see, the form of a stored function's missing `const`.
                     # A NULL the sweep reaches at a call or one hop on makes it a String?, the way the vector rules read the same sets.
-                    return Answer("String?" if facts.null_reaches else "String", "cstring_opt" if facts.null_reaches else "cstring")
+                    optional = facts.null_reaches or facts.text_null
+                    return Answer("String?" if optional else "String", "cstring_opt" if optional else "cstring")
                 # A body reads and rewrites the caller's buffer in place, so the caller's CharBuf crosses with `&`.
                 return Answer("inout JKAShared.CharBuf", "inout_charbuf")
             record = self.record_name(pointee)
