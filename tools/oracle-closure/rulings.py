@@ -2010,6 +2010,11 @@ NIL_OVERLOADS = {
 # The traps whose buffer holds a NUL-separated list, which a caller walks past the first NUL, so the trap returns every byte as a CharBuf.
 LIST_TRAPS = {"trap_FS_GetFileList"}
 
+# The traps of each unit whose body is a hand body in the `Syscall+` file of the unit's view target, so traps.py writes no stub for them.
+# The ui's trap_R_RegisterShaderNoMip reads a cvar name that starts with `*` and holds 2 syscall calls, oracle/codemp/ui/ui_syscalls.c:151.
+# The cgame trap of the same name is one syscall, oracle/codemp/cgame/cg_syscalls.c:278, and stays generated.
+HAND_TRAPS: dict[str, set[str]] = {"mp-ui": {"trap_R_RegisterShaderNoMip"}}
+
 SHARED_STEMS = {"q_shared", "q_math", "g_syscalls", "g_strap"}
 
 # MARK: - C storage beside the extracted headers

@@ -213,13 +213,13 @@ public var gUISelectedMap: Int32 {
 private let MAX_SABER_HILTS = 64 as Int32
 
 /// Source: oracle/codemp/ui/ui_main.c:6146
-public var saberSingleHiltInfo: [String] {
+public var saberSingleHiltInfo: [String?] {
     get { world.variables.saberSingleHiltInfo }
     set { world.variables.saberSingleHiltInfo = newValue }
 }
 
 /// Source: oracle/codemp/ui/ui_main.c:6147
-public var saberStaffHiltInfo: [String] {
+public var saberStaffHiltInfo: [String?] {
     get { world.variables.saberStaffHiltInfo }
     set { world.variables.saberStaffHiltInfo = newValue }
 }

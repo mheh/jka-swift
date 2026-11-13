@@ -79,28 +79,12 @@ public let forceMasteryPoints: [Int32] = [
 ]
 
 /// Raven's `bgForcePowerCost` of `bg_misc.c`, the cost of one power at one level.
+/// The ui writes the table, so its home is `bg.variables`, which holds Raven's initializer.
 /// Source: oracle/codemp/game/bg_misc.c:174
-public let bgForcePowerCost: [[Int32]] = [ //0 == neutral
-    [	0,	2,	4,	6	],	// Heal			// FP_HEAL
-    [	0,	0,	2,	6	],	// Jump			//FP_LEVITATION,//hold/duration
-    [	0,	2,	4,	6	],	// Speed		//FP_SPEED,//duration
-    [	0,	1,	3,	6	],	// Push			//FP_PUSH,//hold/duration
-    [	0,	1,	3,	6	],	// Pull			//FP_PULL,//hold/duration
-    [	0,	4,	6,	8	],	// Mind Trick	//FP_TELEPATHY,//instant
-    [	0,	1,	3,	6	],	// Grip			//FP_GRIP,//hold/duration
-    [	0,	2,	5,	8	],	// Lightning	//FP_LIGHTNING,//hold/duration
-    [	0,	4,	6,	8	],	// Dark Rage	//FP_RAGE,//duration
-    [	0,	2,	5,	8	],	// Protection	//FP_PROTECT,//duration
-    [	0,	1,	3,	6	],	// Absorb		//FP_ABSORB,//duration
-    [	0,	1,	3,	6	],	// Team Heal	//FP_TEAM_HEAL,//instant
-    [	0,	1,	3,	6	],	// Team Force	//FP_TEAM_FORCE,//instant
-    [	0,	2,	4,	6	],	// Drain		//FP_DRAIN,//hold/duration
-    [	0,	2,	5,	8	],	// Sight		//FP_SEE,//duration
-    [	0,	1,	5,	8	],	// Saber Attack	//FP_SABER_OFFENSE,
-    [	0,	1,	5,	8	],	// Saber Defend	//FP_SABER_DEFENSE,
-    [	0,	4,	6,	8	]	// Saber Throw	//FP_SABERTHROW,
-    //NUM_FORCE_POWERS
-]
+public var bgForcePowerCost: [[Int32]] {
+    get { bg.variables.bgForcePowerCost }
+    set { bg.variables.bgForcePowerCost = newValue }
+}
 
 /// Raven's `forcePowerSorted` of `bg_misc.c`. Always use this order when drawing force powers, for any reason.
 /// Source: oracle/codemp/game/bg_misc.c:197

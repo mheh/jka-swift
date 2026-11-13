@@ -60,6 +60,12 @@ def engine_array(t: ci.Type, following: ci.Cursor | None) -> bool:
         and following.type.get_canonical().kind in INT_KINDS and SIZE_NAME.search(following.spelling) is not None
 
 
+def text_slot(null_slots: bool) -> str:
+    """The element of an array of `char *`: `String?` when a body stores NULL into a slot, `singleHilts[numSingleHilts] = NULL`, else `String`.
+    Raven's NULL is `nil`, and a reader that tests the slot, `if (saberSingleHiltInfo[i])`, tests the optional."""
+    return "String?" if null_slots else "String"
+
+
 @dataclass(frozen=True)
 class Facts:
     """What the sweeps and the rulings know about one cursor, which its C type alone does not say.
@@ -92,6 +98,8 @@ class Facts:
     null_arm: bool = False
     # True when the body hands the `int *` on to an array a trap fills, so the parameter is that array too.
     fills_array: bool = False
+    # True when the body stores NULL into a slot of the array of `char *`, `singleHilts[numSingleHilts] = NULL`, so the element is `String?`.
+    null_slots: bool = False
     # True when the body reads the pointer only through a dereference or a cast, so the pointer holds one scalar.
     reinterprets: bool = False
     # The body already spells the expression as a Swift Bool, and the expression is a number Swift types by context.
@@ -345,7 +353,7 @@ class Types:
             return Answer("inout [String]", "bare")
         if facts.ruled == "string_slice":
             # The body fills the caller's list by index, `psList[*numfiles] = CopyString(...)`, the `char *infos[]` row.
-            return Answer("inout ArraySlice<String>", "string_slice")
+            return Answer(f"inout ArraySlice<{text_slot(facts.null_slots)}>", "string_slice")
         slot = canonical.get_pointee() if canonical.kind == TypeKind.POINTER else \
             canonical.element_type if canonical.kind in (TypeKind.CONSTANTARRAY, TypeKind.INCOMPLETEARRAY) else None
         if facts.ruled == "string_slots" and slot is not None and slot.get_canonical().kind == TypeKind.POINTER \
@@ -649,7 +657,7 @@ class Types:
                     return Answer(f"inout [{self.views.qualified_view(record, TARGET)}?]", "view_array")
                 if element.get_pointee().get_canonical().kind == TypeKind.CHAR_S:
                     # A C array of strings the function fills from a caller's `&array[i]`, `char *infos[]`, is the caller's slice from `i` on.
-                    return Answer("inout ArraySlice<String>", "string_slice")
+                    return Answer(f"inout ArraySlice<{text_slot(facts.null_slots)}>", "string_slice")
             if C.HOST and element.kind == TypeKind.UCHAR:
                 # A C array of bytes, `unsigned char digest[16]` of MD4Final, decays to the `byte *` above, so it takes the same Slots.
                 swift = self.scalar(canonical.element_type if t.kind != TypeKind.CONSTANTARRAY else t.element_type, TARGET)

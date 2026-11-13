@@ -430,6 +430,14 @@ class Parse:
         self.headers = reexport.parse(TARGETS["c_target"], root=STAGE / PROJECT["output"]["root"] if STAGED else None)
         self.game_folder = (ORACLE / GAME_DIR).resolve()
         self.cgame_folder = (ORACLE / CGAME_DIR).resolve()
+        self.units: dict[str, object] = {}
+
+    def unit(self, name: str):
+        """The unity parse of a third unit, parsed on the first read and kept for the run.
+        The skeleton of the game reads the ui this way, because the ui build compiles the bg files too."""
+        if name not in self.units:
+            self.units[name] = parse_tu(name, None, unity=True, overlay=self.overlay)
+        return self.units[name]
 
 
 # ------------------------------------------------------------- ported scan

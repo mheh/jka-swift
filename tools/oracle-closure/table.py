@@ -38,7 +38,7 @@ REBUILD = False
 # The swept part of `nullable` stands beside the rows of NULLABLE it started from, which the `rulings` kind holds.
 BASE_FACTS = ("nullable", "hopped", "called", "readonly_text", "null_returns", "indexed_params", "indexed_fields", "handoffs",
               "cursors", "alias_writes", "buffer_traps", "text_traps", "reads", "file_walks", "array_handoffs",
-              "null_arms")
+              "null_arms", "null_slots")
 ADOPTION_FACTS = ("stores_through", "store_swept")
 # A Raven parameter name that is a Swift keyword is written in backticks.
 KEYWORDS = {"extension", "in", "func", "class", "struct", "enum", "protocol", "default", "operator", "repeat", "where",
@@ -503,6 +503,9 @@ class Table:
         self.file_walks: dict[str, tuple[str, str]] = {}
         # The (function, parameter) pairs of an `int *` the body hands on to an array a trap fills, so the parameter is that array.
         self.array_handoffs: set[tuple[str, str]] = set()
+        # The arrays of `char *` a body stores NULL into, as (function, parameter) pairs and as ("", name) for a file-scope array,
+        # so the element of each one is `String?`.
+        self.null_slots: set[tuple[str, str]] = set()
 
     def sweep_reads(self, tu: ci.TranslationUnit, folder: Path) -> list[Read]:
         """Every game field a bg body reaches through a gentity_t, the level, or a cvar, as the reads the channel carries.
@@ -1903,6 +1906,91 @@ class Table:
                 if text in ("NULL", "0"):
                     self.null_returns.add(cur.spelling)
 
+    def sweep_null_slots(self, tu: ci.TranslationUnit, folder: Path) -> None:
+        """Every array of `char *` that a body of the folder stores NULL into, `singleHilts[numSingleHilts] = NULL` of UI_SaberGetHiltInfo.
+        A parameter stands as its (function, parameter) pair, and a file-scope array as the pair of the empty name and its own name.
+        A file-scope array that a call hands to such a parameter, `UI_SaberGetHiltInfo(saberSingleHiltInfo, saberStaffHiltInfo)`, stands too,
+        because the NULL goes into the caller's array."""
+        functions = []
+        for cur in tu.cursor.get_children():
+            if cur.kind != CursorKind.FUNCTION_DECL or not cur.is_definition() or not cur.location.file:
+                continue
+            path = Path(cur.location.file.name).resolve()
+            if not C.within(path, folder) or path.name != C.file_name(path.stem):
+                continue
+            functions.append(cur)
+            self.null_slots |= self.null_slot_stores(cur, C.parsed_bytes(path))
+        for cur in functions:
+            self.null_slots |= self.null_slot_handoffs(cur, self.null_slots)
+
+    @classmethod
+    def text_array_root(cls, cur: ci.Cursor) -> tuple[str, str] | None:
+        """The slot pair of a parameter or a file-scope array of `char *` that an expression names, through `&` and a subscript, or None."""
+        node = cls.unwrapped(cur)
+        while node.kind in (CursorKind.UNARY_OPERATOR, CursorKind.ARRAY_SUBSCRIPT_EXPR):
+            kids = list(node.get_children())
+            if not kids:
+                return None
+            node = cls.unwrapped(kids[0])
+        if node.kind != CursorKind.DECL_REF_EXPR or node.referenced is None:
+            return None
+        ref = node.referenced
+        canonical = ref.type.get_canonical()
+        if canonical.kind not in (TypeKind.POINTER, TypeKind.CONSTANTARRAY, TypeKind.INCOMPLETEARRAY):
+            return None
+        element = (canonical.get_pointee() if canonical.kind == TypeKind.POINTER else canonical.element_type).get_canonical()
+        if element.kind != TypeKind.POINTER or element.get_pointee().get_canonical().kind != TypeKind.CHAR_S:
+            return None
+        if ref.kind == CursorKind.PARM_DECL and ref.semantic_parent is not None:
+            return (ref.semantic_parent.spelling, ref.spelling)
+        if ref.kind == CursorKind.VAR_DECL and ref.semantic_parent is not None and ref.semantic_parent.kind == CursorKind.TRANSLATION_UNIT \
+                and canonical.kind != TypeKind.POINTER:
+            return ("", ref.spelling)
+        return None
+
+    @classmethod
+    def null_slot_stores(cls, fn: ci.Cursor, data: bytes) -> set[tuple[str, str]]:
+        """The slot pairs of the arrays of `char *` that one body stores NULL or 0 into by a subscript, `x[i] = NULL`."""
+        found: set[tuple[str, str]] = set()
+        for node in fn.walk_preorder():
+            if node.kind != CursorKind.BINARY_OPERATOR:
+                continue
+            kids = list(node.get_children())
+            if len(kids) != 2:
+                continue
+            between = data[kids[0].extent.end.offset:kids[1].extent.start.offset].decode("utf-8", "replace").strip()
+            target = cls.unwrapped(kids[0])
+            if between != "=" or target.kind != CursorKind.ARRAY_SUBSCRIPT_EXPR:
+                continue
+            if target.type.get_canonical().kind != TypeKind.POINTER:
+                # A store into one character of a text, `com_consoleLines[i][0] = 0` of common.cpp:432, leaves the slot a text.
+                continue
+            value = cls.unwrapped(kids[1])
+            text = data[value.extent.start.offset:value.extent.end.offset].decode("utf-8", "replace").strip()
+            if text not in ("NULL", "0"):
+                continue
+            pair = cls.text_array_root(list(target.get_children())[0])
+            if pair is not None:
+                found.add(pair)
+        return found
+
+    @classmethod
+    def null_slot_handoffs(cls, fn: ci.Cursor, slots: set[tuple[str, str]]) -> set[tuple[str, str]]:
+        """The slot pairs of the file-scope arrays of `char *` that one body hands to a parameter of `slots`."""
+        found: set[tuple[str, str]] = set()
+        for node in fn.walk_preorder():
+            if node.kind != CursorKind.CALL_EXPR or node.referenced is None or node.referenced.kind != CursorKind.FUNCTION_DECL:
+                continue
+            callee = node.referenced.get_definition() or node.referenced
+            params = [p.spelling for p in callee.get_arguments()]
+            for i, arg in enumerate(node.get_arguments()):
+                if i >= len(params) or (callee.spelling, params[i]) not in slots:
+                    continue
+                pair = cls.text_array_root(arg)
+                if pair is not None and pair[0] == "":
+                    found.add(pair)
+        return found
+
     def sweep(self) -> None:
         """Every sweep a signature of the module needs, in the order the table reads them, over the one parse of the run.
 
@@ -1966,6 +2054,7 @@ class Table:
         self.sweep_file_walks()
         self.sweep_array_handoffs()
         self.sweep_returns(tu, folder)
+        self.sweep_null_slots(tu, folder)
         self.reads = {read.key: read for read in self.sweep_reads(tu, folder)}
 
     def sweep_syntax(self) -> dict[str, list[tuple]]:
@@ -2084,6 +2173,7 @@ class Table:
             null_arm=(owner, name) in self.null_arms,
             store_swept=owner in self.store_swept,
             fills_array=(owner, name) in self.array_handoffs,
+            null_slots=(owner, name) in self.null_slots,
             reinterprets=self.reinterprets(cur),
         )
         width = self.msvc_width(cur.type, cur.semantic_parent)

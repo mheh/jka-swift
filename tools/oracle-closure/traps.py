@@ -22,6 +22,8 @@ The parameter table is abi-stubs.md row 2:
   void *                       OpaquePointer?, bare
   anything else                TODO: Port signature with Raven's C text, body portMissing
 
+A trap of HAND_TRAPS for the unit is a hand body in the `Syscall+` file of the view target, and this file holds its Source line alone.
+
 Usage:
   .venv/bin/python traps.py                  # writes the file and prints the counts
   .venv/bin/python traps.py --only trap_Trace   # prints one trap to stdout, writes nothing
@@ -39,7 +41,7 @@ from clang.cindex import CursorKind, TypeKind
 
 import closure as C
 from reexport import REPO, SOURCES
-from rulings import LIST_TRAPS, NIL_OVERLOADS, NOT_PORTED
+from rulings import HAND_TRAPS, LIST_TRAPS, NIL_OVERLOADS, NOT_PORTED
 from table import Param, SourceFile, Table, swift_name
 
 # A host has no trap table, so a run over a host has no work.
@@ -109,6 +111,14 @@ class Traps:
                 f"/// Source: oracle/{SOURCE}:{cur.location.line}",
                 f"// Raven wrote: {self.source.c_signature(cur)}",
                 f"// Not ported: {NOT_PORTED[name]}.",
+            ]
+        if name in HAND_TRAPS.get(C.UNIT, set()):
+            # The trap is a hand body in the `Syscall+` file of the view target, so this file names it and declares nothing.
+            self.counts["hand traps"] += 1
+            return [
+                f"/// Source: oracle/{SOURCE}:{cur.location.line}",
+                f"// Raven wrote: {self.source.c_signature(cur)}",
+                f"// A hand body in the `Syscall+` file of {VIEW}, by HAND_TRAPS.",
             ]
         calls = self.syscalls(cur)
         if len(calls) != 1:
@@ -442,6 +452,7 @@ def main() -> None:
     print(f"  {'buffer':12} {c['buffer overloads']} inout CharBuf overloads")
     print(f"  {'nil':12} {c['nil overloads']} overloads that take a nil view")
     print(f"  {'text':12} {c['text overloads']} String overloads")
+    print(f"  {'hand':12} {c['hand traps']} hand traps of HAND_TRAPS")
     for kind in ("bare", "cstring", "out_string", "out_scalar", "out_array", "out_opaque", "vec3_const", "vec3_const_opt", "vec4_opt", "vec3_mut", "vec3_array", "vec3_axis", "slots", "view"):
         print(f"  {kind:12} {c[kind]}")
 

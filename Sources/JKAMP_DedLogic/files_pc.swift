@@ -2644,7 +2644,7 @@ public func FS_ComparePaks(_ neededpaks: inout JKAShared.CharBuf, _ len: Int32, 
         havepak = false
 
         // never autodownload any of the id paks
-        if FS_idPak(fs_serverReferencedPakNames[i], "base") || FS_idPak(fs_serverReferencedPakNames[i], "missionpack") {
+        if FS_idPak(fs_serverReferencedPakNames[i]!, "base") || FS_idPak(fs_serverReferencedPakNames[i]!, "missionpack") {
             i += 1
             continue
         }
@@ -2658,35 +2658,33 @@ public func FS_ComparePaks(_ neededpaks: inout JKAShared.CharBuf, _ len: Int32, 
             sp = sp!.next
         }
 
-        // Raven tests `fs_serverReferencedPakNames[i]` for NULL.
-        // Raven tests `*fs_serverReferencedPakNames[i]` for the empty text.
-        if !havepak && !fs_serverReferencedPakNames[i].isEmpty {
+        if !havepak && fs_serverReferencedPakNames[i] != nil && !fs_serverReferencedPakNames[i]!.isEmpty {
             // Don't got it
 
             if dlstring {
                 // Remote name
                 Q_strcat(&neededpaks, len, "@")
-                Q_strcat(&neededpaks, len, fs_serverReferencedPakNames[i])
+                Q_strcat(&neededpaks, len, fs_serverReferencedPakNames[i]!)
                 Q_strcat(&neededpaks, len, ".pk3")
 
                 // Local name
                 Q_strcat(&neededpaks, len, "@")
                 // Do we have one with the same name?
-                if FS_SV_FileExists(va("%s.pk3", fs_serverReferencedPakNames[i])) {
+                if FS_SV_FileExists(va("%s.pk3", fs_serverReferencedPakNames[i]!)) {
                     var st = CharBuf(MAX_ZPATH)
                     // We already have one called this, we need to download it to another name
                     // Make something up with the checksum in it
-                    Com_sprintf(&st, Int32(st.count), "%s.%08x.pk3", fs_serverReferencedPakNames[i], fs_serverReferencedPaks[i])
+                    Com_sprintf(&st, Int32(st.count), "%s.%08x.pk3", fs_serverReferencedPakNames[i]!, fs_serverReferencedPaks[i])
                     Q_strcat(&neededpaks, len, String(st))
                 } else {
-                    Q_strcat(&neededpaks, len, fs_serverReferencedPakNames[i])
+                    Q_strcat(&neededpaks, len, fs_serverReferencedPakNames[i]!)
                     Q_strcat(&neededpaks, len, ".pk3")
                 }
             } else {
-                Q_strcat(&neededpaks, len, fs_serverReferencedPakNames[i])
+                Q_strcat(&neededpaks, len, fs_serverReferencedPakNames[i]!)
                 Q_strcat(&neededpaks, len, ".pk3")
                 // Do we have one with the same name?
-                if FS_SV_FileExists(va("%s.pk3", fs_serverReferencedPakNames[i])) {
+                if FS_SV_FileExists(va("%s.pk3", fs_serverReferencedPakNames[i]!)) {
                     Q_strcat(&neededpaks, len, " (local file exists with wrong checksum)")
                 }
                 Q_strcat(&neededpaks, len, "\n")
@@ -3256,8 +3254,8 @@ public func FS_PureServerSetLoadedPaks(_ pakSums: String, _ pakNames: String) {
     i = 0
     while i < c {
         // AI: Raven frees the CopyString block of the name.
-        // CopyString returns the text and leaves its block in the zone, so the slot takes the empty text, the NULL of the table.
-        fs_serverPakNames[i] = ""
+        // CopyString returns the text and leaves its block in the zone, so the slot takes nil, Raven's NULL.
+        fs_serverPakNames[i] = nil
         i += 1
     }
     // Raven tests `pakNames` for NULL.
@@ -3313,8 +3311,8 @@ public func FS_PureServerSetReferencedPaks(_ pakSums: String, _ pakNames: String
     i = 0
     while i < c {
         // AI: Raven frees the CopyString block of the name.
-        // CopyString returns the text and leaves its block in the zone, so the slot takes the empty text, the NULL of the table.
-        fs_serverReferencedPakNames[i] = ""
+        // CopyString returns the text and leaves its block in the zone, so the slot takes nil, Raven's NULL.
+        fs_serverReferencedPakNames[i] = nil
         i += 1
     }
     // Raven tests `pakNames` for NULL.

@@ -108,11 +108,11 @@ public struct UIVariables {
 
     /// Raven's `char *saberSingleHiltInfo [MAX_SABER_HILTS]` of `ui_main.c`.
     /// Source: oracle/codemp/ui/ui_main.c:6146
-    public var saberSingleHiltInfo: [String] = [String](repeating: "", count: 64)
+    public var saberSingleHiltInfo: [String?] = [String?](repeating: nil, count: 64)
 
     /// Raven's `char *saberStaffHiltInfo [MAX_SABER_HILTS]` of `ui_main.c`.
     /// Source: oracle/codemp/ui/ui_main.c:6147
-    public var saberStaffHiltInfo: [String] = [String](repeating: "", count: 64)
+    public var saberStaffHiltInfo: [String?] = [String?](repeating: nil, count: 64)
 
     /// Raven's `int g_siegedFeederForcedSet` of `ui_main.c`.
     /// Source: oracle/codemp/ui/ui_main.c:9594
