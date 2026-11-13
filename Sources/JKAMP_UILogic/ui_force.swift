@@ -126,12 +126,33 @@ public var gCustPowersRank: [Int32] {
     set { world.gCustPowersRank = newValue }
 }
 
-// Port-note: The ui trap `trap_R_RegisterShaderNoMip` has no mapped signature yet, and its stub takes no name.
-// Raven's body registers each shader by name, so the body waits for that signature.
 /// Source: oracle/codemp/ui/ui_force.c:99
 public func UI_InitForceShaders() {
-    // TODO: Port UI_InitForceShaders
-    portMissing("UI_InitForceShaders", source: "oracle/codemp/ui/ui_force.c:99")
+    uiForceStarShaders[0][0] = trap_R_RegisterShaderNoMip("forcestar0")
+    uiForceStarShaders[0][1] = trap_R_RegisterShaderNoMip("forcestar0")
+    uiForceStarShaders[1][0] = trap_R_RegisterShaderNoMip("forcecircle1")
+    uiForceStarShaders[1][1] = trap_R_RegisterShaderNoMip("forcestar1")
+    uiForceStarShaders[2][0] = trap_R_RegisterShaderNoMip("forcecircle2")
+    uiForceStarShaders[2][1] = trap_R_RegisterShaderNoMip("forcestar2")
+    uiForceStarShaders[3][0] = trap_R_RegisterShaderNoMip("forcecircle3")
+    uiForceStarShaders[3][1] = trap_R_RegisterShaderNoMip("forcestar3")
+    uiForceStarShaders[4][0] = trap_R_RegisterShaderNoMip("forcecircle4")
+    uiForceStarShaders[4][1] = trap_R_RegisterShaderNoMip("forcestar4")
+    uiForceStarShaders[5][0] = trap_R_RegisterShaderNoMip("forcecircle5")
+    uiForceStarShaders[5][1] = trap_R_RegisterShaderNoMip("forcestar5")
+    uiForceStarShaders[6][0] = trap_R_RegisterShaderNoMip("forcecircle6")
+    uiForceStarShaders[6][1] = trap_R_RegisterShaderNoMip("forcestar6")
+    uiForceStarShaders[7][0] = trap_R_RegisterShaderNoMip("forcecircle7")
+    uiForceStarShaders[7][1] = trap_R_RegisterShaderNoMip("forcestar7")
+    uiForceStarShaders[8][0] = trap_R_RegisterShaderNoMip("forcecircle8")
+    uiForceStarShaders[8][1] = trap_R_RegisterShaderNoMip("forcestar8")
+
+    uiSaberColorShaders[SABER_RED] = trap_R_RegisterShaderNoMip("menu/art/saber_red")
+    uiSaberColorShaders[SABER_ORANGE] = trap_R_RegisterShaderNoMip("menu/art/saber_orange")
+    uiSaberColorShaders[SABER_YELLOW] = trap_R_RegisterShaderNoMip("menu/art/saber_yellow")
+    uiSaberColorShaders[SABER_GREEN] = trap_R_RegisterShaderNoMip("menu/art/saber_green")
+    uiSaberColorShaders[SABER_BLUE] = trap_R_RegisterShaderNoMip("menu/art/saber_blue")
+    uiSaberColorShaders[SABER_PURPLE] = trap_R_RegisterShaderNoMip("menu/art/saber_purple")
 }
 
 // Draw the stars spent on the current force power
@@ -368,8 +389,6 @@ public func UpdateForceUsed() {
     // Set the cost of the saberattack according to whether its free.
     if ui_freeSaber.integer != 0 {
         // Make saber free
-        // Port-note: `bgForcePowerCost` is a `let` of `JKAMP_BG`, and Raven writes the table here and in the arm below.
-        // The table needs a writable home before these stores compile.
         bgForcePowerCost[FP_SABER_OFFENSE][FORCE_LEVEL_1] = 0
         bgForcePowerCost[FP_SABER_DEFENSE][FORCE_LEVEL_1] = 0
         // Make sure that we have one freebie in saber if applicable.
