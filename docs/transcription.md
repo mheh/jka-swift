@@ -277,6 +277,7 @@ A caller that holds a `let` vector and passes it to a parameter the callee write
 Where the callee is `G_Damage`, the copy carries a one-line comment and no note and no marker, because `VectorNormalize` skips a zero-length vector and the body's other reads of `dir` scale by it.
 A `NULL` `mins` or `maxs` into `trap_Trace` or `trap_G2Trace` is `vec3_origin`, with no comment, because the engine substitutes it, at oracle/code/server/sv_world.cpp:859 and cm_trace.cpp:987 and 1125.
 An optional vector parameter that reaches a trace `mins` or `maxs` takes `?? vec3_origin` at the call, with no note, for the same reason.
+A `NULL` string into `trap_SetConfigstring` is `""`, with no comment, because the engine substitutes it, at oracle/codemp/server/sv_init.cpp:34.
 A caller of a trap or strap function writes `nil` where Raven wrote `NULL` for a `qhandle_t *` parameter.
 The pointer stays inside generated code under rule 11, and no ported body indexes it.
 An `int *` or `float *` parameter whose pointee is `qhandle_t` is not an `inout` scalar.
