@@ -79,19 +79,21 @@ public func UI_ParseInfos(_ buf: inout JKAShared.CharBuf, _ max: Int32, _ infos:
             Info_SetValueForKey(&info, String(key), token)
         }
         //NOTE: extra space for arena number
-        _ = UI_Alloc(strlen(info) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1)
-        infos[infos.startIndex + count] = String(info)
-        if trap_Cvar_VariableValue("com_buildScript") != 0 {
-            let botFile: String = Info_ValueForKey(String(info), "personality")
-            if !botFile.isEmpty {
-                var fh: Int32 = 0
-                trap_FS_FOpenFile(botFile, &fh, FS_READ)
-                if fh != 0 {
-                    trap_FS_FCloseFile(fh)
+        // Port-note: The guide has no form for the NULL test of an allocator result, so the body tests the result of UI_Alloc in place of Raven's slot.
+        if UI_Alloc(strlen(info) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1) != nil {
+            infos[infos.startIndex + count] = String(info)
+            if trap_Cvar_VariableValue("com_buildScript") != 0 {
+                let botFile: String = Info_ValueForKey(String(info), "personality")
+                if !botFile.isEmpty {
+                    var fh: Int32 = 0
+                    trap_FS_FOpenFile(botFile, &fh, FS_READ)
+                    if fh != 0 {
+                        trap_FS_FCloseFile(fh)
+                    }
                 }
             }
+            count += 1
         }
-        count += 1
     }
     return count
 }
