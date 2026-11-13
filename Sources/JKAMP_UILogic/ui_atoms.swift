@@ -38,6 +38,7 @@ UI_ClampCvar
 ```
 */
 /// Source: oracle/codemp/ui/ui_atoms.c:47
+// Port-note: Only the comment block at ui_shared.c:5348-5354 calls this function, so it is dead, rule 20.
 public func UI_ClampCvar(_ min: Float, _ max: Float, _ value: Float) -> Float {
     if value < min { return min }
     if value > max { return max }
@@ -52,6 +53,7 @@ UI_StartDemoLoop
 ```
 */
 /// Source: oracle/codemp/ui/ui_atoms.c:59
+// Port-note: No code calls this function, and only ui_local.h:879 declares it, so it is dead, rule 20.
 public func UI_StartDemoLoop() {
     trap_Cmd_ExecuteText(EXEC_APPEND, "d1\n")
 }
@@ -171,6 +173,8 @@ public func UI_ClearScores() {
             gameFile = TextCursor(gameList)
             i = 0
             while i < count {
+                // Port-note: Raven reads past the last name of `gameList`, into bytes the engine did not write, when `count` is larger than the number of names.
+                // The cursor reads 0 there, and empty text past the end of the buffer, so the body does not trap.
                 len = strlen(gameFile.text)
                 if trap_FS_FOpenFile(va("games/%s", gameFile.text), &f, FS_WRITE) >= 0 {
                     // AI: Raven writes `size` through its address. The value goes into a CharBuf of its bytes, and the CharBuf is written.
@@ -262,6 +266,8 @@ private func UI_CalcPostGameStats() {
             newInfo.captures = atoi(UI_Argv(14))
 
             newInfo.time = Int32((time - trap_Cvar_VariableValue("ui_matchStartTime")) / 1000)
+            // Port-note: Raven reads outside `mapList` when `ui_currentMap` is outside 0 to 127, and outside `timeToBeat` when `g_gametype` is outside 0 to 15.
+            // The Slots subscript traps at such an index.
             adjustedTime = uiInfo.mapList[ui_currentMap.integer].timeToBeat[game]
             if newInfo.time < adjustedTime {
                 newInfo.timeBonus = (adjustedTime - newInfo.time) * 10
@@ -420,10 +426,12 @@ UI_Shutdown
 ```
 */
 /// Source: oracle/codemp/ui/ui_atoms.c:389
+// Port-note: No code calls this function, because vmMain calls _UI_Shutdown, so it is dead, rule 20.
 public func UI_Shutdown() {
 }
 
 /// Source: oracle/codemp/ui/ui_atoms.c:393
+// Port-note: No code calls this function, and only ui_local.h:853 declares it, so it is dead, rule 20.
 public func UI_DrawNamedPic(_ x: Float, _ y: Float, _ width: Float, _ height: Float, _ picname: String) {
     let hShader: JKAShared.qhandle_t
 
@@ -516,17 +524,20 @@ public func UI_SetColor(_ rgba: JKAShared.vec4_t?) {
 }
 
 /// Source: oracle/codemp/ui/ui_atoms.c:473
+// Port-note: No code calls this function, and only ui_local.h:859 declares it, so it is dead, rule 20.
 public func UI_UpdateScreen() {
     trap_UpdateScreen()
 }
 
 /// Source: oracle/codemp/ui/ui_atoms.c:478
+// Port-note: No code calls this function, and only ui_local.h:869 declares it, so it is dead, rule 20.
 public func UI_DrawTextBox(_ x: Int32, _ y: Int32, _ width: Int32, _ lines: Int32) {
     UI_FillRect(Float(x + BIGCHAR_WIDTH / 2), Float(y + BIGCHAR_HEIGHT / 2), Float((width + 1) * BIGCHAR_WIDTH), Float((lines + 1) * BIGCHAR_HEIGHT), colorBlack)
     UI_DrawRect(Float(x + BIGCHAR_WIDTH / 2), Float(y + BIGCHAR_HEIGHT / 2), Float((width + 1) * BIGCHAR_WIDTH), Float((lines + 1) * BIGCHAR_HEIGHT), colorWhite)
 }
 
 /// Source: oracle/codemp/ui/ui_atoms.c:484
+// Port-note: No code calls this function, and only ui_local.h:868 declares it, so it is dead, rule 20.
 public func UI_CursorInRect(_ x: Int32, _ y: Int32, _ width: Int32, _ height: Int32) -> Bool {
     if uiInfo.uiDC.cursorx < x ||
         uiInfo.uiDC.cursory < y ||
