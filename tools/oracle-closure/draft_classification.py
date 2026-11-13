@@ -342,6 +342,41 @@ class Classification:
                 return "buffer"
         return "other"
 
+    def text_copy(self, call: ci.Cursor) -> tuple[ci.Cursor, ci.Cursor] | None:
+        """Raven's `strcpy( token, "<NULL>" )` into a text local that holds the String of a call, as the local and the literal, or None.
+        Every store of the local is a call that returns a String, `COM_ParseExt`, so the local owns its text and the copy is a new value of it.
+        A local that also points at a field or a buffer, or whose address a call takes, keeps the call, because the copy writes that memory."""
+        if self.callee_name(call) != "strcpy":
+            return None
+        args = [self.strip(a) for a in list(call.get_children())[1:]]
+        if len(args) != 2:
+            return None
+        target, source = self.unwrap(args[0]), self.unwrap(args[1])
+        if target.kind != CursorKind.DECL_REF_EXPR or source.kind != CursorKind.STRING_LITERAL \
+                or target.spelling not in self.text_locals or target.spelling in self.optional_texts:
+            return None
+        local = target.referenced
+        if local is None or local.kind != CursorKind.VAR_DECL:
+            return None
+        # A compound store or a step already makes the local no text local, so the stores here are the initializer and the `=` stores.
+        stores: list[ci.Cursor] = [c for c in local.get_children() if c.kind.is_expression()]
+        for cur in self.fn.cur.walk_preorder():
+            kids = list(cur.get_children())
+            if cur.kind == CursorKind.UNARY_OPERATOR and kids and self.operator_or_none_unary(cur) == "&" \
+                    and self.unwrap(kids[0]).kind == CursorKind.DECL_REF_EXPR and self.unwrap(kids[0]).referenced == local:
+                return None
+            if cur.kind != CursorKind.BINARY_OPERATOR or len(kids) != 2 or self.collapsed(cur) or self.operator_or_none(cur) != "=":
+                continue
+            if self.unwrap(kids[0]).kind == CursorKind.DECL_REF_EXPR and self.unwrap(kids[0]).referenced == local:
+                stores.append(kids[1])
+        if not stores:
+            return None
+        for store in stores:
+            called = self.uncast(store)
+            if called.kind != CursorKind.CALL_EXPR or self.callee_returns(self.callee_name(called) or "") != "String":
+                return None
+        return target, source
+
     def charbuf_alloc(self, cur: ci.Cursor) -> ci.Cursor | None:
         """The size argument of Raven's `(char *)B_TempAlloc(1024)`, a call to a CHARBUF_ALLOCS function at a constant size, or None."""
         inner = self.uncast(cur)
