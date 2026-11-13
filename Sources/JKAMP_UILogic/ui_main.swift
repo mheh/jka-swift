@@ -615,7 +615,7 @@ public func MenuFontToHandle(_ iMenuFont: Int32) -> Int32 {
 }
 
 /// Source: oracle/codemp/ui/ui_main.c:1089
-public func Text_Width(_ text: String, _ scale: Float, _ iMenuFont: Int32) -> Int32 {
+public func Text_Width(_ text: String?, _ scale: Float, _ iMenuFont: Int32) -> Int32 {
     // TODO: Port Text_Width
     portMissing("Text_Width", source: "oracle/codemp/ui/ui_main.c:1089")
 }
@@ -627,7 +627,7 @@ public func Text_Height(_ text: String, _ scale: Float, _ iMenuFont: Int32) -> I
 }
 
 /// Source: oracle/codemp/ui/ui_main.c:1103
-public func Text_Paint(_ x: Float, _ y: Float, _ scale: Float, _ color: JKAShared.vec4_t, _ text: String, _ adjust: Float, _ limit: Int32, _ style: Int32, _ iMenuFont: Int32) {
+public func Text_Paint(_ x: Float, _ y: Float, _ scale: Float, _ color: JKAShared.vec4_t, _ text: String?, _ adjust: Float, _ limit: Int32, _ style: Int32, _ iMenuFont: Int32) {
     // TODO: Port Text_Paint
     portMissing("Text_Paint", source: "oracle/codemp/ui/ui_main.c:1103")
 }
@@ -2052,7 +2052,7 @@ private func UI_PrintTime(_ buf: inout JKAShared.CharBuf, _ bufsize: Int32, _ ti
 }
 
 /// Source: oracle/codemp/ui/ui_main.c:11069
-public func Text_PaintCenter(_ x: Float, _ y: Float, _ scale: Float, _ color: JKAShared.vec4_t, _ text: String, _ adjust: Float, _ iMenuFont: Int32) {
+public func Text_PaintCenter(_ x: Float, _ y: Float, _ scale: Float, _ color: JKAShared.vec4_t, _ text: String?, _ adjust: Float, _ iMenuFont: Int32) {
     // TODO: Port Text_PaintCenter
     portMissing("Text_PaintCenter", source: "oracle/codemp/ui/ui_main.c:11069")
 }
@@ -2151,13 +2151,13 @@ private enum DisplayContextDefThunks {
     static let Text_Height: DisplayContextDefTextHeight = { JKAMP_UILogic.Text_Height(text(at: $0!), $1, $2) }
 
     /// Source: oracle/codemp/ui/ui_main.c:1103
-    static let Text_Paint: DisplayContextDefDrawText = { JKAMP_UILogic.Text_Paint($0, $1, $2, vector4(at: $3!), text(at: $4!), $5, $6, $7, $8) }
+    static let Text_Paint: DisplayContextDefDrawText = { JKAMP_UILogic.Text_Paint($0, $1, $2, vector4(at: $3!), $4.map(text(at:)), $5, $6, $7, $8) }
 
     /// Source: oracle/codemp/ui/ui_main.c:1133
     static let Text_PaintWithCursor: DisplayContextDefDrawTextWithCursor = { JKAMP_UILogic.Text_PaintWithCursor($0, $1, $2, vector4(at: $3!), text(at: $4!), $5, Int32($6), $7, $8, $9) }
 
     /// Source: oracle/codemp/ui/ui_main.c:1089
-    static let Text_Width: DisplayContextDefTextWidth = { JKAMP_UILogic.Text_Width(text(at: $0!), $1, $2) }
+    static let Text_Width: DisplayContextDefTextWidth = { JKAMP_UILogic.Text_Width($0.map(text(at:)), $1, $2) }
 
     /// Source: oracle/codemp/ui/ui_main.c:5417
     // TODO: Port signature

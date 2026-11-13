@@ -265,7 +265,7 @@ UI_Alloc
 ```
 */
 /// Source: oracle/codemp/ui/ui_shared.c:209
-public func UI_Alloc(_ size: Int32) -> UnsafeMutableRawPointer {
+public func UI_Alloc(_ size: Int32) -> UnsafeMutableRawPointer? {
     // TODO: Port UI_Alloc
     portMissing("UI_Alloc", source: "oracle/codemp/ui/ui_shared.c:209")
 }

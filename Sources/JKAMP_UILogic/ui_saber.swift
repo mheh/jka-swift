@@ -115,7 +115,7 @@ public func UI_ParseLiteralSilent(_ data: inout JKAShared.TextCursor, _ string: 
 }
 
 /// Source: oracle/codemp/ui/ui_saber.c:92
-public func UI_SaberParseParm(_ saberName: String, _ parmname: String, _ saberData: inout JKAShared.CharBuf) -> Bool {
+public func UI_SaberParseParm(_ saberName: String?, _ parmname: String, _ saberData: inout JKAShared.CharBuf) -> Bool {
     // TODO: Port UI_SaberParseParm
     portMissing("UI_SaberParseParm", source: "oracle/codemp/ui/ui_saber.c:92")
 }
@@ -151,7 +151,7 @@ public func UI_SaberShouldDrawBlade(_ saberName: String, _ bladeNum: Int32) -> B
 }
 
 /// Source: oracle/codemp/ui/ui_saber.c:233
-public func UI_IsSaberTwoHanded(_ saberName: String) -> Bool {
+public func UI_IsSaberTwoHanded(_ saberName: String?) -> Bool {
     // TODO: Port UI_IsSaberTwoHanded
     portMissing("UI_IsSaberTwoHanded", source: "oracle/codemp/ui/ui_saber.c:233")
 }
@@ -169,13 +169,13 @@ public func UI_SaberBladeRadiusForSaber(_ saberName: String, _ bladeNum: Int32) 
 }
 
 /// Source: oracle/codemp/ui/ui_saber.c:300
-public func UI_SaberProperNameForSaber(_ saberName: String, _ saberProperName: inout JKAShared.CharBuf) -> Bool {
+public func UI_SaberProperNameForSaber(_ saberName: String?, _ saberProperName: inout JKAShared.CharBuf) -> Bool {
     // TODO: Port UI_SaberProperNameForSaber
     portMissing("UI_SaberProperNameForSaber", source: "oracle/codemp/ui/ui_saber.c:300")
 }
 
 /// Source: oracle/codemp/ui/ui_saber.c:319
-public func UI_SaberValidForPlayerInMP(_ saberName: String) -> Bool {
+public func UI_SaberValidForPlayerInMP(_ saberName: String?) -> Bool {
     // TODO: Port UI_SaberValidForPlayerInMP
     portMissing("UI_SaberValidForPlayerInMP", source: "oracle/codemp/ui/ui_saber.c:319")
 }
