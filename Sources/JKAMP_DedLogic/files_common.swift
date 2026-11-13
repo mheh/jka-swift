@@ -126,7 +126,7 @@ public var fs_serverPaks: [Int32] {
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:208
-public var fs_serverPakNames: [String] {
+public var fs_serverPakNames: [String?] {
     get { world.variables.fs_serverPakNames }
     set { world.variables.fs_serverPakNames = newValue }
 }
@@ -144,7 +144,7 @@ public var fs_serverReferencedPaks: [Int32] {
 }
 
 /// Source: oracle/codemp/qcommon/files_common.cpp:214
-public var fs_serverReferencedPakNames: [String] {
+public var fs_serverReferencedPakNames: [String?] {
     get { world.variables.fs_serverReferencedPakNames }
     set { world.variables.fs_serverReferencedPakNames = newValue }
 }
