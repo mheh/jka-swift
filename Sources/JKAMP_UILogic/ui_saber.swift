@@ -147,12 +147,12 @@ public func UI_ParseLiteralSilent(_ data: inout JKAShared.TextCursor, _ string: 
 
 /// Source: oracle/codemp/ui/ui_saber.c:92
 @discardableResult
-public func UI_SaberParseParm(_ saberName: String, _ parmname: String, _ saberData: inout JKAShared.CharBuf) -> Bool {
+public func UI_SaberParseParm(_ saberName: String?, _ parmname: String, _ saberData: inout JKAShared.CharBuf) -> Bool {
     var token: String
     var value = ""
     var p: TextCursor
 
-    if saberName.isEmpty {
+    if saberName == nil || saberName!.isEmpty {
         return false
     }
 
@@ -168,7 +168,7 @@ public func UI_SaberParseParm(_ saberName: String, _ parmname: String, _ saberDa
             return false
         }
 
-        if Q_stricmp(token, saberName) == 0 {
+        if Q_stricmp(token, saberName!) == 0 {
             break
         }
 
@@ -186,7 +186,7 @@ public func UI_SaberParseParm(_ saberName: String, _ parmname: String, _ saberDa
     while true {
         token = COM_ParseExt(&p, true)
         if token.isEmpty {
-            Com_Printf(S_COLOR_RED + "ERROR: unexpected EOF while parsing '%s'\n", saberName)
+            Com_Printf(S_COLOR_RED + "ERROR: unexpected EOF while parsing '%s'\n", saberName!)
             return false
         }
 
@@ -265,7 +265,7 @@ public func UI_SaberShouldDrawBlade(_ saberName: String, _ bladeNum: Int32) -> B
 }
 
 /// Source: oracle/codemp/ui/ui_saber.c:233
-public func UI_IsSaberTwoHanded(_ saberName: String) -> Bool {
+public func UI_IsSaberTwoHanded(_ saberName: String?) -> Bool {
     let twoHanded: Int32
     var twoHandedString = CharBuf(8)
     UI_SaberParseParm(saberName, "twoHanded", &twoHandedString)
@@ -323,7 +323,7 @@ public func UI_SaberBladeRadiusForSaber(_ saberName: String, _ bladeNum: Int32) 
 }
 
 /// Source: oracle/codemp/ui/ui_saber.c:300
-public func UI_SaberProperNameForSaber(_ saberName: String, _ saberProperName: inout JKAShared.CharBuf) -> Bool {
+public func UI_SaberProperNameForSaber(_ saberName: String?, _ saberProperName: inout JKAShared.CharBuf) -> Bool {
     // Port-note: Raven copies his uninitialized buffer when the parse fails.
     // The CharBuf is zero at entry, so that copy writes an empty string.
     var stringedSaberName = CharBuf(1024)
@@ -341,7 +341,7 @@ public func UI_SaberProperNameForSaber(_ saberName: String, _ saberProperName: i
 }
 
 /// Source: oracle/codemp/ui/ui_saber.c:319
-public func UI_SaberValidForPlayerInMP(_ saberName: String) -> Bool {
+public func UI_SaberValidForPlayerInMP(_ saberName: String?) -> Bool {
     var allowed = CharBuf(8)
     if !UI_SaberParseParm(saberName, "notInMP", &allowed) { //not defined, default is yes
         return true
@@ -997,12 +997,12 @@ public func UI_SaberGetHiltInfo(_ singleHilts: inout ArraySlice<String?>, _ staf
         }
 
         //this is a saber name
-        if !UI_SaberValidForPlayerInMP(saberName!) {
+        if !UI_SaberValidForPlayerInMP(saberName) {
             SkipBracedSection(&p)
             continue
         }
 
-        if UI_IsSaberTwoHanded(saberName!) {
+        if UI_IsSaberTwoHanded(saberName) {
             if numStaffHilts < MAX_SABER_HILTS - 1 { //-1 because we have to NULL terminate the list
                 staffHilts[staffHilts.startIndex + numStaffHilts] = saberName
                 numStaffHilts += 1
