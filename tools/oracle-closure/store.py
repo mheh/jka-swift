@@ -152,7 +152,7 @@ def reads(rows: list[tuple]) -> dict:
 # The fact kinds by name, each the name of the Table attribute it holds.
 KINDS: dict[str, Kind] = {
     **{kind: pairs("parameters", ("function", "parameter"))
-       for kind in ("nullable", "hopped", "readonly_text", "indexed_params", "array_handoffs", "stores_through", "null_arms")},
+       for kind in ("nullable", "hopped", "readonly_text", "indexed_params", "array_handoffs", "stores_through", "null_arms", "null_slots", "text_nulls")},
     **{kind: names("functions", "name", blanks=("seq", "file")) for kind in ("called", "store_swept", "null_returns")},
     # The bodies of the swept unit keep the order of the parse.
     "functions": sequence("functions", ("file", "name")),

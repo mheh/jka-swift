@@ -1233,6 +1233,16 @@ RETURNS = {
     "VM_VM2C": "opaque",
 }
 
+# The RETURNS rows of one unit, which take the place of the row of the same name in that unit's run alone.
+# The ui's UI_Alloc hands back NULL on a full pool, oracle/codemp/ui/ui_shared.c:219-226, and UI_ParseInfos tests it at ui_gameinfo.c:68-72.
+# The cgame copy of the borrowed ui_shared.c keeps the `raw` row.
+UNIT_RETURNS: dict[str, dict[str, str]] = {"mp-ui": {"UI_Alloc": "optional_raw"}}
+
+# The units whose NULL sweep follows a text that can be NULL, a slot of a NULL slot array or a call of a function that returns NULL on one path.
+# The sweep sees no guard, so a unit joins by ruling, after its flows are read against Raven's NULL tests.
+# The ui joins for `saberName` of ui_saber.c:98, which String_Alloc and the hilt lists reach with no test, ui_saber.c:1099-1115 and ui_main.c:8793.
+TEXT_NULL_UNITS = {"mp-ui"}
+
 # Allocators whose `char *` result a body holds as a CharBuf of the constant size Raven asks for, when every store into the local is that call.
 # The allocation call and its free stay on the page, so the pool keeps Raven's count. See row 1 of the walk of 2026-10-01.
 # BG_TempAlloc holds the saberName locals of NPC_ParseParms and the tempReadBuffer locals of bg_vehicleLoad.
@@ -2009,6 +2019,11 @@ NIL_OVERLOADS = {
 
 # The traps whose buffer holds a NUL-separated list, which a caller walks past the first NUL, so the trap returns every byte as a CharBuf.
 LIST_TRAPS = {"trap_FS_GetFileList"}
+
+# The traps of each unit whose body is a hand body in the `Syscall+` file of the unit's view target, so traps.py writes no stub for them.
+# The ui's trap_R_RegisterShaderNoMip reads a cvar name that starts with `*` and holds 2 syscall calls, oracle/codemp/ui/ui_syscalls.c:151.
+# The cgame trap of the same name is one syscall, oracle/codemp/cgame/cg_syscalls.c:278, and stays generated.
+HAND_TRAPS: dict[str, set[str]] = {"mp-ui": {"trap_R_RegisterShaderNoMip"}}
 
 SHARED_STEMS = {"q_shared", "q_math", "g_syscalls", "g_strap"}
 

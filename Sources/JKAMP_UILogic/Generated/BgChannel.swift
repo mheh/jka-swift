@@ -16,7 +16,7 @@ public func installBgChannel() {
     bg.straps.trap_G2API_GetBoltMatrix = { trap_G2API_GetBoltMatrix($0, $1, $2, $3, $4, $5, $6, $7, &$8) }
     bg.straps.trap_G2API_InitGhoul2Model = { trap_G2API_InitGhoul2Model(&$0, $1, $2, $3, $4, $5, $6) }
     bg.straps.trap_R_RegisterModel = { trap_R_RegisterModel($0) }
-    // trap_R_RegisterShaderNoMip keeps its default, because the ui stub of `trap_R_RegisterShaderNoMip` carries a TODO: Port signature marker.
+    bg.straps.trap_R_RegisterShaderNoMip = { trap_R_RegisterShaderNoMip($0) }
     bg.straps.trap_R_RegisterSkin = { trap_R_RegisterSkin($0) }
     bg.straps.trap_S_RegisterSound = { trap_S_RegisterSound($0) }
 }

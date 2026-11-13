@@ -87,10 +87,9 @@ public let forceSpeedLevels: [Float] = [
 ]
 
 /// Source: oracle/codemp/game/bg_pmove.c:67
-/// Raven's data table, a hand property of `BgState`.
 public var forcePowerNeeded: [[Int32]] {
-    get { bg.forcePowerNeeded }
-    set { bg.forcePowerNeeded = newValue }
+    get { bg.variables.forcePowerNeeded }
+    set { bg.variables.forcePowerNeeded = newValue }
 }
 
 /// Source: oracle/codemp/game/bg_pmove.c:155

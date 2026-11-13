@@ -52,6 +52,7 @@ from overlay import MACROS, written_arguments
 from reexport import REPO, SOURCES
 from rulings import BYTE_STORAGE_LOCALS, BYTE_STORAGE_VARS, CXX_CLASSES, DEAD, HAND_MACROS, HAND_VARS, LIBC_FUNCTIONS, NEVER_NULL_VARS, NOT_PORTED, PUBLIC_NAMES, RETURNS, \
     POINTER_SLOT_VARS, SCALAR_DATA_TABLES, TYPES
+from spelling import text_slot
 from store import Store, combined, file_hash, named
 from table import Param, SourceFile, Table, swift_name
 
@@ -147,6 +148,9 @@ class Function:
 class Variable:
     """One file-scope variable definition and the entry the stub carries for it, by rule 3 and rule 6."""
 
+    # Raven's initializer as the lines of a Swift array literal, for a written bg data table that stands on the bg variables.
+    literal: list[str] | None = None
+
     def __init__(self, cur: ci.Cursor, stem: str) -> None:
         self.cur = cur
         self.name = cur.spelling
@@ -225,7 +229,7 @@ class Variable:
         if self.name in HAND_VARS:
             return "hand"
         if self.written:
-            return "state_data" if self.data else "state"
+            return "state_data" if self.data and self.literal is None else "state"
         return "let"
 
 
@@ -480,33 +484,50 @@ class Skeleton:
             for var in variables:
                 var.shared = len(owners[var.name]) > 1
 
-        def written(node: ci.Cursor) -> None:
+        def written(node: ci.Cursor, names: dict[str, list[Variable]] = by_name, own_file: bool = False) -> None:
             if node.kind == CursorKind.BINARY_OPERATOR or node.kind == CursorKind.COMPOUND_ASSIGNMENT_OPERATOR:
                 if binop_assign_op(node):
-                    self.note_write(list(node.get_children())[0], by_name)
+                    self.note_write(list(node.get_children())[0], names, own_file=own_file)
             elif node.kind == CursorKind.UNARY_OPERATOR:
                 tokens = [t.spelling for t in node.get_tokens()]
                 if "++" in tokens or "--" in tokens or (tokens and tokens[0] == "&"):
                     kids = list(node.get_children())
                     if kids:
-                        self.note_write(kids[0], by_name)
+                        self.note_write(kids[0], names, own_file=own_file)
             elif node.kind == CursorKind.CALL_EXPR:
                 arguments = list(node.get_children())[1:]
                 if node.spelling in MACROS:
                     # The overlay's template says which argument one of Raven's macros writes, so the source of a `VectorCopy` is a read.
                     for i in written_arguments(node.spelling):
                         if i < len(arguments):
-                            self.note_write(arguments[i], by_name, arrays_only=True)
+                            self.note_write(arguments[i], names, arrays_only=True, own_file=own_file)
                 else:
                     # An array passed by name decays to a pointer the callee may write through.
                     for arg in arguments:
-                        self.note_write(arg, by_name, arrays_only=True)
+                        self.note_write(arg, names, arrays_only=True, own_file=own_file)
             for child in node.get_children():
-                written(child)
+                written(child, names, own_file)
 
         for cur, cgame in self.file_scope_cursors():
             if cur.kind == CursorKind.FUNCTION_DECL and cur.is_definition() and (not cgame or self.cgame_bg_function(cur)):
                 written(cur)
+
+        # The bg target stands in the product of every consumer, so a write in any build that compiles a bg file makes its variable a `var`, rule 25.
+        # The two parses of the run are swept above, and each other unit whose build compiles a bg file of this run is swept here.
+        # The ui writes `bgForcePowerCost` of bg_misc.c:174 at ui_force.c:373 and ui_main.c:1385, and the game and the cgame never write it.
+        bg_names = {name: [v for v in variables if target_of(v.stem) == BG and not v.local] for name, variables in by_name.items()}
+        bg_names = {name: variables for name, variables in bg_names.items() if variables}
+        for unit in self.consumer_units(bg_names):
+            for cur in self.parse.unit(unit).cursor.get_children():
+                if cur.kind == CursorKind.FUNCTION_DECL and cur.is_definition():
+                    written(cur, bg_names, own_file=True)
+
+        # A bg data table that a body writes stands on the bg variables with Raven's initializer, the form of `bgNumSiegeClasses`.
+        # The literal keeps each of Raven's lines and comments, and a table with no such literal keeps the hand form of `state_data`.
+        for name, variables in bg_names.items():
+            for var in variables:
+                if var.written and var.data and var.reason is None:
+                    var.literal = self.table_literal(var)
 
         # Raven writes a buffer through an alias too, `marker = SaberParms + totallen` and then `*marker = 0`,
         # and the cursor sweep of the table names the buffers a write cursor points into.
@@ -665,8 +686,12 @@ class Skeleton:
     def exported_of(self, stem: str) -> dict[str, str]:
         return self.table.views.exported_names("CJKAMP" if target_of(stem) == BG else C_TARGET)
 
-    def note_write(self, lvalue: ci.Cursor, by_name: dict[str, list[Variable]], arrays_only: bool = False) -> None:
-        """A write marks every file's copy of the name, because the unity parse binds a shared static's uses to one declaration."""
+    def note_write(self, lvalue: ci.Cursor, by_name: dict[str, list[Variable]], arrays_only: bool = False, own_file: bool = False) -> None:
+        """A write marks every file's copy of the name, because the unity parse binds a shared static's uses to one declaration.
+        With `own_file`, a write marks only the copy of the file that declares the name the write reaches, for a parse of another unit."""
+        if own_file and arrays_only and lvalue.type.get_canonical().kind not in (TypeKind.POINTER, TypeKind.CONSTANTARRAY, TypeKind.INCOMPLETEARRAY):
+            # An element that a call takes by value is a read, `UI_DrawGenericNum(..., forceMasteryPoints[MAX_FORCE_RANK], ...)` of ui_main.c:3536.
+            return
         rooted = root_var(lvalue)
         if rooted is None:
             return
@@ -675,7 +700,96 @@ class Skeleton:
                 continue
             if arrays_only and var.cur.type.get_canonical().kind != TypeKind.CONSTANTARRAY:
                 continue
+            if own_file and Path(rooted[1].rsplit(":", 1)[0]).name != C.file_name(var.stem):
+                continue
             var.written = True
+
+    def consumer_units(self, names: dict[str, list[Variable]]) -> list[str]:
+        """The module units beside the two parses of the run whose build compiles the file of a variable in `names`, by the srcglob of each unit."""
+        files = {Path(var.cur.location.file.name).resolve() for variables in names.values() for var in variables if var.cur.location.file}
+        units = []
+        for unit, row in C.PROJECT["targets"].items():
+            if unit in (C.UNIT, C.OTHER_UNIT) or row.get("kind", "module") == "host" or unit not in C.MODULES:
+                continue
+            compiled = {path.resolve() for pattern in C.MODULES[unit].get("srcglob", []) for path in C.SRC_ROOT.glob(pattern)}
+            if files & compiled:
+                units.append(unit)
+        return units
+
+    def table_literal(self, var: Variable) -> list[str] | None:
+        """Raven's initializer of a data table of integers as the lines of a Swift array literal, each of his lines and comments in place.
+        The first line opens the literal after `=`, and the last line closes it. None for a value that is no integer literal,
+        for a count that is not the declared bound, and for a table of another element."""
+        swift = var.swift or ""
+        element = swift.strip("[]")
+        if not swift.startswith("[") or element not in ("Int32", "UInt32", "Int16", "UInt16", "JKAShared.byte"):
+            return None
+        text = self.declaration_text(var).split("=", 1)[1].replace("\r", "")
+        lines = text.split("\n")
+        literals = r'"(?:[^"\\]|\\.)*"|\'(?:[^\'\\]|\\.)*\''
+        if re.search(literals, text) or "/*" in text:
+            return None
+
+        def code(line: str) -> tuple[str, str]:
+            # The part before a `//` comment, and the comment.
+            at = line.find("//")
+            return (line, "") if at < 0 else (line[:at], line[at:])
+
+        # The values must be numbers alone, so the literal holds no name the bg target cannot see.
+        values = [v.strip() for line in lines for v in re.split(r"[{},]", code(line)[0]) if v.strip()]
+        if not values or not all(re.fullmatch(r"-?\d+", v) for v in values):
+            return None
+        # The nesting of the braces must be the nesting of the declared bounds, with one value or one row for each slot.
+        bounds: list[int] = []
+        t = var.cur.type.get_canonical()
+        while t.kind == TypeKind.CONSTANTARRAY:
+            bounds.append(t.element_count)
+            t = t.element_type.get_canonical()
+        if len(bounds) != swift.count("[") or not self.literal_fits("".join(code(line)[0] for line in lines), bounds):
+            return None
+        opening = next(i for i, line in enumerate(lines) if "{" in code(line)[0])
+        closing = max(i for i, line in enumerate(lines) if "}" in code(line)[0])
+        if opening == closing or code(lines[opening])[0].strip() != "{" or code(lines[closing])[0].strip() != "}":
+            return None
+        # A comment before the brace, `= //0 == neutral` of bg_misc.c:174, stands after the opening bracket.
+        heads = [code(line)[1] for line in lines[:opening + 1] if code(line)[1]]
+        out = ["[" + "".join(f" {head}" for head in heads)]
+        # A line inside a row stands one level deeper than the row, and a line that closes a row stands at the row's level.
+        depth = 0
+        for line in lines[opening + 1:closing]:
+            part, comment = code(line.strip())
+            level = depth - 1 if part.startswith("}") else depth
+            text = (part.replace("{", "[").replace("}", "]") + comment).rstrip()
+            out.append("    " * level + text if text else "")
+            depth += part.count("{") - part.count("}")
+        out.append("]" + (f" {code(lines[closing])[1]}" if code(lines[closing])[1] else ""))
+        return out
+
+    @staticmethod
+    def literal_fits(code: str, bounds: list[int]) -> bool:
+        """True when the braces of a C initializer nest as the bounds do, with exactly the declared count at each level."""
+        tokens = re.findall(r"[{}]|[^{},\s]+", code)
+        position = 0
+
+        def level(depth: int) -> bool:
+            nonlocal position
+            if position >= len(tokens) or tokens[position] != "{":
+                return False
+            position += 1
+            count = 0
+            while position < len(tokens) and tokens[position] != "}":
+                if depth + 1 < len(bounds):
+                    if not level(depth + 1):
+                        return False
+                else:
+                    position += 1
+                count += 1
+            if position >= len(tokens):
+                return False
+            position += 1
+            return count == bounds[depth]
+
+        return level(0) and position == len(tokens)
 
     def map_variable(self, var: Variable) -> None:
         """The Swift type of a variable, or the reason it has none. A struct table is C storage, never a Swift type."""
@@ -764,7 +878,8 @@ class Skeleton:
         if element.kind == TypeKind.POINTER:
             pointee = element.get_pointee()
             if pointee.get_canonical().kind == TypeKind.CHAR_S:
-                inner = "String"
+                # An array of texts that a body stores NULL into, or hands to a parameter that gets the NULL, holds optional texts.
+                inner = text_slot(bool(depth) and ("", var.name) in self.table.null_slots)
             elif pointee.get_canonical().kind == TypeKind.VOID and not depth:
                 # Raven's `void *` global is an engine handle, the Ghoul2 instance of a trap, spelled as the traps spell it.
                 inner = "OpaquePointer?"
@@ -1778,6 +1893,12 @@ class Skeleton:
                 text = self.declaration_text(var)
                 declaration = " ".join(text.split("=", 1)[0].split()).removeprefix("static ")
                 lines += [f"    /// Raven's `{declaration}` of `{C.file_name(stem)}`.", f"    /// Source: {var.cite}"]
+                if var.literal is not None:
+                    # Raven's table with his lines and comments, one level deeper than the property.
+                    lines.append(f"    public var {var.field}: {var.swift} = {var.literal[0]}")
+                    lines += [f"        {line}" if line else "" for line in var.literal[1:-1]]
+                    lines += [f"    {var.literal[-1]}", ""]
+                    continue
                 value = self.initializer(var)
                 if target == LOGIC and value is not None and re.fullmatch(r"\w+", value) and value in self.module_lets(target_of(stem)):
                     # A constant of the logic target, a `.c` macro such as GORE_TAG_UPPER of G2_misc.cpp:29, is out of the view target's sight,
