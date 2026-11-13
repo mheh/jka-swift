@@ -236,7 +236,7 @@ public func UI_SaberAttachToChar(_ item: ItemDef) {
 
 // Fill in with saber hilts
 /// Source: oracle/codemp/ui/ui_saber.c:1080
-public func UI_SaberGetHiltInfo(_ singleHilts: inout ArraySlice<String>, _ staffHilts: inout ArraySlice<String>) {
+public func UI_SaberGetHiltInfo(_ singleHilts: inout ArraySlice<String?>, _ staffHilts: inout ArraySlice<String?>) {
     // TODO: Port UI_SaberGetHiltInfo
     portMissing("UI_SaberGetHiltInfo", source: "oracle/codemp/ui/ui_saber.c:1080")
 }

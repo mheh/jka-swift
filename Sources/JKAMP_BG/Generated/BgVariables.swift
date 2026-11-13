@@ -10,6 +10,30 @@ public struct BgVariables {
     /// Source: oracle/codemp/game/bg_lib.c:763
     public var randSeed: Int32 = 0
 
+    /// Raven's `int bgForcePowerCost[NUM_FORCE_POWERS][NUM_FORCE_POWER_LEVELS]` of `bg_misc.c`.
+    /// Source: oracle/codemp/game/bg_misc.c:174
+    public var bgForcePowerCost: [[Int32]] = [ //0 == neutral
+        [	0,	2,	4,	6	],	// Heal			// FP_HEAL
+        [	0,	0,	2,	6	],	// Jump			//FP_LEVITATION,//hold/duration
+        [	0,	2,	4,	6	],	// Speed		//FP_SPEED,//duration
+        [	0,	1,	3,	6	],	// Push			//FP_PUSH,//hold/duration
+        [	0,	1,	3,	6	],	// Pull			//FP_PULL,//hold/duration
+        [	0,	4,	6,	8	],	// Mind Trick	//FP_TELEPATHY,//instant
+        [	0,	1,	3,	6	],	// Grip			//FP_GRIP,//hold/duration
+        [	0,	2,	5,	8	],	// Lightning	//FP_LIGHTNING,//hold/duration
+        [	0,	4,	6,	8	],	// Dark Rage	//FP_RAGE,//duration
+        [	0,	2,	5,	8	],	// Protection	//FP_PROTECT,//duration
+        [	0,	1,	3,	6	],	// Absorb		//FP_ABSORB,//duration
+        [	0,	1,	3,	6	],	// Team Heal	//FP_TEAM_HEAL,//instant
+        [	0,	1,	3,	6	],	// Team Force	//FP_TEAM_FORCE,//instant
+        [	0,	2,	4,	6	],	// Drain		//FP_DRAIN,//hold/duration
+        [	0,	2,	5,	8	],	// Sight		//FP_SEE,//duration
+        [	0,	1,	5,	8	],	// Saber Attack	//FP_SABER_OFFENSE,
+        [	0,	1,	5,	8	],	// Saber Defend	//FP_SABER_DEFENSE,
+        [	0,	4,	6,	8	]	// Saber Throw	//FP_SABERTHROW,
+        //NUM_FORCE_POWERS
+    ]
+
     /// Raven's `int bg_poolSize` of `bg_misc.c`.
     /// Source: oracle/codemp/game/bg_misc.c:3325
     public var bg_poolSize: Int32 = 0
@@ -58,6 +82,95 @@ public struct BgVariables {
     /// Raven's `int c_pmove` of `bg_pmove.c`.
     /// Source: oracle/codemp/game/bg_pmove.c:57
     public var c_pmove: Int32 = 0
+
+    /// Raven's `int forcePowerNeeded[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS]` of `bg_pmove.c`.
+    /// Source: oracle/codemp/game/bg_pmove.c:67
+    public var forcePowerNeeded: [[Int32]] = [
+        [ //nothing should be usable at rank 0..
+            999,//FP_HEAL,//instant
+            999,//FP_LEVITATION,//hold/duration
+            999,//FP_SPEED,//duration
+            999,//FP_PUSH,//hold/duration
+            999,//FP_PULL,//hold/duration
+            999,//FP_TELEPATHY,//instant
+            999,//FP_GRIP,//hold/duration
+            999,//FP_LIGHTNING,//hold/duration
+            999,//FP_RAGE,//duration
+            999,//FP_PROTECT,//duration
+            999,//FP_ABSORB,//duration
+            999,//FP_TEAM_HEAL,//instant
+            999,//FP_TEAM_FORCE,//instant
+            999,//FP_DRAIN,//hold/duration
+            999,//FP_SEE,//duration
+            999,//FP_SABER_OFFENSE,
+            999,//FP_SABER_DEFENSE,
+            999//FP_SABERTHROW,
+            //NUM_FORCE_POWERS
+        ],
+        [
+            65,//FP_HEAL,//instant //was 25, but that was way too little
+            10,//FP_LEVITATION,//hold/duration
+            50,//FP_SPEED,//duration
+            20,//FP_PUSH,//hold/duration
+            20,//FP_PULL,//hold/duration
+            20,//FP_TELEPATHY,//instant
+            30,//FP_GRIP,//hold/duration
+            1,//FP_LIGHTNING,//hold/duration
+            50,//FP_RAGE,//duration
+            50,//FP_PROTECT,//duration
+            50,//FP_ABSORB,//duration
+            50,//FP_TEAM_HEAL,//instant
+            50,//FP_TEAM_FORCE,//instant
+            20,//FP_DRAIN,//hold/duration
+            20,//FP_SEE,//duration
+            0,//FP_SABER_OFFENSE,
+            2,//FP_SABER_DEFENSE,
+            20//FP_SABERTHROW,
+            //NUM_FORCE_POWERS
+        ],
+        [
+            60,//FP_HEAL,//instant
+            10,//FP_LEVITATION,//hold/duration
+            50,//FP_SPEED,//duration
+            20,//FP_PUSH,//hold/duration
+            20,//FP_PULL,//hold/duration
+            20,//FP_TELEPATHY,//instant
+            30,//FP_GRIP,//hold/duration
+            1,//FP_LIGHTNING,//hold/duration
+            50,//FP_RAGE,//duration
+            25,//FP_PROTECT,//duration
+            25,//FP_ABSORB,//duration
+            33,//FP_TEAM_HEAL,//instant
+            33,//FP_TEAM_FORCE,//instant
+            20,//FP_DRAIN,//hold/duration
+            20,//FP_SEE,//duration
+            0,//FP_SABER_OFFENSE,
+            1,//FP_SABER_DEFENSE,
+            20//FP_SABERTHROW,
+            //NUM_FORCE_POWERS
+        ],
+        [
+            50,//FP_HEAL,//instant //You get 5 points of health.. for 50 force points!
+            10,//FP_LEVITATION,//hold/duration
+            50,//FP_SPEED,//duration
+            20,//FP_PUSH,//hold/duration
+            20,//FP_PULL,//hold/duration
+            20,//FP_TELEPATHY,//instant
+            60,//FP_GRIP,//hold/duration
+            1,//FP_LIGHTNING,//hold/duration
+            50,//FP_RAGE,//duration
+            10,//FP_PROTECT,//duration
+            10,//FP_ABSORB,//duration
+            25,//FP_TEAM_HEAL,//instant
+            25,//FP_TEAM_FORCE,//instant
+            20,//FP_DRAIN,//hold/duration
+            20,//FP_SEE,//duration
+            0,//FP_SABER_OFFENSE,
+            0,//FP_SABER_DEFENSE,
+            20//FP_SABERTHROW,
+            //NUM_FORCE_POWERS
+        ]
+    ]
 
     /// Raven's `int pm_flying` of `bg_pmove.c`.
     /// Source: oracle/codemp/game/bg_pmove.c:445

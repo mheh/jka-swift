@@ -769,7 +769,7 @@ public struct EngineVariables {
 
     /// Raven's `char *fs_serverPakNames[MAX_SEARCH_PATHS]` of `files_common.cpp`.
     /// Source: oracle/codemp/qcommon/files_common.cpp:208
-    public var fs_serverPakNames: [String] = [String](repeating: "", count: 4096)
+    public var fs_serverPakNames: [String?] = [String?](repeating: nil, count: 4096)
 
     /// Raven's `int fs_numServerReferencedPaks` of `files_common.cpp`.
     /// Source: oracle/codemp/qcommon/files_common.cpp:212
@@ -781,7 +781,7 @@ public struct EngineVariables {
 
     /// Raven's `char *fs_serverReferencedPakNames[MAX_SEARCH_PATHS]` of `files_common.cpp`.
     /// Source: oracle/codemp/qcommon/files_common.cpp:214
-    public var fs_serverReferencedPakNames: [String] = [String](repeating: "", count: 4096)
+    public var fs_serverReferencedPakNames: [String?] = [String?](repeating: nil, count: 4096)
 
     /// Raven's `char lastValidBase[MAX_OSPATH]` of `files_common.cpp`.
     /// Source: oracle/codemp/qcommon/files_common.cpp:217

@@ -281,13 +281,8 @@ public func trap_AnyLanguage_ReadCharFromString(_ psText: String, _ piAdvanceCou
 }
 
 /// Source: oracle/codemp/ui/ui_syscalls.c:151
-// TODO: Port signature
 // Raven wrote: qhandle_t trap_R_RegisterShaderNoMip( const char *name )
-// The body holds 2 syscall calls, not one.
-public func trap_R_RegisterShaderNoMip() -> Never {
-    // TODO: Port trap_R_RegisterShaderNoMip
-    portMissing("trap_R_RegisterShaderNoMip", source: "oracle/codemp/ui/ui_syscalls.c:151")
-}
+// A hand body in the `Syscall+` file of JKAMP_UI, by HAND_TRAPS.
 
 //added so I don't have to store a string containing the path of
 //the shader icon for a class -rww
