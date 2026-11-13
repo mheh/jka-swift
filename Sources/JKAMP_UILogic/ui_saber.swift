@@ -486,7 +486,7 @@ public func UI_DoSaber(_ origin: JKAShared.vec3_t, _ dir: JKAShared.vec3_t, _ le
         //	refEnts to do each glow blob individually
         saber.saberLength = length
 
-        // Jeff, I did this because I foolishly wished to have a bright halo as the saber is unleashed.
+        // Jeff, I did this because I foolishly wished to have a bright halo as the saber is unleashed.  
         // It's not quite what I'd hoped tho.  If you have any ideas, go for it!  --Pat
         if length < lengthMax {
             radiusmult = Float(1.0 + (2.0 / Double(length))) // Note this creates a curve, and length cannot be < 0.5.
@@ -665,14 +665,14 @@ public func UI_SaberDrawBlade(_ item: ItemDef, _ saberName: String, _ saberModel
         //	angles[PITCH] = curYaw;
         //	angles[ROLL] = 0;
 
-        // The engine only reads the scale, so a copy of the const vec3_origin stands in for it.
+        // The engine only reads the scale, at G2_API.cpp:1825-1851, so the copy is behavior-equal.
         var originScale = vec3_origin
         trap_G2API_GetBoltMatrix(item.ghoul2, saberModel, bolt, boltMatrix, angles, origin, uiInfo.uiDC.realTime, nil, &originScale) //NULL was cgs.model_draw
 
         // work the matrix axis stuff into the original axis and origins used.
         BG_GiveMeVectorFromMatrix(boltMatrix, ORIGIN, &bladeOrigin)
         BG_GiveMeVectorFromMatrix(boltMatrix, NEGATIVE_Y, &axis[0]) //front (was NEGATIVE_Y, but the md3->glm exporter screws up this tag somethin' awful)
-        //		...changed this back to NEGATIVE_Y
+        //		...changed this back to NEGATIVE_Y		
         BG_GiveMeVectorFromMatrix(boltMatrix, NEGATIVE_X, &axis[1]) //right ... and changed this to NEGATIVE_X
         BG_GiveMeVectorFromMatrix(boltMatrix, POSITIVE_Z, &axis[2]) //up
 
