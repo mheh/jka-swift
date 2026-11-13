@@ -3,7 +3,7 @@
 # Usage: `tools/worktree-setup.sh [--tools]`, from a folder in the worktree.
 # With no flag, the script prints one line that says whether the worktree is clean.
 # `--tools` gives the generators and `snapshot.py` what they need: the `oracle` and `jka-rust` submodules, the Python environment of the main tree,
-# the `extract.json` of each unit that has a snapshot, the manifests of each of those units, and the type stones.
+# the `extract.json` of each unit that has a snapshot, and the manifests and the type stones of each of those units.
 # The submodules borrow their objects from the main tree's `.git/modules`, so the checkout downloads almost nothing.
 # The script never removes a submodule checkout.
 
@@ -91,6 +91,7 @@ done
 
 # Git ignores `.claude/`, so a new worktree has no manifest and no stone, and a body writer reads both.
 # A manifest that is present stays as it is. After a change to a stub line, run `manifest.py` again by hand.
+# A stone folder that holds its index stays as it is. After a change to a view, run `rosetta.py --unit <unit>` again by hand.
 # The first `manifest.py` run of a unit sweeps the table, so it also writes `table.sqlite` and the store of the unit under `out/`.
 # The full output of each run goes to `out/setup/`.
 mkdir -p "$CLOSURE/out/setup"
@@ -113,13 +114,22 @@ for UNIT in mp-game mp-cgame mp-ui mp-engine-ded; do
     fi
 done
 
-if [ -f .claude/rosetta/index.md ]; then
-    echo "---- rosetta: present"
-elif (cd "$CLOSURE" && .venv/bin/python rosetta.py) > "$CLOSURE/out/setup/rosetta.log" 2>&1 \
-    && [ -f .claude/rosetta/index.md ]; then
-    echo "---- rosetta: written"
-else
-    echo "---- rosetta: the run failed, see $CLOSURE/out/setup/rosetta.log"
-    STATUS=1
-fi
+for UNIT in mp-game mp-cgame mp-ui mp-engine-ded; do
+    # The stones of `mp-game` are at the root of the folder, and each other unit has a folder of its own name.
+    FOLDER=.claude/rosetta
+    if [ "$UNIT" != mp-game ]; then
+        FOLDER=$FOLDER/$UNIT
+    fi
+    if [ -f "$FOLDER/index.md" ]; then
+        echo "---- rosetta $UNIT: present"
+        continue
+    fi
+    if (cd "$CLOSURE" && .venv/bin/python rosetta.py --unit "$UNIT") > "$CLOSURE/out/setup/rosetta-$UNIT.log" 2>&1 \
+        && [ -f "$FOLDER/index.md" ]; then
+        echo "---- rosetta $UNIT: written"
+    else
+        echo "---- rosetta $UNIT: the run failed, see $CLOSURE/out/setup/rosetta-$UNIT.log"
+        STATUS=1
+    fi
+done
 exit $STATUS

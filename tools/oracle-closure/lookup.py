@@ -2,7 +2,7 @@
 """lookup.py: the one question a blind transcriptor may ask about a type or a function.
 
 Reads the generated stones under .claude/rosetta and the manifests under .claude/manifest, no libclang, so an answer
-is instant. A `fn` or `sig` answer comes from the signature rows that skeleton.py writes into the table store,
+is instant. With `--unit`, it reads the stones and the manifests of the folder of that unit, `.claude/rosetta/mp-ui/`. A `fn` or `sig` answer comes from the signature rows that skeleton.py writes into the table store,
 while every Swift stub the rows were read from has the hash the store saved, and from the manifests otherwise.
 A stale stub is named on standard error. Prints the Swift spelling of a C type, one field of a viewed struct, or the manifest row of a function.
 
@@ -15,6 +15,7 @@ Usage:
   python3 tools/oracle-closure/lookup.py sig Pmove              # the signature the table gives the function today
   python3 tools/oracle-closure/lookup.py sig pm_stopspeed       # the stub entry of a file-scope variable
   .venv/bin/python lookup.py --unit mp-cgame fn CG_DrawFPS      # a `fn` or `sig` answer for another unit
+  .venv/bin/python lookup.py --unit mp-ui itemDef_t             # a type of another unit, from the stones of that unit
 """
 
 from __future__ import annotations
@@ -34,19 +35,24 @@ MANIFEST = REPO / ".claude" / "manifest"
 with (HERE / "project.toml").open("rb") as _f:
     _project = tomllib.load(_f)
 STORE = REPO / _project["targets"][_project["sweep"]["unit"]]["store"]
+# The command that asks again for the unit of this run, which the hint to a nested stone prints.
+COMMAND = "python3 tools/oracle-closure/lookup.py"
 
 
 def unit(argv: list[str]) -> list[str]:
-    """The manifests and the store of the unit that `--unit` names, and the command line without the option.
+    """The stones, the manifests, and the store of the unit that `--unit` names, and the command line without the option.
     Only a command line with `--unit` imports closure.py, because that import loads libclang and a game answer stays instant."""
     if not any(word == "--unit" or word.startswith("--unit=") for word in argv):
         return argv
-    global MANIFEST, STORE
+    global COMMAND, MANIFEST, ROSETTA, STORE
     import closure as C
 
-    # manifest.py writes the manifests of a unit other than the default into a folder of the unit's name.
-    MANIFEST = C.written(REPO / ".claude" / "manifest" / ("" if C.UNIT == C.PROJECT["sweep"]["unit"] else C.UNIT))
+    # manifest.py and rosetta.py write the files of a unit other than the default into a folder of the unit's name.
+    folder = "" if C.UNIT == C.PROJECT["sweep"]["unit"] else C.UNIT
+    MANIFEST = C.written(REPO / ".claude" / "manifest" / folder)
+    ROSETTA = C.written(REPO / ".claude" / "rosetta" / folder)
     STORE = REPO / C.TARGETS["store"]
+    COMMAND = f"tools/oracle-closure/.venv/bin/python tools/oracle-closure/lookup.py --unit {C.UNIT}"
     out = []
     skip = False
     for word in argv:
@@ -91,7 +97,7 @@ def stone(c_type: str, field: str | None) -> int:
                 for candidate in ROSETTA.glob("*.md"):
                     text = candidate.read_text()
                     if f"Swift view `" in text and f".{nested.group(1)}`" in text.split("\n")[4]:
-                        print(f"  the field's own stone: python3 tools/oracle-closure/lookup.py {candidate.stem}")
+                        print(f"  the field's own stone: {COMMAND} {candidate.stem}")
             return 0
     print(f"lookup: {c_type} has no field {field}")
     return 1

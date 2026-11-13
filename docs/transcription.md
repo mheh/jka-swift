@@ -30,11 +30,14 @@ A transcriptor reads exactly this set, and nothing else:
 
 The lookup tool is `tools/oracle-closure/lookup.py`, the only command a transcriptor runs from the repository root.
 
-- `python3 tools/oracle-closure/lookup.py <C type>` gives the Swift view and every field.
-- `python3 tools/oracle-closure/lookup.py <C type> <field>` gives one field.
-- `python3 tools/oracle-closure/lookup.py <typedef or enum>` gives a scalar or enum spelling.
-- `python3 tools/oracle-closure/lookup.py fn <name>` gives a function's manifest row, with its oracle range, its Swift stub line, and its state.
-- `python3 tools/oracle-closure/lookup.py sig <name>` gives the signature the table gives the function today. An adopted file keeps its old stub line, so a second pass takes the parameter list from this command and not from the file.
+- `tools/oracle-closure/.venv/bin/python tools/oracle-closure/lookup.py <C type>` gives the Swift view and every field.
+- `tools/oracle-closure/.venv/bin/python tools/oracle-closure/lookup.py <C type> <field>` gives one field.
+- `tools/oracle-closure/.venv/bin/python tools/oracle-closure/lookup.py <typedef or enum>` gives a scalar or enum spelling.
+- `tools/oracle-closure/.venv/bin/python tools/oracle-closure/lookup.py fn <name>` gives a function's manifest row, with its oracle range, its Swift stub line, and its state.
+- `tools/oracle-closure/.venv/bin/python tools/oracle-closure/lookup.py sig <name>` gives the signature the table gives the function today. An adopted file keeps its old stub line, so a second pass takes the parameter list from this command and not from the file.
+
+A unit that is not the game takes `--unit <unit>` after the script name, for example `--unit mp-ui`, and the answer for a type comes from the stones of that unit.
+A body worktree is prepared with `tools/worktree-setup.sh --tools`, which links the Python environment of the main tree.
 
 Unknown types become Port-notes.
 A reviewer reads the same set, plus the jka-rust range from the manifest.
@@ -251,8 +254,9 @@ A parameter the body writes, steps, casts, or passes to a function with no body 
 A caller with a `String` for that parameter passes `var buf = CharBuf(name)` and `&buf`, and reads `String(buf)` after the call where Raven reads the result. A pointer into a buffer passed to an `inout CharBuf` parameter that the callee does not write is a copy of the suffix, `var token = g_banIPs.stringBuffer[t...]` and `AddIP(&token)`.
 When Raven writes into a slot with room past the text, the buffer takes the size of the slot, and the text stores back into the slot after the call.
 So `Info_SetValueForKey( g_arenaInfos[n], "num", va( "%i", n ) )` of `G_LoadArenas` reads `var info = CharBuf(strlen(g_arenaInfos[n]) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1)`, `strcpy(&info, g_arenaInfos[n])`, `Info_SetValueForKey(&info, "num", va("%i", n))`, and `g_arenaInfos[n] = String(info)`, with the sum `G_ParseInfos` hands to `G_Alloc` for the slot.
+Where Raven stores the result of `UI_Alloc` in a `char *` slot that Swift holds as a `String` and then tests the slot, `infos[count]` of `UI_ParseInfos`, the body tests the result of the call, `if UI_Alloc(...) != nil { ... }`, and the store of the text and the count go under the test.
 A `char *` parameter the NULL sweep reaches, at a direct `NULL` or one hop on, crosses as a `String?`, the caller passes `nil` for `NULL`, and the body keeps Raven's test with both arms, `if locMsg != nil { ... } else { ... }` of `G_SayTo`.
-In a unit of `TEXT_NULL_UNITS`, the ui, the rule holds for a `const char *` too, and the sweep also reaches a parameter through a `String?` slot of an array of `char *` and a call of a function that returns `NULL` on one path, such as `String_Alloc`. It also reaches each function that passes the parameter on, so `saberName` of `UI_SaberParseParm` and of each `UI_Saber` function that hands it on is `String?`, and the body keeps Raven's test `if ( !saberName || !saberName[0] )`.
+In a unit of `TEXT_NULL_UNITS`, the ui, the rule holds for a `const char *` too, and the sweep also reaches a parameter through a `String?` slot of an array of `char *` and a call of a function that returns `NULL` on one path, such as `String_Alloc`. A text that can be NULL reaches three functions: `UI_SaberProperNameForSaber` from the hilt slots (`oracle/codemp/ui/ui_main.c:8793`, `:8799`), `UI_SaberValidForPlayerInMP` from the result of `String_Alloc` (`oracle/codemp/ui/ui_saber.c:1099-1109`), and `UI_SaberParseParm`, which those two call. Each of the three takes `saberName` as `String?`, and the body keeps Raven's test `if ( !saberName || !saberName[0] )`. A `UI_Saber` function that gets only a buffer from its callers, such as `UI_SaberTypeForSaber`, keeps `String`.
 A body with an `inout CharBuf` parameter writes as Raven wrote, `powerOut[i] = readBuf[0]`, and `Q_strncpyz(_ dest: inout CharBuf, _ src: String, _ destsize: Int32)` ports line for line.
 `BG_ParseField` takes `UnsafeMutableRawPointer` for `byte *ent` and `Slots<BgField>` for the field table, and writes through the labeled subscript of the section on typed access at a byte offset. The caller passes the entity's handle turned raw, with a one-line comment that names rule 11.
 A body with an `inout vec3_t` parameter such as `colors` drops the `&& colors` half of Raven's guard, with no comment and no marker.
@@ -773,6 +777,7 @@ Where no port exists, the transcriptor adds a Port-note, because the exact C sem
 Each one works over `CharBuf` and `String`, `strcpy` also takes a raw destination, and `strlen` returns `Int32`, narrowed once inside it.
 Raven's `(unsigned char) c` is `Int32(UInt8(truncatingIfNeeded: c))`, so `*out++ = tolower( (unsigned char) *in++ )` stores ``out[outIndex] = tolower(Int32(UInt8(truncatingIfNeeded: `in`[inIndex])))``.
 `strcpy` and `strcat` take an `at:` offset too, for Raven's copy through a pointer into the buffer, and `strcat` appends at the first NUL from that byte.
+A `strcpy` into the token that `COM_Parse` or `COM_ParseExt` returned is an assignment to the `String` local, `token = "<NULL>"` of `G_ParseInfos` and `UI_ParseInfos`, because Raven writes into the static buffer of the parser and the next line is its only reader.
 Raven's `memcpy(dest, string, l+1)` of a `String`, where `l = strlen(string)`, is a `strcpy`, because both copy the text and its NUL and nothing else.
 His `memcpy(dest + off, src, strlen(src))` copies the text with no NUL, and it is `strncpy(&dest, String(src), len, at: off)`, so `memcpy( line + len, arg, tlen )` of `ConcatArgs` reads `strncpy(&line, String(arg), tlen, at: len)`.
 The `char *dest` over a named buffer is a write cursor, an `Int32` byte offset, so `dest = level.spawnVarChars + level.numSpawnVarChars` is `dest = level.numSpawnVarChars`.

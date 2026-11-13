@@ -97,7 +97,7 @@ public func G_ParseInfos(_ buf: inout JKAShared.CharBuf, _ max: Int32, _ infos: 
 
             token = COM_ParseExt(&buf, false)
             if token.isEmpty {
-                strcpy(&token, "<NULL>")
+                token = "<NULL>"
             }
             Info_SetValueForKey(&info, String(key), token)
         }

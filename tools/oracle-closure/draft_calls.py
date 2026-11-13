@@ -456,8 +456,9 @@ class Calls:
                 # The buffer goes to the overload of docket row 7, which hands the engine its base inside one unsafe scope.
                 return f"&{text}"
             raise Hole(f"Raven passes the buffer `{text}` to the engine as a handle, and the trap takes an OpaquePointer.")
-        if param is not None and param[1] in TEXT_TYPES and self.is_charbuf(inner) and not self.overload_takes(callee, position, "CharBuf"):
-            # A buffer into a String parameter crosses as the text it holds.
+        if param is not None and (param[1] in TEXT_TYPES or param[1] == "String?") and self.is_charbuf(inner) \
+                and not self.overload_takes(callee, position, "CharBuf"):
+            # A buffer into a String or a String? parameter crosses as the text it holds.
             return f"String({text})"
         if param is not None and param[1] in TEXT_TYPES and self.pooled_field(inner) and not param[1].endswith("?"):
             # A `char *` field is a String?, and its text goes into a String parameter. Raven's callers never pass a NULL one here.

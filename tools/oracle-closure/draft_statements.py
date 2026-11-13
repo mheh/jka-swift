@@ -1063,6 +1063,10 @@ class Statements:
             # `assert` is `((void)0)` under Raven's NDEBUG build, so the body drops it, by "assert".
             rest = self.trailing_comment(cur)
             return roled([f"{pad}{rest}"], "comment") if rest else []
+        if self.is_call(cur) and self.text_copy(cur) is not None:
+            # Raven's `strcpy( token, "<NULL>" )` into the token that `COM_ParseExt` returned is a new value of the String local.
+            target, source = self.text_copy(cur)
+            return [f"{pad}{self.expr(target)} = {self.expr(source)}" + self.trailing(cur)]
         if self.is_call(cur) and self.filled_call(cur) is not None:
             call, buffer, whole = self.filled_call(cur)
             if whole:

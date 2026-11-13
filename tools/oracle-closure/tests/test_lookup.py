@@ -187,5 +187,55 @@ class SkeletonRows(unittest.TestCase):
             self.assertEqual(Signatures.printed(self, lookup.signature, name, "store"), expected, name)
 
 
+class UnitFolders(unittest.TestCase):
+    def setUp(self) -> None:
+        saved = {name: getattr(lookup, name) for name in ("COMMAND", "MANIFEST", "ROSETTA", "STORE")}
+        self.addCleanup(lambda: [setattr(lookup, name, value) for name, value in saved.items()])
+
+    def test_the_unit_option_moves_the_stones_the_manifests_and_the_hint_to_the_unit(self) -> None:
+        import closure as C
+
+        # given a command line that names the ui
+        with mock.patch.object(C, "UNIT", "mp-ui"), mock.patch.object(C, "TARGETS", C.PROJECT["targets"]["mp-ui"]):
+            args = lookup.unit(["--unit", "mp-ui", "itemDef_t"])
+
+        # then the stones and the manifests come from the folder of the ui, and the hint asks the ui again
+        self.assertEqual(args, ["itemDef_t"])
+        self.assertEqual(lookup.ROSETTA, lookup.REPO / ".claude" / "rosetta" / "mp-ui")
+        self.assertEqual(lookup.MANIFEST, lookup.REPO / ".claude" / "manifest" / "mp-ui")
+        self.assertEqual(lookup.STORE, lookup.REPO / "tools/oracle-closure/out/mp-ui/table.sqlite")
+        self.assertTrue(lookup.COMMAND.endswith("lookup.py --unit mp-ui"))
+
+    def test_a_command_line_with_no_unit_reads_the_root_folders(self) -> None:
+        # given a command line with no --unit
+        args = lookup.unit(["gentity_t", "r"])
+
+        # then the stones and the manifests are the folders of the default unit
+        self.assertEqual(args, ["gentity_t", "r"])
+        self.assertEqual(lookup.ROSETTA, lookup.REPO / ".claude" / "rosetta")
+        self.assertEqual(lookup.MANIFEST, lookup.REPO / ".claude" / "manifest")
+        self.assertEqual(lookup.COMMAND, "python3 tools/oracle-closure/lookup.py")
+
+    def test_the_hint_to_a_nested_stone_names_the_unit(self) -> None:
+        folder = tempfile.TemporaryDirectory()
+        self.addCleanup(folder.cleanup)
+        root = Path(folder.name)
+
+        # given two stones of the ui, where a field of the first is a view of the second
+        (root / "menuDef_t.md").write_text("# menuDef_t\n\nnote\n\nSwift view `JKAMP_UI.MenuDef`, over one `menuDef_t`.\n\n"
+                                           "| C field | Swift | Note |\n|---|---|---|\n| `windowDef_t window` | `window: WindowDef` |  |\n")
+        (root / "windowDef_t.md").write_text("# windowDef_t\n\nnote\n\nSwift view `JKAMP_UI.WindowDef`, over one `windowDef_t`.\n\n"
+                                             "| C field | Swift | Note |\n|---|---|---|\n")
+        lookup.ROSETTA = root
+        lookup.COMMAND = "tools/oracle-closure/.venv/bin/python tools/oracle-closure/lookup.py --unit mp-ui"
+
+        # then the hint of the field asks for the second stone with the unit
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(lookup.stone("menuDef_t", "window"), 0)
+        self.assertIn("the field's own stone: tools/oracle-closure/.venv/bin/python tools/oracle-closure/lookup.py --unit mp-ui windowDef_t",
+                      out.getvalue())
+
+
 if __name__ == "__main__":
     unittest.main()
