@@ -41,7 +41,7 @@ def table():
 
     t = T.Table.__new__(T.Table)
     t.types = Types(None, None)
-    for facts in ("nullable", "hopped", "readonly_text", "indexed_params", "stores_through", "null_arms", "store_swept", "array_handoffs"):
+    for facts in ("nullable", "hopped", "readonly_text", "indexed_params", "stores_through", "null_arms", "store_swept", "array_handoffs", "null_slots"):
         setattr(t, facts, set())
     return t
 

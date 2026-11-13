@@ -475,10 +475,9 @@ class ConsumerInstall:
                 path = Path(cur.location.file.name).resolve()
                 if C.within(path, parse.game_folder) and path.suffix == ".c":
                     self.defined.add(cur.spelling)
-        # The Swift declarations of the consumer, the stubs of its logic target and its typed traps, by name.
+        # The Swift declarations of the consumer, by name.
         self.declarations: dict[str, list[str]] = {}
-        files = [path for root in C.READ_ROOTS
-                 for path in sorted((root / LOGIC).glob("*.swift")) + [root / VIEWS / "Generated" / f"{Path(C.TARGETS['traps']).stem}.swift"]]
+        files = [path for root in C.READ_ROOTS for path in self.declaration_files(root)]
         for path in files:
             if not path.exists():
                 continue
@@ -489,6 +488,13 @@ class ConsumerInstall:
                     self.declarations[m.group(2)] = [m.group(1) or ""] + lines[max(0, i - 4):i]
         self.reads = READS[C.UNIT]
         self.counts: Counter[str] = Counter()
+
+    @staticmethod
+    def declaration_files(root: Path) -> list[Path]:
+        """The Swift files of the consumer under one root: the stubs of its logic target, its typed traps, and the hand traps of HAND_TRAPS.
+        A hand trap is a body in the `Syscall+` file of the view target, `trap_R_RegisterShaderNoMip` of the ui."""
+        return sorted((root / LOGIC).glob("*.swift")) + [root / VIEWS / "Generated" / f"{Path(C.TARGETS['traps']).stem}.swift"] \
+            + sorted((root / VIEWS).glob("Syscall+*.swift"))
 
     @staticmethod
     def closures(path: Path) -> list[tuple[str, str, list[str]]]:
