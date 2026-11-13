@@ -96,9 +96,19 @@ private let MAX_SABER_HILTS = 64 as Int32
 
 /// Source: oracle/codemp/ui/ui_saber.c:38
 public func UI_CacheSaberGlowGraphics() {
-    // Port-note: trap_R_RegisterShaderNoMip has no ported signature in ui_syscalls.swift, so the body cannot pass it a shader name.
-    // TODO: Port UI_CacheSaberGlowGraphics
-    portMissing("UI_CacheSaberGlowGraphics", source: "oracle/codemp/ui/ui_saber.c:38")
+    //FIXME: these get fucked by vid_restarts
+    redSaberGlowShader = trap_R_RegisterShaderNoMip("gfx/effects/sabers/red_glow")
+    redSaberCoreShader = trap_R_RegisterShaderNoMip("gfx/effects/sabers/red_line")
+    orangeSaberGlowShader = trap_R_RegisterShaderNoMip("gfx/effects/sabers/orange_glow")
+    orangeSaberCoreShader = trap_R_RegisterShaderNoMip("gfx/effects/sabers/orange_line")
+    yellowSaberGlowShader = trap_R_RegisterShaderNoMip("gfx/effects/sabers/yellow_glow")
+    yellowSaberCoreShader = trap_R_RegisterShaderNoMip("gfx/effects/sabers/yellow_line")
+    greenSaberGlowShader = trap_R_RegisterShaderNoMip("gfx/effects/sabers/green_glow")
+    greenSaberCoreShader = trap_R_RegisterShaderNoMip("gfx/effects/sabers/green_line")
+    blueSaberGlowShader = trap_R_RegisterShaderNoMip("gfx/effects/sabers/blue_glow")
+    blueSaberCoreShader = trap_R_RegisterShaderNoMip("gfx/effects/sabers/blue_line")
+    purpleSaberGlowShader = trap_R_RegisterShaderNoMip("gfx/effects/sabers/purple_glow")
+    purpleSaberCoreShader = trap_R_RegisterShaderNoMip("gfx/effects/sabers/purple_line")
 }
 
 /// Source: oracle/codemp/ui/ui_saber.c:54
@@ -961,7 +971,7 @@ public func UI_SaberAttachToChar(_ item: ItemDef) {
 
 // Fill in with saber hilts
 /// Source: oracle/codemp/ui/ui_saber.c:1080
-public func UI_SaberGetHiltInfo(_ singleHilts: inout ArraySlice<String>, _ staffHilts: inout ArraySlice<String>) {
+public func UI_SaberGetHiltInfo(_ singleHilts: inout ArraySlice<String?>, _ staffHilts: inout ArraySlice<String?>) {
     var numSingleHilts: Int32 = 0
     var numStaffHilts: Int32 = 0
     var saberName: String?
@@ -994,14 +1004,14 @@ public func UI_SaberGetHiltInfo(_ singleHilts: inout ArraySlice<String>, _ staff
 
         if UI_IsSaberTwoHanded(saberName!) {
             if numStaffHilts < MAX_SABER_HILTS - 1 { //-1 because we have to NULL terminate the list
-                staffHilts[staffHilts.startIndex + numStaffHilts] = saberName!
+                staffHilts[staffHilts.startIndex + numStaffHilts] = saberName
                 numStaffHilts += 1
             } else {
                 Com_Printf("WARNING: too many two-handed sabers, ignoring saber '%s'\n", saberName ?? "(null)")
             }
         } else {
             if numSingleHilts < MAX_SABER_HILTS - 1 { //-1 because we have to NULL terminate the list
-                singleHilts[singleHilts.startIndex + numSingleHilts] = saberName!
+                singleHilts[singleHilts.startIndex + numSingleHilts] = saberName
                 numSingleHilts += 1
             } else {
                 Com_Printf("WARNING: too many one-handed sabers, ignoring saber '%s'\n", saberName ?? "(null)")
@@ -1011,6 +1021,6 @@ public func UI_SaberGetHiltInfo(_ singleHilts: inout ArraySlice<String>, _ staff
         SkipBracedSection(&p)
     }
     //null terminate the list so the UI code knows where to stop listing them
-    // Port-note: A String slot of the slice holds no NULL, so the body cannot write Raven's terminator after the last hilt.
-    portMissing("UI_SaberGetHiltInfo", source: "oracle/codemp/ui/ui_saber.c:1141")
+    singleHilts[singleHilts.startIndex + numSingleHilts] = nil
+    staffHilts[staffHilts.startIndex + numStaffHilts] = nil
 }
