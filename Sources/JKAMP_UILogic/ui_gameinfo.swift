@@ -74,12 +74,11 @@ public func UI_ParseInfos(_ buf: inout JKAShared.CharBuf, _ max: Int32, _ infos:
 
             token = COM_ParseExt(&buf, false)
             if token.isEmpty {
-                strcpy(&token, "<NULL>")
+                token = "<NULL>"
             }
             Info_SetValueForKey(&info, String(key), token)
         }
         //NOTE: extra space for arena number
-        // Port-note: The guide has no form for the NULL test of an allocator result, so the body tests the result of UI_Alloc in place of Raven's slot.
         if UI_Alloc(strlen(info) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1) != nil {
             infos[infos.startIndex + count] = String(info)
             if trap_Cvar_VariableValue("com_buildScript") != 0 {
