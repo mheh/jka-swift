@@ -52,7 +52,7 @@ public func trap_Cvar_Update(_ cvar: JKAMP.VmCvar) {
 }
 
 /// Source: oracle/codemp/ui/ui_syscalls.c:41
-public func trap_Cvar_Set(_ var_name: String, _ value: String) {
+public func trap_Cvar_Set(_ var_name: String, _ value: String?) {
     _ = withCString(var_name) { var_name in
         withCString(value) { value in
             Syscall.call(UI_CVAR_SET, var_name, value)
@@ -223,7 +223,7 @@ public func trap_R_RegisterFont(_ fontName: String) -> JKAShared.qhandle_t {
 
 /// Source: oracle/codemp/ui/ui_syscalls.c:116
 @discardableResult
-public func trap_R_Font_StrLenPixels(_ text: String, _ iFontIndex: Int32, _ scale: Float) -> Int32 {
+public func trap_R_Font_StrLenPixels(_ text: String?, _ iFontIndex: Int32, _ scale: Float) -> Int32 {
     let word = withCString(text) { text in
         Syscall.call(UI_R_FONT_STRLENPIXELS, text, iFontIndex, scale)
     }
@@ -247,7 +247,7 @@ let word = Syscall.call(UI_R_FONT_STRHEIGHTPIXELS, iFontIndex, scale)
 }
 
 /// Source: oracle/codemp/ui/ui_syscalls.c:131
-public func trap_R_Font_DrawString(_ ox: Int32, _ oy: Int32, _ text: String, _ rgba: JKAShared.vec4_t?, _ setIndex: Int32, _ iCharLimit: Int32, _ scale: Float) {
+public func trap_R_Font_DrawString(_ ox: Int32, _ oy: Int32, _ text: String?, _ rgba: JKAShared.vec4_t?, _ setIndex: Int32, _ iCharLimit: Int32, _ scale: Float) {
     _ = withCString(text) { text in
         withUnsafePointer(to: rgba ?? .zero) { rgbaPointer in
             Syscall.call(UI_R_FONT_DRAWSTRING, ox, oy, text, rgba == nil ? nil : rgbaPointer, setIndex, iCharLimit, scale)

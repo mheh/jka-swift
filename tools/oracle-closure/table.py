@@ -22,7 +22,7 @@ import closure as C
 import store as S
 from fnsweep import ASSIGN_OPS
 from overlay import DECLARED, DROPPED, MACROS, written_arguments
-from rulings import HAND_MACROS, MSVC_WIDTH_FOLDERS, NULLABLE, PARAMS, RETURNS
+from rulings import HAND_MACROS, MSVC_WIDTH_FOLDERS, NULLABLE, PARAMS, RETURNS, TEXT_NULL_UNITS, UNIT_RETURNS
 from views import Generator
 from spelling import INT_KINDS, Facts, OPTIONAL_TEXT_RESULT, engine_array
 
@@ -38,7 +38,7 @@ REBUILD = False
 # The swept part of `nullable` stands beside the rows of NULLABLE it started from, which the `rulings` kind holds.
 BASE_FACTS = ("nullable", "hopped", "called", "readonly_text", "null_returns", "indexed_params", "indexed_fields", "handoffs",
               "cursors", "alias_writes", "buffer_traps", "text_traps", "reads", "file_walks", "array_handoffs",
-              "null_arms", "null_slots")
+              "null_arms", "null_slots", "text_nulls")
 ADOPTION_FACTS = ("stores_through", "store_swept")
 # A Raven parameter name that is a Swift keyword is written in backticks.
 KEYWORDS = {"extension", "in", "func", "class", "struct", "enum", "protocol", "default", "operator", "repeat", "where",
@@ -506,6 +506,9 @@ class Table:
         # The arrays of `char *` a body stores NULL into, as (function, parameter) pairs and as ("", name) for a file-scope array,
         # so the element of each one is `String?`.
         self.null_slots: set[tuple[str, str]] = set()
+        # The (function, parameter) pairs that a text that can be NULL reaches, at a call or one hop on: a NULL slot or a NULL return,
+        # so a `const char *` there is a String?, `saberName` of UI_SaberParseParm.
+        self.text_nulls: set[tuple[str, str]] = set()
 
     def sweep_reads(self, tu: ci.TranslationUnit, folder: Path) -> list[Read]:
         """Every game field a bg body reaches through a gentity_t, the level, or a cvar, as the reads the channel carries.
@@ -682,12 +685,33 @@ class Table:
                 if node.referenced.spelling.startswith("strap_"):
                     self.called.add("trap_" + node.referenced.spelling[len("strap_"):])
                 for i, arg in enumerate(list(node.get_children())[1:]):
-                    text = data[arg.extent.start.offset:arg.extent.end.offset].decode("utf-8", "replace").strip()
-                    if text in ("NULL", "0") and i < len(params) and self.takes_null(params[i].type):
+                    value = self.null_value(arg, data)
+                    if value == "text" and i < len(params) and self.takes_null(params[i].type):
+                        self.text_nulls.add((node.referenced.spelling, params[i].spelling))
+                    if value == "null" and i < len(params) and self.takes_null(params[i].type):
                         callee = node.referenced.spelling
                         self.nullable.add((callee, params[i].spelling))
                         if callee.startswith("strap_"):
                             self.nullable.add(("trap_" + callee[len("strap_"):], params[i].spelling))
+
+    def null_value(self, expr: ci.Cursor, data: bytes) -> str | None:
+        """`null` for Raven's `NULL` or `0`, `text` for a text that can be NULL, and None for any other expression.
+        A text that can be NULL is a slot of an array of `char *` that a body stores NULL into, `saberSingleHiltInfo[index]` of ui_main.c:8793,
+        or a call of a function that returns NULL on one path, `String_Alloc( token )`, by `null_returns` and the RETURNS kind `optional_string`.
+        Only a unit of TEXT_NULL_UNITS reads a text that can be NULL, because the sweep sees no NULL test of the caller."""
+        text = data[expr.extent.start.offset:expr.extent.end.offset].decode("utf-8", "replace").strip()
+        if text in ("NULL", "0"):
+            return "null"
+        if C.UNIT not in TEXT_NULL_UNITS:
+            return None
+        inner = self.unwrapped(expr)
+        if inner.kind == CursorKind.ARRAY_SUBSCRIPT_EXPR and inner.type.get_canonical().kind == TypeKind.POINTER:
+            pair = self.text_array_root(list(inner.get_children())[0])
+            return "text" if pair is not None and pair in self.null_slots else None
+        if inner.kind == CursorKind.CALL_EXPR and inner.referenced is not None and inner.referenced.kind == CursorKind.FUNCTION_DECL:
+            name = inner.referenced.spelling
+            return "text" if name in self.null_returns or RETURNS.get(name) == "optional_string" else None
+        return None
 
     def sweep_null_hops(self, tu: ci.TranslationUnit, *folders: Path) -> None:
         """The NULL sweep one hop on: a callee's parameter that takes a local the caller sets to NULL, or a parameter of the caller
@@ -701,18 +725,26 @@ class Table:
                 continue
             data = C.parsed_bytes(path)
             null_locals: set[str] = set()
+            # The locals that a text that can be NULL sets, `saberName = String_Alloc( token )` of ui_saber.c:1099.
+            text_locals: set[str] = set()
             for node in cur.walk_preorder():
                 if node.kind == CursorKind.VAR_DECL and self.takes_null(node.type):
                     kids = [k for k in node.get_children() if k.kind.is_expression()]
-                    if kids and data[kids[-1].extent.start.offset:kids[-1].extent.end.offset].decode("utf-8", "replace").strip() in ("NULL", "0"):
+                    value = self.null_value(kids[-1], data) if kids else None
+                    if value == "null":
                         null_locals.add(node.spelling)
+                    elif value == "text":
+                        text_locals.add(node.spelling)
                 if node.kind == CursorKind.BINARY_OPERATOR:
                     kids = list(node.get_children())
                     if len(kids) == 2 and self.unwrapped(kids[0]).kind == CursorKind.DECL_REF_EXPR \
                             and data[kids[0].extent.end.offset:kids[1].extent.start.offset].decode("utf-8", "replace").strip() == "=" \
-                            and data[kids[1].extent.start.offset:kids[1].extent.end.offset].decode("utf-8", "replace").strip() in ("NULL", "0") \
                             and self.takes_null(kids[0].type):
-                        null_locals.add(self.unwrapped(kids[0]).spelling)
+                        value = self.null_value(kids[1], data)
+                        if value == "null":
+                            null_locals.add(self.unwrapped(kids[0]).spelling)
+                        elif value == "text":
+                            text_locals.add(self.unwrapped(kids[0]).spelling)
             for node in cur.walk_preorder():
                 if node.kind != CursorKind.CALL_EXPR or node.referenced is None or node.referenced.kind != CursorKind.FUNCTION_DECL:
                     continue
@@ -725,6 +757,8 @@ class Table:
                     pair = (callee, params[i].spelling)
                     if inner.referenced.kind == CursorKind.VAR_DECL and inner.spelling in null_locals:
                         self.hopped.add(pair)
+                    elif inner.referenced.kind == CursorKind.VAR_DECL and inner.spelling in text_locals:
+                        self.text_nulls.add(pair)
                     elif inner.referenced.kind == CursorKind.PARM_DECL:
                         edges.append(((cur.spelling, inner.spelling), pair))
         changed = True
@@ -733,6 +767,14 @@ class Table:
             for source, target in edges:
                 if (source in self.nullable or source in self.hopped) and target not in self.nullable and target not in self.hopped:
                     self.hopped.add(target)
+                    changed = True
+        # A text that can be NULL follows a parameter down the same chain, apart from a literal NULL, so a `const char *` reads it alone.
+        changed = True
+        while changed:
+            changed = False
+            for source, target in edges:
+                if source in self.text_nulls and target not in self.text_nulls:
+                    self.text_nulls.add(target)
                     changed = True
 
     @staticmethod
@@ -2037,6 +2079,9 @@ class Table:
         """Every sweep of the base generation, in the order the table reads them."""
         tu, folder = self.parse.game, self.parse.game_folder
         other, other_folder = self.parse.cgame, self.parse.cgame_folder
+        # The NULL sweep reads the slots and the returns that can hold NULL, so those two sweeps run first.
+        self.sweep_null_slots(tu, folder)
+        self.sweep_returns(tu, folder)
         self.sweep_nulls(tu, folder)
         self.sweep_subscripts(tu, folder)
         self.sweep_handoffs(tu, folder)
@@ -2053,8 +2098,6 @@ class Table:
         self.sweep_cursors(tu, folder)
         self.sweep_file_walks()
         self.sweep_array_handoffs()
-        self.sweep_returns(tu, folder)
-        self.sweep_null_slots(tu, folder)
         self.reads = {read.key: read for read in self.sweep_reads(tu, folder)}
 
     def sweep_syntax(self) -> dict[str, list[tuple]]:
@@ -2174,6 +2217,7 @@ class Table:
             store_swept=owner in self.store_swept,
             fills_array=(owner, name) in self.array_handoffs,
             null_slots=(owner, name) in self.null_slots,
+            text_null=(owner, name) in self.text_nulls,
             reinterprets=self.reinterprets(cur),
         )
         width = self.msvc_width(cur.type, cur.semantic_parent)
@@ -2263,7 +2307,7 @@ class Table:
 
     def result(self, cur: ci.Cursor) -> tuple[str | None, str] | None:
         """The Swift return type and the expression that maps the word into it, or None for an unmappable return."""
-        ruled = RETURNS.get(cur.spelling)
+        ruled = UNIT_RETURNS.get(C.UNIT, {}).get(cur.spelling, RETURNS.get(cur.spelling))
         if ruled == "text_cursor":
             # A pointer into the caller's text, returned as the cursor it is.
             return ("JKAShared.TextCursor", "")

@@ -57,7 +57,7 @@ def table():
     t.types = Types(None, None)
     t.views = Views()
     t.null_returns = set()
-    for facts in ("nullable", "hopped", "readonly_text", "indexed_params", "stores_through", "null_arms", "store_swept", "array_handoffs", "null_slots"):
+    for facts in ("nullable", "hopped", "readonly_text", "indexed_params", "stores_through", "null_arms", "store_swept", "array_handoffs", "null_slots", "text_nulls"):
         setattr(t, facts, set())
     return t
 
