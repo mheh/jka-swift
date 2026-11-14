@@ -3442,7 +3442,9 @@ public func GetIdealDestination(_ bs: BotState) {
             tempInt = bs.wpCurrent!.index - 1
         }
 
-        if gWPArray[tempInt] != nil && gWPArray[tempInt]!.inuse != 0 && bs.escapeDirTime < level.time {
+        if tempInt >= 0 && tempInt < MAX_WPARRAY_SIZE && gWPArray[tempInt] != nil && gWPArray[tempInt]!.inuse != 0 && bs.escapeDirTime < level.time {
+            // Port-note: Raven reads the pointer before the table for a bot at waypoint 0, and the one past it at the last slot, which is undefined.
+            // The two bounds above make an index outside the table no waypoint.
             a = badthing!.s.pos.trBase - bs.wpCurrent!.origin
             plusLen = VectorLength(a)
             a = badthing!.s.pos.trBase - gWPArray[tempInt]!.origin
