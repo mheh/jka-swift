@@ -203,7 +203,7 @@ result_snap() {
 # `skeleton.py --signatures` writes the store alone and no file of the worktree.
 run_sigs() {
     cd "$CLOSURE" || return 2
-    for UNIT in mp-game mp-cgame mp-engine-ded; do
+    for UNIT in mp-game mp-cgame mp-ui mp-engine-ded; do
         echo "---- signatures $UNIT"
         .venv/bin/python skeleton.py --signatures --unit "$UNIT" || return 2
     done
