@@ -1201,7 +1201,9 @@ public func CheckForFunc(_ org: JKAShared.vec3_t, _ ignore: Int32) -> Int32 {
             return 0
         }
 
-        if strstr(fent!.classname!, "func_") != nil {
+        // Port-note: Raven gives a NULL class name to strstr here, which is undefined.
+        // An entity with no class name is no func brush.
+        if fent!.classname != nil && strstr(fent!.classname!, "func_") != nil {
             return 1 //there's a func brush here
         }
 
@@ -5915,7 +5917,7 @@ public func StandardBotAI(_ bs: BotState, _ thinktime: Float) {
                 }
             }
         } else if goalWPIndex >= 0 && goalWPIndex < MAX_WPARRAY_SIZE && gWPArray[goalWPIndex] != nil && gWPArray[goalWPIndex]!.inuse != 0 && !((gLevelFlags & LEVELFLAG_NOPOINTPREDICTION) != 0) {
-            // Raven reads the pointer before the table for a bot at waypoint 0, and the one past it at the last, which is undefined.
+            // Port-note: Raven reads the pointer before the table for a bot at waypoint 0, and the one past it at the last, which is undefined.
             // The two bounds above make an index outside the table no waypoint.
             a = gWPArray[goalWPIndex]!.origin - bs.origin
             vectoangles(a, &ang)
@@ -5954,7 +5956,7 @@ public func StandardBotAI(_ bs: BotState, _ thinktime: Float) {
                 desiredIndex = bs.wpCurrent!.index - 1
             }
 
-            // Raven tests the two bounds after the read, so a bot at waypoint 0 reads the pointer before the table, which is undefined.
+            // Port-note: Raven tests the two bounds after the read, so a bot at waypoint 0 reads the pointer before the table, which is undefined.
             // The two bounds come first here.
             if desiredIndex < gWPNum && desiredIndex >= 0 && gWPArray[desiredIndex] != nil && gWPArray[desiredIndex]!.inuse != 0 && PassWayCheck(bs, desiredIndex) != 0 {
                 bs.wpCurrent = gWPArray[desiredIndex]
@@ -6077,7 +6079,9 @@ public func StandardBotAI(_ bs: BotState, _ thinktime: Float) {
             headlevel = bs.currentEnemy!.client!.ps.origin
             headlevel[2] += bs.currentEnemy!.client!.ps.viewheight
         } else {
-            headlevel = bs.currentEnemy!.client!.ps.origin
+            // Port-note: Raven reads the origin through the client here, and the client is NULL on this branch, which is undefined.
+            // The origin of the entity is the defined read.
+            headlevel = bs.currentEnemy!.s.origin
         }
 
         if bs.frame_Enemy_Vis == 0 {
