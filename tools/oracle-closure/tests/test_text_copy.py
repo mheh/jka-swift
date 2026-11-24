@@ -10,7 +10,7 @@ HERE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE))
 
 import clang.cindex as ci  # noqa: E402
-from clang.cindex import CursorKind  # noqa: E402
+from clang.cindex import CursorKind, TypeKind  # noqa: E402
 
 from draft_classification import Classification  # noqa: E402
 from draft_expressions import Expressions  # noqa: E402
@@ -23,6 +23,10 @@ class Probe(Classification):
     unwrap = Expressions.unwrap
     strip = Expressions.strip
     unary_parts = Expressions.unary_parts
+
+    def is_charbuf(self, cur):
+        inner = self.unwrap(cur)
+        return inner.kind == CursorKind.DECL_REF_EXPR and inner.type.get_canonical().kind == TypeKind.CONSTANTARRAY
 
     def callee_returns(self, name, default=None):
         return {"COM_ParseExt": "String"}.get(name, default)
@@ -68,6 +72,22 @@ class TextCopy(unittest.TestCase):
         # then the rule gives nothing for either
         self.assertIsNone(self.probe(shape, {"token"}, {"token"}))
         self.assertIsNone(self.probe(addressed, {"token"}))
+
+    def test_a_copy_of_a_buffer_into_the_token_of_a_parse_call_is_a_new_value_of_the_local(self) -> None:
+        # given a token that holds the text of COM_ParseExt and takes the text of a `char word[8]` buffer
+        shape = 'void f(const char *buf) { char *token; char word[8]; token = COM_ParseExt(&buf, 0); if (!token[0]) { strcpy(token, word); } }'
+        found = self.probe(shape, {"token"})
+
+        # then the rule gives the local and the buffer
+        self.assertIsNotNone(found)
+        self.assertEqual([found[0].spelling, found[1].spelling], ["token", "word"])
+
+    def test_a_copy_of_a_char_pointer_parameter_keeps_the_call(self) -> None:
+        # given a token that takes the text of a `const char *` parameter, which is no buffer
+        shape = 'void f(const char *buf, const char *other) { char *token; token = COM_ParseExt(&buf, 0); strcpy(token, other); }'
+
+        # then the rule gives nothing
+        self.assertIsNone(self.probe(shape, {"token"}))
 
 
 if __name__ == "__main__":

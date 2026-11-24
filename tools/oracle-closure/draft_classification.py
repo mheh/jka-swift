@@ -343,8 +343,9 @@ class Classification:
         return "other"
 
     def text_copy(self, call: ci.Cursor) -> tuple[ci.Cursor, ci.Cursor] | None:
-        """Raven's `strcpy( token, "<NULL>" )` into a text local that holds the String of a call, as the local and the literal, or None.
+        """Raven's `strcpy( token, "<NULL>" )` or `strcpy( token, buf )` into a text local that holds the String of a call, as the local and the source, or None.
         Every store of the local is a call that returns a String, `COM_ParseExt`, so the local owns its text and the copy is a new value of it.
+        The source is a string literal or a `char name[N]` buffer, which crosses as the text that it holds.
         A local that also points at a field or a buffer, or whose address a call takes, keeps the call, because the copy writes that memory."""
         if self.callee_name(call) != "strcpy":
             return None
@@ -352,7 +353,7 @@ class Classification:
         if len(args) != 2:
             return None
         target, source = self.unwrap(args[0]), self.unwrap(args[1])
-        if target.kind != CursorKind.DECL_REF_EXPR or source.kind != CursorKind.STRING_LITERAL \
+        if target.kind != CursorKind.DECL_REF_EXPR or (source.kind != CursorKind.STRING_LITERAL and not self.is_charbuf(source)) \
                 or target.spelling not in self.text_locals or target.spelling in self.optional_texts:
             return None
         local = target.referenced

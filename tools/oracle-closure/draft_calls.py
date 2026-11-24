@@ -445,7 +445,7 @@ class Calls:
             raise Hole(f"Raven passes `{raven}` to `{callee}`, whose `{param[0]}` parameter takes one record, "
                        "and Swift holds the argument as the Slots over the records.")
         if inner.kind == CursorKind.DECL_REF_EXPR and inner.spelling in self.cursor_locals and not addressed \
-                and (param is None or param[1] in TEXT_TYPES or param[1].endswith("...")):
+                and self.takes_cursor_text(param):
             # Raven passes the cursor where the callee reads text, and the cursor's text is the bytes from it to the NUL.
             return f"{self.expr(inner)}.text"
         if param is not None and param[1] == "OpaquePointer?" and self.is_raw(inner):
@@ -589,6 +589,10 @@ class Calls:
         t = cur.type.get_canonical()
         return t.kind == TypeKind.POINTER and t.get_pointee().kind == TypeKind.FUNCTIONPROTO
 
+    def takes_cursor_text(self, param: tuple[str, str] | None) -> bool:
+        """True when a cursor argument crosses as its text: no parameter, a text parameter, a `String?` parameter, or a variadic one."""
+        return param is None or param[1] in TEXT_TYPES or param[1] == "String?" or param[1].endswith("...")
+
     def overload_takes(self, callee: str | None, position: int, swift: str) -> bool:
         """True when some Swift overload of the callee takes the named type at the position and every other text argument as it is.
         Swift picks one overload for the whole call, so an overload that takes this argument and rejects a later one is no match."""
@@ -605,12 +609,14 @@ class Calls:
 
     def overload_fits(self, params: list[tuple[str, str]], position: int) -> bool:
         """True when the overload takes every other text argument of the call as it is.
-        An argument the draft has no text kind for fits any overload, and so does a parameter that is not text."""
+        An argument the draft has no text kind for fits any overload, and so does a parameter that is not text. A String? parameter takes only a String argument."""
         for i, kind in self.call_kinds.items():
             if i == position or i >= len(params):
                 continue
             swift = self.param_type(params, i)
             if swift in TEXT_TYPES and swift != kind:
+                return False
+            if swift == "String?" and kind != "String":
                 return False
         return True
 
