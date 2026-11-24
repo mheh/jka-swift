@@ -328,6 +328,72 @@ jobs:
               run_id: context.runId,
             })
 
+  # The flow graph of the code: its symbols, what calls and uses what, and the steps of each function body.
+  # The job makes one clean debug build, because the snapshot is read from the index that the build writes, and a clean build gives the same index each time.
+  # The base of the comparison is the snapshot of the run before this one, which the published page still holds. The first run has no base.
+  # The image holds the flowgraph tool on the same Swift image as the other Linux jobs. It is private, so the job logs in to pull it.
+  # A failure of this job does not stop the run and does not hold the release back.
+  flowgraph:
+    name: Flow graph
+    runs-on: ubuntu-24.04
+    container:
+      image: mhehmsoth/swift-flowgraph:swift-6.4
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    steps:
+      - name: Install curl for the base snapshot
+        run: apt-get update -yq && apt-get install -y curl
+
+      - name: Check out the code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # The build names the product alone, as the other jobs do, because `jampsmoke` has no Linux build.
+      - name: Build for the index
+        run: swift build --product jampgame
+
+      - name: Write the snapshot and the page
+        shell: bash
+        run: |
+          site="https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}"
+          mkdir -p out
+          flowgraph site --out out
+          flowgraph snapshot . --sources Sources --out out/head.json
+          link="${site}/index.html?snapshot=head.json"
+          if curl -fsSL --retry 2 "${site}/head.json" -o out/base.json; then
+            link="${link}&base=base.json&view=diff"
+          else
+            rm -f out/base.json
+            echo "no earlier snapshot is published, so this page has no base"
+          fi
+          ls -l out
+          echo "Flow graph of ${GITHUB_SHA::7}: ${link}" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the page for GitHub Pages
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: out
+
+  pages:
+    name: Publish the flow graph
+    needs: [flowgraph]
+    if: ${{ github.ref == 'refs/heads/master' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      pages: write    # The job publishes the page.
+      id-token: write # GitHub Pages checks where the deployment comes from.
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+
   release:
     name: Update the rolling release
     needs: [build-linux, build-windows, build-linux-cgame, build-windows-cgame]
